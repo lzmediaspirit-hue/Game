@@ -10,6 +10,8 @@ Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no met
   data/topdown/proto_tileset.json  the manifest the room view reads: tiles, props, the paint table (which
                                    tops, faces and auto-tile sets each mark draws) and the auto-tile tables
 With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4, and into docs/redesign/terrain_v2/ the Terrain v2 tile sheet at x4 (art bible §14).
+With --review-sand-snow it renders decision 44's sand and snow sheet at x4 into docs/redesign/feedback/sand_snow/ (art
+bible "Sand and snow").
 The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
 
 Usage: python3 tools/art/topdown/build_tiles.py [--review] [--check]
@@ -49,25 +51,39 @@ REVIEW = ROOT / "docs/redesign/phase3"
 # Terrain v2 (art bible "Terrain v2") adds what the room view draws the mark with: `macro`, the material pattern its
 # base tile comes from (by the cell's place in it); `decals`, [set, share of cells] in order, picked by a hash of the
 # cell; `tone`, whether the sun and shade patches lie on it. `top` stays the mark's Phase 3 tiles (the TileSet's).
+# Decision 44 (art bible "Sand and snow") adds `a` sand, `n` fresh snow and `k` packed snow, and what creeps over what
+# on one level: `creep`, the material whose overlay a mark lays over its neighbours (sand, snow); `takes`, the materials
+# that may creep over it, in the order they are laid; `wet`, damp where it touches the water (the `wet` tint); `beach`,
+# the water by it shows the sand through its shallows. Grass creeps over sand as over a path (`under`); sand over dirt
+# and paving; packed snow over grass, dirt, paving, granite and rock with its own pixels; fresh snow over all of those
+# and over packed snow.
 PAINT = {
     "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["flowers", 0.05], ["grass", 0.5]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.05], ["grass", 0.5]], "tone": True, "takes": ["snowpack", "snow"]},
     "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["flowers", 0.72], ["grass", 0.2]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.72], ["grass", 0.2]], "tone": True, "takes": ["snowpack", "snow"]},
     "b": {"top": ["grass_flowers", "grass_d", "grass_a", "grass_flowers", "grass_c"], "face": "stone", "grass": True,
-          "macro": "grass", "decals": [["flowers", 0.8]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.8]], "tone": True, "takes": ["snowpack", "snow"]},
     "d": {"top": ["dirt", "dirt_b"], "face": "earth", "under": "grass_dirt",
-          "macro": "dirt", "decals": [["dirt", 0.45]], "tone": True},
+          "macro": "dirt", "decals": [["dirt", 0.45]], "tone": True, "takes": ["sand", "snowpack", "snow"]},
     "p": {"top": ["paving_a", "paving_b", "paving_a", "paving_c", "paving_b", "paving_a", "paving_d"], "face": "pave",
-          "under": "grass_paving", "macro": "pave", "decals": [["pave_hole", 0.012], ["pave", 0.3]]},
-    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone", "macro": "stone", "decals": [["stone", 0.2]]},
+          "under": "grass_paving", "macro": "pave", "decals": [["pave_hole", 0.012], ["pave", 0.3]],
+          "takes": ["sand", "snowpack", "snow"]},
+    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone", "macro": "stone", "decals": [["stone", 0.2]],
+          "takes": ["snowpack", "snow"]},
     "w": {"top": ["wood", "wood_b"], "face": "wood", "keep_face": True, "macro": "wood", "decals": [["wood", 0.05]]},
-    "r": {"top": ["rock", "rock_b"], "face": "rock", "macro": "rock", "decals": [["rock", 0.6]], "tone": True},
+    "r": {"top": ["rock", "rock_b"], "face": "rock", "macro": "rock", "decals": [["rock", 0.6]], "tone": True,
+          "takes": ["snowpack", "snow"]},
     "t": {"top": ["roof_top", "roof_top_b"], "face": "roof",
           "face_below": ["plaster_face_window", "roof_face", "roof_face"], "macro": "roof", "decals": [["roof", 0.06]]},
     "l": {"top": ["wall_top"], "face": "wall", "macro": "wall"},
     "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["marsh", 0.16], ["grass", 0.45]], "tone": True},
+          "macro": "grass", "decals": [["marsh", 0.16], ["grass", 0.45]], "tone": True, "takes": ["snowpack", "snow"]},
+    "a": {"top": ["sand_a", "sand_b", "sand_a", "sand_c"], "face": "sand", "keep_face": True, "under": "grass_sand",
+          "macro": "sand", "decals": [["sand", 0.3]], "tone": True, "creep": "sand", "wet": True, "beach": True},
+    "n": {"top": ["snow_a", "snow_b"], "face": "snow", "macro": "snow", "decals": [["snow", 0.2]], "creep": "snow"},
+    "k": {"top": ["snowpack_a", "snowpack_b"], "face": "snow", "macro": "snowpack", "decals": [["snowpack", 0.28]],
+          "creep": "snowpack", "takes": ["snow"]},
 }
 
 # Terrain sets of the TileSet (art bible §6).
@@ -99,6 +115,8 @@ def build_all() -> dict:
                            "when any cell sharing that corner on the same level is grass", "tiles": auto["grass_dirt"]},
             "grass_paving": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "as grass_dirt",
                              "tiles": auto["grass_paving"]},
+            "grass_sand": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "as grass_dirt (decision 44; "
+                           "not in the TileSet, whose terrain sets keep dirt and paving)", "tiles": auto["grass_sand"]},
             "shore": {"mode": "sides", "key": "bit 1 N, 2 E, 4 S, 8 W = the neighbour is not water",
                       "frame_ms": 250, "tiles": auto["shore"]},
         },
@@ -327,6 +345,105 @@ def review_v2(sheet, man: dict, font, head) -> None:
     out.save(path / "10_tile_sheet_x4.png")
 
 
+def review_sand_snow(outputs: dict) -> None:
+    """Decision 44's sheet at x4 (docs/redesign/feedback/sand_snow/11_tile_sheet_x4.png): the sand, fresh and packed
+    snow patterns whole; their faces (the first row, then the two body rows); the decals on their ground; sand over a
+    path and paving, grass over sand, snow over the meadow, granite, paving, rock and packed snow, and packed snow over
+    the meadow and rock, in a few corner cases as the room view lays them (the ground's own pattern under the positional overlay); the damp tint on
+    the sand by the water; the sandy shore in its four frames beside the river's own."""
+    from PIL import ImageDraw, ImageFont
+    sheet = Image.open(io.BytesIO(outputs[TILES_PNG])).convert("RGBA")
+    man = json.loads(outputs[MANIFEST])
+    v2, tiles = man["v2"], man["tiles"]
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+    except OSError:
+        font = ImageFont.load_default()
+    z = 4
+
+    def crop(name: str) -> Image.Image:
+        r = tiles[name]
+        return sheet.crop((r[0], r[1], r[0] + r[2], r[1] + r[3]))
+
+    def grid(layers: list, w: int) -> Image.Image:
+        """Cells laid w to a row, each a stack of layers ([name] or [name, rgba tint])."""
+        h = (len(layers) + w - 1) // w
+        img = Image.new("RGBA", (w * T, h * T), (0, 0, 0, 0))
+        for i, stack in enumerate(layers):
+            for layer in stack:
+                layer = [layer] if isinstance(layer, str) else layer
+                t = crop(layer[0])
+                if len(layer) > 1:
+                    col = layer[1]
+                    t = Image.composite(Image.new("RGBA", t.size, tuple(round(c * 255) for c in col[:3]) + (255,)),
+                                        Image.new("RGBA", t.size, (0, 0, 0, 0)), t)
+                    t.putalpha(t.getchannel("A").point(lambda a, k=col[3]: round(a * k)))
+                img.alpha_composite(t, ((i % w) * T, (i // w) * T))
+        return img
+
+    m = v2["macro"]
+    cases = ["1010", "1100", "1000"]
+    sections = []
+    sections.append(("Patterns: sand, fresh snow, packed snow (each 4 x 4 tiles, periodic)",
+                     [grid([[n] for n in m[k]["tiles"]], 4) for k in ("sand", "snow", "snowpack")]))
+    sections.append(("Faces: the sand's beach and bank; the snow's lip over the karst cliff (first row, then the body rows)",
+                     [grid([[n] for n in v2["faces"][k]["top"] + v2["faces"][k]["body"]], 4) for k in ("sand", "snow")]))
+    sections.append(("Decals on their ground: " + ", ".join(("sand", "snow", "snowpack")),
+                     [grid([[[m[k]["tiles"][i % 16]], [n]] for i, n in enumerate(v2["decals"][k])], len(v2["decals"][k]))
+                      for k in ("sand", "snow", "snowpack")]))
+
+    def over(ground: str, kind: str, key: str) -> Image.Image:
+        """A 4 x 4 block of `ground` under the overlay of `kind` ('grass' or a creeping material) for a corner case."""
+        base = m[ground]["tiles"] if ground != "pave" else [m["pave"]["tiles"][(k // 4) * 8 + k % 4] for k in range(16)]
+        names = v2["over"][key] if kind == "grass" else v2["creep"][kind][key]
+        return grid([[[base[k]], [names[k]]] for k in range(16)], 4)
+
+    sections.append(("Sand creeping over a path and over paving; grass over sand (corner cases " + ", ".join(cases) + ")",
+                     [over("dirt", "sand", c) for c in cases] + [over("pave", "sand", c) for c in cases[:1]]
+                     + [over("sand", "grass", c) for c in cases]))
+    sections.append(("Snow creeping over the meadow, granite, paving, rock and packed snow; packed snow over the meadow and rock",
+                     [over("grass", "snow", c) for c in cases] + [over(g, "snow", "1010") for g in ("stone", "pave", "rock", "snowpack")]
+                     + [over("grass", "snowpack", "1010"), over("rock", "snowpack", "1100")]))
+    wet = v2["tint"]["wet"]
+    sections.append(("The damp sand by the water (corner cases 0011, 0001, 1111 of the wet tint over the sand)",
+                     [grid([[[m["sand"]["tiles"][k]], [v2["tint_mask"][c][k], wet]] for k in range(16)], 4) for c in ("0011", "0001", "1111")]))
+    w0 = v2["water"]["macro"]["frames"]
+    sections.append(("The shore by sand in its four frames (land to the north, the west, the south) beside the river's own (north)",
+                     [grid([[[w0[f][5]], [v2["water"]["beach"][s][f]]] for f in range(4)], 4) for s in ("01", "08", "04")]
+                     + [grid([[[w0[f][5]], [v2["water"]["shore"]["01"][f]]] for f in range(4)], 4)]))
+    width, pad = 1800, 12
+    rows = []
+    for title, imgs in sections:
+        line, x, lh, placed = [], pad, 0, []
+        for im in imgs:
+            w, h = im.width * z, im.height * z
+            if x + w > width - pad and line:
+                placed.append((line, lh))
+                line, x, lh = [], pad, 0
+            line.append((im, x))
+            x += w + pad
+            lh = max(lh, h)
+        placed.append((line, lh))
+        rows.append((title, placed))
+    height = pad + sum(26 + sum(lh + pad for _, lh in placed) for _, placed in rows)
+    out = Image.new("RGBA", (width, height), (22, 30, 34, 255))
+    d = ImageDraw.Draw(out)
+    y = pad
+    for title, placed in rows:
+        d.text((pad, y), title, font=font, fill=(232, 225, 207, 255))
+        y += 26
+        for line, lh in placed:
+            for im, x in line:
+                bg = Image.new("RGBA", im.size, (128, 128, 128, 255))
+                bg.alpha_composite(im)
+                out.alpha_composite(bg.resize((im.width * z, im.height * z), Image.NEAREST), (x, y))
+            y += lh + pad
+    path = ROOT / "docs/redesign/feedback/sand_snow"
+    path.mkdir(parents=True, exist_ok=True)
+    out.save(path / "11_tile_sheet_x4.png")
+    print("sand and snow sheet in", (path / "11_tile_sheet_x4.png").relative_to(ROOT))
+
+
 def main(argv: list[str]) -> int:
     outputs = build_all()
     if "--check" in argv:
@@ -343,6 +460,8 @@ def main(argv: list[str]) -> int:
         print("%-34s %8d bytes  sha1 %s" % (path, len(data), hashlib.sha1(data).hexdigest()[:12]))
     if "--review" in argv:
         review(outputs)
+    if "--review-sand-snow" in argv:
+        review_sand_snow(outputs)
     return 0
 
 

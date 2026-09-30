@@ -75,11 +75,12 @@ HITS = {
 
 # ------------------------------------------------------------------ steps
 # The tile set's paint marks (data/topdown/proto_tileset.json `paint`) onto surfaces; a prop's standable top by its
-# kind; water cells (level -1) wade. Marks and props not listed step as `default`. `sand` and `snow` wait for their
-# tiles (their sounds exist; a mark named for them picks them up here).
+# kind; water cells (level -1) wade. Marks and props not listed step as `default`. Decision 44 paints `a` sand and `n`
+# fresh and `k` packed snow on the river banks and the high crags (tests/audio_tests.gd: every mark steps on a surface
+# with its sounds, and every such surface is heard in a room).
 SURFACES = ["grass", "dirt", "stone", "wood", "sand", "water", "reeds", "roof", "snow"]
 PAINT_SURFACE = {"g": "grass", "f": "grass", "b": "grass", "m": "reeds", "d": "dirt", "p": "stone", "s": "stone",
-                 "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow"}
+                 "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow", "k": "snow"}
 PROP_TOP_SURFACE = {"crates": "wood", "house": "roof", "hall": "roof", "storehouse": "roof", "boat": "wood"}
 # The side view's ground materials (rooms' `ground.material`), for a room drawn without a height grid.
 MATERIAL_SURFACE = {"earth": "dirt", "stone": "stone", "wood": "wood", "sand": "sand", "snow": "snow", "grass": "grass",

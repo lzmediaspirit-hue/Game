@@ -41,6 +41,7 @@ func _main() -> void:
 	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
 	if "--life" in OS.get_cmdline_user_args(): saves = "user://life_capture_saves/"
 	if "--work-poses" in OS.get_cmdline_user_args(): saves = "user://work_poses_capture_saves/"
+	if "--sand-snow" in OS.get_cmdline_user_args(): saves = "user://sand_snow_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT))
@@ -74,6 +75,9 @@ func _main() -> void:
 		return
 	if "--work-poses" in OS.get_cmdline_user_args():
 		await work_poses()
+		return
+	if "--sand-snow" in OS.get_cmdline_user_args():
+		await sand_snow()
 		return
 	if "--tutorial-foes" in OS.get_cmdline_user_args():
 		await tutorial_foes()
@@ -1169,6 +1173,140 @@ func terrain_v2() -> void:
 	print("topdown_capture: terrain views done")
 	get_tree().quit()
 
+## Decision 44 (`-- --sand-snow --sand-snow-tag=<before|after>`): the sand and snow ground, into
+## docs/redesign/feedback/sand_snow/<tag>/: every room they are painted in whole at 1 art px (rooms/), a view of each at
+## x2 with the body standing on the new ground, and x4 close-ups of its transitions (closeups/). The after set adds the
+## sampler (every transition side by side on a room of its own) and, with the before set there, the pairs (pairs/).
+## Each view: [name, room, the body's cell, close-ups [cell x, cell y, level]].
+const SAND_SNOW_VIEWS := [
+	["01_lotus_ferry_bank", "lf_village", Vector2(12, 31), [[14, 32, 0], [23, 32, 0]]],
+	["02_lotus_ferry_shore", "lf_village", Vector2(53, 31), [[56, 33, 0], [64, 32, 0]]],
+	["03_reed_shallows_beach", "lf_reed_shallows", Vector2(38, 19), [[44, 21, 0], [27, 21, 0]]],
+	["04_marsh_edge_spits", "rm_marsh_edge", Vector2(12, 21), [[12, 23, 0], [42, 22, 0]]],
+	["05_willow_path_east_stream", "wp_east", Vector2(18, 18), [[18, 20, 0]]],
+	["06_willow_path_west_pond", "wp_west", Vector2(22, 23), [[22, 24, 0]]],
+	["07_elder_hu_peak", "ja_elder_hu_peak", Vector2(22, 10), [[22, 5, 3], [1, 6, 3]]],
+	["08_cliff_stair_ledge", "cm_cliff_stair", Vector2(42, 10), [[48, 6, 4], [52, 8, 5]]],
+	["09_elder_sung_peak", "cm_elder_sung_peak", Vector2(30, 12), [[37, 8, 4], [31, 4, 3]]],
+]
+
+func sand_snow() -> void:
+	var tag := "after"
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--sand-snow-tag="): tag = str(a).trim_prefix("--sand-snow-tag=")
+	var root := "res://docs/redesign/feedback/sand_snow/"
+	var out := root + tag + "/"
+	for d in ["rooms/", "closeups/"]: DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out + d))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(root + "pairs/"))
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)   # a new game's first notices come and go before the first shot
+	var rooms := []
+	for s in SAND_SNOW_VIEWS:
+		Game.world.load_room(Game.active(), str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 90)
+		(await world_shot()).save_png(out + str(s[0]) + ".png")
+		var k := 0
+		for c in s[3]:
+			k += 1
+			await closeup(out + "closeups/%s_%d.png" % [str(s[0]), k], Vector2((float(c[0]) + 0.5) * 16.0, (float(c[1]) + 0.5 - float(c[2])) * 16.0))
+		if not str(s[1]) in rooms:
+			rooms.append(str(s[1]))
+			await whole_room(out + "rooms/" + str(s[1]) + ".png")
+	if tag == "after": await sand_snow_sampler(out)
+	# With both sets taken, each view's before and after side by side.
+	for s in SAND_SNOW_VIEWS:
+		var names: Array = [str(s[0])]
+		for k in range(1, (s[3] as Array).size() + 1): names.append("closeups/%s_%d" % [str(s[0]), k])
+		for n in names:
+			var b := root + "before/" + str(n) + ".png"
+			var a := root + "after/" + str(n) + ".png"
+			if not (FileAccess.file_exists(b) and FileAccess.file_exists(a)): continue
+			await panels(root + "pairs/" + str(n).get_file() + "_before_after.png", [["Before", Image.load_from_file(ProjectSettings.globalize_path(b))],
+				["After: sand and snow", Image.load_from_file(ProjectSettings.globalize_path(a))]], 2)
+	print("topdown_capture: sand and snow done")
+	get_tree().quit()
+
+## A close-up x4 of the world viewport round `at` (art px on the screen plane: a cell's ground point lifted by its
+## level), a quarter of the view (320 x 180 art px), so one art px is four px.
+func closeup(path: String, at: Vector2) -> void:
+	await RenderingServer.frame_post_draw
+	var img: Image = w.viewport.get_texture().get_image()
+	var c: Vector2 = w.viewport.get_canvas_transform() * at
+	var r := Rect2i(Vector2i(clampi(int(c.x) - 160, 0, img.get_width() - 320), clampi(int(c.y) - 90, 0, img.get_height() - 180)), Vector2i(320, 180))
+	var crop := img.get_region(r)
+	crop.resize(1280, 720, Image.INTERPOLATE_NEAREST)
+	crop.save_png(path)
+
+## The sampler: every sand and snow transition on a room of its own, 40 x 22 cells (the phone's view), drawn by the
+## game's own room view. West: meadow, a dirt path and a paved corner round a sand flat, its beach on the water and a
+## jetty. East: a snow field on the meadow with a packed-snow path through it, granite and paving at its edges, and a
+## rock shelf two levels up under snow on its east half, its face capped by the snow's lip. Whole at x2, and each
+## quarter x4.
+const SAMPLER_PAINT := [
+	"gggggggddggggggggggggrrrrrrrrrrrrrrrrrrr",
+	"gggggggddgggggpppppggrrrrrrrnnnnnnnnnnnn",
+	"gggggggddgggggpppppggrrrrrrnnnnnnnnnnnnn",
+	"gggggggddggggapppppggrrrrrrrnnnnnnnnnnnn",
+	"ggggggaddaagaaapppgggggggggggggggggggggg",
+	"ggggaaaddaaaaaaappggggggggggggggggkkgggg",
+	"gggaaaaaaaaaaaaaaggggggnnnnnnnnnnkkngggg",
+	"ggaaaaaaaaaaaaaaaaggggnnnnnnnnnnnkknnggg",
+	"ggaaaaaaaaaaaaaaaggggnnnnnnnnnnnnkknnggg",
+	"gggaaaaaaaaaaaaaggggnnnnnnnnnnnnkknnnggg",
+	"ggggaaaaaaaaaaaggggnnnnnnnnnnnnnkknnnggg",
+	"gggggaaaaaaaaagggggnnnnnnnnnnnnkknnnnggg",
+	"ggggaaaaaaaaaaagggggnnnnnnnnnnnkknnnssss",
+	"gggaaaaaaaaaaaaagggppnnnnnnnnnkknnnnssss",
+	"aaaaaaaaaaaaaaaaaaaapppnnnnnnkknnnnnssss",
+	"aaaaaaaaaaaaaaaaaaaapppppnnnkknnnnggssss",
+	"aaaaaaaaaaaawwaaaaaapppppggkkgggggggssss",
+	"~~~~~~~~~~~~ww~~~~~~pppppgkkggggggggggss",
+	"~~~~~~~~~~~~ww~~~~~~ppppgkkggggggggggggg",
+	"~~~~~~~~~~~~~~~~~~~~pppgkkgggggggggggggg",
+	"~~~~~~~~~~~~~~~~~~~~pppgkkgggggggggggggg",
+	"~~~~~~~~~~~~~~~~~~~~ppggkkgggggggggggggg",
+]
+
+func sand_snow_sampler(out: String) -> void:
+	var levels: Array = []
+	for y in SAMPLER_PAINT.size():
+		var row := ""
+		for x in str(SAMPLER_PAINT[y]).length():
+			var ch := str(SAMPLER_PAINT[y])[x]
+			row += "~" if ch == "~" else ("2" if y < 4 and x >= 21 else "0")
+		levels.append(row)
+	var d := {"id": "td_sand_snow_sampler", "name": "Sand and snow", "levels": levels, "paint": SAMPLER_PAINT, "stairs": [],
+		"props": [{"kind": "reeds", "x": 5, "y": 16}, {"kind": "pine", "x": 38, "y": 9}, {"kind": "boulder", "x": 30, "y": 16}],
+		"spawn": [9, 12]}
+	var ts = JSON.parse_string(FileAccess.get_file_as_string(TopdownRoom.DIR + "proto_tileset.json"))
+	var was: String = Game.active_id
+	Game.active_id = ""
+	main.hud.visible = false
+	main.world.visible = false
+	var v := TopdownWorld.new()
+	v.preset = TopdownRoom.from_dict(d, ts)
+	add_child(v)
+	await frames(2)
+	w = v
+	v.set_process(false)
+	v.camera.position = v.room.art_size() * 0.5 - Vector2(0, 8)
+	for f in 30: await frames(1)
+	(await world_shot()).save_png(out + "10_sampler.png")
+	var k := 0
+	for q in [Vector2(10, 5), Vector2(10, 16), Vector2(30, 3), Vector2(30, 14)]:
+		k += 1
+		await closeup(out + "closeups/10_sampler_%d.png" % k, (q + Vector2(0.5, 0.5)) * 16.0)
+	v.queue_free()
+	await frames(2)
+	Game.active_id = was
+	main.world.visible = true
+	main.hud.visible = true
+
 ## A new top-down character's game (the title's hidden entry), once the pages' scripts have compiled on their loading
 ## threads from the title screen on (main._warm_pages), where a player spends those seconds: a villager's outfit sheets
 ## queue behind them, so the capture waits for them as the title would.
@@ -1851,12 +1989,18 @@ func monsters() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--monsters-tag="): tag = a.substr(15)
 	var out := "res://docs/redesign/feedback/monsters/%s/" % tag
+	if "--monsters-polish" in OS.get_cmdline_user_args(): out = "res://docs/redesign/feedback/monsters/polish/%s/" % tag
 	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
 	main.process_mode = Node.PROCESS_MODE_PAUSABLE
 	await _topdown_game(out)
 	await frames(360)
 	var c = Game.active()
 	get_tree().physics_frame.connect(func(): if Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	if "--monsters-polish" in OS.get_cmdline_user_args():
+		await monsters_polish(out)
+		print("topdown_capture: monsters polish done")
+		get_tree().quit()
+		return
 	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	GameEvents.flush()
 	await frames(10)
@@ -1928,6 +2072,57 @@ func monsters() -> void:
 		crop.save_png(ProjectSettings.globalize_path(out + str(s[0]) + "_x4.png"))
 	print("topdown_capture: monsters done")
 	get_tree().quit()
+
+## Decision 44's foe polish (`-- --monsters --monsters-polish --monsters-tag=<before|after>`, into
+## docs/redesign/feedback/monsters/polish/<tag>/): the four-legged foes (both boarlets and an elite, the rat, the otter,
+## the toad and the crab) and the marsh leech and its elite staged round the player on the Reed Shallows' flats and held
+## still, the world alone at x2 and the lineup at x4: facing the camera (S) idle, mid-stride, in the tell and on the hit
+## (12-15), walking away (N) idle, mid-stride and in the tell (16-18), and three quarters (SE) idle and in the tell
+## (19-20); then leeches looping on the bank beside a leech and an elite swimming in the river (21).
+const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed_boarlet", Vector2(-1.5, -2.2), false],
+	["wild_boarlet", Vector2(1.5, -2.2), true], ["reedtail_rat", Vector2(4.5, -2.2), false],
+	["reed_otter", Vector2(-4.5, 1.0), false], ["mossback_toad", Vector2(-1.5, 1.0), false], ["mudshell_crab", Vector2(1.5, 1.0), false],
+	["marsh_leech", Vector2(3.4, 1.0), false], ["marsh_leech", Vector2(5.2, 1.0), true]]
+
+func monsters_polish(out: String) -> void:
+	var c = Game.active()
+	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(MONSTER_SPOT, 90)
+	main.hud.visible = false
+	var foes := await _monster_stage(POLISH_LINEUP)
+	for st in [["12_head_on", "idle", 0, Vector2.DOWN], ["13_head_on_walk", "walk", 2, Vector2.DOWN],
+			["14_head_on_tells", "windup", -1, Vector2.DOWN], ["15_head_on_strikes", "attack", 1, Vector2.DOWN],
+			["16_tail_on", "idle", 0, Vector2.UP], ["17_tail_on_walk", "walk", 2, Vector2.UP], ["18_tail_on_tells", "windup", -1, Vector2.UP],
+			["19_three_quarter", "idle", 0, Vector2(1, 1)], ["20_three_quarter_tells", "windup", -1, Vector2(1, 1)]]:
+		for e in foes: _pose_foe(e, str(st[1]), st[3], int(st[2]))
+		await _monster_shot(str(st[0]), out)
+	# Leeches on the bank (looping, drawn up and stretched out) and in the river (swimming), the player between them.
+	get_tree().paused = false
+	var bank := MONSTER_SPOT + Vector2(0, 4.9)
+	var leeches: Array = await _monster_stage([["marsh_leech", Vector2(-4.4, 4.6), false], ["marsh_leech", Vector2(-2.2, 5.0), false]])
+	m.place((bank + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	w._settle_camera()
+	get_tree().paused = false
+	var river: Array = []
+	for k in 2:
+		river.append((MONSTER_SPOT + Vector2(1.6 + k * 2.6, 6.0 + k * 0.35) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		var e: EnemyState = Game.enemies.spawn_at("marsh_leech", river[k], 1, {"elite": k == 1})
+		e.ai.state = "idle"
+		e.ai.timer = 99.0
+		leeches.append(e)
+	await frames(20)
+	get_tree().paused = true
+	for k in 2:   # held in the water (a body at the bank is walked back out of it while the game runs)
+		leeches[2 + k].plane = river[k]
+		leeches[2 + k].altitude = w.room.height_at(river[k])
+	_pose_foe(leeches[0], "walk", Vector2(1, 0), 0)
+	_pose_foe(leeches[1], "walk", Vector2(1, 0), 4)
+	_pose_foe(leeches[2], "swim", Vector2(1, 0), 2)
+	_pose_foe(leeches[3], "swim", Vector2(-1, 0), 5)
+	await _monster_shot("21_leech_bank_and_river", out)
+	get_tree().paused = false
 
 ## The lineup ([def, offset in cells, elite]) set round the player on the room's floor, the room's own foes and people
 ## cleared, each doing nothing until it is posed; the game is then held still.

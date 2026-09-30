@@ -7,7 +7,8 @@ extends Node
 ##   2. the buses exist under Master with its high-pass and limiter, and each Settings slider (All sound too) drives
 ##      its bus;
 ##   3. footsteps pick by surface (the tile set's marks, a prop's top, water), land on the walk and run cycles'
-##      contact frames, and a sprint in the prototype room steps on its own surface at the run's cadence;
+##      contact frames, and a sprint in the prototype room steps on its own surface at the run's cadence; every mark
+##      steps on a surface with its sounds, and every such surface (sand and snow too, decision 44) is heard in a room;
 ##   4. the layered hit: the weapon's transient and the struck body at once, the tail after the hit-stop, a crit's
 ##      accent, blows landing together merged;
 ##   5. the fight music: foes that stay calm or fight out of reach bring nothing; foes turning on the player bring the
@@ -173,11 +174,11 @@ func _buses() -> void:
 # ------------------------------------------------------------------ 3. footsteps
 func _surfaces() -> void:
 	var ts = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/proto_tileset.json"))
-	var d := {"id": "case", "levels": ["0000000", "0000000", "00~~000", "0000000"], "paint": ["gdpwmrs", "ggggggg", "gg..ggg", "ggggggg"],
+	var d := {"id": "case", "levels": ["0000000000", "0000000000", "00~~000000", "0000000000"], "paint": ["gdpwmrsank", "gggggggggg", "gg..gggggg", "gggggggggg"],
 		"spawn": [0, 3], "props": [{"kind": "crates", "x": 4, "y": 3}]}
 	var r := TopdownRoom.from_dict(d, ts)
 	var want := {Vector2i(0, 0): "grass", Vector2i(1, 0): "dirt", Vector2i(2, 0): "stone", Vector2i(3, 0): "wood", Vector2i(4, 0): "reeds",
-		Vector2i(5, 0): "stone", Vector2i(6, 0): "stone", Vector2i(2, 2): "water"}
+		Vector2i(5, 0): "stone", Vector2i(6, 0): "stone", Vector2i(7, 0): "sand", Vector2i(8, 0): "snow", Vector2i(9, 0): "snow", Vector2i(2, 2): "water"}
 	var got := {}
 	var ok := true
 	for c in want:
@@ -185,7 +186,26 @@ func _surfaces() -> void:
 		got[c] = s
 		ok = ok and s == want[c]
 	var crate := SoundBank.surface_at(r, (Vector2(4.5, 3.5)) * TopdownRoom.TILE, TopdownRoom.LEVEL)
-	check(ok and crate == "wood", "a step picks its surface: grass, dirt, paving, planks, reeds, rock and stone by their marks, water, a crate's top (%s, crate %s)" % [got, crate])
+	check(ok and crate == "wood", "a step picks its surface: grass, dirt, paving, planks, reeds, rock, stone, sand and snow (fresh and packed) by their marks, water, a crate's top (%s, crate %s)" % [got, crate])
+	# Decision 44: every mark of the tile set steps on a surface that has its sounds, and every surface with sounds is
+	# heard somewhere: a cell of a top-down room of the world stands on it (its mark, its water or a prop's top).
+	var surfaces: Dictionary = SoundBank.section("steps").get("surfaces", {})
+	var marks: Dictionary = SoundBank.section("steps").get("paint", {})
+	var unmapped: Array = (ts.get("paint", {}) as Dictionary).keys().filter(func(m): return not surfaces.has(str(marks.get(m, ""))))
+	var heard := {}
+	for f in DirAccess.get_files_at("res://data/topdown/"):
+		var rid := f.get_basename()
+		if not f.ends_with(".json") or not TopdownRoom.has_layout(rid): continue
+		var lay = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/" + f))
+		if not (lay is Dictionary and lay.get("levels") is Array): continue   # the tile set, decor and life files
+		var room := TopdownRoom.load_room(rid)
+		for y in room.h:
+			for x in room.w:
+				if room.level(x, y) == TopdownRoom.SOLID: continue
+				heard[SoundBank.surface_at(room, (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)] = true
+	var unheard: Array = surfaces.keys().filter(func(s): return not heard.has(s))
+	check(unmapped.is_empty() and unheard.is_empty() and heard.has("sand") and heard.has("snow"),
+		"every mark steps on a surface with its sounds, and every such surface is heard in a room (unmapped %s, unheard %s)" % [unmapped, unheard])
 	var roof := {"id": "roof", "levels": ["00000000", "00000000", "00000000", "00000000"], "paint": ["gggggggg", "gggggggg", "gggggggg", "gggggggg"],
 		"spawn": [0, 3], "props": [{"kind": "house", "x": 0, "y": 0}]}
 	var rr := TopdownRoom.from_dict(roof, ts)

@@ -15,6 +15,7 @@ the shore overlays in four frames, the inner-corner foam, the pilings' ripples a
 """
 from __future__ import annotations
 
+import sand_snow as ss
 import terrain2 as t2
 import tiles as tl
 from canvas import T, Img
@@ -35,6 +36,9 @@ TOPS = [
     ("wall_top", lambda: tl.wall_top(8)),
     ("stairs", tl.stairs),
     ("marsh_a", lambda: tl.grass(33, "marsh")), ("marsh_b", lambda: tl.grass(34, "marsh")),
+    ("sand_a", lambda: tl.sand(1)), ("sand_b", lambda: tl.sand(3)), ("sand_c", lambda: tl.sand(5)),
+    ("snow_a", lambda: tl.snow(1)), ("snow_b", lambda: tl.snow(2)), ("snowpack_a", lambda: tl.snow(1, True)),
+    ("snowpack_b", lambda: tl.snow(3, True)),
 ]
 
 FACES = [
@@ -47,13 +51,19 @@ FACES = [
     ("plaster_face_window", lambda: tl.plaster_face(17, "window")), ("plaster_face_door", lambda: tl.plaster_face(18, "door")),
     ("wall_face_top", lambda: tl.wall_face(19, True)), ("wall_face", lambda: tl.wall_face(19, False)),
     ("pave_face_top", lambda: tl.stone_face(20, True, t2.PAVE2)), ("pave_face", lambda: tl.stone_face(20, False, t2.PAVE2)),
+    ("sand_face_top", lambda: tl.face_set("sand")[0][0]), ("sand_face", lambda: tl.face_set("sand")[1][0]),
+    ("snow_face_top", lambda: tl.face_set("snow")[0][0]), ("snow_face", lambda: tl.face_set("snow")[1][0]),
 ]
 
 OVERLAYS = ["rim_w", "rim_e", "rim_n", "ao_n", "shade_w", "end_w", "end_e", "cheek_w", "cheek_e"]
 
 # Terrain v2: the materials with a macro pattern, the face kinds with a face pattern, the decal sets.
-MACROS = ["grass", "dirt", "stone", "rock", "wood", "roof", "pave", "wall"]
-FACE_KINDS = ["rock", "earth", "stone", "pave", "bank", "wood", "wall"]
+MACROS = ["grass", "dirt", "stone", "rock", "wood", "roof", "pave", "wall", "sand", "snow", "snowpack"]
+FACE_KINDS = ["rock", "earth", "stone", "pave", "bank", "wood", "wall", "sand", "snow"]
+# Decision 44: the materials that creep over their neighbours on the same level with overlays of their own (grass has
+# the Phase 3 set, `over`).
+CREEP = ["sand", "snow", "snowpack"]
+FACE_JOINS = ["earth", "sand", "snow"]   # the faces that run into a neighbour's where their tops creep over it
 
 
 class Packer:
@@ -93,7 +103,7 @@ def build() -> tuple[Img, dict, dict, dict]:
     for k, name in enumerate(OVERLAYS):
         place(name, tl.overlay(name), 5 + k, 2)
     dirt0, pave0 = tl.macro("dirt")[0][0], tl.macro("pave")[0][0]
-    auto = {"grass_dirt": {}, "grass_paving": {}, "shore": {}}
+    auto = {"grass_dirt": {}, "grass_paving": {}, "grass_sand": {}, "shore": {}}
     for k, corners in enumerate(tl.CORNER_KEYS):
         key = tl.corner_name(corners)
         name = "grass_dirt_" + key
@@ -146,6 +156,19 @@ def build() -> tuple[Img, dict, dict, dict]:
             place(name, img, x0 + i % t2.M, y0 + 1 + i // t2.M)
             body_names.append(name)
         v2["faces"][kind] = {"top": top_names, "body": body_names}
+    # Decision 44: a face's first row running into its neighbour's where the neighbour's top creeps over it (the grassy
+    # bank into a beach, a beach into the embankment, the snow's lip into the bare rock's), per side and column.
+    v2["face_end"] = {}
+    for kind in FACE_JOINS:
+        tops, _ = tl.face_set(kind)
+        x0, y0 = pk.block(8, 1)
+        ends = {"w": [], "e": []}
+        for si, side in enumerate(("w", "e")):
+            for c in range(t2.M):
+                name = "%s_join_%s%d" % (kind, side, c)
+                place(name, ss.face_join(tops[c], side, c), x0 + si * t2.M + c, y0)
+                ends[side].append(name)
+        v2["face_end"][kind] = ends
     for corners in tl.CORNER_KEYS:
         if corners in ((0, 0, 0, 0), (1, 1, 1, 1)):
             continue
@@ -170,7 +193,31 @@ def build() -> tuple[Img, dict, dict, dict]:
                 place(name, t2.tint_mask(corners, (px, py)), x0 + px, y0 + py)
                 names.append(name)
         v2["tint_mask"][key] = names
-    v2["tint"] = t2.TINTS
+    v2["tint"] = {**t2.TINTS, "wet": ss.WET_TINT}
+    # Decision 44: sand and snow creeping over their neighbours, per corner case and place (as `over`); grass over
+    # sand for the Phase 3 contract's top(), as grass over dirt and paving (the TileSet keeps those two only).
+    v2["creep"] = {}
+    for kind in CREEP:
+        v2["creep"][kind] = {}
+        for corners in tl.CORNER_KEYS:
+            if corners in ((0, 0, 0, 0), (1, 1, 1, 1)):
+                continue
+            key = tl.corner_name(corners)
+            x0, y0 = pk.block(t2.M, t2.M)
+            names = []
+            for py in range(t2.M):
+                for px in range(t2.M):
+                    name = "%s_over_%s_%d%d" % (kind, key, px, py)
+                    place(name, tl.creep_over(kind, corners, (px, py)), x0 + px, y0 + py)
+                    names.append(name)
+            v2["creep"][kind][key] = names
+    sand0 = tl.macro("sand")[0][0]
+    x0, y0 = pk.block(16, 1)
+    for k, corners in enumerate(tl.CORNER_KEYS):
+        key = tl.corner_name(corners)
+        name = "grass_sand_" + key
+        place(name, tl.blend_corners(sand0, corners), x0 + k, y0)
+        auto["grass_sand"][key] = name
     for kind, imgs in tl.decal_sets().items():
         x0, y0 = pk.block(len(imgs), 1)
         names = []
@@ -189,6 +236,16 @@ def build() -> tuple[Img, dict, dict, dict]:
             names.append(name)
         shore["%02d" % sides] = names
     v2["water"]["shore"] = shore
+    beach = {}
+    for sides in range(1, 16):
+        x0, y0 = pk.block(4, 1)
+        names = []
+        for f in range(4):
+            name = "beachfx_%02d_%d" % (sides, f)
+            place(name, tl.beach_overlay(sides, f), x0 + f, y0)
+            names.append(name)
+        beach["%02d" % sides] = names
+    v2["water"]["beach"] = beach
     corners = {}
     for c in ("ne", "nw", "se", "sw"):
         x0, y0 = pk.block(4, 1)

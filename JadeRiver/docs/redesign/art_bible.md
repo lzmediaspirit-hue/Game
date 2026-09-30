@@ -266,8 +266,11 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
     head over the shoulders), the pixel behind its edge takes the nearer part's core shadow. A foe is one cast, not
     bands, so the line is found by depth.
   Patterns are painted in the creature's own frame, so they stay on the body as it rolls over: the boarlet's stripes,
-  the crab's pale patches and pale underside, the snapper's plates and moss, the toad's warts, the leech's rings, the
-  minnow's scales. Eyes, nostrils, tusks' glints and teeth are marks on the surface where it shows. Loose drops, dust,
+  the crab's pale patches and pale underside, the snapper's plates and moss, the toad's warts, the leech's rings (by
+  the length along it, so they follow it as it loops and rears), the minnow's scales. A wet skin (the leech's) takes a
+  sheen (decision 44, `Part.sheen`): where its surface turns half-way between the §14 sun and the camera it steps up
+  to the bright step, and at the glint to the highlight, so each ring catches its own glint, and its ramp is lit late
+  (its back sits on the light step) so the sheen is what reaches the top of it. Eyes, nostrils, tusks' glints and teeth are marks on the surface where it shows. Loose drops, dust,
   splashes and motes are laid on after the outline and take none; light (a ring of Qi, a glint) lies over anything.
 - **The camera.** A foe is seen from 35° above the ground, higher than the figure's 22°, so a back, a shell or a crest
   reads. The sculpture is tilted by the difference before it is cast, which is the same picture through the higher
@@ -277,6 +280,26 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   south 90), and the front and back rows a little off the axis (S 80°, N −100°), so a beast facing the camera or
   walking away shows a flank and never reads as a capsule. A foe faces where it walks, else where it aims in a fight,
   and keeps its facing until another is 12° nearer.
+- **Head-on and tail-on (decision 44).** The angle alone left a four-legged foe facing the camera or walking away a
+  blob: its head hid its forelegs, its tail and hind legs merged with its rump. So a beast is told its row's turn
+  (`view`) and posed to read in the S and N rows (`motion.headon`, full in those rows and nothing in SE, E and NE):
+  - **facing the camera (S):** the face lifted toward it (the boarlets 12°, the otter 10°, the rat 4° so its pointed
+    snout still shows), the forelegs set apart and a little forward so they stand beside and below the chin and
+    step visibly (a higher lift), the ears standing out at the corners of the head (the boarlets' rolled out, the
+    rat's round ears at the top corners), the shoulders wider than the head (the boarlets' by 0.8 art px a side, the
+    tusks swept out past the snout), and the body behind drawn in (the rump and hind legs moved forward) so it is
+    foreshortened, not a capsule behind the head. The rat's reed tail lies swept out to one side on the ground
+    (straight back it hides behind the body; raised, as the side rows carry it, it stood up like a stalk);
+  - **walking away (N):** the rump rounded and wider, the hind legs spread so they show beside it and step, the ears
+    raised to peek over the back, and the tail made to read: the boarlets' drooping dark tail with its tassel hangs
+    off the top of the rump (all rows now; a hide-coloured curl was lost against the rump), the otter's thick tail
+    swings wider and curves off to one side, the rat's reed tail trails toward the camera between its spread hind
+    feet, and the toad's golden eyes rise over the moss of its back with its folded hind legs spread at its sides;
+  - both ways the hollowed boarlet's three grey strands fan out from its spine (bunched, they stood over its head like
+    a single grey horn);
+  - the crab keeps its broad side to the camera in every row, so it needed nothing.
+  The walk, the tell, the strike, the flinch and the fall are all posed so in those rows; nothing moves the feet
+  (the foot on the sheet's origin), the hit frame or any timing.
 - **Actions** (`creature/motion.py`), every species the same catalogue:
 
   | Action | Frames | fps | |
@@ -287,6 +310,7 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   | attack | 6 | 20 | 0 the launch (stretched), 1 the hit (`hit_frame`, squashed on the impact), 2 the impact held, 3–4 the follow-through, 5 settling; holds |
   | hurt | 3 | 12 | the flinch (squashed, knocked back), the recoil, the recovery; holds |
   | death | 8 | 10 | a fall that suits it, or a coming apart into motes; holds while the view fades it out |
+  | swim | 8 | the walk's | the leech's only (decision 44, `creatures.EXTRA`): loops; the room view plays it for its walk and idle where it stands in water (`FoeView`) |
 
   The wind-up's rate comes from the data: its last frame (the tell) shows within 70% of the species' shortest
   `windup_s` (`enemies.json`), so the tell is always up before the blow (`data_validation` checks it). The blow lands
@@ -323,7 +347,8 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   boarlets, the frog, the leech, the otter and the toad. The Trial Puppet, Old Snapper, the minnow and the eel have
   none; Old Snapper wears the ring of Qi in its own colours as its boss presence.
 - **Sheets.** A sheet a species (`art/topdown/foes/<species>.png`), and its elite's apart
-  (`<species>_elite.png`): a row per drawn facing, the 35 frames of every action along it, in a cell of its own size
+  (`<species>_elite.png`): a row per drawn facing, the 35 frames of every action along it (43 for the leech, its swim
+  after them), in a cell of its own size
   (the union of its frames). Every sheet is under 4096 px a side (phones' texture limit; the largest, Old Snapper's, is
   3395 × 490); a room loads only its own species' sheets, and an elite's only where an elite stands. The index is
   `data/topdown/foes.json` (per species its sheet, cell, feet, shadow, label height and each action's frames, rate and
@@ -354,10 +379,20 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   - the reed frog: leaf green with a gold stripe down each flank and darker spots, a pale belly and gold eyes set high.
     It goes in hops: a crouch, a stretched leap, the landing squashed. **Tell:** it crouches low, hind legs coiled, and
     its throat sac puffs up big and pale. It leaps at its prey, forefeet reaching; beaten, it flips onto its back;
-  - the marsh leech: a flattened olive slug in soft rings, two ochre stripes and teal spots down its back, a paler belly
-    and a round pink mouth. It creeps like an inchworm, a hump travelling down it. **Tell:** it rears its front half up
-    in an S, the mouth opening wide on its ring of teeth. It lunges and latches, pulsing as it drinks; beaten, it writhes
-    and sags flat;
+  - the marsh leech (redrawn in decision 44; it read as a slug-shaped pickle): a flattened, segmented body, broadest in
+    its hind third and tapering to a narrow head, a groove every ring; dark olive down the back going to black on the
+    flanks, a paler khaki belly banded ring by ring, and the wet sheen on every ring. At the front a sucker mouth: a
+    fleshy lip ring round a dark maw with three tiny pale jaws set in a Y, puckered as it creeps and flared into a cup
+    as it feeds; at the back a smaller sucker, a disc with a lit rim, planted. A pair of pale eyespots on its head; an
+    elite's paired glow spots down its back burn gold (they are drawn on the elite only). On land it loops like an
+    inchworm: the rear sucker holds while the front stretches out long and thin and plants, then the rear is drawn up
+    behind it and its middle rises in a high loop (the loop the body's own length, its ends flat by the suckers;
+    leaning a little to its side in the S and N rows so it shows); in water it swims (`swim`), a flat ribbon with a
+    wave running tailward and ripples along its sides. Idle, it holds by its rear sucker and quests from side to side.
+    **Tell:** it rears its front half up in an S, winding sideways too so the S reads from every side, the head level
+    over its prey in the side rows and the front standing up in a column facing the camera, and flares its mouth into
+    the cup, turned toward the camera in the side rows. It lunges and latches (the hit), swells as it drinks and lets
+    go; struck, it balls up short and thick; beaten, it writhes, curls up and goes limp and flat;
   - the reed otter: a long, sleek brown body, darker paws, a pale muzzle, throat and chest, whiskers and a thick
     tapering tail. It runs in a bounding lope, its back arching and stretching. **Tell:** it sits up on its haunches
     (as its side-view sheet does), forepaws tucked, head up, teeth bared. It drops and lunges to bite; beaten, it curls
@@ -418,6 +453,7 @@ same build.
 | `tools/art/topdown/canvas.py` | pixel helpers, a coordinate hash and periodic value noise (no RNG) |
 | `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) by their Phase 3 names, drawn by `terrain2.py` |
 | `tools/art/topdown/terrain2.py` | Terrain v2 (§14): the macro patterns, face patterns, positional grass overlays, tint masks, decals, water frames and shore overlays |
+| `tools/art/topdown/sand_snow.py` | sand and snow (§14.14): their patterns, faces and decals, the sand and snow creeping overlays, the sandy shore; `--review-sand-snow` draws their sheet |
 | `tools/art/topdown/props.py` | the prop kit and its footprints, origins, animation frames and floor shadows |
 | `tools/art/topdown/foliage.py` | the foliage and garden kit (§14.12): trees with their canopies and crown shade, bushes, hedges, fences, rocks, walk-through plants; `props.py` adds it to the kit |
 | `tools/art/topdown/decor.py`, `build_decor.py` | the ground cover the room view scatters and its rules (§14.12), into `art/topdown/decor.png` and `data/topdown/decor.json` (`--check`, `--review`) |
@@ -592,7 +628,8 @@ contract for the other two parts.** Where it differs from §1–§7, it replaces
 and buildings. The props and the character keep their own rules (§4, §8, §13), except where §14.2 says so.
 
 Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10). The third part, foliage and decor, is built
-to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`. The living world (decision 43) is §14.13.
+to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`. The living world (decision 43) is §14.13,
+and the sand and snow ground (decision 44) §14.14.
 
 ### 14.1 The look
 
@@ -1280,6 +1317,116 @@ the peaks, the market, four interiors and two nights, under the HUD at the phone
 `tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`), and `pairs/` (six of them side by side at the
 art's own size); `detail/` (close-ups x4 of each thing, `-- --life --life-detail`); `sheet_x4.png` and
 `vistas_x2.png` (`build_life.py --review`).
+
+### 14.14 Sand and snow (decision 44, built)
+
+The sound pass (decision 43) made footsteps and landings for sand and snow, but no tile painted either, so they were
+never heard. Decision 44 adds the ground: three paint marks, drawn to §14's rules and lit by its sun.
+
+| Mark | Ground | Pattern (64 px, §14.4) | Face | Steps (`sound.md` §3) |
+|---|---|---|---|---|
+| `a` | river sand | pale fine grain (`SAND2` 4, grain 3 and 5, a quartz glint), wind ripples in broken rows of short crests (a lit px on the sunny north slope over a px of lee shade), pebbles and shell chips | `sand`: a beach running into the water (below) | sand |
+| `n` | fresh snow | an even sunlit white (`SNOW2` 5) with a faint cool grain, small wind crescents (a lit lip over a px of blue lee shade), buried stones as low mounds, a sparse sparkle of glints each with its shaded facet | `snow`: the karst cliff under the snow's lip | snow |
+| `k` | packed snow | trodden two steps down (`SNOW2` 4) with a fine speckle, trails of paired prints (each a hollow, its north end shaded and its south lip lit), streaks glazed to ice, a speck of earth | `snow` | snow |
+
+**Ramps** (`palette.py`). Their dark ends lean blue-violet and their light ends warm, as §14.3's do.
+
+| Ramp | Steps (0 → 6) | Use |
+|---|---|---|
+| `SAND2` | `3A2B40 5B4450 82665D A2866C BCA07D D5BD96 EDDCB4` | base 4, grain 3 and 5, ripple crests 5, lee 3 |
+| `SNOW2` | `262A55 3F4A7A 6574A0 8E9DC0 B8C5DA DCE3EC F7F5EA` | fresh snow 5, hollows and lee 4, packed 4, prints 3, glints 6; the dark end is the shadow's own blue-violet |
+| `WET` | `4A3A4A` | the damp sand's tint, 0.41 |
+| `SHELL` | `8A6A78 C7A2A6 EBD3CC FBF1E4` | shells, from their pink shade to nacre |
+
+**Values** (measured on the atlas): sand 0.64 (a pale shore, a little over the floors' 0.5–0.62), packed snow 0.76,
+fresh snow 0.88. Snow is the one ground allowed that bright: white by nature, and the bodies read on it by their ink
+outline and blob shadow (the capture's close-ups check it). The sand's bank reads at 0.6 of its top, the snowy cliff at
+0.32.
+
+**How they meet their neighbours** (the transition system of §14.4, extended). Each material creeps over what lies
+below it on the same level with **positional overlays**, one per corner case (14) and place in the 64 px pattern (16),
+as the grass does over a path: its own pattern's pixels where the corner field and a noise periodic in 64 px say so, so
+an edge meets its neighbours exactly and never repeats every 16 px. The paint table gives each mark its `creep` (the
+material it lays over its neighbours) and `takes` (the materials that may lie over it, in order).
+
+| On | What lies over it, bottom to top |
+|---|---|
+| a path, paving | sand, then grass, then packed snow, then fresh snow |
+| sand | grass (the meadow's own overlay, `under`) |
+| meadow, flowers, a bed, marsh, granite, rock | packed snow, then fresh snow |
+| packed snow | fresh snow (never packed snow over its own cells) |
+
+- **Sand's edge** is a thin drift reaching about a third of the way in: its sunny edge a step lit, its lee a step down,
+  loose grains past it, the faintest `SHADOW` (0.14) under it. **Snow's edge** has body, half the way in: it glints on
+  the sunny side, its front is in cold shade (`SNOW2` 3) with a two-step `SHADOW` on the ground below (0.41, then 0.2)
+  and 0.25 east of it, and a dusting of flakes lies past it. **Packed snow's edge** is the same in its own pixels, its
+  sunny edge a step lit and its shadow lighter (0.25, 0.13), as it is trodden low; each material creeps with its own
+  pattern, so a trodden path never meets the snow on its neighbour at a straight seam. All the edges wander in soft
+  lobes (`lumps`, jittered bumps periodic in 64 px, added to the noise), since a value noise alone runs straight where
+  it flattens out.
+- **A cell covered at every corner** takes the covering material's own tile (a meadow cell ringed by snow is snow).
+- **The waterline.** A sand cell whose corners touch the water takes the `wet` tint through the tint masks (§14.4,
+  step 3), so the damp band follows the shore round corners with a soft edge; a path or paving under creeping sand
+  there takes it too, so the damp band runs on. The water by sand (`beach`) takes the **sandy shore**
+  (`v2.water.beach`, 15 cases × 4 frames): the river's shore overlay with the sand showing through the shallows on
+  every side, fading into the jade over 6–7 px, and no bank shadow on it from the north or west, since a beach is too
+  low to cast one; the foam and the leaving ripple as before. The sand's face over the water (its top 8 px, §14.5) is
+  the beach itself: a warm rim, dry sand, sand darkening as it dampens, a glistening swash line and the wet sand under
+  the first film of water, each row's edge wandering a px.
+- **The snow's face** is the karst cliff (`rock_face_tex`, so a snowy face joins a bare one column for column) with
+  snow on its ledges where the bare rock has moss, and the snow's lip over its first row: lumps lit on top and cold
+  underneath with their contact shadow, and icicles.
+- **Where faces meet.** When a side neighbour on the same level, over the same drop, has a face of another kind and its
+  top creeps over this cell's, its face's first row runs into this one in a lobe that wanders 2–7 px in from the edge
+  (`v2.face_end`, per kind, side and column: the earth bank, the sand's beach, the snow's lip). So a beach ends in the
+  grassy bank, the embankment of a path in the beach, and a bare lip in the snowy one, never at a straight seam.
+
+**Decals** (by a hash of the cell, §14.4): `sand` (0.3 of cells): fan shells, a snail shell, pebbles, a heron's and a
+crab's tracks, crab holes with their pellets, bleached driftwood, a line of wrack, a tuft of dune grass; `snow` (0.2):
+dry stalks poking through with their melted hollows, bird and hare tracks, buried mounds, a twig, sparkles (a four-point
+glint with a warm heart); `snowpack` (0.28): prints, earth, a twig. Each throws its small `SHADOW` to the south-east.
+
+**The Phase 3 contract.** The TileSet gains the marks' tops (`sand_a`–`c`, `snow_a`, `snow_b`, `snowpack_a`, `_b`) and
+faces (`sand_face_top`, `sand_face`, `snow_face_top`, `snow_face`) in rows 0–1; `autotile.grass_sand` is grass over
+sand's 16 corner tiles for `TopdownTerrain.top()` (not a terrain set of the TileSet, which keeps dirt and paving).
+
+**With the foliage and the light.**
+
+- The ground cover (§14.12, `decor.json` `biomes`): sand takes a few pebbles and a tuft of dune grass (0.1) and reeds at
+  the waterline (0.3); snow takes none, and nothing grows within a cell of snow on its level, where its edge lies over
+  the ground. The grass that parts round a body is the ground cover's, so it parts on sand as on the meadow.
+- The cast shadows (§14.11) fall on sand and snow as on any floor, cut per level; the snow edge's own shadow is baked
+  like the grass edge's.
+- The living world's critters (§14.13) take sand and snow as ground to land and peck on.
+
+**Where they are painted** (`tools/data/topdown_rooms.py`, `Layout.sand` and `Layout.snow`: ground paint only, never
+under a plant of the foliage kit, never moving a prop, a person, a place or a way):
+
+- **Lotus Ferry** (and its night): river sand along the waterline from Home Lane's end to the ferry landing, the
+  towpath wandering over it; the washing beach below Mei's line, a cove further east, and the ferry landing's sand
+  under the docks round the pier's foot. By the West Gate the old embankment stays.
+- **The Reed Shallows:** the flats' beach along the river where the crabs run, the sandbar grown into a spit of it.
+- **The Marsh Edge:** the dry spits and the islet in the south pools.
+- **Willow Path East and West:** sandy coves along the stream, the pond's beach.
+- **Snow.** No top-down room is set in winter, and the peaks are green mountain meadows, so the snow is a dusting only
+  where the height allows it: Elder Hu's Peak (the summit crags, the heads of the side crags and the Meditation Rock's
+  back in the crags' shade, packed where one sits), the Cliff Stair (the Cloud Sect's cliff crown and its top ledge, a
+  packed path from the Cloud Library's door to the Cloud Steps' bell, a dusting on the back of the ledge above the
+  landing) and Elder Sung's Peak (the summit crags, the high east peak down to its foot's last rows, and the back of
+  the far peak behind Elder Sung). The lower ledges and every meadow stay bare.
+
+**Tests.** `topdown_suite` ("sand" and "snow"): grass over sand, sand over a path, the damp tint, the sandy shore, the
+beach face; snow over the meadow, packed snow (never between packed cells) and paving, packed snow over granite in its
+own pixels, a cell snowed in, the snowy face; every layer in the atlas. `data_validation`: every mark's creeping sets (14 cases each), the wet tint, the three
+marks' faces, the sandy shore's 15 cases. `audio_tests`: sand and snow step as themselves, every mark steps on a
+surface with its sounds, and every such surface is heard in a room of the world. `topdown_rooms.py --check`, the
+foliage placement rules and the reach checks hold as before.
+
+**Review images** (`docs/redesign/feedback/sand_snow/`): `before/` and `after/` (each painted room at x2 with the body
+on the new ground, `rooms/` each whole at 1 art px, and `closeups/` x4 of the transitions), `pairs/` side by side,
+`after/10_sampler.png` and its close-ups (every transition on a room of its own, drawn by the game), all by
+`tools/dev/topdown_capture.tscn -- --sand-snow --sand-snow-tag=<before|after>`; `11_tile_sheet_x4.png` (the patterns,
+faces, decals, overlays over their grounds, the damp tint and the sandy shore, `build_tiles.py --review-sand-snow`).
 
 ## 15. Combat effects (decision 38)
 

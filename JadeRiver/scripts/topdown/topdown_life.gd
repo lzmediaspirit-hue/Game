@@ -301,8 +301,8 @@ static func places(r: TopdownRoom, area_name: String) -> Array:
 		if str(p.kind) in FLOWERING:
 			for dy in range(-1, 3):
 				for dx in range(-1, (p.size as Vector2i).x + 1): flowers[c + Vector2i(dx, dy)] = true
-	# Paint marks by their byte: g d p f b s m w.
-	var on_ground := {103: true, 100: true, 112: true, 102: true, 98: true, 115: true, 109: true, 119: true}
+	# Paint marks by their byte: g d p f b s m w, and decision 44's a (sand), n and k (snow).
+	var on_ground := {103: true, 100: true, 112: true, 102: true, 98: true, 115: true, 109: true, 119: true, 97: true, 110: true, 107: true}
 	var marsh := area_name == "marsh"
 	for y in r.h:
 		for x in r.w:

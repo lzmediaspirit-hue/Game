@@ -46,6 +46,7 @@ func run_all(suite) -> void:
 	_aim_rules()
 	_terrain_rules()
 	_terrain_v2()
+	_sand_snow()
 	_square_layout()
 	_drag_zones()
 	_motor_plunge()
@@ -810,6 +811,61 @@ func _terrain_v2() -> void:
 	t.check(deep.any(func(l): return str(l[0]).begins_with("tint_")) and tints.size() >= 3 and missing.is_empty(),
 		"terrain v2: wide water is tinted deep; Riverside Square has sun, shade and depth tints (%d colours); every layer is in the atlas (%s)" % [tints.size(), str(missing.slice(0, 4))])
 
+## Decision 44 (art bible "Sand and snow"): sand and snow on the grid. Grass creeps over sand as over a path, and sand
+## over a path with its own positional overlay; a sand cell by the water takes the damp tint, the water by it the
+## sandy shallows, and its face over the water is the sand's beach; fresh snow creeps over grass, paving and packed
+## snow (never packed snow over packed snow), and a cell snowed in at every corner takes the snow's own tile; a snowy
+## top's face is the rock under the snow's lip. Every layer is a tile of the atlas.
+func _sand_snow() -> void:
+	var rows := ["0000000000", "0000000000", "0000000000", "0000000000", "~~~~000000"]
+	var paint := ["ggaaddnnkk", "gaaaddnnkk", "aaaaggnnss", "aaaappnnss", "~~~~pppppp"]
+	var tr := TopdownTerrain.new(grid(rows, {"paint": paint}))
+	var tiles: Dictionary = tr.room.tileset.get("tiles", {})
+	var wet: Array = tr.room.tileset.get("v2", {}).get("tint", {}).get("wet", [])
+	var names := func(layers: Array) -> Array: return layers.map(func(l): return str(l[0]))
+	var sand: Array = names.call(tr.top_layers(1, 1, 0))
+	var path: Array = names.call(tr.top_layers(4, 1, 0))
+	var damp := tr.top_layers(1, 3, 0)
+	var shore: Array = tr.water_layers(1, 4)
+	var bank: Array = names.call(tr.face_layers(1, 3, 0, 0, TopdownRoom.WATER))
+	t.check(sand[0].begins_with("sand_m") and sand[1] == "over_1110_11"
+		and path[0].begins_with("dirt_m") and path[1] == "sand_over_1010_01" and path[2] == "over_0011_01"
+		and damp.any(func(l): return str(l[0]) == "tint_0011_13" and wet.size() == 4 and is_equal_approx((l[1] as Color).a, float(wet[3])))
+		and str(shore[0].back()[0]) == "beachfx_01_0" and bank[0] == "sand_face_top_v1",
+		"sand: grass creeps over it (%s), it creeps over a path (%s); damp by the water, the shallows sandy (%s) and its bank a beach (%s)" % [sand, path, shore[0].back()[0], bank[0]])
+	# Where a beach meets the grassy bank, or the embankment of a path, the face of the one whose top creeps over the
+	# other's runs into it in a lobe: the grass's earth into the beach, the beach into the embankment.
+	var ends := TopdownTerrain.new(grid(["0000", "~~~~"], {"paint": ["gaad", "~~~~"]}))
+	var beach_end: Array = names.call(ends.face_layers(1, 0, 0, 0, TopdownRoom.WATER))
+	var path_end: Array = names.call(ends.face_layers(3, 0, 0, 0, TopdownRoom.WATER))
+	var mid: Array = names.call(ends.face_layers(2, 0, 0, 0, TopdownRoom.WATER))
+	t.check(beach_end[0] == "sand_face_top_v1" and beach_end.has("earth_join_w1") and path_end[0] == "bank_face_top_v3"
+		and path_end.has("sand_join_w3") and not mid.any(func(n): return n.contains("_join_")),
+		"sand: the grassy bank runs into the beach's end (%s) and the beach into the embankment (%s), in lobes" % [beach_end, path_end])
+	var meadow: Array = names.call(tr.top_layers(5, 2, 0))
+	var packed: Array = names.call(tr.top_layers(8, 0, 0))
+	var packed_in: Array = names.call(tr.top_layers(9, 0, 0))
+	var paving: Array = names.call(tr.top_layers(6, 4, 0))
+	var granite: Array = names.call(tr.top_layers(9, 2, 0))
+	var island := TopdownTerrain.new(grid(["000", "000", "000"], {"paint": ["nnn", "ngn", "nnn"]}))
+	var peak := TopdownTerrain.new(grid(["22", "00"], {"paint": ["nn", "gg"]}))
+	var lip: Array = names.call(peak.face_layers(0, 0, 2, 0, 0))
+	var below: Array = names.call(peak.face_layers(1, 0, 2, 1, 0))
+	t.check(meadow[0].begins_with("grass_m") and meadow[1] == "snow_over_0101_12" and packed[1] == "snow_over_1010_00"
+		and not packed_in.any(func(n): return n.contains("_over_")) and paving[1] == "snow_over_1100_20"
+		and granite[0].begins_with("stone_m") and granite[1] == "snowpack_over_1100_12"
+		and str(island.top_layers(1, 1, 0)[0][0]).begins_with("snow_m") and lip[0] == "snow_face_top_v0" and below[0] == "snow_face_v1",
+		"snow: fresh snow creeps over the meadow (%s), packed snow (%s, none between packed cells) and paving (%s), packed snow over granite with its own pixels (%s); snowed in, a cell is snow; a snowy top's face (%s, %s)" % [meadow, packed, paving, granite, lip[0], below[0]])
+	var missing: Array = []
+	for y in rows.size():
+		for x in 10:
+			var l := tr.lv(x, y)
+			var layers: Array = tr.water_layers(x, y)[0] if l == TopdownRoom.WATER else tr.top_layers(x, y, l)
+			if l == 0 and tr.lv(x, y + 1, 0) == TopdownRoom.WATER: layers += tr.face_layers(x, y, 0, 0, TopdownRoom.WATER)
+			for layer in layers:
+				if not tiles.has(str(layer[0])): missing.append(str(layer[0]))
+	t.check(missing.is_empty(), "sand and snow: every layer is in the atlas (%s)" % str(missing.slice(0, 4)))
+
 ## Riverside Square as redesigned for the terrain (decisions 33 and 34): the paved ways lead from the house door, the
 ## storehouse door and the stairs' foot to the pier; the terrace's dirt path leads from the stairs' head to the rooftop
 ## jump above the storehouse and up to the shrine; the lotus pond is still water inside a curb; the bamboo, lotus and
@@ -1153,6 +1209,26 @@ func _foe_facings(base: Vector2) -> void:
 	t.check(ev != null and ev.acts == sp.elite.actions and fv.acts == sp.actions and ev.tex != null and ev.tex != fv.tex
 		and ev.tex.resource_path == str(sp.elite.atlas) and ev.cell.y > fv.cell.y and ev.shadow_rx > fv.shadow_rx,
 		"topdown: an elite foe draws its species' elite sheet, in its larger cell, its shadow wider (%s)" % str(ev.shadow_rx if ev != null else -1.0))
+	# Decision 44: the marsh leech loops like an inchworm on land and swims where it is in water (its sheet's swim row).
+	var wet := Vector2.INF
+	for y in w.room.h:
+		for x in w.room.w:
+			if wet == Vector2.INF and w.room.is_water(x, y): wet = (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+	var lz := foe("marsh_leech", base + Vector2(0, 80))
+	frames(1)
+	var lv = w.foe_views.get(lz.uid)
+	var shown: Array = []
+	for at in [base + Vector2(0, 80), wet]:
+		if lv == null or wet == Vector2.INF: break
+		lz.plane = at
+		lz.velocity = Vector2(30, 0)
+		lz.action = "walk"
+		lv.sync(1.0 / 60.0)
+		shown.append(lv.last)
+	var lsp: Dictionary = w.room.tileset.foes.species.marsh_leech
+	t.check(shown == ["walk", "swim"] and lsp.actions.has("swim") and lsp.elite.actions.has("swim") and bool(lsp.actions.swim.loop)
+		and lsp.actions.swim.frames.s.size() == 8,
+		"topdown: the marsh leech walks on land and swims in water, from its sheet's swim row, its elite's too (%s)" % str(shown))
 
 ## A blow lands in each of the eight directions it is aimed, and only there.
 func _eight_ways(base: Vector2) -> void:

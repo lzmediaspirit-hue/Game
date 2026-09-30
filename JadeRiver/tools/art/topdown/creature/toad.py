@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from . import mats as M
-from .motion import h01v, pick, wave
+from .motion import h01v, headon, pick, wave
 from .sculpt import E, L, Pose, S, chain, rot, v3
 
 Z = 4.4
@@ -29,8 +29,11 @@ REACH = {"attack": (7.0, 15.0, 11.0, 5.0, 0.0, 0.0)}
 ROLL = {"death": (10.0, 40.0, 100.0, 150.0, 176.0, 172.0, 176.0, 176.0)}
 
 
-def toad(action: str, f: int) -> Pose:
+def toad(action: str, f: int, view: float = 48.0) -> Pose:
     P = Pose()
+    # Head-on (decision 44): walking away its golden eyes rise over the moss of its back and its folded hind legs
+    # spread at its sides, so a toad's back reads and not a mound of moss.
+    fr, bk = headon(view)
     hop = pick(HOP, action, f)
     ahead = pick(AHEAD, action, f)
     sq = pick(SQ, action, f, 1.0)
@@ -72,7 +75,7 @@ def toad(action: str, f: int) -> Pose:
         P.add(chain([at(p) for p in pts], 0.7, 0.55, "toad_fern", "fern%d" % k, line=False))
     # Golden eyes on top of the head, a black slit in each, heavy lids (lower in the tell's glare).
     for s in (1, -1):
-        eye = at((5.4, s * 2.9, 2.5 * sq))
+        eye = at((5.4 - 0.4 * bk, s * (2.9 + 0.3 * bk), 2.5 * sq + 1.0 * bk))
         P.add(S(eye, 1.75, "toad_eye", "eye%d" % s))
         shut = action == "hurt" and f == 0 or action == "death" and f >= 3
         if not shut:
@@ -95,7 +98,8 @@ def toad(action: str, f: int) -> Pose:
         if air:
             hip, knee, foot = v3(ahead - 4.2, s * 3.8, z - 1.0), v3(ahead - 7.4, s * 4.8, z - 1.8), v3(ahead - 10.2, s * 4.4, z - 2.4)
         else:
-            hip, knee, foot = v3(ahead - 4.0, s * 4.6, z - 1.6), v3(ahead + 0.4, s * 6.8, 2.2), v3(ahead - 3.0, s * 7.0, 0.6)
+            hip, knee = v3(ahead - 4.0, s * 4.6, z - 1.6), v3(ahead + 0.4, s * (6.8 + 1.4 * bk), 2.2)
+            foot = v3(ahead - 3.0 - 0.6 * bk, s * (7.0 + 1.6 * bk), 0.6)
         P.add(E(hip + v3(0.6, 0.0, 0.0), (3.2, 2.2, 2.3), "toad", "hind%d" % s, rot("c", s * 20.0), hide),
               L(hip, knee, 1.8, 1.4, "toad_leg", "hind%d" % s), L(knee, foot, 1.3, 1.0, "toad_leg", "hind%d" % s),
               E(foot + v3(-0.8 if air else 1.0, 0.0, 0.0), (2.1, 1.5, 0.55), "toad_leg", "hind%d" % s))

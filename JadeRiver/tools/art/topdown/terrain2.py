@@ -30,8 +30,8 @@ import math
 
 from canvas import T, Img, h01
 from palette import (AO_STEPS, BED2, DIRT2, EARTH2, FLOWER, FOAM2, GOLDR, GRASS2, LEAFFALL, MOSS2, PAVE2, PETAL,
-                     PGOLD, PLASTER2, RED2, REED, ROCK2, ROOF2, SHADOW, SHADOW_A, STONE2, SUN, TIMBER2, TONE_A, TONE_SHADE,
-                     TONE_SUN, WATER2, WOOD2, alpha)
+                     PGOLD, PLASTER2, RED2, REED, ROCK2, ROOF2, SAND2, SHADOW, SHADOW_A, STONE2, SUN, TIMBER2, TONE_A,
+                     TONE_SHADE, TONE_SUN, WATER2, WOOD2, alpha)
 
 M = 4          # a macro pattern is M x M tiles
 P = M * T      # 64 px
@@ -1342,13 +1342,15 @@ def water_macro(frame: int, seed: int = 1001) -> Img:
     return img
 
 
-def shore_fx(sides: int, frame: int, seed: int = 1101) -> Img:
+def shore_fx(sides: int, frame: int, seed: int = 1101, beach: bool = False) -> Img:
     """The shore of a water cell with land on `sides` (bit 1 N, 2 E, 4 S, 8 W), one of four frames, as an overlay:
     - the waterline sits where each side shows on screen: under the bank face (row 0), on the land's top edge to the
       south (row 7, as the water is drawn 8 px low) and on the tile's edge to either side;
     - land to the north or west stands between the water and the sun: its shadow lies on the water;
     - to the south and east the shallows are sunlit and show the bed, fading into the jade;
-    - foam breathes at the waterline and a ripple leaves the shore, a pixel further each frame."""
+    - foam breathes at the waterline and a ripple leaves the shore, a pixel further each frame.
+    With `beach` (decision 44, a sandy shore): the bed is the sand's, and it shows through the shallows on every side,
+    a little narrower under a north or west beach, which is too low to shade the water."""
     t = Img(T, T)
     breathe = (0, 1, 1, 0)[frame]
     ripple = (0, 2, 3, 4)[frame]
@@ -1375,16 +1377,26 @@ def shore_fx(sides: int, frame: int, seed: int = 1101) -> Img:
     for j in range(T):
         for i in range(T):
             if sides & 4 and j > 7:
-                t.put(i, j, BED2[3] if hp(i, j, seed, T, T) > 0.2 else BED2[2])
+                if beach:
+                    t.put(i, j, SAND2[3] if hp(i, j, seed, T, T) > 0.2 else SAND2[2])
+                else:
+                    t.put(i, j, BED2[3] if hp(i, j, seed, T, T) > 0.2 else BED2[2])
                 continue
             for side, dist in lines:
                 d = dist(i, j)
                 if d < 0:
                     continue
-                if side in ("n", "w"):
+                if side in ("n", "w") and not beach:
                     a = (120, 90, 60, 30, 12)[d] if d < 5 else 0
                     if a:
                         over(i, j, SHADOW, a)
+                elif beach:
+                    alphas = (235, 215, 185, 150, 110, 70, 34) if side in ("n", "w") else (240, 220, 190, 150, 110, 70, 35)
+                    if d < len(alphas):
+                        bed = SAND2[3] if hp(i, j, seed + 1, T, T) > 0.25 else SAND2[2]
+                        if hp(i, j, seed + 2, T, T) > 0.9:
+                            bed = SAND2[4]
+                        over(i, j, mix(bed, WATER2[4], (d / 6.0) * 0.6 + 0.12), alphas[d])
                 else:
                     if d < 6:
                         bed = BED2[3] if hp(i + 3 * frame * 0, j, seed + 1, T, T) > 0.25 else BED2[2]

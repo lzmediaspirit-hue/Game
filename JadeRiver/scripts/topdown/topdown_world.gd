@@ -37,6 +37,7 @@ const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are dra
 
 var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
+var preset: TopdownRoom = null  ## decision 44: a room given to the view directly (the review captures' samplers)
 var room: TopdownRoom
 var terrain: TopdownTerrain
 var foliage: TopdownFoliage     ## Terrain v2's third part: the room's ground cover and its trees' canopies
@@ -99,7 +100,9 @@ var life: TopdownLife       ## decision 43: the room's critters, work, smoke, th
 signal context_changed(ctx: Dictionary)
 
 func _ready() -> void:
-	if live and Game.room_rt != null and Game.room_rt.topdown != null:
+	if preset != null:
+		room = preset
+	elif live and Game.room_rt != null and Game.room_rt.topdown != null:
 		room = Game.room_rt.topdown
 	# Phase 2: a character enters the prototype room through the World authority; its RoomRuntime carries the grid.
 	elif Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
@@ -1014,6 +1017,7 @@ class FoeView extends Sorted:
 	var top := -1.0          ## its idle figure's height over its feet (art px), from the sheet (its elite's for an elite)
 	var facing := "s"
 	var flip := false
+	var swims := false       ## its sheet has a swim row (decision 44: the leech), played for its walk and idle in water
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
@@ -1036,6 +1040,7 @@ class FoeView extends Sorted:
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
 		var look: Dictionary = sp.get("elite", sp) if e.elite else sp
 		acts = look.get("actions", {})
+		swims = acts.has("swim")
 		mirror = sheet.get("mirror", {})
 		var c: Array = look.get("cell", sheet.get("cell", [48, 40]))
 		var f: Array = look.get("foot", sheet.get("foot", [24, 27]))
@@ -1080,6 +1085,10 @@ class FoeView extends Sorted:
 		if not e.alive: act = "death"
 		elif e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]): act = "hurt"
 		if not acts.has(act): act = "idle"
+		# Decision 44: a foe whose sheet has a swim row (the marsh leech) swims where it is in water, moving or still.
+		if swims and (act == "idle" or act == "walk"):
+			var wc := TopdownRoom.cell_of(e.plane)
+			if room.is_water(wc.x, wc.y): act = "swim"
 		if act != last:
 			last = act
 			t = 0.0

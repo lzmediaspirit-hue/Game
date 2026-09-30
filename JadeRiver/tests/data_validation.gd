@@ -1788,10 +1788,11 @@ func topdown_art_suite() -> void:
 				continue
 			if img.get_width() > 4096 or img.get_height() > 4096: big.append("%s %dx%d" % [id, img.get_width(), img.get_height()])
 			var acts: Dictionary = look.get("actions", {})
-			for act in catalogue:
+			# Decision 44: an action past the catalogue (the leech's swim, 8 frames) is held to the same rules.
+			for act in catalogue.keys() + (["swim"] if acts.has("swim") else []):
 				for d in foes.get("dirs", []):
 					var list: Array = acts.get(act, {}).get("frames", {}).get(d, [])
-					if list.size() != int(catalogue[act]): missing_foes.append("%s %s %s: %d frames" % [id, act, d, list.size()])
+					if list.size() != int(catalogue.get(act, 8)): missing_foes.append("%s %s %s: %d frames" % [id, act, d, list.size()])
 					for at in list:
 						if not Rect2i(0, 0, img.get_width(), img.get_height()).encloses(Rect2i(int(at[0]), int(at[1]), int(cell[0]), int(cell[1]))): missing_foes.append("%s %s %s outside" % [id, act, d])
 			if int(acts.get("attack", {}).get("hit_frame", -1)) != 1: missing_foes.append("%s hit frame" % id)
@@ -1840,10 +1841,17 @@ func topdown_art_suite() -> void:
 		if m.is_empty() or (m.get("tiles", []) as Array).size() != int(m.get("w", 0)) * int(m.get("h", 0)): gaps.append("macro of " + mark)
 		for d in paint[mark].get("decals", []):
 			if not v2.get("decals", {}).has(str(d[0])): gaps.append("decals " + str(d[0]))
+		# Decision 44: what a mark creeps with and what creeps over it have their 14 corner cases; the damp sand its tint.
+		for c in [paint[mark].get("creep", "")] + (paint[mark].get("takes", []) as Array):
+			if str(c) != "" and (v2.get("creep", {}).get(str(c), {}) as Dictionary).size() != 14: gaps.append("creep %s of %s" % [c, mark])
+		if paint[mark].get("wet", false) and (v2.get("tint", {}).get("wet", []) as Array).size() != 4: gaps.append("tint wet")
+	for mark in ["a", "n", "k"]:
+		if not paint.has(mark) or not v2.get("faces", {}).has(str(paint[mark].get("face", ""))): gaps.append("the mark or face of " + mark)
 	for k in ["sun", "shade", "deep", "deeper"]:
 		if (v2.get("tint", {}).get(k, []) as Array).size() != 4: gaps.append("tint " + k)
-	check(named.size() > 600 and gaps.is_empty() and v2.get("over", {}).size() == 14 and v2.get("tint_mask", {}).size() == 15,
-		"topdown art: the Terrain v2 sets name %d tiles, all in the atlas, with every mark's pattern, decals and tints (%s)" % [named.size(), str(gaps.slice(0, 4))])
+	check(named.size() > 600 and gaps.is_empty() and v2.get("over", {}).size() == 14 and v2.get("tint_mask", {}).size() == 15
+		and (v2.get("water", {}).get("beach", {}) as Dictionary).size() == 15,
+		"topdown art: the Terrain v2 sets name %d tiles, all in the atlas, with every mark's pattern, decals, tints, faces and creeping sand and snow (%s)" % [named.size(), str(gaps.slice(0, 4))])
 
 ## Terrain v2's third part (decision 40; docs/redesign/art_bible.md "Foliage and decor"): the foliage kit in the prop
 ## sheet (each tree's canopy and its frames inside the sheet, its fade box inside the canopy), the ground cover's sheet
