@@ -565,8 +565,8 @@ func data_suite() -> void:
 		for op in tpl.get("options", []): _check_handover(op.objective, "mission " + str(op.get("name", "")))
 	for job in ContentDB.config("karma").get("mortal", {}).get("jobs", []):
 		for op2 in job.get("options", []): _check_handover(op2.objective, "county job " + str(op2.get("name", "")))
-	# Unlocks: one per-character guided quest per realm stage (same_stage_ok marks the intended pairs).
-	var per_stage := {}
+	# Unlocks. Their one guided lesson a realm stage is checked where they are built (tools/data/story.py validate, audit
+	# 45: the pairs it allows are the builder's own mark, not a field of the row).
 	for u in ContentDB.all("unlocks"):
 		var where2 := "unlock " + str(u.id)
 		check_req(u.get("trigger", {}), where2)
@@ -575,14 +575,6 @@ func data_suite() -> void:
 		# Unlocks.locked_text names a quest that is all that is left with its giver.
 		for uq in [u.get("quest", "")] + u.get("trigger", {}).get("all", []).filter(func(k): return str(k.get("kind", "")) == "quest_done").map(func(k): return k.quest):
 			if str(uq) != "": check(ContentDB.has_entry("npcs", str(ContentDB.entry("quests", str(uq)).get("giver", ""))), "%s: quest %s has a giver to name" % [where2, uq])
-		if str(u.get("scope", "character")) == "character" and not u.get("same_stage_ok", false):
-			for cond in u.get("trigger", {}).get("all", []):
-				if str(cond.get("kind", "")) == "realm_at_least":
-					var key3 := str(cond.realm) + "|" + str(u.get("quest", ""))
-					per_stage[str(cond.realm)] = per_stage.get(str(cond.realm), {})
-					per_stage[str(cond.realm)][str(u.get("quest", ""))] = true
-	for stage in per_stage:
-		check((per_stage[stage] as Dictionary).size() <= 1, "one guided lesson per stage at %s: %s" % [stage, str(per_stage[stage].keys())])
 	# Loot, shops, recipes
 	for t in ContentDB.all("loot_tables"):
 		for g in t.get("groups", []):
@@ -690,7 +682,7 @@ func data_suite() -> void:
 	var drops_of := {}
 	for t in ContentDB.all("loot_tables"):
 		for qd in t.get("quest_drops", []): drops_of[str(qd.item)] = str(t.id)
-	for ch in ContentDB.all("legendary_chains"):
+	for ch in (JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/legendary_chains.json")) as Dictionary).entries:
 		var wd := ContentDB.item(str(ch.weapon))
 		check(wd.has("legend") and str(wd.get("family", "")) == str(ch.family) and StatRules.grade_index(str(wd.get("grade", ""))) >= StatRules.grade_index("heaven"),
 			"legend %s is a %s of Heaven grade or better" % [ch.weapon, ch.family])
@@ -1095,7 +1087,7 @@ func item_sources() -> Dictionary:
 	for it2 in ContentDB.all("items"):
 		for x5 in it2.get("appraise", []): got[str(x5.item)] = true
 		if it2.has("restores"): got[str(it2.restores)] = true
-	for ch in ContentDB.all("legendary_chains"): got[str(ch.weapon)] = true
+	for ch in (JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/legendary_chains.json")) as Dictionary).entries: got[str(ch.weapon)] = true
 	for sv in ContentDB.all("salvage"):
 		for x6 in sv.get("returns", []): got[str(x6.item)] = true
 	# Shops and auctions.
@@ -1461,7 +1453,8 @@ func auto_path_suite() -> void:
 	for q in ContentDB.all("quests"):
 		var target := str(q.get("target_room", ""))
 		if target == "" or ContentDB.room(target).get("instanced", false): continue
-		var from := WorldRules.npc_room(str(q.get("giver", "")))
+		var gave: Array = WorldRules.rooms_with("npc=" + str(q.get("giver", "")))   # the rooms that place the giver
+		var from := str(gave[0]) if not gave.is_empty() else ""
 		if from == "": from = str(ContentDB.zone(str(ContentDB.room(target).get("zone", ""))).get("start_room", ""))
 		if from == target: continue
 		checked += 1

@@ -31,7 +31,7 @@ step's `effects` once. Cells are the layouts' cells (fractions allowed). SceneRu
 the rooms, the people, the tile set, the event contract and the sounds; the suites hold every scene to none.
 Every name, place and line here is Jade River's own.
 """
-from common import entries, all_of, any_of, qactive, qdone, flag, noflag, sect
+from common import entries, all_of, any_of, qactive, qdone, flag, noflag, sect, run_cli
 
 SETTINGS = {
     "walk": 110.0, "run": 210.0,                   # an actor's pace, world units a second
@@ -929,4 +929,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

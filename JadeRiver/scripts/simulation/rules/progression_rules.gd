@@ -390,11 +390,6 @@ static func lifespan_of(c) -> int:
 	var y := int(ContentDB.realm(c.cultivator.realm_key).get("max_years", 80))
 	return 0 if y <= 0 else y + int(c.cultivator.longevity)
 
-## A named NPC's age now: they grow older alongside you.
-static func npc_age(npc_id: String, c, now: float) -> int:
-	var base := int(ContentDB.entry("npcs", npc_id).get("age", 0))
-	return 0 if base <= 0 else base + years_passed(float(c.created_utc) if c != null else 0.0, now)
-
 static func great_realm(realm_key: String) -> String:
 	return str(ContentDB.realm(realm_key).get("realm", realm_key))
 

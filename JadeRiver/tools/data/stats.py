@@ -1,6 +1,6 @@
 """S10/S11/S12/S13/S14/S29 constants: stats.json, curves.json, elements, statuses, weapon families,
 grades, affixes, sets, injuries, failures, origins, methods."""
-from common import write, entries
+from common import TESTS_DATA, write, entries, run_cli
 from realms import energy_at
 import technique_grammar as TG
 
@@ -677,7 +677,8 @@ def build():
         ],
     })
 
-    # S38 balance simulator: how an active hour is spent, and the Part 4 pacing table it must meet (±15%).
+    # S38 balance simulator: how an active hour is spent, and the Part 4 pacing table it must meet (±15%). Only
+    # tests/balance_sim reads it: tests/data/, not data/ (audit 45).
     write("balance.json", {
         "schema_version": 1,
         # A normal mixed session (S29 "about 100 QP per active minute" with quests): the rest is travel,
@@ -732,7 +733,7 @@ def build():
                   "region_floor": 3.0, "usable_share": [0.6, 0.85],
                   "band_hours": {"plain": 4.5, "common": 8, "earth": 17, "heaven": 25, "mystic": 15, "spirit": 40},
                   "set_hours": [0.3, 0.8]},
-    })
+    }, folder=TESTS_DATA)
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
         "kill_qp": 22, "kill_role_mult": {"normal": 1, "elite": 6, "field_boss": 40, "dungeon_boss": 80, "story_boss": 40, "event": 0.5, "trial": 2},
@@ -942,4 +943,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

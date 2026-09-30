@@ -25,7 +25,6 @@ The rule (`--check`, run by tools/run_tests.sh):
   python3 tools/data/sect_walks.py --check      the rule, and every stop against the data
 """
 import heapq
-import json
 import math
 import os
 import sys
@@ -35,22 +34,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, HERE)
-from topdown_rooms import Grid, WATER  # noqa: E402
+from common import read, rows as table_rows  # noqa: E402
+from topdown_rooms import HOP, STAIR_STEP, STEP, TILE, WATER, Grid, arrive  # noqa: E402  the grid's rules, from movement.json
 
-TILE = 32.0
 SPRINT_K = 1.4        # decision 42: the body sprints by default, about 1.4x the walk (when movement.json names no sprint)
 PLAIN_MAX_S = 35.0    # the longest plain walk a step may ask for (build 108: 12 of 30 trips past it, up to 117 s)
 BACK_MIN_S = 20.0     # a trip out and straight back, both at least this long, is a back-and-forth
 SECT_NAMES = {"jade_sect": "The Jade Sect", "cloud_sect": "The Cloud Sect"}
 
 
-def _load(path):
-    return json.load(open(path, encoding="utf-8"))
-
-
 def pace():
     """Tiles a second at the sprint pace."""
-    td = _load(os.path.join(DATA, "movement.json"))["topdown"]
+    td = read("movement")["topdown"]
     return float(td.get("sprint", float(td["walk"]) * SPRINT_K)) / TILE
 
 
@@ -66,13 +61,13 @@ class World:
     def side(self, rid):
         if rid not in self._side:
             p = os.path.join(DATA, "rooms", rid + ".json")
-            self._side[rid] = _load(p) if os.path.exists(p) else {}
+            self._side[rid] = read(p) if os.path.exists(p) else {}
         return self._side[rid]
 
     def layout(self, rid):
         if rid not in self._lay:
             p = os.path.join(DATA, "topdown", rid + ".json")
-            d = _load(p) if os.path.exists(p) else None
+            d = read(p) if os.path.exists(p) else None
             self._lay[rid] = d if d and "portals" in d and "id" in d else None
         return self._lay[rid]
 
@@ -94,7 +89,7 @@ class World:
             p = lay["portals"][at[4:]]["at"]
         elif at.startswith("arrive:"):
             w = lay["portals"][at[7:]]
-            p = w.get("arrive") or _arrive(w)
+            p = arrive(w)
         else:
             p = lay["place"][at]
         c = (int(math.floor(p[0] + 0.5)), int(math.floor(p[1] + 0.5)))
@@ -157,22 +152,22 @@ class World:
                     continue
                 if dx and dy:
                     sx, sy = g.floor(cur[0] + dx, cur[1]), g.floor(cur[0], cur[1] + dy)
-                    if sx is None or sy is None or sx > h0 + 8.0 or sy > h0 + 8.0:
+                    if sx is None or sy is None or sx > h0 + STEP or sy > h0 + STEP:
                         continue
                 step = 1.414 if dx and dy else 1.0
                 cost = step
                 rise = h1 - h0
                 stairs = g.stair[nx[1]][nx[0]] or g.stair[cur[1]][cur[0]]
-                if rise > (16.5 if stairs else 8.0):
-                    if rise > 32.5:
+                if rise > (STAIR_STEP if stairs else STEP):
+                    if rise > HOP:
                         continue
                     cost += 2.0
                 self._relax(cost_to, dist, q, cur, nx, cost, step, b)
             for dx, dy in dirs[:4]:
                 mx, nx = (cur[0] + dx, cur[1] + dy), (cur[0] + 2 * dx, cur[1] + 2 * dy)
                 h1, hm = g.floor(*nx), g.floor(*mx)
-                gap = g.level(*mx) == WATER or (hm is not None and hm < h0 - 8.0)
-                if h1 is None or h1 - h0 > 8.0 or not gap:
+                gap = g.level(*mx) == WATER or (hm is not None and hm < h0 - STEP)
+                if h1 is None or h1 - h0 > STEP or not gap:
                     continue
                 self._relax(cost_to, dist, q, cur, nx, 3.0, 2.0, b)
         return float("inf")
@@ -259,11 +254,6 @@ class World:
             here = self.cell(to, arrive)
         legs.append((room, self.path(room, here, self.cell(rb, pb))))
         return legs, arrays
-
-
-def _arrive(w):
-    v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[w["dir"]]
-    return [w["at"][0] - v[0] * 1.5, w["at"][1] - v[1] * 1.5]
 
 
 def _open(req, sect):
@@ -463,8 +453,8 @@ def check_data(sect, stops, world):
     """Every stop's person or thing stands where the itinerary says, a stop marked with a person is that quest's giver or
     hand-in, and every quest of the stretch has its stops."""
     errs = []
-    quests = {q["name"]: q for q in _load(os.path.join(DATA, "quests.json"))["entries"]}
-    scenes = _load(os.path.join(DATA, "scenes.json"))["entries"]
+    quests = {q["name"]: q for q in table_rows("quests")}
+    scenes = table_rows("scenes")
     for st in stops:
         where = "%s: %s (%s)" % (sect, st["what"], st["quest"])
         if not world.has(st["room"], st["place"]):

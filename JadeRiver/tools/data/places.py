@@ -22,18 +22,16 @@ The rule of each place (`rule`):
 The table is stable for its readers (the unlock tutorials' "go to the place" step reads `system`, `home`, `room`,
 `object`, `stand`, `name` and `where`; the walk there is `{"type": "auto_path", "target": room, "place": id}`).
 
-Run from JadeRiver/: `python3 tools/data/build_data.py places` (or `python3 tools/data/places.py [--check]`).
+Run from JadeRiver/: `python3 tools/data/build_data.py places` (or `python3 tools/data/places.py [--check]`: tools/data/README.md).
 """
-import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import topdown_rooms as TR   # noqa: E402  the grid's walking rules, shared with the layouts' own check
-from common import DATA, all_of, entries, flag, realm, unlocked   # noqa: E402
+from common import DATA, all_of, entries, flag, read, realm, rows as table_rows, run_cli, unlocked   # noqa: E402
 
-TILE = 32.0
-SCHEMA = 1
+TILE = TR.TILE
 # Decision 43: a person's talk reaches this much further on the grid, as the people are drawn bigger
 # (TopdownRoom.PEOPLE; WorldAuthority's reach); a pickup's reach stays its radius.
 PEOPLE = 1.2
@@ -159,31 +157,11 @@ def places():
 
 # -------------------------------------------------------------------- building and checking
 def _layout(room):
-    return json.load(open(os.path.join(TR.OUT, room + ".json")))
+    return read(room, TR.OUT)
 
 
 def _side(room):
-    return json.load(open(os.path.join(DATA, "rooms", room + ".json")))
-
-
-def _grid(d, solids):
-    g = TR.Grid(d)
-    for x, y, w, h in solids:
-        for yy in range(y, y + h):
-            for xx in range(x, x + w):
-                g.solid[yy][xx] = True
-    return g
-
-
-def _starts(d):
-    out = [TR.cell(d["spawn"])]
-    for p in d["portals"].values():
-        a = p.get("arrive")
-        if a is None:
-            v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[p["dir"]]
-            a = [p["at"][0] - v[0] * 1.5, p["at"][1] - v[1] * 1.5]
-        out.append(TR.cell(a))
-    return out
+    return read(room, os.path.join(DATA, "rooms"))
 
 
 def _reach(o):
@@ -216,7 +194,7 @@ def check_room(room, rows):
     """Every place of the room stands where a body reaches it, and what the places block leaves the room whole."""
     d = _layout(room)
     solids = [s for r in rows for s in r.get("solid", [])]
-    g = _grid(d, solids)
+    g = TR.Grid(d, solids)
     errs = []
     taken = {}
     for s in solids:
@@ -228,7 +206,7 @@ def check_room(room, rows):
     for oid, at in d["place"].items():
         if TR.cell(at) in taken:
             errs.append("%s: a place's solid cell covers %s" % (room, oid))
-    starts = [s for s in _starts(d) if g.floor(*s) is not None]
+    starts = [s for s in TR.starts_of(d) if g.floor(*s) is not None]
     reached = [g.reach(s) for s in starts]
     walked = [g.reach(s, False) for s in starts]
     # Every thing and way of the room is still reached with the places' cells blocked (topdown_rooms.check's rule).
@@ -236,7 +214,7 @@ def check_room(room, rows):
         c = TR.cell(at)
         alt = g.floor(*c) if g.floor(*c) is not None else 0.0
         near = [(x, y) for y in range(c[1] - 3, c[1] + 4) for x in range(c[0] - 3, c[0] + 4)
-                if g.floor(x, y) is not None and (x - c[0]) ** 2 + (y - c[1]) ** 2 <= 9 and abs(g.floor(x, y) - alt) <= 48]
+                if g.floor(x, y) is not None and (x - c[0]) ** 2 + (y - c[1]) ** 2 <= 9 and abs(g.floor(x, y) - alt) <= TR.REACH_ALT]
         for i, r in enumerate(reached):
             if near and not any(q in r for q in near):
                 errs.append("%s: %s is cut off by a place's cells (from start %s)" % (room, oid, str(starts[i])))
@@ -259,7 +237,7 @@ def build_rows():
         assert r["kind"] in KINDS, (r["id"], r["kind"])
         assert r["rule"] in ("both", "earned", "place"), (r["id"], r["rule"])
         by_room.setdefault(r["room"], []).append(r)
-    unlocks = {u["id"] for u in json.load(open(os.path.join(DATA, "unlocks.json")))["entries"]}
+    unlocks = {u["id"] for u in table_rows("unlocks")}
     out = []
     for room, rs in by_room.items():
         d = _layout(room)
@@ -342,18 +320,8 @@ def payload():
 def build():
     extra, rows = payload()
     entries("places", rows, **extra)
+    return "%d places reached" % len(rows)
 
 
 if __name__ == "__main__":
-    if "--check" in sys.argv:
-        extra, rows = payload()
-        body = {"schema_version": SCHEMA, "entries": rows}
-        body.update(extra)
-        want = json.dumps(body, indent=1, ensure_ascii=False) + "\n"
-        have = open(os.path.join(DATA, "places.json"), encoding="utf-8").read() if os.path.exists(os.path.join(DATA, "places.json")) else ""
-        if want != have:
-            raise SystemExit("places: data/places.json is not current (python3 tools/data/build_data.py places)")
-        print("places: %d places current and reached" % len(rows))
-    else:
-        build()
-        print("built places")
+    raise SystemExit(run_cli(build))

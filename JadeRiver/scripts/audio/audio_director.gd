@@ -289,6 +289,7 @@ func played(prefix := "", since := -INF, mine_only := false) -> Array:
 	return out
 
 ## How many voices sound now (the audio suite's voice limit).
+## Test hook: audio_tests.
 func voices_playing(ui := false) -> int:
 	var n := 0
 	for v in (ui_voices if ui else voices):
@@ -701,6 +702,7 @@ func _cancel(what: String) -> void:
 
 ## What the music is doing (the audio suite reads it): the mode, the track, the stem's and the theme's levels and
 ## where they are going, and a move waiting for its beat.
+## Test hook: audio_tests.
 func music_state() -> Dictionary:
 	var waiting := ""
 	for p in pending:

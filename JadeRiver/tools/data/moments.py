@@ -6,10 +6,7 @@ and colours. data_validation's moments_data_suite checks every row against the e
 data/audio.json, the strings and UiKit's colour tokens. Colours are UiKit token names or data ids (element:, grade:,
 quality:, dao:), never hex; text is a string key or a data name, never literal words.
 """
-import json
-import os
-
-from common import DATA, write
+from common import DATA, TESTS_DATA, rows as table_rows, run_cli, write
 from techniques import PARTICLES, TIER_BY_REALM, VFX_SHAPES
 
 SETTINGS = {"max_lock_s": 1.5, "queue_max": 4, "stale_s": 6.0, "cut_fade_s": 0.15, "flash_gap_s": 1.0, "shake_amp_per_s": 16,
@@ -67,7 +64,7 @@ BOSS_ROLES = ["field_boss", "dungeon_boss", "story_boss"]
 
 
 def _entries(name):
-    return json.load(open(os.path.join(DATA, name + ".json"), encoding="utf-8"))["entries"]
+    return table_rows(name, TESTS_DATA if name == "legendary_chains" else DATA)
 
 
 def rare():
@@ -367,3 +364,7 @@ def build():
     write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "auras": AURAS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
                            "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS, "vfx_bands": TIER_BY_REALM, "vfx_shapes": VFX_SHAPES,
                            "particles": PARTICLES, "numbers": NUMBERS, "technique_preview": TECHNIQUE_PREVIEW})
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

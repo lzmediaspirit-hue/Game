@@ -1,5 +1,5 @@
 """S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses)."""
-from common import entries, titled
+from common import entries, titled, run_cli
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 LOST_MANUALS = {s["src"]["item"]: s["id"] for s in LOST_HAND.LOST if s["src"]["kind"] == "drop"}   # P13a: manual -> lost art
@@ -19,6 +19,8 @@ MASTER = {"normal": 500, "elite": 200}
 
 def mob(id, levels, role, element, page, drops, attacks, ai="melee", art=None, width=22, height=40, **extra):
     lv =levels if isinstance(levels, (list, tuple)) else (levels, levels)
+    if "equipment_chance" in extra:
+        EQUIPMENT_CHANCE[id] = extra.pop("equipment_chance")
     row = {"id": id, "name": extra.pop("name", titled(id)), "level": list(lv), "role": role, "element": element,
            "race": extra.pop("race", "beast"), "energy": extra.pop("energy", "none"),
            "ai": {"profile": ai, "aggro_range": extra.pop("aggro", 200), "flee_below": extra.pop("flee", 0.0),
@@ -183,12 +185,15 @@ def d(item, chance=0.6, count=(1, 1), weight=1):
 
 
 # P7b (item_plan §4.1): each source's equipment roll, its chance and quality floor (about 6 pieces an hour of hunting).
-# A bandit, brigand or pirate carries more (`equipment_chance` on its row).
+# A bandit, brigand or pirate carries more (mob(equipment_chance=...), kept in EQUIPMENT_CHANCE for its loot table).
 # The first rooms' foes (STARTER) roll starter gear a little more often (docs/research/player_motivation.md §3.4); the
 # first weapon and the pity of their first pieces are grades.json drop.starter's.
 EQUIPMENT = {"normal": (0.012, "flawed"), "elite": (0.08, "common"), "boss": (1.0, "superior"), "event": (0.012, "flawed"),
              "starter": (0.02, "flawed"), "starter_elite": (0.25, "common"),
              "jar": (0.01, "flawed"), "chest": (0.3, "fine"), "chest_deep": (0.5, "fine"), "chest_rich": (0.6, "fine")}
+
+
+EQUIPMENT_CHANCE = {}
 
 
 def rare(item, chance, count=(1, 1)):
@@ -322,7 +327,7 @@ def build():
             art=human("drowned_acolyte"), race="human", energy="primal_qi", width=18, height=90),
         mob("paper_talisman_ghost", (22, 26), "normal", "soul", "shrine", [d("talisman_paper", 0.5), d("ink", 0.3)],
             [atk("talisman_throw", 0.5, 300, 1.0, damage_type="soul", projectile={"speed": 400, "art": "talisman"})],
-            ai="flyer_ranged", speed=70, flying=True, width=20, height=40, weak_to="fire", phases_walls=True),
+            ai="flyer_ranged", speed=70, flying=True, width=20, height=40, phases_walls=True),
         mob("rapids_lizard", (28, 31), "normal", "water", "gorge", [d("lizard_scale", 0.5), d("pearl", 0.1)],
             [atk("tail_whip", 0.4, 60, 1.0, both_sides=True)], ai="melee", speed=130, width=26, height=22),
         mob("gorge_bandit_adept", (29, 33), "normal", "none", "gorge", [d("cloth", 0.4), d("manual_page", 0.06), d("manual_ember_burst", 0.03)],
@@ -411,13 +416,13 @@ def build():
             ai="burrower", speed=100, width=44, height=80),
         mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2)), d("soul_core_peak", 0.03)],
             [atk("ge_chop", 0.8, 96, 1.3, depth=36, knockback=90)],
-            ai="slow_melee", speed=70, width=22, height=100, race="construct", weak_to="water"),
+            ai="slow_melee", speed=70, width=22, height=100, race="construct"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
                                                                 d("sunglass_ore", 1.0, (3, 5))],
             [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True, shatter=True),   # S47: breaks a natal weapon
              atk("sand_crescent", 0.9, 380, 1.2, damage_type="qi", projectile={"speed": 460, "art": "sand_crescent"}),
              atk("sun_flare", 1.1, 260, 1.5, damage_type="qi", depth=90, status={"id": "burn", "chance": 0.5, "power": 0.01, "duration_s": 4})],
-            ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, weak_to="water", hp_mult=0.35, attack_mult=0.8,
+            ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, hp_mult=0.35, attack_mult=0.8,
             phases=[{"below": 0.6, "action": "summon", "summon": "terracotta_warden", "summon_level": 74},
                     {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}], first_defeat=["sunscar_throne_ember"]),
         mob("canyon_brigand", (73, 76), "normal", "wind", None, [d("storm_shard", 0.5), d("spirit_stone_shard", 0.4, (1, 2))],
@@ -564,7 +569,7 @@ def build():
         mob("drowned_abbot", 27, "dungeon_boss", "water", None, [d("riverbreath_scroll", 1.0)],
             [atk("bell_shockwave", 0.7, 180, 1.2, depth=70, both_sides=True, knockback=80),
              atk("summon_ghosts", 1.2, 0, 0.0, summon="paper_talisman_ghost")], ai="boss_abbot", art=human("drowned_abbot"),
-            race="human", energy="primal_qi", width=22, height=96, weak_to="fire",
+            race="human", energy="primal_qi", width=22, height=96,
             phases=[{"below": 0.66, "action": "flood"}, {"below": 0.33, "action": "summon"}], first_defeat=["bronze_bell", "shattered_moon_blade", "drowned_robe"]),
         mob("the_reflection", 36, "story_boss", "none", None, [], [atk("mirror_strike", 0.45, 70, 1.0)], ai="reflection",
             art={"avatar": "player"}, race="human", energy="primal_qi", width=18, height=90,
@@ -742,7 +747,7 @@ def build():
             table["groups"] = [{"chance": 0.6, "pick": [dict({k: v for k, v in x.items() if k != "chance"}, weight=x.get("weight", 1)) for x in drops if x["chance"] > 0.2]}]
             table["rare"] = [x for x in drops if x["chance"] <= 0.2 and x["chance"] > 0]
             table["coins"] = {"chance": 0.2 * m.get("coin_mult", 1.0), "mult": 1}
-            table["equipment"] = equipment("starter" if m["id"] in STARTER else "normal", m.get("equipment_chance"))
+            table["equipment"] = equipment("starter" if m["id"] in STARTER else "normal", EQUIPMENT_CHANCE.get(m["id"]))
         elif role == "elite":
             table["guaranteed"] = [dict(x) for x in drops]
             table["coins"] = {"chance": 1.0, "mult": 6}
@@ -840,4 +845,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

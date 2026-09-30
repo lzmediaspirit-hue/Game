@@ -1,7 +1,7 @@
 extends "res://tests/lib/suite.gd"
 ## Balance simulator (S38, Part 7): a rate-based bot plays the data to the end of Act I
 ## and reports hours to each realm. Each Level it spends an active minute as
-## data/balance.json says (fighting at the right Level, meditating at the best spot it
+## tests/data/balance.json says (fighting at the right Level, meditating at the best spot it
 ## has reached, the rest travelling and crafting), hands in the quests pitched at that
 ## Level and one daily mission per hour. Realm progress uses the real rules: kill QP and
 ## gap factors, the meditation rate of a real character with that realm's method (with
@@ -10,8 +10,11 @@ extends "res://tests/lib/suite.gd"
 ## realm lands more than ±15% off the Part 4 pacing table.
 ## Run headless:  godot --headless --path . res://tests/balance_sim.tscn
 
+## The pacing table and the drop budget (tools/data/stats.py writes it): the simulator's own, so not in data/ (audit 45).
+const BALANCE := "res://tests/data/balance.json"
+
 func _main() -> void:
-	var cfg := ContentDB.config("balance")
+	var cfg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BALANCE))
 	check(not cfg.is_empty(), "balance.json is present")
 	var c = _character()
 	check(c != null, "a character to simulate")
@@ -1043,7 +1046,7 @@ func _drops(cfg: Dictionary) -> void:
 ## tier. Bosses, events, trials and the passive wild animals are not hunted.
 func _hunting_regions() -> Dictionary:
 	var out := {}
-	var per_slot := float(ContentDB.config("balance").get("drops", {}).get("elite_kills_per_slot", 20))
+	var per_slot := float((JSON.parse_string(FileAccess.get_file_as_string(BALANCE)) as Dictionary).get("drops", {}).get("elite_kills_per_slot", 20))
 	for rid in ContentDB.rooms:
 		var room: Dictionary = ContentDB.room(rid)
 		if room.get("safe", false) or room.get("instanced", false): continue

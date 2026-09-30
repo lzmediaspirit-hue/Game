@@ -4,7 +4,7 @@ Every number the WorkshopAuthority, PetAuthority (eggs, taming) and SectAuthorit
 (defence) read lives here: costs, daily limits, timers, result tables and blueprint
 effects. Items named here are defined in items.py.
 """
-from common import entries, write
+from common import entries, write, run_cli
 
 
 def build():
@@ -94,3 +94,7 @@ def build():
                        "points": [[300, 860], [1500, 860], [2600, 860]],
                        "prestige_win": 40, "taels_win": 200, "per_disciple_guard": 0.1,
                        "damaged_output": 0.5, "repair_cost_fraction": 0.25})
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

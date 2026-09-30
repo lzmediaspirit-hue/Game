@@ -38,11 +38,6 @@ static func surface_at(room: TopdownRoom, p: Vector2, z := INF) -> String:
 	if room.is_water(c.x, c.y): return str(st.get("water", "water"))
 	return str(st.get("paint", {}).get(room.paint_at(c.x, c.y), fallback))
 
-## The surface of a side-view room's ground (its `ground.material`).
-static func surface_of_material(material: String) -> String:
-	var st := section("steps")
-	return str(st.get("materials", {}).get(material, st.get("default", "dirt")))
-
 ## A surface's footstep round robin and its landing.
 static func steps_of(surface: String) -> Array:
 	var s: Dictionary = section("steps").get("surfaces", {})
@@ -116,9 +111,6 @@ static func bed(bed_id: String) -> Dictionary:
 static func hour_layers(hour: String) -> Dictionary:
 	return section("beds").get("hours", {}).get(hour, {"day": 0.0})
 
-static func is_night(hour: String) -> bool:
-	return hour_layers(hour).has("night") and not hour_layers(hour).has("day")
-
 # ------------------------------------------------------------------ the mix
 ## A sound's voice rule [prefix, priority, most at once, least gap between starts]: the first whose prefix it starts
 ## with.
@@ -135,6 +127,7 @@ static func takes_of(id: String) -> Array:
 
 ## Every sound the living world and the places can ask for: the critters' and the blows' (data/sound.json `life`), each
 ## work cue of `cues` (data/topdown/life.json) as "life_work_<cue>", the places'.
+## Test hook: audio_tests checks each has a file.
 static func life_ids(cues: Array) -> Array:
 	var l := section("life")
 	var out: Array = []
@@ -145,6 +138,7 @@ static func life_ids(cues: Array) -> Array:
 	return out
 
 ## Every sound id data/sound.json names (the audio suite checks each has a file).
+## Test hook: audio_tests.
 static func named_ids() -> Array:
 	var out := {}
 	_collect(cfg(), out, false)

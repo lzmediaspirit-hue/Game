@@ -174,6 +174,7 @@ static func _shared(a: Rect2, b: Rect2) -> float:
 	return i.size.x * i.size.y if i.size.x > 0.0 and i.size.y > 0.0 else 0.0
 
 ## Any two placed boxes that still touch (the tests' check): [[id, id], ...].
+## Test hook: rules_tests and the top-down suite.
 static func touching(items: Array, offsets: Dictionary) -> Array:
 	var out: Array = []
 	for i in items.size():

@@ -279,17 +279,6 @@
    "storehouse": "roof",
    "boat": "wood"
   },
-  "materials": {
-   "earth": "dirt",
-   "stone": "stone",
-   "wood": "wood",
-   "sand": "sand",
-   "snow": "snow",
-   "grass": "grass",
-   "water": "water",
-   "marsh": "reeds",
-   "roof": "roof"
-  },
   "water": "water",
   "default": "dirt",
   "contacts": {

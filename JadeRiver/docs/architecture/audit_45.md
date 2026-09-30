@@ -270,6 +270,12 @@ How each class of finding was checked:
 | `scripts/combo_rig.gd`, `scripts/equipment_rig.gd`: only the v0.13 bakes run them (`tests/bake_*.gd`, `tools/bake_hat_cape_combos.gd`) | 99 | move to `tools/art/sideview/` (S3) |
 | `scripts/simulation/map_validator.gd`, `world_catalog.gd`: only `tests/map_generation.gd` (not a suite) reaches them | 121 | move with that test, or delete it (S2) |
 
+**Status (phase 2, S1):**
+- **DEAD-01, closed.** `ornament.gd` and `room_gate.gd` are deleted with their `.uid` files. So is
+  `art/environment/room-gate.png` (1.2 MB) with its `.import`, since only `room_gate.gd` drew it. `architecture.md`
+  now names `PortalView`, and `docs/art-v13-gate.md` says the gate is retired.
+- **DEAD-02, closed.** `connection_visual.gd.uid` is deleted.
+
 ### 3.2 Functions, constants, variables and signals
 
 High confidence: the name occurs nowhere else, not even as a string. Delete these (S1). The `hud.gd` and
@@ -290,6 +296,16 @@ High confidence: the name occurs nowhere else, not even as a string. Delete thes
 | `scripts/hud.gd:111`, `:113`, `:114` | `meditate_center`, `sphere_center`, `sense_center` | 3 |
 | `scripts/world.gd:54-55`, `topdown_world.gd:100`, `hud.gd:131` | signals `room_changed`, `context_changed` ×2, `page_changed`: emitted, never connected | 8 |
 
+**Status (phase 2, S1):** each name was checked again after phase 1 (tokens, strings, `call`/`has_method`/`connect`,
+`.tscn` files, data and tools).
+- **DEAD-05, closed.** All nine functions are deleted.
+- **DEAD-06, closed.** The constants and variables are deleted. Phase 1 put `tutorial_coach.gd`'s `MISSING_S` to use and
+  removed `_tab_was`, so neither was left to delete. Two unreferenced `level_of`s are deleted too: `ContentDB.level_of`
+  and `GameAuthority.level_of`. The scan had marked them low confidence only because they share a name; neither is
+  called. `docs/ui_style_guide.md` now names the type scale by `WORD_SCALE_STEPS` and `DISPLAY_STEPS`.
+- **DEAD-07, closed.** The four signals and their emit lines are deleted. The two `context` updates keep their hash test.
+- Left for S2: `world_catalog.gd`'s unreferenced `neighbour`, which goes with that file (DEAD-04).
+
 Medium confidence: 42 symbols that only tests or tools use (439 lines). Some are deliberate test hooks, and those
 should stay but be marked `## test hook`:
 - `hud.set_state` (29 test uses);
@@ -302,6 +318,39 @@ should stay but be marked `## test hook`:
 Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.render_sheet`,
 `progression_authority.tree_view`, `world_rules.npc_room`, `progression_rules.npc_age` and
 `world_authority.context_portal`. The full list is `scans.gd_graph.symbols[status=not_used_by_game]` in the JSON.
+
+**Status (phase 2, S1): DEAD-08, closed.**
+- **Deleted, with their tests moved or dropped:**
+  - `progression_authority.tree_view`. Its two `rules_tests` checks now read `tree_node` and `realisations`, which
+    the page uses.
+  - `world_rules.npc_room`. `data_validation`'s auto-path check reads `WorldRules.rooms_with` itself.
+  - `progression_rules.npc_age`, with its one check, "Granny Liu grows older alongside you". No page shows an NPC's
+    age.
+- **Kept, now used by the game:** `world_authority.context_portal`. The context button's portal loop had the same rule
+  written out inline; it now calls `context_portal`, so the rule `data_validation` checks is the one the game uses.
+- **Kept and marked `## Test hook`:**
+  - `audio_director.voices_playing` and `music_state`;
+  - `sound_bank.life_ids` and `named_ids`;
+  - `clock_service.simulate`, `repository_local.wipe`;
+  - `hud.PICTURE`, `presence_center` and `set_state`;
+  - `main.pages_warm`;
+  - `moment_rules.MATCHERS`, `ANCHORS`, `SHAPES` and `STYLES`;
+  - `moment_view.lock_left`, `scene_director.poll`, `scene_rules.problems`;
+  - `sprite_cache.icon_hd` and `emblem_whole`, `world_labels.touching`;
+  - `local_authority.restore_authoritative_snapshot` (the server boundary too);
+  - `topdown_atmosphere._count`, `topdown_motor.airtime`, `topdown_world.add_villager`;
+  - `equip_prompt.gain_text`;
+  - `page.GRID`, `SAFE_AREA` and `WINDOWS`;
+  - `ui_kit.TEXT_ON` and `on_scale`;
+  - `technique_tree_rules.nodes_of`, which became test-only once `tree_view` went.
+- **Left for their own slices:**
+  - `game_events.unsubscribe_object`, S4's file. It is the pair of `subscribe`, so it stays.
+  - `combo_rig` and `equipment_rig`, which S3 moves.
+  - `map_generator.generate`, which goes with `map_generation.gd` (S2) or the side view.
+  - `surface.projected_front` and `world.save_slot_index`, side view, reached only by legacy tests.
+  - `topdown_atmosphere`'s `vec4`, a false hit on a shader's word.
+- **Data left unread** for S5 to drop in the generators: `npcs.json` `age` (24 rows), read only by `npc_age`, and
+  `sound.json` `steps.materials`, read only by `surface_of_material`.
 
 ### 3.3 Tests and probes nothing runs
 
@@ -413,6 +462,19 @@ name for both views. `map_page`'s plates are map art, not world labels.
 | BUG-12 | low | `topdown_room.gd:87`, `topdown_rooms.py:192` | The level under a prop's footprint is read with no bounds check. A prop pushed past the edge crashes the room load; today the Python check guards it | Clamp plus `push_error`; the room engine validates footprints (E1) |
 | BUG-13 | low (structure) | `scripts/simulation/authority/*` | 575 calls between authorities, 36 pairs in both directions | Publish each authority's surface; forbid private cross-calls (S11) |
 | BUG-14 | medium (structure) | `hud.gd`, `combat_`, `world_`, `crafting_` and `progression_authority.gd`, `main.gd` | God objects (§2.2) | Split by section (S6–S10) |
+
+**Status (phase 2, S1): BUG-01, fixed.**
+- **Every recipe id the Crafts page did not take from the data is looked up through the page's `made_by(id)`**, which
+  returns `""` for an unknown id. That covers six sites: the auto-refine queue, the refine in progress, the talisman
+  template, the guild exam task, the ancient recipes' row and Deduce. The helper lives in the page rather than in
+  `ContentDB` because S4 owns `content_db.gd` in this wave. The refine in progress is held in memory, not in the save,
+  but it is guarded all the same.
+- **On every load, `SaveService.migrate_character` drops recipe ids the data no longer has, with a warning.** It
+  sweeps the known recipes, the pages held and the auto-refine queue, so a queued batch of such a recipe is lost. It
+  does nothing when no recipe loaded, so a broken data build never empties a save.
+- **`rules_tests`' `recipe_rename_suite` checks both halves.** It saves a character holding an unknown id, loads it,
+  and opens the Crafts page with the id queued again. With the fix undone, both checks fail, and the page stops with
+  the old SCRIPT ERROR at `crafts_page.gd:810`.
 
 Also noted, not bugs:
 - `ContentDB.entry("techniques", tech).hitbox.x[1]` in `world.gd:362` is safe: all 3,171 rows carry a `hitbox`.
@@ -807,6 +869,33 @@ Every slice below rebases onto those changes. The ones that touch the same files
 **Why this order:** dead code and shared utilities first shrink the files the splits must move and give them their
 helpers (FrameMemo, Figures, the suite base). The splits come before the engines so E6's notice table lands in a small
 `hud/notices.gd` rather than inside a 3,266-line file.
+
+### Status: S5 (generator hygiene), done
+
+- **DUP-11, the generator command line: done.** `tools/data/common.py` has `emit()` (every generated file, written
+  only when it changed, or compared with `--check`) and `run_cli()`: every module of `build_data.py`'s list and
+  `topdown_rooms.py` take `--write`, `--check` and `--only`, with exit codes 0, 1 and 2 (`tools/data/README.md`).
+  `sect_walks.py` and `room_lint.py` are checks, not generators, and keep their own flags.
+- **DUP-10, the grid's walking rules: done.** The Python Grid reads `step_up` and the jump from `data/movement.json`.
+  `topdown_rooms.py --check` compares it with the game's `TopdownRoom` and `TopdownRoute.reach`, through
+  `tools/data/grid_parity.tscn`, on every layout: 27 layouts, 95 starts, all equal.
+  - Still copied: `tests/topdown_tutorial.gd` `reach()` repeats the Grid's on-foot rules, with 32.5 and 8.0 written
+    in. The game has no discrete form of a running jump to call instead.
+  - The room graph route (`sect_walks` against `WorldRules.route`) is unchanged.
+- **DUP-08, the pixel libraries: done for new work.** `tools/lib/pix.py`, with `--check` against its sources. The
+  hash and noise copies in `canvas.py`, `creature/motion.py`, `fxpix.py` and `topdown_life.py` import it.
+  - The four old libraries stay with their art. `pixlib` samples pixel corners and draws polygons through PIL, and
+    its `shift` moves a mask where the icons' reads a neighbour, so moving their art onto `pix` is a redraw.
+- **DEAD-12, data the game never reads: done.**
+  - `balance.json`, `legendary_chains.json` and `td_review_heights.json` moved to `tests/data/`. Their readers
+    changed to match: `balance_sim`, `data_validation`, `rules_tests`, the wiki, `moments.py` and `topdown_capture`.
+  - The dropped fields: techniques' `mastery`, shops' `buys_all`, enemies' `weak_to` and `equipment_chance`, zones'
+    `laws` and `exit`, and `same_stage_ok` on unlocks and quests (its check moved into `story.validate`).
+  - S1 removed the readers of the NPCs' `age` and of `sound.json`'s `steps.materials`, so those went too.
+  - Kept: `named.archetype` and the sets' `archetype`, which `data_validation`'s item-plan checks and the wiki read.
+  - `core.qp_pct` had already gone in phase 1.
+- **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),
+  and so are the 51 `ui.*` string keys. The 11 `world_view.*` keys stay.
 
 ## 8. Rerunning the audit
 
