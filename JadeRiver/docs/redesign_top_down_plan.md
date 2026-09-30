@@ -2063,7 +2063,8 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   the body first, per `AGENTS.md`): a two-handed broom sweep; a shoulder pole steadied by one hand while walking; a rod
   held out and cast; reaching up to hang washing; stirring a pot with a ladle; a pestle ground in a mortar; an axe's
   overhead chop; a one-handed hammer at an anvil; crouching to pick herbs; mending a net seated. A held-tool
-  attachment rig (the hands' place per frame) would replace the tools' placement by the figure's bounds.
+  attachment rig (the hands' place per frame) would replace the tools' placement by the figure's bounds. (Built by
+  decision 44: "As built: work and place poses".)
 - **Cost** (headless, the shared test machine, twelve `perf_tests` runs): its own work 0.5-0.7 ms a frame in Lotus
   Ferry walking and in the Marsh Edge's 25-foe fight; the whole frame +1.0 ms (median; 0.3-1.8) against the same room
   without it in Lotus Ferry, +1.3 ms (-0.2-2.1) in the fight; its build 1.2 ms. `perf_tests` checks both rooms
@@ -2110,6 +2111,66 @@ pixels, rules and sounds):
 - **Result** (`perf_tests` alone, three runs interleaved with 3c0bb0f's on one machine): the Marsh Edge fight 11.6-13.9
   ms a frame against 18.2-20.2, the prototype's 22-foe fight 9.7-10.0 against 13.1-15.3, Lotus Ferry 7.7-9.3 against
   10.4-12.0.
+
+### As built: work and place poses (decision 44, 2026-09-30)
+
+Decision 43 left the living world's work to the figures' existing actions (a sweeper held the guard, the woodcutter
+swung the heavy sabre, the cook wrote with a brush) and its tools to sprites placed by the figure's outline, and asked
+for the poses and a held-tool rig; the places asked for a pose when the player uses one. Built to
+`docs/redesign/art_bible.md` §13 ("Work and place poses") and §14.13.
+
+- **The poses, body first** (`tools/art/topdown/figure/work.py`; AGENTS.md rules 2 and 4): eleven work actions
+  (`work_sweep`, `work_carry`, `work_rod`, `work_cast`, `work_hang`, `work_stir`, `work_grind`, `work_chop`,
+  `work_hammer`, `work_pick`, `work_mend`) and three place poses (`open`, `tend`, `sit`), 72 frames a facing, cast for
+  every layer set in S, SE, E, NE and N (the west three mirrored), each reviewed on the unclothed body before any layer
+  (the scratch previews), then in the sets and the gallery. They come after every action before them in the catalogue,
+  so the frames drawn before keep their order.
+- **The weapon put away:** the index's `stow` names the weapon in every work action; the build writes the explicit
+  hidden entry ("Put away: the hands hold this work action's tool") in every weapon section, and the layer contract
+  refuses a work action that keeps it. The place poses keep the weapon (the jian along the thigh while tending, laid
+  beside the mat once seated, as in meditation).
+- **The held-tool rig:** the `tool` layer set (`figure/sets/tool.py`, the generators `figure/kinds/tool.py`), cast on
+  the same skeleton, each tool fitted to the fists the pose puts on it (a haft or rod through both fists, cut away
+  inside them), the ground-standing parts on the ground; drawn only in its own actions (`actions` in its set's
+  manifest), explicitly hidden elsewhere ("Not held in this action"). Ten tools: broom, pole (with two baskets of
+  grain), washing (the basket on the shoulder, a cloth to hang), rod (line, red float), ladle (and its clay pot), pestle
+  (and a stone mortar), axe, hammer (the anvil on its stump, the tongs and the hot bar), herbs (a basket), net (and the
+  netting needle). The broom, the rod, the axe and the herb basket are carried in the idle and walk poses too.
+  Colours from the §14 world palette, lit and outlined by the figure's rules; nearest neighbour.
+- **The living world wired to them** (`tools/data/topdown_life.py` `LOOPS` → `data/topdown/life.json`;
+  `scripts/topdown/topdown_work.gd`, `topdown_life.gd`, `topdown_places.gd`): every stand-in replaced (the woodcutter's
+  sabre by the axe; kneel by `tend` for setting a load down, scrubbing and stoking); a loop's `tools` worn in the
+  figure's `tool` slot (a list), its `load` (the pole's baskets, the washing's basket) carried in `work_carry` and set
+  down at a spot; a working step runs a whole number of its action's cycles (checked as the data is built), and
+  `TopdownWork` fires a blow on each cycle's contact frame, so `life_work_chop_hit` and `life_work_hammer_hit` land on
+  the drawn contact; a loop that `pause`s on `hold` keeps the work pose's rest frame when the player stops them. The
+  woodcutter stands back from his block (65.1, 18), 1.1 tiles off, where the axe lands in it; the washer hangs facing north-west so the
+  cloth shows beside her head. The held-tool sprites (`broom`, `pole_side`) left `life.png`.
+- **Places:** `data/places.json` names each place's `pose` (`tools/data/places.py` `POSES`: the storehouse and the
+  letter box open, a garden bed and a furnace tend, the mat sits). The HUD plays it for 0.4 s (`PLACE_POSE_S`), raising
+  `place_open`, `place_tend` or `place_sit` (`Audio.world_sound`, skipped until the bank has them), then opens the
+  page; a second tap on the context button opens it at once. The body keeps the pose while the page is open (seated
+  through the Cultivation page at the mat) and rises when it closes; a step or a blow ends it
+  (`TopdownPlayer.place_pose`). The walk-up-and-press flows reach their pages as before (`places_tests`, `tutorials`,
+  `topdown_tutorial`).
+- **Sheets and memory** (RGBA8 in memory, as imported): the catalogue grows from 864 to 1,224 world frames a layer
+  (the 105 technique-picture frames stay), so the sheets grow with it. Before: 168 sheets, 206.8 MB for all of them,
+  the tallest 512 x 1,446 (the body), 25.3 MB of PNG; the player's outfit (the starting clothes and a jian) 8.1 MB, a
+  villager 7.5 MB. After: 178 sheets (the ten tools', 0.8 MB together, the tallest the rod's 512 x 107), 294.9 MB for
+  all, the tallest 512 x 2,073 (the body; every sheet under the 4,096 limit, so none is split), 35.7 MB of PNG; the
+  player's outfit 11.2 MB, a villager 10.8 MB and their tools 0.03-0.2 MB more. Only the worn sheets load.
+- **Draw cost:** the same draw calls a figure: a worker's tool is its tool layer's rect where the old sprite blit was;
+  the weapon draws nothing while put away; the player wears no tool.
+- **Tests:** the layer contract (`data_validation`: a work action keeps no weapon, a tool is drawn in exactly its own
+  actions, every work action holds a drawn tool, no technique picture draws the new actions, and the gate refuses the
+  three new breakages), `topdown_life_suite` (every work step holds a tool its loop wears, no stand-ins, a minute of
+  the woodcutter's chops and the smith's blows each on the contact frame, a stopped smith keeps the hammer),
+  `places_tests` (each kind of place: the pose, the delay, the second tap, the hold and the rise), `topdown_life.py`
+  and `places.py --check`.
+- **Review:** `docs/redesign/feedback/work_poses/`: `action_<name>.png` (every frame in the eight facings, a row per
+  hair style and colour, garment, dye and weapon, and the people who do it; `tools/art/topdown/review_character.py
+  --work`), `ingame_*.png` (`tools/dev/topdown_capture.tscn -- --work-poses`); `docs/redesign/phase3/character/
+  12_work.png`; the gallery (`tests/topdown_figure_gallery.tscn`).
 
 ### Phase 5 · The animation layers (XL)
 

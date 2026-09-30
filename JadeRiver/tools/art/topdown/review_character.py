@@ -403,8 +403,13 @@ def _variants(F: Figures, action: str) -> list:
         rows.append(("tunic dye %s" % dy, dict(base, shirt_dye=dy)))
     for dy in F.man["dyes"][1:]:
         rows.append(("trousers dye %s" % dy, dict(base, pants_dye=dy)))
+    # every weapon in a place's pose; in a work action, where every weapon is put away alike, a blade and the bow slung
+    # on the back stand for them all
+    stowed = bool(F.man["actions"][action].get("stow"))
     for w in sorted(items.get("weapon", {})):
-        rows.append(("weapon %s%s" % (w, " (put away)" if F.man["actions"][action].get("stow") else ""), dict(base, weapon=w)))
+        if stowed and w not in ("sword", "bow"):
+            continue
+        rows.append(("weapon %s%s" % (w, " (put away)" if stowed else ""), dict(base, weapon=w)))
     for t in tools[1:]:
         rows.append(("tool %s" % t, dict(base, tool=[t])))
     rows += _loop_people(action)
@@ -439,7 +444,7 @@ def work_sheets(F: Figures, out_dir: Path = WORK_DIR) -> list:
             layers, _ = F.layers(o)
             for c, dr in enumerate(ALL_ROWS):
                 for i in range(n):
-                    cell = Image.new("RGBA", CELL, BG if (i % 2 == 0) else (66, 86, 78, 255))
+                    cell = Image.new("RGBA", CELL, BG)
                     F.draw(cell, FEET, layers, a, dr, i)
                     if acts[a]["hit"] == i:
                         ImageDraw.Draw(cell).rectangle((0, ch - 2, cw - 1, ch - 1), fill=(229, 88, 88, 255))

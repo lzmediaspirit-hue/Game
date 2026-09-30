@@ -1,5 +1,49 @@
 # Changelog
 
+## Work and place poses, and a held-tool rig (decision 44)
+
+Decision 43's living world borrowed the figure's fighting moves for its villagers' work (the woodcutter swung the heavy
+sabre, a sweeper held a guard, the cook wrote with a brush) and drew their tools as small sprites placed by the
+figure's outline. The work is now drawn in the character pipeline, body first (AGENTS.md), with each tool in the
+hands on every frame; and using a place plays a pose before its page opens. As built in
+`docs/redesign_top_down_plan.md` ("As built: work and place poses"); the art rules in `docs/redesign/art_bible.md` §13
+("Work and place poses") and §14.13.
+
+- **Eleven work actions** (`tools/art/topdown/figure/work.py`), each a short loop with a key pose, an anticipation and
+  a follow-through, in the five drawn facings (three mirrored): a two-handed broom sweep, walking with a shoulder pole
+  (both hands on it, the baskets bobbing a beat behind the step), holding a rod out and casting it, reaching up to hang
+  washing, stirring a pot with a ladle, a pestle in a mortar, an axe's overhead chop, a one-handed hammer at an anvil
+  (tongs holding the hot bar), crouching to pick herbs, mending a net seated. The weapon is put away in each (an
+  explicit hidden entry in every weapon section).
+- **Three place poses:** `open` (a lid, the letter box, the storehouse's door, with the left hand), `tend` (a garden
+  bed or a furnace, crouched) and `sit` (the mat, redrawn on the body), the weapon kept as their lines say.
+- **The held-tool rig:** a `tool` layer set (`figure/sets/tool.py`, `figure/kinds/tool.py`) cast from the same
+  skeleton: broom, shoulder pole with its baskets, rod with line and float, washing (a basket on the shoulder, a
+  cloth), ladle and pot, pestle and mortar, axe, hammer with anvil and tongs, herb basket, net and needle; each fitted
+  to the fists the pose puts on it (cut away inside them), in the §14 palette and the figure's lighting, nearest
+  neighbour; drawn only in its own actions (the broom, rod, axe and herb basket carried in idle and walk) and
+  explicitly hidden elsewhere.
+- **The living world wired to them:** every stand-in replaced (the woodcutter swings an axe, not the sabre); a working
+  step runs whole cycles so `life_work_chop_hit` and `life_work_hammer_hit` land on the drawn contact frame on every
+  blow; a worker wears their loop's tools; a cook, a grinder, a smith and a net mender stopped by the player keep their
+  work pose's rest frame, the tool in hand. The held-tool sprites (`broom`, `pole_side`) left the life sheet; the loads
+  set down at a spot stay.
+- **Places:** the HUD plays the pose for 0.4 s, raising `place_open`, `place_tend` or `place_sit`, then opens the page;
+  a second tap opens it at once; the body keeps the pose while the page is open (seated through the Cultivation page)
+  and rises when it closes. `data/places.json` names each place's `pose`.
+- **Checks:** the layer contract refuses a work action that keeps the weapon and a tool drawn outside its actions or
+  missing from them; every work action holds a drawn tool; `topdown_life.py` refuses a step that is not a whole number
+  of its action's cycles; `topdown_life_suite` checks every chop and hammer hit falls on its contact frame for a minute;
+  `places_tests` walks up to each kind of place and checks the pose, the delay, the second tap and the hold.
+- **Sheets and memory** (RGBA8, as imported): 168 sheets and 206.8 MB before, the tallest 512 x 1,446; 178 sheets and
+  294.9 MB after (the ten tool sheets 0.8 MB of it), the tallest 512 x 2,073, all under 4,096 so none is split. The
+  player's outfit 8.1 MB before, 11.2 after; a villager 7.5 before, 10.8 after. PNG on disk 25.3 MB before, 35.7
+  after. The same draw calls a figure: a held tool is its layer's rect where the old sprite blit was, and the weapon
+  draws nothing while put away.
+- **Review:** `docs/redesign/feedback/work_poses/` (a sheet per action: every facing, hair colour, look, dye and
+  weapon; in-game shots of the village, the sect and the player at the letter box, a bed and the mat), and
+  `docs/redesign/phase3/character/12_work.png`.
+
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 
 With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh
