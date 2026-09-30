@@ -1,5 +1,43 @@
 # Changelog
 
+## The late HUD powers teach themselves (decision 44)
+
+Decision 43's tutorials left out the HUD powers that open after the prototype. Each now has a guide from its unlock
+and a short tour on the play screen, as built in `docs/redesign/tutorials.md` ("A late HUD power", §5's table).
+Screenshots of every step at the phone layout are in `docs/redesign/feedback/tutorials/late_powers/`.
+
+- **The powers and where they open:**
+  - Spirit Sense: `spirit_sense`, Spirit Awakening 1.
+  - The Presence: `presence`, Will Manifest 1 and "Will Manifest".
+  - The Sphere: `sphere`, Sphere Lord 1 and "Sphere Lord".
+  - Treasures: `treasures`, Heart Tempering 1, with `treasure_slot_2` at Spirit Awakening 1.
+  - The weapon swap: `dual_loadout`, Heart Tempering 1.
+- **The guide.**
+  - The hand, the ring and the "!" point at the power's own button. A button in the folded fan has the hand on the fan
+    first: "New in the fan: Sense. Tap the fan to open it."
+  - A tap on the button under the hand plays the tour and does not use the power.
+  - The swap's guide first leads to the Bag, to set a spare weapon, since Swap only shows with one.
+  - After the tour, the Sphere's guide goes on to Cultivation's Dao tab, and the treasures' to the Bag.
+- **The tours.** Three steps each, two lines on a phone:
+  - the button, what it does;
+  - its cost on the panel's SL or QI bar (10 Soul and 6 s a pulse; Soul or Qi each second held; Qi a use, then a rest);
+  - a "try it" whose spotlight lets the tap through and ends the tour when the power is used.
+  - A Treasure button comes out only in a fight, where the coach waits. So its tour plays at rest and lights the place
+    on ring 2, with the treasure drawn faint there. It has no "try it".
+- **Anchors.** `HUD.tour_rect` names the panel's `qi` and `soul` bars. At rest, `treasure:0` and `treasure:1` name
+  the place where each button will come out. The Bag marks its first `weapon` and `treasure_item` in view. The fan's
+  toggles and Swap already had their roles.
+- **Rules as built.** The late guides wait out fights, scenes, talks and confirms, and queue one at a time.
+  - The tutorials record has a version (`v`, now 2). An entry has a `since`.
+  - A save from before these lessons counts the powers it already has as known.
+  - The coach lights a thin anchor 3 px round, so the next bar stays dim.
+- **Tests.** The `tutorials` suite has 87 checks (from 53), and its "later" list is gone.
+  - Every late power has its guide and tour.
+  - Their 29 anchors are found on a character at each realm once the power is unlocked.
+  - Spirit Sense runs end to end through real taps.
+  - The treasures', the Sphere's and the swap's guides are checked in their own orders, and so is the old save.
+  - `tools/dev/tutorial_capture.tscn -- --late` takes the screenshots.
+
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 
 With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh

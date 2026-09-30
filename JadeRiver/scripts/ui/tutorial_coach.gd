@@ -311,7 +311,10 @@ func _place_target(st: Dictionary) -> Rect2:
 func _words(e: Dictionary, st: Dictionary) -> String:
 	if st.has("text"): return Tx.t(str(st.text))
 	match str(st.get("at", "")):
-		"hud": return Tx.t(str(e.get("hint", "ui.tutorial.go.open")))
+		"hud":
+			# A HUD power's control folded away in the fan: the hand is on the fan, and the card says to open it.
+			if st.get("tour", false) and not control and str(st.get("name", "")) != "": return Tx.t("ui.tutorial.go.fan") % Tx.t(str(st.name))
+			return Tx.t(str(e.get("hint", "ui.tutorial.go.open")))
 		"place":
 			var hint := Tx.t(str(e.get("hint", ""))) if str(e.get("hint", "")) != "" else ""
 			var pl := spot(st)
@@ -516,15 +519,18 @@ func hand_rect() -> Rect2:
 func _draw() -> void:
 	if mode == "": return
 	var pulse := 0.0 if UiKit.reduce_motion() else 0.5 + 0.5 * sin(t * 4.0)
+	# A thin anchor (a bar of the panel, its neighbours 4 px off) is lit close round, so the next bar stays dim.
+	var margin := 8.0 if target.size.y >= 24.0 else 3.0
 	if _dims():
-		var hole := target.grow(8) if target.size != Vector2.ZERO else Rect2(640, 360, 0, 0)
+		var hole := target.grow(margin) if target.size != Vector2.ZERO else Rect2(640, 360, 0, 0)
 		var dim := Color(UiKit.DIM, 0.66)
 		draw_rect(Rect2(0, 0, 1280, hole.position.y), dim)
 		draw_rect(Rect2(0, hole.end.y, 1280, 720 - hole.end.y), dim)
 		draw_rect(Rect2(0, hole.position.y, hole.position.x, hole.size.y), dim)
 		draw_rect(Rect2(hole.end.x, hole.position.y, 1280 - hole.end.x, hole.size.y), dim)
+	_draw_ghost()
 	if target.size != Vector2.ZERO:
-		var ring := target.grow(8.0 + pulse * 3.0)
+		var ring := target.grow(margin + pulse * (3.0 if margin > 4.0 else 1.0))
 		if on_hud and absf(target.size.x - target.size.y) < 4.0:
 			# A round HUD control: a round ring, and on a guide the pulsing "!" badge at its top right.
 			var rc := target.get_center()
@@ -535,7 +541,7 @@ func _draw() -> void:
 			draw_rect(ring.grow(2), Color(UiKit.INK, 0.8), false, 5.0)
 			draw_rect(ring, Color(UiKit.GOLD, 0.75 + 0.25 * pulse), false, 3.0)
 		if mode == "guide" and on_hud:
-			var bc := Vector2(target.end.x, target.position.y)
+			var bc := Vector2(minf(target.end.x, 1280.0 - 15.0), maxf(target.position.y, 15.0))   # kept on screen (Swap at the edge)
 			draw_circle(bc, 12.0 + pulse * 1.5, UiKit.INK, true, -1.0, true)
 			draw_circle(bc, 10.0 + pulse * 1.5, UiKit.RED, true, -1.0, true)
 			UiKit.draw_text(self, "!", bc + Vector2(-10, 6), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
@@ -543,6 +549,23 @@ func _draw() -> void:
 			var hr := hand_rect()
 			draw_texture_rect(_hand_down if hr.position.y < target.position.y else _hand, hr, false)
 	_draw_card()
+
+## A tour step's ghost (decision 44): the control it lights is not on the play screen now (a Treasure button comes out
+## only in a fight), so it is drawn faint where it will stand, with the treasure it holds.
+func _draw_ghost() -> void:
+	var role := str(current().get("ghost", ""))
+	if role == "" or target.size == Vector2.ZERO or not on_hud: return
+	var hud = main.get("hud")
+	if not is_instance_valid(hud) or hud.hit_targets().any(func(tg): return str(tg.role) == role): return
+	var at := target.get_center()
+	var tex := UiKit.hd_texture("hud_ring_52", "normal")
+	if tex != null:
+		var half := 26.0 + UiKit.HUD_RING_PAD   # HUD.ring at r 26
+		draw_texture_rect(tex, Rect2(at - Vector2(half, half), Vector2(half, half) * 2.0), false, Color(1, 1, 1, 0.8))
+	var c = Game.active()
+	if c != null and role.begins_with("treasure:"):
+		var tid := str(c.inventory.treasures[int(role.get_slice(":", 1))])
+		if tid != "" and c.inventory.count(tid) > 0: SpriteCache.draw_icon(self, Rect2(at - Vector2(16, 16), Vector2(32, 32)), tid, Color(1, 1, 1, 0.8))
 
 func _draw_card() -> void:
 	if card.size == Vector2.ZERO: return

@@ -495,9 +495,9 @@ func tour_rect(name: String) -> Rect2:
 			# The bars' rows as _draw_player_panel lays them: HP, then QI once there is a pool, then SL.
 			if c == null or not shown("player_panel"): return Rect2()
 			var qi: bool = c.pools.max_qi > 0.0 and shown("qi_bar")
-			var at := panel_rect(c).position + Vector2(18, (78.0 if shown("hp_bar") else 60.0) - 3.0)
-			if name == "qi": return Rect2(at, Vector2(330, 20)) if qi else Rect2()
-			return Rect2(at + Vector2(0, 18.0 if qi else 0.0), Vector2(330, 20)) if c.pools.max_soul > 0.0 and shown("soul_bar") else Rect2()
+			var at := panel_rect(c).position + Vector2(18, 78.0 if shown("hp_bar") else 60.0)
+			if name == "qi": return Rect2(at, Vector2(330, 14)) if qi else Rect2()
+			return Rect2(at + Vector2(0, 18.0 if qi else 0.0), Vector2(330, 14)) if c.pools.max_soul > 0.0 and shown("soul_bar") else Rect2()
 	var out := Rect2()
 	for tg in hit_targets():
 		if str(tg.role) != name: continue

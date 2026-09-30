@@ -70,12 +70,14 @@ def first_open():
     return {"kind": "page"}
 
 
-def hud(anchor, text="", tour=False):
+def hud(anchor, text="", tour=False, name=""):
     st = {"at": "hud", "anchor": anchor}
     if text:
         st["text"] = text
     if tour:
         st["tour"] = True
+    if name:
+        st["name"] = name   # a control in the fan: its name for "New in the fan: %s" while the fan is folded
     return st
 
 
@@ -291,18 +293,19 @@ def late_powers():
     that ends when the power is used; then, where a page manages the power, the way on to it."""
     # Spirit Sense (unlock spirit_sense, Spirit Awakening 1): a pulse of the soul, 10 Soul and 6 s (WorldAuthority.sense_pulse).
     power("sense", "spirit_sense", [t("sense|fan"), t("soul"), t("sense|fan", {"event": "spirit_sense_pulsed"})],
-          [hud("sense|fan", tour=True)])
+          [hud("sense|fan", tour=True, name="hud.fan_sense")])
     # The Presence (unlock presence, Will Manifest 1): held for Soul each second, levelled by use (FieldAuthority).
     power("presence", "presence", [t("presence|fan"), t("soul"), t("presence|fan", {"event": "presence_toggled"})],
-          [hud("presence|fan", tour=True)])
+          [hud("presence|fan", tour=True, name="hud.fan_presence")])
     # The Sphere (unlock sphere, Sphere Lord 1): raised for Qi each second, drawn from the strongest combat Dao; then the
     # Dao tab, where that Dao grows.
     power("sphere", "sphere", [t("sphere|fan"), t("qi"), t("sphere|fan", {"event": "sphere_toggled"})],
-          [hud("sphere|fan", tour=True), hud("icon:menu", text="ui.tutorial.sphere.page"),
+          [hud("sphere|fan", tour=True, name="hud.fan_sphere"), hud("icon:menu", text="ui.tutorial.sphere.page"),
            on("menu", "open:cultivation", name=MENU["cultivation"]), on("cultivation", "tab:dao", name="ui.cultivation.dao")])
     # Treasures (unlock treasures, Heart Tempering 1): the button comes out on ring 2 only in a fight, so the tour shows
-    # where (HUD.tour_rect "treasure:0" at rest), then the guide leads to the Bag, where a treasure is set on it.
-    power("treasure", "treasures", [t("treasure:0"), t("qi"), t("icon:bag")],
+    # where (HUD.tour_rect "treasure:0" at rest, the coach drawing it faint there: `ghost`), then the guide leads to the
+    # Bag, where a treasure is set on it.
+    power("treasure", "treasures", [dict(t("treasure:0"), ghost="treasure:0"), t("qi"), t("icon:bag")],
           [hud("icon:bag"), on("inventory", "treasure:0|treasure_item", element=True)])
     # The second Treasure button (unlock treasure_slot_2, Spirit Awakening 1): set in the Bag.
     entry("treasure_2", "inventory", unlock("treasure_slot_2"), [],

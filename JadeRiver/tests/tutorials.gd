@@ -565,8 +565,8 @@ func _sense_path() -> void:
 	var st := coach().state()
 	var fan: Rect2 = main.hud.tour_rect("fan")
 	check(Game.tutorials.head(ch) == "sense" and st.mode == "guide" and st.on_hud and st.rect == fan and fan.size.x > 0 and coach().hand_rect().size.x > 0
-		and str(st.line) == Tx.t("ui.tutorial.sense.hint") and st.buttons.has("later") and not coach().control,
-		"Spirit Sense opens: the hand and the badge point at the folded fan that holds it, the card says why, with Later (%s)" % str(st))
+		and str(st.line) == Tx.t("ui.tutorial.go.fan") % Tx.t("hud.fan_sense") and st.buttons.has("later") and not coach().control,
+		"Spirit Sense opens: the hand and the badge point at the folded fan that holds it, the card says to open it, with Later (%s)" % str(st))
 	main.hud.fight_override = true
 	await frames(3)
 	check(coach().state().mode == "" and coach().state().waiting == "combat", "a foe near: the lesson waits (%s)" % str(coach().state().waiting))
@@ -577,8 +577,8 @@ func _sense_path() -> void:
 	await frames(3)
 	st = coach().state()
 	var sense_btn: Rect2 = main.hud.tour_rect("sense")
-	check(main.hud.fan_open and st.mode == "guide" and st.rect == sense_btn and sense_btn.size.x > 0 and coach().control,
-		"a tap opens the fan, and the hand moves to Spirit Sense's own button (%s)" % str(st))
+	check(main.hud.fan_open and st.mode == "guide" and st.rect == sense_btn and sense_btn.size.x > 0 and coach().control and str(st.line) == Tx.t("ui.tutorial.sense.hint"),
+		"a tap opens the fan, and the hand moves to Spirit Sense's own button, the card saying what is new (%s)" % str(st))
 	var soul0: float = ch.pools.soul
 	await tap(sense_btn.get_center())
 	await frames(3)
