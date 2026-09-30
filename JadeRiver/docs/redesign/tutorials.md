@@ -35,7 +35,8 @@ This note says what was built. Screenshots of the coach at the phone layout are 
 3. **A late HUD power** (decision 44: Spirit Sense, the Presence, the Sphere, treasures, the weapon swap) gets both.
    - The guide's hand, ring and "!" point at the power's own button. A button that waits in the folded fan has the hand
      on the fan first ("New in the fan: Sense. Tap the fan to open it.").
-   - A tap on the button itself is the coach's: it does not use the power, it plays the power's tour there.
+   - A tap on the button itself is the coach's: it does not use the power, it plays the power's tour there. Later
+     passes the whole lesson by, as the HUD has no "?" to play it again.
    - The tour lights the button, then what it costs (the SL or QI bar on the panel), then a "try it". Its spotlight lets
      a tap through, and the step ends when the power is used: a pulse, the Presence held, the Sphere raised, a swap.
    - Where a page manages the power, the guide goes on after the tour: the Sphere's to Cultivation's Dao tab, the
