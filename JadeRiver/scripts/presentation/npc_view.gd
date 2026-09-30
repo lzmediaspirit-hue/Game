@@ -69,10 +69,10 @@ static func figure(o: Dictionary) -> Node2D:
 func _process(delta: float) -> void:
 	t += delta
 	var c = Game.active()
-	visible = c == null or Game.world.object_visible(c, def)
+	visible = c == null or WorldShared.object_visible(c, def)
 	if not visible: return
 	if def.has("chase"): _follow_chase(c)
-	marker = Game.quest.npc_marker(c, npc_id) if c else ""
+	marker = WorldShared.npc_marker(c, npc_id) if c else ""
 	bark_timer -= delta
 	if bark_timer <= 0.0:
 		bark_timer = randf_range(10.0, 22.0)

@@ -135,7 +135,7 @@ func sync(e: EnemyState, delta: float) -> void:
 	hp_timer = maxf(0.0, hp_timer - delta)
 	engaged = ENGAGED_S if e.alive and (e.flash > 0.0 or e.in_fight()) else maxf(0.0, engaged - delta)
 	tell = 1.0 if e.ai.state == "windup" and not ally else maxf(0.0, tell - delta * 4.0)
-	queue_redraw()
+	if not label_only: queue_redraw()   # in label mode the view draws nothing of its own (its label is `tag`'s)
 	if tag: tag.queue_redraw()
 
 func _avatar_action(e: EnemyState, action: String) -> void:

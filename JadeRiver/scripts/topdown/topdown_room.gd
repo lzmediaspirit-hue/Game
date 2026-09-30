@@ -265,10 +265,42 @@ func runtime_def() -> Dictionary:
 ## Where a body of `radius` may stand at height `z` (a foe's footing): every corner of its box on a floor no higher than
 ## `z + step`, never water, a prop or the room's edge.
 func free_at(p: Vector2, z: float, radius: float, step := 8.0) -> bool:
-	for c in [p + Vector2(-radius, -radius), p + Vector2(radius, -radius), p + Vector2(-radius, radius), p + Vector2(radius, radius)]:
-		var cp := cell_of(c)
-		var l := level(cp.x, cp.y)
-		if l == SOLID or l == WATER or height_at(c) > z + step: return false
+	# The four corners in turn, each read straight off the grid (every foe asks this several times a tick, and a chase's
+	# clear line a dozen times more: the list and the calls it made were most of the foes' steering).
+	var top := z + step
+	return _corner_free(p + Vector2(-radius, -radius), top) and _corner_free(p + Vector2(radius, -radius), top) \
+		and _corner_free(p + Vector2(-radius, radius), top) and _corner_free(p + Vector2(radius, radius), top)
+
+## A corner of `free_at`: inside the room, on neither a wall nor the water, its floor no higher than `top` (the cell's
+## `level` and `height_at`, read once).
+func _corner_free(c: Vector2, top: float) -> bool:
+	var cx := floori(c.x / TILE)
+	var cy := floori(c.y / TILE)
+	if cx < 0 or cy < 0 or cx >= w or cy >= h: return false
+	var i := cy * w + cx
+	var l: int
+	if top_of[i] > 0: l = int(props[top_of[i] - 1].top)
+	elif solid[i] == 1: return false
+	else: l = levels[i]
+	if l == SOLID or l == WATER: return false
+	if stair_of[i] > 0: return height_at(c) <= top
+	return float(l) * LEVEL <= top
+
+## Is the straight line from `a` to `b` walkable for a body of `radius` on the floor at `z` (TopdownBrain.line_clear):
+## every 10 units along it, its box free (`free_at`) and no drop under it. The corners read in place (a chase asks this
+## of every foe that runs at the player, each tick).
+func line_clear(a: Vector2, b: Vector2, z: float, radius: float) -> bool:
+	var n := ceili(a.distance_to(b) / 10.0)
+	var top := z + 8.0
+	var low := z - 8.0
+	var c0 := Vector2(-radius, -radius)
+	var c1 := Vector2(radius, -radius)
+	var c2 := Vector2(-radius, radius)
+	var c3 := Vector2(radius, radius)
+	for i in range(1, n + 1):
+		var p := a.lerp(b, float(i) / float(n))
+		if not (_corner_free(p + c0, top) and _corner_free(p + c1, top) and _corner_free(p + c2, top) and _corner_free(p + c3, top)): return false
+		if height_at(p) < low: return false
 	return true
 
 ## A path of cells from `a` to `b` for a foe that walks, climbs stairs, drops down any edge and (with `jump`) hops one

@@ -14,6 +14,69 @@ extends RefCounted
 ##   add_shake(s)  the camera rig's one writer;  loot_parent()  where a LootView goes
 ##   transfer_cooldown  seconds before another way may be asked for
 
+## What the views ask of the game every frame, for each thing, person and way of the room (its view, its plate or gate
+## and the HUD's minimap and tracker): whether it shows (WorldAuthority.object_visible), a person's quest marker
+## (QuestAuthority.npc_marker), a way's state, the quest tracker and the quest direction's step. Each answer is kept for
+## the frame and asked again as soon as the game moves on (Game.revision: an intent, a tick, effects) or another room
+## or character is asked about. The views asked the authorities for all of them several times a frame (the
+## requirements' texts, a look through every foe, every quest): over a millisecond of the Marsh Edge fight's frame.
+static var _memo := {}
+static var _memo_frame := -1
+static var _memo_rev := -1
+static var _memo_room := 0
+static var _memo_c := 0
+static func _frame_memo(c) -> Dictionary:
+	var frame := Engine.get_process_frames()
+	var rev: int = Game.revision
+	var room: int = Game.room_rt.get_instance_id() if Game.room_rt != null else 0
+	var cid: int = c.get_instance_id() if c is Object else 0
+	if frame != _memo_frame or rev != _memo_rev or room != _memo_room or cid != _memo_c:
+		_memo = {}
+		_memo_frame = frame
+		_memo_rev = rev
+		_memo_room = room
+		_memo_c = cid
+	return _memo
+
+static func object_visible(c, o: Dictionary) -> bool:
+	var id := str(o.get("id", ""))
+	if id == "": return Game.world.object_visible(c, o)
+	var m := _frame_memo(c)
+	var k := "v:" + id
+	if not m.has(k): m[k] = Game.world.object_visible(c, o)
+	return m[k]
+
+static func npc_marker(c, npc: String) -> String:
+	if c == null: return ""
+	var m := _frame_memo(c)
+	var k := "m:" + npc
+	if not m.has(k): m[k] = Game.quest.npc_marker(c, npc)
+	return m[k]
+
+## A way's state (WorldAuthority.portal_state), asked by its plate, its gate, its mark and the minimap: shared, so read
+## only.
+static func portal_state(c, p: Dictionary) -> Dictionary:
+	var id := str(p.get("id", ""))
+	if id == "" or c == null: return Game.world.portal_state(c, p)
+	var m := _frame_memo(c)
+	var k := "p:" + id
+	if not m.has(k): m[k] = Game.world.portal_state(c, p)
+	return m[k]
+
+## The quest tracker's entries (QuestAuthority.tracker), for the HUD's plate: shared, so read only.
+static func quest_tracker(c) -> Array:
+	if c == null: return []
+	var m := _frame_memo(c)
+	if not m.has("t"): m["t"] = Game.quest.tracker(c)
+	return m["t"]
+
+## The quest direction's next step from this room (WorldAuthority.guide_step), for the minimap's mark.
+static func guide_step(c) -> Dictionary:
+	if c == null: return {}
+	var m := _frame_memo(c)
+	if not m.has("g"): m["g"] = Game.world.guide_step(c)
+	return m["g"]
+
 ## An event's effects and sounds, as both views play them. False for an event this does not handle (a view's own:
 ## building a room, a figure's pose, a cast's form).
 static func play(host, name: String, p: Dictionary) -> bool:
@@ -218,18 +281,19 @@ static func mark_focus(ctx: Dictionary, object_views: Dictionary, npc_views: Dic
 ## `at` is the player on the labels' plane and `axes` weighs its axes: the side view measures across (Vector2(1, 0)),
 ## the top-down view on the whole plane (Vector2.ONE), so the names nearest the player keep their rows.
 static func label_views(host, at: Vector2, axes := Vector2(1, 0)) -> Array:
-	var near := func(v: Node2D) -> float: return ((v.position - at) * axes).length()
 	var views: Array = []
 	for uid in host.enemy_views:
 		var v = host.enemy_views[uid]
-		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": near.call(v)})
+		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": ((v.position - at) * axes).length()})
 	for id in host.npc_views:
 		var nv = host.npc_views[id]
-		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": near.call(nv)})
+		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": ((nv.position - at) * axes).length()})
 	for i in host.portal_views.size():
-		if is_instance_valid(host.portal_views[i]): views.append({"id": "p%d" % i, "view": host.portal_views[i], "kind": "place", "near": near.call(host.portal_views[i])})
+		var pv = host.portal_views[i]
+		if is_instance_valid(pv): views.append({"id": "p%d" % i, "view": pv, "kind": "place", "near": ((pv.position - at) * axes).length()})
 	for id in host.object_views:
-		if is_instance_valid(host.object_views[id]): views.append({"id": "o" + str(id), "view": host.object_views[id], "kind": "place", "near": near.call(host.object_views[id])})
+		var ov = host.object_views[id]
+		if is_instance_valid(ov): views.append({"id": "o" + str(id), "view": ov, "kind": "place", "near": ((ov.position - at) * axes).length()})
 	return views
 
 # ------------------------------------------------------------------ ways out

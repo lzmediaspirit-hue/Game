@@ -260,10 +260,11 @@ func _process(delta: float) -> void:
 	if bound(): equip_prompt.tick(Game.active(), delta)
 	if bound() and world: context = world.context
 	_tick_fight(delta)
-	_tick_points()
+	var badges := _frame_badges()
+	_tick_points(badges)
 	# G4: the world's names keep clear of the HUD's controls, and the party's HP lines show only in a fight.
 	WorldLabels.party_fight = bound() and fight
-	if bound() and is_instance_valid(world) and "label_obstacles" in world: world.label_obstacles = obstacle_rects()
+	if bound() and is_instance_valid(world) and "label_obstacles" in world: world.label_obstacles = obstacle_rects(badges)
 	queue_redraw()
 
 ## Rest and fight (P5a): a foe near folds the fan and brings out the healing slot and the treasures; with none near
@@ -450,7 +451,8 @@ const HIT_MIN := 24.0
 
 ## Every round control the HUD shows now, as a hit circle {role, center, drawn, r}. The hud_suite in rules_tests holds
 ## the table to HIT_MIN and the drawn radius + 4.
-func hit_targets() -> Array:
+## `badges`: the points badges showing (the HUD's frame passes its own, _frame_badges), else asked now.
+func hit_targets(badges = null) -> Array:
 	var out: Array = []
 	var add := func(role: String, center: Vector2, drawn: float, hit := 0.0) -> void:
 		out.append({"role": role, "center": center, "drawn": drawn, "r": maxf(maxf(HIT_MIN, drawn + 4.0), hit)})
@@ -473,7 +475,7 @@ func hit_targets() -> Array:
 		if shown(ic[0]): add.call("icon:" + str(ic[0]), ic[1], 26.0)
 	for pc in _party_chips(c): add.call("pets:" + str(pc.kind) + ":" + str(pc.uid), pc.center, float(pc.r))
 	if _auto_hunt_shown(c): add.call("auto_hunt", auto_center, 26.0)
-	for pb in point_badges(c): add.call("points:" + str(pb.id), pb.center, 16.0, POINTS_PITCH * 0.5)
+	for pb in (point_badges(c) if badges == null else badges): add.call("points:" + str(pb.id), pb.center, 16.0, POINTS_PITCH * 0.5)
 	return out
 
 ## Decision 43 (docs/redesign/tutorials.md): a tutorial's anchor on the HUD, by name, so a tour never leans on how the HUD
@@ -516,10 +518,25 @@ func open_points(id: String) -> void:
 		open_page.emit(str(row.page), {"tab": str(row.tab)} if str(row.tab) != "" else {})
 		Audio.ui("ui_open")
 
-## Each frame: a badge newly shown starts its pop, and (after the first look) writes its line to the log.
-func _tick_points() -> void:
+## The points badges for the HUD's own frame (its tick, the rects the world's names keep off, its drawing), worked out
+## once a frame: each asks every system for its count, and the Realisations' walks the technique trees (a tenth of the
+## HUD's frame, three times over). Asked again when the game moves on (Game.revision), the frame is another or a test's
+## override changes; point_badges itself always asks afresh.
+var _badges_key := []
+var _badges: Array = []
+func _frame_badges() -> Array:
+	var c = Game.active() if bound() else null
+	var key := [Engine.get_process_frames(), Game.revision, c.get_instance_id() if c is Object else 0, points_override.duplicate()]
+	if key != _badges_key:
+		_badges_key = key
+		_badges = point_badges(c)
+	return _badges
+
+## Each frame: a badge newly shown starts its pop, and (after the first look) writes its line to the log. `badges`: the
+## frame's (_frame_badges), else asked now.
+func _tick_points(badges = null) -> void:
 	var now := {}
-	for pb in point_badges(Game.active() if bound() else null):
+	for pb in (point_badges(Game.active() if bound() else null) if badges == null else badges):
 		now[pb.id] = true
 		if not _points_seen.has(pb.id):
 			_points_seen[pb.id] = t
@@ -534,8 +551,8 @@ func points_pop(id: String) -> float:
 	return clampf((t - float(_points_seen.get(id, -99.0))) / POINTS_POP_S, 0.0, 1.0)
 
 ## The badges in their row, each popping in as it appears: from small past full size and back, fading in.
-func _draw_points(c) -> void:
-	for pb in point_badges(c):
+func _draw_points(_c) -> void:
+	for pb in _frame_badges():
 		var k := points_pop(str(pb.id))
 		if k >= 1.0:
 			glyph("points_" + str(pb.id), pb.center, 32)
@@ -546,10 +563,10 @@ func _draw_points(c) -> void:
 		draw_set_transform(Vector2.ZERO)
 
 ## The screen rects the HUD covers now (its round controls as drawn, its panels and plates), which the world's names
-## keep clear of (G4).
-func obstacle_rects() -> Array:
+## keep clear of (G4). `badges`: the points badges as hit_targets takes them.
+func obstacle_rects(badges = null) -> Array:
 	var out: Array = []
-	for tg in hit_targets():
+	for tg in hit_targets(badges):
 		var d := float(tg.drawn) + 2.0
 		out.append(Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0))
 	var c = Game.active()
@@ -2319,7 +2336,7 @@ func _auto_hunt_shown(c) -> bool:
 ## the story's next one first (◇ Next: who gives it and where, or the Level it waits on and where to hunt); it rests in
 ## boss arenas and stops above the log.
 func _draw_tracker(c) -> void:
-	var entries: Array = Game.quest.tracker(c)
+	var entries: Array = WorldShared.quest_tracker(c)
 	if entries.is_empty() or _boss_arena(): return
 	var top := panel_rect(c).end.y + TRACKER_DROP
 	var here := Game.room_rt.room_id if Game.room_rt else ""
@@ -2444,12 +2461,12 @@ func _draw_minimap(c) -> void:
 		draw_line(foot, head, Color(UiKit.GOLD, 0.9), 1.5)
 	for p in room.get("portals", []):
 		var at: Array = p.at
-		var st: Dictionary = Game.world.portal_state(c, p)
+		var st: Dictionary = WorldShared.portal_state(c, p)
 		if st.get("hidden", false): continue
 		draw_circle(to_map.call(Vector2(float(at[0]), float(at[1])), 0.0), 4, UiKit.BRIGHT_JADE if st.open else UiKit.HOLLOW)
 	# P1 quest direction: the exit toward the tracked quest pulses gold, and a chevron on the frame's edge points
 	# the way from where you stand.
-	var gs: Dictionary = Game.world.guide_step(c)
+	var gs: Dictionary = WorldShared.guide_step(c)
 	if not gs.is_empty():
 		var gp: Vector2 = to_map.call(Vector2(float(gs.x), float(gs.y)), 0.0)
 		draw_arc(gp, 7.0 + sin(t * 5.0) * 1.5, 0, TAU, 14, UiKit.GOLD, 2.0)
@@ -2470,11 +2487,11 @@ func _draw_minimap(c) -> void:
 		draw_colored_polygon(chev, UiKit.GOLD)
 		draw_polyline(chev + PackedVector2Array([chev[0]]), UiKit.INK, 1.5)
 	for o in room.get("objects", []):
-		if not Game.world.object_visible(c, o): continue
+		if not WorldShared.object_visible(c, o): continue
 		var at2: Array = o.at
 		var mp: Vector2 = to_map.call(Vector2(float(at2[0]), float(at2[1])), float(o.get("alt", 0)))
 		if o.type == "npc":
-			var mk: String = Game.quest.npc_marker(c, str(o.npc))
+			var mk: String = WorldShared.npc_marker(c, str(o.npc))
 			draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else UiKit.PALE_GOLD))
 			if QuestAuthority.marker_calls(mk): draw_arc(mp, 6 + sin(t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
 		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and (grid == null or PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty()):

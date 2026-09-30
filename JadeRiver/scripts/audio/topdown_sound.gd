@@ -100,13 +100,7 @@ func _foe_feet(delta: float) -> void:
 	for r in walking.size():
 		var e: EnemyState = walking[r]
 		var loud := r < most
-		var cycle := float(st.get("foe_cadence_s", 0.34)) * 2.0
-		var walk: Dictionary = species.get(e.def_id, {}).get("actions", {}).get("walk", {})
-		if not walk.is_empty():
-			var fr: Dictionary = walk.get("frames", {})
-			var n := 0
-			for k in fr: n = maxi(n, (fr[k] as Array).size())
-			if n > 0: cycle = float(n) / maxf(1.0, float(walk.get("fps", 6)))
+		var cycle := _cycle(e.def_id, species, st)
 		var ph: Array = foe_phase.get(e.uid, [0.0, -1])
 		ph[0] = fposmod(float(ph[0]) + delta / maxf(0.1, cycle), 1.0)
 		var contacts: Array = st.get("contacts", {}).get("walk", [0.0, 0.5])
@@ -119,6 +113,27 @@ func _foe_feet(delta: float) -> void:
 		foe_phase[e.uid] = ph
 	for uid in foe_phase.keys():
 		if not seen.has(uid): foe_phase.erase(uid)
+
+## A species' walk cycle in seconds (its sheet's walk frames over their rate, else the cadence), worked out once a
+## species for the room's sheets and the steps' table (every walking foe asked it each frame).
+var _cycles := {}
+var _cycles_of: Dictionary = {}
+var _cycles_st: Dictionary = {}
+func _cycle(def_id: String, species: Dictionary, st: Dictionary) -> float:
+	if not is_same(species, _cycles_of) or not is_same(st, _cycles_st):
+		_cycles_of = species
+		_cycles_st = st
+		_cycles.clear()
+	if _cycles.has(def_id): return _cycles[def_id]
+	var cycle := float(st.get("foe_cadence_s", 0.34)) * 2.0
+	var walk: Dictionary = species.get(def_id, {}).get("actions", {}).get("walk", {})
+	if not walk.is_empty():
+		var fr: Dictionary = walk.get("frames", {})
+		var n := 0
+		for k in fr: n = maxi(n, (fr[k] as Array).size())
+		if n > 0: cycle = float(n) / maxf(1.0, float(walk.get("fps", 6)))
+	_cycles[def_id] = cycle
+	return cycle
 
 ## Villagers a route walks: a step on their walk's contact frames, where they are.
 func _people_feet() -> void:

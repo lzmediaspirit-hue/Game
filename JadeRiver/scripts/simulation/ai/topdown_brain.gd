@@ -152,12 +152,7 @@ static func follow_spot(room: TopdownRoom, owner: Vector2, ground: float, facing
 
 ## Is the straight line from `a` to `b` walkable on the floor at `z` (no wall, prop, water or drop on the way)?
 static func line_clear(room: TopdownRoom, a: Vector2, b: Vector2, z: float) -> bool:
-	var n := ceili(a.distance_to(b) / 10.0)
-	var r := float(conf("radius", 8.0))
-	for i in range(1, n + 1):
-		var p := a.lerp(b, float(i) / float(n))
-		if not room.free_at(p, z, r) or room.height_at(p) < z - 8.0: return false
-	return true
+	return room.line_clear(a, b, z, float(conf("radius", 8.0)))
 
 static func _walk(auth, e: EnemyState, dir: Vector2, speed: float, delta: float) -> void:
 	e.velocity = dir * speed

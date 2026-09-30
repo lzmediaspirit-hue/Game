@@ -111,7 +111,7 @@ func _process(delta: float) -> void:
 	touched = maxf(0.0, touched - delta)
 	var c = Game.active()
 	if c:
-		state = Game.world.portal_state(c, def)
+		state = WorldShared.portal_state(c, def)
 		near = Game.world.portal_near(c, def)
 	visible = not state.get("hidden", false)
 	queue_redraw()

@@ -65,7 +65,7 @@ func _post_y(k: int) -> float:
 
 func _process(_d: float) -> void:
 	var c = Game.active()
-	visible = c != null and bool(Game.world.portal_state(c, def).get("gate", false))
+	visible = c != null and bool(WorldShared.portal_state(c, def).get("gate", false))
 
 func _draw() -> void:
 	var o := Vector2(0, feet.y - position.y)   # the floor under the way, in this node's space

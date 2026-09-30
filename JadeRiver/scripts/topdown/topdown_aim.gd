@@ -16,7 +16,7 @@ static func cfg(key: String, fallback = 0.0):
 	return ContentDB.movement("topdown.aim." + key, fallback)
 
 static func band(air: bool) -> Array:
-	return ContentDB.movement("topdown.combat." + ("air_band" if air else "hit_band"), [-56, 12] if air else [-12, 12])
+	return ContentDB.movement("topdown.combat.air_band" if air else "topdown.combat.hit_band", [-56, 12] if air else [-12, 12])
 
 ## Are the feet `dz` above (below, when negative) the attacker's within reach of its blow?
 static func compatible(dz: float, air := false) -> bool:

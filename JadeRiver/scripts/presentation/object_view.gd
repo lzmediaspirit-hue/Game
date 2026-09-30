@@ -123,7 +123,7 @@ func _process(delta: float) -> void:
 	t += delta
 	hit_flash = maxf(0.0, hit_flash - delta)
 	var c = Game.active()
-	visible = c == null or Game.world.object_visible(c, def)
+	visible = c == null or WorldShared.object_visible(c, def)
 	if def.type == "pickup" and Game.room_rt and Game.room_rt.objects.get(object_id, {}).get("state", "") == "open": visible = false
 	queue_redraw()
 	if badge: badge.queue_redraw()

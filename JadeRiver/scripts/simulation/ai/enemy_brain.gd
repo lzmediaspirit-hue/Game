@@ -25,13 +25,26 @@ static func target_position(auth, e: EnemyState) -> Dictionary:
 static func in_sanctuary(auth, p: Vector2) -> bool:
 	var rt = auth.game.room_rt
 	if rt == null: return false
+	for s in sanctuaries(rt.def):
+		if p.distance_to(s[0]) <= float(s[1]): return true
+	return false
+
+## A room's sanctuaries as [[point, radius]], its shrines' and its objects' own, in its objects' order: every foe asks
+## each tick, so they are gathered once for the room's definition (not looked for through all its things each time).
+static var _sanct_def: Dictionary = {}
+static var _sanct: Array = []
+static func sanctuaries(def: Dictionary) -> Array:
+	if is_same(def, _sanct_def): return _sanct
 	var r := float(ContentDB.stat_const("combat.shrine_sanctuary", 240))
-	for o in rt.def.get("objects", []):
+	var out: Array = []
+	for o in def.get("objects", []):
 		var sr := r if str(o.get("type", "")) == "shrine" else float(o.get("sanctuary", 0.0))
 		if sr > 0.0:
 			var at: Array = o.get("at", [0, 0])
-			if p.distance_to(Vector2(float(at[0]), float(at[1]))) <= sr: return true
-	return false
+			out.append([Vector2(float(at[0]), float(at[1])), sr])
+	_sanct_def = def
+	_sanct = out
+	return out
 
 ## Sight aggro stops at a crowd: a phone screen cannot read a pile of foes at once. While an elite or boss is
 ## fighting the player, or `combat.sight_aggro_cap` ordinary foes already are, another ordinary monster that
@@ -89,8 +102,11 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 		e.action = "walk"
 		auth.move_enemy(e, delta)
 		return
-	var tgt := target_position(auth, e)
-	var seen := sight(auth, e)
+	# Only the states that look for the player ask where it is and whether it is seen; a wind-up, a blow, a recovery or the
+	# way home runs on its own clock (on the height grid every foe that looks is TopdownBrain's, so none here asks).
+	var looks := str(ai.state) in ["idle", "patrol", "aggro", "flee"]
+	var tgt := target_position(auth, e) if looks else {}
+	var seen := sight(auth, e) if looks else {"range": 0.0, "hidden": false}
 	var aggro_r := float(seen.range)
 	var hidden: bool = seen.hidden
 	match str(ai.state):

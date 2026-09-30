@@ -19,6 +19,7 @@ var strings: Dictionary = {}     # key -> text
 var parts: Dictionary = {}       # appearance catalogue (parts.json)
 var realm_order: Array = []      # realm sub-level keys in ladder order
 var realm_index: Dictionary = {} # key -> position in realm_order
+var _realm_for_level: Dictionary = {} # level -> realm_key_for_level (a foe's stats ask it at every blow)
 var room_zone: Dictionary = {}   # room id -> zone id
 var used_in: Dictionary = {}     # item id -> [recipe ids]
 var load_errors: Array[String] = []
@@ -29,7 +30,8 @@ func _ready() -> void:
 
 func load_all() -> void:
 	tables.clear(); lists.clear(); configs.clear(); rooms.clear(); dialogue.clear()
-	strings.clear(); load_errors.clear(); realm_order.clear(); realm_index.clear()
+	strings.clear(); load_errors.clear(); realm_order.clear(); realm_index.clear(); _realm_for_level.clear()
+	_stats_at.clear(); _movement_at.clear(); _curves_at.clear()
 	room_zone.clear(); used_in.clear()
 	parts = _read_json(DATA_DIR + "parts.json")
 	for file in DirAccess.get_files_at(DATA_DIR):
@@ -181,9 +183,12 @@ func realm_position(key: String) -> int:
 	return int(realm_index.get(key, -1))
 
 func realm_key_for_level(level: int) -> String:
+	# Worked out once a Level (the ladder is read in load_all, which forgets these): it walked the whole ladder each time.
+	if _realm_for_level.has(level): return _realm_for_level[level]
 	var best := "mortal"
 	for key in realm_order:
 		if int(realm(key).level) <= level: best = key
+	_realm_for_level[level] = best
 	return best
 
 func next_realm(key: String) -> String:
@@ -214,20 +219,31 @@ func is_equipment(id: String) -> bool:
 
 ## Dotted lookup into stats.json, e.g. "crit.base".
 func stat_const(path: String, fallback = 0.0):
-	return _dotted(config("stats"), path, fallback)
+	if _stats_at.has(path): return _stats_at[path]
+	return _dotted(config("stats"), path, fallback, _stats_at)
 
 ## Dotted lookup into movement.json (S43: every traversal constant), e.g. "glide.qi_per_s".
 func movement(path: String, fallback = 0.0):
-	return _dotted(config("movement"), path, fallback)
+	if _movement_at.has(path): return _movement_at[path]
+	return _dotted(config("movement"), path, fallback, _movement_at)
 
 ## Dotted lookup into curves.json, e.g. "resets.daily_hour".
 func curve(path: String, fallback = 0.0):
-	return _dotted(config("curves"), path, fallback)
+	if _curves_at.has(path): return _curves_at[path]
+	return _dotted(config("curves"), path, fallback, _curves_at)
 
-func _dotted(node, path: String, fallback):
+## The constants found by path, for the three lookups above (each asked by name many times a tick: a foe's radius and
+## reach, the sight and leash, gravity). Only what is found is kept (a missing one answers its caller's own fallback),
+## and load_all forgets them with the data they came from.
+var _stats_at: Dictionary = {}
+var _movement_at: Dictionary = {}
+var _curves_at: Dictionary = {}
+
+func _dotted(node, path: String, fallback, found = null):
 	for part in path.split("."):
 		if node is Dictionary and node.has(part): node = node[part]
 		else: return fallback
+	if found != null: found[path] = node
 	return node
 
 ## Player-facing text by key (S40). Unknown keys fall back to a readable form so
