@@ -19,7 +19,7 @@ import numpy as np
 from figure.geom import ik2
 
 from . import mats as M
-from .motion import gait, pick, wave
+from .motion import gait, headon, pick, wave
 from .sculpt import E, L, Pose, S, chain, on, rot, v3
 
 MATS = {"hide": "hide", "head": "hide_head", "stripe": "stripe", "hoof": "hoof", "snout": "snout", "bristle": "bristle"}
@@ -48,9 +48,12 @@ ROLL = {"death": (0.0, 0.0, 8.0, 34.0, 64.0, 88.0, 84.0, 86.0)}
 DISSOLVE = {"death": (0.0, 0.0, 0.0, 0.0, 0.12, 0.34, 0.62, 0.9)}
 
 
-def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
+def boarlet(action: str, f: int, hollow: bool = False, view: float = 48.0) -> Pose:
     m = HOLLOW if hollow else MATS
     P = Pose()
+    # Head-on (decision 44): facing the camera its face lifts to it and its forelegs stand apart, framed by its ears and
+    # shoulders, the body behind drawn in; walking away its rump rounds, its hind legs spread and its tail and ears show.
+    fr, bk = headon(view)
     lunge = pick(LUNGE, action, f)
     bob = pick(BOB, action, f)
     if action == "idle":
@@ -63,6 +66,7 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     hpitch = pick(HEAD, action, f, -6.0)
     if action == "walk":
         hpitch = -6.0 + 4.0 * math.sin(f / 8.0 * 4.0 * math.pi + 1.4)
+    hpitch += 12.0 * fr
     sa, sc = pick(SQUASH, action, f, (1.0, 1.0))
     if action == "idle":
         sc = 1.0 + 0.025 * wave(action, f)
@@ -90,9 +94,9 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         return names, bias
 
     # The body: a high shoulder, the barrel and the rump, one smooth hide.
-    P.add(E(at((3.2, 0.0, 1.0)), (4.4, 4.9, 5.2), m["hide"], "body", bm, hide),
-          E(at((-0.2, 0.0, 0.0)), (5.9, 4.9, 4.3), m["hide"], "body", bm, hide),
-          E(at((-4.4, 0.0, 0.3)), (3.6, 4.1, 4.0), m["hide"], "body", bm, hide))
+    P.add(E(at((3.2, 0.0, 1.0)), (4.4, 4.9 + 0.8 * fr, 5.2), m["hide"], "body", bm, hide),
+          E(at((-0.2 + 0.5 * fr, 0.0, 0.0)), (5.9 - 1.0 * fr, 4.9 + 0.4 * fr + 0.3 * bk, 4.3), m["hide"], "body", bm, hide),
+          E(at((-4.4 + 1.4 * fr, 0.0, 0.3)), (3.6, 4.1 + 0.7 * bk, 4.0 + 0.4 * bk), m["hide"], "body", bm, hide))
     # The bristle crest from the nape down the spine, stirring.
     stir = {"idle": 0.3 * wave(action, f), "walk": 0.4 * wave(action, f, 0.25)}.get(action, 0.0)
     if action in ("windup", "attack"):
@@ -107,7 +111,7 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     # The head: skull and jowls, a long snout ending in its pink disc, tusks, ears.
     hm = bm @ rot("b", -4.0 + hpitch)
     sniff = 0.25 * wave(action, f, 0.3) if action == "idle" else 0.0
-    hc = at((7.8 + sniff, 0.0, -0.6))
+    hc = at((7.8 + sniff - 0.6 * fr, 0.0, -0.6 + 0.5 * fr))
     hp = lambda p: hc + hm @ v3(p)
     skull = (4.2, 3.8, 3.7)
     P.add(E(hc, skull, m["head"], "head", hm),
@@ -117,7 +121,7 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     for s in (1, -1):
         P.mark(hp((7.45, s * 0.6, -1.3)), M.RAMPS[m["snout"]][0])
         # Tusks: short, curving up from the lower jaw.
-        P.add(L(hp((4.6, s * 1.7, -2.3)), hp((5.8, s * 2.3, -0.8)), 0.45, 0.28, "tusk", "tusk%d" % s))
+        P.add(L(hp((4.6, s * 1.7, -2.3)), hp((5.8 - 0.4 * fr, s * (2.3 + 0.9 * fr), -0.8 + 0.2 * fr)), 0.45, 0.28, "tusk", "tusk%d" % s))
         # Eyes: a dark bead under the brow with a glint (shut when struck or beaten); the hollowed's cold white.
         shut = action == "hurt" and f == 0 or action == "death" and f >= 5
         eye, eye2 = on(hc, skull, hm, s * 50.0, 16.0), on(hc, skull, hm, s * 46.0, 26.0)
@@ -135,18 +139,20 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
         flick = 18.0 if action == "idle" and f in (3, 4) and s > 0 else 0.0
         if action in ("windup", "attack"):
             flick = -20.0   # laid back
-        em = hm @ rot("a", s * -32.0) @ rot("b", 4.0 + flick)
-        ear_c = hp((-1.0, s * 2.7, 3.5))
-        P.add(E(ear_c, (1.3, 1.0, 2.8), m["head"], "ear%d" % s, em))
-        P.mark(on(ear_c, (1.3, 1.0, 2.8), em, 0.0, 20.0), M.RAMPS["pink"][1] if not hollow else M.RAMPS["h_snout"][1])
+        em = hm @ rot("a", s * -(32.0 + 20.0 * fr)) @ rot("b", 4.0 + flick)
+        ear_c = hp((-1.0 - 0.3 * bk, s * (2.7 + 0.6 * fr), 3.5 + 1.0 * bk))
+        ear_r = (1.3 * (1.0 + 0.15 * fr), 1.0, 2.8 * (1.0 + 0.15 * fr + 0.1 * bk))
+        P.add(E(ear_c, ear_r, m["head"], "ear%d" % s, em))
+        P.mark(on(ear_c, ear_r, em, 0.0, 20.0), M.RAMPS["pink"][1] if not hollow else M.RAMPS["h_snout"][1])
     # Legs: forelegs under the shoulder, hind legs under the rump bent back at the hock, dark hooves.
-    legs = (("fl", 3.8, 2.5, 0.0), ("fr", 3.8, -2.5, 0.5), ("hl", -5.0, 2.7, 0.5), ("hr", -5.0, -2.7, 0.0))
+    fb, hb = 2.5 + 1.3 * fr + 0.5 * bk, 2.7 + 0.5 * fr + 1.2 * bk        # the stance: apart where it is seen head-on
+    legs = (("fl", 3.8, fb, 0.0), ("fr", 3.8, -fb, 0.5), ("hl", -5.0 + 1.3 * fr, hb, 0.5), ("hr", -5.0 + 1.3 * fr, -hb, 0.0))
     roll = pick(ROLL, action, f)
     for name, a0, b0, off in legs:
         front = name[0] == "f"
-        lift, stride = gait(action, f, off, 2.0, 2.2)
-        top = at((a0 + 1.4 if front else a0 + 0.8, b0 * 0.92, -2.4 if front else -1.8))
-        foot = v3(lunge + a0 + stride, b0, 0.9 + lift)
+        lift, stride = gait(action, f, off, 2.0 + 0.9 * (fr + bk), 2.2)
+        top = at((a0 + 1.4 if front else a0 + 0.8, b0 * (0.92 - 0.12 * (fr + bk)), -2.4 if front else -1.8))
+        foot = v3(lunge + a0 + stride + (0.8 * fr if front else 0.0), b0, 0.9 + lift)
         if action == "windup" and name == "fr":
             foot = foot + v3(*((0.4, 0.0, 1.2), (-2.6, 0.0, 0.3), (0.9, 0.0, 1.6), (0.2, 0.0, 0.0))[f])
         if action == "windup" and not front:
@@ -161,15 +167,19 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
             foot = foot + v3(-2.6 * fold if front else 1.2 * fold, 0.0, 1.6 * fold)
         l1, l2 = (3.0, 2.9) if front else (3.1, 3.0)
         knee, end = ik2(top, foot, l1, l2, v3(1.0 if front else -1.0, 0.0, 0.0))
-        P.add(L(top, knee, 1.7 if front else 2.0, 1.2, m["hide"], "leg_" + name),
+        P.add(L(top, knee, 1.7 if front else 2.0 + 0.5 * bk, 1.2, m["hide"], "leg_" + name),
               L(knee, end, 1.15, 0.95, m["hide"], "leg_" + name))
         P.add(E(end + v3(0.3, 0.0, -0.25), (1.15, 1.0, 0.8), m["hoof"], "leg_" + name))
     # The tail: a short curl with a tuft, flicking.
     wag = {"idle": (0.0, 0.8, 0.3, -0.5, 0.0, 0.4), "walk": tuple(0.8 * wave("walk", i) for i in range(8))}.get(action, (0.3,) * 8)
     w = wag[min(f, len(wag) - 1)]
-    P.add(chain([at((-7.9, 0.0, 1.4)), at((-8.8, 0.2 + w * 0.5, 2.3)), at((-8.6, 0.6 + w, 3.2)), at((-7.9, 0.5 + w, 3.4))],
-                0.62, 0.4, m["hide"], "tail"))
-    P.add(S(at((-7.7, 0.4 + w, 3.3)), 0.62, m["bristle"], "tail"))
+    # The tail: from the top of the rump it droops, a flick of a curl at its end and a dark tassel, swinging.
+    ta = 1.4 * fr
+    tail = [at((-7.6 + ta, 0.0, 2.2)), at((-9.0 + ta, w * 0.3, 1.6)), at((-9.8 + ta, w * 0.7, 0.3)),
+            at((-9.8 + ta, w * 1.0, -1.1 - 0.9 * bk)), at((-9.2 + ta, w * 1.1, -1.7 - 1.4 * bk))]
+    P.add(chain(tail[:2], 0.62 + 0.1 * bk, 0.55 + 0.1 * bk, m["hide"], "tail"),
+          chain(tail[1:], 0.55 + 0.1 * bk, 0.42 + 0.1 * bk, m["bristle"], "tail"))
+    P.add(E(tail[-1] + bm @ v3(0.1, 0.0, -0.3), (0.7 + 0.15 * bk, 0.6 + 0.15 * bk, 0.9 + 0.2 * bk), m["bristle"], "tail", bm))
     if hollow and action != "death":
         # The grey strands: three thin wisps rising from the spine and curling back, stirring as it breathes.
         st = {"idle": 0.5 * wave(action, f), "walk": 0.7 * wave(action, f, 0.3)}.get(action, 0.9)
@@ -203,5 +213,5 @@ def boarlet(action: str, f: int, hollow: bool = False) -> Pose:
     return P
 
 
-def hollowed(action: str, f: int) -> Pose:
-    return boarlet(action, f, True)
+def hollowed(action: str, f: int, view: float = 48.0) -> Pose:
+    return boarlet(action, f, True, view)

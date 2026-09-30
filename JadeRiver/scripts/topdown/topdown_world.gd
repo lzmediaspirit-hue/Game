@@ -1080,6 +1080,10 @@ class FoeView extends Sorted:
 		if not e.alive: act = "death"
 		elif e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]): act = "hurt"
 		if not acts.has(act): act = "idle"
+		# Decision 44: a foe whose sheet has a swim row (the marsh leech) swims where it is in water, moving or still.
+		if act in ["idle", "walk"] and acts.has("swim"):
+			var wc := TopdownRoom.cell_of(e.plane)
+			if room.is_water(wc.x, wc.y): act = "swim"
 		if act != last:
 			last = act
 			t = 0.0

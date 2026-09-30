@@ -1710,12 +1710,18 @@ func monsters() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--monsters-tag="): tag = a.substr(15)
 	var out := "res://docs/redesign/feedback/monsters/%s/" % tag
+	if "--monsters-polish" in OS.get_cmdline_user_args(): out = "res://docs/redesign/feedback/monsters/polish/%s/" % tag
 	process_mode = Node.PROCESS_MODE_ALWAYS          # this node runs while the game is held still; the game does not
 	main.process_mode = Node.PROCESS_MODE_PAUSABLE
 	await _topdown_game(out)
 	await frames(360)
 	var c = Game.active()
 	get_tree().physics_frame.connect(func(): if Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	if "--monsters-polish" in OS.get_cmdline_user_args():
+		await monsters_polish(out)
+		print("topdown_capture: monsters polish done")
+		get_tree().quit()
+		return
 	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	GameEvents.flush()
 	await frames(10)
@@ -1787,6 +1793,53 @@ func monsters() -> void:
 		crop.save_png(ProjectSettings.globalize_path(out + str(s[0]) + "_x4.png"))
 	print("topdown_capture: monsters done")
 	get_tree().quit()
+
+## Decision 44's foe polish (`-- --monsters --monsters-polish --monsters-tag=<before|after>`, into
+## docs/redesign/feedback/monsters/polish/<tag>/): the four-legged foes (both boarlets and an elite, the rat, the otter,
+## the toad and the crab) and the marsh leech and its elite staged round the player on the Reed Shallows' flats and held
+## still, the world alone at x2 and the lineup at x4: facing the camera (S) idle, mid-stride, in the tell and on the hit
+## (12-15), walking away (N) idle, mid-stride and in the tell (16-18), and three quarters (SE) idle and in the tell
+## (19-20); then leeches looping on the bank beside a leech and an elite swimming in the river (21).
+const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed_boarlet", Vector2(-1.5, -2.2), false],
+	["wild_boarlet", Vector2(1.5, -2.2), true], ["reedtail_rat", Vector2(4.5, -2.2), false],
+	["reed_otter", Vector2(-4.5, 1.0), false], ["mossback_toad", Vector2(-1.5, 1.0), false], ["mudshell_crab", Vector2(1.5, 1.0), false],
+	["marsh_leech", Vector2(3.4, 1.0), false], ["marsh_leech", Vector2(5.2, 1.0), true]]
+
+func monsters_polish(out: String) -> void:
+	var c = Game.active()
+	Game.world.load_room(c, "lf_reed_shallows", "", (MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	GameEvents.flush()
+	await frames(10)
+	await at_spot(MONSTER_SPOT, 90)
+	main.hud.visible = false
+	var foes := await _monster_stage(POLISH_LINEUP)
+	for st in [["12_head_on", "idle", 0, Vector2.DOWN], ["13_head_on_walk", "walk", 2, Vector2.DOWN],
+			["14_head_on_tells", "windup", -1, Vector2.DOWN], ["15_head_on_strikes", "attack", 1, Vector2.DOWN],
+			["16_tail_on", "idle", 0, Vector2.UP], ["17_tail_on_walk", "walk", 2, Vector2.UP], ["18_tail_on_tells", "windup", -1, Vector2.UP],
+			["19_three_quarter", "idle", 0, Vector2(1, 1)], ["20_three_quarter_tells", "windup", -1, Vector2(1, 1)]]:
+		for e in foes: _pose_foe(e, str(st[1]), st[3], int(st[2]))
+		await _monster_shot(str(st[0]), out)
+	# Leeches on the bank (looping, drawn up and stretched out) and in the river (swimming), the player between them.
+	get_tree().paused = false
+	var bank := MONSTER_SPOT + Vector2(0, 4.3)
+	var leeches: Array = await _monster_stage([["marsh_leech", Vector2(-4.2, 4.4), false], ["marsh_leech", Vector2(-2.0, 4.8), false]])
+	m.place((bank + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+	w._settle_camera()
+	get_tree().paused = false
+	for k in 2:
+		var e: EnemyState = Game.enemies.spawn_at("marsh_leech", (MONSTER_SPOT + Vector2(1.5 + k * 2.6, 6.2 + k * 0.3) + Vector2(0.5, 0.5)) * TopdownRoom.TILE, 1, {"elite": k == 1})
+		e.altitude = w.room.height_at(e.plane)
+		e.ai.state = "idle"
+		e.ai.timer = 99.0
+		leeches.append(e)
+	await frames(20)
+	get_tree().paused = true
+	_pose_foe(leeches[0], "walk", Vector2(1, 0), 0)
+	_pose_foe(leeches[1], "walk", Vector2(1, 0), 4)
+	_pose_foe(leeches[2], "swim", Vector2(1, 0), 2)
+	_pose_foe(leeches[3], "swim", Vector2(-1, 0), 5)
+	await _monster_shot("21_leech_bank_and_river", out)
+	get_tree().paused = false
 
 ## The lineup ([def, offset in cells, elite]) set round the player on the room's floor, the room's own foes and people
 ## cleared, each doing nothing until it is posed; the game is then held still.

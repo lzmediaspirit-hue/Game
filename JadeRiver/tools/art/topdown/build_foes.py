@@ -74,17 +74,18 @@ def review(sheets: dict, man: dict) -> None:
         for label, look in [("", block)] + ([("elite", block["elite"])] if "elite" in block else []):
             sheet = _sheet(sheets, look)
             cw, ch = look["cell"]
-            n = sum(len(look["actions"][a]["frames"]["s"]) for a in creatures.ORDER)
+            order = creatures.REGISTRY[sp].actions()
+            n = sum(len(look["actions"][a]["frames"]["s"]) for a in order)
             out = Image.new("RGBA", (lw + n * cw * z, th + len(man["dirs"]) * ch * z), (22, 30, 34, 255))
             dr = ImageDraw.Draw(out)
             x = lw
-            for a in creatures.ORDER:
+            for a in order:
                 k = len(look["actions"][a]["frames"]["s"])
                 dr.text((x + 4, 4), "%s (%d, %d fps)" % (a, k, look["actions"][a]["fps"]), font=head, fill=(232, 225, 207, 255))
                 x += k * cw * z
             for r, d in enumerate(man["dirs"]):
                 c = 0
-                for a in creatures.ORDER:
+                for a in order:
                     for i in range(len(look["actions"][a]["frames"][d])):
                         tone = (99, 150, 76, 255) if (r + c) % 2 else (92, 140, 70, 255)
                         cell = Image.new("RGBA", (cw, ch), tone)
@@ -110,7 +111,7 @@ def anims(sheets: dict, man: dict) -> None:
         h = base + max(lk["cell"][1] - lk["foot"][1] for lk in looks)
         w = sum(lk["cell"][0] for lk in looks)
         frames, durations = [], []
-        for a in creatures.ORDER:
+        for a in creatures.REGISTRY[sp].actions():
             act = looks[0]["actions"][a]
             n = len(act["frames"]["se"])
             for _ in range(2 if act["loop"] else 1):

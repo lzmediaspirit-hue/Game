@@ -1788,10 +1788,11 @@ func topdown_art_suite() -> void:
 				continue
 			if img.get_width() > 4096 or img.get_height() > 4096: big.append("%s %dx%d" % [id, img.get_width(), img.get_height()])
 			var acts: Dictionary = look.get("actions", {})
-			for act in catalogue:
+			# Decision 44: an action past the catalogue (the leech's swim, 8 frames) is held to the same rules.
+			for act in catalogue.keys() + (["swim"] if acts.has("swim") else []):
 				for d in foes.get("dirs", []):
 					var list: Array = acts.get(act, {}).get("frames", {}).get(d, [])
-					if list.size() != int(catalogue[act]): missing_foes.append("%s %s %s: %d frames" % [id, act, d, list.size()])
+					if list.size() != int(catalogue.get(act, 8)): missing_foes.append("%s %s %s: %d frames" % [id, act, d, list.size()])
 					for at in list:
 						if not Rect2i(0, 0, img.get_width(), img.get_height()).encloses(Rect2i(int(at[0]), int(at[1]), int(cell[0]), int(cell[1]))): missing_foes.append("%s %s %s outside" % [id, act, d])
 			if int(acts.get("attack", {}).get("hit_frame", -1)) != 1: missing_foes.append("%s hit frame" % id)
