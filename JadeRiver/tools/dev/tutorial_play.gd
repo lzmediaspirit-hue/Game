@@ -268,9 +268,11 @@ func follow_guides() -> void:
 			break
 		var before := _key(st)
 		await _tap_raw((st.rect as Rect2).get_center(), 2)
-		await _read(12)
+		await _read(20)
 		var now: Dictionary = coach().state()
 		if now.mode == "guide" and _key(now) == before and now.entry == st.entry:
+			# The element's tap opened its card (a piece's Equip): the hand moved on to it, to be followed there.
+			if now.rect != st.rect: continue
 			bug("a tap where the guide's hand points did nothing (%s)" % st.anchor, st)
 			if st.buttons.has("later"): await answer(st, "later")
 			break

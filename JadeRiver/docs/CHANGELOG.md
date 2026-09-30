@@ -50,7 +50,7 @@ with a check in the `tutorials` suite.
   - `tools/dev/tutorial_prof.tscn` measures the coach's frame.
   - The QA walk gains `--only=<steps>` and a `p_boat` step.
   - `tests/prologue_run.gd` keeps "Crab Trouble done" and "The River Token" for `--keep`.
-- **Tests:** the `tutorials` suite goes from 87 checks to CHECKS, with a new section 10, "the card under a thumb". Each
+- **Tests:** the `tutorials` suite goes from 87 checks to 136, with a new section 10, "the card under a thumb". Each
   check was confirmed to fail with its fix undone.
 
 ## Progression numbers, three quick slots and a 50-space bag (decision 45)
