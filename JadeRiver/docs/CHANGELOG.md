@@ -31,13 +31,18 @@ with a check in the `tutorials` suite.
   - The gear guide's hand moves on to Equip.
   - The Cultivate tour lights the fan while it is folded.
   - Guides wait for the HUD to fade back in after a scene.
-- **The lag.** Hidden, the coach cost 39 µs a frame on the play screen and 518 µs over any page. It now costs 2 µs
-  and 8 µs. Showing a lesson, it cost 0.6 to 1.0 ms a frame on a desktop CPU; it now costs about 0.2 ms.
+  - The Map's Walk step and the last Settings step light their buttons for a new player.
+  - The Qi pool's tour, now at Bone Forging 1, rings the Qi bar rather than the whole panel.
+- **The lag.** Measured on a desktop CPU with `tools/dev/tutorial_prof.tscn`, the median of three runs each:
+  - Hidden, the coach cost 40 µs a frame on the play screen and 531 µs over any page. It now costs 14 µs and 35 µs
+    (2 µs and 8 µs timed directly in the suite).
+  - Showing a lesson, it cost 0.62 to 1.02 ms a frame. It now costs 0.17 to 0.19 ms.
+  - A page's "?" cost 188 µs on each drawing of the page. It now costs 2 µs.
   - A page's tours are listed once per page and tab, where every open page listed them twice a frame.
   - The HUD's controls are counted once a frame (`HUD.tour_targets`, shared with the HUD's own frame).
   - The words are wrapped once per step.
   - The card is a child node, drawn again only when it changes.
-  - The authority's poll checks only the passing states (0.3 ms down to 0.04 ms every half second). An event checks
+  - The authority's poll checks only the passing states (0.34 ms down to 0.04 ms every half second). An event checks
     only the kinds it can bring.
 - **Tools.**
   - `tools/dev/tutorial_play.tscn` plays the tutorials as a player on the prototype's QA walk. It answers every card

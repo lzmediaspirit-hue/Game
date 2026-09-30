@@ -302,7 +302,7 @@ finger's misses and a reading of the code gave the list below. Each bug has a ch
 | # | Bug | Cause | Fix |
 |---|---|---|---|
 | 1 | **Done, Skip and Later sometimes did nothing** (the report). | The card was placed round the pointing hand *as it bobbed* (4 px, five times a second), so in every guide and every tour step with a "try it", the card and its buttons moved each frame. The costs that chose its place moved with the hand, so it could even jump between places. A thumb pressed near a button's edge, lifted off it, and nothing happened. | The card is placed once per step, from the hand at rest. It moves again only when its anchor moves more than 12 px, and never while a finger is on it. |
-| 2 | **A page's tour card showed in the middle, then jumped beside its anchor**: the shop's Next went from x 764–900 to 642–774, and a tap where it first showed did nothing. | The tour started on the page's first frame, before the page had drawn its anchors and while its parts slid in (up to 0.35 s). The card stood alone in the middle, then followed its sliding anchor. | The coach waits for the page to come in (`Page.settled`). A step whose anchor is not found yet waits up to 0.4 s before its card stands alone (`MISSING_S`, which was never used). |
+| 2 | **A page's tour card showed in the middle, then jumped beside its anchor**: the shop's Next went from x 764–900 to 640–776, and a tap where it first showed did nothing. | The tour started on the page's first frame, before the page had drawn its anchors and while its parts slid in (up to 0.35 s). The card stood alone in the middle, then followed its sliding anchor. | The coach waits for the page to come in (`Page.settled`). A step whose anchor is not found yet waits up to 0.4 s before its card stands alone (`MISSING_S`, which was never used). |
 | 3 | **Later and Done looked as if they did nothing** when lessons were queued. At the River Token thirteen were. The Menu's guide put off, the Foundation points' guide came up at once in the same place, its hand on the same Menu button. | The next guide showed in the same frame. | After the player closes a card, another lesson waits 1.2 s on the same screen (`REST_S`). The same lesson going on (a HUD power's guide after its tour, a page's tour after its guide) does not wait. |
 | 4 | **A double tap on Done or Skip reached what was under the card**: a slot of the Bag, the HUD's Attack, a page's region. | The first tap closed the card, and the second landed on what lay beneath it. | A tap that closes a card guards its place for 0.35 s. |
 | 5 | **A HUD lesson's card vanished mid-tour** when a guide with a higher priority was queued (the guard's tour under the Menu's guide). The tap meant for Next fell on the HUD. | The coach showed whatever headed the queue, and the queue is ordered by priority. | The HUD lesson on screen, or under way, keeps the screen until it ends. |
@@ -316,13 +316,27 @@ finger's misses and a reading of the code gave the list below. Each bug has a ch
 | 13 | **The Cultivate tour lit nothing with the fan folded.** | Its first anchor was `meditate`, a button in the fan. | `meditate\|fan`, as the late powers' guides do. |
 | 14 | **Guides showed over a HUD still fading back after a scene**, the hand and "!" on a faint button. | The coach checked only the scene's lock. | The coach waits for the HUD to be back. |
 | 15 | **Buttons small for a thumb, a press that showed little, a tap that came twice.** | They were 136×48 px, and a tap had to press and lift inside the same button. A phone's tap came as the touch and again as the mouse click made from it; both reached the card, and only the first release clearing the press kept it from acting twice. | 136×56 px, with touch targets 8 px past them. A release up to 24 px off counts. A held button shows pressed, its label down 2 px. The mouse click made from a touch is ignored: a tap is taken once, as the touch, one finger at a time. |
-| 16 | **The lag.** | See below. | See below. |
+| 16 | **Tour steps that lit nothing for a new player.** The Map's "Walk" step, and the last Settings step when Next was tapped instead of opening Controls. | The Walk button shows only on a quest's place. Replay tutorials is on the Controls tab. The suite's anchor check opens pages with everything in place, so it did not see this. | `walk\|card` (the place's card, where Walk comes) and `replay_tutorials\|tab:controls`. |
+| 17 | **A guide's card half hid the tracker's go button.** | The card was as wide as its words at 512 px, plus its buttons. | A guide's words wrap at 400 px when they still fit two lines, so the card fits beside its button. |
+| 18 | **The Qi pool's tour lit the whole panel** for "the blue bar on your panel". The pool now opens with the first technique at Bone Forging 1. | Its anchor was `portrait`. | `qi\|portrait`: the ring stands on the Qi bar. |
+| 19 | **The lag.** | See below. | See below. |
 
 **The lag.** Measured with `tools/dev/tutorial_prof.tscn` on this machine's desktop CPU; a phone's is several times
 slower. The figures are microseconds a frame, the median over 400 frames of the coach's own work and drawing, with the
 old code and the new run back to back three times each (the median of the three):
 
-LAG_TABLE
+| The coach, a frame (µs) | Before | After |
+|---|---:|---:|
+| Hidden, on the play screen | 40 | 14 |
+| Hidden, a page open (the Bag, its tour seen) | 531 | 35 |
+| A guide's card on the HUD (the Menu button's) | 620 | 189 |
+| A HUD tour (the guard's) | 636 | 165 |
+| A page's tour (the Bag's) | 1,018 (p90 1,390) | 181 (p90 245) |
+| A page's "?", on each drawing of the page | 188 | 2 |
+| The authority's poll, every 0.5 s | 338 | 35 (every trigger, every 5 s: 322) |
+
+The profiler's figures include its own timing of the coach's parts. Timed directly in the `tutorials` suite, the hidden
+coach costs about 2 µs a frame on the play screen and 8 µs over a page.
 
 Where the time went:
 - With a page open, `_page_tour` went through all 70 entries twice a frame. It asked the authority's `state()`, and
@@ -348,5 +362,12 @@ The `tutorials` suite holds the hidden coach to under 100 µs a frame on the pla
 also checks that the lookups are made once and that a still card is not drawn again.
 
 **The shots** (`feedback/tutorials/decision45/`):
-
-SHOTS
+- `before_shop_opening.png` and `after_shop_opening.png`: the shop's tour on the frame the page opens, the next one and
+  the twelfth. Before, the card shows in the middle over a page not yet drawn (Next at x 764–900), then jumps beside
+  the wares (Next at 640–776). After, it waits for the page, then shows beside the wares and stays there.
+- `before_guide_play_screen.png` and `after_guide_play_screen.png`: the gear guide in the village. Before, its card sits
+  over the Equip prompt, the people and Lu's plate, down to the Talk button. After, it is narrow and clear of the
+  HUD's controls, plates and thumbs.
+- `phone_guide.png` and `phone_tour.png`: the Menu's guide and a page's tour at a 20:9 phone's 2400×1080. The canvas is
+  scaled 1.5 between its bars.
+- `phone_tall_anchor.png`: the Cultivation stair's step, its card tight over the stair.

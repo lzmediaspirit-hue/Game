@@ -210,7 +210,8 @@ def prototype():
     entry("emotes", "emotes", first_open(), [t("known|emote"), t("unknown|emote"), t("close")])
     # HUD controls that open after the Prologue.
     entry("guard", "hud", unlock("guard"), [t("guard"), t("attack")], priority=5)
-    entry("qi_pool", "hud", unlock("qi_pool"), [t("portrait"), t("skill|attack")], priority=5)
+    # Decision 45: the pool opens at Bone Forging 1, with the first technique; the tour lights the Qi bar itself.
+    entry("qi_pool", "hud", unlock("qi_pool"), [t("qi|portrait"), t("skill|attack")], priority=5)
     entry("collection", "collection", unlock("collection_book"), [t("contents"), t("leaf|corner"), t("seals"), t("tab:achievements")],
           tab="collection", chain=via_menu("codex", "collection", "ui.codex.collection"), priority=3)
 

@@ -126,8 +126,15 @@ func look(first: Dictionary) -> void:
 	if card.size == Vector2.ZERO: bug("no card", st)
 	elif not safe.encloses(card): bug("the card runs off the screen", st)
 	if target.size == Vector2.ZERO: bug("the anchor %s is not found on screen (the card stands alone)" % st.anchor, st)
-	elif card.size != Vector2.ZERO and card.intersects(target.grow(2)) and target.get_area() < 0.45 * 1280.0 * 720.0:
-		bug("the card covers what it explains", st)   # (a page's whole content leaves the card no clear place)
+	elif card.size != Vector2.ZERO and card.intersects(target.grow(2)):
+		# A card that could stand clear beside its target must; one that cannot (a page's whole content, a big chart)
+		# may take a corner of it, never its middle nor more than an eighth of it.
+		var room := Rect2(24, 16, 1232, 688)
+		var clear: bool = maxf(target.position.x - room.position.x, room.end.x - target.end.x) - 8.0 >= card.size.x \
+			or maxf(target.position.y - room.position.y, room.end.y - target.end.y) - 8.0 >= card.size.y
+		var over: float = card.intersection(target).get_area()
+		if clear or card.has_point(target.get_center()) or over > 0.125 * target.get_area():
+			bug("the card covers what it explains (%.0f%% of it)" % (100.0 * over / maxf(1.0, target.get_area())), st)
 	var hr: Rect2 = coach().hand_rect(false) if coach()._hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO:
 		if not safe.encloses(hr): bug("the hand runs off the screen %s" % str(hr), st)

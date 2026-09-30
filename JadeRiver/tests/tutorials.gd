@@ -22,7 +22,14 @@ extends Node
 ##      guide and a tour (1); every anchor of them is found once the power is unlocked, on a character at its realm;
 ##      Spirit Sense end to end (the hand on the fan, then on its button, the tour, a pulse through the spotlight, done);
 ##      the treasures' tour first and its guide on to the Bag, the Sphere's guide on to the Dao tab after its tour, the
-##      weapon swap's guide to a spare in the Bag before its tour; a save from before them knows the powers it has.
+##      weapon swap's guide to a spare in the Bag before its tour; a save from before them knows the powers it has;
+##  10. decision 45, the card under a thumb (docs/redesign/tutorials.md "Bugs fixed"), through the phone's own input path
+##      (a touch at the window's pixels, which the engine also turns into a mouse click): Done, Skip and Later on the
+##      first tap, at an edge, held while the hand bobs, as the card fades in; a double tap acts once and reaches nothing
+##      under the card; a page's tour waits for the page to come in; a tab's tour resumes on its tab; a HUD lesson keeps
+##      the screen; the next lesson waits a moment; every finger stays the HUD's or the coach's to its release; a fight, a
+##      reload and a room change mid-tour; Back skips a tour; cards keep clear of the HUD and the thumbs, and of a tall
+##      anchor; the gear guide's hand moves on to Equip; the Cultivate tour lights the folded fan; and the coach's cost.
 ## In-game tests never use the Max Tester save. Run headless:  godot --headless --path . res://tests/tutorials.tscn
 
 const TALKS := ["dialogue", "gift", "mercy", "fates", "revival", "welcome"]   ## pages the coach waits out: no tour
@@ -1286,7 +1293,7 @@ func _cost() -> void:
 	await settle()
 	var over_page: int = us.call()
 	check(coach().state().mode == "" and idle < 100 and over_page < 200,
-		"hidden, the coach costs next to nothing a frame: %d us on the play screen, %d us over a page (518 us over a page before decision 45)" % [idle, over_page])
+		"hidden, the coach costs next to nothing a frame: %d us on the play screen, %d us over a page (531 us over a page before decision 45)" % [idle, over_page])
 	check(is_same(TutorialRules.tours_for("inventory", ""), TutorialRules.tours_for("inventory", "")), "a page's tours are worked out once, not each frame")
 	main.close_all_pages()
 	await frames(2)

@@ -902,7 +902,7 @@
    "chain": [],
    "tour": [
     {
-     "anchor": "portrait",
+     "anchor": "qi|portrait",
      "text": "ui.tutorial.qi_pool.1"
     },
     {

@@ -14,9 +14,11 @@ extends Control
 ## per character and resumes after a reload. A tour played again from a page's "?" is not recorded.
 ##
 ## Decision 45 (the "Bugs fixed" section of the note): the card is a thumb's to answer on a phone.
-##   - The card stands still for its step: it is placed once, from the hand at rest (never its bob), and moves again only
-##     when its anchor moves further than MOVE_PX (a page sliding in) or would come under it; never while a finger is
-##     down on it.
+##   - The card stands still for its step: it waits for its page to come in (Page.settled) and for its anchor (MISSING_S),
+##     is placed once, from the hand at rest (never its bob), and moves again only when its anchor moves further than
+##     MOVE_PX, never while a finger is down on it. Its places keep off what the HUD shows and the thumbs' places.
+##   - After the player closes a card, another lesson waits REST_S on the same screen (a queue's next guide came up at
+##     once in the same place, and read as a Later that did nothing); a HUD lesson on screen keeps it until it ends.
 ##   - Its buttons are BTN_H tall and their touch targets HIT_PAD past them; a button acts on its finger's release,
 ##     within SLOP of it, and shows pressed while held. A phone's touch arrives twice (the touch and the mouse click made
 ##     from it): it is taken once, as the touch.
@@ -101,6 +103,7 @@ class CardView extends Control:
 	var coach: TutorialCoach
 	var _card := Rect2()
 	var _line := ""
+	var _entry := ""
 	var _step := -1
 	var _pressed := ""
 	var _alpha := -1.0
@@ -111,9 +114,11 @@ class CardView extends Control:
 		texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	func refresh() -> void:
 		var a := coach.card_alpha() if coach.mode != "" else 0.0
-		if coach.card != _card or coach.line != _line or coach.step != _step or coach._pressed != _pressed or a != _alpha or coach.buttons.size() != _n:
+		if coach.card != _card or coach.line != _line or coach.entry_id != _entry or coach.step != _step or coach._pressed != _pressed \
+				or a != _alpha or coach.buttons.size() != _n:
 			_card = coach.card
 			_line = coach.line
+			_entry = coach.entry_id
 			_step = coach.step
 			_pressed = coach._pressed
 			_alpha = a
