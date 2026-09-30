@@ -40,12 +40,6 @@ FORMATION_ELDERS = ["jade_formation_elder", "cloud_formation_elder"]
 PHYSICIANS = ["jade_physician", "cloud_physician"]
 
 
-NPC_AGES = {"aunt_ping": 46, "lu_boatman": 61, "little_dou": 9, "old_ma": 72, "granny_liu": 83, "uncle_guo": 54,
-            "shen_lian_npc": 16, "shen_lian": 16, "wen_zhao": 17, "mei_qing": 19, "mei_qing_sect": 19, "madam_hua": 41,
-            "old_scribe_bai": 77, "magistrate_qian": 58, "guard_hou": 38, "peddler_shao": 50, "elder_hu": 212, "elder_sung": 187,
-            "lan_yue": 18, "tie_niu": 20, "qiu_feng": 22, "bai_ling": 17, "hermit_yao": 340, "elder_gu": 96}
-
-
 def npcs():
     N = []
 
@@ -514,11 +508,7 @@ def npcs():
             n["heart_rewards"] = dict(a.get("rewards", {}))
     missing = (set(AFFINITY) | set(AFFINITY_ALIAS)) - {n["id"] for n in N}
     assert not missing, missing
-    # S49 lifespan as flavour: the named people's ages when your story starts. They grow older with you (a year for
-    # every four weeks you play, one season a week), shown wherever their hearts are.
     for n in N:
-        if n["id"] in NPC_AGES:
-            n["age"] = NPC_AGES[n["id"]]
         # P13a: a master who holds a lost art teaches it in a dialogue of their own (dialogue(): LOST_LESSONS).
         if n["id"] in {s["src"]["npc"] for s in LOST_HAND.LOST if s["src"]["kind"] == "master"}:
             n.setdefault("tree", n["id"])

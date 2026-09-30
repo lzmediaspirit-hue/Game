@@ -85,15 +85,11 @@ SURFACES = ["grass", "dirt", "stone", "wood", "sand", "water", "reeds", "roof", 
 PAINT_SURFACE = {"g": "grass", "f": "grass", "b": "grass", "m": "reeds", "d": "dirt", "p": "stone", "s": "stone",
                  "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow", "k": "snow"}
 PROP_TOP_SURFACE = {"crates": "wood", "house": "roof", "hall": "roof", "storehouse": "roof", "boat": "wood"}
-# The side view's ground materials (rooms' `ground.material`), for a room drawn without a height grid.
-MATERIAL_SURFACE = {"earth": "dirt", "stone": "stone", "wood": "wood", "sand": "sand", "snow": "snow", "grass": "grass",
-                    "water": "water", "marsh": "reeds", "roof": "roof"}
 
 STEPS = {
     "surfaces": {s: {"steps": [f"step_{s}_{v}" for v in "abcd"], "land": f"land_{s}"} for s in SURFACES},
     "paint": PAINT_SURFACE,
     "prop_tops": PROP_TOP_SURFACE,
-    "materials": MATERIAL_SURFACE,
     "water": "water",
     "default": "dirt",
     # where a foot lands in each cycle, as fractions of it (the walk and the run: frames 0 and 4 of 8, left then right;

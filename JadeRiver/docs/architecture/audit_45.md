@@ -872,6 +872,7 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
     changed to match: `balance_sim`, `data_validation`, `rules_tests`, the wiki, `moments.py` and `topdown_capture`.
   - The dropped fields: techniques' `mastery`, shops' `buys_all`, enemies' `weak_to` and `equipment_chance`, zones'
     `laws` and `exit`, and `same_stage_ok` on unlocks and quests (its check moved into `story.validate`).
+  - S1 removed the readers of the NPCs' `age` and of `sound.json`'s `steps.materials`, so those went too.
   - Kept: `named.archetype` and the sets' `archetype`, which `data_validation`'s item-plan checks and the wiki read.
   - `core.qp_pct` had already gone in phase 1.
 - **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),

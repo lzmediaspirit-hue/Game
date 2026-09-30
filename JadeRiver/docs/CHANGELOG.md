@@ -33,7 +33,8 @@ engines will build on, made tidy first. No game behaviour changes; the data diff
     `topdown/td_review_heights.json` (the captures' review room, now given to the view as a preset).
   - **Row fields:** the techniques' `mastery`; the shops' `buys_all`; the enemies' `weak_to` and `equipment_chance`
     (the builder keeps its own for the loot roll); the zones' `laws` and `exit`; and `same_stage_ok` on unlocks and
-    quests. The one-lesson-a-stage rule it served moves into `story.validate`.
+    quests. The one-lesson-a-stage rule it served moves into `story.validate`. After S1 removed their readers, the
+    NPCs' `age` and `sound.json`'s `steps.materials` go too.
   - **Strings:** 51 `ui.*` keys nothing asks for. The 11 `world_view.*` keys are built from data and stay.
   - **Manifest ids:** 8 icons, 8 props and 4 UI assets that nothing names, with their drawings and files.
   - **Kept:** the artifacts' `named.archetype` and the sets' `archetype`, which the item plan's checks and the wiki
