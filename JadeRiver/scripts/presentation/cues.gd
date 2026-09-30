@@ -6,19 +6,20 @@ extends RefCounted
 ## colours and texts in them; each player does the steps (WorldShared the world's). Static and side-free: it reads
 ## data, the payload and the active character, and writes nothing.
 
-static var _index := {}   # "to:event" -> [row] in the table's order
+static var _index := {}   # to -> {event -> [row] in the table's order}
 static var _indexed := false
 const _NONE: Array = []
+const _NO_ROWS: Dictionary = {}
 
 ## The rows of `event` for player `to` ([] for an event it does not answer).
 static func rows(to: String, event: String) -> Array:
 	if not _indexed:
 		_indexed = true
 		for r in ContentDB.all("cues"):
-			var k := "%s:%s" % [r.get("to", ""), r.get("event", "")]
-			if not _index.has(k): _index[k] = []
-			_index[k].append(r)
-	return _index.get(to + ":" + event, _NONE)
+			var by_event: Dictionary = _index.get_or_add(str(r.get("to", "")), {})
+			if not by_event.has(str(r.get("event", ""))): by_event[str(r.get("event", ""))] = []
+			by_event[str(r.get("event", ""))].append(r)
+	return _index.get(to, _NO_ROWS).get(event, _NONE)
 
 ## The first of `event`'s rows for `to` whose `when` holds for payload `p`; {} when none does.
 static func pick(to: String, event: String, p: Dictionary) -> Dictionary:
