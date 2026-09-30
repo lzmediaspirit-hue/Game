@@ -15,7 +15,11 @@ extends Node
 ##      combat stem in on the next beat; it stays while they fight and leaves on a bar a few seconds after the last
 ##      falls; Old Snapper brings his own theme;
 ##   6. the beds: each top-down room's bed, the hour's layers, the crossfade on a change; the stingers duck the music;
-##   7. the voice limit holds under the fifteen-monster fight (the pool, and each rule's cap).
+##   7. the voice limit holds under the fifteen-monster fight (the pool, and each rule's cap);
+##   8. the living world (decision 44): every sound it can raise has a file (the critters' of the table, each work cue
+##      of data/topdown/life.json, the blows, the places', the takes; every cue topdown_life.gd names is one of them); a
+##      cue raised in the room plays once where it happens; takes play in turn, varied in pitch; a busy village sounds
+##      at most three critters and three people at work at once, and never keeps a sound of the fight from a voice.
 ## Run headless:  godot --headless --path . res://tests/audio_tests.tscn
 
 var checks := 0
@@ -54,6 +58,7 @@ func _main() -> void:
 	_hits()
 	_fight_music()
 	_beds_and_stingers()
+	_life()
 	await _crowd()
 	main.return_to_selection()
 	await get_tree().process_frame
@@ -413,6 +418,91 @@ func _beds_and_stingers() -> void:
 	_run(3.0)
 	check(Audio.duck_db > -1.0, "the music comes back up after the stingers (%.1f dB)" % Audio.duck_db)
 	Audio.set_process(true)
+
+# ------------------------------------------------------------------ 8. the living world (decision 44)
+func _life() -> void:
+	Audio.set_process(false)
+	var life: Dictionary = SoundBank.section("life")
+	var data = JSON.parse_string(FileAccess.get_file_as_string("res://data/topdown/life.json"))
+	var cues: Array = data.get("cues", []) if data is Dictionary else []
+	var ids: Array = SoundBank.life_ids(cues)
+	for list in life.get("takes", {}).values(): ids.append_array(list)
+	# the code's own names: each cue topdown_life.gd raises by name, and each flee's kind ("<kind>_flee")
+	var src := FileAccess.get_file_as_string("res://scripts/topdown/topdown_life.gd")
+	var re := RegEx.new()
+	var code: Array = []
+	re.compile("raise_cue\\(\"([a-z0-9_]+)\",")
+	for m in re.search_all(src): code.append("life_" + m.get_string(1))
+	re.compile("_flee\\(.*\"([a-z0-9_]+)\"\\)")
+	for m in re.search_all(src): code.append("life_" + m.get_string(1) + "_flee")
+	var missing: Array = ids.filter(func(id): return not _has(str(id)))
+	var unnamed: Array = code.filter(func(id): return not ids.has(id))
+	check(cues.size() >= 16 and code.size() >= 9 and missing.is_empty() and unnamed.is_empty() and life.get("places", []).size() == 3,
+		"every sound the living world can raise has a file: %d critters, %d work cues and %d blows, %d places, %d takes (missing %s; raised in the code but not named %s)" % [
+		life.get("critters", []).size(), cues.size(), life.get("blows", []).size(), life.get("places", []).size(), life.get("takes", {}).size(), missing, unnamed])
+	var w = main.world
+	var tl = w.life
+	var at: Vector2 = w.player.motor.pos
+	Audio.listener = at
+	for v in Audio.voices: v.stop()
+	# a cue raised in the room: once where it happens, not again within its gap
+	var t0: float = Audio.clock + 0.2
+	Audio.advance(0.2)
+	if tl != null:
+		TopdownLife.clock += 1.0
+		tl.raise_cue("dog_bark", at)
+		tl.raise_cue("dog_bark", at)
+	var barks: Array = Audio.played("life_dog_bark", t0)
+	check(tl != null and barks.size() == 1, "a village dog's bark raised in the room plays once where it happens (%s)" % [barks])
+	# takes in turn, each varied a little in pitch
+	var takes: Array = SoundBank.takes_of("life_work_sweep")
+	var t1: float = Audio.clock + 0.2
+	Audio.advance(0.2)
+	for i in takes.size():
+		Audio.world_sound("life_work_sweep", at)
+		Audio.advance(0.15)
+	var got: Array = Audio.played("life_work_sweep", t1)
+	var distinct := {}
+	for id in got: distinct[id] = true
+	var pitches := {}
+	for v in Audio.voices:
+		if v.playing and Audio.vinfo.has(v) and str(Audio.vinfo[v].id).begins_with("life_work_sweep"): pitches[snappedf(v.pitch_scale, 0.0001)] = true
+	var spread := float(life.get("pitch_jitter", 0.0))
+	check(takes.size() >= 3 and got.size() == takes.size() and distinct.size() == takes.size() and pitches.size() >= 2
+		and pitches.keys().all(func(p): return absf(float(p) - 1.0) <= spread + 0.0001),
+		"a sweeper's strokes play their %d takes in turn, each at its own pitch within ±%.1f%% (%s; %s)" % [takes.size(), spread * 100.0, got, pitches.keys()])
+	# a busy village: every critter's and every worker's sound asked at once, round and round
+	for v in Audio.voices: v.stop()
+	Audio.stats.peak_rule = {}
+	var every: Array = life.get("critters", []) + life.get("work", []) + life.get("blows", [])
+	for i in 40:
+		Audio.world_sound(str(every[i % every.size()]), at + Vector2(16.0 * (i % 5), 0.0))
+		Audio.advance(0.11)
+	var pr: Dictionary = Audio.stats.peak_rule
+	var busy := _life_voices()
+	check(int(pr.get("life_", 0)) <= 3 and int(pr.get("life_work_", 0)) <= 3 and busy >= 3,
+		"a busy village sounds at most three critters and three people at work at once (%d sounding; peaks %s)" % [busy, pr])
+	# the fight starting in it: no sound of the fight goes without a voice while a life sound holds one
+	var fight := ["hit_sword_a", "hit_on_flesh_a", "hit_tail_sword", "swing_sword", "step_grass_a", "land_grass", "die_flesh", "tell_beast",
+		"cast_fire", "hit_el_fire", "splash", "loot_drop", "coin", "hurt", "door_open"]
+	var stolen0: int = Audio.stats.stolen
+	var crowded: Array = []
+	var asked := 0
+	for r in 3:
+		for id in fight:
+			asked += 1
+			if Audio.play(id, "SFX", {"at": at}) == null and _life_voices() > 0: crowded.append(id)
+			Audio.advance(0.11)
+	check(crowded.is_empty() and Audio.stats.stolen > stolen0 and _life_voices() == 0,
+		"the fight's %d sounds take the village's voices first: none goes unheard while a life sound plays (%s), and none of the village is left (%d)" % [asked, crowded, _life_voices()])
+	for v in Audio.voices: v.stop()
+	Audio.set_process(true)
+
+func _life_voices() -> int:
+	var n := 0
+	for v in Audio.voices:
+		if v.playing and Audio.vinfo.has(v) and str(Audio.vinfo[v].id).begins_with("life_"): n += 1
+	return n
 
 # ------------------------------------------------------------------ 7. the voice limit
 ## The fifteen-monster fight (perf_tests' crowd): fifteen foes fighting the player, its blows and techniques going

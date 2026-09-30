@@ -22,15 +22,21 @@ and length); this table says which of them the game plays when, and how the mix 
   bosses' own themes, the stingers and the events that play them.
 - mix: the buses and the Settings slider that drives each, the master limiter, the ducking under stingers, barks and
   scenes, and the voice limit with its priorities.
+- life (decision 44): the living world's sounds, which TopdownLife raises as world sounds (the critters and the
+  villagers at work), and the player's use of a place; the takes the director plays in turn, and their pitch spread.
+  `--check` also proves that every one the code or data/topdown/life.json can raise has a sound (check_life).
 """
 from __future__ import annotations
 
+import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from common import DATA, write  # noqa: E402
+from common import DATA, ROOT, write  # noqa: E402
 import combat_feel  # noqa: E402
+import topdown_life  # noqa: E402  (decision 44: the work cues, CUES)
 
 # ------------------------------------------------------------------ hits
 # Weapon families (weapon_families.json ids) onto the nine sound families of tools/audio/sfx_pass.py.
@@ -208,7 +214,9 @@ MIX = {
     # the voice limit: `pool` players for SFX and world sounds, `ui_pool` for the interface. Each sound's rule is the
     # first whose prefix it starts with: its priority (a new sound steals the quietest older voice of a lower one when
     # the pool is full), how many of it may sound at once, and the least gap between two of its starts. The player's
-    # own sounds rank `player_bonus` higher than the same sound from a foe.
+    # own sounds rank `player_bonus` higher than the same sound from a foe. The living world's (decision 44) rank under
+    # everything the fight plays, a world sound 10 under its rule (Audio.world_sound): a busy village sounds at most
+    # three critters and three people at work at once, and any blow, step or tell takes their voices first.
     "voices": {
         "pool": 24, "ui_pool": 6, "player_bonus": 20,
         "rules": [
@@ -217,7 +225,8 @@ MIX = {
             ["dodge", 66, 1, 0.05], ["parry", 88, 1, 0.05], ["swing_", 64, 3, 0.04], ["swing", 64, 3, 0.04],
             ["land", 60, 2, 0.05], ["jump", 60, 1, 0.05], ["die_", 62, 3, 0.05], ["tell_", 50, 3, 0.08], ["tell", 52, 2, 0.06],
             ["step_", 30, 5, 0.04], ["splash", 58, 2, 0.08], ["loot_drop", 45, 2, 0.1], ["coin", 60, 2, 0.04], ["pickup", 60, 2, 0.05],
-            ["door_", 70, 1, 0.2], ["", 45, 3, 0.03],
+            ["door_", 70, 1, 0.2], ["place_", 50, 2, 0.15], ["life_work_", 22, 3, 0.1], ["life_", 26, 3, 0.1],
+            ["", 45, 3, 0.03],
         ],
     },
 }
@@ -231,6 +240,110 @@ WORLD = {
     "talk_open": "talk_open", "talk_next": "talk_next", "bark": "bark", "scene_in": "scene_in",
     "weave": "hit_accent_weave",
 }
+
+# ------------------------------------------------------------------ the living world (decision 44)
+# TopdownLife (scripts/topdown/topdown_life.gd `raise_cue`) plays a moment of life as the world sound "life_" + its
+# name where it happens (Audio.world_sound: positional, under the fight). The names: the critters' below (a flee as
+# "<kind>_flee", the frog's leap and plop, a hen's flap, a cat waking, a dog's bark), and the villagers' work cues
+# (topdown_life.py CUES, data/topdown/life.json `cues`) as "work_<cue>", with the blow of a work cue whose tool lands
+# (TopdownWork.hit: the axe's, the hammer's) as "work_<cue>_hit". The player's use of a place plays PLACE_SOUNDS.
+LIFE_CRITTERS = ["sparrow_flee", "fish_flee", "frog_leap", "frog_plop", "hen_flap", "cat_wake", "dog_bark"]
+LIFE_BLOWS = ["chop", "hammer"]
+PLACE_SOUNDS = ["place_open", "place_tend", "place_sit"]
+# How TopdownLife raises its cues, besides the calls with a literal name (check_life reads the code for both).
+LIFE_RAISE_FORMS = ['"work_" + w.cue', 'sound + "_flee"']
+TAKE_SUFFIXES = ["_b", "_c", "_d"]
+MANIFEST = os.path.join(DATA, "audio.json")
+LIFE_SCRIPT = os.path.join(ROOT, "scripts", "topdown", "topdown_life.gd")
+LIFE_DATA = os.path.join(DATA, "topdown", "life.json")
+
+
+def life_ids(cues=None) -> list:
+    """Every sound id the living world and the places can ask for."""
+    cues = topdown_life.CUES if cues is None else cues
+    return ([f"life_{c}" for c in LIFE_CRITTERS] + [f"life_work_{c}" for c in cues] + [f"life_work_{b}_hit" for b in LIFE_BLOWS]
+            + list(PLACE_SOUNDS))
+
+
+def _manifest_sfx() -> dict:
+    try:
+        with open(MANIFEST, encoding="utf-8") as f:
+            return json.load(f).get("sfx", {})
+    except (OSError, ValueError):
+        return {}
+
+
+def life_takes() -> dict:
+    """A sound's takes, which the director plays in turn: `<id>` and each `<id>_b`, `<id>_c` ... the audio build made
+    (tools/audio/life.py TAKES), read from data/audio.json so the two never disagree."""
+    sfx = _manifest_sfx()
+    out = {}
+    for sid in life_ids():
+        more = [sid + x for x in TAKE_SUFFIXES if sid + x in sfx]
+        if more:
+            out[sid] = [sid] + more
+    return out
+
+
+LIFE = {
+    "critters": [f"life_{c}" for c in LIFE_CRITTERS],
+    "work": [f"life_work_{c}" for c in topdown_life.CUES],
+    "blows": [f"life_work_{b}_hit" for b in LIFE_BLOWS],
+    "places": PLACE_SOUNDS,
+    "pitch_jitter": 0.045,          # each play of a life or a place sound: ± this share of its pitch,
+    "vol_jitter_db": 1.0,           # and ± this of its level
+}
+
+
+def check_life() -> list:
+    """Every sound the living world can raise has a file: each critter named here, every work cue of the data
+    (data/topdown/life.json `cues`, and the source's CUES), each blow, the places', every take. And the code raises nothing
+    this table does not know: each `raise_cue` in topdown_life.gd names a listed critter or blow or is one of
+    LIFE_RAISE_FORMS, and each `_flee(..., "<kind>")` is a listed "<kind>_flee". -> the problems found."""
+    errs = []
+    sfx = _manifest_sfx()
+    try:
+        with open(LIFE_DATA, encoding="utf-8") as f:
+            data_cues = json.load(f).get("cues", [])
+    except (OSError, ValueError):
+        data_cues = []
+        errs.append("no data/topdown/life.json to read the work cues from")
+    src = ""
+    if os.path.exists(LIFE_SCRIPT):
+        with open(LIFE_SCRIPT, encoding="utf-8") as f:
+            src = f.read()
+    else:
+        errs.append("no scripts/topdown/topdown_life.gd to read the critters' cues from")
+    named = set(LIFE_CRITTERS) | {f"work_{b}_hit" for b in LIFE_BLOWS}
+    calls = re.findall(r"\braise_cue\(([^\n]*?),\s*[A-Za-z_][A-Za-z0-9_.]*\)", src)
+    for arg in calls:
+        arg = arg.strip()
+        lit = re.fullmatch(r'"([a-z0-9_]+)"', arg)
+        if lit and lit.group(1).startswith("place_"):
+            errs.append(f'topdown_life.gd raises "{lit.group(1)}" as a cue, which plays "life_{lit.group(1)}": play a place '
+                        f'with Audio.world_sound("{lit.group(1)}", at)')
+        elif lit and lit.group(1) not in named:
+            errs.append(f'topdown_life.gd raises "{lit.group(1)}": add it to LIFE_CRITTERS (or LIFE_BLOWS) and give it a sound')
+        elif not lit and arg not in LIFE_RAISE_FORMS:
+            errs.append(f"topdown_life.gd raises a cue as {arg}: tell LIFE_RAISE_FORMS in tools/data/sound.py which sounds it asks for")
+    if src and len(calls) < len(LIFE_CRITTERS):
+        errs.append(f"found only {len(calls)} raise_cue calls in topdown_life.gd: has the way it raises cues changed?")
+    for kind in re.findall(r'\b_flee\(.*"([a-z0-9_]+)"\)', src):
+        if f"{kind}_flee" not in LIFE_CRITTERS:
+            errs.append(f'topdown_life.gd raises "{kind}_flee" (a flee): add it to LIFE_CRITTERS and give it a sound')
+    extra = [c for c in data_cues if c not in topdown_life.CUES]
+    if extra:
+        errs.append(f"data/topdown/life.json has cues the source has not ({extra}): run tools/data/topdown_life.py")
+    ids = life_ids(list(topdown_life.CUES) + extra)
+    for takes in life_takes().values():
+        ids += takes[1:]
+    for sid in ids:
+        e = sfx.get(sid)
+        if e is None:
+            errs.append(f"{sid} has no sound: make it in tools/audio/life.py and run tools/audio/build_audio.py {sid}")
+        elif not os.path.exists(os.path.join(ROOT, str(e.get("file", "")).replace("res://", ""))):
+            errs.append(f"{sid}: its file {e.get('file')} is missing")
+    return errs
 
 
 def payload() -> dict:
@@ -246,6 +359,7 @@ def payload() -> dict:
         "stinger_events": STINGER_EVENTS,
         "mix": MIX,
         "world": WORLD,
+        "life": dict(LIFE, takes=life_takes()),
     }
 
 
@@ -260,13 +374,17 @@ def sound_ids(node=None) -> set:
         for v in node:
             out |= sound_ids(v)
     elif isinstance(node, str) and (node.startswith(("hit_", "step_", "land_", "swing_", "cast_", "tell", "die_", "bed_", "sting_",
-                                                     "door_", "talk_", "boss_")) or node in ("hurt", "jump", "splash", "loot_drop", "bark", "scene_in")):
+                                                     "door_", "talk_", "boss_", "life_", "place_"))
+                                    or node in ("hurt", "jump", "splash", "loot_drop", "bark", "scene_in")):
         out.add(node)
     return out
 
 
 def build(check_only: bool = False) -> bool:
     path = os.path.join(DATA, "sound.json")
+    life = check_life()
+    for e in life:
+        print(("FAIL: " if check_only else "warning: ") + e)
     if check_only:
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
@@ -276,7 +394,9 @@ def build(check_only: bool = False) -> bool:
         if fresh != current:
             print("data/sound.json is not current: run python3 tools/data/sound.py")
             return False
-        print("sound.json is current")
+        if life:
+            return False
+        print(f"sound.json is current; each of the living world's {len(life_ids())} sounds and their takes exists")
         return True
     write("sound.json", payload())
     return True

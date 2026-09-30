@@ -127,6 +127,23 @@ static func voice_rule(id: String) -> Array:
 		if id.begins_with(str(r[0])): return r
 	return ["", 45, 3, 0.03]
 
+# ------------------------------------------------------------------ the living world (decision 44)
+## A life or place sound's takes, which the director plays in turn ([id] when it has one).
+static func takes_of(id: String) -> Array:
+	var t: Array = section("life").get("takes", {}).get(id, [])
+	return t if not t.is_empty() else [id]
+
+## Every sound the living world and the places can ask for: the critters' and the blows' (data/sound.json `life`), each
+## work cue of `cues` (data/topdown/life.json) as "life_work_<cue>", the places'.
+static func life_ids(cues: Array) -> Array:
+	var l := section("life")
+	var out: Array = []
+	out.append_array(l.get("critters", []))
+	for c in cues: out.append("life_work_" + str(c))
+	out.append_array(l.get("blows", []))
+	out.append_array(l.get("places", []))
+	return out
+
 ## Every sound id data/sound.json names (the audio suite checks each has a file).
 static func named_ids() -> Array:
 	var out := {}
@@ -142,6 +159,6 @@ static func _collect(node, out: Dictionary, in_voices: bool) -> void:
 		for v in node: _collect(v, out, in_voices)
 	elif node is String:
 		var s := str(node)
-		for pre in ["hit_", "step_", "land", "swing_", "cast_", "tell", "die_", "bed_", "sting_", "door_", "talk_", "boss_"]:
+		for pre in ["hit_", "step_", "land", "swing_", "cast_", "tell", "die_", "bed_", "sting_", "door_", "talk_", "boss_", "life_", "place_"]:
 			if s.begins_with(pre): out[s] = true
 		if s in ["hurt", "jump", "splash", "loot_drop", "bark", "scene_in"]: out[s] = true
