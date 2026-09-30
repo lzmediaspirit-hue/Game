@@ -84,10 +84,11 @@ the side view's `Avatar`. Either figure takes the same calls: `outfit`, `play`, 
 - **At boot** it reads only:
   - `realms` and `recipes`, whose indexes (`realm_order`, `realm_index`, `used_in`) are built at load;
   - the strings.
-- **After the first frame is drawn**, a low-priority loading thread reads the other tables one at a time. It starts
-  with `techniques`. What the thread has read is handed over each frame.
-- **If a lookup comes first**, it reads its table on the spot. If the thread is reading that table at that moment, the
-  lookup waits for it.
+- **Beside the boot**, a low-priority loading thread reads the other tables one at a time, starting with
+  `techniques`. What it has read is handed over each frame. On a device with a spare core, it reads while the boot
+  and the title run.
+- **If a lookup comes first**, it takes the thread's copy if there is one, else reads its table on the spot. It never
+  waits on the thread: if the thread has that table in hand, its copy comes too late and is let go.
 - **Every lookup** (`entry`, `has_entry`, `all`, `config`, `room`, `rooms`, `room_zone`, `dialogue`, `parts`) returns
   the same answer as when boot read everything: the same rows, in the same order, with the same errors.
 - **Reading `tables`, `lists`, `configs` or `load_errors` as a whole** reads every table first. Tests and validation do

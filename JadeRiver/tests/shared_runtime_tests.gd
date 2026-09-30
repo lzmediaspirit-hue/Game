@@ -304,18 +304,17 @@ func _content() -> void:
 	check(ContentDB.load_errors.is_empty(), "the data reads without errors %s" % str(ContentDB.load_errors))
 	check(ContentDB.tables.keys() == f.tables.keys() and ContentDB.lists.keys() == f.lists.keys() and ContentDB.configs.keys() == f.configs.keys(),
 		"the whole tables, lists and configs stand in the data folder's order")
-	# 2. Read again, lazily: boot reads only its few tables; a lookup reads its own table and nothing else.
+	# 2. Read again: boot reads only its few tables on the game's thread; a lookup takes its own table and nothing else.
 	ContentDB.load_all()
 	var unread: Dictionary = ContentDB.get("_unread")
 	check(unread.has("techniques") and not unread.has("realms") and not unread.has("recipes") and not ContentDB.realm_order.is_empty() and not ContentDB.used_in.is_empty(),
-		"boot reads the realms and recipes (their indexes) and leaves techniques.json for later")
+		"boot reads the realms and recipes (their indexes) and leaves techniques.json to the loading thread")
 	var n := unread.size()
 	var tid: String = str(f.lists.techniques[7].id)
 	check(ContentDB.entry("techniques", tid) == f.tables.techniques[tid] and not unread.has("techniques") and unread.size() == n - 1,
 		"a first lookup reads its own table only")
-	# 3. The loading thread: begun once a frame is drawn, a lookup meets it part-way and the rest come in.
+	# 3. The loading thread: a lookup meets it part-way, and the rest come in frame by frame.
 	ContentDB.load_all()
-	await get_tree().process_frame
 	await get_tree().process_frame
 	check(ContentDB.entry("items", str(f.lists.items[3].id)) == f.lists.items[3] and ContentDB.room(str(f.rooms.keys()[5])) == f.rooms[f.rooms.keys()[5]],
 		"a lookup while the thread reads answers as a full read")

@@ -6,11 +6,11 @@ extends Node
 ## a config table is {"schema_version": n, ...fields}. Rooms live in data/rooms/,
 ## dialogue trees in data/dialogue/, player-facing text in data/strings/en.json.
 ##
-## BUG-11 (decision 45, S4): a table is read when it is first asked for, not at boot (techniques.json alone took 133 to
-## 191 ms). Boot reads only the realms, the recipes (their indexes) and the strings; once the first frame is drawn, a
-## loading thread reads the rest one table at a time, and a lookup that comes first reads its table there and then (or
-## waits for the one the thread has in hand). Every lookup answers as it did when boot read everything: the same rows,
-## the same order, the same errors. Reading `tables`, `lists`, `configs` or `load_errors` whole reads every table first.
+## BUG-11 (decision 45, S4): the game's thread no longer reads every table at boot (techniques.json alone took 133 to
+## 191 ms). It reads only the realms, the recipes (their indexes) and the strings; a loading thread reads the rest one
+## table at a time beside the boot, and a lookup that comes before the thread has its table reads it there and then
+## (never waiting on the thread). Every lookup answers as it did when boot read everything: the same rows, the same
+## order, the same errors. Reading `tables`, `lists`, `configs` or `load_errors` whole reads every table first.
 
 const DATA_DIR := "res://data/"
 ## Files that belong to the v0.13 engine and keep their original shape.
@@ -73,13 +73,12 @@ var _files: Array = []           # the tables in the data folder's order (a whol
 var _unread: Dictionary = {}     # table or group -> true until it is read
 var _rooms_in := false           # the rooms are read (asked at every room lookup)
 var _reader: _Reader = null      # the loading thread's work, while it runs
-var _frames := 0
 
 func _ready() -> void:
 	load_all()
 
-## Forget every table and start reading again (boot): AT_BOOT's tables and the strings now, the rest when asked for or
-## on the loading thread once the first frame is drawn.
+## Forget every table and start reading again (boot): AT_BOOT's tables and the strings now, the rest on the loading
+## thread or when asked for.
 func load_all() -> void:
 	_stop_reader()
 	_tables.clear(); _lists.clear(); _configs.clear(); _rooms.clear(); _dialogue.clear(); _parts = {}
@@ -103,23 +102,19 @@ func load_all() -> void:
 		for input in recipe.get("inputs", []):
 			if not used_in.has(input.item): used_in[input.item] = []
 			used_in[input.item].append(recipe.id)
-	_frames = 0
-	set_process(true)
 	loaded = true
+	_reader = _Reader.new()
+	if _unread.has("techniques"): _reader.todo.append("techniques")   # the largest first
+	for t in _files: if _unread.has(t) and t != "techniques": _reader.todo.append(t)
+	for g in [ROOMS, DIALOGUE, PARTS]: if _unread.has(g): _reader.todo.append(g)
+	_reader.thread.start(_work.bind(_reader), Thread.PRIORITY_LOW)
+	set_process(true)
 
-## The loading thread starts once the first frame is drawn; each frame after, what it has read is handed over.
+## Each frame, what the loading thread has read is handed over, until it is done.
 func _process(_delta: float) -> void:
-	_frames += 1
-	if _frames < 2: return
 	if _reader == null:
-		if _unread.is_empty():
-			set_process(false)
-			return
-		_reader = _Reader.new()
-		if _unread.has("techniques"): _reader.todo.append("techniques")   # the largest first
-		for t in _files: if _unread.has(t) and t != "techniques": _reader.todo.append(t)
-		for g in [ROOMS, DIALOGUE, PARTS]: if _unread.has(g): _reader.todo.append(g)
-		_reader.thread.start(_work.bind(_reader), Thread.PRIORITY_LOW)
+		set_process(false)
+		return
 	var got := _reader.take()
 	for t in got: _install(t, got[t])
 	if _reader.finished():
@@ -137,8 +132,7 @@ func _stop_reader() -> void:
 	for t in got: _install(t, got[t])
 	_reader = null
 
-## Read `table` (or a group) now: the loading thread's copy when it has it (waited for while the thread reads it), else
-## read here.
+## Read `table` (or a group) now: the loading thread's copy when it has it, else read here.
 func _read(table: String) -> void:
 	if not _unread.has(table): return
 	var got = _reader.claim(table) if _reader != null else null
@@ -294,15 +288,14 @@ static func _work(reader: _Reader) -> void:
 		if t == "": break
 		reader.put(t, _read_table(t))
 
-## What the loading thread and the game share, under one lock: the thread's list, what each side has claimed, what the
-## thread has read and not handed over yet, and the table it has in hand.
+## What the loading thread and the game share, under one lock: the thread's list, what each side has claimed, and what
+## the thread has read and not handed over yet.
 class _Reader extends RefCounted:
 	var thread := Thread.new()
 	var todo: Array = []
 	var _mutex := Mutex.new()
 	var _claimed := {}      # table -> true: read, or being read, by one side
 	var _done := {}         # table -> what the thread read
-	var _busy := ""         # the table the thread reads now
 	var _stop := false
 	var _over := false
 
@@ -316,7 +309,6 @@ class _Reader extends RefCounted:
 			_claimed[n] = true
 			t = n
 			break
-		_busy = t
 		_over = t == ""
 		_mutex.unlock()
 		return t
@@ -324,7 +316,6 @@ class _Reader extends RefCounted:
 	func put(t: String, got: Dictionary) -> void:
 		_mutex.lock()
 		_done[t] = got
-		_busy = ""
 		_mutex.unlock()
 
 	func stop() -> void:
@@ -346,23 +337,16 @@ class _Reader extends RefCounted:
 		_mutex.unlock()
 		return d
 
-	## The game wants `t` now: the thread's copy (waited for while the thread reads it), or null when the game is to read
-	## it itself (the thread then never will).
+	## The game wants `t` now: the thread's copy when it has one, else null, and the game reads it itself. The thread
+	## then skips it, or if it has it in hand already, its copy comes too late and is let go (_install): the game never
+	## waits on the thread, however busy the device.
 	func claim(t: String):
-		while true:
-			_mutex.lock()
-			if _done.has(t):
-				var got: Dictionary = _done[t]
-				_done.erase(t)
-				_mutex.unlock()
-				return got
-			if _busy != t:
-				_claimed[t] = true
-				_mutex.unlock()
-				return null
-			_mutex.unlock()
-			OS.delay_usec(200)
-		return null
+		_mutex.lock()
+		var got = _done.get(t)
+		if got != null: _done.erase(t)
+		else: _claimed[t] = true
+		_mutex.unlock()
+		return got
 
 # ---------------------------------------------------------------- lookups
 func entry(table: String, id: String) -> Dictionary:
