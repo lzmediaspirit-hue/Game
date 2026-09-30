@@ -1,5 +1,60 @@
 # Changelog
 
+## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
+
+This is phase 2, slice S4 of the code audit (`docs/architecture/audit_45.md` §4 and §5; findings DUP-01, 02 and 03,
+and BUG-03, 04, 08 and 11). Each finding was checked again on the tree phase 1 and S1 left. How to use each helper is
+in `docs/architecture/shared_runtime.md`. The game plays and draws the same, apart from the two bug fixes.
+
+- **`FrameMemo` (`scripts/core/frame_memo.gd`) is the one per-frame cache.**
+  - It replaced the seven hand-written caches in `WorldShared`, the HUD's badges and look, `TopdownWorld.soft_target`,
+    `PostsPage.rows`, `PlaceRules.home` and `SpriteCache`'s loading budget.
+  - It also replaced the cache phase 1 added for the tutorial coach (`hud.tour_targets`).
+  - The HUD's badges no longer copy `points_override` on every call (BUG-08).
+- **`HashNoise` (`scripts/core/noise.gd`) is the one hash noise.**
+  - It replaced the five copies of the sin-hash and `TopdownTerrain.h01` and `vnoise`.
+  - Its outputs match the old functions' bit for bit over a grid: 35,888 sin-hash points, 113,967 cells and 16,800
+    noise values.
+  - It is not named `Noise` because that is the engine's own class.
+- **`Figures` (`scripts/presentation/figures.gd`) makes every figure of a character.**
+  - The pages, cards, chips and views ask it for their figure. It replaced the 18 `TopdownDoll`/`Avatar` forks and
+    `TopdownDoll.figure_for`, `dress` and `shown`.
+  - Every side-view `Avatar` is made in one section, so retiring the side view deletes that section.
+- **ContentDB reads its tables lazily (BUG-11).**
+  - Boot reads only `realms`, `recipes` and the strings on the game's thread. A low-priority loading thread reads the
+    rest beside the boot. A lookup that comes first reads its own table, and never waits on the thread.
+  - Every lookup answers as before. `ContentDB.has_table` asks for one list table without reading them all.
+- **GameEvents (BUG-03).** Its triggers are now sets, and its listener lists are copied on write, so a delivery no
+  longer copies its list. Listener order and semantics are unchanged.
+- **The TopdownFx cap (BUG-04).**
+  - The cap no longer grows past 72 when loops fill it, and a new one-shot is no longer dropped as soon as it begins:
+    the oldest loop goes instead.
+  - `advance` drops finished effects in one ordered pass.
+- **Checks.**
+  - The new `shared_runtime_tests` suite (42 checks) is in `tools/run_tests.sh` and `Test.ps1`. It covers:
+    - the noise over grids;
+    - the memo's keeping and dropping;
+    - the listeners' order during a delivery;
+    - the cap full of loops;
+    - the figures;
+    - every table, room and dialogue tree against a fresh read, both as booted and as read by the thread.
+  - Every other suite's check count is unchanged.
+  - Captures match the base pixel for pixel, 13 of 13: Lotus Ferry, the Marsh Edge's fight, the selection's cards,
+    and five pages of a top-down and of a side-view character.
+  - The data build is unchanged.
+- **Measured.** All figures are medians of interleaved runs on a shared 4-core machine at a load of 14 to 17, which
+  inflates every time and makes `perf_tests`' millisecond budgets fail on the base and on S4 alike.
+  - Boot, over 7 runs:
+    - ContentDB's own load fell from 480 ms to 33 ms.
+    - The engine's start to the title's first frame went from 9,273 to 8,923 ms.
+    - A new character's first room went from 429 to 256 ms.
+  - `perf_tests`, over 3 runs:
+    - Rooms load in 44 ms on average against 43 ms, the slowest in 109 ms against 126 ms.
+    - Lotus Ferry is entered in 397 ms against 458 ms, at 10.21 ms a frame against 11.27.
+    - The Marsh Edge's fight runs at 17.54 ms a frame against 18.56.
+    - The top-down fight's frame is within the noise: 14.93 ms against 10.94 in `perf_tests`, 14.60 against 15.56 in
+      a separate probe that keeps the best of five rounds.
+
 ## Dead code removed, and an old save's renamed recipe no longer crashes the Crafts page (decision 45, S1)
 
 This is phase 2, slice S1 of the code audit (`docs/architecture/audit_45.md` §3 and §5; findings DEAD-01, 02, 05, 06,
