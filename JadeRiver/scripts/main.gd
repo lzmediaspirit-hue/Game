@@ -641,7 +641,7 @@ func _handle_preview_args(user_args: Array) -> void:
 			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection
 			if uc.inventory.count(ua[0]) <= 0: Game.inventory.apply_add(uc.id, ua[0], 1, "debug")
 			if ua.size() > 1: uc.pools.hp = uc.pools.max_hp * float(ua[1])
-			Game.submit({"type": "set_quick_use", "item": ua[0]})
+			Game.submit({"type": "set_quick_use", "item": ua[0], "slot": 0})
 			uc.pools.cooldowns.clear()
 			hud.use_quick()
 			moment_t = 0.5

@@ -222,11 +222,17 @@ def mob_tables(par):
     return {"hp_table": hp, "attack_table": attack}
 
 
+# Decision 45: the share of the need of the stage at a quest's own tier each kind of quest pays, as a fixed number
+# (story.py quest_tiers writes it on each quest; QuestAuthority reads it for the missions it posts). curves.json keeps it.
+QUEST_CULTIVATION = {"guided": 0.15, "main": 0.25, "side": 0.10, "daily": 0.05, "prologue": 0.0, "act2_main": 0.08, "act2_side": 0.04}
+
 # The stat constants the par model (below) reads as the rules do; build() writes them into stats.json unchanged.
 CORE = {
     "pools": {
         "hp": {"a": 50, "b": 20, "c": 0.9, "from_level": 0},
-        "qi": {"a": 20, "b": 8, "c": 0.5, "from_realm": "bone_forging_7"},
+        # Decision 45: the Qi pool opens with the first technique (Flowing Palm, Bone Forging 1), full, so the first art
+        # is cast from Qi the player can see (it opened at Bone Forging 7 before).
+        "qi": {"a": 20, "b": 8, "c": 0.5, "from_realm": "bone_forging_1"},
         "soul": {"a": 100, "b": 10, "c": 0.4, "offset": 46, "from_realm": "spirit_awakening_1"},
     },
     "attributes": {"base": 5, "per_level": 1, "body_per_body_level": 1, "essence_per_purity_grade": 3,
@@ -258,8 +264,9 @@ CORE = {
     "qi_edge_per_purity": 0.01,
     "technique_cost": {"per_level": 0.04, "composure_zero_factor": 1.5, "mastery_cost_per_tier": -0.05,
                        "mastery_damage_per_tier": 0.08, "dao_damage_per_tier": 0.05,
-                       # Research §5 change 3: until the body has a Qi pool (Bone Forging 7) a technique runs on breath and
-                       # muscle: no Qi, only its cooldown. Flowing Palm at Bone Forging 1 and the Weapon Hall's art work at once.
+                       # Research §5 change 3: with no Qi pool a technique runs on breath and muscle: no Qi, only its
+                       # cooldown. Decision 45 opens the pool with the first technique (Bone Forging 1), so this covers
+                       # only a technique met before any realm (none today).
                        "free_without_pool": True},
     "cp": {"hp_div": 10, "attack_weight": 0.5, "defence_div": 4},
     "equipment": {"weapon_attack": {"a": 8, "b": 3, "c": 0.12}, "armour_defence": {"a": 4, "b": 1.5, "c": 0.05},
@@ -408,7 +415,15 @@ def build():
         "par": par,
         **CORE,
         "mob": dict(CORE["mob"], **mob_tables(par)),
-        "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4},
+        # Decision 45: Qi comes back as if the pool held at least `qi_floor_pool` (100), so the small first pool (about 30
+        # at Bone Forging 1) visibly refills: 0.75 Qi a second, a Flowing Palm's cost in 11 s, 6 a second meditating. From
+        # about Level 7 the pool is past 100 and its share alone rules.
+        "regen_per_s": {"hp": 0.005, "qi": 0.0075, "soul": 0.00375, "combat_delay_s": 5, "meditate_mult": 8, "rest_mult": 4,
+                        "qi_floor_pool": 100},
+        # Decision 45: the gourd's spaces with no gourd worn, and the three quick-use slots of the HUD. Every Spirit Gourd
+        # holds this many and its own extra on top (items.py GOURDS: the Starter Spirit Gourd +0 up to the Lantern Gourd
+        # +40); Deep Pockets adds its row on top of that.
+        "bag": {"base": 50, "quick_slots": 3},
         "move": {"base": 205, "sprint": 1.7, "sprint_after_s": 2.0, "cap_pct": 0.4, "attack_factor": 0.3, "guard_factor": 0.5,
                  "shallows_factor": 0.7},
         # S14 binding (Spirit Awakening 3): a found relic's stats stay sealed until it is bound (a channel by
@@ -721,9 +736,20 @@ def build():
     write("curves.json", {
         "qp_minutes": "see realms.json accumulate_needed = 100 x target minutes per Level",
         "kill_qp": 22, "kill_role_mult": {"normal": 1, "elite": 6, "field_boss": 40, "dungeon_boss": 80, "story_boss": 40, "event": 0.5, "trial": 2},
-        "meditation_qp_per_min": 60, "meditation_body_stage_factor": 0.3, "body_stage_until": "bone_forging_6",
+        "meditation_qp_per_min": 60, "body_stage_until": "bone_forging_6",
+        # Decision 45: meditation's early current, [Level, xN] points joined by straight lines, x1 past the last, on the
+        # whole rate (it replaces the body stages' old x0.3). A Bone Forging 1 disciple on the boat gathers about 216 a
+        # minute (from 22), so the first breakthroughs are a few minutes of sitting plus play; it tapers to x1 by the end
+        # of Heart Tempering, and the mid and late game keep their rates.
+        "meditation_early": [[0, 3.0], [9, 2.5], [18, 1.8], [27, 1.3], [36, 1.0]],
         "qi_spring_mult": 2, "training_qp_per_min": 40, "training_body_xp_per_min": 20,
-        "quest_qp_pct": {"guided": 0.15, "main": 0.25, "side": 0.10, "daily": 0.05, "prologue": 0.0, "act2_main": 0.08, "act2_side": 0.04},
+        # Decision 45: a quest pays a fixed amount of cultivation, set when the data is built: its kind's share of the
+        # need of the stage at the quest's own tier (story.py quest_tiers), never of the stage the player is in at
+        # hand-in. A daily mission's tier is the Level it was posted at. Prologue quests and the weekly pay none.
+        "quest_cultivation": QUEST_CULTIVATION,
+        # Decision 45: a chess problem or an insight site solved before any Dao gives this much cultivation for each point
+        # of insight it would have given (the hermit's 30 insight: +120), in place of 2% of the stage.
+        "insight_fallback_per_point": 4,
         "stability_factor": {"unstable": 0.7, "settling": 0.85, "stable": 1.0, "solid": 1.1},
         "stability_order": ["unstable", "settling", "stable", "solid"],
         "stability_step_s": 120,

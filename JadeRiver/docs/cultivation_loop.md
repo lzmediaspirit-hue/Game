@@ -97,16 +97,16 @@ figure (`docs/act2_design.md`, Pacing); S29 gives 267.
 
 ```text
 rate (QP per minute) = 60 × density × method_rate × stability_factor × (1 + bonus)
-                         × 0.3      while the realm is Mortal to Bone Forging 6
+                         × early(Level)   decision 45's early current, x3 at Mortal tapering to x1 at Level 36
                          × 0.5      while consolidation_penalty is set
-                       = 0 when no method is learned                progression_rules.gd:60-66
+                       = 0 when no method is learned                progression_rules.gd meditation_rate
 per second after a 1 s settle: apply_progress(rate / 60)           progression_authority.gd:127-134, 172-175
 ```
 
 | Term | Rule | Source |
 |---|---|---|
-| 60 | `meditation_qp_per_min` | `data/curves.json:14` |
-| Body stages ×0.3 | Mortal to `bone_forging_6`; they grow mainly by training | `progression_rules.gd:30-32`, `curves.json:15-16` |
+| 60 | `meditation_qp_per_min` | `data/curves.json` |
+| Early current | `meditation_early`, [Level, x] points joined by straight lines: x3.0 at Level 0 and 1, x2.5 at 9, x1.8 at 18, x1.3 at 27, x1.0 from 36 (the end of Heart Tempering) on. It replaced the body stages' x0.3 (decision 45, §16) | `progression_rules.gd` `early_meditation`, `tools/data/stats.py` curves |
 | `method_rate` | The method's `rate` (1.0–1.25), ×1.1 when the character's aptitude in the method's element is +0.05 or more, ×0.85 at −0.05 or less | `progression_rules.gd:41-57`, `data/methods.json` |
 | `stability_factor` | Unstable 0.7, Settling 0.85, Stable 1.0, Solid 1.1 | `progression_rules.gd:34-35`, `curves.json:29-34` |
 | Settle | 1 s before the first tick | `progression_authority.gd:83`, `curves.json:151-152` |
@@ -144,7 +144,7 @@ b −= residue_penalty                                                  :118
 
 | Term | What feeds it | Source |
 |---|---|---|
-| `accumulation_rate` | Base 0 (`stat_rules.gd:328`). Modifiers: the Sage-Born title +1%; the Fasting vow +5%; the Hungry Dantian fate +8% for the realm; Jade Carp Congee +5% for 30 min; the Qi Flow Pill +20% for 60 min (then +15 toxicity); the guqin +5% plus 10% × the playing score for 30 min | `data/titles.json`, `data/vows.json`, `data/fates.json`, `tools/data/items.py:316-318, 353`, `progression_authority.gd:1570-1580`, `data/chess.json:283-291` |
+| `accumulation_rate` | Base 0 (`stat_rules.gd:328`). Modifiers: Qi-Gathering Incense +30% for 10 min (Granny Liu's hut from Bone Forging 1, Stoneford's store; 12 taels) and Deep Current Incense +50% for 15 min (Stoneford from Qi Kindling 1; 45 taels), one stick alight at a time (decision 45); the Sage-Born title +1%; the Fasting vow +5%; the Hungry Dantian fate +8% for the realm; Jade Carp Congee +5% for 30 min; the Qi Flow Pill +20% for 60 min (then +15 toxicity); the guqin +5% plus 10% × the playing score for 30 min | `data/titles.json`, `data/vows.json`, `data/fates.json`, `tools/data/items.py`, `tools/data/economy.py` (shops), `progression_authority.gd:1570-1580`, `data/chess.json:283-291` |
 | Ancestral Guidance | ×1.5 on (1 + the stat bonus) only, for a character two great realms or more below the account's highest. The advanced states count as great realms here | `progression_authority.gd:113-114` |
 | Account Legacy | +2% per great realm recorded (§12) | `:115`, `account_authority.gd:483-486` |
 | Resonance | From Spirit Awakening 1: the active pet in the cultivation role gives its stage's resonance (juvenile 0.05, adult 0.1, awakened 0.2, sovereign and primordial 0.3) plus trait resonance, ×1.25 when the role is its strength, ×0.7 when hungry; a pet under an equal contract gives half | `pet_authority.gd:739-749`, `data/pet_growth.json` |
@@ -157,18 +157,20 @@ b −= residue_penalty                                                  :118
 |---|---|---|
 | Kill | `22 × role × gap`. Role: normal 1, elite 6, field boss 40, dungeon boss 80, story boss 40, event 0.5, trial 2. Gap by enemy Level − own Level: ≥ 5 ×1.2, ≥ −4 ×1.0, ≥ −9 ×0.5, else ×0.1. From Bone Forging 1 (`kill_progress`) | `progression_rules.gd:69-76`, `progression_authority.gd:981-982`, `curves.json:4-13`, `stats.json:277-294` |
 | Training stump, dummy, lifting stone | 40 a minute of use, body stages only | `progression_authority.gd:1036-1048`, `curves.json:18` |
-| Quest | A share of the current need on hand-in: guided 15%, main 25%, side 10%, daily 5%, Act II main 8% and side 4% | `quest_authority.gd:375-377`, `curves.json:20-28` |
-| Cores, herbs, accumulation pills | `pct_of_need` (2.4%–25%) × the pill factor (§9.1) | `game_authority.gd:145`, `inventory_authority.gd:910-916` |
+| Quest | A fixed number on hand-in (decision 45, §16): the kind's share (guided 15%, main 25%, side 10%, daily 5%, Act II main 8% and side 4%) of the need of the stage at the quest's own tier, set when the data is built (`quests.json` `tier`, `cultivation`), plus any `add_progress` reward's own fixed amount. A daily mission is pitched at the Level it is posted at | `story.py` `quest_tiers`, `quest_authority.gd` `cultivation_of`, `curves.json` `quest_cultivation` |
+| Cores, herbs, accumulation pills | A fixed `amount` by the item's grade (decision 45, §16: the old share of the need at the middle of its grade band) × the pill factor (§9.1); the item's text says the number ("+420 cultivation") | `tools/data/items.py` `cultivation`, `inventory_authority.gd:910-916` |
 | Offline seclusion | §11 | `progression_authority.gd:1515-1521` |
 | Idle Seclusion and Hunt (characters not played) | §11 | `account_authority.gd:370-386` |
 | The Vigil (Keeping Post) | `kill_qp × kills × 0.25` | `post_authority.gd:661-671`, `data/posts.json:140` |
-| A chess problem or fortune with no Dao yet | 2% of the need | `progression_authority.gd:1605-1616` |
+| A chess problem or fortune with no Dao yet | 4 for each point of insight it would give (the hermit's 30: +120; decision 45, was 2% of the need) | `progression_authority.gd` `apply_insight_best`, `curves.json` `insight_fallback_per_point` |
+| The River's dream (a once-in-a-life fortune) | +150 (decision 45, was 3% of the need) | `tools/data/living_world.py` |
 
 ### 4.5 Where the Qi goes
 
 ```text
 apply_progress(amount, source, pct_of_need):                           progression_authority.gd:307-330
-  amount += pct_of_need × need; nothing happens if amount ≤ 0 or need ≤ 0
+  amount += pct_of_need × need (a dev tool's full bar only: no content pays a share, decision 45, data_validation)
+  nothing happens if amount ≤ 0 or need ≤ 0
   track the foundation (pill Qi against all Qi, this great realm)      :315, :333-342
   if state == bottleneck:
       stored_qi = min(cap, stored_qi + amount × (0.25 at the zone ceiling, else 1))
@@ -495,9 +497,10 @@ Glimpse:
 ```text
 density = 1.2 × 2 = 2.4;  method_rate = 1.15 × 1.1 = 1.265
 bonus   = (1 + 0.05) × 1.5 − 1 − 0.01 = 0.565
-rate    = 60 × 2.4 × 1.265 × 1.0 × 1.565 = 285.1 QP a minute; a 5,300 need fills in 18.6 minutes
-8 h offline in the same room: density 1.2, rate 142.5, × 0.1 × 480 = 6,842 QP:
-        5,300 fill the bar, 1,542 go to Stored Qi (cap 5,300)
+early   = 2.5 + (1.8 − 2.5) × (12 − 9) / 9 = 2.267 (Level 12, decision 45)
+rate    = 60 × 2.4 × 1.265 × 1.0 × 1.565 × 2.267 = 646.2 QP a minute; a 5,300 need fills in 8.2 minutes
+8 h offline in the same room: density 1.2, rate 323.1, × 0.1 × 480 = 15,509 QP:
+        5,300 fill the bar, 5,300 go to Stored Qi (its cap), the rest is lost
 ```
 
 A major with risk: Heaven Glimpse 3 → Sage 1, all requirements met, Unstable, one injury, one Foundation Guard Pill,
@@ -606,3 +609,140 @@ One pure function, for example `ProgressionRules.stage_band(key, level) -> Strin
 | Solid stability cannot be reached | A consolidation pill that sets Solid until the next major breakthrough, added with v1.3's content (recipe and source in `docs/item_plan.md`) |
 | The old name for the step into Inner Heaven | "Ascension" alone, not the name one serial uses for its sixth realm |
 | Pill quality and breakthrough odds (M48) | The roadmap overstated it: quality changes a pill's Qi and, through the Core Forging grade, stats, not the odds. M48 is marked Partial; the breakthrough pill's quality becomes a term of the risk index with v1.3 |
+
+## 16. Decision 45: the progression numbers (after build 110)
+
+The user played build 110: charged attacks should out-damage a basic attack; the player should have Qi when the first
+technique arrives; meditation should give much more cultivation early, with systems and items that raise its speed;
+quests, pills and the like should give a fixed amount of experience instead of a percentage ("that's overpowered");
+three quick slots; a 50-slot bag. What changed, old → new. The charged attack and the quick slots are also in
+`docs/redesign_top_down_plan.md` ("As built: decision 45").
+
+### 16.1 Meditation's early current
+
+`rate` gains `early(Level)` (§4.1), which replaces the body stages' ×0.3. At a 1.2 room on the par method (1.0), the
+balance sim's own spot:
+
+| Realm (Level) | Need | Old a minute | New a minute | Early current | Old minutes to fill | New minutes to fill |
+|---|---|---|---|---|---|---|
+| Bone Forging 1 (1) | 600 | 22 | 212 | ×2.94 | 28 | 2.8 |
+| Bone Forging 2 (2) | 900 | 22 | 208 | ×2.89 | 42 | 4.3 |
+| Bone Forging 4 (4) | 1,600 | 22 | 200 | ×2.78 | 74 | 8.0 |
+| Bone Forging 5 (5) | 3,100 | 22 | 196 | ×2.72 | 144 | 15.8 |
+| Bone Forging 7 (7) | 3,100 | 72 | 188 | ×2.61 | 43 | 16.5 |
+| Bone Forging 9 (9) | 3,100 | 72 | 180 | ×2.50 | 43 | 17.2 |
+| Qi Kindling 1 (10) | 5,300 | 72 | 174 | ×2.42 | 74 | 30.4 |
+| Qi Kindling 9 (18) | 5,300 | 72 | 130 | ×1.80 | 74 | 40.9 |
+| Qi Unfurling 9 (27) | 4,700 | 72 | 94 | ×1.30 | 65 | 50.2 |
+| Heart Tempering 9 (36) | 6,700 | 72 | 72 | ×1.00 | 93 | 93 |
+| Cloud Stride 1 on | | unchanged | unchanged | ×1.00 | | |
+
+Offline seclusion and a resting character's Seclusion read the same rate (§11), so they gain the current too, still
+capped at a stage and its Stored Qi. Training at a stump (40 a minute in the body stages) is now well under sitting; it
+stays for the body XP.
+
+### 16.2 Cultivation speed you can reach, and where it shows
+
+The Cultivation page's Overview has a speed line under the bar ("Meditating here: 216 a minute · ×3.0"); a tap lists
+every term of `meditation_rate` at this spot (the early current, the place, a spring, the method, stability, the
+bonuses one by one with the time left on each, consolidation), their product the rate
+(`ProgressionAuthority.speed_breakdown`; `rules_tests` checks the product), and the ways to cultivate faster, each lit
+once it is open and greyed with the realm it opens at before that:
+
+| Way | Speed | Reachable |
+|---|---|---|
+| Dense Qi (Lu's boat 1.4, a mentor's peak 1.6, hidden springs) | ×density | From the start |
+| **Qi-Gathering Incense** (new) | +30% for 10 minutes | Granny Liu's hut from Bone Forging 1, Stoneford's store; 12 taels |
+| Jade Carp Congee | +5% for 30 minutes | Stoneford's tea house |
+| The guqin | +5% to +15% for 30 minutes | Stoneford's tea house, 450 taels |
+| A Qi spring | ×2 | From Bone Forging 7 (The First Current) |
+| **Deep Current Incense** (new) | +50% for 15 minutes | Stoneford's store from Qi Kindling 1; 45 taels |
+| A faster method | ×1.0 to ×1.25 (×1.1 on a matching element) | Methods from Qi Kindling on |
+| The Qi Flow Pill | +20% for an hour | Alchemy (the Guild's expert recipe) |
+| The Fasting vow | +5% | Heart Tempering 1 (Paths) |
+| A spirit animal set to Cultivate | +5% to +30% | Spirit Awakening 1 |
+| Paired cultivation | +15%, +25% with a Dao Companion | Sage 1 |
+
+The two incense sticks share one source: a new stick replaces the one alight.
+
+### 16.3 Fixed cultivation for quests, items and events
+
+Every quest's tier is found when the data is built (`story.py` `quest_tiers`): its own realm floor or chapter code,
+the realm of the unlock that offers it and the tiers of the quests it follows, whichever is highest; with none, the
+middle of its numbered chapter; then the Level of the foes it sends you to or the grade band of what it asks you to
+bring. It pays its kind's share of that stage's need, rounded to two figures (`realms.round_reward`), whatever stage the
+player is in at hand-in. No quest pays more than its own stage. Examples:
+
+| Quest | Kind | Tier | Old | New |
+|---|---|---|---|---|
+| The Willow Path | guided | Bone Forging 1 | 15% of the player's stage, and 35% more | +90 and +210 |
+| Entry Trial | guided | Bone Forging 2 | 15%, and 20% more | +140 and +180 |
+| Fish-Gutting Fists | main | Bone Forging 2 | 25%, and 45% more | +230 and +410 |
+| Stone and Sweat | guided | Bone Forging 5 | 15% | +470 |
+| The First Current | main | Bone Forging 7 | 25% | +780 |
+| First Technique | guided | Qi Kindling 1 | 15% | +800 |
+| Toward Cleansing Peak | main | Qi Kindling 9 | 25% | +1,300 |
+| The Bracket | guided | Cloud Stride 1 | 15% | +1,200 |
+| A daily mission | daily | the Level it was posted at | 5% | 5% of that stage (+160 at Bone Forging 5) |
+| The River Token's gift on accepting | main | Mortal | 98% of the stage | +430 (the last 70 are its 15 s of meditation) |
+
+An item pays its grade's share of the need at the middle of its grade band (`items.py` `cultivation`), and its text
+says the number:
+
+| Item | Grade | Old | New |
+|---|---|---|---|
+| Qi Gathering Pill | common | 8% of the current stage | +420 cultivation |
+| Riverreed Ginseng (10 yr), raw | common | 2.4% | +130 |
+| Riverreed Ginseng (100 yr), raw | earth | 5% | +240 |
+| Riverreed Ginseng (1,000 yr), raw | heaven | 10% | +800 |
+| Pebble Core | common | 5% | +270 |
+| Serpent Core, Guardian Stone, a low beast core | earth | 10% | +470 |
+| Jade Core | heaven | 10% | +800 |
+| A mid beast core | heaven | 15% | +1,200 |
+| A high beast core | mystic | 20% | +6,000 |
+| A peak beast core | spirit | 25% | +79,000 |
+| Spirit Fruit | heaven | 8% | +640 |
+| The River's dream (fortune) | — | 3% | +150 |
+| A chess problem before any Dao | — | 2% | +120 (4 a point of insight) |
+
+The pill factor (resistance, quality, the repeat window, toxicity; §9.1) still scales an item's amount.
+
+**What stays a percentage, and why.** Every *loss* stays a share of the stage: a grave wound (10%, 5% from Sage 1), a
+failed breakthrough (10–40%) and a method switch (30%, 15% with the pill). A loss is meant to cost the same share of the
+bar at every realm; a fixed number would be nothing late and ruinous early. The Stored Qi cap (a stage) and the
+foundation share (30% of a realm's Qi from pills) are limits, not rewards. `add_progress` keeps `pct_of_need` for the
+dev tools' full bar only; `data_validation` refuses it in any content.
+
+### 16.4 The Qi pool at the first technique
+
+| | Old | New |
+|---|---|---|
+| The Qi pool opens | Bone Forging 7 (The First Current) | Bone Forging 1, with Flowing Palm (the River Token), full |
+| Techniques before it | free ("breath only") | the rule stays for a technique met before any realm (none) |
+| Pool at Bone Forging 1 | none | about 30 (20 + 8·Level + 0.5·Level², the method's capacity, Essence) |
+| Flowing Palm's cost | 0 | 8.3 (8 × 1.04): 3.6 casts from a full pool |
+| Qi regeneration, the pool under 100 | 0.75% of the pool a second (0.2 at 30) | as if the pool were 100: 0.75 a second at rest (the pool in 40 s), 6 a second meditating |
+| The Qi bar and its tour | Bone Forging 7 | Bone Forging 1 |
+
+The First Current (Bone Forging 7) now wakes the springs (the `qi_springs` unlock offers it).
+
+### 16.5 Pacing (balance_sim)
+
+The sim now places each quest at its own tier and pays its fixed number (it spread the unplaced side quests over Act I
+before), and meditates at the early current. Every pacing row still lands within ±15%, so the targets stay:
+
+| Realm | Target (h) | Old sim (h) | New sim (h) |
+|---|---|---|---|
+| Qi Kindling 1 | 5 | 5.3 | 4.8 |
+| Qi Unfurling 1 | 13 | 12.6 | 12.3 |
+| Heart Tempering 1 | 20 | 20.9 | 19.4 |
+| Cloud Stride 1 | 30 | 31.3 | 30.0 |
+| Spirit Awakening 1 | 42 | 43.7 | 43.3 |
+| Heaven Glimpse 1 | 55 | 55.6 | 56.2 |
+| Sage 1 (Act I's end) | 70 (65) | 60.7 | 64.5 |
+| Sage Sovereign 1 | 110 | 103.5 | 105.6 |
+| Sphere Lord 3 (Act III's end) | 140–235 | 133 | 164 |
+
+The early hours move less than the meditation rate does because the sim's session sits only a quarter of the time and
+its first stages are story and detours; a player who sits between fights breaks through much faster (§16.1). The
+thirty-day run of the posts (V10d3) reads none of this and is unchanged (day 30: Craft Diligence 62%, Finesse ×1.86).

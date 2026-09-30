@@ -92,6 +92,7 @@ func _main() -> void:
 	depth_hooks_suite()
 	v2_hooks_suite()
 	weapon_families_suite()
+	decision45_suite()
 	soul_poison_suite()
 	blood_buddhist_suite()
 	sect_roles_suite()
@@ -2002,7 +2003,8 @@ func hud_suite() -> void:
 				var got: String = hud.role_at(p)
 				if got != str(inside[0].role) and wrong.size() < 6: wrong.append("%s: %s at %s (%s)" % [sname, got, str(p), inside[0].role])
 	check(small.is_empty(), "P4: every HUD control's hit circle is 48 across and its drawn radius + 4, in every state (%s)" % str(small))
-	var want := ["attack", "jump", "guard", "skill", "page", "fan", "meditate", "presence", "sphere", "sense", "pet", "quick", "draught", "treasure:0", "treasure:1", "swap", "icon:mail"]
+	var want := ["attack", "jump", "guard", "skill", "page", "fan", "meditate", "presence", "sphere", "sense", "pet", "quick:0", "quick:1", "quick:2", "draught",
+		"treasure:0", "treasure:1", "swap", "icon:mail"]
 	check(want.all(func(r): return roles.has(r)) and roles.size() >= 21, "P4, P5a: the tables hold every control of the cluster (%d roles; missing %s)" % [roles.size(), str(want.filter(func(r): return not roles.has(r)))])
 	check(overlaps > 0 and wrong.is_empty(), "P4: where HUD circles overlap, a tap goes to the nearest centre (%d points in overlaps; %s)" % [overlaps, str(wrong)])
 	var go: Rect2 = hud.go_hit(Rect2(300, 100, 48, 48))
@@ -2038,24 +2040,62 @@ func hud_suite() -> void:
 	hud.context = {}
 	check(touching.is_empty() and touching_lh.is_empty(), "decision 42, 43: no two controls of the cluster touch, the bigger Jump and the round techniques among them, right- and left-handed (%s; %s)"
 		% [str(touching.slice(0, 4)), str(touching_lh.slice(0, 4))])
-	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick", "home": "quick"}, {"role": "treasure:0", "home": "treasure:0"}])
+	var r2: Array = hud.ring2_places([{"role": "presence", "home": "pin"}, {"role": "quick:0", "home": "quick:0"}, {"role": "treasure:0", "home": "treasure:0"}])
 	check(near.call(r2[0].center, Vector2(951, 612)) and near.call(r2[1].center, Vector2(970, 518)) and near.call(r2[2].center, Vector2(1016, 451)),
 		"P5a: ring 2 as mockup 01: the held Presence pinned beside the fan, the healing slot, the treasure (%s)" % str(r2.map(func(o): return o.center)))
+	# Decision 45: three quick slots in an arc over the techniques (204°, 226°, 244° on ring 2), the treasure on the next
+	# free place, and past ring 2's six the outer row; every place of both 62 px from every other.
+	var q3: Array = hud.ring2_places([{"role": "quick:0", "home": "quick:0"}, {"role": "quick:1", "home": "quick:1"}, {"role": "quick:2", "home": "quick:2"},
+		{"role": "treasure:0", "home": "treasure:0"}, {"role": "context", "home": "context"}])
+	check(near.call(q3[0].center, Vector2(970, 518)) and near.call(q3[1].center, Vector2(1016, 451)) and near.call(q3[2].center, Vector2(1071, 413))
+		and near.call(q3[4].center, Vector2(1165, 391)) and float(q3[3].deg) == 178.0,
+		"decision 45: the three quick slots stand at 204°, 226° and 244° of ring 2, the treasure on the next free place, the context at 270° (%s)"
+		% str(q3.map(func(o): return [o.role, o.center])))
+	var all_places: Array = []
+	for d in hud.RING2_DEG: all_places.append(hud._on(hud.attack_center, hud.RING2_R, float(d)))
+	for d in hud.RING3_DEG: all_places.append(hud._on(hud.attack_center, hud.RING3_R, float(d)))
+	var closest := INF
+	for i in all_places.size():
+		for j in range(i + 1, all_places.size()): closest = minf(closest, (all_places[i] as Vector2).distance_to(all_places[j]))
+	var row3_ok: bool = all_places.slice(6).all(func(p): return p.x - 26.0 >= zone.end.x and p.y - 26.0 >= 256.0 and p.x + 26.0 <= 1280.0)
+	check(closest >= 62.0 and row3_ok, "decision 45: ring 2's six places and the outer row's four stand %.0f px apart at least (62), the outer row clear of the zone, the purse and the edge" % closest)
 	var open_fan: Array = ["meditate", "presence", "sphere", "sense", "pet"].map(func(r): return at.call(r, tables["rest, the fan open"])[0])
 	var mock2 := [Vector2(814, 678), Vector2(825, 622), Vector2(856, 574), Vector2(903, 541), Vector2(959, 528)]
 	check(range(5).all(func(i): return near.call(open_fan[i], mock2[i])), "P5a: the open fan's five toggles stand where mockup 02 draws them (%s)" % str(open_fan))
-	# Ring 2 holds more than its six places without two rings touching, and stays on the screen.
-	var many: Array = hud.ring2_places(["presence", "sphere", "quick", "draught", "treasure:0", "treasure:1", "context", "swap"].map(func(r): return {"role": r, "home": r}))
+	# Ring 2 holds more than its six places without two rings touching, and stays on the screen (decision 45: the rest on
+	# the outer row; ten things, the three quick slots among them).
+	var many: Array = hud.ring2_places(["presence", "sphere", "quick:0", "quick:1", "quick:2", "draught", "treasure:0", "treasure:1", "context", "swap"]
+		.map(func(r): return {"role": r, "home": r}))
 	var apart := true
-	for i in many.size() - 1: apart = apart and (many[i].center as Vector2).distance_to(many[i + 1].center) >= 60.0
-	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a: eight things on ring 2 keep 60 px apart, on the screen")
+	for i in many.size():
+		for j in range(i + 1, many.size()): apart = apart and (many[i].center as Vector2).distance_to(many[j].center) >= 60.0
+	check(apart and many.all(func(o): return o.center.x + 26.0 <= 1280.0 and o.center.y - 26.0 >= 0.0), "P5a, decision 45: ten things on ring 2 and its outer row keep 60 px apart, on the screen")
+	# Decision 45: with Talk on offer, no quick slot and nothing on the outer row touches the context's label. (The swap's
+	# own place, 292°, grazes its right end by 3 px: as it stood before decision 45, left to the HUD's owner.)
+	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
+	var on_label: Array = []
+	for sname in states:
+		hud.set_state(states[sname][0], states[sname][1])
+		var r2now: Array = hud._ring2(c)
+		var ctx_at := Vector2.INF
+		for it in r2now:
+			if str(it.role) == "context": ctx_at = it.center
+		if ctx_at == Vector2.INF: continue
+		var lab := Rect2(ctx_at.x - hud.CTX_LABEL_W * 0.5, ctx_at.y + hud.CTX_R + 2.0, hud.CTX_LABEL_W, 18.0)
+		for it in r2now:
+			var outer: bool = (it.center as Vector2).distance_to(hud.attack_center) > hud.RING2_R + 10.0
+			if not (str(it.role).begins_with("quick:") or outer): continue
+			var cp := Vector2(clampf(it.center.x, lab.position.x, lab.end.x), clampf(it.center.y, lab.position.y, lab.end.y))
+			if cp.distance_to(it.center) < 26.0: on_label.append("%s: %s" % [sname, it.role])
+	hud.context = {}
+	check(on_label.is_empty(), "decision 45: with Talk on offer, no quick slot and nothing on the outer row touches its label, in any state (%s)" % str(on_label))
 	# Rest and fight: the healing slot and the treasures are out only in a fight; the fan folds in a fight and pins what is
 	# on beside it, and opens at rest. Decision 42: the techniques, the page tab and Attack are out at rest as in a fight.
 	var rest_roles: Array = tables["rest, the fan closed"].map(func(tg): return str(tg.role))
 	var fight_roles: Array = fight.map(func(tg): return str(tg.role))
 	var open_roles: Array = tables["rest, the fan open"].map(func(tg): return str(tg.role))
-	check(not rest_roles.has("quick") and not rest_roles.has("treasure:0") and fight_roles.has("quick"),
-		"P5a: at rest the healing slot and treasures rest; in a fight they are out")
+	check(not rest_roles.has("quick:0") and not rest_roles.has("treasure:0") and fight_roles.has("quick:0") and fight_roles.has("quick:1") and fight_roles.has("quick:2"),
+		"P5a: at rest the quick slots and treasures rest; in a fight they are out (decision 45: all three quick slots)")
 	check(rest_roles.count("skill") == 4 and open_roles.count("skill") == 4 and fight_roles.count("skill") == 4 and rest_roles.has("page")
 		and rest_roles.has("attack") and open_roles.has("attack"), "decision 42: at rest, the fan open or closed, the four techniques, the page tab and Attack stay out (%d, %d)"
 		% [rest_roles.count("skill"), open_roles.count("skill")])
@@ -2148,7 +2188,7 @@ func hud_suite() -> void:
 	var expect: Array = [0, 2].filter(func(i): return i < n)
 	var skills: Array = at.call("skill", bound_t)
 	check(hud.bound() and skills.size() == expect.size() and range(expect.size()).all(func(k): return near.call(skills[k], mock1[expect[k]]))
-		and not bound_t.any(func(tg): return str(tg.role) in ["quick", "treasure:0", "treasure:1", "swap", "draught"]),
+		and not bound_t.any(func(tg): return str(tg.role) in ["quick:0", "quick:1", "quick:2", "treasure:0", "treasure:1", "swap", "draught"]),
 		"G3: an empty or locked slot is not drawn; the techniques there keep their places (%d of %d slots open, %d drawn)" % [expect.size(), n, skills.size()])
 	# Decision 42, bound: at rest the same techniques and Attack stay out, the fan open or closed; a person in reach has
 	# the context's own button on ring 2 and Attack keeps the weapon's glyph (it attacks: HUD.attack_first).
@@ -2170,22 +2210,46 @@ func hud_suite() -> void:
 	var teas: int = c.inventory.count("herbal_tea")
 	if teas == 0: Game.inventory.apply_add(c.id, "herbal_tea", 1, "test")
 	hud.set_state(false, false)
-	var rest_q: Array = at.call("quick", hud.hit_targets())
+	var rest_q: Array = at.call("quick:0", hud.hit_targets())
 	hud.set_state(false, true)
-	var fan_q: Array = at.call("quick", hud.hit_targets())
+	var fan_q: Array = at.call("quick:0", hud.hit_targets())
 	var fan_at: Array = hud._fan_items().map(func(f): return f.center)
 	if teas == 0: Game.inventory.apply_remove(c.id, "herbal_tea", 1, "test")
 	c.inventory.quick_use = ""
 	hud.set_state(false, false)
-	var empty_q: Array = at.call("quick", hud.hit_targets())
+	var empty_q: Array = at.call("quick:0", hud.hit_targets())
 	var quests_was: Dictionary = c.quests.active
 	c.quests.active = {"grannys_remedy": {"state": "active", "progress": [0, 0, 0], "accepted_tick": 0}}
-	var asked_q: Array = at.call("quick", hud.hit_targets())
+	var asked_q: Array = at.call("quick:0", hud.hit_targets())
 	c.quests.active = quests_was
 	check(rest_q.size() == 1 and near.call(rest_q[0], Vector2(970, 518)) and fan_q.size() == 1 and fan_at.size() == 5
 		and fan_at.all(func(p): return (p as Vector2).distance_to(fan_q[0]) >= 60.0) and empty_q.is_empty() and asked_q.size() == 1,
 		"at rest the healing slot is drawn while it holds something to drink (%s), clear of the open fan (%s), and empty only while a quest step asks for it (%s, %s)"
 		% [str(rest_q), str(fan_q), str(empty_q), str(asked_q)])
+	# Decision 45: three quick slots, bound: in a fight and at rest each is drawn while it holds something, in its own
+	# place; a tap on the third uses what it holds.
+	var three_was: Array = c.inventory.quick.duplicate()
+	for it in ["herbal_tea", "healing_pill", "rice_ball"]:
+		if c.inventory.count(it) == 0: Game.inventory.apply_add(c.id, it, 2, "test")
+	c.inventory.quick = ["herbal_tea", "healing_pill", "rice_ball"]
+	var q_places := {}
+	for st in [[true, false], [false, false]]:
+		hud.set_state(st[0], st[1])
+		var qt: Array = hud.hit_targets()
+		q_places[st[0]] = [at.call("quick:0", qt), at.call("quick:1", qt), at.call("quick:2", qt)]
+	var three := [Vector2(970, 518), Vector2(1016, 451), Vector2(1071, 413)]
+	var q_ok := true
+	for fight_now in [true, false]:
+		for k in 3: q_ok = q_ok and (q_places[fight_now][k] as Array).size() == 1 and near.call(q_places[fight_now][k][0], three[k])
+	hud.set_state(true, false)
+	var rice0: int = c.inventory.count("rice_ball")
+	c.pools.cooldowns.erase("item:buff")
+	hud.press(9, three[2])
+	hud.release(9)
+	var rice1: int = c.inventory.count("rice_ball")
+	c.inventory.quick = three_was
+	check(q_ok and rice1 == rice0 - 1, "decision 45: the three quick slots are drawn at 204°, 226° and 244° in a fight and at rest (%s); a tap on the third eats a rice ball (%d -> %d)"
+		% [str(q_places[true]), rice0, rice1])
 	c.cultivator.technique_slots = slots_was
 	c.inventory.quick_use = quick_was
 	c.inventory.treasures = tre_was
@@ -3265,6 +3329,164 @@ func _idle_hands(c) -> void:
 		if not Game.combat.is_busy(c.id): break
 		Game.tick(0.05)
 	GameEvents.flush()
+
+## Decision 45 (after build 110): the progression numbers. The charged attack out-damages a basic hit for every weapon
+## family (1.8-2.5 of one basic hit when full, more a second than its whole chain over the charge and the blow, rising
+## with the charge, the plain finisher at none), in a real fight too; meditation's early current tapers to x1; the speed
+## list's terms multiply to the rate; quests, items and events pay fixed cultivation; the Qi pool opens full with the
+## first technique; three quick slots; a 50-space bag with the gourds on top.
+func decision45_suite() -> void:
+	var c = Game.active()
+	if c == null or Game.actor_state(c.id) == null: return
+	var ch: Dictionary = CombatFeel.cfg().get("charge", {})
+	var band: Array = ch.get("band", [1.8, 2.5])
+	var bad: Array = []
+	var fams := 0
+	for fam in ContentDB.all("weapon_families"):
+		var combo: Array = fam.get("combo", [])
+		if combo.is_empty(): continue
+		fams += 1
+		var cfg := CombatFeel.charge_of(str(fam.id))
+		var full := CombatFeel.charge_ratio(fam, 99.0)
+		var none := CombatFeel.charge_ratio(fam, 0.0)
+		var half := CombatFeel.charge_ratio(fam, float(cfg.full_s) * 0.5)
+		var chain := 0.0
+		var secs := 0.0
+		for s in combo:
+			chain += float(s.mult)
+			secs += float(s.duration)
+		var charged_rate := CombatFeel.charged_mult(fam, 99.0) / (float(cfg.full_s) + float(combo[-1].duration))
+		var plain := float(combo[-1].mult) / float(combo[0].mult)
+		if full < float(band[0]) or full > float(band[1]) or charged_rate <= chain / secs or not near(none, plain) or not (half > none and half < full):
+			bad.append("%s full x%.2f, %.2f/s against the chain's %.2f/s, none x%.2f, half x%.2f" % [fam.id, full, charged_rate, chain / secs, none, half])
+	check(fams == 12 and bad.is_empty(), "decision 45: every weapon family's full charge is %.1f-%.1f basic hits and deals more a second than its chain over the charge and the blow; none is the old finisher, half between (%d families; %s)"
+		% [float(band[0]), float(band[1]), fams, "; ".join(bad)])
+	# In a fight: a basic first step against a full charge, the jian, one hit each on a foe that cannot fall.
+	var st: ActorState = Game.actor_state(c.id)
+	Game.world.apply_teleport(c.id, "wp_west")
+	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
+	Unlocks.force_unlock(c.id, "attack")
+	var held_before = _wield(c, "iron_jian")
+	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(40, 0), ProgressionRules.level(c))
+	foe.pools.max_hp = 1e9
+	foe.pools.hp = 1e9
+	var heard: Array = []
+	var listen := func(n: String, p: Dictionary):
+		if n == "hit_landed" and str(p.get("target", "")) == str(foe.uid) and str(p.get("source", "")) == "basic": heard.append(p)
+	GameEvents.event.connect(listen)
+	var mults: Array = []
+	var swing := func(finisher: bool, charge: float) -> Dictionary:
+		heard.clear()
+		_idle_hands(c)
+		# The charged blow is struck on the ground: the body stands on the room's first surface.
+		if Game.combat.airborne(c.id) and Game.room_rt.geometry != null and not Game.room_rt.geometry.surfaces.is_empty():
+			st.surface = Game.room_rt.geometry.surfaces[0]
+		Game.combat.timeline(c.id).window = 0.0
+		Game.combat.basic_attack(c, 1, Vector2.RIGHT, false, finisher, charge)
+		mults.append(float(Game.combat.timeline(c.id).get("step", {}).get("mult", 0.0)))
+		for i in 30: Game.tick(0.05)
+		GameEvents.flush()
+		return heard[0] if not heard.is_empty() else {}
+	var basic: Dictionary = swing.call(false, 0.0)
+	var charged: Dictionary = swing.call(true, 1.0)
+	GameEvents.event.disconnect(listen)
+	Game.room_rt.enemies.erase(foe.uid)
+	var ratio := float(charged.get("amount", 0)) / maxf(1.0, float(basic.get("amount", 0)))
+	var fairly: bool = charged.get("crit", false) == basic.get("crit", false)
+	check(not basic.is_empty() and not charged.is_empty() and float(basic.get("charge", 0.0)) == 0.0 and near(float(charged.get("charge", 0.0)), 2.3)
+		and (not fairly or (ratio >= 1.5 and ratio <= 3.2)) and mults.size() == 2 and near(float(mults[1]) / maxf(0.01, float(mults[0])), 2.3),
+		"decision 45: in a fight a full charge of the jian strikes at x%.2f the basic step's multiplier and lands x%.2f a basic hit (%d against %d), its hit telling the combat text its charge (x%.1f)"
+		% [float(mults[1]) / maxf(0.01, float(mults[0])) if mults.size() == 2 else 0.0, ratio, int(charged.get("amount", 0)), int(basic.get("amount", 0)), float(charged.get("charge", 0.0))])
+	c.inventory.equipped["weapon"] = held_before
+	Game.combat.refresh_stats(c.id)
+	# Meditation's early current: x3 at Bone Forging 1, falling Level by Level, x1 from Level 36 on.
+	var em := [ProgressionRules.early_meditation(1), ProgressionRules.early_meditation(9), ProgressionRules.early_meditation(18),
+		ProgressionRules.early_meditation(27), ProgressionRules.early_meditation(36), ProgressionRules.early_meditation(80)]
+	var falls := true
+	for i in em.size() - 1: falls = falls and float(em[i]) >= float(em[i + 1])
+	check(float(em[0]) >= 2.9 and near(float(em[4]), 1.0) and near(float(em[5]), 1.0) and falls,
+		"decision 45: meditation's early current x%.2f at Bone Forging 1, x%.2f at 9, x%.2f at 18, x%.2f at 27, x1 from 36 (%s)" % [em[0], em[1], em[2], em[3], str(em)])
+	# The speed list: its terms multiply the base to the rate meditation gathers here.
+	var sp: Dictionary = Game.progression.speed_breakdown(c)
+	var prod := float(sp.base)
+	for f in sp.get("factors", []): prod *= float(f.x)
+	var bonus_sum := 0.0
+	for b in sp.get("bonus", []): bonus_sum += float(b.pct)
+	var bonus_x := 1.0
+	for f in sp.get("factors", []):
+		if str(f.id) == "bonus": bonus_x = float(f.x)
+	check(sp.has("no_method") or (float(sp.rate) > 0.0 and near(prod, float(sp.rate)) and near(1.0 + bonus_sum, bonus_x)),
+		"decision 45: the Cultivation page's speed terms multiply to what meditation gathers here (%.1f against %.1f a minute; bonuses %+.0f%%)"
+		% [prod, float(sp.get("rate", 0.0)), bonus_sum * 100.0])
+	# Incense on the speed list, by name.
+	Game.inventory.apply_add(c.id, "qi_gathering_incense", 1, "test")
+	c.pools.cooldowns.erase("item:utility")
+	var ui: Dictionary = Game.submit({"type": "use_item", "index": c.inventory.first_index("qi_gathering_incense"), "confirm": true})
+	var sp2: Dictionary = Game.progression.speed_breakdown(c)
+	var named: bool = (sp2.get("bonus", []) as Array).any(func(b): return str(b.label) == Tx.t("ui.cultivation.speed_incense") and near(float(b.pct), 0.3))
+	check(ui.get("ok", false) and named and float(sp2.rate) > float(sp.rate), "decision 45: Qi-Gathering Incense lists +30%% on the speed list and speeds meditation (%.0f -> %.0f a minute)"
+		% [float(sp.get("rate", 0.0)), float(sp2.get("rate", 0.0))])
+	c.stats.remove_source("qi_incense")
+	Game.combat.refresh_stats(c.id)
+	# Fixed rewards: every quest pays its own number, its kind's share of its own tier's need, and no more than that stage.
+	var qbad: Array = []
+	for q in ContentDB.all("quests"):
+		var kind := str(q.get("qp", q.get("kind", "side")))
+		var need := float(ContentDB.realm(str(q.get("tier", ""))).get("accumulate_needed", 0))
+		var want := ProgressionRules.round_reward(float(ContentDB.curve("quest_cultivation.%s" % kind, 0.0)) * need)
+		if not q.has("tier") or not q.has("cultivation") or int(q.cultivation) != want or float(q.cultivation) > need: qbad.append(str(q.id))
+	check(qbad.is_empty(), "decision 45: every quest pays a fixed cultivation, its kind's share of its own tier's need, never more than that stage (%s)" % ", ".join(qbad.slice(0, 6)))
+	var gain0: float = c.cultivator.qp + c.cultivator.stored_qi
+	var pill := ContentDB.item("qi_gathering_pill")
+	var amount := int(pill.use[0].get("amount", 0))
+	check(amount > 0 and not pill.use[0].has("pct_of_need") and str(pill.desc).contains("+%s cultivation" % UiKit.fmt(amount)),
+		"decision 45: the Qi Gathering Pill gives a fixed +%d cultivation and says so (%s)" % [amount, str(pill.desc)])
+	check(QuestAuthority.cultivation_of(c, {"id": "daily_x", "kind": "daily", "qp": "daily", "cultivation": 260}) == 260
+		and QuestAuthority.cultivation_of(c, {"id": "daily_old", "kind": "daily", "qp": "daily"}) == ProgressionRules.quest_cultivation("daily", ProgressionRules.level(c)),
+		"decision 45: a posted mission pays the number it was posted with; one posted before (a save's board) is pitched at the Level of its hand-in")
+	check(gain0 >= 0.0 and ProgressionRules.round_reward(424.0) == 420 and ProgressionRules.round_reward(4230.0) == 4200 and ProgressionRules.round_reward(78750.0) == 79000
+		and ProgressionRules.round_reward(4.0) == 10, "decision 45: a reward rounds to two figures, at least 10 (420, 4,200, 79,000)")
+	# The Qi pool opens full with the first technique: a Mortal has none, Bone Forging 1 opens it full.
+	var probe := GameCharacter.new()
+	probe.id = "c_probe45"
+	probe.cultivator.realm_key = "mortal"
+	probe.cultivator.method_id = "riverbreath_fragment"
+	Game.characters[probe.id] = probe
+	Game.combat.refresh_stats(probe.id)
+	var mortal_qi: float = probe.pools.max_qi
+	probe.cultivator.realm_key = "bone_forging_1"
+	Game.combat.refresh_stats(probe.id)
+	var casts: float = probe.pools.max_qi / maxf(0.01, Game.combat.technique_cost(probe, ContentDB.entry("techniques", "flowing_palm")))
+	check(mortal_qi == 0.0 and probe.pools.max_qi > 0.0 and near(probe.pools.qi, probe.pools.max_qi) and casts >= 3.0,
+		"decision 45: no Qi pool as a Mortal; at Bone Forging 1 it opens full (%.0f), %.1f Flowing Palms deep" % [probe.pools.max_qi, casts])
+	# Three quick slots: set from the Bag (the first empty slot, or the one named, out of any other), used by slot, saved.
+	var probe_inv := InventoryState.new()
+	probe.inventory = probe_inv
+	for it in ["herbal_tea", "healing_pill", "rice_ball"]: Game.inventory.apply_add(probe.id, it, 2, "test")
+	Game.inventory.set_quick_use(probe, "herbal_tea")
+	Game.inventory.set_quick_use(probe, "healing_pill")
+	Game.inventory.set_quick_use(probe, "rice_ball", 2)
+	var set3: Array = probe_inv.quick.duplicate()
+	Game.inventory.set_quick_use(probe, "herbal_tea", 2)
+	var moved: Array = probe_inv.quick.duplicate()
+	var round_trip := InventoryState.new()
+	round_trip.restore(probe_inv.snapshot())
+	var old_save := InventoryState.new()
+	old_save.restore({"bag": [], "quick_use": "herbal_tea"})
+	check(set3 == ["herbal_tea", "healing_pill", "rice_ball"] and moved == ["", "healing_pill", "herbal_tea"] and round_trip.quick == moved
+		and old_save.quick == ["herbal_tea", "", ""] and old_save.quick_use == "herbal_tea",
+		"decision 45: three quick slots, filled in order or by slot (moving an item out of its old one), saved and loaded; an old save's one slot is the first (%s, %s)" % [str(set3), str(moved)])
+	# A 50-space bag: new and without a gourd 50; each gourd up the ladder 5 more on top; a 25-space save grows to 50.
+	var fresh := InventoryState.new()
+	var gourds: Array = []
+	for g in ["starter_gourd", "bamboo_gourd", "jadeiron_gourd", "lantern_gourd"]: gourds.append(int(ContentDB.item(g).get("gourd", {}).get("bag", 0)))
+	var small := InventoryState.new()
+	var old_bag: Array = []
+	for i in 25: old_bag.append({"id": "herbal_tea", "count": 1} if i == 3 else null)
+	small.restore({"bag": old_bag, "equipped": {"gourd": {"uid": 1, "id": "starter_gourd"}}})
+	check(fresh.bag.size() == 50 and fresh.capacity() == 50 and gourds == [50, 55, 60, 90] and small.bag.size() == 50 and small.bag[3] != null,
+		"decision 45: the bag starts at 50, the gourds hold %s, and a 25-space save grows to %d keeping its things" % [str(gourds), small.bag.size()])
+	Game.characters.erase(probe.id)
 
 func weapon_families_suite() -> void:
 	var c = Game.active()

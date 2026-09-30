@@ -252,16 +252,14 @@ func handle(intent: Dictionary) -> Dictionary:
 		"feed_natal": return feed_natal(c, int(intent.get("uid", -1)), str(intent.get("item", "")), int(intent.get("count", 1)))
 		"reforge_natal": return reforge_natal(c, int(intent.get("uid", -1)))
 		"use_quick":
-			if c.inventory.quick_use == "": return fail("no_quick_use")
-			var idx = c.inventory.first_index(c.inventory.quick_use)
-			if idx < 0: return fail("none_left", {"item": c.inventory.quick_use})
+			# Decision 45: three quick slots; `slot` 0 (the healing slot) when none is named.
+			var qs := clampi(int(intent.get("slot", 0)), 0, c.inventory.quick.size() - 1)
+			var qid := str(c.inventory.quick[qs])
+			if qid == "": return fail("no_quick_use")
+			var idx = c.inventory.first_index(qid)
+			if idx < 0: return fail("none_left", {"item": qid})
 			return use_item(c, idx, true)
-		"set_quick_use":
-			var item := str(intent.get("item", ""))
-			if item != "" and not ContentDB.item(item).has("use"): return fail("not_usable")
-			c.inventory.quick_use = item
-			emit("quick_use_changed", {"actor": c.id, "item": item})
-			return ok()
+		"set_quick_use": return set_quick_use(c, str(intent.get("item", "")), int(intent.get("slot", -1)))
 		"lock_item":
 			var i := int(intent.get("index", -1))
 			if i < 0 or i >= c.inventory.bag.size() or c.inventory.bag[i] == null: return fail("empty")
@@ -985,6 +983,24 @@ func use_item(c, index: int, confirm: bool) -> Dictionary:
 	if def.has("pill"): emit("pill_used", {"actor": c.id, "item": s.id, "factor": factor, "quality": quality, "family": family,
 		"resistance": ProgressionRules.resistance_count(c.cultivator, family)})
 	return ok({"factor": factor, "quality": quality, "soul_effect": soul_effect, "family": family})
+
+## Decision 45: an item set in one of the HUD's three quick slots (it stays in the bag). `slot` 0-2 puts it there (out of
+## any other slot it held), "" clearing that slot; with no slot (-1) the item takes the first empty slot (the first when
+## all are full, or stays where it is), and "" clears the first.
+func set_quick_use(c, item: String, slot := -1) -> Dictionary:
+	if item != "" and not ContentDB.item(item).has("use"): return fail("not_usable")
+	var n: int = c.inventory.quick.size()
+	if slot >= n: return fail("bad_slot")
+	var at := slot
+	if at < 0:
+		at = c.inventory.quick_slot_of(item) if item != "" else 0
+		if at < 0: at = c.inventory.quick.find("")
+		if at < 0: at = 0
+	var was: int = c.inventory.quick_slot_of(item)
+	if item != "" and was >= 0 and was != at: c.inventory.quick[was] = ""
+	c.inventory.quick[at] = item
+	emit("quick_use_changed", {"actor": c.id, "item": item, "slot": at})
+	return ok({"slot": at})
 
 ## A treasure set in one of the HUD's Treasure buttons (G2). The treasure stays in the bag; "" clears the slot.
 func set_treasure(c, item: String, slot: int) -> Dictionary:

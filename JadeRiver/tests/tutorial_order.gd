@@ -56,7 +56,7 @@ const SYSTEM_NEEDS := {"set_quick_use": "hud:quick_use", "guard": "hud:guard"}
 const QUEST_NEEDS := {"the_runaway_kite": ["hud:jump"], "the_recruitment_fair": ["page:training_sect"]}
 const CharacterPage = preload("res://scripts/ui/pages/character_page.gd")
 ## The HUD's own control for each element a step can name (its role in HUD.hit_targets): drawn, not only revealed.
-const CONTROLS := {"hud:quick_use": "quick", "hud:jump": "jump", "hud:guard": "guard", "hud:bag": "icon:bag", "hud:menu": "icon:menu",
+const CONTROLS := {"hud:quick_use": "quick:0", "hud:jump": "jump", "hud:guard": "guard", "hud:bag": "icon:bag", "hud:menu": "icon:menu",
 	"hud:map": "icon:map", "hud:cultivate": "meditate"}
 
 var views := Node2D.new()     # the EnemyViews the watcher asks, never processed or drawn

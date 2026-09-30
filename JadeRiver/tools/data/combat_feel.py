@@ -155,6 +155,20 @@ FLOW = {"in_order": True, "more_taps": 2, "hitstop_cap_f": 10, "dodge_hold_s": 0
 FOES = {"roles": {"normal": "light", "elite": "medium", "boss": "heavy"}, "big_hit_share": 0.15, "big_hit": "heavy",
         "tell": "tell", "swipe": "swipe"}
 
+# Decision 45 · the charged attack ("charged attacks should make more damage than basic attack"). The long drag on
+# Attack (decision 35) charges while the thumb holds past the finisher's line, and lets the blow go on release: the
+# combo's last step (the one step of the bow and the flute), its damage `first step's mult x ratio`, the ratio rising in
+# a straight line from the plain finisher's (its last step's mult over its first's, 1 for a one-step family: a drag let
+# go at once hits as the finisher always did) to `full` at `full_s` seconds of charge, and held there. Per family
+# [full_s, full]: the light weapons charge faster, the heavy ones hit their `full` over a longer blow. Every family's full
+# charge lands `band` of one basic hit (its first step), and deals more a second than its whole basic chain over the
+# charge and the blow (the fists 2.53 a second against the chain's 2.25; rules_tests checks every family). The combat
+# text names a charged blow (world_view.charged) from `label_from` of the ratio up.
+CHARGE = {"full_s": 0.5, "full": 2.3, "band": [1.8, 2.5], "label_from": 1.5,
+          "families": {"fists": [0.4, 2.4], "gauntlets": [0.4, 2.4], "short_blade": [0.4, 2.4], "brush": [0.4, 2.4],
+                       "jian": [0.5, 2.3], "spear": [0.5, 2.3], "fan": [0.5, 2.4], "bell": [0.5, 2.3],
+                       "staff": [0.5, 2.2], "heavy_sabre": [0.5, 2.2], "flute": [0.5, 2.2], "bow": [0.6, 2.2]}}
+
 
 def payload() -> dict:
     return {
@@ -177,6 +191,7 @@ def payload() -> dict:
         "weave": WEAVE,
         "flow": FLOW,
         "foes": FOES,
+        "charge": CHARGE,
         "missing_poses": MISSING_POSES,
     }
 

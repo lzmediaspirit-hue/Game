@@ -539,7 +539,7 @@ which stay as built. Each uses rules the game already has. Numbers are in `data/
 
 | Move | The thumb | What it does | Rules it uses |
 |---|---|---|---|
-| **Finisher** | A drag past the finisher's line, then let go | The combo's last step at once, along the drag (it snaps as an aim does). Mid-chain it comes when the step under way ends, in place of the steps between. On the ground only: an air blow has no chain (S43) | The family's `combo` step: its multiplier, hit frame and duration |
+| **Finisher** (the charged attack, decision 45) | A drag past the finisher's line, held, then let go | The combo's last step at once, along the drag (it snaps as an aim does), charged by the time the thumb held past the line: from the plain finisher's damage up to 1.8–2.5 basic hits at 0.4–0.6 s (a one-step family, the bow and the flute, charges its one shot). Mid-chain it comes when the step under way ends, in place of the steps between. On the ground only: an air blow has no chain (S43) | The family's `combo` step's hit frame and duration; its multiplier the first step's × `CombatFeel.charge_ratio` (`combat_feel.json` `charge`) |
 | **Plunge** | In the air, a drag down (toward the camera) within 35° of straight down and past 48 px, then let go | The body drops straight down at 900, with no steering. The landing strikes for 120% within 60 and stuns for 0.5 s (not bosses), with a ring, dust and a jolt | The Plunge art (the `plunge` secret art, Bone Forging 4), its 4 s cooldown, `CombatAuthority._resolve_plunge` |
 | **Guard** | Held still for 0.3 s (never leaving the 18 px dead circle) | The guard while the thumb stays down; letting go ends it and strikes nothing. With a counter-stance technique slotted and ready (`hold_stance`), the hold casts it instead | The family's `guard` cut (fists 30%) and `parry_s` window (0.15–0.25 s after the guard starts: a frontal blow in it is parried and staggers the foe); a stance's 2 s window turns a parry into a 200% counter |
 
@@ -591,7 +591,7 @@ The side view is unchanged.
 |---|---|
 | The finisher's line | 120 px up and left; 67 px right and down (right-handed; mirrored left-handed) |
 | Every drag zone | at least 48 px deep in all 72 directions tested, both layouts |
-| A finisher's pace | at most 5.1% more damage a second than its whole chain (the bell; the check allows 6%). Most families are at or under the chain's |
+| A finisher's pace | let go at once (no charge), at most 5.1% more damage a second than its whole chain (the bell; the check allows 6%); fully charged (decision 45), 7–42% more a second than the chain over the charge and the blow, so holding pays |
 | Plunge | from 38–41 units up it lands in 2–3 frames (0.05 s) at 900 |
 | Guard | a blow inside the parry window is parried and staggers the foe. After the window, a landed blow costs 0.70 of an open one: fists' 30% cut, measured over eight blows each way from a boarlet of the character's level, with its crits off |
 
@@ -2212,6 +2212,50 @@ for the poses and a held-tool rig; the places asked for a pose when the player u
 
 During phases 1–5 a room carries `view: "topdown"` or stays side-view, so tests stay green while regions convert. A
 player build ships only whole acts in the new view.
+
+### As built: the charged attack and three quick slots (decision 45, 2026-09-30)
+
+After build 110 the user asked for charged attacks that out-damage a basic attack, and for three quick slots instead
+of one. The rest of the job (Qi at the first technique, meditation's early current, cultivation speed, fixed rewards,
+the 50-space bag) is in `docs/cultivation_loop.md` §16.
+
+**The charged attack.** The long drag on Attack (decision 35's finisher) now charges while the thumb holds past the
+finisher's line (`TopdownPlayer.charge_t`, from the moment the aim is armed; let go, the charge goes with the finisher).
+Its multiplier is the family's first step's × `CombatFeel.charge_ratio`: from the plain finisher's (its last step
+over its first; let go at once, it hits as it always did) up to the family's `full` at `full_s` seconds, in a straight
+line, then held (`combat_feel.json` `charge`). The bow and the flute, one step each, now charge their shot too.
+
+| Family | Basic hit | Old finisher | Full charge after | Full charge | Chain a second | Full charge a second (charge + blow) |
+|---|---|---|---|---|---|---|
+| Fists, gauntlets, short blade | ×1.00 | ×1.20 | 0.4 s | ×2.40 | 2.25 | 2.53 (+12%) |
+| Jian | ×1.00 | ×1.25 | 0.5 s | ×2.30 | 1.76 | 1.89 (+7%) |
+| Spear | ×1.00 | ×1.30 | 0.5 s | ×2.30 | 1.63 | 1.77 (+8%) |
+| Staff | ×1.00 | ×1.30 | 0.5 s | ×2.20 | 1.52 | 1.63 (+8%) |
+| Heavy sabre | ×1.10 | ×1.36 | 0.5 s | ×2.20 (2.42) | 1.53 | 1.67 (+9%) |
+| Fan | ×1.00 | ×1.20 | 0.5 s | ×2.40 | 1.83 | 2.00 (+9%) |
+| Brush | ×0.95 | ×1.32 | 0.4 s | ×2.40 (2.28) | 2.03 | 2.24 (+10%) |
+| Bell | ×0.70 | ×1.36 | 0.5 s | ×2.30 (1.61) | 1.21 | 1.29 (+7%) |
+| Flute | ×0.90 | none | 0.5 s | ×2.20 (1.98) | 1.50 | 1.80 (+20%) |
+| Bow | ×1.00 | none | 0.6 s | ×2.20 | 0.91 | 1.29 (+42%) |
+
+"Full charge" is over one basic hit (its own multiplier in brackets where the first step is not ×1). The charge's mark
+on the ground fills as it is held (faint to whole) and burns warm once full. The hit tells the combat text its ratio
+(`hit_landed.charge`): its number is 8 px bigger in pale gold, and "Charged ×2.3" rises over it (`world_view.charged`,
+from ×1.5 up). Review: `docs/redesign/feedback/progression/combat_basic_vs_charged.png`. Checks: `rules_tests`
+`decision45_suite` (every family in its band and ahead of its chain, none the old finisher, in a real fight ×2.3 the
+step's multiplier with the charge on its hit); `topdown_suite`'s finisher pace (no charge) holds.
+
+**Three quick slots.** `InventoryState.quick` holds three item ids (`quick_use` is the first: the healing slot the
+Prologue teaches); a save with one keeps it in the first. The Bag's card of a usable thing has a row of Quick 1, 2, 3
+(each lit where it holds this thing; a tap on a lit one clears it, on another moves it there); `set_quick_use` with
+`slot` 0–2, or none (the first empty). On the HUD they are ring 2's `quick:0`, `quick:1`, `quick:2` at 204°, 226° and
+244° round Attack: an arc over the techniques under the thumb, clear of the technique buttons, Jump, Dodge, the context
+(Talk, 270°) and Attack's hit circle. Each shows while it holds something (in a fight and at rest), its own cooldown's
+shade and its count; `use_quick` takes `slot`. More than ring 2's six places hold (late: a pin, three quick slots, the
+Draught, two treasures, the context, the swap) go on an outer row at R 276 (216°, 233°, 250°, 267°), every place of
+both rows 62 px from every other. A tour anchors on `quick:0`–`quick:2` each, or `quick` for all that show
+(`HUD.tour_rect`); Granny's hand-off points at `hud:quick:0`. Review: `docs/redesign/feedback/progression/hud_quick_*`
+at 1280×720 and 2400×1080.
 
 ---
 

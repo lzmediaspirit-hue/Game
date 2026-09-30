@@ -40,8 +40,34 @@ func _main() -> void:
 	life_art_suite()
 	combat_feel_suite()
 	topdown_character_suite()
+	fixed_rewards_suite()
 	print("data_validation: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
+
+## Decision 45: quests, items and events pay fixed cultivation. No content grants a share of the stage (`pct_of_need`:
+## the engine keeps it for a dev tool's full bar only); every add_progress names its `amount`; an item that gives
+## cultivation says its number ("+420 cultivation") and never a share of a stage.
+func fixed_rewards_suite() -> void:
+	var shares: Array = []
+	var named: Array = []
+	var gives := 0
+	var scan := func(where: String, effects: Array) -> void:
+		for e in effects:
+			if not (e is Dictionary) or str(e.get("kind", "")) != "add_progress": continue
+			if e.has("pct_of_need") or int(e.get("amount", 0)) <= 0: shares.append(where)
+	for it in ContentDB.all("items"):
+		scan.call("item " + str(it.id), it.get("use", []))
+		for e in it.get("use", []):
+			if not (e is Dictionary) or str(e.get("kind", "")) != "add_progress": continue
+			gives += 1
+			var desc := str(it.get("desc", ""))
+			if not desc.contains("+%s cultivation" % UiKit.fmt(int(e.get("amount", 0)))) or desc.contains("% of"): named.append(str(it.id))
+	for q in ContentDB.all("quests"):
+		scan.call("quest " + str(q.id), q.get("rewards", []) + q.get("on_accept", []))
+	for card in ContentDB.all("fortune_deck"): scan.call("fortune " + str(card.id), card.get("effects", []))
+	for row in ContentDB.all("unlocks"): scan.call("unlock " + str(row.id), row.get("effects", []))
+	check(shares.is_empty(), "decision 45: no quest, item, fortune or unlock grants a share of the stage; every add_progress is a fixed amount (%s)" % ", ".join(shares.slice(0, 8)))
+	check(gives >= 40 and named.is_empty(), "decision 45: every item that gives cultivation (%d) says its number, \"+N cultivation\" (%s)" % [gives, ", ".join(named.slice(0, 8))])
 
 ## The rules themselves say which kinds they understand (kept in sync by reading the source).
 func _learn_kinds() -> void:

@@ -38,11 +38,11 @@
    "ilv": 14,
    "stack": 99,
    "icon": "riverreed_ginseng_10",
-   "desc": "A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+130 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.024
+     "amount": 130
     }
    ],
    "raw": {
@@ -68,11 +68,11 @@
    "ilv": 27,
    "stack": 99,
    "icon": "riverreed_ginseng_100",
-   "desc": "A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+240 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.05
+     "amount": 240
     }
    ],
    "raw": {
@@ -256,11 +256,11 @@
    "ilv": 45,
    "stack": 99,
    "icon": "riverreed_ginseng_1000",
-   "desc": "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+800 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 800
     }
    ],
    "raw": {
@@ -1999,15 +1999,15 @@
    "ilv": 27,
    "stack": 99,
    "icon": "serpent_core",
-   "desc": "The core of the Riverbed Serpent; a pill ingredient. Absorb it for Qi, or burn it as Beast Fire.",
+   "desc": "The core of the Riverbed Serpent; a pill ingredient. Absorb it for Qi (+470 cultivation), or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2
    },
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2023,15 +2023,15 @@
    "ilv": 27,
    "stack": 99,
    "icon": "guardian_stone",
-   "desc": "Heart-stone of a Stone Guardian. Absorb it for Qi, or burn it as Beast Fire.",
+   "desc": "Heart-stone of a Stone Guardian. Absorb it for Qi (+470 cultivation), or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2
    },
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2047,15 +2047,15 @@
    "ilv": 45,
    "stack": 99,
    "icon": "jade_core",
-   "desc": "A jade core from a Forgotten Monastery sentinel. Absorb it for Qi, or burn it as Beast Fire.",
+   "desc": "A jade core from a Forgotten Monastery sentinel. Absorb it for Qi (+800 cultivation), or burn it as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 800,
     "rank": 3
    },
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 800
     }
    ],
    "raw": {
@@ -2071,15 +2071,15 @@
    "ilv": 14,
    "stack": 99,
    "icon": "pebble_core",
-   "desc": "A tiny earth core from a Pebble Imp. Absorb it for Qi. Too weak a core to burn as Beast Fire.",
+   "desc": "A tiny earth core from a Pebble Imp. Absorb it for Qi (+270 cultivation). Too weak a core to burn as Beast Fire.",
    "core": {
-    "qp_pct": 0.05,
+    "qp": 270,
     "rank": 1
    },
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.05
+     "amount": 270
     }
    ],
    "raw": {
@@ -2095,9 +2095,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "fire_core_low",
-   "desc": "The core of a rank 2-3 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 fire beast. Absorb it for Qi (+470 cultivation); a fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "fire",
     "tier": "low"
@@ -2105,7 +2105,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2121,9 +2121,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "water_core_low",
-   "desc": "The core of a rank 2-3 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 water beast. Absorb it for Qi (+470 cultivation); a water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "water",
     "tier": "low"
@@ -2131,7 +2131,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2147,9 +2147,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "wood_core_low",
-   "desc": "The core of a rank 2-3 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 wood beast. Absorb it for Qi (+470 cultivation); a wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "wood",
     "tier": "low"
@@ -2157,7 +2157,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2173,9 +2173,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "earth_core_low",
-   "desc": "The core of a rank 2-3 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 earth beast. Absorb it for Qi (+470 cultivation); a earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "earth",
     "tier": "low"
@@ -2183,7 +2183,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2199,9 +2199,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "wind_core_low",
-   "desc": "The core of a rank 2-3 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 wind beast. Absorb it for Qi (+470 cultivation); a wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "wind",
     "tier": "low"
@@ -2209,7 +2209,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2225,9 +2225,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "thunder_core_low",
-   "desc": "The core of a rank 2-3 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 thunder beast. Absorb it for Qi (+470 cultivation); a thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "thunder",
     "tier": "low"
@@ -2235,7 +2235,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2251,9 +2251,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "soul_core_low",
-   "desc": "The core of a rank 2-3 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 soul beast. Absorb it for Qi (+470 cultivation); a soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "soul",
     "tier": "low"
@@ -2261,7 +2261,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2277,9 +2277,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "metal_core_low",
-   "desc": "The core of a rank 2-3 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 metal beast. Absorb it for Qi (+470 cultivation); a metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "metal",
     "tier": "low"
@@ -2287,7 +2287,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2303,9 +2303,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "star_core_low",
-   "desc": "The core of a rank 2-3 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 star beast. Absorb it for Qi (+470 cultivation); a star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "star",
     "tier": "low"
@@ -2313,7 +2313,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2329,9 +2329,9 @@
    "ilv": 27,
    "stack": 99,
    "icon": "space_core_low",
-   "desc": "The core of a rank 2-3 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 2-3 space beast. Absorb it for Qi (+470 cultivation); a space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.1,
+    "qp": 470,
     "rank": 2,
     "element": "space",
     "tier": "low"
@@ -2339,7 +2339,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.1
+     "amount": 470
     }
    ],
    "raw": {
@@ -2355,9 +2355,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "fire_core_mid",
-   "desc": "The core of a rank 4-5 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 fire beast. Absorb it for Qi (+1,200 cultivation); a fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "fire",
     "tier": "mid"
@@ -2365,7 +2365,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2381,9 +2381,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "water_core_mid",
-   "desc": "The core of a rank 4-5 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 water beast. Absorb it for Qi (+1,200 cultivation); a water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "water",
     "tier": "mid"
@@ -2391,7 +2391,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2407,9 +2407,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "wood_core_mid",
-   "desc": "The core of a rank 4-5 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 wood beast. Absorb it for Qi (+1,200 cultivation); a wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "wood",
     "tier": "mid"
@@ -2417,7 +2417,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2433,9 +2433,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "earth_core_mid",
-   "desc": "The core of a rank 4-5 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 earth beast. Absorb it for Qi (+1,200 cultivation); a earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "earth",
     "tier": "mid"
@@ -2443,7 +2443,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2459,9 +2459,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "wind_core_mid",
-   "desc": "The core of a rank 4-5 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 wind beast. Absorb it for Qi (+1,200 cultivation); a wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "wind",
     "tier": "mid"
@@ -2469,7 +2469,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2485,9 +2485,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "thunder_core_mid",
-   "desc": "The core of a rank 4-5 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 thunder beast. Absorb it for Qi (+1,200 cultivation); a thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "thunder",
     "tier": "mid"
@@ -2495,7 +2495,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2511,9 +2511,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "soul_core_mid",
-   "desc": "The core of a rank 4-5 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 soul beast. Absorb it for Qi (+1,200 cultivation); a soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "soul",
     "tier": "mid"
@@ -2521,7 +2521,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2537,9 +2537,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "metal_core_mid",
-   "desc": "The core of a rank 4-5 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 metal beast. Absorb it for Qi (+1,200 cultivation); a metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "metal",
     "tier": "mid"
@@ -2547,7 +2547,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2563,9 +2563,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "star_core_mid",
-   "desc": "The core of a rank 4-5 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 star beast. Absorb it for Qi (+1,200 cultivation); a star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "star",
     "tier": "mid"
@@ -2573,7 +2573,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2589,9 +2589,9 @@
    "ilv": 45,
    "stack": 99,
    "icon": "space_core_mid",
-   "desc": "The core of a rank 4-5 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 4-5 space beast. Absorb it for Qi (+1,200 cultivation); a space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.15,
+    "qp": 1200,
     "rank": 4,
     "element": "space",
     "tier": "mid"
@@ -2599,7 +2599,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.15
+     "amount": 1200
     }
    ],
    "raw": {
@@ -2615,9 +2615,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "fire_core_high",
-   "desc": "The core of a rank 6-7 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 fire beast. Absorb it for Qi (+6,000 cultivation); a fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "fire",
     "tier": "high"
@@ -2625,7 +2625,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2641,9 +2641,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "water_core_high",
-   "desc": "The core of a rank 6-7 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 water beast. Absorb it for Qi (+6,000 cultivation); a water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "water",
     "tier": "high"
@@ -2651,7 +2651,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2667,9 +2667,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "wood_core_high",
-   "desc": "The core of a rank 6-7 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 wood beast. Absorb it for Qi (+6,000 cultivation); a wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "wood",
     "tier": "high"
@@ -2677,7 +2677,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2693,9 +2693,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "earth_core_high",
-   "desc": "The core of a rank 6-7 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 earth beast. Absorb it for Qi (+6,000 cultivation); a earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "earth",
     "tier": "high"
@@ -2703,7 +2703,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2719,9 +2719,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "wind_core_high",
-   "desc": "The core of a rank 6-7 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 wind beast. Absorb it for Qi (+6,000 cultivation); a wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "wind",
     "tier": "high"
@@ -2729,7 +2729,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2745,9 +2745,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "thunder_core_high",
-   "desc": "The core of a rank 6-7 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 thunder beast. Absorb it for Qi (+6,000 cultivation); a thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "thunder",
     "tier": "high"
@@ -2755,7 +2755,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2771,9 +2771,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "soul_core_high",
-   "desc": "The core of a rank 6-7 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 soul beast. Absorb it for Qi (+6,000 cultivation); a soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "soul",
     "tier": "high"
@@ -2781,7 +2781,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2797,9 +2797,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "metal_core_high",
-   "desc": "The core of a rank 6-7 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 metal beast. Absorb it for Qi (+6,000 cultivation); a metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "metal",
     "tier": "high"
@@ -2807,7 +2807,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2823,9 +2823,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "star_core_high",
-   "desc": "The core of a rank 6-7 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 star beast. Absorb it for Qi (+6,000 cultivation); a star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "star",
     "tier": "high"
@@ -2833,7 +2833,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2849,9 +2849,9 @@
    "ilv": 59,
    "stack": 99,
    "icon": "space_core_high",
-   "desc": "The core of a rank 6-7 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 6-7 space beast. Absorb it for Qi (+6,000 cultivation); a space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.2,
+    "qp": 6000,
     "rank": 6,
     "element": "space",
     "tier": "high"
@@ -2859,7 +2859,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 6000
     }
    ],
    "raw": {
@@ -2875,9 +2875,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "fire_core_peak",
-   "desc": "The core of a rank 8-9 fire beast. A fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 fire beast. Absorb it for Qi (+79,000 cultivation); a fire spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "fire",
     "tier": "peak"
@@ -2885,7 +2885,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -2901,9 +2901,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "water_core_peak",
-   "desc": "The core of a rank 8-9 water beast. A water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 water beast. Absorb it for Qi (+79,000 cultivation); a water spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "water",
     "tier": "peak"
@@ -2911,7 +2911,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -2927,9 +2927,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "wood_core_peak",
-   "desc": "The core of a rank 8-9 wood beast. A wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 wood beast. Absorb it for Qi (+79,000 cultivation); a wood spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "wood",
     "tier": "peak"
@@ -2937,7 +2937,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -2953,9 +2953,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "earth_core_peak",
-   "desc": "The core of a rank 8-9 earth beast. A earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 earth beast. Absorb it for Qi (+79,000 cultivation); a earth spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "earth",
     "tier": "peak"
@@ -2963,7 +2963,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -2979,9 +2979,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "wind_core_peak",
-   "desc": "The core of a rank 8-9 wind beast. A wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 wind beast. Absorb it for Qi (+79,000 cultivation); a wind spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "wind",
     "tier": "peak"
@@ -2989,7 +2989,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -3005,9 +3005,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "thunder_core_peak",
-   "desc": "The core of a rank 8-9 thunder beast. A thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 thunder beast. Absorb it for Qi (+79,000 cultivation); a thunder spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "thunder",
     "tier": "peak"
@@ -3015,7 +3015,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -3031,9 +3031,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "soul_core_peak",
-   "desc": "The core of a rank 8-9 soul beast. A soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 soul beast. Absorb it for Qi (+79,000 cultivation); a soul spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "soul",
     "tier": "peak"
@@ -3041,7 +3041,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -3057,9 +3057,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "metal_core_peak",
-   "desc": "The core of a rank 8-9 metal beast. A metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 metal beast. Absorb it for Qi (+79,000 cultivation); a metal spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "metal",
     "tier": "peak"
@@ -3067,7 +3067,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -3083,9 +3083,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "star_core_peak",
-   "desc": "The core of a rank 8-9 star beast. A star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 star beast. Absorb it for Qi (+79,000 cultivation); a star spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "star",
     "tier": "peak"
@@ -3093,7 +3093,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -3109,9 +3109,9 @@
    "ilv": 68,
    "stack": 99,
    "icon": "space_core_peak",
-   "desc": "The core of a rank 8-9 space beast. A space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
+   "desc": "The core of a rank 8-9 space beast. Absorb it for Qi (+79,000 cultivation); a space spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire.",
    "core": {
-    "qp_pct": 0.25,
+    "qp": 79000,
     "rank": 8,
     "element": "space",
     "tier": "peak"
@@ -3119,7 +3119,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.25
+     "amount": 79000
     }
    ],
    "raw": {
@@ -4075,6 +4075,46 @@
    ]
   },
   {
+   "id": "qi_gathering_incense",
+   "name": "Qi Gathering Incense",
+   "type": "other",
+   "grade": "plain",
+   "ilv": 5,
+   "stack": 99,
+   "icon": "qi_gathering_incense",
+   "desc": "Burn it and sit: the smoke draws the Qi to you. Cultivation +30% for 10 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.3,
+     "duration": 600,
+     "source": "qi_incense"
+    }
+   ]
+  },
+  {
+   "id": "deep_current_incense",
+   "name": "Deep Current Incense",
+   "type": "other",
+   "grade": "common",
+   "ilv": 14,
+   "stack": 99,
+   "icon": "deep_current_incense",
+   "desc": "A thick stick rolled with ginseng dust. Cultivation +50% for 15 minutes.",
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.5,
+     "duration": 900,
+     "source": "qi_incense"
+    }
+   ]
+  },
+  {
    "id": "myriad_year_calm_incense",
    "name": "Myriad Year Calm Incense",
    "type": "treasure",
@@ -4138,12 +4178,12 @@
    "ilv": 45,
    "stack": 3,
    "icon": "spirit_fruit",
-   "desc": "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.",
+   "desc": "A fruit that ripened on Qi alone: +640 cultivation at once, and heart demons -5. Never sold.",
    "sell": false,
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.08
+     "amount": 640
     },
     {
      "kind": "add_heart_demon",
@@ -6788,7 +6828,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "qi_gathering_pill",
-   "desc": "Adds 8% of the current stage's need.",
+   "desc": "+420 cultivation.",
    "pill": {
     "mark": "spiral_up",
     "toxicity": 10,
@@ -6798,7 +6838,7 @@
    "use": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.08
+     "amount": 420
     }
    ],
    "soul_effect": "steady_heart",
