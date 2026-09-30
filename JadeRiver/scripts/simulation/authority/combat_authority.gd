@@ -1583,8 +1583,16 @@ func apply_execute(e: EnemyState, attacker: String) -> void:
 ## Killing Intent and no boss moment of the player's), and its loot falls for the character as any kill's does.
 func slay(e: EnemyState, killer: String) -> void:
 	if e == null or not e.alive: return
-	# The player it held down beaten gets up (EnemyAuthority._eel_overwhelm's stun).
-	if str(e.ai.get("state", "")) == "looming" and game.active() != null: cure_status(game.active_id, "stun")
+	# The player it held down beaten gets up (EnemyAuthority._eel_overwhelm's stun), and what they used against it
+	# while it could not be beaten (the teas drunk, the pill swallowed) is theirs again (EnemyAuthority._eel_awaken).
+	var c = game.active()
+	if str(e.ai.get("state", "")) == "looming" and c != null: cure_status(c.id, "stun")
+	var bag: Dictionary = e.ai.get("bag", {})
+	if c != null:
+		for id in bag:
+			var lost: int = int(bag[id]) - c.inventory.count(str(id))
+			if lost > 0: game.inventory.apply_add(c.id, str(id), lost, "story:" + e.def_id)
+	e.ai.erase("bag")
 	e.ai.erase("hp_floor")
 	e.ai.state = "slain"
 	e.invulnerable = false

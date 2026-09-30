@@ -352,7 +352,7 @@
      "mult": 1.0,
      "knockback": 150,
      "unblockable": true,
-     "hp_share": 0.3,
+     "hp_share": 0.18,
      "awake": true
     },
     {
@@ -375,7 +375,7 @@
      "knockback": 120,
      "both_sides": true,
      "unblockable": true,
-     "hp_share": 0.22,
+     "hp_share": 0.12,
      "awake": true
     }
    ],
@@ -400,12 +400,12 @@
    "height": 60,
    "flying": true,
    "hollowing": 2,
-   "hp_mult": 0.75,
+   "hp_mult": 1.0,
    "attack_mult": 0.3,
    "phases": [
     {
      "below": 0.8,
-     "after_s": 70,
+     "after_s": 90,
      "action": "awaken",
      "staged": true
     }
@@ -431,8 +431,8 @@
      "beached_s": 0.5,
      "retreat_s": 0.35,
      "rest_s": [
-      0.5,
-      0.9
+      0.9,
+      1.4
      ],
      "thrash_every": 2,
      "hp_floor": 0.72,

@@ -249,25 +249,26 @@ def build():
         # the story's Mortal (Level 0, about 80 HP, the first crab's short blade or Guo's gauntlets, no technique yet):
         # a lunge takes about an eighth of that; the short blade takes it to four fifths of its HP in about three of its
         # windows (tests/balance_sim.gd, "story night").
-        # Phase 2 at 80% of its HP (or 70 s into the fight, for a player who never strikes it): it wakes. It throws
+        # Phase 2 at 80% of its HP (or 90 s into the fight, for a player who never strikes it): it wakes. It throws
         # itself back into the river and rises again greater (the awakened sheet, its own music, the scene
         # `eel_awakens`), the grey minnows fleeing it, and becomes more than a Mortal can meet: the surge, a faster tell,
-        # a longer reach and a band three tiles wide, that no guard or parry stops and that takes about a third of the
-        # player's HP whatever they wear; and the thrash round it where it lands. Its hide turns every blow: its HP never
-        # falls below `hp_floor` (72%) again. It cannot be won and it cannot kill: no blow takes the player under
+        # a longer reach and a band three tiles wide, that no guard or parry stops and that takes a share of the
+        # player's HP whatever they wear (a fifth: three or four of them have the player down); and the thrash round it
+        # where it lands. Its hide turns every blow: its HP never falls below `hp_floor` (72%) again. It cannot be won
+        # and it cannot kill: no blow takes the player under
         # `overwhelm_hp` (30%), and the fight ends the moment one reaches it, or after `overwhelm_s` of the phase in any
         # case (a player who dodges every surge: the river itself rises over the bank). The eel looms over the fallen
         # player and the elders come (the scene `elders_come`, whose checkpoint slays it); should no scene play (the side
         # view), the elders slay it in the simulation after `rescue_s`. Its flags carry the phase over a reload.
         mob("hollowed_eel", 2, "story_boss", "hollow", None, [d("pearl", 1.0)],
             [atk("lunge", 1.1, 34, 1.0, depth=40, knockback=80),
-             atk("surge", 0.6, 60, 1.0, depth=96, knockback=150, unblockable=True, hp_share=0.3, awake=True),
-             atk("thrash", 0.45, 70, 1.0, depth=70, knockback=120, both_sides=True, unblockable=True, hp_share=0.22, awake=True)],
-            ai="event_eel", width=26, height=60, flying=True, hollowing=2, hp_mult=0.75, attack_mult=0.3,
-            phases=[{"below": 0.8, "after_s": 70, "action": "awaken", "staged": True}], first_defeat=["hollow_eel_fang"],
+             atk("surge", 0.6, 60, 1.0, depth=96, knockback=150, unblockable=True, hp_share=0.18, awake=True),
+             atk("thrash", 0.45, 70, 1.0, depth=70, knockback=120, both_sides=True, unblockable=True, hp_share=0.12, awake=True)],
+            ai="event_eel", width=26, height=60, flying=True, hollowing=2, hp_mult=1.0, attack_mult=0.3,
+            phases=[{"below": 0.8, "after_s": 90, "action": "awaken", "staged": True}], first_defeat=["hollow_eel_fang"],
             eel={"glide_speed": 70, "reach": 190, "lunge_s": 0.28, "beached_s": 2.4, "retreat_s": 0.5, "rest_s": [1.6, 2.6],
                  "awaken_s": 1.6,
-                 "awake": {"glide_speed": 150, "reach": 300, "lunge_s": 0.18, "beached_s": 0.5, "retreat_s": 0.35, "rest_s": [0.5, 0.9],
+                 "awake": {"glide_speed": 150, "reach": 300, "lunge_s": 0.18, "beached_s": 0.5, "retreat_s": 0.35, "rest_s": [0.9, 1.4],
                            "thrash_every": 2, "hp_floor": 0.72, "overwhelm_hp": 0.3, "overwhelm_s": 22.0, "rise_s": 1.2, "rescue_s": 30.0},
                  "flags": {"awake": "eel_awakened", "overwhelmed": "eel_overwhelmed"}}),
         mob("trial_puppet", 2, "trial", "none", None, [d("entry_token", 1.0)], [atk("counter_palm", 0.5, 44, 1.0)],

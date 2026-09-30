@@ -574,7 +574,7 @@ def lotus_ferry():
     # sets lu_on_the_bank), then Lu's boat. A fall before it wakes wakes you at the hut's door and the night begins again
     # (`refuge`). Across a reload: the eel woke (eel_awakened) rises awake at once, with no minnows; the eel slain
     # (night_held) leaves the night won (`won_if`), only its way on to take. The timer is a last resort (`timeout_wins`):
-    # the eel wakes 70 s into its fight at the latest and overwhelms 22 s after, so the elders come long before it. Each
+    # the eel wakes 90 s into its fight at the latest and overwhelms 22 s after, so the elders come long before it. Each
     # position here has its cell in the top-down layout (topdown_rooms.py village(night=True), in the same order).
     villagers_in = all_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe"))
     r = Room("lf_village_night", "Lotus Ferry at Night", "story", "lotus_ferry", 2, material="earth", backdrop="valley_night",

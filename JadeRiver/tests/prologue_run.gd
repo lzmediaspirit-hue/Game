@@ -433,9 +433,13 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 		if careful and c().pools.hp < c().pools.max_hp * 0.8 and target.pools.hp >= target.pools.max_hp and str(target.ai.get("state", "")) in ["idle", "patrol", "return"]:
 			var rt := 0.0
 			place(target.spawn_point + Vector2(-420, 0) if target.spawn_point.x > 500 else target.spawn_point + Vector2(420, 0))
+			var rest_hp: float = c().pools.hp
 			while c().pools.hp < c().pools.max_hp * 0.95 and rt < 90.0:
 				step(1.0)
 				rt += 1.0
+				# Under fire where it stopped (a toad's tongue from the pines): no rest there; whatever hits it is met first.
+				if c().pools.hp < rest_hp - 0.5 or Game.combat.is_wounded(c().id): break
+				rest_hp = c().pools.hp
 		# Bosses: roll through the strike late in its wind-up (dash i-frames), as a practised player does.
 		if str(target.ai.get("state", "")) == "windup" and target.role in ["dungeon_boss", "field_boss", "story_boss"] and Unlocks.is_unlocked(c().id, "dodge_dash"):
 			if float(target.ai.get("timer", 1.0)) <= 0.2:
@@ -785,6 +789,9 @@ func fight_eel(limit_s: float) -> Dictionary:
 					var e := _night_foe("hollowed_eel")
 					r.by_blows = e != null and e.pools.hp <= e.pools.max_hp * 0.8 + 0.5
 			"boss_overwhelmed": r.overwhelmed = true
+			"hit_landed":
+				if verbose and r.woke and str(p.get("target", "")) == str(c().id):
+					print("  the eel awake strikes: %d, HP %d/%d" % [int(p.get("amount", 0)), int(p.get("hp", 0)), int(p.get("max", 0))])
 			"actor_defeated": if str(p.get("def", "")) == "hollowed_eel": r.slain_by = "player" if str(p.get("killer", "")) == str(c().id) else str(p.get("killer", ""))
 			"player_gravely_wounded": r.fell = true
 	GameEvents.event.connect(heard)
@@ -866,6 +873,7 @@ func step_river_token() -> void:
 ## P6 The Willow Path: the shrine, the stump and five Wild Boarlets.
 func step_willow_path() -> void:
 	check(c().quests.is_active("the_willow_path"), "The Willow Path begins at Bone Forging 1")
+	if verbose: print("  to the Willow Path with %d teas and %d healing pills, HP %d/%d" % [c().inventory.count("herbal_tea"), c().inventory.count("healing_pill"), int(c().pools.hp), int(c().pools.max_hp)])
 	check(Unlocks.is_unlocked(c().id, "mail") and Unlocks.is_unlocked(c().id, "kill_progress"), "mail and kill progress unlocked")
 	check(go("deck") and go("west_gate") and room() == "wp_east", "West Gate open after the night")
 	check(go("west") and room() == "wp_west", "Willow Path West")

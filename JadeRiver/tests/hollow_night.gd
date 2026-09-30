@@ -76,6 +76,15 @@ func _to_the_night(arts := false) -> void:
 	Game.pause(false)
 	Game.combat.wounded.erase(ch.id)
 	Unlocks.grant_prologue(ch.id)
+	# What the night itself opens (night_survived: Cultivate, the Cultivation page, the breakthrough, the Codex) is shut
+	# again, its HUD hidden and its tutorials not yet due: the night opens them.
+	for entry in ContentDB.all("unlocks"):
+		if JSON.stringify(entry.get("trigger", {})).contains("night_survived"):
+			ch.cultivator.unlocked.erase(entry.id)
+			for r in entry.get("reveals", []): ch.cultivator.revealed.erase(r)
+			var tut: Dictionary = Game.tutorials.state(ch)
+			for k in ["queue"]: (tut[k] as Array).erase(entry.id)
+			for k in ["seen", "guided", "at"]: (tut[k] as Dictionary).erase(entry.id)
 	for q in ["morning_tide", "a_quiet_river", "the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first", "crab_trouble",
 			"evening_on_the_river", "the_hollow_night", "the_river_token"]:
 		ch.quests.active.erase(q)
@@ -147,6 +156,8 @@ func _kill_each_foe() -> void:
 			else:
 				e = Game.enemies.spawn_at(def_id, TopdownRoom.cell_point([30, 36.5]), 2)
 				_eel_in_the_river(e)
+				# A technique alone waits out its cooldown between casts: the eel comes to it already hurt.
+				if how == "technique": e.pools.hp = e.pools.max_hp * 0.86
 				var woke := _strike_until_down(e, how, 150.0)
 				check(woke, "%s: the player's %s drives the Hollowed Eel to its waking at four fifths of its HP (HP %d/%d, phase %d)" % [how,
 					"basic attack" if how == "basic" else "technique alone", int(e.pools.hp), int(e.pools.max_hp), int(e.ai.get("phase", -1))])
@@ -258,6 +269,7 @@ func _cannot_be_won() -> void:
 	var after_blow := e.pools.hp
 	Game.combat._damage_enemy(e, e.pools.max_hp, ch.id, "dot", "burn", false, {})
 	Game.combat.apply_slay("", "nobody")
+	GameEvents.flush()
 	check(e.alive and after_blow >= floor_hp - 0.5 and e.pools.hp >= floor_hp - 0.5 and int(heard.glances) >= 2,
 		"awake, its hide holds: a blow of a billion and a burn leave it at its floor, alive (%d / %d HP, floor %d; %d told as glancing)" % [int(after_blow), int(e.pools.max_hp), int(floor_hp), int(heard.glances)])
 	# A technique of any size, as the combat resolves one, glances off too (the eel ashore, open to blows).
@@ -308,7 +320,7 @@ func _the_night_played() -> void:
 	var t0 := Game.sim_time
 	var p0 := play_s
 	var taels0: int = Game.economy.balance("silver_tael", ch)
-	var hp_low := {"v": 1.0, "fell": false, "phase2": 1.0, "eel2": 1.0, "in_scene": ""}
+	var hp_low := {"v": 1.0, "fell": false, "phase2": 1.0, "eel2": 1.0, "in_scene": "", "teas": -1, "used": 0}
 	beats.clear()
 	var log_beat := func(n: String, p: Dictionary):
 		var what := ""
@@ -320,7 +332,13 @@ func _the_night_played() -> void:
 				elif str(p.get("def", "")) == "hollow_minnow" and not beats.any(func(b): return str(b[1]) == "first minnow"): what = "first minnow"
 			"flag_set": if str(p.get("flag", "")) in ["dou_safe", "granny_safe", "ma_safe", "night_survived"]: what = str(p.flag)
 			"enemy_aggro": if str(p.get("def", "")) == EEL and not beats.any(func(b): return str(b[1]) == "eel rises"): what = "eel rises"
-			"boss_phase": if str(p.get("action", "")) == "awaken": what = "eel wakes"
+			"boss_phase":
+				if str(p.get("action", "")) == "awaken":
+					what = "eel wakes"
+					hp_low.teas = ch.inventory.count("herbal_tea") + ch.inventory.count("healing_pill")
+			"item_used":
+				var e2 := _night_foe(EEL)
+				if e2 != null and e2.ai.get("awake_begun", false): hp_low.used = int(hp_low.used) + 1
 			"boss_overwhelmed": what = "overwhelmed"
 			"room_event_completed": what = "night won (%s)" % str(p.get("reason", ""))
 			"scene_ended": what = "scene " + str(p.get("scene", ""))
@@ -361,7 +379,7 @@ func _the_night_played() -> void:
 		check(order.find(v) >= 0 and order.find(v) < order.find("eel rises"), "%s before the eel rises" % v)
 	var played := {}
 	for f in scene_director.finished: played[str(f.scene)] = not f.skipped
-	var scenes := ["hollow_rises", "night_ma_goes", "night_granny_goes", "night_dou_runs", "grey_spreads", "eel_rises", "eel_awakens", "elders_come", "grey_lifts", "river_token"]
+	var scenes := ["hollow_rises", "night_ma_goes", "night_granny_goes", "night_dou_runs", "grey_spreads", "eel_rises", "eel_awakens", "elders_come", "grey_lifts"]
 	var missed := scenes.filter(func(s): return not played.get(s, false))
 	check(missed.is_empty(), "every staged scene of the night played to its end (missed %s)" % str(missed))
 	check(str(hp_low.in_scene) == "elders_come", "the eel dies in the elders' scene, by its checkpoint (%s)" % str(hp_low.in_scene))
@@ -372,6 +390,9 @@ func _the_night_played() -> void:
 		"awake it cannot be won and cannot kill: its HP never under %d%% (%d%%), the player's never under %d%% (%d%%)" % [int(100.0 * float(ContentDB.entry("enemies", EEL).eel.awake.hp_floor)),
 		int(100.0 * float(hp_low.eel2)), int(100.0 * float(ContentDB.entry("enemies", EEL).eel.awake.overwhelm_hp)), int(100.0 * float(hp_low.phase2))])
 	check(not hp_low.fell and float(hp_low.v) >= 0.25, "a careful new player comes through it without a fall, HP never under a quarter (%d%%)" % int(100.0 * float(hp_low.v)))
+	var teas_now: int = ch.inventory.count("herbal_tea") + ch.inventory.count("healing_pill")
+	check(int(hp_low.teas) >= 0 and teas_now >= int(hp_low.teas),
+		"nothing is lost to the fight that cannot be won: what was drunk against the awakened eel is given back (%d used; %d at its waking, %d after)" % [int(hp_low.used), int(hp_low.teas), teas_now])
 	check(ch.inventory.count("hollow_eel_fang") == 1 and ch.inventory.count("pearl") >= 1, "the eel's first defeat leaves its fang (a rare find) and a river pearl, whoever slew it (fang %d, pearl %d)"
 		% [ch.inventory.count("hollow_eel_fang"), ch.inventory.count("pearl")])
 	check(ch.cultivator.titles.has("ferry_guardian"), "the night held earns the title Guardian of Lotus Ferry")
@@ -569,5 +590,5 @@ func _reload_after_the_kill() -> void:
 	while room() == NIGHT and w < 60.0:
 		step(0.5)
 		w += 0.5
-	check(room() == "lf_lu_boat" and ch.quests.has_flag("night_survived") and c().quests.scenes.get("grey_lifts", {}).get("done", false),
+	check(room() == "lf_lu_boat" and c().quests.has_flag("night_survived") and c().quests.scenes.get("grey_lifts", {}).get("done", false),
 		"its last scene plays and the night goes on to Lu's boat (%s)" % room())

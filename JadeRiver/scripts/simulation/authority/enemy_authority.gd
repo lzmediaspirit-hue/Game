@@ -620,6 +620,13 @@ func _eel_awaken(e: EnemyState, cfg: Dictionary, aw: Dictionary) -> void:
 	var c = game.active()
 	var fl := str(cfg.get("flags", {}).get("awake", ""))
 	if c != null and fl != "" and not c.quests.has_flag(fl): game.quest.apply_flag(c.id, fl)
+	# What the player carries as it wakes: whatever they drink or use against it (a fight that cannot be won) is given
+	# back when the elders have slain it (Combat.slay). Nothing is lost to it.
+	var bag := {}
+	if c != null:
+		for s in c.inventory.bag:
+			if s != null and not bag.has(str(s.id)): bag[str(s.id)] = c.inventory.count(str(s.id))
+	ai.bag = bag
 	var rt: RoomRuntime = game.room_rt
 	for m in rt.living_enemies():
 		if m != e and m.team == "enemy": release(m)
