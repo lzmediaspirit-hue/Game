@@ -898,6 +898,24 @@
      0.2
     ],
     [
+     "place_",
+     50,
+     2,
+     0.15
+    ],
+    [
+     "life_work_",
+     22,
+     3,
+     0.1
+    ],
+    [
+     "life_",
+     26,
+     3,
+     0.1
+    ],
+    [
      "",
      45,
      3,
@@ -920,5 +938,78 @@
   "bark": "bark",
   "scene_in": "scene_in",
   "weave": "hit_accent_weave"
+ },
+ "life": {
+  "critters": [
+   "life_sparrow_flee",
+   "life_fish_flee",
+   "life_frog_leap",
+   "life_frog_plop",
+   "life_hen_flap",
+   "life_cat_wake",
+   "life_dog_bark"
+  ],
+  "work": [
+   "life_work_sweep",
+   "life_work_set_down",
+   "life_work_scrub",
+   "life_work_hang",
+   "life_work_pick",
+   "life_work_stir",
+   "life_work_grind",
+   "life_work_chop",
+   "life_work_hammer",
+   "life_work_stoke",
+   "life_work_fish",
+   "life_work_recast",
+   "life_work_mend",
+   "life_work_look",
+   "life_work_write",
+   "life_work_breathe"
+  ],
+  "blows": [
+   "life_work_chop_hit",
+   "life_work_hammer_hit"
+  ],
+  "places": [
+   "place_open",
+   "place_tend",
+   "place_sit"
+  ],
+  "pitch_jitter": 0.045,
+  "vol_jitter_db": 1.0,
+  "takes": {
+   "life_dog_bark": [
+    "life_dog_bark",
+    "life_dog_bark_b"
+   ],
+   "life_work_sweep": [
+    "life_work_sweep",
+    "life_work_sweep_b",
+    "life_work_sweep_c"
+   ],
+   "life_work_scrub": [
+    "life_work_scrub",
+    "life_work_scrub_b"
+   ],
+   "life_work_chop": [
+    "life_work_chop",
+    "life_work_chop_b"
+   ],
+   "life_work_hammer": [
+    "life_work_hammer",
+    "life_work_hammer_b"
+   ],
+   "life_work_chop_hit": [
+    "life_work_chop_hit",
+    "life_work_chop_hit_b",
+    "life_work_chop_hit_c"
+   ],
+   "life_work_hammer_hit": [
+    "life_work_hammer_hit",
+    "life_work_hammer_hit_b",
+    "life_work_hammer_hit_c"
+   ]
+  }
  }
 }

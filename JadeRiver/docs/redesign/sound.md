@@ -13,6 +13,8 @@ music that comes in with a fight, and stingers", with a mix under them. Every so
 - The checks: `tools/audio/build_audio.py --check` (levels, seams, the phone band) and the `audio_tests` suite.
 - The review: `tools/audio/review.py` (waveform and spectrogram PNGs, a loudness table), its pictures in
   `docs/redesign/feedback/sound/`.
+- Decision 44 gave the living world its sounds (§10): `tools/audio/life.py`, the `life` table in `tools/data/sound.py`,
+  the review in `docs/redesign/feedback/sound/life/`.
 
 ## 1. The audit: what the top-down prototype played before
 
@@ -212,7 +214,10 @@ insects or frogs; a lamplit interior has neither); in the side view the clock's 
 ## 7. For the other passes
 
 - A critter, a worker's hammer, a mill: `Audio.world_sound(id, at, gain_db)` plays any sound at a place (world units),
-  falling off with distance, a little under the fight in the voice pool.
+  falling off with distance, a little under the fight in the voice pool. A `life_` or `place_` sound plays its takes in
+  turn and is varied a little in pitch and level (§10).
+- A place used (decision 44's place poses): `Audio.world_sound("place_open" | "place_tend" | "place_sit", at)` where the
+  player stands; `place_open` is one sound for a lid, a door or the letter box's flap.
 - A villager's or a critter's step: `Audio.step_at(surface, at, "npc")`; `SoundBank.surface_at(room, at)` gives the
   surface.
 - A foe's new tell or death frames: the tell plays on the named `attack_started` wind-up and the death on
@@ -318,3 +323,106 @@ Where to hear the pass on the phone, and what to listen for.
 - **Talk:** a talk opens with a scroll unrolled, each next line a soft high pluck, and the music dips while it is open;
   a villager's bark over their head pips where they stand.
 - **Settings, Audio:** All sound over Music, Ambience, Effects and Interface.
+- **The living world (decision 44)**, soft under everything and fading as you walk away (§10):
+  - **Lotus Ferry by day:** walk up the lane and the sparrows burst up in a flurry of wings and chirps; the hens
+    scatter clucking with an alarmed "b-gawk" and a beat of wings; the cat on its step wakes with a trilled "mrrp", a
+    small mew and a stretch; the dog gives two glad "arf"s (or a "ruff" and a whine) and trots over. Aunt Ping sweeps
+    the lane (gritty strokes of the bristles, never the same twice), Washer Mei rasps the washing over her ribbed board
+    and shakes it out and pegs it up, Shen Lian sets his load down off the pole, Fisher Wen draws the net cord tight,
+    the woodcutter's axe swings dark and bites the log, two blows in three splitting it; the bank fisher casts (the
+    rod's whip, the float's plip) and lifts the line dripping to cast again; the boatman looks about with a rustle of
+    his sleeves; a fish darts from the bank with a flick and a plip.
+  - **The Reed Shallows and the Marsh Edge:** frogs squeak off the bank and plop into the water (more at night); the
+    marsh fisher casting.
+  - **Indoors:** Granny Liu's pestle grinding round her mortar; in the Fisher's Hut (and at Auntie Rong's on Market
+    Street) a ladle scraping round the pot and a thick bubble.
+  - **Artisan Row, and the sects' Weapon Halls and Forges:** the smith's hammer swings and rings on the anvil, a lighter
+    tap between blows, and the forge poked to a crackle; Old Scribe Bai's brush ticks the inkstone and sweeps over the
+    paper; Tinkerer Yu's cord. On the Herb Terraces a gardener snaps off a herb; on Elder Sung's and Elder Hu's peaks a
+    slow breath in and out, barely there.
+  - **Places** (with the place poses): open the Storehouse or the Letter Box (a latch, a short creak, the lid knocking
+    open), tend the Herb Terraces' bed (crumbling soil, the leaves turned), sit on the Meditation Mat (a robe's rustle,
+    the straw taking the weight).
+
+## 10. The living world (decision 44)
+
+Decision 43's living world raised a named cue for each moment of life (`TopdownLife.raise_cue`: the world sound
+`life_` + the cue's name where it happens, while it is in view, each name at most every 0.3 s), and the bank had none
+of them, so the critters and the villagers at work were silent. Decision 44 made them, and the three sounds the
+player's place poses raise. Like the rest they are synthesized in code (`tools/audio/life.py`: wing flutters as noise
+bursts on each beat, voices as a buzzy source through moving resonances, bristles, washboards and cords as noise cut
+by ridges and stick-slip, bubbles, struck wood and metal as modes), original and seeded.
+
+| sound | what you hear | takes | length s | as played, LUFS (loudest 400 ms) | peak dBFS | above 300 Hz, dB |
+|---|---|---:|---:|---:|---:|---:|
+| `life_sparrow_flee` | a flock bursting up: staggered small wings, alarm chirps | 1 | 0.78 | -32.1 | -19.5 | -0.0 |
+| `life_fish_flee` | a tail's flick at the surface, a plip, a thin swirl, drops | 1 | 0.22 | -34.2 | -16.5 | -0.0 |
+| `life_frog_leap` | a small squeaking croak, wet grass flicked | 1 | 0.09 | -35.1 | -14.0 | -0.1 |
+| `life_frog_plop` | a round plop, a few drops | 1 | 0.24 | -32.0 | -16.0 | -0.5 |
+| `life_hen_flap` | beating wings, clucks, an alarmed "b-gawk" | 1 | 0.88 | -32.1 | -19.5 | -0.1 |
+| `life_cat_wake` | a trilled "mrrp", a soft mew, a stretch with kneading claws | 1 | 1.25 | -34.1 | -25.0 | -0.2 |
+| `life_dog_bark` | two glad "arf"s; a "ruff" and a whine | 2 | 0.39-0.64 | -31.0 | -17.5 to -15.5 | -0.9 |
+| `life_work_sweep` | two or three gritty strokes of bristles on paving, a tap of the head | 3 | 0.93-1.65 | -33.2 to -32.8 | -21.0 to -20.0 | -0.0 |
+| `life_work_set_down` | a wicker thud and creak, the pole's end knocking | 1 | 0.20 | -32.8 | -10.5 | -6.5 |
+| `life_work_scrub` | four wet strokes rasping over a ribbed board, a slosh, drops | 2 | 1.73-1.78 | -33.1 | -19.5 to -17.5 | -0.1 |
+| `life_work_hang` | damp cloth shaken out twice, a wooden peg clicked on | 1 | 0.54 | -32.8 | -14.5 | -0.1 |
+| `life_work_pick` | leaves parted, a green stem snapped, fibres tearing | 1 | 0.29 | -34.9 | -8.5 | -0.0 |
+| `life_work_stir` | a ladle scraping round an iron pot (its ring in it), the broth swirling, thick bubbles, a tap on the rim | 1 | 1.18 | -33.0 | -21.0 | -0.6 |
+| `life_work_grind` | two rounds of a pestle's grit in a stone mortar, a tap | 1 | 1.89 | -32.8 | -21.0 | -0.1 |
+| `life_work_chop` | the axe coming down: a dark, heavy swing | 2 | 0.32 | -37.1 to -36.9 | -22.5 to -22.0 | -0.2 |
+| `life_work_chop_hit` | the axe biting the log; in two takes of three the split cracking and the halves knocking down | 3 | 0.10-0.37 | -32.1 to -31.8 | -8.5 to -7.5 | -5.3 to -4.7 |
+| `life_work_hammer` | the hammer's short swing | 2 | 0.20 | -37.1 to -36.9 | -20.5 to -19.5 | -0.1 |
+| `life_work_hammer_hit` | the blow's crack, the iron's clank, the anvil ringing on; the third take the smith's lighter tap between blows | 3 | 0.73-0.88 | -35.2 to -30.0 | -22.5 to -10.5 | -0.7 to -0.0 |
+| `life_work_stoke` | the poker in the coals, a log shifting, the fire flaring to a crackle | 1 | 1.25 | -33.2 | -21.0 | -0.5 |
+| `life_work_fish` | the rod's whip, the line running out, the float's plip and ripple | 1 | 0.66 | -32.9 | -15.0 | -0.0 |
+| `life_work_recast` | the line lifted from the water (a tear, drops), the rod swung back | 1 | 0.39 | -33.0 | -17.0 | -0.0 |
+| `life_work_mend` | the net's cord drawn through twice, rasping, the knot pulled tight | 1 | 0.72 | -32.8 | -15.0 | -0.0 |
+| `life_work_look` | a soft rustle of sleeves and robe | 1 | 0.59 | -39.0 | -27.0 | -0.0 |
+| `life_work_write` | a tick on the inkstone, a wipe, a touch and a pressed sweep of the brush | 1 | 0.85 | -36.8 | -25.5 | -0.0 |
+| `life_work_breathe` | a quiet breath in, a long slow breath out | 1 | 3.50 | -40.8 | -31.5 | -0.2 |
+| `place_open` | a latch, a short hinge creak, the lid (a door, the letter box's flap) knocking open | 1 | 0.47 | -28.2 | -14.5 | -0.4 |
+| `place_tend` | two handfuls of crumbling soil, leaves turned over | 1 | 0.94 | -29.8 | -18.0 | -0.0 |
+| `place_sit` | a robe's rustle, the weight onto a straw mat, a last shift | 1 | 0.94 | -30.1 | -17.5 | -0.2 |
+
+- **As ambience.** Each is levelled by its loudness (`build_audio.py` `VOLUME`): the critters -31 to -35 LUFS, the
+  work -33, the anvil's ring -30 and the axe's shorter, peakier bite -32, the swings -37, a brush -37, a look about -39,
+  a breath -41, the smith's tap 5 dB under his blows; the player's own use of a place -28 to -30. Against the fight they
+  play among: a sword on flesh -23.6, its swing -24.8, the sprint's steps -27, a door -25. And they are world sounds:
+  full level within 96 units of the player's feet, -24 dB at 900, silent past it.
+- **Takes** where repetition would show (a sweeper, a washer, a woodcutter and a smith repeat their cue every second or
+  two, a dog barks at everyone passing): `<id>_b`, `<id>_c`, the recipe with its own seed, a step of pitch (0.94, 1.06)
+  and a change of shape (two strokes or three; a bite without the split). `data/sound.json` `life.takes` lists them
+  (read from `data/audio.json`, so the two cannot disagree) and `Audio.world_sound` plays them in turn; every life or
+  place sound is also varied ±4.5 % in pitch and ±1 dB in level each time.
+- **Voices.** The rules `place_` (priority 50, two at once, 150 ms apart), `life_` (26, three) and `life_work_` (22,
+  three), and a world sound ranks 10 under its rule, so the village's 12-16 sit under the fight's lowest (a foe's step,
+  30): a new blow, step or tell takes their voices first, and they never take one from the fight; the interface has
+  its own pool. In `audio_tests` forty life sounds asked 0.11 s apart peak at three critters and three workers, and a
+  fight's forty-five sounds after them all find a voice, taking every one the village held.
+- **The check.** `python3 tools/data/sound.py --check` (the `sound` step of `tools/run_tests.sh`) builds the list from
+  the data's cues (`data/topdown/life.json` `cues` and `topdown_life.py` `CUES`, each as `life_work_<cue>`), the code's
+  critters (`LIFE_CRITTERS`), the blows (`LIFE_BLOWS`), the places and every take, and fails on any without a file. It
+  also reads `topdown_life.gd`: a `raise_cue` with a literal name must be a listed critter or blow, one with a built name
+  one of the known forms (`LIFE_RAISE_FORMS`), and each `_flee(..., "<kind>")` a listed `<kind>_flee`; so a new cue, a
+  new critter or a new way of raising one fails until it has a sound. `audio_tests` §8 checks the same in the engine
+  (`SoundBank.life_ids`), and plays a raised cue, the takes in turn and a busy village.
+- **Fireflies stay silent.** Nothing raises a cue for them (they are `TopdownAtmosphere`'s particles), they are silent
+  by nature, and the night beds' insects and frogs already carry the night: a shimmer would be a sound nobody could
+  place.
+- **The review** (`tools/audio/review_life.sh`, `docs/redesign/feedback/sound/life/`): `critters.png`, `work.png`,
+  `takes.png` and `places.png` (each sound at its level as played: the waveform and the spectrogram) and `table.md`
+  (length, peak, RMS, integrated and momentary loudness, the phone band, clipped samples; with the fight's, the feet's
+  and a bed's for scale). Nothing clips; every sound keeps -6.5 dB or more of its energy above 300 Hz (the basket set
+  down -6.5, the axe's bite -4.7 to -5.3, the rest within 1 dB of all of it); the loudest peak as played is the axe's
+  bite at -7.5 dBFS, before the bus and the distance.
+- **Size** (`tools/audio/apk_size.py` after `godot --headless --import`): the audio in the APK went from 7.04 MB
+  (233 files) to 7.33 MB (271): the one-shots from 0.93 MB (192) to 1.22 MB (230, QOA). The sources grew 1.36 MB of
+  WAVs (9.79 to 11.15 MB).
+- **Frame time** (`perf_tests` alone, three runs each of the base, a544e4b, and the sounds, alternating, on the shared
+  machine at a load of 5.6 to 8.7; medians in ms a frame, the runs' range after): Lotus Ferry with the living world
+  (the least of six interleaved rounds) 7.96 (7.77-8.29) before, 8.26 (8.25-8.27) after, the living world's own work
+  0.82 and 0.75; the Marsh Edge's fight with it 14.05 and 14.38; the prototype's 22-foe fight 17.37 (9.0-18.6) and
+  15.36 (14.1-17.0); walking in Lotus Ferry 14.84 (8.5-23.7) and 10.70 (9.1-15.2). The load swung each figure by
+  several ms and failed timing checks in every run of both (3, 8 and 6 of 18 before, 5, 6 and 2 after); within that
+  noise the sounds cost nothing measurable but perhaps the 0.3 ms in Lotus Ferry. `perf_tests` in the full run (at a
+  load near 3) passed all 18.
