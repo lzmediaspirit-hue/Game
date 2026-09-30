@@ -96,6 +96,32 @@ class Layout:
                 self.prop(kind, x, y)
         return self
 
+    def sand(self, *rects):
+        """Decision 44 (art bible "Sand and snow"): sand over the ground of these rects ((x, y, w, h) each) where it is
+        meadow, marsh, flowers or a path; never on planks, paving or granite, nor under a plant of the foliage kit (it
+        grows on meadow), so it is laid after the room's green. Its edges are the tiles' own: grass creeps over it, it
+        creeps over the path, and it darkens where it meets the water."""
+        return self._repaint(rects, "a", "gfmd")
+
+    def snow(self, *rects, paint="n"):
+        """Decision 44: fresh (`n`) or packed (`k`) snow over the rock, meadow, path, granite or fresh snow of these rects,
+        never under a plant of the foliage kit; fresh snow creeps over what it meets on its level."""
+        return self._repaint(rects, paint, "rgfdsn")
+
+    def _repaint(self, rects, paint, over):
+        plants = set()
+        for p in self.props:
+            if p["kind"] in FOLIAGE:
+                fw, fh = TILESET["props"][p["kind"]]["footprint"]
+                plants.update((x, y) for y in range(p["y"], p["y"] + fh) for x in range(p["x"], p["x"] + fw))
+        for x0, y0, w, h in rects:
+            for y in range(y0, y0 + h):
+                for x in range(x0, x0 + w):
+                    if (0 <= x < self.w and 0 <= y < self.h and self.pt[y][x] in over and (x, y) not in plants
+                            and self.lv[y][x] != WATER):
+                        self.pt[y][x] = paint
+        return self
+
     def walls(self, x, y, w, h, high=3, low=1, paint="l"):
         """An interior's walls round a floor: the back wall `high` (its face three tiles), the sides as high, the front
         a low sill so it hides little."""
@@ -539,6 +565,10 @@ def village(rid="lf_village", night=False):
             ("tree_willow", 40, 31), ("tall_grass", 26, 30), ("bush_wide", 30, 30), ("tall_grass", 35, 31),
             ("tree_camphor", 51, 17), ("bush", 49, 15), ("bush_azalea", 57, 15), ("rock_small", 63, 19),
             ("lotus_pads", 18, 35), ("lotus_pads", 40, 36), ("lotus_pads", 3, 37), ("cattails", 24, 34), ("cattails", 46, 34), ("cattails", 12, 34))
+    # Sand (decision 44): river sand along the waterline from Home Lane's end to the ferry landing, the towpath wandering
+    # over it; it widens up the bank into the washing beach below Mei's line, a cove further east and the ferry
+    # landing's sand under the docks round the pier's foot. By the West Gate the old embankment stays.
+    r.sand((6, 33, w - 6, 1), (10, 32, 11, 1), (28, 32, 11, 1), (47, 32, 25, 1))
     if night:
         r.spawn = [30, 22]
         r.at("hut_refuge", 6.5, 15)
@@ -701,6 +731,9 @@ def reed_shallows():
             ("rock_mossy", 6, 19), ("tall_grass", 15, 21), ("rock_small", 24, 18), ("tall_grass", 50, 21),
             ("rock_small", 58, 18), ("cattails", 5, 23), ("cattails", 12, 23), ("cattails", 21, 23), ("cattails", 31, 23),
             ("cattails", 48, 23), ("cattails", 57, 23), ("lotus_pads", 14, 25), ("lotus_pads", 44, 27), ("lotus_pads", 60, 24))
+    # Sand (decision 44): the flats' beach along the river where the crabs run, the sandbar grown into a spit of it, the
+    # meadow's tufts and plants keeping their ground.
+    r.sand((0, 22, 64, 1), (2, 21, 12, 1), (19, 21, 10, 1), (33, 21, 16, 1), (53, 21, 9, 1), (36, 20, 13, 1), (5, 20, 5, 1))
     r.spawn = [3, 14]
     r.way("west", 0, 14, "w", [2, 14], 3)
     r.way("east", 63, 14, "e", [61, 14], 3)
@@ -750,6 +783,7 @@ def willow_path_east():
             ("tall_grass", 14, 19), ("tall_grass", 30, 19), ("tall_grass", 47, 19), ("rock_small", 17, 16),
             ("rock_mossy", 55, 15), ("cattails", 2, 21), ("cattails", 19, 21), ("cattails", 33, 21), ("cattails", 50, 21),
             ("lotus_pads", 26, 23), ("lotus_pads", 45, 24))
+    r.sand((9, 20, 16, 1), (34, 20, 18, 1), (16, 19, 5, 1), (42, 19, 4, 1))   # decision 44: sandy coves along the stream
     r.spawn = [60, 13]
     r.way("east", 63, 13, "e", [61, 13], 3)
     r.way("west", 0, 13, "w", [2, 13], 3)
@@ -798,6 +832,7 @@ def willow_path_west():
             ("bamboo_grove", 60, 24), ("tall_grass", 1, 20), ("tall_grass", 10, 24), ("tall_grass", 26, 22),
             ("tall_grass", 50, 24), ("rock_mossy", 33, 24), ("cattails", 6, 26), ("cattails", 24, 26), ("cattails", 47, 26),
             ("cattails", 55, 26), ("lotus_pads", 20, 27), ("lotus_pads", 50, 28))
+    r.sand((12, 25, 26, 1), (14, 24, 8, 1), (40, 25, 8, 1))   # decision 44: the pond's beach
     r.spawn = [60, 15]
     r.way("east", 63, 15, "e", [61, 15], 3)
     r.way("west", 0, 15, "w", [2, 15], 3)
@@ -1395,6 +1430,10 @@ def elder_hu_peak():
     # Foliage (decision 40): a great pine and a plum on the mountain meadow, mossy rocks, tall grass and ferns.
     r.green(("tree_pine", 3, 11), ("tree_plum", 33, 20), ("tree_maple", 15, 22), ("rock_mossy", 27, 16), ("rock_small", 12, 12),
             ("tall_grass", 20, 24), ("tall_grass", 34, 16), ("ferns", 9, 15), ("bush", 36, 23), ("ferns", 23, 10))
+    # Snow (decision 44): the peak is high enough to hold a dusting: on the summit crags, the heads of the side crags
+    # and the Meditation Rock's back in the crags' shade, packed where one sits to meditate; the lower ledges stay bare.
+    r.snow((0, 0, 40, 3), (0, 3, 2, 4), (38, 3, 2, 4), (19, 3, 7, 2))
+    r.snow((21, 4, 3, 1), paint="k")
     r.spawn = [6, 22]
     r.way("path", 5.5, 25, "s", [5.5, 23.5], 2)
     r.door("abode", abode)
@@ -1442,6 +1481,10 @@ def cloud_cliff_stair():
     r.green(("tree_pine", 13, 7), ("bush", 1, 11), ("tree_pine", 51, 10), ("bush_wide", 36, 7), ("bush", 53, 16),
             ("tree_pine", 20, 32), ("tree_maple", 44, 32), ("tree_plum", 27, 32), ("bush", 14, 30), ("bush_azalea", 39, 29),
             ("tall_grass", 49, 32), ("rock_small", 35, 32))
+    # Snow (decision 44): the Cloud Sect's cliffs hold snow on their crown and on the top ledge, trodden to packed snow
+    # from the Cloud Library's door to the bell the Cloud Steps ring; the ledge above the landing and below stay bare.
+    r.snow((0, 0, 56, 6), (52, 6, 4, 1), (40, 2, 12, 6))
+    r.snow((44, 5, 7, 1), (46, 6, 2, 2), paint="k")
     r.spawn = [9, 31]
     r.way("stoneford", 9, 33, "s", [9, 31], 3)
     r.way("east", 55, 23, "e", [53, 23], 3)
@@ -1583,6 +1626,9 @@ def elder_sung_peak():
     # Foliage (decision 40): a great pine and a plum on the meadow under the peaks, rocks, tall grass and ferns.
     r.green(("tree_pine", 15, 26), ("tree_plum", 33, 24), ("tree_maple", 25, 22), ("rock_mossy", 24, 18), ("tall_grass", 10, 14), ("tall_grass", 28, 26),
             ("ferns", 20, 13), ("bush", 1, 20), ("rock_small", 16, 11), ("cattails", 11, 10), ("lotus_pads", 20, 5))
+    # Snow (decision 44): the summit crags, the high east peak down to its foot's last rows, and a dusting on the back
+    # of the far peak behind Elder Sung, in the crags' shade.
+    r.snow((0, 0, 40, 2), (35, 2, 5, 7), (28, 2, 7, 2))
     r.spawn = [6, 24]
     r.way("path", 5.5, 27, "s", [5.5, 25.5], 2)
     r.door("abode", abode)
@@ -1609,7 +1655,7 @@ def marsh_edge():
     for x, y, w, h in ((7, 6, 5, 1), (20, 6, 3, 2), (43, 6, 2, 1), (57, 6, 4, 2), (26, 8, 1, 3), (23, 18, 1, 3), (45, 18, 1, 3)):
         r.water(x, y, w, h)                       # bays and meanders, so no shore runs straight for long
     for x, y, w, h in ((10, 23, 4, 2), (40, 23, 5, 1), (50, 25, 3, 2)):
-        r.rect(x, y, w, h, 0, "m")                # a spit and an islet in the south pools
+        r.rect(x, y, w, h, 0, "a")                # a spit and an islet in the south pools, dry sand (decision 44)
     r.hline(0, 63, 13, 3, "d")                    # the path along the marsh
     r.rect(24, 13, 2, 3, 0, "w")                  # its boardwalks over the channels
     r.rect(46, 13, 2, 3, 0, "w")

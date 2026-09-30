@@ -369,7 +369,7 @@ SETS = {
 # Per paint mark: `share` of its cells take a piece, picked from `sets` ([set, weight]); `patch`: where a low-frequency
 # noise of the cell (`scale` cells) is over `above`, a patch of dense tall grass, up to `count` pieces a cell;
 # `shore`: a cell by the water takes reeds at this share. Marks not listed (paths, paving, granite, planks, roofs,
-# walls) take none.
+# walls, snow) take none.
 BIOMES = {
     "g": {"share": 0.34, "sets": [["grass_tall", 5], ["grass_low", 2], ["flowers", 2.5], ["stones", 1], ["ferns", 1],
                                   ["shrublets", 1], ["mushrooms", 0.35]],
@@ -380,6 +380,9 @@ BIOMES = {
     "m": {"share": 0.42, "sets": [["reeds", 3], ["grass_tall", 3], ["grass_low", 2], ["flowers", 0.5]],
           "patch": {"scale": 3.6, "above": 0.6, "count": 3, "set": "grass_tall"}, "shore": 0.75},
     "r": {"share": 0.26, "sets": [["moss", 3], ["stones", 2], ["grass_low", 1], ["ferns", 1]]},
+    # Decision 44: sand takes a few pebbles and a tuft of dune grass here and there, and reeds at the waterline. Snow
+    # (`n`, `k`) takes none: nothing grows through it (its own decals are the stalks that show).
+    "a": {"share": 0.1, "sets": [["stones", 3], ["grass_low", 1]], "shore": 0.3},
 }
 # The litter round a tree: cells within `radius` cells of its footprint take its litter at `share` (before the biome's
 # own pick).

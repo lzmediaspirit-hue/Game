@@ -24,6 +24,11 @@ extends RefCounted
 ##   - water: the water pattern's tile in the frame of the moment, the depth tints two and four cells from land
 ##     (distance counted over the eight neighbours), the shore overlay of its side case, foam where land touches only
 ##     a corner, and ripples under a pier's pilings.
+## Decision 44 (art bible "Sand and snow"): sand and snow creep over their neighbours on the same level as grass does
+## over a path, each with positional overlays of its own (`v2.creep`): a mark's `creep` is the material it lays over
+## its neighbours, its `takes` the materials that may lie over it. The layers go: the base, sand creeping over a path
+## or paving, the damp (`wet`) tint where sand touches the water, grass over the path or the sand, then snow over all of
+## it. The water by sand (`beach`) shows the sand through its shallows (`v2.water.beach`).
 ## Every pick is a pure function of the room (its id seeds the hashes), so a room always looks the same.
 
 const T := 16.0
@@ -31,6 +36,9 @@ const TONE_SUN := 0.58      ## the corner noise over which a sun patch lies
 const TONE_SHADE := 0.4     ## and under which a shade patch lies
 const DEEP := 2             ## cells from land where the water turns deep, and deeper
 const DEEPER := 4
+const CREEP := ["", "sand", "snow"]   ## decision 44: the creeping materials by index (sand lies under grass, snow over it)
+const SAND := 1
+const SNOW := 2
 
 var room: TopdownRoom
 var paint: Dictionary
@@ -48,6 +56,10 @@ var _plan: Array = []          ## per cell: how its mark draws in v2 {tiles, w, 
 var _grass := PackedByteArray() ## per cell: 1 when its mark is grass that creeps over paths
 var _over_by: Array = []       ## corner key as an int (TL 8, TR 4, BL 2, BR 1) -> the grass overlays by place
 var _mask_by: Array = []       ## corner key as an int -> the tint masks by place
+var _creep := PackedByteArray() ## decision 44: per cell, the material its mark creeps with (SAND, SNOW), 0 none
+var _creep_by: Array = []      ## per material: corner key as an int -> its overlays by place
+var _wet := PackedByteArray()  ## per corner: 1 where a cell round it is water (the damp sand's tint)
+var _beach := PackedByteArray() ## per cell: 1 where its mark shows through the shallows by it (sand)
 
 func _init(r: TopdownRoom) -> void:
 	room = r
@@ -72,22 +84,35 @@ func _plans() -> void:
 	var n := room.w * room.h
 	_plan.resize(n)
 	_grass.resize(n)
+	_creep.resize(n)
+	_beach.resize(n)
 	for i in n:
 		var info: Dictionary = _info[i] if not (_info[i] as Dictionary).is_empty() else paint.get("g", {})
 		_grass[i] = 1 if info.get("grass", false) else 0
+		_creep[i] = maxi(0, CREEP.find(str(info.get("creep", ""))))
+		_beach[i] = 1 if info.get("beach", false) else 0
 		if not by_mark.has(info):
 			var m: Dictionary = v2.get("macro", {}).get(str(info.get("macro", "grass")), {})
 			var decals: Array = []
 			for d in info.get("decals", []):
 				var names: Array = v2.get("decals", {}).get(str(d[0]), [])
 				if not names.is_empty(): decals.append([names, float(d[1])])
+			var takes := 0
+			for t in info.get("takes", []):
+				if CREEP.find(str(t)) > 0 and v2.get("creep", {}).has(str(t)): takes |= 1 << CREEP.find(str(t))
 			by_mark[info] = {"tiles": m.get("tiles", []), "w": int(m.get("w", 1)), "h": int(m.get("h", 1)), "decals": decals,
-				"under": str(info.get("under", "")) != ""}
+				"under": str(info.get("under", "")) != "", "takes": takes, "wet": bool(info.get("wet", false))}
 		_plan[i] = by_mark[info]
 	for k in 16:
 		var key := "%d%d%d%d" % [(k >> 3) & 1, (k >> 2) & 1, (k >> 1) & 1, k & 1]
 		_over_by.append(v2.get("over", {}).get(key, []))
 		_mask_by.append(v2.get("tint_mask", {}).get(key, []))
+	for mat in CREEP:
+		var by: Array = []
+		for k in 16:
+			var key := "%d%d%d%d" % [(k >> 3) & 1, (k >> 2) & 1, (k >> 1) & 1, k & 1]
+			by.append(v2.get("creep", {}).get(mat, {}).get(key, []))
+		_creep_by.append(by)
 
 ## The grid's level of a cell (a prop's top is a sprite, not the grid); `out` outside the room.
 func lv(x: int, y: int, out := 99) -> int:
@@ -260,13 +285,16 @@ func _water_depth() -> void:
 					q.append(oy * w + ox)
 	var cw := w + 1
 	_deep.resize(cw * (room.h + 1))
+	_wet.resize(cw * (room.h + 1))
 	for cy in room.h + 1:
 		for cx in cw:
 			var least := 255
 			for c in 4:
 				var x := cx - 1 + (c & 1)
 				var y := cy - 1 + (c >> 1)
-				if x >= 0 and y >= 0 and x < w and y < room.h: least = mini(least, _dist[y * w + x])
+				if x >= 0 and y >= 0 and x < w and y < room.h:
+					least = mini(least, _dist[y * w + x])
+					if room.levels[y * w + x] == TopdownRoom.WATER: _wet[cy * cw + cx] = 1
 			_deep[cy * cw + cx] = least
 
 ## The corner key of a cell as an int (TL 8, TR 4, BL 2, BR 1) from a per-corner byte array: a corner counts where
@@ -292,28 +320,59 @@ func _gkey(x: int, y: int) -> int:
 					k |= bit
 	return k
 
+## Decision 44: a creeping material's corner key at a cell (TL 8, TR 4, BL 2, BR 1): a corner counts where a cell round
+## it on the same level creeps with `mat` and bears another mark (packed snow takes fresh snow, never its own).
+func _creep_key(x: int, y: int, mat: int) -> int:
+	var i := y * room.w + x
+	var l := room.levels[i]
+	var own := room.paint[i]
+	var k := 0
+	for c in 4:
+		var bit := 8 >> c
+		var cx := x + (c & 1)
+		var cy := y + (c >> 1)
+		for oy in [cy - 1, cy]:
+			for ox in [cx - 1, cx]:
+				if ox < 0 or oy < 0 or ox >= room.w or oy >= room.h: continue
+				var j: int = oy * room.w + ox
+				if _creep[j] == mat and room.levels[j] == l and room.paint[j] != own: k |= bit
+	return k
+
+## A creeping material's positional overlay for a corner key (an int) at a cell.
+func _creep_layer(mat: int, key: int, x: int, y: int) -> Array:
+	return [_creep_by[mat][key][(y & 3) * 4 + (x & 3)], Color.WHITE]
+
 ## A positional tint mask for a corner key (an int) at a cell, in a tint's colour.
 func _tint_layer(key: int, x: int, y: int, kind: String) -> Array:
 	return [_mask_by[key][(y & 3) * 4 + (x & 3)], _tint.get(kind, Color(1, 1, 1, 0))]
 
 ## The layers of a cell's top at level `l`, bottom to top: the base (its macro tile, or under grass the path's with
 ## the positional grass overlay), a decal, the sun and shade patches, the light overlays (rims, contact and cast
-## shade).
+## shade). Decision 44: sand creeping over a path or paving, the damp sand by the water, then grass, then snow over
+## all of it; a cell covered at every corner takes the covering material's own tile.
 func top_layers(x: int, y: int, l: int) -> Array:
 	if v2.is_empty():
 		return [_layer(top(x, y))] + overlays(x, y, l).map(func(o): return _layer(o))
 	var pl: Dictionary = _plan[y * room.w + x]
 	var out: Array = []
 	var key := _gkey(x, y) if pl.under else 0
+	var sk := _creep_key(x, y, SAND) if int(pl.takes) & (1 << SAND) else 0
+	var nk := _creep_key(x, y, SNOW) if int(pl.takes) & (1 << SNOW) else 0
 	var tiles: Array = pl.tiles
 	var base := str(tiles[(y % int(pl.h)) * int(pl.w) + x % int(pl.w)]) if not tiles.is_empty() else top(x, y)
-	if key == 15:
+	if nk == 15:
+		out.append([macro("snow", x, y), Color.WHITE])
+	elif key == 15:
 		out.append([macro("grass", x, y), Color.WHITE])
-	elif key != 0:
-		out.append([base, Color.WHITE])
-		out.append([_over_by[key][(y & 3) * 4 + (x & 3)], Color.WHITE])
 	else:
-		out.append([base, Color.WHITE])
+		out.append([macro("sand", x, y) if sk == 15 else base, Color.WHITE])
+		if sk != 0 and sk != 15: out.append(_creep_layer(SAND, sk, x, y))
+		if (pl.wet or sk != 0) and l == 0 and not _wet.is_empty():
+			var wk := _ckey(_wet, x, y, 1)
+			if wk: out.append(_tint_layer(wk, x, y, "wet"))
+		if key != 0: out.append([_over_by[key][(y & 3) * 4 + (x & 3)], Color.WHITE])
+	if nk != 0 and nk != 15: out.append(_creep_layer(SNOW, nk, x, y))
+	if key == 0 and sk == 0 and nk == 0:
 		var hsh := h01(x, y, seed + 5)
 		var acc := 0.0
 		for d in pl.decals:
@@ -345,6 +404,14 @@ func face_layers(x: int, y: int, l: int, k: int, south: int) -> Array:
 	if k == l - south - 1 and south >= 0 and v2.has("face_ao"): out.append(_layer(str(v2.face_ao)))
 	return out
 
+## Decision 44: has the water cell a side neighbour on land whose mark shows through the shallows (sand)?
+func _by_beach(x: int, y: int) -> bool:
+	if _beach.is_empty(): return false
+	for d in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
+		var n: Vector2i = Vector2i(x, y) + d
+		if room.inside(n.x, n.y) and lv(n.x, n.y) != TopdownRoom.WATER and _beach[n.y * room.w + n.x] == 1: return true
+	return false
+
 ## The layers of a water cell in each of the water's four frames: the water pattern's tile, the depth tints, the
 ## shore overlay of its side case, foam where land touches only a corner, ripples under a pier's pilings.
 func water_layers(x: int, y: int) -> Array:
@@ -357,12 +424,13 @@ func water_layers(x: int, y: int) -> Array:
 	var deeper := _ckey(_deep, x, y, 0, DEEPER)
 	if deeper: still.append(_tint_layer(deeper, x, y, "deeper"))
 	var sides := shore_sides(x, y)
+	var shore := "beach" if _by_beach(x, y) else "shore"   # decision 44: sand shows through the shallows by it
 	var frames: Array = []
 	var m: Dictionary = wv.macro
 	for f in 4:
 		var out: Array = [_layer(str(m.frames[f][posmod(y, int(m.h)) * int(m.w) + posmod(x, int(m.w))]))]
 		out.append_array(still)
-		if sides: out.append(_layer(str(wv.shore["%02d" % sides][f])))
+		if sides: out.append(_layer(str(wv.get(shore, wv.shore)["%02d" % sides][f])))
 		for c in [["ne", Vector2i(1, -1), 1, 2], ["nw", Vector2i(-1, -1), 1, 8], ["se", Vector2i(1, 1), 4, 2], ["sw", Vector2i(-1, 1), 4, 8]]:
 			var at: Vector2i = Vector2i(x, y) + (c[1] as Vector2i)
 			if sides & int(c[2]) == 0 and sides & int(c[3]) == 0 and room.inside(at.x, at.y) and lv(at.x, at.y) != TopdownRoom.WATER:

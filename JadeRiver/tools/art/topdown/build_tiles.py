@@ -49,25 +49,37 @@ REVIEW = ROOT / "docs/redesign/phase3"
 # Terrain v2 (art bible "Terrain v2") adds what the room view draws the mark with: `macro`, the material pattern its
 # base tile comes from (by the cell's place in it); `decals`, [set, share of cells] in order, picked by a hash of the
 # cell; `tone`, whether the sun and shade patches lie on it. `top` stays the mark's Phase 3 tiles (the TileSet's).
+# Decision 44 (art bible "Sand and snow") adds `a` sand, `n` fresh snow and `k` packed snow, and what creeps over what
+# on one level: `creep`, the material whose overlay a mark lays over its neighbours (sand, snow); `takes`, the materials
+# that may creep over it, in the order they are laid; `wet`, damp where it touches the water (the `wet` tint); `beach`,
+# the water by it shows the sand through its shallows. Grass creeps over sand as over a path (`under`); sand over dirt
+# and paving; snow over grass, dirt, paving, granite, rock and packed snow.
 PAINT = {
     "g": {"top": ["grass_a", "grass_b", "grass_a", "grass_c", "grass_d"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["flowers", 0.05], ["grass", 0.5]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.05], ["grass", 0.5]], "tone": True, "takes": ["snow"]},
     "f": {"top": ["grass_flowers"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["flowers", 0.72], ["grass", 0.2]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.72], ["grass", 0.2]], "tone": True, "takes": ["snow"]},
     "b": {"top": ["grass_flowers", "grass_d", "grass_a", "grass_flowers", "grass_c"], "face": "stone", "grass": True,
-          "macro": "grass", "decals": [["flowers", 0.8]], "tone": True},
+          "macro": "grass", "decals": [["flowers", 0.8]], "tone": True, "takes": ["snow"]},
     "d": {"top": ["dirt", "dirt_b"], "face": "earth", "under": "grass_dirt",
-          "macro": "dirt", "decals": [["dirt", 0.45]], "tone": True},
+          "macro": "dirt", "decals": [["dirt", 0.45]], "tone": True, "takes": ["sand", "snow"]},
     "p": {"top": ["paving_a", "paving_b", "paving_a", "paving_c", "paving_b", "paving_a", "paving_d"], "face": "pave",
-          "under": "grass_paving", "macro": "pave", "decals": [["pave_hole", 0.012], ["pave", 0.3]]},
-    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone", "macro": "stone", "decals": [["stone", 0.2]]},
+          "under": "grass_paving", "macro": "pave", "decals": [["pave_hole", 0.012], ["pave", 0.3]], "takes": ["sand", "snow"]},
+    "s": {"top": ["stone_top", "stone_top", "stone_top_b"], "face": "stone", "macro": "stone", "decals": [["stone", 0.2]],
+          "takes": ["snow"]},
     "w": {"top": ["wood", "wood_b"], "face": "wood", "keep_face": True, "macro": "wood", "decals": [["wood", 0.05]]},
-    "r": {"top": ["rock", "rock_b"], "face": "rock", "macro": "rock", "decals": [["rock", 0.6]], "tone": True},
+    "r": {"top": ["rock", "rock_b"], "face": "rock", "macro": "rock", "decals": [["rock", 0.6]], "tone": True,
+          "takes": ["snow"]},
     "t": {"top": ["roof_top", "roof_top_b"], "face": "roof",
           "face_below": ["plaster_face_window", "roof_face", "roof_face"], "macro": "roof", "decals": [["roof", 0.06]]},
     "l": {"top": ["wall_top"], "face": "wall", "macro": "wall"},
     "m": {"top": ["marsh_a", "grass_a", "marsh_b", "grass_c"], "face": "earth", "grass": True, "keep_face": True,
-          "macro": "grass", "decals": [["marsh", 0.16], ["grass", 0.45]], "tone": True},
+          "macro": "grass", "decals": [["marsh", 0.16], ["grass", 0.45]], "tone": True, "takes": ["snow"]},
+    "a": {"top": ["sand_a", "sand_b", "sand_a", "sand_c"], "face": "sand", "keep_face": True, "under": "grass_sand",
+          "macro": "sand", "decals": [["sand", 0.3]], "tone": True, "creep": "sand", "wet": True, "beach": True},
+    "n": {"top": ["snow_a", "snow_b"], "face": "snow", "macro": "snow", "decals": [["snow", 0.2]], "creep": "snow"},
+    "k": {"top": ["snowpack_a", "snowpack_b"], "face": "snow", "macro": "snowpack", "decals": [["snowpack", 0.28]],
+          "creep": "snow", "takes": ["snow"]},
 }
 
 # Terrain sets of the TileSet (art bible §6).
@@ -99,6 +111,8 @@ def build_all() -> dict:
                            "when any cell sharing that corner on the same level is grass", "tiles": auto["grass_dirt"]},
             "grass_paving": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "as grass_dirt",
                              "tiles": auto["grass_paving"]},
+            "grass_sand": {"mode": "corners", "key": "TL TR BL BR, 1 = grass", "rule": "as grass_dirt (decision 44; "
+                           "not in the TileSet, whose terrain sets keep dirt and paving)", "tiles": auto["grass_sand"]},
             "shore": {"mode": "sides", "key": "bit 1 N, 2 E, 4 S, 8 W = the neighbour is not water",
                       "frame_ms": 250, "tiles": auto["shore"]},
         },

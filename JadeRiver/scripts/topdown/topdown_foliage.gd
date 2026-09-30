@@ -196,6 +196,13 @@ static func scatter(r: TopdownRoom) -> Array:
 		if r.inside(c.x, c.y): clear[c.y * r.w + c.x] = 1
 	var litter := litter_cells(r)
 	var lshare := float((m.get("litter", {}) as Dictionary).get("share", 0.5))
+	# Decision 44: snow lies over the edge of the ground round it (its creeping overlay), so nothing grows within a cell
+	# of it on its level.
+	var snowy := PackedByteArray()
+	snowy.resize(128)
+	var paint_marks: Dictionary = r.tileset.get("paint", {})
+	for mark in paint_marks:
+		if str((paint_marks[mark] as Dictionary).get("creep", "")) == "snow" and str(mark).unicode_at(0) < 128: snowy[str(mark).unicode_at(0)] = 1
 	var chunk: Vector2i = TopdownWorld.CHUNK
 	var keys := PackedInt64Array()
 	var raw: Array = []
@@ -206,7 +213,7 @@ static func scatter(r: TopdownRoom) -> Array:
 			if l < 0 or clear[i] == 1 or r.solid[i] == 1 or r.stair_of[i] > 0: continue
 			var pb := r.paint[i]
 			var b = bio[pb] if pb < 128 else null
-			if b == null: continue
+			if b == null or _by_snow(r, x, y, l, snowy): continue
 			var lit: String = litter.get(Vector2i(x, y), "") if not litter.is_empty() else ""
 			if lit == "blight": continue   # round a dead tree the Hollowing has drained the ground
 			var picks: Array = []
@@ -248,6 +255,14 @@ static func _weighted(list: Array, h: float) -> String:
 		acc += float(e[1]) / total
 		if h < acc: return str(e[0])
 	return str(list.back()[0]) if not list.is_empty() else ""
+
+## Decision 44: is a cell within one (of its eight neighbours) of snow on its own level?
+static func _by_snow(r: TopdownRoom, x: int, y: int, l: int, snowy: PackedByteArray) -> bool:
+	for oy in range(maxi(0, y - 1), mini(r.h, y + 2)):
+		for ox in range(maxi(0, x - 1), mini(r.w, x + 2)):
+			var j := oy * r.w + ox
+			if r.paint[j] < 128 and snowy[r.paint[j]] == 1 and r.levels[j] == l: return true
+	return false
 
 static func _shore(r: TopdownRoom, x: int, y: int) -> bool:
 	for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:

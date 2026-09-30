@@ -1,5 +1,19 @@
 {
  "biomes": {
+  "a": {
+   "sets": [
+    [
+     "stones",
+     3
+    ],
+    [
+     "grass_low",
+     1
+    ]
+   ],
+   "share": 0.1,
+   "shore": 0.3
+  },
   "b": {
    "sets": [
     [
