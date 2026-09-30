@@ -14,7 +14,15 @@ extends Authority
 ## (never in a fight, a staged scene or a talk). Nothing is queued while every system is forced open (debug tools).
 
 const POLL_S := 0.5
+## Decision 45: the poll looks again only at the passing states (the points to spend, a thing in the bag, a bottleneck, a
+## technique slotted) every POLL_S; every guide, the unlocks' too, once in FULL_POLLS (the events answer an unlock at
+## once). Looking at all seventy every half second cost a third of a millisecond on a desktop, a hitch on a phone.
+const PASSING := ["points", "item", "bottleneck", "technique"]
+const FULL_POLLS := 10
+## The guides an event can bring (the rest wait for the poll): a system opened brings any.
+const KINDS_OF := {"item_added": ["item"], "bottleneck_reached": ["bottleneck"], "level_changed": ["points", "technique"]}
 var _poll := 0.0
+var _polls := 0
 ## actor -> the room a guide's "go to the place" step leads to while the coach shows it (not saved): the direction mark
 ## and the World map's lantern lead there first (WorldAuthority.guide_target).
 var goals: Dictionary = {}
@@ -25,7 +33,8 @@ func intents() -> Array:
 func subscribe() -> void:
 	# A system opened or a thing found is answered in the same pass, not at the next poll.
 	for ev in ["system_unlocked", "item_added", "bottleneck_reached", "level_changed"]:
-		GameEvents.subscribe(ev, func(p): _on_change(p), 90)
+		var kinds: Array = KINDS_OF.get(ev, [])
+		GameEvents.subscribe(ev, func(p): _on_change(p, kinds), 90)
 	GameEvents.subscribe("character_created", func(p): _on_created(p), 90)
 
 func handle(intent: Dictionary) -> Dictionary:
@@ -64,6 +73,8 @@ func handle(intent: Dictionary) -> Dictionary:
 			if one == "":
 				st.seen.clear()
 				st.at.clear()
+				# The coach lets the page open now be (Settings): its tour waits for its next opening, as the others'.
+				emit("tutorials_replayed", {"actor": c.id})
 			else:
 				st.seen.erase(one)
 				st.at.erase(one)
@@ -73,6 +84,10 @@ func handle(intent: Dictionary) -> Dictionary:
 ## The character's tutorial record, its fields filled in (an old save's "legacy" mark is settled on the first look).
 func state(c) -> Dictionary:
 	var st: Dictionary = c.tutorials
+	# Settled already (the coach asks every frame): as it is.
+	if st.get("seen") is Dictionary and st.get("guided") is Dictionary and st.get("at") is Dictionary and st.get("queue") is Array \
+			and not st.has("legacy") and int(st.get("v", 1)) >= TutorialRules.version():
+		return st
 	for k in ["seen", "guided", "at"]:
 		if not (st.get(k) is Dictionary): st[k] = {}
 	if not (st.get("queue") is Array): st["queue"] = []
@@ -96,14 +111,16 @@ func tick(delta: float) -> void:
 	_poll += delta
 	if _poll < POLL_S: return
 	_poll = 0.0
-	evaluate(game.active())
+	_polls += 1
+	evaluate(game.active(), [] if _polls % FULL_POLLS == 0 else PASSING)
 
-func _on_change(p: Dictionary) -> void:
+func _on_change(p: Dictionary, kinds: Array) -> void:
 	var c = game.character(str(p.get("actor", game.active_id)))
-	if c != null and str(c.id) == game.active_id: evaluate(c)
+	if c != null and str(c.id) == game.active_id: evaluate(c, kinds)
 
-## Queue every guide whose trigger holds now and that is not done, waiting or seen (its tour played already).
-func evaluate(c) -> void:
+## Queue every guide whose trigger holds now and that is not done, waiting or seen (its tour played already); of the
+## trigger `kinds` named only (none named: every guide).
+func evaluate(c, kinds: Array = []) -> void:
 	if c == null or Unlocks.debug_force_all: return
 	var st := state(c)
 	var added := false
@@ -116,6 +133,7 @@ func evaluate(c) -> void:
 	for e in TutorialRules.entries():
 		var id := str(e.id)
 		if st.guided.has(id) or st.queue.has(id) or st.seen.has(id): continue
+		if not kinds.is_empty() and not (str((e.get("trigger", {}) as Dictionary).get("kind", "")) in kinds): continue
 		if not TutorialRules.triggered(c, e): continue
 		st.queue.append(id)
 		added = true

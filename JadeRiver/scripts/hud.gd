@@ -499,6 +499,19 @@ func hit_targets(badges = null) -> Array:
 	for pb in (point_badges(c) if badges == null else badges): add.call("points:" + str(pb.id), pb.center, 16.0, POINTS_PITCH * 0.5)
 	return out
 
+## Decision 45: hit_targets as they stand this frame, for the tutorial coach (tour_rect). The coach asks for several
+## anchors a frame, and each asking afresh counted the points badges again (the Realisations' walks the technique trees):
+## half a millisecond a frame on a desktop while a HUD lesson showed. Asked again on a new frame, when the game moves on
+## (Game.revision) or the fan opens or shuts.
+var _tour_targets_key := []
+var _tour_targets: Array = []
+func tour_targets() -> Array:
+	var key := [Engine.get_process_frames(), Game.revision, fan_open, fight, skill_page]
+	if key != _tour_targets_key:
+		_tour_targets_key = key
+		_tour_targets = hit_targets(_frame_badges())
+	return _tour_targets
+
 ## Decision 43 (docs/redesign/tutorials.md): a tutorial's anchor on the HUD, by name, so a tour never leans on how the HUD
 ## is laid out: a round control by its role in hit_targets ("attack", "jump", "skill" for all the technique buttons,
 ## "icon:menu", "points:meridian", …) or a plate ("minimap", "portrait", "tracker", "progress", "log", and the panel's
@@ -520,7 +533,7 @@ func tour_rect(name: String) -> Rect2:
 			if name == "qi": return Rect2(at, Vector2(330, 14)) if qi else Rect2()
 			return Rect2(at + Vector2(0, 18.0 if qi else 0.0), Vector2(330, 14)) if c.pools.max_soul > 0.0 and shown("soul_bar") else Rect2()
 	var out := Rect2()
-	for tg in hit_targets():
+	for tg in tour_targets():
 		# Decision 45: "quick" is the quick slots that show ("quick:0" to "quick:2" each on its own).
 		if str(tg.role) != name and not (name == "quick" and str(tg.role).begins_with("quick:")): continue
 		var d := float(tg.drawn) + 2.0
@@ -600,7 +613,8 @@ func _draw_points(_c) -> void:
 ## keep clear of (G4). `badges`: the points badges as hit_targets takes them.
 func obstacle_rects(badges = null) -> Array:
 	var out: Array = []
-	for tg in hit_targets(badges):
+	# Asked with the frame's badges (the HUD's own frame): the frame's targets, shared with the tutorial coach's anchors.
+	for tg in (tour_targets() if badges != null and is_same(badges, _badges) else hit_targets(badges)):
 		var d := float(tg.drawn) + 2.0
 		out.append(Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0))
 	var c = Game.active()

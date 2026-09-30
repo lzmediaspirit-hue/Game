@@ -163,11 +163,11 @@ def prototype():
           chain=[hud("icon:menu")], priority=9, prologue=True)
     entry("bag", "inventory", first_open(), [t("bag"), t("slot"), t("kind"), t("sort"), t("tab:key")], prologue=True)
     entry("gear", "inventory", {"kind": "item", "bag_kind": "gear"}, [],
-          chain=[hud("icon:bag"), on("inventory", "gear", element=True, try_={"event": "equipment_changed"})],
+          chain=[hud("icon:bag"), on("inventory", "equip|gear", element=True, try_={"event": "equipment_changed"})],
           priority=8, prologue=True)
     entry("quests", "quests", unlock("navigation"), [t("story|sel"), t("read"), t("go"), t("track|read"), t("tab:done")],
           chain=[hud("tracker")], priority=7, prologue=True)
-    entry("cultivate", "hud", unlock("cultivate"), [t("meditate"), t("progress"), t("portrait")], priority=6, prologue=True)
+    entry("cultivate", "hud", unlock("cultivate"), [t("meditate|fan"), t("progress"), t("portrait")], priority=6, prologue=True)
     entry("cultivation", "cultivation", unlock("cultivation"),
           [t("mountain"), t("stair"), t("next"), t("meditate"), t("tabs")], chain=via_menu("cultivation"), priority=5,
           prologue=True)
@@ -184,7 +184,7 @@ def prototype():
     entry("realisation", "techniques", points("realisation", "technique_slots_2"), [],
           chain=via_menu("techniques", element=element("open_node|node", {"event": "tree_node_realised"})), priority=6)
     entry("skills", "hud", {"kind": "technique", "unlock": "technique_slots_2"}, [t("skill"), t("attack")], priority=5)
-    entry("map", "world_map", unlock("world_menu"), [t("map"), t("sel"), t("walk"), t("view"), t("tabs")],
+    entry("map", "world_map", unlock("world_menu"), [t("map"), t("sel"), t("walk|card"), t("view"), t("tabs")],
           chain=[hud("icon:map")], priority=6)
     entry("calendar", "calendar", first_open(), [t("seasons"), t("week"), t("event"), t("go"), t("weather")])
     entry("mail", "mail", unlock("mail"), [t("stack"), t("letter"), t("parcel"), t("claim_all")], chain=[hud("icon:mail")],
@@ -206,11 +206,12 @@ def prototype():
           chain=via_menu("cultivation", "overview", "ui.cultivation.overview") + [on("cultivation", "breakthrough", tab="overview")],
           priority=9)
     entry("settings", "settings", first_open(), [t("tabs"), t("tab:access"), t("tab:controls", {"tab": "controls"}),
-                                                 t("replay_tutorials")])
+                                                 t("replay_tutorials|tab:controls")])
     entry("emotes", "emotes", first_open(), [t("known|emote"), t("unknown|emote"), t("close")])
     # HUD controls that open after the Prologue.
     entry("guard", "hud", unlock("guard"), [t("guard"), t("attack")], priority=5)
-    entry("qi_pool", "hud", unlock("qi_pool"), [t("portrait"), t("skill|attack")], priority=5)
+    # Decision 45: the pool opens at Bone Forging 1, with the first technique; the tour lights the Qi bar itself.
+    entry("qi_pool", "hud", unlock("qi_pool"), [t("qi|portrait"), t("skill|attack")], priority=5)
     entry("collection", "collection", unlock("collection_book"), [t("contents"), t("leaf|corner"), t("seals"), t("tab:achievements")],
           tab="collection", chain=via_menu("codex", "collection", "ui.codex.collection"), priority=3)
 

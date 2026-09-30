@@ -1,5 +1,58 @@
 # Changelog
 
+## Tutorial bugs: a card a thumb can answer, and a cheap coach (decision 45)
+
+The user played build 110 on an Android phone: the tutorial that teaches the buttons felt laggy, Done or Skip
+sometimes did nothing and the card did not close, and there were many other bugs. The tutorials were played again as a
+player: through the phone's own input path (a touch that also reaches the pages as a mouse click), at 1280×720 and at a
+20:9 phone's 2400×1080, from a new character through the Prologue into chapter 2 and through every lesson a later
+checkpoint had queued. What was found and fixed is listed in `docs/redesign/tutorials.md` §7 "Bugs fixed", each bug
+with a check in the `tutorials` suite.
+
+- **Done, Skip and Later act on the first tap.**
+  - The card was placed around the pointing hand as it bobbed, so it moved every frame under the thumb. It is now
+    placed once per step, from the hand at rest.
+  - A page's tour waits for the page to come in (`Page.settled`) and for its anchor, instead of standing in the middle
+    and jumping.
+  - After the player closes a card, the next lesson waits 1.2 s on the same screen. A queue of lessons no longer puts
+    the next card in the same place at once, which looked like a Later that did nothing.
+  - A HUD lesson on screen keeps the screen when a higher-priority guide is queued.
+- **Buttons for a thumb.** They are 56 px tall, with touch targets 8 px past them. They act on release, up to 24 px
+  off, and show pressed while held. A phone's tap is taken once. A tap that closes a card guards its place for 0.35 s,
+  so the second tap of a double tap reaches nothing under it.
+- **Fingers are kept whole.** Each finger belongs to the HUD or the coach from press to release. A thumb on the stick
+  sliding over a guide's card no longer leaves the character walking on alone.
+- **Other fixes:**
+  - A tab's tour under way resumes only on its tab.
+  - Back and Escape skip a tour instead of closing the page under it.
+  - Replay tutorials no longer starts the Settings tour at once.
+  - Cards keep clear of the HUD's controls, plates and equip prompt, and a guide's card keeps off the thumbs' places.
+  - A tall anchor gets its card tight over or under it.
+  - The gear guide's hand moves on to Equip.
+  - The Cultivate tour lights the fan while it is folded.
+  - Guides wait for the HUD to fade back in after a scene.
+  - The Map's Walk step and the last Settings step light their buttons for a new player.
+  - The Qi pool's tour, now at Bone Forging 1, rings the Qi bar rather than the whole panel.
+- **The lag.** Measured on a desktop CPU with `tools/dev/tutorial_prof.tscn`, the median of three runs each:
+  - Hidden, the coach cost 40 µs a frame on the play screen and 531 µs over any page. It now costs 14 µs and 35 µs
+    (2 µs and 8 µs timed directly in the suite).
+  - Showing a lesson, it cost 0.62 to 1.02 ms a frame. It now costs 0.17 to 0.19 ms.
+  - A page's "?" cost 188 µs on each drawing of the page. It now costs 2 µs.
+  - A page's tours are listed once per page and tab, where every open page listed them twice a frame.
+  - The HUD's controls are counted once a frame (`HUD.tour_targets`, shared with the HUD's own frame).
+  - The words are wrapped once per step.
+  - The card is a child node, drawn again only when it changes.
+  - The authority's poll checks only the passing states (0.34 ms down to 0.04 ms every half second). An event checks
+    only the kinds it can bring.
+- **Tools.**
+  - `tools/dev/tutorial_play.tscn` plays the tutorials as a player on the prototype's QA walk. It answers every card
+    with a finger, shoots each card and reports each miss. `--only=sweep` plays every lesson a kept game has queued.
+  - `tools/dev/tutorial_prof.tscn` measures the coach's frame.
+  - The QA walk gains `--only=<steps>` and a `p_boat` step.
+  - `tests/prologue_run.gd` keeps "Crab Trouble done" and "The River Token" for `--keep`.
+- **Tests:** the `tutorials` suite goes from 87 checks to 136, with a new section 10, "the card under a thumb". Each
+  check was confirmed to fail with its fix undone.
+
 ## The first boss: the eel wakes, and the elders come (decision 45)
 
 The Hollowed Eel of the Hollow Night was a fight the player won with a blade before they had ever cultivated. It is

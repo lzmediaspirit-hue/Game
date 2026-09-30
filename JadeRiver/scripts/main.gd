@@ -1030,6 +1030,8 @@ func _process(delta: float) -> void:
 		fade_rect.color = Color(0, 0, 0, fade)
 
 func _on_back() -> void:
+	# Decision 45: Back while a tutorial tour dims the screen skips the tour, not the page under it.
+	if is_instance_valid(coach) and coach.back(): return
 	var top := top_page()
 	if top:
 		top.close()

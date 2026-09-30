@@ -718,6 +718,7 @@ func step_crabs() -> void:
 
 ## 10 Evening on the River: dinner, the docks at sunset, and the night falls.
 func step_evening() -> void:
+	keep("Crab Trouble done")   # tools/dev/tutorial_play.gd resumes the walk here (--from, --start=p_night)
 	accept("lu_boatman", "evening_on_the_river")
 	check(Game.is_revealed("hud:menu"), "Menu revealed")
 	talk("aunt_ping")
@@ -845,6 +846,7 @@ func fight_eel(limit_s: float) -> Dictionary:
 
 ## P5 Lu's Boat: the first breakthrough.
 func step_river_token() -> void:
+	keep("The River Token")   # tools/dev/tutorial_play.gd resumes the walk here (--from, --start=p_boat)
 	check(c().quests.is_active("the_river_token"), "The River Token begins")
 	check(Game.is_revealed("hud:cultivate") and Game.is_revealed("hud:progress_bar"), "Cultivate and progress bar revealed")
 	check(c().cultivator.methods_known.has("riverbreath_fragment"), "Riverbreath method learned")

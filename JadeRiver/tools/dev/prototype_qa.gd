@@ -8,7 +8,7 @@ extends Node
 ## there (a driver's limit, not the game's). A screenshot at every step, and a log (qa_log.json) of what each shows.
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/prototype_qa.tscn \
 ##     -- --out=<dir> [--sect=jade|cloud] [--keep=<dir>] [--keep-at=<step>] [--from=<dir> --start=<step>] [--until=<step>]
-##     [--no-assist]
+##     [--no-assist] [--only=<step,...>]
 ## --keep saves the game into <dir> before the step --keep-at names (by default the sect's choice, both recruiters met);
 ## --from resumes a kept game (Continue on the title) and --start runs on from that step (the second sect's run:
 ## --from=<kept> --start=sect_choice --sect=cloud). --no-assist plays every fight on its own HP to the end (the balance
@@ -58,13 +58,18 @@ func _main() -> void:
 	var until := ""
 	var start := "opening"
 	var keep_at := "sect_choice"
+	var steps: Array = STEPS
 	for a in OS.get_cmdline_user_args():
 		if str(a).begins_with("--until="): until = str(a).trim_prefix("--until=")
 		if str(a).begins_with("--start="): start = str(a).trim_prefix("--start=")
 		if str(a).begins_with("--keep-at="): keep_at = str(a).trim_prefix("--keep-at=")
+		# --only=<step,...>: just these steps, in this order (a driver built on this one adds its own).
+		if str(a).begins_with("--only="):
+			steps = Array(str(a).trim_prefix("--only=").split(","))
+			start = str(steps[0])
 	if from_dir != "": await resume()
 	var on := false
-	for step in STEPS:
+	for step in steps:
 		if step == start: on = true
 		if not on: continue
 		if keep_dir != "" and step in keep_at.split(","): keep(step)
@@ -72,12 +77,17 @@ func _main() -> void:
 		step_now = step
 		# An attentive player breaks through when the bar says "breakthrough ready" (from the boat's first one on).
 		if Game.in_world and c() != null and c().cultivator.realm_key != "mortal": await breakthrough_if_ready("breakthrough_" + step)
+		await _step_hook()
 		await call(step)
 		if step == until: break
 	finish()
 
+## Before each step of the walk (tools/dev/tutorial_play.gd follows the tutorials' guides there).
+func _step_hook() -> void:
+	pass
+
 ## The walk's steps in order; --start=<step> with --from=<saves> resumes at one, --keep-at=<step> keeps the saves there.
-const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_willow",
+const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_boat", "p_willow",
 	"fair", "sect_choice", "chapter2", "to_the_gate"]
 
 ## The game saved as it stands, into keep_dir (a checkpoint the next run starts from); with more than one --keep-at
@@ -875,6 +885,9 @@ func p_night() -> void:
 			night_shot = true
 			await shot("night_hold", "holding out at the hut")
 		await frames(6)
+
+## Lu's boat after the night: the first breakthrough and the River Token.
+func p_boat() -> void:
 	await settle()
 	await wait_s(1.0)
 	await shot("lu_boat", "Lu's boat: %s" % scene_step())
