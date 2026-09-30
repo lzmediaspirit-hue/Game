@@ -1014,6 +1014,7 @@ class FoeView extends Sorted:
 	var top := -1.0          ## its idle figure's height over its feet (art px), from the sheet (its elite's for an elite)
 	var facing := "s"
 	var flip := false
+	var swims := false       ## its sheet has a swim row (decision 44: the leech), played for its walk and idle in water
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
@@ -1036,6 +1037,7 @@ class FoeView extends Sorted:
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
 		var look: Dictionary = sp.get("elite", sp) if e.elite else sp
 		acts = look.get("actions", {})
+		swims = acts.has("swim")
 		mirror = sheet.get("mirror", {})
 		var c: Array = look.get("cell", sheet.get("cell", [48, 40]))
 		var f: Array = look.get("foot", sheet.get("foot", [24, 27]))
@@ -1081,7 +1083,7 @@ class FoeView extends Sorted:
 		elif e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]): act = "hurt"
 		if not acts.has(act): act = "idle"
 		# Decision 44: a foe whose sheet has a swim row (the marsh leech) swims where it is in water, moving or still.
-		if act in ["idle", "walk"] and acts.has("swim"):
+		if swims and (act == "idle" or act == "walk"):
 			var wc := TopdownRoom.cell_of(e.plane)
 			if room.is_water(wc.x, wc.y): act = "swim"
 		if act != last:
