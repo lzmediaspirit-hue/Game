@@ -36,7 +36,7 @@ var configs: Dictionary:         # table -> Dictionary
 		return _configs
 var rooms: Dictionary:           # room id -> room data
 	get:
-		if _unread.has(ROOMS): _read(ROOMS)
+		if not _rooms_in: _read(ROOMS)
 		return _rooms
 var dialogue: Dictionary:        # dialogue id -> tree
 	get:
@@ -52,7 +52,7 @@ var realm_index: Dictionary = {} # key -> position in realm_order
 var _realm_for_level: Dictionary = {} # level -> realm_key_for_level (a foe's stats ask it at every blow)
 var room_zone: Dictionary:       # room id -> zone id
 	get:
-		if _unread.has(ROOMS): _read(ROOMS)
+		if not _rooms_in: _read(ROOMS)
 		return _room_zone
 var used_in: Dictionary = {}     # item id -> [recipe ids]
 var load_errors: Array[String]:
@@ -71,6 +71,7 @@ var _room_zone: Dictionary = {}
 var _load_errors: Array[String] = []
 var _files: Array = []           # the tables in the data folder's order (a whole read keeps them in it)
 var _unread: Dictionary = {}     # table or group -> true until it is read
+var _rooms_in := false           # the rooms are read (asked at every room lookup)
 var _reader: _Reader = null      # the loading thread's work, while it runs
 var _frames := 0
 
@@ -84,7 +85,7 @@ func load_all() -> void:
 	_tables.clear(); _lists.clear(); _configs.clear(); _rooms.clear(); _dialogue.clear(); _parts = {}
 	strings.clear(); _load_errors.clear(); realm_order.clear(); realm_index.clear(); _realm_for_level.clear()
 	_stats_at.clear(); _movement_at.clear(); _curves_at.clear()
-	_room_zone.clear(); used_in.clear(); _files.clear(); _unread.clear()
+	_room_zone.clear(); used_in.clear(); _files.clear(); _unread.clear(); _rooms_in = false
 	for file in DirAccess.get_files_at(DATA_DIR):
 		if not file.ends_with(".json") or file in LEGACY_FILES: continue
 		_files.append(file.get_basename())
@@ -157,6 +158,7 @@ func _install(table: String, got: Dictionary) -> void:
 		ROOMS:
 			_rooms.merge(got.rooms)
 			_room_zone.merge(got.room_zone)
+			_rooms_in = true
 		DIALOGUE: _dialogue.merge(got.dialogue)
 		PARTS: _parts = got.parts if got.parts is Dictionary else {}
 		_:
@@ -380,8 +382,12 @@ func has_entry(table: String, id: String) -> bool:
 	return t.has(id)
 
 func all(table: String) -> Array:
-	if _unread.has(table): _read(table)
-	return _lists.get(table, [])
+	var l = _lists.get(table)
+	if l == null:
+		if not _unread.has(table): return []
+		_read(table)
+		return _lists.get(table, [])
+	return l
 
 ## Whether the data holds a list table of that name (lists.has, reading only that table).
 func has_table(table: String) -> bool:
@@ -389,11 +395,15 @@ func has_table(table: String) -> bool:
 	return _lists.has(table)
 
 func config(name: String) -> Dictionary:
-	if _unread.has(name): _read(name)
-	return _configs.get(name, {})
+	var c = _configs.get(name)
+	if c == null:
+		if not _unread.has(name): return {}
+		_read(name)
+		return _configs.get(name, {})
+	return c
 
 func room(id: String) -> Dictionary:
-	if _unread.has(ROOMS): _read(ROOMS)
+	if not _rooms_in: _read(ROOMS)
 	return _rooms.get(id, {})
 
 ## Decision 27: a collection page's seal `seal` (1 or 2) from account_rules.json: its condition, its gift's modifiers
@@ -407,7 +417,7 @@ func zone(id: String) -> Dictionary:
 	return entry("zones", id)
 
 func zone_of_room(room_id: String) -> Dictionary:
-	if _unread.has(ROOMS): _read(ROOMS)
+	if not _rooms_in: _read(ROOMS)
 	return zone(_room_zone.get(room_id, ""))
 
 func realm(key: String) -> Dictionary:
