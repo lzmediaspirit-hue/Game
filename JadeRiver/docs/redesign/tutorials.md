@@ -281,9 +281,11 @@ laggy, sometimes when clicking done or skip it does nothing and doesn't close, a
 **How it was played.** `tools/dev/tutorial_play.tscn` plays the prototype's QA walk (`tools/dev/prototype_qa.gd`) as a
 player: from the title and a new character through the Prologue, the fair and the sect into chapter 2. It also plays
 from checkpoints of the story walk:
-- `tests/prologue_run.gd` keeps "Crab Trouble done" and "The River Token", and the QA walk has a `p_boat` step.
+- `tests/prologue_run.gd` keeps "Crab Trouble done" and "The River Token", and the QA walk has a `p_boat` step. For a
+  top-down character, keep them from `tests/topdown_tutorial.tscn -- "--keep=Crab Trouble done,The River Token"`
+  (its "The River Token" is kept again once the step is done, at Bone Forging 1).
 - `--only=sweep` plays every lesson a kept game has queued. At the River Token there were thirteen, from the Menu's to
-  the Codex's. It then opens each page of the Menu once.
+  the Codex's (with the Qi pool at Bone Forging 1, its tour is among them). It then opens each page of the Menu once.
 
 Every card the coach shows is answered by a finger through the phone's input path: a touch at the window's pixels
 (`Input.parse_input_event`), which the engine also turns into a mouse click, as on Android. The walk was played at
@@ -371,3 +373,4 @@ also checks that the lookups are made once and that a still card is not drawn ag
 - `phone_guide.png` and `phone_tour.png`: the Menu's guide and a page's tour at a 20:9 phone's 2400×1080. The canvas is
   scaled 1.5 between its bars.
 - `phone_tall_anchor.png`: the Cultivation stair's step, its card tight over the stair.
+- `qi_tour_on_its_bar.png`: the Qi pool's tour at Bone Forging 1, its ring on the Qi bar.
