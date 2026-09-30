@@ -570,4 +570,14 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - **HUD skills:** the technique buttons are a little bigger and circular.
     - **Combat** feels smoother.
     - **Jumping:** it is easier to control at the sprint speed. A box-to-roof jump must not overshoot the box.
+44. **Decision 43's leftovers (2026-09-30).** The user: "Left over from the agents do it." All of them:
+    - **Work poses** for the villagers' work loops, drawn in the character pipeline body first (AGENTS.md): a two-handed
+      broom sweep, a shoulder pole, a rod cast, reaching up to hang washing, stirring with a ladle, a pestle in a
+      mortar, an axe's overhead chop, a hammer at an anvil, crouching to pick herbs, mending a net seated. Also a
+      held-tool rig so the hands hold each tool on every frame.
+    - **Place poses:** open, tend and sit, played when the player uses a place.
+    - **Sound** for the living world's critter and work cues (`life_*`).
+    - **Sand and snow ground**, so their footsteps are heard.
+    - **Tours** for the late HUD powers: Spirit Sense, Presence, the Sphere, treasures and the weapon swap.
+    - **Foe polish:** the marsh leech, and the four-legged foes seen head-on (facing S and N).
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
