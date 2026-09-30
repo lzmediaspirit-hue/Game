@@ -2220,6 +2220,13 @@
      "s": 0.7
     },
     {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "windup",
+     "flash": false,
+     "dread": false
+    },
+    {
      "do": "art",
      "art": "talisman_array",
      "at": "enemy:hollowed_eel"
@@ -2236,8 +2243,7 @@
      "do": "foe",
      "foe": "hollowed_eel",
      "pose": "hurt",
-     "flash": true,
-     "dread": false
+     "flash": true
     },
     {
      "do": "hitstop",

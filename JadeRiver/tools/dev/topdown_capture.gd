@@ -1674,8 +1674,10 @@ func first_boss() -> void:
 		if str(eel.ai.state) == "glide" and eel.plane.distance_to(m.pos) > 200.0: await _eel_bank(eel)
 		await frames(1)
 	await shot("after_05_phase_two_the_surge", out)
+	# Once the waking's prompt has gone (its hand-off over), at its next landing.
 	for i in 900:
-		if str(eel.ai.state) == "beached": break
+		if main.scenes.run == null and str(eel.ai.state) == "beached": break
+		if str(eel.ai.state) == "glide" and eel.plane.distance_to(m.pos) > 200.0: await _eel_bank(eel)
 		await frames(1)
 	# In front of it (lower on the screen than its body), striking until a blow glances off its hide (at its floor).
 	eel.pools.hp = eel.pools.max_hp * float(eel.ai.get("hp_floor", 0.72))
@@ -1699,7 +1701,7 @@ func first_boss() -> void:
 	await shot("after_07_overwhelmed_the_eel_looms", out)
 	await scene_at("elders_come", "say", 1.0, "Old legs", 0, 2400)
 	await shot("after_08_granny_liu_comes", out)
-	await scene_at("elders_come", "wait", 0.55, "", 0, 2400)
+	await scene_at("elders_come", "say", 0.15, "Nine seals", 0, 2400)
 	await shot("after_09_granny_lius_nine_seals", out)
 	await scene_at("elders_come", "say", 1.2, "Thousand-Catty", 0, 2400)
 	await shot("after_10_old_ma_comes", out)
@@ -1711,7 +1713,7 @@ func first_boss() -> void:
 	await shot("after_13_lus_river_dragon_rises", out)
 	await scene_at("elders_come", "wait", 0.08, "", 3, 2400)
 	await shot("after_14_the_dragon_strikes", out)
-	await scene_at("elders_come", "wait", 0.9, "", 3, 2400)
+	await scene_at("elders_come", "wait", 0.4, "", 3, 2400)
 	await shot("after_15_the_eel_falls", out)
 	await scene_at("grey_lifts", "say", 1.6, "cultivation, child", 0, 3600)
 	await shot("after_16_what_you_saw_was_cultivation", out)

@@ -583,10 +583,11 @@ def night():
         face("granny", "enemy:hollowed_eel"),
         say("granny", "Old legs, child. Not old hands."),
         pose("granny", "cast", 0.7, wait=True),
+        foe("hollowed_eel", "windup", dread=False),   # her seals' light takes the night's dread off it
         art("talisman_array", "enemy:hollowed_eel"),
         sound("story_talisman"),
         wait(0.6),
-        foe("hollowed_eel", "hurt", flash=True, dread=False),
+        foe("hollowed_eel", "hurt", flash=True),
         hitstop(0.12),
         flash("PALE_GOLD", 0.2),
         shake(0.3),
