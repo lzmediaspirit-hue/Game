@@ -35,7 +35,7 @@ import json
 import os
 import re
 
-from common import ROOT, entries
+from common import ROOT, entries, run_cli
 
 UI = os.path.join(os.path.dirname(__file__), "ui_strings.json")
 MAX_CHARS = 92   # a card's line: two lines of the card at 20 px on a phone (the tutorials suite measures it)
@@ -372,4 +372,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

@@ -8,7 +8,7 @@ inside x, y = 2 .. 22 so its outline never meets the canvas edge.
 from pix import Frame
 from registry import drawn
 from families.hud import ink_hd, star_hd
-from families.status import BONE, FIRE, GOLD, HOLLOW, ICE, JADE, LEAF, QI, RED, SILVER, STORM, WOOD, YELLOW, glint, matte, orb, part, tone
+from families.status import BONE, FIRE, GOLD, ICE, JADE, LEAF, RED, SILVER, WOOD, YELLOW, glint, matte, orb, part, tone
 
 FAM, GROUP = 'markers', 'markers'
 ART = 24   # HD (Style A): every marker here is an HD drawing (tools/icons/README.md, "How to convert a family")
@@ -21,27 +21,6 @@ def marker(ident):
 
 
 # ============================================================================= HD (Style A, 24 icon space)
-def bang(c, cx, y0, y1):
-    """An exclamation mark from y0 to y1: its stroke and its dot."""
-    return c.poly([(cx - 1.7, y0), (cx + 1.7, y0), (cx + 0.9, y1 - 4.2), (cx - 0.9, y1 - 4.2)]) | c.circle(cx, y1 - 1.4, 1.5)
-
-
-@marker('quest_main')
-def quest_main_hd(p):
-    c = p.c
-    part(p, c.diamond(12, 12, 10.0, 10.0), GOLD)
-    ink_hd(p, bang(c, 12, 5.6, 18.6))
-    glint(p, 8.0, 9.4, GOLD, 0.8)
-
-
-@marker('quest_side')
-def quest_side_hd(p):
-    c = p.c
-    orb(p, 12, 12, 9.4, STORM)
-    part(p, bang(c, 12, 5.0, 19.0), BONE, 1)
-    glint(p, 7.0, 8.4, STORM, 0.8)
-
-
 @marker('quest_ready')
 def quest_ready_hd(p):
     c = p.c
@@ -57,16 +36,6 @@ def npc_hd(p):
     part(p, c.rrect(3.0, 13.0, 21.0, 24.0, 4.2) & c.box(0, 0, 24, 21.6), BONE)          # the shoulders
     tone(p, c.poly([(9.6, 13.0), (14.4, 13.0), (12.0, 17.0)]), BONE, -2)               # the collar
     glint(p, 10.2, 5.0, BONE, 0.8)
-
-
-@marker('vendor')
-def vendor_hd(p):
-    c = p.c
-    hull = c.poly([(2.2, 9.0), (5.8, 8.0), (8.0, 12.2), (16.0, 12.2), (18.2, 8.0), (21.8, 9.0), (20.4, 16.0), (17.2, 19.6),
-                   (6.8, 19.6), (3.6, 16.0)])
-    part(p, hull, GOLD)                                                                  # the ingot's boat
-    part(p, c.circle(12, 10.6, 4.8) & c.box(0, 0, 24, 14.0), GOLD, 1)                   # its raised middle
-    glint(p, 10.4, 8.2, GOLD, 0.8)
 
 
 @marker('healer')
@@ -100,32 +69,6 @@ def shrine_marker_hd(p):
     glint(p, 7.0, 7.4, RED, 0.6)
 
 
-def gate_hd(p, mat):
-    """A portal: its ring, the eddy turning inside, and its keystone."""
-    c = p.c
-    part(p, c.ring(12, 12, 9.8, 2.6), mat)
-    tone(p, c.arc(12, 12, 5.6, 1.6, 20, 200), mat, 1)
-    tone(p, c.arc(12, 12, 5.6, 1.6, 200, 20), mat, -1)
-    glint(p, 6.4, 6.8, mat, 0.7)
-
-
-@marker('portal_marker')
-def portal_marker_hd(p):
-    c = p.c
-    part(p, c.circle(12, 12, 7.6), QI, -1)                                               # the open way
-    gate_hd(p, QI)
-    part(p, c.circle(12, 12, 2.0), QI, 2)
-
-
-@marker('portal_sealed')
-def portal_sealed_hd(p):
-    c = p.c
-    part(p, c.circle(12, 12, 7.6), HOLLOW, -2)                                           # the way shut
-    gate_hd(p, HOLLOW)
-    part(p, c.rrect(2.0, 10.2, 22.0, 13.8, 1.0), RED)                                    # the seal bar across it
-    ink_hd(p, c.box(11.2, 10.8, 12.8, 13.2))
-
-
 @marker('teleport_marker')
 def teleport_marker_hd(p):
     c = p.c
@@ -133,17 +76,6 @@ def teleport_marker_hd(p):
     part(p, c.poly([(9.0, 18.4), (9.8, 6.0), (12.0, 2.4), (14.2, 6.0), (15.0, 18.4)]), JADE, 1)   # the standing stone
     tone(p, c.poly([(11.2, 8.0), (12.8, 8.0), (12.0, 14.4)]), JADE, -2)                  # its rune
     glint(p, 11.0, 5.6, JADE, 0.6)
-
-
-@marker('elite_crown')
-def elite_crown_hd(p):
-    c = p.c
-    band = c.box(3.4, 14.0, 20.6, 19.4)
-    for (x0, xt, x1, yt) in ((2.4, 3.6, 8.6, 5.4), (7.4, 12.0, 16.6, 3.0), (15.4, 20.4, 21.6, 5.4)):
-        band |= c.poly([(x0, 15.0), (xt, yt), (x1, 15.0)])
-    part(p, band, GOLD)
-    part(p, c.circle(12.0, 16.6, 1.8), RED, 1)                                            # the gem
-    glint(p, 5.2, 15.6, GOLD, 0.7)
 
 
 @marker('boss_skull')
@@ -187,11 +119,3 @@ def fish_marker_hd(p):
     ink_hd(p, c.circle(18.4, 10.8, 1.1))                                                     # the eye
     tone(p, c.arc(16.0, 12.0, 4.4, 1.0, 110, 250) & body, SEA, -2)                          # the gill
     glint(p, 11.0, 9.4, SEA, 0.7)
-
-
-@marker('player_arrow')
-def player_arrow_hd(p):
-    c = p.c
-    part(p, c.poly([(12, 2.0), (21.2, 21.4), (12, 16.4), (2.8, 21.4)]), JADE, 1)             # you, and the way you face
-    tone(p, c.poly([(12, 5.4), (12, 15.2), (5.8, 18.8)]), JADE, 1)
-    glint(p, 11.0, 6.8, JADE, 0.6)

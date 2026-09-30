@@ -17,6 +17,13 @@ each action is written out: slow in and out on the holds, a snap on the launch, 
 from __future__ import annotations
 
 import math
+import os
+import sys
+
+# h01(x, y, s): a hash of integers to [0, 1) (canvas.h01's); h01v(x, y, s) the same over arrays of integers.
+# The coordinate hashes are the one pixel library's (tools/lib/pix.py, audit 45): the same code, one copy.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+from lib.pix import h01, h01v  # noqa: E402,F401
 
 FRAMES = {"idle": 6, "walk": 8, "windup": 4, "attack": 6, "hurt": 3, "death": 8}
 HIT_FRAME = 1
@@ -68,16 +75,3 @@ def headon(view: float) -> tuple:
     return smooth((s - 0.8) / 0.15), smooth((-s - 0.8) / 0.15)
 
 
-def h01v(x, y, s: int = 0):
-    """h01 over arrays of integers (floats floored)."""
-    import numpy as np
-    n = (np.asarray(x).astype(np.int64) * 374761393 + np.asarray(y).astype(np.int64) * 668265263 + s * 2246822519) & 0xFFFFFFFF
-    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0
-
-
-def h01(x: int, y: int, s: int = 0) -> float:
-    """A hash of integers to [0, 1) (canvas.h01's)."""
-    n = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
-    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0

@@ -1,5 +1,45 @@
 # Changelog
 
+## Generator hygiene: one command line, one pixel library, the Grid held to the game, the dead data gone (decision 45, S5)
+
+Phase 2, wave 1, slice S5 of the code audit (`docs/architecture/audit_45.md` §7): the Python generators the content
+engines will build on, made tidy first. No game behaviour changes; the data diff is only the drops below.
+
+- **One command line for the generators** (`tools/data/common.py`, `tools/data/README.md`).
+  - Every generated file leaves by `emit()`: written only when it changed, or with `--check` compared with the file
+    on disk. `write` and `entries` use it; a folder a build makes whole says so with `clear()`, so a file renamed away
+    goes (or, with `--check`, is stale).
+  - `run_cli()` gives every module of `build_data.py`'s list, and `topdown_rooms.py`, the same flags and exit codes:
+    `--write` (the default), `--check`, `--only NAME[,NAME]`; 0 written or current, 1 a failed check or a stale file,
+    2 a usage error. `build_data.py` takes them too, so `build_data.py --check` proves all 301 tables current.
+  - A module run as a script builds with the copy its own imports share: `world.py` run alone works again.
+  - `places.py` and `sect_walks.py` take the Grid's starts, solids and measures instead of their own copies.
+- **The grid's walking rules, held to the game** (DUP-10).
+  - The Python Grid reads `step_up` and the jump (`impulse`, `gravity`, `mantle`) from `data/movement.json`, as the
+    game does. The thresholds were hard-coded.
+  - `topdown_rooms.py --check` now asks the game, through `tools/data/grid_parity.tscn`, for every layout's cells and
+    auto-path reach. It compares them with the Grid, cell for cell: 27 layouts, 95 starts, all equal.
+    `TopdownRoute.reach` is `find`'s own search run with no goal. Without a Godot the check says it did not run.
+- **One pixel library for new art** (`tools/lib/pix.py`, DUP-08).
+  - It takes the icons' masks, ramps, shading modes and material-tinted outline, props' mask moves and erosion, and
+    the top-down and FX hashes and tileable noise. `python3 tools/lib/pix.py --check` proves each draws exactly as in
+    its source.
+  - The builders that kept their own copy of a hash or of the noise import it: `canvas.py`, `creature/motion.py`,
+    `fxpix.py` and `tools/data/topdown_life.py`. Their art rebuilds byte for byte.
+  - The four old libraries stay with the art they made. Their conventions differ, so moving that art is a redraw.
+- **Dead data dropped** (DEAD-12, 13, 14), each re-checked against the current tree:
+  - **Tables** moved out of `data/` (which ContentDB loads whole and the export ships) to `tests/data/`:
+    `balance.json` (balance_sim's own), `legendary_chains.json` (the checks' and the wiki's) and
+    `topdown/td_review_heights.json` (the captures' review room, now given to the view as a preset).
+  - **Row fields:** the techniques' `mastery`; the shops' `buys_all`; the enemies' `weak_to` and `equipment_chance`
+    (the builder keeps its own for the loot roll); the zones' `laws` and `exit`; and `same_stage_ok` on unlocks and
+    quests. The one-lesson-a-stage rule it served moves into `story.validate`. After S1 removed their readers, the
+    NPCs' `age` and `sound.json`'s `steps.materials` go too.
+  - **Strings:** 51 `ui.*` keys nothing asks for. The 11 `world_view.*` keys are built from data and stay.
+  - **Manifest ids:** 8 icons, 8 props and 4 UI assets that nothing names, with their drawings and files.
+  - **Kept:** the artifacts' `named.archetype` and the sets' `archetype`, which the item plan's checks and the wiki
+    read. The items' `core.qp_pct` was already gone.
+
 ## Dead code removed, and an old save's renamed recipe no longer crashes the Crafts page (decision 45, S1)
 
 This is phase 2, slice S1 of the code audit (`docs/architecture/audit_45.md` §3 and §5; findings DEAD-01, 02, 05, 06,

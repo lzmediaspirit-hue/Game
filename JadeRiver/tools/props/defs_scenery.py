@@ -878,40 +878,6 @@ def cliff_ledge(state, f):
 
 
 # ================================================================== bridge, dock, mooring
-@prop("wooden_bridge", 160, 45, ground=2)
-def wooden_bridge(state, f):
-    W, H = 160, 45
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 43
-    deck_y = 18
-    n = len(WOOD)
-    # trestle legs and cross braces under the deck (behind)
-    for lx in (14, 58, 102, 146):
-        leg = m_rect(W, H, lx - 2, deck_y + 4, lx + 1, gy)
-        idx_paint(cv, leg, WOOD, (n - 0.01) * (0.8 - run_u(leg) * 0.6) - (yy > gy - 5) * 1.5)
-    for (a, b) in ((14, 58), (58, 102), (102, 146)):
-        cv.fill(m_line(W, H, [(a, deck_y + 6), (b, gy - 6)], 2), WOOD[1])
-        cv.fill(m_line(W, H, [(b, deck_y + 6), (a, gy - 6)], 2), WOOD[1])
-    # deck beam with plank ends
-    deck = m_rect(W, H, 2, deck_y, W - 3, deck_y + 4)
-    idx_paint(cv, deck, WOOD, np.where(yy == deck_y, n - 1, np.where(yy == deck_y + 4, 0.5, 2.6)))
-    cv.fill(deck & (yy > deck_y) & (yy < deck_y + 4) & (xx % 6 == 0), WOOD[1])
-    cv.fill(deck & (yy == deck_y + 1) & (xx % 6 == 1), WOOD[4])
-    # railing: posts, top rail and middle rail
-    for px in range(6, W - 4, 16):
-        wood_post(cv, px - 1, px + 1, 5, deck_y - 1, WOOD, cap="round")
-        cv.put(px, 4, WOOD[4])
-    wood_rail(cv, 4, W - 5, 7, 8, WOOD, "br_top")
-    wood_rail(cv, 4, W - 5, 12, 12, WOOD, "br_mid")
-    # iron straps at the joints
-    for px in range(6, W - 4, 16):
-        cv.put(px, 12, IRON[2])
-    finish(cv, WOOD)
-    # waterline marks on the legs (not outlined)
-    for lx in (14, 58, 102, 146):
-        cv.fill(m_rect(W, H, lx - 6, gy - 1, lx + 5, gy - 1) & ~cv.solid, WATER[3], 0.7)
-    return cv
 
 
 @prop("dock_planks", 128, 20, ground=0, repeat="x", decal=True)
@@ -1111,47 +1077,6 @@ def pagoda(state, f):
     cv.fill(pearl, GOLD_ACC[1])
     cv.put(cx - 1, y - 21, GOLD_ACC[2])
     finish(cv, JADE_TILE6, LACQ, STONE_P)
-    return cv
-
-
-@prop("stone_steps", 100, 60)
-def stone_steps(state, f):
-    W, H = 100, 60
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    gy = 57
-    cshadow(cv, 50, gy, 48, 2)
-    n = len(STONE_P)
-    steps = 8
-    for k in range(steps):
-        y1 = gy - k * 6
-        y0 = y1 - 5
-        inset = k * 1.5
-        m = m_rect(W, H, int(12 + inset), y0, int(87 - inset), y1)
-        v = np.where(yy == y0, n - 1, np.where(yy == y0 + 1, n - 2, 1.6 - (yy - y0) * 0.2))
-        idx_paint(cv, m, STONE_P, v + (xx < 20 + inset) * 0.6)
-        cv.fill(m & (yy == y1), STONE_P[0])
-        # worn centre of each tread
-        cv.fill(m & (yy == y0) & (np.abs(xx - 50) < 10 - k), STONE_P[3])
-    # cheek walls with capped newel posts
-    for side in (-1, 1):
-        cx = 50 + side * 43
-        wall = m_poly(W, H, [(cx - 5, gy), (cx + 4, gy), (cx + 4 - side * 0, gy - 44), (cx - 5, gy - 44)])
-        idx_paint(cv, wall, STONE_P, 2.0 + (xx < cx - 2) * 1.2 - (yy > gy - 4) * 0.8)
-        cv.fill(m_rect(W, H, cx - 5, gy - 44, cx + 4, gy - 44), STONE_P[4])
-        cap = m_rect(W, H, cx - 6, gy - 48, cx + 5, gy - 45)
-        idx_paint(cv, cap, STONE_P, np.where(yy == gy - 48, n - 1, 2.0))
-        knob = m_ellipse(W, H, cx - 0.5, gy - 51, 3, 3)
-        idx_paint(cv, knob, STONE_P, 2.4 - ((xx - cx) + (yy - (gy - 51))) / 3.0)
-        # carved cloud panel
-        cv.fill(m_rect(W, H, cx - 3, gy - 34, cx + 2, gy - 34) | m_rect(W, H, cx - 3, gy - 20, cx + 2, gy - 20), STONE_P[1])
-        cv.fill(m_ellipse(W, H, cx - 0.5, gy - 27, 2, 2) & ~m_ellipse(W, H, cx - 0.5, gy - 27, 1, 1), STONE_P[1])
-    # moss in the corners
-    nz = vnoise(W, H, 3, seed_of("steps_moss"), 1)
-    moss = (cv.a > 0) & (nz > 0.66) & ((np.abs(xx - 50) > 30) | (yy > gy - 8))
-    cv.fill(moss, MOSS[2])
-    cv.fill(moss & top_edge(cv.solid | moss), MOSS[3])
-    finish(cv, STONE_P, MOSS)
     return cv
 
 

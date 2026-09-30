@@ -2,7 +2,7 @@
 and the scripts that make up that system. tests/contract_tests checks the code against it:
 each event is emitted only by its system, and something consumes it.
 """
-from common import write
+from common import write, run_cli
 
 # Part 4 · Event catalogue, by emitting system.
 CATALOGUE = {
@@ -264,3 +264,7 @@ def build():
                 row["payload"] = PAYLOAD[n]
             events[n] = row
     write("event_contract.json", {"schema_version": 1, "events": events})
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

@@ -58,39 +58,6 @@
     ],
     "normal": "res://art/ui/dialogue_box__normal.png"
   },
-  "hud_circle": {
-    "active": "res://art/ui/hud_circle__active.png",
-    "margins": [
-      0,
-      0,
-      0,
-      0
-    ],
-    "normal": "res://art/ui/hud_circle__normal.png",
-    "pressed": "res://art/ui/hud_circle__pressed.png"
-  },
-  "hud_circle_large": {
-    "active": "res://art/ui/hud_circle_large__active.png",
-    "margins": [
-      0,
-      0,
-      0,
-      0
-    ],
-    "normal": "res://art/ui/hud_circle_large__normal.png",
-    "pressed": "res://art/ui/hud_circle_large__pressed.png"
-  },
-  "hud_circle_small": {
-    "active": "res://art/ui/hud_circle_small__active.png",
-    "margins": [
-      0,
-      0,
-      0,
-      0
-    ],
-    "normal": "res://art/ui/hud_circle_small__normal.png",
-    "pressed": "res://art/ui/hud_circle_small__pressed.png"
-  },
   "major_window": {
     "margins": [
       24,
@@ -155,15 +122,6 @@
     ],
     "normal": "res://art/ui/slot__normal.png",
     "selected": "res://art/ui/slot__selected.png"
-  },
-  "slot_empty_motif": {
-    "margins": [
-      0,
-      0,
-      0,
-      0
-    ],
-    "normal": "res://art/ui/slot_empty_motif__normal.png"
   },
   "tab": {
     "margins": [
