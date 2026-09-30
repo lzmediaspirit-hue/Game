@@ -46,7 +46,7 @@ static func _test(got, want) -> bool:
 			if _test(got, w): return true
 		return false
 	if want is Dictionary: return want.has("gt") and (float(got) if got != null else 0.0) > float(want.gt)
-	if want is bool: return got != null and bool(got) == want
+	if want is bool: return (got != null and bool(got)) == want
 	if want is float or want is int: return (float(got) if got != null else 0.0) == float(want)
 	return (str(got) if got != null else "") == str(want)
 
