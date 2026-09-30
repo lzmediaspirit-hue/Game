@@ -38,6 +38,9 @@ RX = geom.rot((1.0, 0.0, 0.0), TILT)
 # snapper's raised crusher, under them for the eel's water.
 FOOT = (raster.W // 2, raster.H - 40)
 INNER_DEPTH = 1.6                                        # figure units: a nearer part's edge over another casts a line
+# Half-way between the sun and the camera, in the figure's world (where the light keeps its place against the view):
+# where a wet skin's sheen shows (Part.sheen).
+HALF = (geom.LIGHT + geom.TOWARD) / np.linalg.norm(geom.LIGHT + geom.TOWARD)
 
 IDENT = np.eye(3)
 
@@ -66,19 +69,22 @@ class Part:
     """A solid of the sculpture. kind `ell` (at, radii along m's columns), `sph` (at, r) or `limb` (a tapered cone
     from p0 to p1, radii r0 to r1, capped by spheres). `paint(q, n) -> (names, bias)` gets the hit points and normals
     in the creature's frame; `clip(q)` keeps the hits it returns True for. `line`: whether its edge over another part
-    draws an inner line."""
+    draws an inner line. `sheen` (two thresholds of N.H, H half-way between the §14 sun and the camera): a wet skin's
+    specular, a step up where the surface turns its sheen to the view and a second at the glint, so a glossy material
+    reaches its highlight there."""
 
-    def __init__(self, kind, mat, group, paint=None, clip=None, line=True, **geo):
+    def __init__(self, kind, mat, group, paint=None, clip=None, line=True, sheen=None, **geo):
         self.kind, self.mat, self.group, self.paint, self.clip, self.line = kind, mat, group, paint, clip, line
+        self.sheen = sheen
         self.geo = {k: (np.asarray(v, float) if k in ("at", "radii", "m", "p0", "p1") else v) for k, v in geo.items()}
 
 
-def E(at, radii, mat, group, m=None, paint=None, clip=None, line=True) -> Part:
-    return Part("ell", mat, group, paint, clip, line, at=at, radii=radii, m=IDENT if m is None else m)
+def E(at, radii, mat, group, m=None, paint=None, clip=None, line=True, sheen=None) -> Part:
+    return Part("ell", mat, group, paint, clip, line, sheen, at=at, radii=radii, m=IDENT if m is None else m)
 
 
-def S(at, r, mat, group, paint=None, clip=None, line=True) -> Part:
-    return Part("sph", mat, group, paint, clip, line, at=at, r=float(r))
+def S(at, r, mat, group, paint=None, clip=None, line=True, sheen=None) -> Part:
+    return Part("sph", mat, group, paint, clip, line, sheen, at=at, r=float(r))
 
 
 def L(p0, p1, r0, r1, mat, group, paint=None, clip=None, line=True, caps=True) -> Part:
@@ -111,7 +117,7 @@ class Pose:
         self.k = 1.0
         self.parts: list = []
         self.marks: list = []     # (point, rgba): a pixel on the surface where it shows
-        self.eyes: list = []      # (point, rgba): marks an elite draws in gold
+        self.eyes: list = []      # (point, rgba): marks an elite draws in gold (rgba None: drawn on an elite only)
         self.fx: list = []        # (point, rgba): loose, after the outline, only where nothing is drawn
         self.glow: list = []      # (point, rgba): light, after the outline, over anything
         self.m = IDENT
@@ -240,11 +246,17 @@ def _solids(P: Pose, V: View) -> list:
     for p in P.parts:
         g = p.geo
         kw = {"part": p.group}
-        if p.paint is not None:
-            fn = p.paint
+        if p.paint is not None or p.sheen is not None:
+            fn, sheen, mat = p.paint, p.sheen, p.mat
 
-            def paint(loc, W, n, fn=fn):
-                names, bias = fn(loc, n @ V.Q)
+            def paint(loc, W, n, fn=fn, sheen=sheen, mat=mat):
+                if fn is not None:
+                    names, bias = fn(loc, n @ V.Q)
+                else:
+                    names, bias = np.full(len(n), mat, dtype=object), np.zeros(len(n), dtype=np.int16)
+                if sheen is not None:
+                    nh = n @ HALF
+                    bias = np.asarray(bias, np.int16) + (nh > sheen[0]).astype(np.int16) + (nh > sheen[1]).astype(np.int16)
                 return names, bias
             kw["paint"] = paint
         if p.clip is not None:
@@ -302,6 +314,8 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
     # Marks on the surface where it shows.
     on = layer.mat >= 0
     for at, col, gold in [(a, c, False) for a, c in P.marks] + [(a, c, True) for a, c in P.eyes]:
+        if col is None and not elite:
+            continue                                     # an elite's own glow spot (Pose.eye with no colour)
         i, j, d = V.pixel(at)
         if 0 <= i < raster.W and 0 <= j < raster.H and on[j, i] and d >= layer.depth[j, i] - 1.0:
             rgba[j, i] = _rgba(GOLD_EYE if gold and elite else col)

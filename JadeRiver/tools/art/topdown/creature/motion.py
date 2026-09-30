@@ -59,6 +59,15 @@ def smooth(t: float) -> float:
     return t * t * (3.0 - 2.0 * t)
 
 
+def headon(view: float) -> tuple:
+    """How far a facing (its turn on the ground, creatures.ANGLE: east 0, south 90) is head-on to the camera (`front`,
+    1 in the S row) or tail-on (`back`, 1 in the N row), 0 in the SE, E and NE rows (decision 44). A beast seen so is
+    posed to read as itself: facing the camera its face held up, forelegs apart, ears and shoulders framing its head;
+    walking away its rump, tail and hind legs spread, its ears over its back."""
+    s = math.sin(math.radians(view))
+    return smooth((s - 0.8) / 0.15), smooth((-s - 0.8) / 0.15)
+
+
 def h01v(x, y, s: int = 0):
     """h01 over arrays of integers (floats floored)."""
     import numpy as np

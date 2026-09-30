@@ -1209,6 +1209,26 @@ func _foe_facings(base: Vector2) -> void:
 	t.check(ev != null and ev.acts == sp.elite.actions and fv.acts == sp.actions and ev.tex != null and ev.tex != fv.tex
 		and ev.tex.resource_path == str(sp.elite.atlas) and ev.cell.y > fv.cell.y and ev.shadow_rx > fv.shadow_rx,
 		"topdown: an elite foe draws its species' elite sheet, in its larger cell, its shadow wider (%s)" % str(ev.shadow_rx if ev != null else -1.0))
+	# Decision 44: the marsh leech loops like an inchworm on land and swims where it is in water (its sheet's swim row).
+	var wet := Vector2.INF
+	for y in w.room.h:
+		for x in w.room.w:
+			if wet == Vector2.INF and w.room.is_water(x, y): wet = (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+	var lz := foe("marsh_leech", base + Vector2(0, 80))
+	frames(1)
+	var lv = w.foe_views.get(lz.uid)
+	var shown: Array = []
+	for at in [base + Vector2(0, 80), wet]:
+		if lv == null or wet == Vector2.INF: break
+		lz.plane = at
+		lz.velocity = Vector2(30, 0)
+		lz.action = "walk"
+		lv.sync(1.0 / 60.0)
+		shown.append(lv.last)
+	var lsp: Dictionary = w.room.tileset.foes.species.marsh_leech
+	t.check(shown == ["walk", "swim"] and lsp.actions.has("swim") and lsp.elite.actions.has("swim") and bool(lsp.actions.swim.loop)
+		and lsp.actions.swim.frames.s.size() == 8,
+		"topdown: the marsh leech walks on land and swims in water, from its sheet's swim row, its elite's too (%s)" % str(shown))
 
 ## A blow lands in each of the eight directions it is aimed, and only there.
 func _eight_ways(base: Vector2) -> void:

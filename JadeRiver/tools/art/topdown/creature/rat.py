@@ -10,7 +10,7 @@ import math
 import numpy as np
 
 from . import mats as M
-from .motion import gait, pick, wave
+from .motion import gait, headon, pick, wave
 from .sculpt import E, L, Pose, S, rot, v3
 
 Z = 4.6
@@ -30,8 +30,12 @@ ROLL = {"death": (0.0, 0.0, 30.0, 62.0, 86.0, 92.0, 88.0, 90.0)}
 TAIL = {"windup": (1.0, 1.6, 2.2, 2.6), "attack": (0.4, -0.2, 0.0, 0.2, 0.4, 0.4), "death": (1.0, 0.6, 0.4, 0.2, 0.0, -0.1, 0.0, 0.0)}
 
 
-def rat(action: str, f: int) -> Pose:
+def rat(action: str, f: int, view: float = 48.0) -> Pose:
     P = Pose()
+    # Head-on (decision 44): facing the camera its face lifts, its round ears stand out at the corners of its head, its
+    # forepaws apart and its tail swept round on the ground to one side (not standing up behind it); walking away its
+    # haunches round out, its hind feet spread and its ears show over its back.
+    fr, bk = headon(view)
     lunge = pick(LUNGE, action, f)
     pitch = pick(PITCH, action, f)
     bob = 0.0
@@ -52,12 +56,12 @@ def rat(action: str, f: int) -> Pose:
         streak = ((loc[:, 0] * 0.8 + np.abs(loc[:, 1]) * 0.6) % 1.0 < 0.15) & (nz > -0.1)
         return np.where(belly, "fur_light", "fur").astype(object), np.where(streak & ~belly, -1, 0).astype(np.int16)
 
-    P.add(E(at((-3.8, 0.0, -0.1)), (3.8, 3.9, 3.6), "fur", "body", bm, coat),
-          E(at((-0.6, 0.0, 0.2)), (5.2, 3.3, 3.2), "fur", "body", bm, coat),
-          E(at((2.6, 0.0, 0.4)), (2.8, 2.8, 2.8), "fur", "body", bm, coat))
+    P.add(E(at((-3.8 + 1.2 * fr, 0.0, -0.1)), (3.8, 3.9 + 0.3 * bk, 3.6 + 0.2 * bk), "fur", "body", bm, coat),
+          E(at((-0.6 + 0.5 * fr, 0.0, 0.2)), (5.2 - 1.0 * fr, 3.3 + 0.3 * fr, 3.2), "fur", "body", bm, coat),
+          E(at((2.6, 0.0, 0.4)), (2.8, 2.8 + 0.4 * fr, 2.8), "fur", "body", bm, coat))
     # The head: skull, a tapering snout to a pink nose, pink ears, red eyes, whiskers; the jaw drops in a gape.
     sniff = 0.35 * wave(action, f, 0.1) if action == "idle" else 0.0
-    hm = bm @ rot("c", pick(YAW, action, f)) @ rot("b", -10.0 + pick(HEAD, action, f))
+    hm = bm @ rot("c", pick(YAW, action, f) * (1.0 - 0.5 * fr)) @ rot("b", -10.0 + pick(HEAD, action, f) + 4.0 * fr)
     hc = at((5.4 + sniff, 0.0, 1.2))
     hp = lambda p: hc + hm @ v3(p)
     gape = pick(GAPE, action, f)
@@ -70,9 +74,10 @@ def rat(action: str, f: int) -> Pose:
         for s in (0.35, -0.35):
             P.mark(hp((4.0, s, -1.3)), c_teeth())
     for s in (1, -1):
-        ear_m = hm @ rot("a", s * -18.0) @ rot("c", s * 20.0)
-        P.add(E(hp((-0.8, s * 1.7, 2.3)), (0.8, 1.5, 1.8), "pink", "ear%d" % s, ear_m))
-        P.mark(hp((-0.5, s * 1.8, 2.5)), M.RAMPS["pink"][0])
+        ear_m = hm @ rot("a", s * -(18.0 + 22.0 * fr)) @ rot("c", s * 20.0 * (1.0 - fr))
+        ear = hp((-1.0 * (1.0 + 0.2 * bk), s * (1.7 + 0.6 * fr + 0.2 * bk), 2.3 + 0.4 * fr + 0.5 * bk))
+        P.add(E(ear, (0.8, 1.5 - 0.2 * fr, 1.8 - 0.2 * fr), "pink", "ear%d" % s, ear_m))
+        P.mark(ear + ear_m @ v3(0.8, 0.0, 0.2), M.RAMPS["pink"][0])
         shut = action == "hurt" and f == 0 or action == "death" and f >= 5
         (P.mark if shut else P.eye)(hp((1.6, s * 1.75, 0.9)), M.RAMPS["fur"][0] if shut else M.RAT_EYE)
         if not shut:
@@ -82,24 +87,30 @@ def rat(action: str, f: int) -> Pose:
     # Legs: short forelegs with pink paws, haunches with long pink hind feet; the scurry lands the forepaws together,
     # then the hind; in the tell the forepaws lift off the ground.
     reared = action == "windup" or action == "death" and f < 2
-    for k, (a0, b0, front) in enumerate(((3.2, 1.6, True), (3.2, -1.6, True), (-4.4, 2.2, False), (-4.4, -2.2, False))):
-        lift, stride = gait(action, f, 0.0 if front else 0.45, 1.6, 2.2)
+    fb, hb = 1.6 + 0.9 * fr + 0.3 * bk, 2.2 + 0.4 * fr + 1.9 * bk
+    for k, (a0, b0, front) in enumerate(((3.2, fb, True), (3.2, -fb, True), (-4.4 + 1.2 * fr, hb, False), (-4.4 + 1.2 * fr, -hb, False))):
+        lift, stride = gait(action, f, 0.0 if front else 0.45, 1.6 + 0.7 * (fr + bk), 2.2)
         if front and reared:
             top = at((a0, b0, -1.4))
             paw = top + bm @ v3(1.4, 0.0, -1.2)
         else:
-            top = at((a0, b0, -1.6 if front else -1.0))
-            paw = v3(lunge + a0 + stride + (0.6 if front else 1.4), b0, 0.6 + lift)
+            top = at((a0, b0 * (1.0 - 0.25 * (fr + bk)), -1.6 if front else -1.0))
+            paw = v3(lunge + a0 + stride + (0.6 + 0.6 * fr if front else 1.4), b0, 0.6 + lift)
         P.add(L(top, paw, 1.05 if front else 1.4, 0.75, "fur", "leg%d" % k),
               E(paw + v3(0.5 if front else 0.9, 0.0, -0.1), (1.0 if front else 1.6, 0.8, 0.5), "pink", "leg%d" % k))
     # The reed tail: green segments curving back along the ground, the tip lifting and swaying; lashed high in the tell.
     sway = 2.0 * wave(action, f) if action in ("idle", "walk") else 0.6
     up = pick(TAIL, action, f)
-    root = at((-7.2, 0.0, -0.2))
+    root = at((-7.2 + 1.2 * fr, 0.0, -0.2))
     pts = []
     for k in range(14):
         u = k / 13.0
-        pts.append(v3(root[0] - 10.0 * u + up * 2.4 * u * u, (2.2 + sway) * math.sin(u * 2.6), root[2] - 2.4 * u + (3.0 + up * 3.4) * u * u))
+        side = v3(root[0] - 10.0 * u + up * 2.4 * u * u, (2.2 + sway) * math.sin(u * 2.6), root[2] - 2.4 * u + (3.0 + up * 3.4) * u * u)
+        # Facing the camera it lies on the ground swept out to one side behind it with a wave in it, so it shows beside
+        # the body as a tail (straight back it hides behind the body, and raised it stands up like a stalk).
+        curl = v3(root[0] - 6.0 * u, -(7.4 + 0.5 * sway) * math.sin(0.5 * math.pi * u) + 1.0 * math.sin(u * 7.0 + sway),
+                  root[2] + (0.7 - root[2]) * min(1.0, u * 3.0) + up * 3.4 * u * u)
+        pts.append(side + (curl - side) * fr)
     for k in range(13):
         r0 = 1.05 - 0.45 * k / 13.0
         P.add(L(pts[k], pts[k + 1], r0, r0 - 0.035, "tail_a" if k % 2 == 0 else "tail_b", "tail", caps=k == 0))
