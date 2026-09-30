@@ -574,8 +574,12 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - **Work poses** for the villagers' work loops, drawn in the character pipeline body first (AGENTS.md): a two-handed
       broom sweep, a shoulder pole, a rod cast, reaching up to hang washing, stirring with a ladle, a pestle in a
       mortar, an axe's overhead chop, a hammer at an anvil, crouching to pick herbs, mending a net seated. Also a
-      held-tool rig so the hands hold each tool on every frame.
-    - **Place poses:** open, tend and sit, played when the player uses a place.
+      held-tool rig so the hands hold each tool on every frame. Built: eleven work actions on every layer, the weapon
+      put away in each, and the `tool` layer set (ten tools) wired to the loops, each blow on its contact frame
+      (`docs/redesign_top_down_plan.md`, "As built: work and place poses"; sheets in
+      `docs/redesign/feedback/work_poses/`).
+    - **Place poses:** open, tend and sit, played when the player uses a place. Built: 0.4 s before the page, a second
+      tap skips it, held while the page is open.
     - **Sound** for the living world's critter and work cues (`life_*`).
     - **Sand and snow ground**, so their footsteps are heard.
     - **Tours** for the late HUD powers: Spirit Sense, Presence, the Sphere, treasures and the weapon swap.

@@ -58,6 +58,10 @@ KINDS = {
     "letter_box": ("Letter Box", "mail", "sim.world.read"),
     "shrine": ("Shrine", "shrine_marker", "sim.world.pray"),
 }
+# Decision 44: the pose the player plays using a place, briefly before its page opens and held while it is open (the
+# HUD; figure/work.py draws them): a lid, a letter box's flap or a storehouse's door opened, a garden bed or a furnace
+# tended, the meditation mat sat on. The other kinds open their page at once.
+POSES = {"storehouse": "open", "letter_box": "open", "garden_bed": "tend", "furnace": "tend", "meditation_mat": "sit"}
 # The Menu's order for the places card and the map's Places view.
 KIND_ORDER = ["notice_board", "stall", "storehouse", "letter_box", "garden_bed", "furnace", "anvil", "cooking_pot",
               "meditation_mat", "teleport_stone", "shrine"]
@@ -295,6 +299,7 @@ def build_rows():
             r["verb"] = kind[2]
             r["icon"] = kind[1]
             r["kind_name"] = kind[0]
+            r["pose"] = POSES.get(r["kind"], "")
             r.setdefault("where", "At " + r["name"])
             r.setdefault("home", False)
             r.setdefault("tutorial", False)

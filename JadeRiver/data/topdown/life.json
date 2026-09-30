@@ -76,8 +76,8 @@
   "carry": {
    "at": [
     [
-     "kneel",
-     1.4,
+     "tend",
+     1.5,
      "set_down"
     ],
     [
@@ -85,20 +85,23 @@
      1.0
     ]
    ],
+   "load": "pole",
    "speed": 40,
-   "tool": "pole",
-   "walk": "walk"
+   "tools": [
+    "pole"
+   ],
+   "walk": "work_carry"
   },
   "chop": {
    "at": [
     [
-     "two_hand_swing_3",
-     1.15,
+     "work_chop",
+     1.0,
      "chop"
     ],
     [
-     "two_hand_swing_3",
-     1.15,
+     "work_chop",
+     1.0,
      "chop"
     ],
     [
@@ -107,44 +110,54 @@
     ]
    ],
    "speed": 40,
-   "walk": "walk",
-   "weapon": "sabre"
+   "tools": [
+    "axe"
+   ],
+   "walk": "walk"
   },
   "cook": {
    "at": [
     [
-     "brush_write",
+     "work_stir",
      1.6,
      "stir"
     ],
     [
-     "brush_write",
+     "work_stir",
      1.6,
      "stir"
     ],
     [
-     "idle",
-     1.2
+     "work_stir",
+     1.2,
+     "",
+     0
     ]
    ],
+   "pause": "hold",
    "speed": 36,
+   "tools": [
+    "ladle"
+   ],
    "walk": "walk"
   },
   "fish": {
    "at": [
     [
-     "idle",
-     6.5,
+     "work_rod",
+     6.0,
      "fish"
     ],
     [
-     "cast",
+     "work_cast",
      1.0,
      "recast"
     ]
    ],
    "speed": 36,
-   "tool": "rod",
+   "tools": [
+    "rod"
+   ],
    "walk": "walk"
   },
   "fists": {
@@ -192,36 +205,45 @@
      2.0
     ]
    ],
+   "pause": "hold",
    "speed": 30,
    "steps": {
     "cook": [
      [
-      "brush_write",
+      "work_stir",
       1.6,
       "stir"
      ],
      [
-      "brush_write",
+      "work_stir",
       1.6,
       "stir"
      ],
      [
-      "idle",
-      0.8
+      "work_stir",
+      0.8,
+      "",
+      0
      ]
     ],
     "grind": [
      [
-      "kneel",
+      "work_grind",
       3.2,
       "grind"
      ],
      [
-      "idle",
-      0.6
+      "work_grind",
+      0.6,
+      "",
+      0
      ]
     ]
    },
+   "tools": [
+    "ladle",
+    "pestle"
+   ],
    "walk": "walk"
   },
   "hammer": {
@@ -231,33 +253,36 @@
      1.5
     ]
    ],
+   "pause": "hold",
    "speed": 40,
    "steps": {
     "anvil": [
      [
-      "swing_3",
-      0.9,
+      "work_hammer",
+      1.0,
       "hammer"
      ],
      [
-      "swing_3",
-      0.9,
+      "work_hammer",
+      1.0,
       "hammer"
      ],
      [
-      "swing_3",
-      0.9,
+      "work_hammer",
+      1.0,
       "hammer"
      ],
      [
-      "idle",
-      1.0
+      "work_hammer",
+      1.0,
+      "",
+      0
      ]
     ],
     "forge": [
      [
-      "kneel",
-      2.4,
+      "tend",
+      2.5,
       "stoke"
      ],
      [
@@ -266,13 +291,16 @@
      ]
     ]
    },
+   "tools": [
+    "hammer"
+   ],
    "walk": "walk"
   },
   "herbs": {
    "at": [
     [
-     "kneel",
-     3.4,
+     "work_pick",
+     3.6,
      "pick"
     ],
     [
@@ -281,6 +309,9 @@
     ]
    ],
    "speed": 34,
+   "tools": [
+    "herbs"
+   ],
    "walk": "walk"
   },
   "laundry": {
@@ -290,12 +321,13 @@
      1.0
     ]
    ],
+   "load": "basket",
    "speed": 38,
    "steps": {
     "hang": [
      [
-      "cast",
-      1.1,
+      "work_hang",
+      1.0,
       "hang"
      ],
      [
@@ -303,15 +335,15 @@
       0.5
      ],
      [
-      "cast",
-      1.1,
+      "work_hang",
+      1.0,
       "hang"
      ]
     ],
     "wash": [
      [
-      "kneel",
-      4.2,
+      "tend",
+      4.0,
       "scrub"
      ],
      [
@@ -320,8 +352,10 @@
      ]
     ]
    },
-   "tool": "basket",
-   "walk": "walk"
+   "tools": [
+    "washing"
+   ],
+   "walk": "work_carry"
   },
   "meditate": {
    "at": [
@@ -337,16 +371,22 @@
   "mend": {
    "at": [
     [
-     "kneel",
+     "work_mend",
      4.0,
      "mend"
     ],
     [
-     "idle",
-     1.2
+     "work_mend",
+     1.2,
+     "",
+     0
     ]
    ],
+   "pause": "hold",
    "speed": 34,
+   "tools": [
+    "net"
+   ],
    "walk": "walk"
   },
   "play": {
@@ -478,8 +518,8 @@
   "sweep": {
    "at": [
     [
-     "guard",
-     3.6,
+     "work_sweep",
+     3.0,
      "sweep"
     ],
     [
@@ -488,8 +528,9 @@
     ]
    ],
    "speed": 26,
-   "sweep_walk": true,
-   "tool": "broom",
+   "tools": [
+    "broom"
+   ],
    "walk": "walk"
   },
   "sword": {
@@ -840,8 +881,8 @@
      "loop": "hammer",
      "spots": [
       [
-       17.9,
-       6.9,
+       18.0,
+       6.6,
        "e",
        "anvil"
       ],
@@ -1224,8 +1265,8 @@
      "loop": "hammer",
      "spots": [
       [
-       17.9,
-       6.9,
+       18.0,
+       6.6,
        "e",
        "anvil"
       ],
@@ -1511,7 +1552,7 @@
      "spots": [
       [
        65.1,
-       18.0,
+       18.3,
        "w"
       ]
      ]
@@ -1657,7 +1698,7 @@
       [
        12.0,
        30.4,
-       "n",
+       "nw",
        "hang"
       ]
      ]
@@ -1821,8 +1862,8 @@
      "loop": "hammer",
      "spots": [
       [
-       14.8,
-       13.2,
+       15.0,
+       12.6,
        "e",
        "anvil"
       ],

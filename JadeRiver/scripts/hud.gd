@@ -221,6 +221,7 @@ func advance_scroll(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	t += delta
+	_tick_place_pose(delta)
 	advance_scroll(delta)
 	for l in log_lines: l.t += delta
 	log_lines = log_lines.filter(func(l): return l.t < 6.0)
@@ -1017,9 +1018,49 @@ func keep_post() -> void:
 		return
 	open_page.emit("posts", {})
 
+## Decision 44: using a place plays its pose first (data/places.json `pose`: open a lid, a letter box or a door; tend a bed
+## or a furnace; sit on the mat), for PLACE_POSE_S, then opens its page; a second tap on the context button opens it at
+## once. The body keeps the pose while the page it opened is open (seated at the mat through the Cultivation page) and
+## rises when it closes (set_blocked). Each pose raises its sound (`place_open`, `place_tend`, `place_sit`).
+const PLACE_POSE_S := 0.4
+var place_pending: Dictionary = {}   ## {page, args, t}: a page waiting for its place's pose
+
+## The pose of the place `object_id` of the room is (open, tend, sit), or "".
+func place_pose_of(object_id: String) -> String:
+	if Game.room_rt == null: return ""
+	return str(PlaceRules.at_object(Game.room_rt.room_id, object_id).get("pose", ""))
+
+func _play_place_pose(pose: String, page: String, args: Dictionary) -> void:
+	place_pending = {"page": page, "args": args, "t": PLACE_POSE_S}
+	var at = player.get("plane") if is_instance_valid(player) else null
+	if is_instance_valid(player) and player.has_method("play_place_pose"): player.play_place_pose(pose)
+	var p: Vector2 = at if at is Vector2 else Vector2.ZERO
+	# each id written out, so audio_tests finds it among the sounds
+	match pose:
+		"open": Audio.world_sound("place_open", p, 0.0)
+		"tend": Audio.world_sound("place_tend", p, 0.0)
+		"sit": Audio.world_sound("place_sit", p, 0.0)
+
+func _tick_place_pose(delta: float) -> void:
+	if place_pending.is_empty(): return
+	place_pending.t = float(place_pending.t) - delta
+	if float(place_pending.t) <= 0.0: open_place_page()
+
+## Open the page a place's pose is playing before (at once on a second tap); the pose holds while it is open, and ends
+## now if no page came up.
+func open_place_page() -> void:
+	if place_pending.is_empty(): return
+	var p := place_pending
+	place_pending = {}
+	open_page.emit(str(p.page), p.args)
+	if not blocked and is_instance_valid(player) and player.has_method("end_place_pose"): player.end_place_pose()
+
 ## The context's button: what the world offers in reach (talk, gather, open, enter, climb); while a harvest it began
 ## shrinks its ring round the button, the tap that lands it.
 func use_context() -> void:
+	if not place_pending.is_empty():
+		open_place_page()   # decision 44: a second tap skips the place's pose
+		return
 	if tapping.object != "":
 		finish_tap(float(tapping.t) / maxf(0.01, float(tapping.ring)))
 		return
@@ -1056,6 +1097,10 @@ func _after_interact(r: Dictionary, object_id: String) -> void:
 	if r.has("open_page"):
 		var pa := {"object": object_id}
 		pa.merge(r.get("page_args", {}), true)
+		var pose := place_pose_of(object_id)
+		if pose != "":
+			_play_place_pose(pose, str(r.open_page), pa)
+			return
 		open_page.emit(str(r.open_page), pa)
 		return
 	if str(r.get("minigame", "")) == "fishing":
@@ -1122,6 +1167,8 @@ var coach: Node = null
 func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	blocked = value
+	# Decision 44: the page a place's pose opened has closed: the body rises (a pose still waiting for its page stays).
+	if not value and place_pending.is_empty() and is_instance_valid(player) and player.has_method("end_place_pose"): player.end_place_pose()
 
 func set_moment_lock(value: bool) -> void:
 	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)

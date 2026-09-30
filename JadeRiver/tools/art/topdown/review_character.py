@@ -72,8 +72,11 @@ class Figures:
 
     def layers(self, outfit: dict) -> tuple:
         out, missing = [], []
-        for cat in ("body", "shoes", "pants", "shirt", "hair", "weapon", "hat", "cape"):
-            name = str(outfit.get(cat, "none"))
+        wear = []
+        for cat in ("body", "shoes", "pants", "shirt", "hair", "weapon", "hat", "cape", "tool"):
+            v = outfit.get(cat, "none")
+            wear += [(cat, str(n)) for n in (v if isinstance(v, list) else [v])]   # a worker's tools are a list
+        for cat, name in wear:
             if name in ("none", ""):
                 continue
             item = self.man["items"].get(cat, {}).get(name)
@@ -201,6 +204,7 @@ def review(outputs: dict) -> None:
     _wardrobe(F)
     _batch(F)
     _gestures(F)
+    _work(F)
     print("review sheets in", OUT.relative_to(ROOT))
 
 
@@ -339,3 +343,138 @@ def _mirrored(F: Figures) -> None:
             im.alpha_composite(F.cell(starting(weapon="sword"), "walk", row, i).resize((cw * s, ch * s), Image.NEAREST),
                                (40 + i * cw * s, 40 + r * ch * s))
     im.save(OUT / "08_mirrored.png")
+
+
+# ------------------------------------------------------------------ decision 44: the work and place poses
+WORK_DIR = ROOT / "docs/redesign/feedback/work_poses"
+ALL_ROWS = ["s", "se", "e", "ne", "n", "nw", "w", "sw"]
+
+
+def _tools_of(F: Figures, action: str) -> list:
+    """The tools drawn in a work action (the tool set's `actions`)."""
+    return sorted(n for n, it in F.man["items"].get("tool", {}).items() if action in it.get("actions", []))
+
+
+def _loop_people(action: str) -> list:
+    """(label, outfit) of the people whose work loop plays `action` (data/topdown/life.json), in their own outfits with
+    their loop's tools."""
+    life = json.loads((ROOT / "data/topdown/life.json").read_text())
+    npcs = {n["id"]: n for n in json.loads((ROOT / "data/npcs.json").read_text())["entries"]}
+    fill = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}
+    out, seen = [], set()
+    for rid in sorted(life["rooms"]):
+        r = life["rooms"][rid]
+        who = [(oid.replace("npc_", ""), w["loop"], None) for oid, w in sorted(r.get("work", {}).items())]
+        who += [(e["id"], e["loop"], e["outfit"]) for e in r.get("extras", [])]
+        for nid, loop_id, outfit in who:
+            lp = life["loops"][loop_id]
+            steps = list(lp.get("at", [])) + [st for v in lp.get("steps", {}).values() for st in v]
+            if action not in [st[0] for st in steps] + [lp.get("walk", "walk")] or nid in seen:
+                continue
+            seen.add(nid)
+            o = dict(outfit) if outfit else dict(npcs.get(nid, {}).get("outfit", {}))
+            for k, v in fill.items():
+                o.setdefault(k, v)
+            o["tool"] = list(lp.get("tools", []))
+            out.append(("%s (%s)" % (nid, loop_id), o))
+    return out[:4]
+
+
+def _variants(F: Figures, action: str) -> list:
+    """(label, outfit) rows for one action: the unclothed body, then the starting outfit (holding the action's tool, and
+    a jian for a place's pose) in every hair style and colour, every shirt, trousers, shoe, hat and cape look, every dye
+    on the tunic and the trousers, a weapon of every family (put away in a work action), and the people who do it."""
+    tools = _tools_of(F, action)
+    tool = tools[:1]
+    base = starting(tool=tool, weapon="sword" if action in F.man.get("action_order", []) and
+                    F.man["actions"][action].get("place") else "none")
+    rows = [("body (unclothed)", {"body": "light", "tool": tool})]
+    items = F.man["items"]
+    for st in items["hair"]:
+        rows.append(("hair %s" % st, dict(base, hair=st)))
+    for c in range(1, len(F.man["hair_colors"])):
+        rows.append(("hair colour %s" % F.man["hair_colors"][c], dict(base, hair_color=c)))
+    for cat in ("shirt", "pants", "shoes", "hat", "cape"):
+        for name in items.get(cat, {}):
+            if cat in ("shirt", "pants", "shoes") and name == base.get(cat):
+                continue
+            rows.append(("%s %s" % (cat, name), dict(base, **{cat: name})))
+    for dy in F.man["dyes"][1:]:
+        rows.append(("tunic dye %s" % dy, dict(base, shirt_dye=dy)))
+    for dy in F.man["dyes"][1:]:
+        rows.append(("trousers dye %s" % dy, dict(base, pants_dye=dy)))
+    # every weapon in a place's pose; in a work action, where every weapon is put away alike, a blade and the bow slung
+    # on the back stand for them all
+    stowed = bool(F.man["actions"][action].get("stow"))
+    for w in sorted(items.get("weapon", {})):
+        if stowed and w not in ("sword", "bow"):
+            continue
+        rows.append(("weapon %s%s" % (w, " (put away)" if stowed else ""), dict(base, weapon=w)))
+    for t in tools[1:]:
+        rows.append(("tool %s" % t, dict(base, tool=[t])))
+    rows += _loop_people(action)
+    return rows
+
+
+def work_sheets(F: Figures, out_dir: Path = WORK_DIR) -> list:
+    """One sheet per work and place action for docs/redesign/feedback/work_poses/: every frame in all eight facings
+    (NW, W and SW mirrored), a row per variant (_variants), composited as the game does; a red bar under the hit."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    acts = F.man["actions"]
+    made = []
+    cw, ch = CELL
+    for a in F.man["action_order"]:
+        if not (acts[a].get("work") or acts[a].get("place")):
+            continue
+        rows = _variants(F, a)
+        n = acts[a]["frames"]
+        label_w = 190
+        W = label_w + len(ALL_ROWS) * (n * cw + 10)
+        H = 46 + len(rows) * (ch + 2)
+        im = Image.new("RGBA", (W, H), (22, 30, 34, 255))
+        d = ImageDraw.Draw(im)
+        d.text((10, 6), "%s: %s, %d frames at %g fps%s; tools %s; every facing (NW, W, SW mirrored), hair, look and dye"
+               % (a, acts[a]["label"], n, acts[a]["fps"], "" if acts[a]["hit"] < 0 else ", contact frame %d (red bar)" % acts[a]["hit"],
+                  ", ".join(_tools_of(F, a)) or "none (the weapon as its lines say)"), font=_font(13, True), fill=(232, 225, 207, 255))
+        for c, dr in enumerate(ALL_ROWS):
+            d.text((label_w + c * (n * cw + 10), 28), dr.upper(), font=_font(12, True), fill=(175, 201, 209, 255))
+        for r, (label, o) in enumerate(rows):
+            y = 46 + r * (ch + 2)
+            d.text((6, y + 30), label[:30], font=_font(11), fill=(232, 225, 207, 255))
+            layers, _ = F.layers(o)
+            for c, dr in enumerate(ALL_ROWS):
+                for i in range(n):
+                    cell = Image.new("RGBA", CELL, BG)
+                    F.draw(cell, FEET, layers, a, dr, i)
+                    if acts[a]["hit"] == i:
+                        ImageDraw.Draw(cell).rectangle((0, ch - 2, cw - 1, ch - 1), fill=(229, 88, 88, 255))
+                    im.alpha_composite(cell, (label_w + c * (n * cw + 10) + i * cw, y))
+        p = out_dir / ("action_%s.png" % a)
+        im.save(p, optimize=True)
+        made.append(p)
+    return made
+
+
+def _work(F: Figures) -> None:
+    """Decision 44 in the phase 3 set: each work action with its tool on a villager, and the place poses on the player
+    with a jian, in the five drawn facings."""
+    acts = F.man["actions"]
+    villager = {"body": "light", "hair": "short_knot", "shirt": "vneck", "pants": "cuffed", "shoes": "folded",
+                "hat": "straw", "shirt_dye": "earth"}
+    rows = []
+    for a in F.man["action_order"]:
+        if acts[a].get("work"):
+            for t in _tools_of(F, a):
+                rows.append(("%s (%s)" % (a, t), dict(villager, tool=[t]), a))
+        elif acts[a].get("place"):
+            rows.append(("%s (player, jian)" % a, starting(weapon="sword"), a))
+    if rows:
+        _grid(F, rows, F.man["dirs"], 2, "Decision 44: the villagers' work (each tool in the hands, the weapon put away) and "
+              "the player's place poses, S SE E NE N (red bar = contact frame)", label_w=220).save(OUT / "12_work.png")
+
+
+if __name__ == "__main__":
+    # python3 tools/art/topdown/review_character.py --work: the per-action sheets of docs/redesign/feedback/work_poses/
+    if "--work" in sys.argv:
+        for p in work_sheets(Figures(load_built())):
+            print("wrote", p.relative_to(ROOT))

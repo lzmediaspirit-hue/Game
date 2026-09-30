@@ -41,15 +41,25 @@ LAYOUTS = os.path.join(ROOT, "data", "topdown")
 LEASH = 2.5
 
 # ==================================================================================================================
-# The work loops. `at`: the steps at a work spot, [action, seconds, cue?]; a spot may name its own steps (`steps`,
-# by key). `walk`: the pose between spots and its speed (world units a second); `tool`: held while working and
-# walking (broom, pole, rod, basket); `weapon`: worn for the loop (a disciple's training sword).
+# The work loops. `at`: the steps at a work spot, [action, seconds, cue?, frame held?]; a spot may name its own steps
+# (`steps`, by key). `walk`: the pose between spots and its speed (world units a second); `weapon`: worn for the loop (a
+# disciple's training sword).
+# Decision 44: the work is drawn. Each step plays one of the figure's work actions (figure/work.py: the broom's sweep,
+# the axe's chop, the hammer at the anvil...) for a whole number of its cycles, so a blow lands on its contact frame on
+# every cycle (the view's `work_chop_hit` and `work_hammer_hit`); a rest step holds its action's first frame, the tool
+# still in hand (the 4th element). `tools`: the tools the figure holds (the `tool` layer set, each drawn only in the
+# actions that hold it: the broom, the rod, the axe and the herb basket are carried in the idle and walk poses too);
+# `load`: carried on the shoulder between the spots (in `work_carry`) and set down beside them at a spot (the pole's
+# baskets, the washing's basket); `pause`: "hold" keeps the work pose's rest frame when the player stops them (the tool
+# in hand), else they stand idle.
 # ==================================================================================================================
 LOOPS = {
-    "sweep": {"at": [["guard", 3.6, "sweep"], ["idle", 0.8]], "walk": "walk", "speed": 26, "tool": "broom", "sweep_walk": True},
-    "carry": {"at": [["kneel", 1.4, "set_down"], ["idle", 1.0]], "walk": "walk", "speed": 40, "tool": "pole"},
-    "laundry": {"steps": {"wash": [["kneel", 4.2, "scrub"], ["idle", 0.6]], "hang": [["cast", 1.1, "hang"], ["idle", 0.5], ["cast", 1.1, "hang"]]},
-                "at": [["idle", 1.0]], "walk": "walk", "speed": 38, "tool": "basket"},
+    "sweep": {"at": [["work_sweep", 3.0, "sweep"], ["idle", 0.8]], "walk": "walk", "speed": 26, "tools": ["broom"]},
+    "carry": {"at": [["tend", 1.5, "set_down"], ["idle", 1.0]], "walk": "work_carry", "speed": 40, "tools": ["pole"],
+              "load": "pole"},
+    "laundry": {"steps": {"wash": [["tend", 4.0, "scrub"], ["idle", 0.6]],
+                          "hang": [["work_hang", 1.0, "hang"], ["idle", 0.5], ["work_hang", 1.0, "hang"]]},
+                "at": [["idle", 1.0]], "walk": "work_carry", "speed": 38, "tools": ["washing"], "load": "basket"},
     "fists": {"at": [["punch_1", 0.45], ["punch_2", 0.45], ["punch_3", 0.6], ["guard", 0.9], ["punch_1", 0.45], ["punch_3", 0.6],
                      ["salute", 1.3], ["idle", 0.8]], "walk": "walk", "speed": 48},
     "sword": {"at": [["swing_1", 0.5], ["swing_2", 0.5], ["thrust_1", 0.55], ["swing_3", 0.75], ["guard", 0.8], ["salute", 1.3],
@@ -58,18 +68,21 @@ LOOPS = {
               "walk": "walk", "speed": 48, "weapon": "staff"},
     "spear": {"at": [["thrust_1", 0.55], ["thrust_3", 0.7], ["thrust_2", 0.55], ["guard", 1.0], ["idle", 1.0]], "walk": "walk",
               "speed": 44, "weapon": "spear"},
-    "herbs": {"at": [["kneel", 3.4, "pick"], ["idle", 0.8]], "walk": "walk", "speed": 34},
-    "cook": {"at": [["brush_write", 1.6, "stir"], ["brush_write", 1.6, "stir"], ["idle", 1.2]], "walk": "walk", "speed": 36},
-    "grind": {"steps": {"cook": [["brush_write", 1.6, "stir"], ["brush_write", 1.6, "stir"], ["idle", 0.8]],
-                        "grind": [["kneel", 3.2, "grind"], ["idle", 0.6]]},
-              "at": [["idle", 2.0]], "walk": "walk", "speed": 30},
-    "chop": {"at": [["two_hand_swing_3", 1.15, "chop"], ["two_hand_swing_3", 1.15, "chop"], ["idle", 1.4]], "walk": "walk",
-             "speed": 40, "weapon": "sabre"},
-    "hammer": {"steps": {"anvil": [["swing_3", 0.9, "hammer"], ["swing_3", 0.9, "hammer"], ["swing_3", 0.9, "hammer"], ["idle", 1.0]],
-                         "forge": [["kneel", 2.4, "stoke"], ["idle", 0.8]]},
-               "at": [["idle", 1.5]], "walk": "walk", "speed": 40},
-    "fish": {"at": [["idle", 6.5, "fish"], ["cast", 1.0, "recast"]], "walk": "walk", "speed": 36, "tool": "rod"},
-    "mend": {"at": [["kneel", 4.0, "mend"], ["idle", 1.2]], "walk": "walk", "speed": 34},
+    "herbs": {"at": [["work_pick", 3.6, "pick"], ["idle", 0.8]], "walk": "walk", "speed": 34, "tools": ["herbs"]},
+    "cook": {"at": [["work_stir", 1.6, "stir"], ["work_stir", 1.6, "stir"], ["work_stir", 1.2, "", 0]], "walk": "walk", "speed": 36,
+             "tools": ["ladle"], "pause": "hold"},
+    "grind": {"steps": {"cook": [["work_stir", 1.6, "stir"], ["work_stir", 1.6, "stir"], ["work_stir", 0.8, "", 0]],
+                        "grind": [["work_grind", 3.2, "grind"], ["work_grind", 0.6, "", 0]]},
+              "at": [["idle", 2.0]], "walk": "walk", "speed": 30, "tools": ["ladle", "pestle"], "pause": "hold"},
+    "chop": {"at": [["work_chop", 1.0, "chop"], ["work_chop", 1.0, "chop"], ["idle", 1.4]], "walk": "walk", "speed": 40,
+             "tools": ["axe"]},
+    "hammer": {"steps": {"anvil": [["work_hammer", 1.0, "hammer"], ["work_hammer", 1.0, "hammer"], ["work_hammer", 1.0, "hammer"],
+                                   ["work_hammer", 1.0, "", 0]],
+                         "forge": [["tend", 2.5, "stoke"], ["idle", 0.8]]},
+               "at": [["idle", 1.5]], "walk": "walk", "speed": 40, "tools": ["hammer"], "pause": "hold"},
+    "fish": {"at": [["work_rod", 6.0, "fish"], ["work_cast", 1.0, "recast"]], "walk": "walk", "speed": 36, "tools": ["rod"]},
+    "mend": {"at": [["work_mend", 4.0, "mend"], ["work_mend", 1.2, "", 0]], "walk": "walk", "speed": 34, "tools": ["net"],
+             "pause": "hold"},
     "watch": {"at": [["idle", 3.2, "look"], ["idle", 1.0]], "walk": "walk", "speed": 32},
     "play": {"at": [["startle", 0.5], ["idle", 0.9]], "walk": "run", "speed": 92},
     "read": {"at": [["idle", 2.6], ["point", 1.2], ["idle", 1.6]], "walk": "walk", "speed": 32},
@@ -78,6 +91,8 @@ LOOPS = {
     "write": {"at": [["brush_write", 1.4, "write"], ["idle", 1.2]], "walk": "walk", "speed": 30, "weapon": "brush"},
     "meditate": {"at": [["meditate", 14.0, "breathe"]], "walk": "walk", "speed": 30},
 }
+# The loads a carrier sets down at a spot (TopdownLife.draw_tool_down).
+LOADS = ["pole", "basket"]
 # The cues a step can give the view (dust, splashes, sparks, chips, steam, a float's bob) and the sounds they raise.
 CUES = ["sweep", "set_down", "scrub", "hang", "pick", "stir", "grind", "chop", "hammer", "stoke", "fish", "recast", "mend",
         "look", "write", "breathe"]
@@ -85,11 +100,13 @@ CUES = ["sweep", "set_down", "scrub", "hang", "pick", "stir", "grind", "chop", "
 # ==================================================================================================================
 # The rooms. A spot is [x, y, facing, steps key?] in cells (fractions allowed); "auto": n picks n spots round the NPC
 # on its own floor by a hash of the room and the NPC (see auto_spots). Facing: n, ne, e, se, s, sw, w, nw.
+# A smith's "anvil" spot stands the room's anvil (the Forge place) a tile east of the feet and 0.4 of a tile south, in
+# front: the hammer's pose (figure/work.py BAR_AT) meets its hot ingot there (check_work holds every smith to it).
 # ==================================================================================================================
 WORK = {
     "lf_village": {
         "npc_aunt_ping_lane": {"loop": "sweep", "spots": [[11, 17, "w"], [9.2, 17.6, "w"], [12.6, 18.3, "sw"]]},
-        "npc_washer_mei": {"loop": "laundry", "spots": [[14.1, 33.2, "e", "wash"], [12.0, 30.4, "n", "hang"]]},
+        "npc_washer_mei": {"loop": "laundry", "spots": [[14.1, 33.2, "e", "wash"], [12.0, 30.4, "nw", "hang"]]},
         "npc_uncle_guo": {"loop": "fists", "spots": [[30, 22, "se"], [31.6, 23.3, "s"], [28.8, 23.4, "e"]]},
         "npc_little_dou": {"loop": "play", "spots": [[44, 24, "s"], [45.8, 25.4, "se"], [42.6, 25.6, "sw"], [44.8, 26.2, "s"]]},
         "npc_shen_lian_npc": {"loop": "carry", "spots": [[52, 27, "e"], [54.2, 26.2, "ne"], [50.2, 26.4, "w"]]},
@@ -102,11 +119,11 @@ WORK = {
     "lf_lu_boat": {"npc_lu_boat": {"loop": "watch", "spots": [[10, 8, "s"], [8.2, 8.6, "s"], [11.8, 8.4, "se"]]}},
     "ja_weapon_hall": {
         "npc_jade_weapon_master": {"loop": "sword", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_jade_smith": {"loop": "hammer", "spots": [[17.9, 6.9, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
+        "npc_jade_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
     },
     "cm_weapon_hall": {
         "npc_cloud_weapon_master": {"loop": "staff", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_cloud_smith": {"loop": "hammer", "spots": [[17.9, 6.9, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
+        "npc_cloud_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
     },
     "ja_gate_street": {
         "npc_jade_disciple_a": {"loop": "sweep", "spots": [[29, 15, "sw"], [27.4, 16.2, "w"], [30.8, 16.4, "s"]]},
@@ -154,7 +171,7 @@ WORK = {
         "npc_adventurer_su": {"loop": "watch", "auto": 2},
     },
     "sf_artisan_row": {
-        "npc_smith_bao": {"loop": "hammer", "spots": [[14.8, 13.2, "e", "anvil"], [13, 13, "s"]]},
+        "npc_smith_bao": {"loop": "hammer", "spots": [[15.0, 12.6, "e", "anvil"], [13, 13, "s"]]},
         "npc_apprentice_tao": {"loop": "carry", "auto": 2},
         "npc_old_scribe_bai": {"loop": "write", "auto": 1},
         "npc_tinkerer_yu": {"loop": "mend", "auto": 1},
@@ -176,7 +193,7 @@ EXTRAS = {
     "lf_village": [
         {"id": "x_bank_fisher", "outfit": dict(VILLAGER, hair_color=5, shirt_dye="grey"), "loop": "fish", "spots": [[38.5, 33.25, "s"]]},
         {"id": "x_woodcutter", "outfit": dict(VILLAGER, hat="none", shirt="sleeveless", shirt_dye="ochre", pants="loose"),
-         "loop": "chop", "spots": [[65.1, 18.0, "w"]]},
+         "loop": "chop", "spots": [[65.1, 18.3, "w"]]},
     ],
     "ja_gate_street": [
         {"id": "x_ja_sweeper", "outfit": {"body": "light", "hair": "ponytail", "hair_color": 3, "shirt": "disciple", "pants": "martial",
@@ -232,7 +249,7 @@ FURNISH = {
     "lf_village": [("laundry_line", 10, 29), ("wash_tub", 15, 33), ("net_rack", 65, 26), ("fish_basket", 54, 25),
                    ("woodpile", 62, 17), ("chop_block", 64, 18)],
     "lf_fishers_hut": [("stove", 3, 8), ("bed", 15, 10), ("water_jar", 7, 1), ("fish_basket", 12, 8), ("sacks", 17, 7)],
-    "lf_granny_liu_hut": [("cabinet", 8, 1), ("drying_rack", 10, 1), ("stove", 2, 5), ("mortar", 3, 7), ("bed", 13, 9),
+    "lf_granny_liu_hut": [("cabinet", 8, 1), ("drying_rack", 10, 1), ("stove", 2, 5), ("bed", 13, 9),
                           ("herb_baskets", 11, 7)],
     "lf_old_ma_store": [("cabinet", 8, 1), ("cabinet", 13, 1), ("sacks", 15, 7), ("sacks", 14, 9), ("cloth_bolts", 15, 5),
                         ("water_jar", 1, 5)],
@@ -435,6 +452,63 @@ def actions() -> set:
     return set(man["actions"]) | set(man.get("aliases", {}))
 
 
+def check_work(errs: list) -> None:
+    """Decision 44: every work step is drawn and held as the figure draws it. A work action's tool is among the loop's
+    tools (the tool set's `actions`); a working step runs a whole number of its looping action's cycles, so its blow
+    lands on the contact frame on every cycle; a rest step holds a frame the action has; a load is one the view sets
+    down; `pause` is idle or hold."""
+    man = json.load(open(os.path.join(LAYOUTS, "character.json")))
+    path = os.path.join(LAYOUTS, "character", "tool.json")
+    tools = json.load(open(path))["items"].get("tool", {}) if os.path.exists(path) else {}
+    for name, lp in LOOPS.items():
+        worn = lp.get("tools", [])
+        for t in worn:
+            if t not in tools:
+                errs.append("loop %s: no tool %s drawn" % (name, t))
+        if lp.get("load", "") not in [""] + LOADS:
+            errs.append("loop %s: no load %s" % (name, lp.get("load")))
+        if lp.get("pause", "idle") not in ("idle", "hold"):
+            errs.append("loop %s: pause %s" % (name, lp.get("pause")))
+        steps = list(lp.get("at", [])) + [st for v in lp.get("steps", {}).values() for st in v]
+        steps.append([lp.get("walk", "walk"), 0.0])
+        for st in steps:
+            a = man["actions"].get(st[0])
+            if a is None:
+                continue
+            if a.get("work") and not any(st[0] in tools.get(t, {}).get("actions", []) for t in worn):
+                errs.append("loop %s: %s holds a tool the loop does not wear (%s)" % (name, st[0], worn))
+            if len(st) > 3:
+                if not 0 <= int(st[3]) < int(a["frames"]):
+                    errs.append("loop %s: %s holds frame %s of %d" % (name, st[0], st[3], a["frames"]))
+            elif a.get("work") and a["loop"] and float(st[1]) > 0.0:
+                cycles = float(st[1]) * float(a["fps"]) / float(a["frames"])
+                if abs(cycles - round(cycles)) > 1e-6 or round(cycles) < 1:
+                    errs.append("loop %s: %s runs %.2f cycles (a whole number keeps its blows on the contact frame)"
+                                % (name, st[0], cycles))
+
+
+ANVIL_OFF = (1.0, 0.4)   # the room's anvil from a smith's "anvil" spot, in cells (figure/work.py BAR_AT)
+
+
+def check_anvil(where: str, d: dict, side: dict, spots: list) -> list:
+    """A smith's "anvil" spot faces e with the room's anvil (its forge_anvil) ANVIL_OFF from the feet, where the
+    hammer's pose puts the hot bar on its face."""
+    errs = []
+    for s in spots:
+        if len(s) < 4 or s[3] != "anvil":
+            continue
+        anvils = [oid for oid, o in side.items() if o.get("type") == "forge_anvil" and oid in d["place"]]
+        if len(anvils) != 1:
+            errs.append(where + ": %d anvils in the room" % len(anvils))
+            continue
+        ax, ay = d["place"][anvils[0]][:2]
+        off = (float(ax) - float(s[0]), float(ay) - float(s[1]))
+        if s[2] != "e" or abs(off[0] - ANVIL_OFF[0]) > 0.01 or abs(off[1] - ANVIL_OFF[1]) > 0.01:
+            errs.append(where + ": the anvil at %s from the spot facing %s (the hammer wants %s facing e)"
+                        % (str(off), s[2], str(ANVIL_OFF)))
+    return errs
+
+
 def room_side(rid: str) -> dict:
     return json.load(open(os.path.join(ROOT, "data", "rooms", rid + ".json")))
 
@@ -451,10 +525,11 @@ def build_rooms() -> tuple:
         for st in steps:
             if st[0] not in acts:
                 errs.append("loop %s: no action %s" % (name, st[0]))
-            if len(st) > 2 and st[2] not in CUES:
+            if len(st) > 2 and st[2] != "" and st[2] not in CUES:
                 errs.append("loop %s: no cue %s" % (name, st[2]))
         if lp.get("walk", "walk") not in acts:
             errs.append("loop %s: no walk %s" % (name, lp.get("walk")))
+    check_work(errs)
     rooms = {}
     names = sorted(set(WORK) | set(EXTRAS) | set(ANIMALS) | set(HANGINGS) | set(VISTAS))
     for rid in names:
@@ -480,6 +555,7 @@ def build_rooms() -> tuple:
                 errs.append(where + ": no work spot found")
                 continue
             errs += check_spots(where, g, d["place"][oid], spots, LOOPS[w["loop"]])
+            errs += check_anvil(where, d, side, spots)
             work[oid] = {"loop": w["loop"], "spots": spots}
         if work:
             out["work"] = work

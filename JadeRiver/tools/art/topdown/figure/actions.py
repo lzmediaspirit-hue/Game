@@ -25,6 +25,10 @@ from .skeleton import pose
 # idle / walk carriage of each weapon line
 BLADE_IDLE = (0.7, 0.42, -0.58)
 POLE_IDLE = {"dir": (0.14, 0.24, 1.0), "butt": 12.6}
+# Decision 44: the tools a worker carries in the idle and walk poses (figure/kinds/tool.py), along the weapon's lines:
+# the broom and the rod upright in the right hand as a pole, the axe hanging from it as a blade, the herb basket from
+# the left hand. The other tools are only in their own work actions (figure/work.py).
+CARRY = {"broom": {"carry": True}, "rod": {"carry": True}, "axe": {"carry": True}, "herbs": {"carry": True}}
 
 
 def W(blade=None, pole=None, flat=(0.0, 1.0, 0.0), laid=None, smear_from=None, bow=None, **own):
@@ -58,7 +62,7 @@ def guard_hands(**kw):
 def _idle(i):
     b = [0.0, -0.1, -0.2, -0.1][i]
     return pose(pelvis=(0.0, 0.0, 13.4 + b), hand_l=(0.4, -5.9, 13.6 + b * 0.6), hand_r=(0.4, 5.9, 13.6 + b * 0.6),
-                drag=(0.0, [0.0, 0.08, 0.0, -0.08][i], 0.0), weapon=W())
+                drag=(0.0, [0.0, 0.08, 0.0, -0.08][i], 0.0), weapon=W(tools=CARRY))
 
 
 def _walk(i, n=8):
@@ -72,7 +76,8 @@ def _walk(i, n=8):
     return pose(pelvis=(0.0, 0.0, 13.35 + bob), hip_yaw=5 * c, twist=-9 * c,
                 **feet(fl, fr, 2.1, 2.1, ul, ur), toe_l=-12 * c * (ul < 1.4), toe_r=12 * c * (ur < 1.4),
                 hand_l=(-2.3 * c + 0.3, -5.8, 14.2), hand_r=(2.3 * c + 0.3, 5.8, 14.2),
-                drag=(-0.5, 0.12 * s, 0.0), weapon=W(blade=(0.45 + 0.25 * c, 0.42, -0.6), pole={"dir": (0.28, 0.1, 1.0), "butt": 12.6}))
+                drag=(-0.5, 0.12 * s, 0.0), weapon=W(blade=(0.45 + 0.25 * c, 0.42, -0.6), pole={"dir": (0.28, 0.1, 1.0), "butt": 12.6},
+                                                     tools=CARRY))
 
 
 def _run(i, n=8):
@@ -702,6 +707,19 @@ OWN = {"two_hand_swing_1": "heavy_sabre", "two_hand_swing_2": "heavy_sabre", "tw
 ALIASES = {"attack": "flute_play", "swing": "swing_1", "punch": "punch_2", "bow": "bow_draw", "meditate_burst": "cast"}
 # The aliases that only stand in for an action not drawn yet. The full set has none (decision 37).
 STAND_INS: list = []
+
+# Decision 44: the villagers' work and the player's places (figure/work.py), after every action before them so the
+# frames drawn before keep their order. A work action puts the weapon away (STOW: the weapon layer is explicitly hidden
+# in it) and holds its tool (the `tool` set); a place action keeps the weapon as its lines say.
+from .work import PLACE_CATALOG, WORK_CATALOG  # noqa: E402
+
+CATALOG.update(WORK_CATALOG)
+CATALOG.update(PLACE_CATALOG)
+WORK = list(WORK_CATALOG)
+PLACE = list(PLACE_CATALOG)
+STOW = {"weapon": WORK}
+# The frame a work action rests on (its first): where a worker stopped by the player holds it (TopdownWork).
+REST = {name: 0 for name in WORK}
 
 
 def poses(name: str) -> list:

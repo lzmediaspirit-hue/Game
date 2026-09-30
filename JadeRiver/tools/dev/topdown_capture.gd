@@ -40,6 +40,7 @@ func _main() -> void:
 	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
 	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
 	if "--life" in OS.get_cmdline_user_args(): saves = "user://life_capture_saves/"
+	if "--work-poses" in OS.get_cmdline_user_args(): saves = "user://work_poses_capture_saves/"
 	if "--sand-snow" in OS.get_cmdline_user_args(): saves = "user://sand_snow_capture_saves/"
 	DirAccess.make_dir_recursive_absolute(saves)
 	for f in DirAccess.get_files_at(saves): DirAccess.remove_absolute(saves + f)
@@ -71,6 +72,9 @@ func _main() -> void:
 		return
 	if "--life" in OS.get_cmdline_user_args():
 		await life()
+		return
+	if "--work-poses" in OS.get_cmdline_user_args():
+		await work_poses()
 		return
 	if "--sand-snow" in OS.get_cmdline_user_args():
 		await sand_snow()
@@ -902,6 +906,143 @@ func life_details(out: String, only := "") -> void:
 				await frames(30)
 		await shot_detail(str(s[0]), s[5], out)
 	TopdownLight.debug_hour = 0.375
+
+## Decision 44 (`-- --work-poses`, into docs/redesign/feedback/work_poses/): the people at work in their drawn work poses,
+## each tool in the hands (close-ups a quarter of the screen round the worker, x2, the player standing off so they work
+## on), the village and a sect's court at work (whole screens under the HUD), and the player using a place: opening the
+## letter box, tending a garden bed, sitting on the mat, each shot mid-pose before its page opens.
+const WORK_SHOTS := [
+	["ingame_01_village_sweep", "lf_village", "npc_aunt_ping_lane", "work_sweep"], ["ingame_02_village_carry", "lf_village", "npc_shen_lian_npc", "work_carry"],
+	["ingame_03_village_laundry", "lf_village", "npc_washer_mei", "work_hang"], ["ingame_04_village_fisher", "lf_village", "x_bank_fisher", "work_rod"],
+	["ingame_05_village_woodcutter", "lf_village", "x_woodcutter", "work_chop"], ["ingame_06_village_net", "lf_village", "npc_fisher_wen", "work_mend"],
+	["ingame_07_hut_cook", "lf_fishers_hut", "npc_aunt_ping", "work_stir"], ["ingame_08_hut_grind", "lf_granny_liu_hut", "npc_granny_liu", "work_grind"],
+	["ingame_09_sect_smith", "ja_weapon_hall", "npc_jade_smith", "work_hammer"], ["ingame_10_sect_sweeper", "ja_gate_street", "x_ja_sweeper", "work_sweep"],
+	["ingame_11_sect_herbs", "ja_herb_terraces", "npc_jade_gardener", "work_pick"], ["ingame_12_market_cook", "sf_market", "npc_auntie_rong", "work_stir"],
+	["ingame_13_artisan_smith", "sf_artisan_row", "npc_smith_bao", "work_hammer"], ["ingame_14_marsh_fisher_cast", "rm_marsh_edge", "x_marsh_fisher", "work_cast"],
+]
+const WORK_WIDE := [["ingame_20_village_at_work", "lf_village", Vector2(55, 22)], ["ingame_21_sect_at_work", "ja_gate_street", Vector2(38, 20)],
+	["ingame_22_weapon_hall_at_work", "ja_weapon_hall", Vector2(13, 10)]]
+
+func work_poses() -> void:
+	var out := "res://docs/redesign/feedback/work_poses/"
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if str(a).begins_with("--work-only="): only = str(a).trim_prefix("--work-only=")
+	var day_s := Clock.game_day_s()
+	Clock.simulate(600000.0 * day_s + 0.375 * day_s, 0)
+	Game.calendar.debug_weather = "clear"
+	await _topdown_game(out)
+	await frames(360)
+	var c = Game.active()
+	c.training_sect = {"id": "jade_sect", "rank": "outer", "contribution": 0}
+	for s in WORK_SHOTS:
+		if only != "" and not str(s[0]).contains(only): continue
+		await _worker_shot(str(s[0]), str(s[1]), str(s[2]), str(s[3]), out)
+	for s in WORK_WIDE:
+		if only != "" and not str(s[0]).contains(only): continue
+		Game.world.load_room(c, str(s[1]), "", (s[2] as Vector2 + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		GameEvents.flush()
+		await frames(10)
+		await at_spot(s[2], 240)
+		await shot(str(s[0]), out)
+	# the places' systems opened for the character, their notices given time to go before the shots
+	for s in ["mail", "cultivation", "herb_garden", "storage"]: Unlocks.force_unlock(c.id, s)
+	await frames(420)
+	for s in [["ingame_30_player_open_letter_box", "letter_box"], ["ingame_31_player_tend_bed", "garden_bed"], ["ingame_32_player_sit_mat", "meditation_mat"]]:
+		if only != "" and not str(s[0]).contains(only): continue
+		await _place_shot(str(s[0]), str(s[1]), out)
+	print("topdown_capture: work poses done")
+	get_tree().quit()
+
+## A worker in its loop, the player standing four and a half tiles off (out of its notice) and the shot on the worker
+## once it plays `action` (at its contact frame, or its second frame), or after half a minute whatever it does. A worker
+## the story does not show yet is left out, and said so.
+func _worker_shot(name: String, room: String, who: String, action: String, out: String) -> void:
+	var life: Dictionary = TopdownLife.room_life(room)
+	var home := Vector2.ZERO
+	for e in life.get("extras", []):
+		if str(e.id) == who: home = TopdownRoom.cell_point(e.spots[0])
+	if home == Vector2.ZERO:
+		var lay := TopdownRoom.load_room(room)
+		home = TopdownRoom.cell_point(lay.def.place.get(who, [0, 0]))
+	var far := home + Vector2(0, 4.5 * TopdownRoom.TILE)
+	Game.world.load_room(Game.active(), room, "", far)
+	GameEvents.flush()
+	await frames(10)
+	w = main.world
+	p = w.player
+	m = p.motor
+	# out of the worker's notice (72 units): the first side of them the player can stand on well away (by a river bank
+	# the south is water, and the nearest standable cell there would be at the worker's elbow)
+	var stand: Vector2 = w.room.nearest_standable(far)
+	for off in [Vector2(0, 4.5), Vector2(0, -4.5), Vector2(4.5, 0), Vector2(-4.5, 0), Vector2(3.5, 3.5), Vector2(-3.5, -3.5)]:
+		var q: Vector2 = w.room.nearest_standable(home + off * TopdownRoom.TILE)
+		if q.distance_to(home) > 100.0:
+			stand = q
+			break
+	m.place(stand)
+	m.dir = Vector2.UP
+	w._settle_camera()
+	await frames(60)
+	var fig = null
+	for f in w.life.workers:
+		if is_instance_valid(f) and str(f.def.get("id", "")) == who: fig = f
+	if fig == null or not fig.visible:
+		print("topdown_capture: no worker ", who, " shown in ", room, " at this point of the story")
+		return
+	var want := TopdownFigure.hit_frame(action) if int(TopdownFigure.spec(action).hit) >= 0 else 1
+	var got := false
+	for i in 1800:
+		if fig.work.action == action and fig.work.hold < 0 and (fig.work.walking or fig.work.frame() == want):
+			got = true
+			break
+		await frames(1)
+	if not got: print("topdown_capture: ", who, " did not play ", action, " in half a minute (", fig.work.action, ")")
+	await RenderingServer.frame_post_draw
+	await shot_detail(name, (fig.feet as Vector2) - p.screen + Vector2(0, 14), out)
+
+## The player using a place of the table (the first of its kind the character reaches): stood on its user's cell, facing
+## it, the context button pressed through the HUD, the shot mid-pose (before the page opens).
+func _place_shot(name: String, kind: String, out: String) -> void:
+	var row := {}
+	for r in PlaceRules.all():
+		if str(r.kind) == kind and row.is_empty(): row = r
+	if row.is_empty(): return
+	var at := PlaceRules.point(row)
+	var stand := PlaceRules.stand_point(row)
+	Game.world.load_room(Game.active(), str(row.room), "", stand)
+	GameEvents.flush()
+	await frames(10)
+	w = main.world
+	p = w.player
+	m = p.motor
+	# beside the thing, so the pose reads from the side (the user's cell may face it from the south, the back view); on
+	# the mat itself, facing the camera, to sit on it
+	var on_it := kind == "meditation_mat"
+	for off in ([] if on_it else [Vector2(-1.0, 0.35), Vector2(1.0, 0.35)]):
+		var q: Vector2 = w.room.nearest_standable(at + off * TopdownRoom.TILE)
+		if q.distance_to(at + off * TopdownRoom.TILE) < 6.0:
+			stand = q
+			break
+	if on_it: stand = w.room.nearest_standable(at)
+	m.place(stand)
+	var face := at - stand
+	m.dir = Vector2.DOWN if on_it else (face.normalized() if face.length() > 1.0 else Vector2.UP)
+	m.row = TopdownMotor.nearest_row(m.dir, m.row, TopdownMotor.ROW_ANGLES, 10.0)
+	w._settle_camera()
+	# the unlock tutorials' coach (the places' systems were opened for this capture) kept off the shot
+	if is_instance_valid(main.coach):
+		main.coach.visible = false
+		main.coach.process_mode = Node.PROCESS_MODE_DISABLED
+	await frames(90)
+	var hud = main.hud
+	hud._after_interact(Game.submit({"type": "interact", "object": str(row.object)}), str(row.object))
+	await frames(int(hud.PLACE_POSE_S * 60.0 * 0.85))
+	await shot_detail(name, Vector2(0, 0), out)
+	hud.open_place_page()
+	await frames(20)
+	main.close_all_pages()
+	await frames(10)
 
 ## A quarter of the screen round the player's feet (moved by `off` screen px), x2.
 func shot_detail(name: String, off: Vector2, out: String) -> void:

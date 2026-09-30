@@ -60,6 +60,9 @@ var knock_t := 0.0
 var knock_s := 0.0
 var action_phase := ""
 var stage_pose := ""              ## decision 39: the pose a staged scene holds the body in ("" for the motor's own)
+## Decision 44: the pose a place's use plays (open, tend, sit: data/places.json `pose`), from the HUD before the page it
+## opens and held while that page is open; a step or a blow ends it ("" for none).
+var place_pose := ""
 ## Decision 42, animation canceling (CombatFeel.weave): a technique pressed during a basic step, or a basic attack during
 ## a technique, cuts the blow's recovery once it has landed; pressed early, it waits here (combat_feel.json
 ## `weave.buffer_s`) and goes at the cut: {kind: "attack" | "technique", dir, aimed, finisher, slot, k, left}.
@@ -322,6 +325,14 @@ func refresh_outfit() -> void:
 ## The HUD's other calls on player.gd.
 func meditate() -> void:
 	if bound(): Game.submit({"type": "toggle_meditation"})
+
+## Decision 44: play a place's pose (the HUD's `_play_place_pose`), from its first frame.
+func play_place_pose(p: String) -> void:
+	place_pose = TopdownFigure.resolve(p)
+	anim = ""
+
+func end_place_pose() -> void:
+	place_pose = ""
 func reset_sprint() -> void: pass
 
 ## The stick, or WASD / arrows on a keyboard: pushed, the body sprints (decision 42); Alt walks slowly, as a light touch
@@ -446,6 +457,11 @@ func sync(delta: float) -> void:
 	# move never sits in meditation's pose (moving ends the meditation, physics_step).
 	elif m.vel.length() > 12.0: next = "run" if m.running else "walk"
 	elif meditating: next = "meditate"
+	# Decision 44: a place's pose while the body is at rest (seated at the mat even as it meditates); anything else, a
+	# step or a blow, ends it.
+	if place_pose != "":
+		if next in ["idle", "meditate"]: next = place_pose
+		else: place_pose = ""
 	if stage_pose != "": next = TopdownFigure.resolve(stage_pose)   # a staged scene's pose (decision 39)
 	if next != anim:
 		anim = next

@@ -1,10 +1,11 @@
 """A drawn item: its category, how it is cast from a skeleton, how it shades, and its palettes (dyes, hair colours).
 The items themselves are declared by the layer sets (sets/): `catalog()` gathers them.
 
-Layer order (the side view's, redesign plan §1.4): body, shoes, trousers, shirt, cape, hair, hat, weapon, within each
-of four bands: back (behind the chest: the far arm, a tail behind the neck, a blade behind the back), mid (the trunk,
-legs, clothes), head (the body's head and neck, over the shirt's collar and under the hair) and front (an arm or blade
-in front of the chest). A section's z is its band's base plus its category's order.
+Layer order (the side view's, redesign plan §1.4): body, shoes, trousers, shirt, cape, hair, hat, weapon, and the
+work tools over them (decision 44: the tool a worker holds, sets/tool.py), within each of four bands: back (behind the
+chest: the far arm, a tail behind the neck, a blade behind the back), mid (the trunk, legs, clothes), head (the body's
+head and neck, over the shirt's collar and under the hair) and front (an arm or blade in front of the chest). A
+section's z is its band's base plus its category's order.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from pathlib import Path
 from . import palettes as P
 from .render import BLADE_EDGE, Look
 
-ORDER = {"body": 10, "shoes": 20, "pants": 30, "shirt": 40, "cape": 50, "hair": 60, "hat": 65, "weapon": 70}
+ORDER = {"body": 10, "shoes": 20, "pants": 30, "shirt": 40, "cape": 50, "hair": 60, "hat": 65, "weapon": 70, "tool": 75}
 BAND_BASE = {"back": 0, "mid": 100, "head": 155, "front": 200}
 ROOT = Path(__file__).resolve().parents[4]
 
@@ -34,6 +35,7 @@ class Item:
         self.mats = mats            # the materials in id order
         self.key = cat + "_" + name
         self.kind = ""              # the set that draws it (sets/<kind>.py), filled in by catalog()
+        self.actions = None         # a tool's own actions (sets/tool.py ACTIONS): it is hidden in every other
 
     def variants(self) -> list:
         return list(self.palettes.keys())
@@ -66,5 +68,13 @@ def catalog(kinds: list | None = None) -> list:
     for kind in (kinds if kinds is not None else list(found)):
         for it in found[kind].items(L):
             it.kind = kind
+            if it.cat == "weapon":
+                it.cast = _stowable(it.cast)
             out.append(it)
     return out
+
+
+def _stowable(cast):
+    """A weapon's cast that draws nothing where the pose puts the weapon away (decision 44: a work action's hands hold
+    its tool; the build writes the explicit hidden entry)."""
+    return lambda sk: [] if (sk.weapon or {}).get("stow") else cast(sk)

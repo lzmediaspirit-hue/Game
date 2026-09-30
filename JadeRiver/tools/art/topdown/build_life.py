@@ -62,8 +62,8 @@ def sprites() -> list:
         out.append(("dog_" + act, dg[act], None))
     for k, r in enumerate((1.5, 2.5, 3.5, 4.5)):
         out.append(("puff_%d" % k, [L.puff(r)], "mid"))
-    out.append(("broom", L.broom(), [7, 1]))
-    out.append(("pole_side", [L.pole_side()], [16, 1]))
+    # Decision 44: a tool in hand is the figure's own tool layer (tools/art/topdown/figure/sets/tool.py); only the loads
+    # set down at a spot are drawn from this sheet.
     be = L.pole_end()
     out.append(("pole_back", [be[0]], [5, 1]))
     out.append(("pole_front", [be[1]], [5, 1]))

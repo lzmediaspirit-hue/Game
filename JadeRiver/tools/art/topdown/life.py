@@ -6,8 +6,8 @@ black), for tools/art/topdown/build_life.py to pack into art/topdown/life.png:
              a cat and a dog, each facing east (the room view mirrors them for west), frames side by side;
   rings      a ripple spreading on the water (a fish rising, a frog's plop, a float);
   puffs      smoke and steam in four sizes, neutral pale grey the view tints (chimney smoke, incense, a cook fire);
-  tools      what a villager at work holds: a broom, a shoulder pole with its two baskets (seen from the side and end
-             on), a laundry basket;
+  loads      what a carrier sets down at a work spot: a shoulder pole's two baskets (end on) and a laundry basket
+             (decision 44: a tool in hand is the figure's own tool layer, tools/art/topdown/figure/sets/tool.py);
   hangings   what hangs on an interior's back wall: a lattice window that lets the sun in, nets, bundles of herbs, a
              scroll, a hall's plaque, a shelf of jars, a string of drying fish;
   vistas     the land past a room's edge, each a strip that tiles across (tools/art/topdown/build_life.py packs them in
@@ -225,23 +225,9 @@ def puff(r: float) -> Img:
     return s
 
 
-# ============================================================================================================ tools
-TOOL = {"S": BAMBOO[4], "s": BAMBOO[3], "d": BAMBOO[2], "B": REED[4], "b": REED[3], "r": REED[2], "W": WOOD[4],
-        "w": WOOD[2], "K": DARKWOOD[2], "k": DARKWOOD[1], "L": WOOD[5]}
-
-
-def broom() -> list:
-    """A bamboo broom held at a slant, its twig head swept left, centre and right across the ground: three frames.
-    Its handle's top is at the sprite's (6, 0), where the hands hold it; the head rests on the bottom row."""
-    head_l = ["......S.", "......s.", ".....S..", ".....s..", "....S...", "....s...", "...Ss...", "..bBBb..",
-              ".bBbBBr.", "bBrBbr..", "b.r.b.r."]
-    head_c = ["......S.", "......s.", ".....S..", ".....s..", ".....S..", ".....s..", "....Ss..", "...bBBb.",
-              "..bBbBBr", "..BrBbr.", ".b.r.b.r"]
-    head_r = ["......S.", "......s.", "......S.", "......s.", "......S.", "......s.", ".....Ss.", "....bBBb",
-              "...bBbBB", "...BrBbr", "..b.r.b."]
-    return [pix(head_l, TOOL, True), pix(head_c, TOOL, True), pix(head_r, TOOL, True)]
-
-
+# ============================================================================================================ loads
+# Decision 44: a tool in hand is the figure's own tool layer (tools/art/topdown/figure/sets/tool.py); what is left here
+# is the loads a carrier sets down at a spot: the pole's two baskets and the laundry basket.
 def _basket(s: Img, x: int, y: int, full: str = "rice") -> None:
     """A round woven basket 7 wide and 5 tall at (x, y), its load heaped in it."""
     load = {"rice": (PAPER, PLASTER[2]), "fish": (STONE2[5], STONE2[3]), "greens": (LEAF[5], LEAF[3]),
@@ -256,28 +242,6 @@ def _basket(s: Img, x: int, y: int, full: str = "rice") -> None:
             if (i + j) % 2 == 0 and 0 < i < 6:
                 col = REED[2] if col != REED[2] else REED[1]
             s.put(x + i, y + j, col)
-
-
-def pole_side() -> Img:
-    """A shoulder pole carried along the way one walks, seen from the side (a carrier facing east or west): the bamboo
-    pole bowing a pixel under its load (lit on top, a dark line under it, no heavier outline, so it never reads as a
-    rail), a rope from each end to a basket (rice and greens), the baskets outlined as props. 30 x 20; the shoulder at
-    (15, 1)."""
-    s = Img(30, 20)
-    for i in range(30):
-        y = 1 if 5 < i < 25 else 0
-        s.put(i, y, BAMBOO[4] if 0 < i < 29 else BAMBOO[2])
-        s.put(i, y + 1, BAMBOO[2])
-        s.put(i, y + 2, LINE)
-    for x in (2, 27):
-        for j in range(3, 12):
-            s.put(x, j, DIRT[4] if j % 2 else DIRT[3])
-    for x0, load in ((0, "rice"), (23, "greens")):
-        b = Img(9, 7)
-        _basket(b, 1, 1, load)
-        b.outline()
-        s.paste(b, x0 - 1, 11)
-    return s
 
 
 def pole_end() -> list:
