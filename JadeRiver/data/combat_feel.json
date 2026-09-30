@@ -424,5 +424,64 @@
   "tell": "tell",
   "swipe": "swipe"
  },
+ "charge": {
+  "full_s": 0.5,
+  "full": 2.3,
+  "band": [
+   1.8,
+   2.5
+  ],
+  "label_from": 1.5,
+  "families": {
+   "fists": [
+    0.4,
+    2.4
+   ],
+   "gauntlets": [
+    0.4,
+    2.4
+   ],
+   "short_blade": [
+    0.4,
+    2.4
+   ],
+   "brush": [
+    0.4,
+    2.4
+   ],
+   "jian": [
+    0.5,
+    2.3
+   ],
+   "spear": [
+    0.5,
+    2.3
+   ],
+   "fan": [
+    0.5,
+    2.4
+   ],
+   "bell": [
+    0.5,
+    2.3
+   ],
+   "staff": [
+    0.5,
+    2.2
+   ],
+   "heavy_sabre": [
+    0.5,
+    2.2
+   ],
+   "flute": [
+    0.5,
+    2.2
+   ],
+   "bow": [
+    0.6,
+    2.2
+   ]
+  }
+ },
  "missing_poses": []
 }

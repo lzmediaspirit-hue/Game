@@ -187,7 +187,54 @@ def build():
     by_key["inner_heaven_9"]["major_breakthrough"] = {"to": "world_genesis", "event": "genesis", "requirements": req(
         c("flag_set", "understanding", True, "page:cultivation", flag="genesis_requirements_met"))}
     entries("realms.json", rows)
+    _LADDER.clear()
+    _LADDER.extend(rows)
     return rows
+
+
+# Decision 45: fixed cultivation rewards. Quests, pills, cores, herbs and events pay a number set when the data is built,
+# from the need of the stage at their own tier (a quest's Level, an item's grade band), never a share of the stage the
+# player happens to be in when the reward lands.
+_LADDER = []
+
+
+def ladder():
+    """The ladder's rows in order (this module's build, or data/realms.json once it is built)."""
+    if not _LADDER:
+        import json
+        import os
+        from common import DATA
+        with open(os.path.join(DATA, "realms.json")) as f:
+            _LADDER.extend(json.load(f)["entries"])
+    return _LADDER
+
+
+def key_at_level(level):
+    """The sub-level holding Level `level`: the last key whose first Level is at or under it."""
+    best = "mortal"
+    for row in ladder():
+        if int(row["level"]) <= level:
+            best = row["key"]
+    return best
+
+
+def need_at_level(level):
+    """The need of the sub-level holding Level `level` (an order's whole need, as the bar shows it)."""
+    return next(int(r["accumulate_needed"]) for r in ladder() if r["key"] == key_at_level(level))
+
+
+def round_reward(x):
+    """A reward as the game says it: two significant figures, at least 10 ("+120 cultivation", "+4,200")."""
+    import math
+    if x <= 0:
+        return 0
+    step = 10 ** max(1, int(math.floor(math.log10(x))) - 1)
+    return int(max(10, math.floor(x / step + 0.5) * step))   # half away from zero, as ProgressionRules.round_reward
+
+
+def cultivation(share, level):
+    """`share` of the need at Level `level`, rounded as a reward."""
+    return round_reward(share * need_at_level(level))
 
 
 if __name__ == "__main__":

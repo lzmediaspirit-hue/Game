@@ -87,6 +87,18 @@
      "item": "revival_talisman"
     },
     {
+     "item": "qi_gathering_incense",
+     "price": 12,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "bone_forging_1"
+       }
+      ]
+     }
+    },
+    {
      "item": "purging_pill",
      "requires": {
       "all": [
@@ -201,6 +213,22 @@
        {
         "kind": "realm_at_least",
         "realm": "heart_tempering_1"
+       }
+      ]
+     }
+    },
+    {
+     "item": "qi_gathering_incense",
+     "price": 12
+    },
+    {
+     "item": "deep_current_incense",
+     "price": 45,
+     "requires": {
+      "all": [
+       {
+        "kind": "realm_at_least",
+        "realm": "qi_kindling_1"
        }
       ]
      }

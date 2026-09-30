@@ -565,6 +565,9 @@ def unlocks():
     # Lu teaches the first technique with the first breakthrough (docs/research/player_motivation.md §5 change 3): the
     # skill ring opens at Bone Forging 1, while The River Token is under way, so Flowing Palm takes its slot on hand-in.
     u("technique_slots_2", "Techniques", all_of(realm("bone_forging_1")), "the_river_token", ["hud:skills", "page:techniques"], same_stage_ok=True)
+    # Decision 45: the Qi pool opens with the first technique, full (CombatAuthority.refresh_stats), and its bar with it;
+    # it opened at Bone Forging 7 before, so Flowing Palm ran on breath and the player saw no Qi to cast it with.
+    u("qi_pool", "Qi", all_of(realm("bone_forging_1")), "the_river_token", ["hud:qi_bar"], same_stage_ok=True, toast=False)
 
     # Bone Forging
     # The Willow Path follows the River Token (its `next`): it starts once Lu has handed you the token on his boat, not
@@ -601,8 +604,9 @@ def unlocks():
     # The Account Legacy (S-v0.8): every great realm the account reaches after this is recorded, +2% accumulation each.
     u("account_legacy", "Account Legacy", all_of({"kind": "account_realm", "realm": "bone_forging_1"}), "", [], scope="account", toast=False)
     bf7 = all_of(realm("bone_forging_7"))
-    u("qi_pool", "Qi", bf7, "the_first_current", ["hud:qi_bar"])
-    u("qi_springs", "Qi springs", bf7, "the_first_current", [], same_stage_ok=True, toast=False)
+    # The Qi pool opens at Bone Forging 1 now (decision 45, with the first technique); Bone Forging 7's First Current
+    # wakes the springs, the body's Primal Qi, doubling meditation within a spring's reach.
+    u("qi_springs", "Qi springs", bf7, "the_first_current", [])
     u("element_affinity", "Element affinity", bf7, "the_first_current", [], same_stage_ok=True, toast=False)
     u("cooking", "Cooking", all_of(realm("bone_forging_8")), "aunt_pings_broth", [],
       effects=[{"kind": "grant_item", "item": "clay_pot", "count": 1}, {"kind": "grant_item", "item": "bamboo_rod", "count": 1}])
@@ -942,10 +946,12 @@ def prologue_quests():
     ], [item("river_token", 1), fx("learn_technique", technique="flowing_palm"), fx("codex", entry="the_hollowing"), fx("codex", entry="realms")],
         auto_accept=True,
         requires=all_of(flag("night_survived")), target_room="lf_lu_boat", chapter="prologue",
-        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", pct_of_need=0.98), fx("codex", entry="lotus_ferry")],
+        # Decision 45: a fixed 430 of Mortal's 500; the last 70 are the quest's own 15 s of meditation on the boat at the
+        # early current (about 4.2 a second there), so the bar fills as the step is done.
+        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", amount=430), fx("codex", entry="lotus_ferry")],
         offer=["That thing in the water was a Hollowed eel. The grey is spreading.", "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you."],
         complete=["Bone Forging. Your first step. The body is the cup; Qi will be the water.",
-                  "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. In the body stages it needs no Qi, only breath.",
+                  "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. It spends a little of the Qi you just woke; sit, or only breathe, and it comes back.",
                   "Take this River Token. Go west along the Willow Path and try the palm on the boarlets. There's a note waiting for you."],
         next="the_willow_path")
 
@@ -1163,8 +1169,8 @@ def guided_quests():
     quest("the_first_current", "The First Current", "main", "lu_boatman", [
         o("meditate_seconds", "Meditate in the Lotus Ferry Qi spring", 30, near="qi_spring"),
     ], [item("qi_gathering_pill", 2), fx("codex", entry="qi")], offered_by_unlock=True, chapter="3", target_room="lf_village",
-        offer=["You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
-               "The old spring by Granny Liu's hut has woken. Sit in it."],
+        offer=["You feel it, don't you? The current inside runs deeper now. Your cup is ready for more water.",
+               "The old spring by Granny Liu's hut has woken. Sit in it: a spring doubles what you gather."],
         complete=["Your first current. Don't let it flood you."])
     quest("aunt_pings_broth", "Aunt Ping's Broth", "guided", "aunt_ping", [
         o("catch_fish", "Catch fish", 2),
@@ -2906,6 +2912,112 @@ def chapter_floors(quests):
         q["requires"]["all"] = [r for r in conds if r.get("kind") != "realm_at_least"] + [realm(floor)]
 
 
+CHAPTER_CODES = {"bf": "bone_forging", "qk": "qi_kindling", "qu": "qi_unfurling", "ht": "heart_tempering", "cs": "cloud_stride",
+                 "sa": "spirit_awakening", "hg": "heaven_glimpse"}
+
+
+def quest_tiers(quests, unlock_rows):
+    """Decision 45: each quest's own tier and the fixed cultivation it pays.
+
+    The tier is the Level the quest is pitched at: its own realm floor or chapter code (bf1, qk5, ...), the realm of the
+    unlock that offers it, and the tiers of the quests it follows, whichever is highest; with none of those, the middle
+    of its numbered chapter's floors; then the Level of the foes it sends you to fight or the grade band of what it asks
+    you to bring; last, its target room. The Prologue is tier 0. `tier` names the realm key at that Level, and
+    `cultivation` is the kind's share (curves.json quest_cultivation) of that stage's need, plus any add_progress
+    reward's share, rounded (realms.round_reward). Every add_progress in a quest's rewards or on_accept is written as a
+    fixed `amount` of the same stage, so no quest pays a share of the stage the player is in at hand-in."""
+    import realms as R
+    from stats import QUEST_CULTIVATION
+    by_id = {q["id"]: q for q in quests}
+    with open(os.path.join(DATA, "enemies.json")) as f:
+        foes = {e["id"]: e for e in json.load(f)["entries"]}
+    with open(os.path.join(DATA, "items.json")) as f:
+        goods = {i["id"]: i for i in json.load(f)["entries"]}
+    with open(os.path.join(DATA, "stats.json")) as f:
+        band_first = {b[0]: int(b[1]) for b in json.load(f)["grade_bands"]}
+    room_first = {}
+    rooms_dir = os.path.join(DATA, "rooms")
+    for name in os.listdir(rooms_dir):
+        with open(os.path.join(rooms_dir, name)) as f:
+            rd = json.load(f)
+        room_first[rd["id"]] = int((rd.get("level_range") or [0])[0])
+
+    def trigger_level(u):
+        lv = None
+        for r in u.get("trigger", {}).get("all", []):
+            if r.get("kind") in ("realm_at_least", "account_realm"):
+                lv = max(lv or 0, level_of(r["realm"]))
+        return lv
+    unlock_by_id = {u["id"]: u for u in unlock_rows}
+    offered_by = {}
+    for u in unlock_rows:
+        if u.get("quest"):
+            offered_by.setdefault(u["quest"], []).append(u)
+
+    def own(q):
+        lv = None
+        for r in q.get("requires", {}).get("all", []):
+            if r.get("kind") == "realm_at_least":
+                lv = max(lv or 0, level_of(r["realm"]))
+        ch = str(q.get("chapter", ""))
+        if len(ch) >= 3 and ch[:2] in CHAPTER_CODES and ch[2:].isdigit():
+            lv = max(lv or 0, level_of("%s_%s" % (CHAPTER_CODES[ch[:2]], ch[2:])))
+        return lv
+    chapter_levels = {}
+    for q in quests:
+        ch, o = str(q.get("chapter", "")), own(q)
+        if ch.isdigit() and o is not None:
+            chapter_levels.setdefault(ch, []).append(o)
+    memo = {}
+
+    def tier(qid, depth=0):
+        if qid in memo:
+            return memo[qid]
+        q = by_id[qid]
+        ch = str(q.get("chapter", ""))
+        o = own(q)
+        if q["kind"] == "prologue" or ch == "prologue":
+            memo[qid] = o or 0
+            return memo[qid]
+        found = [] if o is None else [o]
+        after = [r.get("quest") for r in q.get("requires", {}).get("all", []) if r.get("kind") == "quest_done"]
+        for u in offered_by.get(qid, []) if q.get("offered_by_unlock") else []:
+            lv = trigger_level(u)
+            if lv is not None:
+                found.append(lv)
+            after += [r.get("quest") for r in u.get("trigger", {}).get("all", []) if r.get("kind") == "quest_done"]
+        for r in q.get("requires", {}).get("all", []):
+            if r.get("kind") == "unlock" and r.get("system") in unlock_by_id and trigger_level(unlock_by_id[r["system"]]) is not None:
+                found.append(trigger_level(unlock_by_id[r["system"]]))
+        for prev in after:
+            if prev in by_id and depth < 40:
+                found.append(tier(prev, depth + 1))
+        if not found and ch in chapter_levels:
+            levels = sorted(chapter_levels[ch])
+            found.append(levels[len(levels) // 2])
+        if not found or max(found) == 0:
+            for ob in q.get("objectives", []):
+                if ob.get("kind") == "kill" and ob.get("enemy") in foes:
+                    found.append(int((foes[ob["enemy"]].get("level") or [0])[0]))
+                if ob.get("kind") in ("collect", "deliver") and ob.get("item") in goods:
+                    found.append(band_first.get(goods[ob["item"]].get("grade", "plain"), 1))
+        if not found and q.get("target_room") in room_first:
+            found.append(room_first[q["target_room"]])
+        memo[qid] = max(found) if found else 0
+        return memo[qid]
+
+    for q in quests:
+        lv = tier(q["id"])
+        kind = str(q.get("qp", q["kind"]))
+        share = float(QUEST_CULTIVATION.get(kind, 0.0))
+        q["tier"] = R.key_at_level(lv)
+        for key in ("rewards", "on_accept"):
+            for e in q.get(key, []):
+                if e.get("kind") == "add_progress" and "pct_of_need" in e:
+                    e["amount"] = R.cultivation(float(e.pop("pct_of_need")), lv)
+        q["cultivation"] = R.cultivation(share, lv) if share > 0.0 else 0
+
+
 def build():
     Q.clear()
     npc_ids = npcs()
@@ -2934,6 +3046,7 @@ def build():
     for q in Q[n1:]:
         q.setdefault("qp", "act2_side")
     chapter_floors(Q)
+    quest_tiers(Q, U)
     entries("quests", Q, chapter_floors=CHAPTER_FLOORS, chapter_floors_planned=CHAPTER_FLOORS_PLANNED)
     d = os.path.join(DATA, "dialogue")
     os.makedirs(d, exist_ok=True)

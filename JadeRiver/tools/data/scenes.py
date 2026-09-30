@@ -395,7 +395,7 @@ def lessons():
         handoff("Open your Bag: put Herbal Tea in Quick-use", "hud:icon:bag", until("quick_use_changed", item="herbal_tea"), then="live"),
         # The tea's heal shows (the number over the head, the log's line): the controls stay, and Granny waits a moment
         # before she speaks, her balloon clear of the number (the prototype's QA: a cut hid both at once).
-        handoff("Drink it: tap Quick-use", "hud:quick", until("item_used", item="herbal_tea"), then="live"),
+        handoff("Drink it: tap Quick-use", "hud:quick:0", until("item_used", item="herbal_tea"), then="live"),   # decision 45: the first of three
         wait(1.4),
         emote("granny", "heart", 1.0),
         say("granny", "Better. Now bow at the shrine in the square. It remembers those who visit."),
@@ -669,7 +669,7 @@ def night():
         pose("lu", "point", 2.6),
         say("lu", "That thing in the water was a Hollowed eel. The grey is spreading."),
         pose("lu", "kneel", 2.4),
-        say("lu", "You have a gift. I felt it last night. Sit. Breathe as I showed you."),
+        say("lu", "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you."),
         pose("lu", "meditate"),
         camera("player", 0.8),
         handoff("Meditate: tap Cultivate", "hud:meditate", until("meditation_started")),

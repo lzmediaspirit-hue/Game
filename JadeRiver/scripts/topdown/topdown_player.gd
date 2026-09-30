@@ -34,8 +34,19 @@ var anim_t := 0.0
 var screen := Vector2.ZERO   ## the body's feet on the world viewport, whole art px
 var figure: TopdownFigure    ## the layered character (TopdownFigure), wearing outfit()
 ## The aim the HUD is showing (decision 30): {kind, slot, form, dir, at, reach, half, target (EnemyState or null)}, {}
-## when no thumb is aiming. The world draws it on the ground.
-var aim: Dictionary = {}
+## when no thumb is aiming. The world draws it on the ground. Decision 45: while it is armed for the finisher, the charge
+## gathers (`charge_t`, advanced in sync); the moment it is let go the charge held is kept (`charge_let_go`) for the
+## finisher the HUD strikes next, in the same frame.
+var aim: Dictionary = {}:
+	set(v):
+		var was := str(aim.get("move", "")) == "finisher"
+		var now := str(v.get("move", "")) == "finisher"
+		if was and not now:
+			charge_let_go = charge_t if v.is_empty() else 0.0
+			charge_t = 0.0
+		aim = v
+var charge_t := 0.0        ## seconds the finisher has been held armed
+var charge_let_go := 0.0   ## the charge of the finisher just let go (0 once it is struck or a frame has passed)
 ## The figure's action drawn this frame (`anim` is the state it comes from: a strike plays the blow's own action, the
 ## Plunge's landing its impact frame), and how long the Plunge's impact pose holds after it lands (decision 35).
 var pose := "idle"
@@ -137,7 +148,7 @@ func attack() -> void:
 
 ## An attack along `dir` on the plane; `aimed` (a dragged aim) snaps only to a foe within a few degrees. `finisher`
 ## (decision 35, a long drag): the combo's last step at once.
-func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
+func aim_attack(dir: Vector2, aimed := true, finisher := false, charge_s := 0.0) -> Dictionary:
 	# Decision 43: a tap made while a technique waits in the buffer goes after it (the presses in their order).
 	if not _no_buffer and str(weave.get("kind", "")) == "technique" and not finisher:
 		_buffer({"kind": "attack", "dir": dir, "aimed": aimed, "finisher": false})
@@ -145,8 +156,8 @@ func aim_attack(dir: Vector2, aimed := true, finisher := false) -> Dictionary:
 	# Decision 38: each step lunges toward its aim; out of a dash it is a dash attack (the dash ends in it, a longer
 	# lunge). Known before the step starts, as its event is played as it is sent.
 	dash_attack = motor.grounded and (motor.dash_t > 0.0 or motor.since_dash <= float(CombatFeel.cfg().get("dash_attack_s", 0.15)))
-	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher})
-	if not r.get("ok", false) and str(r.get("reason", "")) == "busy": _buffer({"kind": "attack", "dir": dir, "aimed": aimed, "finisher": finisher})
+	var r := Game.submit({"type": "basic_attack", "facing": 1 if dir.x >= 0.0 else -1, "aim": dir, "aimed": aimed, "finisher": finisher, "charge_s": charge_s})
+	if not r.get("ok", false) and str(r.get("reason", "")) == "busy": _buffer({"kind": "attack", "dir": dir, "aimed": aimed, "finisher": finisher, "charge_s": charge_s})
 	if r.get("ok", false) and r.has("aim"): motor.face(r.aim)
 	if r.get("ok", false) and not r.get("queued", false):
 		dash_combo = int(r.get("combo", 0)) if dash_attack else -1
@@ -190,8 +201,12 @@ func _family() -> String:
 	return str(StatRules.family(Game.character(actor_id)).get("id", "fists")) if bound() else "fists"
 
 ## Decision 35, a long drag on Attack: the combo's finisher step at once along the drag (snapping as an aim does).
-func finisher(dir: Vector2) -> Dictionary:
-	return aim_attack(dir, true, true)
+## Decision 45: the charged attack, as strong as the charge held past the finisher's line (`charge_s`, else the charge
+## just let go).
+func finisher(dir: Vector2, charge_s := -1.0) -> Dictionary:
+	var held := charge_let_go if charge_s < 0.0 else charge_s
+	charge_let_go = 0.0
+	return aim_attack(dir, true, true, held)
 
 ## Can the body plunge now: in the air (not sinking, not already dropping), the Plunge art known and ready, hands free.
 func plunge_ready() -> bool:
@@ -273,7 +288,7 @@ func _tick_weave(delta: float) -> void:
 	weave = {}
 	_no_buffer = true
 	if kind == "technique": aim_technique(int(b.slot), b.dir, float(b.k), bool(b.aimed))
-	else: aim_attack(b.dir, bool(b.aimed), bool(b.finisher))
+	else: aim_attack(b.dir, bool(b.aimed), bool(b.finisher), float(b.get("charge_s", 0.0)))
 	_no_buffer = false
 	for i in int(b.get("more", 0)): attack()
 
@@ -423,6 +438,9 @@ func _mirror() -> void:
 ## flute's held melody loops the flute at the lips, the finisher armed on Attack holds the charge's wind-up.
 func sync(delta: float) -> void:
 	var m := motor
+	# Decision 45: the finisher armed on Attack charges; a charge let go and not struck this frame is dropped.
+	charge_let_go = 0.0
+	if str(aim.get("move", "")) == "finisher": charge_t += delta
 	if bound(): _follow_steps()   # decision 43: a step Combat began this frame is drawn turned to its aim from its first frame
 	var tl: Dictionary = Game.combat.timeline(actor_id) if bound() else {}
 	var next := "idle"

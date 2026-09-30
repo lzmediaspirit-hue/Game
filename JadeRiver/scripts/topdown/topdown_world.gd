@@ -538,6 +538,11 @@ func _hold_marks() -> void:
 	var m: TopdownMotor = player.motor
 	tfx.hold("guard", bool(Game.combat.timeline(player.actor_id).guard), m.pos, m.z, m.dir)
 	tfx.hold("charge", str(player.aim.get("move", "")) == "finisher", m.pos, m.z, m.dir)
+	# Decision 45: the charge's mark fills as it is held (faint to whole) and burns warm once full, so the player sees
+	# when the charged blow is at its strongest.
+	if tfx.charge_node != null and is_instance_valid(tfx.charge_node):
+		var fill := CombatFeel.charge_k(str(StatRules.family(Game.character(player.actor_id)).get("id", "fists")), player.charge_t)
+		tfx.charge_node.modulate = Color(1.3, 1.15, 0.75) if fill >= 1.0 else Color(1, 1, 1, 0.5 + 0.5 * fill)
 
 func _add_foe(e: EnemyState) -> void:
 	if foe_views.has(e.uid) and is_instance_valid(foe_views[e.uid]): return

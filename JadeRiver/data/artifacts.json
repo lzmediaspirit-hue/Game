@@ -2081,7 +2081,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 25,
+    "bag": 50,
     "quick": 5
    },
    "source": [
@@ -2101,7 +2101,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 30,
+    "bag": 55,
     "quick": 8
    }
   },
@@ -2118,7 +2118,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 35,
+    "bag": 60,
     "quick": 10
    }
   },
@@ -2135,7 +2135,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 40,
+    "bag": 65,
     "quick": 12
    }
   },
@@ -2152,7 +2152,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 45,
+    "bag": 70,
     "quick": 15
    }
   },
@@ -2169,7 +2169,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 50,
+    "bag": 75,
     "quick": 16
    }
   },
@@ -2186,7 +2186,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 55,
+    "bag": 80,
     "quick": 18
    }
   },
@@ -2203,7 +2203,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 60,
+    "bag": 85,
     "quick": 19
    }
   },
@@ -2220,7 +2220,7 @@
    "type": "equipment",
    "stack": 1,
    "gourd": {
-    "bag": 65,
+    "bag": 90,
     "quick": 20
    }
   },

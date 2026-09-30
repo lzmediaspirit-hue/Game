@@ -626,8 +626,8 @@ func fight(def_id: String, count: int, limit := 90.0, name := "") -> int:
 			else: await frames(24)
 			stick(Vector2.ZERO)
 			continue
-		if c().pools.hp < c().pools.max_hp * 0.35 and role("quick") != Vector2.INF and c().inventory.count(str(c().inventory.quick_use)) > 0:
-			await tap(role("quick"), 3, 2)
+		if c().pools.hp < c().pools.max_hp * 0.35 and role("quick:0") != Vector2.INF and c().inventory.count(str(c().inventory.quick_use)) > 0:
+			await tap(role("quick:0"), 3, 2)
 		elif c().pools.hp < c().pools.max_hp * 0.3:
 			# Nothing left to drink: back off out of the fight and let the body mend, as a player would.
 			var m1 := now_ms()
@@ -809,9 +809,9 @@ func p_granny() -> void:
 	await shot("granny_quick_handoff", "Granny's hand-off: %s" % scene_step())
 	await tea_to_quick()
 	await settle()
-	await shot("granny_drink_handoff", "drink: %s (quick slot %s)" % [scene_step(), str(role("quick"))])
-	if role("quick") == Vector2.INF: await find("the Quick-use slot is not drawn while Granny's Remedy asks for it", "no_quick_slot")
-	else: await tap(role("quick"), 3, 2)
+	await shot("granny_drink_handoff", "drink: %s (quick slot %s)" % [scene_step(), str(role("quick:0"))])
+	if role("quick:0") == Vector2.INF: await find("the Quick-use slot is not drawn while Granny's Remedy asks for it", "no_quick_slot")
+	else: await tap(role("quick:0"), 3, 2)
 	await frames(30)
 	await shot("tea_drunk", "the tea drunk (HP %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
 	await settle()

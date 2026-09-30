@@ -1034,7 +1034,7 @@
     {
      "do": "handoff",
      "prompt": "Drink it: tap Quick-use",
-     "at": "hud:quick",
+     "at": "hud:quick:0",
      "until": [
       {
        "event": "item_used",
@@ -2779,7 +2779,7 @@
     {
      "do": "say",
      "actor": "lu",
-     "text": "You have a gift. I felt it last night. Sit. Breathe as I showed you.",
+     "text": "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you.",
      "box": "balloon"
     },
     {

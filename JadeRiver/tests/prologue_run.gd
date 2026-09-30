@@ -863,12 +863,18 @@ func step_river_token() -> void:
 	step(4.0)
 	check(c().cultivator.realm_key == "bone_forging_1", "Bone Forging 1 (realm %s)" % c().cultivator.realm_key)
 	hand_in("lu_boatman", "the_river_token")
-	# Research §5 change 3: Lu teaches the first technique with the first breakthrough, in its slot, costing no Qi.
+	# Research §5 change 3: Lu teaches the first technique with the first breakthrough, in its slot.
 	check(c().cultivator.techniques_known.has("flowing_palm") and c().cultivator.technique_slots[0] == "flowing_palm" and Game.is_revealed("hud:skills"),
 		"Lu teaches Flowing Palm at Bone Forging 1, slotted on the skill ring (%s)" % str(c().cultivator.technique_slots))
-	check(Game.combat.technique_cost(c(), ContentDB.entry("techniques", "flowing_palm")) == 0.0, "in the body stages Flowing Palm costs no Qi")
-	check(c().pools.max_qi == 0.0, "still no QI pool in the body stages")
-	check(not Game.is_revealed("hud:qi_bar"), "QI bar still hidden at Bone Forging 1")
+	# Decision 45: the Qi pool opens with it, full, its bar shown; the palm's cost goes into it three times or more, and
+	# the pool refills where it can be seen (the regen floor: under a minute for the whole pool at rest).
+	var palm_cost: float = Game.combat.technique_cost(c(), ContentDB.entry("techniques", "flowing_palm"))
+	var casts: float = c().pools.max_qi / maxf(0.01, palm_cost)
+	check(c().pools.max_qi > 0.0 and c().pools.qi >= c().pools.max_qi - 0.01 and Game.is_revealed("hud:qi_bar"),
+		"the Qi pool opens full with the first technique (%.0f / %.0f), its bar shown" % [c().pools.qi, c().pools.max_qi])
+	var regen: float = CombatAuthority.qi_regen_pool(c()) * c().stats.value("qi_regen")
+	check(palm_cost > 0.0 and casts >= 3.0 and regen * 60.0 >= c().pools.max_qi,
+		"Flowing Palm costs %.1f Qi: %.1f casts from the pool; it refills at %.2f a second (the pool in %.0f s)" % [palm_cost, casts, regen, c().pools.max_qi / maxf(0.01, regen)])
 
 ## P6 The Willow Path: the shrine, the stump and five Wild Boarlets.
 func step_willow_path() -> void:
@@ -887,7 +893,7 @@ func step_willow_path() -> void:
 		fight("wild_boarlet", 1, 120.0, 0.0, true)
 		tries += 1
 	GameEvents.event.disconnect(cast)
-	check(int(palm.n) > 0, "Flowing Palm is cast on the boarlets, with no Qi pool (%d casts)" % int(palm.n))
+	check(int(palm.n) > 0, "Flowing Palm is cast on the boarlets, from the Qi pool (%d casts)" % int(palm.n))
 	check(c().quests.is_done("the_willow_path"), "The Willow Path complete: no stump quota, the palm, five boarlets and the herd's elite")
 
 ## The sects a player can join at the fair, and where each one's early story stands: its recruiter, its Entry Trial's
