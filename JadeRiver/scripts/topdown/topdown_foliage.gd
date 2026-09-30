@@ -202,7 +202,7 @@ static func scatter(r: TopdownRoom) -> Array:
 	snowy.resize(128)
 	var paint_marks: Dictionary = r.tileset.get("paint", {})
 	for mark in paint_marks:
-		if str((paint_marks[mark] as Dictionary).get("creep", "")) == "snow" and str(mark).unicode_at(0) < 128: snowy[str(mark).unicode_at(0)] = 1
+		if str((paint_marks[mark] as Dictionary).get("creep", "")) in ["snow", "snowpack"] and str(mark).unicode_at(0) < 128: snowy[str(mark).unicode_at(0)] = 1
 	var chunk: Vector2i = TopdownWorld.CHUNK
 	var keys := PackedInt64Array()
 	var raw: Array = []

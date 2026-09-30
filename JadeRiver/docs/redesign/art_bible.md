@@ -418,6 +418,7 @@ same build.
 | `tools/art/topdown/canvas.py` | pixel helpers, a coordinate hash and periodic value noise (no RNG) |
 | `tools/art/topdown/tiles.py` | tops, faces, stairs, water, transitions, overlays (rims, contact and cast shade, face ends, stair cheeks) by their Phase 3 names, drawn by `terrain2.py` |
 | `tools/art/topdown/terrain2.py` | Terrain v2 (§14): the macro patterns, face patterns, positional grass overlays, tint masks, decals, water frames and shore overlays |
+| `tools/art/topdown/sand_snow.py` | sand and snow (§14.14): their patterns, faces and decals, the sand and snow creeping overlays, the sandy shore; `--review-sand-snow` draws their sheet |
 | `tools/art/topdown/props.py` | the prop kit and its footprints, origins, animation frames and floor shadows |
 | `tools/art/topdown/foliage.py` | the foliage and garden kit (§14.12): trees with their canopies and crown shade, bushes, hedges, fences, rocks, walk-through plants; `props.py` adds it to the kit |
 | `tools/art/topdown/decor.py`, `build_decor.py` | the ground cover the room view scatters and its rules (§14.12), into `art/topdown/decor.png` and `data/topdown/decor.json` (`--check`, `--review`) |
@@ -551,7 +552,8 @@ contract for the other two parts.** Where it differs from §1–§7, it replaces
 and buildings. The props and the character keep their own rules (§4, §8, §13), except where §14.2 says so.
 
 Before and after, in the game: `docs/redesign/terrain_v2/` (§14.10). The third part, foliage and decor, is built
-to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`. The living world (decision 43) is §14.13.
+to §14.12; its before and after are in `docs/redesign/terrain_v2/foliage/`. The living world (decision 43) is §14.13,
+and the sand and snow ground (decision 44) §14.14.
 
 ### 14.1 The look
 
@@ -1231,6 +1233,112 @@ the peaks, the market, four interiors and two nights, under the HUD at the phone
 `tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`), and `pairs/` (six of them side by side at the
 art's own size); `detail/` (close-ups x4 of each thing, `-- --life --life-detail`); `sheet_x4.png` and
 `vistas_x2.png` (`build_life.py --review`).
+
+### 14.14 Sand and snow (decision 44, built)
+
+The sound pass (decision 43) made footsteps and landings for sand and snow, but no tile painted either, so they were
+never heard. Decision 44 adds the ground: three paint marks, drawn to §14's rules and lit by its sun.
+
+| Mark | Ground | Pattern (64 px, §14.4) | Face | Steps (`sound.md` §3) |
+|---|---|---|---|---|
+| `a` | river sand | pale fine grain (`SAND2` 4, grain 3 and 5, a quartz glint), wind ripples in broken rows of short crests (a lit px on the sunny north slope over a px of lee shade), pebbles and shell chips | `sand`: a beach running into the water (below) | sand |
+| `n` | fresh snow | an even sunlit white (`SNOW2` 5) with a faint cool grain, small wind crescents (a lit lip over a px of blue lee shade), buried stones as low mounds, a sparse sparkle of glints each with its shaded facet | `snow`: the karst cliff under the snow's lip | snow |
+| `k` | packed snow | trodden two steps down (`SNOW2` 4) with a fine speckle, trails of paired prints (each a hollow, its north end shaded and its south lip lit), streaks glazed to ice, a speck of earth | `snow` | snow |
+
+**Ramps** (`palette.py`). Their dark ends lean blue-violet and their light ends warm, as §14.3's do.
+
+| Ramp | Steps (0 → 6) | Use |
+|---|---|---|
+| `SAND2` | `3A2B40 5B4450 82665D A2866C BCA07D D5BD96 EDDCB4` | base 4, grain 3 and 5, ripple crests 5, lee 3 |
+| `SNOW2` | `262A55 3F4A7A 6574A0 8E9DC0 B8C5DA DCE3EC F7F5EA` | fresh snow 5, hollows and lee 4, packed 4, prints 3, glints 6; the dark end is the shadow's own blue-violet |
+| `WET` | `4A3A4A` | the damp sand's tint, 0.41 |
+| `SHELL` | `8A6A78 C7A2A6 EBD3CC FBF1E4` | shells, from their pink shade to nacre |
+
+**Values** (measured on the atlas): sand 0.64 (a pale shore, a little over the floors' 0.5–0.62), packed snow 0.76,
+fresh snow 0.88. Snow is the one ground allowed that bright: white by nature, and the bodies read on it by their ink
+outline and blob shadow (the capture's close-ups check it). The sand's bank reads at 0.6 of its top, the snowy cliff at
+0.32.
+
+**How they meet their neighbours** (the transition system of §14.4, extended). Each material creeps over what lies
+below it on the same level with **positional overlays**, one per corner case (14) and place in the 64 px pattern (16),
+as the grass does over a path: its own pattern's pixels where the corner field and a noise periodic in 64 px say so, so
+an edge meets its neighbours exactly and never repeats every 16 px. The paint table gives each mark its `creep` (the
+material it lays over its neighbours) and `takes` (the materials that may lie over it, in order).
+
+| On | What lies over it, bottom to top |
+|---|---|
+| a path, paving | sand, then grass, then packed snow, then fresh snow |
+| sand | grass (the meadow's own overlay, `under`) |
+| meadow, flowers, a bed, marsh, granite, rock | packed snow, then fresh snow |
+| packed snow | fresh snow (never packed snow over its own cells) |
+
+- **Sand's edge** is a thin drift reaching about a third of the way in: its sunny edge a step lit, its lee a step down,
+  loose grains past it, the faintest `SHADOW` (0.14) under it. **Snow's edge** has body, half the way in: it glints on
+  the sunny side, its front is in cold shade (`SNOW2` 3) with a two-step `SHADOW` on the ground below (0.41, then 0.2)
+  and 0.25 east of it, and a dusting of flakes lies past it. **Packed snow's edge** is the same in its own pixels, its
+  sunny edge a step lit and its shadow lighter (0.25, 0.13), as it is trodden low; each material creeps with its own
+  pattern, so a trodden path never meets the snow on its neighbour at a straight seam. All the edges wander in soft
+  lobes (`lumps`, jittered bumps periodic in 64 px, added to the noise), since a value noise alone runs straight where
+  it flattens out.
+- **A cell covered at every corner** takes the covering material's own tile (a meadow cell ringed by snow is snow).
+- **The waterline.** A sand cell whose corners touch the water takes the `wet` tint through the tint masks (§14.4,
+  step 3), so the damp band follows the shore round corners with a soft edge; a path or paving under creeping sand
+  there takes it too, so the damp band runs on. The water by sand (`beach`) takes the **sandy shore**
+  (`v2.water.beach`, 15 cases × 4 frames): the river's shore overlay with the sand showing through the shallows on
+  every side, fading into the jade over 6–7 px, and no bank shadow on it from the north or west, since a beach is too
+  low to cast one; the foam and the leaving ripple as before. The sand's face over the water (its top 8 px, §14.5) is
+  the beach itself: a warm rim, dry sand, sand darkening as it dampens, a glistening swash line and the wet sand under
+  the first film of water, each row's edge wandering a px.
+- **The snow's face** is the karst cliff (`rock_face_tex`, so a snowy face joins a bare one column for column) with
+  snow on its ledges where the bare rock has moss, and the snow's lip over its first row: lumps lit on top and cold
+  underneath with their contact shadow, and icicles.
+
+**Decals** (by a hash of the cell, §14.4): `sand` (0.3 of cells): fan shells, a snail shell, pebbles, a heron's and a
+crab's tracks, crab holes with their pellets, bleached driftwood, a line of wrack, a tuft of dune grass; `snow` (0.2):
+dry stalks poking through with their melted hollows, bird and hare tracks, buried mounds, a twig, sparkles (a four-point
+glint with a warm heart); `snowpack` (0.28): prints, earth, a twig. Each throws its small `SHADOW` to the south-east.
+
+**The Phase 3 contract.** The TileSet gains the marks' tops (`sand_a`–`c`, `snow_a`, `snow_b`, `snowpack_a`, `_b`) and
+faces (`sand_face_top`, `sand_face`, `snow_face_top`, `snow_face`) in rows 0–1; `autotile.grass_sand` is grass over
+sand's 16 corner tiles for `TopdownTerrain.top()` (not a terrain set of the TileSet, which keeps dirt and paving).
+
+**With the foliage and the light.**
+
+- The ground cover (§14.12, `decor.json` `biomes`): sand takes a few pebbles and a tuft of dune grass (0.1) and reeds at
+  the waterline (0.3); snow takes none, and nothing grows within a cell of snow on its level, where its edge lies over
+  the ground. The grass that parts round a body is the ground cover's, so it parts on sand as on the meadow.
+- The cast shadows (§14.11) fall on sand and snow as on any floor, cut per level; the snow edge's own shadow is baked
+  like the grass edge's.
+- The living world's critters (§14.13) take sand and snow as ground to land and peck on.
+
+**Where they are painted** (`tools/data/topdown_rooms.py`, `Layout.sand` and `Layout.snow`: ground paint only, never
+under a plant of the foliage kit, never moving a prop, a person, a place or a way):
+
+- **Lotus Ferry** (and its night): river sand along the waterline from Home Lane's end to the ferry landing, the
+  towpath wandering over it; the washing beach below Mei's line, a cove further east, and the ferry landing's sand
+  under the docks round the pier's foot. By the West Gate the old embankment stays.
+- **The Reed Shallows:** the flats' beach along the river where the crabs run, the sandbar grown into a spit of it.
+- **The Marsh Edge:** the dry spits and the islet in the south pools.
+- **Willow Path East and West:** sandy coves along the stream, the pond's beach.
+- **Snow.** No top-down room is set in winter, and the peaks are green mountain meadows, so the snow is a dusting only
+  where the height allows it: Elder Hu's Peak (the summit crags, the heads of the side crags and the Meditation Rock's
+  back in the crags' shade, packed where one sits), the Cliff Stair (the Cloud Sect's cliff crown and its top ledge, a
+  packed path from the Cloud Library's door to the Cloud Steps' bell, a dusting on the back of the ledge above the
+  landing) and Elder Sung's Peak (the summit crags, the high east peak down to its foot's last rows, and the back of
+  the far peak behind Elder Sung). The lower ledges and every meadow stay bare.
+
+**Tests.** `topdown_suite` ("sand" and "snow"): grass over sand, sand over a path, the damp tint, the sandy shore, the
+beach face; snow over the meadow, packed snow (never between packed cells) and paving, packed snow over granite in its
+own pixels, a cell snowed in, the snowy face; every layer in the atlas. `data_validation`: every mark's creeping sets (14 cases each), the wet tint, the three
+marks' faces, the sandy shore's 15 cases. `audio_tests`: sand and snow step as themselves, every mark steps on a
+surface with its sounds, and every such surface is heard in a room of the world. `topdown_rooms.py --check`, the
+foliage placement rules and the reach checks hold as before.
+
+**Review images** (`docs/redesign/feedback/sand_snow/`): `before/` and `after/` (each painted room at x2 with the body
+on the new ground, `rooms/` each whole at 1 art px, and `closeups/` x4 of the transitions), `pairs/` side by side,
+`after/10_sampler.png` and its close-ups (every transition on a room of its own, drawn by the game), all by
+`tools/dev/topdown_capture.tscn -- --sand-snow --sand-snow-tag=<before|after>`; `11_tile_sheet_x4.png` (the patterns,
+faces, decals, overlays over their grounds, the damp tint and the sandy shore, `build_tiles.py --review-sand-snow`).
 
 ## 15. Combat effects (decision 38)
 

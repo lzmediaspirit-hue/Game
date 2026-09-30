@@ -1,20 +1,21 @@
 """Decision 44 (docs/redesign/art_bible.md "Sand and snow"): the sand and snow ground, drawn to Terrain v2's rules
 (terrain2.py) and lit by its sun, high in the north-west.
 
-  - **Sand** (paint mark `a`): pale river sand, one 64 px pattern of fine grain with wind ripples in broken patches (a
-    lit north slope, a shaded lee), a few pebbles and shell chips, and flat stretches between them so a footprint or a
-    body reads on it. Its decals: shells, a snail shell, pebbles, a heron's and a crab's tracks, crab holes with their
-    pellets, bleached driftwood, a line of wrack, a tuft of dune grass. It darkens to damp sand where it meets the water
-    (the `wet` tint over the corners that touch water) and shows through the shallows (`beach_fx`, the water's shore
-    in sand). Grass creeps over it with the meadow's own positional overlay; it creeps over paths and paving with its
-    own (`creep_over`), a drift whose edge follows noise periodic in 64 px, lit on the sunny side, with loose grains
-    beyond it. Its face is a low bank of soft strata, damp toward the foot, crumbling a little under its lip.
-  - **Snow** (`n` fresh, `k` packed): fresh snow in soft drifts, lit on their north-west slopes and blue-violet in the
-    hollows, a few buried stones, and a sparse sparkle; packed snow two steps down, trodden into prints, glazed in
-    streaks, a speck of earth now and then. Fresh snow creeps over grass, dirt, granite, paving, rock and packed snow:
-    a lip lit on its sunny side, its front in cold shade, a two-step `SHADOW` on the ground below and east of it, and a
-    dusting of flakes past the edge. Its face is the karst cliff with the snow's lip hanging over it (lumps lit on top,
-    their undersides cold, icicles), snow on its ledges where the rock had moss.
+  - **Sand** (paint mark `a`): pale river sand, one 64 px pattern of fine grain with wind ripples in broken rows of
+    short crests (a lit north slope, a px of lee shade), a few pebbles and shell chips, and flat stretches between them
+    so a footprint or a body reads on it. Its decals: shells, a snail shell, pebbles, a heron's and a crab's tracks,
+    crab holes with their pellets, bleached driftwood, a line of wrack, a tuft of dune grass. It darkens to damp sand
+    where it meets the water (the `wet` tint over the corners that touch water) and shows through the shallows
+    (`beach_fx`, the water's shore in sand). Grass creeps over it with the meadow's own positional overlay; it creeps
+    over paths and paving with its own (`creep_over`), a thin drift lit on the sunny side with loose grains beyond it.
+    Its face is a beach running into the water at its top, then a low bank of soft strata.
+  - **Snow** (`n` fresh, `k` packed): fresh snow an even sunlit white with a faint cool grain, small wind crescents,
+    a few buried stones and a sparse sparkle; packed snow two steps down, trodden into prints, glazed in streaks, a
+    speck of earth now and then. Each creeps with its own pixels: packed snow over grass, dirt, granite, paving and
+    rock, fresh snow over all of those and over packed snow: a lip lit on its sunny side, its front in cold shade, a
+    two-step `SHADOW` on the ground below and east of it (lighter under packed snow), and a dusting of flakes past the
+    edge. Their face is the karst cliff with the snow's lip hanging over it (lumps lit on top, their undersides cold,
+    icicles), snow on its ledges where the rock had moss.
 
 Everything comes from a coordinate hash, never a random generator, so the build is byte-identical.
 """
@@ -513,13 +514,15 @@ def lumps(x: int, y: int, seed: int, cell: int = 8, r: float = 4.5) -> float:
 
 
 def creep_over(kind: str, corners: tuple, pos: tuple, mac: Img, seed: int) -> Img:
-    """Sand or snow over its neighbour on the same level, per corner case and place in the 64 px pattern (as the grass
-    overlay): the material's own pattern where the corner field and noise periodic in 64 px say so. Sand is a thin
-    drift: its sunny edge a step lit, its lee a step down, loose grains past it, the faintest shadow. Snow has body: its
-    sunny edge glints, its front is in cold shade with a two-step `SHADOW` on the ground below and east of it, and a
-    dusting of flakes lies past the edge."""
+    """Sand, snow or packed snow over its neighbour on the same level, per corner case and place in the 64 px pattern
+    (as the grass overlay): the material's own pattern where the corner field, noise periodic in 64 px and round lumps
+    say so. Sand is a thin drift about a third of the way in: its sunny edge a step lit, its lee a step down, loose
+    grains past it, the faintest shadow. Snow has body, half the way in: its sunny edge glints (packed snow's is a step
+    lit), its front is in cold shade with a two-step `SHADOW` on the ground below and east of it (lighter under packed
+    snow, which is trodden low), and a dusting of flakes lies past the edge."""
     ox, oy = pos[0] * T, pos[1] * T
-    snow = kind == "snow"
+    snow = kind in ("snow", "snowpack")
+    packed = kind == "snowpack"
     amp = 1.2 if snow else 1.5
     cells, wts = ((16, 8, 4), (0.42, 0.34, 0.24)) if snow else ((16, 8, 4), (0.42, 0.36, 0.22))
     bump = 0.34 if snow else 0.3           # the lobes along the edge: round for snow, lower for sand
@@ -542,7 +545,7 @@ def creep_over(kind: str, corners: tuple, pos: tuple, mac: Img, seed: int) -> Im
             if cov[(i, j)]:
                 col = mac.get(X % P, Y % P)
                 if not cov[(i, j - 1)] or not cov[(i - 1, j)]:
-                    col = ramp[6] if snow else ramp[5]
+                    col = ramp[6] if snow and not packed else ramp[5]
                 elif not cov[(i, j + 1)]:
                     col = ramp[3]
                 elif not cov[(i + 1, j)] or (snow and not cov[(i, j + 2)]):
@@ -557,13 +560,13 @@ def creep_over(kind: str, corners: tuple, pos: tuple, mac: Img, seed: int) -> Im
                 t.put(i, j, ramp[5] if snow else ramp[4])
                 continue
             a = 0
-            if snow:
+            if snow:                           # packed snow is trodden low: its shadow is the lighter
                 if cov[(i, j - 1)]:
-                    a = 104
+                    a = 64 if packed else 104
                 elif cov[(i, j - 2)]:
-                    a = 52
+                    a = 32 if packed else 52
                 if cov[(i - 1, j)] or cov[(i - 1, j - 1)]:
-                    a = max(a, 64)
+                    a = max(a, 40 if packed else 64)
             elif cov[(i, j - 1)]:
                 a = 36
             if a:

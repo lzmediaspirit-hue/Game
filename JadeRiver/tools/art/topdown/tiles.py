@@ -208,7 +208,7 @@ def grass_over(corners: tuple, pos: tuple = (0, 0)) -> Img:
 @lru_cache(maxsize=None)
 def creep_over(kind: str, corners: tuple, pos: tuple = (0, 0)) -> Img:
     """Sand or snow over its neighbour, positional (see sand_snow.creep_over)."""
-    return ss.creep_over(kind, corners, pos, macro_img(kind), 520 if kind == "sand" else 540)
+    return ss.creep_over(kind, corners, pos, macro_img(kind), {"sand": 520, "snow": 540, "snowpack": 560}[kind])
 
 
 @lru_cache(maxsize=None)

@@ -837,14 +837,16 @@ func _sand_snow() -> void:
 	var packed: Array = names.call(tr.top_layers(8, 0, 0))
 	var packed_in: Array = names.call(tr.top_layers(9, 0, 0))
 	var paving: Array = names.call(tr.top_layers(6, 4, 0))
+	var granite: Array = names.call(tr.top_layers(9, 2, 0))
 	var island := TopdownTerrain.new(grid(["000", "000", "000"], {"paint": ["nnn", "ngn", "nnn"]}))
 	var peak := TopdownTerrain.new(grid(["22", "00"], {"paint": ["nn", "gg"]}))
 	var lip: Array = names.call(peak.face_layers(0, 0, 2, 0, 0))
 	var below: Array = names.call(peak.face_layers(1, 0, 2, 1, 0))
 	t.check(meadow[0].begins_with("grass_m") and meadow[1] == "snow_over_0101_12" and packed[1] == "snow_over_1010_00"
-		and not packed_in.any(func(n): return n.begins_with("snow_over")) and paving[1] == "snow_over_1100_20"
+		and not packed_in.any(func(n): return n.contains("_over_")) and paving[1] == "snow_over_1100_20"
+		and granite[0].begins_with("stone_m") and granite[1] == "snowpack_over_1100_12"
 		and str(island.top_layers(1, 1, 0)[0][0]).begins_with("snow_m") and lip[0] == "snow_face_top_v0" and below[0] == "snow_face_v1",
-		"snow: it creeps over the meadow (%s), packed snow (%s, none between packed cells) and paving (%s); snowed in, a cell is snow; a snowy top's face (%s, %s)" % [meadow, packed, paving, lip[0], below[0]])
+		"snow: fresh snow creeps over the meadow (%s), packed snow (%s, none between packed cells) and paving (%s), packed snow over granite with its own pixels (%s); snowed in, a cell is snow; a snowy top's face (%s, %s)" % [meadow, packed, paving, granite, lip[0], below[0]])
 	var missing: Array = []
 	for y in rows.size():
 		for x in 10:

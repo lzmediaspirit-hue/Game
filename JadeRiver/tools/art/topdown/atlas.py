@@ -61,8 +61,8 @@ OVERLAYS = ["rim_w", "rim_e", "rim_n", "ao_n", "shade_w", "end_w", "end_e", "che
 MACROS = ["grass", "dirt", "stone", "rock", "wood", "roof", "pave", "wall", "sand", "snow", "snowpack"]
 FACE_KINDS = ["rock", "earth", "stone", "pave", "bank", "wood", "wall", "sand", "snow"]
 # Decision 44: the materials that creep over their neighbours on the same level with overlays of their own (grass has
-# the Phase 3 set, `over`), in the order the room view lays them.
-CREEP = ["sand", "snow"]
+# the Phase 3 set, `over`).
+CREEP = ["sand", "snow", "snowpack"]
 
 
 class Packer:
