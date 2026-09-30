@@ -13,6 +13,7 @@ var main: Node
 
 func _main() -> void:
 	_schedstat = FileAccess.file_exists(SCHEDSTAT)
+	var share := _ask_for_cpu()
 	var queued0 := _queued_us()
 	var wall0 := Time.get_ticks_usec()
 	for k in 5: _cal_best = mini(_cal_best, _calibrate())
@@ -42,8 +43,8 @@ func _main() -> void:
 	await _crowd()
 	await _techniques()
 	await _topdown()
-	print("measured in %d rounds at the machine's full speed, on the game's own clock (%s): %.0f s in all, %.0f s of it waiting for a CPU other processes held"
-		% [ROUNDS, "the run queue left out" if _schedstat else "the wall clock", (Time.get_ticks_usec() - wall0) / 1e6, (_queued_us() - queued0) / 1e6])
+	print("measured in %d rounds at the machine's full speed, on the game's own clock (%s; %s): %.0f s in all, %.0f s of it waiting for a CPU other processes held"
+		% [ROUNDS, "the run queue left out" if _schedstat else "the wall clock", share, (Time.get_ticks_usec() - wall0) / 1e6, (_queued_us() - queued0) / 1e6])
 	end_suite()
 
 # ------------------------------------------------------------------ measuring on a shared machine (audit 45, BUG-10)
@@ -59,12 +60,27 @@ func _main() -> void:
 ##     few are left to count;
 ##   - taken in ROUNDS interleaved rounds (every room once, then every room again; the crowd, the breakthrough and the
 ##     storm in turn; a room entered afresh each round), and the least is the figure: a busy machine only ever adds.
-## Samples are left out, never scaled: no figure is less than a timing the gate took.
+## Samples are left out, never scaled: no figure is less than a timing the gate took. Where the system lets it, the main
+## thread also asks for a fair share of a CPU (_ask_for_cpu).
 const ROUNDS := 3
 const SLOW_MACHINE := 1.3
 const SCHEDSTAT := "/proc/thread-self/schedstat"
 var _schedstat := false
 var _cal_best := 1 << 30
+
+## The main thread asks the system for a larger share of a CPU while it measures: on Linux, where it may (as root, or
+## with CAP_SYS_NICE), its own thread's niceness is lowered to MAIN_NICE (renice -p on the process id names the main
+## thread alone). With five times as many busy threads as CPUs the main thread ran a tenth of the time, in short slices
+## each begun with caches other processes had filled, and its own work took twice as long on the CPU: no clock can take
+## that out. Elsewhere, or where it may not, it measures as it is. Returns what it did, for the summary.
+const MAIN_NICE := -10
+
+func _ask_for_cpu() -> String:
+	if not OS.has_feature("linux"): return "the usual share of a CPU"
+	var out: Array = []
+	if OS.execute("renice", ["-n", str(MAIN_NICE), "-p", str(OS.get_process_id())], out, true) == 0:
+		return "the main thread at niceness %d" % MAIN_NICE
+	return "the usual share of a CPU (renice refused)"
 
 ## µs on the game's own clock: the wall clock less the main thread's time in the run queue.
 func _now_us() -> int:

@@ -634,9 +634,15 @@ func _auto_path(w: TopdownWorld, target: String, limit_s: float) -> bool:
 	play_s += t
 	return room() == target
 
-## Every cell reached on foot from `from` (the TopdownMotor's rules, as tools/data/topdown_rooms.py checks them):
-## walking and stairs, any drop, a jump up to one level, and a running jump over a tile of water or a drop.
+## Every cell reached on foot from `from` (the TopdownMotor's rules, as tools/data/topdown_rooms.py's Grid checks them):
+## walking and stairs, any drop, a jump up as many whole levels as its apex and mantle climb (one today: 32.5 with the
+## half unit TopdownRoute allows), and a running jump over a tile of water or a drop past a step. The step and the jump
+## are data/movement.json's `topdown`, read as the motor reads them (TopdownMotor.conf) and as the Grid does.
 static func reach(grid: TopdownRoom, from: Vector2i) -> Dictionary:
+	var step := float(TopdownMotor.conf("step_up", 8.0))
+	var impulse := float(TopdownMotor.conf("impulse", 400.0))
+	var apex := impulse * impulse / (2.0 * float(TopdownMotor.conf("gravity", 1700.0)))
+	var hop := TopdownRoom.LEVEL * floorf((apex + float(TopdownMotor.conf("mantle", 12.0))) / TopdownRoom.LEVEL) + 0.5
 	var seen := {from: true}
 	var queue: Array = [from]
 	var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
@@ -645,13 +651,13 @@ static func reach(grid: TopdownRoom, from: Vector2i) -> Dictionary:
 		var h0 := grid.cell_floor(cur)
 		for d in dirs:
 			var nx: Vector2i = cur + d
-			if not seen.has(nx) and grid.cell_floor(nx) - h0 <= TopdownRoom.LEVEL + 0.5:
+			if not seen.has(nx) and grid.cell_floor(nx) - h0 <= hop:
 				seen[nx] = true
 				queue.append(nx)
 			var far_c: Vector2i = cur + d * 2
 			var mid := grid.level(nx.x, nx.y)
-			var gap: bool = mid == TopdownRoom.WATER or (grid.cell_floor(nx) < INF and grid.cell_floor(nx) < h0 - 8.0)
-			if gap and not seen.has(far_c) and grid.cell_floor(far_c) - h0 <= 8.0:
+			var gap: bool = mid == TopdownRoom.WATER or (grid.cell_floor(nx) < INF and grid.cell_floor(nx) < h0 - step)
+			if gap and not seen.has(far_c) and grid.cell_floor(far_c) - h0 <= step:
 				seen[far_c] = true
 				queue.append(far_c)
 	return seen

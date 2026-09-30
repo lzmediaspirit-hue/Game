@@ -43,8 +43,8 @@ func _main() -> void:
 const START_UTC := 1789997760.0   # the start of an in-game morning (a multiple of the 48-minute day)
 const RUN_SEED := 20260925
 
-## This run's own folder under user:// is the suite base's run_root() (other runs of the suite, in other checkouts too,
-## share user://); end_suite() removes it.
+# The run's own folder under user:// is the suite base's run_root() (other runs of the suite, in other checkouts too,
+# share user://); end_suite() removes it.
 
 # ------------------------------------------------------------------ helpers
 ## Called after every tick of the simulation (tests/tutorial_order.gd watches what the HUD shows of each fight).

@@ -4,7 +4,8 @@
 # Test.ps1 runs the same gates and the same suites (tests/suites.txt), in the same order, on Windows.
 set -u
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-godot}"
+# Exported, so the data gates that ask Godot (topdown_rooms.py --check's grid parity) use the same binary.
+export GODOT="${GODOT:-godot}"
 # The Godot suites, one a line (tests/README.md): each prints "<name>: N checks, M failures", read below.
 suites=()
 while IFS= read -r line || [[ -n "$line" ]]; do

@@ -4,6 +4,8 @@ param([string]$GodotPath = $(if ($env:GODOT) { $env:GODOT } else { 'godot' }))
 # minute).
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
+# For the data gates that ask Godot too (topdown_rooms.py --check's grid parity): the same binary.
+$env:GODOT = $GodotPath
 # The Godot suites, one a line (tests/README.md): each prints "<name>: N checks, M failures", read below.
 $suites = @(Get-Content (Join-Path $PSScriptRoot 'tests/suites.txt') | ForEach-Object { ($_ -replace '#.*$', '').Trim() } | Where-Object { $_ })
 $python = @('python3', 'python', 'py') | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
