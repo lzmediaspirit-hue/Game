@@ -68,7 +68,12 @@ REASON = {
     "mid": "This layer shows only in its back or front section in this action and facing",
     "head": "The head is drawn in this section in every frame",
 }
-# The game's equipment slots and the parts.json category each slot's look is (InventoryAuthority.WARDROBE_CATEGORY).
+# Decision 44: the layers intentionally absent from a whole action (AGENTS.md rule 2: an explicit hidden entry): the
+# weapon put away while a work action's hands hold its tool, and a tool in every action that does not hold it.
+STOWED = "Put away: the hands hold this work action's tool (the tool layer)"
+NOT_HELD = "Not held in this action: a tool is drawn only in its own actions (figure/sets/tool.py ACTIONS)"
+# The game's equipment slots and the parts.json category each slot's look is (InventoryAuthority.WARDROBE_CATEGORY). The
+# work tools (the `tool` set, decision 44) are no slot: TopdownWork gives a worker the tools of their loop.
 WARDROBE = {"robe": "shirt", "trousers": "pants", "boots": "shoes", "weapon": "weapon", "hat": "hat", "cape": "cape"}
 
 
@@ -96,6 +101,8 @@ STILL = ("idle", "meditate", "kneel", "salute")
 def pictures() -> list:
     out = []
     for name, spec in A.CATALOG.items():
+        if name in A.WORK or name in A.PLACE:
+            continue        # decision 44: no technique picture draws a villager's work or a place's pose
         n, hit, lock = spec[0], spec[3], spec[6]
         h = max(1, n - 1 if hit is None or hit < 0 else hit)      # TopdownFigure.hit_frame, at least the second frame
         want = [("s", 0 if name in STILL + ("plunge",) else h - 1)]
@@ -257,6 +264,14 @@ def index(frames: list) -> dict:
         if lock:
             entry["facing"] = lock
             entry["redirect"] = {d: lock for d in DIRS + list(MIRROR) if d != lock}
+        stow = sorted(cat for cat, names in A.STOW.items() if name in names)
+        if stow:
+            entry["stow"] = stow            # decision 44: these categories are put away (explicitly hidden) in it
+        if name in A.WORK:
+            entry["work"] = True
+            entry["rest"] = A.REST[name]
+        if name in A.PLACE:
+            entry["place"] = True
         actions[name] = entry
     man = {
         "schema_version": 2,
@@ -328,12 +343,20 @@ def build_all(kinds: list | None = None, jobs: int = 1) -> dict:
                     rects += [x, y, ww, hh, ox, oy]
             hidden = {}
             for name, spec in A.CATALOG.items():
+                if it.cat in man["actions"][name].get("stow", []):
+                    why = STOWED
+                elif it.actions is not None and name not in it.actions:
+                    why = NOT_HELD
+                else:
+                    why = REASON[b]
                 for d, st in man["actions"][name]["start"].items():
                     if all(seq[st + j] is None for j in range(spec[0])):
-                        hidden["%s/%s" % (name, d)] = REASON[b]
+                        hidden["%s/%s" % (name, d)] = why
             sections.append({"band": b, "z": I.z_of(it.cat, b), "rects": rects, "hidden": hidden})
-        by_set[it.kind].setdefault(it.cat, {})[it.name] = {"label": it.label, "sheets": sheets, "sections": sections,
-                                                           "artifacts": worn.get((it.cat, it.name), [])}
+        entry = {"label": it.label, "sheets": sheets, "sections": sections, "artifacts": worn.get((it.cat, it.name), [])}
+        if it.actions is not None:
+            entry["actions"] = list(it.actions)      # a tool's own actions: it is drawn in these and hidden in the rest
+        by_set[it.kind].setdefault(it.cat, {})[it.name] = entry
     for kind, cats in by_set.items():
         outputs["%s/%s.json" % (SET_DIR, kind)] = _dumps({
             "schema_version": 1, "set": kind, "catalog": man["catalog"],
@@ -359,7 +382,13 @@ def check_sources() -> list:
     for kind, mod in sets.discover().items():
         its = mod.items(I.labels())
         for it in its:
-            if it.name not in parts.get(it.cat, {}):
+            if it.cat == "tool":
+                # decision 44: a tool is no wardrobe look; it must name actions the catalogue has
+                bad += ["%s: %s is drawn in %s, which is no action" % (kind, it.name, a) for a in it.actions or []
+                        if a not in A.CATALOG]
+                if not it.actions:
+                    bad.append("%s: %s names no action" % (kind, it.name))
+            elif it.name not in parts.get(it.cat, {}):
                 bad.append("%s draws %s:%s, which parts.json does not have" % (kind, it.cat, it.name))
             if it.key in seen:
                 bad.append("%s and %s both draw %s" % (seen[it.key], kind, it.key))
