@@ -35,6 +35,7 @@ from sfx import SFX  # noqa: E402
 import sfx_pass  # noqa: E402,F401  (decision 43: layered hits, steps, foes, the world, stingers)
 import beds  # noqa: E402,F401  (decision 43: the ambient beds)
 import life  # noqa: E402,F401  (decision 44: the living world's critters and work, the places)
+import story  # noqa: E402,F401  (decision 45: the first boss's waking, the elders' arts, the awakened eel's music)
 import review  # noqa: E402
 
 try:
@@ -73,6 +74,9 @@ VOLUME = [
     ("life_work_chop_hit", -32.0), ("life_work_hammer_hit", -30.0), ("life_work_chop", -37.0), ("life_work_hammer", -37.0),
     ("life_work_", -33.0), ("life_frog_leap", -35.0), ("life_fish_flee", -34.0), ("life_cat_wake", -34.0),
     ("life_dog_bark", -31.0), ("life_", -32.0), ("place_open", -28.0), ("place_", -30.0),
+    # decision 45: the first boss's waking and the elders' arts, a scene's weight: the roar over the fight, the arts
+    # near a stinger's
+    ("story_eel_roar", -19.0), ("story_river_boil", -24.0), ("story_", -20.0),
 ]
 
 

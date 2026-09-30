@@ -71,7 +71,7 @@ def review(sheets: dict, man: dict) -> None:
         head = ImageFont.load_default()
     z, lw, th = 3, 120, 24
     for sp, block in man["species"].items():
-        for label, look in [("", block)] + ([("elite", block["elite"])] if "elite" in block else []):
+        for label, look in [("", block)] + [(v, block[v]) for v in ("elite", "awakened") if v in block]:
             sheet = _sheet(sheets, look)
             cw, ch = look["cell"]
             order = creatures.REGISTRY[sp].actions()
@@ -106,7 +106,7 @@ def anims(sheets: dict, man: dict) -> None:
     z = 4
     tells = []
     for sp, block in man["species"].items():
-        looks = [block] + ([block["elite"]] if "elite" in block else [])
+        looks = [block] + [block[v] for v in ("elite", "awakened") if v in block]
         base = max(lk["foot"][1] for lk in looks)
         h = base + max(lk["cell"][1] - lk["foot"][1] for lk in looks)
         w = sum(lk["cell"][0] for lk in looks)

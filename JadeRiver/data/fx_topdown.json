@@ -1695,6 +1695,82 @@
    }
   }
  },
+ "story": {
+  "arts": {
+   "river_boil": {
+    "sheet": {
+     "file": "res://art/fx/topdown/story_river_boil.png",
+     "cell": [
+      132,
+      147
+     ],
+     "anchor": [
+      66,
+      81
+     ]
+    },
+    "frames": 16,
+    "fps": 12,
+    "impact": 3,
+    "layer": "floor",
+    "north": 60
+   },
+   "talisman_array": {
+    "sheet": {
+     "file": "res://art/fx/topdown/story_talisman_array.png",
+     "cell": [
+      142,
+      152
+     ],
+     "anchor": [
+      74,
+      96
+     ]
+    },
+    "frames": 16,
+    "fps": 14,
+    "impact": 9,
+    "layer": "floor",
+    "north": 48
+   },
+   "force_palm": {
+    "sheet": {
+     "file": "res://art/fx/topdown/story_force_palm.png",
+     "cell": [
+      156,
+      248
+     ],
+     "anchor": [
+      77,
+      184
+     ]
+    },
+    "frames": 13,
+    "fps": 16,
+    "impact": 5,
+    "layer": "sorted",
+    "north": 40
+   },
+   "water_dragon": {
+    "sheet": {
+     "file": "res://art/fx/topdown/story_water_dragon.png",
+     "cell": [
+      150,
+      221
+     ],
+     "anchor": [
+      75,
+      157
+     ]
+    },
+    "frames": 18,
+    "fps": 14,
+    "impact": 11,
+    "layer": "sorted",
+    "north": 40
+   }
+  }
+ },
  "_sheets": {
   "bolt_arc_e": {
    "file": "res://art/fx/topdown/bolt_arc_e.png",
@@ -2871,6 +2947,50 @@
    "anchor": [
     30,
     92
+   ]
+  },
+  "story_force_palm": {
+   "file": "res://art/fx/topdown/story_force_palm.png",
+   "cell": [
+    156,
+    248
+   ],
+   "anchor": [
+    77,
+    184
+   ]
+  },
+  "story_river_boil": {
+   "file": "res://art/fx/topdown/story_river_boil.png",
+   "cell": [
+    132,
+    147
+   ],
+   "anchor": [
+    66,
+    81
+   ]
+  },
+  "story_talisman_array": {
+   "file": "res://art/fx/topdown/story_talisman_array.png",
+   "cell": [
+    142,
+    152
+   ],
+   "anchor": [
+    74,
+    96
+   ]
+  },
+  "story_water_dragon": {
+   "file": "res://art/fx/topdown/story_water_dragon.png",
+   "cell": [
+    150,
+    221
+   ],
+   "anchor": [
+    75,
+    157
    ]
   }
  }

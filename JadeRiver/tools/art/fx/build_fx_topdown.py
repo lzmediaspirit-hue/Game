@@ -19,6 +19,8 @@ ground plane of the world's 3/4 view (plane.py), in the five drawn directions (E
   common.png                guard, parry, a foe's blow, the Plunge's landing, a charge, a foe's tell
   impact_<dir>.png          the marks a blow leaves: weight x element down
   dust.png                  a dash's, a skid's, a landing's and a step's dust
+  story_<art>.png           a story art (story_arts.py, decision 45): the first boss's waking and the elders' arts, one
+                            row of frames in the art's own palette
 
 Each sheet is cropped to what its frames draw; the manifest gives its cell and the anchor (the floor point the game
 places on the effect's anchor). Deterministic: no randomness, PNGs without metadata.
@@ -44,6 +46,7 @@ import topdown_melee as M  # noqa: E402
 from fxpix import INK, Canvas  # noqa: E402
 from plane import ANGLE, DIRS, MIRROR, Plane  # noqa: E402
 from topdown_forms import TD_FORMS, TD_ORDER  # noqa: E402
+from story_arts import STORY, STORY_ORDER, palette as story_palette  # noqa: E402
 
 PROJECT = HERE.parents[2]
 ART_DIR = PROJECT / "art" / "fx" / "topdown"
@@ -76,6 +79,8 @@ def jobs() -> list:
     for d in DIRS:
         out.append(("impact_%s" % d, "impact", d))
     out.append(("dust", "dust", None))
+    for name in STORY_ORDER:
+        out.append(("story_%s" % name, "story", name))
     return out
 
 
@@ -141,6 +146,12 @@ def render(job) -> dict:
         for dk, directed in M.DUST.items():
             for d in (DIRS if directed else [None]):
                 rows.append(_render(canvas, anchor, d, lambda pl, f, nn, dk=dk: M.draw_dust(pl, f, nn, dk), n, lut))
+    elif kind == "story":
+        st = STORY[arg]
+        canvas = (st["canvas"][0] + 2 * PAD, st["canvas"][1] + 2 * PAD)
+        anchor = (st["anchor"][0] + PAD, st["anchor"][1] + PAD)
+        lut = np.array(story_palette(st["palette"]), np.uint8)
+        rows.append(_render(canvas, anchor, None, lambda pl, f, nn: st["draw"](pl, f, nn), st["frames"], lut))
     return {"name": name, "kind": kind, "arg": arg, "rows": rows, "anchor": anchor}
 
 
@@ -234,6 +245,10 @@ def manifest(built: list, old: dict) -> dict:
         "impact": {"weights": M.WEIGHTS, "frames": M.IMPACT_FRAMES, "fps": M.IMPACT_FPS, "impact": 0,
                    "sheets": {d: flat.get("impact_%s" % d) for d in DIRS}},
         "dust": dict(flat.get("dust") or {}, frames=M.DUST_FRAMES, fps=M.DUST_FPS, kinds=dust_kinds),
+        # Decision 45: the story's own arts (story_arts.py), played by the staged scenes' `art` step (TopdownFx.story).
+        "story": {"arts": {name: {"sheet": flat.get("story_%s" % name), "frames": STORY[name]["frames"], "fps": STORY[name]["fps"],
+                                  "impact": STORY[name]["impact"], "layer": STORY[name]["layer"], "north": STORY[name]["north"]}
+                           for name in STORY_ORDER}},
         "_sheets": {k: flat[k] for k in sorted(flat)},
     }
 
@@ -390,6 +405,17 @@ def review(built: list, out: Path) -> list:
         save(_grid("guard, parry, a foe's blow (SE), the Plunge's landing, a charge, a foe's tell, x2", c, ["f%d" % k for k in range(len(c[0]))], labs, 2, BG_GRASS, anchor),
              out / "common.png")
         written.append(out / "common.png")
+    for name in STORY_ORDER:
+        p = by.get("story_%s" % name)
+        if p is None:
+            continue
+        st = STORY[name]
+        c, anchor = _crop_rows(p, [0])
+        save(_grid("%s (decision 45): %d frames at %d fps, its blow on frame %d, %s, x2" % (name, st["frames"], st["fps"], st["impact"],
+                   "flat under the bodies" if st["layer"] == "floor" else "upright over its target"),
+                   c, ["f%d%s" % (k, "*" if k == st["impact"] else "") for k in range(st["frames"])], [name], 2, (38, 52, 66), anchor),
+             out / ("story_%s.png" % name))
+        written.append(out / ("story_%s.png" % name))
     p = by.get("dust")
     if p is not None:
         c, anchor = _crop_rows(p, list(range(len(p["rows"]))))

@@ -1710,6 +1710,15 @@ func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
 
 func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return
+	# Decision 45: an event already won before a reload (`won_if`: the Hollow Night's eel slain, the way on not yet
+	# taken) comes back won, its foes gone and its rewards kept: only its way on waits (the scene after it, then Lu's boat).
+	if ev.has("won_if") and RequirementRules.passes(ev.won_if, game.ctx(c)):
+		rt.event = ev.duplicate(true)
+		rt.event.active = false
+		rt.event.remaining = 0.0
+		if ev.get("leave") is Dictionary:
+			rt.event.leaving = float(ev.leave.get("grid_after_s" if rt.topdown != null else "after_s", ev.leave.get("after_s", 0.0)))
+		return
 	rt.event = ev.duplicate(true)
 	rt.event.active = true
 	rt.event.remaining = float(ev.get("duration", 60))
@@ -1724,6 +1733,11 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	rt.event.wave_timers = []
 	for w in waves: rt.event.wave_timers.append(float(w.get("first_s", 2.0)))
 	rt.event.timed_done = []
+	# A timed spawn decided as the event begins (`from_start`, decision 45: the eel risen awake after a reload) comes
+	# only if its `requires` holds then; one that waits on the story later is never it.
+	var ts_rows: Array = ev.get("timed_spawns", [])
+	for i in ts_rows.size():
+		if ts_rows[i].get("from_start", false) and not RequirementRules.passes(ts_rows[i].get("requires", {}), game.ctx(c)): rt.event.timed_done.append(i)
 	rt.event.hits_taken = 0
 	rt.event.kills = 0         # kill_count events (S48 Iron Body trial)
 	if ev.get("lantern") is Dictionary: rt.event.light = float(ev.lantern.get("light", 100.0))   # v1.2 the lantern defence
@@ -1734,7 +1748,14 @@ func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 		for e in rt.living_enemies():
 			if not e.summoned and e.team == "enemy": game.enemies.release(e)
 	for sp in ev.get("fixed_spawns", []):
+		if sp.has("unless") and RequirementRules.passes(sp.unless, game.ctx(c)): continue
 		game.enemies.spawn_at(str(sp.enemy), Vector2(float(sp.at[0]), float(sp.at[1])), int(sp.get("level", -1)))
+	# A wave whose `unless` holds does not run this time (decision 45: the river's minnows fled the awakened eel).
+	for w in rt.event.waves.duplicate():
+		if w.has("unless") and RequirementRules.passes(w.unless, game.ctx(c)):
+			var wi: int = rt.event.waves.find(w)
+			rt.event.waves.remove_at(wi)
+			rt.event.wave_timers.remove_at(wi)
 	# The Reflection brings your heart demons with it: one for every 25 on the meter (G1).
 	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
 	for i in demons:
@@ -1771,6 +1792,10 @@ func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		if i in ev.timed_done: continue
 		# A timed spawn arrives `after_s` into the event; one that waits on the story, `delay_s` after its `requires` first
 		# holds, and at `latest_s` whatever the story (the Hollow Night's eel, should the villagers never reach the hut).
+		# One whose `unless` holds never comes (decision 45: the eel risen awake after a reload comes by its own row).
+		if timed[i].has("unless") and RequirementRules.passes(timed[i].unless, game.ctx(c)):
+			ev.timed_done.append(i)
+			continue
 		var ts := _part_since(c, ev, "timed%d" % i, timed[i], elapsed)
 		var due := ts >= 0.0 and elapsed >= maxf(float(timed[i].get("after_s", 0.0)), ts + float(timed[i].get("delay_s", 0.0)))
 		if not due and not (timed[i].has("latest_s") and elapsed >= float(timed[i].latest_s)): continue

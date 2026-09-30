@@ -1872,6 +1872,10 @@
         "flag": "ma_safe"
        }
       ]
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "eel_awakened"
      }
     ]
    }
@@ -1937,6 +1941,10 @@
      {
       "kind": "flag_set",
       "flag": "grey_spread"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "eel_awakened"
      }
     ]
    },
@@ -1948,10 +1956,169 @@
    }
   },
   {
-   "id": "lu_arrives",
-   "name": "Lu Comes",
+   "id": "eel_awakens",
+   "name": "The Eel Wakes",
    "room": "lf_village_night",
    "actors": {
+    "ping": {
+     "object": "npc_ping_night"
+    }
+   },
+   "steps": [
+    {
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "camera",
+     "to": "enemy:hollowed_eel",
+     "s": 0.5,
+     "wait": true
+    },
+    {
+     "do": "zoom",
+     "z": 1.2,
+     "s": 0.5,
+     "wait": false
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "windup",
+     "flash": false
+    },
+    {
+     "do": "sound",
+     "sfx": "story_eel_roar"
+    },
+    {
+     "do": "shake",
+     "s": 0.7,
+     "amp": -1.0
+    },
+    {
+     "do": "art",
+     "art": "river_boil",
+     "at": "enemy:hollowed_eel"
+    },
+    {
+     "do": "flash",
+     "color": "MIST",
+     "s": 0.3
+    },
+    {
+     "do": "fx",
+     "fx": "ring",
+     "at": "enemy:hollowed_eel",
+     "color": "MIST",
+     "radius": 80,
+     "dur": 0.9
+    },
+    {
+     "do": "wait",
+     "s": 0.8
+    },
+    {
+     "do": "sound",
+     "sfx": "story_river_boil"
+    },
+    {
+     "do": "art",
+     "art": "river_boil",
+     "at": "enemy:hollowed_eel"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "The river's boiling round it... it's growing!",
+     "box": "balloon"
+    },
+    {
+     "do": "shake",
+     "s": 0.4,
+     "amp": -1.0
+    },
+    {
+     "do": "emote",
+     "actor": "ping",
+     "emote": "!",
+     "wait": false,
+     "s": 1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Child, run! No blade can cut that thing now!",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Keep moving! Don't let it pin you!",
+     "box": "balloon"
+    },
+    {
+     "do": "zoom",
+     "z": 1.0,
+     "s": 0.4,
+     "wait": true
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "",
+     "flash": false
+    },
+    {
+     "do": "handoff",
+     "prompt": "Its hide turns every blow now: stay alive!",
+     "at": "player",
+     "until": [],
+     "then": "live",
+     "s": 5.0
+    }
+   ],
+   "live": false,
+   "tutorial": true,
+   "hold_fight": true,
+   "resume": false,
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_active",
+      "quest": "the_hollow_night"
+     }
+    ]
+   },
+   "trigger": {
+    "event": "boss_phase",
+    "when": {
+     "def": "hollowed_eel",
+     "action": "awaken"
+    }
+   }
+  },
+  {
+   "id": "elders_come",
+   "name": "The Elders Come",
+   "room": "lf_village_night",
+   "actors": {
+    "granny": {
+     "npc": "granny_liu",
+     "at": [
+      6.5,
+      16.5
+     ],
+     "hidden": true
+    },
+    "ma": {
+     "npc": "old_ma",
+     "at": [
+      9.5,
+      16.5
+     ],
+     "hidden": true
+    },
     "lu": {
      "npc": "lu_boatman",
      "at": [
@@ -1974,21 +2141,221 @@
    },
    "steps": [
     {
-     "do": "move",
-     "actor": "boat",
-     "to": [
-      [
-       38,
-       36.5
-      ]
-     ],
-     "run": false,
-     "wait": false,
-     "speed": 160
+     "do": "letterbox",
+     "on": true
+    },
+    {
+     "do": "pose",
+     "actor": "player",
+     "pose": "knockdown",
+     "wait": false
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.4,
+     "wait": true
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "windup",
+     "flash": false
     },
     {
      "do": "sound",
-     "sfx": "water_step"
+     "sfx": "story_eel_roar"
+    },
+    {
+     "do": "shake",
+     "s": 0.35,
+     "amp": -1.0
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "No! Get away from the child!",
+     "box": "balloon"
+    },
+    {
+     "do": "spawn",
+     "actor": "granny",
+     "at": {
+      "near": "player",
+      "off": [
+       -2.2,
+       -0.6
+      ],
+      "mirror": "enemy:hollowed_eel"
+     }
+    },
+    {
+     "do": "fx",
+     "fx": "dust",
+     "at": "granny",
+     "color": "PAPER",
+     "count": 8,
+     "dur": 0.5
+    },
+    {
+     "do": "sound",
+     "sfx": "land"
+    },
+    {
+     "do": "face",
+     "actor": "granny",
+     "to": "enemy:hollowed_eel"
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Old legs, child. Not old hands.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "granny",
+     "pose": "cast",
+     "wait": true,
+     "s": 0.7
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "windup",
+     "flash": false,
+     "dread": false
+    },
+    {
+     "do": "art",
+     "art": "talisman_array",
+     "at": "enemy:hollowed_eel"
+    },
+    {
+     "do": "sound",
+     "sfx": "story_talisman"
+    },
+    {
+     "do": "wait",
+     "s": 0.6
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "hurt",
+     "flash": true
+    },
+    {
+     "do": "hitstop",
+     "s": 0.12
+    },
+    {
+     "do": "flash",
+     "color": "PALE_GOLD",
+     "s": 0.2
+    },
+    {
+     "do": "shake",
+     "s": 0.3,
+     "amp": -1.0
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "Nine seals. Now it cannot dive.",
+     "box": "balloon"
+    },
+    {
+     "do": "spawn",
+     "actor": "ma",
+     "at": {
+      "near": "player",
+      "off": [
+       -0.6,
+       -2.0
+      ],
+      "mirror": "enemy:hollowed_eel"
+     }
+    },
+    {
+     "do": "fx",
+     "fx": "dust",
+     "at": "ma",
+     "color": "PAPER",
+     "count": 8,
+     "dur": 0.5
+    },
+    {
+     "do": "sound",
+     "sfx": "land"
+    },
+    {
+     "do": "face",
+     "actor": "ma",
+     "to": "enemy:hollowed_eel"
+    },
+    {
+     "do": "say",
+     "actor": "ma",
+     "text": "Thousand-Catty Palm! That one's for my shop!",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "ma",
+     "pose": "punch_2",
+     "wait": true,
+     "s": 0.4
+    },
+    {
+     "do": "art",
+     "art": "force_palm",
+     "at": "enemy:hollowed_eel"
+    },
+    {
+     "do": "sound",
+     "sfx": "story_palm"
+    },
+    {
+     "do": "wait",
+     "s": 0.3
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "hurt",
+     "flash": true
+    },
+    {
+     "do": "hitstop",
+     "s": 0.18
+    },
+    {
+     "do": "flash",
+     "color": "GOLD",
+     "s": 0.2
+    },
+    {
+     "do": "shake",
+     "s": 0.5,
+     "amp": -1.0
+    },
+    {
+     "do": "move",
+     "actor": "boat",
+     "to": [
+      {
+       "near": "enemy:hollowed_eel",
+       "off": [
+        -4.0,
+        2.0
+       ],
+       "mirror": "player"
+      }
+     ],
+     "run": false,
+     "wait": false,
+     "speed": 260
     },
     {
      "do": "say",
@@ -1998,7 +2365,15 @@
     },
     {
      "do": "spawn",
-     "actor": "lu"
+     "actor": "lu",
+     "at": {
+      "near": "enemy:hollowed_eel",
+      "off": [
+       -2.2,
+       -0.2
+      ],
+      "mirror": "player"
+     }
     },
     {
      "do": "fx",
@@ -2015,88 +2390,112 @@
     {
      "do": "face",
      "actor": "lu",
-     "to": "player"
-    },
-    {
-     "do": "wait_event",
-     "until": [
-      {
-       "event": "attack_started",
-       "when": {
-        "attack": "great_lunge"
-       }
-      }
-     ],
-     "s": 6.0
+     "to": "enemy:hollowed_eel"
     },
     {
      "do": "say",
      "actor": "lu",
-     "text": "Down, child! Out of its line!",
+     "text": "Back to the dark, grey thing. This river is mine.",
      "box": "balloon"
     },
     {
      "do": "pose",
      "actor": "lu",
-     "pose": "punch_2",
+     "pose": "point",
      "wait": true,
-     "s": 0.5
+     "s": 0.8
     },
     {
-     "do": "fx",
-     "fx": "wave",
+     "do": "zoom",
+     "z": 1.15,
+     "s": 0.4,
+     "wait": false
+    },
+    {
+     "do": "art",
+     "art": "water_dragon",
      "at": "enemy:hollowed_eel",
-     "color": "BRIGHT_JADE",
-     "size": 10,
-     "radius": 70,
-     "dur": 0.6
+     "from": "lu"
     },
     {
      "do": "sound",
-     "sfx": "surge"
+     "sfx": "story_dragon"
+    },
+    {
+     "do": "wait",
+     "s": 0.75
+    },
+    {
+     "do": "foe",
+     "foe": "hollowed_eel",
+     "pose": "hurt",
+     "flash": true
+    },
+    {
+     "do": "mark",
+     "effects": [
+      {
+       "kind": "slay_foe",
+       "enemy": "hollowed_eel",
+       "by": "elders"
+      }
+     ]
+    },
+    {
+     "do": "hitstop",
+     "s": 0.25
+    },
+    {
+     "do": "flash",
+     "color": "PAPER",
+     "s": 0.3
     },
     {
      "do": "shake",
-     "s": 0.35,
+     "s": 0.7,
      "amp": -1.0
     },
     {
-     "do": "say",
-     "actor": "lu",
-     "text": "It's pinned! Strike now, while it cannot turn!",
-     "box": "balloon"
+     "do": "sound",
+     "sfx": "boss_fall"
     },
     {
-     "do": "handoff",
-     "prompt": "Strike the pinned eel: tap Attack",
-     "at": "enemy:hollowed_eel",
-     "until": [
-      {
-       "event": "actor_defeated",
-       "when": {
-        "killer": "active",
-        "def": "hollowed_eel"
-       }
-      }
-     ],
-     "then": "live",
-     "s": 20.0
+     "do": "wait",
+     "s": 1.4
+    },
+    {
+     "do": "zoom",
+     "z": 1.0,
+     "s": 0.6,
+     "wait": false
+    },
+    {
+     "do": "camera",
+     "to": "player",
+     "s": 0.6,
+     "wait": true
     }
    ],
-   "live": true,
+   "live": false,
    "tutorial": true,
+   "hold_fight": true,
+   "resume": false,
    "requires": {
     "all": [
      {
       "kind": "quest_active",
       "quest": "the_hollow_night"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "night_held"
      }
     ]
    },
    "trigger": {
-    "event": "boss_phase",
+    "event": "boss_overwhelmed",
     "when": {
-     "action": "climax"
+     "def": "hollowed_eel"
     }
    }
   },
@@ -2105,6 +2504,22 @@
    "name": "The Grey Lifts",
    "room": "lf_village_night",
    "actors": {
+    "granny": {
+     "npc": "granny_liu",
+     "at": [
+      6.5,
+      16.5
+     ],
+     "hidden": true
+    },
+    "ma": {
+     "npc": "old_ma",
+     "at": [
+      9.5,
+      16.5
+     ],
+     "hidden": true
+    },
     "lu": {
      "npc": "lu_boatman",
      "at": [
@@ -2132,45 +2547,131 @@
     },
     {
      "do": "spawn",
-     "actor": "lu"
+     "actor": "granny",
+     "at": {
+      "near": "player",
+      "off": [
+       -2.5,
+       -1.5
+      ]
+     }
+    },
+    {
+     "do": "spawn",
+     "actor": "ma",
+     "at": {
+      "near": "player",
+      "off": [
+       2.5,
+       -1.5
+      ]
+     }
+    },
+    {
+     "do": "spawn",
+     "actor": "lu",
+     "at": {
+      "near": "player",
+      "off": [
+       2.5,
+       1.2
+      ]
+     }
     },
     {
      "do": "camera",
-     "to": [
-      34,
-      33
-     ],
-     "s": 1.2,
+     "to": "player",
+     "s": 0.6,
      "wait": true
     },
     {
      "do": "fx",
      "fx": "motes",
-     "at": [
-      30,
-      36
-     ],
+     "at": "player",
      "color": "PALE_GOLD",
      "count": 14,
      "dur": 1.2
     },
     {
+     "do": "mark",
+     "effects": [
+      {
+       "kind": "heal",
+       "pct": 1.0
+      }
+     ]
+    },
+    {
+     "do": "pose",
+     "actor": "player",
+     "pose": "idle",
+     "wait": false
+    },
+    {
+     "do": "move",
+     "actor": "granny",
+     "to": [
+      {
+       "near": "player",
+       "off": [
+        -1.2,
+        -0.3
+       ]
+      }
+     ],
+     "run": false,
+     "wait": true,
+     "est_s": 1.0
+    },
+    {
+     "do": "face",
+     "actor": "granny",
+     "to": "player"
+    },
+    {
      "do": "say",
-     "actor": "lu",
-     "text": "It's done. A river eel, gone grey... in our own river.",
+     "actor": "granny",
+     "text": "Up you get. A bruise or two. Nothing broken.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "ping",
+     "text": "Granny? Old Ma? You... you fought that thing?",
+     "box": "balloon"
+    },
+    {
+     "do": "face",
+     "actor": "ma",
+     "to": "player"
+    },
+    {
+     "do": "say",
+     "actor": "ma",
+     "text": "Every old dog in this village had a sect once.",
+     "box": "balloon"
+    },
+    {
+     "do": "say",
+     "actor": "granny",
+     "text": "What you saw was cultivation, child. Qi, drawn in and let out.",
      "box": "balloon"
     },
     {
      "do": "move",
      "actor": "lu",
      "to": [
-      [
-       33,
-       31
-      ]
+      {
+       "near": "player",
+       "off": [
+        1.2,
+        0.6
+       ]
+      }
      ],
      "run": false,
-     "wait": true
+     "wait": true,
+     "est_s": 1.0
     },
     {
      "do": "face",
@@ -2180,19 +2681,26 @@
     {
      "do": "say",
      "actor": "lu",
-     "text": "You held the bank, child. Not one of them lost.",
-     "box": "balloon"
-    },
-    {
-     "do": "say",
-     "actor": "ping",
-     "text": "Lu! Is it over?",
+     "text": "You held the bank with a blade and nothing more.",
      "box": "balloon"
     },
     {
      "do": "say",
      "actor": "lu",
-     "text": "For tonight. The palm you saw? I'll teach it to you. Come, to my boat.",
+     "text": "When it struck you, I felt your Qi stir. You have the gift.",
+     "box": "balloon"
+    },
+    {
+     "do": "pose",
+     "actor": "lu",
+     "pose": "point",
+     "wait": false,
+     "s": 1.6
+    },
+    {
+     "do": "say",
+     "actor": "lu",
+     "text": "Come to my boat. Tonight you begin to cultivate.",
      "box": "balloon"
     },
     {
@@ -2217,15 +2725,12 @@
      {
       "kind": "quest_active",
       "quest": "the_hollow_night"
+     },
+     {
+      "kind": "flag_set",
+      "flag": "night_held"
      }
     ]
-   },
-   "trigger": {
-    "event": "room_event_completed",
-    "when": {
-     "event": "hollow_night",
-     "actor": "active"
-    }
    }
   },
   {
@@ -2274,7 +2779,7 @@
     {
      "do": "say",
      "actor": "lu",
-     "text": "You have a gift. I felt it last night. Sit. Breathe as I showed you.",
+     "text": "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you.",
      "box": "balloon"
     },
     {

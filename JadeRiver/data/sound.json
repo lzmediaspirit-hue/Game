@@ -691,6 +691,9 @@
    "old_snapper": "boss_snapper",
    "hollowed_eel": "boss_eel"
   },
+  "boss_awake": {
+   "hollowed_eel": "boss_eel_awakened"
+  },
   "boss_roles": {
    "story_boss": "boss",
    "dungeon_boss": "boss",
@@ -939,6 +942,14 @@
   "bark": "bark",
   "scene_in": "scene_in",
   "weave": "hit_accent_weave"
+ },
+ "story": {
+  "eel_roar": "story_eel_roar",
+  "river_boil": "story_river_boil",
+  "talisman_array": "story_talisman",
+  "force_palm": "story_palm",
+  "water_dragon": "story_dragon",
+  "awakened_theme": "boss_eel_awakened"
  },
  "life": {
   "critters": [

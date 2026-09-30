@@ -3176,6 +3176,16 @@ func _draw_boss() -> void:
 		draw_polygon(PackedVector2Array([r.position, r.position + Vector2(fw, 0), Vector2(r.position.x + fw, ym), Vector2(r.position.x, ym)]), PackedColorArray([top, top, mid, mid]))
 		draw_polygon(PackedVector2Array([Vector2(r.position.x, ym), Vector2(r.position.x + fw, ym), r.end - Vector2(r.size.x - fw, 0), Vector2(r.position.x, r.end.y)]), PackedColorArray([mid, mid, low, low]))
 		draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1.0, fw - 1.0), 2), Color(UiKit.PALE_GOLD, 0.45), 2)
+	# Decision 45: a boss that cannot be beaten yet (the first boss awake) shows what its hide holds: the bar under its
+	# floor hatched over in stone, the floor's edge marked, and the word under it; blows that reach it glance off.
+	var hide := float(boss.ai.get("hp_floor", 0.0))
+	if hide > 0.0:
+		var hw := r.size.x * hide
+		draw_rect(Rect2(r.position, Vector2(hw, r.size.y)), Color(UiKit.INK, 0.5))
+		for k in range(0, int(hw) - 4, 7):
+			draw_line(Vector2(r.position.x + k, r.end.y - 1), Vector2(r.position.x + k + 6, r.position.y + 1), Color(UiKit.MIST, 0.4), 1.0)
+		draw_rect(Rect2(r.position.x + hw - 1.5, r.position.y - 4, 3, r.size.y + 8), UiKit.MIST)
+		UiKit.draw_outlined(self, Tx.t("hud.boss_hide"), Vector2(r.position.x, 172), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, hw - 8.0)
 	UiKit.draw_outlined(self, "%d%%" % int(round(frac * 100.0)), Vector2(r.position.x, r.position.y + 15), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	# The notches, and under each what the phase brings: the next one's caption always, the others where they fit.
 	var nxt := -1
@@ -3216,7 +3226,7 @@ func _phase_words(ph: Dictionary, done: bool) -> String:
 		var who := str(ph.get("summon", ""))
 		if who == "": return Tx.t("hud.phase_help")
 		return (Tx.t("hud.phase_summoned") if done else Tx.t("hud.phase_summon")) % ContentDB.name_of("enemies", who)
-	if act in ["enrage", "dig_in", "drink_wine", "self_detonate"]: return Tx.t("hud.phase_" + act)
+	if act in ["enrage", "dig_in", "drink_wine", "self_detonate", "awaken"]: return Tx.t("hud.phase_" + act)
 	return Tx.t("hud.phase_turn")
 
 ## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.
@@ -3248,10 +3258,13 @@ func _draw_event(c, y0: float) -> float:
 	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
 	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
 	UiKit.draw_text(self, ev_name, r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
-	UiKit.draw_text(self, UiKit.clock(left), r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
-	var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
-	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
-	draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
+	# Decision 45: an event whose time is only a last resort (`clock: false`, the Hollow Night: it ends when its boss
+	# falls) shows no countdown, which would read as a time to hold out for.
+	if ev.get("clock", true):
+		UiKit.draw_text(self, UiKit.clock(left), r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
+		var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
+		draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
+		draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
 	if rule != "": UiKit.draw_text(self, rule, r.position + Vector2(14, 46), 14, UiKit.RED_TEXT if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
 	return r.end.y + 8.0
 

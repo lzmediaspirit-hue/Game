@@ -8,6 +8,10 @@ jaws gaping wide and its eyes flaring. It lunges head-down on the strike, snaps 
 back, eyes screwed shut; beaten, it convulses and sinks back under the water, its strands coming apart into mist,
 until only the stain and the rings are left.
 
+Awakened (decision 45, the first boss's second phase; `awake`): the same beast greater, its torn fin grown into a crest
+of jagged spines, its eyes burning red in a red halo, and twice the Hollow's strands coiling off it (its colours are the
+awakened ramps, creatures.py).
+
 The game hovers it 40 world units over the river's surface (enemy_authority.gd `_eel`), 20 art px, and the view draws
 a foe's feet where it hovers and its shadow on the surface under it: so the figure rises out of water drawn EEL_LIFT px
 under its feet.
@@ -82,7 +86,7 @@ def _spline(pts, n: int) -> list:
     return out
 
 
-def eel(action: str, f: int, k: float = 1.44) -> Pose:
+def eel(action: str, f: int, k: float = 1.44, awake: bool = False) -> Pose:
     P = Pose()
     P.water = -EEL_LIFT / math.cos(ELEV)          # in the world, at its drawn size
     wz = P.water / k                              # in its own frame
@@ -131,7 +135,7 @@ def eel(action: str, f: int, k: float = 1.44) -> Pose:
     for j, i in enumerate(range(10, n - 8, 3)):
         ta, tc = tangent(i)
         da, dc = -tc, ta
-        h = EEL_FIN[j % len(EEL_FIN)] + 0.35 * math.sin(f * 1.7 + j)
+        h = EEL_FIN[j % len(EEL_FIN)] * (1.7 if awake else 1.0) + 0.35 * math.sin(f * 1.7 + j)
         r = radius(i / (n - 1))
         q = spine[i]
         if q[2] < wz:
@@ -178,13 +182,14 @@ def eel(action: str, f: int, k: float = 1.44) -> Pose:
         # tell; screwed shut when struck, dull when dead.
         for du, dv in ((-15.0, 0.0), (15.0, 0.0), (0.0, 16.0), (0.0, -16.0), (-12.0, 13.0), (12.0, -13.0)):
             P.mark(on(skull_c, skull_r, hm, s * (62.0 + du), 18.0 + dv), M.RAMPS["eel"][0])
+        eye_c, halo_c = (M.WAKE_EYE, M.WAKE_HALO) if awake else (M.HOLLOW_EYE, M.EYE_HALO)
         if eye in ("open", "wide"):
-            P.mark(on(skull_c, skull_r, hm, s * 62.0, 18.0), M.HOLLOW_EYE)
-            P.mark(on(skull_c, skull_r, hm, s * 60.0, 40.0), M.EYE_HALO)
-            if eye == "wide":
-                P.mark(on(skull_c, skull_r, hm, s * 52.0, 20.0), M.HOLLOW_EYE)
+            P.mark(on(skull_c, skull_r, hm, s * 62.0, 18.0), eye_c)
+            P.mark(on(skull_c, skull_r, hm, s * 60.0, 40.0), halo_c)
+            if eye == "wide" or awake:
+                P.mark(on(skull_c, skull_r, hm, s * 52.0, 20.0), eye_c)
                 for du, dv in ((-24.0, 34.0), (0.0, 44.0), (-30.0, 10.0)):
-                    P.glow.append((on(skull_c, skull_r, hm, s * (62.0 + du), 18.0 + dv, 0.9), (0xE2, 0xF4, 0xEE, 150)))
+                    P.glow.append((on(skull_c, skull_r, hm, s * (62.0 + du), 18.0 + dv, 0.9), (0xFF, 0x7A, 0x60, 170) if awake else (0xE2, 0xF4, 0xEE, 150)))
         elif eye == "dead":
             P.mark(on(skull_c, skull_r, hm, s * 62.0, 18.0), M.RAMPS["eel"][2])
         for d in (6, 9, 12):   # gill slits behind the head
@@ -193,7 +198,10 @@ def eel(action: str, f: int, k: float = 1.44) -> Pose:
     # Grey strands rising off its back and the loop behind, curling back as they rise, shedding motes.
     stir = {"idle": 0.5 * wave(action, f), "walk": 0.7 * wave(action, f)}.get(action, 0.6)
     roots = []
-    for i in ((int(n * 0.3),) if action in ("attack", "death") else (int(n * 0.4), int(n * 0.62))):
+    at_ = (0.3,) if action in ("attack", "death") else (0.4, 0.62)
+    if awake:
+        at_ = (0.22, 0.42) if action in ("attack", "death") else (0.28, 0.46, 0.64, 0.8)
+    for i in [int(n * a_) for a_ in at_]:
         ta, tc = tangent(i)
         r = radius(i / (n - 1))
         roots.append(v3(spine[i][0] - tc * r, spine[i][1], spine[i][2] + ta * r))
@@ -203,7 +211,7 @@ def eel(action: str, f: int, k: float = 1.44) -> Pose:
         if b0[2] < wz or fade >= 0.9:
             continue
         s = 1.0 if j % 2 else -1.0
-        rise = (1.0, 0.8, 0.7)[j] * (0.45 if action in ("attack", "death") else 1.0) * (1.0 - fade)
+        rise = (1.0, 0.8, 0.7, 0.9, 0.75, 0.85)[j % 6] * (0.45 if action in ("attack", "death") else 1.0) * (1.0 - fade) * (1.25 if awake else 1.0)
         back = 1.0 if action in ("attack", "death") else 0.0
         wisp = _spline([b0, b0 + v3(-0.6 - back * 1.6, s * 0.4 + stir * 0.3, 2.8 * rise),
                         b0 + v3(-1.8 - back * 3.4, -s * 0.5 - stir * 0.3, 5.6 * rise),

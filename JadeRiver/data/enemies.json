@@ -334,23 +334,49 @@
      "knockback": 80
     },
     {
-     "id": "great_lunge",
-     "windup_s": 1.8,
+     "id": "surge",
+     "windup_s": 0.6,
      "active_s": 0.18,
      "recover_s": 0.45,
      "hitbox": {
       "x": [
        -6,
-       44
+       60
       ],
-      "depth": 64,
+      "depth": 96,
       "alt": [
        -30,
        60
       ]
      },
-     "mult": 1.35,
-     "knockback": 120
+     "mult": 1.0,
+     "knockback": 150,
+     "unblockable": true,
+     "hp_share": 0.18,
+     "awake": true
+    },
+    {
+     "id": "thrash",
+     "windup_s": 0.45,
+     "active_s": 0.18,
+     "recover_s": 0.45,
+     "hitbox": {
+      "x": [
+       -6,
+       70
+      ],
+      "depth": 70,
+      "alt": [
+       -30,
+       60
+      ]
+     },
+     "mult": 1.0,
+     "knockback": 120,
+     "both_sides": true,
+     "unblockable": true,
+     "hp_share": 0.12,
+     "awake": true
     }
    ],
    "loot": "hollowed_eel",
@@ -374,12 +400,14 @@
    "height": 60,
    "flying": true,
    "hollowing": 2,
-   "hp_mult": 0.3,
+   "hp_mult": 1.0,
    "attack_mult": 0.3,
    "phases": [
     {
-     "below": 0.5,
-     "action": "climax"
+     "below": 0.8,
+     "after_s": 90,
+     "action": "awaken",
+     "staged": true
     }
    ],
    "first_defeat": [
@@ -390,18 +418,33 @@
     "reach": 190,
     "lunge_s": 0.28,
     "beached_s": 2.4,
-    "pinned_s": 5.5,
-    "pinned_again_s": 3.5,
     "retreat_s": 0.5,
-    "dive_s": 1.4,
     "rest_s": [
      1.6,
      2.6
     ],
-    "climax_rest_s": [
-     1.0,
-     1.6
-    ]
+    "awaken_s": 1.6,
+    "awake": {
+     "glide_speed": 150,
+     "reach": 300,
+     "lunge_s": 0.18,
+     "beached_s": 0.5,
+     "retreat_s": 0.35,
+     "rest_s": [
+      0.9,
+      1.4
+     ],
+     "thrash_every": 2,
+     "hp_floor": 0.72,
+     "overwhelm_hp": 0.3,
+     "overwhelm_s": 22.0,
+     "rise_s": 1.2,
+     "rescue_s": 30.0
+    },
+    "flags": {
+     "awake": "eel_awakened",
+     "overwhelmed": "eel_overwhelmed"
+    }
    },
    "movement": {
     "jump": 0,
