@@ -371,6 +371,12 @@ func _row(ch, spaces: Array, row: int, at: Vector2, live: bool) -> void:
 				not key and inv.locked.has(int(s.get("uid", -1))))
 			# Decision 43: the first piece of gear in view is the one the first-gear guide points at.
 			if not key and live and not tour_marks.has("gear") and InventoryAuthority.bag_kind(str(s.id)) == "gear": tour_mark("gear", r)
+			# Decision 44: the first weapon (a spare to set) and the first treasure in view, for the weapon swap's and the
+			# treasures' guides.
+			if not key and live:
+				var sdef := ContentDB.item(str(s.id))
+				if not tour_marks.has("weapon") and str(sdef.get("slot", "")) == "weapon": tour_mark("weapon", r)
+				if not tour_marks.has("treasure_item") and sdef.has("treasure"): tour_mark("treasure_item", r)
 			if not key:
 				pill_marks(r, int(s.get("marks", 0)))
 				if inv.new_items.has(str(s.id)): draw_circle(r.position + Vector2(SLOT - 8, 8), 5, UiKit.BRIGHT_JADE)

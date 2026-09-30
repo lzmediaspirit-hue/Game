@@ -7,6 +7,8 @@ extends RefCounted
 ##   - its guidance chain, from the HUD button (or a place in the world) to the page, the tab and the element to use;
 ##   - its tour of the page: a few steps, each an anchor the page names (Page.tour_rect, HUD.tour_rect), a line of at
 ##     most two lines on a phone, and an optional "try it" that moves the step on when done.
+## Decision 44: a late HUD power (Spirit Sense, the Presence, the Sphere, treasures, the weapon swap) has a guide as well:
+## the hand on its control, whose tap plays its tour there, then the way to the page that manages it (lesson_step).
 ## Nothing here changes state; the Tutorial authority keeps each character's progress.
 
 static func entries() -> Array:
@@ -42,6 +44,54 @@ static func tour_for(page_id: String, tab := "") -> String:
 ## The HUD's tours (an entry on page "hud": a control the HUD shows, taught where it stands).
 static func hud_entry(e: Dictionary) -> bool:
 	return str(e.get("page", "")) == "hud"
+
+## The tutorials record's version now (tutorials.json): a character's record older than an entry's `since` counts what
+## it already has of that entry's system as known (decision 44 brought the late HUD powers at 2).
+static func version() -> int:
+	return int(ContentDB.config("tutorials").get("version", 1))
+
+# ------------------------------------------------------------------ a HUD power's lesson (decision 44)
+## Where a HUD entry's tour stands in its guide: the index of its control step (the hand on the power's own button,
+## whose tap plays the tour), or -1 when the tour comes first (a control the play screen at rest does not show).
+static func tour_at(e: Dictionary) -> int:
+	var chain: Array = e.get("chain", [])
+	for i in chain.size():
+		if (chain[i] as Dictionary).get("tour", false): return i
+	return -1
+
+## A HUD entry whose guide goes on after its tour, to the page or tab that manages the power (the Sphere's Dao tab).
+static func guide_after_tour(e: Dictionary) -> bool:
+	return hud_entry(e) and tour_at(e) < (e.get("chain", []) as Array).size() - 1
+
+## A HUD entry's guide step for what is on screen, its chain split at the control step (tour_at): before the tour is
+## `toured`, the way to the control (the Bag, to set a spare weapon) and the control itself once the HUD shows it
+## (`control_on`: its anchor, or the fan that holds it, found); after, the way on to the page that manages the power.
+## Within that part, the last step whose place shows, as chain_step. -1 when none shows.
+static func lesson_step(e: Dictionary, top_page: String, top_tab: String, toured: bool, control_on: bool) -> int:
+	var chain: Array = e.get("chain", [])
+	var at := tour_at(e)
+	var lo := at + 1 if toured else 0
+	var hi := chain.size() - 1 if toured else at
+	for i in range(hi, lo - 1, -1):
+		if i == at and not control_on: continue
+		var st: Dictionary = chain[i]
+		match str(st.get("at", "")):
+			"hud", "place":
+				if top_page == "": return i
+			"page":
+				if same_page(top_page, str(st.get("page", ""))) and (str(st.get("tab", "")) == "" or str(st.tab) == top_tab): return i
+	return -1
+
+## Where a HUD entry's guide ends, its tour seen: its last step's page, on the tab that step opens ("tab:dao") or names;
+## [] when the guide ends on the HUD or on an element to use.
+static func chain_goal(e: Dictionary) -> Array:
+	var chain: Array = e.get("chain", [])
+	if chain.is_empty(): return []
+	var st: Dictionary = chain.back()
+	if str(st.get("at", "")) != "page" or st.get("element", false): return []
+	var tab := str(st.get("tab", ""))
+	if str(st.get("anchor", "")).begins_with("tab:"): tab = str(st.anchor).trim_prefix("tab:")
+	return [str(st.get("page", "")), tab]
 
 # ------------------------------------------------------------------ triggers
 ## A points pool's count for the character (tutorials.json "points": id -> [authority, getter], as the HUD's badges
