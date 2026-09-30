@@ -184,7 +184,7 @@ def prototype():
     entry("realisation", "techniques", points("realisation", "technique_slots_2"), [],
           chain=via_menu("techniques", element=element("open_node|node", {"event": "tree_node_realised"})), priority=6)
     entry("skills", "hud", {"kind": "technique", "unlock": "technique_slots_2"}, [t("skill"), t("attack")], priority=5)
-    entry("map", "world_map", unlock("world_menu"), [t("map"), t("sel"), t("walk"), t("view"), t("tabs")],
+    entry("map", "world_map", unlock("world_menu"), [t("map"), t("sel"), t("walk|card"), t("view"), t("tabs")],
           chain=[hud("icon:map")], priority=6)
     entry("calendar", "calendar", first_open(), [t("seasons"), t("week"), t("event"), t("go"), t("weather")])
     entry("mail", "mail", unlock("mail"), [t("stack"), t("letter"), t("parcel"), t("claim_all")], chain=[hud("icon:mail")],
@@ -206,7 +206,7 @@ def prototype():
           chain=via_menu("cultivation", "overview", "ui.cultivation.overview") + [on("cultivation", "breakthrough", tab="overview")],
           priority=9)
     entry("settings", "settings", first_open(), [t("tabs"), t("tab:access"), t("tab:controls", {"tab": "controls"}),
-                                                 t("replay_tutorials")])
+                                                 t("replay_tutorials|tab:controls")])
     entry("emotes", "emotes", first_open(), [t("known|emote"), t("unknown|emote"), t("close")])
     # HUD controls that open after the Prologue.
     entry("guard", "hud", unlock("guard"), [t("guard"), t("attack")], priority=5)

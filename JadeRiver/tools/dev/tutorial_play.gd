@@ -14,7 +14,11 @@ extends "res://tools/dev/prototype_qa.gd"
 ## Every miss is printed as "PLAY BUG" and written to <out>/tutorial_play.json.
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 --path . \
 ##     res://tools/dev/tutorial_play.tscn -- --out=<dir> [--until=<step>] [--shots]
-## --shots also keeps the QA walk's own step shots (off by default: only the coach's are taken).
+##     [--from=<saves> --start=<step>] [--only=sweep]
+## --shots also keeps the QA walk's own step shots (off by default: only the coach's are taken). The walk's --from and
+## --start resume a kept game (tests/prologue_run.gd keeps "Crab Trouble done" and "The River Token" with --keep=; the
+## walk's p_night and p_boat start there). --only=sweep plays every lesson the kept game has queued, then each page of
+## the Menu once (sweep()). For the phone: -screen 0 2400x1080x24 and --resolution 2400x1080.
 
 var _coach_busy := false
 var _seen_keys := {}
@@ -122,7 +126,8 @@ func look(first: Dictionary) -> void:
 	if card.size == Vector2.ZERO: bug("no card", st)
 	elif not safe.encloses(card): bug("the card runs off the screen", st)
 	if target.size == Vector2.ZERO: bug("the anchor %s is not found on screen (the card stands alone)" % st.anchor, st)
-	elif card.size != Vector2.ZERO and card.intersects(target.grow(2)): bug("the card covers what it explains", st)
+	elif card.size != Vector2.ZERO and card.intersects(target.grow(2)) and target.get_area() < 0.45 * 1280.0 * 720.0:
+		bug("the card covers what it explains", st)   # (a page's whole content leaves the card no clear place)
 	var hr: Rect2 = coach().hand_rect(false) if coach()._hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO:
 		if not safe.encloses(hr): bug("the hand runs off the screen %s" % str(hr), st)
@@ -268,3 +273,110 @@ func follow_guides() -> void:
 ## The walk's steps as prototype_qa plays them, with the guides the coach shows followed between them.
 func _step_hook() -> void:
 	if Game.in_world and main.screen == "world": await follow_guides()
+
+# ------------------------------------------------------------------ the sweep: every lesson a checkpoint holds
+## `--only=sweep` (with --from): at rest where the game was kept, every lesson the queue holds, played as a player
+## plays it: each guide followed where its hand points (a place's step put off with Later, and every fourth guide put
+## off, as a player in a hurry does), each tour answered; then the Menu's pages opened one by one, each first opening's
+## tour answered. Ends when the coach has nothing left to show.
+func sweep() -> void:
+	stick(Vector2.ZERO)
+	# A staged scene the checkpoint was kept in (Lu's boat waits on "Talk to Lu"): ended, and the body set in the village
+	# at rest (the driver's shortcut, noted; the lessons are what is played).
+	for i in 8:
+		if main.scenes == null or main.scenes.run == null: break
+		main.scenes._finish(true)
+		await _read(2)
+	if room() != "lf_village":
+		say("sweep: set in the village from %s (a driver's shortcut)" % room())
+		Game.world.load_room(c(), "lf_village", "", Vector2.ZERO)
+		GameEvents.flush()
+		await _read(60)
+	main.hud.fight_override = false
+	var calm := 0
+	for round in 80:
+		var st := await _card(4.0)
+		if st.mode == "":
+			calm += 1
+			if top_page() != null: await close_pages()
+			if calm >= 2: break
+			continue
+		calm = 0
+		if st.mode == "tour":
+			await coach_turn()
+			continue
+		await _follow(st)
+	say("sweep: the queue is %s" % str(c().tutorials.get("queue", [])))
+	await _menu_pages()
+	say("sweep done: %d cards met, %d answered" % [met.size(), answers])
+
+## The coach's card once it shows (a guide or a tour, laid out), or the empty state after `wait_s` seconds of play.
+func _card(wait_s_: float) -> Dictionary:
+	var start := now_ms()
+	while now_ms() - start < wait_s_ * 1000.0:
+		await _read(1)
+		var st: Dictionary = coach().state()
+		if st.mode != "" and (st.card as Rect2).size != Vector2.ZERO: return st
+	return coach().state()
+
+var _followed := 0
+## One step of a guide, as a player does: its card read and shot, then a tap where the hand points (the lit button,
+## tablet, tab or element); a place's step, and every fourth guide, put off with Later. A tap that does nothing moves
+## on with Next (an element) or Later.
+func _follow(st: Dictionary) -> void:
+	_coach_busy = true
+	await look(st)
+	st = coach().state()
+	var cur: Dictionary = coach().current()
+	_followed += 1
+	if str(cur.get("at", "")) == "place" or (st.rect as Rect2).size == Vector2.ZERO or (_followed % 4 == 0 and int(st.step) == 0):
+		if st.buttons.has("later"): await answer(st, "later")
+		_coach_busy = false
+		return
+	var before := _key(st)
+	await _tap_raw((st.rect as Rect2).get_center(), 2)
+	await _read(20)
+	var now: Dictionary = coach().state()
+	if now.mode == "guide" and now.entry == st.entry and _key(now) == before:
+		# The element's tap opened its card (a piece's Equip): the hand should have moved on to it.
+		if str(now.anchor) == str(st.anchor) and now.rect == st.rect:
+			bug("a tap where the guide's hand points did nothing (%s)" % st.anchor, st)
+			if now.buttons.has("next"): await answer(now, "next")
+			elif now.buttons.has("later"): await answer(now, "later")
+	_coach_busy = false
+
+## The Menu's pages, each opened from its tablet once: a first opening plays the page's tour.
+func _menu_pages() -> void:
+	var menu := page_open("menu")
+	if menu == null:
+		if not await tap_role("icon:menu"): return
+		await _read(30)
+	menu = page_open("menu")
+	if menu == null: return
+	var tablets: Array = []
+	for r in menu._regions:
+		if str(r.id) == "open" and r.enabled and not (str(r.data) in ["exit", "characters"]): tablets.append(str(r.data))
+	say("sweep: the Menu's open tablets %s" % str(tablets))
+	for pg in tablets:
+		menu = page_open("menu")
+		if menu == null:
+			await tap_role("icon:menu")
+			await _read(30)
+			menu = page_open("menu")
+		if menu == null: break
+		await _card(0.6)
+		if coach().state().mode == "tour": await coach_turn()
+		if not await tap_region(menu, "open", pg): continue
+		await _read(10)
+		var st := await _card(2.0)
+		for i in 6:
+			if st.mode == "tour": await coach_turn()
+			elif st.mode == "guide": await _follow(st)
+			else: break
+			st = await _card(1.0)
+		# Back to the Menu: the page closed by its own close button.
+		var top := top_page()
+		if top != null and top.page_id != "menu":
+			if not await tap_region(top, "_close"): top.close()
+			await _read(12)
+	await close_pages()

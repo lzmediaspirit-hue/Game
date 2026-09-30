@@ -8,7 +8,7 @@ extends Node
 ## there (a driver's limit, not the game's). A screenshot at every step, and a log (qa_log.json) of what each shows.
 ##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/prototype_qa.tscn \
 ##     -- --out=<dir> [--sect=jade|cloud] [--keep=<dir>] [--keep-at=<step>] [--from=<dir> --start=<step>] [--until=<step>]
-##     [--no-assist]
+##     [--no-assist] [--only=<step,...>]
 ## --keep saves the game into <dir> before the step --keep-at names (by default the sect's choice, both recruiters met);
 ## --from resumes a kept game (Continue on the title) and --start runs on from that step (the second sect's run:
 ## --from=<kept> --start=sect_choice --sect=cloud). --no-assist plays every fight on its own HP to the end (the balance
@@ -58,13 +58,18 @@ func _main() -> void:
 	var until := ""
 	var start := "opening"
 	var keep_at := "sect_choice"
+	var steps: Array = STEPS
 	for a in OS.get_cmdline_user_args():
 		if str(a).begins_with("--until="): until = str(a).trim_prefix("--until=")
 		if str(a).begins_with("--start="): start = str(a).trim_prefix("--start=")
 		if str(a).begins_with("--keep-at="): keep_at = str(a).trim_prefix("--keep-at=")
+		# --only=<step,...>: just these steps, in this order (a driver built on this one adds its own).
+		if str(a).begins_with("--only="):
+			steps = Array(str(a).trim_prefix("--only=").split(","))
+			start = str(steps[0])
 	if from_dir != "": await resume()
 	var on := false
-	for step in STEPS:
+	for step in steps:
 		if step == start: on = true
 		if not on: continue
 		if keep_dir != "" and step in keep_at.split(","): keep(step)

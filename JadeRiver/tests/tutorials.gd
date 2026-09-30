@@ -833,6 +833,7 @@ func _thumb() -> void:
 	await _fingers_kept()
 	await _fight_room_reload()
 	await _back_skips()
+	await _placement()
 	await _cost()
 
 ## A finger down or up at the canvas point `p`, through the phone's path.
@@ -1198,6 +1199,75 @@ func _back_skips() -> void:
 	check(main.top_page() == pg and coach().state().mode == "" and ch.tutorials.seen.get("mail", 0) == 2, "Escape during a tour skips it and keeps its page (%s)" % str(coach().state()))
 	main.close_all_pages()
 	await frames(2)
+
+## Cards keep clear and point true: a guide's card on the play screen keeps off what the HUD shows and off the thumbs'
+## places (it sat over the Talk button); a guide waits while the HUD fades back in after a scene; a card keeps off a
+## tall anchor (the Cultivation stair); the gear guide's hand moves on to Equip once the piece is chosen; the Cultivate
+## tour lights the fan while it is folded.
+func _placement() -> void:
+	await fresh(["mail"])
+	unlock(["quick_use", "mail"])
+	await card_up("guide")
+	var st := coach().state()
+	var over: Array = []
+	for r in main.hud.obstacle_rects():
+		if (r as Rect2).intersects(st.rect): continue
+		if (st.card as Rect2).intersects(r): over.append(str(r))
+	for z in TutorialCoach.THUMBS:
+		if (st.card as Rect2).intersects(z): over.append("thumbs %s" % str(z))
+	check(st.mode == "guide" and over.is_empty(), "a guide's card on the play screen keeps off what the HUD shows and the thumbs' places (card %s over %s)" % [str(st.card), str(over)])
+	main.hud.modulate.a = 0.5
+	await frames(3)
+	check(coach().state().mode == "" and coach().state().waiting == "scene", "a guide waits while the HUD fades back in after a scene (%s)" % coach().state().waiting)
+	main.hud.modulate.a = 1.0
+	await card_up("guide")
+	check(coach().state().mode == "guide", "and shows once it is back")
+	# The Cultivation stair: too tall for any side.
+	await fresh(["cultivation"])
+	unlock(["menu", "cultivate", "cultivation", "quick_use", "navigation"])
+	c().tutorials.guided["cultivation"] = 1
+	main.open_page("cultivation", {"tab": "overview"})
+	await settle()
+	await card_up()
+	await tap_button("next")
+	await card_up()
+	st = coach().state()
+	check(st.entry == "cultivation" and st.anchor == "stair" and (st.rect as Rect2).size.y > 400 and not (st.card as Rect2).intersects(st.rect),
+		"a card keeps off a tall anchor, tight over or under it (%s by the stair %s)" % [str(st.card), str(st.rect)])
+	main.close_all_pages()
+	await frames(2)
+	# The gear guide: the Bag, the piece, then Equip.
+	await fresh(["gear"])
+	unlock(["bag", "quick_use", "equipment", "weapons"])
+	Game.inventory.apply_add(c().id, "training_short_blade", 1, "test")
+	GameEvents.flush()
+	await card_up("guide")
+	await touch_tap((coach().state().rect as Rect2).get_center())
+	await settle()
+	await card_up("guide")
+	var bp: Page = main.top_page()
+	var piece: Rect2 = coach().state().rect
+	check(bp != null and bp.page_id == "inventory" and piece == bp.tour_rect("gear") and piece.size.x > 0, "the gear guide's hand is on the new piece in the Bag (%s)" % str(coach().state()))
+	await touch_tap(piece.get_center())
+	await frames(4)
+	var eq: Rect2 = bp.tour_rect("equip") if bp != null else Rect2()
+	check(eq.size.x > 0 and coach().state().rect == eq, "chosen, the hand moves on to Equip (%s; Equip %s)" % [str(coach().state().rect), str(eq)])
+	await touch_tap(eq.get_center())
+	await frames(4)
+	check(c().tutorials.guided.has("gear") and not c().tutorials.queue.has("gear"), "Equip ends the guide (%s)" % str(c().tutorials.queue))
+	main.close_all_pages()
+	await frames(2)
+	# The Cultivate tour with the fan folded.
+	await fresh(["cultivate"])
+	main.hud.fan_rest_open = false
+	main.hud.fan_open = false
+	unlock(["cultivate"])
+	await card_up()
+	st = coach().state()
+	var fan: Rect2 = main.hud.tour_rect("fan")
+	check(st.entry == "cultivate" and st.step == 0 and fan.size.x > 0 and st.rect == fan, "the Cultivate tour lights the fan while it is folded (%s; fan %s)" % [str(st.rect), str(fan)])
+	await tap_button("skip")
+	main.hud.fan_rest_open = true
 
 ## What the coach costs a frame: hidden (nothing queued) on the play screen and over a page, next to nothing; showing,
 ## its lookups made once a frame (the HUD's targets, a page's tours) and its card drawn again only when it changes.

@@ -31,6 +31,7 @@ extends Control
 const CARD_W := 560.0         ## a tour's card
 const TEXT := 20              ## the card's line (UiKit.T_BODY), at most two lines on a phone
 const TEXT_W := CARD_W - 48.0
+const GUIDE_W := 400.0        ## a guide's words wrap this narrow when they still fit two lines
 const BTN_W := 136.0
 const BTN_H := 56.0           ## a card's button, drawn (a thumb's target: the house's 48 px and more)
 const HIT_PAD := 8.0          ## its touch target this much past it (two side by side share the gap between them)
@@ -692,10 +693,15 @@ func _tour_size() -> int:
 ## The card's lines: wrapped at TEXT_W (at most two lines, the tutorials suite holds every line to it), once for its words
 ## and text size.
 func _lines() -> Array:
-	var key := "%s|%s" % [line, UiKit.text_scale()]
+	var key := "%s|%s|%s" % [line, UiKit.text_scale(), mode]
 	if key != _lines_key:
 		_lines_key = key
 		_lines_cache = UiKit.wrap(line, TEXT, TEXT_W)
+		# A guide's card, beside its button on the play screen, is kept narrow when its words still fit two lines (a wide
+		# one sat over the tracker's go button).
+		if mode == "guide":
+			var narrow := UiKit.wrap(line, TEXT, GUIDE_W)
+			if narrow.size() <= 2: _lines_cache = narrow
 	return _lines_cache
 
 ## A tour's card: the words over the step count, Skip and Next. A guide's: one row, the words and its buttons beside them
@@ -791,13 +797,22 @@ func _card_place(sz: Vector2) -> Rect2:
 			best = r
 	if best.size != Vector2.ZERO: return best
 	# Nothing clear of a tall anchor inside the safe area (the Cultivation stair): tight over or under it, to the screen's
-	# edge; else, for a page's whole content, the side of the screen it covers least.
+	# edge; else (a page's whole content, the Techniques chart) the place, of those and the safe area's corners and
+	# edges, that covers the least of it.
 	for y in [target.position.y - 6.0 - sz.y, target.end.y + 6.0]:
 		var r := Rect2(Vector2(cx, y), sz)
 		if SCREEN.encloses(r) and not r.intersects(target): return r
-	var up := Rect2(Vector2(640 - sz.x * 0.5, safe.position.y), sz)
-	var down := Rect2(Vector2(640 - sz.x * 0.5, safe.end.y - sz.y), sz)
-	return up if up.intersection(target).get_area() < down.intersection(target).get_area() else down
+	var least := Rect2()
+	var least_a := INF
+	for x in [safe.position.x, cx, safe.end.x - sz.x]:
+		for y in [safe.position.y, cy, safe.end.y - sz.y]:
+			var r := Rect2(Vector2(x, y), sz)
+			var a := r.intersection(target).get_area()
+			for av in avoid: a += (r.intersection(av[0]) as Rect2).get_area() * 0.5
+			if a < least_a:
+				least_a = a
+				least = r
+	return least
 
 ## The hand shows where something is to be tapped: every guide step, and a tour step with a "try it".
 func _hand_shown() -> bool:

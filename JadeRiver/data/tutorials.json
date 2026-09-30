@@ -449,7 +449,7 @@
      "text": "ui.tutorial.map.2"
     },
     {
-     "anchor": "walk",
+     "anchor": "walk|card",
      "text": "ui.tutorial.map.3"
     },
     {
@@ -840,7 +840,7 @@
      "text": "ui.tutorial.settings.3"
     },
     {
-     "anchor": "replay_tutorials",
+     "anchor": "replay_tutorials|tab:controls",
      "text": "ui.tutorial.settings.4"
     }
    ],
