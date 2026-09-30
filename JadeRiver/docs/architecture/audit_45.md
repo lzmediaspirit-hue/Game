@@ -55,7 +55,7 @@ read-only scans that found them are in `tools/dev/audit/`. You can rerun everyth
     - every event goes to 11 listeners, most of them string `match` chains, the HUD's with 234 branches;
     - the boot parses every table;
     - the FX cap leaks when the loops fill it.
-  - Six writes cross between authorities through private methods.
+  - Seven writes cross between authorities through private methods.
 - **The engines.** Seven are designed:
   - room;
   - monster;
@@ -191,7 +191,7 @@ Assets: `art/` has 6,714 files (130 MB without `.import`), `data/` has 371 files
   | pets and inventory | 19 / 5 |
   | field and combat | 15 / 4 |
 
-  `docs/architecture.md` says authorities "call the owner's public `apply_*` commands". Six calls break that by going
+  `docs/architecture.md` says authorities "call the owner's public `apply_*` commands". Seven calls break that by going
   through private methods (BUG-05):
   - `field_authority.gd:218-226` calls `game.combat._apply_status_to_enemy` four times;
   - `enemy_authority.gd:616` calls `game.world._drop_loot`;

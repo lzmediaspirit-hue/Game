@@ -217,7 +217,7 @@ finding("BUG-03", "perf", "GameEvents.emit_event does a linear `in` over UNLOCK_
 finding("BUG-04", "bug", "TopdownFx's effect cap only retires one-shot effects: with MAX_NODES looping effects alive the list grows past the cap; advance() copies the list every frame and erases by value (O(n^2))",
         ["scripts/topdown/topdown_fx.gd:92-97", "scripts/topdown/topdown_fx.gd:101-111"], "reading", "high",
         "swap-remove by index in one pass; retire the oldest loop when no one-shot is left", "S4", severity="low")
-finding("BUG-05", "architecture", "56 calls into another object's private methods, 6 of them writes across authorities (Field -> Combat._apply_status_to_enemy x4, Enemy -> World._drop_loot, Quest -> World._start_event, Account -> Quest._refresh_offers)",
+finding("BUG-05", "architecture", "56 calls into another object's private methods, 7 of them writes across authorities (Field -> Combat._apply_status_to_enemy x4, Enemy -> World._drop_loot, Quest -> World._start_event, Account -> Quest._refresh_offers)",
         ["scripts/simulation/authority/field_authority.gd:218-226", "scripts/simulation/authority/enemy_authority.gd:616",
          "scripts/simulation/authority/quest_authority.gd:1093", "scripts/simulation/authority/account_authority.gd:319",
          "scripts/presentation/object_view.gd:194 Game.world._verb", "scripts/hud.gd:2189 Game.pets._pet", "scripts/ui/pages/your_sect_page.gd:282 Game.sect._on_expedition",
