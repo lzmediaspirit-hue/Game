@@ -1116,7 +1116,7 @@
    "method": "tools/dev/audit/smells.py private_call",
    "severity": "medium",
    "slice": "S11",
-   "title": "56 calls into another object's private methods, 6 of them writes across authorities (Field -> Combat._apply_status_to_enemy x4, Enemy -> World._drop_loot, Quest -> World._start_event, Account -> Quest._refresh_offers)",
+   "title": "56 calls into another object's private methods, 7 of them writes across authorities (Field -> Combat._apply_status_to_enemy x4, Enemy -> World._drop_loot, Quest -> World._start_event, Account -> Quest._refresh_offers)",
    "where": [
     "scripts/simulation/authority/field_authority.gd:218-226",
     "scripts/simulation/authority/enemy_authority.gd:616",
@@ -6241,7 +6241,7 @@
       ".md": 94,
       ".png": 1804
      },
-     "bytes": 335029810,
+     "bytes": 335030684,
      "files": 1980
     }
    },
