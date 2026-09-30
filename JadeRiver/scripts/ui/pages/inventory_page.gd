@@ -66,7 +66,7 @@ func setup() -> void:
 		add_child(doll)
 	if ch == null: return
 	_refresh_doll()
-	tier = maxi(0, (ch.inventory.capacity() - ch.inventory.bonus_slots - 25) / 5)
+	tier = maxi(0, (ch.inventory.capacity() - ch.inventory.bonus_slots - InventoryState.base_capacity()) / 5)
 	# A few burn bright with a cross of light, but never among the words and spaces.
 	stars = scatter_stars(150 + tier * 50, Rect2(0, 0, 1280, 640), [Rect2(FIELD - Vector2(12, 72), Vector2(FIELD_W + 32, 600)), Rect2(56, 40, 320, 80)])
 	# Opened on a worn slot (from the Character page) or on a thing in the bag.
@@ -593,11 +593,14 @@ func _facts(ch, s: Dictionary, def: Dictionary) -> Array:
 	if def.has("flight"):
 		out.append([Tx.t("ui.inventory.vessel_stats") % int(round((1.0 - float(def.flight.get("qi_mult", 1.0))) * 100.0)), UiKit.BRIGHT_JADE])
 		if str(ch.inventory.vessel) == id: out.append([Tx.t("ui.inventory.vessel_ridden"), UiKit.PALE_GOLD])
-	var qu := str(ch.inventory.quick_use)
-	if sel.has("bag") and def.has("use") and qu != "" and qu != id and Unlocks.is_unlocked(ch.id, "quick_use"):
-		var left: int = ch.inventory.count(qu)
-		out.append([[Tx.t("ui.inventory.quick_holds") % ContentDB.item_name(qu), UiKit.MIST],
-			[Tx.t("ui.inventory.n_left") % left if left > 0 else Tx.t("ui.inventory.none_left"), UiKit.MIST if left > 0 else UiKit.WARNING]])
+	# Decision 45: what the three quick slots hold, beside a thing that could go in one.
+	if sel.has("bag") and def.has("use") and Unlocks.is_unlocked(ch.id, "quick_use") and ch.inventory.quick.any(func(q): return str(q) != "" and str(q) != id):
+		var held: Array = []
+		for k in ch.inventory.quick.size():
+			var qu := str(ch.inventory.quick[k])
+			held.append(Tx.t("ui.inventory.quick_slot_holds") % [k + 1, ContentDB.item_name(qu) if qu != "" else Tx.t("ui.inventory.quick_empty"),
+				ch.inventory.count(qu)] if qu != "" else Tx.t("ui.inventory.quick_slot_empty") % (k + 1))
+		out.append([Tx.t("ui.inventory.quick_holds_all") % " · ".join(held), UiKit.MIST])
 	return out
 
 ## S14 relics: a sealed one offers Bind (a channel a hit breaks); a bound one with a spirit shows its affinity and, in
@@ -663,6 +666,7 @@ func _action_rows(ch, s: Dictionary, def: Dictionary) -> Array:
 		rows.append(_buttons([[Tx.t("ui.inventory.unequip"), "unequip", null, false, str(sel.slot) != "gourd", Tx.t("ui.inventory.the_spirit_gourd_holds_your"), 0.0]]))
 		return rows
 	var main: Array = []   # [label, id, data, primary, enabled, reason, width (0 shares what is left)]
+	var quick_row: Array = []   # decision 45: Quick 1-3 under a usable thing
 	if def.has("restores"): main.append([Tx.t("ui.inventory.restore_relic"), "restore", null, true, true, "", 0.0])
 	elif def.has("slot"):
 		var ctx := Game.ctx(ch)
@@ -675,8 +679,11 @@ func _action_rows(ch, s: Dictionary, def: Dictionary) -> Array:
 		elif str(def.get("use_action", "")) == "absorb_flame": verb = Tx.t("ui.inventory.absorb")
 		elif str(def.get("use_action", "")) == "bath": verb = Tx.t("ui.inventory.bathe")
 		main.append([verb, "use", null, true, true, "", 0.0])
-		main.append([Tx.t("ui.inventory.quick") if ch.inventory.quick_use == id else Tx.t("ui.inventory.quick_use"), "quick", null, false, Unlocks.is_unlocked(ch.id, "quick_use"),
-			Tx.t("ui.inventory.quick_use_is_not_unlocked"), 112.0])
+		# Decision 45: the three quick slots under it, each a toggle (lit where it holds this thing; a tap on it clears it).
+		for k in ch.inventory.quick.size():
+			var here := str(ch.inventory.quick[k]) == id
+			quick_row.append([Tx.t("ui.inventory.in_quick_n") % (k + 1) if here else Tx.t("ui.inventory.quick_n") % (k + 1), "quick", k, here,
+				Unlocks.is_unlocked(ch.id, "quick_use"), Tx.t("ui.inventory.quick_use_is_not_unlocked"), 0.0])
 	elif def.has("treasure"):
 		# G2: a treasure art is set in one of the HUD's two Treasure buttons; tapping its own slot clears it.
 		for k in 2:
@@ -696,6 +703,7 @@ func _action_rows(ch, s: Dictionary, def: Dictionary) -> Array:
 		rest = rest.slice(2)
 	if not rest.is_empty(): main.append(["···", "more", null, false, true, "", float(BTN_H)])
 	var rows: Array = [_buttons(main)]
+	if not quick_row.is_empty(): rows.append(_buttons(quick_row))
 	if more:
 		for i in range(0, rest.size(), 2): rows.append(_buttons(rest.slice(i, i + 2)))
 	return rows
@@ -796,8 +804,10 @@ func on_action(id: String, data) -> void:
 		"detonate_yes":
 			if submit({"type": "self_detonate", "index": int(data), "confirm": true}).get("ok", false): sel = {}
 		"quick":
+			# Decision 45: Quick 1-3; the slot already holding this thing clears, another takes it (out of any other slot).
 			var s = selected_item()
-			if s != null: submit({"type": "set_quick_use", "item": "" if ch.inventory.quick_use == str(s.id) else str(s.id)})
+			var k := int(data) if data != null else 0
+			if s != null: submit({"type": "set_quick_use", "slot": k, "item": "" if str(ch.inventory.quick[k]) == str(s.id) else str(s.id)})
 		"lock": submit({"type": "lock_item", "index": int(sel.bag)})
 		"treasure":
 			var st = selected_item()

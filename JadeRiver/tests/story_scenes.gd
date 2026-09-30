@@ -183,7 +183,7 @@ func _skip_keeps_the_checkpoints() -> void:
 	check(c().pools.hp < hp - 1.0 and c().pools.hp >= 0.4 * c().pools.max_hp, "the graze the skipped cut asked for still lands (HP %d -> %d)" % [int(hp), int(c().pools.hp)])
 	check(submit({"type": "set_quick_use", "item": "herbal_tea"}).get("ok", false), "the tea into Quick-use")
 	d.advance(0.05)
-	check(d.run != null and str(d.run.row.steps[d.run.i].get("at", "")) == "hud:quick", "the next hand-off points at the Quick-use slot")
+	check(d.run != null and str(d.run.row.steps[d.run.i].get("at", "")) == "hud:quick:0", "the next hand-off points at the first Quick-use slot")
 	var q := submit({"type": "use_quick"})
 	if not q.get("ok", false) and q.get("reason", "") == "confirm": submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
 	settle_scenes()

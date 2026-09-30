@@ -564,7 +564,7 @@ func _rewards(d: Dictionary, r: Rect2) -> float:
 		y += 32 if str(ln[0]) != "" else 22
 	return y
 
-## Rewards that are not items: what is learned or earned, and the realm-progress share (S29).
+## Rewards that are not items: what is learned or earned, and the cultivation it pays (decision 45: a fixed number).
 func _reward_lines(d: Dictionary) -> Array:
 	var out: Array = []
 	for r in d.get("rewards", []):
@@ -580,8 +580,11 @@ func _reward_lines(d: Dictionary) -> Array:
 				var dd := ContentDB.entry("karma", str(r.deed))
 				if int(dd.get("merit", 0)) > 0: out.append(Tx.t("ui.quest.reward_merit") % int(dd.merit))
 				if int(dd.get("fame", 0)) > 0: out.append(Tx.t("ui.quest.reward_fame") % int(dd.fame))
-	var pct := float(ContentDB.curve("quest_qp_pct.%s" % str(d.get("qp", d.get("kind", "side"))), 0.0))
-	if pct > 0.0: out.append(Tx.t("ui.quest.reward_progress") % int(round(pct * 100.0)))
+	# Decision 45: a fixed number, the quest's own (QuestAuthority.cultivation_of), with any add_progress reward it gives.
+	var gain := QuestAuthority.cultivation_of(c(), d)
+	for r in d.get("rewards", []):
+		if str(r.get("kind", "")) == "add_progress": gain += int(r.get("amount", 0))
+	if gain > 0: out.append(Tx.t("ui.quest.reward_progress") % UiKit.fmt(gain))
 	return out
 
 ## Between chapters, what the story waits for: the Next entry's lines (who gives it and where, or the Level it waits on

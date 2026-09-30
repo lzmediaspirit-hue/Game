@@ -38,6 +38,32 @@ static func hitstop_on() -> bool:
 static func family(fam_id: String) -> Dictionary:
 	return cfg().get("families", {}).get(fam_id, cfg().get("families", {}).get("fists", {}))
 
+## Decision 45 · the charged attack (combat_feel.json `charge`): {full_s, full} for a weapon family, the seconds of charge
+## that fill it and its ratio over one basic hit when full.
+static func charge_of(fam_id: String) -> Dictionary:
+	var ch: Dictionary = cfg().get("charge", {})
+	var row: Array = ch.get("families", {}).get(fam_id, [ch.get("full_s", 0.5), ch.get("full", 2.3)])
+	return {"full_s": float(row[0]), "full": float(row[1])}
+
+## How far a charge of `charge_s` seconds has filled, 0..1.
+static func charge_k(fam_id: String, charge_s: float) -> float:
+	return clampf(charge_s / maxf(0.01, float(charge_of(fam_id).full_s)), 0.0, 1.0)
+
+## The charged blow's damage over one basic hit (the family's first step) after `charge_s` seconds: from the plain
+## finisher's (its last step's mult over its first's; 1 for a one-step family) up to the family's full ratio in a
+## straight line, held there once full.
+static func charge_ratio(fam: Dictionary, charge_s: float) -> float:
+	var combo: Array = fam.get("combo", [])
+	if combo.is_empty(): return 1.0
+	var start := float(combo[-1].get("mult", 1.0)) / maxf(0.01, float(combo[0].get("mult", 1.0)))
+	var full := maxf(start, float(charge_of(str(fam.get("id", "fists"))).full))
+	return lerpf(start, full, charge_k(str(fam.get("id", "fists")), charge_s))
+
+## The charged blow's own multiplier: the first step's times charge_ratio.
+static func charged_mult(fam: Dictionary, charge_s: float) -> float:
+	var combo: Array = fam.get("combo", [])
+	return (float(combo[0].get("mult", 1.0)) if not combo.is_empty() else 1.0) * charge_ratio(fam, charge_s)
+
 ## A combo step's weight: the family's for that step, `finisher` for a dragged (charged) finisher.
 static func step_weight(fam_id: String, index: int, charged := false) -> String:
 	var f := family(fam_id)

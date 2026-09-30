@@ -26,8 +26,15 @@ func hit(p: Dictionary) -> void:
 	var kind := str(p.get("target_kind", "enemy"))
 	var src := str(p.get("source", ""))
 	var amount := int(p.get("amount", 0))
+	# Decision 45: a charged blow (the long drag on Attack, held) is named over its number with how many basic hits it
+	# is worth, and its number is bigger.
+	var charge := float(p.get("charge", 0.0))
+	var charged := kind == "enemy" and charge >= float(CombatFeel.cfg().get("charge", {}).get("label_from", 1.5))
+	var shown: bool = Game.is_revealed("hud:damage_numbers") or kind == "player"
 	fx.hit(pos, float(amount), src, str(p.get("element", "none")), str(p.get("type", "")), bool(p.get("crit", false)), str(p.get("target", "")),
-		Game.is_revealed("hud:damage_numbers") or kind == "player", kind == "player")
+		shown, kind == "player", charged)
+	if charged and shown and Game.account.settings.get("damage_numbers", true):
+		fx.label(pos + Vector2(0, -30), Tx.t("world_view.charged") % charge, UiKit.PALE_GOLD, 16, true)
 	if cast_shake.has(src):
 		cast_shake.erase(src)
 		var n := MomentRules.tier_numbers(src)

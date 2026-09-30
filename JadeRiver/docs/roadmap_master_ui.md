@@ -599,8 +599,19 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
         - quests, pills and the like give a fixed amount of experience instead of a percentage;
         - three quick slots instead of one;
         - the bag starts at 50 slots.
+
+        Built: the charged attack (the long drag, held) reaches 1.8–2.5 basic hits for every family and deals more a
+        second than the chain, named in the combat text; the Qi pool opens full with Flowing Palm at Bone Forging 1 and
+        refills visibly; meditation's early current (×3 at Bone Forging 1, ×1 by the end of Heart Tempering); the
+        Cultivation page lists the speed and its sources, with new Qi-Gathering and Deep Current incense; every quest,
+        pill, core, herb and event pays a fixed number by its own tier; three quick slots on ring 2; a 50-space bag with
+        the gourds on top (`docs/cultivation_loop.md` §16; `docs/redesign_top_down_plan.md`, "As built: decision 45";
+        review in `docs/redesign/feedback/progression/`).
       - **Code audit.** Dead code, duplication and structure across the whole game, plus a plan for content engines
         (a room generator, and monster, NPC, item and other engines) so new content is declared as data rather than
         rewritten each time.
     - **Phase 2:** the cleanup and the engines, built in slices from the audit's plan, after phase 1 lands.
+    - **The side view is retired** (the user's answer to the audit, `docs/architecture/audit_45.md`). Phase 2 removes the
+      side view, its fallback setting, its art and generators once the room engine has converted the remaining rooms to
+      top-down; top-down becomes the only way to play. This roughly halves the APK and ends the parallel code path.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.

@@ -109,8 +109,9 @@ func meditation_context(c) -> Dictionary:
 			if o.type == "insight_stone" and Unlocks.is_unlocked(c.id, "insight_sites"): stone = str(o.get("dao", "water"))
 			if o.type == "gathering_formation": density += 0.5
 	density += game.workshop.formation_effect(c, "qi_density")
+	var place := density
 	if spring: density *= float(ContentDB.curve("qi_spring_mult", 2))
-	return {"density": density, "spring": spring, "stone": stone}
+	return {"density": density, "spring": spring, "stone": stone, "place": place}
 
 func accumulation_bonus(c) -> float:
 	var bonus = c.stats.value("accumulation_rate")
@@ -121,6 +122,58 @@ func accumulation_bonus(c) -> float:
 	bonus += game.companions.paired_bonus(c)
 	bonus -= ProgressionRules.residue_penalty(c.cultivator)   # residue does not drain on its own (G1)
 	return bonus
+
+## Decision 45: meditation's speed here and now, term by term, for the Cultivation page: {rate (cultivation a minute),
+## base (curves meditation_qp_per_min), mult (rate over base), factors: [{id, label, x}] that multiply base to rate,
+## bonus: [{label, pct}] that add up to the Bonuses factor (x = 1 + their sum)}. The factors are ProgressionRules
+## .meditation_rate's own, at this spot (rules_tests checks their product against it).
+func speed_breakdown(c) -> Dictionary:
+	var cu: CultivatorState = c.cultivator
+	var mc := meditation_context(c)
+	var bonus := accumulation_bonus(c)
+	var base := float(ContentDB.curve("meditation_qp_per_min", 60))
+	var rate := ProgressionRules.meditation_rate(c, float(mc.density), bonus)
+	var factors: Array = []
+	var add := func(id: String, label: String, x: float) -> void: factors.append({"id": id, "label": label, "x": x})
+	if cu.method_id == "":
+		return {"rate": 0.0, "base": base, "mult": 0.0, "factors": [], "bonus": [], "no_method": true}
+	var room_name := str(game.room_rt.def.get("name", "")) if game.room_rt else ""
+	add.call("early", Tx.t("ui.cultivation.speed_early"), ProgressionRules.early_meditation(ProgressionRules.level(c)))
+	add.call("place", Tx.t("ui.cultivation.speed_place") % room_name, float(mc.place))
+	if mc.spring: add.call("spring", Tx.t("ui.cultivation.speed_spring"), float(ContentDB.curve("qi_spring_mult", 2)))
+	add.call("method", Tx.t("ui.cultivation.speed_method") % ContentDB.name_of("methods", cu.method_id), ProgressionRules.method_rate(c))
+	add.call("stability", Tx.t("ui.cultivation.speed_stability") % str(cu.stability).capitalize(), ProgressionRules.stability_factor(cu.stability))
+	var rows: Array = []
+	for m in c.stats.modifiers:
+		if str(m.get("stat", "")) != "accumulation_rate" or absf(float(m.get("value", 0.0))) < 0.0001: continue
+		rows.append({"label": bonus_source_label(str(m.get("source", ""))), "pct": float(m.value), "left": float(m.get("remaining", -1.0))})
+	var own: float = c.stats.value("accumulation_rate")
+	if ProgressionRules.realm_index(game.account.highest_realm) - ProgressionRules.realm_index(cu.realm_key) >= 2:
+		rows.append({"label": Tx.t("ui.cultivation.speed_ancestral"), "pct": (1.0 + own) * (float(ContentDB.curve("ancestral_guidance", 1.5)) - 1.0)})
+	if game.account.legacy.size() > 0: rows.append({"label": Tx.t("ui.cultivation.speed_legacy"), "pct": 0.02 * game.account.legacy.size()})
+	var res: float = game.pets.resonance(c)
+	if res > 0.0: rows.append({"label": Tx.t("ui.cultivation.speed_pet"), "pct": res})
+	var pair: float = game.companions.paired_bonus(c)
+	if pair > 0.0: rows.append({"label": Tx.t("ui.cultivation.speed_paired"), "pct": pair})
+	var residue := ProgressionRules.residue_penalty(cu)
+	if residue > 0.0: rows.append({"label": Tx.t("ui.cultivation.speed_residue"), "pct": -residue})
+	if absf(bonus) > 0.0001: add.call("bonus", Tx.t("ui.cultivation.speed_bonus"), 1.0 + bonus)
+	if cu.consolidation_penalty: add.call("consolidating", Tx.t("ui.cultivation.speed_consolidating"), 0.5)
+	return {"rate": rate, "base": base, "mult": rate / base, "factors": factors, "bonus": rows}
+
+## The name a cultivation-speed modifier shows under: its item (by the source its buff carries), title, vow or fate,
+## the guqin, or the source itself.
+static func bonus_source_label(source: String) -> String:
+	var parts := source.split(":")
+	match parts[0]:
+		"title": return ContentDB.name_of("titles", parts[1]) if parts.size() > 1 else source
+		"vow": return ContentDB.name_of("vows", parts[1]) if parts.size() > 1 else source
+		"fate": return ContentDB.name_of("fates", parts[2]) if parts.size() > 2 else source
+		"guqin": return ContentDB.item_name("guqin")
+	for it in ContentDB.all("items"):
+		for u in it.get("use", []):
+			if str(u.get("kind", "")) == "add_modifier" and str(u.get("source", "")) == source: return str(it.get("name", source)) if source != "qi_incense" else Tx.t("ui.cultivation.speed_incense")
+	return source.capitalize()
 
 func tick(delta: float) -> void:
 	var c = game.active()
@@ -166,7 +219,7 @@ func _meditation_second(c) -> void:
 	gains.hp = c.pools.max_hp * c.stats.value("hp_regen") * m * mult
 	game.combat.apply_resource_change(c.id, "hp", gains.hp, "meditation")
 	if c.pools.max_qi > 0:
-		gains.qi = c.pools.max_qi * c.stats.value("qi_regen") * m * mult
+		gains.qi = CombatAuthority.qi_regen_pool(c) * c.stats.value("qi_regen") * m * mult
 		game.combat.apply_resource_change(c.id, "qi", gains.qi, "meditation")
 	if c.pools.max_soul > 0:
 		game.combat.apply_resource_change(c.id, "soul", c.pools.max_soul * c.stats.value("soul_regen") * m * mult, "meditation")
@@ -1610,7 +1663,8 @@ func apply_insight_best(actor_id: String, amount: float, context := "fortune") -
 	if c == null: return
 	var best := ProgressionRules.strongest_dao(c)
 	if best != "" and Unlocks.is_unlocked(c.id, "dao_tree"): apply_insight(c.id, best, amount, context + ":chess:" + str(Clock.reset_day(Clock.now_utc())))
-	else: apply_progress(c.id, 0.0, context, 0.02)
+	# Decision 45: a fixed amount of cultivation for the insight it would have given (30 insight: +120), not 2% of the stage.
+	else: apply_progress(c.id, amount * float(ContentDB.curve("insight_fallback_per_point", 4)), context)
 
 # ------------------------------------------------------------------ P13a the element trees (technique_plan §4)
 ## The Realisations pool, spent and free (TechniqueTreeRules.realisations).

@@ -53,6 +53,45 @@ with a check in the `tutorials` suite.
 - **Tests:** the `tutorials` suite goes from 87 checks to CHECKS, with a new section 10, "the card under a thumb". Each
   check was confirmed to fail with its fix undone.
 
+## Progression numbers, three quick slots and a 50-space bag (decision 45)
+
+The user's feedback on build 110: charged attacks should out-damage a basic attack; the player should have Qi when the
+first technique comes; meditation should give much more cultivation at the start, with ways to raise its speed;
+quests and pills should give a fixed amount instead of a percentage; three quick slots; a bag of 50. The numbers, old
+→ new, are in `docs/cultivation_loop.md` §16 and `docs/redesign_top_down_plan.md` ("As built: decision 45").
+
+- **The charged attack.** The long drag on Attack now charges while held past the finisher's line: the blow rises in
+  a straight line from the plain finisher (let go at once, as before) to 2.2–2.4 basic hits at 0.4–0.6 s by family
+  (`combat_feel.json` `charge`), so every family's full charge is 1.8–2.5 of one basic hit and deals 7–42% more a
+  second than its whole chain over the charge and the blow. The bow and the flute charge their one shot. The mark on
+  the ground fills and burns warm when full; the hit's number is bigger in pale gold with "Charged ×2.3" over it.
+- **Qi at the first technique.** The Qi pool opens at Bone Forging 1 with Flowing Palm (from Bone Forging 7), full,
+  its bar and tour with it: about 30 Qi, 3.6 palms. Qi comes back as if the pool held at least 100 (0.75 a second at
+  rest, 6 meditating), so the small first pool refills in about 40 s. The First Current now wakes the springs.
+- **Meditation's early current.** `meditation_rate` × 3.0 at Mortal and Bone Forging 1, 2.5 at Level 9, 1.8 at 18,
+  1.3 at 27, 1.0 from Level 36 (it replaces the body stages' ×0.3): Bone Forging 1 at the valley's 1.2 gathers 212 a
+  minute (from 22), its stage in 2.8 minutes (from 28); Cloud Stride and later are unchanged.
+- **Cultivation speed.** The Cultivation page's speed line ("Meditating here: 216 a minute · ×3.0") opens a list of
+  every term of the rate and each bonus with its time left, and the ways to more, lit once open. New: Qi-Gathering
+  Incense (+30% for 10 minutes, Granny Liu's hut from Bone Forging 1 and Stoneford, 12 taels) and Deep Current
+  Incense (+50% for 15 minutes, Stoneford from Qi Kindling 1, 45 taels), with their icons.
+- **Fixed rewards.** Each quest's tier is found as the data is built and it pays its kind's share of that stage's
+  need as a number (`quests.json` `tier`, `cultivation`); a posted mission pays by the Level it was posted at. Pills,
+  cores, raw herbs and the Spirit Fruit pay a number by their grade and say it ("+420 cultivation"); the River's dream
+  +150; a chess problem before any Dao +120. Losses (a grave wound, a failed breakthrough, a method switch) stay a share
+  of the stage, as a penalty should. `data_validation` refuses a share in any content.
+- **Three quick slots** on ring 2 at 204°, 226° and 244° round Attack (`quick:0`–`quick:2`), each drawn while it holds
+  something, with its own cooldown and count; set from the Bag's Quick 1, 2, 3; saved (an old save's one slot is the
+  first). Past ring 2's six places the rest stand on an outer row. Tours find them as `quick:0`–`quick:2`, or `quick`
+  for all.
+- **A 50-space bag.** The bag holds 50 with no gourd and in the Starter Spirit Gourd (from 25), and each gourd up the
+  ladder adds its 5 on top (the Lantern Gourd 90); Deep Pockets adds its row on top of that; saves grow on load.
+- **Balance.** `balance_sim` places each quest at its own tier and pays its number, and meditates at the early current:
+  every pacing row within ±15% (Qi Kindling 1 at 4.8 h, from 5.3; Sage 1 at 64.5, from 60.7; Sphere Lord 3 at 164,
+  from 133). The thirty-day run of the posts is unchanged.
+- **Review:** `docs/redesign/feedback/progression/` (the HUD's three quick slots at 1280×720 and 2400×1080, the Bag at
+  50, the Cultivation page's speed list, a basic and a charged hit in the combat text).
+
 ## Work and place poses, and a held-tool rig (decision 44)
 
 Decision 43's living world borrowed the figure's fighting moves for its villagers' work (the woodcutter swung the heavy

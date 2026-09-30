@@ -97,7 +97,8 @@ def fortune_deck():
              [{"kind": "grant_item", "item": "cloudsteel_ore", "count": 3}]),
         card("river_dream", "A Dream of the River", "You doze for a moment and dream of the River: every land on its banks, every one "
              "who ever drank from it. You wake knowing something you did not learn.", ["room_entered"], 2,
-             [{"kind": "codex", "entry": "river_dream"}, {"kind": "add_progress", "pct_of_need": 0.03}], once=True),
+             # Decision 45: a fixed +150 cultivation (it was 3% of whatever stage the dreamer was in), once in a life.
+             [{"kind": "codex", "entry": "river_dream"}, {"kind": "add_progress", "amount": 150}], once=True),
     ]
 
 

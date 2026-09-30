@@ -175,16 +175,21 @@ func _cast_form(t: Dictionary, form: String, facing: int, tier: int, reach: floa
 ## A hit's marks at `pos` (§5.2): its number (when `numbers`; a crit gold, Qi teal, Soul violet, a blow on the player
 ## red), sized by the technique's tier and stacked with the cast's other hits on that target (`stack`), and a spark in
 ## its element at the tier's count, size, reach and style. `source` is the blow's ("tech:<id>" for a technique).
-func hit(pos: Vector2, amount: float, source: String, element: String, dtype: String, crit: bool, stack := "", numbers := true, on_player := false) -> void:
+## Decision 45: a `charged` blow's number is drawn 8 px bigger in pale gold (a crit keeps its gold), under the words
+## CombatFx sets over it ("Charged ×2.3").
+func hit(pos: Vector2, amount: float, source: String, element: String, dtype: String, crit: bool, stack := "", numbers := true, on_player := false,
+		charged := false) -> void:
 	var color = UiKit.PAPER
 	if on_player: color = UiKit.RED
 	elif crit: color = UiKit.GOLD
+	elif charged: color = UiKit.PALE_GOLD
 	elif dtype == "qi": color = UiKit.QI
 	elif dtype == "soul": color = UiKit.SOUL
 	var n := MomentRules.tier_numbers(source)
 	var tech := ContentDB.entry("techniques", source.trim_prefix("tech:")) if source.begins_with("tech:") else {}
 	if numbers:
-		number(pos, UiKit.short(amount), color, int(n.number_size) if not tech.is_empty() else 22, crit, stack + source if not tech.is_empty() else "", amount)
+		number(pos, UiKit.short(amount), color, (int(n.number_size) if not tech.is_empty() else 22) + (8 if charged else 0), crit,
+			stack + source if not tech.is_empty() else "", amount)
 	if not sparks: return
 	add("spark", pos + Vector2(0, 20), {"color": SpriteCache.element_color(element), "dur": 0.25,
 		"count": MomentRules.particle_count(int(n.spark_count)), "size": n.spark_size, "radius": n.spark_reach, "core": n.core_r,

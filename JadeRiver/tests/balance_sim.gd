@@ -2,11 +2,12 @@ extends Node
 ## Balance simulator (S38, Part 7): a rate-based bot plays the data to the end of Act I
 ## and reports hours to each realm. Each Level it spends an active minute as
 ## data/balance.json says (fighting at the right Level, meditating at the best spot it
-## has reached, the rest travelling and crafting), hands in the quests that open at that
+## has reached, the rest travelling and crafting), hands in the quests pitched at that
 ## Level and one daily mission per hour. Realm progress uses the real rules: kill QP and
-## gap factors, the meditation rate of a real character with that realm's method,
-## body-stage training, quest percentages. It fails when a realm lands more than ±15%
-## off the Part 4 pacing table.
+## gap factors, the meditation rate of a real character with that realm's method (with
+## decision 45's early current), body-stage training, and each quest's fixed cultivation
+## at its own tier (decision 45: quests.json `tier` and `cultivation`). It fails when a
+## realm lands more than ±15% off the Part 4 pacing table.
 ## Run headless:  godot --headless --path . res://tests/balance_sim.tscn
 
 var checks := 0
@@ -39,18 +40,19 @@ func _main() -> void:
 		var lv := int(r.get("level", 0))
 		var need := float(r.get("accumulate_needed", 100))
 		var income := _income(c, cfg, key, lv)
-		# Quests that open inside this stage pay a share of its need on hand-in.
+		# Quests pitched inside this stage pay their fixed cultivation on hand-in (decision 45).
 		# Optional side quests are detours: they also cost active time the mixed session does not cover.
 		var lump := 0.0
 		var detour := 0.0
 		for n in int(r.get("levels", 1)):
-			for kind in quest_levels.get(lv + n, {}):
-				lump += float(ContentDB.curve("quest_qp_pct.%s" % kind, 0.0)) * int(quest_levels[lv + n][kind])
-				detour += float(cfg.get("quest_minutes", {}).get(kind, 0.0)) * int(quest_levels[lv + n][kind])
+			for row in quest_levels.get(lv + n, []):
+				lump += float(row[1])
+				detour += float(cfg.get("quest_minutes", {}).get(str(row[0]), 0.0))
 		var base_min := need / income
-		# Daily missions: a share of the need per hour of play.
-		var daily := float(ContentDB.curve("quest_qp_pct.daily", 0.05)) * float(cfg.get("dailies_per_hour", 1.0)) * base_min / 60.0
-		var minutes := base_min * maxf(0.2, 1.0 - lump - daily)
+		# Daily missions: the fixed cultivation of a mission posted at this Level, `dailies_per_hour` of them an hour.
+		var daily := float(ProgressionRules.quest_cultivation("daily", lv)) * float(cfg.get("dailies_per_hour", 1.0)) / 60.0
+		# At least a fifth of every stage is gathered by play, however many quests land in it.
+		var minutes := maxf(0.2 * base_min, (need - lump) / (income + daily))
 		t += minutes + detour
 		if key == end_key: hours["act_end"] = t / 60.0
 		if key == sim_end: break
@@ -1241,45 +1243,21 @@ func _income(c, cfg: Dictionary, key: String, lv: int) -> float:
 	if ProgressionRules.is_body_stage(key): sit = maxf(sit, float(ContentDB.curve("training_qp_per_min", 40)))
 	return float(mix.get("fight", 0.4)) * fight + float(mix.get("meditate", 0.3)) * sit
 
-## Level -> {quest kind: count}: where each quest becomes available (its realm requirement,
-## its chapter code such as "qk5", or the median of its numbered chapter).
+## Level -> [[quest kind, cultivation], ...]: each quest at its own tier (decision 45: quests.json `tier`, the Level
+## story.py pitches it at, from its realm floor, chapter, the unlock that offers it, the quests it follows, its foes)
+## with the fixed cultivation it pays on hand-in (its `cultivation` and any add_progress reward).
 func _quest_levels() -> Dictionary:
-	var codes := {"bf": "bone_forging", "qk": "qi_kindling", "qu": "qi_unfurling", "ht": "heart_tempering", "cs": "cloud_stride",
-		"sa": "spirit_awakening", "hg": "heaven_glimpse"}
-	var placed := {}   # quest -> level
-	var chapters := {} # numbered chapter -> [levels]
-	for q in ContentDB.all("quests"):
-		var lv := -1
-		for r in q.get("requires", {}).get("all", []):
-			if str(r.get("kind", "")) == "realm_at_least": lv = maxi(lv, int(ContentDB.realm(str(r.realm)).get("level", 0)))
-		var ch := str(q.get("chapter", ""))
-		if lv < 0 and ch.length() >= 3 and codes.has(ch.left(2)) and ch.substr(2).is_valid_int():
-			lv = int(ContentDB.realm("%s_%s" % [codes[ch.left(2)], ch.substr(2)]).get("level", -1))
-		if lv >= 0: placed[str(q.id)] = lv
-		if ch.is_valid_int() and lv >= 0: chapters[ch] = chapters.get(ch, []) + [lv]
 	var out := {}
-	var loose: Array = []   # side stories with no realm anchor: spread evenly over the Act
 	for q in ContentDB.all("quests"):
 		var kind := str(q.get("qp", q.get("kind", "side")))
 		if kind == "prologue": continue
-		var lv2 := int(placed.get(str(q.id), -1))
-		var ch2 := str(q.get("chapter", ""))
-		if lv2 < 0 and chapters.has(ch2):
-			var ls: Array = chapters[ch2].duplicate()
-			ls.sort()
-			lv2 = int(ls[ls.size() / 2])
-		if lv2 < 0:
-			loose.append(kind)
-			continue
-		_add(out, lv2, kind)
-	var last := int(ContentDB.realm(str(ContentDB.config("balance").get("act_end", "heaven_glimpse_3"))).get("level", 57))
-	for i in loose.size():
-		_add(out, 1 + int(float(i + 1) * (last - 1) / float(loose.size() + 1)), str(loose[i]))
+		var lv := int(ContentDB.realm(str(q.get("tier", "mortal"))).get("level", 0))
+		var gain := float(q.get("cultivation", 0))
+		for rw in q.get("rewards", []):
+			if str(rw.get("kind", "")) == "add_progress": gain += float(rw.get("amount", 0))
+		if not out.has(lv): out[lv] = []
+		out[lv].append([kind, gain])
 	return out
-
-func _add(out: Dictionary, lv: int, kind: String) -> void:
-	if not out.has(lv): out[lv] = {}
-	out[lv][kind] = int(out[lv].get(kind, 0)) + 1
 
 func _character():
 	var folder := "user://balance_sim/"

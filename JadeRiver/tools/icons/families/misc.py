@@ -714,6 +714,31 @@ def calm_incense_hd(p):
     smoke_hd(p, 26.0, 22.0, MIST, h=8.0, lean=-0.8, w=1.6)
 
 
+def qi_gathering_incense_hd(p):
+    """Qi-Gathering Incense (decision 45): two jade-green sticks in a clay bowl, pale Qi mist drawn in toward them from
+    both sides instead of rising away (Plain)."""
+    bowl_hd(p, CLAY)
+    sticks_hd(p, (28.0, 36.0), (20.0, 24.0), 44.0, JADE)
+    smoke_hd(p, 28.0, 18.0, QI_MIST_HD, h=10.0, lean=-1.2)
+    smoke_hd(p, 36.0, 22.0, QI_MIST_HD, h=9.0, lean=1.2, w=1.6)
+    smoke_hd(p, 16.0, 30.0, QI_MIST_HD, h=8.0, lean=1.4, w=1.4)
+    smoke_hd(p, 48.0, 32.0, QI_MIST_HD, h=8.0, lean=-1.4, w=1.4)
+
+
+def deep_current_incense_hd(p):
+    """Deep Current Incense (decision 45): three thick sticks rolled in gold ginseng dust in a bronze bowl, a tall curl
+    of Qi mist and a glint (Common)."""
+    bowl_hd(p, BRONZE)
+    c = p.c
+    for k, (x, y0) in enumerate(zip((24.0, 32.0, 40.0), (24.0, 17.0, 24.0))):
+        p.part(c.box(x - 1.5, y0, x + 1.5, 44.0), GOLD, 'flat', base=0 if k % 2 == 0 else -1, sep=True, rim=False)
+        p.decal(c.box(x - 1.5, y0, x + 1.5, y0 + 2.0), FIRE, 2)
+    smoke_hd(p, 32.0, 15.0, QI_MIST_HD, h=9.0)
+    smoke_hd(p, 24.0, 22.0, QI_MIST_HD, h=8.0, lean=-0.8, w=1.6)
+    smoke_hd(p, 40.0, 22.0, QI_MIST_HD, h=8.0, lean=0.8, w=1.6)
+    p.sparkle(45.0, 14.0, 1)
+
+
 def myriad_year_calm_incense_hd(p):
     """Myriad Year Calm Incense: a gold censer with a jade ring round its belly and a pierced lid, violet smoke
     breathing out of it, glints in the air (Heaven)."""
@@ -801,7 +826,7 @@ MISC_HD_A = [
     ('bow_parts', bow_parts_hd), ('prayer_beads', prayer_beads_hd), ('talisman_paper', talisman_paper_hd), ('ink', ink_hd),
     ('lantern_wick', lantern_wick_hd), ('rice', rice_hd), ('kite', kite_hd), ('calm_incense', calm_incense_hd),
     ('myriad_year_calm_incense', myriad_year_calm_incense_hd), ('restoration_ink', restoration_ink_hd), ('fish_bait', fish_bait_hd),
-    ('blank_plate', blank_plate_hd),
+    ('blank_plate', blank_plate_hd), ('qi_gathering_incense', qi_gathering_incense_hd), ('deep_current_incense', deep_current_incense_hd),
 ]
 
 

@@ -3670,7 +3670,7 @@
    "a": 20,
    "b": 8,
    "c": 0.5,
-   "from_realm": "bone_forging_7"
+   "from_realm": "bone_forging_1"
   },
   "soul": {
    "a": 100,
@@ -4348,7 +4348,12 @@
   "soul": 0.00375,
   "combat_delay_s": 5,
   "meditate_mult": 8,
-  "rest_mult": 4
+  "rest_mult": 4,
+  "qi_floor_pool": 100
+ },
+ "bag": {
+  "base": 50,
+  "quick_slots": 3
  },
  "move": {
   "base": 205,

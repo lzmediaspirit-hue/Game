@@ -61,14 +61,41 @@ static func method_rate(c) -> float:
 		"poor": rate *= 0.85
 	return rate
 
-## Meditation accumulation in QP per minute (S05, S29).
+## Meditation accumulation in QP per minute (S05, S29), with decision 45's early current (early_meditation).
 static func meditation_rate(c, qi_density: float, bonus: float) -> float:
 	if c.cultivator.method_id == "": return 0.0
 	var rate := float(ContentDB.curve("meditation_qp_per_min", 60)) * qi_density * method_rate(c) * stability_factor(c.cultivator.stability)
 	rate *= 1.0 + bonus
-	if is_body_stage(c.cultivator.realm_key): rate *= float(ContentDB.curve("meditation_body_stage_factor", 0.3))
+	rate *= early_meditation(level(c))
 	if c.cultivator.consolidation_penalty: rate *= 0.5
 	return rate
+
+## Decision 45: meditation's early current at Level `lv`, curves.json meditation_early's [Level, x] points joined by
+## straight lines (x3 at Mortal and Bone Forging 1, x2.5 at Level 9, x1.8 at 18, x1.3 at 27), x1 from its last point on.
+static func early_meditation(lv: float) -> float:
+	var pts: Array = ContentDB.curve("meditation_early", [])
+	if pts.is_empty(): return 1.0
+	if lv <= float(pts[0][0]): return float(pts[0][1])
+	for i in range(1, pts.size()):
+		var a: Array = pts[i - 1]
+		var b: Array = pts[i]
+		if lv <= float(b[0]): return lerpf(float(a[1]), float(b[1]), (lv - float(a[0])) / maxf(1.0, float(b[0]) - float(a[0])))
+	return float(pts[-1][1])
+
+## Decision 45: a reward as the game says it, two significant figures and at least 10 (tools/data/realms.py
+## round_reward: the data's fixed rewards are rounded the same way).
+static func round_reward(x: float) -> int:
+	if x <= 0.0: return 0
+	var step := pow(10.0, maxf(1.0, floorf(log(x) / log(10.0)) - 1.0))
+	return int(maxf(10.0, roundf(x / step) * step))
+
+## Decision 45: the fixed cultivation a quest of `kind` pitched at Level `lv` pays: its share (curves.json
+## quest_cultivation) of that stage's need. The data writes it on every quest it builds (`cultivation`); a mission the
+## game posts is pitched at the Level it is posted at.
+static func quest_cultivation(kind: String, lv: int) -> int:
+	var share := float(ContentDB.curve("quest_cultivation.%s" % kind, 0.0))
+	if share <= 0.0: return 0
+	return round_reward(share * float(realm(ContentDB.realm_key_for_level(lv)).get("accumulate_needed", 0)))
 
 ## QP granted by a kill (S13 gap factor, S29 kill yield).
 static func kill_qp(player_level: int, enemy_level: int, role: String) -> float:

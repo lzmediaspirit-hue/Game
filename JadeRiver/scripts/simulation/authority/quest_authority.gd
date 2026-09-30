@@ -628,9 +628,8 @@ func hand_in(c, qid: String) -> Dictionary:
 	for g in gives: game.inventory.apply_remove(c.id, str(g.item), int(g.count), "quest:" + qid)
 	c.quests.tracked.erase(qid)
 	c.quests.done[qid] = int(c.quests.done.get(qid, 0)) + 1
-	var qp_kind := str(def.get("qp", {"main": "main", "guided": "guided", "side": "side", "daily": "daily"}.get(str(def.get("kind", "side")), "")))
-	var pct := float(ContentDB.curve("quest_qp_pct.%s" % qp_kind, 0.0))
-	if pct > 0.0 and Unlocks.is_unlocked(c.id, "cultivation"): game.progression.apply_progress(c.id, 0.0, "quest", pct)
+	var gain := cultivation_of(c, def)
+	if gain > 0 and Unlocks.is_unlocked(c.id, "cultivation"): game.progression.apply_progress(c.id, float(gain), "quest")
 	game.apply_effects(c.id, def.get("rewards", []), "quest:" + qid)
 	emit("quest_completed", {"actor": c.id, "quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")),
 		"gave": handover_text(gives)})
@@ -642,6 +641,14 @@ func hand_in(c, qid: String) -> Dictionary:
 		var ndef := ContentDB.entry("quests", nxt)
 		if not ndef.is_empty() and ndef.get("auto_accept", false) and can_offer(c, ndef): accept(c, nxt)
 	return ok({"gave": gives})
+
+## Decision 45: the fixed cultivation a quest pays on hand-in. The data writes it on every quest it builds (its kind's
+## share of the need at the quest's own tier, story.py quest_tiers) and the game on every mission it posts (at the Level
+## it is posted at); a mission posted before decision 45 (a save's board) is pitched at the Level of its hand-in.
+static func cultivation_of(c, def: Dictionary) -> int:
+	if def.has("cultivation"): return int(def.cultivation)
+	var kind := str(def.get("qp", {"main": "main", "guided": "guided", "side": "side", "daily": "daily"}.get(str(def.get("kind", "side")), "")))
+	return ProgressionRules.quest_cultivation(kind, ProgressionRules.level(c)) if c != null and def.has("qp") else 0
 
 ## Items a quest asks for are handed over when it is turned in, or only counted (proof you gathered them, or a later
 ## craft step's ingredients). The data marks each collect objective (`consume`); a deliver always hands over.
@@ -1201,6 +1208,7 @@ func _fill_board(c, day: int, count: int) -> int:
 		var obj: Dictionary = op.objective.duplicate(true)
 		apply_generated(c.id, {"id": id, "name": mname, "kind": "daily", "objectives": [obj],
 			"hand_in": "", "rewards": [{"kind": "add_contribution", "amount": int(ContentDB.curve("contribution.daily", 20))},
-			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true})
+			{"kind": "grant_currency", "currency": "silver_tael", "amount": 10 + lv * 3}], "qp": "daily", "auto_complete": true,
+			"cultivation": ProgressionRules.quest_cultivation("daily", lv)})   # decision 45: fixed at the Level it is posted at
 		made += 1
 	return made
