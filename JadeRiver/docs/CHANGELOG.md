@@ -1,5 +1,54 @@
 # Changelog
 
+## CombatAuthority in parts (decision 45, S8)
+
+This is phase 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7). `combat_authority.gd` was
+one file of 2,912 lines in 18 sections. The attack, tick and resolution flow stays in it, and the systems around the
+fight are now its parts in `scripts/simulation/authority/combat/`. The pattern is written down in
+`docs/architecture/authority_parts.md`, for S9 and S10 to follow. The game plays the same: the slice moves code and
+removes one dead local.
+
+- **The parts.** `combat_authority.gd` is 1,798 lines: 1,721 of core flow, and 77 of forwarders. The parts hold
+  1,303 lines:
+  - `combat_flight.gd` (143): flight, and the movement arts Plunge and Falling Leaf Glide;
+  - `combat_phantom.gd` (42): Phantom Double;
+  - `combat_sword.gd` (132): natal overcharge, Sword Release, Sword Intent and Killing Intent;
+  - `combat_swarm.gd` (83): the sword swarm;
+  - `combat_flute.gd` (88): the flute's melody;
+  - `combat_heals.gd` (97): heals over time on you and on allies, the healing song, the sect roles' support;
+  - `combat_blood_path.gd` (52): the Blood path;
+  - `combat_plates.gd` (61): Array Plates;
+  - `combat_talismans.gd` (51): talismans from the bag;
+  - `combat_projectiles.gd` (136): every shot in flight;
+  - `combat_treasures.gd` (217): treasures, throwables, self-detonation;
+  - `combat_revival.gd` (68): grave wounds and revival;
+  - `combat_riders.gd` (110): what a landed blow carries after its damage (weapon riders, the Soul line's marks, the
+    Poison Body, oils, the Artifact Spirit's and the awakened weapon's skills);
+  - `combat_part.gd` (23): their base.
+- **The pattern.**
+  - A part `extends CombatPart`, a `RefCounted` that holds `game` and reads the authority through a `combat` getter on
+    `game.combat`. It does not keep a reference, because a part and an authority holding each other would never be
+    freed, and `Game.reset_state` builds new ones.
+  - The state stays on the authority, so the save and every reader of `Game.combat.<var>` are unchanged.
+  - The authority makes its parts in `_init`, and its tick calls them in the old order.
+  - Every name that code outside called is still on the authority, with the same arguments and results. For the 50
+    that moved, it is a one-line forwarder in its last section, "the parts' faces". A method only an intent reaches is
+    called from `handle`.
+  - Part files carry the authority's name (`combat_*.gd`), because `contract_tests` and the event contract key
+    scripts by base name.
+- **Tidied while moving.**
+  - Sections that sat in the wrong place went to their homes:
+    - Killing Intent, the boss's self-detonation, the tribulation's bolt, `technique_element` and `body_hp_cost` sat
+      in the flight section;
+    - the heals over time sat in Phantom Double's and the Blood path's sections;
+    - `_enemies_within` and `_nearest_enemy` sat in the treasures' section;
+    - `raise_shield` sat among the treasures.
+  - The core's own sections are now views, the player's attacks, the tick, resolution, a foe's end, foes' blows and
+    harm to the player, and the `apply_*` commands.
+- **Dead code.** One local was removed: `_resolve_plunge` counted the foes it struck in `struck` and never read it.
+  Every function of the file is still called, by grep over `scripts/`, `tests/` and `tools/`.
+- **Checks.** CHECKS_PLACEHOLDER
+
 ## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
 
 This is phase 2, slice S4 of the code audit (`docs/architecture/audit_45.md` §4 and §5; findings DUP-01, 02 and 03,
