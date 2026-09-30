@@ -15,12 +15,19 @@ An entry:
                       page, tab?, anchor, name?} a page on top (on that tab); the last may be the element to use on the
                       entry's own page, with a `try`
   hint                the first card's line (the HUD or place step)
-  tour                3 to 6 steps on a page (a HUD tour 1 to 3): {anchor, text, try?, hud?}; `anchor` names a place the page
+  tour                3 to 6 steps on a page (a HUD tour 1 to 4): {anchor, text, try?, hud?}; `anchor` names a place the page
                       draws (Page.tour_rect: a tap region by its action, "tab:<id>", "tabs", "close", a page's own mark) or
                       the HUD shows (HUD.tour_rect); `a|b` takes the first found; `try` moves the step on when done: {event}
                       a game event, {tab} the tab chosen, {tap} a tap through the spotlight
   priority            higher first in the queue; prologue: true for the Prologue's systems (a character that skips it
                       knows them)
+  since               the tutorials record's version that brought the entry (TutorialRules.VERSION): a save made before
+                      it counts what it already has of the entry's system as known
+A HUD power (decision 44: Spirit Sense, the Presence, the Sphere, treasures, the weapon swap) is an entry on page "hud"
+with a guide as well as its tour. One step of its chain may be the control itself ({at: hud, anchor, tour: true}): the
+hand points there, and a tap on it plays the tour where it stands. The steps before it lead to the control (the Bag, to
+set a spare weapon); the steps after it, once the tour is seen, lead on to the page or tab that manages the power. With
+no control step the tour plays first (the treasures' button comes out only in a fight) and the whole chain follows it.
 Every line is a key of tools/data/ui_strings.json (ui.tutorial.<id>.<n>, .hint, .do): at most two lines on a phone.
 Pages with no tour: the talks and events (dialogue, gift, mercy, fates, revival, welcome), which the coach waits out.
 """
@@ -63,8 +70,15 @@ def first_open():
     return {"kind": "page"}
 
 
-def hud(anchor):
-    return {"at": "hud", "anchor": anchor}
+def hud(anchor, text="", tour=False, name=""):
+    st = {"at": "hud", "anchor": anchor}
+    if text:
+        st["text"] = text
+    if tour:
+        st["tour"] = True
+    if name:
+        st["name"] = name   # a control in the fan: its name for "New in the fan: %s" while the fan is folded
+    return st
 
 
 def place(pid, **match):
@@ -107,7 +121,7 @@ def element(anchor, try_=None):
     return {"anchor": anchor, "try": try_} if try_ else {"anchor": anchor}
 
 
-def entry(eid, page, trigger, tour, tab="", chain=None, priority=0, prologue=False):
+def entry(eid, page, trigger, tour, tab="", chain=None, priority=0, prologue=False, since=0):
     d = {"id": eid, "page": page, "tab": tab, "trigger": trigger, "chain": chain or [],
          "tour": [dict(s) for s in tour], "priority": priority}
     if chain:
@@ -119,7 +133,18 @@ def entry(eid, page, trigger, tour, tab="", chain=None, priority=0, prologue=Fal
             st.setdefault("text", "ui.tutorial.%s.do" % eid)
     if prologue:
         d["prologue"] = True
+    if since:
+        d["since"] = since
     E.append(d)
+
+
+# The tutorials record's version (TutorialRules.VERSION reads it from tutorials.json): 2 brought the late HUD powers.
+VERSION = 2
+
+
+def power(eid, u, tour, chain, priority=5, page="hud"):
+    """A late HUD power (decision 44): its guide (`chain`, with the control step where the tour plays) and its tour."""
+    entry(eid, page, unlock(u), tour, chain=chain, priority=priority, since=2)
 
 
 def t(anchor, try_=None, hud_side=None):
@@ -261,6 +286,36 @@ def later():
           chain=via_menu("workshop", "formations", "craft.formations"), priority=3)
 
 
+# ------------------------------------------------------------------ decision 44: the late HUD powers
+def late_powers():
+    """The HUD's powers after the prototype, each where its unlock opens it (tools/data/story.py): the guide's hand on
+    the control (the fan's toggle; the fan itself while it is folded), whose tap plays the tour there with a "try it"
+    that ends when the power is used; then, where a page manages the power, the way on to it."""
+    # Spirit Sense (unlock spirit_sense, Spirit Awakening 1): a pulse of the soul, 10 Soul and 6 s (WorldAuthority.sense_pulse).
+    power("sense", "spirit_sense", [t("sense|fan"), t("soul"), t("sense|fan", {"event": "spirit_sense_pulsed"})],
+          [hud("sense|fan", tour=True, name="hud.fan_sense")])
+    # The Presence (unlock presence, Will Manifest 1): held for Soul each second, levelled by use (FieldAuthority).
+    power("presence", "presence", [t("presence|fan"), t("soul"), t("presence|fan", {"event": "presence_toggled"})],
+          [hud("presence|fan", tour=True, name="hud.fan_presence")])
+    # The Sphere (unlock sphere, Sphere Lord 1): raised for Qi each second, drawn from the strongest combat Dao; then the
+    # Dao tab, where that Dao grows.
+    power("sphere", "sphere", [t("sphere|fan"), t("qi"), t("sphere|fan", {"event": "sphere_toggled"})],
+          [hud("sphere|fan", tour=True, name="hud.fan_sphere"), hud("icon:menu", text="ui.tutorial.sphere.page"),
+           on("menu", "open:cultivation", name=MENU["cultivation"]), on("cultivation", "tab:dao", name="ui.cultivation.dao")])
+    # Treasures (unlock treasures, Heart Tempering 1): the button comes out on ring 2 only in a fight, so the tour shows
+    # where (HUD.tour_rect "treasure:0" at rest, the coach drawing it faint there: `ghost`), then the guide leads to the
+    # Bag, where a treasure is set on it.
+    power("treasure", "treasures", [dict(t("treasure:0"), ghost="treasure:0"), t("qi"), t("icon:bag")],
+          [hud("icon:bag"), on("inventory", "treasure:0|treasure_item", element=True)])
+    # The second Treasure button (unlock treasure_slot_2, Spirit Awakening 1): set in the Bag.
+    entry("treasure_2", "inventory", unlock("treasure_slot_2"), [],
+          chain=[hud("icon:bag"), on("inventory", "treasure:1|treasure_item", element=True)], priority=4, since=2)
+    # The weapon swap (unlock dual_loadout, Heart Tempering 1): Swap shows once a spare weapon is set in the Bag.
+    power("weapon_swap", "dual_loadout", [t("swap"), t("skill|attack"), t("swap", {"event": "loadout_swapped"})],
+          [hud("icon:bag"), on("inventory", "spare|weapon", element=True),
+           hud("swap", text="ui.tutorial.weapon_swap.ready", tour=True)], priority=4)
+
+
 def check(rows, scripts):
     ui = json.load(open(UI, encoding="utf-8"))
     ids = [r["id"] for r in rows]
@@ -270,7 +325,7 @@ def check(rows, scripts):
         assert r["page"] in pages, (where, "unknown page", r["page"])
         n = len(r["tour"])
         if r["page"] == "hud":
-            assert 1 <= n <= 3, (where, "a HUD tour has 1 to 3 steps", n)
+            assert 1 <= n <= 4, (where, "a HUD tour has 1 to 4 steps", n)
         elif n:
             assert 3 <= n <= 6, (where, "a page tour has 3 to 6 steps", n)
         keys = [s["text"] for s in r["tour"]] + [s["text"] for s in r["chain"] if "text" in s]
@@ -293,6 +348,11 @@ def check(rows, scripts):
             assert r["trigger"]["points"] in POINTS, (where, r["trigger"])
         if kind != "page" and r["page"] != "hud":
             assert r["chain"], (where, "a triggered guide has a chain")
+        # A control step (the hand on a HUD power, whose tap plays the tour): one at most, a HUD step of a HUD entry.
+        controls = [s for s in r["chain"] if s.get("tour")]
+        assert len(controls) <= 1 and all(s["at"] == "hud" for s in controls) and (not controls or r["page"] == "hud"), (where, controls)
+        if r.get("since"):
+            assert 1 < r["since"] <= VERSION, (where, "since", r["since"])
     assert len(ids) == len(set(ids))
 
 
@@ -300,13 +360,14 @@ def build():
     del E[:]
     prototype()
     later()
+    late_powers()
     scripts = page_scripts()
     check(E, scripts)
     unlocks = {u["id"] for u in json.load(open(os.path.join(ROOT, "data", "unlocks.json")))["entries"]}
     for r in E:
         u = r["trigger"].get("unlock", "")
         assert not u or u in unlocks, ("tutorial", r["id"], "unknown unlock", u)
-    entries("tutorials", E, page_scripts=scripts, points=POINTS)
+    entries("tutorials", E, page_scripts=scripts, points=POINTS, version=VERSION)
 
 
 if __name__ == "__main__":

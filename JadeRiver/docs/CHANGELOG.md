@@ -50,6 +50,72 @@ flats, `tools/dev/topdown_capture.gd -- --monsters --monsters-polish`) and from 
   too); `data_validation` holds an action past the catalogue (the swim) to the frame and sheet rules;
   `build_foes.py --check` is byte-identical; `balance_sim` green.
 
+## The late HUD powers teach themselves (decision 44)
+
+Decision 43's tutorials left out the HUD powers that open after the prototype. Each now has a guide from its unlock
+and a short tour on the play screen, as built in `docs/redesign/tutorials.md` ("A late HUD power", §5's table).
+Screenshots of every step at the phone layout are in `docs/redesign/feedback/tutorials/late_powers/`.
+
+- **The powers and where they open:**
+  - Spirit Sense: `spirit_sense`, Spirit Awakening 1.
+  - The Presence: `presence`, Will Manifest 1 and "Will Manifest".
+  - The Sphere: `sphere`, Sphere Lord 1 and "Sphere Lord".
+  - Treasures: `treasures`, Heart Tempering 1, with `treasure_slot_2` at Spirit Awakening 1.
+  - The weapon swap: `dual_loadout`, Heart Tempering 1.
+- **The guide.**
+  - The hand, the ring and the "!" point at the power's own button. A button in the folded fan has the hand on the fan
+    first: "New in the fan: Sense. Tap the fan to open it."
+  - A tap on the button under the hand plays the tour and does not use the power.
+  - The swap's guide first leads to the Bag, to set a spare weapon, since Swap only shows with one.
+  - After the tour, the Sphere's guide goes on to Cultivation's Dao tab, and the treasures' to the Bag.
+- **The tours.** Three steps each, two lines on a phone:
+  - the button, what it does;
+  - its cost on the panel's SL or QI bar (10 Soul and 6 s a pulse; Soul or Qi each second held; Qi a use, then a rest);
+  - a "try it" whose spotlight lets the tap through and ends the tour when the power is used.
+  - A Treasure button comes out only in a fight, where the coach waits. So its tour plays at rest and lights the place
+    on ring 2, with the treasure drawn faint there. It has no "try it".
+- **Anchors.** `HUD.tour_rect` names the panel's `qi` and `soul` bars. At rest, `treasure:0` and `treasure:1` name
+  the place where each button will come out. The Bag marks its first `weapon` and `treasure_item` in view. The fan's
+  toggles and Swap already had their roles.
+- **Rules as built.** The late guides wait out fights, scenes, talks and confirms, and queue one at a time.
+  - The tutorials record has a version (`v`, now 2). An entry has a `since`.
+  - A save from before these lessons counts the powers it already has as known.
+  - The coach lights a thin anchor 3 px round, so the next bar stays dim.
+- **Tests.** The `tutorials` suite has 87 checks (from 53), and its "later" list is gone.
+  - Every late power has its guide and tour.
+  - Their 29 anchors are found on a character at each realm once the power is unlocked.
+  - Spirit Sense runs end to end through real taps.
+  - The treasures', the Sphere's and the swap's guides are checked in their own orders, and so is the old save.
+  - `tools/dev/tutorial_capture.tscn -- --late` takes the screenshots.
+
+## The living world's sounds: critters, people at work, places used (decision 44)
+
+Decision 43's living world raised a named sound for each moment of life, and the bank had none, so the critters and
+the villagers at work were silent. Now they sound, synthesized in code like the rest (`tools/audio/life.py`), as
+ambience well under the fight and falling off with distance. `docs/redesign/sound.md` §10 has the design and the
+review, §9 a listening guide.
+
+- **Critters:** a flock of sparrows bursting up (wings and alarm chirps), a fish darting off (a flick and a plip), a
+  frog's squeaking leap and its plop, a hen scattering (wings, clucks, a "b-gawk"), a cat waking (a trilled "mrrp", a
+  mew, a stretch), a village dog glad to see you (two "arf"s, or a "ruff" and a whine).
+- **Work,** one for each cue of the loops: a broom on paving, a load set down off the pole, scrubbing on a ribbed
+  board, washing shaken out and pegged, a herb snapped, a ladle round the pot, a pestle in a mortar, the axe's swing
+  and its bite (splitting the log two blows in three), the hammer's swing and the anvil's ring (a lighter tap between
+  blows), the forge poked to a crackle, a line cast and recast, a net's cord drawn tight, a rustle as someone looks
+  about, a brush on paper, a meditator's slow breath.
+- **Places** for the place poses: `place_open` (a latch, a creak, a lid knocking open), `place_tend` (soil and
+  leaves), `place_sit` (settling on a straw mat).
+- **Takes** where repetition would show (the sweep, the washing, the axe, the hammer, the dog) play in turn, and every
+  one is varied a little in pitch and level. The village ranks under every sound of the fight in the voice pool: at
+  most three critters and three workers at once, and any blow, step or tell takes their voices first.
+- **Checks:** `tools/data/sound.py --check` fails when a cue the code or `data/topdown/life.json` can raise, or a place
+  sound, has no file (it reads the data's cues and the code's `raise_cue` calls); `audio_tests` checks the same in the
+  engine, plays a raised cue once where it happens, the takes in turn and a busy village under a fight. Review pictures
+  and a loudness table in `docs/redesign/feedback/sound/life/`.
+- **Size:** the audio in the APK went from 7.04 MB to 7.33 MB (38 more one-shots, 1.36 MB of sources). Frame time:
+  within the shared machine's noise (Lotus Ferry with the living world 7.96 ms a frame before, 8.26 after, the least
+  of six rounds, medians of three runs each).
+
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 
 With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh

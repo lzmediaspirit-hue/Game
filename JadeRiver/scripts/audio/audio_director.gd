@@ -311,9 +311,16 @@ func distance_db(at: Vector2) -> float:
 	return float(d.get("floor_db", -24.0)) * log(dist / near) / log(far / near)
 
 ## A world sound at a place (the living world's critters and work, a door, a splash): positional, a little under the
-## fight's sounds in the voice pool.
+## fight's sounds in the voice pool. Decision 44: a life or place sound plays its takes in turn (data/sound.json
+## `life.takes`: a sweeper's strokes, a smith's blows, a woodcutter's axe), each a little varied in pitch and level.
 func world_sound(id: String, at: Vector2, gain_db := 0.0) -> AudioStreamPlayer:
-	return play(id, "SFX", {"at": at, "gain_db": gain_db, "prio": -10})
+	var opts := {"at": at, "gain_db": gain_db, "prio": -10}
+	if id.begins_with("life_") or id.begins_with("place_"):
+		var j := _jitter(SoundBank.section("life"))
+		opts.gain_db += float(j.db)
+		opts["pitch"] = float(j.pitch)
+		id = _next("take:" + id, SoundBank.takes_of(id))
+	return play(id, "SFX", opts)
 
 func _later(secs: float, fn: Callable, what := "") -> void:
 	if secs <= 0.0:
