@@ -90,7 +90,7 @@
     {
      "at": "page",
      "page": "inventory",
-     "anchor": "gear",
+     "anchor": "equip|gear",
      "try": {
       "event": "equipment_changed"
      },
@@ -154,7 +154,7 @@
    "chain": [],
    "tour": [
     {
-     "anchor": "meditate",
+     "anchor": "meditate|fan",
      "text": "ui.tutorial.cultivate.1"
     },
     {

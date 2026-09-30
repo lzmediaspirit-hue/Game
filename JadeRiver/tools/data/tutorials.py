@@ -163,11 +163,11 @@ def prototype():
           chain=[hud("icon:menu")], priority=9, prologue=True)
     entry("bag", "inventory", first_open(), [t("bag"), t("slot"), t("kind"), t("sort"), t("tab:key")], prologue=True)
     entry("gear", "inventory", {"kind": "item", "bag_kind": "gear"}, [],
-          chain=[hud("icon:bag"), on("inventory", "gear", element=True, try_={"event": "equipment_changed"})],
+          chain=[hud("icon:bag"), on("inventory", "equip|gear", element=True, try_={"event": "equipment_changed"})],
           priority=8, prologue=True)
     entry("quests", "quests", unlock("navigation"), [t("story|sel"), t("read"), t("go"), t("track|read"), t("tab:done")],
           chain=[hud("tracker")], priority=7, prologue=True)
-    entry("cultivate", "hud", unlock("cultivate"), [t("meditate"), t("progress"), t("portrait")], priority=6, prologue=True)
+    entry("cultivate", "hud", unlock("cultivate"), [t("meditate|fan"), t("progress"), t("portrait")], priority=6, prologue=True)
     entry("cultivation", "cultivation", unlock("cultivation"),
           [t("mountain"), t("stair"), t("next"), t("meditate"), t("tabs")], chain=via_menu("cultivation"), priority=5,
           prologue=True)

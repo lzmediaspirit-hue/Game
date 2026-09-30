@@ -82,7 +82,7 @@ func _step_hook() -> void:
 	pass
 
 ## The walk's steps in order; --start=<step> with --from=<saves> resumes at one, --keep-at=<step> keeps the saves there.
-const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_willow",
+const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_boat", "p_willow",
 	"fair", "sect_choice", "chapter2", "to_the_gate"]
 
 ## The game saved as it stands, into keep_dir (a checkpoint the next run starts from); with more than one --keep-at
@@ -880,6 +880,9 @@ func p_night() -> void:
 			night_shot = true
 			await shot("night_hold", "holding out at the hut")
 		await frames(6)
+
+## Lu's boat after the night: the first breakthrough and the River Token.
+func p_boat() -> void:
 	await settle()
 	await wait_s(1.0)
 	await shot("lu_boat", "Lu's boat: %s" % scene_step())

@@ -38,6 +38,7 @@ const SLOP := 24.0            ## a release this far off the button still presses
 const GUARD_S := 0.35         ## after a tap closes a card, a tap on its place is the coach's (a double tap acts once)
 const FADE_S := 0.12          ## a new card fades in (its buttons live from its first frame)
 const MOVE_PX := 12.0         ## the card keeps its place for its step unless its anchor moves further than this
+const REST_S := 1.2           ## after the player closes a card, another lesson waits this long on the same screen
 const PAD := 20.0
 const MISSING_S := 0.4        ## an anchor not found this long: the card stands alone, in the middle
 const HIDE_ON := ["dialogue", "gift", "revival", "fates", "mercy", "welcome"]   ## talks and events: the coach waits
@@ -85,6 +86,10 @@ var _words_key := ""          ## the step and state its words were found for
 var _guard_t := 0.0           ## the double tap's guard: how long it lasts yet, and where
 var _guard_rect := Rect2()
 var _held: Dictionary = {}    ## finger index (-1 the mouse) -> true: a press the coach took, so its drags and release are its too
+var _rest_t := 0.0            ## the rest after a card closed (_present): how long yet, the lesson closed, the page then
+var _rest_entry := ""
+var _rest_top := 0
+var _rest_char := 0
 var _lines_key := ""
 var _lines_cache: Array = []
 var _card_view: Control = null
@@ -146,6 +151,7 @@ static func _hand_texture(down: bool) -> ImageTexture:
 func _process(delta: float) -> void:
 	t += delta
 	if _guard_t > 0.0: _guard_t = maxf(0.0, _guard_t - delta)
+	if _rest_t > 0.0: _rest_t = maxf(0.0, _rest_t - delta)
 	var was_mode := mode
 	var was_step := step
 	var was_target := target
@@ -164,6 +170,7 @@ func _update(delta: float) -> void:
 	var c = Game.active() if main != null else null
 	if c == null or main.screen != "world":
 		why_hidden = ""
+		_guard_t = 0.0
 		_show("", "", 0)
 		return
 	var top: Page = main.top_page()
@@ -187,8 +194,7 @@ func _update(delta: float) -> void:
 	# 1. A tour played again from the page's "?" (or Settings), while its page stays open.
 	if replay != "":
 		if top != null and top == replay_page:
-			_show("tour", replay, replay_step)
-			_resolve(delta)
+			_present("tour", replay, replay_step, delta)
 			return
 		replay = ""
 	var head := _head(rec)
@@ -196,8 +202,7 @@ func _update(delta: float) -> void:
 	# 2. The head guide at its element on this page (the node to spend on): before the page's own tour. (A HUD power's
 	# guide is its lesson's, step 4.)
 	if head != "" and top != null and not TutorialRules.hud_entry(he) and TutorialRules.chain_home(he, pid, tab) and _element_step(he):
-		_show("guide", head, (he.chain as Array).size() - 1)
-		_resolve(delta)
+		_present("guide", head, (he.chain as Array).size() - 1, delta)
 		return
 	# A guide whose page (and tab) is open now is done, whether it led there or the player came first: its tour, if
 	# unseen, plays next.
@@ -210,8 +215,7 @@ func _update(delta: float) -> void:
 	if top != null:
 		var tour := _page_tour(c, rec, top)
 		if tour != "":
-			_show("tour", tour, int(rec.at.get(tour, 0)))
-			_resolve(delta)
+			_present("tour", tour, int(rec.at.get(tour, 0)), delta)
 			return
 	# 4. The head guide: a HUD control's lesson (its tour with no page open, and a HUD power's guide round it), else the
 	# chain's step for what is on screen.
@@ -221,8 +225,7 @@ func _update(delta: float) -> void:
 		else:
 			var i := TutorialRules.chain_step(he, pid, tab)
 			if i >= 0:
-				_show("guide", head, i)
-				_resolve(delta)
+				_present("guide", head, i, delta)
 				return
 	_show("", "", 0)
 
@@ -286,15 +289,13 @@ func _hud_lesson(c, e: Dictionary, top: Page, pid: String, tab: String, delta: f
 	var toured: bool = Game.tutorials.seen(c, id)
 	if not toured and (Game.tutorials.in_progress(c, id) or TutorialRules.tour_at(e) < 0):
 		if top != null: return false
-		_show("tour", id, Game.tutorials.step_of(c, id))
-		_resolve(delta)
+		_present("tour", id, Game.tutorials.step_of(c, id), delta)
 		return true
 	var at := TutorialRules.tour_at(e)
 	var control_on := at >= 0 and top == null and _find(str(((e.chain as Array)[at] as Dictionary).get("anchor", "")), true).size != Vector2.ZERO
 	var i := TutorialRules.lesson_step(e, pid, tab, toured, control_on)
 	if i < 0: return false
-	_show("guide", id, i)
-	_resolve(delta)
+	_present("guide", id, i, delta)
 	return true
 
 ## The guide's hand is on a HUD power's own control (not the fan that holds it): a tap there plays its tour. Found once
@@ -327,6 +328,32 @@ func _page_tour(c, rec: Dictionary, top: Page) -> String:
 		if str(e.get("tab", "")) != "" and gate != "" and not Unlocks.is_unlocked(c.id, gate): continue
 		return str(id)
 	return ""
+
+## Show step `i` of `id` in mode `m` and find its anchor, words and card; but after the player closed a card, another
+## lesson waits a moment (REST_S) while the screen is the same (decision 45: with lessons queued, a Later brought the next
+## guide at once in the same place, its hand on the same Menu button, and read as a Later that did nothing).
+func _present(m: String, id: String, i: int, delta: float) -> void:
+	if mode == "" and _rest_t > 0.0 and id != _rest_entry and _top_id() == _rest_top and _char_id() == _rest_char:
+		why_hidden = "rest"
+		_show("", "", 0)
+		return
+	_show(m, id, i)
+	_resolve(delta)
+
+func _char_id() -> int:
+	var c = Game.active()
+	return c.get_instance_id() if c is Object else 0
+
+func _top_id() -> int:
+	var top: Page = main.top_page() if main != null else null
+	return top.get_instance_id() if top != null else 0
+
+## The player closed the card of `id`: a moment's rest before another lesson on this screen.
+func _rest_after(id: String) -> void:
+	_rest_t = REST_S
+	_rest_entry = id
+	_rest_top = _top_id()
+	_rest_char = _char_id()
 
 func _show(m: String, id: String, i: int) -> void:
 	if m == "" and mode == "" and _goal == "": return   # hidden, and was
@@ -631,11 +658,24 @@ func _hit(p: Vector2) -> String:
 	if control and target.grow(8).has_point(p): return "control"
 	return ""
 
+## The phone's Back (and Escape) while a tour dims the screen: it skips the tour (it was the page under it that
+## closed, and the tour came back on its next opening). True when it did; a guide leaves Back to the page.
+func back() -> bool:
+	if mode != "tour" or _pending(): return false
+	press("skip")
+	return true
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event.pressed and not event.echo and event.keycode == KEY_ESCAPE and back(): get_viewport().set_input_as_handled()
+
 ## A card button: Next, Skip (the tour) or Later (the guide); or the HUD power's control the guide points at, whose tap
 ## plays its tour.
 func press(which: String) -> void:
+	var id := entry_id
 	match which:
-		"next": _next()
+		"next":
+			_next()
+			if mode == "": _rest_after(id)
 		"control":
 			if control:
 				Audio.ui("ui_tap")
@@ -643,6 +683,7 @@ func press(which: String) -> void:
 		"skip", "later":
 			Audio.ui("ui_back")
 			_finish(true)
+			_rest_after(id)
 
 func _tour_size() -> int:
 	return (TutorialRules.entry(entry_id).get("tour", []) as Array).size()
@@ -718,16 +759,13 @@ func _card_place(sz: Vector2) -> Rect2:
 			if r.size != Vector2.ZERO: avoid.append([r, 0.05])
 	var hr := hand_rect(false) if _hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO: avoid.append([hr.grow(4), 0.05])
-	# On the play screen, clear of the HUD's controls (a guide's card sat over the Talk button), then of its plates, and a
-	# guide's (the player plays on under it) off the thumbs' places: the stick's and the right thumb's cluster.
+	# On the play screen, clear of what the HUD shows (its controls, a guide's card sat over the Talk button; its plates,
+	# the equip prompt, the log), and a guide's (the player plays on under it) off the thumbs' places: the stick's and the
+	# right thumb's cluster.
 	var hud = main.get("hud") if main != null else null
-	if top == null and is_instance_valid(hud) and hud.has_method("tour_targets"):
-		for tg in hud.tour_targets():
-			var d := float(tg.drawn) + 6.0
-			avoid.append([Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0), 0.05])
-		for n in ["minimap", "portrait", "tracker"]:
-			var r: Rect2 = hud.tour_rect(n)
-			if r.size != Vector2.ZERO and not r.intersects(target): avoid.append([r, 0.01])
+	if top == null and is_instance_valid(hud) and hud.has_method("obstacle_rects"):
+		for r in hud.obstacle_rects():
+			if not (r as Rect2).intersects(target): avoid.append([(r as Rect2).grow(4), 0.03])
 		if mode == "guide":
 			for zone in THUMBS:
 				var z: Rect2 = zone

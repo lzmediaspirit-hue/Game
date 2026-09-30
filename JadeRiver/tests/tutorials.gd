@@ -393,6 +393,8 @@ func _queue() -> void:
 	var ch = c()
 	check(ch.tutorials.queue == ["map", "mail"] and coach().state().entry == "map", "two unlocks at once queue one after the other, by priority (%s; shown %s)" % [str(ch.tutorials.queue), coach().state().entry])
 	await tap_button("later")
+	check(coach().state().mode == "" and coach().state().waiting == "rest", "after Later, the next guide waits a moment (%s)" % coach().state().waiting)
+	await card_up("guide")
 	check(ch.tutorials.guided.get("map", 0) == 2 and coach().state().entry == "mail" and coach().state().anchor == "icon:mail",
 		"Later passes the map's guide by, and the mail's shows next (%s)" % str(coach().state()))
 	await tap((coach().state().rect as Rect2).get_center())
@@ -830,6 +832,7 @@ func _thumb() -> void:
 	await _lesson_keeps_screen()
 	await _fingers_kept()
 	await _fight_room_reload()
+	await _back_skips()
 	await _cost()
 
 ## A finger down or up at the canvas point `p`, through the phone's path.
@@ -854,11 +857,12 @@ func touch_tap(p: Vector2, hold := 2, idx := 0) -> void:
 	await frames(3)
 
 ## The coach showing a card in mode `m` (laid out, not waiting for its anchor), within a second of real time.
-func card_up(m := "tour") -> void:
+func card_up(m := "tour", guard_out := true) -> void:
 	for i in 5000:
 		var st := coach().state()
-		if st.mode == m and (st.card as Rect2).size != Vector2.ZERO: return
+		if st.mode == m and (st.card as Rect2).size != Vector2.ZERO: break
 		await get_tree().process_frame
+	if guard_out: await unguarded()   # a card closed a moment ago (the check before) guards its place
 
 ## A page tour on its own (its guide counted done), the page opened and come in.
 func page_tour(id: String, page: String, unlocks: Array, args := {}) -> Page:
@@ -998,11 +1002,12 @@ func _while_coming() -> void:
 	unlock(["quick_use", "character_menu"])
 	var ch = c()
 	ch.tutorials.guided["character"] = 1
+	await unguarded()
 	main.open_page("character", {})
 	await frames(1)
 	check(coach().state().mode == "" and coach().state().waiting == "opening", "a page's tour waits while the page comes in (%s)" % str(coach().state().waiting))
 	await settle()
-	await card_up()
+	await card_up("tour", false)
 	var first: Rect2 = coach().state().card
 	var alpha := coach().card_alpha()
 	var nxt: Rect2 = coach().state().buttons.get("next", Rect2())
@@ -1168,6 +1173,29 @@ func _fight_room_reload() -> void:
 	await settle()
 	await card_up()
 	check(coach().state().entry == "character" and coach().state().step == 1, "it resumes at its step on the page's next opening (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+
+## The phone's Back (and Escape) while a tour dims a page skips the tour and keeps the page (it closed the page under the
+## tour, and the tour came back on the page's next opening); with no tour, Back closes the page as before.
+func _back_skips() -> void:
+	var pg := await page_tour("character", "character", ["quick_use", "character_menu"])
+	var ch = c()
+	main._on_back()
+	await frames(3)
+	check(main.top_page() == pg and coach().state().mode == "" and ch.tutorials.seen.get("character", 0) == 2, "Back during a tour skips it and keeps its page (%s)" % str(coach().state()))
+	main._on_back()
+	await frames(3)
+	check(main.top_page() == null, "Back again closes the page")
+	pg = await page_tour("mail", "mail", ["quick_use", "mail"])
+	ch = c()
+	var esc := InputEventKey.new()
+	esc.keycode = KEY_ESCAPE
+	esc.physical_keycode = KEY_ESCAPE
+	esc.pressed = true
+	Input.parse_input_event(esc)
+	await frames(3)
+	check(main.top_page() == pg and coach().state().mode == "" and ch.tutorials.seen.get("mail", 0) == 2, "Escape during a tour skips it and keeps its page (%s)" % str(coach().state()))
 	main.close_all_pages()
 	await frames(2)
 

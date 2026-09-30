@@ -112,15 +112,44 @@ The text lives in `tools/data/ui_strings.json`, under these keys:
 | Authority | `scripts/simulation/authority/tutorial_authority.gd` | Each character's `tutorials` record: `seen`, `guided`, `queue`, `at`, `v`. It queues a guide when its trigger first holds and records progress through `tutorial_step`, `tutorial_done`, `tutorial_replay` and `tutorial_goal`. A HUD power's guide stays queued after its tour while it has a page to lead to. |
 | Coach | `scripts/ui/tutorial_coach.gd` | The overlay on its own canvas layer (25, over the pages and under the fade): the dim with its spotlight, the pixel hand (nearest neighbour, original art), the ring, the "!", the card and its buttons. It decides what shows every frame from the queue and the screen. A HUD entry is its lesson (`_hud_lesson`): the tour on the play screen, and a power's guide round it; a tap on the power's own button under the hand plays the tour (`control`). A thin anchor (a bar of the panel) is lit 3 px round instead of 8; a step's `ghost` is drawn faint in its spotlight. |
 | Page anchors | `scripts/ui/page.gd` `tour_rect` | Every tap region names an anchor by its action (`meridian`, `meridian:body`). Every tab is `tab:<id>`. The shared parts are `tabs`, `close`, `help`, `title`, `content` and `window`. A page adds its own with `tour_mark` (the cultivation stair, the techniques chart and dock, the mail's letter, the Bag's first `gear`, `weapon` and `treasure_item` in view, and so on). |
-| HUD anchors | `scripts/hud.gd` `tour_rect` | A control by its role in `hit_targets` (`icon:menu`, `points:meridian`, `skill`, `attack`, `fan`, `sense`, `presence`, `sphere`, `swap`, …) or a plate (`minimap`, `portrait`, `tracker`, `progress`, `log`, and the panel's `qi` and `soul` bars). A Treasure button (`treasure:0`, `treasure:1`) comes out only in a fight; at rest, once revealed, its anchor is where it will come out on ring 2. The HUD agent's rework of the technique buttons keeps these names. |
+| HUD anchors | `scripts/hud.gd` `tour_rect` | A control by its role in `hit_targets` (`icon:menu`, `points:meridian`, `skill`, `attack`, `fan`, `sense`, `presence`, `sphere`, `swap`, …) or a plate (`minimap`, `portrait`, `tracker`, `progress`, `log`, and the panel's `qi` and `soul` bars). A Treasure button (`treasure:0`, `treasure:1`) comes out only in a fight; at rest, once revealed, its anchor is where it will come out on ring 2. The HUD agent's rework of the technique buttons keeps these names. The controls are counted once a frame (`tour_targets`, shared with the HUD's own frame). |
 
 Tours use anchor names only, never node paths.
 
 **Input.** Dimming and blocking work like this:
 - While a tour dims the screen, the coach takes every touch except in the spotlight (and only there when the step has
   a try). It also keeps those touches from the HUD's own `_input` (`hud.coach`).
-- A guide takes only its card's buttons.
+- A guide takes only its card's buttons. Over a page its card takes the taps on it too, so a tap never reaches what it
+  hides; on the play screen a thumb passes through it to the stick.
 - A tour that dims the play screen lets go of whatever the thumbs held, such as the stick or a guard.
+- Every finger is the HUD's or the coach's from its press to its release (decision 45). A press the coach took keeps
+  its drags and its release from the HUD; one it did not take (a thumb on the stick sliding over a card) is never cut
+  off.
+
+**The card** (decision 45, "Bugs fixed" below):
+- It waits until its page has come in (`Page.settled`: drawn, its opening motion over) and its anchor is on screen
+  (up to 0.4 s, then it stands alone in the middle). It never shows in one place and then jumps.
+- It is placed once for its step and stays there. It moves only when its anchor moves more than 12 px, and never while
+  a finger is on it. Its places are:
+  - around the anchor and the hand at rest (never the hand's bob);
+  - off the page's title, close and "?";
+  - on the play screen, off the HUD's controls and plates, and for a guide off the thumbs' places (the stick's side and
+    the right thumb's cluster);
+  - for an anchor too tall for any side, tight over or under it.
+- Its buttons are 56 px tall and act on the finger's release. Their touch targets reach 8 px past them, and a release
+  up to 24 px off still counts. A held button shows pressed. A phone's tap arrives twice, as the touch and as the mouse
+  click made from it; the coach takes it once, as the touch.
+- A tap that closes a card (Done, Skip, Later) guards the card's place for 0.35 s. The second tap of a double tap
+  reaches nothing under it.
+- It fades in over 0.12 s. Its buttons work from its first frame.
+- A HUD lesson on screen keeps the screen until it ends. A guide queued after it with a higher priority waits.
+
+**What it costs a frame.** When nothing is queued, the coach does almost nothing. It looks at the record and at the
+page on top, and a page's tours are listed once per page and tab (`TutorialRules.tours_for`). While it shows, it looks
+things up once a frame or once a step. Its own drawing (the dim, the ring's pulse, the hand's bob) runs each frame. The
+card is drawn by a child node, only when the card changes. The authority checks the passing states (points, an item, a
+bottleneck, a technique) every 0.5 s and every trigger every 5 s. An event checks only the kinds it can bring. The
+numbers are in "Bugs fixed".
 
 **Saving.** The record is saved per character in the character's save.
 - A tour in progress keeps its step, so a reload resumes it.
