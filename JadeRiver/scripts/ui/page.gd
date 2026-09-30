@@ -269,6 +269,12 @@ func help_rect() -> Rect2:
 func tour_ready() -> bool:
 	return true
 
+## Decision 45: the page has come in (drawn, its opening motion over, at most OPEN_MOTION_MAX), so its tour anchors
+## stand where they will stay. The tutorial coach waits for it: a card shown on the first frame stood alone in the
+## middle, then jumped beside its anchor as the page drew and slid in, and a tap on where it had been did nothing.
+func settled() -> bool:
+	return draw_count > 0 and (identity == null or UiKit.reduce_motion() or opened >= minf(identity.open_s, OPEN_MOTION_MAX))
+
 ## The id of the tab shown ("" for a page with none).
 func tab_id() -> String:
 	return str(tabs[tab].get("id", "")) if tab >= 0 and tab < tabs.size() else ""

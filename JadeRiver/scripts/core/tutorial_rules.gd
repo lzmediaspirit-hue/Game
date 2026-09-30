@@ -24,17 +24,29 @@ static func page_script(page_id: String) -> String:
 static func same_page(a: String, b: String) -> bool:
 	return a != "" and b != "" and page_script(a) == page_script(b)
 
+static var _tours_of: Dictionary = {}   ## "page|tab" -> tours_for's list, for the entries as loaded (_tours_src)
+static var _tours_src: Array = []
+
 ## The tours a page shows on a tab, in the order they are offered: the one for that tab first, then the page's own.
+## Worked out once a page and tab (decision 45: every open page asked it twice a frame, its "?" and the coach, going
+## through every entry each time); the list is shared, not to be changed.
 static func tours_for(page_id: String, tab := "") -> Array:
+	var all := entries()
+	if not is_same(all, _tours_src):
+		_tours_src = all
+		_tours_of = {}
+	var key := page_id + "|" + tab
+	if _tours_of.has(key): return _tours_of[key]
 	var exact: Array = []
 	var whole: Array = []
-	if page_id == "": return exact
-	for e in entries():
-		if (e.get("tour", []) as Array).is_empty() or not same_page(str(e.get("page", "")), page_id): continue
-		var et := str(e.get("tab", ""))
-		if et != "" and et == tab: exact.append(str(e.id))
-		elif et == "": whole.append(str(e.id))
-	return exact + whole
+	if page_id != "":
+		for e in all:
+			if (e.get("tour", []) as Array).is_empty() or not same_page(str(e.get("page", "")), page_id): continue
+			var et := str(e.get("tab", ""))
+			if et != "" and et == tab: exact.append(str(e.id))
+			elif et == "": whole.append(str(e.id))
+	_tours_of[key] = exact + whole
+	return _tours_of[key]
 
 ## The tour the page's "?" plays again: the first of tours_for ("" for none).
 static func tour_for(page_id: String, tab := "") -> String:
@@ -48,7 +60,14 @@ static func hud_entry(e: Dictionary) -> bool:
 ## The tutorials record's version now (tutorials.json): a character's record older than an entry's `since` counts what
 ## it already has of that entry's system as known (decision 44 brought the late HUD powers at 2).
 static func version() -> int:
-	return int(ContentDB.config("tutorials").get("version", 1))
+	var all := entries()
+	if not is_same(all, _version_src):
+		_version_src = all
+		_version = int(ContentDB.config("tutorials").get("version", 1))
+	return _version
+
+static var _version_src: Array = []
+static var _version := 1
 
 # ------------------------------------------------------------------ a HUD power's lesson (decision 44)
 ## Where a HUD entry's tour stands in its guide: the index of its control step (the hand on the power's own button,

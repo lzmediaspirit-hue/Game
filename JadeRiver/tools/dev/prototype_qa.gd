@@ -72,9 +72,14 @@ func _main() -> void:
 		step_now = step
 		# An attentive player breaks through when the bar says "breakthrough ready" (from the boat's first one on).
 		if Game.in_world and c() != null and c().cultivator.realm_key != "mortal": await breakthrough_if_ready("breakthrough_" + step)
+		await _step_hook()
 		await call(step)
 		if step == until: break
 	finish()
+
+## Before each step of the walk (tools/dev/tutorial_play.gd follows the tutorials' guides there).
+func _step_hook() -> void:
+	pass
 
 ## The walk's steps in order; --start=<step> with --from=<saves> resumes at one, --keep-at=<step> keeps the saves there.
 const STEPS := ["opening", "p_quiet_river", "p_fists", "p_race", "p_kite", "p_ma", "p_granny", "p_crabs", "p_night", "p_willow",

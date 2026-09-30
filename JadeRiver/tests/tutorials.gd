@@ -107,8 +107,11 @@ func c():
 func coach() -> TutorialCoach:
 	return main.coach
 
-## A tap at `p` through the real input: the coach, the HUD's touches and the pages' regions all see it.
+## A tap at `p` through the real input: the coach, the HUD's touches and the pages' regions all see it. A page it opens
+## is let come in (Page.settled: the coach waits for it). A card closed a moment ago guards its place against the second
+## tap of a double tap (decision 45): a tap of its own waits that out first.
 func tap(p: Vector2) -> void:
+	await unguarded()
 	for pressed in [true, false]:
 		var ev := InputEventMouseButton.new()
 		ev.button_index = MOUSE_BUTTON_LEFT
@@ -117,8 +120,27 @@ func tap(p: Vector2) -> void:
 		ev.global_position = p
 		get_viewport().push_input(ev, true)
 		await frames(2)
+	await settle()
 
+## The coach's double-tap guard over (TutorialCoach.GUARD_S of real time).
+func unguarded() -> void:
+	for i in 2000:
+		if coach().guarded() <= 0.0: return
+		await get_tree().process_frame
+
+## The page on top has come in (its opening motion over), so the coach may show on it.
+func settle() -> void:
+	for i in 2000:
+		var top: Page = main.top_page()
+		if top == null or top.settled(): break
+		await get_tree().process_frame
+	await frames(2)
+
+## Tap the card's `which` (a card waits a moment, TutorialCoach.MISSING_S, for an anchor not on screen yet).
 func tap_button(which: String) -> void:
+	for i in 3000:
+		if coach().state().mode == "" or coach().state().buttons.has(which): break
+		await get_tree().process_frame
 	var b: Dictionary = coach().state().buttons
 	if b.has(which): await tap((b[which] as Rect2).get_center())
 	await frames(3)
@@ -354,7 +376,7 @@ func _never_in_the_way() -> void:
 	Game.submit({"type": "tutorial_done", "id": "mail", "stage": "guide", "skipped": true})
 	main.hud.fight_override = true
 	main.open_page("character", {})
-	await frames(3)
+	await settle()
 	check(coach().state().mode == "" and not ch.tutorials.seen.has("character"), "a page opened in a fight shows no tour (%s)" % str(coach().state()))
 	at_rest()
 	await frames(3)
@@ -403,7 +425,7 @@ func _queue() -> void:
 func _replay() -> void:
 	var ch = c()
 	main.open_page("mail", {})
-	await frames(3)
+	await settle()
 	var mp: Page = main.top_page()
 	var help: Rect2 = mp.tour_rect("help")
 	check(help.size.x > 0 and coach().state().mode == "", "a page with a tour has its ?, and a seen tour does not play by itself")
@@ -416,7 +438,7 @@ func _replay() -> void:
 	await frames(3)
 	check(coach().state().mode == "", "closing the page ends it")
 	main.open_page("settings", {"tab": "controls"})
-	await frames(3)
+	await settle()
 	var sp: Page = main.top_page()
 	if coach().state().mode == "tour": await tap_button("skip")
 	var rp: Rect2 = sp.tour_rect("replay_tutorials")
@@ -427,7 +449,7 @@ func _replay() -> void:
 	main.close_all_pages()
 	await frames(2)
 	main.open_page("mail", {})
-	await frames(3)
+	await settle()
 	check(coach().state().mode == "tour" and coach().state().entry == "mail" and coach().state().replay == "", "the Mail's tour plays on its next opening (%s)" % str(coach().state()))
 	main.close_all_pages()
 	await frames(2)
@@ -481,7 +503,7 @@ func _save_and_load() -> void:
 	unlock(["quick_use", "character_menu"])
 	var ch = c()
 	main.open_page("character", {})
-	await frames(4)
+	await settle()
 	check(coach().state().mode == "tour" and coach().state().entry == "character", "the Character page's tour starts on its first opening")
 	await tap_button("next")
 	await tap_button("next")
@@ -500,7 +522,7 @@ func _save_and_load() -> void:
 	check(ch.tutorials.get("seen", {}).has("menu") and not ch.tutorials.seen.has("character") and int(ch.tutorials.at.get("character", -1)) == 2 and ch.tutorials.guided.size() > 10,
 		"after a reload the progress is kept (at %s; %d guided)" % [str(ch.tutorials.get("at")), ch.tutorials.get("guided", {}).size()])
 	main.open_page("character", {})
-	await frames(4)
+	await settle()
 	check(coach().state().mode == "tour" and coach().state().entry == "character" and coach().state().step == 2, "the tour resumes at its step (%s)" % str(coach().state()))
 	for i in 5: await tap_button("next")
 	check(ch.tutorials.seen.has("character") and not ch.tutorials.at.has("character"), "and ends seen")
