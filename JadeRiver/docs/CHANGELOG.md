@@ -24,7 +24,9 @@ review, §9 a listening guide.
   sound, has no file (it reads the data's cues and the code's `raise_cue` calls); `audio_tests` checks the same in the
   engine, plays a raised cue once where it happens, the takes in turn and a busy village under a fight. Review pictures
   and a loudness table in `docs/redesign/feedback/sound/life/`.
-- **Size:** the audio in the APK went from 7.04 MB to 7.33 MB (38 more one-shots, 1.36 MB of sources).
+- **Size:** the audio in the APK went from 7.04 MB to 7.33 MB (38 more one-shots, 1.36 MB of sources). Frame time:
+  within the shared machine's noise (Lotus Ferry with the living world 7.96 ms a frame before, 8.26 after, the least
+  of six rounds, medians of three runs each).
 
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 

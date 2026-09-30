@@ -418,3 +418,11 @@ by ridges and stick-slip, bubbles, struck wood and metal as modes), original and
 - **Size** (`tools/audio/apk_size.py` after `godot --headless --import`): the audio in the APK went from 7.04 MB
   (233 files) to 7.33 MB (271): the one-shots from 0.93 MB (192) to 1.22 MB (230, QOA). The sources grew 1.36 MB of
   WAVs (9.79 to 11.15 MB).
+- **Frame time** (`perf_tests` alone, three runs each of the base, a544e4b, and the sounds, alternating, on the shared
+  machine at a load of 5.6 to 8.7; medians in ms a frame, the runs' range after): Lotus Ferry with the living world
+  (the least of six interleaved rounds) 7.96 (7.77-8.29) before, 8.26 (8.25-8.27) after, the living world's own work
+  0.82 and 0.75; the Marsh Edge's fight with it 14.05 and 14.38; the prototype's 22-foe fight 17.37 (9.0-18.6) and
+  15.36 (14.1-17.0); walking in Lotus Ferry 14.84 (8.5-23.7) and 10.70 (9.1-15.2). The load swung each figure by
+  several ms and failed timing checks in every run of both (3, 8 and 6 of 18 before, 5, 6 and 2 after); within that
+  noise the sounds cost nothing measurable but perhaps the 0.3 ms in Lotus Ferry. `perf_tests` in the full run (at a
+  load near 3) passed all 18.

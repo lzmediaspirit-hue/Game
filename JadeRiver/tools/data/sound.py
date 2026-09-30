@@ -318,7 +318,10 @@ def check_life() -> list:
     for arg in calls:
         arg = arg.strip()
         lit = re.fullmatch(r'"([a-z0-9_]+)"', arg)
-        if lit and lit.group(1) not in named:
+        if lit and lit.group(1).startswith("place_"):
+            errs.append(f'topdown_life.gd raises "{lit.group(1)}" as a cue, which plays "life_{lit.group(1)}": play a place '
+                        f'with Audio.world_sound("{lit.group(1)}", at)')
+        elif lit and lit.group(1) not in named:
             errs.append(f'topdown_life.gd raises "{lit.group(1)}": add it to LIFE_CRITTERS (or LIFE_BLOWS) and give it a sound')
         elif not lit and arg not in LIFE_RAISE_FORMS:
             errs.append(f"topdown_life.gd raises a cue as {arg}: tell LIFE_RAISE_FORMS in tools/data/sound.py which sounds it asks for")
