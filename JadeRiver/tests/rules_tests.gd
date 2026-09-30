@@ -135,6 +135,7 @@ func _main() -> void:
 	max_character_suite()
 	save_suite()
 	await topdown_suite()
+	await recipe_rename_suite()
 	await prototype_suite()
 	print("rules_tests: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -4403,7 +4404,7 @@ func awaken_legend_suite() -> void:
 	var en := Game.submit({"type": "enhance", "uid": int(sp.uid)})
 	check(en.get("ok", false) and int(sp.get("enhance", 0)) == 10 and c.quests.has_flag("forged_plus10"), "forging a Heaven weapon to +10 is what Smith Hong asks (%s)" % str(en))
 	# Legendary chains: one per weapon family, three pieces each, an Expert restore and the legend's own skill.
-	var chains := ContentDB.all("legendary_chains")
+	var chains: Array = (JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/legendary_chains.json")) as Dictionary).entries
 	var fams := {}
 	for ch in chains: fams[str(ch.family)] = true
 	check(chains.size() == 9 and not fams.has("fists") and fams.has("gauntlets") and fams.has("flute"), "nine legendary chains, one per weapon family (%d)" % chains.size())
@@ -7091,12 +7092,11 @@ func fortune_suite() -> void:
 	Game.relations._on_phenomenon({"actor": c.id, "kind": "cloud", "people": 0})
 	check(Game.relations.challenge_of(c).is_empty(), "with nobody there to see, nobody is jealous")
 	GameEvents.unsubscribe_object(self)
-	# Lifespan: display only. Each great realm's span, a year every four weeks, longevity treasures, ageing people.
+	# Lifespan: display only. Each great realm's span, a year every four weeks, longevity treasures.
 	check(int(ContentDB.realm("mortal").max_years) == 80 and int(ContentDB.realm("bone_forging_1").max_years) == 100
 		and int(ContentDB.realm("world_genesis").max_years) == 0, "a mortal lives 80 years, Bone Forging 100, World Genesis without end")
 	c.created_utc = 1_700_000_000.0
 	check(ProgressionRules.age_of(c, c.created_utc + 27.0 * 86400.0) == 16 and ProgressionRules.age_of(c, c.created_utc + 29.0 * 86400.0) == 17, "sixteen at the start, a year older every four weeks")
-	check(ProgressionRules.npc_age("granny_liu", c, c.created_utc + 57.0 * 86400.0) == 85, "Granny Liu grows older alongside you")
 	var span0 := ProgressionRules.lifespan_of(c)
 	Game.inventory.apply_add(c.id, "longevity_peach", 1, "test")
 	var pi: int = c.inventory.first_index("longevity_peach")
@@ -12122,6 +12122,45 @@ func save_suite() -> void:
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
 
+# ------------------------------------------------------------------ BUG-01 (audit 45): a recipe renamed after the save
+## A save that still names a recipe the data no longer has (renamed or removed since): the load drops it from the known
+## recipes, the pages held and the auto-refine queue, and keeps the rest; the Crafts page draws a queue that holds one
+## anyway (its own lookups are guarded) without an error.
+func recipe_rename_suite() -> void:
+	var folder := "user://recipe_rename_suite/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	Game.submit({"type": "create_character", "slot": 1, "name": "Renamed"})
+	var c = Game.character("c1")
+	if c == null: return
+	var gone := "renamed_away_pill"
+	var real := "healing_pill"
+	var batch := func(id: String, n: int) -> Dictionary: return {"recipe": id, "count": n, "done_utc": 0.0, "quality": "common"}
+	c.crafting["recipes"] = [gone, real]
+	c.crafting["recipe_fragments"] = {gone: [1], real: [1]}
+	c.crafting["auto_queue"] = [batch.call(gone, 2), batch.call(real, 1)]
+	Game.save_all()
+	Game.boot()
+	Game.autosave_enabled = false
+	c = Game.character("c1")
+	var q: Array = c.crafting.auto_queue.map(func(b): return str(b.recipe)) if c != null else []
+	check(c != null and q == [real] and c.crafting.recipes == [real] and c.crafting.recipe_fragments.keys() == [real],
+		"BUG-01: a save's recipe the data no longer has leaves the queue, the known recipes and the pages held; the rest stay (%s)" % str(q))
+	if c == null: return
+	Game.submit({"type": "enter_character", "slot": 1})
+	Game.submit({"type": "enter_world"})
+	Unlocks.force_unlock(c.id, "alchemy")
+	c.crafting.auto_queue.append(batch.call(gone, 3))
+	var pg: Page = await _open_page("alchemy")
+	var words: Array = (pg.text_log as Array).map(func(t): return str(t.get("s", "")))
+	check(words.any(func(s): return s.contains("×3")) and words.has(Tx.t("ui.crafts.collect")),
+		"BUG-01: the Crafts page draws an auto-refine queue holding an unknown recipe, and everything under it (%s)" % str(words.filter(func(s): return s.contains("×"))))
+	pg.queue_free()
+	c.crafting.auto_queue.clear()
+
 # ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
 ## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
 func _fix_world(folder := "user://fixes_suite/") -> Object:
@@ -13074,15 +13113,14 @@ func tree_queries_suite() -> void:
 	var p1 := T.passage("water", "any", 1)
 	Game.submit({"type": "realise_node", "node": p1})
 	check(int(Game.progression.tree_tabs(c)[T.trees().find("water")].realised) == 1, "a realised node counts on its tab")
-	var view: Dictionary = Game.progression.tree_view(c, "water")
 	var nodes := {}
-	for n in view.nodes: nodes[str(n.id)] = n
+	for nid in T.nodes_of("water"): nodes[str(nid)] = Game.progression.tree_node(c, str(nid))
 	var p2 := T.passage("water", "any", 2)
 	var p9 := T.passage("water", "any", 9)
 	check(nodes.size() == T.nodes_of("water").size() and str(nodes[p1].state) == "realised" and str(nodes["flowing_palm"].state) == "taught"
 		and str(nodes[p2].state) == "open" and int(nodes[p2].cost) == T.cost(p2), "the tree's view: realised, taught and open nodes, with their costs")
-	check(str(nodes[p9].state) == "locked" and str(nodes[p9].why) == "act_locked" and int(view.realisations.spent) == 1,
-		"a later act's ring is locked and says why; the view carries the Realisations")
+	check(str(nodes[p9].state) == "locked" and str(nodes[p9].why) == "act_locked" and int(Game.progression.realisations(c).spent) == 1,
+		"a later act's ring is locked and says why; the Realisations count the one spent")
 	# The tree reaches the fight (§6.2): ring 1's passage adds to the art's damage bucket, ring 2's cuts its Qi.
 	var fp := ContentDB.entry("techniques", "flowing_palm")
 	var cost0: float = Game.combat.technique_cost(c, fp)

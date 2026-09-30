@@ -11,7 +11,6 @@ extends Page
 ## right; Crafts and Vows hang as tags on the beam (Board beside them while another view is open), and the
 ## Storehouse's and the Bench's plaques open their full views. Soonest full first.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const BOARD := Rect2(24, 8, 1232, 704)
 const BEAM := Rect2(36, 20, 1208, 64)
 const RAIL := Rect2(48, 100, 808, 10)
@@ -169,19 +168,18 @@ func _process(delta: float) -> void:
 # ------------------------------------------------------------------ Roll-Call: the tablets
 ## The rows, soonest full first: the one you play, then those full (longest idle first), filling, and without a post.
 func rows() -> Array:
-	if _rows_frame == Engine.get_process_frames() and not _rows.is_empty(): return _rows
+	return _rows.value(null, _roll_call)
+
+var _rows := FrameMemo.new(1, false)   ## worked out once a frame
+
+func _roll_call() -> Array:
 	var rs: Array = Game.posts.roll_call()
 	var key := func(r: Dictionary) -> float:
 		if r.active: return -1e12
 		if (r.post as Dictionary).is_empty(): return 1e12
 		return float(r.fill_h) * 1000.0 - float(r.since_h) if float(r.fill_h) < INF else 1e11
 	rs.sort_custom(func(a, b): return key.call(a) < key.call(b))
-	_rows = rs
-	_rows_frame = Engine.get_process_frames()
 	return rs
-
-var _rows: Array = []
-var _rows_frame := -1
 
 ## A row's state: "play", "full", "fill", "vigil" or "none".
 static func state_of(row: Dictionary) -> String:
@@ -579,7 +577,7 @@ func _figure(id: String) -> Dictionary:
 	add_child(m)
 	# Decision 42: each character as its own game draws it: the top-down figure (4 px an art px) for a top-down one.
 	var who = Game.character(id)
-	var d := TopdownDoll.figure_for(InventoryAuthority.outfit_for(who), FIG_SCALE, 4, who)
+	var d := Figures.for_outfit(InventoryAuthority.outfit_for(who), FIG_SCALE, 4, who)
 	m.add_child(d)
 	return {"mask": m, "doll": d}
 

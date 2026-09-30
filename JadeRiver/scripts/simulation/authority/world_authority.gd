@@ -936,7 +936,7 @@ func query_context(c) -> Dictionary:
 			best = {"object": str(o.id), "type": o.type, "label": _verb(o), "ok": avail.ok, "text": avail.text, "npc": str(o.get("npc", ""))}
 	if best.is_empty():
 		for p in game.room_rt.def.get("portals", []):
-			if p.get("type", "edge") == "edge" and not p.get("press_up", false): continue
+			if not context_portal(p): continue
 			if portal_near(c, p):
 				var ps := portal_state(c, p)
 				if ps.get("hidden", false): continue

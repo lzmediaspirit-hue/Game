@@ -266,7 +266,7 @@ func _collect() -> void:
 		match kind:
 			"house", "storehouse":
 				# Not every house has its fire lit: a hash of its place.
-				if TopdownTerrain.h01(c.x, c.y, 43) < 0.7: emitters.append({"kind": "smoke", "at": top_left + Vector2(float(rr[2]) * 0.72, 8.0), "t": rng.randf()})
+				if HashNoise.cell(c.x, c.y, 43) < 0.7: emitters.append({"kind": "smoke", "at": top_left + Vector2(float(rr[2]) * 0.72, 8.0), "t": rng.randf()})
 			"incense": emitters.append({"kind": "incense", "at": top_left + Vector2(8, 9), "t": 0.0})
 			"shrine_small": emitters.append({"kind": "incense", "at": top_left + Vector2(12, 17), "t": 0.0})
 			"stove": emitters.append({"kind": "steam", "at": top_left + Vector2(9, 5), "t": rng.randf()})
@@ -317,7 +317,7 @@ static func places(r: TopdownRoom, area_name: String) -> Array:
 			if r.solid[i] == 1 or r.stair_of[i] > 0: continue
 			if on_ground.has(pt): ground.append(cp)
 			if pt == 102 or pt == 98 or flowers.has(Vector2i(x, y)): flower.append(cp)
-			if (pt == 103 or pt == 109 or pt == 102) and _by(r, x, y, true) and (pt == 109 or marsh or TopdownTerrain.h01(x, y, 77) < 0.5):
+			if (pt == 103 or pt == 109 or pt == 102) and _by(r, x, y, true) and (pt == 109 or marsh or HashNoise.cell(x, y, 77) < 0.5):
 				frog.append(cp)
 	_places[ck] = [ground, flower, water, shore, frog]
 	return _places[ck]
@@ -530,10 +530,6 @@ func _bend(view: Rect2) -> void:
 			pv.queue_redraw()
 
 # ------------------------------------------------------------------ critters
-func critter_count(kind := "") -> int:
-	if kind == "": return critters.size()
-	return critters.filter(func(c): return str(c.kind) == kind).size()
-
 ## How many of each wild kind this room wants in view now: its area's table (the room's own overrides), the day-only
 ## kinds asleep after dark, fewer with the extras off or under Reduce motion.
 func wanted(kind: String) -> int:

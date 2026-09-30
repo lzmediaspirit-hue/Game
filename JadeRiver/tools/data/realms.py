@@ -1,5 +1,5 @@
 """S03 realm ladder, S05 major-realm requirements, S29 Qi point needs, S49 lifespans (display only)."""
-from common import entries, req, c
+from common import entries, req, c, run_cli
 
 # (realm id, display, sub-level count, levels per sub-level, first Level, energy, T minutes per Level,
 #  consolidation seconds after the major breakthrough into it)
@@ -238,4 +238,4 @@ def cultivation(share, level):
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

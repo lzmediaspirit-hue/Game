@@ -984,6 +984,7 @@ func _warm_pages() -> void:
 	_page_warmer.tick()
 
 ## True once every page script has been asked for and is in.
+## Test hook: perf_tests and the tools/dev walks wait on it.
 func pages_warm() -> bool:
 	return _page_warmer == null
 

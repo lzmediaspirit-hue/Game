@@ -7,7 +7,7 @@ the world (a river valley, sects, a slow climb through realms).
 import json
 import os
 
-from common import DATA, write, entries, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of
+from common import DATA, write, entries, clear, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of, run_cli
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 from realms import level_of
@@ -38,12 +38,6 @@ LIBRARIANS = ["jade_librarian", "cloud_librarian"]
 SMITHS = ["jade_smith", "cloud_smith"]
 FORMATION_ELDERS = ["jade_formation_elder", "cloud_formation_elder"]
 PHYSICIANS = ["jade_physician", "cloud_physician"]
-
-
-NPC_AGES = {"aunt_ping": 46, "lu_boatman": 61, "little_dou": 9, "old_ma": 72, "granny_liu": 83, "uncle_guo": 54,
-            "shen_lian_npc": 16, "shen_lian": 16, "wen_zhao": 17, "mei_qing": 19, "mei_qing_sect": 19, "madam_hua": 41,
-            "old_scribe_bai": 77, "magistrate_qian": 58, "guard_hou": 38, "peddler_shao": 50, "elder_hu": 212, "elder_sung": 187,
-            "lan_yue": 18, "tie_niu": 20, "qiu_feng": 22, "bai_ling": 17, "hermit_yao": 340, "elder_gu": 96}
 
 
 def npcs():
@@ -514,11 +508,7 @@ def npcs():
             n["heart_rewards"] = dict(a.get("rewards", {}))
     missing = (set(AFFINITY) | set(AFFINITY_ALIAS)) - {n["id"] for n in N}
     assert not missing, missing
-    # S49 lifespan as flavour: the named people's ages when your story starts. They grow older with you (a year for
-    # every four weeks you play, one season a week), shown wherever their hearts are.
     for n in N:
-        if n["id"] in NPC_AGES:
-            n["age"] = NPC_AGES[n["id"]]
         # P13a: a master who holds a lost art teaches it in a dialogue of their own (dialogue(): LOST_LESSONS).
         if n["id"] in {s["src"]["npc"] for s in LOST_HAND.LOST if s["src"]["kind"] == "master"}:
             n.setdefault("tree", n["id"])
@@ -528,16 +518,22 @@ def npcs():
 
 # ---------------------------------------------------------------------------------------------
 # Unlocks (Part 4 timeline). Gate = trigger + quest.
+# The per-character unlocks a realm stage opens lead to one guided lesson a stage (validate); these unlocks may share a
+# stage with another lesson (u(same_stage_ok=True), and every prologue unlock).
+SAME_STAGE_OK = set()
+
+
 def unlocks():
     U = []
 
-    def u(uid, label, trigger=None, quest="", reveals=(), effects=(), scope="character", prologue=False, **kw):
+    def u(uid, label, trigger=None, quest="", reveals=(), effects=(), scope="character", prologue=False, same_stage_ok=False, **kw):
         d = {"id": uid, "label": label, "trigger": trigger or {}, "reveals": list(reveals), "effects": list(effects), "scope": scope}
         if quest:
             d["quest"] = quest
         if prologue:
             d["prologue"] = True
-            d["same_stage_ok"] = True
+        if prologue or same_stage_ok:
+            SAME_STAGE_OK.add(uid)
         d.update(kw)
         U.append(d)
 
@@ -1051,14 +1047,14 @@ def guided_quests():
     quest("leaf_on_the_wind", "Leaf on the Wind", "guided", "elder_hu", [
         o("reach_room", "Go to the Falls Pool", room="cf_falls_pool"),
         o("use_system", "Climb the vine and glide over the pool", 2, system="glide"),
-    ], [taels(60)], offered_by_unlock=True, chapter="qk3", same_stage_ok=True, giver_any=M, hand_in_any=M, target_room="cf_falls_pool",
+    ], [taels(60)], offered_by_unlock=True, chapter="qk3", giver_any=M, hand_in_any=M, target_room="cf_falls_pool",
         on_accept=[fx("learn_secret_art", art="falling_leaf_glide")],
         offer=["Watch a leaf fall from Crane Falls. It never hurries. Hold your breath, hold the jump, and fall like that.",
                "Climb the vine beside the falls and glide over the pool. The spray will carry you if you let it."],
         complete=["You came down like a leaf, not a stone. Good."])
     quest("swallow_dart", "Swallow Dart", "guided", "jade_librarian", [
         o("use_system", "Dart through the air three times", 3, system="air_dash"),
-    ], [taels(100)], offered_by_unlock=True, chapter="qk7", same_stage_ok=True, giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
+    ], [taels(100)], offered_by_unlock=True, chapter="qk7", giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
         on_accept=[fx("learn_secret_art", art="swallow_dart")],
         offer=["The first floor keeps a slim scroll: Swallow Dart. A swallow turns in the air without touching anything.",
                "Jump, then tap Evade. You will hang for a breath and dart ahead. Three times, and mind the shelves."],
@@ -1305,7 +1301,7 @@ def guided_quests():
     quest("the_bracket", "The Bracket", "guided", "arena_master", [
         o("win_spar", "Win your bracket bouts", 2, opponent="sparring_disciple"),
     ], [fx("set_flag", flag="tournament_top8"), fx("sect_rank", rank="core_disciple"), fx("add_contribution", amount=150)],
-        offered_by_unlock=True, chapter="cs1", same_stage_ok=True,
+        offered_by_unlock=True, chapter="cs1",
         offer=["Cloud Stride, and a qualifier behind you. The bracket's open: two more wins puts you in the top eight.",
                "Top eight means core disciple. The elders are watching."],
         complete=["Top eight. Core disciple. The third floor of the library is yours."])
@@ -1334,7 +1330,7 @@ def guided_quests():
     # S43 movement-art quests (Part 8 guided unlock quests).
     quest("cloud_ladder", "Cloud Ladder", "guided", "jade_librarian", [
         o("use_system", "Double jump to three high ledges", 3, system="double_jump"),
-    ], [taels(80)], offered_by_unlock=True, chapter="qu6", same_stage_ok=True, giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
+    ], [taels(80)], offered_by_unlock=True, chapter="qu6", giver_any=LIBRARIANS, hand_in_any=LIBRARIANS,
         on_accept=[fx("learn_secret_art", art="cloud_ladder_step")],
         offer=["This scroll is older than the sect: Cloud Ladder Step. Press off the air itself, once, at the top of a jump.",
                "Try it now. Three ledges you could not reach before, and tell me what the valley looks like from there."],
@@ -1342,14 +1338,14 @@ def guided_quests():
     quest("between_two_walls", "Between Two Walls", "guided", "elder_hu", [
         o("use_system", "Climb the Echo Cliffs shaft with Wall-Step", 3, system="wall_step"),
         o("kill", "Defeat Mist Vultures on the top tier", 3, enemy="mist_vulture"),
-    ], [taels(120)], offered_by_unlock=True, chapter="ht4", same_stage_ok=True, giver_any=MENTORS, hand_in_any=MENTORS, target_room="wg_echo_cliffs",
+    ], [taels(120)], offered_by_unlock=True, chapter="ht4", giver_any=MENTORS, hand_in_any=MENTORS, target_room="wg_echo_cliffs",
         on_accept=[fx("learn_secret_art", art="wall_step")],
         offer=["Two walls close together are a ladder, if you are light enough. Push into one, kick, and reach for the other.",
                "Climb the shaft at the Echo Cliffs. The vultures nest at the top; clear three."],
         complete=["Three kicks and you were above them. Good. Height is a weapon."])
     quest("a_treasure_in_hand", "A Treasure in Hand", "guided", "elder_hu", [
         o("use_system", "Ring the Practice Bell in a fight", 3, system="treasure"),
-    ], [taels(60)], offered_by_unlock=True, chapter="ht1", same_stage_ok=True, giver_any=M, hand_in_any=M,
+    ], [taels(60)], offered_by_unlock=True, chapter="ht1", giver_any=M, hand_in_any=M,
         on_accept=[item("practice_bell", 1)],
         offer=["A cultivator carries more than a blade. Take this Practice Bell; it sits in your Treasure button.",
                "Ring it three times when foes press close. Feel what a treasure costs you."],
@@ -1360,7 +1356,7 @@ def guided_quests():
         offer=["Needles, pills and a gentle hand. Three patients."], complete=["Healing is cultivation turned outward."])
     quest("carry_a_wall", "Carry a Wall", "guided", "jade_formation_elder", [
         o("craft", "Craft an Array Plate", recipe="array_plate"),
-    ], [item("blank_plate", 3)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
+    ], [item("blank_plate", 3)], offered_by_unlock=True, chapter="ht5", giver_any=FORMATION_ELDERS, hand_in_any=FORMATION_ELDERS,
         on_accept=[fx("learn_recipe", recipe="array_plate"), fx("learn_recipe", recipe="killing_array_plate"),
                    fx("learn_recipe", recipe="binding_array_plate"), item("blank_plate", 1), item("formation_stone", 1)],
         offer=["A formation you can carry. Etch one plate."], complete=["Take these blanks."])
@@ -1374,7 +1370,7 @@ def guided_quests():
         complete=["Wet to the knees only. The otters are impressed."])
     quest("the_warm_egg", "The Warm Egg", "guided", "hermit_yao", [
         o("use_system", "Incubate a spirit egg", system="egg_incubated"),
-    ], [item("spirit_egg", 1)], offered_by_unlock=True, chapter="ht5", same_stage_ok=True, on_accept=[item("spirit_egg", 1)],
+    ], [item("spirit_egg", 1)], offered_by_unlock=True, chapter="ht5", on_accept=[item("spirit_egg", 1)],
         offer=["An egg, warm and humming. Keep it close."], complete=["Another life in your care."])
     quest("brothers_in_arms", "Brothers in Arms", "guided", "elder_hu", [
         o("choose_companion", "Choose a second companion"),
@@ -1402,7 +1398,7 @@ def guided_quests():
     quest("riding_the_wind", "Riding the Wind", "guided", "hermit_yao", [
         o("bond_pet", "Bond with your spirit animal again"),
         o("use_system", "Ride it: Spirit Animals, choose Mount", system="mount"),
-    ], [item("flying_sword_vessel", 1)], offered_by_unlock=True, chapter="cs1", same_stage_ok=True, offer=["A big enough friend can carry you."],
+    ], [item("flying_sword_vessel", 1)], offered_by_unlock=True, chapter="cs1", offer=["A big enough friend can carry you."],
         complete=["Hold on tight.", "And when there is no friend, here: an old sword that remembers how to fly. Stand on the flat of it."])
     quest("clearer_water", "Clearer Water", "guided", "elder_hu", [
         o("enter_seclusion", "Seclusion with Refine Qi", focus="refine_qi"),
@@ -2882,6 +2878,17 @@ def validate(npc_ids, U):
         givers = q.get("giver_any") or [q["giver"]]
         if not any(g in placed or g in companions_only or g == "courier_lin" for g in givers):
             errs.append("quest %s giver not placed: %s" % (q["id"], givers))
+    # One guided lesson a realm stage: the per-character unlocks a stage opens name one quest between them, but for the
+    # pairs SAME_STAGE_OK marks.
+    per_stage = {}
+    for u in U:
+        if u.get("scope", "character") == "character" and u["id"] not in SAME_STAGE_OK:
+            for cond in u.get("trigger", {}).get("all", []):
+                if cond.get("kind") == "realm_at_least":
+                    per_stage.setdefault(cond["realm"], set()).add(u.get("quest", ""))
+    for stage, qs in per_stage.items():
+        if len(qs) > 1:
+            errs.append("one guided lesson a stage at %s: %s" % (stage, sorted(qs)))
     assert not errs, "\n".join(errs)
 
 
@@ -3048,10 +3055,7 @@ def build():
     chapter_floors(Q)
     quest_tiers(Q, U)
     entries("quests", Q, chapter_floors=CHAPTER_FLOORS, chapter_floors_planned=CHAPTER_FLOORS_PLANNED)
-    d = os.path.join(DATA, "dialogue")
-    os.makedirs(d, exist_ok=True)
-    for f in os.listdir(d):
-        os.remove(os.path.join(d, f))
+    clear(os.path.join(DATA, "dialogue"), "")   # every tree is one file: one renamed away leaves none behind
     dialogue()
     mail_templates()
     codex()
@@ -3060,4 +3064,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

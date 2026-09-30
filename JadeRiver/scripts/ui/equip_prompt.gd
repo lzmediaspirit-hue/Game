@@ -109,6 +109,7 @@ func gain_lines() -> Array:
 		out.append("%s ▲ %s" % [Tx.t(InventoryPage._stat_key(str(rw.stat))), CharacterPage.stat_text(str(rw.stat), float(rw.after) - float(rw.before)).trim_prefix("+")])
 	return out
 
+## Test hook: rules_tests reads the gain lines as one.
 func gain_text() -> String:
 	return " · ".join(gain_lines())
 

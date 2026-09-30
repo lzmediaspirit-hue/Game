@@ -1,5 +1,145 @@
 # Changelog
 
+## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
+
+This is phase 2, slice S4 of the code audit (`docs/architecture/audit_45.md` §4 and §5; findings DUP-01, 02 and 03,
+and BUG-03, 04, 08 and 11). Each finding was checked again on the tree phase 1 and S1 left. How to use each helper is
+in `docs/architecture/shared_runtime.md`. The game plays and draws the same, apart from the two bug fixes.
+
+- **`FrameMemo` (`scripts/core/frame_memo.gd`) is the one per-frame cache.**
+  - It replaced the seven hand-written caches in `WorldShared`, the HUD's badges and look, `TopdownWorld.soft_target`,
+    `PostsPage.rows`, `PlaceRules.home` and `SpriteCache`'s loading budget.
+  - It also replaced the cache phase 1 added for the tutorial coach (`hud.tour_targets`).
+  - The HUD's badges no longer copy `points_override` on every call (BUG-08).
+- **`HashNoise` (`scripts/core/noise.gd`) is the one hash noise.**
+  - It replaced the five copies of the sin-hash and `TopdownTerrain.h01` and `vnoise`.
+  - Its outputs match the old functions' bit for bit over a grid: 35,888 sin-hash points, 113,967 cells and 16,800
+    noise values.
+  - It is not named `Noise` because that is the engine's own class.
+- **`Figures` (`scripts/presentation/figures.gd`) makes every figure of a character.**
+  - The pages, cards, chips and views ask it for their figure. It replaced the 18 `TopdownDoll`/`Avatar` forks and
+    `TopdownDoll.figure_for`, `dress` and `shown`.
+  - Every side-view `Avatar` is made in one section, so retiring the side view deletes that section.
+- **ContentDB reads its tables lazily (BUG-11).**
+  - Boot reads only `realms`, `recipes` and the strings on the game's thread. A low-priority loading thread reads the
+    rest beside the boot. A lookup that comes first reads its own table, and never waits on the thread.
+  - Every lookup answers as before. `ContentDB.has_table` asks for one list table without reading them all.
+- **GameEvents (BUG-03).** Its triggers are now sets, and its listener lists are copied on write, so a delivery no
+  longer copies its list. Listener order and semantics are unchanged.
+- **The TopdownFx cap (BUG-04).**
+  - The cap no longer grows past 72 when loops fill it, and a new one-shot is no longer dropped as soon as it begins:
+    the oldest loop goes instead.
+  - `advance` drops finished effects in one ordered pass.
+- **Checks.**
+  - The new `shared_runtime_tests` suite (42 checks) is in `tools/run_tests.sh` and `Test.ps1`. It covers:
+    - the noise over grids;
+    - the memo's keeping and dropping;
+    - the listeners' order during a delivery;
+    - the cap full of loops;
+    - the figures;
+    - every table, room and dialogue tree against a fresh read, both as booted and as read by the thread.
+  - Every other suite's check count is unchanged.
+  - Captures match the base pixel for pixel, 13 of 13: Lotus Ferry, the Marsh Edge's fight, the selection's cards,
+    and five pages of a top-down and of a side-view character.
+  - The data build is unchanged.
+- **Measured.** All figures are medians of interleaved runs on a shared 4-core machine at a load of 14 to 17, which
+  inflates every time and makes `perf_tests`' millisecond budgets fail on the base and on S4 alike.
+  - Boot, over 7 runs:
+    - ContentDB's own load fell from 480 ms to 33 ms.
+    - The engine's start to the title's first frame went from 9,273 to 8,923 ms.
+    - A new character's first room went from 429 to 256 ms.
+  - `perf_tests`, over 3 runs:
+    - Rooms load in 44 ms on average against 43 ms, the slowest in 109 ms against 126 ms.
+    - Lotus Ferry is entered in 397 ms against 458 ms, at 10.21 ms a frame against 11.27.
+    - The Marsh Edge's fight runs at 17.54 ms a frame against 18.56.
+    - The top-down fight's frame is within the noise: 14.93 ms against 10.94 in `perf_tests`, 14.60 against 15.56 in
+      a separate probe that keeps the best of five rounds.
+
+## Generator hygiene: one command line, one pixel library, the Grid held to the game, the dead data gone (decision 45, S5)
+
+Phase 2, wave 1, slice S5 of the code audit (`docs/architecture/audit_45.md` §7): the Python generators the content
+engines will build on, made tidy first. No game behaviour changes; the data diff is only the drops below.
+
+- **One command line for the generators** (`tools/data/common.py`, `tools/data/README.md`).
+  - Every generated file leaves by `emit()`: written only when it changed, or with `--check` compared with the file
+    on disk. `write` and `entries` use it; a folder a build makes whole says so with `clear()`, so a file renamed away
+    goes (or, with `--check`, is stale).
+  - `run_cli()` gives every module of `build_data.py`'s list, and `topdown_rooms.py`, the same flags and exit codes:
+    `--write` (the default), `--check`, `--only NAME[,NAME]`; 0 written or current, 1 a failed check or a stale file,
+    2 a usage error. `build_data.py` takes them too, so `build_data.py --check` proves all 301 tables current.
+  - A module run as a script builds with the copy its own imports share: `world.py` run alone works again.
+  - `places.py` and `sect_walks.py` take the Grid's starts, solids and measures instead of their own copies.
+- **The grid's walking rules, held to the game** (DUP-10).
+  - The Python Grid reads `step_up` and the jump (`impulse`, `gravity`, `mantle`) from `data/movement.json`, as the
+    game does. The thresholds were hard-coded.
+  - `topdown_rooms.py --check` now asks the game, through `tools/data/grid_parity.tscn`, for every layout's cells and
+    auto-path reach. It compares them with the Grid, cell for cell: 27 layouts, 95 starts, all equal.
+    `TopdownRoute.reach` is `find`'s own search run with no goal. Without a Godot the check says it did not run.
+- **One pixel library for new art** (`tools/lib/pix.py`, DUP-08).
+  - It takes the icons' masks, ramps, shading modes and material-tinted outline, props' mask moves and erosion, and
+    the top-down and FX hashes and tileable noise. `python3 tools/lib/pix.py --check` proves each draws exactly as in
+    its source.
+  - The builders that kept their own copy of a hash or of the noise import it: `canvas.py`, `creature/motion.py`,
+    `fxpix.py` and `tools/data/topdown_life.py`. Their art rebuilds byte for byte.
+  - The four old libraries stay with the art they made. Their conventions differ, so moving that art is a redraw.
+- **Dead data dropped** (DEAD-12, 13, 14), each re-checked against the current tree:
+  - **Tables** moved out of `data/` (which ContentDB loads whole and the export ships) to `tests/data/`:
+    `balance.json` (balance_sim's own), `legendary_chains.json` (the checks' and the wiki's) and
+    `topdown/td_review_heights.json` (the captures' review room, now given to the view as a preset).
+  - **Row fields:** the techniques' `mastery`; the shops' `buys_all`; the enemies' `weak_to` and `equipment_chance`
+    (the builder keeps its own for the loot roll); the zones' `laws` and `exit`; and `same_stage_ok` on unlocks and
+    quests. The one-lesson-a-stage rule it served moves into `story.validate`. After S1 removed their readers, the
+    NPCs' `age` and `sound.json`'s `steps.materials` go too.
+  - **Strings:** 51 `ui.*` keys nothing asks for. The 11 `world_view.*` keys are built from data and stay.
+  - **Manifest ids:** 8 icons, 8 props and 4 UI assets that nothing names, with their drawings and files.
+  - **Kept:** the artifacts' `named.archetype` and the sets' `archetype`, which the item plan's checks and the wiki
+    read. The items' `core.qp_pct` was already gone.
+
+## Dead code removed, and an old save's renamed recipe no longer crashes the Crafts page (decision 45, S1)
+
+This is phase 2, slice S1 of the code audit (`docs/architecture/audit_45.md` §3 and §5; findings DEAD-01, 02, 05, 06,
+07 and 08, and BUG-01). Each name was checked again on the tree phase 1 left behind: as a token and as a string
+(`call`, `has_method`, `connect`), in `.tscn` files, in data and in tools. The game plays the same, apart from the bug
+fix.
+
+- **Removed: 160 lines of game code nothing ran, and seven files.**
+  - `scripts/ornament.gd`, `scripts/room_gate.gd`, their `.uid` files, and the orphan `connection_visual.gd.uid`.
+  - `art/environment/room-gate.png` (1.2 MB) and its `.import`, which only `room_gate.gd` drew.
+  - Eleven functions:
+    - `SoundBank.surface_of_material` and `is_night`;
+    - `Avatar.still_image`;
+    - `SpriteCache.icon_ready`;
+    - `TechniquePicture.draw_cooldown` and `draw_qi_short` (the HUD draws the round ones);
+    - `TechniqueTreeRules.tree_state`;
+    - `TopdownLife.critter_count`;
+    - the Techniques page's `_slot`;
+    - `ContentDB.level_of` and `GameAuthority.level_of`.
+  - Constants and variables:
+    - `UiKit`'s six unused type-scale names;
+    - `Page.GROUP_GAP`, the Mail page's `DESK`, `SceneRules.TARGETS` and `SpriteCache.ICON_PX`;
+    - three HUD fan positions nothing reads.
+  - Four signals emitted but never connected, with their emits: the side world's `room_changed` and
+    `context_changed`, the top-down world's `context_changed`, and the HUD's `page_changed`.
+- **Game code only tests called.**
+  - Three functions are removed:
+    - `ProgressionAuthority.tree_view`. Its checks now read `tree_node` and `realisations`, which the page uses.
+    - `WorldRules.npc_room`. The auto-path check reads `rooms_with` itself.
+    - `ProgressionRules.npc_age` and its one check. No page shows an NPC's age.
+  - `WorldAuthority.context_portal` stays: the context button's portal loop now calls it instead of an inline copy of
+    the same rule.
+  - The 31 deliberate hooks the suites need are kept and marked `## Test hook`.
+  - The side-view and tool-only code is left for its own slices (S2, S3 and the side view's retirement).
+- **BUG-01 fixed.** A save that still named a recipe renamed or removed from the data crashed the Crafts page. The
+  auto-refine queue stopped with a SCRIPT ERROR.
+  - The page now looks every recipe id it did not take from the data up through its `made_by`, which returns
+    nothing for an unknown id. That covers six lookups.
+  - Each load drops unknown recipe ids from the known recipes, the pages held and the queue, with a warning. It skips
+    this when no recipe loaded, so a broken data build never empties a save.
+- **Tests.** The `rules_tests` suite gains `recipe_rename_suite`, with two checks. Both fail with the fix undone. It
+  loses the NPC-age check, so it goes from 2,711 checks to 2,712. Every other suite's count is unchanged. The data
+  build is unchanged. `npcs.json` `age` and `sound.json` `steps.materials` are now unread, and are left for S5 to drop
+  in their generators.
+
 ## Tutorial bugs: a card a thumb can answer, and a cheap coach (decision 45)
 
 The user played build 110 on an Android phone: the tutorial that teaches the buttons felt laggy, Done or Skip

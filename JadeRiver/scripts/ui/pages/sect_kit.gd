@@ -4,7 +4,6 @@ extends RefCounted
 ## piece draws on the page it is given, from tokens, and names the ground its words sit on (Page.ground), so the
 ## ui_suite measures them. The figures (sect disciples, your characters) are the live Avatar at whole art pixels.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
 
 ## A red-lacquered pillar filling `r`: the round shaft shaded across, a gilt capital and base.
@@ -51,7 +50,7 @@ static func timber(pg: Page, r: Rect2, pitch := 88.0) -> void:
 ## with `show`; hide the ones not shown this frame with `hide_rest`.
 static func figure(pg: Page, figs: Dictionary, key: String, outfit: Dictionary, scale: float, who = null, top_scale := 0) -> Node2D:
 	if not figs.has(key):
-		var d := TopdownDoll.figure_for(DialoguePage.full_outfit(outfit), scale, top_scale if top_scale > 0 else maxi(1, roundi(scale * 3.0)), who)
+		var d := Figures.for_outfit(DialoguePage.full_outfit(outfit), scale, top_scale if top_scale > 0 else maxi(1, roundi(scale * 3.0)), who)
 		pg.add_child(d)
 		d.play("idle")
 		figs[key] = d

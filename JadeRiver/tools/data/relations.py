@@ -8,7 +8,7 @@ alignment, and personal Fame. Deeds fire three ways:
 Flags: once (only the first time), once_key (once per value of that payload key, e.g. each boss once),
 per_count (times the payload's count), in_town (only in a town room, where people watch).
 """
-from common import entries
+from common import entries, run_cli
 
 
 def deed(id, name, merit=0, sin=0, alignment=0, fame=0, **kw):
@@ -268,4 +268,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

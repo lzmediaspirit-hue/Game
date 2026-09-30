@@ -1,5 +1,5 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
-from common import entries, titled
+from common import entries, titled, run_cli
 from legends import CHAINS as LEGENDS, piece_rows
 from gear import ARCHETYPES, tag
 import posts
@@ -1022,6 +1022,10 @@ def build_artifacts():
     return rows
 
 
-if __name__ == "__main__":
+def build():
     build_items()
     build_artifacts()
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

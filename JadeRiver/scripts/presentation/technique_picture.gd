@@ -27,7 +27,6 @@ extends RefCounted
 ## strip along its foot filled as far as the pool reaches the cost; closed (the weapon in hand cannot use it), a slate
 ## frame, the picture dim and a lock in the corner. A locked art on the tree is `muted`: its picture in a grey ink.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const INK_SHADER = preload("res://scripts/presentation/technique_picture_ink.gdshader")
 const SHEET := 512                ## an atlas sheet's side, px
 const MAX_SHEETS := 10            ## sheets kept at most (a full set starts its least used one again)
@@ -238,7 +237,7 @@ static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 ## its own look, in the pose its side view casts the art in with the weapon in its hand. Found once and remembered while
 ## the look it was found for is worn (a HUD draws its buttons every frame: this is a lookup and a comparison then).
 static func _look(tid: String, t: Dictionary, who, outfit: Dictionary, s: int, muted: bool) -> Array:
-	var top := TopdownDoll.shown(who)
+	var top := Figures.top_down(who)
 	var mk := "%s|%d|%d|%d" % [tid, s, int(muted), int(top)]
 	var m = _look_memo.get(mk)
 	if m != null and m[0] == outfit and (top or is_same(m[1], who)): return m[2]
@@ -508,8 +507,7 @@ static func _figure(outfit: Dictionary, top: bool):
 		if top:
 			_figs[fk] = TopdownFigure.wearing(outfit, true)
 		else:
-			var av = Avatar.new()
-			av.outfit = outfit.duplicate()
+			var av = Figures.side_avatar(outfit.duplicate())
 			av.lazy_sheets = true
 			av.externally_timed = true
 			av.visible = false
@@ -943,32 +941,6 @@ static func _note(img: Image, at: Vector2, u: float, v: float) -> void:
 	_line(img, at + Vector2(1, -u * 2.0 - 1.0), at + Vector2(u + 1.0, -u * 1.5), v)
 
 # ------------------------------------------------------------------ states over a picture
-## The cooldown over a picture in `r`: an ink sweep over the `frac` still to wait, from the top round, cut to the
-## picture, its edge a pale gold hand; the seconds left in the middle.
-static func draw_cooldown(ci: CanvasItem, r: Rect2, frac: float, seconds: float, a := 1.0) -> void:
-	var p := r.grow(-3.0)
-	var f := clampf(frac, 0.0, 1.0)
-	if f > 0.02:
-		var c := p.get_center()
-		var reach := p.size.length()
-		var pie := PackedVector2Array([c])
-		for i in 33: pie.append(c + Vector2.from_angle(-PI / 2.0 + TAU * f * (i / 32.0)) * reach)
-		var box := PackedVector2Array([p.position, Vector2(p.end.x, p.position.y), p.end, Vector2(p.position.x, p.end.y)])
-		for poly in Geometry2D.intersect_polygons(pie, box): ci.draw_colored_polygon(poly, Color(UiKit.INK, 0.72 * a))
-		var hand := Vector2.from_angle(-PI / 2.0 + TAU * f)
-		var half := p.size * 0.5
-		ci.draw_line(c, c + hand * minf(half.x / maxf(0.001, absf(hand.x)), half.y / maxf(0.001, absf(hand.y))), Color(UiKit.PALE_GOLD, 0.85 * a), 1.5)
-	UiKit.draw_outlined(ci, str(int(ceil(seconds))), Vector2(r.get_center().x - 20.0, r.get_center().y + 8.0), 22, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, 40)
-	if draw_log != null: draw_log.append({"state": "cooldown", "rect": r, "frac": f})
-
-## Short of Qi: a strip along the picture's foot, the pool's reach toward the cost in Qi blue on an ink trough.
-static func draw_qi_short(ci: CanvasItem, r: Rect2, frac: float, a := 1.0) -> void:
-	var p := r.grow(-3.0)
-	var strip := Rect2(p.position.x + 2.0, p.end.y - 7.0, p.size.x - 4.0, 5.0)
-	ci.draw_rect(strip.grow(1.0), Color(UiKit.INK, a))
-	ci.draw_rect(Rect2(strip.position, Vector2(strip.size.x * clampf(frac, 0.0, 1.0), strip.size.y)), Color(UiKit.QI, a))
-	if draw_log != null: draw_log.append({"state": "qi", "rect": r, "frac": clampf(frac, 0.0, 1.0)})
-
 ## Closed: a lock in the lower right corner, bronze on an ink plate, inside the picture.
 static func draw_lock(ci: CanvasItem, r: Rect2, a := 1.0) -> void:
 	if draw_log != null: draw_log.append({"state": "lock", "rect": r})

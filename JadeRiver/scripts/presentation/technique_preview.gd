@@ -19,7 +19,6 @@ extends Control
 ## view's avatar against pebble imps. Only the pieces that moved are drawn again: the caster when its frame changes, a
 ## foe while it moves or its frame changes, the effects while any are alive.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const GROUND := 136.0         # the feet, in room px from the stage's top
 const CASTER_X := 28.0        # the caster's feet, in room px from the stage's left
 const PACK := {1: [[104.0, 0.0]], 2: [[98.0, 2.0], [128.0, -4.0]], 3: [[90.0, 2.0], [116.0, -6.0], [142.0, 4.0]]}   # foes' feet: x, depth
@@ -92,7 +91,7 @@ func _build(top_down: bool) -> void:
 		caster.position = Vector2(TOP_CASTER_X, TOP_GROUND)
 		caster.shadow = true
 	else:
-		caster = Avatar.new()
+		caster = Figures.side_avatar()
 		caster.externally_timed = true
 		caster.position = Vector2(CASTER_X, GROUND)
 	stage.add_child(caster)

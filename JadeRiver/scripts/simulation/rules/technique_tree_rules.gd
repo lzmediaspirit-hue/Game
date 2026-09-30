@@ -148,6 +148,7 @@ static func cost(nid: String) -> int:
 	return int(costs.get({"passage": "passage", "notable": "notable", "art": "art", "keystone": "keystone"}.get(str(n.get("kind", "")), ""), 0))
 
 ## Every node of a tree, sector by sector and ring by ring, then the keystones (a v1.2.x tree: 324 and its trunk).
+## Test hook: data_validation, balance_sim, perf_tests and rules_tests walk the trees with it.
 static func nodes_of(tree: String) -> Array:
 	var out: Array = []
 	var built := int(config().get("act_open", 3))
@@ -190,9 +191,6 @@ static func _inward(n: Dictionary) -> Array:
 	return []
 
 # ------------------------------------------------------------------ the character's side
-static func tree_state(c) -> Dictionary:
-	return c.cultivator.tree
-
 static func realised(c) -> Dictionary:
 	return c.cultivator.tree.get("realised", {})
 

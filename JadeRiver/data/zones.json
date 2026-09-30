@@ -10,11 +10,6 @@
     63
    ],
    "ceiling": "heaven_glimpse_3",
-   "laws": [
-    "water",
-    "wood",
-    "earth"
-   ],
    "currency": {
     "everyday": "silver_tael",
     "high": "spirit_stone"
@@ -376,11 +371,7 @@
      ],
      "hidden": true
     }
-   ],
-   "exit": {
-    "room": "mp_ascension_gate",
-    "to_zone": "azure_expanse"
-   }
+   ]
   },
   {
    "id": "azure_expanse",
@@ -391,15 +382,6 @@
     81
    ],
    "ceiling": "sage_sovereign_3",
-   "laws": [
-    "water",
-    "wood",
-    "earth",
-    "fire",
-    "metal",
-    "wind",
-    "thunder"
-   ],
    "currency": {
     "everyday": "spirit_stone",
     "high": "sage_crystal"
@@ -634,11 +616,7 @@
      ],
      "hidden": true
     }
-   ],
-   "exit": {
-    "room": "ae_landing",
-    "to_zone": "jade_river_valley"
-   }
+   ]
   },
   {
    "id": "lantern_star_field",
@@ -649,12 +627,6 @@
     99
    ],
    "ceiling": "sphere_lord_3",
-   "laws": [
-    "fire",
-    "metal",
-    "space",
-    "star"
-   ],
    "currency": {
     "everyday": "sage_crystal",
     "high": "star_jade"
@@ -885,11 +857,7 @@
      ],
      "hidden": true
     }
-   ],
-   "exit": {
-    "room": "lh_arrival_quay",
-    "to_zone": "azure_expanse"
-   }
+   ]
   }
  ]
 }

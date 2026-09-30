@@ -18,6 +18,7 @@ const SLOT_SMALL := 44.0
 ## The spacing grid (P4, docs/ui_style_guide.md §2): positions and sizes in steps of 8, the half step 4 inside a dense
 ## component. Every window stays inside SAFE_AREA and is one of the standard six, but for the one painting that fills the
 ## screen (WINDOW_SCREEN, the world map of decision 25), whose frame is the screen's edge.
+## Test hooks, GRID, SAFE_AREA and WINDOWS: rules_tests holds every page to them.
 const GRID := 8.0
 const SAFE_AREA := Rect2(48, 24, 1184, 672)
 const WINDOW_FULL := Rect2(64, 32, 1152, 656)
@@ -39,9 +40,8 @@ const TAB_MIN_W := 120.0
 ## Lists: the gap under each row and the scroll gutter at the right.
 const ROW_GAP := 4.0
 const GUTTER := 8.0
-## Gaps: related controls, groups and cards, and the padding inside a card.
+## Gaps: between related controls, and the padding inside a card.
 const GAP := 8.0
-const GROUP_GAP := 16.0
 const PAD := 16.0
 ## Button heights: compact and in rows, standard, a page's main action.
 const BTN_H := 48.0

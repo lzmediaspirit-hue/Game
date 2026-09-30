@@ -105,8 +105,6 @@ var tfx: TopdownFx
 var held := false
 var life: TopdownLife       ## decision 43: the room's critters, work, smoke, the sun's shafts and its vista
 
-signal context_changed(ctx: Dictionary)
-
 func _ready() -> void:
 	if preset != null:
 		room = preset
@@ -455,9 +453,7 @@ func request_portal(portal_id: String, crossing := false) -> void:
 func _update_context() -> void:
 	var ctx := WorldShared.context(Game.active(), player.motor.pos)
 	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
-	if ctx.hash() != context.hash():
-		context = ctx
-		context_changed.emit(ctx)
+	if ctx.hash() != context.hash(): context = ctx
 
 ## WorldShared's and MomentView's host: the effects layer, the player's feet in its units, the facing, the loot's
 ## layer, the middle of the view in world units and the feet on the screen.
@@ -558,6 +554,7 @@ func _add_foe(e: EnemyState) -> void:
 
 ## A villager standing at `at` (world units, on the floor there) facing `row`, in the NPC's own outfit, sorted with the
 ## room: the rooms of the world place theirs (TopdownPlaces); this stands one anywhere, for the prototype and reviews.
+## Test hook: the top-down suite and topdown_capture.
 func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 	var g: float = room.height_at(at)
 	var o := {"type": "npc", "npc": npc_id, "at": [at.x, at.y], "alt": g if g < INF else 0.0, "row": row}
@@ -579,15 +576,10 @@ func focus_labels() -> void:
 
 ## The soft lock from the body (TopdownAim.soft_target), worked out once for the frame's labels and its aim ring: the
 ## same while neither the game nor the body has moved.
-var _soft_key := []
-var _soft: EnemyState = null
+var _soft := FrameMemo.new()
 func soft_target() -> EnemyState:
 	var m: TopdownMotor = player.motor
-	var key := [Engine.get_process_frames(), Game.revision, m.pos, m.z, m.dir, m.grounded]
-	if key != _soft_key:
-		_soft_key = key
-		_soft = TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
-	return _soft
+	return _soft.value([m.pos, m.z, m.dir, m.grounded], func(): return TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded))
 
 ## The names over the world keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
 ## them), nearest the player first: the foes', and in the world the people's, the ways' and the things'.

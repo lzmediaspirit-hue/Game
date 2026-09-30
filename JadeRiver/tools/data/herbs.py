@@ -2,7 +2,7 @@
 
 Rare herb nodes themselves are placed in world.py (rare_herbs()); their fields are documented there.
 """
-from common import entries, write
+from common import entries, write, run_cli
 from items import HERB_AGE, SEEDS
 
 # Four seasons of one real week each, turning with the weekly reset (Monday 04:00). They never gate progression:
@@ -78,3 +78,7 @@ def build():
         "fakes": {"chance": 0.3, "flawed": 0.6},
     })
     entries("seasons", [{"id": sid, "name": name, "desc": desc} for sid, name, desc in SEASONS], week_s=604800)
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

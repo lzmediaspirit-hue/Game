@@ -51,7 +51,7 @@ REGIONS = [
 def zone(rooms):
     return {
         "id": "lantern_star_field", "tier": 3, "name": "Lantern Star Field", "level_range": [82, 99], "ceiling": "sphere_lord_3",
-        "laws": ["fire", "metal", "space", "star"], "currency": {"everyday": "sage_crystal", "high": "star_jade"},
+        "currency": {"everyday": "sage_crystal", "high": "star_jade"},
         # Loot coins are counted in taels; the Field pays them in Sage Crystals at this rate (S21).
         "coin_scale": 0.005, "qi_density": [1.5, 2.5],
         # Starsea Endurance 20 -> 90 (Part 3 zone row): four jades of fifteen levels, each level worth 1.5.
@@ -60,7 +60,6 @@ def zone(rooms):
                        "jades": [{"id": "tide", "name": "Tide Jade"}, {"id": "comet", "name": "Comet Jade"},
                                  {"id": "wick", "name": "Wick Jade"}, {"id": "void", "name": "Void Jade"}]},
         "panorama": "lantern_harbor", "start_room": "lh_arrival_quay", "rooms": rooms, "regions": REGIONS,
-        "exit": {"room": "lh_arrival_quay", "to_zone": "azure_expanse"},
     }
 
 

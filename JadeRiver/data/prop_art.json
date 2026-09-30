@@ -458,23 +458,6 @@
       }
     }
   },
-  "broken_ring": {
-    "anchor": [
-      120,
-      172
-    ],
-    "file": "res://art/props/broken_ring.png",
-    "frame": [
-      240,
-      180
-    ],
-    "states": {
-      "idle": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
   "bronze_mirror": {
     "anchor": [
       44,
@@ -1759,23 +1742,6 @@
       }
     }
   },
-  "leviathan_bones": {
-    "anchor": [
-      180,
-      132
-    ],
-    "file": "res://art/props/leviathan_bones.png",
-    "frame": [
-      360,
-      140
-    ],
-    "states": {
-      "idle": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
   "lifting_stone": {
     "anchor": [
       28,
@@ -2904,31 +2870,6 @@
       }
     }
   },
-  "star_iron_vein": {
-    "anchor": [
-      36,
-      52
-    ],
-    "file": "res://art/props/star_iron_vein.png",
-    "frame": [
-      72,
-      56
-    ],
-    "states": {
-      "cracked": {
-        "col": 1,
-        "frames": 1
-      },
-      "depleted": {
-        "col": 2,
-        "frames": 1
-      },
-      "full": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
   "star_lantern_post": {
     "anchor": [
       20,
@@ -3093,23 +3034,6 @@
     "frame": [
       56,
       110
-    ],
-    "states": {
-      "idle": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
-  "stone_steps": {
-    "anchor": [
-      100,
-      116
-    ],
-    "file": "res://art/props/stone_steps.png",
-    "frame": [
-      200,
-      120
     ],
     "states": {
       "idle": {
@@ -3621,45 +3545,6 @@
       }
     }
   },
-  "void_geode": {
-    "anchor": [
-      36,
-      54
-    ],
-    "file": "res://art/props/void_geode.png",
-    "frame": [
-      72,
-      60
-    ],
-    "states": {
-      "idle": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
-  "void_orchid_patch": {
-    "anchor": [
-      28,
-      40
-    ],
-    "file": "res://art/props/void_orchid_patch.png",
-    "frame": [
-      56,
-      44
-    ],
-    "states": {
-      "depleted": {
-        "col": 3,
-        "frames": 1
-      },
-      "ready": {
-        "col": 0,
-        "fps": 5,
-        "frames": 3
-      }
-    }
-  },
   "wall_plaster": {
     "anchor": [
       0,
@@ -3716,23 +3601,6 @@
       }
     },
     "tile": true
-  },
-  "war_drum": {
-    "anchor": [
-      44,
-      86
-    ],
-    "file": "res://art/props/war_drum.png",
-    "frame": [
-      88,
-      92
-    ],
-    "states": {
-      "idle": {
-        "col": 0,
-        "frames": 1
-      }
-    }
   },
   "warden_statue": {
     "anchor": [
@@ -3973,23 +3841,6 @@
         "frames": 1
       },
       "intact": {
-        "col": 0,
-        "frames": 1
-      }
-    }
-  },
-  "wooden_bridge": {
-    "anchor": [
-      160,
-      86
-    ],
-    "file": "res://art/props/wooden_bridge.png",
-    "frame": [
-      320,
-      90
-    ],
-    "states": {
-      "idle": {
         "col": 0,
         "frames": 1
       }

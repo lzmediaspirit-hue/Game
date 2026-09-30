@@ -22,7 +22,6 @@ extends Control
 ## The QI bar exists only once the character has a QI pool (Bone Forging 1, with the first technique: decision 45): a
 ## Mortal has no Qi, so no QI bar is drawn.
 
-const Avatar = preload("res://scripts/avatar.gd")
 const MenuPage = preload("res://scripts/ui/pages/menu_page.gd")
 
 var frame_style: StyleBox
@@ -57,6 +56,7 @@ const FAN_DEG := 160.0
 ## TechniquePicture.draw_round), the ready flash READY_S long.
 const JUMP_R := 32.0
 const TILE := 68.0
+## Test hook: rules_tests holds the round buttons' pictures to it.
 const PICTURE := 58
 const READY_S := 0.35
 const CTX_R := 30.0
@@ -121,10 +121,8 @@ var slots := [Vector2(1019, 595), Vector2(1041, 528), Vector2(1093, 480), Vector
 var fan_center := Vector2(964, 678)
 var page_center := Vector2(1240, 672)      # the technique page tab, "1/2"
 # The fan's toggles where they stand while it is open (set with the fan each frame; the pet wheel opens round Pet).
-var meditate_center := Vector2(814, 678)
+## Test hook: rules_tests taps the presence toggle here.
 var presence_center := Vector2(825, 622)
-var sphere_center := Vector2(856, 574)
-var sense_center := Vector2(903, 541)
 var pet_center := Vector2(959, 528)
 var context_center := Vector2(1165, 391)   # the context's own button on ring 2 (at rest too, decision 42)
 var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the icon row (only where allowed)
@@ -141,7 +139,6 @@ var fan_open := false
 var fan_rest_open := true     # the player's choice at rest: open, as mockup 02 draws it, until they close it
 var _settled := false
 
-signal page_changed(page: int)
 signal open_page(page: String, args: Dictionary)
 signal dialogue_requested(convo: Dictionary)
 signal fishing_requested(object_id: String)
@@ -226,7 +223,6 @@ func scroll_skills(direction: int) -> void:
 	scroll_direction = direction
 	scroll_progress = 0.0
 	skill_page = (skill_page + 1) % 2
-	page_changed.emit(skill_page)
 	if bound(): Game.active().skill_page = skill_page
 
 func advance_scroll(delta: float) -> void:
@@ -302,6 +298,7 @@ func _fight_now() -> bool:
 	return WorldLabels.fight_near(Game.active(), player.plane) or _enemy_close() or _foe_engaged()
 
 ## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
+## Test hook: rules_tests, tutorial_order, the top-down suite and the captures.
 func set_state(in_fight: bool, open := false) -> void:
 	fight_override = in_fight
 	fight = in_fight
@@ -503,14 +500,9 @@ func hit_targets(badges = null) -> Array:
 ## anchors a frame, and each asking afresh counted the points badges again (the Realisations' walks the technique trees):
 ## half a millisecond a frame on a desktop while a HUD lesson showed. Asked again on a new frame, when the game moves on
 ## (Game.revision) or the fan opens or shuts.
-var _tour_targets_key := []
-var _tour_targets: Array = []
+var _tour_targets := FrameMemo.new()
 func tour_targets() -> Array:
-	var key := [Engine.get_process_frames(), Game.revision, fan_open, fight, skill_page]
-	if key != _tour_targets_key:
-		_tour_targets_key = key
-		_tour_targets = hit_targets(_frame_badges())
-	return _tour_targets
+	return _tour_targets.value([fan_open, fight, skill_page], func(): return hit_targets(_frame_badges()))
 
 ## Decision 43 (docs/redesign/tutorials.md): a tutorial's anchor on the HUD, by name, so a tour never leans on how the HUD
 ## is laid out: a round control by its role in hit_targets ("attack", "jump", "skill" for all the technique buttons,
@@ -569,14 +561,14 @@ func open_points(id: String) -> void:
 ## once a frame: each asks every system for its count, and the Realisations' walks the technique trees (a tenth of the
 ## HUD's frame, three times over). Asked again when the game moves on (Game.revision), the frame is another or a test's
 ## override changes; point_badges itself always asks afresh.
-var _badges_key := []
-var _badges: Array = []
+var _badges_memo := FrameMemo.new()
+var _badges: Array = []   ## the badges last worked out (obstacle_rects knows the frame's by them)
 func _frame_badges() -> Array:
 	var c = Game.active() if bound() else null
-	var key := [Engine.get_process_frames(), Game.revision, c.get_instance_id() if c is Object else 0, points_override.duplicate()]
-	if key != _badges_key:
-		_badges_key = key
-		_badges = point_badges(c)
+	return _badges_memo.value([c.get_instance_id() if c is Object else 0, points_override], _work_badges.bind(c))
+
+func _work_badges(c) -> Array:
+	_badges = point_badges(c)
 	return _badges
 
 ## Each frame: a badge newly shown starts its pop, and (after the first look) writes its line to the log. `badges`: the
@@ -2063,13 +2055,9 @@ var _cooling := {}
 var _ready_at := {}
 
 ## The character's look for the techniques' pictures, found once a frame.
-var _look_frame := -1
-var _look_now := {}
+var _look_now := FrameMemo.new(1, false)
 func _look(c) -> Dictionary:
-	if _look_frame != Engine.get_process_frames():
-		_look_frame = Engine.get_process_frames()
-		_look_now = InventoryAuthority.outfit_for(c)
-	return _look_now
+	return _look_now.value(null, func(): return InventoryAuthority.outfit_for(c))
 
 ## A cooldown's dark sweep over a ring's face, `frac` of the way round from the top.
 func _sweep(center: Vector2, r: float, frac: float, opacity := 1.0) -> void:
@@ -2273,7 +2261,7 @@ func _draw_party(c) -> void:
 ## side view's head and shoulders only for a classic side-view character.
 func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 	var box := Vector2(FACE_BOX, FACE_BOX)
-	if TopdownDoll.shown():
+	if Figures.top_down():
 		var fig: TopdownFigure = _faces.get("top|" + cid)
 		if fig == null:
 			fig = TopdownFigure.wearing(_face_outfit(cid), true)
@@ -2285,8 +2273,7 @@ func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 			Rect2(center - box * 0.5, box), true)
 		return
 	if not _faces.has(cid):
-		var av = Avatar.new()
-		av.outfit = _face_outfit(cid)
+		var av = Figures.side_avatar(_face_outfit(cid))
 		av.refresh_entries()
 		_faces[cid] = av.entries.duplicate()
 		av.free()

@@ -803,12 +803,12 @@ what §11 adds.
 **Type** (`scripts/ui/ui_kit.gd`): `MIN_SIZE` 14 (`:44`), `DISPLAY_MIN` 22 (`:40`), `PIXEL_NUMERALS_MIN` 20 (`:223`),
 `WORD_SCALE` 1.2 (`:35`), `TEXT_SCALE` 1.0 (`:38`), `TEXT_SIZES` 0.92 / 1.0 / 1.12 (`:42`); faces `display_font`,
 `text_font`, `label_font`, `body_font`, `symbols_font` (`:75`, `:80`, `:85`, `:90`, `:49`). New: the scale as
-`T_HINT` 14, `T_CAPTION` 16, `T_ROW` 18, `T_BODY` 20, `T_BUTTON` 22, and display `D_SUB` 22, `D_HEADING` 26,
-`D_DISPLAY` 30, `D_TITLE` 34.
+`WORD_SCALE_STEPS` 14, 16, 18, 20, 22 and `DISPLAY_STEPS` 22, 26, 30, 34 (`UiKit.on_scale` tells a size on it), with
+display `D_SUB` 22, `D_DISPLAY` 30 and `D_TITLE` 34 named.
 
 **Layout** (`scripts/ui/page.gd`): `MIN_TAP` 48 (`:13`). New: `GRID` 8; `SAFE_AREA` (48, 24, 1184, 672); the windows
 `WINDOW_FULL`, `WINDOW_LARGE`, `WINDOW_MEDIUM`, `WINDOW_SMALL`, `WINDOW_CONFIRM`, `WINDOW_DIALOGUE` (§2.2); `INSET` 32,
-`TOP` 80, `TAB_H` 48, `TAB_GAP` 8, `TAB_MIN_W` 120, `ROW_GAP` 4, `GUTTER` 8, `GAP` 8, `GROUP_GAP` 16, `PAD` 16; `SLOT`
+`TOP` 80, `TAB_H` 48, `TAB_GAP` 8, `TAB_MIN_W` 120, `ROW_GAP` 4, `GUTTER` 8, `GAP` 8, `PAD` 16; `SLOT`
 76, `SLOT_COMPACT` 48; `BTN_H` 48 / 56 / 64.
 
 **Icons** (new, `UiKit`): `ICON` 64, `ICON_TECH_HUD` 48, `ICON_ITEM_SMALL` 32, `GLYPH` 32, `STATUS` 24.

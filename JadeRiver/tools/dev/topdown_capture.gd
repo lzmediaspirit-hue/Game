@@ -26,6 +26,8 @@ const OUT := "res://docs/redesign/phase1/"
 const HEIGHT_BODIES := [Vector2(11.5, 13.6), Vector2(9.5, 8.6), Vector2(6.5, 5.6), Vector2(5.5, 11.2), Vector2(16.0, 12.6),
 	Vector2(22.9, 16.4), Vector2(4.5, 1.8)]
 const SAVES := "user://topdown_capture_saves/"
+## The art bible's review rooms (td_review_heights): the captures' own, out of data/ (audit 45).
+const REVIEW_ROOMS := "res://tests/data/topdown/"
 var main
 var w
 var p
@@ -310,6 +312,7 @@ func height_test(path: String) -> void:
 	Game.active_id = ""   # the view alone: no character enters the review room
 	var v := TopdownWorld.new()
 	v.room_id = "td_review_heights"
+	v.preset = TopdownRoom.load_room(v.room_id, REVIEW_ROOMS)
 	add_child(v)
 	await frames(2)
 	v.set_process(false)
@@ -767,6 +770,7 @@ func light() -> void:
 	Game.active_id = ""
 	var v := TopdownWorld.new()
 	v.room_id = "td_review_heights"
+	v.preset = TopdownRoom.load_room(v.room_id, REVIEW_ROOMS)
 	add_child(v)
 	await frames(2)
 	v.set_process(false)
@@ -1150,6 +1154,7 @@ func terrain_v2() -> void:
 	for s in [["06_riverside_square", "td_proto_square"], ["07_height_levels", "td_review_heights"]]:
 		var v := TopdownWorld.new()
 		v.room_id = str(s[1])
+		if v.room_id == "td_review_heights": v.preset = TopdownRoom.load_room(v.room_id, REVIEW_ROOMS)
 		add_child(v)
 		await frames(2)
 		w = v

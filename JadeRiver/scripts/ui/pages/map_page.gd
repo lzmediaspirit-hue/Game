@@ -1267,22 +1267,22 @@ func _paint_tokens(r: Rect2, z: Dictionary) -> void:
 		var river := func(f: float) -> Vector2: return Vector2(r.size.x * (1.1 * f - 0.05), r.size.y * (0.92 - 0.78 * f) + 36.0 * sin(f * 5.0))
 		for i in 28: glow(Rect2(river.call(i / 27.0) - Vector2(130, 70), Vector2(260, 140)), Color(UiKit.SOUL if i % 2 == 0 else UiKit.QI, 0.08))
 		for i in 320:
-			var p: Vector2 = river.call(_rnd(i, 1)) + Vector2(_rnd(i, 2) - 0.5, _rnd(i, 3) - 0.5) * 150.0 if i < 140 \
-				else Vector2(_rnd(i, 2) * r.size.x, _rnd(i, 3) * r.size.y)
-			var s := 2.0 if _rnd(i, 4) > 0.86 else 1.0
-			draw_rect(Rect2(p.round(), Vector2(s, s)), Color(UiKit.PALE_GOLD if _rnd(i, 5) > 0.6 else UiKit.PAPER, 0.3 + 0.6 * _rnd(i, 6)))
+			var p: Vector2 = river.call(HashNoise.scatter(i, 1)) + Vector2(HashNoise.scatter(i, 2) - 0.5, HashNoise.scatter(i, 3) - 0.5) * 150.0 if i < 140 \
+				else Vector2(HashNoise.scatter(i, 2) * r.size.x, HashNoise.scatter(i, 3) * r.size.y)
+			var s := 2.0 if HashNoise.scatter(i, 4) > 0.86 else 1.0
+			draw_rect(Rect2(p.round(), Vector2(s, s)), Color(UiKit.PALE_GOLD if HashNoise.scatter(i, 5) > 0.6 else UiKit.PAPER, 0.3 + 0.6 * HashNoise.scatter(i, 6)))
 		for i in 16:
-			var p := Vector2(_rnd(i, 7) * r.size.x, _rnd(i, 8) * r.size.y * 0.8).round()
+			var p := Vector2(HashNoise.scatter(i, 7) * r.size.x, HashNoise.scatter(i, 8) * r.size.y * 0.8).round()
 			for d in [Vector2(4, 0), Vector2(0, 4)]: draw_line(p - d, p + d, Color(UiKit.PALE_GOLD, 0.8), 1.0)
 		for i in 40:
-			var p := Vector2(_rnd(i, 9) * r.size.x, r.size.y * (0.45 + 0.5 * _rnd(i, 10)))
+			var p := Vector2(HashNoise.scatter(i, 9) * r.size.x, r.size.y * (0.45 + 0.5 * HashNoise.scatter(i, 10)))
 			glow(Rect2(p - Vector2(9, 9), Vector2(18, 18)), Color(UiKit.GOLD, 0.35))
 			draw_circle(p, 1.5, UiKit.PALE_GOLD, true, -1.0, true)
 	else:
 		for layer in 2:
 			var base := 176.0 + layer * 34.0
 			var pts := PackedVector2Array([Vector2(0, base + 40)])
-			for i in 27: pts.append(Vector2(i * 50.0 - 25.0 * layer, base - (8.0 if i % 2 else 44.0 + 46.0 * _rnd(i, 11 + layer)) * (1.0 - 0.35 * layer)))
+			for i in 27: pts.append(Vector2(i * 50.0 - 25.0 * layer, base - (8.0 if i % 2 else 44.0 + 46.0 * HashNoise.scatter(i, 11 + layer)) * (1.0 - 0.35 * layer)))
 			pts.append(Vector2(1280, base + 40))
 			draw_colored_polygon(pts, [UiKit.MIST.lerp(UiKit.SKY, 0.4).lerp(UiKit.PAPER, 0.35), UiKit.SURFACE.stone.lerp(UiKit.MIST, 0.6)][layer])
 		var shade := UiKit.MIST.lerp(UiKit.SKY, 0.4)
@@ -1291,22 +1291,18 @@ func _paint_tokens(r: Rect2, z: Dictionary) -> void:
 			var f := row / 9.0
 			var y := 200.0 + 430.0 * pow(f, 1.2)
 			var rad := 12.0 + 30.0 * f
-			var x := -rad * 2.0 * _rnd(row, 12)
+			var x := -rad * 2.0 * HashNoise.scatter(row, 12)
 			var i := 0
 			while x < r.size.x + rad:
-				if _rnd(row * 53 + i, 13) < 0.8:
-					var s := rad * (0.8 + 0.5 * _rnd(row * 31 + i, 14))
+				if HashNoise.scatter(row * 53 + i, 13) < 0.8:
+					var s := rad * (0.8 + 0.5 * HashNoise.scatter(row * 31 + i, 14))
 					var c := Vector2(x, y + rad * 0.3 * sin(i * 1.7 + row))
 					draw_circle(c + Vector2(0, s * 0.35), s, shade, true, -1.0, true)
 					draw_circle(c, s, body, true, -1.0, true)
 					draw_circle(c + Vector2(-s, -s) * 0.3, s * 0.55, UiKit.PAPER, true, -1.0, true)
-				x += rad * (1.1 + 0.7 * _rnd(row * 17 + i, 15))
+				x += rad * (1.1 + 0.7 * HashNoise.scatter(row * 17 + i, 15))
 				i += 1
 	for rid in z.order: _isle(z.anchor[rid], 1.0, rid)
-
-## A steady pseudo-random number in [0, 1) for a painted detail (never the game's Rng streams).
-static func _rnd(a: int, b: int) -> float:
-	return fposmod(sin(a * 12.9898 + b * 78.233) * 43758.5453, 1.0)
 
 ## The zone's sky over `r`: the Expanse's pale blue, or the star field's night.
 func _sky(r: Rect2) -> void:
@@ -1332,7 +1328,7 @@ func _isle(p: Vector2, k: float, rid: String) -> void:
 	draw_colored_polygon(top, grass.darkened(0.2))
 	draw_colored_polygon(_shrunk(top, c, 0.88, Vector2(-2, -2) * k), grass)
 	for i in 6:
-		var tp := c + Vector2((_rnd(hsh % 997, i) - 0.5) * w * 1.5, (_rnd(hsh % 991, i + 9) - 0.5) * h * 0.7)
+		var tp := c + Vector2((HashNoise.scatter(hsh % 997, i) - 0.5) * w * 1.5, (HashNoise.scatter(hsh % 991, i + 9) - 0.5) * h * 0.7)
 		draw_circle(tp + Vector2(1, 2) * k, 4.5 * k, Color(UiKit.INK, 0.35), true, -1.0, true)
 		draw_circle(tp, 4.2 * k, UiKit.JADE_SHADOW.darkened(0.2) if night else UiKit.JADE_SHADOW.lerp(UiKit.JADE, 0.4), true, -1.0, true)
 		draw_circle(tp - Vector2(1.2, 1.2) * k, 2.0 * k, UiKit.JADE_SHADOW if night else UiKit.JADE.lerp(UiKit.GOLD, 0.2), true, -1.0, true)

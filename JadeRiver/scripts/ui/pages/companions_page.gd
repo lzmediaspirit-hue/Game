@@ -8,7 +8,6 @@ extends Page
 ## to bring a friend along lights their lantern (0.2 s); a new heart ties its knot (0.3 s); under Reduce motion the
 ## lantern is lit and the knot is tied.
 
-const Avatar = preload("res://scripts/avatar.gd")
 
 const GATE_Y := 272.0        # the gates' centres
 const GATE_R := 110.0
@@ -48,7 +47,7 @@ func _portrait(cid: String, def: Dictionary) -> Node2D:
 	if avatars.has(cid) and is_instance_valid(avatars[cid]): return avatars[cid]
 	# Decision 42: each friend as the game draws them: the top-down figure in the top-down game, three-quarters toward
 	# the camera; the side view's for a classic side-view character.
-	var a := TopdownDoll.figure_for(DialoguePageScript.full_outfit(def.get("outfit", {})), FIGURE_SCALE, TOP_SCALE)
+	var a := Figures.for_outfit(DialoguePageScript.full_outfit(def.get("outfit", {})), FIGURE_SCALE, TOP_SCALE)
 	a.set("facing", 1)
 	add_child(a)
 	a.play("idle")

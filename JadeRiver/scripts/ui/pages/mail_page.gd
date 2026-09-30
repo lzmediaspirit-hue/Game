@@ -5,7 +5,6 @@ extends Page
 ## chosen one slides out and its letter lies unfolded on the felt at the right, the two creases opening, the words in
 ## ink and the sender's name at its foot; what it carries is tied beneath it as a parcel, and Claim unties it.
 
-const DESK := Rect2(64, 32, 1152, 656)
 const STACK := Rect2(96, 112, 424, 448)   # the envelopes, 64 a row
 const MAT := Rect2(540, 100, 648, 572)    # the felt under the open letter
 const SHEET := Rect2(572, 118, 584, 388)  # the letter unfolded

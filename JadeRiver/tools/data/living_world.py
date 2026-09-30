@@ -11,7 +11,7 @@ import glob
 import json
 import os
 
-from common import DATA, all_of, entries, qdone
+from common import DATA, all_of, entries, qdone, run_cli
 
 
 def rift_rooms():
@@ -310,4 +310,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

@@ -4,7 +4,7 @@ posts.json holds every constant PostRules reads, the crafts, the node outputs (T
 category), the pouch tiers with their sewing costs, and the incense. items.py adds the tools, insects and incense
 from here, world.py places the insect swarms, economy.py adds the tool recipes.
 """
-from common import write
+from common import write, run_cli
 
 # --------------------------------------------------------------------------- rules (§3)
 RULES = {
@@ -487,3 +487,7 @@ def build():
         "flags": FLAGS,
         "mirror": MIRROR,
     })
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

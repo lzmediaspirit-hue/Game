@@ -11,25 +11,22 @@ Indices (INK .. HAZE): a dark ink rim, the ramp deep / base / light / glint, a w
 from __future__ import annotations
 
 import math
+import os
+import sys
 
 import numpy as np
 from PIL import Image, ImageDraw
+
+# px_hash(*ints): deterministic 0..1 from integers (the scatter's variety).
+# The hash is the one pixel library's (tools/lib/pix.py, audit 45): the same code, one copy.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from lib.pix import px_hash  # noqa: E402,F401
 
 INK, DEEP, BASE, LIGHT, GLINT, CORE, ACCENT, HAZE = 1, 2, 3, 4, 5, 6, 7, 8
 # A stroke's cross-section from its centreline out: the share of the half-width each band ends at.
 STROKE_BANDS = ((0.22, CORE), (0.45, LIGHT), (0.72, BASE), (1.0, DEEP))
 SOFT_BANDS = ((0.35, LIGHT), (0.7, BASE), (1.0, DEEP))       # no white core: dust, cloud, water bodies
 GLOW_BANDS = ((0.3, GLINT), (0.6, LIGHT), (1.0, BASE))       # a glow: pale centre, no rim
-
-
-def px_hash(*args) -> float:
-    """Deterministic 0..1 from integers (the scatter's variety)."""
-    h = 2166136261
-    for a in args:
-        h ^= (int(a) * 2654435761) & 0xFFFFFFFF
-        h = (h * 16777619) & 0xFFFFFFFF
-        h ^= h >> 13
-    return ((h * 0x9E3779B1) & 0xFFFFFFFF) / 4294967296.0
 
 
 def lerp(a, b, t):

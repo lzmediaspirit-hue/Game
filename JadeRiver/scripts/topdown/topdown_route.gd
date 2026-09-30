@@ -174,6 +174,15 @@ static func _cheb(a: Vector2i, b: Vector2i) -> int:
 ## that blocks, on a binary heap. The cells after `a` up to `b`; [] when there is no way (or a == b).
 static func find(r: TopdownRoom, a: Vector2i, b: Vector2i, jump: bool) -> Array:
 	if a == b or r.cell_floor(b) == INF or not r.inside(a.x, a.y): return []
+	return _search(r, a, b, jump)
+
+## Every cell auto-path reaches from `a` by find's rules, `a` among them ([] when `a` is outside the room). The rooms'
+## checks hold their grid to it (tools/data/topdown_rooms.py --check, through tools/data/grid_parity.tscn).
+static func reach(r: TopdownRoom, a: Vector2i, jump: bool) -> Array:
+	return _search(r, a, Vector2i(-1, -1), jump) if r.inside(a.x, a.y) else []
+
+## find's search. With `b` outside the room there is no goal: it goes on to every cell it reaches, and returns them.
+static func _search(r: TopdownRoom, a: Vector2i, b: Vector2i, jump: bool) -> Array:
 	var w := r.w
 	var n := r.w * r.h
 	var g := PackedFloat32Array()
@@ -185,7 +194,7 @@ static func find(r: TopdownRoom, a: Vector2i, b: Vector2i, jump: bool) -> Array:
 	var closed := PackedByteArray()
 	closed.resize(n)
 	var ai := a.y * w + a.x
-	var bi := b.y * w + b.x
+	var bi := b.y * w + b.x if r.inside(b.x, b.y) else -1
 	g[ai] = 0.0
 	var heap: Array = [[_octile(a, b), ai]]
 	var dirs := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
@@ -225,7 +234,11 @@ static func find(r: TopdownRoom, a: Vector2i, b: Vector2i, jump: bool) -> Array:
 				g[ni] = ng
 				came[ni] = ci
 				_push(heap, [ng + _octile(nx, b), ni])
-	return []
+	if bi >= 0: return []
+	var reached: Array = []
+	for i in n:
+		if closed[i] == 1: reached.append(Vector2i(i % w, i / w))
+	return reached
 
 ## The rise a body meets stepping from cell `a` to its neighbour `b` (x) and the most it takes without a hop (y): between
 ## the cells' centres, up to 16.5 up or down a stair along its rise (stairs rise northward) and a step (8) elsewhere; onto

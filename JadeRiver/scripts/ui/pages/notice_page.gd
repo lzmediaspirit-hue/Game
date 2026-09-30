@@ -12,7 +12,6 @@ const BIG := Vector2(312, 470)              # the chosen poster
 const SMALL := Vector2(236, 330)            # the others
 const HANDBILL := Vector2(350, 64)
 
-const Avatar = preload("res://scripts/avatar.gd")
 
 var chosen := ""          # the bounty whose poster is on top
 var likeness: Node2D      # the target's figure on the chosen poster, drawn from its own layers
@@ -166,10 +165,10 @@ func _likeness(outfit: Dictionary, feet: Vector2) -> void:
 	o.merge(outfit, true)
 	o.erase("name")
 	if likeness == null:
-		likeness = TopdownDoll.figure_for(o, 1.0, 3, null, "s")
+		likeness = Figures.for_outfit(o, 1.0, 3, null, "s")
 		add_child(likeness)
 		likeness.play("idle")
-	if likeness.outfit != o: TopdownDoll.dress(likeness, o)
+	if likeness.outfit != o: Figures.dress(likeness, o)
 	likeness.position = feet
 	likeness.visible = true
 

@@ -24,7 +24,7 @@ stand on, at its NPC's height, within LEASH tiles of the NPC's own spot (so stan
 in reach: the World authority's 110 units round the spot, 132 on the grid with the people drawn 1.2 times bigger), and
 every leg between spots is walked on that floor with nothing in the way; every extra's and animal's spot is standable;
 every loop's action is one the figures play.
-Deterministic: `python3 tools/data/topdown_life.py` writes the file, `--check` proves it current.
+Deterministic: `python3 tools/data/topdown_life.py` writes the file, `--check` proves it current (tools/data/README.md).
 """
 import json
 import math
@@ -32,7 +32,11 @@ import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
+sys.path.insert(0, HERE)
+from common import DATA, ROOT, emit, fail, read, run_cli  # noqa: E402
+sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
+from lib.pix import h01  # noqa: E402  the pixel library's coordinate hash (tools/lib/pix.py)
+
 OUT = os.path.join(ROOT, "data", "topdown", "life.json")
 LAYOUTS = os.path.join(ROOT, "data", "topdown")
 
@@ -351,12 +355,6 @@ def check_furnish(rid: str, d: dict, g, clear: set) -> list:
 FACINGS = {"n": (0, -1), "ne": (1, -1), "e": (1, 0), "se": (1, 1), "s": (0, 1), "sw": (-1, 1), "w": (-1, 0), "nw": (-1, -1)}
 
 
-def h01(x: int, y: int, s: int) -> float:
-    n = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
-    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0
-
-
 def _seed(text: str) -> int:
     s = 0
     for ch in text:
@@ -448,7 +446,7 @@ def _facing(dx: float, dy: float) -> str:
 
 
 def actions() -> set:
-    man = json.load(open(os.path.join(LAYOUTS, "character.json")))
+    man = read("character", LAYOUTS)
     return set(man["actions"]) | set(man.get("aliases", {}))
 
 
@@ -457,9 +455,9 @@ def check_work(errs: list) -> None:
     tools (the tool set's `actions`); a working step runs a whole number of its looping action's cycles, so its blow
     lands on the contact frame on every cycle; a rest step holds a frame the action has; a load is one the view sets
     down; `pause` is idle or hold."""
-    man = json.load(open(os.path.join(LAYOUTS, "character.json")))
+    man = read("character", LAYOUTS)
     path = os.path.join(LAYOUTS, "character", "tool.json")
-    tools = json.load(open(path))["items"].get("tool", {}) if os.path.exists(path) else {}
+    tools = read(path)["items"].get("tool", {}) if os.path.exists(path) else {}
     for name, lp in LOOPS.items():
         worn = lp.get("tools", [])
         for t in worn:
@@ -510,7 +508,7 @@ def check_anvil(where: str, d: dict, side: dict, spots: list) -> list:
 
 
 def room_side(rid: str) -> dict:
-    return json.load(open(os.path.join(ROOT, "data", "rooms", rid + ".json")))
+    return read(rid, os.path.join(DATA, "rooms"))
 
 
 def build_rooms() -> tuple:
@@ -537,7 +535,7 @@ def build_rooms() -> tuple:
         if not os.path.exists(path):
             errs.append("%s: no layout" % rid)
             continue
-        d = json.load(open(path))
+        d = read(path)
         g = TR.Grid(d)
         side = {o["id"]: o for o in room_side(rid).get("objects", [])}
         out = {}
@@ -611,22 +609,14 @@ def check_spots(where: str, g, home, spots: list, loop: dict) -> list:
     return errs
 
 
-def build(check_only: bool = False) -> None:
+def build() -> str:
     rooms, errs = build_rooms()
-    if errs:
-        raise SystemExit("topdown_life:\n  " + "\n  ".join(errs))
+    fail("topdown_life", errs)
     body = {"schema_version": 1, "leash": LEASH, "loops": LOOPS, "cues": CUES, "critters": CRITTERS, "day_only": DAY_ONLY,
             "drops": DROPS, "rooms": rooms}
-    text = json.dumps(body, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
-    if check_only:
-        if not os.path.exists(OUT) or open(OUT, encoding="utf-8").read() != text:
-            raise SystemExit("stale data/topdown/life.json (run tools/data/topdown_life.py)")
-        return
-    with open(OUT, "w", encoding="utf-8") as f:
-        f.write(text)
-    print("built life.json (%d rooms)" % len(rooms))
+    emit(OUT, json.dumps(body, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    return "life.json: %d rooms" % len(rooms)
 
 
 if __name__ == "__main__":
-    sys.path.insert(0, HERE)
-    build("--check" in sys.argv)
+    raise SystemExit(run_cli(build))

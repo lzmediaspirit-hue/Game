@@ -19,7 +19,7 @@ import lantern
 import posts
 import random
 
-from common import DATA, write, entries, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of
+from common import DATA, write, entries, clear, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of, run_cli
 from common import unlocked as unlock
 
 ROOMS_DIR = os.path.join(DATA, "rooms")
@@ -2370,7 +2370,7 @@ def zone_json():
     expanse = sorted(k for k, r in ROOMS.items() if r.d["zone"] == "azure_expanse")
     zones = [{
         "id": "jade_river_valley", "tier": 1, "name": "Jade River Valley", "level_range": [0, 63], "ceiling": "heaven_glimpse_3",
-        "laws": ["water", "wood", "earth"], "currency": {"everyday": "silver_tael", "high": "spirit_stone"}, "attunement": None,
+        "currency": {"everyday": "silver_tael", "high": "spirit_stone"}, "attunement": None,
         "panorama": "valley_day", "start_room": "lf_fishers_hut", "qi_density": [0.8, 1.5], "rooms": rooms,
         "regions": [
             {"id": "lotus_ferry", "name": "Lotus Ferry", "levels": [0, 3], "map": [0.78, 0.58]},
@@ -2396,10 +2396,9 @@ def zone_json():
             {"id": "story", "name": "Story", "levels": [0, 0], "map": [0.5, 0.5], "hidden": True},
             {"id": "unmapped", "name": "Somewhere Unmapped", "levels": [0, 0], "map": [0.5, 0.5], "hidden": True},
         ],
-        "exit": {"room": "mp_ascension_gate", "to_zone": "azure_expanse"},
     }, {
         "id": "azure_expanse", "tier": 2, "name": "Azure Expanse", "level_range": [55, 81], "ceiling": "sage_sovereign_3",
-        "laws": ["water", "wood", "earth", "fire", "metal", "wind", "thunder"], "currency": {"everyday": "spirit_stone", "high": "sage_crystal"},
+        "currency": {"everyday": "spirit_stone", "high": "sage_crystal"},
         # Loot coins are counted in taels; the Expanse pays them out in Spirit Stones at this rate (S21).
         "coin_scale": 0.05, "qi_density": [1.2, 2.0],
         "attunement": {"stat": "storm_ward", "name": "Storm Ward", "shard": "storm_shard", "required": [10, 60], "unlock": "storm_ward",
@@ -2420,7 +2419,6 @@ def zone_json():
             {"id": "skyport_wreck", "name": "Skyport Wreck", "levels": [76, 81], "attunement": 60, "map": [0.10, 0.18]},
             {"id": "starsea", "name": "Starsea", "levels": [79, 81], "map": [0.05, 0.10], "hidden": True},
         ],
-        "exit": {"room": "ae_landing", "to_zone": "jade_river_valley"},
     }, lantern.zone(sorted(k for k, r in ROOMS.items() if r.d["zone"] == "lantern_star_field"))]
     entries("zones", zones)
 
@@ -3212,10 +3210,7 @@ def build():
     under_steps()
     check_links()
     reachability()
-    os.makedirs(ROOMS_DIR, exist_ok=True)
-    for f in os.listdir(ROOMS_DIR):
-        if f.endswith(".json"):
-            os.remove(os.path.join(ROOMS_DIR, f))
+    clear(ROOMS_DIR)   # a room renamed away leaves no file behind
     for rid, r in ROOMS.items():
         write(rid + ".json", r.build(), folder=ROOMS_DIR)
     zone_json()
@@ -3229,4 +3224,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

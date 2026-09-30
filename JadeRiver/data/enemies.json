@@ -1657,7 +1657,6 @@
    "half_width": 18,
    "height": 90,
    "coin_mult": 2.0,
-   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -1830,7 +1829,6 @@
    "half_width": 18,
    "height": 90,
    "keep_distance": 260,
-   "equipment_chance": 0.02,
    "faction": "mudwater",
    "movement": {
     "jump": 530,
@@ -2254,7 +2252,6 @@
    "half_width": 20,
    "height": 40,
    "flying": true,
-   "weak_to": "fire",
    "phases_walls": true,
    "movement": {
     "jump": 0,
@@ -2457,7 +2454,6 @@
    "height": 90,
    "guards": true,
    "coin_mult": 2.0,
-   "equipment_chance": 0.024,
    "faction": "gorge",
    "movement": {
     "jump": 530,
@@ -4746,7 +4742,6 @@
    },
    "half_width": 22,
    "height": 100,
-   "weak_to": "water",
    "movement": {
     "jump": 0,
     "climb": false,
@@ -4884,7 +4879,6 @@
    },
    "half_width": 40,
    "height": 170,
-   "weak_to": "water",
    "attack_mult": 0.8,
    "phases": [
     {
@@ -8184,7 +8178,6 @@
    },
    "half_width": 22,
    "height": 96,
-   "weak_to": "fire",
    "phases": [
     {
      "below": 0.66,

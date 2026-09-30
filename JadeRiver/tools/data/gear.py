@@ -6,7 +6,7 @@ and the named counts per archetype and zone the plan targets. sets.json holds ev
 element and path. items.build_artifacts tags the named pieces with `tag()`; `line_set()` builds an archetype set's row
 from its line.
 """
-from common import entries, write
+from common import entries, write, run_cli
 from stats import AFFIXES
 
 AFFIX = {a["id"]: a for a in AFFIXES}
@@ -124,4 +124,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

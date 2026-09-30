@@ -586,16 +586,6 @@ def codex_hd(p):
     book_hd(p, lines)
 
 
-@glyph('gathering_log')
-def gathering_log_hd(p):
-    def leaf(p):
-        c = p.c
-        mark_hd(p, c.leaf(13.5, 23, 50, 12.5, 6.5))
-        fr = Frame((13.5, 23), 50.0)
-        p.line([fr.P(1, 0), fr.P(10, 0)], INK, 0, 1.0)
-    book_hd(p, leaf)
-
-
 @glyph('character')
 def character_hd(p):
     c = p.c
