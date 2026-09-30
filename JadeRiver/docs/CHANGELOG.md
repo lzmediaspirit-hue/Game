@@ -53,6 +53,56 @@ with a check in the `tutorials` suite.
 - **Tests:** the `tutorials` suite goes from 87 checks to 136, with a new section 10, "the card under a thumb". Each
   check was confirmed to fail with its fix undone.
 
+## The first boss: the eel wakes, and the elders come (decision 45)
+
+The Hollowed Eel of the Hollow Night was a fight the player won with a blade before they had ever cultivated. It is
+now the first boss, and it is lost by design: at 80% of its HP it wakes, too strong to stand against, and the elders of
+Lotus Ferry come out of the dark and slay it with cultivation arts. That is how the player learns what cultivation is,
+and the Cultivation page unlocks through the same `night_survived` flow as before. As built in
+`docs/redesign/story_staging.md` §3.6 ("The first boss"); screenshots before and after in
+`docs/redesign/feedback/first_boss/`.
+
+- **Phase 1** is the old fight, with 3.3 times the HP (`hp_mult` 1.0), until 80% (or 90 s into its fight).
+- **The waking** (`eel_awakens`, a cut that holds the fight): the camera closes on the eel as it rears, the river
+  boils (a new story art, `river_boil`), it roars (`story_eel_roar`, `story_river_boil`), the screen shakes and
+  flashes, the night's colours bruise toward dread (lifting as the elders bind it), and the music crosses to its
+  awakened theme (`boss_eel_awakened`). Aunt Ping cries a warning, and the prompt says the truth: "Its hide turns
+  every blow now: stay alive!" It is drawn in a new awakened look (`hollowed_eel_awakened.png`: 1.22 times the size,
+  near black, a crest of spines, red eyes).
+- **Phase 2** cannot be won, and cannot kill. The surge and a new thrash are faster, wider, `unblockable`, and take a
+  share of the player's max HP (18% and 12%), so no armour or healing outpaces them. Its hide holds its HP at 72%
+  (every blow, burn, technique and treasure passes `_damage_enemy`, which shows "Glances off"). No blow takes the
+  player under 30%, and the blow that reaches that floor (or the river rising, 22 s in) leaves them overwhelmed:
+  held down, the eel looming. The boss bar is hatched under the floor ("Its hide turns every blow"). The night's
+  event shows no countdown.
+- **The rescue** (`elders_come`, about 24 s staged): Granny Liu binds it with **Nine Seals** (`talisman_array`,
+  `story_talisman`), Old Ma drops the **Thousand-Catty Palm** on it (`force_palm`, `story_palm`), and Lu comes up the
+  river in his boat and ends it with the **Coiling River Dragon** (`water_dragon`, `story_dragon`). Each lands with a
+  hit-stop, a struck flash, a screen flash and a shake. The dragon's checkpoint slays the eel (`slay_foe`, the elders
+  its killer). Whatever the player drank or used against the awakened eel is given back.
+- **Into cultivation** (`grey_lifts`, rewritten): the elders stand you up and heal you, name what you saw
+  (cultivation), and Lu calls you to his boat. The quest and flag order is unchanged, so Cultivate, the Cultivation
+  page, the breakthrough, the Codex and their tutorials unlock as before.
+- **No soft-lock:** a player who flees still meets the waking on its clock and the rising river; a fall in phase 1
+  begins the night again; the flags `eel_awakened`, `eel_overwhelmed` and `night_held` carry each stage over a reload
+  (the eel rises again awake; has you down again; the night comes back won). The waking and the rescue replay whole if
+  cut short (`resume: false`). With no scene director, the elders slay it 30 s after it has you down. The event's
+  timer is still the last resort.
+- **The stage** (`SceneDirector`, `SceneRules`): new steps `art` (a story art of the FX sheets where a target stands),
+  `foe` (a room's foe staged: its pose, a struck flash, the dread lifted from it) and `hitstop` (the stage's clock
+  held); spots `beside` a target where it stands (mirrored to the side away from another); `hold_fight` scenes take
+  the stage from a live part or a hand-off; a letterboxed camera may look past the room's edge by the bar's height; an
+  art may come in from an actor's side (`from`); a blow's flash or flinch under way is no longer frozen on a body
+  through a cut. Room events gained `unless`, `from_start` and `won_if`.
+- **Art and sound:** four story arts in `tools/art/fx/story_arts.py` (FX pipeline, index palettes, nearest neighbour);
+  the eel's awakened look in the creature pipeline; five sounds and the awakened theme in `tools/audio/story.py`
+  (ids in `tools/data/sound.py`).
+- **Checks:** `hollow_night` rewritten (76 checks: the waking at 80% by blade and by technique alone; its hide against
+  a billion, a burn and a technique; that phase 2 cannot be won or kill; the scenes' order and the eel slain in
+  `elders_come`; the unlocks and their tutorial; the refund; fleeing, falling, and reloads awake, in the rescue and
+  after the kill). `prologue_run`, `balance_sim` and the capture (`topdown_capture -- --first-boss`) play the new
+  night.
+
 ## Progression numbers, three quick slots and a 50-space bag (decision 45)
 
 The user's feedback on build 110: charged attacks should out-damage a basic attack; the player should have Qi when the

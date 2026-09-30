@@ -211,6 +211,20 @@ func dust(kind: String, at: Vector2, z: float, dir := Vector2.DOWN) -> FxSprite:
 	return play(d, row, {"at": art(at, z), "key": key_of(at, z, true, 8.0), "flip": dm[1] and kd.get("dirs", false),
 		"fps": float(d.get("fps", 16)), "frames": int(d.get("frames", 6))})
 
+## Decision 45: a story art's effect (data/fx_topdown.json `story`, tools/art/fx/story_arts.py): the first boss's
+## awakening (the river boiling) and the elders' arts (Granny Liu's talisman array, Old Ma's palm of force, Lu's water
+## dragon), anchored on the floor at `at` (world units), at a whole scale; a flat one (an array on the ground) under the
+## bodies standing in it, an upright one (a dragon, a palm) in front of the body there.
+func story(name: String, at: Vector2, k := 1.0, flip := false) -> FxSprite:
+	var s: Dictionary = cfg().get("story", {}).get("arts", {}).get(name, {})
+	if s.is_empty() or world.room == null: return null
+	var h: float = world.room.height_at(at)
+	var z := h if h < INF else 0.0
+	var flat := str(s.get("layer", "")) == "floor"
+	var scale := maxf(1.0, roundf(k))
+	return play(s.get("sheet", {}), 0, {"at": art(at, z), "key": key_of(at, z, flat, float(s.get("north", 40)) * scale),
+		"scale": scale, "fps": float(s.get("fps", 12)), "frames": int(s.get("frames", 1)), "flip": flip})
+
 ## A looping mark held while a state lasts (the guard, the charge of a dragged finisher): shown at `at` facing `dir`
 ## while `on`, following the body; dropped when it ends.
 func hold(which: String, on: bool, at: Vector2, z: float, dir: Vector2) -> void:

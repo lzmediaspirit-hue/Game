@@ -423,7 +423,9 @@ func _check_phases(e: EnemyState) -> void:
 					# The last stand: shorter pauses between attacks and harder blows.
 					e.ai.enraged = {"cd": float(ph.get("cooldown", 0.7)), "damage": float(ph.get("damage", 1.25))}
 					if ph.has("summon"): enemy_attack_release(e, {"summon": str(ph.summon)})
-			emit("boss_phase", {"enemy": e.uid, "phase": i + 1, "action": str(ph.get("action", ""))})
+			# A phase the story stages itself (`staged`: the eel's waking, the scene `eel_awakens`) plays no moment of its own.
+			emit("boss_phase", {"enemy": e.uid, "phase": i + 1, "action": str(ph.get("action", "")), "staged": bool(ph.get("staged", false)),
+				"def": e.def_id})
 
 ## The nascent soul bursts: everyone in the ring takes a share of max HP (guarding halves it, a dodge slips it) and
 ## the boss is gone; the fight is won, the loot still falls.
@@ -437,30 +439,52 @@ func _phase_summon(e: EnemyState, ph: Dictionary) -> String:
 		if a.has("summon"): return str(a.summon)
 	return "paper_talisman_ghost"
 
-## The Hollowed Eel, the Hollow Night's great foe (tools/data/enemies.py, its `eel` row; docs/redesign/story_staging.md).
-## It glides in the river toward the player's stretch of the bank, out of reach and unhurt; rears up out of the water
-## (the tell: its wind-up); lunges onto the bank at the spot the player stood on when it reared, striking there; then
-## lies stranded on the bank, open to every blow (the window), until it slides back into the river. Below half its HP
-## (its phase: the fight's climax) it dives, and every lunge after is the great lunge: a longer tell, a heavier blow and
-## a longer window (the night's story has Lu's palm pin it to the bank). Deterministic on the Enemies stream; the side
-## view plays the same states along its walk strip. On the height grid its feet are the floor under it: the water's
-## surface in the river (out of any blow's band from the bank), the bank's own floor once it is ashore (inside it).
+## The Hollowed Eel, the Hollow Night's great foe and the first boss (tools/data/enemies.py, its `eel` row; decision 45,
+## docs/redesign/story_staging.md "The first boss"). Phase 1, the fight a player can read: it glides in the river toward
+## the player's stretch of the bank, out of reach and unhurt; rears up out of the water (the tell: its wind-up); lunges
+## onto the bank at the spot the player stood on when it reared, striking there; then lies stranded on the bank, open to
+## every blow (the window), until it slides back into the river.
+## Phase 2 (its phase: 80% of its HP, or `after_s` into the fight) is the eel awakened, a fight the player cannot win:
+## it throws itself back into the river and rises greater (`awaken`, the grey minnows fleeing it), then surges at the
+## player at the `awake` pace (a faster tell, a longer reach, a band three tiles wide, a thrash round it every other
+## landing), its blows unblockable and a share of the player's HP. Its hide turns every blow (its `hp_floor`), and no
+## blow of its takes the player under `overwhelm_hp` (hold_floor). The fight ends in the player overwhelmed: when a
+## blow takes them to that floor, or `overwhelm_s` into the phase (the river rises over the bank). It then looms over
+## them, still and unhurt, and the story's elders come (the scene `elders_come` slays it through its checkpoint,
+## QuestAuthority `slay_foe`); should none come (no scene on the stage: the side view), they slay it here after
+## `rescue_s` of the simulation's time. Its flags (`flags`) carry the phase over a reload: a character whose eel woke
+## meets it risen awake, and one it overwhelmed meets it overwhelming again, so the elders come.
+## Deterministic on the Enemies stream; the side view plays the same states along its walk strip. On the height grid
+## its feet are the floor under it: the water's surface in the river (out of any blow's band from the bank), the bank's
+## own floor once it is ashore (inside it).
 func _eel(e: EnemyState, delta: float) -> void:
 	var cfg: Dictionary = e.def.get("eel", {})
+	var aw: Dictionary = cfg.get("awake", {})
 	var ai := e.ai
 	var grid: TopdownRoom = game.room_rt.topdown
 	ai.timer = float(ai.timer) - delta
 	var tgt := EnemyBrain.target_position(self, e)
 	var lane: Vector2 = ai.get("lane", e.spawn_point)
-	var reach := float(cfg.get("reach", 190))
-	var climax: bool = int(ai.get("phase", -1)) >= 0
+	var awake: bool = int(ai.get("phase", -1)) >= 0
+	var pace: Dictionary = aw if awake else cfg
+	var reach := float(pace.get("reach", 190))
 	e.hidden = false
-	# The climax begins wherever the fight stands: it throws itself back into the river, then rears for the great lunge.
-	if climax and not ai.get("climax_begun", false) and str(ai.state) in ["glide", "beached", "retreat"]:
-		ai.climax_begun = true
-		ai.state = "dive"
-		ai.timer = float(cfg.get("dive_s", 1.4))
-		ai.from = e.plane
+	# The fight's clock from its first sight (a phase may open on it: the eel wakes for a player who never strikes it).
+	if not str(ai.state) in ["idle", "patrol", "aggro", "return"]: ai.engaged_t = float(ai.get("engaged_t", 0.0)) + delta
+	# Phase 2 begins wherever the fight stands: back into the river, and it rises awake.
+	if awake and not ai.get("awake_begun", false):
+		_eel_awaken(e, cfg, aw)
+	elif awake and not str(ai.state) in ["awaken", "final", "looming"]:
+		ai.awake_t = float(ai.get("awake_t", 0.0)) + delta
+		# A blow of its own has taken the player to the floor (floor_reached): at least one of them always lands first.
+		if ai.get("floored", false): _eel_overwhelm(e, aw)
+		elif float(ai.awake_t) >= float(aw.get("overwhelm_s", 22.0)) and str(ai.state) in ["glide", "retreat", "beached"]:
+			# The player has slipped every surge: the river itself rises over the bank.
+			ai.state = "final"
+			ai.timer = float(aw.get("rise_s", 1.2))
+			ai.from = e.plane
+			e.facing = 1 if not tgt.is_empty() and float(tgt.pos.x) >= e.plane.x else -1
+			emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": "river_rises", "windup": float(ai.timer), "facing": e.facing})
 	match str(ai.state):
 		"idle", "patrol", "aggro", "return":
 			# It has risen: its first sight of the player begins the fight (the boss's entrance), then it glides.
@@ -471,6 +495,8 @@ func _eel(e: EnemyState, delta: float) -> void:
 			ai.lane = e.plane
 			emit("enemy_aggro", {"enemy": e.uid, "target": str(tgt.id), "def": e.def_id})
 			ai.state = "glide"
+			# A character whose eel woke before (a reload, or a fall after) meets it risen awake: its phase opens at once.
+			if _eel_flag(cfg, "awake"): e.pools.hp = minf(e.pools.hp, e.pools.max_hp * _eel_below(e))
 		"glide":
 			e.invulnerable = true
 			_eel_depth(e, grid, 40.0)
@@ -478,27 +504,27 @@ func _eel(e: EnemyState, delta: float) -> void:
 			var hi: float = (float(grid.w) - 3.0) * TopdownRoom.TILE if grid != null else float(game.room_rt.width()) - 60.0
 			var goal := Vector2(clampf(float(tgt.pos.x) if not tgt.is_empty() else lane.x, lo, hi), lane.y)
 			var was := e.plane
-			e.plane = e.plane.move_toward(goal, float(cfg.get("glide_speed", 70)) * delta)
+			e.plane = e.plane.move_toward(goal, float(pace.get("glide_speed", 70)) * delta)
 			# Its glide is its velocity (the top-down view turns its figure by it, as every other foe's).
 			e.velocity = (e.plane - was) / maxf(delta, 0.001)
 			if absf(e.velocity.x) > 1.0: e.facing = 1 if e.velocity.x > 0.0 else -1
 			e.action = "walk" if e.velocity.length() > 1.0 else "idle"
 			if float(ai.timer) <= 0.0 and not tgt.is_empty() and (tgt.pos as Vector2).distance_to(e.plane) <= reach + 24.0:
-				_eel_rear(e, tgt, climax, reach)
+				_eel_rear(e, tgt, 1 if awake else 0, reach)
 		"windup":
-			# The tell: reared up out of the water, its aim fixed on where the player stood.
+			# The tell: reared up out of the water (or, for the thrash, where it lies), its aim fixed on where the player stood.
 			e.velocity = Vector2.ZERO
 			e.action = "windup"
-			e.invulnerable = true
+			e.invulnerable = int(ai.get("attack", 0)) != 2
 			if float(ai.timer) <= 0.0:
 				ai.state = "attack"
-				ai.timer = float(cfg.get("lunge_s", 0.28))
+				ai.timer = float(pace.get("lunge_s", 0.28))
 				ai.from = e.plane
 				ai.hit_done = false
 		"attack":
-			# The lunge: out of the water onto the bank, the blow landing where it comes down.
+			# The lunge: out of the water onto the bank, the blow landing where it comes down (the thrash: where it lies).
 			e.action = "attack"
-			var ls := float(cfg.get("lunge_s", 0.28))
+			var ls := float(pace.get("lunge_s", 0.28))
 			var k := 1.0 - clampf(float(ai.timer) / maxf(ls, 0.01), 0.0, 1.0)
 			var land: Vector2 = ai.get("land", e.plane)
 			e.plane = (ai.from as Vector2).lerp(land, k)
@@ -508,50 +534,170 @@ func _eel(e: EnemyState, delta: float) -> void:
 			if float(ai.timer) <= 0.0:
 				e.plane = land
 				e.velocity = Vector2.ZERO
+				var struck := int(ai.get("attack", 0))
 				if not ai.hit_done:
 					ai.hit_done = true
-					game.combat.enemy_strike(e, e.def.attacks[int(ai.get("attack", 0))])
-				var great := int(ai.get("attack", 0)) > 0
+					game.combat.enemy_strike(e, e.def.attacks[struck])
 				ai.state = "beached"
-				ai.timer = float(cfg.get("beached_s", 2.4))
-				if great:
-					ai.timer = float(cfg.get("pinned_again_s", 3.5) if ai.get("pinned_once", false) else cfg.get("pinned_s", 5.5))
-					ai.pinned_once = true
-				ai.pinned = great
+				ai.timer = float(pace.get("beached_s", 2.4))
+				# Awake, every `thrash_every`-th landing it thrashes where it lies before it slides back.
+				if awake and struck == 1:
+					ai.landings = int(ai.get("landings", 0)) + 1
+					ai.thrash_next = int(ai.landings) % maxi(1, int(aw.get("thrash_every", 2))) == 0
+				else:
+					ai.thrash_next = false
 		"beached":
-			# The window: stranded on the bank, thrashing, open to every blow.
+			# The window: stranded on the bank, thrashing, open to every blow (awake, its hide turns them).
 			e.velocity = Vector2.ZERO
 			e.action = "hurt"
 			e.invulnerable = false
 			_eel_depth(e, grid, 0.0)
 			if float(ai.timer) <= 0.0:
-				ai.state = "retreat"
-				ai.timer = float(cfg.get("retreat_s", 0.5))
-				ai.from = e.plane
-				ai.pinned = false
-		"retreat", "dive":
-			# Back into the river along its lane (the climax's dive then holds there a moment, the river boiling).
-			var span := float(cfg.get("retreat_s", 0.5))
-			var hold := float(cfg.get("dive_s", 1.4)) - span if str(ai.state) == "dive" else 0.0
+				if ai.get("thrash_next", false) and (e.def.attacks as Array).size() > 2:
+					ai.thrash_next = false
+					var a2: Dictionary = e.def.attacks[2]
+					ai.attack = 2
+					ai.state = "windup"
+					ai.timer = float(a2.windup_s)
+					ai.land = e.plane
+					emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": str(a2.id), "windup": float(a2.windup_s), "facing": e.facing})
+				else:
+					ai.state = "retreat"
+					ai.timer = float(pace.get("retreat_s", 0.5))
+					ai.from = e.plane
+		"retreat", "awaken", "final":
+			# Back into the river along its lane. Waking, it holds there reared, the river boiling round it; the river
+			# rising, it rears over the water, then the grey water crashes over the bank.
+			var span := float(pace.get("retreat_s", 0.5))
+			var hold := 0.0
+			if str(ai.state) == "awaken": hold = float(cfg.get("awaken_s", 1.6)) - span
+			elif str(ai.state) == "final": hold = float(aw.get("rise_s", 1.2)) - span
 			var k2 := 1.0 - clampf((float(ai.timer) - hold) / maxf(span, 0.01), 0.0, 1.0)
 			var back := Vector2((ai.from as Vector2).x, lane.y)
 			var was2 := e.plane
 			e.plane = (ai.from as Vector2).lerp(back, k2)
 			e.velocity = (e.plane - was2) / maxf(delta, 0.001)
-			e.action = "walk" if e.velocity.length() > 1.0 else "hurt"
-			e.invulnerable = k2 >= 0.5
+			var rearing: bool = str(ai.state) != "retreat" and k2 >= 1.0
+			e.action = "windup" if rearing else ("walk" if e.velocity.length() > 1.0 else "hurt")
+			e.invulnerable = k2 >= 0.5 or str(ai.state) != "retreat"
 			_eel_depth(e, grid, 40.0 if k2 >= 0.5 else 0.0)
 			if float(ai.timer) <= 0.0:
 				e.plane = back
 				e.velocity = Vector2.ZERO
 				e.invulnerable = true
-				var rest: Array = cfg.get("climax_rest_s" if climax else "rest_s", [1.6, 2.6])
+				if str(ai.state) == "final":
+					_eel_overwhelm(e, aw)
+					return
+				var rest: Array = pace.get("rest_s", [1.6, 2.6])
 				ai.state = "glide"
 				ai.timer = rng.randf_range(float(rest[0]), float(rest[-1]))
+				# Awake after a reload that had already found the player overwhelmed: the river rises at once.
+				if str(ai.get("woke_from", "")) == "overwhelmed": ai.awake_t = float(aw.get("overwhelm_s", 22.0))
+		"looming":
+			# The player overwhelmed: it looms over them on the bank, reared for the last strike, unhurt and still, until
+			# the elders come (a scene's checkpoint slays it; with no scene, they come here after rescue_s).
+			e.velocity = Vector2.ZERO
+			e.action = "windup"
+			e.invulnerable = true
+			_eel_depth(e, grid, 0.0)
+			ai.rescue_t = float(ai.get("rescue_t", 0.0)) - delta
+			if float(ai.rescue_t) <= 0.0: game.combat.slay(e, "elders")
 
-## The eel rears up: its tell, the spot it will come down on (where the player stands now, within its reach) and its aim.
-func _eel_rear(e: EnemyState, tgt: Dictionary, great: bool, reach: float) -> void:
-	var i := 1 if great and (e.def.attacks as Array).size() > 1 else 0
+## The eel wakes (its phase opened): back into the river, reared and roaring, untouchable while the river boils; the
+## grey minnows flee it and no more come; its hide holds from now on (never under hp_floor, or under where it stands if
+## a great blow took it lower). The flag keeps it for a reload.
+func _eel_awaken(e: EnemyState, cfg: Dictionary, aw: Dictionary) -> void:
+	var ai := e.ai
+	ai.awake_begun = true
+	ai.awake_t = 0.0
+	ai.hp_floor = minf(float(aw.get("hp_floor", 0.72)), e.pools.hp / maxf(1.0, e.pools.max_hp))
+	ai.woke_from = "overwhelmed" if _eel_flag(cfg, "overwhelmed") else ""
+	ai.state = "awaken"
+	ai.timer = float(cfg.get("awaken_s", 1.6))
+	ai.from = e.plane
+	ai.pinned = false
+	e.invulnerable = true
+	var c = game.active()
+	var fl := str(cfg.get("flags", {}).get("awake", ""))
+	if c != null and fl != "" and not c.quests.has_flag(fl): game.quest.apply_flag(c.id, fl)
+	# What the player carries as it wakes: whatever they drink or use against it (a fight that cannot be won) is given
+	# back when the elders have slain it (Combat.slay). Nothing is lost to it.
+	var bag := {}
+	if c != null:
+		for s in c.inventory.bag:
+			if s != null and not bag.has(str(s.id)): bag[str(s.id)] = c.inventory.count(str(s.id))
+	ai.bag = bag
+	var rt: RoomRuntime = game.room_rt
+	for m in rt.living_enemies():
+		if m != e and m.team == "enemy": release(m)
+	if rt.event.get("active", false): rt.event.waves = []
+
+## The fight is over: the player lies overwhelmed and the eel looms over them where it is (on the bank beside them, or,
+## the river having risen over the bank, ashore at their feet). The river's crash takes the player down to the floor
+## too. The Enemies system announces it (the elders' scene waits on it) and the flag keeps it for a reload.
+func _eel_overwhelm(e: EnemyState, aw: Dictionary) -> void:
+	var ai := e.ai
+	var c = game.active()
+	var st: ActorState = game.actor_state(c.id) if c != null else null
+	if str(ai.state) == "final" and c != null:
+		game.combat.overwhelm(c, e, float(aw.get("overwhelm_hp", 0.3)))
+	if st != null:
+		# It looms up beside the fallen body, a step to one side toward the river: the side it struck from (or, straight
+		# over them or from afar, the room's middle), so its rearing body stands clear of them, and of the elders who
+		# come from their other side.
+		var lane: Vector2 = ai.get("lane", e.spawn_point)
+		var grid: TopdownRoom = game.room_rt.topdown
+		var wide := float(grid.w) * TopdownRoom.TILE if grid != null else lane.x * 2.0
+		var dx: float = e.plane.x - st.plane.x
+		var side := signf(dx) if absf(dx) > 8.0 and e.plane.distance_to(st.plane) <= 90.0 else (1.0 if st.plane.x <= wide * 0.5 else -1.0)
+		if st.plane.x + side * 46.0 < 40.0 or st.plane.x + side * 46.0 > wide - 40.0: side = -side   # not off the room's edge
+		var toward: Vector2 = Vector2(st.plane.x, lane.y) - st.plane
+		var at: Vector2 = st.plane + Vector2(side * 46.0, 0.0) + toward.limit_length(40.0)
+		e.plane = grid.nearest_standable(at) if grid != null and toward.length() > 60.0 else at
+		e.facing = 1 if st.plane.x >= e.plane.x else -1
+		e.aim = (st.plane - e.plane).normalized() if st.plane.distance_to(e.plane) > 0.5 else Vector2.UP
+	ai.state = "looming"
+	ai.rescue_t = float(aw.get("rescue_s", 30.0))
+	# The player lies beaten down where they fell until the elders have come (Combat.slay lifts it).
+	if c != null: game.combat.apply_status(c.id, "stun", ai.rescue_t + 5.0, 1.0)
+	e.velocity = Vector2.ZERO
+	e.invulnerable = true
+	e.action = "windup"
+	var cfg: Dictionary = e.def.get("eel", {})
+	var fl := str(cfg.get("flags", {}).get("overwhelmed", ""))
+	if c != null and fl != "" and not c.quests.has_flag(fl): game.quest.apply_flag(c.id, fl)
+	emit("boss_overwhelmed", {"actor": c.id if c != null else "", "enemy": e.uid, "def": e.def_id})
+
+## The floor a blow may take the player to while a foe that cannot be beaten is awake in the room (the eel's
+## `overwhelm_hp`, as a share of max HP), else -1: no floor.
+func hold_floor(_c) -> float:
+	if game.room_rt == null: return -1.0
+	for e in game.room_rt.living_enemies():
+		if e.team == "enemy" and e.ai.get("awake_begun", false): return float(e.def.get("eel", {}).get("awake", {}).get("overwhelm_hp", 0.3))
+	return -1.0
+
+## A blow of the awake foe has taken the player to the floor (Combat, holding them there): its fight is over.
+func floor_reached(_c) -> void:
+	if game.room_rt == null: return
+	for e in game.room_rt.living_enemies():
+		if e.team == "enemy" and e.ai.get("awake_begun", false): e.ai.floored = true
+
+## Whether the active character carries the eel's flag of this kind (its row's `flags`).
+func _eel_flag(cfg: Dictionary, kind: String) -> bool:
+	var fl := str(cfg.get("flags", {}).get(kind, ""))
+	var c = game.active()
+	return fl != "" and c != null and c.quests.has_flag(fl)
+
+## The share of its HP its waking phase opens at.
+func _eel_below(e: EnemyState) -> float:
+	for ph in e.def.get("phases", []):
+		if str(ph.get("action", "")) == "awaken": return float(ph.get("below", 0.8))
+	return 0.8
+
+## The eel rears up: its tell, the spot it will come down on (where the player stands now, within its reach) and its
+## aim; `i` its attack (the lunge, or awake the surge).
+func _eel_rear(e: EnemyState, tgt: Dictionary, i: int, reach: float) -> void:
+	i = mini(i, (e.def.attacks as Array).size() - 1)
 	var a: Dictionary = e.def.attacks[i]
 	var to: Vector2 = (tgt.pos as Vector2) - e.plane
 	e.ai.attack = i

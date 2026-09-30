@@ -73,7 +73,8 @@ func _draw() -> void:
 		draw_circle(Vector2(0, -14 + y), 8, col)
 	var c = Game.active()
 	var st: ActorState = Game.actor_state(c.id) if c else null
-	if st and (fine or st.plane.distance_to(ground) < 160.0):
+	# Its name waits out a cut (decision 45: the eel's drops fall by the elders as the rescue plays on).
+	if st and not Game.paused and (fine or st.plane.distance_to(ground) < 160.0):
 		var text := (Tx.plural("view.taels", coins) % coins) if coins > 0 else ContentDB.item_name(item) + (" ×%d" % count if count > 1 else "")
 		UiKit.draw_outlined(self, text, Vector2(-120, -40 + y), 16, col, HORIZONTAL_ALIGNMENT_CENTER, 240)
 

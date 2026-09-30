@@ -31,9 +31,13 @@ func hit(p: Dictionary) -> void:
 	var charge := float(p.get("charge", 0.0))
 	var charged := kind == "enemy" and charge >= float(CombatFeel.cfg().get("charge", {}).get("label_from", 1.5))
 	var shown: bool = Game.is_revealed("hud:damage_numbers") or kind == "player"
-	fx.hit(pos, float(amount), src, str(p.get("element", "none")), str(p.get("type", "")), bool(p.get("crit", false)), str(p.get("target", "")),
-		shown, kind == "player", charged)
-	if charged and shown and Game.account.settings.get("damage_numbers", true):
+	# Decision 45: a blow on a foe whose hide holds (the first boss awake) says so, and leaves no number when it took none.
+	var glance: bool = p.get("glance", false)
+	if glance: fx.label(pos + Vector2(0, -18), Tx.t("world_view.glance"), UiKit.MIST, 18)
+	if not (glance and amount <= 0):
+		fx.hit(pos, float(amount), src, str(p.get("element", "none")), str(p.get("type", "")), bool(p.get("crit", false)), str(p.get("target", "")),
+			shown, kind == "player", charged)
+	if charged and shown and not glance and Game.account.settings.get("damage_numbers", true):
 		fx.label(pos + Vector2(0, -30), Tx.t("world_view.charged") % charge, UiKit.PALE_GOLD, 16, true)
 	if cast_shake.has(src):
 		cast_shake.erase(src)

@@ -96,6 +96,13 @@ RAMPS = {
     "eel_belly": _r("76838A", "9FABAD", "C9D0CD", "E0E5E0", "EEF0E9"),
     "eel_fin": _r("2F3840", "3F4A52", "58646C", "78848B", "A9B3B7"),
     "eel_mouth": _r("141A20", "1F2830", "2E3A44", "46545E", "6A7880"),
+    # decision 45: the eel awakened, the first boss's second phase: its grey bruised toward violet and near black, a
+    # sickly belly, its fins edged in dried-blood red, its maw a red wound, its strands turned to smoke
+    "eel_wake": _r("100C16", "1E1828", "302840", "463C5A", "665C7E"),
+    "eel_wake_belly": _r("2E2640", "463C5E", "625680", "84789E", "A89CBC"),
+    "eel_wake_fin": _r("2A1420", "4A1E2C", "7A2E3A", "A8464C", "C87268"),
+    "eel_wake_mouth": _r("1E060A", "3C0C14", "5E1620", "86222C", "B03A40"),
+    "strand_wake": _r("3E3848", "5A5266", "7C7288", "9E94AA", "C0B8CA"),
     # hollow minnow: a small grey fish, dark back, pale belly, grey fins
     "minnow": _r("3E4A53", "5A6770", "808D94", "AAB5B8", "D6DDD9"),
     "minnow_back": _r("343E47", "4B565F", "67737B", "8D989D", "A9B2B6"),
@@ -145,6 +152,8 @@ INKY = c("1A1216")
 RAT_EYE = c("B8442E")
 HOLLOW_EYE = c("E2F4EE")
 EYE_HALO = c("CFE6EA")
+WAKE_EYE = c("FF5A48")          # decision 45: the awakened eel's eyes, burning
+WAKE_HALO = c("FFB08A")
 GOLD_EYE = c("FFD35A")
 GOLD_GLINT = c("FFF4C8")
 DUST = c("C9B891", 210)

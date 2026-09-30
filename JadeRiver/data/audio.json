@@ -40,6 +40,16 @@
    "loop_s": 43.636372,
    "volume_db": -6
   },
+  "boss_eel_awakened": {
+   "bar_beats": 6,
+   "bars": 16,
+   "bpm": 150.0,
+   "file": "res://art/audio/music/boss_eel_awakened.ogg",
+   "len_s": 38.4,
+   "loop": true,
+   "loop_s": 38.4,
+   "volume_db": -6
+  },
   "boss_snapper": {
    "bar_beats": 4,
    "bars": 16,
@@ -1385,6 +1395,31 @@
    "file": "res://art/audio/sfx/sting_victory.wav",
    "len_s": 2.56,
    "volume_db": 0.0
+  },
+  "story_dragon": {
+   "file": "res://art/audio/sfx/story_dragon.wav",
+   "len_s": 2.2,
+   "volume_db": -4.0
+  },
+  "story_eel_roar": {
+   "file": "res://art/audio/sfx/story_eel_roar.wav",
+   "len_s": 2.2,
+   "volume_db": -5.5
+  },
+  "story_palm": {
+   "file": "res://art/audio/sfx/story_palm.wav",
+   "len_s": 1.522,
+   "volume_db": 0.0
+  },
+  "story_river_boil": {
+   "file": "res://art/audio/sfx/story_river_boil.wav",
+   "len_s": 2.4,
+   "volume_db": -9.5
+  },
+  "story_talisman": {
+   "file": "res://art/audio/sfx/story_talisman.wav",
+   "len_s": 1.9,
+   "volume_db": -2.5
   },
   "surge": {
    "file": "res://art/audio/sfx/surge.wav",

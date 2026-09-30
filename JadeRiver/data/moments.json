@@ -1664,7 +1664,9 @@
   {
    "id": "boss_phase",
    "event": "boss_phase",
-   "when": {},
+   "when": {
+    "staged": false
+   },
    "priority": 90,
    "duration_s": 1.2,
    "lock_s": 0.0,
@@ -1707,7 +1709,9 @@
    "sample": {
     "enemy": 1,
     "phase": 2,
-    "action": "summon"
+    "action": "summon",
+    "staged": false,
+    "def": "hollowed_eel"
    },
    "step": "P6c"
   },

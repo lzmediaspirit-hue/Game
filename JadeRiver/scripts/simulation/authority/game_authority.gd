@@ -191,6 +191,8 @@ func apply_effects(actor_id: String, effects: Array, source: String) -> void:
 			"add_soul": progression.apply_soul(actor_id, float(e.amount))
 			"add_insight": progression.apply_insight(actor_id, str(e.dao), float(e.amount), source)
 			"heal": combat.apply_heal(actor_id, float(e.get("pct", 0)), float(e.get("amount", 0)), float(e.get("over_s", 0)), source)
+			# Decision 45: a foe the story slays (the elders' arts on the first boss, a staged scene's checkpoint).
+			"slay_foe": combat.apply_slay(str(e.get("enemy", "")), str(e.get("by", "elders")))
 			"restore_resource": combat.apply_resource_change(actor_id, str(e.pool), float(e.get("amount", 0)), source, float(e.get("pct", 0)))
 			"add_composure": combat.apply_resource_change(actor_id, "composure", float(e.amount), source)
 			"cleanse_hollowing": combat.apply_resource_change(actor_id, "hollowing", -float(e.amount), source)   # S28 v1.2

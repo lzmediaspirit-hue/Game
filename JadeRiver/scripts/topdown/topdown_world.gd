@@ -90,6 +90,14 @@ var figures: Dictionary = {}    ## object id -> its Figure in the sorted layer (
 var stage_cam = null
 var stage_zoom := 1.0
 var stage_snap := false
+var stage_hold := false         ## decision 45: a staged hit-stop holds the figures and the effects (SceneDirector)
+var dread_lifted := {}           ## decision 45: awake foes the dread no longer darkens the world for (a scene's `foe` step, uid -> true)
+var stage_bars := 0.0           ## decision 45: the share of the view one letterbox bar hides (a staged camera may look past the room's edge by it)
+## Decision 45: the colour of dread while a foe that cannot be beaten is awake in the room (the first boss's second
+## phase), the world multiplied toward it over DREAD_S and back when it falls.
+const DREAD := Color("b8a3c8")
+const DREAD_S := 1.2
+var dread := 0.0
 var _room_nodes: Array = []     ## what the room built, cleared when the next one is entered
 ## Decision 38: the combat's effects on the ground plane (smears, forms, impacts, marks, dust) in the sorted layer, and
 ## whether a hit-stop holds the fight (and them) this frame.
@@ -352,26 +360,44 @@ func _cam_target() -> Vector2:
 	return room.camera_for(m.pos, cam_z, m.vel)
 
 ## A staged scene's camera point in art px kept inside the room as it is drawn (a ridge on its north edge included), at
-## the view's zoom, or on its middle where the room is smaller.
+## the view's zoom, or on its middle where the room is smaller. Under a letterbox the room's edge may come up to the
+## bar's inner edge (decision 45: a foe in the river at the room's foot is framed above the bar, not under it).
 func _clamp_cam(t: Vector2) -> Vector2:
 	var b := room.drawn_rect()
 	var half := Vector2(VIEW) * 0.5 / stage_zoom
+	var bar := float(VIEW.y) * clampf(stage_bars, 0.0, 0.25) / stage_zoom
 	t.x = b.get_center().x if b.size.x <= half.x * 2.0 else clampf(t.x, b.position.x + half.x, b.end.x - half.x)
-	t.y = b.get_center().y if b.size.y <= half.y * 2.0 else clampf(t.y, b.position.y + half.y, b.end.y - half.y)
+	t.y = b.get_center().y if b.size.y <= (half.y - bar) * 2.0 else clampf(t.y, b.position.y + half.y - bar, b.end.y - half.y + bar)
 	return t
 
 func _sync(delta: float) -> void:
-	player.sync(delta)
+	# Decision 45: a staged scene's hit-stop holds the struck figures and the effects a moment, as a blow's does.
+	var fd := 0.0 if stage_hold else delta
+	player.sync(fd)
 	shadow.sync()
-	fx.advance(delta)
-	if not held: tfx.advance(delta)
+	fx.advance(fd)
+	if not held and not stage_hold: tfx.advance(delta)
 	_hold_marks()
 	for uid in foe_views.keys():
-		if is_instance_valid(foe_views[uid]): foe_views[uid].sync(delta)
+		if is_instance_valid(foe_views[uid]): foe_views[uid].sync(fd)
 		else: foe_views.erase(uid)
+	_dread_step(delta)
 	occluded = is_occluded()
 	silhouette.queue_redraw()
 	aim_view.queue_redraw()
+
+## Decision 45: the world toward the colour of dread while a foe that cannot be beaten is awake in the room (the first
+## boss woken), and back when it has fallen or the room is left; on the tint the night room keeps white otherwise.
+func _dread_step(delta: float) -> void:
+	var want := 0.0
+	if live and Game.room_rt != null:
+		for e in Game.room_rt.living_enemies():
+			if e.team == "enemy" and e.ai.get("awake_begun", false) and not dread_lifted.has(e.uid):
+				want = 1.0
+				break
+	if want == dread and (want == 0.0 or tint.color == Color.WHITE.lerp(DREAD, dread)): return
+	dread = move_toward(dread, want, delta / DREAD_S) if not UiKit.reduce_motion() else want
+	tint.color = Color.WHITE.lerp(DREAD, dread)
 
 ## Is the body covered by something sorted after it (a raised row's face, the flight of stairs, a prop)?
 func is_occluded() -> bool:
@@ -1032,6 +1058,11 @@ class FoeView extends Sorted:
 	var kb0 := 0.0
 	var hop := 0.0
 	var state := ""
+	# Decision 45: a cut's hold on the figure (SceneDirector._stage_foes: a pose, a struck flash), and the awakened
+	# look (the first boss's second phase: its sheet's `awakened` block, loaded the moment it wakes).
+	var staged_act := ""
+	var staged_white := 0.0
+	var awake := false
 	func _init(w, e: EnemyState) -> void:
 		super(w)
 		uid = e.uid
@@ -1044,6 +1075,13 @@ class FoeView extends Sorted:
 			return
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
 		var look: Dictionary = sp.get("elite", sp) if e.elite else sp
+		if e.ai.get("awake_begun", false) and sp.has("awakened"):
+			look = sp.awakened
+			awake = true
+		_take(w, sheet, look)
+		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
+	## A look of the species' sheet: its actions, cell, feet, atlas, height and shadow.
+	func _take(w, sheet: Dictionary, look: Dictionary) -> void:
 		acts = look.get("actions", {})
 		swims = acts.has("swim")
 		mirror = sheet.get("mirror", {})
@@ -1054,7 +1092,6 @@ class FoeView extends Sorted:
 		tex = w.foe_sheet(str(look.get("atlas", "")))
 		top = float(look.get("top", -1))
 		shadow_rx = float(look.get("shadow", [8, 3])[0])
-		facing = TopdownMotor.nearest_row(Vector2(e.facing, 1.0), "s", FACINGS)
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
 	## idle frame facing the camera, tools/art/topdown/build_foes.py); a stand-in's is the side view's height at half size,
 	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
@@ -1083,11 +1120,20 @@ class FoeView extends Sorted:
 			queue_redraw()
 			get_child(0).queue_redraw()
 			return
-		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover"]
+		# Decision 45: the foe wakes (the first boss's second phase): its awakened look from now on.
+		if not awake and e.ai.get("awake_begun", false):
+			var sheet: Dictionary = world.room.tileset.get("foes", {})
+			var sp: Dictionary = sheet.get("species", {}).get(e.def_id, {})
+			if sp.has("awakened"):
+				_take(world, sheet, sp.awakened)
+				last = ""
+			awake = true
+		var fight := str(e.ai.state) in ["aggro", "windup", "attack", "recover", "looming"]
 		var want := e.velocity if e.velocity.length() > 1.0 else (e.aim if fight else Vector2.ZERO)
 		if e.alive and want != Vector2.ZERO: facing = TopdownMotor.nearest_row(want, facing, FACINGS, 12.0)
 		var act := str(e.action)
 		if not e.alive: act = "death"
+		elif staged_act != "": act = staged_act   # a cut holds its figure (SceneDirector._stage_foes)
 		elif e.ai.state == "stagger" or (e.flash > 0.0 and act in ["idle", "walk"]): act = "hurt"
 		if not acts.has(act): act = "idle"
 		# Decision 44: a foe whose sheet has a swim row (the marsh leech) swims where it is in water, moving or still.
@@ -1105,8 +1151,14 @@ class FoeView extends Sorted:
 		var at: Array = list[i % list.size() if a.get("loop", true) else mini(i, list.size() - 1)]
 		src = Rect2(float(at[0]), float(at[1]), cell.x, cell.y)
 		var fl: Dictionary = CombatFeel.cfg().get("flash", {})
-		white = 1.0 if e.alive and e.flash > 0.0 and 0.12 - e.flash < float(fl.get("white_s", 0.05)) else 0.0
-		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(str(fl.get("tint", "#ffb4a0"))) if e.flash > 0.0 else Color.WHITE)
+		# A cut holds the simulation (and the blow's flash with it) still: no blow's white or tint is held through it
+		# (decision 45: the eel struck to its waking as the cut begins); the stage's own flash (`staged_white`) plays.
+		var struck := e.alive and e.flash > 0.0 and not Game.paused
+		white = 1.0 if struck and 0.12 - e.flash < float(fl.get("white_s", 0.05)) else 0.0
+		if staged_white > 0.0:
+			white = 1.0
+			staged_white = maxf(0.0, staged_white - delta)
+		tint = Color(1, 1, 1, clampf(1.0 - e.dead_time / 1.4, 0.0, 1.0)) if not e.alive else (Color(str(fl.get("tint", "#ffb4a0"))) if struck else Color.WHITE)
 		# The knockback's hop: up and down over the push, by its strength; a strong one skids dust.
 		var kb := absf(e.knockback)
 		if kb > kb0 + 0.5:

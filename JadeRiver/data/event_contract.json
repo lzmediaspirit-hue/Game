@@ -908,7 +908,9 @@
    "payload": [
     "enemy",
     "phase",
-    "action"
+    "action",
+    "staged?",
+    "def?"
    ]
   },
   "enemy_summoned": {
@@ -938,6 +940,18 @@
     "enemy",
     "role",
     "clean"
+   ]
+  },
+  "boss_overwhelmed": {
+   "system": "Enemies",
+   "files": [
+    "enemy_authority",
+    "enemy_brain"
+   ],
+   "payload": [
+    "actor",
+    "enemy",
+    "def"
    ]
   },
   "enemy_leashed": {

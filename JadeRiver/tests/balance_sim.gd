@@ -204,9 +204,11 @@ func _story_duels(c) -> void:
 			int(k[1]), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
 	# Decision 42: the Hollow Night, the tutorial's first real danger, played whole in its room at the story's Level (a
 	# Mortal, Level 0, before Flowing Palm): the minnows about the villagers, the three sent in, the lane's schools, then
-	# the Hollowed eel until it falls. `careful`: out of the eel's line when it rears (what Aunt Ping and the scenes
-	# teach), with the first crab's short blade or Guo's gauntlets alone; `trade`: a thumb that never steps aside, with
-	# the short blade. Each with the story's three teas; the eel must fall to the player every time, HP to spare.
+	# the Hollowed eel, the first boss (decision 45). `careful`: out of the eel's line when it rears (what Aunt Ping and
+	# the scenes teach), with the first crab's short blade or Guo's gauntlets alone; `trade`: a thumb that never steps
+	# aside, with the short blade. Each with the story's three teas: its first phase must fall to the player every time
+	# (the eel woken at four fifths of its HP by the player's blows, not on its clock), HP to spare; awake it has them
+	# down, never a fall, and the elders slay it (here, with no scene, in the simulation).
 	var nights := [["the Hollow Night, the short blade, careful", "training_short_blade", "common", "careful", 0.5],
 		["the Hollow Night, Guo's gauntlets alone, careful", "training_gauntlets", "flawed", "careful", 0.1],
 		["the Hollow Night, the short blade, trading blows", "training_short_blade", "common", "trade", 0.35]]
@@ -220,8 +222,8 @@ func _story_duels(c) -> void:
 			if r.won: won += 1
 			lowest = minf(lowest, float(r.low))
 			longest = maxf(longest, float(r.t))
-		print("story night: %s (Level 0): won %d of %d, lowest HP %d%%, the longest night %.0f s" % [k[0], won, DUEL_SEEDS.size(), int(100.0 * lowest), longest])
-		check(won == DUEL_SEEDS.size() and lowest >= float(k[4]), "story night: %s at the story's Level 0, won every time (the eel falls to the player) with HP never under %d%% (%d of %d; lowest HP %d%%)"
+		print("story night: %s (Level 0): first phase won %d of %d, lowest HP %d%%, the longest night %.0f s" % [k[0], won, DUEL_SEEDS.size(), int(100.0 * lowest), longest])
+		check(won == DUEL_SEEDS.size() and lowest >= float(k[4]), "story night: %s at the story's Level 0, its first phase won every time (the eel woken by the player's blows; awake it has them down, never a fall, and the elders slay it) with HP never under %d%% before it wakes (%d of %d; lowest HP %d%%)"
 			% [k[0], int(100.0 * float(k[4])), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
 	c.view = was_view
 
@@ -234,7 +236,8 @@ func _night_fight(c, seed: int, mode: String) -> Dictionary:
 	Rng.forget(c.id)
 	Rng.ensure(c.id, seed)
 	Game.enemies.rng.seed = seed
-	for f in ["night_survived", "dou_safe", "granny_safe", "ma_safe", "grey_spread", "lu_on_the_bank"]: c.quests.flags.erase(f)
+	for f in ["night_survived", "dou_safe", "granny_safe", "ma_safe", "grey_spread", "lu_on_the_bank", "eel_awakened", "eel_overwhelmed", "night_held"]: c.quests.flags.erase(f)
+	c.pools.statuses.clear()
 	c.quests.flags["night_active"] = true
 	Game.world.load_room(c, "lf_village_night", "")
 	GameEvents.flush()
@@ -243,9 +246,14 @@ func _night_fight(c, seed: int, mode: String) -> Dictionary:
 	Game.bind_movement(c.id, st)
 	st.plane = grid.nearest_standable(Vector2(float(c.position.x), float(c.position.y)))
 	st.altitude = grid.floor_at(st.plane)
-	var tally := {"eel": false, "done": false}
+	var tally := {"eel": false, "done": false, "woke": false, "overwhelmed": false, "fell": false}
 	var hook := func(n: String, p: Dictionary):
-		if n == "actor_defeated" and str(p.get("def", "")) == "hollowed_eel" and str(p.get("killer", "")) == str(c.id): tally.eel = true
+		if n == "boss_phase" and str(p.get("action", "")) == "awaken":
+			for e in Game.room_rt.living_enemies():
+				if e.def_id == "hollowed_eel": tally.woke = e.pools.hp <= e.pools.max_hp * 0.8 + 0.5
+		if n == "boss_overwhelmed": tally.overwhelmed = true
+		if n == "player_gravely_wounded": tally.fell = true
+		if n == "actor_defeated" and str(p.get("def", "")) == "hollowed_eel" and str(p.get("killer", "")) == "elders": tally.eel = true
 		if n == "room_event_completed" and str(p.get("event", "")) == "hollow_night": tally.done = true
 	GameEvents.event.connect(hook)
 	var walk_to := func(goal: Vector2) -> void:
@@ -260,7 +268,7 @@ func _night_fight(c, seed: int, mode: String) -> Dictionary:
 	var villagers := [["old_ma", "ma_safe"], ["granny_liu", "granny_safe"], ["little_dou", "dou_safe"]]
 	while t < 300.0 and not tally.done:
 		GameEvents.flush()
-		low = minf(low, c.pools.hp / c.pools.max_hp)
+		if not tally.woke: low = minf(low, c.pools.hp / c.pools.max_hp)   # its first phase: the fight a player can win
 		if Game.combat.is_wounded(c.id): break
 		var eel: EnemyState = null
 		var near: EnemyState = null
@@ -302,7 +310,8 @@ func _night_fight(c, seed: int, mode: String) -> Dictionary:
 			k += 0.05
 		t += step_s
 	GameEvents.event.disconnect(hook)
-	var out := {"won": bool(tally.eel), "low": low if bool(tally.eel) else 0.0, "t": t}
+	var won: bool = tally.woke and tally.overwhelmed and tally.eel and not tally.fell
+	var out := {"won": won, "low": low if won else 0.0, "t": t}
 	if OS.get_cmdline_user_args().has("--duels"):
 		print("  night %s seed %d: %s; me %d/%d, teas left %d" % [mode, seed, str(out), int(c.pools.hp), int(c.pools.max_hp), c.inventory.count("herbal_tea")])
 	Game.room_rt.enemies.clear()

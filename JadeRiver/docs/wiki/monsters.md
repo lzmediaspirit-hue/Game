@@ -1876,10 +1876,10 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 - **Sheet**: creature sheet `hollowed_eel` ([art/creatures/hollowed_eel.png](../../art/creatures/hollowed_eel.png), 256 px cells, flying)
 - **Spawns**: no room spawns it
-- **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (win on kill)
+- **Also appears**: Scenes: The Elders Come (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (win on kill)
 - **Level band**: Lv 2 in `enemies.json`
-- **Stats**: Lv 2: HP 386, Attack 7, Physical Defense 9, Accuracy 16
-- **Behaviour**: AI event_eel; aggro range 200; move speed 90; patrol 140; moves: fly; flying; hollowing 2. Attacks: lunge×1 (windup 1.1s, knockback 80); great_lunge×1.35 (windup 1.8s, knockback 120). Phases: below 50% HP: action climax
+- **Stats**: Lv 2: HP 1288, Attack 7, Physical Defense 9, Accuracy 16
+- **Behaviour**: AI event_eel; aggro range 200; move speed 90; patrol 140; moves: fly; flying; hollowing 2. Attacks: lunge×1 (windup 1.1s, knockback 80); surge×1 (windup 0.6s, knockback 150); thrash×1 (windup 0.45s, knockback 120). Phases: below 80% HP: action awaken, after s 90, staged True
 - **Drops** (loot table `hollowed_eel`):
   - [Pearl](items.md#item-pearl): 100% (guaranteed)
   - [Hollowed Eel Fang](items.md#item-hollow_eel_fang): 100% (first defeat, once per character)
