@@ -7,7 +7,7 @@ import json
 import math
 import os
 
-from common import DATA, write, entries, realm, unlocked, flag, all_of
+from common import DATA, write, entries, realm, unlocked, flag, all_of, run_cli
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 import items
 from techniques import SOURCES as TECH_SOURCES
@@ -1471,4 +1471,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

@@ -5,7 +5,7 @@ Temper trial (a room event at a training ground, see world.py set_pieces) and a 
 gives a lasting gift. Physiques are earned by deeds, never rolled or bought, and each has a drawback.
 Gifts are stat modifiers in the StatRules format, applied by StatRules.rebuild.
 """
-from common import entries
+from common import entries, run_cli
 
 
 def mod(stat, value, op="pct_add", **cond):
@@ -251,3 +251,7 @@ def build():
     inner_arts()
     stances()
     combos()
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))

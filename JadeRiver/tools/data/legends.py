@@ -6,7 +6,7 @@ chains go on in later zones (a Spirit-grade reforging in the Outer Heavens, v1.4
 steps are listed here and are not built yet. Bare fists have no weapon to restore: the Fist Dao's chain is the
 gauntlets'.
 """
-from common import entries
+from common import entries, run_cli
 
 # id, family, name, a line of lore, its gift (always on), three pieces (id, name, source, drop chance, zone),
 # and the skill its awakening adds.
@@ -103,4 +103,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

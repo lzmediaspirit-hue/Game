@@ -2,7 +2,7 @@
 import json
 import os
 
-from common import DATA, entries, titled, write
+from common import DATA, entries, titled, write, run_cli
 from technique_anim import add_animation
 
 # P6e the escalation curve (docs/moments_design.md §5): every technique's `vfx` block. Its tier is the band of the realm
@@ -417,4 +417,4 @@ LOST_SECRET_ICON = {"falls_climbing_step": "wall_step", "grey_footfall": "concea
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

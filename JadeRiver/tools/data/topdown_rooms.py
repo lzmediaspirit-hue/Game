@@ -20,14 +20,18 @@ stairs, drops and a jump one level up, the TopdownMotor's rules; tests/topdown_t
 every way is reached by auto-path's own rules too (no running jump over a gap), so the tracker's go button crosses it.
 """
 import json
+import math
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 from collections import deque
 
+import common
+from common import ROOT, emit, run_cli
 import topdown_life as LIFE   # decision 43, the living world: furnishings, stations and vistas (its own module)
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 OUT = os.path.join(ROOT, "data", "topdown")
 ROOMS = os.path.join(ROOT, "data", "rooms")
 TILESET = json.load(open(os.path.join(OUT, "proto_tileset.json")))
@@ -175,8 +179,26 @@ class Layout:
 
 
 # -------------------------------------------------------------------- the rules a body walks by (TopdownRoom's)
+# The grid's measures are TopdownRoom's: a cell 32 units wide, a level 32 high. How far a body steps and climbs is the
+# TopdownMotor's, read from data/movement.json `topdown` as the game reads it, so the rooms' checks follow the data.
+# `parity` (run by --check) holds this Grid to the game's own TopdownRoom and TopdownRoute on every layout.
+TILE = 32.0                        # TopdownRoom.TILE
+LEVEL = 32.0                       # TopdownRoom.LEVEL
+MOVE = common.read("movement")["topdown"]
+STEP = float(MOVE["step_up"])      # the most a body walks up without a jump; a drop past it is a gap a running jump clears
+# The most a jump climbs, in whole levels: its apex (TopdownMotor.apex(), impulse squared over twice the gravity) and
+# the mantle; with the half unit TopdownRoute.find allows over it (one level today: 32.5).
+HOP = LEVEL * math.floor((MOVE["impulse"] ** 2 / (2.0 * MOVE["gravity"]) + MOVE["mantle"]) / LEVEL) + 0.5
+STAIR_STEP = LEVEL / 2.0 + 0.5     # up or down a stair along its rise without a hop (TopdownRoute.step_rise)
+REACH_ALT = 48.0                   # a thing answers a body within this height of it (WorldAuthority.REACH_ALT)
+DIRS = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}   # a way's direction, walked out of the room
+
+
 class Grid:
-    def __init__(self, d):
+    """A layout as a body walks it: each cell's level and floor, its props' footprints and tops, its stairs, and the
+    cells `solids` (x, y, w, h each) block as well (a place's sight: PlaceRules.solids, which the game's grid adds)."""
+
+    def __init__(self, d, solids=()):
         self.w, self.h = d["size"]
         self.lv = [[WATER if ch == "~" else int(ch) for ch in r] for r in d["levels"]]
         self.solid = [[False] * self.w for _ in range(self.h)]
@@ -198,6 +220,10 @@ class Grid:
                         self.solid[yy][xx] = True
                         if "top" in art:
                             self.top[yy][xx] = base + art["top"]
+        for x, y, w, h in solids:
+            for yy in range(y, y + h):
+                for xx in range(x, x + w):
+                    self.solid[yy][xx] = True
 
     def level(self, x, y):
         if not (0 <= x < self.w and 0 <= y < self.h):
@@ -209,19 +235,19 @@ class Grid:
         return self.lv[y][x]
 
     def floor(self, x, y):
-        """A cell's floor at its centre in units (None where no body stands)."""
+        """A cell's floor at its centre in units (None where no body stands): TopdownRoom.cell_floor."""
         lv = self.level(x, y)
         if lv in (SOLID, WATER):
             return None
         s = self.stair[y][x] if 0 <= x < self.w and 0 <= y < self.h else None
         if s:
-            k = ((s["y"] + s["h"]) * 32.0 - (y + 0.5) * 32.0) / (s["h"] * 32.0)
-            return (s["from"] + (s["to"] - s["from"]) * k) * 32.0
-        return lv * 32.0
+            k = ((s["y"] + s["h"]) * TILE - (y + 0.5) * TILE) / (s["h"] * TILE)
+            return (s["from"] + (s["to"] - s["from"]) * k) * LEVEL
+        return lv * LEVEL
 
     def reach(self, start, gaps=True):
-        """Every cell a body reaches on foot from `start`: walking, stairs, drops, a jump one level up, and (`gaps`) a
-        running jump over one tile. Without `gaps` it is what auto-path walks (TopdownRoom.find_path)."""
+        """Every cell a body reaches on foot from `start`: walking, stairs, drops, a jump up to HOP, and (`gaps`) a
+        running jump over one tile. Without `gaps` it is what auto-path walks (TopdownRoute.reach; `parity`)."""
         seen = {start}
         q = deque([start])
         while q:
@@ -234,23 +260,37 @@ class Grid:
                 h1 = self.floor(nx, ny)
                 if h1 is None:
                     continue
-                if h1 - h0 > 32.5:
+                if h1 - h0 > HOP:
                     continue
                 seen.add((nx, ny))
                 q.append((nx, ny))
-            # A running jump over one tile to a floor no higher: over water or a drop (a gap between roofs).
+            # A running jump over one tile to a floor no higher than a step: over water or a drop (a gap between roofs).
             for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if gaps else ():
                 mx, my, nx, ny = cx + dx, cy + dy, cx + 2 * dx, cy + 2 * dy
                 if (nx, ny) in seen:
                     continue
                 h1 = self.floor(nx, ny)
                 hm = self.floor(mx, my)
-                gap = self.level(mx, my) == WATER or (hm is not None and hm < h0 - 8.0)
-                if h1 is None or h1 - h0 > 8.0 or not gap:
+                gap = self.level(mx, my) == WATER or (hm is not None and hm < h0 - STEP)
+                if h1 is None or h1 - h0 > STEP or not gap:
                     continue
                 seen.add((nx, ny))
                 q.append((nx, ny))
         return seen
+
+
+def arrive(p):
+    """Where a way sets a body down coming in: its `arrive`, else a cell and a half in from its doorway or edge."""
+    a = p.get("arrive")
+    if a is None:
+        v = DIRS[p["dir"]]
+        a = [p["at"][0] - v[0] * 1.5, p["at"][1] - v[1] * 1.5]
+    return a
+
+
+def starts_of(d):
+    """The cells a body comes into a layout at: its spawn, then where each way sets it down (the reach checks' starts)."""
+    return [cell(d["spawn"])] + [cell(arrive(p)) for p in d["portals"].values()]
 
 
 def side(rid):
@@ -283,21 +323,16 @@ def check(lay, d):
     for key, lay_key in (("waves", "waves"), ("fixed_spawns", "fixed"), ("timed_spawns", "timed")):
         if len(ev.get(key, [])) != len(lay_ev.get(lay_key, [])) and (ev.get(key) or lay_ev.get(lay_key)):
             errs.append("event %s: %d placed for %d" % (key, len(lay_ev.get(lay_key, [])), len(ev.get(key, []))))
-    starts = [cell(d["spawn"])]
     for pid, p in d["portals"].items():
-        a = p.get("arrive")
-        if a is None:
-            v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[p["dir"]]
-            a = [p["at"][0] - v[0] * 1.5, p["at"][1] - v[1] * 1.5]
-        starts.append(cell(a))
         c = cell(p["at"])
         if g.floor(*c) is None:
             errs.append("portal %s at %s: no floor" % (pid, str(c)))
-        v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[p["dir"]]
+        v = DIRS[p["dir"]]
         bx, by = c[0] + v[0], c[1] + v[1]
         hb, hc = g.floor(bx, by), g.floor(*c)
-        if hb is not None and hc is not None and hb - hc <= 32.5:
+        if hb is not None and hc is not None and hb - hc <= HOP:
             errs.append("portal %s: walking out (%s) is not stopped by a wall, the water or the room's edge" % (pid, p["dir"]))
+    starts = starts_of(d)
     for st in starts:
         if g.floor(*st) is None:
             errs.append("start %s has no floor" % str(st))
@@ -311,7 +346,7 @@ def check(lay, d):
         if g.floor(*c) is None and o.get("type") not in ("fishing_spot", "rift_tear", "insect_swarm"):
             errs.append("object %s at %s: no floor (level %s)" % (oid, str(c), g.level(*c)))
         alt = g.floor(*c) if g.floor(*c) is not None else 0.0
-        stand = [q for q in near if abs(g.floor(*q) - alt) <= 48]
+        stand = [q for q in near if abs(g.floor(*q) - alt) <= REACH_ALT]
         for i, r in enumerate(reached):
             if not any(q in r for q in stand):
                 errs.append("object %s at %s: not reached from start %s" % (oid, str(c), str(starts[i])))
@@ -378,7 +413,7 @@ def clear_cells(d):
 def portal_lane(p):
     """A way out's lane: the cells from its doorway or edge cell in to where one arrives, as wide as its span."""
     at = cell(p["at"])
-    v = {"n": (0, -1), "s": (0, 1), "e": (1, 0), "w": (-1, 0)}[p["dir"]]
+    v = DIRS[p["dir"]]
     arrive = cell(p["arrive"]) if "arrive" in p else (at[0] - v[0] * 2, at[1] - v[1] * 2)
     half = int(-(-float(p.get("span", 2)) * 0.5 // 1))
     side = (abs(v[1]), abs(v[0]))
@@ -1746,8 +1781,70 @@ LAYOUTS = [fishers_hut, village, village_night, old_ma_store, granny_liu_hut, lu
            elder_hu_peak, cloud_cliff_stair, sword_court, cloud_weapon_hall, array_court, elder_sung_peak, marsh_edge]
 
 
-def build(check_only=False):
-    stale = []
+# -------------------------------------------------------------------- audit 45: the Grid against the game's own
+def godot():
+    """The Godot the parity asks: $GODOT (tools/run_tests.sh passes it on), else `godot` on the PATH; None if neither."""
+    exe = os.environ.get("GODOT") or "godot"
+    return exe if os.path.isfile(exe) else shutil.which(exe)
+
+
+def place_solids():
+    """The cells data/places.json's places block, by room (PlaceRules.solids: the game's grid blocks them too)."""
+    out = {}
+    for r in common.rows("places"):
+        out.setdefault(r["room"], []).extend(r.get("solid", []))
+    return out
+
+
+def parity(exe=None):
+    """The grid's walking rules exist twice, here and in the game (TopdownRoom, TopdownRoute), so the rooms' checks run
+    without Godot. This holds them together (audit 45, DUP-10): tools/data/grid_parity.tscn reads every layout of
+    data/topdown/ as the game does, and each must match this Grid cell for cell: every cell's floor (a wall, the water or
+    its height, the places' solid cells blocked), and from the spawn and every way in the cells auto-path reaches (the
+    tracker's go button: TopdownRoute.reach against Grid.reach without gaps). Without a Godot it says it did not run."""
+    exe = exe or godot()
+    if exe is None:
+        return "grid parity with the game not run: no Godot (set GODOT)"
+    solids = place_solids()
+    grids, ask = {}, {}
+    for f in sorted(os.listdir(OUT)):
+        d = common.read(f, OUT) if f.endswith(".json") else {}
+        if "levels" in d and "portals" in d:
+            g = grids[d["id"]] = Grid(d, solids.get(d["id"], ()))
+            ask[d["id"]] = [list(st) for st in starts_of(d) if g.floor(*st) is not None]
+    with tempfile.TemporaryDirectory() as tmp:
+        q, a = os.path.join(tmp, "ask.json"), os.path.join(tmp, "answer.json")
+        with open(q, "w", encoding="utf-8") as f:
+            json.dump({"rooms": ask}, f)
+        run = subprocess.run([exe, "--headless", "--path", ROOT, "res://tools/data/grid_parity.tscn", "--", q, a],
+                             capture_output=True, text=True, timeout=1200)
+        if run.returncode != 0 or not os.path.exists(a):
+            raise SystemExit("grid parity: tools/data/grid_parity.tscn did not answer (%s, exit %d):\n%s"
+                             % (exe, run.returncode, "\n".join((run.stdout + run.stderr).strip().splitlines()[-12:])))
+        game = common.read(a, tmp)
+    errs = []
+    for rid, g in grids.items():
+        mine = game.get(rid, {})
+        if mine.get("size") != [g.w, g.h]:
+            errs.append("%s: the game reads it %s, the Grid %s" % (rid, mine.get("size"), [g.w, g.h]))
+            continue
+        off = [(x, y) for y in range(g.h) for x in range(g.w)
+               if (g.floor(x, y) is None) != (mine["floor"][y][x] is None)
+               or (g.floor(x, y) is not None and abs(g.floor(x, y) - mine["floor"][y][x]) > 1e-3)]
+        if off:
+            errs.append("%s: %d cells stand otherwise in the game, first %s (Grid %s, game %s)"
+                        % (rid, len(off), off[0], g.floor(*off[0]), mine["floor"][off[0][1]][off[0][0]]))
+        for st, bits in zip(ask[rid], mine["reach"]):
+            ours = g.reach(tuple(st), False)
+            theirs = {(k % g.w, k // g.w) for k, ch in enumerate(bits) if ch == "1"}
+            if ours != theirs:
+                errs.append("%s from %s: auto-path reaches %d cells the Grid does not %s, the Grid %d it does not %s"
+                            % (rid, st, len(theirs - ours), sorted(theirs - ours)[:4], len(ours - theirs), sorted(ours - theirs)[:4]))
+    common.fail("grid parity (tools/data/grid_parity.tscn against topdown_rooms.Grid)", errs)
+    return "grid parity with the game: %d layouts, %d starts, every cell" % (len(grids), sum(len(v) for v in ask.values()))
+
+
+def build():
     failed = []
     for make in LAYOUTS:
         lay = make()
@@ -1759,23 +1856,15 @@ def build(check_only=False):
         except SystemExit as e:
             failed.append(str(e))
             continue
-        path = os.path.join(OUT, lay.id + ".json")
         body = {"schema_version": 1}
         body.update(d)
-        text = json.dumps(body, indent=1, ensure_ascii=False) + "\n"
-        if check_only:
-            if not os.path.exists(path) or open(path, encoding="utf-8").read() != text:
-                stale.append(lay.id)
-            continue
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(text)
-        print("built", lay.id)
+        emit(os.path.join(OUT, lay.id + ".json"), json.dumps(body, indent=1, ensure_ascii=False) + "\n")
     if failed:
         raise SystemExit("\n".join(failed))
-    if stale:
-        raise SystemExit("stale top-down layouts (run tools/data/topdown_rooms.py): " + ", ".join(stale))
-    LIFE.build(check_only)         # decision 43: data/topdown/life.json, its work spots checked on these layouts
+    LIFE.build()                   # decision 43: data/topdown/life.json, its work spots checked on these layouts
+    if common.RUN.check:
+        return parity()            # audit 45: the game walks the layouts as this Grid does
 
 
 if __name__ == "__main__":
-    build("--check" in sys.argv)
+    raise SystemExit(run_cli(build))

@@ -1,6 +1,6 @@
 """S10/S11/S12/S13/S14/S29 constants: stats.json, curves.json, elements, statuses, weapon families,
 grades, affixes, sets, injuries, failures, origins, methods."""
-from common import write, entries
+from common import write, entries, run_cli
 from realms import energy_at
 import technique_grammar as TG
 
@@ -942,4 +942,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

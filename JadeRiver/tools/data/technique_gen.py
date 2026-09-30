@@ -12,7 +12,7 @@ import json
 import os
 import re
 
-from common import DATA
+from common import DATA, emit
 import technique_grammar as G
 import technique_hand as H
 
@@ -649,13 +649,12 @@ def trees_config():
 
 
 def write_compact(name, head, rows):
-    path = os.path.join(DATA, name)
-    with open(path, "w", encoding="utf-8") as f:
-        f.write('{"schema_version": 1')
-        for k, v in head.items():
-            f.write(',\n"%s": %s' % (k, json.dumps(v, ensure_ascii=False, separators=(",", ":"))))
-        f.write(',\n"entries": [\n' + ",\n".join(json.dumps(r, ensure_ascii=False, separators=(",", ":")) for r in rows) + "\n]}\n")
-    return path
+    """A big table a row a line (techniques.json): its head's constants, then its compacted rows."""
+    text = '{"schema_version": 1'
+    for k, v in head.items():
+        text += ',\n"%s": %s' % (k, json.dumps(v, ensure_ascii=False, separators=(",", ":")))
+    text += ',\n"entries": [\n' + ",\n".join(json.dumps(r, ensure_ascii=False, separators=(",", ":")) for r in rows) + "\n]}\n"
+    return emit(os.path.join(DATA, name), text)
 
 
 def compact(row):

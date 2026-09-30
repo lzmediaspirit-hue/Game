@@ -1,5 +1,5 @@
 """S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses)."""
-from common import entries, titled
+from common import entries, titled, run_cli
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 LOST_MANUALS = {s["src"]["item"]: s["id"] for s in LOST_HAND.LOST if s["src"]["kind"] == "drop"}   # P13a: manual -> lost art
@@ -840,4 +840,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

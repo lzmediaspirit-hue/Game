@@ -19,7 +19,7 @@ import lantern
 import posts
 import random
 
-from common import DATA, write, entries, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of
+from common import DATA, write, entries, clear, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of, run_cli
 from common import unlocked as unlock
 
 ROOMS_DIR = os.path.join(DATA, "rooms")
@@ -3212,10 +3212,7 @@ def build():
     under_steps()
     check_links()
     reachability()
-    os.makedirs(ROOMS_DIR, exist_ok=True)
-    for f in os.listdir(ROOMS_DIR):
-        if f.endswith(".json"):
-            os.remove(os.path.join(ROOMS_DIR, f))
+    clear(ROOMS_DIR)   # a room renamed away leaves no file behind
     for rid, r in ROOMS.items():
         write(rid + ".json", r.build(), folder=ROOMS_DIR)
     zone_json()
@@ -3229,4 +3226,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

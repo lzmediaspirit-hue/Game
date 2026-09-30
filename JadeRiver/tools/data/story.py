@@ -7,7 +7,7 @@ the world (a river valley, sects, a slow climb through realms).
 import json
 import os
 
-from common import DATA, write, entries, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of
+from common import DATA, write, entries, clear, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of, run_cli
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 from realms import level_of
@@ -3048,10 +3048,7 @@ def build():
     chapter_floors(Q)
     quest_tiers(Q, U)
     entries("quests", Q, chapter_floors=CHAPTER_FLOORS, chapter_floors_planned=CHAPTER_FLOORS_PLANNED)
-    d = os.path.join(DATA, "dialogue")
-    os.makedirs(d, exist_ok=True)
-    for f in os.listdir(d):
-        os.remove(os.path.join(d, f))
+    clear(os.path.join(DATA, "dialogue"), "")   # every tree is one file: one renamed away leaves none behind
     dialogue()
     mail_templates()
     codex()
@@ -3060,4 +3057,4 @@ def build():
 
 
 if __name__ == "__main__":
-    build()
+    raise SystemExit(run_cli(build))

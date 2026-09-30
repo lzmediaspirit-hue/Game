@@ -9,7 +9,7 @@ quality:, dao:), never hex; text is a string key or a data name, never literal w
 import json
 import os
 
-from common import DATA, write
+from common import DATA, write, run_cli
 from techniques import PARTICLES, TIER_BY_REALM, VFX_SHAPES
 
 SETTINGS = {"max_lock_s": 1.5, "queue_max": 4, "stale_s": 6.0, "cut_fade_s": 0.15, "flash_gap_s": 1.0, "shake_amp_per_s": 16,
@@ -367,3 +367,7 @@ def build():
     write("moments.json", {"entries": rows(), "settings": SETTINGS, "stats": STATS, "auras": AURAS, "dao_colours": DAO_COLOURS, "fountain": FOUNTAIN,
                            "rare": rare(), "chapter_ends": chapter_ends(), "vfx_tiers": VFX_TIERS, "vfx_bands": TIER_BY_REALM, "vfx_shapes": VFX_SHAPES,
                            "particles": PARTICLES, "numbers": NUMBERS, "technique_preview": TECHNIQUE_PREVIEW})
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli(build))
