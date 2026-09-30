@@ -38,7 +38,10 @@ ANGLE = {"s": 80.0, "se": 48.0, "e": 14.0, "ne": -36.0, "n": -100.0}
 SPECIES = ["mudshell_crab", "reedtail_rat", "wild_boarlet", "trial_puppet", "reed_frog", "marsh_leech", "reed_otter",
            "hollowed_boarlet", "old_snapper", "mossback_toad", "hollow_minnow", "hollowed_eel"]
 ORDER = ["idle", "walk", "windup", "attack", "hurt", "death"]   # the sheet's column order
-LOOP = {"idle": True, "walk": True}
+# Actions a species may draw past the catalogue, after it on its rows (decision 44: the leech's swim, which the room
+# view plays for its walk and idle where it is in water), and their frames.
+EXTRA = {"swim": 8}
+LOOP = {"idle": True, "walk": True, "swim": True}
 FPS = {"idle": 7, "attack": 20, "hurt": 12, "death": 10}
 ELITE = 1.2          # an elite's size against its species'
 MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
@@ -48,14 +51,20 @@ class Spec:
     """A species: its pose function (action, frame) -> Pose, its size, palette, the materials its elite keeps (accents)
     or turns gold (`gold`: its eyes), whether it has an elite, whether it wears the elite's ring of Qi in its own colours
     (`aura`, a boss's presence), its blob shadow (rx, ry art px), how far one walk cycle carries it (art px at size 1,
-    for the walk's rate), whether it keeps its broad side to the camera (`sideways`, the crab) and whether it is posed
-    at its size (`sized`, the eel against its water)."""
+    for the walk's rate), whether it keeps its broad side to the camera (`sideways`, the crab), whether it is posed
+    at its size (`sized`, the eel against its water), whether its pose is told the facing's turn on the ground (`view`,
+    creatures.ANGLE: a beast seen head-on or from behind is posed to read so, decision 44) and the actions it draws
+    past the catalogue (`extra`, EXTRA's)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=()):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=()):
         self.module, self.fn, self.size, self.palette = module, fn, size, palette
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
-        self.aura, self.sized, self.gold = aura, sized, gold
+        self.aura, self.sized, self.gold, self.view, self.extra = aura, sized, gold, view, tuple(extra)
+
+    def actions(self) -> list:
+        """Its actions in the sheet's order: the catalogue, then its extras."""
+        return ORDER + list(self.extra)
 
     def pose(self, action: str, f: int, **kw):
         import importlib
@@ -83,8 +92,8 @@ REGISTRY = {
                          accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
     "reed_frog": Spec("frog", "frog", 1.42, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
                       shadow=(11, 4), cycle=6.0),
-    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_belly", "leech_mouth", "leech_stripe"], accents=("leech_mouth",),
-                        shadow=(13, 4), cycle=8.0),
+    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_dark", "leech_belly", "leech_lip", "leech_maw"],
+                        accents=("leech_lip",), shadow=(13, 4), cycle=8.0, view=True, extra=("swim",)),
     "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0),
     "hollowed_boarlet": Spec("boar", "hollowed", 1.4, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
                              accents=("tusk", "strand"), shadow=(13, 4), cycle=13.0),
@@ -114,6 +123,8 @@ def draw(species: str, action: str, f: int, facing: str, elite: bool = False) ->
     k = sp.size * (ELITE if elite else 1.0)
     if sp.sized:
         kw["k"] = k            # a creature laid out against a fixed world height (the eel's water) is posed at its size
+    if sp.view:
+        kw["view"] = ANGLE[facing]
     P = sp.pose(action, f, **kw)
     P.k = k
     return sculpt.picture(P, yaw, sp.look(), elite, f, sp.aura)
@@ -134,12 +145,17 @@ def rates(species: str, enemies: dict) -> dict:
     fps["walk"] = int(max(8, min(16, round(FRAMES["walk"] * speed / (sp.cycle * sp.size)))))
     wind = min([float(a.get("windup_s", 0.5)) for a in e.get("attacks", [])] or [0.5])
     fps["windup"] = int(math.ceil((FRAMES["windup"] - 1) / (0.7 * wind)))
+    fps["swim"] = fps["walk"]
     return fps
+
+
+def frames_of(action: str) -> int:
+    return FRAMES[action] if action in FRAMES else EXTRA[action]
 
 
 def _job(args):
     species, elite, facing = args
-    return [draw(species, a, f, facing, elite) for a in ORDER for f in range(FRAMES[a])]
+    return [draw(species, a, f, facing, elite) for a in REGISTRY[species].actions() for f in range(frames_of(a))]
 
 
 def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
@@ -156,11 +172,12 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
         done = [_job(t) for t in tasks]
     frames = dict(zip(tasks, done))
     sheets, species = {}, {}
-    n = sum(FRAMES.values())
     for sp in SPECIES:
         if sp not in REGISTRY or (only is not None and sp not in only):
             continue
         fps = rates(sp, enemies)
+        order = REGISTRY[sp].actions()
+        n = sum(frames_of(a) for a in order)
         block: dict = {}
         for el in ([False, True] if REGISTRY[sp].elite else [False]):
             # Its own sheet and cell (the union of its frames): an elite's rows load only where an elite stands.
@@ -178,10 +195,10 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             acts: dict = {}
             for di, d in enumerate(DIRS):
                 i = 0
-                for a in ORDER:
+                for a in order:
                     entry = acts.setdefault(a, {"fps": fps[a], "loop": LOOP.get(a, False), "frames": {}})
                     lst = []
-                    for _ in range(FRAMES[a]):
+                    for _ in range(frames_of(a)):
                         col, r = i % per, di * rows_per + i // per
                         sheet.paste(Image.fromarray(np.ascontiguousarray(frames[(sp, el, d)][i][y0:y1, x0:x1]), "RGBA"), (col * cw, r * ch))
                         lst.append([col * cw, r * ch])

@@ -59,11 +59,13 @@ RAMPS = {
     "frog_stripe": _r("6A5A14", "A89024", "D8C040", "F0DC60", "FFF090"),
     "frog_sac": _r("8A8A40", "B8B45C", "E2DA8A", "F2ECB4", "FBF6D8"),
     "frog_eye": _r("6A5010", "A8861E", "E0C040", "F2DA60", "FFF0A0"),
-    # marsh leech: an olive slug in soft rings, teal spots, a round pink mouth
-    "leech": _r("161C0E", "26301A", "3A4624", "55632E", "74803C"),
-    "leech_stripe": _r("5A3A12", "8A5A1E", "B8802E", "D8A448", "ECC878"),
-    "leech_belly": _r("3A3A1E", "5A5A2E", "7C7A44", "9C9860", "B8B27C"),
-    "leech_mouth": _r("4A1E26", "7E3440", "B05A62", "D88A8A", "F2B8B0"),
+    # marsh leech (decision 44): a wet, dark olive back going to black on the flanks (their highlights pale and cool,
+    # for the sheen), a paler khaki belly, a fleshy lip round a dark maw
+    "leech": _r("0A0D07", "141B0D", "222D16", "35441F", "A6B89A"),
+    "leech_dark": _r("060708", "0C0F0A", "151A10", "242D1B", "8A9C86"),
+    "leech_belly": _r("3A3822", "5A5634", "7C784C", "9E9A66", "BEB886"),
+    "leech_lip": _r("2E1616", "4C2826", "6E3E3A", "8E5850", "AA7468"),
+    "leech_maw": _r("0A0507", "160B0E", "241216", "361E22", "4A2C2E"),
     # reed otter: a sleek brown coat, a pale muzzle and throat
     "otter": _r("2A1A10", "4A2E1A", "6E4426", "8E5C34", "A87444"),
     "otter_pale": _r("7A6040", "A88A64", "C8AA82", "DCC4A0", "EEDCBC"),
@@ -118,7 +120,11 @@ PROPS = {
     "puppet_jade": {"hi": True, "glossy": True, "weight": 1.5}, "rope": {"hi": True, "weight": 1.3},
     "frog": {"hi": True, "glossy": True}, "frog_belly": {"hi": True}, "frog_stripe": {"hi": True, "weight": 1.4},
     "frog_sac": {"hi": True, "glossy": True}, "frog_eye": {"hi": True, "glossy": True, "weight": 1.6},
-    "leech": {"hi": True, "glossy": True}, "leech_stripe": {"hi": True, "weight": 1.4}, "leech_belly": {"hi": True}, "leech_mouth": {"hi": True, "weight": 1.5},
+    # The leech's wet skin: lit late (its back sits on the light step), so its sheen (sculpt.Part.sheen) is what reaches
+    # the bright and highlight steps.
+    "leech": {"hi": True, "glossy": True, "th": (-0.3, 0.2, 0.86, 0.99)},
+    "leech_dark": {"hi": True, "glossy": True, "th": (-0.3, 0.2, 0.86, 0.99)},
+    "leech_belly": {"hi": True}, "leech_lip": {"hi": True, "weight": 1.5}, "leech_maw": {"weight": 1.5},
     "otter": {"hi": True, "glossy": True}, "otter_pale": {"hi": True}, "otter_dark": {"hi": True},
     "snap_shell": {"hi": True, "glossy": True}, "snap_moss": {"hi": True}, "snap_moss_lit": {"hi": True},
     "snap_skin": {"hi": True}, "snap_belly": {"hi": True}, "snap_beak": {"hi": True, "glossy": True, "weight": 1.3},
@@ -150,7 +156,9 @@ SPLASH = c("CFEFE8")
 SPLASH_DIM = c("8CCFC0", 210)
 MOTE = c("C9D2D3", 210)
 MOTE_DIM = c("A3AEB2", 170)
-LEECH_SPOT = c("5CC8B4")
+LEECH_SPOT = c("A89A48")
+LEECH_EYE = c("D2CC96")
+LEECH_TOOTH = c("F2EAD2")
 WART = c("D5C48A")
 BARNACLE = c("F4F2E6")
 BARNACLE_SHADE = c("959C92")
