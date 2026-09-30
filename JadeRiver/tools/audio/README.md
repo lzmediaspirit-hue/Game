@@ -13,8 +13,10 @@ tools/audio/
   sfx.py           the first 51 sound effects (@sfx(id)) and the helpers the others share
   sfx_pass.py      decision 43: 141 more: layered hits, whooshes, casts, steps and landings, foes, the world, stingers
   beds.py          decision 43: the ambient beds (16 s bases, 14-20 s layers of the hour)
+  life.py          decision 44: the living world's 38: critters, the villagers' work (with takes), using a place
   review.py        waveform/spectrogram PNGs, before|after pairs, a loudness table (BS.1770-like LUFS)
   review_pass.sh   the sound pass's review pictures and tables (docs/redesign/feedback/sound/)
+  review_life.sh   decision 44's review pictures and table (docs/redesign/feedback/sound/life/)
   apk_size.py      what the audio weighs in the APK (the imported files), after a Godot import
 art/audio/music/<id>.ogg   Ogg Vorbis, mono, 22050 Hz, 32-48 s loops (q0.15, about 32 kbps)
 art/audio/sfx/<id>.wav     16-bit PCM mono 22050 Hz one-shots (Godot packs them as QOA), peaks at -3 dBFS
@@ -83,6 +85,16 @@ than -12 dB above it: a phone speaker would barely play it). A full build remove
   each is listed in STEMS and must match its track's `Track(...)`), `boss_snapper`, `boss_eel`.
 
 Which sound plays when is data: `tools/data/sound.py` (data/sound.json).
+
+## Decision 44: the living world
+
+`life.py` (docs/redesign/sound.md §10): the critters TopdownLife raises, `life_sparrow_flee|fish_flee|frog_leap|
+frog_plop|hen_flap|cat_wake|dog_bark`; each work cue of data/topdown/life.json as `life_work_<cue>` (sweep, set_down,
+scrub, hang, pick, stir, grind, chop, hammer, stoke, fish, recast, mend, look, write, breathe) and the blows
+`life_work_chop_hit`, `life_work_hammer_hit`; a place used, `place_open|tend|sit`. Where one repeats there are takes
+(`<id>_b`, `<id>_c`: the sweep, the chop and its blow, the hammer and its blow, the washing, the dog), played in turn.
+They are levelled as ambience (`VOLUME`: -30 LUFS for a blow down to -41 for a breath, against the fight's -25).
+`python3 tools/data/sound.py --check` fails when a cue the code or the data can raise has no sound here.
 
 ## Adding or changing a sound
 
