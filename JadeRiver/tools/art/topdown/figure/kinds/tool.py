@@ -37,6 +37,13 @@ FIST = HAND_R + 0.05
 Z0 = np.zeros(0)
 
 
+def ground_band(sk, p) -> str:
+    """The band of a thing standing on the ground (the anvil, the mortar, a basket set down, the net's heap): in front of
+    the body when it stands nearer the camera on the ground than the chest does, else behind. (`band_of` weighs height
+    too, so a low thing before a standing body would rank behind it and a knee would cover it.)"""
+    return "front" if float(p[1]) >= float(sk.chest[1]) - 0.4 else "back"
+
+
 def _paint(fn):
     """A paint from a function of the solid's local point to material names (no bias)."""
     return lambda loc, P, nn: (np.asarray(fn(loc), dtype=object), np.zeros(len(loc), dtype=np.int16))
@@ -179,25 +186,26 @@ def _hung_basket(sk, hook, drop, dims, load):
     return S
 
 
-def _basket(sk, rim, r_top, r_foot, h, load):
+def _basket(sk, rim, r_top, r_foot, h, load, grounded=False):
+    """A round wicker basket, its rim at `rim`, heaped with its load; all in one band (a basket set on the ground in
+    the band its place on the ground puts it in)."""
     foot = rim - UP * h
-    S = [cone(foot, rim, r_foot, r_top, "wicker", band=band_of(sk, (rim + foot) * 0.5), part="basket",
+    bd = ground_band(sk, foot) if grounded else band_of(sk, rim)
+    S = [cone(foot, rim, r_foot, r_top, "wicker", band=bd, part="basket",
               paint=_paint(lambda loc: np.where((np.floor(loc[:, 2] * 1.25) % 2) == 0, "wicker", "wicker_dark"))),
-         cone(rim - UP * 0.35, rim + UP * 0.25, r_top + 0.2, r_top + 0.25, "rim", band=band_of(sk, rim), part="rim")]
+         cone(rim - UP * 0.35, rim + UP * 0.25, r_top + 0.2, r_top + 0.25, "rim", band=bd, part="rim")]
     if load == "grain":
-        S.append(ellipsoid(rim + UP * 0.2, np.eye(3), (r_top - 0.25, r_top - 0.25, 1.2), "grain",
-                           band=band_of(sk, rim), part="load"))
+        S.append(ellipsoid(rim + UP * 0.2, np.eye(3), (r_top - 0.25, r_top - 0.25, 1.2), "grain", band=bd, part="load"))
     elif load == "herbs":
-        S.append(ellipsoid(rim + UP * 0.2, np.eye(3), (r_top - 0.2, r_top - 0.2, 1.0), "herb", band=band_of(sk, rim),
-                           part="load"))
+        S.append(ellipsoid(rim + UP * 0.2, np.eye(3), (r_top - 0.2, r_top - 0.2, 1.0), "herb", band=bd, part="load"))
         for k in range(3):
             a = math.radians(40.0 + 120.0 * k)
             p = rim + np.array([math.cos(a), math.sin(a), 0.0]) * (r_top * 0.45) + UP * 1.0
-            S.append(sphere(p, 0.65, "herb_light", band=band_of(sk, p), part="load"))
+            S.append(sphere(p, 0.65, "herb_light", band=bd, part="load"))
     elif load == "washing":
         for k, (dx, dy, m) in enumerate(((-0.8, 0.4, "linen"), (0.9, -0.3, "cloth_blue"), (0.1, -0.9, "linen"))):
             p = rim + np.array([dx, dy, 0.0]) + UP * (0.5 + 0.2 * k)
-            S.append(ellipsoid(p, np.eye(3), (r_top * 0.55, r_top * 0.45, 0.8), m, band=band_of(sk, p), part="load"))
+            S.append(ellipsoid(p, np.eye(3), (r_top * 0.55, r_top * 0.45, 0.8), m, band=bd, part="load"))
     return S
 
 
@@ -320,9 +328,9 @@ def ladle(sk, t: dict) -> list:
 # ------------------------------------------------------------------ the pestle and mortar
 def pestle(sk, t: dict) -> list:
     M = sk.pt(t["mortar"])
-    S = [cone(M, M + UP * 3.0, 2.4, 2.9, "stone", band=band_of(sk, M), part="mortar"),
-         cone(M + UP * 2.7, M + UP * 3.35, 3.05, 3.1, "stone_rim", band=band_of(sk, M), part="rim"),
-         ellipsoid(M + UP * 3.4, np.eye(3), (2.3, 2.3, 0.15), "hollow", band=band_of(sk, M), part="hollow")]
+    S = [cone(M, M + UP * 3.4, 2.8, 3.3, "stone", band=ground_band(sk, M), part="mortar"),
+         cone(M + UP * 3.1, M + UP * 3.8, 3.45, 3.5, "stone_rim", band=ground_band(sk, M), part="rim"),
+         ellipsoid(M + UP * 3.85, np.eye(3), (2.6, 2.6, 0.15), "hollow", band=ground_band(sk, M), part="hollow")]
     hand = sk.hand_r
     d = unit(sk.w(t.get("tilt", (0.0, 0.0, 1.0))))
     bottom = hand - d * 5.2
@@ -383,18 +391,18 @@ def hammer(sk, t: dict) -> list:
     d = unit(sk.w(t["dir"]))
     S = []
     # the anvil: an iron block with its horn on a wooden stump
-    S.append(cone(A, A + UP * 7.4, 2.3, 2.0, "log", band=band_of(sk, A + UP * 4.0), part="stump",
+    S.append(cone(A, A + UP * 7.4, 2.3, 2.0, "log", band=ground_band(sk, A), part="stump",
                   paint=_paint(lambda loc: np.where((np.floor(loc[:, 2] * 0.8) % 3) == 0, "log_dark", "log"))))
     top = A + UP * 8.2
     x = unit(sk.w((0.0, -1.0, 0.0)))
     S.append(ellipsoid(top, np.stack([x, unit(np.cross(UP, x)), UP], axis=1), (2.5, 1.3, 0.85), "iron",
-                       band=band_of(sk, top), part="anvil"))
-    S.append(cone(top + x * 2.0, top + x * 4.2, 0.8, 0.2, "iron", band=band_of(sk, top + x * 3.0), part="horn"))
-    S.append(cone(top - x * 1.8, top - x * 2.6, 0.9, 0.8, "iron", band=band_of(sk, top - x * 2.0), part="heel"))
+                       band=ground_band(sk, A), part="anvil"))
+    S.append(cone(top + x * 2.0, top + x * 4.2, 0.8, 0.2, "iron", band=ground_band(sk, A), part="horn"))
+    S.append(cone(top - x * 1.8, top - x * 2.6, 0.9, 0.8, "iron", band=ground_band(sk, A), part="heel"))
     # the hot bar on the anvil's face, held by the tongs from the left hand
     bar0 = top + UP * 0.95 - x * 0.2
     bar1 = bar0 + x * (2.2 if not t.get("turn") else 2.0) + sk.fwd * (0.0 if not t.get("turn") else 0.4)
-    S.append(cone(bar0, bar1, 0.34, 0.3, "hot", band=band_of(sk, bar0), part="bar"))
+    S.append(cone(bar0, bar1, 0.34, 0.3, "hot", band=ground_band(sk, A), part="bar"))
     hl = sk.hand_l
     for sg in (-1.0, 1.0):
         j = bar1 + UP * 0.25 * sg
@@ -424,7 +432,7 @@ def herbs(sk, t: dict, spec=HERBS) -> list:
         # on the ground before the feet, its handle standing up
         rim = sk.pt(t["basket"]) + UP * h
         grip = rim + UP * 2.4
-    S = _basket(sk, rim, r_top, r_foot, h, "herbs")
+    S = _basket(sk, rim, r_top, r_foot, h, "herbs", grounded=not t.get("carry"))
     arc = [rim + side * r_top, rim + side * r_top * 0.7 + UP * 1.8, grip + UP * 0.3, rim - side * r_top * 0.7 + UP * 1.8,
            rim - side * r_top]
     S += _line_pieces(sk, arc, 0.24, "wicker", "handle")
@@ -448,9 +456,9 @@ def net(sk, t: dict) -> list:
     Mf = np.stack([sk.fwd, sk.right, UP], axis=1)
     S = [cone(held, lap + sk.fwd * 1.6, 0.9, 2.6, "twine", k=0.35, side=sk.right, band=band_of(sk, held), part="drape",
               paint=mesh),
-         ellipsoid(lap + sk.fwd * 0.6, Mf, (2.8, 4.4, 0.9), "twine", band=band_of(sk, lap), part="lap", paint=mesh,
+         ellipsoid(lap + sk.fwd * 0.6, Mf, (2.8, 4.4, 0.9), "twine", band=ground_band(sk, lap), part="lap", paint=mesh,
                    frame=(lap, Mf)),
-         ellipsoid(heap, Mf, (3.4, 4.6, 0.9), "twine", band=band_of(sk, heap), part="heap", paint=mesh, frame=(heap, Mf))]
+         ellipsoid(heap, Mf, (3.4, 4.6, 0.9), "twine", band=ground_band(sk, heap), part="heap", paint=mesh, frame=(heap, Mf))]
     # the corks along its head rope, over the heap
     for k in range(3):
         p = heap + sk.right * (-2.6 + 2.6 * k) + sk.fwd * 2.8 + UP * 0.5

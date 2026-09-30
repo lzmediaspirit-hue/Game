@@ -333,7 +333,7 @@ def _tend(i):
                 foot_yaw_l=-18.0, foot_yaw_r=18.0, knee_l=(1.0, -0.6, 0.6), knee_r=(1.0, 0.6, 0.6),
                 hand_l=hl, elbow_l=(-0.2, -1.0, -0.4), grip_l="open" if i in (0, 2) else "relaxed",
                 hand_r=(4.2, 3.8, 9.6), elbow_r=(-0.6, 1.0, -0.2), grip_r="fist", drag=(0.0, 0.0, 0.0),
-                weapon=W(blade=(-0.55, 0.3, -0.35), pole={"dir": (0.05, 0.14, 1.0), "butt": 8.4}))
+                weapon=W(blade=(0.15, 0.3, 0.94), pole={"dir": (0.05, 0.14, 1.0), "butt": 8.4}))
 
 
 def _sit(i):

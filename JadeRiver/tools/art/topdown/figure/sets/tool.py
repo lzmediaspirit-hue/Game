@@ -48,7 +48,7 @@ def five(r7: list, lo: int = 1) -> list:
     return [r7[lo], r7[lo + 1], r7[lo + 2], r7[lo + 3], r7[min(lo + 4, len(r7) - 1)]]
 
 
-BAMBOO = [W.BAMBOO[0], W.BAMBOO[1], W.BAMBOO[2], W.BAMBOO[3], W.BAMBOO[4]]     # green bamboo: poles, rods, handles
+BAMBOO = P.ramp("4a3a1c", "74602e", "a08848", "c8ae68", "e6d196")                 # dried bamboo: poles, rods, handles
 GRIP = P.ramp("2a1c14", "3f2a1c", "5a3e28", "7a5a38", "9a774b")                 # a rod's wrapped butt
 REED = [W.REED[0], W.REED[1], W.REED[2], W.REED[3], W.REED[4]]                   # the broom's dried twigs
 REED_DARK = [W.REED[0], W.REED[0], W.REED[1], W.REED[2], W.REED[3]]
@@ -62,8 +62,8 @@ EDGE = P.ramp("3e4456", "5c6478", "8a93a6", "b8c0cc", "e2e8ee")                 
 CLAY = five(W.DIRT2, 1)                                                          # the pot
 CLAY_RIM = five(W.DIRT2, 2)
 BROTH = P.ramp("3a2418", "5a3a22", "7a5430", "9a7040", "b08a58")
-STONE = five(W.PAVE2, 1)                                                         # the mortar
-STONE_RIM = five(W.PAVE2, 2)
+STONE = five(W.PAVE2, 2)                                                         # the mortar
+STONE_RIM = five(W.PAVE2, 2)[1:] + [W.PAVE2[6]]
 HOLLOW = P.ramp("1e1a22", "2a2330", "3a3240", "4a3f44", "5a4f54")
 LOG = five(W.TIMBER2, 0)
 LOG_DARK = [W.TIMBER2[0], W.TIMBER2[0], W.TIMBER2[1], W.TIMBER2[2], W.TIMBER2[3]]
@@ -75,7 +75,7 @@ HERB_LIGHT = five(W.LEAF, 2)
 TWINE = P.ramp("5a4c32", "7e6c48", "a8946a", "c8b48a", "e2d2ac")                # the net's pale hemp twine
 MESH = P.ramp("2a2a26", "3a3830", "524c3e", "6a624e", "827860")                  # the shade seen through its holes
 CORK = P.ramp("5a2a14", "8a4020", "b85a2e", "d8804a", "eeaa74")
-SHUTTLE = five(W.BAMBOO, 2)
+SHUTTLE = BAMBOO
 FLOAT = P.ramp("3a1026", "661a2e", "bd3b3c", "d95b49", "ee8b6b")                # the float's red lacquer (§14 RED2)
 LINE = P.ramp("8a9ea0", "a9bcbc", "c9d6d2", "e3ece6", "f2f7f2") + [P.c("000000", 0)]   # the fishing line: pale, flat
 HOT = P.ramp("8a2a14", "c24a1c", "f07a2a", "ffb04a", "ffe08a")                   # the hot bar (glow)

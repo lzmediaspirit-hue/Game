@@ -191,7 +191,7 @@ EXTRAS = {
     "lf_village": [
         {"id": "x_bank_fisher", "outfit": dict(VILLAGER, hair_color=5, shirt_dye="grey"), "loop": "fish", "spots": [[38.5, 33.25, "s"]]},
         {"id": "x_woodcutter", "outfit": dict(VILLAGER, hat="none", shirt="sleeveless", shirt_dye="ochre", pants="loose"),
-         "loop": "chop", "spots": [[65.6, 18.0, "w"]]},
+         "loop": "chop", "spots": [[65.1, 18.0, "w"]]},
     ],
     "ja_gate_street": [
         {"id": "x_ja_sweeper", "outfit": {"body": "light", "hair": "ponytail", "hair_color": 3, "shirt": "disciple", "pants": "martial",
