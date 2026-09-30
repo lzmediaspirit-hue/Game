@@ -27,17 +27,21 @@ function Invoke-Native([string]$exe, [string[]]$argv) {
 Write-Host '== animations'
 try { & (Join-Path $PSScriptRoot 'Validate-Animations.ps1') } catch { Write-Host $_.Exception.Message; $failed.Add('animations') }
 # The data gates, each run as tools/run_tests.sh runs it:
+#   build_data     audit 45 (S5): every data/*.json file is what its generator writes;
 #   room_lint      S43 room lint and reach contract over the built rooms (Part 7);
 #   topdown_rooms  redesign Phase 4: the top-down layouts are current, every thing placed and reached on foot;
 #   sect_walks     decision 42: no step of the sect stretch asks for a plain walk over 35 s, nor a walk out and back;
 #   places         decision 43: the places table is current, every place where auto-path reaches it;
-#   sound          decision 43: the sound table is current, every sound on disk passes its levels, seams and band.
+#   sound          decision 43: the sound table is current, every sound on disk passes its levels, seams and band;
+#   pix            audit 45 (S5): the pixel library for new art draws each shape exactly as its source.
 $gates = @(
+    @{ Name = 'build_data'; Args = @('tools/data/build_data.py', '--check') },
     @{ Name = 'room_lint'; Args = @('tools/data/room_lint.py') },
     @{ Name = 'topdown_rooms'; Args = @('tools/data/topdown_rooms.py', '--check') },
     @{ Name = 'sect_walks'; Args = @('tools/data/sect_walks.py', '--check') },
     @{ Name = 'places'; Args = @('tools/data/places.py', '--check') },
-    @{ Name = 'sound'; Args = @('tools/data/sound.py', '--check') }
+    @{ Name = 'sound'; Args = @('tools/data/sound.py', '--check') },
+    @{ Name = 'pix'; Args = @('tools/lib/pix.py', '--check') }
 )
 foreach ($g in $gates) {
     Write-Host "== $($g.Name)"

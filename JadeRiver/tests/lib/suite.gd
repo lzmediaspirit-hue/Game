@@ -83,6 +83,49 @@ func _remove_tree(dir: String) -> void:
 	for f in DirAccess.get_files_at(dir): DirAccess.remove_absolute(dir + f)
 	DirAccess.remove_absolute(dir)
 
+# ------------------------------------------------------------------ timing on a shared machine
+## A suite that times the game's own work (perf_tests; rules_tests' technique pictures, preview and living world; the
+## coach's cost in tutorials) reads the game's own clock, and may ask for its share of a CPU while it times: the test
+## machine is shared, and other processes hold its CPUs for seconds at a time (perf_tests, "measuring on a shared
+## machine", has the numbers).
+const SCHEDSTAT := "/proc/thread-self/schedstat"
+const MAIN_NICE := -10
+var _schedstat := -1   # 1 where the system counts the run queue per thread, 0 where not, -1 before it is asked
+
+## µs on the game's own clock: the wall clock less the time the main thread stood in the run queue, ready to run while
+## other processes held every CPU (Linux counts it per thread; elsewhere this is the wall clock).
+func now_us() -> int:
+	return Time.get_ticks_usec() - queued_us()
+
+## µs the main thread has stood in the run queue since it started (0 where the system does not count it). The file is
+## read afresh each time: a kept one does not move on.
+func queued_us() -> int:
+	if _schedstat < 0: _schedstat = 1 if FileAccess.file_exists(SCHEDSTAT) else 0
+	if _schedstat == 0: return 0
+	var f := FileAccess.open(SCHEDSTAT, FileAccess.READ)
+	if f == null: return 0
+	var parts := f.get_line().split(" ")
+	return int(parts[1]) / 1000 if parts.size() >= 2 else 0
+
+## What `now_us` leaves out, for a suite's report.
+func clock_name() -> String:
+	return "the run queue left out" if queued_us() > 0 or _schedstat == 1 else "the wall clock"
+
+## The main thread asks the system for a larger share of a CPU while the suite times: on Linux, where it may (as root,
+## or with CAP_SYS_NICE), its own thread's niceness goes to MAIN_NICE (renice -p on the process id names the main thread
+## alone). With five times as many busy threads as CPUs the main thread ran a tenth of the time, in short slices each
+## begun with caches other processes had filled, and its own work took twice as long on the CPU: no clock takes that
+## out. Elsewhere, or where it may not, nothing changes. Returns what it did, for the suite's report.
+func ask_for_cpu() -> String:
+	if not OS.has_feature("linux"): return "the usual share of a CPU"
+	if OS.execute("renice", ["-n", str(MAIN_NICE), "-p", str(OS.get_process_id())], [], true) == 0:
+		return "the main thread at niceness %d" % MAIN_NICE
+	return "the usual share of a CPU (renice refused)"
+
+## Back to the usual share once the timing is done.
+func usual_cpu() -> void:
+	if OS.has_feature("linux"): OS.execute("renice", ["-n", "0", "-p", str(OS.get_process_id())], [], true)
+
 # ------------------------------------------------------------------ the clean quit
 ## Free what the suite made and let the game's workers finish before the engine quits: a worker task left unclaimed
 ## kept its function past its script's end, and the engine crashed as it quit (a clean summary, then signal 6 or 11).

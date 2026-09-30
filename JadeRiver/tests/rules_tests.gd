@@ -14,6 +14,9 @@ func near(a: float, b: float, eps := 0.01) -> bool:
 	return absf(a - b) <= eps * maxf(1.0, absf(b))
 
 func _main() -> void:
+	# The suite times some of the game's own work (the technique pictures' budget on the main thread, the preview's step,
+	# the living world's frame): on a shared machine it asks for its share of a CPU first (tests/lib/suite.gd).
+	ask_for_cpu()
 	rules_suite()
 	might_suite()
 	replay_suite()
@@ -13199,12 +13202,12 @@ func _technique_preview_suite(pg, c) -> void:
 	pg.on_action("node", ids[1])
 	pg.queue_redraw()
 	await get_tree().process_frame
-	var t0 := Time.get_ticks_usec()
+	var t0 := now_us()
 	for i in 240: st._advance(1.0 / 60.0)
-	var step_ms := (Time.get_ticks_usec() - t0) / 1000.0 / 240.0
-	var t1 := Time.get_ticks_usec()
+	var step_ms := (now_us() - t0) / 1000.0 / 240.0
+	var t1 := now_us()
 	for i in 30: await get_tree().process_frame
-	var frame_ms := (Time.get_ticks_usec() - t1) / 1000.0 / 30.0
+	var frame_ms := (now_us() - t1) / 1000.0 / 30.0
 	print("technique preview: %.3f ms a step, %.2f ms a frame with the page open" % [step_ms, frame_ms])
 	check(st.foes.size() == 3 and step_ms < 0.5 and frame_ms < 33.3, "the preview costs little: %.3f ms a step, %.2f ms a frame with the page open" % [step_ms, frame_ms])
 	# A Lost Arts leaf not found shows nothing of itself.

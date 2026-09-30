@@ -20,6 +20,9 @@ if command -v pwsh >/dev/null 2>&1; then
   echo "== animations"
   if ! pwsh -NoProfile -File Validate-Animations.ps1; then failed+=("animations"); fi
 fi
+# Audit 45 (S5): every data/*.json file is what its generator writes.
+echo "== build_data"
+if ! python3 tools/data/build_data.py --check; then failed+=("build_data"); fi
 # S43 room lint and reach contract over the built rooms (Part 7).
 echo "== room_lint"
 if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
@@ -35,6 +38,9 @@ if ! python3 tools/data/places.py --check; then failed+=("places"); fi
 # Decision 43: the sound pass's table is current, and every sound on disk passes its levels, loop seams and phone band.
 echo "== sound"
 if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
+# Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
+echo "== pix"
+if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
 alog="$(mktemp)"
 if ! python3 tools/audio/build_audio.py --check > "$alog" 2>&1; then grep -E "FAIL|MISSING|Error" "$alog" | head -20; failed+=("audio_check"); else tail -1 "$alog"; fi
 rm -f "$alog"

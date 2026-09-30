@@ -490,16 +490,19 @@ func _people_stream() -> void:
 	var warm := PageWarmer.new(load("res://scripts/main.gd").PAGES.values())
 	warm.tick()   # as the title starts it
 	await get_tree().process_frame
-	var t0 := Time.get_ticks_msec()
+	# Timed on the suite's own clock, with its share of a CPU asked for while it times (tests/lib/suite.gd).
+	ask_for_cpu()
+	var t0 := now_us()
 	var people: Array = []
 	for o in ContentDB.room("lf_village").get("objects", []):
 		if str(o.get("type", "")) == "npc": people.append(TopdownPlaces.Person.new(o))
 	var waiting := people.size()
-	while waiting > 0 and Time.get_ticks_msec() - t0 < 5000:
+	while waiting > 0 and now_us() - t0 < 5000000:
 		await get_tree().process_frame
 		warm.tick()   # as main.gd does each frame
 		waiting = people.filter(func(p): return not p.figure.loaded()).size()
-	var ms := Time.get_ticks_msec() - t0
+	var ms := (now_us() - t0) / 1000
+	usual_cpu()
 	var left := warm.queue.size()
 	for p in people: p.free()
 	while warm.tick(): await get_tree().process_frame   # the rest of the pages, before the walk

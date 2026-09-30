@@ -12,9 +12,8 @@ const MainScript = preload("res://scripts/main.gd")
 var main: Node
 
 func _main() -> void:
-	_schedstat = FileAccess.file_exists(SCHEDSTAT)
-	var share := _ask_for_cpu()
-	var queued0 := _queued_us()
+	var share := ask_for_cpu()
+	var queued0 := queued_us()
 	var wall0 := Time.get_ticks_usec()
 	for k in 5: _cal_best = mini(_cal_best, _calibrate())
 	# techniques.json first, on the heap as the boot leaves it (ContentDB reads the table at boot): its defaults took half
@@ -44,7 +43,7 @@ func _main() -> void:
 	await _techniques()
 	await _topdown()
 	print("measured in %d rounds at the machine's full speed, on the game's own clock (%s; %s): %.0f s in all, %.0f s of it waiting for a CPU other processes held"
-		% [ROUNDS, "the run queue left out" if _schedstat else "the wall clock", share, (Time.get_ticks_usec() - wall0) / 1e6, (_queued_us() - queued0) / 1e6])
+		% [ROUNDS, clock_name(), share, (Time.get_ticks_usec() - wall0) / 1e6, (queued_us() - queued0) / 1e6])
 	end_suite()
 
 # ------------------------------------------------------------------ measuring on a shared machine (audit 45, BUG-10)
@@ -52,7 +51,7 @@ func _main() -> void:
 ## fixed piece of script work took 4 to 6 times its wall time, its time on a CPU about the same), and a core busy
 ## elsewhere slows this one's own work by a third or more. The single timings failed 1 to 5 of the 18 checks on such a
 ## machine and none when it was quiet. So every figure here is
-##   - timed on the game's own clock, `_now_us`: the wall clock less the time the main thread stood in the run queue,
+##   - timed on the game's own clock, `now_us`: the wall clock less the time the main thread stood in the run queue,
 ##     ready while other processes held every CPU (Linux counts it per thread, /proc/thread-self/schedstat; elsewhere it
 ##     is the wall clock). All the game does counts: its work, its waits on its own workers, its frames;
 ##   - taken at the machine's full speed: the same fixed piece of work (_calibrate) is timed beside each sample (each
@@ -61,39 +60,10 @@ func _main() -> void:
 ##   - taken in ROUNDS interleaved rounds (every room once, then every room again; the crowd, the breakthrough and the
 ##     storm in turn; a room entered afresh each round), and the least is the figure: a busy machine only ever adds.
 ## Samples are left out, never scaled: no figure is less than a timing the gate took. Where the system lets it, the main
-## thread also asks for a fair share of a CPU (_ask_for_cpu).
+## thread also asks for a fair share of a CPU (the suite base's ask_for_cpu), and its clock is the base's now_us.
 const ROUNDS := 3
 const SLOW_MACHINE := 1.3
-const SCHEDSTAT := "/proc/thread-self/schedstat"
-var _schedstat := false
 var _cal_best := 1 << 30
-
-## The main thread asks the system for a larger share of a CPU while it measures: on Linux, where it may (as root, or
-## with CAP_SYS_NICE), its own thread's niceness is lowered to MAIN_NICE (renice -p on the process id names the main
-## thread alone). With five times as many busy threads as CPUs the main thread ran a tenth of the time, in short slices
-## each begun with caches other processes had filled, and its own work took twice as long on the CPU: no clock can take
-## that out. Elsewhere, or where it may not, it measures as it is. Returns what it did, for the summary.
-const MAIN_NICE := -10
-
-func _ask_for_cpu() -> String:
-	if not OS.has_feature("linux"): return "the usual share of a CPU"
-	var out: Array = []
-	if OS.execute("renice", ["-n", str(MAIN_NICE), "-p", str(OS.get_process_id())], out, true) == 0:
-		return "the main thread at niceness %d" % MAIN_NICE
-	return "the usual share of a CPU (renice refused)"
-
-## µs on the game's own clock: the wall clock less the main thread's time in the run queue.
-func _now_us() -> int:
-	return Time.get_ticks_usec() - _queued_us()
-
-## µs the main thread has stood in the run queue since it started (0 where the system does not count it). The file is
-## read afresh each time: a kept one does not move on.
-func _queued_us() -> int:
-	if not _schedstat: return 0
-	var f := FileAccess.open(SCHEDSTAT, FileAccess.READ)
-	if f == null: return 0
-	var parts := f.get_line().split(" ")
-	return int(parts[1]) / 1000 if parts.size() >= 2 else 0
 
 ## The µs a fixed piece of script work takes now on the game's own clock: the machine's speed at this moment. The work
 ## is script arithmetic and a walk through a 4 MB table in a scrambled order, so a CPU slowed by a busy neighbour on its
@@ -109,13 +79,13 @@ func _calibrate() -> int:
 		order.resize(CAL_TABLE)
 		for j in CAL_TABLE: order[j] = (j * 999331) & (CAL_TABLE - 1)
 		for j in CAL_TABLE: _cal_table[order[j]] = order[(j + 1) & (CAL_TABLE - 1)]
-	var t0 := _now_us()
+	var t0 := now_us()
 	var acc := 0
 	var at := 0
 	for j in 3000:
 		acc = (acc * 31 + j) % 1000003
 		at = _cal_table[at]
-	return _now_us() - t0 + (acc & 0) + (at & 0)
+	return now_us() - t0 + (acc & 0) + (at & 0)
 
 ## Whether the machine runs at its full speed now: the fixed work takes at most SLOW_MACHINE times the fastest seen.
 func _full_speed() -> bool:
@@ -155,11 +125,11 @@ func _frames(n: int, each: Callable) -> float:
 	var all: Array = []
 	var kept: Array = []
 	for i in n:
-		var t0 := _now_us()
+		var t0 := now_us()
 		if each.is_valid(): each.call(i)
 		Game.tick(1.0 / 60.0)
 		await get_tree().process_frame
-		var ms := (_now_us() - t0) / 1000.0
+		var ms := (now_us() - t0) / 1000.0
 		all.append(ms)
 		if _full_speed(): kept.append(ms)
 	var use: Array = kept if kept.size() >= n / 2 else all
@@ -185,11 +155,11 @@ func _median_frames(n: int, each: Callable) -> float:
 	window_own_us = 0
 	while i < n or (kept < n / 2 and i < n * 3):
 		var w0 := Time.get_ticks_usec()
-		var t0 := _now_us()
+		var t0 := now_us()
 		if each.is_valid(): each.call(i)
 		Game.tick(1.0 / 60.0)
 		await get_tree().process_frame
-		var own := _now_us() - t0
+		var own := now_us() - t0
 		window_own_us += own
 		window_wall_us += Time.get_ticks_usec() - w0
 		var fast := _full_speed()
@@ -236,12 +206,12 @@ func _techniques_json() -> void:
 	var kept: Array = []      # every round's rows, let go after the last
 	for r in ROUNDS:
 		var fast := _full_speed()
-		var t1 := _now_us()
+		var t1 := now_us()
 		var parsed: Dictionary = JSON.parse_string(text)
-		var parse := (_now_us() - t1) / 1000.0
+		var parse := (now_us() - t1) / 1000.0
 		var memo := {}
 		for e in parsed.entries: ContentDB.expand(e, parsed.defaults, memo)
-		var whole := (_now_us() - t1) / 1000.0
+		var whole := (now_us() - t1) / 1000.0
 		fast = _full_speed() and fast
 		# The check's own figure is the round's margin: its defaults against twice its parse, both of the same round.
 		margins.append([whole - parse - (2.0 * parse + 20.0), fast, parse, whole - parse])
@@ -249,17 +219,17 @@ func _techniques_json() -> void:
 		_add(s, "v15", whole, fast)
 		kept.append([parsed, memo])
 		fast = _full_speed()
-		var t2 := _now_us()
+		var t2 := now_us()
 		TechniqueTreeRules._built = null
 		TechniqueTreeRules.cell("water", "any", 1)
-		var index := (_now_us() - t2) / 1000.0
+		var index := (now_us() - t2) / 1000.0
 		_add(s, "index", index, _full_speed() and fast)
 		fast = _full_speed()
-		var t0 := _now_us()
+		var t0 := now_us()
 		var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
 		var memo_now := {}
 		for e in data.entries: ContentDB.expand(e, data.defaults, memo_now)
-		var now := (_now_us() - t0) / 1000.0
+		var now := (now_us() - t0) / 1000.0
 		_add(s, "now", now, _full_speed() and fast)
 		kept.append([data, memo_now])
 	kept.clear()
@@ -289,11 +259,11 @@ func _rooms() -> void:
 	for r in ROUNDS:
 		for rid in ids:
 			var fast := _full_speed()
-			var t0 := _now_us()
+			var t0 := now_us()
 			Game.world.load_room(c, rid, "")
 			GameEvents.flush()
 			await get_tree().process_frame
-			var t := (_now_us() - t0) / 1000.0
+			var t := (now_us() - t0) / 1000.0
 			_add(s, rid, t, _full_speed() and fast)
 			if r == 0: first[rid] = t
 	var ms := {}
@@ -316,10 +286,10 @@ func _pages() -> void:
 	for r in ROUNDS:
 		for id in ids:
 			var fast := _full_speed()
-			var t0 := _now_us()
+			var t0 := now_us()
 			main.open_page(id, {})
 			await get_tree().process_frame
-			_add(s, id, (_now_us() - t0) / 1000.0, _full_speed() and fast)
+			_add(s, id, (now_us() - t0) / 1000.0, _full_speed() and fast)
 			main.close_all_pages()
 			await get_tree().process_frame
 	var ms := {}
@@ -351,9 +321,9 @@ func _crowd() -> void:
 	var mv: MomentView = main.moments
 	var spent := [0, 0]   # usec in MomentView.advance this window, most FX alive
 	var view := func(i: int) -> void:
-		var t1 := _now_us()
+		var t1 := now_us()
 		mv.advance(1.0 / 60.0)
-		spent[0] += _now_us() - t1
+		spent[0] += now_us() - t1
 	var storm := func(i: int) -> void:
 		view.call(i)
 		if i % 6 != 0: return
@@ -412,13 +382,13 @@ func _techniques() -> void:
 		SpriteCache._renders.clear()
 		for px in [64, 48]:
 			var fast := _full_speed()
-			var t3 := _now_us()
+			var t3 := now_us()
 			for id in ids: SpriteCache.emblem(str(id), px)
-			_add(s, px, (_now_us() - t3) / 1000.0 / maxf(1.0, ids.size()), _full_speed() and fast)
+			_add(s, px, (now_us() - t3) / 1000.0 / maxf(1.0, ids.size()), _full_speed() and fast)
 		var fast_held := _full_speed()
-		var t4 := _now_us()
+		var t4 := now_us()
 		for id in ids: SpriteCache.emblem(str(id), 64)
-		_add(s, "held", (_now_us() - t4) / 1000.0 / maxf(1.0, ids.size()), _full_speed() and fast_held)
+		_add(s, "held", (now_us() - t4) / 1000.0 / maxf(1.0, ids.size()), _full_speed() and fast_held)
 	var per := {64: _least(s[64]), 48: _least(s[48])}
 	var held := _least(s.held)
 	print("emblems: composed in %.2f ms at 64 px, %.2f ms at 48; held, %.4f ms" % [per[64], per[48], held])
@@ -433,10 +403,10 @@ func _techniques() -> void:
 		SpriteCache._emblems.clear()
 		SpriteCache._renders.clear()
 		var fast := _full_speed()
-		var t5 := _now_us()
+		var t5 := now_us()
 		main.open_page("techniques", {})
 		await get_tree().process_frame
-		pages.append([(_now_us() - t5) / 1000.0, _full_speed() and fast])
+		pages.append([(now_us() - t5) / 1000.0, _full_speed() and fast])
 		main.close_all_pages()
 		await get_tree().process_frame
 	cu.techniques_known = known_was
@@ -626,10 +596,10 @@ func _topdown() -> void:
 			main.return_to_selection()
 			await get_tree().process_frame
 		var fast := _full_speed()
-		var t0 := _now_us()
+		var t0 := now_us()
 		main.enter_topdown_proto(false)
 		await get_tree().process_frame
-		mounts.append([(_now_us() - t0) / 1000.0, _full_speed() and fast])
+		mounts.append([(now_us() - t0) / 1000.0, _full_speed() and fast])
 		var p = main.world.player
 		var drive := func(i: int) -> void:
 			p.movement = Vector2.from_angle(i * 0.05)
@@ -688,10 +658,10 @@ func _lotus_ferry() -> void:
 		main.enter_topdown_tutorial(true)
 		await get_tree().process_frame
 		var fast := _full_speed()
-		var t1 := _now_us()
+		var t1 := now_us()
 		Game.submit({"type": "use_portal", "portal": "exit", "crossing": true})
 		await get_tree().process_frame
-		loads.append([(_now_us() - t1) / 1000.0, _full_speed() and fast])
+		loads.append([(now_us() - t1) / 1000.0, _full_speed() and fast])
 		var walker = main.world.player
 		walk = func(i: int) -> void: walker.movement = Vector2.from_angle(i * 0.04)
 		per_walk = minf(per_walk, await _frames(120, walk))
@@ -719,11 +689,11 @@ func _marsh_edge() -> void:
 	var hold := Callable()
 	for r in ROUNDS:
 		var fast := _full_speed()
-		var t2 := _now_us()
+		var t2 := now_us()
 		Game.world.load_room(Game.active(), "rm_marsh_edge", "west")
 		GameEvents.flush()
 		await get_tree().process_frame
-		loads.append([(_now_us() - t2) / 1000.0, _full_speed() and fast])
+		loads.append([(now_us() - t2) / 1000.0, _full_speed() and fast])
 		mw = main.world
 		var marsh_kinds := ["marsh_leech", "reed_frog", "hollowed_boarlet", "reed_otter"]
 		for i in maxi(0, 15 - Game.room_rt.living_enemies().size()):
