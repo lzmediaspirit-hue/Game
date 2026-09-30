@@ -2,9 +2,7 @@
 and the scripts that make up that system. tests/contract_tests checks the code against it:
 each event is emitted only by its system, and something consumes it.
 """
-import os
-
-from common import ROOT, write, run_cli
+from common import write, run_cli
 
 # Part 4 · Event catalogue, by emitting system.
 CATALOGUE = {
@@ -145,14 +143,6 @@ SYSTEMS = {
     "Calendar": ["calendar_authority"], "Field": ["field_authority", "field_rules"],
     "Posts": ["post_authority", "post_rules"],
 }
-# An authority split into parts keeps them in a folder named after it (scripts/simulation/authority/combat/ for
-# combat_authority; docs/architecture/authority_parts.md): the parts are its system's scripts too.
-AUTHORITIES = os.path.join(ROOT, "scripts", "simulation", "authority")
-for _files in SYSTEMS.values():
-    for _f in list(_files):
-        _parts = os.path.join(AUTHORITIES, _f.removesuffix("_authority"))
-        if _f.endswith("_authority") and os.path.isdir(_parts):
-            _files += sorted(n.removesuffix(".gd") for n in os.listdir(_parts) if n.endswith(".gd"))
 
 # A second system that may also announce the event, and why.
 ALSO = {
