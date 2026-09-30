@@ -1,5 +1,66 @@
 # Changelog
 
+## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
+
+With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh
+Edge with 25 foes fighting took 18.3-22.5 ms a frame against its 16.6 ms budget (the mean of the first 150 frames
+after the room is entered and 15 of its foes are turned on the player). As built in `docs/redesign_top_down_plan.md`
+("the Marsh Edge fight back inside its frame").
+
+- **Where the time went.** A probe running only the check's Marsh Edge part (three entries a run, two runs a commit)
+  over the merges: 15.7 ms before decision 43 (55eda88); 14.2-14.9 after the tutorials, the people 1.2x, the
+  monsters, the places and the sound (inside the ±1.5 ms a run swings); 16.2 after the round buttons and combat flow;
+  16.8 after the living world. So the fight was near its budget before, and decision 43 added about 1.5 ms. Timers
+  round every `_process`, `_draw` and tick placed the frame: the simulation 4.2 ms (it runs 1.8 times a frame in the
+  check, its own tick and the world's physics tick; the foes' AI 2.6 of it), the world's `_process` 4.1 (the labels'
+  layout 2.5 of it), the HUD's drawing 2.9, the views asking the World authority whether each thing shows 83 times a
+  frame (1.0), the HUD's points badges three times a frame (0.7), the minimap 0.8. No one part took the frame; after
+  the first fixes the engine's own script profiler (the local debugger's, `-d`, over the fight's window) still found
+  it spread thin: the foes' AI, the labels, the HUD's text, each view's own step.
+- **Why the check's window was slower than the living world's A/B rounds** (14.5 ms with it, 13.8 without, in the
+  same run): the A/B figure is the least of six rounds' medians, taken after the room has been rebuilt, while the
+  check is the plain mean of the fight's first 150 frames, and that window carried one-off costs a median skips. The
+  spawn frame loaded the four species' sheets (10 ms; a 35-54 ms frame, then two or three physics ticks to catch up);
+  the first blows loaded the fists' smears (8 ms), each direction's impact marks (3.6 ms each), the common marks
+  (4.8 ms) and the damage numbers' font (4 ms); and the water redrew every chunk in view four times a second (5 ms
+  each time). A frame over 16.7 ms also brings a second physics tick with it, so a slow stretch feeds itself.
+- **What changed** (the same pixels, sounds and rules): the labels' layout tries a label's own row and last frame's
+  first and weighs its other rows only against the boxes in reach, sorted by the engine (the same offsets, checked
+  against the old pass on 3,000 random crowds); visibility, quest markers, ways' states, the quest tracker and the
+  direction's step asked once a frame (`WorldShared`, again when `Game.revision` moves), and the points badges likewise;
+  the context button weighs reach before requirements; `free_at` and the chase's clear line read the grid directly;
+  sanctuaries gathered once a room; a foe winding up, striking or recovering no longer asks where the player is and
+  whether it sees them; the stats, movement and curve constants kept once found (`ContentDB`, forgotten by `load_all`)
+  and a Level's realm worked out once; the soft lock worked out once a frame; each species' walk cycle once; the
+  fight's sheets and the numbers' font asked for on the loading threads as a room is built; the water's four frames
+  drawn once each; the air's three layers each pass over the others' particles; a foe's figure moved once a frame and
+  its label view no longer redrawn empty; text widths keyed without formatting.
+- **After**, `perf_tests` alone, three runs interleaved with three of 3c0bb0f on one machine (a slower one than the
+  first measurements': there 3c0bb0f failed the side view's sword swarm in all eight of its runs and the 22-foe
+  prototype fight in three): the Marsh Edge fight 11.6-13.9 ms a frame against 18.2-20.2; the prototype's 22-foe fight
+  9.7-10.0 against 13.1-15.3; Lotus Ferry walking 7.7-9.3 against 10.4-12.0; the side view's crowd with the sword swarm
+  15.0-16.2 against 16.8-17.6; the rooms' loads as before. The branch passed every frame budget in all three. In the
+  full runs, where `perf_tests` comes after ten minutes of other suites and this machine ran slower still, the Marsh
+  Edge fight took 12.3 and 15.9 ms, and the side view's sword swarm (outside this work, failed by 3c0bb0f in every run
+  here) once went over, 17.5 ms.
+- **Still loose**: the v1.5 techniques.json check (filling in the defaults at most twice the JSON parse, plus 20 ms)
+  fails now and then on this machine, 3c0bb0f too (one run in three to six; 128-163 ms against a 50 ms parse at worst).
+  Its two halves slow unequally with the process's history: in one process, `ContentDB.expand` over the fixture took
+  113 ms the first time and 180-205 ms each time after, the parse 51 then 60-75 ms. Left as it is, measured as it is.
+- **The tutorials suite's non-zero exit** ("53 checks, 0 failures", then a non-zero exit, in full runs): the engine
+  crashed as it quit (signal 11 in a mutex; `run_tests.sh` and `Test.ps1` now print a failing suite's exit code, and the
+  shell script its last lines). The Techniques page's preview reads the foes' index (`data/topdown/foes.json`) on a
+  worker thread with a script lambda; a preview gone before it took the reading back left the task unclaimed, the
+  lambda outlived `TechniquePreview.TopFoe`'s script ("1 orphaned lambdas becoming invalid"), and the thread pool's
+  teardown freed it after the script language was gone. Whether the page's preview took the reading back before it
+  closed depended on the worker's timing, hence a crash only now and then. The preview now takes the reading back as it
+  goes (`TopFoe.settle`, as `TechniquePicture` already did for its pictures), and `rules_tests` checks it. A scene that
+  opens the page and quits at once crashed 6 times in 6 with the fix taken out and never in 15 with it; the suite alone
+  exited 0 in 8 runs and in every full run since.
+- **The calendar on a Terraces Trial day**: the trial's note under the chosen event wraps to two lines, and its last
+  word fell past the card's edge (`rules_tests`' B17/B22 check failed on trial days, at 3c0bb0f too); the event's
+  words now take what the note leaves of the card's three lines.
+
 ## A living world: critters, people at work, grass that parts, smoke, banners, vistas and interiors (decision 43)
 
 The user's picks after build 109 asked for "a living world: critters, NPCs at work, grass that parts, smoke, banners,
