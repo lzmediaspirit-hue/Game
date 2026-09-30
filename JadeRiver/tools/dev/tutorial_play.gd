@@ -98,23 +98,32 @@ func _brief(st: Dictionary) -> Dictionary:
 
 # ------------------------------------------------------------------ a card read
 ## A card as it shows: its shot (the first time), and its layout held to what a player needs.
-func look(st: Dictionary) -> void:
-	var k := _key(st)
+func look(first: Dictionary) -> void:
+	var k := _key(first)
 	if _seen_keys.has(k): return
 	_seen_keys[k] = true
 	met.append(k)
-	var name := "tut_%s_%s_%d" % [st.mode, st.entry, int(st.step)]
+	# A card waiting for its anchor (TutorialCoach.MISSING_S) is waited for, as the eye waits for it.
+	for i in 60:
+		if coach().state().mode != first.mode or (coach().state().card as Rect2).size != Vector2.ZERO: break
+		await _read(1)
+	var seen_card: Rect2 = coach().state().card
+	var name := "tut_%s_%s_%d" % [first.mode, first.entry, int(first.step)]
 	var top: Page = main.top_page()
 	if top != null: name += "_" + top.page_id
-	await shot(name, "coach %s: %s" % [k, st.line])
+	await shot(name, "coach %s: %s" % [k, first.line])
+	# Read as the shot shows it (12 frames on): the card must stand where it first showed.
+	var st: Dictionary = coach().state()
+	if st.mode != first.mode or st.entry != first.entry or st.step != first.step: return
 	var safe := Rect2(0, 0, 1280, 720)
 	var card: Rect2 = st.card
 	var target: Rect2 = st.rect
+	if seen_card.size != Vector2.ZERO and card != seen_card: bug("the card moved after it showed (%s to %s)" % [str(seen_card), str(card)], st)
 	if card.size == Vector2.ZERO: bug("no card", st)
 	elif not safe.encloses(card): bug("the card runs off the screen", st)
 	if target.size == Vector2.ZERO: bug("the anchor %s is not found on screen (the card stands alone)" % st.anchor, st)
 	elif card.size != Vector2.ZERO and card.intersects(target.grow(2)): bug("the card covers what it explains", st)
-	var hr: Rect2 = coach().hand_rect() if coach()._hand_shown() else Rect2()
+	var hr: Rect2 = coach().hand_rect(false) if coach()._hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO:
 		if not safe.encloses(hr): bug("the hand runs off the screen %s" % str(hr), st)
 		if card.intersects(hr): bug("the card covers the hand %s" % str(hr), st)
@@ -127,6 +136,12 @@ func look(st: Dictionary) -> void:
 		var r: Rect2 = st.buttons[b]
 		if r.size.y < 48.0 or r.size.x < 48.0: bug("the %s button is under 48 px (%s)" % [b, str(r.size)], st)
 		if not card.encloses(r): bug("the %s button is outside its card" % b, st)
+	# A guide on the play screen must leave the HUD's controls clear (the player keeps playing under it).
+	if st.mode == "guide" and top == null and is_instance_valid(main.hud) and card.size != Vector2.ZERO:
+		for tg in main.hud.hit_targets():
+			var d := float(tg.drawn)
+			var cr := Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0)
+			if card.intersects(cr) and not target.intersects(cr): bug("the guide's card covers the HUD's %s" % str(tg.role), st)
 
 # ------------------------------------------------------------------ a tour answered
 var _style := 0
@@ -172,6 +187,14 @@ func answer(st: Dictionary, which: String) -> void:
 	var double := _style % 5 == 2
 	var hold := 2 if _style % 3 != 1 else 9
 	if _style % 4 != 0: await _read(24)   # a read first; else at once, as the card comes
+	# The card as it stands now, where the finger goes.
+	var fresh: Dictionary = coach().state()
+	if fresh.mode != st.mode or fresh.entry != st.entry or fresh.step != st.step or not fresh.buttons.has(which): return
+	st = fresh
+	r = st.buttons[which]
+	spots = [r.get_center(), r.position + Vector2(r.size.x * 0.5, 4), r.end - Vector2(r.size.x * 0.5, 4), r.position + Vector2(5, r.size.y * 0.5),
+		r.end - Vector2(5, r.size.y * 0.5)]
+	at = spots[_style % spots.size()]
 	var was_top: Page = main.top_page()
 	var was_pages: int = main.pages.size()
 	var was_tab: String = was_top.tab_id() if was_top != null else ""

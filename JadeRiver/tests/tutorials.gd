@@ -85,6 +85,7 @@ func _main() -> void:
 	await _sense_path()
 	await _late_lessons()
 	await _late_legacy()
+	await _thumb()
 	await _anchors()
 	main.queue_free()
 	await get_tree().process_frame
@@ -446,6 +447,8 @@ func _replay() -> void:
 	await tap(rp.get_center())
 	await frames(3)
 	check(ch.tutorials.seen.is_empty(), "Replay tutorials clears every tour seen (%d left)" % ch.tutorials.seen.size())
+	await frames(10)
+	check(coach().state().mode == "", "and Settings, open now, does not start its own tour under the finger: every tour waits for its page's next opening (%s)" % str(coach().state()))
 	main.close_all_pages()
 	await frames(2)
 	main.open_page("mail", {})
@@ -812,6 +815,400 @@ func _late_legacy() -> void:
 	for id in ["treasure", "weapon_swap"]:
 		ch.tutorials.guided[id] = 1
 		ch.tutorials.seen[id] = 1
+
+# ------------------------------------------------------------------ 10: decision 45, the card under a thumb
+## Decision 45 (docs/redesign/tutorials.md "Bugs fixed"): the bugs a player met on a phone, each held here through the
+## phone's own input path: a touch at the window's pixels (Input.parse_input_event), which the engine also turns into
+## a mouse click, as on Android.
+func _thumb() -> void:
+	await _first_tap()
+	await _later_while_bobbing()
+	await _double_tap()
+	await _while_coming()
+	await _tab_tour_on_its_tab()
+	await _replay_then_skip()
+	await _lesson_keeps_screen()
+	await _fingers_kept()
+	await _fight_room_reload()
+	await _cost()
+
+## A finger down or up at the canvas point `p`, through the phone's path.
+func finger(p: Vector2, down: bool, idx := 0) -> void:
+	var e := InputEventScreenTouch.new()
+	e.index = idx
+	e.position = get_tree().root.get_final_transform() * p
+	e.pressed = down
+	Input.parse_input_event(e)
+
+func finger_to(p: Vector2, idx := 0) -> void:
+	var e := InputEventScreenDrag.new()
+	e.index = idx
+	e.position = get_tree().root.get_final_transform() * p
+	Input.parse_input_event(e)
+
+## A finger's tap through the phone's path: down, `hold` frames, up.
+func touch_tap(p: Vector2, hold := 2, idx := 0) -> void:
+	finger(p, true, idx)
+	await frames(hold + 1)
+	finger(p, false, idx)
+	await frames(3)
+
+## The coach showing a card in mode `m` (laid out, not waiting for its anchor), within a second of real time.
+func card_up(m := "tour") -> void:
+	for i in 5000:
+		var st := coach().state()
+		if st.mode == m and (st.card as Rect2).size != Vector2.ZERO: return
+		await get_tree().process_frame
+
+## A page tour on its own (its guide counted done), the page opened and come in.
+func page_tour(id: String, page: String, unlocks: Array, args := {}) -> Page:
+	await fresh([id])
+	unlock(unlocks)
+	var ch = c()
+	ch.tutorials.guided[id] = 1
+	ch.tutorials.queue.erase(id)
+	main.open_page(page, args)
+	await settle()
+	await card_up()
+	return main.top_page()
+
+## Done and Skip act on the first tap. The buttons are a thumb's targets (48 px and more, their touch targets past
+## them); held, one shows pressed and waits for the release, which may roll off its edge; the phone's two events for
+## the one tap (the touch, and the click made from it) act once.
+func _first_tap() -> void:
+	await page_tour("mail", "mail", ["quick_use", "mail"])
+	var ch = c()
+	var st := coach().state()
+	var b: Rect2 = st.buttons.get("next", Rect2())
+	var hit: Rect2 = st.hits.get("next", Rect2())
+	check(st.mode == "tour" and st.entry == "mail" and b.size.y >= 48.0 and b.size.x >= 48.0 and hit.encloses(b.grow(6.0)),
+		"a card's buttons are a thumb's targets: 48 px and more, touch targets past them (%s in %s)" % [str(b), str(hit)])
+	var at := b.position + Vector2(8, b.size.y - 3)
+	finger(at, true)
+	await frames(3)
+	var held := coach().state()
+	check(held.pressed == "next" and held.step == 0, "held, Next shows pressed and waits for the release (%s, step %d)" % [held.pressed, held.step])
+	finger(at + Vector2(0, 14), false)   # the thumb rolls a little as it lifts
+	await frames(3)
+	check(coach().state().step == 1 and int(ch.tutorials.at.get("mail", -1)) == 1,
+		"Next acts once on its release, rolled off its edge, the touch and its click one tap (step %d, at %s)" % [coach().state().step, str(ch.tutorials.at)])
+	# A release far off the button lets it go.
+	b = coach().state().buttons.get("next", Rect2())
+	finger(b.get_center(), true)
+	await frames(2)
+	finger(b.get_center() + Vector2(0, 90), false)
+	await frames(3)
+	check(coach().state().step == 1 and coach().state().pressed == "", "a finger that slides well off the button lets it go (step %d)" % coach().state().step)
+	for i in 2: await tap_button("next")
+	st = coach().state()
+	var done: Rect2 = st.buttons.get("next", Rect2())
+	check(st.step == 3 and st.buttons.size() == 1, "the last step has Done alone (%s)" % str(st.buttons.keys()))
+	await touch_tap(done.end - Vector2(4, 4))   # at its corner
+	check(coach().state().mode == "" and ch.tutorials.seen.get("mail", 0) == 1 and not ch.tutorials.at.has("mail"), "Done closes the tour on the first tap, at its corner (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+	await page_tour("character", "character", ["quick_use", "character_menu"])
+	ch = c()
+	var skip: Rect2 = coach().state().buttons.get("skip", Rect2())
+	await touch_tap(skip.position + Vector2(3, skip.size.y * 0.5))   # at its left edge
+	check(coach().state().mode == "" and ch.tutorials.seen.get("character", 0) == 2, "Skip closes the tour on the first tap, at its edge (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+
+## A guide's card stands still while its hand bobs (it was placed round the bobbing hand, and moved under the thumb),
+## and Later puts the guide off on the first tap, however long it is held.
+func _later_while_bobbing() -> void:
+	# The Quests' guide: the hand under the tracker, the card under the hand (where it was placed round the bob).
+	await fresh(["quests"])
+	unlock(["quick_use", "navigation"])
+	await card_up("guide")
+	var ch = c()
+	var hand0: Rect2 = coach().hand_rect(false)
+	var card0: Rect2 = coach().state().card
+	check(coach().state().entry == "quests" and hand0.size.x > 0 and card0.position.y > hand0.end.y, "the Quests' guide: its card under the hand (%s, hand %s)" % [str(card0), str(hand0)])
+	var hands := {}
+	var moved := false
+	for i in 12:
+		coach().t += 0.07   # the hand's bob through its swing
+		await frames(1)
+		hands[coach().hand_rect().position.y] = true
+		if coach().state().card != card0: moved = true
+	check(coach().state().mode == "guide" and hands.size() > 2 and not moved, "a guide's card stands still while its hand bobs (%d hand places, card %s)" % [hands.size(), str(coach().state().card)])
+	var later: Rect2 = coach().state().buttons.get("later", Rect2())
+	var at := later.position + Vector2(later.size.x * 0.5, later.size.y - 2)
+	finger(at, true)
+	for i in 9:
+		coach().t += 0.07
+		await frames(1)
+	finger(at, false)
+	await frames(3)
+	check(coach().state().mode == "" and ch.tutorials.guided.get("quests", 0) == 2 and ch.tutorials.queue.is_empty(), "Later puts the guide off on the first tap, held while the hand bobs (%s)" % str(coach().state()))
+
+## A double tap on Done acts once: the second tap reaches nothing under the card (the HUD's control there, the page's
+## region), and the tour stays closed.
+func _double_tap() -> void:
+	await fresh(["guard"])
+	unlock(["attack", "guard"])
+	await card_up()
+	var ch = c()
+	await tap_button("next")
+	await card_up()
+	var st := coach().state()
+	var p: Vector2 = (st.buttons.get("next", Rect2()) as Rect2).get_center()
+	var under: String = main.hud.role_at(p)
+	main.hud.touches.clear()
+	finger(p, true)
+	await frames(2)
+	finger(p, false)
+	await frames(1)
+	finger(p, true)   # the second tap, a moment after
+	await frames(2)
+	var reached: bool = not main.hud.touches.is_empty()
+	finger(p, false)
+	await frames(20)
+	check(st.entry == "guard" and st.step == 1 and not reached and coach().state().mode == "" and ch.tutorials.seen.get("guard", 0) == 1,
+		"a double tap on a HUD tour's Done closes it once, and its second tap never reaches the HUD under it (%s there; reached %s; %s)" % [under, reached, str(coach().state())])
+	# On a page: the second tap is the coach's, never the page's region under the card.
+	var pg := await page_tour("character", "character", ["quick_use", "character_menu"])
+	ch = c()
+	for i in 4:
+		if coach().state().buttons.size() == 1: break
+		await tap_button("next")
+	await card_up()
+	var done: Vector2 = (coach().state().buttons.get("next", Rect2()) as Rect2).get_center()
+	if pg != null: pg._press_pos = Vector2(-1, -1)
+	finger(done, true)
+	await frames(2)
+	finger(done, false)
+	await frames(1)
+	finger(done, true)
+	await frames(2)
+	var page_took: bool = pg != null and pg._press_pos.distance_to(done) < 1.0
+	finger(done, false)
+	await frames(20)
+	check(pg != null and not page_took and main.top_page() == pg and coach().state().mode == "" and ch.tutorials.seen.get("character", 0) == 1,
+		"a double tap on a page tour's Done closes it once, and its second tap never reaches the page under it (page took it %s; %s)" % [page_took, str(coach().state())])
+	main.close_all_pages()
+	await frames(2)
+
+## A page's tour waits for the page to come in (its parts slide into place), then its card stands still from its first
+## frame: a tap as it fades in acts.
+func _while_coming() -> void:
+	await fresh(["character"])
+	unlock(["quick_use", "character_menu"])
+	var ch = c()
+	ch.tutorials.guided["character"] = 1
+	main.open_page("character", {})
+	await frames(1)
+	check(coach().state().mode == "" and coach().state().waiting == "opening", "a page's tour waits while the page comes in (%s)" % str(coach().state().waiting))
+	await settle()
+	await card_up()
+	var first: Rect2 = coach().state().card
+	var alpha := coach().card_alpha()
+	var nxt: Rect2 = coach().state().buttons.get("next", Rect2())
+	finger(nxt.get_center(), true)
+	await frames(2)
+	finger(nxt.get_center(), false)
+	await frames(3)
+	check(alpha < 1.0 and first.size.x > 0 and coach().state().step == 1, "a tap on the card as it fades in acts (alpha %.2f, step %d)" % [alpha, coach().state().step])
+	await card_up()
+	var c1: Rect2 = coach().state().card
+	await frames(30)
+	check(coach().state().card == c1, "its card stands still once shown (%s, then %s)" % [str(c1), str(coach().state().card)])
+	main.close_all_pages()
+	await frames(2)
+
+## A tab's tour under way resumes on its own tab, not on another (it lit nothing there, the card alone in the middle).
+func _tab_tour_on_its_tab() -> void:
+	await fresh(["foundation"])
+	unlock(["menu", "cultivate", "cultivation", "quick_use", "navigation", "foundation"])
+	var ch = c()
+	ch.tutorials.guided["foundation"] = 1
+	ch.tutorials.at["foundation"] = 2
+	main.open_page("cultivation", {"tab": "overview"})
+	await settle()
+	await frames(4)
+	var cp: Page = main.top_page()
+	check(cp != null and cp.tab_id() == "overview" and coach().state().mode == "", "the Foundation tab's tour under way does not show on the Overview tab (%s)" % str(coach().state()))
+	if cp != null: await touch_tap(cp.tour_rect("tab:foundation").get_center())
+	await card_up()
+	var st := coach().state()
+	check(cp != null and cp.tab_id() == "foundation" and st.mode == "tour" and st.entry == "foundation" and st.step == 2 and (st.rect as Rect2).size.x > 0,
+		"on its tab it resumes at its step, its anchor lit (%s)" % str(st))
+	main.close_all_pages()
+	await frames(2)
+
+## A tour played again from "?" and skipped stays closed: no other tour takes its place on that opening (one tour an
+## opening), and a tab's tour under way waits for the next.
+func _replay_then_skip() -> void:
+	await fresh(["foundation"])
+	unlock(["menu", "cultivate", "cultivation", "quick_use", "navigation", "foundation"])
+	var ch = c()
+	ch.tutorials.guided["foundation"] = 1
+	ch.tutorials.at["foundation"] = 1
+	main.open_page("cultivation", {"tab": "overview"})
+	await settle()
+	await frames(4)
+	var cp: Page = main.top_page()
+	check(cp != null and coach().state().mode == "" and cp.tour_rect("help").size.x > 0, "on the Overview tab nothing plays by itself, and it has its ? (%s)" % str(coach().state()))
+	if cp != null: await touch_tap(cp.tour_rect("help").get_center())
+	await card_up()
+	check(coach().state().replay == "cultivation", "its ? plays the page's tour again (%s)" % str(coach().state()))
+	await tap_button("skip")
+	await frames(20)
+	check(coach().state().mode == "", "Skip on the tour played again closes it, and nothing takes its place (%s)" % str(coach().state()))
+	await unguarded()
+	if cp != null: await touch_tap(cp.tour_rect("tab:foundation").get_center())
+	await frames(10)
+	check(cp != null and cp.tab_id() == "foundation" and coach().state().mode == "", "on that opening, the Foundation tab's tour under way waits (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+	main.open_page("cultivation", {"tab": "foundation"})
+	await settle()
+	await card_up()
+	check(coach().state().entry == "foundation" and coach().state().step == 1 and ch.tutorials.seen.get("foundation", 0) == 0, "and resumes at its step on the next (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+
+## A HUD lesson under way keeps the screen when a guide of a higher priority is queued behind it (the card no longer
+## vanished under the thumb for the Menu's guide); the guide shows once it is done.
+func _lesson_keeps_screen() -> void:
+	await fresh(["guard", "menu"])
+	unlock(["attack", "guard"])
+	await card_up()
+	var ch = c()
+	unlock(["menu"])
+	await frames(4)
+	var st := coach().state()
+	check(ch.tutorials.queue.front() == "menu" and st.mode == "tour" and st.entry == "guard" and st.step == 0,
+		"a HUD lesson under way keeps the screen when the Menu's guide (a higher priority) is queued (%s; %s)" % [str(ch.tutorials.queue), str(st)])
+	await tap_button("next")
+	check(coach().state().entry == "guard" and coach().state().step == 1, "and goes on to its next step (%s)" % str(coach().state()))
+	await tap_button("next")
+	await card_up("guide")
+	check(coach().state().entry == "menu" and ch.tutorials.seen.has("guard"), "then the Menu's guide shows (%s)" % str(coach().state()))
+
+## Every finger is the HUD's or the coach's from its press to its release: a thumb on the stick that slides over a
+## guide's card walks on and lets go (the stick was cut off and walked on alone), and a press the coach took is never the
+## HUD's, wherever it lifts.
+func _fingers_kept() -> void:
+	await fresh(["mail"])
+	unlock(["quick_use", "mail"])
+	await card_up("guide")
+	var later: Rect2 = coach().state().buttons.get("later", Rect2())
+	var stick := Vector2(200, 560)
+	finger(stick, true, 1)
+	await frames(2)
+	var engaged: bool = main.hud.joystick_id == 1
+	finger_to(later.get_center(), 1)
+	await frames(2)
+	var moving: bool = main.hud.player.movement.length() > 0.5
+	finger(later.get_center(), false, 1)
+	await frames(3)
+	check(engaged and moving and main.hud.joystick_id == -999 and main.hud.player.movement == Vector2.ZERO and coach().state().mode == "guide",
+		"a thumb on the stick slides over a guide's card and keeps walking, and lets go where it lifts (engaged %s, moving %s, stick %d)" % [engaged, moving, main.hud.joystick_id])
+	await fresh(["guard"])
+	unlock(["attack", "guard"])
+	await card_up()
+	main.hud.touches.clear()
+	finger(Vector2(300, 300), true, 2)   # on the dim: the coach's
+	await frames(2)
+	finger_to(main.hud.attack_center, 2)
+	await frames(2)
+	finger(main.hud.attack_center, false, 2)
+	await frames(3)
+	check(main.hud.touches.is_empty() and coach().state().mode == "tour" and coach().state().step == 0,
+		"a press the tour took is never the HUD's, dragged and lifted over Attack (%s)" % str(main.hud.touches.keys()))
+
+## A fight, a room change or a reload mid-tour: the card waits (a tap where it was is the HUD's, and moves nothing on),
+## then comes back at its step.
+func _fight_room_reload() -> void:
+	await fresh(["guard"])
+	unlock(["attack", "guard"])
+	await card_up()
+	var ch = c()
+	await tap_button("next")
+	await card_up()
+	var nxt: Vector2 = (coach().state().buttons.get("next", Rect2()) as Rect2).get_center()
+	main.hud.fight_override = true
+	await frames(3)
+	await touch_tap(nxt)
+	check(coach().state().mode == "" and coach().state().waiting == "combat" and int(ch.tutorials.at.get("guard", -1)) == 1 and not ch.tutorials.seen.has("guard"),
+		"a fight mid-tour: the card waits, and a tap where it was moves nothing on (%s)" % str(ch.tutorials.at))
+	at_rest()
+	await card_up()
+	check(coach().state().entry == "guard" and coach().state().step == 1, "the fight over, it is back at its step (%s)" % str(coach().state()))
+	# A save and a reload mid-tour: it resumes at its step.
+	Game.save_all()
+	main._unmount_world()
+	Game.boot()
+	Game.autosave_enabled = false
+	main.enter_world(1)
+	await frames(6)
+	at_rest()
+	main.close_all_pages()
+	await card_up()
+	check(coach().state().entry == "guard" and coach().state().step == 1, "after a reload, the HUD tour resumes at its step (%s)" % str(coach().state()))
+	await tap_button("next")
+	# A room change mid page tour: the pages close, and the tour resumes at its step on the page's next opening.
+	await page_tour("character", "character", ["quick_use", "character_menu"])
+	ch = c()
+	await tap_button("next")
+	var from := str(ch.position.get("room", ""))
+	var to := ""
+	for p in ContentDB.room(from).get("portals", []):
+		if str(p.get("to", "")) != "" and not ContentDB.room(str(p.to)).is_empty(): to = str(p.to)
+	Game.world.load_room(ch, to, "", Vector2.ZERO)
+	GameEvents.flush()
+	await frames(6)
+	check(to != "" and main.top_page() == null and coach().state().mode == "" and int(ch.tutorials.at.get("character", -1)) == 1,
+		"a room change mid-tour closes its page and keeps its step (%s to %s; %s)" % [from, to, str(ch.tutorials.at)])
+	at_rest()
+	main.open_page("character", {})
+	await settle()
+	await card_up()
+	check(coach().state().entry == "character" and coach().state().step == 1, "it resumes at its step on the page's next opening (%s)" % str(coach().state()))
+	main.close_all_pages()
+	await frames(2)
+
+## What the coach costs a frame: hidden (nothing queued) on the play screen and over a page, next to nothing; showing,
+## its lookups made once a frame (the HUD's targets, a page's tours) and its card drawn again only when it changes.
+func _cost() -> void:
+	await fresh([])
+	var us := func() -> int:
+		var ts: Array = []
+		for i in 120:
+			var t0 := Time.get_ticks_usec()
+			coach()._process(1.0 / 60.0)
+			ts.append(Time.get_ticks_usec() - t0)
+		ts.sort()
+		return int(ts[60])
+	var idle: int = us.call()
+	main.open_page("inventory", {})
+	await settle()
+	var over_page: int = us.call()
+	check(coach().state().mode == "" and idle < 100 and over_page < 200,
+		"hidden, the coach costs next to nothing a frame: %d us on the play screen, %d us over a page (518 us over a page before decision 45)" % [idle, over_page])
+	check(is_same(TutorialRules.tours_for("inventory", ""), TutorialRules.tours_for("inventory", "")), "a page's tours are worked out once, not each frame")
+	main.close_all_pages()
+	await frames(2)
+	await fresh(["guard"])
+	unlock(["attack", "guard"])
+	await card_up()
+	check(is_same(main.hud.tour_targets(), main.hud.tour_targets()), "the HUD's targets are counted once a frame for the coach's anchors")
+	for i in 5000:   # the card faded in
+		if coach().card_alpha() >= 1.0: break
+		await get_tree().process_frame
+	await frames(2)
+	var draws := {"n": 0}
+	var count := func(): draws.n += 1
+	coach()._card_view.draw.connect(count)
+	for i in 20:
+		coach().t += 0.05
+		await frames(1)
+	coach()._card_view.draw.disconnect(count)
+	check(int(draws.n) == 0, "a card that does not change is not drawn again while the ring pulses (%d drawings in 20 frames)" % int(draws.n))
+	await tap_button("skip")
 
 # ------------------------------------------------------------------ 2: the anchors
 ## Every tour step's anchor and every guide step's is found where it is shown, the page opened as the player meets it

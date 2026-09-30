@@ -46,6 +46,9 @@ const HAND := ["....##......", "...#WW#.....", "...#WW#.....", "...#WW#.....", "
 const HAND_K := 3.0           ## screen px an art px (nearest neighbour)
 const SCREEN := Rect2(0, 0, 1280, 720)
 const SAFE := Rect2(24, 16, 1232, 688)
+## Where the thumbs rest on the play screen (the stick's side, and the right thumb's cluster of Attack, the techniques
+## and the rings): a guide's card keeps off them, so a thumb going to walk or strike never lands on its Later.
+const THUMBS := [Rect2(0, 440, 560, 280), Rect2(900, 330, 380, 390)]
 
 var main: Node = null         ## the shell (main.gd): its screen, pages, HUD, world and scenes
 var mode := ""                ## "", "guide" or "tour"
@@ -231,6 +234,8 @@ static func _empty(v) -> bool:
 func _head(rec: Dictionary) -> String:
 	var q: Array = rec.queue
 	if q.is_empty(): return ""
+	# The HUD lesson's tour on screen now (its first step too), and one under way.
+	if mode == "tour" and replay == "" and q.has(entry_id) and not rec.seen.has(entry_id) and TutorialRules.hud_entry(TutorialRules.entry(entry_id)): return entry_id
 	if not (rec.at as Dictionary).is_empty():
 		for id in q:
 			if rec.at.has(id) and not rec.seen.has(id) and TutorialRules.hud_entry(TutorialRules.entry(str(id))): return str(id)
@@ -246,6 +251,8 @@ func blocked(c) -> String:
 	if is_instance_valid(hud) and (hud.scene_lock or hud.moment_lock): return "scene" if hud.scene_lock else "moment"
 	var sd = main.get("scenes")
 	if is_instance_valid(sd) and sd.get("run") != null: return "scene"
+	# The HUD still fading back in after a scene's cut: a guide waits for it (its hand and badge on a faded button).
+	if is_instance_valid(hud) and hud.modulate.a < 0.95 and main.top_page() == null: return "scene"
 	for p in main.get("pages"):
 		if is_instance_valid(p) and str(p.page_id) in HIDE_ON: return "dialogue"
 	var top: Page = main.top_page()
@@ -549,8 +556,9 @@ func _has_point(p: Vector2) -> bool:
 	if mode == "" or _pending(): return false
 	for b in hits.values():
 		if (b as Rect2).has_point(p): return true
-	# The card itself (its words, its margin): a tap on it never reaches what it hides.
-	if card.has_point(p): return true
+	# The card itself (its words, its margin) over a page: a tap on it never reaches what it hides. (On the play screen a
+	# guide's card lets a thumb through, to the stick under it; it is placed clear of the HUD's controls, _card_place.)
+	if card.has_point(p) and (_dims() or main.top_page() != null): return true
 	# A HUD power's control under the guide's hand: the tap is the coach's, and plays the power's tour.
 	if control and target.grow(8).has_point(p): return true
 	if not _dims(): return false
@@ -702,14 +710,29 @@ func _card_place(sz: Vector2) -> Rect2:
 	var safe := SAFE
 	var mid := Rect2(Vector2(640 - sz.x * 0.5, 452), sz)
 	if target.size == Vector2.ZERO: return mid
-	var avoid: Array = []
+	var avoid: Array = []   # [rect, weight]: what each covered pixel costs
 	var top: Page = main.top_page() if main != null else null
 	if top != null and not on_hud:
 		for n in ["close", "help", "title"]:
 			var r := top.tour_rect(n)
-			if r.size != Vector2.ZERO: avoid.append(r)
+			if r.size != Vector2.ZERO: avoid.append([r, 0.05])
 	var hr := hand_rect(false) if _hand_shown() else Rect2()
-	if hr.size != Vector2.ZERO: avoid.append(hr.grow(4))
+	if hr.size != Vector2.ZERO: avoid.append([hr.grow(4), 0.05])
+	# On the play screen, clear of the HUD's controls (a guide's card sat over the Talk button), then of its plates, and a
+	# guide's (the player plays on under it) off the thumbs' places: the stick's and the right thumb's cluster.
+	var hud = main.get("hud") if main != null else null
+	if top == null and is_instance_valid(hud) and hud.has_method("tour_targets"):
+		for tg in hud.tour_targets():
+			var d := float(tg.drawn) + 6.0
+			avoid.append([Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0), 0.05])
+		for n in ["minimap", "portrait", "tracker"]:
+			var r: Rect2 = hud.tour_rect(n)
+			if r.size != Vector2.ZERO and not r.intersects(target): avoid.append([r, 0.01])
+		if mode == "guide":
+			for zone in THUMBS:
+				var z: Rect2 = zone
+				if bool(hud.get("left_handed")): z.position.x = 1280.0 - z.end.x   # the stick on the right
+				avoid.append([z, 0.02])
 	var cx := clampf(target.get_center().x - sz.x * 0.5, safe.position.x, safe.end.x - sz.x)
 	var cy := clampf(target.get_center().y - sz.y * 0.5, safe.position.y, safe.end.y - sz.y)
 	var gap := 14.0
@@ -724,12 +747,16 @@ func _card_place(sz: Vector2) -> Rect2:
 		var r := Rect2(tries[i], sz)
 		if not safe.encloses(r) or r.intersects(target.grow(6)): continue
 		var cost := float(i)
-		for a in avoid: cost += (r.intersection(a) as Rect2).get_area() * 0.05
+		for a in avoid: cost += (r.intersection(a[0]) as Rect2).get_area() * float(a[1])
 		if cost < best_cost:
 			best_cost = cost
 			best = r
 	if best.size != Vector2.ZERO: return best
-	# Nothing clear of a large anchor (a page's whole content): the side of the screen it covers least.
+	# Nothing clear of a tall anchor inside the safe area (the Cultivation stair): tight over or under it, to the screen's
+	# edge; else, for a page's whole content, the side of the screen it covers least.
+	for y in [target.position.y - 6.0 - sz.y, target.end.y + 6.0]:
+		var r := Rect2(Vector2(cx, y), sz)
+		if SCREEN.encloses(r) and not r.intersects(target): return r
 	var up := Rect2(Vector2(640 - sz.x * 0.5, safe.position.y), sz)
 	var down := Rect2(Vector2(640 - sz.x * 0.5, safe.end.y - sz.y), sz)
 	return up if up.intersection(target).get_area() < down.intersection(target).get_area() else down
@@ -746,8 +773,6 @@ func hand_rect(bob := true) -> Rect2:
 	var dy := 0.0 if UiKit.reduce_motion() or not bob else roundf(sin(t * 5.0) * 4.0)
 	var down := target.position.y - hs.y - 8 > 0 and target.get_center().y > 200.0
 	var x := clampf(target.get_center().x - hs.x * 0.4, 0, 1280 - hs.x)
-	# A hand under an anchor at the screen's foot turns to point down at it from above, kept on the screen.
-	if not down and target.end.y + 4.0 + hs.y + 4.0 > SCREEN.end.y: down = true
 	if down: return Rect2(Vector2(x, maxf(0.0, target.position.y - hs.y - 4 - dy)), hs)
 	return Rect2(Vector2(x, target.end.y + 4 + dy), hs)
 

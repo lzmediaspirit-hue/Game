@@ -714,6 +714,7 @@ func step_crabs() -> void:
 
 ## 10 Evening on the River: dinner, the docks at sunset, and the night falls.
 func step_evening() -> void:
+	keep("Crab Trouble done")   # tools/dev/tutorial_play.gd resumes the walk here (--from, --start=p_night)
 	accept("lu_boatman", "evening_on_the_river")
 	check(Game.is_revealed("hud:menu"), "Menu revealed")
 	talk("aunt_ping")
