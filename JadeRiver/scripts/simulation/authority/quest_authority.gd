@@ -1100,7 +1100,7 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.has("room"):
 		return game.world.load_room(c, str(sp.room), str(sp.get("portal", "")))
 	if sp.has("room_event") and game.room_rt:
-		game.world._start_event(c, game.room_rt, sp.room_event)
+		game.world.start_room_event(c, sp.room_event)
 	return ok()
 
 func start_spar_from_object(c, o: Dictionary) -> Dictionary:
