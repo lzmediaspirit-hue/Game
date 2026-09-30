@@ -9,7 +9,12 @@ const SLOTS := ["weapon", "hat", "robe", "gourd", "trousers", "boots", "cape", "
 
 var bag: Array = []                # capacity-sized; null or instance
 var equipped: Dictionary = {}      # slot -> instance or null
-var quick_use := ""                # item id
+## Decision 45: the HUD's three quick-use slots (item ids, "" empty), set from the Bag. `quick_use` is the first, the
+## healing slot the Prologue teaches (Granny's tea), kept as a name for it.
+var quick: Array = ["", "", ""]
+var quick_use: String:
+	get: return str(quick[0])
+	set(v): quick[0] = v
 var key_items: Array = []          # temporary quest items (not in the gourd)
 var locked: Dictionary = {}        # uid -> true
 var next_uid := 1
@@ -28,12 +33,21 @@ const OLD_FURNACES := {"bronze_furnace": "bronze_furnace", "earth_vein_furnace":
 
 func _init() -> void:
 	for s in SLOTS: equipped[s] = null
-	resize(25)
+	resize(base_capacity())
+
+## Decision 45: the bag's spaces with no gourd worn (stats.json bag.base, 50; 25 before). Every gourd holds that many and
+## its own extra on top (items.py GOURDS), and Deep Pockets its row on top of that; a save below it grows on load.
+static func base_capacity() -> int:
+	return int(ContentDB.stat_const("bag.base", 50))
 
 func capacity() -> int:
 	var g = equipped.get("gourd")
-	if g == null: return 25 + bonus_slots
-	return int(ContentDB.item(g.id).get("gourd", {}).get("bag", 25)) + bonus_slots
+	if g == null: return base_capacity() + bonus_slots
+	return maxi(base_capacity(), int(ContentDB.item(g.id).get("gourd", {}).get("bag", base_capacity()))) + bonus_slots
+
+## Decision 45: the quick slot holding `id`, or -1.
+func quick_slot_of(id: String) -> int:
+	return quick.find(id) if id != "" else -1
 
 func resize(n: int) -> void:
 	while bag.size() < n: bag.append(null)
@@ -114,7 +128,7 @@ func room_for(id: String, n: int) -> int:
 func snapshot() -> Dictionary:
 	var eq := {}
 	for s in SLOTS: eq[s] = equipped[s].duplicate(true) if equipped[s] != null else null
-	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "key_items": key_items.duplicate(true),
+	return {"bag": bag.duplicate(true), "equipped": eq, "quick_use": quick_use, "quick": quick.duplicate(), "key_items": key_items.duplicate(true),
 		"locked": locked.keys(), "next_uid": next_uid, "treasures": treasures.duplicate(), "vessel": vessel,
 		"loadout": {"spare": loadout.spare.duplicate(true) if loadout.get("spare") != null else null, "active": str(loadout.get("active", "a"))},
 		"appearance_override": appearance_override.duplicate(), "furnace": furnace.duplicate(true) if furnace != null else null,
@@ -127,7 +141,13 @@ func restore(d: Dictionary) -> void:
 	for s in SLOTS:
 		var v = d.get("equipped", {}).get(s)
 		equipped[s] = v.duplicate(true) if v is Dictionary and ContentDB.is_equipment(str(v.get("id", ""))) else null
-	quick_use = str(d.get("quick_use", ""))
+	# Decision 45: three quick slots; a save from before them keeps its one in the first.
+	quick = ["", "", ""]
+	var qs = d.get("quick", [])
+	if not (qs is Array) or (qs as Array).is_empty(): qs = [str(d.get("quick_use", ""))]
+	for i in mini(3, (qs as Array).size()):
+		var qid := str(qs[i])
+		quick[i] = qid if qid == "" or ContentDB.item(qid).has("use") else ""
 	treasures = ["", ""]
 	var ts = d.get("treasures", [])
 	if ts is Array:

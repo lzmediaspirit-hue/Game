@@ -1034,7 +1034,7 @@
     {
      "do": "handoff",
      "prompt": "Drink it: tap Quick-use",
-     "at": "hud:quick",
+     "at": "hud:quick:0",
      "until": [
       {
        "event": "item_used",

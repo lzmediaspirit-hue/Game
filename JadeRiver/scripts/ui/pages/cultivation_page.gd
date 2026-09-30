@@ -15,6 +15,13 @@ const STAIR_FOOT := 626.0
 const CLIMB_S := 0.3   # a step climbed while the page is open (page_identity §6: a change's motion, 0.3 s at most)
 
 var doll: Node2D           # the figure seated on its step
+var speed_open := false    # decision 45: the Overview shows the cultivation speed's terms over the mountain and stair
+## Decision 45: the ways to cultivate faster the speed list names, in the order a disciple meets them: [id, unlock, realm]:
+## open once the unlock is ("" none) and the realm reached ("" none); before that it names the realm it opens at. Each
+## is ui.cultivation.speed_way.<id>.
+const SPEED_WAYS := [["place", "", ""], ["qi_gathering_incense", "", "bone_forging_1"], ["congee", "", "bone_forging_2"],
+	["guqin", "", "bone_forging_2"], ["spring", "qi_springs", "bone_forging_7"], ["deep_current_incense", "", "qi_kindling_1"], ["method", "", ""],
+	["qi_flow_pill", "", "qi_kindling_5"], ["vow", "vows", "heart_tempering_1"], ["pet", "", "spirit_awakening_1"], ["paired", "", "sage_1"]]
 const TOP_SCALE := 2      # decision 42: a top-down character's seated figure (TopdownDoll), screen px an art px
 var _seen_realm := ""      # the step the figure sat on at the last draw
 var _climb := {}           # {from: step index, at: page clock} while the figure climbs
@@ -75,6 +82,10 @@ func _overview(ch) -> void:
 	tour_mark("next", RIGHT)
 	var steps := _steps(cu.realm_key)
 	var here := steps.find(cu.realm_key)
+	if speed_open:
+		_speed(ch, Rect2(MOUNTAIN.position, Vector2(STAIR.end.x - MOUNTAIN.position.x, MOUNTAIN.size.y)))
+		_stage(ch, steps, here)
+		return
 	# A step climbed while the page is open: the figure climbs from the one it sat on (none under Reduce motion).
 	if _seen_realm != "" and _seen_realm != cu.realm_key and steps.has(_seen_realm) and not UiKit.reduce_motion():
 		_climb = {"from": steps.find(_seen_realm), "at": t}
@@ -325,6 +336,15 @@ func _stage(ch, steps: Array, here: int) -> void:
 	y += 10
 	bar(Rect2(x, y, w, 36), cu.progress_fraction(), UiKit.GOLD if cu.state == "bottleneck" else UiKit.JADE, Tx.t("ui.cultivation.qp") % [UiKit.fmt(cu.qp), UiKit.fmt(cu.need())])
 	y += 46
+	# Decision 45: what meditation gathers here, and how many times the base; a tap lists every term and the ways to more.
+	if Unlocks.is_unlocked(ch.id, "cultivate"):
+		var sp: Dictionary = Game.progression.speed_breakdown(ch)
+		var sr := Rect2(x, y - 6, w, 30)
+		var words := Tx.t("ui.cultivation.speed_line") % [UiKit.fmt(float(sp.rate)), float(sp.mult)] if not sp.has("no_method") else Tx.t("ui.cultivation.speed_no_method")
+		text(Vector2(x, y + 14), words + ("  ‹" if speed_open else "  ›"), 16, UiKit.QI, HORIZONTAL_ALIGNMENT_LEFT, w)
+		region(sr, "speed")
+		tour_mark("speed", sr)   # a tour's anchor: the speed line
+		y += 28
 	if cu.stored_qi > 0.0 or Unlocks.is_unlocked(ch.id, "stored_qi"):
 		y += rich(Rect2(x, y, w, 40), [[Tx.t("ui.cultivation.stored_qi") % [UiKit.fmt(cu.stored_qi), UiKit.fmt(ProgressionRules.stored_qi_cap(ch))], UiKit.QI],
 			["· " + Tx.t("ui.cultivation.stored_banks"), UiKit.MIST]], 14) + 4
@@ -386,6 +406,54 @@ func _stage(ch, steps: Array, here: int) -> void:
 		Unlocks.locked_text("cultivate"))
 	btn(Rect2(x + 188, RIGHT.end.y - 56, w - 188, 56), Tx.t("ui.cultivation.breakthrough"), "breakthrough", null, cu.state == "bottleneck",
 		Unlocks.is_unlocked(ch.id, "breakthrough"), Unlocks.locked_text("breakthrough"))
+
+## Decision 45: the cultivation speed, over the mountain and the stair: what meditation gathers here a minute, each term
+## that multiplies the base to it (ProgressionAuthority.speed_breakdown) with the bonuses that add up to one of them, and
+## the ways to cultivate faster, each lit once it is open to the character and greyed with where it opens before that.
+func _speed(ch, r: Rect2) -> void:
+	panel(r)
+	tour_mark("speed_list", r)
+	var sp: Dictionary = Game.progression.speed_breakdown(ch)
+	var x := r.position.x + 24.0
+	var w := r.size.x - 48.0
+	var vx := r.end.x - 24.0 - 140.0   # the values' column
+	var y := r.position.y + 24.0
+	heading(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_title"), w - 130.0)
+	btn(Rect2(r.end.x - 24.0 - 110.0, y - 4.0, 110.0, 44.0), Tx.t("ui.cultivation.speed_back"), "speed", null, false, true, "", 18)
+	y += 44.0
+	if sp.has("no_method"):
+		para(Rect2(x, y, w, 60), Tx.t("ui.cultivation.speed_no_method"), 18, UiKit.MIST)
+		return
+	text(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_total") % [UiKit.fmt(float(sp.rate)), float(sp.mult), int(sp.base)], 20, UiKit.QI, HORIZONTAL_ALIGNMENT_LEFT, w)
+	y += 32.0
+	for f in sp.factors:
+		var xv := float(f.x)
+		var col: Color = UiKit.PAPER if absf(xv - 1.0) < 0.005 else (UiKit.BRIGHT_JADE if xv > 1.0 else UiKit.WARNING)
+		text(Vector2(x, y + 18), str(f.label), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, vx - x - 8.0)
+		text(Vector2(vx, y + 18), "×%.2f" % xv, 16, col, HORIZONTAL_ALIGNMENT_RIGHT, 140.0)
+		y += 24.0
+		if str(f.id) == "bonus":
+			for b in sp.bonus:
+				var left := float(b.get("left", -1.0))
+				var tail := ("  · " + UiKit.span(left)) if left > 0.0 else ""
+				text(Vector2(x + 24.0, y + 16), "%+d%%  %s%s" % [int(round(float(b.pct) * 100.0)), str(b.label), tail], 14,
+					UiKit.BRIGHT_JADE if float(b.pct) > 0.0 else UiKit.WARNING, HORIZONTAL_ALIGNMENT_LEFT, w - 24.0)
+				y += 20.0
+	y += 10.0
+	heading(Vector2(x, y + 20), Tx.t("ui.cultivation.speed_more"), w)
+	y += 34.0
+	var col_w := (w - 16.0) * 0.5
+	var i := 0
+	for way in SPEED_WAYS:
+		var gate := str(way[2])
+		var open: bool = (str(way[1]) == "" or Unlocks.is_unlocked(ch.id, str(way[1]))) and (gate == "" or ProgressionRules.at_least(ch.cultivator.realm_key, gate))
+		var at := Vector2(x + (col_w + 16.0) * (i % 2), y + 22.0 * (i / 2))
+		if at.y + 20.0 > r.end.y - 8.0: break
+		var words := Tx.t("ui.cultivation.speed_way." + str(way[0]))
+		if not open: words += " · " + Tx.t("ui.cultivation.speed_opens") % ContentDB.name_of("realms", gate)
+		draw_circle(at + Vector2(5, 10), 3.5, UiKit.BRIGHT_JADE if open else UiKit.HOLLOW)
+		text(at + Vector2(14, 15), words, 14, UiKit.PAPER if open else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_LEFT, col_w - 14.0)
+		i += 1
 
 ## One ask of a breakthrough: a dot (jade met, red a hard need, amber a soft one) and its words, with why it matters.
 func _ask(at: Vector2, r: Dictionary, w: float) -> void:
@@ -713,6 +781,7 @@ func on_action(id: String, data) -> void:
 		"meditate":
 			if submit({"type": "toggle_meditation"}).get("ok", false): close()
 		"breakthrough": navigate.emit("breakthrough", {})
+		"speed": speed_open = not speed_open   # decision 45: the speed list over the mountain, and back
 		"fates": navigate.emit("fates", {})
 		"relations": navigate.emit("relations", {})
 		"vow_on": submit({"type": "set_vow", "vow": str(data), "on": true})

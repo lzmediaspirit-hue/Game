@@ -22,7 +22,7 @@ const EMOTES := ["!", "?", "...", "note", "heart", "anger", "sweat", "idea"]
 const WEATHER := ["storm", "rain", "clear"]
 const BOXES := ["balloon", "portrait"]
 ## The HUD controls a hand-off may point at (their roles in HUD.hit_targets).
-const HUD_ROLES := ["attack", "jump", "guard", "skill", "quick", "meditate", "context", "icon:bag", "icon:map", "icon:menu"]
+const HUD_ROLES := ["attack", "jump", "guard", "skill", "quick:0", "quick:1", "quick:2", "meditate", "context", "icon:bag", "icon:map", "icon:menu"]
 ## What a hand-off's prompt may stand over in the world, besides an actor and a cell.
 const TARGETS := ["object", "portal", "enemy", "hud"]
 

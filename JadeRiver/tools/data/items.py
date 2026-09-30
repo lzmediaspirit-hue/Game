@@ -443,8 +443,11 @@ def build_items():
         extra["roles"] = roles
         fam, age = HERB_AGE[h[0]]
         extra["herb"] = {"family": fam, "age": age}
-        rows.append(item(h[0], "herb", h[1], 99, h[2] + NATURE_TEXT[nature] + (" Can be eaten raw in need: weak, and hard on the meridians." if raw else ""),
-                         name=h[3] if len(h) > 3 else None, **extra))
+        # Decision 45: a root eaten raw for Qi says its fixed cultivation.
+        gain = sum(int(e.get("amount", 0)) for e in (raw[0] if raw else []) if e["kind"] == "add_progress")
+        eat = (" Can be eaten raw in need (%s): weak, and hard on the meridians." % cult_text(gain) if gain else
+               " Can be eaten raw in need: weak, and hard on the meridians.") if raw else ""
+        rows.append(item(h[0], "herb", h[1], 99, h[2] + NATURE_TEXT[nature] + eat, name=h[3] if len(h) > 3 else None, **extra))
     for sid, fam, grade, desc in SEEDS:
         rows.append(item(sid, "seed", grade, 99, desc + " Plant it in a garden bed.", seed={"family": fam}))
     # S45 garden materials and tools.

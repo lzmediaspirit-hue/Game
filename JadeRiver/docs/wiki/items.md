@@ -4587,7 +4587,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `riverreed_ginseng_10` · Herb · Common · iLv 14 · stack 99
 
-> A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.
+> A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+130 cultivation): weak, and hard on the meridians.
 
 - **Effect**: Add progress (amount 130); Herb: {"age": 10, "family": "riverreed_ginseng"}; Raw: {"toxicity": 20}; Nature: hot; Roles: ["principal", "minister", "assistant"]; Family: accumulation
 - **Sources**:
@@ -4639,7 +4639,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `riverreed_ginseng_100` · Herb · Earth · iLv 27 · stack 99
 
-> A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.
+> A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+240 cultivation): weak, and hard on the meridians.
 
 - **Effect**: Add progress (amount 240); Herb: {"age": 100, "family": "riverreed_ginseng"}; Raw: {"toxicity": 30}; Nature: hot; Roles: ["principal", "minister", "assistant"]; Family: accumulation
 - **Sources**:
@@ -4686,7 +4686,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 `riverreed_ginseng_1000` · Herb · Heaven · iLv 45 · stack 99
 
-> A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.
+> A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+800 cultivation): weak, and hard on the meridians.
 
 - **Effect**: Add progress (amount 800); Herb: {"age": 1000, "family": "riverreed_ginseng"}; Raw: {"toxicity": 40}; Nature: hot; Roles: ["principal", "minister"]; Family: accumulation
 - **Sources**:
@@ -6655,7 +6655,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 <a id="item-qi_gathering_incense"></a>
 
-###  Qi Gathering Incense
+### ![Qi Gathering Incense](../../art/icons/items/qi_gathering_incense.png) Qi Gathering Incense
 
 `qi_gathering_incense` · Other · Plain · iLv 5 · stack 99
 
@@ -6668,7 +6668,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 
 <a id="item-deep_current_incense"></a>
 
-###  Deep Current Incense
+### ![Deep Current Incense](../../art/icons/items/deep_current_incense.png) Deep Current Incense
 
 `deep_current_incense` · Other · Common · iLv 14 · stack 99
 

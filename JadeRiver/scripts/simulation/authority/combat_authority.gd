@@ -132,7 +132,7 @@ func handle(intent: Dictionary) -> Dictionary:
 	if c == null: return fail("no_character")
 	match str(intent.type):
 		"basic_attack": return basic_attack(c, int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO), bool(intent.get("aimed", false)),
-			bool(intent.get("finisher", false)))
+			bool(intent.get("finisher", false)), float(intent.get("charge_s", 0.0)))
 		"use_technique": return use_technique(c, int(intent.get("slot", -1)), int(intent.get("facing", 1)), intent.get("aim", Vector2.ZERO),
 			bool(intent.get("aimed", false)), float(intent.get("dist", -1.0)))
 		"guard_start": return guard(c, true)
@@ -533,8 +533,10 @@ func climbing(actor_id: String) -> bool:
 	return st != null and not st.climbing.is_empty()
 
 ## `finisher` (top-down decision 35, a long drag on Attack): the combo's last step at once, on the ground. Mid-chain it
-## waits for the step under way to end, then comes in place of the steps between.
-func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finisher := false) -> Dictionary:
+## waits for the step under way to end, then comes in place of the steps between. Decision 45: it is the charged attack,
+## `charge_s` the seconds the drag was held past the finisher's line (CombatFeel.charge_ratio: up to 1.8-2.5 basic hits);
+## a one-step family (the bow, the flute) charges its one shot.
+func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finisher := false, charge_s := 0.0) -> Dictionary:
 	var reason := can_act(c)
 	if reason != "": return fail(reason)
 	if climbing(c.id): return fail("climbing")
@@ -548,7 +550,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	var combo: Array = fam.get("combo", [])
 	if combo.is_empty(): return fail("no_combo")
 	var in_air := airborne(c.id)
-	finisher = finisher and not in_air and combo.size() > 1
+	finisher = finisher and not in_air
 	if is_busy(c.id) and grid() != null and tl.technique != "":
 		# Decision 42 (on the grid): a basic attack cuts a technique's recovery once its active frames have played, and
 		# the chain the technique was woven into carries on; sooner the hands are busy (the player's buffer holds the
@@ -561,7 +563,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 			tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5))
 	if is_busy(c.id):
 		if finisher and tl.technique == "" and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1:
-			tl.finisher_q = {"facing": facing, "aim": aim_in, "aimed": aimed}
+			tl.finisher_q = {"facing": facing, "aim": aim_in, "aimed": aimed, "charge_s": charge_s}
 			tl.queued = 0
 			return ok({"queued": true, "finisher": true})
 		if not in_air and int(tl.combo) >= 0 and int(tl.combo) < combo.size() - 1:
@@ -577,7 +579,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing, aim_in, aimed)
 	if aim.has("aim"): tl.aim = aim.aim
 	tl.target_at = aim.get("at", null)   # decision 43: where the foe it picked stands (the step's pull toward it)
-	_start_step(c, fam, index, int(aim.facing), finisher)
+	_start_step(c, fam, index, int(aim.facing), finisher, charge_s)
 	if palms:
 		tl.step = (tl.step as Dictionary).duplicate()
 		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("sword_release.palm_mult", 0.8))
@@ -588,11 +590,18 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	else:
 		tl.air_attack = false
 	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0)),
-		"finisher": finisher, "at": aim.get("at", null)})
+		"finisher": finisher, "at": aim.get("at", null), "charge": float(tl.get("charge", 0.0))})
 
-func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false) -> void:
+func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false, charge_s := 0.0) -> void:
 	var tl := timeline(c.id)
 	var step: Dictionary = fam.combo[index]
+	tl.charge = 0.0
+	if finisher:
+		# Decision 45: the charged blow, its multiplier by the charge held (CombatFeel.charged_mult); `charge` its ratio
+		# over one basic hit, for the combat text.
+		step = step.duplicate()
+		step.mult = CombatFeel.charged_mult(fam, charge_s)
+		tl.charge = CombatFeel.charge_ratio(fam, charge_s)
 	var speed = 1.0 + c.stats.value("attack_speed")
 	tl.action = str(step.action)
 	tl.t = 0.0
@@ -943,7 +952,7 @@ func _tick_player(c, delta: float) -> void:
 			tl.finisher_q = {}
 			tl.action = ""
 			tl.queued = 0
-			basic_attack(c, int(fq.facing), fq.aim, bool(fq.aimed), true)
+			basic_attack(c, int(fq.facing), fq.aim, bool(fq.aimed), true, float(fq.get("charge_s", 0.0)))
 		elif int(tl.queued) > 0 and tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1:
 			tl.queued = int(tl.queued) - 1
 			_start_step(c, fam, int(tl.combo) + 1, int(_aim_queued(c, fam, tl).facing))
@@ -1041,7 +1050,7 @@ func _resolve_basic(c) -> void:
 			"pierce": 1 if str(fam.get("damage_type", "physical")) == "qi" and StatRules.gate_flag(c, "projectile_pierce") else 0,
 			"art": str(fam.get("projectile_art", "arrow")), "attack": {"damage_type": str(fam.get("damage_type", "physical")), "element": "none",
 			"mult": [float(step.get("mult", 1.0)), float(step.get("mult", 1.0))], "range": fam.range, "source": "basic",
-			"dao_tier": _dao_tier(c, str(fam.get("dao", "")))}})
+			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "charge": float(tl.get("charge", 0.0))}})
 		return
 	if step.has("throw"):
 		# The fan's third stroke (S47 v1.1): thrown, it flies out and comes back, lifting what it cuts both ways.
@@ -1050,7 +1059,8 @@ func _resolve_basic(c) -> void:
 		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y), "alt": float(pv.alt) + 56,
 			"dir": facing, "speed": float(th.get("speed", 520)), "range": float(th.get("range", 280)), "pierce": 99, "returning": true,
 			"art": str(th.get("art", "fan")), "attack": {"damage_type": "physical", "element": "wind", "mult": [tm, tm], "range": fam.get("range", [0.9, 1.1]),
-			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "knockup_s": float(th.get("knockup_s", 0.8)), "source": "basic"}})
+			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "knockup_s": float(th.get("knockup_s", 0.8)), "source": "basic",
+			"charge": float(tl.get("charge", 0.0))}})
 		return
 	var reach_m := float(ProgressionRules.path_flag(c, "reach_mult", 1.0))   # S48 Coiled Dragon
 	if fam.get("ring", false): reach_m *= 1.0 + c.stats.value("melody_power")   # P7b: the bell's ring carries further
@@ -1067,7 +1077,7 @@ func _resolve_basic(c) -> void:
 		var attack := {"damage_type": str(fam.get("damage_type", "physical")), "element": "none", "mult": [mult, mult], "range": fam.get("range", [0.9, 1.1]),
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "room_element": str(game.room_rt.def.get("element", "")) if game.room_rt else "",
 			"sphere_element": game.field.sphere_element(c),
-			"knockback": float(step.get("knockback", fam.get("knockback_every_hit", 0))), "source": "basic"}
+			"knockback": float(step.get("knockback", fam.get("knockback_every_hit", 0))), "source": "basic", "charge": float(tl.get("charge", 0.0))}
 		if fam.has("backstab") and e.facing == facing: attack.situation = float(fam.backstab)
 		if fam.has("armour_break"):
 			attack.armour_break = {"chance": float(step.get("armour_break", fam.armour_break.get("chance", 0.3))),
@@ -1551,7 +1561,8 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,
 		"crit": crit, "element": element, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height() * 0.8,
 		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", "")),
-		"weight": CombatFeel.weight_of(attack, actors.get(attacker, {}), crit), "floor": e.altitude})
+		"weight": CombatFeel.weight_of(attack, actors.get(attacker, {}), crit), "floor": e.altitude,
+		"charge": float(attack.get("charge", 0.0))})   # decision 45: a charged blow's ratio over one basic hit (0: not charged)
 	# S49: a named foe who yields at a fifth of their health waits on the victor's judgement (spare or kill).
 	if e.def.get("surrenders", false) and e.pools.hp <= e.pools.max_hp * 0.2 and game.character(attacker) != null:
 		e.pools.hp = maxf(1.0, e.pools.max_hp * 0.2)
@@ -1566,7 +1577,8 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	# 10 s instead of dying (once), so a one-hit beast can still be tamed.
 	if e.pools.hp <= 0.0 and e.def.get("tameable", false) and not e.ai.get("subdued_once", false) and game.character(attacker) != null:
 		var qc = game.character(attacker)
-		if str(ContentDB.item(str(qc.inventory.quick_use)).get("use_action", "")) == "tame" and qc.inventory.count(str(qc.inventory.quick_use)) > 0:
+		# Decision 45: the offering in any of the three quick slots.
+		if qc.inventory.quick.any(func(q): return str(ContentDB.item(str(q)).get("use_action", "")) == "tame" and qc.inventory.count(str(q)) > 0):
 			var sub := float(ContentDB.config("taming").get("subdue_s", 10.0))
 			e.pools.hp = 1.0
 			e.ai["subdued_once"] = true

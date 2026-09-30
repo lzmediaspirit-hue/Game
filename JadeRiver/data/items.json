@@ -38,7 +38,7 @@
    "ilv": 14,
    "stack": 99,
    "icon": "riverreed_ginseng_10",
-   "desc": "A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A ten-year riverreed ginseng root. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+130 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
@@ -68,7 +68,7 @@
    "ilv": 27,
    "stack": 99,
    "icon": "riverreed_ginseng_100",
-   "desc": "A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A century-old root with golden hairs; strong and rare. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+240 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",
@@ -256,7 +256,7 @@
    "ilv": 45,
    "stack": 99,
    "icon": "riverreed_ginseng_1000",
-   "desc": "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need: weak, and hard on the meridians.",
+   "desc": "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around. A hot herb: it drives the Extraction band up. Can be eaten raw in need (+800 cultivation): weak, and hard on the meridians.",
    "use": [
     {
      "kind": "add_progress",

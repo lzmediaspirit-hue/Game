@@ -19,8 +19,8 @@ extends Control
 ## its upper body, in a jade frame), round TILE px buttons in the thumb's arc (decision 43); Jump is 64 px. A
 ## companion's chip shows the top-down figure's head for a top-down character (_draw_face).
 ##
-## The QI bar exists only once the character has a QI pool (Bone Forging 7): a
-## Mortal or early Bone Forging disciple has no Qi, so no QI bar is drawn.
+## The QI bar exists only once the character has a QI pool (Bone Forging 1, with the first technique: decision 45): a
+## Mortal has no Qi, so no QI bar is drawn.
 
 const Avatar = preload("res://scripts/avatar.gd")
 const MenuPage = preload("res://scripts/ui/pages/menu_page.gd")
@@ -60,11 +60,22 @@ const TILE := 68.0
 const PICTURE := 58
 const READY_S := 0.35
 const CTX_R := 30.0
-## Ring 2 beside the fan. A pinned toggle, the healing slot, the first treasure, the context and the swap have their
+## Ring 2 beside the fan. A pinned toggle, the quick slots, the first treasure, the context and the swap have their
 ## own places; the rest take the next free one.
 const RING2_DEG := [178.0, 204.0, 226.0, 248.0, 270.0, 292.0]
 ## Keep Post (at rest only) takes the first treasure's place (in a fight only); the context holds 270° at rest too.
-const RING2_HOME := {"pin": 178.0, "quick": 204.0, "treasure:0": 226.0, "post": 226.0, "context": 270.0, "swap": 292.0}
+## Decision 45: three quick slots ("quick:0" the healing slot where mockup 01 has it, then 226° and 248°, an arc over
+## the techniques under the thumb); a quick slot drawn first keeps its home and a treasure takes the next free place.
+const RING2_HOME := {"pin": 178.0, "quick:0": 204.0, "quick:1": 226.0, "quick:2": 248.0, "treasure:0": 226.0, "post": 226.0,
+	"context": 270.0, "swap": 292.0}
+## Decision 45: more than ring 2's six places hold (three quick slots, the Draught, two treasures, a pin, the context and
+## the swap late in the game) go on an outer row R3 round Attack, clear of ring 2, the screen's edge, the purse and the
+## clear zone; every place of both rows stays at least 62 px from every other.
+const RING3_R := 276.0
+const RING3_DEG := [216.0, 233.0, 250.0, 267.0]
+## Decision 45: the quick slots' indexes (InventoryState.quick); their roles are "quick:0" to "quick:2", and a tour's
+## anchor "quick" is all of them that show (tour_rect).
+const QUICK_SLOTS := [0, 1, 2]
 ## The fan's toggles in their order round it when open: only the revealed ones, packed from the first place.
 const FAN_DEG_OPEN := [180.0, 202.0, 224.0, 246.0, 268.0]
 const FAN_TOGGLES := ["cultivate", "presence", "sphere", "sense", "pet"]
@@ -410,12 +421,15 @@ func _ring2(c) -> Array:
 	if not fan_open:
 		for id in _pins(c): items.append({"role": FAN_ROLE[id], "home": "pin" if items.is_empty() else "", "toggle": id})
 	if fight and not fan_open:
-		if shown("quick_use") and (loose or str(c.inventory.quick_use) != ""): items.append({"role": "quick", "home": "quick"})
+		# Decision 45: the three quick slots, each while it holds something (every one unbound).
+		for qi in QUICK_SLOTS:
+			if shown("quick_use") and (loose or str(c.inventory.quick[qi]) != ""): items.append({"role": "quick:%d" % qi, "home": "quick:%d" % qi})
 		if _has_draught(): items.append({"role": "draught", "home": ""})
 		for ti in 2:
 			if shown("treasure_%d" % (ti + 1)) and (loose or _treasure_id(c, ti) != ""): items.append({"role": "treasure:%d" % ti, "home": "treasure:%d" % ti})
-	elif not fight and not loose and shown("quick_use") and (c.inventory.count(str(c.inventory.quick_use)) > 0 or _quick_asked(c)):
-		items.append({"role": "quick", "home": "quick"})
+	elif not fight and not loose and shown("quick_use"):
+		for qi in QUICK_SLOTS:
+			if c.inventory.count(str(c.inventory.quick[qi])) > 0 or (qi == 0 and _quick_asked(c)): items.append({"role": "quick:%d" % qi, "home": "quick:%d" % qi})
 	if _context_shown(): items.append({"role": "context", "home": "context"})
 	if _post_chip(): items.append({"role": "post", "home": "post"})
 	if shown("weapon_swap") and (loose or c.inventory.loadout.get("spare") != null): items.append({"role": "swap", "home": "swap"})
@@ -423,25 +437,29 @@ func _ring2(c) -> Array:
 	return ring2_places(items, RING2_DEG.filter(func(d): return fan_at.any(func(p): return (p as Vector2).distance_to(_on(attack_center, RING2_R, float(d))) < 60.0)))
 
 ## Places on ring 2 for `items` ([{role, home}]): each takes its home if it is free, the rest the next free place in
-## order (never one of `taken`, the places the open fan covers); more than six (a rare load) spread evenly over the arc.
+## order (never one of `taken`, the places the open fan covers). Decision 45: past ring 2's free places the rest stand
+## on the outer row (RING3_DEG), in order; past both (a load no state makes), the last spread over the outer row.
 func ring2_places(items: Array, taken: Array = []) -> Array:
 	var out: Array = []
 	var deg := {}
-	if items.size() > RING2_DEG.size() - taken.size():
-		for i in items.size(): deg[i] = lerpf(RING2_DEG[0], 294.0, float(i) / maxf(1.0, float(items.size() - 1)))
-	else:
-		var free: Array = RING2_DEG.filter(func(d): return not taken.has(d))
-		for i in items.size():
-			var home := str(items[i].get("home", ""))
-			if RING2_HOME.has(home) and free.has(RING2_HOME[home]):
-				deg[i] = RING2_HOME[home]
-				free.erase(RING2_HOME[home])
-		for i in items.size():
-			if not deg.has(i): deg[i] = free.pop_front()
+	var outer := {}
+	var free: Array = RING2_DEG.filter(func(d): return not taken.has(d))
+	for i in items.size():
+		var home := str(items[i].get("home", ""))
+		if RING2_HOME.has(home) and free.has(RING2_HOME[home]):
+			deg[i] = RING2_HOME[home]
+			free.erase(RING2_HOME[home])
+	var row3: Array = RING3_DEG.duplicate()
+	for i in items.size():
+		if deg.has(i): continue
+		if not free.is_empty(): deg[i] = free.pop_front()
+		else:
+			outer[i] = true
+			deg[i] = row3.pop_front() if not row3.is_empty() else lerpf(RING3_DEG[0], RING3_DEG[-1], float(i % 4) / 3.0)
 	for i in items.size():
 		var o: Dictionary = items[i].duplicate()
 		o.deg = float(deg[i])
-		o.center = _on(attack_center, RING2_R, float(deg[i]))
+		o.center = _on(attack_center, RING3_R if outer.has(i) else RING2_R, float(deg[i]))
 		out.append(o)
 	return out
 
@@ -501,7 +519,8 @@ func tour_rect(name: String) -> Rect2:
 			return Rect2(at + Vector2(0, 18.0 if qi else 0.0), Vector2(330, 14)) if c.pools.max_soul > 0.0 and shown("soul_bar") else Rect2()
 	var out := Rect2()
 	for tg in hit_targets():
-		if str(tg.role) != name: continue
+		# Decision 45: "quick" is the quick slots that show ("quick:0" to "quick:2" each on its own).
+		if str(tg.role) != name and not (name == "quick" and str(tg.role).begins_with("quick:")): continue
 		var d := float(tg.drawn) + 2.0
 		var r := Rect2(tg.center - Vector2(d, d), Vector2(d, d) * 2.0)
 		out = r if out.size == Vector2.ZERO else out.merge(r)
@@ -688,7 +707,7 @@ func press(id: int, p: Vector2):
 			if player.state.flying: player.fly_down = true   # held Evade descends while flying; a tap dashes (S43)
 			guard_pressed = true
 			guard_hold = 0.0
-		"quick": use_quick()
+		"quick:0", "quick:1", "quick:2": use_quick(int(role.right(1)))
 		"draught": drink_draught()
 		"sense":
 			if bound():
@@ -1140,12 +1159,13 @@ func drink_draught() -> void:
 	var r := Game.submit({"type": "drink_draught"})
 	if not r.get("ok", false) and str(r.get("text", "")) != "": add_log(str(r.text), UiKit.MIST)
 
-func use_quick() -> void:
+## Decision 45: a tap on quick slot `slot` (0-2) uses what it holds; an empty one opens the Bag, where it is filled.
+func use_quick(slot := 0) -> void:
 	if not bound(): return
-	if str(Game.active().inventory.quick_use) == "":
+	if str(Game.active().inventory.quick[slot]) == "":
 		open_page.emit("inventory", {})   # nothing in it yet: the Bag, where an item is put in Quick-use
 		return
-	var r := Game.submit({"type": "use_quick"})
+	var r := Game.submit({"type": "use_quick", "slot": slot})
 	if not r.ok:
 		if r.get("reason", "") == "none_left": add_log(Tx.t("hud.no_left") % ContentDB.item_name(str(r.item)), UiKit.MIST)
 		elif r.get("reason", "") == "cooldown": add_log(Tx.t("hud.not_ready_yet"), UiKit.MIST)
@@ -2867,7 +2887,7 @@ func _draw_ring2(c) -> void:
 	for it in _ring2(c):
 		var at: Vector2 = it.center
 		match str(it.role):
-			"quick": _draw_quick(c, at)
+			"quick:0", "quick:1", "quick:2": _draw_quick(c, at, int(str(it.role).right(1)))
 			"draught": _draw_draught(c, at)
 			"treasure:0", "treasure:1": _draw_treasure(c, int(str(it.role).get_slice(":", 1)), at)
 			"context":
@@ -2893,19 +2913,19 @@ func _draw_ring2(c) -> void:
 func _quick_asked(c) -> bool:
 	return Game.quest.asks_for(c, "use_system", "set_quick_use") or Game.quest.asks_for(c, "use_item", str(c.inventory.quick_use))
 
-## The healing slot (mockup 01): the quick-use item at its native 32, how many are left in the corner, the cooldown.
-## While a quest step asks for it, it glows and names itself as the step does ("Quick-use"); empty, a tap opens the Bag.
-func _draw_quick(c, at: Vector2) -> void:
-	var qid: String = c.inventory.quick_use
-	var asked := _quick_asked(c)
+## A quick slot (mockup 01's healing slot; decision 45: three of them): the item at its native 32, how many are left in
+## the corner, its own cooldown group's shade. While a quest step asks for the first, it glows and names itself as the
+## step does ("Quick-use"); empty, a tap opens the Bag.
+func _draw_quick(c, at: Vector2, slot := 0) -> void:
+	var qid := str(c.inventory.quick[slot])
+	var asked := slot == 0 and _quick_asked(c)
 	ring(at, 26, false, 1.0, pulses.has("hud:quick_use") or asked)
 	if asked: UiKit.draw_outlined(self, Tx.t("hud.quick_use"), at + Vector2(-50, 44), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 100)
 	if qid == "": return
 	var n: int = c.inventory.count(qid)
 	glyph(qid, at, 32, Color(1, 1, 1, 1.0 if n > 0 else 0.4))
-	var cd := 0.0
-	for k in c.pools.cooldowns:
-		if str(k).begins_with("item:"): cd = maxf(cd, float(c.pools.cooldowns[k]))
+	var def := ContentDB.item(qid)
+	var cd: float = c.pools.cooldown("item:" + str(def.get("pill", def.get("food", {})).get("group", "utility")))
 	if cd > 0: draw_circle(at, 22, Color(UiKit.INK, 0.5))
 	_corner(at, str(n), UiKit.PAPER if n > 0 else UiKit.RED_TEXT)
 

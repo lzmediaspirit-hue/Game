@@ -945,7 +945,9 @@ def prologue_quests():
     ], [item("river_token", 1), fx("learn_technique", technique="flowing_palm"), fx("codex", entry="the_hollowing"), fx("codex", entry="realms")],
         auto_accept=True,
         requires=all_of(flag("night_survived")), target_room="lf_lu_boat", chapter="prologue",
-        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", pct_of_need=0.98), fx("codex", entry="lotus_ferry")],
+        # Decision 45: a fixed 430 of Mortal's 500; the last 70 are the quest's own 15 s of meditation on the boat at the
+        # early current (about 4.2 a second there), so the bar fills as the step is done.
+        on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", amount=430), fx("codex", entry="lotus_ferry")],
         offer=["That thing in the water was a Hollowed eel. The grey is spreading.", "You have a gift. I felt it last night. Sit. Breathe as I showed you."],
         complete=["Bone Forging. Your first step. The body is the cup; Qi will be the water.",
                   "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. It spends a little of the Qi you just woke; sit, or only breathe, and it comes back.",

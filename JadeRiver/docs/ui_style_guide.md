@@ -681,12 +681,15 @@ table are the reference.
 
 - Places come from rings and angles (`RING1_R`, `RING2_R`, `FAN_R`, `_layout`, `_on`), so the left-handed option
   mirrors them. The pinned toggle stands at 178° (the mockup's point, 951, 612; the table's "182°" is the same point
-  measured the other way round). Ring 2's places are 178°, 204°, 226°, 248°, 270° and 292°: the pin, the healing
-  slot, the first treasure, the context (or Keep Post) and the swap have their own; the second pin, the Draught and
-  the second treasure take the next free one; more than six spread evenly over 178°–294°, never closer than 60 px.
+  measured the other way round). Ring 2's places are 178°, 204°, 226°, 248°, 270° and 292°: the pin, the three quick
+  slots (decision 45: `quick:0`, the healing slot, at 204°, `quick:1` at 226°, `quick:2` at 248°), the first treasure,
+  the context (or Keep Post) and the swap have their own, the first to be drawn keeping a shared one; the second pin,
+  the Draught and the second treasure take the next free one; past six, the rest stand on an outer row at R 276
+  (216°, 233°, 250°, 267°), every place of both rows at least 62 px from every other.
 - The fan (decision 20) holds Cultivate, Presence, Sphere, Sense and Pet, packed from 180° in that order; closed, the
-  toggles that are on are pinned; open at rest by default (mockup 02), folded in a fight. The healing slot and the
-  treasures show only in a fight; at rest they rest (the techniques stay out since decision 42).
+  toggles that are on are pinned; open at rest by default (mockup 02), folded in a fight. The quick slots show while
+  they hold something, at rest as in a fight; the treasures show only in a fight (the techniques stay out since
+  decision 42).
 - Rest and fight: a fight is a living, unhidden foe within 560 px of the player, a boss in the room or a tribulation
   (`WorldLabels.fight_near`), held two seconds after it ends; the fold takes 0.25 s.
 - The top centre is one stack (a run's timer, the room's name, an event or tribulation, a fortune card, the toasts, a
@@ -740,7 +743,7 @@ bigger and circular." Where this changes decision 42's buttons:
   holds every picture's box to the circle), and the rank badge sits inside it at 45° up and right.
 - **The thumb's arc.** The buttons stand at 184°, 212° and 240° 146 px out and 270° 128 px out round Attack (1019, 595;
   1041, 528; 1093, 480; 1165, 477). The bigger circles keep 2-4 px clear of each other, of Jump (64 px, at 150° on
-  ring 1), of Dodge, of ring 2 in a fight (the pinned toggle, the healing slot, the treasures) and of the context's
+  ring 1), of Dodge, of ring 2 in a fight (the pinned toggle, the three quick slots, the treasures) and of the context's
   Talk button and its label ("Talk · Lu"), which the last one stands under. Their hit circles are 80 px across (48 px
   at least, P4); where two overlap a tap goes to the nearer centre. Left-handed mirrors them.
 - **The states on a circle.** Cooling: the radial sweep, an ink pie over the picture for the part still to wait from
