@@ -144,6 +144,7 @@ static func claim_flash(gap_s: float) -> bool:
 	return true
 
 ## Seconds of input lock left (0 when none).
+## Test hook: rules_tests.
 func lock_left() -> float:
 	return lock
 

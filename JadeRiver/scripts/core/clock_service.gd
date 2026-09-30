@@ -10,6 +10,7 @@ var override_tz_offset_s := -99999 # tests: pin the local time zone offset
 ## `advance`) and by the debug offset, never with the wall clock, so a scripted run plays the same on a busy machine.
 var simulated := false
 
+## Test hook: the scripted suites (prologue_run, tutorials, balance_sim) and the tools/dev walks.
 func simulate(utc: float, tz_offset_s := 0) -> void:
 	override_utc = utc
 	override_tz_offset_s = tz_offset_s

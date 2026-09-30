@@ -67,6 +67,7 @@ func fly(on: bool,climb_speed:=220.0,ceiling:=340.0) -> bool:
 func set_climb(value: float) -> void:
 	state.climb=clampf(value,-1.0,1.0) if is_finite(value) else 0.0
 func snapshot() -> Dictionary: return state.snapshot(tick)
+## Test hook (engine_tests) and the future server's boundary.
 func restore_authoritative_snapshot(value: Dictionary) -> bool:
 	# For trusted server snapshots or replay only; never expose this to client commands.
 	if int(value.get("schema",0)) not in [1,2] or value.get("entity_id")!=state.entity_id or value.get("zone_id")!=state.zone_id: return false

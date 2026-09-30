@@ -423,9 +423,6 @@ func zone_of_room(room_id: String) -> Dictionary:
 func realm(key: String) -> Dictionary:
 	return entry("realms", key)
 
-func level_of(key: String) -> int:
-	return int(realm(key).get("level", 0))
-
 func realm_position(key: String) -> int:
 	return int(realm_index.get(key, -1))
 

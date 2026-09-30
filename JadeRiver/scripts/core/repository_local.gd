@@ -50,6 +50,7 @@ func delete_character(slot: int) -> void:
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(character_path(slot) + suffix): DirAccess.remove_absolute(character_path(slot) + suffix)
 
+## Test hook: engine_tests empties its save folder with it.
 func wipe() -> void:
 	for suffix in ["", ".bak", ".tmp"]:
 		if FileAccess.file_exists(account_path() + suffix): DirAccess.remove_absolute(account_path() + suffix)

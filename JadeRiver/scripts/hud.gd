@@ -56,6 +56,7 @@ const FAN_DEG := 160.0
 ## TechniquePicture.draw_round), the ready flash READY_S long.
 const JUMP_R := 32.0
 const TILE := 68.0
+## Test hook: rules_tests holds the round buttons' pictures to it.
 const PICTURE := 58
 const READY_S := 0.35
 const CTX_R := 30.0
@@ -120,10 +121,8 @@ var slots := [Vector2(1019, 595), Vector2(1041, 528), Vector2(1093, 480), Vector
 var fan_center := Vector2(964, 678)
 var page_center := Vector2(1240, 672)      # the technique page tab, "1/2"
 # The fan's toggles where they stand while it is open (set with the fan each frame; the pet wheel opens round Pet).
-var meditate_center := Vector2(814, 678)
+## Test hook: rules_tests taps the presence toggle here.
 var presence_center := Vector2(825, 622)
-var sphere_center := Vector2(856, 574)
-var sense_center := Vector2(903, 541)
 var pet_center := Vector2(959, 528)
 var context_center := Vector2(1165, 391)   # the context's own button on ring 2 (at rest too, decision 42)
 var auto_center := Vector2(1232, 292)    # S49: the auto-hunt toggle, under the icon row (only where allowed)
@@ -140,7 +139,6 @@ var fan_open := false
 var fan_rest_open := true     # the player's choice at rest: open, as mockup 02 draws it, until they close it
 var _settled := false
 
-signal page_changed(page: int)
 signal open_page(page: String, args: Dictionary)
 signal dialogue_requested(convo: Dictionary)
 signal fishing_requested(object_id: String)
@@ -225,7 +223,6 @@ func scroll_skills(direction: int) -> void:
 	scroll_direction = direction
 	scroll_progress = 0.0
 	skill_page = (skill_page + 1) % 2
-	page_changed.emit(skill_page)
 	if bound(): Game.active().skill_page = skill_page
 
 func advance_scroll(delta: float) -> void:
@@ -301,6 +298,7 @@ func _fight_now() -> bool:
 	return WorldLabels.fight_near(Game.active(), player.plane) or _enemy_close() or _foe_engaged()
 
 ## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
+## Test hook: rules_tests, tutorial_order, the top-down suite and the captures.
 func set_state(in_fight: bool, open := false) -> void:
 	fight_override = in_fight
 	fight = in_fight

@@ -101,11 +101,6 @@ static func rooms_with(key: String) -> Array:
 				if not (_where.get(k2, []) as Array).has(str(rid)): _where[k2] = (_where.get(k2, []) as Array) + [str(rid)]
 	return _where.get(key, [])
 
-## The room a named NPC stands in (the first one that places them), "" when none does.
-static func npc_room(npc_id: String) -> String:
-	var at := rooms_with("npc=" + npc_id)
-	return str(at[0]) if not at.is_empty() else ""
-
 ## Every room reachable from one, by the fewest ways, through the ways a caller lets it pass: room -> ways taken.
 static func hops(from_room: String, can_pass: Callable) -> Dictionary:
 	var out := {from_room: 0}
