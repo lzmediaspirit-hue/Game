@@ -1034,7 +1034,12 @@ func _play_place_pose(pose: String, page: String, args: Dictionary) -> void:
 	place_pending = {"page": page, "args": args, "t": PLACE_POSE_S}
 	var at = player.get("plane") if is_instance_valid(player) else null
 	if is_instance_valid(player) and player.has_method("play_place_pose"): player.play_place_pose(pose)
-	Audio.world_sound("place_" + pose, at if at is Vector2 else Vector2.ZERO, 0.0)
+	var p: Vector2 = at if at is Vector2 else Vector2.ZERO
+	# each id written out, so audio_tests finds it among the sounds
+	match pose:
+		"open": Audio.world_sound("place_open", p, 0.0)
+		"tend": Audio.world_sound("place_tend", p, 0.0)
+		"sit": Audio.world_sound("place_sit", p, 0.0)
 
 func _tick_place_pose(delta: float) -> void:
 	if place_pending.is_empty(): return
