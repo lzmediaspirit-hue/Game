@@ -369,6 +369,15 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
 
   Fold them into one capture registry, where a shot is a data row (room, setup, camera, frames) (S3).
 
+**Status (phase 2, S3): DEAD-10, closed.**
+- **Folded.** `tools/dev/capture/` (`capture.tscn -- <set>`, `tools/dev/README.md`) holds every set that
+  `topdown_capture.gd` and the six per-decision captures took: 32 sets, 375 rows in `shots.gd`, over shared steps. The
+  seven scripts (3,560 lines) are deleted, and so is `fix_infer.py`.
+- **Compared** under a pinned clock and seed at `--fixed-fps 60`. Every picture has the same name and size. 245 of 531
+  are byte-identical to an old run, and the rest differ only in what the game draws by the wall clock (water, sway).
+- **Kept:** `stat_probe.gd` and `combat_trace.gd` are numeric probes that docs cite (`stat_scaling_research.md`,
+  `combat_feel.py`), not captures. `prototype_qa.gd` is the QA walk that `tutorial_play.gd` extends.
+
 ### 3.4 Obsolete paths and stale generators
 
 - **One-off bakes nothing runs:**
@@ -386,6 +395,20 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
 - **Python functions nothing calls:** 21 top-level functions, 139 lines, for example `synth.gauss_band`,
   `pix.hsv_shift`, `shapes.bez_line`, `terrain2.pnxy`, `pixlib.inner_line` and `defs_objects.chest_body`
   (`py_graph.json`).
+
+**Status (phase 2, S3): DEAD-11 and DUP-12, closed; DEAD-03 left for the side view's deletion.**
+- **Deleted:** `study_quality/` (with its copies of `raster.py` and `folds.py`), `technique_cards.py` and
+  `build_topdown_proto.py`. Their pictures stay in `docs/`, and the docs that named them say so.
+- **Deleted too:** the five unreferenced helpers in the top-down tile and FX builders (`terrain2.pnxy` and `_q`,
+  `sand_snow._slope`, `elements.base_hex`, `topdown_forms._dome`). The other 16 belong to the icon, audio and prop kits
+  and to the side view.
+- **Not moved:** the side view is retiring, so its pipeline stays where it is, to be deleted with it (S12). That is
+  `tools/art/creatures`, `tools/backdrops`, `pixel.py`, `helpers_batch_*` and the `bake_*` scripts (with
+  `bake_act2_hats.py` and `bake_straw_hat.py`), plus `build_creatures.py`, `tools/bake_hat_cape_combos.gd`,
+  `combo_rig.gd` and `equipment_rig.gd` (DEAD-03).
+- **DUP-12:** `tools/art/topdown/sheet.py` has `pack()`, `png_bytes()` and `run()`. It is not in `atlas.py`, which
+  imports the whole terrain kit. `build_decor`, `build_life`, `build_tiles` and `build_foes` use it, and every output
+  is byte-identical (`--check`, and the sha1 of all 31 files).
 
 ### 3.5 Data
 

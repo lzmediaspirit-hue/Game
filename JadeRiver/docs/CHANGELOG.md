@@ -1,5 +1,62 @@
 # Changelog
 
+## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
+
+The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7). No game code changed.
+
+- **One capture tool.** `tools/dev/capture/capture.tscn -- <set>` now takes every review picture the game draws of
+  itself. It replaces `topdown_capture.gd` with its 22 modes, plus `hud_capture`, `picture_capture`, `sect_capture`,
+  `places_capture`, `tutorial_capture` and `progression_capture` (3,560 lines, now 2,802).
+  - The pictures are data. `shots.gd` holds 32 sets and 375 rows. A row gives the picture's name, its room, cell and
+    wait, the clock's hour, the foes and their fight, the steps before it, how it is taken and what follows.
+  - A new picture is a row, not a function. `tools/dev/README.md` says how to add one.
+  - `capture_steps.gd` holds the shared steps that rows use: stand, act, set the character, pin the clock, open a page,
+    wait on a scene. It also holds the takes: the window, the world alone x2, a detail, a close-up, a whole room, a
+    strip, a sheet, panels, and before-and-after pairs.
+  - `capture_scripted.gd` holds the old scripts' loops that wait on the game, ported call for call: the eel's fight, a
+    worker's pose, a frozen staged scene, the foes' lineups and the tutorials' tours.
+  - `--out-root=<dir>` writes a set outside `docs/`, and `--only=<text>` takes some of its pictures. `--list` names
+    the sets, and `--lint` checks every row's steps and argument counts without playing.
+  - Every set plays on saves of its own (`user://capture_<set>/`), never a player's or the Max Tester's. The review
+    room loads from `tests/data/topdown/`, where S5 moved it.
+- **The same pictures, the same framing.** Every set was run with the old script and with the registry under a harness
+  that pins the clock and the random seed, at `--fixed-fps 60`. Most ran the old script twice, to see where it differs
+  from itself. The two phone-size sets ran at 2400x1080 too.
+  - All 531 pictures came out with the same names and sizes. 245 are byte-identical to an old run, among them:
+    - every weapon family's combo sheet, both weaves, phase 2's strips and aimed shots;
+    - the monsters' and the polish's lineups at x4 (the foes' spots and poses);
+    - every page (Techniques, the trees, the shop, the Bag, the Character, the Cultivation page, the travel picker);
+    - the places' close-ups and minimap, the Techniques page's tour, nine of the thirteen workers shown;
+    - all 49 before-and-after pairs (terrain, foliage, sand and snow), and `boxes.json`.
+  - The first boss's log of beats is identical: every scene's start and end, the waking and the overwhelm, at the same
+    sim seconds.
+  - The rest differ only where the game draws by the wall clock, which is also where two runs of the old script differ
+    from each other: the water's frames, grass and trees swaying, a lamp's flicker, and a sheet loaded a frame sooner
+    on its thread.
+- **Removed (2,542 lines):**
+  - the decision-42 study `tools/art/topdown/study_quality/`, superseded since the B renderer shipped (its pictures
+    stay in `docs/redesign/feedback/character_quality/`, and git history keeps its code);
+  - `tools/icons/study/technique_cards.py`, which nothing ran;
+  - the `build_topdown_proto.py` shim;
+  - `tools/dev/fix_infer.py`;
+  - five helpers no builder calls (`terrain2.pnxy` and `_q`, `sand_snow._slope`, `elements.base_hex`,
+    `topdown_forms._dome`).
+- **Kept on purpose:**
+  - The side view is retiring, and its pipeline will be deleted with it in a later slice, so it is not moved. That is
+    `build_creatures.py`, `bake_act2_hats.py`, `bake_straw_hat.py`, `tools/bake_hat_cape_combos.gd`, `combo_rig.gd`
+    and `equipment_rig.gd`.
+  - `stat_probe.gd` and `combat_trace.gd` are numeric probes that docs cite, not screenshot captures.
+  - `prototype_qa.gd` is the QA walk that `tutorial_play.gd` builds on.
+- **One sheet packer** (audit DUP-12). `tools/art/topdown/sheet.py` has `pack()` (shelf rows), `png_bytes()` and the
+  builders' `run()` (build, `--check`, write, `--review`).
+  - `build_decor.py` and `build_life.py` use all three, and `build_tiles.py` and `build_foes.py` use `png_bytes()`.
+  - `build_tiles.py`'s two review sheets share one layout.
+  - Every output is byte-identical. All 31 files the four builders write have the same sha1 before and after, and
+    each builder's `--check` passes. So do `build_fx_topdown.py --check` and `build_fx.py --verify`, and the review
+    sheets are byte-identical too.
+- **Found, not fixed:** `build_tiles.py --review` stops with a KeyError on the `sand` decals, in the Terrain v2
+  sheet's ground table. This predates the slice. `--review-sand-snow` runs.
+
 ## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
 
 This is phase 2, slice S4 of the code audit (`docs/architecture/audit_45.md` §4 and §5; findings DUP-01, 02 and 03,
