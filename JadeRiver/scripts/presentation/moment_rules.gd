@@ -5,6 +5,7 @@ extends RefCounted
 ## file against. Static and side-free: it reads data and the payload it is handed, and writes nothing.
 
 ## Matchers with a rule of their own; any other key of `when` tests the payload key of that name for equality.
+## Test hook: data_validation checks data/moments.json against it.
 const MATCHERS := ["actor", "target", "role_in", "first_in_room", "chapter_end", "rare", "source_in", "level_mod"]
 ## Every layer kind and where it plays: under or over the HUD (drawn by MomentView), through the HUD, or in the world.
 const LAYER_KINDS := {"dim": "under", "vignette": "under", "flash": "under", "letterbox": "under",
@@ -12,6 +13,7 @@ const LAYER_KINDS := {"dim": "under", "vignette": "under", "flash": "under", "le
 	"toast": "hud", "caption": "hud",
 	"fx": "world", "text": "world", "shake": "world", "camera": "world", "sound": "world", "buzz": "world", "bark": "world",
 	"fountain": "world", "beam": "world"}
+## Test hooks, ANCHORS, SHAPES and STYLES: data_validation checks data/moments.json against them.
 const ANCHORS := ["actor", "enemy", "pet", "drop", "item", "camera"]
 const SHAPES := ["strike", "wave", "ring", "rain", "pillar", "domain", "bolt"]
 const STYLES := ["square", "ink", "ring", "ember", "shard"]

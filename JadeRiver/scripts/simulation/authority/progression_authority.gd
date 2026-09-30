@@ -1749,15 +1749,9 @@ func migrate_tree(c) -> void:
 	lost_pages(c)   # the journal pages already gathered count toward the Ferryman's Oar
 	c.cultivator.tree["v"] = 1
 
-## The page's view of one tree: every node with its state (realised, taught, open, or locked and why), its cost, and
-## what learning it takes in one go (`learn`: the nodes to realise in order, `total` their cost; P13b); and the Dao arts
-## at its gates, taught or waiting on their Dao's tier.
-func tree_view(c, tree: String) -> Dictionary:
-	var ctx: Dictionary = game.ctx(c)
-	return {"tree": tree, "nodes": TechniqueTreeRules.nodes_of(tree).map(func(nid): return tree_node(c, str(nid), ctx)), "dao_arts": tree_dao_arts(c, tree),
-		"realisations": TechniqueTreeRules.realisations(c)}
-
-## One node of tree_view (the page asks for the nodes it shows, as it shows them).
+## The page's view of one node of a tree (the page asks for the nodes it shows, as it shows them): its state (realised,
+## taught, open, or locked and why), its cost, and what learning it takes in one go (`learn`: the nodes to realise in
+## order, `total` their cost; P13b). The Dao arts at a tree's gates are tree_dao_arts.
 func tree_node(c, nid: String, ctx: Dictionary = {}) -> Dictionary:
 	if ctx.is_empty(): ctx = game.ctx(c)
 	var n := TechniqueTreeRules.node(nid)

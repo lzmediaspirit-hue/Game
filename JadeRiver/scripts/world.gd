@@ -51,9 +51,6 @@ var travel := RoomTravel.new()
 ## under one (WorldLabels).
 var label_obstacles: Array = []
 
-signal room_changed(room_id: String)
-signal context_changed(ctx: Dictionary)
-
 func _ready() -> void:
 	room_layer = Node2D.new()
 	room_layer.name = "Room"
@@ -170,7 +167,6 @@ func _build_room() -> void:
 		lv.setup(l)
 		room_layer.add_child(lv)
 	update_sorting()
-	room_changed.emit(rt.room_id)
 
 func _attach_player_helpers() -> void:
 	if player_shadow == null:
@@ -327,9 +323,7 @@ func _update_context() -> void:
 		if not near_c.is_empty(): climb = {"type": "climbable", "climbable": str(near_c.id), "label": Tx.t("hud.climb")}
 	var ctx := WorldShared.context(c, player.plane if player else Vector2.ZERO, climb)
 	WorldShared.mark_focus(ctx, object_views, npc_views, player.position.x)
-	if ctx.hash() != context.hash():
-		context = ctx
-		context_changed.emit(ctx)
+	if ctx.hash() != context.hash(): context = ctx
 
 ## S49 Fame: from Noted, the nearest townsfolk know your name when you walk in.
 func _fame_greeting() -> void:

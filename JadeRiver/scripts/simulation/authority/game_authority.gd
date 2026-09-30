@@ -114,10 +114,6 @@ func ctx(c = null) -> Dictionary:
 	if c == null: c = active()
 	return {"char": c, "account": account, "room": room_rt.def if room_rt else {}}
 
-func level_of(actor_id: String) -> int:
-	var c = character(actor_id)
-	return ProgressionRules.level(c) if c else 0
-
 func is_revealed(element: String) -> bool:
 	return Unlocks.is_revealed(active_id, element)
 
