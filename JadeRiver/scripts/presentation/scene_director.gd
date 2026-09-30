@@ -94,6 +94,12 @@ func advance(delta: float) -> void:
 		_finish(true, true)   # another character took the stage
 	if run != null and (Game.room_rt == null or Game.room_rt.room_id != str(run.row.room)):
 		_leave()   # the character walked out of the scene's room
+	# Decision 45: a cut that holds the fight (the first boss waking, the elders' rescue) is the fight's own moment: it
+	# takes the stage from a live part or a hand-off still running (that one run on to its end, its checkpoints asked),
+	# never waiting its turn behind the villagers' runs.
+	if run != null and run.mode != "cut" and not run.row.get("hold_fight", false) and not _urgent().is_empty():
+		_forward(-1, false, true)
+		_finish(false)
 	if run == null:
 		_lb_carry_t -= delta
 		_eval_t -= delta
@@ -171,12 +177,23 @@ func _pick() -> Dictionary:
 		if str(row.get("room", "")) == here: return row
 		Game.submit({"type": "scene_end", "scene": str(id), "skipped": true})
 		return {}
+	var urgent := _urgent()
+	if not urgent.is_empty(): return urgent
 	for id in queue.duplicate():
 		var row := SceneRules.row(str(id))
 		if _can_play(c, row, here): return row
 		if row.is_empty() or _seen(c, row) or _tried.has(str(id)): queue.erase(id)
 	for row in ContentDB.all("scenes"):
 		if not row.has("trigger") and _can_play(c, row, here): return row
+	return {}
+
+## A queued scene that holds the fight (`hold_fight`) and may play here now, first in the queue; {} when none.
+func _urgent() -> Dictionary:
+	var c = Game.active()
+	if c == null or Game.room_rt == null or Game.room_rt.topdown == null or not _stage_free(): return {}
+	for id in queue:
+		var row := SceneRules.row(str(id))
+		if row.get("hold_fight", false) and _can_play(c, row, Game.room_rt.room_id): return row
 	return {}
 
 func _seen(c, row: Dictionary) -> bool:
@@ -311,8 +328,18 @@ func _begin(st: Dictionary) -> void:
 			_unbind(a)
 		# Decision 45: a story art's own effect (the FX pipeline's story sheets: the elders' arts, the river boiling) where
 		# a target stands; a foe of the room staged (its figure's pose, a struck flash); a hit-stop on the stage's clock.
-		"art": if world is TopdownWorld: world.tfx.story(str(st.art), _ground_of(st.get("at", "player")), float(st.get("scale", 1.0)))
-		"foe": _stage_foes({str(st.get("foe", "")): {"pose": str(st.get("pose", "")), "flash": bool(st.get("flash", false))}})
+		"art":
+			# `from`: the side the art comes in from (drawn from the east, mirrored when that target stands west of it).
+			var at := _ground_of(st.get("at", "player"))
+			var flip: bool = st.has("from") and _ground_of(st.from).x < at.x
+			if world is TopdownWorld: world.tfx.story(str(st.art), at, float(st.get("scale", 1.0)), flip)
+		"foe":
+			_stage_foes({str(st.get("foe", "")): {"pose": str(st.get("pose", "")), "flash": bool(st.get("flash", false))}})
+			if st.has("dread") and world is TopdownWorld and Game.room_rt != null:
+				for e in Game.room_rt.living_enemies():
+					if e.def_id == str(st.foe):
+						if bool(st.dread): world.dread_lifted.erase(e.uid)
+						else: world.dread_lifted[e.uid] = true
 		"hitstop": hitstop_t = 0.0 if reduce_motion() else float(st.get("s", 0.1))
 		"door": _door(str(st.portal))
 		"weather": run.weather = "" if str(st.kind) == "clear" else str(st.kind)
@@ -688,7 +715,13 @@ func _spot(at, a: Dictionary) -> Vector2:
 	if at is Array: return SceneRules.point(at)
 	if not (at is Dictionary): return a.get("pos", player_pos())
 	var off: Array = at.get("off", [0, 0])
-	var p := _ground_of(at.get("near", "player")) + Vector2(float(off[0]), float(off[1])) * TopdownRoom.TILE
+	var near := _ground_of(at.get("near", "player"))
+	var o := Vector2(float(off[0]), float(off[1]))
+	# `mirror`: the offset is written with that target to the right of `near`; turned about when it stands to the left.
+	if at.has("mirror"):
+		var m := _ground_of(at.mirror)
+		if m != Vector2.INF and near != Vector2.INF and m.x < near.x: o.x = -o.x
+	var p := near + o * TopdownRoom.TILE
 	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
 	if grid != null and str(a.get("prop", "")) == "": p = grid.nearest_standable(p)
 	return p
@@ -756,6 +789,7 @@ func _camera(delta: float) -> void:
 	else:
 		world.stage_cam = null
 	world.stage_zoom = float(run.zoom) if run.mode == "cut" else 1.0
+	world.stage_bars = float(SceneRules.cfg().get("letterbox_h", 64)) * float(run.lb) / 720.0 if run.mode == "cut" else 0.0
 
 ## The weather the scene calls: a storm's thunder every few seconds, the flash under the flash limiter.
 func _weather(delta: float) -> void:
@@ -788,6 +822,10 @@ func _apply_mode(delta: float) -> void:
 		hud.modulate.a = move_toward(hud.modulate.a, 0.0 if cut else 1.0, delta * 4.0)
 	# The names, markers and plates over the world give the stage to the balloons in a cut.
 	if world is TopdownWorld and not headless and float(world.labels_a) != (0.0 if cut else 1.0): world.fade_labels(0.0 if cut else 1.0, delta)
+	# The scene's own extras' names with them (one spawned as a cut begins would keep the alpha it was made with).
+	if run != null and world is TopdownWorld and not headless:
+		for a in run.actors.values():
+			if a.object == "" and is_instance_valid(a.label): a.label.modulate.a = world.labels_a
 	if stage and (run != null or _drew): stage.queue_redraw()   # once more after a scene, to clear it
 	_drew = run != null
 
@@ -802,6 +840,7 @@ func _end_mode() -> void:
 		world.stage_cam = null
 		world.stage_zoom = 1.0
 		world.stage_hold = false
+		world.stage_bars = 0.0
 
 # ------------------------------------------------------------------ input (from the HUD, in a cut)
 ## A press starts the hold toward a skip; let go soon, it is a tap.

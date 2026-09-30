@@ -75,18 +75,18 @@ def river_boil(pl: Plane, f: int, n: int) -> None:
     u = f / max(1, n - 1)
     grow = ease_out(min(1.0, (f + 1) / 4.0))
     fade = 1.0 if f < n - 3 else (n - f) / 3.0
-    # the stain: a dark dithered pool, a deeper heart
-    cv.paint(cv.mask_ellipse(gx, gy, 40 * grow, 40 * grow), HAZE, "dither")
-    cv.paint(cv.mask_ellipse(gx, gy, 18 * grow, 18 * grow), DEEP, "dither")
-    # rings racing out, three at a time
+    # the stain: a dark dithered pool, a deeper heart (wide: the whole reach of the river round the waking body)
+    cv.paint(cv.mask_ellipse(gx, gy, 56 * grow, 56 * grow), HAZE, "dither")
+    cv.paint(cv.mask_ellipse(gx, gy, 26 * grow, 26 * grow), DEEP, "dither")
+    # rings racing out, three at a time, the nearest bright
     for k in range(3):
-        r = ((f * 5 + k * 17) % 50) + 8
-        if r < 48 * grow + 4:
-            cv.ring(gx, gy, r, 1.0, LIGHT if r < 26 else (BASE if r < 40 else DEEP))
+        r = ((f * 6 + k * 23) % 66) + 10
+        if r < 64 * grow + 4:
+            cv.ring(gx, gy, r, 1.0 if r > 30 else 2.0, GLINT if r < 22 else (LIGHT if r < 40 else (BASE if r < 56 else DEEP)))
     # bubbles rising and bursting
-    for i in range(12):
+    for i in range(16):
         a = px_hash(i, 511) * 2 * math.pi
-        rr = 6 + px_hash(i, 512) * 34 * grow
+        rr = 8 + px_hash(i, 512) * 46 * grow
         x, y = gx + math.cos(a) * rr, gy + math.sin(a) * rr
         t = (f + int(px_hash(i, 513) * 5)) % 5
         if t < 3:
@@ -94,16 +94,16 @@ def river_boil(pl: Plane, f: int, n: int) -> None:
         elif t == 3 and fade > 0.5:
             cv.plus(x, y, GLINT, 1)
     # spouts leaping in turn round the eel, and their drops
-    for i in range(7):
-        a = i * 2 * math.pi / 7 + 0.4
-        rr = 24 + px_hash(i, 521) * 14
+    for i in range(9):
+        a = i * 2 * math.pi / 9 + 0.4
+        rr = 30 + px_hash(i, 521) * 20
         x, y = gx + math.cos(a) * rr, gy + math.sin(a) * rr
         born = int(px_hash(i, 522) * (n - 6))
         t = f - born
         if t < 0 or t > 5:
             continue
-        h = (18 + px_hash(i, 523) * 14) * math.sin(math.pi * min(1.0, t / 5.0)) * fade
-        w = 9.0 - t * 0.8
+        h = (24 + px_hash(i, 523) * 20) * math.sin(math.pi * min(1.0, t / 5.0)) * fade
+        w = 10.0 - t * 0.9
         if h > 2.0:
             # a column of grey water, fat at its foot, its head breaking into a crown of drops
             cv.stroke_seg((x, y), (x, y - h), w, max(3.0, w * 0.55), table=((0.25, GLINT), (0.55, LIGHT), (0.85, BASE), (1.0, DEEP)))
@@ -117,7 +117,7 @@ def river_boil(pl: Plane, f: int, n: int) -> None:
                 dx = (d - 1) * (2 + t)
                 cv.dot(x + dx, y - h * 0.6 + (t - 2) * 3, LIGHT if d % 2 else GLINT)
     if u > 0.1 and fade > 0.3:
-        cv.ring(gx, gy, 10 + (f % 3), 1.0, GLINT)
+        cv.ring(gx, gy, 12 + (f % 3), 2.0, GLINT)
 
 
 # ------------------------------------------------------------------------------------------ Granny Liu's Nine Seals
@@ -412,7 +412,7 @@ def _s(draw, canvas, anchor, frames, fps, impact, layer, pal, north=40):
 
 
 STORY = {
-    "river_boil": _s(river_boil, (120, 100), (60, 56), 12, 12, 3, "floor", "hollow", north=44),
+    "river_boil": _s(river_boil, (160, 136), (80, 76), 16, 12, 3, "floor", "hollow", north=60),
     "talisman_array": _s(talisman_array, (128, 128), (64, 72), 16, 14, 9, "floor", "talisman", north=48),
     "force_palm": _s(force_palm, (150, 200), (75, 160), 13, 16, 5, "sorted", "palm"),
     "water_dragon": _s(water_dragon, (200, 200), (90, 160), 18, 14, 11, "sorted", "water"),

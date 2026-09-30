@@ -641,11 +641,18 @@ func _eel_overwhelm(e: EnemyState, aw: Dictionary) -> void:
 	var st: ActorState = game.actor_state(c.id) if c != null else null
 	if str(ai.state) == "final" and c != null:
 		game.combat.overwhelm(c, e, float(aw.get("overwhelm_hp", 0.3)))
-	if st != null and (str(ai.state) in ["final", "glide", "retreat", "awaken"] or e.plane.distance_to(st.plane) > 90.0):
+	if st != null:
+		# It looms up beside the fallen body, a step to one side toward the river: the side it struck from (or, straight
+		# over them or from afar, the room's middle), so its rearing body stands clear of them, and of the elders who
+		# come from their other side.
 		var lane: Vector2 = ai.get("lane", e.spawn_point)
-		var toward: Vector2 = Vector2(st.plane.x, lane.y) - st.plane
-		var at: Vector2 = st.plane + toward.limit_length(56.0)
 		var grid: TopdownRoom = game.room_rt.topdown
+		var wide := float(grid.w) * TopdownRoom.TILE if grid != null else lane.x * 2.0
+		var dx: float = e.plane.x - st.plane.x
+		var side := signf(dx) if absf(dx) > 8.0 and e.plane.distance_to(st.plane) <= 90.0 else (1.0 if st.plane.x <= wide * 0.5 else -1.0)
+		if st.plane.x + side * 46.0 < 40.0 or st.plane.x + side * 46.0 > wide - 40.0: side = -side   # not off the room's edge
+		var toward: Vector2 = Vector2(st.plane.x, lane.y) - st.plane
+		var at: Vector2 = st.plane + Vector2(side * 46.0, 0.0) + toward.limit_length(40.0)
 		e.plane = grid.nearest_standable(at) if grid != null and toward.length() > 60.0 else at
 		e.facing = 1 if st.plane.x >= e.plane.x else -1
 		e.aim = (st.plane - e.plane).normalized() if st.plane.distance_to(e.plane) > 0.5 else Vector2.UP

@@ -496,8 +496,9 @@ func sync(delta: float) -> void:
 		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
-	var inv: bool = motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0)
-	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0
+	# A cut holds the body's clocks still (Game.paused): no flinch's red or dodge's blink is held through it (decision 45).
+	var inv: bool = not Game.paused and (motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0))
+	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0 and not Game.paused
 	tint = Color(1.6, 0.8, 0.8) if hurt else Color.WHITE
 	ghost.visible = inv and int(Time.get_ticks_msec() / 25) % 2 == 0
 	if ghost.visible: ghost.get_child(0).queue_redraw()
@@ -530,5 +531,6 @@ func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
 
 func _draw() -> void:
 	# Decision 38: the first frames of a blow turn the body white (every layer at once), then the flinch's red tint.
-	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) else null
+	# A cut holds the simulation (and this body's clock) still: no blow's white is held through it either.
+	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) and not Game.paused else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)

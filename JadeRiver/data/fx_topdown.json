@@ -1701,19 +1701,19 @@
     "sheet": {
      "file": "res://art/fx/topdown/story_river_boil.png",
      "cell": [
-      104,
-      115
+      132,
+      147
      ],
      "anchor": [
-      52,
-      63
+      66,
+      81
      ]
     },
-    "frames": 12,
+    "frames": 16,
     "fps": 12,
     "impact": 3,
     "layer": "floor",
-    "north": 44
+    "north": 60
    },
    "talisman_array": {
     "sheet": {
@@ -2963,12 +2963,12 @@
   "story_river_boil": {
    "file": "res://art/fx/topdown/story_river_boil.png",
    "cell": [
-    104,
-    115
+    132,
+    147
    ],
    "anchor": [
-    52,
-    63
+    66,
+    81
    ]
   },
   "story_talisman_array": {

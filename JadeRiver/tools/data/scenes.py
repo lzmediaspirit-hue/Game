@@ -56,10 +56,14 @@ def move(actor, *to, run=False, wait=True, speed=None, est_s=None):
     return d
 
 
-def beside(target, dx=0.0, dy=0.0):
+def beside(target, dx=0.0, dy=0.0, mirror=None):
     """Decision 45: a place `dx` cells right and `dy` down of wherever `target` stands as the step begins ("player", an
-    actor, "enemy:<def>"); a person's spot is the nearest a body can stand on."""
-    return {"near": target, "off": [dx, dy]}
+    actor, "enemy:<def>"); a person's spot is the nearest a body can stand on. With `mirror` (another target), the
+    offset is written as if that one stood to the right of `target`, and turned about when it stands to the left."""
+    out = {"near": target, "off": [dx, dy]}
+    if mirror:
+        out["mirror"] = mirror
+    return out
 
 
 def face(actor, to):
@@ -145,18 +149,25 @@ def sound(sfx):
     return {"do": "sound", "sfx": sfx}
 
 
-def art(name, at="player", scale=1):
-    """Decision 45: a story art of the FX sheets (tools/art/fx/story_arts.py) where a target stands."""
+def art(name, at="player", scale=1, come_from=None):
+    """Decision 45: a story art of the FX sheets (tools/art/fx/story_arts.py) where a target stands. An art that comes
+    in from one side (the water dragon: drawn rising east of its mark) is turned to come from `come_from`'s side."""
     d = {"do": "art", "art": name, "at": list(at) if isinstance(at, tuple) else at}
     if scale != 1:
         d["scale"] = scale
+    if come_from:
+        d["from"] = come_from
     return d
 
 
-def foe(def_id, pose="", flash=False):
+def foe(def_id, pose="", flash=False, dread=None):
     """Decision 45: a foe of the room staged in a cut: its figure held in `pose` (its sheet's action; "" its own
-    again), and struck white with `flash`."""
-    return {"do": "foe", "foe": def_id, "pose": pose, "flash": flash}
+    again), and struck white with `flash`. `dread=False`: the world's dread (TopdownWorld.DREAD, while an awake foe
+    lives) lifts from it now, before it falls (the elders have it bound)."""
+    d = {"do": "foe", "foe": def_id, "pose": pose, "flash": flash}
+    if dread is not None:
+        d["dread"] = bool(dread)
+    return d
 
 
 def hitstop(s=0.12):
@@ -510,7 +521,7 @@ def night():
         fx("ring", (8.5, 16.5), color="PALE_GOLD", radius=90, dur=1.2),
         say("ping", "Too many of them? Come into my lamplight. They won't follow you here!"),
         mark({"kind": "set_flag", "flag": "grey_spread"}),
-    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), villagers_in), live=True)
+    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), villagers_in, noflag("eel_awakened")), live=True)
 
     # The eel rises (its boss card plays first): the tell taught while it circles, once the lane's beat has played.
     scene("eel_rises", "The Thing in the River", "lf_village_night", [
@@ -521,7 +532,7 @@ def night():
         say("ping", "Hit it while it's stranded, before it slides back!"),
         wait(1.0),
         say("ping", "It's only a beast, for all it's grey. It bleeds!"),
-    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), flag("grey_spread")),
+    ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), flag("grey_spread"), noflag("eel_awakened")),
         trigger={"event": "enemy_aggro", "when": {"def": "hollowed_eel"}}, live=True)
 
     # Decision 45, the first boss (docs/redesign/story_staging.md "The first boss"): at four fifths of its HP the eel
@@ -531,6 +542,7 @@ def night():
     scene("eel_awakens", "The Eel Wakes", "lf_village_night", [
         letterbox(True),
         camera("enemy:hollowed_eel", 0.5),
+        zoom(1.2, 0.5),
         foe("hollowed_eel", "windup"),
         sound("story_eel_roar"),
         shake(0.7),
@@ -544,9 +556,10 @@ def night():
         shake(0.4),
         emote("ping", "!", 1.0),
         say("ping", "Child, run! No blade can cut that thing now!"),
-        foe("hollowed_eel"),
-        handoff("Its hide turns every blow now: stay alive!", "enemy:hollowed_eel", s=5.0, then="live"),
         say("ping", "Keep moving! Don't let it pin you!"),
+        zoom(1.0, 0.4, wait=True),
+        foe("hollowed_eel"),
+        handoff("Its hide turns every blow now: stay alive!", "player", s=5.0, then="live"),
     ], actors={"ping": ping}, requires=night_on, trigger={"event": "boss_phase", "when": {"def": "hollowed_eel", "action": "awaken"}},
         hold_fight=True, resume=False)
 
@@ -564,7 +577,7 @@ def night():
         sound("story_eel_roar"),
         shake(0.35),
         say("ping", "No! Get away from the child!"),
-        spawn("granny", beside("player", -2.5, -1.5)),
+        spawn("granny", beside("player", -2.2, -0.6, mirror="enemy:hollowed_eel")),
         fx("dust", "granny", color="PAPER", count=8, dur=0.5),
         sound("land"),
         face("granny", "enemy:hollowed_eel"),
@@ -573,12 +586,12 @@ def night():
         art("talisman_array", "enemy:hollowed_eel"),
         sound("story_talisman"),
         wait(0.6),
-        foe("hollowed_eel", "hurt", flash=True),
+        foe("hollowed_eel", "hurt", flash=True, dread=False),
         hitstop(0.12),
         flash("PALE_GOLD", 0.2),
         shake(0.3),
         say("granny", "Nine seals. Now it cannot dive."),
-        spawn("ma", beside("player", 2.5, -1.5)),
+        spawn("ma", beside("player", -0.6, -2.0, mirror="enemy:hollowed_eel")),
         fx("dust", "ma", color="PAPER", count=8, dur=0.5),
         sound("land"),
         face("ma", "enemy:hollowed_eel"),
@@ -591,16 +604,16 @@ def night():
         hitstop(0.18),
         flash("GOLD", 0.2),
         shake(0.5),
-        move("boat", beside("enemy:hollowed_eel", 5, 2.5), wait=False, speed=260),
+        move("boat", beside("enemy:hollowed_eel", -4.0, 2.0, mirror="player"), wait=False, speed=260),
         say("ping", "A lamp on the water... it's Lu!"),
-        spawn("lu", beside("enemy:hollowed_eel", 2.5, -0.5)),
+        spawn("lu", beside("enemy:hollowed_eel", -2.2, -0.2, mirror="player")),
         fx("dust", "lu", color="PAPER", count=8, dur=0.5),
         sound("land"),
         face("lu", "enemy:hollowed_eel"),
         say("lu", "Back to the dark, grey thing. This river is mine."),
         pose("lu", "point", 0.8, wait=True),
         zoom(1.15, 0.4),
-        art("water_dragon", "enemy:hollowed_eel"),
+        art("water_dragon", "enemy:hollowed_eel", come_from="lu"),
         sound("story_dragon"),
         wait(0.75),
         foe("hollowed_eel", "hurt", flash=True),

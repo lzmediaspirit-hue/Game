@@ -46,6 +46,7 @@ func _main() -> void:
 	_the_night_played()
 	_flees_to_the_lamplight()
 	_a_fall_in_the_night()
+	_the_waking_takes_the_stage()
 	_reload_awake()
 	_reload_in_the_rescue()
 	_reload_after_the_kill()
@@ -513,6 +514,34 @@ func _to_the_waking() -> EnemyState:
 		step(0.1)
 		t += 0.1
 	return e
+
+## The waking is the fight's own moment: its cut takes the stage from a villager's run still playing live, at once.
+func _the_waking_takes_the_stage() -> void:
+	_to_the_night()
+	tick_watch = Callable()   # the stage driven by hand here
+	_alone()
+	_villagers_in()
+	var t := 0.0
+	while t < 5.0 and not (scene_director.run != null and bool(scene_director.run.row.get("live", false))):
+		scene_director.advance(0.05)
+		step(0.05)
+		t += 0.05
+	var live_one := str(scene_director.run.id) if scene_director.run != null else ""
+	place(TopdownRoom.cell_point([30, 32]))
+	var e: EnemyState = Game.enemies.spawn_at(EEL, TopdownRoom.cell_point([30, 36.5]), 2)
+	step(0.3)
+	e.pools.hp = e.pools.max_hp * 0.79
+	step(0.1)
+	var waited := 0.0
+	while waited < 1.0 and not (scene_director.run != null and str(scene_director.run.id) == "eel_awakens"):
+		scene_director.advance(0.05)
+		waited += 0.05
+	check(live_one != "" and scene_director.run != null and str(scene_director.run.id) == "eel_awakens",
+		"the waking's cut takes the stage from %s still playing live, in %.2f s" % [live_one, waited])
+	settle_scenes()
+	tick_watch = func():
+		scene_director.advance(0.05)
+		settle_scenes()
 
 ## Reloaded in the eel's second phase: it rises again at once, awake, with no minnows, and the elders still come.
 func _reload_awake() -> void:

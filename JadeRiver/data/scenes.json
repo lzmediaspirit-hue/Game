@@ -1872,6 +1872,10 @@
         "flag": "ma_safe"
        }
       ]
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "eel_awakened"
      }
     ]
    }
@@ -1937,6 +1941,10 @@
      {
       "kind": "flag_set",
       "flag": "grey_spread"
+     },
+     {
+      "kind": "flag_not_set",
+      "flag": "eel_awakened"
      }
     ]
    },
@@ -1966,6 +1974,12 @@
      "to": "enemy:hollowed_eel",
      "s": 0.5,
      "wait": true
+    },
+    {
+     "do": "zoom",
+     "z": 1.2,
+     "s": 0.5,
+     "wait": false
     },
     {
      "do": "foe",
@@ -2038,6 +2052,18 @@
      "box": "balloon"
     },
     {
+     "do": "say",
+     "actor": "ping",
+     "text": "Keep moving! Don't let it pin you!",
+     "box": "balloon"
+    },
+    {
+     "do": "zoom",
+     "z": 1.0,
+     "s": 0.4,
+     "wait": true
+    },
+    {
      "do": "foe",
      "foe": "hollowed_eel",
      "pose": "",
@@ -2046,16 +2072,10 @@
     {
      "do": "handoff",
      "prompt": "Its hide turns every blow now: stay alive!",
-     "at": "enemy:hollowed_eel",
+     "at": "player",
      "until": [],
      "then": "live",
      "s": 5.0
-    },
-    {
-     "do": "say",
-     "actor": "ping",
-     "text": "Keep moving! Don't let it pin you!",
-     "box": "balloon"
     }
    ],
    "live": false,
@@ -2163,9 +2183,10 @@
      "at": {
       "near": "player",
       "off": [
-       -2.5,
-       -1.5
-      ]
+       -2.2,
+       -0.6
+      ],
+      "mirror": "enemy:hollowed_eel"
      }
     },
     {
@@ -2215,7 +2236,8 @@
      "do": "foe",
      "foe": "hollowed_eel",
      "pose": "hurt",
-     "flash": true
+     "flash": true,
+     "dread": false
     },
     {
      "do": "hitstop",
@@ -2243,9 +2265,10 @@
      "at": {
       "near": "player",
       "off": [
-       2.5,
-       -1.5
-      ]
+       -0.6,
+       -2.0
+      ],
+      "mirror": "enemy:hollowed_eel"
      }
     },
     {
@@ -2318,9 +2341,10 @@
       {
        "near": "enemy:hollowed_eel",
        "off": [
-        5,
-        2.5
-       ]
+        -4.0,
+        2.0
+       ],
+       "mirror": "player"
       }
      ],
      "run": false,
@@ -2339,9 +2363,10 @@
      "at": {
       "near": "enemy:hollowed_eel",
       "off": [
-       2.5,
-       -0.5
-      ]
+       -2.2,
+       -0.2
+      ],
+      "mirror": "player"
      }
     },
     {
@@ -2383,7 +2408,8 @@
     {
      "do": "art",
      "art": "water_dragon",
-     "at": "enemy:hollowed_eel"
+     "at": "enemy:hollowed_eel",
+     "from": "lu"
     },
     {
      "do": "sound",

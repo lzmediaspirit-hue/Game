@@ -174,6 +174,7 @@ static func problems(scene: Dictionary) -> Array:
 				var beside: Array = (st.get("to", []) as Array).filter(func(q): return q is Dictionary)
 				for q in beside:
 					if not _target_ok(q.get("near", ""), actors, def): out.append("%s: goes beside %s" % [where, str(q.get("near", ""))])
+					if q.has("mirror") and not _target_ok(q.mirror, actors, def): out.append("%s: mirrors on %s" % [where, str(q.mirror)])
 				if beside.is_empty() and who != "player" and str(actors[who].get("prop", "")) == "":
 					if not at.has(who): at[who] = home(scene, who, def, grid).get("at", Vector2.ZERO)
 					if walk_path(grid, at[who], st.get("to", [])).is_empty(): out.append("%s: %s has no way on foot to %s" % [where, who, str(st.get("to", []))])
@@ -199,15 +200,18 @@ static func problems(scene: Dictionary) -> Array:
 			"spawn", "despawn":
 				if not actors.get(who, {}).get("npc", actors.get(who, {}).get("prop", "")): out.append("%s: %s is no extra" % [where, who])
 				if st.get("at") is Dictionary and not _target_ok(st.at.get("near", ""), actors, def): out.append("%s: spawns beside %s" % [where, str(st.at.get("near", ""))])
+				if st.get("at") is Dictionary and st.at.has("mirror") and not _target_ok(st.at.mirror, actors, def): out.append("%s: mirrors on %s" % [where, str(st.at.mirror)])
 			# Decision 45: a story art of the FX pipeline where a target stands, a foe of the room staged, a hit-stop.
 			"art":
 				if not (ContentDB.config("fx_topdown").get("story", {}).get("arts", {}) as Dictionary).has(str(st.get("art", ""))): out.append("%s: art %s is no story art of the FX sheets" % [where, str(st.get("art", ""))])
 				if not _target_ok(st.get("at", "player"), actors, def): out.append("%s: at %s" % [where, str(st.get("at", ""))])
+				if st.has("from") and not _target_ok(st.from, actors, def): out.append("%s: comes from %s" % [where, str(st.from)])
 			"foe":
 				var foe := str(st.get("foe", ""))
 				var acts: Dictionary = grid.tileset.get("foes", {}).get("species", {}).get(foe, {}).get("actions", {}) if ContentDB.has_entry("enemies", foe) else {}
 				if not ContentDB.has_entry("enemies", foe): out.append("%s: foe %s" % [where, foe])
 				elif str(st.get("pose", "")) != "" and not acts.has(str(st.pose)): out.append("%s: %s has no %s on its sheet" % [where, foe, str(st.pose)])
+				if st.has("dread") and not (st.dread is bool): out.append("%s: dread %s is no yes or no" % [where, str(st.dread)])
 			"hitstop": if float(st.get("s", 0.0)) <= 0.0 or float(st.get("s", 0.0)) > 0.5: out.append("%s: a hit-stop of %.2f s" % [where, float(st.get("s", 0.0))])
 			"branch", "goto":
 				for k in ["then", "else", "label"]:

@@ -138,15 +138,16 @@ their quests, gates and tests as they were. Staged times are measured by `SceneR
 | 6 | `night_ma_goes`, `night_granny_goes`, `night_dou_runs` (live) | Each villager sent in runs (or hobbles) through the night to Ping's door, and she takes them in | The night's task, one villager at a time |
 | 6 | `grey_spreads` (live) | The schools pour up the lane from both ends; Ping points to her lamplight | The refuge: the minnows let you be by her door |
 | 6 | `eel_rises` (live, after its boss card) | Ping: "when it rears up, get out of its line!" | The tell: "It rears before it lunges: step aside, then strike it on the bank" |
-| 6 | `lu_arrives` (live, the climax) | Lu's boat comes up the river; he leaps ashore, and as the great lunge lands his palm pins the eel | "Strike the pinned eel"; the palm he teaches on the boat |
-| 6 | `grey_lifts` | The grey lifts; Lu: "You held the bank, child. Not one of them lost." He will teach you the palm | The way on to Lu's boat |
+| 6 | `eel_awakens` (a cut that holds the fight, decision 45) | At four fifths of its HP the eel wakes: it rears in a boiling river, roars, and the night's colours bruise; Aunt Ping: "No blade can cut that thing now!" | "Its hide turns every blow now: stay alive!" |
+| 6 | `elders_come` (a cut that holds the fight) | The eel has you down. Granny Liu binds it with Nine Seals, Old Ma drops the Thousand-Catty Palm on it, and Lu comes up the river and his river dragon slays it | That the elders of the village are cultivators |
+| 6 | `grey_lifts` | The grey lifts; the elders tell you what you saw was cultivation, and Lu felt your Qi stir: "Tonight you begin to cultivate" | The way on to Lu's boat |
 | 7 | `river_token` (Lu's Boat) | Lu names the Hollowed eel and your gift, then sits to meditate | Cultivate: "Meditate: tap Cultivate" |
 | 7 | `first_breakthrough` | After the breakthrough's moment: a zoom, and Lu's "Bone Forging: your first step". Handed the token, he shows Flowing Palm on the river and says why you leave: the sects choose at Stoneford this spring. Go west | The breakthrough as a scene; the reason to leave home |
 | 8 | `market_thief` (Market Street) | A purse snatched at the tea house, the thief gone over the west road | The rooftop thief, foretold |
 | 9 | `fair_arrival` (Fairground) | Title "The Recruitment Fair". The recruiters call over each other; Shen Lian finds you | The choice ahead |
 | 9 | `sect_chosen` | Your sect's recruiter welcomes you and its name is written over the crowd; Shen Lian's rivalry begins | The choice, marked |
 
-There are 22 scenes, each 10–26 s staged. In the top-down walk, the first hour's clock includes their cuts and still
+There are 23 scenes, each 10–31 s staged. In the top-down walk, the first hour's clock includes their cuts and still
 meets its pacing (`tests/tutorial_order.gd` invariant 14).
 
 ### 3.3 Tests
@@ -163,8 +164,9 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
 - **`topdown_tutorial`** plays every scene of the tutorial to its end on a headless director as the walk reaches it.
   The walk's own actions satisfy the hand-offs. The cut time counts on the play clock, and every earlier invariant
   and check still passes.
-- **`hollow_night`** (decision 42) plays the Hollow Night through on a headless director. It checks that all 8 of
-  its scenes play to their end, in the order of its beats (3.5).
+- **`hollow_night`** (decisions 42 and 45) plays the Hollow Night through on a headless director. It checks that all
+  9 of its scenes play to their end, in the order of its beats (3.5), and that the first boss is neither winnable nor
+  able to kill, whatever the player does (3.6).
 - **The event contract** gains `scene_started`, `scene_marked`, `scene_ended`, and four events the hand-offs wait on
   that it had missed: `page_opened`, `quest_failed`, `object_hit` and `quick_use_changed`.
 
@@ -211,22 +213,24 @@ the fight live around the player.
 | Get them in | Clear each villager's minnows, talk, send them in | One-blow foes that dart after a 0.55 s tell; Ping's lamplight (150 px) is a refuge | `night_*` (live), one per villager |
 | The grey spreads | Hold the lane | Schools from both ends every 2.5 s for 24 s, four at most, hunting the player | `grey_spreads` (live) |
 | The eel rises | Read its tell; strike it ashore | 14 s after the villagers are in. Boss card and bar. It glides out of reach, rears (1.1 s), lunges where you stood and lies on the bank for 2.4 s | `eel_rises` (live; waits for `grey_spreads`) |
-| The climax | Step aside from the great lunge, then strike the pinned eel | Below half its HP it dives. Great lunges only (a 1.8 s tell), and Lu's palm pins it for 5.5 s (3.5 s after that) | `lu_arrives` (live) |
-| The grey lifts | Listen; go to the boat | The event is won (the eel down, or the 200 s held) | `grey_lifts` (a cut; its last step lets the night's way on take you to Lu's boat) |
+| It wakes (decision 45) | Survive what cannot be beaten | At 80% of its HP it wakes: the first boss's second phase (3.6) | `eel_awakens` (a cut that holds the fight, then live) |
+| The rescue | Watch the elders | It has you down; the elders slay it | `elders_come` (a cut that holds the fight) |
+| The grey lifts | Listen; go to the boat | The event is won (the eel slain; the 320 s are a last resort) | `grey_lifts` (a cut; its last step lets the night's way on take you to Lu's boat) |
 
-**Fairness.** A lunge takes about an eighth of the story's 80 HP, and the great lunge about a sixth. Evening on the
-River heals you fully first, Granny gives you a healing pill, and three teas come with the night. `balance_sim` holds
-that a careful player with the crab's short blade ends with at least half their HP. If you fall, you wake at Ping's
-door and the night begins again.
+**Fairness.** A lunge takes about an eighth of the story's 80 HP. Evening on the River heals you fully first, Granny
+gives you a healing pill, and three teas come with the night. `balance_sim` holds that a careful player with the crab's
+short blade comes through the eel's first phase with at least half their HP. If you fall before it wakes, you wake at
+Ping's door and the night begins again.
 
 **Rewards:**
 
-- the eel's first-defeat fang (a rare find);
+- the eel's first-defeat fang (a rare find: the elders' kill leaves it for you);
 - a pearl, taels and 15 Fame;
 - the title Guardian of Lotus Ferry;
 - the minnows' shards;
 - two teas for an untouched night;
-- the palm Lu teaches on the boat.
+- the palm Lu teaches on the boat;
+- the teas and pills you used against the awakened eel, given back.
 
 **Screenshots** (`tools/dev/topdown_capture.tscn -- --night`, in `docs/redesign/feedback/hollow_night/`):
 
@@ -235,10 +239,139 @@ door and the night begins again.
 - 08: the grey spreading up the lane;
 - 09: the eel's boss card;
 - 10–11: its tell, and its window ashore;
-- 12–13: the climax: Lu comes, and his palm pins it;
-- 14: the eel's fall, with its loot;
+- 12–14: the climax as it was before decision 45 (Lu's palm; now the first boss's rescue, in
+  `docs/redesign/feedback/first_boss/`);
 - 15–16: the grey lifting, and Lu's promise;
 - 17: on Lu's boat.
+
+### 3.6 The first boss (decision 45)
+
+The user: "The first boss before the character learns cultivation should feel more unique. For example, the boss should
+start phase 2 at 80% HP and become super strong so the player can't defend it. Then a cut scene where the elders of the
+village save the player and kill the boss with cool cultivation skills, and then the player should start learning
+cultivation." The Hollowed Eel is that boss. Its fight is `EnemyAuthority._eel` and its row in `tools/data/enemies.py`;
+its scenes are `eel_awakens`, `elders_come` and `grey_lifts` in `tools/data/scenes.py`.
+
+**Phase 1** is the fight of 3.5: its tell, its lunge, its window on the bank. The eel has 3.3 times its old HP
+(`hp_mult` 1.0, from 0.3), so a careful player with the short blade takes it to 80% in a few windows (about 17 to 50 s
+in the tests; `balance_sim`: phase 1 won 4 of 4 with the short blade and with Guo's gauntlets alone).
+
+**The waking.** At 80% of its HP (its phase, `awaken`; or 90 s into its fight, for a player who never strikes it) it
+throws itself back into the river and rises greater:
+
+- **The cut:** `eel_awakens` holds the fight (a scene with `hold_fight` may start a cut in a fight, the simulation
+  still under it, and takes the stage from any live part still playing). The camera goes to the eel, which rears in
+  its awakened pose. The river boils round it (the story art `river_boil`), it roars (`story_eel_roar`,
+  `story_river_boil`), the screen shakes and flashes, and Aunt Ping cries a warning. The hand-off prompt tells the truth
+  of it: "Its hide turns every blow now: stay alive!"
+- **Its look:** the awakened sheet (`art/topdown/foes/hollowed_eel_awakened.png`, `creatures.py`'s `awakened` look,
+  `creature/eel.py` `awake`) is 1.22 times its size, bruised violet near black, with red-edged fins grown into a crest
+  of spines, burning red eyes, twice the strands and the Hollow's own grey-violet ring with embers.
+- **The world:** it multiplies toward the colour of dread (`TopdownWorld.DREAD`) over 1.2 s, and back as Granny Liu's
+  seals bind the eel in the rescue (the `foe` step's `dread=False`) or when it falls. The music crosses on the beat to
+  the eel's awakened theme (`boss_eel_awakened`: the night's 6/8 at 150, doubled low drums, a pipa tremolo on the flat
+  second, no flute). The grey minnows flee, and no more come.
+- **The HUD:** the boss bar's notch at 80% reads "It wakes". Once it has woken, the bar under its floor is hatched over
+  in stone and marked "Its hide turns every blow". A blow that reaches the floor shows "Glances off" in place of a
+  number. The night's event shows no countdown (`clock: false`), since the time is not what the player is holding out
+  for.
+
+**Phase 2** cannot be won and cannot kill, by design:
+
+- **Stronger:** its surge has a faster tell (0.6 s), a longer reach (300), a band three tiles wide, and a 0.5 s
+  window. Every other landing it thrashes round where it lies.
+- **Unblockable, and out of reach of healing:** its blows are `unblockable` (they pass a guard and a parry; a dodge
+  still slips them). Each takes a share of the player's most HP (`hp_share`: 18%, the thrash 12%), whatever they wear,
+  and never misses.
+- **Its hide:** its HP never falls below 72% again (`hp_floor`). Every way of hurting a foe goes through
+  `CombatAuthority._damage_enemy`, which holds the floor: a blow, a technique, a burn, a treasure.
+- **Its floor:** no blow takes the player under 30% of their HP while it is awake (`overwhelm_hp`; `_damage_player`
+  asks `EnemyAuthority.hold_floor`). The blow of its that reaches the floor ends the fight.
+- **Its clock:** if the player slips every surge, the river rises over the bank 22 s into the phase
+  (`overwhelm_s`: the eel rears over the water, then the crash takes the player to the floor, `CombatAuthority.overwhelm`,
+  which nothing slips).
+
+Either way the fight ends in the player **overwhelmed**. The eel looms beside them where they fell (a step to one side,
+toward the river, so its rearing body does not hide them), and they are held down (a stun). The Enemies system
+announces `boss_overwhelmed`, and the rescue begins.
+
+**The rescue** (`elders_come`, a cut that holds the fight, about 24 s staged). The elders are the villagers the night
+had you save, and Lu:
+
+| Elder | Arrives | Art (story art, sound) | Line |
+|---|---|---|---|
+| Granny Liu (83, the herbalist whose Qi spring is by her hut) | Leaps in beside you out of the dark | **Nine Seals**: nine paper talismans spiral in and plant themselves round the eel, a double ring and a nine-pointed star of vermilion ink join them, and the array flares (`talisman_array`, `story_talisman`) | "Old legs, child. Not old hands." / "Nine seals. Now it cannot dive." |
+| Old Ma (72, the shopkeeper) | Leaps in on your other side | **Thousand-Catty Palm**: a golden palm the size of a door falls onto the eel and slams it into the ground, with a shock ring, cracks and stone chips (`force_palm`, `story_palm`) | "Thousand-Catty Palm! That one's for my shop!" |
+| Lu (the ferryman) | His boat comes up the river; he leaps ashore by the eel | **Coiling River Dragon**: the river rises as a horned, whiskered dragon of water, arches over the bank and dives onto the eel, bursting into a crown of spray (`water_dragon`, `story_dragon`) | "Back to the dark, grey thing. This river is mine." |
+
+Each art lands with a hit-stop (a `hitstop` step holds the stage's clock, the effects and the struck figure), a white
+flash on the eel (the `foe` step stages its figure), a screen flash and a shake. The dragon's checkpoint slays the eel
+(`slay_foe`, a scene effect: `CombatAuthority.slay` with the elders as its killer; its loot falls for you). The
+event is won, `night_held` is set, and `boss_fall` sounds. What you drank or used against the awakened eel is given back.
+
+**The thread into cultivation** (`grey_lifts`, rewritten): the elders stand you up and heal you. Aunt Ping cannot
+believe it. Old Ma says every old dog in the village had a sect once, and Granny names what you saw: "cultivation,
+child. Qi, drawn in and let out." Lu felt your Qi stir when the eel struck you, and says: "Tonight you begin to
+cultivate." Its last checkpoint sets `lu_on_the_bank`; the event's way on sets `night_survived` and takes you to his
+boat. The quest and flag order of the night is unchanged, so Cultivate, the Cultivation page, the breakthrough and the
+Codex unlock there as before, and their tutorials with them. The River Token's offer follows on ("I felt it stir on the
+bank").
+
+**No soft-lock.** Whatever the player does, the rescue comes:
+
+- **Fleeing:** a player who hides in the lamplight and never strikes the eel still meets its waking on its clock and
+  is overwhelmed when the river rises.
+- **A fall:** one in phase 1 wakes you at Aunt Ping's door and the night begins again; in phase 2 there is none.
+- **A reload:** the eel's flags carry its phase over a reload. `eel_awakened`: it rises again at once, awake, with no
+  minnows (the event's `unless` and `from_start` rows). `eel_overwhelmed`: it has the player down again at once, so
+  the rescue plays. `night_held`: the event comes back won (`won_if`), with no foes, and `grey_lifts` plays (it is
+  started by its requirement, not by an event, and resumes at its checkpoint).
+- **Scenes cut short:** the waking and the rescue are fights' moments (`resume: false`). Cut short, they are not
+  taken up at a reload; each plays again whole, its checkpoints' effects with it, when its trigger comes.
+- **No director:** should no scene play (the side view), the elders slay the eel in the simulation 30 s after it has
+  the player down (`rescue_s`). The cut holds the simulation, so that clock never runs out during the scene.
+- **Last resort:** the event's 320 s timer still wins the night.
+
+**What the stage gained for it** (`SceneDirector`, validated by `SceneRules`):
+
+- steps `art` (a story art of the FX sheets where a target stands, `TopdownFx.story`; `from` turns one that comes in
+  from a side, the dragon from Lu's), `foe` (a room's foe staged: its sheet's pose held, a struck flash, the world's
+  dread lifted from it) and `hitstop` (the stage's clock, its effects and the struck figures held);
+- spots `beside(target, dx, dy, mirror=other)` for `spawn` and `move`: cells from wherever the target stands as the
+  step begins, turned about when `other` stands to its left (the elders land on the side away from the eel, Lu on
+  the side away from you);
+- `hold_fight` and `resume: false` on a scene (above);
+- under a letterbox the staged camera may look past the room's edge by the bar's height (`TopdownWorld.stage_bars`),
+  so a foe in the river at the room's foot is framed above the bar;
+- a cut holds the simulation, so a blow's white flash, flinch tint or dodge blink that was under way is not held on
+  the bodies through it (the player and the eel are both struck as the cuts begin);
+- on room events, `unless` (a spawn or wave left out under a requirement), `from_start` (a timed spawn decided as the
+  event begins: left out for good if its requirement fails then) and `won_if` (the event comes back won).
+
+**Tests.** `hollow_night` (76 checks) covers each of the following:
+
+- the kill bug;
+- the eel driven to its waking by the basic attack and by a technique alone;
+- its hide under a blow of a billion, a burn and a technique of a million;
+- its surge through a guard in the parry window;
+- the player's floor, the overwhelm, the stun, and the simulation's rescue;
+- the night played on a headless director, where the eel dies in `elders_come`, cultivation unlocks after
+  `night_survived`, the Cultivation page's tutorial is due, and what was drunk in phase 2 is given back;
+- the lamplight;
+- a fall;
+- the waking's cut taking the stage from a live run;
+- a reload in phase 2, in the rescue cut short, and after the kill.
+
+`prologue_run`'s night checks that phase 1 is won by blows, that the player is overwhelmed without a fall, and that the
+elders slay it. `balance_sim`'s "story night" holds that phase 1 falls to the player every time, HP to spare, with the
+short blade or Guo's gauntlets alone.
+
+**Screenshots** (`tools/dev/topdown_capture.tscn -- --first-boss`, in `docs/redesign/feedback/first_boss/`):
+
+- `before_*`: the night's climax before the rework (build 110);
+- `after_*`: phase 1 under the boss bar, the waking (the river boiling, Aunt Ping's warning), phase 2 (the prompt, the
+  surge, a blow glancing off the hatched bar), overwhelmed, each elder arriving and their art, the eel's fall, the
+  elders' explanation, and Lu's boat.
 
 ## Sources
 

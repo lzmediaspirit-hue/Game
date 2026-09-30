@@ -580,7 +580,7 @@ def lotus_ferry():
     r = Room("lf_village_night", "Lotus Ferry at Night", "story", "lotus_ferry", 2, material="earth", backdrop="valley_night",
              music="night_hollow", ambience="night_ambience", spawn_point=[1500, 820], instanced=True, safe=False,
              tint="#8fa0b8", night=True, custom_ground=True, levels=[1, 1], refuge="hut_refuge",
-             event={"id": "hollow_night", "duration": 320, "win_on_kill": "hollowed_eel", "timeout_wins": True,
+             event={"id": "hollow_night", "duration": 320, "win_on_kill": "hollowed_eel", "timeout_wins": True, "clock": False,
                     "won_if": all_of(flag("night_held")),
                     "fixed_spawns": [{"enemy": "hollow_minnow", "at": at, "level": 1, "unless": all_of(flag("eel_awakened"))}
                                      for at in ([2180, 860], [2320, 850], [940, 800], [1070, 790], [1660, 810], [1790, 800])],

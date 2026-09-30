@@ -215,7 +215,7 @@ func dust(kind: String, at: Vector2, z: float, dir := Vector2.DOWN) -> FxSprite:
 ## awakening (the river boiling) and the elders' arts (Granny Liu's talisman array, Old Ma's palm of force, Lu's water
 ## dragon), anchored on the floor at `at` (world units), at a whole scale; a flat one (an array on the ground) under the
 ## bodies standing in it, an upright one (a dragon, a palm) in front of the body there.
-func story(name: String, at: Vector2, k := 1.0) -> FxSprite:
+func story(name: String, at: Vector2, k := 1.0, flip := false) -> FxSprite:
 	var s: Dictionary = cfg().get("story", {}).get("arts", {}).get(name, {})
 	if s.is_empty() or world.room == null: return null
 	var h: float = world.room.height_at(at)
@@ -223,7 +223,7 @@ func story(name: String, at: Vector2, k := 1.0) -> FxSprite:
 	var flat := str(s.get("layer", "")) == "floor"
 	var scale := maxf(1.0, roundf(k))
 	return play(s.get("sheet", {}), 0, {"at": art(at, z), "key": key_of(at, z, flat, float(s.get("north", 40)) * scale),
-		"scale": scale, "fps": float(s.get("fps", 12)), "frames": int(s.get("frames", 1))})
+		"scale": scale, "fps": float(s.get("fps", 12)), "frames": int(s.get("frames", 1)), "flip": flip})
 
 ## A looping mark held while a state lasts (the guard, the charge of a dragged finisher): shown at `at` facing `dir`
 ## while `on`, following the body; dropped when it ends.

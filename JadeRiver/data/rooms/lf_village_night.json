@@ -276,6 +276,7 @@
   "duration": 320,
   "win_on_kill": "hollowed_eel",
   "timeout_wins": true,
+  "clock": false,
   "won_if": {
    "all": [
     {

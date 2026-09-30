@@ -5,7 +5,8 @@ extends Node
 ## a top-down character's game, every room converted in Phase 4 and a quest talk (docs/redesign/phase4/); `-- --chapter2`:
 ## the rooms of chapter 2's stretch (Phase 4's second part) with their foes, into the same folder; `-- --tutorial-foes`:
 ## the tutorial rooms' eel, minnows, Old Snapper and mossback toads in their own figures, into it too. `-- --combat`:
-## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --decision42` and `-- --decision42-route`:
+## decision 38's combat feel in the game (docs/redesign/phase5/combat/). `-- --first-boss`: decision 45's first boss, its
+## waking and the elders' rescue (docs/redesign/feedback/first_boss/). `-- --decision42` and `-- --decision42-route`:
 ## the prototype feedback's weave, sprint and auto-path (docs/redesign/feedback/combat/). `-- --quality
 ## --quality-tag=<before|after>`: decision 42's character drawn better, the same instants before and after the rollout
 ## (docs/redesign/feedback/character_quality/rollout/). `-- --people-scale --people-tag=<before|after>`: decision 43's
@@ -36,6 +37,7 @@ func _ready() -> void:
 func _main() -> void:
 	var saves := SAVES if not "--terrain" in OS.get_cmdline_user_args() else "user://terrain_capture_saves/"
 	if "--night" in OS.get_cmdline_user_args(): saves = "user://night_capture_saves/"   # on its own saves, beside another capture
+	if "--first-boss" in OS.get_cmdline_user_args(): saves = "user://first_boss_capture_saves/"
 	if "--quality" in OS.get_cmdline_user_args(): saves = "user://quality_capture_saves/"
 	if "--people-scale" in OS.get_cmdline_user_args(): saves = "user://people_scale_capture_saves/"
 	if "--monsters" in OS.get_cmdline_user_args(): saves = "user://monsters_capture_saves/"
@@ -63,6 +65,9 @@ func _main() -> void:
 		return
 	if "--night" in OS.get_cmdline_user_args():
 		await hollow_night()
+		return
+	if "--first-boss" in OS.get_cmdline_user_args():
+		await first_boss()
 		return
 	if "--chapter2" in OS.get_cmdline_user_args():
 		await chapter2()
@@ -1587,6 +1592,140 @@ func hollow_night() -> void:
 	print("topdown_capture: the Hollow Night done")
 	get_tree().quit()
 
+## Decision 45 (`-- --first-boss`, into docs/redesign/feedback/first_boss/): the first boss reworked, played in the
+## game with its own director, moments, music and effects by a character the story has brought to the night (the short
+## blade, the straw hat, three teas): its first phase ashore under the boss bar (its waking notch at 80%), the waking
+## cut (the eel reared, the river boiling, the night's colours bruised), the second phase (its surge, the hatched bar,
+## a blow glancing off its hide), the player overwhelmed under it, the elders' rescue (Granny Liu's Nine Seals, Old
+## Ma's Thousand-Catty Palm, Lu's river dragon), its fall, the elders telling what cultivation is, and Lu's boat with
+## the Cultivate button newly on the HUD. The shots are named after_NN_*; before_NN_* are the same moments of the
+## night before the rework (the hollow_night capture of build 110).
+func first_boss() -> void:
+	var out := "res://docs/redesign/feedback/first_boss/"
+	await _topdown_game(out)
+	await frames(240)
+	var c = Game.active()
+	for q in ["morning_tide", "a_quiet_river", "the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first", "crab_trouble"]:
+		c.quests.active.erase(q)
+		c.quests.done[q] = 1
+	Unlocks.evaluate(c.id)
+	c.inventory.equipped["weapon"] = LootRules.make_instance("training_short_blade", 1, "common", null, 910)
+	c.inventory.equipped["hat"] = LootRules.make_instance("plain_straw_hat", 1, "common", null, 911)
+	Game.inventory.apply_add(c.id, "herbal_tea", 3, "capture")
+	Game.combat.refresh_stats(c.id)
+	Game.apply_effects(c.id, ContentDB.entry("quests", "evening_on_the_river").get("rewards", []), "capture")
+	GameEvents.flush()
+	await frames(20)
+	w = main.world
+	p = w.player
+	m = p.motor
+	# The fight's beats as they come, for the log (the shots are timed on the scenes' steps).
+	var heard := {"glance": 0}
+	GameEvents.event.connect(func(n: String, pl: Dictionary):
+		if n == "hit_landed" and pl.get("glance", false): heard.glance = int(heard.glance) + 1
+		if n in ["boss_phase", "boss_overwhelmed", "scene_started", "scene_ended"] or (n == "actor_defeated" and str(pl.get("def", "")) == "hollowed_eel"):
+			print("  first boss: %.1f s %s %s" % [Game.sim_time, n, str(pl.get("scene", pl.get("action", pl.get("killer", ""))))]))
+	# The villagers sent in at once, their scenes played through (the night's first beats are hollow_night's shots).
+	var keep_whole := {"on": true}
+	get_tree().physics_frame.connect(func(): if keep_whole.on and Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp)
+	await scene_at("hollow_rises", "handoff", 0.2, "", 0, 3600)
+	for f in ["ma_safe", "granny_safe", "dou_safe"]: Game.quest.apply_flag(c.id, f)
+	GameEvents.flush()
+	m.place(w.room.nearest_standable(TopdownRoom.cell_point([19, 32])))
+	for i in 7200:
+		if _foe("hollowed_eel") != null and main.scenes.run == null and not main.moments.screen_busy(): break
+		var near: EnemyState = _foe("hollow_minnow")
+		if near != null and near.plane.distance_to(m.pos) < 50.0 and i % 12 == 0: p.aim_attack((near.plane - m.pos).normalized())
+		await frames(1)
+	var eel: EnemyState = _foe("hollowed_eel")
+	for e in Game.room_rt.living_enemies(): if e.def_id == "hollow_minnow": Game.enemies.release(e)
+	Game.room_rt.event.waves = []
+	# Phase 1: its window ashore under the boss bar, at 88% (the waking's notch at 80% ahead), once the villagers' own
+	# scenes on the way to the hut have played (their balloons off the bar).
+	var quiet := 0
+	for i in 2400:
+		quiet = quiet + 1 if main.scenes.run == null and main.scenes.queue.is_empty() else 0
+		if quiet > 45: break
+		await frames(1)
+	await _eel_bank(eel)
+	for i in 900:
+		if str(eel.ai.state) == "beached": break
+		if str(eel.ai.state) == "windup" and eel.ai.get("land", Vector2.INF) != Vector2.INF:
+			var land: Vector2 = eel.ai.land
+			m.place(w.room.nearest_standable(land + Vector2(-eel.aim.y, eel.aim.x) * 72.0))
+		elif str(eel.ai.state) == "glide" and eel.plane.distance_to(m.pos) > 130.0: await _eel_bank(eel)
+		await frames(1)
+	eel.pools.hp = eel.pools.max_hp * 0.9
+	await _strike_eel(eel, 24)
+	await shot("after_01_phase_one_the_eel_ashore", out)
+	# The waking: at 80% it throws itself back into the river and rises awake (the cut that holds the fight).
+	eel.pools.hp = eel.pools.max_hp * 0.81
+	await _strike_eel(eel, 30)
+	if int(eel.ai.get("phase", -1)) < 0: eel.pools.hp = eel.pools.max_hp * 0.79
+	await scene_at("eel_awakens", "wait", 0.3, "", 0, 2400)
+	await shot("after_02_it_wakes_the_river_boils", out)
+	await scene_at("eel_awakens", "say", 1.2, "boiling", 0, 2400)
+	await shot("after_03_it_wakes_aunt_pings_warning", out)
+	await scene_at("eel_awakens", "handoff", 0.4, "", 0, 2400)
+	await shot("after_04_phase_two_stay_alive", out)
+	# Phase 2: the surge rearing at the player, then a blow glancing off its hide under the hatched bar.
+	for i in 900:
+		if str(eel.ai.state) == "windup" and int(eel.ai.get("attack", 0)) == 1 and float(eel.ai.timer) < 0.3: break
+		if str(eel.ai.state) == "glide" and eel.plane.distance_to(m.pos) > 200.0: await _eel_bank(eel)
+		await frames(1)
+	await shot("after_05_phase_two_the_surge", out)
+	for i in 900:
+		if str(eel.ai.state) == "beached": break
+		await frames(1)
+	# In front of it (lower on the screen than its body), striking until a blow glances off its hide (at its floor).
+	eel.pools.hp = eel.pools.max_hp * float(eel.ai.get("hp_floor", 0.72))
+	m.place(w.room.nearest_standable(eel.plane + Vector2(-34, 12)))
+	var glanced := int(heard.glance)
+	for i in 120:
+		if i % 10 == 0: p.aim_attack((eel.plane - m.pos).normalized())
+		Game.active().pools.hp = Game.active().pools.max_hp
+		await frames(1)
+		if int(heard.glance) > glanced:
+			await frames(8)
+			break
+	await shot("after_06_phase_two_its_hide_turns_the_blow", out)
+	# Overwhelmed: the body let go; the eel's blows take it to the floor.
+	keep_whole.on = false
+	for i in 1800:
+		if main.scenes.run != null and str(main.scenes.run.id) == "elders_come": break
+		if str(eel.ai.state) == "glide" and eel.plane.distance_to(m.pos) > 200.0: await _eel_bank(eel)
+		await frames(1)
+	await scene_at("elders_come", "say", 1.2, "Get away", 0, 2400)
+	await shot("after_07_overwhelmed_the_eel_looms", out)
+	await scene_at("elders_come", "say", 1.0, "Old legs", 0, 2400)
+	await shot("after_08_granny_liu_comes", out)
+	await scene_at("elders_come", "wait", 0.55, "", 0, 2400)
+	await shot("after_09_granny_lius_nine_seals", out)
+	await scene_at("elders_come", "say", 1.2, "Thousand-Catty", 0, 2400)
+	await shot("after_10_old_ma_comes", out)
+	await scene_at("elders_come", "wait", 0.24, "", 1, 2400)
+	await shot("after_11_old_mas_thousand_catty_palm", out)
+	await scene_at("elders_come", "say", 1.2, "Back to the dark", 0, 2400)
+	await shot("after_12_lu_comes_up_the_river", out)
+	await scene_at("elders_come", "wait", 0.4, "", 2, 2400)
+	await shot("after_13_lus_river_dragon_rises", out)
+	await scene_at("elders_come", "wait", 0.08, "", 3, 2400)
+	await shot("after_14_the_dragon_strikes", out)
+	await scene_at("elders_come", "wait", 0.9, "", 3, 2400)
+	await shot("after_15_the_eel_falls", out)
+	await scene_at("grey_lifts", "say", 1.6, "cultivation, child", 0, 3600)
+	await shot("after_16_what_you_saw_was_cultivation", out)
+	await scene_at("grey_lifts", "say", 1.6, "you begin", 0, 2400)
+	await shot("after_17_come_to_my_boat", out)
+	await until_idle()
+	for i in 1800:
+		if Game.room_rt != null and Game.room_rt.room_id == "lf_lu_boat" and main.scenes.run != null and str(main.scenes.run.id) == "river_token": break
+		await frames(1)
+	await scene_at("river_token", "handoff", 0.8, "", 0, 2400)
+	await shot("after_18_on_lus_boat_cultivate", out)
+	print("topdown_capture: the first boss done")
+	get_tree().quit()
+
 func _foe(def_id: String) -> EnemyState:
 	for e in Game.room_rt.living_enemies():
 		if e.def_id == def_id and e.team == "enemy": return e
@@ -1648,9 +1787,19 @@ func scene_at(id: String, kind: String, after: float, has := "", nth := 0, limit
 		if close_pages and not main.pages.is_empty(): main.close_all_pages()   # a page the story opens (a challenger's)
 		var r = main.scenes.run
 		if r != null and str(r.id) == id and r.begun and int(r.i) < (r.row.steps as Array).size():
-			var st: Dictionary = r.row.steps[r.i]
-			var seen := (r.row.steps as Array).slice(0, int(r.i) + 1).filter(func(s): return str(s.do) == kind and (has == "" or (str(s.get("text", "")) + str(s.get("prompt", "")) + str(s.get("to", ""))).contains(has))).size()
-			if str(st.do) == kind and (has == "" or (str(st.get("text", "")) + str(st.get("prompt", "")) + str(st.get("to", ""))).contains(has)) and seen > nth and float(r.t) >= after: return
+			# The step itself (the nth of its kind holding `has`): at it `after` seconds in, or at once when it is past.
+			var want := -1
+			var seen := 0
+			for k in (r.row.steps as Array).size():
+				var s: Dictionary = r.row.steps[k]
+				if str(s.do) == kind and (has == "" or (str(s.get("text", "")) + str(s.get("prompt", "")) + str(s.get("to", ""))).contains(has)):
+					if seen == nth:
+						want = k
+						break
+					seen += 1
+			if want >= 0 and (int(r.i) > want or (int(r.i) == want and float(r.t) >= after)):
+				if int(r.i) > want: print("  capture: %s %s %s passed (at step %d)" % [id, kind, has, int(r.i)])
+				return
 		await frames(1)
 	var r = main.scenes.run
 	print("  capture: %s %s %s not reached (run %s step %s %s)" % [id, kind, has, str(r.id) if r else "none", str(r.i) if r else "", str(r.row.steps[r.i].do) if r and r.i < r.row.steps.size() else ""])
