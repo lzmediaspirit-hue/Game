@@ -437,6 +437,20 @@
    "system": "Combat",
    "files": [
     "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures",
     "enemy_authority",
     "enemy_brain"
    ],
@@ -446,172 +460,564 @@
   "hit_landed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "status_applied": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ],
    "polled": "HUD status icons read active statuses each frame."
   },
   "status_expired": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ],
    "polled": "HUD status icons read active statuses each frame."
   },
   "actor_defeated": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "player_gravely_wounded": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "hit_missed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "technique_used": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "resource_changed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "stats_changed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ],
    "polled": "HUD and pages read the StatBlock each frame."
   },
   "player_revived": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "hollow_seizure": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "treasure_used": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "sword_released": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "sword_returned": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "sword_intent_changed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "artifact_detonated": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "talisman_used": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "combo_landed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "killing_intent_changed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "beast_subdued": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "melody_changed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "melody_pulse": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "illusion_cast": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "illusion_broken": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "array_deployed": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "array_faded": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "artifact_skill_used": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ]
   },
   "ground_fire": {
    "system": "Combat",
    "files": [
-    "combat_authority"
+    "combat_authority",
+    "combat_blood_path",
+    "combat_flight",
+    "combat_flute",
+    "combat_heals",
+    "combat_part",
+    "combat_phantom",
+    "combat_plates",
+    "combat_projectiles",
+    "combat_revival",
+    "combat_riders",
+    "combat_swarm",
+    "combat_sword",
+    "combat_talismans",
+    "combat_treasures"
    ],
    "polled": "The FX layer draws Combat's burning patches each frame; Combat burns whoever stands in one."
   },
