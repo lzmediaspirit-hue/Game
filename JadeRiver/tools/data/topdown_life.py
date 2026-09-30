@@ -33,7 +33,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from common import ROOT, emit, fail, run_cli  # noqa: E402
+from common import DATA, ROOT, emit, fail, read, run_cli  # noqa: E402
+sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
+from lib.pix import h01  # noqa: E402  the pixel library's coordinate hash (tools/lib/pix.py)
 
 OUT = os.path.join(ROOT, "data", "topdown", "life.json")
 LAYOUTS = os.path.join(ROOT, "data", "topdown")
@@ -353,12 +355,6 @@ def check_furnish(rid: str, d: dict, g, clear: set) -> list:
 FACINGS = {"n": (0, -1), "ne": (1, -1), "e": (1, 0), "se": (1, 1), "s": (0, 1), "sw": (-1, 1), "w": (-1, 0), "nw": (-1, -1)}
 
 
-def h01(x: int, y: int, s: int) -> float:
-    n = (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
-    n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((n ^ (n >> 16)) & 0xFFFF) / 65536.0
-
-
 def _seed(text: str) -> int:
     s = 0
     for ch in text:
@@ -450,7 +446,7 @@ def _facing(dx: float, dy: float) -> str:
 
 
 def actions() -> set:
-    man = json.load(open(os.path.join(LAYOUTS, "character.json")))
+    man = read("character", LAYOUTS)
     return set(man["actions"]) | set(man.get("aliases", {}))
 
 
@@ -459,9 +455,9 @@ def check_work(errs: list) -> None:
     tools (the tool set's `actions`); a working step runs a whole number of its looping action's cycles, so its blow
     lands on the contact frame on every cycle; a rest step holds a frame the action has; a load is one the view sets
     down; `pause` is idle or hold."""
-    man = json.load(open(os.path.join(LAYOUTS, "character.json")))
+    man = read("character", LAYOUTS)
     path = os.path.join(LAYOUTS, "character", "tool.json")
-    tools = json.load(open(path))["items"].get("tool", {}) if os.path.exists(path) else {}
+    tools = read(path)["items"].get("tool", {}) if os.path.exists(path) else {}
     for name, lp in LOOPS.items():
         worn = lp.get("tools", [])
         for t in worn:
@@ -512,7 +508,7 @@ def check_anvil(where: str, d: dict, side: dict, spots: list) -> list:
 
 
 def room_side(rid: str) -> dict:
-    return json.load(open(os.path.join(ROOT, "data", "rooms", rid + ".json")))
+    return read(rid, os.path.join(DATA, "rooms"))
 
 
 def build_rooms() -> tuple:
@@ -539,7 +535,7 @@ def build_rooms() -> tuple:
         if not os.path.exists(path):
             errs.append("%s: no layout" % rid)
             continue
-        d = json.load(open(path))
+        d = read(path)
         g = TR.Grid(d)
         side = {o["id"]: o for o in room_side(rid).get("objects", [])}
         out = {}

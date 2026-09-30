@@ -6,9 +6,6 @@ and colours. data_validation's moments_data_suite checks every row against the e
 data/audio.json, the strings and UiKit's colour tokens. Colours are UiKit token names or data ids (element:, grade:,
 quality:, dao:), never hex; text is a string key or a data name, never literal words.
 """
-import json
-import os
-
 from common import DATA, TESTS_DATA, rows as table_rows, run_cli, write
 from techniques import PARTICLES, TIER_BY_REALM, VFX_SHAPES
 

@@ -18,6 +18,8 @@ is checked as it is built: every object, NPC, portal and spawn of its side-view 
 stand on (or, for a thing on the water, within reach of one), and each is reached on foot from every way in (walking,
 stairs, drops and a jump one level up, the TopdownMotor's rules; tests/topdown_tutorial.gd repeats it in the game);
 every way is reached by auto-path's own rules too (no running jump over a gap), so the tracker's go button crosses it.
+The Grid takes its step and its jump from data/movement.json, and `--check` holds it to the game's own grid on every
+layout, cell for cell (`parity`, through tools/data/grid_parity.tscn; the command line: tools/data/README.md).
 """
 import json
 import math
@@ -34,7 +36,7 @@ import topdown_life as LIFE   # decision 43, the living world: furnishings, stat
 
 OUT = os.path.join(ROOT, "data", "topdown")
 ROOMS = os.path.join(ROOT, "data", "rooms")
-TILESET = json.load(open(os.path.join(OUT, "proto_tileset.json")))
+TILESET = common.read("proto_tileset", OUT)
 SOLID = 99
 WATER = -1
 # Where the door art sits in a building prop's footprint (columns from its west cell; the doorway is the row under it).
@@ -294,7 +296,7 @@ def starts_of(d):
 
 
 def side(rid):
-    return json.load(open(os.path.join(ROOMS, rid + ".json")))
+    return common.read(rid, ROOMS)
 
 
 def cell(p):
@@ -379,7 +381,7 @@ PLANTED = set("gfbmr")                    # what a plant or a garden piece stand
 ANYWHERE = {"pot_bonsai", "pot_orchid"}   # a potted plant stands on any floor (a hall's, a deck, the paving)
 ON_WATER = {"lotus_pads"}
 WADING = {"cattails"}                     # stands on the land it grows on or in the shallows
-DECOR = json.load(open(os.path.join(OUT, "decor.json")))
+DECOR = common.read("decor", OUT)
 
 
 def clear_cells(d):
@@ -428,8 +430,7 @@ def scene_walks(rid, d):
     """The cells the staged scenes (data/scenes.json) walk their people along in this room: no trunk or bush there."""
     global _SCENES
     if _SCENES is None:
-        path = os.path.join(ROOT, "data", "scenes.json")
-        _SCENES = json.load(open(path)).get("entries", []) if os.path.exists(path) else []
+        _SCENES = common.rows("scenes") if os.path.exists(os.path.join(common.DATA, "scenes.json")) else []
     out = set()
     for sc in _SCENES:
         if sc.get("room") != rid:
