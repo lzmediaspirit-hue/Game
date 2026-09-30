@@ -116,9 +116,25 @@ static func chain_goal(e: Dictionary) -> Array:
 ## A points pool's count for the character (tutorials.json "points": id -> [authority, getter], as the HUD's badges
 ## read it).
 static func points(c, id: String) -> int:
-	var row: Array = ContentDB.config("tutorials").get("points", {}).get(id, [])
-	if c == null or row.size() < 2 or Game.get(str(row[0])) == null: return 0
-	return int(Game.get(str(row[0])).call(str(row[1]), c))
+	return count(c, ContentDB.config("tutorials").get("points", {}).get(id, []))
+
+## A points pool's count by the [authority, getter] pair that names it (tutorials.json "points", the HUD's
+## POINT_SYSTEMS), through `counter`'s table: a name read from data is never called as a method (audit 45, BUG-06).
+## 0 for a pair the table does not know.
+static func count(c, pair: Array) -> int:
+	var f := counter(pair)
+	return int(f.call(c)) if c != null and f.is_valid() else 0
+
+## The getter of each points pool, by its [authority, getter] pair. Each is named in code, so a renamed getter fails to
+## compile; contract_tests holds every pair the data and the HUD name to a row here. An empty Callable for any other.
+static func counter(pair: Array) -> Callable:
+	if pair.size() != 2: return Callable()
+	match "%s.%s" % pair:
+		"progression.meridian_points_free": return Game.progression.meridian_points_free
+		"progression.realisations_free": return Game.progression.realisations_free
+		"posts.bench_points_free": return Game.posts.bench_points_free
+		"posts.art_points_free": return Game.posts.art_points_free
+	return Callable()
 
 ## Whether an entry's trigger holds for the character now: its unlock open (when it names one) and its kind's condition.
 ## A page's first opening ("page") is the coach's to see, never a trigger here.

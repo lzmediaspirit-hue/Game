@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
 # Quality gates (Part 7) on Linux/macOS. Usage: tools/run_tests.sh
 # GODOT=/path/to/godot overrides the binary. valley_run plays all of Act I (about a minute).
+# Test.ps1 runs the same gates and the same suites (tests/suites.txt), in the same order, on Windows.
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial tutorials story_scenes hollow_night audio_tests valley_run places_tests)
+# The Godot suites, one a line (tests/README.md): each prints "<name>: N checks, M failures", read below.
+suites=()
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="${line%%#*}"
+  line="${line//[[:space:]]/}"
+  if [[ -n "$line" ]]; then suites+=("$line"); fi
+done < tests/suites.txt
 
 failed=()
+# The animation rules (AGENTS.md; Validate-Animations.ps1), where PowerShell is installed.
+if command -v pwsh >/dev/null 2>&1; then
+  echo "== animations"
+  if ! pwsh -NoProfile -File Validate-Animations.ps1; then failed+=("animations"); fi
+fi
 # S43 room lint and reach contract over the built rooms (Part 7).
 echo "== room_lint"
 if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi

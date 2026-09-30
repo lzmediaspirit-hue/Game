@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## tutorials (roadmap decision 43, docs/redesign/tutorials.md): every newly unlocked system teaches itself. On the real
 ## shell (main.tscn, the HUD, the pages and the coach over them), with a top-down character of its own saves:
 ##   1. the data: every entry's page is one of main.gd PAGES (tutorials.json's page map is current), every line is a
@@ -50,25 +50,11 @@ const LATE := {
 }
 const LATE_BASE := ["bag", "jump", "quick_use", "attack", "menu", "cultivate", "cultivation", "technique_slots_2", "guard", "qi_pool", "navigation"]
 
-var checks := 0
-var failures := 0
 var main: Node
-var verbose := false
 
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-	elif verbose:
-		print("ok: ", what)
-
-func _ready() -> void:
-	verbose = "--verbose" in OS.get_cmdline_user_args()
-	call_deferred("_main")
-
-func run_root() -> String:
-	return "user://test_runs/tutorials_%d/" % OS.get_process_id()
+## With --verbose, every check that passes is printed too ("ok: ...").
+func _init() -> void:
+	echo_passes = true
 
 func _main() -> void:
 	var folder := run_root()
@@ -94,17 +80,7 @@ func _main() -> void:
 	await _late_legacy()
 	await _thumb()
 	await _anchors()
-	main.queue_free()
-	await get_tree().process_frame
-	_remove_tree(run_root())
-	print("tutorials: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
-
-func _remove_tree(dir: String) -> void:
-	if not DirAccess.dir_exists_absolute(dir): return
-	for d in DirAccess.get_directories_at(dir): _remove_tree(dir + d + "/")
-	for f in DirAccess.get_files_at(dir): DirAccess.remove_absolute(dir + f)
-	DirAccess.remove_absolute(dir)
+	end_suite()
 
 func frames(n: int) -> void:
 	for i in n: await get_tree().process_frame

@@ -102,7 +102,7 @@ const FACE_BOX := 30.0
 const FACE_TOP_K := 2
 const FACE_TOP_HEAD := 10.0
 ## Points to spend: one row a point system the player spends by hand. The HUD reads its count from its authority
-## ([authority, getter], given the character), shows the badge `points_<id>` (tools/icons, its own colour, shape and
+## ([authority, getter], given the character, through TutorialRules.counter's table), shows the badge `points_<id>` (tools/icons, its own colour, shape and
 ## symbol) at the top right of the player panel while the unlock is open and the count is above 0, and a tap asks the
 ## shell for its page and tab. Its log line on appearing is `hud.points_<id>`.
 const POINT_SYSTEMS := [
@@ -552,7 +552,7 @@ func point_badges(c) -> Array:
 	var panel := panel_rect(c)
 	for row in POINT_SYSTEMS:
 		if not Unlocks.is_unlocked(c.id, str(row.unlock)): continue
-		var n := int(points_override[row.id]) if points_override.has(row.id) else int(Game.get(str(row.count[0])).call(str(row.count[1]), c))
+		var n := int(points_override[row.id]) if points_override.has(row.id) else TutorialRules.count(c, row.count)
 		if n <= 0: continue
 		out.append({"id": str(row.id), "count": n, "page": str(row.page), "tab": str(row.tab),
 			"center": Vector2(panel.end.x - 22.0 - out.size() * POINTS_PITCH, panel.position.y + 2.0)})

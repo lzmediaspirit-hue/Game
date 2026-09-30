@@ -35,34 +35,9 @@ func run():
 	viewport.get_texture().get_image().save_png("res://../previews/v10-combo-equipment.png")
 	viewport.queue_free()
 	await verify_outlines(catalog)
-	# Actual touch input: keep joystick UP throughout the entire jump and landing.
-	var stage=load("res://scenes/pixel_stage.tscn").instantiate()
-	root.add_child(stage)
-	var main=stage.get_node("GameViewport/JadeRiver")
-	main.preview_mode=true
-	await process_frame
-	main.enter_world(catalog.defaults())
-	main.change_region("forest",7,1)
-	var w=main.world
-	w.set_process(false)
-	var p=w.player
-	p.set_physics_process(false)
-	var target=w.by_id("tree_00_branch_0")
-	p.surface=w.by_id("river_walk")
-	p.plane=target.bounds.get_center()+Vector2(0,50)
-	p.altitude=0
-	main.hud.press(1,Vector2(200,530))
-	main.hud.drag(1,Vector2(200,454))
-	main.hud.press(2,main.hud.jump_center)
-	main.hud.release(2)
-	for frame in 180: p.step(1.0/60,p.movement)
-	assert(p.surface==target and p.movement.y< -0.9,"Holding joystick up must land and remain on the branch")
-	p.sync_visual()
-	w.camera.position=w.camera_target()
-	await process_frame
-	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://../previews/v10-upward-touch-landing.png")
-	print("COMBO_VISUAL: equipment gallery and held-UP touch landing captured")
+	# Audit 45 (S2): the held-UP touch landing that followed played a v0.9 generated region (main.change_region), which
+	# the game no longer has; it was removed with the other scripts that drove it.
+	print("COMBO_VISUAL: equipment gallery captured, outlines verified")
 	quit()
 func verify_outlines(catalog):
 	var viewport=SubViewport.new()

@@ -90,7 +90,6 @@ func _main() -> void:
 		"decision 40: every room the view built (%d, %d at night) baked its cast shadows once and never while it played, kept its particles under their caps by day and by night, and a night room is lit by its lights, and stays night with the extras off (%s)" % [light_rooms, night_rooms, str(light_misses.slice(0, 6))])
 	if is_instance_valid(probe): probe.free()
 	free_hud_probe()
-	print("topdown_tutorial: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
 # ------------------------------------------------------------------ 10: the staged scenes

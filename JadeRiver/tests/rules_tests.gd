@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Rules, replay and offline suites (Part 7 · Quality gates).
 ##   Rules:   each formula at its sample values (monster pools, damage steps, gap
 ##            factors, mastery, risk, offline caps).
@@ -10,20 +10,8 @@ extends Node
 ##   Hazards: the answer a room asks, the cycle, strikes, pushes, pools and shelter (S17).
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
 
-var checks := 0
-var failures := 0
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
 func near(a: float, b: float, eps := 0.01) -> bool:
 	return absf(a - b) <= eps * maxf(1.0, absf(b))
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	rules_suite()
@@ -136,8 +124,7 @@ func _main() -> void:
 	save_suite()
 	await topdown_suite()
 	await prototype_suite()
-	print("rules_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ redesign Phase 1: the top-down prototype
 ## The height-grid room, the TopdownMotor's movement rules and the prototype room's view (tests/topdown_suite.gd).
@@ -196,7 +183,7 @@ func _creator_preview(cr) -> Dictionary:
 	return {"kind": "side" if p is Node2D and p.get_script() == ShellScreens.Avatar else "other"}
 
 func prototype_suite() -> void:
-	var folder := "user://prototype_suite/"
+	var folder := run_root() + "prototype_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -3050,7 +3037,7 @@ func text_suite() -> void:
 ## The Max Test APK's ready-made character: top realm, every system, art and technique, best gear, the whole map,
 ## animals and both sects; with its ways open, no built room is out of reach.
 func max_character_suite() -> void:
-	var folder := "user://max_character_suite/"
+	var folder := run_root() + "max_character_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -9299,8 +9286,8 @@ func _run_once(folder: String) -> String:
 	return JSON.stringify(snap)
 
 func replay_suite() -> void:
-	var a := _run_once("user://replay_a/")
-	var b := _run_once("user://replay_b/")
+	var a := _run_once(run_root() + "replay_a/")
+	var b := _run_once(run_root() + "replay_b/")
 	check(a == b, "same seed and intents replay to the same character state")
 	check(a.length() > 200, "replay produced a real snapshot")
 
@@ -12095,7 +12082,7 @@ func _hand_in_ready(c, q: Dictionary) -> void:
 	c.quests.done.erase(str(q.id))
 
 func save_suite() -> void:
-	var folder := "user://save_suite/"
+	var folder := run_root() + "save_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	var repo := RepositoryLocal.new(folder)
@@ -12124,7 +12111,8 @@ func save_suite() -> void:
 
 # ------------------------------------------------------------------ regression tests for the code review (docs/review-code.md)
 ## A fresh account in its own folder, one character standing in its first room (the suites after this one boot their own).
-func _fix_world(folder := "user://fixes_suite/") -> Object:
+func _fix_world(folder := "") -> Object:
+	if folder == "": folder = run_root() + "fixes_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
@@ -12353,7 +12341,7 @@ func _fix_page_writes(c) -> void:
 func respawn_suite() -> void:
 	var utc0 := Clock.override_utc
 	Clock.override_utc = 1767225600.0
-	var c = _fix_world("user://respawn_suite/")
+	var c = _fix_world(run_root() + "respawn_suite/")
 	if c == null:
 		check(false, "the respawn suite needs a character")
 		return
@@ -12460,7 +12448,7 @@ func respawn_suite() -> void:
 func early_game_suite() -> void:
 	var utc0 := Clock.override_utc
 	Clock.override_utc = 1767225600.0
-	var c = _fix_world("user://early_game_suite/")
+	var c = _fix_world(run_root() + "early_game_suite/")
 	if c == null:
 		check(false, "the early game suite needs a character")
 		return
@@ -12664,7 +12652,7 @@ func _early_surprises(c, heard: Array) -> void:
 # ------------------------------------------------------------------ fixes found by the P3 mockups
 ## Open items the mockup agents found while drawing (docs/mockups/README.md), each at its rule.
 func mockup_fixes_suite() -> void:
-	var c = _fix_world("user://mockup_fixes/")
+	var c = _fix_world(run_root() + "mockup_fixes/")
 	if c == null:
 		check(false, "the mockup fixes suite needs a character")
 		return
