@@ -39,7 +39,7 @@ ACTIONS = {
     "net": ["work_mend"],
 }
 LABELS = {"broom": "Broom", "pole": "Shoulder pole and baskets", "washing": "Washing", "rod": "Fishing rod",
-          "ladle": "Ladle and pot", "pestle": "Pestle and mortar", "axe": "Axe", "hammer": "Hammer and anvil",
+          "ladle": "Ladle and pot", "pestle": "Pestle and mortar", "axe": "Axe", "hammer": "Hammer and tongs",
           "herbs": "Herb basket", "net": "Fishing net"}
 
 
@@ -65,8 +65,6 @@ BROTH = P.ramp("3a2418", "5a3a22", "7a5430", "9a7040", "b08a58")
 STONE = five(W.PAVE2, 2)                                                         # the mortar
 STONE_RIM = five(W.PAVE2, 2)[1:] + [W.PAVE2[6]]
 HOLLOW = P.ramp("1e1a22", "2a2330", "3a3240", "4a3f44", "5a4f54")
-LOG = five(W.TIMBER2, 0)
-LOG_DARK = [W.TIMBER2[0], W.TIMBER2[0], W.TIMBER2[1], W.TIMBER2[2], W.TIMBER2[3]]
 LINEN = five(W.PLASTER2, 1)                                                      # the washing
 LINEN_FOLD = five(W.PLASTER2, 0)
 CLOTH_BLUE = five(W.STONE2, 1)
@@ -83,7 +81,7 @@ HOT = P.ramp("8a2a14", "c24a1c", "f07a2a", "ffb04a", "ffe08a")                  
 PALETTE = {"bamboo": BAMBOO, "grip": GRIP, "twig": REED, "twig_dark": REED_DARK, "haft": HAFT, "cord": CORD,
            "wicker": WICKER, "wicker_dark": WICKER_DARK, "rim": WICKER, "grain": GRAIN, "iron": IRON, "edge": EDGE,
            "tongs": IRON, "clay": CLAY, "clay_rim": CLAY_RIM, "broth": BROTH, "stone": STONE, "stone_rim": STONE_RIM,
-           "hollow": HOLLOW, "log": LOG, "log_dark": LOG_DARK, "linen": LINEN, "linen_fold": LINEN_FOLD,
+           "hollow": HOLLOW, "linen": LINEN, "linen_fold": LINEN_FOLD,
            "cloth_blue": CLOTH_BLUE, "herb": HERB, "herb_light": HERB_LIGHT, "twine": TWINE, "mesh": MESH,
            "cork": CORK, "shuttle": SHUTTLE, "float": FLOAT, "line": LINE, "hot": HOT}
 
@@ -110,8 +108,6 @@ MATS = {
     "stone": {"hi": True},
     "stone_rim": {"hi": True, "weight": 1.3},
     "hollow": {"weight": 1.2},
-    "log": {"hi": True},
-    "log_dark": {},
     "linen": {"hi": True},
     "linen_fold": {},
     "cloth_blue": {"hi": True, "weight": 1.3},
@@ -127,7 +123,7 @@ MATS = {
 
 def items(L: dict) -> list:
     look = Look(glow=("line", "hot"), flat={"line": 3, "hot": 3}, line_tone={"line": 5, "hot": 2},
-                ink=("bamboo", "grip", "haft", "iron", "edge", "twig", "wicker", "clay", "stone", "log", "float"),
+                ink=("bamboo", "grip", "haft", "iron", "edge", "twig", "wicker", "clay", "stone", "float"),
                 mats=MATS)
     out = []
     for name in ACTIONS:

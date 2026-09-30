@@ -112,7 +112,7 @@ WORK = {
         "npc_lu_boatman": {"loop": "watch", "spots": [[56, 28, "s"], [57.8, 28.8, "s"]]},
     },
     "lf_fishers_hut": {"npc_aunt_ping": {"loop": "cook", "spots": [[6, 6, "sw"], [5.2, 8.1, "w"]]}},
-    "lf_granny_liu_hut": {"npc_granny_liu": {"loop": "grind", "spots": [[6, 6, "sw"], [4.3, 5.6, "w", "cook"], [4.2, 7.4, "w", "grind"]]}},
+    "lf_granny_liu_hut": {"npc_granny_liu": {"loop": "grind", "spots": [[6, 6, "sw"], [4.3, 5.6, "w", "cook"], [7.2, 7.6, "s", "grind"]]}},
     "lf_old_ma_store": {"npc_old_ma": {"loop": "sell", "spots": [[12, 3, "s"], [13.5, 2.2, "n"], [10.8, 2.6, "s"]]}},
     "lf_lu_boat": {"npc_lu_boat": {"loop": "watch", "spots": [[10, 8, "s"], [8.2, 8.6, "s"], [11.8, 8.4, "se"]]}},
     "ja_weapon_hall": {

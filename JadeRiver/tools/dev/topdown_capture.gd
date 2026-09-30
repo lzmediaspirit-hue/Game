@@ -1004,6 +1004,7 @@ func _place_shot(name: String, kind: String, out: String) -> void:
 	for r in PlaceRules.all():
 		if str(r.kind) == kind and row.is_empty(): row = r
 	if row.is_empty(): return
+	var at := PlaceRules.point(row)
 	var stand := PlaceRules.stand_point(row)
 	Game.world.load_room(Game.active(), str(row.room), "", stand)
 	GameEvents.flush()
@@ -1011,11 +1012,24 @@ func _place_shot(name: String, kind: String, out: String) -> void:
 	w = main.world
 	p = w.player
 	m = p.motor
+	# beside the thing, so the pose reads from the side (the user's cell may face it from the south, the back view); on
+	# the mat itself, facing the camera, to sit on it
+	var on_it := kind == "meditation_mat"
+	for off in ([] if on_it else [Vector2(-1.0, 0.35), Vector2(1.0, 0.35)]):
+		var q: Vector2 = w.room.nearest_standable(at + off * TopdownRoom.TILE)
+		if q.distance_to(at + off * TopdownRoom.TILE) < 6.0:
+			stand = q
+			break
+	if on_it: stand = w.room.nearest_standable(at)
 	m.place(stand)
-	var face := PlaceRules.point(row) - stand
-	m.dir = face.normalized() if face.length() > 1.0 else Vector2.UP
+	var face := at - stand
+	m.dir = Vector2.DOWN if on_it else (face.normalized() if face.length() > 1.0 else Vector2.UP)
 	m.row = TopdownMotor.nearest_row(m.dir, m.row, TopdownMotor.ROW_ANGLES, 10.0)
 	w._settle_camera()
+	# the unlock tutorials' coach (the places' systems were opened for this capture) kept off the shot
+	if is_instance_valid(main.coach):
+		main.coach.visible = false
+		main.coach.process_mode = Node.PROCESS_MODE_DISABLED
 	await frames(90)
 	var hud = main.hud
 	hud._after_interact(Game.submit({"type": "interact", "object": str(row.object)}), str(row.object))

@@ -7,7 +7,7 @@ Each tool is fitted to the hands the pose put on it: a handle runs through both 
 and what it holds at its other end (the broom's bristles, the axe's head, the rod's line) follows. Where a handle
 passes through a fist it is cut away (`_grip`), so the fist closes over it. Pieces lie in the band their own depth
 puts them in (figure/weapons.py band_of), as a weapon's do; a long tool held out is lengthened along the ground's
-depth as a weapon is (weapons.stretch), and what stands on the ground (the anvil, the mortar, the net's heap) is not.
+depth as a weapon is (weapons.stretch), and what stands on the ground (the mortar, the net's heap) is not.
 
   broom   a bamboo broom, a fan of twigs bound to its foot; in the sweep its bristles are pressed to the ground (they
           splay on the push), carried upright in the right hand when idle or walking
@@ -17,7 +17,7 @@ depth as a weapon is (weapons.stretch), and what stands on the ground (the anvil
   ladle   a clay pot on the left forearm and a ladle stirring in it
   pestle  a stone mortar on the ground and a wooden pestle in the right fist
   axe     an iron axe head on a long haft in both fists; carried hanging from the right hand
-  hammer  a smith's hammer, an anvil on its stump before the feet, the tongs in the left hand holding a hot bar on it
+  hammer  a smith's hammer, the tongs in the left hand holding a hot bar on the anvil's face (the room's own anvil)
   herbs   a herb basket on the left arm, a sprig in the right hand as it is picked; carried hanging from the left hand
   net     a fishing net over the seated lap, its mesh held up in the left hand, a netting needle in the right
 """
@@ -38,9 +38,9 @@ Z0 = np.zeros(0)
 
 
 def ground_band(sk, p) -> str:
-    """The band of a thing standing on the ground (the anvil, the mortar, a basket set down, the net's heap): in front of
-    the body when it stands nearer the camera on the ground than the chest does, else behind. (`band_of` weighs height
-    too, so a low thing before a standing body would rank behind it and a knee would cover it.)"""
+    """The band of a thing standing on the ground (the mortar, a basket set down, the net's heap, the hot bar): in front
+    of the body when it stands nearer the camera on the ground than the chest does, else behind. (`band_of` weighs
+    height too, so a low thing before a standing body would rank behind it and a knee would cover it.)"""
     return "front" if float(p[1]) >= float(sk.chest[1]) - 0.4 else "back"
 
 
@@ -384,23 +384,16 @@ def _axe_solids(sk, butt, d, g, hands, spec, carry=False):
     return S
 
 
-# ------------------------------------------------------------------ the hammer and anvil
+# ------------------------------------------------------------------ the hammer
 def hammer(sk, t: dict) -> list:
+    """The smith's hammer, the tongs in the left hand holding the hot bar on the anvil's face. The anvil is the room's
+    own (every smith works at a Forge place, drawn by TopdownPlaceArt): `anvil` is where it stands, its face 9.2 up."""
     A = sk.pt(t["anvil"])
     hand = sk.hand_r
     d = unit(sk.w(t["dir"]))
     S = []
-    # the anvil: an iron block with its horn on a wooden stump
-    S.append(cone(A, A + UP * 7.4, 2.3, 2.0, "log", band=ground_band(sk, A), part="stump",
-                  paint=_paint(lambda loc: np.where((np.floor(loc[:, 2] * 0.8) % 3) == 0, "log_dark", "log"))))
-    top = A + UP * 8.2
     x = unit(sk.w((0.0, -1.0, 0.0)))
-    S.append(ellipsoid(top, np.stack([x, unit(np.cross(UP, x)), UP], axis=1), (2.5, 1.3, 0.85), "iron",
-                       band=ground_band(sk, A), part="anvil"))
-    S.append(cone(top + x * 2.0, top + x * 4.2, 0.8, 0.2, "iron", band=ground_band(sk, A), part="horn"))
-    S.append(cone(top - x * 1.8, top - x * 2.6, 0.9, 0.8, "iron", band=ground_band(sk, A), part="heel"))
-    # the hot bar on the anvil's face, held by the tongs from the left hand
-    bar0 = top + UP * 0.95 - x * 0.2
+    bar0 = A + UP * 9.15 - x * 0.2
     bar1 = bar0 + x * (2.2 if not t.get("turn") else 2.0) + sk.fwd * (0.0 if not t.get("turn") else 0.4)
     S.append(cone(bar0, bar1, 0.34, 0.3, "hot", band=ground_band(sk, A), part="bar"))
     hl = sk.hand_l
