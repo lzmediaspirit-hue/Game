@@ -133,3 +133,10 @@ RED2 = ramp("3A1026", "661A2E", "922636", "BD3B3C", "D95B49", "EE8B6B")
 LEAFFALL = ramp("6B3A1E", "A5602A", "D69A3C", "F0C862")                                # fallen leaves
 PETAL = ramp("B0628A", "E7A0BE", "F8D2E0")                                              # blossom petals
 FLOWER = [c("F4F0E0"), c("FFE07A"), c("F0A0C0"), c("A8B8F0"), c("F28A6A")]            # white, gold, pink, blue, coral
+# Decision 44: sand and snow (art bible "Sand and snow"). River sand warm and pale, its dark end violet; the damp sand
+# at a waterline is its own tint (WET, over the sand's corners that touch the water). Snow cool in its hollows and warm
+# in the sun, its dark end the shadow's own blue-violet; packed snow sits two steps down it.
+SAND2 = ramp("3A2B40", "5B4450", "82665D", "A2866C", "BCA07D", "D5BD96", "EDDCB4")    # base 4, grain 3 and 5
+WET = c("4A3A4A")                                                                       # damp sand, a tint over it
+SHELL = ramp("8A6A78", "C7A2A6", "EBD3CC", "FBF1E4")                                    # shells: shade -> nacre
+SNOW2 = ramp("262A55", "3F4A7A", "6574A0", "8E9DC0", "B8C5DA", "DCE3EC", "F7F5EA")    # base 5, hollows 4, glints 6

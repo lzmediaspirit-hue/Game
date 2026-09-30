@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+import sand_snow as ss
 import terrain2 as t2
 from canvas import T, Img
 from palette import CLEAR, PAVE2, STONE2
@@ -51,6 +52,8 @@ def macro(kind: str) -> tuple:
         img, w, h = t2.roof_macro(), t2.M, t2.M
     elif kind == "wall":
         img, w, h = t2.wall_top_row(), t2.M, 1
+    elif kind in ("sand", "snow", "snowpack"):
+        img, w, h = macro_img(kind), t2.M, t2.M
     else:
         raise KeyError(kind)
     return tuple(t2.cut(img, w, h)), w, h
@@ -58,22 +61,24 @@ def macro(kind: str) -> tuple:
 
 @lru_cache(maxsize=None)
 def macro_img(kind: str) -> Img:
-    """The whole pattern (for the house props' roofs)."""
-    return {"roof": t2.roof_macro, "grass": t2.grass_macro}[kind]()
+    """The whole pattern (for the house props' roofs, and the overlays that lay a material's own pixels)."""
+    return {"roof": t2.roof_macro, "grass": t2.grass_macro, "sand": ss.sand_macro, "snow": ss.snow_macro,
+            "snowpack": ss.snowpack_macro}[kind]()
 
 
 @lru_cache(maxsize=None)
 def face_set(kind: str) -> tuple:
     """(first-row tiles, body tiles) of a face kind."""
     fn = {"rock": t2.rock_faces, "earth": t2.earth_faces, "stone": t2.stone_faces, "bank": t2.bank_faces,
-          "wood": t2.wood_faces, "wall": t2.wall_faces, "pave": lambda: t2.stone_faces(925, PAVE2)}[kind]
+          "wood": t2.wood_faces, "wall": t2.wall_faces, "pave": lambda: t2.stone_faces(925, PAVE2),
+          "sand": ss.sand_faces, "snow": ss.snow_faces}[kind]
     tops, body = fn()
     return tuple(tops), tuple(body)
 
 
 @lru_cache(maxsize=None)
 def decal_sets() -> dict:
-    return t2.decals()
+    return {**t2.decals(), "sand": ss.sand_decals(), "snow": ss.snow_decals(), "snowpack": ss.snowpack_decals()}
 
 
 def _m(kind: str, i: int) -> Img:
@@ -109,6 +114,15 @@ def stone_top(seed: int, cracked: bool = False) -> Img:
 
 def rock_top(seed: int) -> Img:
     return _m("rock", seed * 3)
+
+
+def sand(seed: int) -> Img:
+    """Sand: the sand pattern at a place picked by `seed`, now and then with a shell or a track laid on it."""
+    return composite(_m("sand", seed * 7), *([decal_sets()["sand"][seed % 8]] if seed % 3 == 0 else []))
+
+
+def snow(seed: int, packed: bool = False) -> Img:
+    return _m("snowpack" if packed else "snow", seed * 5)
 
 
 def wood_deck(seed: int) -> Img:
@@ -191,6 +205,17 @@ def grass_over(corners: tuple, pos: tuple = (0, 0)) -> Img:
     return t2.grass_over(corners, pos, macro_img("grass"))
 
 
+@lru_cache(maxsize=None)
+def creep_over(kind: str, corners: tuple, pos: tuple = (0, 0)) -> Img:
+    """Sand or snow over its neighbour, positional (see sand_snow.creep_over)."""
+    return ss.creep_over(kind, corners, pos, macro_img(kind), {"sand": 520, "snow": 540, "snowpack": 560}[kind])
+
+
+@lru_cache(maxsize=None)
+def beach_overlay(sides: int, frame: int) -> Img:
+    return ss.beach_fx(sides, frame)
+
+
 def blend_corners(under: Img, corners: tuple) -> Img:
     """A corner-matched transition tile for the TileSet: `under` (a path or paving) with grass over the corners
     marked 1, as the grass pattern's first place draws it."""
@@ -206,7 +231,7 @@ def overlay(kind: str) -> Img:
     return t2.overlay(kind)
 
 
-__all__ = ["grass", "dirt", "paving", "stone_top", "rock_top", "wood_deck", "roof_top", "wall_top", "earth_face",
+__all__ = ["grass", "dirt", "paving", "sand", "snow", "creep_over", "beach_overlay", "stone_top", "rock_top", "wood_deck", "roof_top", "wall_top", "earth_face",
            "stone_face", "rock_face", "bank_face", "wood_face", "eave_face", "plaster_face", "wall_face", "stairs",
            "water", "blend_corners", "overlay", "CORNER_KEYS", "corner_name", "composite", "CLEAR", "macro",
            "face_set", "decal_sets", "water_frames", "shore_overlay", "grass_over", "T"]

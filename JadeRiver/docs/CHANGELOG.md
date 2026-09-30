@@ -1,5 +1,45 @@
 # Changelog
 
+## Sand and snow ground (decision 44)
+
+Decision 43's sound pass made footsteps and landings for sand and snow, but no top-down tile painted either, so they
+were never heard. Three new paint marks, drawn to Terrain v2's rules and lit by its sun: `a` river sand, `n` fresh
+snow and `k` packed snow. As built in the art bible, §14.14.
+
+- **The tiles** (`tools/art/topdown/sand_snow.py`, ramps `SAND2`, `SNOW2`, `WET`, `SHELL` in `palette.py`). Each is a
+  64 px pattern with its decals. Sand: pale fine grain, wind ripples in broken rows of short crests, pebbles and shell
+  chips; decals of shells, a snail shell, pebbles, heron and crab tracks, crab holes, driftwood, wrack and dune grass.
+  Fresh snow: an even sunlit white with small wind crescents, buried mounds and a sparse sparkle; packed snow two
+  steps down, trodden into prints and glazed in streaks. Sand's face is a beach running into the water; snow's is the
+  karst cliff under the snow's lip, with icicles and snow on its ledges.
+- **The transitions** extend the positional overlays grass already uses (14 corner cases × 16 places each): sand
+  creeps over paths and paving as a thin drift, packed and fresh snow over the meadow, paths, paving, granite and rock
+  (fresh over packed too), each in its own pixels, with edges that wander in soft lobes. Grass creeps over sand as
+  over a path. Sand darkens where its corners touch the water (the `wet` tint through the tint masks), and the water
+  by sand shows it through the shallows (`v2.water.beach`, 15 cases × 4 frames). Where two kinds of face meet on one
+  level, the one whose top creeps over the other's runs into it in a lobe (`v2.face_end`), so a beach ends in the
+  grassy bank and a bare lip in the snowy one at no straight seam. The atlas grows from 704 to 1,088 px tall;
+  `build_tiles.py --check` stays byte-identical.
+- **Where they lie** (`topdown_rooms.py`, `Layout.sand` and `Layout.snow`, ground paint only):
+  - sand: Lotus Ferry's waterline from Home Lane's end to the ferry landing (and at night), with the washing beach, a
+    cove and the landing under the docks; the Reed Shallows' beach and sandbar; the Marsh Edge's spits and islet;
+    coves on Willow Path East's stream and Willow Path West's pond;
+  - snow: no top-down room is set in winter and the peaks are green meadows, so only a dusting where the height
+    allows it: the summit crags of Elder Hu's and Elder Sung's Peaks, the Meditation Rock's shaded back (packed where
+    one sits), the heads of the side crags, Elder Sung's high east peak and the back of the far peak, and the Cloud
+    Sect's cliff crown and top ledge on the Cliff Stair, with a packed path from the library's door to the bell.
+- **Steps.** `k` steps as snow (`tools/data/sound.py`); `audio_tests` checks that every mark of the tile set steps on
+  a surface with its sounds and that every such surface, sand and snow now too, is heard in a room of the world.
+- **Foliage, light and life.** Sand takes a few pebbles, dune grass and reeds at the waterline (`decor.py`); nothing
+  grows on snow or within a cell of it (`TopdownFoliage`). The cast shadows fall on both as on any floor. Critters land
+  and peck on both (`TopdownLife`).
+- **Review** (`docs/redesign/feedback/sand_snow/`): before and after of every painted room (whole at 1 art px, and a
+  view with the body on the new ground), x4 close-ups of the transitions, the pairs side by side, a sampler of every
+  transition drawn by the game, and the tile sheet at x4 (`tools/dev/topdown_capture.tscn -- --sand-snow`,
+  `build_tiles.py --review-sand-snow`).
+- **Tests.** `topdown_suite`: the layers of sand and snow and their faces; `data_validation`: the creeping sets, the
+  wet tint, the faces and the sandy shore; `audio_tests`: the surfaces.
+
 ## The late HUD powers teach themselves (decision 44)
 
 Decision 43's tutorials left out the HUD powers that open after the prototype. Each now has a guide from its unlock

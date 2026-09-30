@@ -119,7 +119,11 @@ body stands on (a house's or hall's roof tiles, crates' planks), water (level -1
 | `m` marsh | reeds | a wet squelch in rustling reeds |
 | `t` roof | roof | a ceramic clack of tiles |
 | water (level -1) | water | a shallow splash with bubbles |
-| (none yet) `a`, `n` | sand, snow | a dry hiss-crunch; a squeaky crunch (ready for their tiles) |
+| `a` sand; `n` fresh and `k` packed snow (decision 44, art bible §14.14) | sand, snow | a dry hiss-crunch; a squeaky crunch |
+
+Decision 44 painted them: sand on the river banks, the Reed Shallows' beach and the Marsh Edge's spits, snow on the
+high crags of both sects' peaks and the Cliff Stair. `audio_tests` checks that every mark of the tile set steps on a
+surface with its sounds, and that every such surface is heard in a room of the world.
 
 Four takes of each; a step's round robin never repeats the last. **Timed to the frames:** a step plays on the frame
 of the walk or run cycle where a foot lands (`steps.contacts`: a fraction of the cycle, 0 and 0.5, the stride's ends

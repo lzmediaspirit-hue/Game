@@ -37,6 +37,7 @@ const CHUNK := Vector2i(16, 12)   ## Terrain v2: the floor and the water are dra
 
 var room_id := "td_proto_square"
 var live := false               ## Phase 4: the character's own room (Game.room_rt), not the prototype square
+var preset: TopdownRoom = null  ## decision 44: a room given to the view directly (the review captures' samplers)
 var room: TopdownRoom
 var terrain: TopdownTerrain
 var foliage: TopdownFoliage     ## Terrain v2's third part: the room's ground cover and its trees' canopies
@@ -99,7 +100,9 @@ var life: TopdownLife       ## decision 43: the room's critters, work, smoke, th
 signal context_changed(ctx: Dictionary)
 
 func _ready() -> void:
-	if live and Game.room_rt != null and Game.room_rt.topdown != null:
+	if preset != null:
+		room = preset
+	elif live and Game.room_rt != null and Game.room_rt.topdown != null:
 		room = Game.room_rt.topdown
 	# Phase 2: a character enters the prototype room through the World authority; its RoomRuntime carries the grid.
 	elif Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
