@@ -126,19 +126,15 @@ static func menu_system(menu_id: String) -> String:
 
 ## The place a walk to the system leads to: of its places, the character's own sect's (or a place of no sect), then
 ## the home one, then the nearest by the ways open to it (the room it stands in first).
-static var _home_cache := {}
+static var _home_memo := FrameMemo.new(60, false, 65)
 static func home(c, system: String) -> Dictionary:
 	var rows := of_system(system)
 	if rows.is_empty(): return {}
-	# Asked each frame a page draws (the Menu's lines): the answer holds for 60 frames, or until the character moves.
+	# Asked each frame a page draws (the Menu's lines): the answer holds for 60 frames, or until the character moves (at
+	# most 64 kept, and the one being kept).
 	var key := system
 	if c != null: key = "%s|%s|%s|%s" % [str(c.id), system, str(c.position.get("room", "")), str(c.training_sect.get("id", ""))]
-	var hit: Dictionary = _home_cache.get(key, {})
-	if not hit.is_empty() and Engine.get_process_frames() - int(hit.at) < 60: return hit.row
-	var found := _home(c, system, rows)
-	if _home_cache.size() > 64: _home_cache.clear()
-	_home_cache[key] = {"at": Engine.get_process_frames(), "row": found}
-	return found
+	return _home_memo.value(key, func(): return _home(c, system, rows))
 
 static func _home(c, system: String, rows: Array) -> Dictionary:
 	var mine := str(c.training_sect.get("id", "")) if c != null else ""

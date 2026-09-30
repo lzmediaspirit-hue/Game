@@ -124,12 +124,11 @@ class SelectionScreen extends Page:
 			if ch == null: continue
 			# Each character as its own game draws it: a top-down one in the top-down style (decision 41).
 			var av: Node2D
-			if str(ch.view) == "topdown":
+			if Figures.top_down(ch):
 				av = TopdownPreview.new(InventoryAuthority.outfit_for(ch), false)
 				av.scale = Vector2.ONE * 4.0   # a portrait: a whole scale, nearest neighbour (decision 42)
 			else:
-				av = Avatar.new()
-				av.outfit = InventoryAuthority.outfit_for(ch)
+				av = Figures.side_avatar(InventoryAuthority.outfit_for(ch))
 				av.scale = Vector2.ONE * 1.6
 			av.position = Vector2(_card(i).get_center().x, _card(i).position.y + 250)
 			add_child(av)
@@ -232,8 +231,7 @@ class CreatorScreen extends Page:
 			preview.position = Vector2(330, 520)
 			preview.scale = Vector2.ONE * 6.0
 		else:
-			preview = Avatar.new()
-			preview.outfit = worn()
+			preview = Figures.side_avatar(worn())
 			preview.position = Vector2(330, 500)
 			preview.scale = Vector2.ONE * 3.0
 		add_child(preview)

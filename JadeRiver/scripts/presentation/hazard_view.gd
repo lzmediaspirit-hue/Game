@@ -176,9 +176,6 @@ func _view() -> Rect2:
 	var c: Vector2 = world.screen_center() if world and world.camera else Vector2(640, 600)
 	return Rect2(c - Vector2(640, 360), Vector2(1280, 720))
 
-static func _h(i: int, salt: int) -> float:
-	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
-
 static func _px(ci: CanvasItem, p: Vector2, s: float, c: Color) -> void:
 	ci.draw_rect(Rect2(p.snapped(Vector2(2, 2)), Vector2(s, s)), c)
 
@@ -368,13 +365,13 @@ func _draw_impact(ci: CanvasItem, im: Dictionary) -> void:
 	match str(im.kind):
 		"rubble":
 			for i in 7:
-				_px(ci, im.pos + Vector2((_h(i, 3) - 0.5) * 70, (_h(i, 4) - 0.5) * _ry(22.0, 1.0)), 4 + 2 * int(_h(i, 5) * 2), Color(ROCK[1 + i % 3], 1.0 - k))
+				_px(ci, im.pos + Vector2((HashNoise.scatter(i, 3) - 0.5) * 70, (HashNoise.scatter(i, 4) - 0.5) * _ry(22.0, 1.0)), 4 + 2 * int(HashNoise.scatter(i, 5) * 2), Color(ROCK[1 + i % 3], 1.0 - k))
 		"spikes":
 			_spikes(ci, im.pos, 52.0, 1.0 - k)
 		"scorch":
 			_ellipse(ci, im.pos, 34, _ry(34.0, 12.0 / 34.0), Color(0.08, 0.06, 0.05, 0.55 * (1.0 - k)))
 			for i in 5:
-				if _h(i + int(t * 6), 7) < 0.5: _px(ci, im.pos + Vector2((_h(i, 8) - 0.5) * 50, (_h(i, 9) - 0.5) * _ry(14.0, 1.0)), 2, Color(AMBER, 1.0 - k))
+				if HashNoise.scatter(i + int(t * 6), 7) < 0.5: _px(ci, im.pos + Vector2((HashNoise.scatter(i, 8) - 0.5) * 50, (HashNoise.scatter(i, 9) - 0.5) * _ry(14.0, 1.0)), 2, Color(AMBER, 1.0 - k))
 		"dust":
 			for i in 6:
 				var ang := TAU * i / 6.0 + 0.4
@@ -391,7 +388,7 @@ func _ground_strike(ci: CanvasItem, hid: String, h: Dictionary, hs: Dictionary, 
 			if hid == "spike_traps":
 				# Grit shivers over the pressure plate.
 				for i in 8:
-					var j := Vector2((_h(i, 121) - 0.5) * r * 1.4, (_h(i, 122) - 0.5) * _ry(r, 0.5))
+					var j := Vector2((HashNoise.scatter(i, 121) - 0.5) * r * 1.4, (HashNoise.scatter(i, 122) - 0.5) * _ry(r, 0.5))
 					_px(ci, at + j + Vector2(0, -2.0 * float(int(t * 18.0 + i) % 2)), 2, Color(GRIT, 0.8 * k))
 		"warn":
 			var pulse := 0.65 + 0.35 * sin(t * 14.0)
@@ -399,8 +396,8 @@ func _ground_strike(ci: CanvasItem, hid: String, h: Dictionary, hs: Dictionary, 
 			_dashed(ci, at, r, _ry(r, 0.42), Color(AMBER, pulse), t * (2.0 if hid == "falling_rocks" else -3.0), 14, 3.0, true)
 			if hid == "lightning":
 				for i in 6:
-					if _h(i + int(t * 20), 11) < 0.4:
-						_px(ci, at + Vector2((_h(i, 12) - 0.5) * r * 1.6, (_h(i, 13) - 0.5) * _ry(r, 0.6)), 2, GLOW)
+					if HashNoise.scatter(i + int(t * 20), 11) < 0.4:
+						_px(ci, at + Vector2((HashNoise.scatter(i, 12) - 0.5) * r * 1.6, (HashNoise.scatter(i, 13) - 0.5) * _ry(r, 0.6)), 2, GLOW)
 		"active":
 			_ellipse(ci, at, r, _ry(r, 0.42), Color(0.05, 0.03, 0.02, 0.4))
 
@@ -408,8 +405,8 @@ func _ground_strike(ci: CanvasItem, hid: String, h: Dictionary, hs: Dictionary, 
 func _spikes(ci: CanvasItem, at: Vector2, r: float, rise: float) -> void:
 	if rise <= 0.0: return
 	for i in 9:
-		var p := at + Vector2((float(i % 3) - 1.0) * r * 0.55 + (_h(i, 131) - 0.5) * 8.0, (float(i / 3) - 1.0) * _ry(r, 0.22))
-		var ht := (22.0 + 10.0 * _h(i, 132)) * rise
+		var p := at + Vector2((float(i % 3) - 1.0) * r * 0.55 + (HashNoise.scatter(i, 131) - 0.5) * 8.0, (float(i / 3) - 1.0) * _ry(r, 0.22))
+		var ht := (22.0 + 10.0 * HashNoise.scatter(i, 132)) * rise
 		var base := p.snapped(Vector2(2, 2))
 		ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-5, 0), base + Vector2(0, -ht - 2), base + Vector2(5, 0)]), UiKit.INK)
 		ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-3, 0), base + Vector2(0, -ht), base + Vector2(3, 0)]), Color("b8873e"))
@@ -425,16 +422,16 @@ func _ground_flow(ci: CanvasItem, h: Dictionary, hs: Dictionary, a: Dictionary) 
 	var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
 	var n := int(r.size.x / (40.0 if active else 70.0))
 	for i in n:
-		var speed := absf(flow) * (0.8 + 0.4 * _h(i, 21))
-		var x := r.position.x + fposmod(_h(i, 22) * r.size.x + signf(flow) * t * speed, r.size.x)
-		var y := r.position.y + 6 + _h(i, 23) * (r.size.y - 12)
-		var ln := (10.0 + 14.0 * _h(i, 24)) * (1.6 if active else 1.0)
+		var speed := absf(flow) * (0.8 + 0.4 * HashNoise.scatter(i, 21))
+		var x := r.position.x + fposmod(HashNoise.scatter(i, 22) * r.size.x + signf(flow) * t * speed, r.size.x)
+		var y := r.position.y + 6 + HashNoise.scatter(i, 23) * (r.size.y - 12)
+		var ln := (10.0 + 14.0 * HashNoise.scatter(i, 24)) * (1.6 if active else 1.0)
 		ci.draw_rect(Rect2(Vector2(x, y).snapped(Vector2(2, 2)), Vector2(ln, 2)), Color(SNOW, 0.55 if active else 0.3))
 	if active or warn:
 		# Whitecaps along the surge.
 		for i in int(r.size.x / 120.0):
-			var cx := r.position.x + fposmod(_h(i, 25) * r.size.x + signf(flow) * t * absf(flow), r.size.x)
-			var cy := r.position.y + 10 + _h(i, 26) * (r.size.y - 20)
+			var cx := r.position.x + fposmod(HashNoise.scatter(i, 25) * r.size.x + signf(flow) * t * absf(flow), r.size.x)
+			var cy := r.position.y + 10 + HashNoise.scatter(i, 26) * (r.size.y - 20)
 			var s := 4.0 + 4.0 * (k if warn else 1.0)
 			_px(ci, Vector2(cx, cy), s, Color(SNOW, 0.8))
 			_px(ci, Vector2(cx + s, cy + 2), s * 0.5, Color(SNOW, 0.6))
@@ -456,23 +453,23 @@ func _ground_pool(ci: CanvasItem, hid: String, hs: Dictionary, a: Dictionary, ai
 			_dashed(ci, c, r.size.x * 0.55, r.size.y * 0.6, Color(AMBER, 0.35), 0.0, 12)
 			if r.has_point(Vector2(inside_player.x, inside_player.y + lift)):
 				for i in 4:
-					if _h(i + int(t * 10), 31) < 0.5: _px(ci, inside_player + Vector2((_h(i, 32) - 0.5) * 30, -20 - _h(i, 33) * 40), 2, Color(UiKit.RED, 0.9))
+					if HashNoise.scatter(i + int(t * 10), 31) < 0.5: _px(ci, inside_player + Vector2((HashNoise.scatter(i, 32) - 0.5) * 30, -20 - HashNoise.scatter(i, 33) * 40), 2, Color(UiKit.RED, 0.9))
 		"hollow_puddle":
 			for i in 5:
-				if _h(i + int(t * 3), 41 + ai) < 0.5:
-					_px(ci, c + Vector2((_h(i, 42) - 0.5) * r.size.x * 0.8, (_h(i, 43) - 0.5) * r.size.y * 0.6), 2, Color(HOLLOW_GREY, 0.6))
+				if HashNoise.scatter(i + int(t * 3), 41 + ai) < 0.5:
+					_px(ci, c + Vector2((HashNoise.scatter(i, 42) - 0.5) * r.size.x * 0.8, (HashNoise.scatter(i, 43) - 0.5) * r.size.y * 0.6), 2, Color(HOLLOW_GREY, 0.6))
 			if phase == "warn" or phase == "active":
 				_dashed(ci, c, r.size.x * 0.62, r.size.y * 0.75, Color(AMBER, 0.55 + 0.45 * sin(t * 12.0)), t * 1.5, 12, 3.0, true)
 			if phase == "warn":
 				for i in 6:
-					var life := fposmod(t * 1.6 + _h(i, 44), 1.0)
-					var p := c + Vector2((_h(i, 45) - 0.5) * r.size.x * 0.7, (_h(i, 46) - 0.5) * r.size.y * 0.5 - life * 10.0 * (0.5 + k))
+					var life := fposmod(t * 1.6 + HashNoise.scatter(i, 44), 1.0)
+					var p := c + Vector2((HashNoise.scatter(i, 45) - 0.5) * r.size.x * 0.7, (HashNoise.scatter(i, 46) - 0.5) * r.size.y * 0.5 - life * 10.0 * (0.5 + k))
 					ci.draw_arc(p.snapped(Vector2(2, 2)), 2.0 + 2.0 * life, 0, TAU, 8, Color(HOLLOW_GREY, 1.0 - life), 2.0)
 			elif phase == "active":
 				for i in 5:
 					var pts := PackedVector2Array()
-					var bx := c.x + (_h(i, 47) - 0.5) * r.size.x * 0.7
-					var tall := 34.0 + 26.0 * _h(i, 48)
+					var bx := c.x + (HashNoise.scatter(i, 47) - 0.5) * r.size.x * 0.7
+					var tall := 34.0 + 26.0 * HashNoise.scatter(i, 48)
 					for s in 8:
 						var f := s / 7.0
 						pts.append(Vector2(bx + sin(t * 5.0 + i + f * 4.0) * 6.0 * f, c.y - f * tall).snapped(Vector2(2, 2)))
@@ -483,8 +480,8 @@ func _ground_pool(ci: CanvasItem, hid: String, hs: Dictionary, a: Dictionary, ai
 			var spin: float = float({"tell": 0.6, "warn": 1.4, "active": 2.6, "cooldown": 0.8}.get(phase, 0.6))
 			_ellipse(ci, c, r.size.x * 0.5, r.size.y * 0.5, Color(0.42, 0.3, 0.18, 0.18 + (0.18 if phase == "active" else 0.0)))
 			for i in 22:
-				var ang := t * spin + TAU * _h(i, 141)
-				var rad := fposmod(_h(i, 142) - t * spin * 0.08, 1.0)
+				var ang := t * spin + TAU * HashNoise.scatter(i, 141)
+				var rad := fposmod(HashNoise.scatter(i, 142) - t * spin * 0.08, 1.0)
 				var p := c + Vector2(cos(ang) * r.size.x * 0.48 * rad, sin(ang) * r.size.y * 0.48 * rad)
 				_px(ci, p, 2, Color("8a6440", 0.85) if i % 3 else Color("e8c890", 0.9))
 			if phase == "warn" or phase == "active":
@@ -495,9 +492,9 @@ func _ground_pool(ci: CanvasItem, hid: String, hs: Dictionary, a: Dictionary, ai
 			var reach: float = float({"tell": 22.0, "warn": 40.0 + 20.0 * k, "active": 90.0, "cooldown": 60.0 * (1.0 - k)}.get(phase, 20.0))
 			var alpha: float = float({"tell": 0.25, "warn": 0.4, "active": 0.35, "cooldown": 0.3 * (1.0 - k)}.get(phase, 0.2))
 			for i in int(puffs):
-				var life := fposmod(t * 0.5 + _h(i, 51), 1.0)
+				var life := fposmod(t * 0.5 + HashNoise.scatter(i, 51), 1.0)
 				var spread := r.size.x * 0.45 if phase == "active" else 14.0
-				var p := vent + Vector2((_h(i, 52) - 0.5) * 2.0 * spread + sin(t + i) * 6.0, -life * float(reach))
+				var p := vent + Vector2((HashNoise.scatter(i, 52) - 0.5) * 2.0 * spread + sin(t + i) * 6.0, -life * float(reach))
 				var rad := 6.0 + 14.0 * life * (1.6 if phase == "active" else 1.0)
 				ci.draw_circle(p.snapped(Vector2(2, 2)), rad, Color(GAS, float(alpha) * (1.0 - life * 0.6)))
 			if phase == "warn" or phase == "active":
@@ -536,15 +533,15 @@ func _rock_spot(ci: CanvasItem, hs: Dictionary, sp: Array, si: int) -> void:
 	match str(hs.phase):
 		"tell":
 			for i in 5:
-				var life := fposmod(t * 1.2 + _h(i, 61 + si), 1.0)
-				_px(ci, at + Vector2((_h(i, 62) - 0.5) * 24, -340 + life * 300), 2, Color(GRIT, 0.8 * k))
+				var life := fposmod(t * 1.2 + HashNoise.scatter(i, 61 + si), 1.0)
+				_px(ci, at + Vector2((HashNoise.scatter(i, 62) - 0.5) * 24, -340 + life * 300), 2, Color(GRIT, 0.8 * k))
 		"warn":
 			_rock(ci, at + Vector2(sin(t * 40.0) * 2.0 * k, -330), 1.0)
 		"active":
 			var f := minf(1.0, k / 0.8)
 			var y := lerpf(-330.0, -18.0, f * f)
 			for j in 4:
-				_px(ci, at + Vector2(-10 + j * 6, y - 26 - 14 * j - 10 * _h(j, 63)), 2, Color(DUST, 0.7 - 0.15 * j))
+				_px(ci, at + Vector2(-10 + j * 6, y - 26 - 14 * j - 10 * HashNoise.scatter(j, 63)), 2, Color(DUST, 0.7 - 0.15 * j))
 			_rock(ci, at + Vector2(0, y), 1.0)
 
 ## A falling boulder, 1.5 times the size of the shape below: ink rim, lit upper left.
@@ -570,7 +567,7 @@ func _lightning_wash(hs: Dictionary, view: Rect2) -> void:
 	match str(hs.phase):
 		"tell":
 			air.draw_rect(view, Color(0.04, 0.06, 0.14, 0.16 * k))
-			if _h(int(t * 7.0), 71) < 0.12: air.draw_rect(Rect2(view.position, Vector2(view.size.x, 140)), Color(GLOW, 0.08))
+			if HashNoise.scatter(int(t * 7.0), 71) < 0.12: air.draw_rect(Rect2(view.position, Vector2(view.size.x, 140)), Color(GLOW, 0.08))
 		"warn":
 			air.draw_rect(view, Color(0.04, 0.06, 0.14, 0.16))
 		"active":
@@ -585,7 +582,7 @@ func _bolt_spot(ci: CanvasItem, hs: Dictionary, sp: Array, view: Rect2) -> void:
 		"warn":
 			var y := view.position.y
 			while y < at.y - 20:
-				if _h(int(y) + int(t * 18.0), 72) < 0.5: _px(ci, Vector2(at.x + (_h(int(y), 73) - 0.5) * 6, y), 2 + 2 * int(k > 0.5), Color(GLOW, 0.4 + 0.5 * k))
+				if HashNoise.scatter(int(y) + int(t * 18.0), 72) < 0.5: _px(ci, Vector2(at.x + (HashNoise.scatter(int(y), 73) - 0.5) * 6, y), 2 + 2 * int(k > 0.5), Color(GLOW, 0.4 + 0.5 * k))
 				y += 12.0
 		"active":
 			var pts := PackedVector2Array()
@@ -593,7 +590,7 @@ func _bolt_spot(ci: CanvasItem, hs: Dictionary, sp: Array, view: Rect2) -> void:
 			var steps := 14
 			for i in steps + 1:
 				var f := float(i) / steps
-				var jx := 0.0 if i == 0 or i == steps else (_h(seed_i + i, 74) - 0.5) * 34.0
+				var jx := 0.0 if i == 0 or i == steps else (HashNoise.scatter(seed_i + i, 74) - 0.5) * 34.0
 				pts.append(Vector2(at.x + jx, lerpf(view.position.y - 20, at.y, f)).snapped(Vector2(2, 2)))
 			ci.draw_polyline(pts, Color(GLOW, 0.45), 10.0)
 			ci.draw_polyline(pts, BOLT, 4.0)
@@ -612,17 +609,17 @@ func _air_gust(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 	var material := str(rt.def.get("ground", {}).get("material", "earth"))
 	var fleck: Color = SNOW if material == "snow" else (DUST if material in ["earth", "sand", "rock"] else Color("7fae5a"))
 	for i in int(count):
-		var sp := float(speed) * (0.7 + 0.6 * _h(i, 81))
-		var x := view.position.x - 60 + fposmod(_h(i, 82) * (view.size.x + 120) + dir * t * sp, view.size.x + 120)
-		var y := view.position.y + 70 + _h(i, 83) * (view.size.y - 150) + sin(t * 3.0 + i) * 8.0
+		var sp := float(speed) * (0.7 + 0.6 * HashNoise.scatter(i, 81))
+		var x := view.position.x - 60 + fposmod(HashNoise.scatter(i, 82) * (view.size.x + 120) + dir * t * sp, view.size.x + 120)
+		var y := view.position.y + 70 + HashNoise.scatter(i, 83) * (view.size.y - 150) + sin(t * 3.0 + i) * 8.0
 		if i % 3 == 0:
 			# Wind lines: a pale core over a darker trail, so they read on snow and sand alike.
-			var ln := (22.0 + 40.0 * _h(i, 84)) * (1.6 if phase == "active" else 1.0)
+			var ln := (22.0 + 40.0 * HashNoise.scatter(i, 84)) * (1.6 if phase == "active" else 1.0)
 			var at := Vector2(x - (ln if dir > 0 else 0.0), y).snapped(Vector2(2, 2))
 			air.draw_rect(Rect2(at + Vector2(0, 2), Vector2(ln, 2)), Color(0.18, 0.24, 0.3, 0.3))
 			air.draw_rect(Rect2(at, Vector2(ln, 2)), Color(SNOW, 0.8))
 		else:
-			var sz := 2 + 2 * int(_h(i, 85) * 2)
+			var sz := 2 + 2 * int(HashNoise.scatter(i, 85) * 2)
 			_px(air, Vector2(x, y + 2), sz, Color(0.12, 0.14, 0.16, 0.45))
 			_px(air, Vector2(x, y), sz, Color(fleck, 0.95))
 	if phase == "warn":
@@ -651,8 +648,8 @@ func _air_heat(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> v
 	if glare > 0.0: air.draw_rect(view, Color(1.0, 0.86, 0.55, glare))
 	var lines: int = int({"tell": 6, "warn": 12, "active": 20, "cooldown": 8}.get(phase, 4))
 	for i in lines:
-		var x := view.position.x + _h(i, 151) * view.size.x
-		var y := view.end.y - 60 - fposmod(_h(i, 152) * 300.0 + t * 40.0, 320.0)
+		var x := view.position.x + HashNoise.scatter(i, 151) * view.size.x
+		var y := view.end.y - 60 - fposmod(HashNoise.scatter(i, 152) * 300.0 + t * 40.0, 320.0)
 		var pts := PackedVector2Array()
 		for j in 7:
 			pts.append(Vector2(x + j * 10.0, y + sin(t * 6.0 + i + j * 0.9) * 3.0).snapped(Vector2(2, 2)))
@@ -669,17 +666,17 @@ func _air_star_wind(hs: Dictionary, view: Rect2) -> void:
 	var tail: float = float({"warn": 18.0, "active": 70.0}.get(phase, 4.0))
 	if phase == "active": air.draw_rect(view, Color(0.55, 0.62, 0.95, 0.08))
 	for i in n:
-		var x := view.end.x - fposmod(_h(i, 211) * (view.size.x + 200.0) + t * speed * (0.7 + 0.6 * _h(i, 212)), view.size.x + 200.0) + 100.0
-		var y := view.position.y + 40.0 + _h(i, 213) * (view.size.y - 80.0)
+		var x := view.end.x - fposmod(HashNoise.scatter(i, 211) * (view.size.x + 200.0) + t * speed * (0.7 + 0.6 * HashNoise.scatter(i, 212)), view.size.x + 200.0) + 100.0
+		var y := view.position.y + 40.0 + HashNoise.scatter(i, 213) * (view.size.y - 80.0)
 		var p := Vector2(x, y).snapped(Vector2(2, 2))
-		var a := (0.35 + 0.5 * _h(i, 214)) * (1.0 - k if phase == "cooldown" else 1.0)
-		if tail > 6.0: air.draw_line(p, p + Vector2(tail * (0.6 + _h(i, 215)), 0), Color(0.75, 0.84, 1.0, a * 0.5), 2.0)
+		var a := (0.35 + 0.5 * HashNoise.scatter(i, 214)) * (1.0 - k if phase == "cooldown" else 1.0)
+		if tail > 6.0: air.draw_line(p, p + Vector2(tail * (0.6 + HashNoise.scatter(i, 215)), 0), Color(0.75, 0.84, 1.0, a * 0.5), 2.0)
 		air.draw_rect(Rect2(p, Vector2(2, 2)), Color(0.92, 0.96, 1.0, a))
 	if phase == "active":
 		var pp := _player_pos() + Vector2(0, -60)
 		for i in 10:
-			var f := fposmod(t * 1.4 + _h(i, 216), 1.0)
-			var q := pp + Vector2(-f * 240.0 - 10.0, sin(t * 5.0 + i) * 20.0 * f + (_h(i, 217) - 0.5) * 60.0)
+			var f := fposmod(t * 1.4 + HashNoise.scatter(i, 216), 1.0)
+			var q := pp + Vector2(-f * 240.0 - 10.0, sin(t * 5.0 + i) * 20.0 * f + (HashNoise.scatter(i, 217) - 0.5) * 60.0)
 			air.draw_rect(Rect2(q.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(0.55, 0.95, 0.8, 0.8 * (1.0 - f)))
 	if phase == "warn": _mark(air, _player_pos() + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
 
@@ -689,8 +686,8 @@ func _air_deep_water(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 	var phase := str(hs.phase)
 	air.draw_rect(view, Color(0.2, 0.42, 0.62, 0.22))
 	for i in 14:
-		var x := view.position.x + fposmod(_h(i, 231) * view.size.x + t * 18.0 * (0.5 + _h(i, 232)), view.size.x)
-		var y := view.position.y + 60.0 + _h(i, 233) * (view.size.y - 200.0)
+		var x := view.position.x + fposmod(HashNoise.scatter(i, 231) * view.size.x + t * 18.0 * (0.5 + HashNoise.scatter(i, 232)), view.size.x)
+		var y := view.position.y + 60.0 + HashNoise.scatter(i, 233) * (view.size.y - 200.0)
 		var pts := PackedVector2Array()
 		for j in 6:
 			pts.append(Vector2(x + j * 14.0, y + sin(t * 1.6 + i + j * 0.8) * 4.0).snapped(Vector2(2, 2)))
@@ -734,8 +731,8 @@ func _air_presence(hs: Dictionary, view: Rect2) -> void:
 	if phase == "active":
 		for i in 6:
 			var x := pp.x - 90.0 + i * 36.0
-			var y0 := pp.y - 120.0 - 20.0 * _h(i, 221)
-			var y1 := y0 + 40.0 + 30.0 * fposmod(t * 2.0 + _h(i, 222), 1.0)
+			var y0 := pp.y - 120.0 - 20.0 * HashNoise.scatter(i, 221)
+			var y1 := y0 + 40.0 + 30.0 * fposmod(t * 2.0 + HashNoise.scatter(i, 222), 1.0)
 			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(UiKit.INK, 0.5), 7.0)
 			air.draw_line(Vector2(x, y0).snapped(Vector2(2, 2)), Vector2(x, y1).snapped(Vector2(2, 2)), Color(violet, 0.8), 3.0)
 	if phase == "warn": _mark(air, pp + Vector2(36, -100), 0.7 + 0.3 * sin(t * 12.0))
@@ -750,12 +747,12 @@ func _air_fog(rt: RoomRuntime, h: Dictionary, hs: Dictionary, view: Rect2) -> vo
 	var p := _player_pos()
 	var n := 10 if phase == "tell" else 26
 	for i in n:
-		var x := view.position.x - 100 + fposmod(_h(i, 91) * (view.size.x + 200) + t * (12.0 + 10.0 * _h(i, 92)), view.size.x + 200)
+		var x := view.position.x - 100 + fposmod(HashNoise.scatter(i, 91) * (view.size.x + 200) + t * (12.0 + 10.0 * HashNoise.scatter(i, 92)), view.size.x + 200)
 		var low: bool = phase == "tell" or i % 3 == 0
-		var y := view.end.y - 90 - _h(i, 93) * 60 if low else view.position.y + 80 + _h(i, 94) * (view.size.y - 160)
+		var y := view.end.y - 90 - HashNoise.scatter(i, 93) * 60 if low else view.position.y + 80 + HashNoise.scatter(i, 94) * (view.size.y - 160)
 		var at := Vector2(x, y)
 		if phase == "active" and at.distance_to(p + Vector2(0, -50)) < 150.0: continue
-		_ellipse(air, at, 120.0 + 60.0 * _h(i, 95), 44.0 + 20.0 * _h(i, 96), Color(0.9, 0.93, 0.95, 0.15 * float(weight) * dense))
+		_ellipse(air, at, 120.0 + 60.0 * HashNoise.scatter(i, 95), 44.0 + 20.0 * HashNoise.scatter(i, 96), Color(0.9, 0.93, 0.95, 0.15 * float(weight) * dense))
 	if phase == "warn": _mark(air, p + Vector2(36, -150), 0.7 + 0.3 * sin(t * 12.0))
 
 func _air_cold(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
@@ -765,8 +762,8 @@ func _air_cold(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 	var slant: float = float({"warn": 60.0, "active": 260.0}.get(phase, 20.0))
 	var fall: float = float({"active": 220.0}.get(phase, 60.0))
 	for i in int(flakes):
-		var x := view.position.x + fposmod(_h(i, 101) * view.size.x + t * float(slant) * (0.7 + 0.6 * _h(i, 102)), view.size.x)
-		var y := view.position.y + fposmod(_h(i, 103) * view.size.y + t * float(fall) * (0.6 + 0.8 * _h(i, 104)), view.size.y)
+		var x := view.position.x + fposmod(HashNoise.scatter(i, 101) * view.size.x + t * float(slant) * (0.7 + 0.6 * HashNoise.scatter(i, 102)), view.size.x)
+		var y := view.position.y + fposmod(HashNoise.scatter(i, 103) * view.size.y + t * float(fall) * (0.6 + 0.8 * HashNoise.scatter(i, 104)), view.size.y)
 		if phase == "active" and i % 2 == 0:
 			air.draw_line(Vector2(x, y + 2), Vector2(x - 14, y - 8), Color(0.3, 0.42, 0.55, 0.35), 2.0)
 			air.draw_line(Vector2(x, y), Vector2(x - 14, y - 10), Color(SNOW, 0.85), 2.0)
@@ -781,7 +778,7 @@ func _air_cold(rt: RoomRuntime, hs: Dictionary, view: Rect2) -> void:
 		for side in 4:
 			for i in 16:
 				var f := i / 16.0
-				var depth := 18.0 + 46.0 * _h(i + side * 17, 105) * (0.4 + frost)
+				var depth := 18.0 + 46.0 * HashNoise.scatter(i + side * 17, 105) * (0.4 + frost)
 				var r: Rect2
 				match side:
 					0: r = Rect2(view.position.x + f * view.size.x, view.position.y, view.size.x / 16.0 + 2, depth)
@@ -801,9 +798,9 @@ func _air_weather(rt: RoomRuntime, view: Rect2) -> void:
 		var fall := 900.0 if w == "rain" else 1150.0
 		var slant := 120.0 if w == "rain" else 320.0
 		for i in n:
-			var x := view.position.x + fposmod(_h(i, 201) * view.size.x + t * slant, view.size.x)
-			var y := view.position.y + fposmod(_h(i, 202) * view.size.y + t * fall * (0.8 + 0.4 * _h(i, 203)), view.size.y)
-			var d := Vector2(slant, fall).normalized() * (14.0 + 8.0 * _h(i, 204))
+			var x := view.position.x + fposmod(HashNoise.scatter(i, 201) * view.size.x + t * slant, view.size.x)
+			var y := view.position.y + fposmod(HashNoise.scatter(i, 202) * view.size.y + t * fall * (0.8 + 0.4 * HashNoise.scatter(i, 203)), view.size.y)
+			var d := Vector2(slant, fall).normalized() * (14.0 + 8.0 * HashNoise.scatter(i, 204))
 			air.draw_line(Vector2(x, y), Vector2(x, y) + d, Color(0.78, 0.86, 0.95, 0.5), 1.6)
 	if w == "storm":
 		# Far lightning: a short sheet of light every few seconds.
@@ -811,6 +808,6 @@ func _air_weather(rt: RoomRuntime, view: Rect2) -> void:
 		if cyc < 0.12 or (cyc > 0.25 and cyc < 0.32): air.draw_rect(view, Color(0.85, 0.9, 1.0, 0.18))
 	if w == "fog":
 		for i in 18:
-			var x := view.position.x - 100 + fposmod(_h(i, 211) * (view.size.x + 200) + t * (10.0 + 8.0 * _h(i, 212)), view.size.x + 200)
-			var y := view.end.y - 120 - _h(i, 213) * (view.size.y * 0.55)
-			_ellipse(air, Vector2(x, y), 150.0 + 60.0 * _h(i, 214), 50.0 + 20.0 * _h(i, 215), Color(0.9, 0.93, 0.95, 0.10))
+			var x := view.position.x - 100 + fposmod(HashNoise.scatter(i, 211) * (view.size.x + 200) + t * (10.0 + 8.0 * HashNoise.scatter(i, 212)), view.size.x + 200)
+			var y := view.end.y - 120 - HashNoise.scatter(i, 213) * (view.size.y * 0.55)
+			_ellipse(air, Vector2(x, y), 150.0 + 60.0 * HashNoise.scatter(i, 214), 50.0 + 20.0 * HashNoise.scatter(i, 215), Color(0.9, 0.93, 0.95, 0.10))

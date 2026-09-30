@@ -12,7 +12,6 @@ extends Page
 
 const BagPage = preload("res://scripts/ui/pages/inventory_page.gd")
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
-const Avatar = preload("res://scripts/avatar.gd")
 const SKY := Rect2(808, 0, 472, 720)          # the bag's side beside the stall
 const WARES := Rect2(232, 108, 568, 336)      # the shelves: five wares a shelf, two in view
 const WARE := Vector2(110, 168)
@@ -55,9 +54,9 @@ func setup() -> void:
 	var who := ContentDB.entry("npcs", npc)
 	if not who.is_empty():
 		# Decision 42: the merchant as the game draws them: the top-down figure in the top-down game.
-		doll = TopdownDoll.new() if TopdownDoll.shown() else Avatar.new()
+		doll = Figures.for_character()
 		doll.visible = false
-		TopdownDoll.dress(doll, DialoguePage.full_outfit(who.get("outfit", {})))
+		Figures.dress(doll, DialoguePage.full_outfit(who.get("outfit", {})))
 		doll.set("facing", 1)
 		add_child(doll)
 		doll.play("idle")
@@ -103,9 +102,7 @@ func draw_surface(_r: Rect2) -> void:
 	vshade(Rect2(8, drop, 1264, 30), Color(UiKit.INK, 0.25), Color(UiKit.INK, 0.0))
 	draw_rect(Rect2(8, 74 + drop, 1264, 2), Color(UiKit.INK, 0.3))
 	# The merchant standing behind her counter (her own layers, at 2.5 as the self family's figures).
-	if is_instance_valid(doll):
-		if doll is TopdownDoll: doll.draw_on(self, FEET + Vector2(0, -56), TOP_SCALE)   # risen to show her above the counter
-		else: doll.draw_on(self, FEET, 2.5)
+	Figures.draw_on(doll, self, FEET + Vector2(0, -56), TOP_SCALE, FEET, 2.5)   # the top-down one risen to show her above the counter
 	# The counter plank, its lip and its front.
 	vshade(Rect2(8, COUNTER_Y, 800, 148), UiKit.SURFACE.board, UiKit.SURFACE.board_edge)
 	for y in range(int(COUNTER_Y) + 12, int(COUNTER_Y) + 146, 23): draw_rect(Rect2(8, y, 800, 1), Color(UiKit.SURFACE.board_line, 0.12))

@@ -7,7 +7,6 @@ extends Page
 ## is the night mountain of the great realms at the left, the stair of this realm's steps in the middle with the figure
 ## seated on the step it has reached and the gate at the top, and this step, the next and the gate's asks at the right.
 ## The shared window, plaque and tabs stay, as the approved mockup keeps them; the other tabs keep their panels on it.
-const Avatar = preload("res://scripts/avatar.gd")
 const MOUNTAIN := Rect2(96, 168, 312, 496)
 const STAIR := Rect2(424, 168, 376, 496)
 const RIGHT := Rect2(816, 168, 368, 496)
@@ -47,10 +46,10 @@ func setup() -> void:
 	if doll == null:
 		# Decision 42: the character as its game draws it, seated in meditation facing the camera: the top-down figure for
 		# a top-down character, the side view's for a classic one.
-		doll = TopdownDoll.new() if TopdownDoll.shown(ch) else Avatar.new()
+		doll = Figures.for_character(ch)
 		doll.visible = false
 		add_child(doll)
-	TopdownDoll.dress(doll, InventoryAuthority.outfit_for(ch))
+	Figures.dress(doll, InventoryAuthority.outfit_for(ch))
 	doll.play("meditate")
 	if page_id == "seclusion" and Unlocks.is_unlocked(ch.id, "seclusion"): tab = 7
 	if page_id == "heart": tab = 3
@@ -58,7 +57,7 @@ func setup() -> void:
 
 func on_event(name: String, _p: Dictionary) -> void:
 	if name == "equipment_changed" and doll != null and c() != null:
-		TopdownDoll.dress(doll, InventoryAuthority.outfit_for(c()))
+		Figures.dress(doll, InventoryAuthority.outfit_for(c()))
 	queue_redraw()
 
 func draw_page() -> void:
@@ -272,8 +271,7 @@ func _stair(ch, steps: Array, here: int) -> Vector2:
 		feet = Vector2(fr.get_center().x, fr.position.y + 4).lerp(feet, k) + Vector2(0, -10.0 * sin(k * PI))
 		if k >= 1.0: _climb = {}
 	move()
-	if doll is TopdownDoll: doll.draw_on(self, feet + Vector2(0, lift - 24), TOP_SCALE)   # seated on the step's top
-	elif doll != null: doll.draw_on(self, feet + Vector2(0, lift), 0.75)
+	Figures.draw_on(doll, self, feet + Vector2(0, lift - 24), TOP_SCALE, feet + Vector2(0, lift), 0.75)   # seated on the step's top
 	# The bands under the steps, each with its chip.
 	var spans := {}
 	for i in n:

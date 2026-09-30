@@ -20,23 +20,9 @@ extends RefCounted
 ## the frame and asked again as soon as the game moves on (Game.revision: an intent, a tick, effects) or another room
 ## or character is asked about. The views asked the authorities for all of them several times a frame (the
 ## requirements' texts, a look through every foe, every quest): over a millisecond of the Marsh Edge fight's frame.
-static var _memo := {}
-static var _memo_frame := -1
-static var _memo_rev := -1
-static var _memo_room := 0
-static var _memo_c := 0
+static var _memo := FrameMemo.new()
 static func _frame_memo(c) -> Dictionary:
-	var frame := Engine.get_process_frames()
-	var rev: int = Game.revision
-	var room: int = Game.room_rt.get_instance_id() if Game.room_rt != null else 0
-	var cid: int = c.get_instance_id() if c is Object else 0
-	if frame != _memo_frame or rev != _memo_rev or room != _memo_room or cid != _memo_c:
-		_memo = {}
-		_memo_frame = frame
-		_memo_rev = rev
-		_memo_room = room
-		_memo_c = cid
-	return _memo
+	return _memo.table(Game.room_rt.get_instance_id() if Game.room_rt != null else 0, c.get_instance_id() if c is Object else 0)
 
 static func object_visible(c, o: Dictionary) -> bool:
 	var id := str(o.get("id", ""))

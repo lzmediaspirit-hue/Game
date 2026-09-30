@@ -424,7 +424,7 @@ func _draw_fx() -> void:
 				_cloud_bank(top, 620.0 * (0.4 + 0.6 * grow), 70.0, c, Color(1.0, 0.98, 0.9), 0.9 * fade2, 3, float(e.t))
 				for i in 14:
 					var ph := fmod(float(e.t) * 0.35 + i / 14.0, 1.0)
-					var mp: Vector2 = e.pos + Vector2((_hash(i, 5) - 0.5) * 90.0, -ph * 300.0)
+					var mp: Vector2 = e.pos + Vector2((HashNoise.scatter(i, 5) - 0.5) * 90.0, -ph * 300.0)
 					draw_rect(Rect2(mp.snapped(Vector2(2, 2)), Vector2(4, 4)), Color(1.0, 0.95, 0.75, 0.9 * fade2 * (1.0 - ph)))
 			"heaven_storm":
 				# A tribulation's sky: a dark bank low over the room, lit from inside, and bolts that fall near you.
@@ -435,14 +435,14 @@ func _draw_fx() -> void:
 				var lit := fmod(float(e.t) * 3.0, 1.0) < 0.3
 				_cloud_bank(top2, 820.0 * (0.4 + 0.6 * grow2), 80.0, Color(0.2, 0.21, 0.29), Color(0.55, 0.62, 0.8) if lit else Color(0.34, 0.36, 0.46), fade3, 7, float(e.t))
 				if lit:
-					var bx := (_hash(beat, 11) - 0.5) * 420.0
+					var bx := (HashNoise.scatter(beat, 11) - 0.5) * 420.0
 					var pts2 := PackedVector2Array()
 					var yy := -290.0
 					var xx := bx
 					while yy < 0.0:
 						pts2.append(e.pos + Vector2(xx, yy))
-						yy += 40.0 + _hash(beat * 7 + int(yy), 12) * 30.0
-						xx += (_hash(beat * 13 + int(yy), 13) - 0.5) * 50.0
+						yy += 40.0 + HashNoise.scatter(beat * 7 + int(yy), 12) * 30.0
+						xx += (HashNoise.scatter(beat * 13 + int(yy), 13) - 0.5) * 50.0
 					pts2.append(e.pos + Vector2(xx, 0))
 					draw_polyline(pts2, Color(c, 0.35 * fade3), 7.0)
 					draw_polyline(pts2, Color(0.95, 0.97, 1.0, 0.95 * fade3), 2.0)
@@ -470,9 +470,9 @@ func _draw_fx() -> void:
 			"rain":
 				# P6e: `count` streaks falling over the hitbox (`radius` either side of it), each from `height` up to the ground.
 				for i in int(e.count):
-					var u := clampf(k * 1.6 - _hash(i, 21) * 0.6, 0.0, 1.0)
+					var u := clampf(k * 1.6 - HashNoise.scatter(i, 21) * 0.6, 0.0, 1.0)
 					if u <= 0.0 or u >= 1.0: continue
-					var x := (_hash(i, 22) * 2.0 - 1.0) * float(e.radius)
+					var x := (HashNoise.scatter(i, 22) * 2.0 - 1.0) * float(e.radius)
 					var head: Vector2 = e.pos + Vector2(x - 30.0 * (1.0 - u), -float(e.height) * (1.0 - u))
 					draw_line(head, head + Vector2(10, -34), Color(c, 0.85 * (1.0 - u * 0.5)), 3.0)
 					draw_line(head, head + Vector2(5, -17), Color(1, 1, 1, 0.8 * (1.0 - u)), 1.5)
@@ -550,10 +550,10 @@ func _pillar(feet: Vector2, half: float, height: float, c: Color, a: float) -> v
 func _cloud_bank(center: Vector2, width: float, height: float, base: Color, lit: Color, alpha: float, salt: int, t: float) -> void:
 	for layer in 2:
 		for i in 34:
-			var u := _hash(i, salt) - 0.5
-			var rx := 34.0 + _hash(i, salt + 1) * 46.0
+			var u := HashNoise.scatter(i, salt) - 0.5
+			var rx := 34.0 + HashNoise.scatter(i, salt + 1) * 46.0
 			var arch := (1.0 - absf(u) * 2.0) * height * 0.6
-			var at: Vector2 = center + Vector2(u * width + sin(t * 0.5 + i) * 6.0, (_hash(i, salt + 2) - 0.5) * height * 0.4 - arch * 0.5)
+			var at: Vector2 = center + Vector2(u * width + sin(t * 0.5 + i) * 6.0, (HashNoise.scatter(i, salt + 2) - 0.5) * height * 0.4 - arch * 0.5)
 			if layer == 1:
 				at += Vector2(0, -rx * 0.22)
 				rx *= 0.7
@@ -683,9 +683,6 @@ func _draw_note(at: Vector2, col: Color, alpha: float, sc: float) -> void:
 	draw_line(head + Vector2(5, -2) * sc, top, Color(col, alpha), 1.4 * sc)
 	draw_line(top, top + Vector2(7, 6) * sc, Color(UiKit.INK, alpha), 3.0 * sc)
 	draw_line(top, top + Vector2(7, 6) * sc, Color(col, alpha), 1.4 * sc)
-
-static func _hash(i: int, salt: int) -> float:
-	return fposmod(sin(float(i) * 12.9898 + float(salt) * 78.233) * 43758.5453, 1.0)
 
 ## A shot on the top-down plane (redesign Phase 2) flies along its `aim`: its drawing turns to it, kept upright by
 ## mirroring the ones that fly left.

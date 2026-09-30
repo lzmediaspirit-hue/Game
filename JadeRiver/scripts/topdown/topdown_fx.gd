@@ -88,27 +88,43 @@ func play(sheet: Dictionary, row: int, o: Dictionary) -> FxSprite:
 	n.life = float(o.get("life", float(n.frames) / n.fps))
 	world.sorted.add_child(n)
 	nodes.append(n)
-	# A cap on effects at once (a crowd's blows): the oldest one-shot goes first.
-	if nodes.size() > MAX_NODES:
-		for old in nodes:
-			if is_instance_valid(old) and not old.loop:
-				nodes.erase(old)
-				old.queue_free()
-				break
+	if nodes.size() > MAX_NODES: _retire(n)
 	return n
 
-## Advance every effect (not during a hit-stop); drop the finished ones.
+## A cap on effects at once (a crowd's blows): the oldest one-shot goes first; with none left, the oldest loop. Never
+## the effect just begun. (BUG-04: only one-shots were retired, so with the list full of loops it grew past the cap,
+## and each new one-shot, the only one there, was the one dropped.)
+func _retire(keep: FxSprite) -> void:
+	var oldest_loop := -1
+	for i in nodes.size():
+		var old = nodes[i]
+		if not is_instance_valid(old) or old == keep: continue
+		if not old.loop:
+			_drop_at(i)
+			return
+		if oldest_loop < 0: oldest_loop = i
+	if oldest_loop >= 0: _drop_at(oldest_loop)
+
+func _drop_at(i: int) -> void:
+	var old: FxSprite = nodes[i]
+	nodes.remove_at(i)
+	old.queue_free()   # a held guard or charge mark retired so comes back at its next hold()
+
+## Advance every effect (not during a hit-stop); drop the finished ones, in one pass that keeps the rest in order (the
+## cap retires the oldest first).
 func advance(delta: float) -> void:
-	for n in nodes.duplicate():
-		if not is_instance_valid(n):
-			nodes.erase(n)
-			continue
+	var kept := 0
+	for i in nodes.size():
+		var n = nodes[i]
+		if not is_instance_valid(n): continue
 		n.t += delta
 		if not n.loop and n.t >= n.life:
-			nodes.erase(n)
 			n.queue_free()
-		else:
-			n.queue_redraw()
+			continue
+		n.queue_redraw()
+		nodes[kept] = n
+		kept += 1
+	nodes.resize(kept)
 	bolts.queue_redraw()
 
 ## Stop and drop every effect (a room left behind).

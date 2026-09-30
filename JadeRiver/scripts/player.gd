@@ -3,7 +3,6 @@ extends Node2D
 ## through LocalAuthority (validated, sequenced commands). In room mode every
 ## action is an intent to Game; attack timing, meditation and resources come from
 ## the authorities and the avatar only follows them.
-const Avatar = preload("res://scripts/avatar.gd")
 var world: Node2D
 var actor_id := ""                 # "" = legacy regression mode (no Game authority)
 var state = ActorState.new()
@@ -82,7 +81,7 @@ func bound() -> bool:
 
 func _ready():
 	if authority == null: authority = LocalAuthority.new(state, world.geometry)
-	avatar = Avatar.new()
+	avatar = Figures.side_avatar()
 	avatar.outfit = outfit.duplicate(true)
 	for k in ["hat", "cape"]:
 		if not avatar.outfit.has(k): avatar.outfit[k] = "none"

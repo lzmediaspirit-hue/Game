@@ -441,6 +441,26 @@ art (§2.4).
 | DUP-11 | **Generator CLI boilerplate** (build, `--check`, stale list, write) in 7 modules | `topdown_rooms.py:1746`, `topdown_life.py`, `places.py:342`, `sound.py`, `sect_walks.py`, `contract.py`, `scenes.py` | `tools/data/common.py` `emit()` and `run_cli()` (S5) |
 | DUP-12 | **Atlas packing** in four builders, and the study's copies of the renderer | `build_decor` and `build_life` (32 lines), `build_tiles` ×2 (23), `raster`/`hifi` (47), `folds`/`looks` (56) | `tools/art/topdown/atlas.py` `pack()` (S3) |
 
+**Status (phase 2, S4):** each finding was checked again on the tree phase 1 and S1 left. How to use each helper is in
+`docs/architecture/shared_runtime.md`.
+- **DUP-01, closed.** `FrameMemo` (`scripts/core/frame_memo.gd`) replaced the seven caches, and an eighth that phase
+  1 added for the tutorial coach (`hud.tour_targets`).
+  - `value(key, compute)` keeps answers by key. `table(scope)` hands the kept `Dictionary` to a hot path, which is how
+    `WorldShared` uses it. `PlaceRules.home` keeps its 60-frame answers.
+  - A repeated question costs about what the hand-written cache cost. On a desktop, `WorldShared`'s table takes 472 ns
+    against 412, and a one-key `value` takes 878 ns against 374, most of it the `Callable` made at the call.
+- **DUP-02, closed.** `HashNoise` (`scripts/core/noise.gd`) has `scatter`, `cell` and `value`. It is not named `Noise`
+  because that is the engine's own class. The five sin-hash copies and `TopdownTerrain.h01` and `vnoise` are gone.
+  - The outputs are bit-identical. The old functions' outputs over a grid match the new ones byte for byte: 35,888
+    sin-hash points, 113,967 cells and 16,800 noise values.
+  - `tests/shared_runtime_tests.gd` compares them over grids on every run.
+- **DUP-03, closed.** `Figures` (`scripts/presentation/figures.gd`) makes every figure.
+  - It covers the 18 sites, and `TopdownDoll`'s `figure_for`, `dress` and `shown`, which the dialogue, posts,
+    companions, notice and sect pages called.
+  - Every `Avatar` is made in its side-view section, so retiring the side view deletes that section.
+  - Before and after captures match pixel for pixel, 13 of 13: Lotus Ferry, the Marsh Edge's fight, the selection's
+    cards, and the Character, Bag, Cultivation, Techniques and Shop pages of a top-down and of a side-view character.
+
 The label and plate layout is **not** duplicated: `WorldLabels.resolve` plus `WorldShared.label_views` place every
 name for both views. `map_page`'s plates are map art, not world labels.
 
@@ -475,6 +495,32 @@ name for both views. `map_page`'s plates are map art, not world labels.
 - **`rules_tests`' `recipe_rename_suite` checks both halves.** It saves a character holding an unknown id, loads it,
   and opens the Crafts page with the id queued again. With the fix undone, both checks fail, and the page stops with
   the old SCRIPT ERROR at `crafts_page.gd:810`.
+
+**Status (phase 2, S4):**
+- **BUG-03, fixed.** `UNLOCK_TRIGGERS` and `SAVE_TRIGGERS` are constant sets.
+  - A name's listener list is replaced on `subscribe`, never changed in place. A delivery walks the list it began with,
+    without a copy for every event.
+  - The order and semantics hold: priority, then the order of subscription. A listener added or removed during a
+    delivery joins or leaves from the next event. `tests/shared_runtime_tests.gd` checks both.
+- **BUG-04, fixed.** When the cap is full, the oldest one-shot goes, or with none left the oldest loop. The effect just
+  begun is never dropped.
+  - Before, a list full of loops grew past the cap, and every new one-shot was dropped as soon as it began.
+  - `advance` drops finished effects in one pass. It keeps the rest in order, because the cap retires the oldest
+    first: a swap-remove would lose that order.
+  - `tests/shared_runtime_tests.gd` fills the cap with loops and checks that a one-shot plays.
+- **BUG-08, fixed.** `FrameMemo` compares the badges' key by value and copies it only when it changes.
+- **BUG-11, fixed.** Boot reads only `realms`, `recipes` (their indexes) and the strings on the game's thread. A
+  low-priority loading thread reads the rest beside the boot, `techniques` first. A lookup that comes before the thread
+  has its table reads it itself, and never waits on the thread.
+  - Every lookup returns what a full boot read returned. The suite compares every table, room, dialogue tree and
+    `parts` with a fresh read, both as booted and as read by the thread.
+  - `tables`, `lists`, `configs` and `load_errors` read in whole still read everything, in the data folder's order.
+    `tutorial_rules` asks `ContentDB.has_table("places")` instead of `lists`.
+  - Measured as the median of 7 interleaved runs, on a shared 4-core machine at a load of 14 to 17, which inflates
+    every time:
+    - boot to the title's first frame: 9,273 ms before, 8,923 ms after;
+    - ContentDB's own load at boot: 480 ms before, 33 ms after;
+    - a new character's first room: 429 ms before, 256 ms after.
 
 Also noted, not bugs:
 - `ContentDB.entry("techniques", tech).hitbox.x[1]` in `world.gd:362` is safe: all 3,171 rows carry a `hitbox`.

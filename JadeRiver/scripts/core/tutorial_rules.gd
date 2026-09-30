@@ -183,7 +183,7 @@ static func chain_home(e: Dictionary, top_page: String, top_tab: String) -> bool
 ## places, the one a walk there leads the character to (PlaceRules.home: its own sect's, the home one, the nearest);
 ## {} when the table has none.
 static func place(id: String, c = null) -> Dictionary:
-	if not ContentDB.lists.has("places"): return {}
+	if not ContentDB.has_table("places"): return {}
 	var row := ContentDB.entry("places", id)
 	if row.is_empty() and c != null: row = PlaceRules.home(c, PlaceRules.system_of(id))
 	return row

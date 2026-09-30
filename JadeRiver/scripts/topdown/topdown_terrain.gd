@@ -226,24 +226,6 @@ func _cut_shadow(p: Dictionary) -> void:
 			_pieces[key].append([piece, Rect2(src.position + piece.position - dest.position, piece.size)])
 
 # ------------------------------------------------------------------ Terrain v2 (decision 40)
-## A hash of integer coordinates to [0, 1) (the tile builder's own, tools/art/topdown/canvas.py `h01`).
-static func h01(x: int, y: int, s: int) -> float:
-	var n := (x * 374761393 + y * 668265263 + s * 2246822519) & 0xFFFFFFFF
-	n = ((n ^ (n >> 13)) * 1274126177) & 0xFFFFFFFF
-	return float((n ^ (n >> 16)) & 0xFFFF) / 65536.0
-
-## Value noise over the plane from that hash (smoothstep between lattice points).
-static func vnoise(x: float, y: float, s: int) -> float:
-	var x0 := floori(x)
-	var y0 := floori(y)
-	var tx := x - x0
-	var ty := y - y0
-	tx = tx * tx * (3.0 - 2.0 * tx)
-	ty = ty * ty * (3.0 - 2.0 * ty)
-	var a := lerpf(h01(x0, y0, s), h01(x0 + 1, y0, s), tx)
-	var b := lerpf(h01(x0, y0 + 1, s), h01(x0 + 1, y0 + 1, s), tx)
-	return lerpf(a, b, ty)
-
 ## A layer the room view draws: a tile and the colour it is drawn in (white, or a tint for a mask).
 func _layer(name: String, c := Color.WHITE) -> Array:
 	return [name, c]
@@ -269,7 +251,7 @@ func _tones() -> void:
 		for cx in range(1, room.w):
 			var l0 := lvl[(cy - 1) * room.w + cx - 1]
 			if l0 < 0 or lvl[(cy - 1) * room.w + cx] != l0 or lvl[cy * room.w + cx - 1] != l0 or lvl[cy * room.w + cx] != l0: continue
-			var n := 0.65 * vnoise(cx / 7.0, cy / 7.0, seed) + 0.35 * vnoise(cx / 3.0, cy / 3.0, seed + 1)
+			var n := 0.65 * HashNoise.value(cx / 7.0, cy / 7.0, seed) + 0.35 * HashNoise.value(cx / 3.0, cy / 3.0, seed + 1)
 			_tone[cy * cw + cx] = (1 if n > TONE_SUN else 0) | (2 if n < TONE_SHADE else 0)
 
 ## Each water cell's distance to land over its eight neighbours (land 0; the room's edge does not count as land, so
@@ -389,13 +371,13 @@ func top_layers(x: int, y: int, l: int) -> Array:
 	if pk != 0 and pk != 15 and nk != 15: out.append(_creep_layer(PACK, pk, x, y))
 	if nk != 0 and nk != 15: out.append(_creep_layer(SNOW, nk, x, y))
 	if key == 0 and sk == 0 and nk == 0 and pk == 0:
-		var hsh := h01(x, y, seed + 5)
+		var hsh := HashNoise.cell(x, y, seed + 5)
 		var acc := 0.0
 		for d in pl.decals:
 			acc += float(d[1])
 			if hsh < acc:
 				var names: Array = d[0]
-				out.append([names[int(h01(x, y, seed + 6) * names.size())], Color.WHITE])
+				out.append([names[int(HashNoise.cell(x, y, seed + 6) * names.size())], Color.WHITE])
 				break
 	if not _tone.is_empty():
 		var sun := _ckey(_tone, x, y, 1)

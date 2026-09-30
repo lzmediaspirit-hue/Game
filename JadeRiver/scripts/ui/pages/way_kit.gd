@@ -32,7 +32,7 @@ static func stone(pg: Page, r: Rect2, face: Color, course := 28.0, block := 64.0
 		while x < r.end.x - 0.5:
 			var b := Rect2(maxf(x, r.position.x) + 1.0, y + 1.0, minf(x + block, r.end.x) - maxf(x, r.position.x) - 2.0, h - 2.0)
 			if b.size.x > 1.0:
-				var tone := BagPage._hash(row * 31 + i, 5) - 0.5
+				var tone := HashNoise.scatter(row * 31 + i, 5) - 0.5
 				var col := face.lerp(UiKit.PAPER if tone > 0.0 else UiKit.INK, absf(tone) * 0.16)
 				pg.draw_rect(b, col)
 				pg.draw_rect(Rect2(b.position, Vector2(b.size.x, 1.0)), Color(UiKit.PAPER, 0.08))

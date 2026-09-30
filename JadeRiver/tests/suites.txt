@@ -18,3 +18,4 @@ hollow_night
 audio_tests
 valley_run
 places_tests
+shared_runtime_tests
