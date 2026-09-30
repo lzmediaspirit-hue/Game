@@ -740,7 +740,7 @@ func county_jobs(c) -> Array:
 		var op: Dictionary = fit[rng.randi_range(0, fit.size() - 1)]
 		var id := "mortal_%d_%d" % [day, made.size()]
 		game.quest.apply_generated(c.id, {"id": id, "name": str(op.name), "kind": "mortal", "objectives": [(op.objective as Dictionary).duplicate(true)],
-			"hand_in": "", "auto_complete": true, "qp": "daily",
+			"hand_in": "", "auto_complete": true, "qp": "daily", "cultivation": ProgressionRules.quest_cultivation("daily", lv),
 			"rewards": [{"kind": "grant_currency", "currency": "silver_tael", "amount": int(rw.get("silver_base", 20)) + lv * int(rw.get("silver_per_level", 4))},
 				{"kind": "deed", "deed": str(rw.get("deed", "county_service"))}, {"kind": "county_favour", "amount": int(rw.get("favour", 10))}]})
 		made.append(id)

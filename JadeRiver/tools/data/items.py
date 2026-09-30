@@ -10,6 +10,8 @@ BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", 
                                               "wisp", "oil", "legend_piece"]}
 
 MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
+# Decision 45: the spaces of the bag with no gourd worn, and of the Starter Spirit Gourd (stats.json bag.base).
+BAG_BASE = 50
 
 
 def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **extra):
@@ -271,6 +273,24 @@ def effect(kind, **f):
     return d
 
 
+# Decision 45: an item's cultivation is a fixed number set by its grade: `share` of the need of the stage at the middle
+# of its grade band (MID_ILV), the Level the item is pitched at. No item pays a share of the eater's own stage any more,
+# so an early pill stays small later and a late core never skips a realm early.
+def cultivation(share, grade):
+    import realms
+    return realms.cultivation(share, MID_ILV.get(grade, 5))
+
+
+def progress(share, grade):
+    """The add_progress effect of an item of `grade` worth `share` of its band's stage."""
+    return effect("add_progress", amount=cultivation(share, grade))
+
+
+def cult_text(n):
+    """How an item's text says its cultivation: "+420 cultivation"."""
+    return "+{:,} cultivation".format(n)
+
+
 # S44 · Pill families for lifetime resistance (Part 8). Pills not listed are exempt.
 PILL_FAMILIES = {"qi_gathering_pill": "accumulation", "qi_flow_pill": "accumulation", "bone_strengthening_pill": "body",
                  "clear_mind_pill": "insight", "soul_soothing_pill": "soul", "foundation_guard_pill": "support", "cleansing_pill": "support"}
@@ -293,8 +313,8 @@ def pills():
          [effect("cure_injury", injury="body", max_severity=1), effect("heal", pct=0.3, over_s=5)], cause="structure", group="healing")
     pill("qi_restoration_pill", "common", "spiral", "Restores 40% QI and cures a minor meridian injury.", 5,
          [effect("restore_resource", pool="qi", pct=0.4), effect("cure_injury", injury="meridian", max_severity=1)], cause="energy")
-    pill("qi_gathering_pill", "common", "spiral_up", "Adds 8% of the current stage's need.", 10,
-         [effect("add_progress", pct_of_need=0.08)], cause="energy", group="utility")
+    pill("qi_gathering_pill", "common", "spiral_up", cult_text(cultivation(0.08, "common")) + ".", 10,
+         [progress(0.08, "common")], cause="energy", group="utility")
     pill("bone_strengthening_pill", "common", "bone", "Adds 150 body XP.", 8, [effect("add_body_xp", amount=150)], cause="structure", group="utility")
     pill("purging_pill", "common", "leaf", "Purges 30 toxicity.", 0, [effect("add_toxicity", amount=-30)], group="utility")
     pill("viper_antidote", "common", "leaf", "Cures poison.", 0, [effect("cure_status", status="poison")], group="utility")
@@ -382,14 +402,14 @@ def foods():
 # alchemy exists. Herbs never rot.
 RAW_HERB = {
     "willow_moss": ([effect("heal", pct=0.09, over_s=5)], 10),
-    "riverreed_ginseng_10": ([effect("add_progress", pct_of_need=0.024)], 20),
-    "riverreed_ginseng_100": ([effect("add_progress", pct_of_need=0.05)], 30),
+    "riverreed_ginseng_10": ([progress(0.024, "common")], 20),
+    "riverreed_ginseng_100": ([progress(0.05, "earth")], 30),
     "ember_pepper": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.06, duration=60, source="raw_ember_pepper")], 24),
     "mist_lotus": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.15, duration=540, source="raw_mist_lotus")], 16),
     "cloudtop_orchid": ([effect("add_body_xp", amount=90)], 30),
     "soulbell_flower": ([effect("add_soul", amount=15)], 16),
     "frost_lotus": ([effect("cure_injury", injury="meridian", max_severity=1), effect("add_composure", amount=20)], 30),
-    "riverreed_ginseng_1000": ([effect("add_progress", pct_of_need=0.1)], 40),
+    "riverreed_ginseng_1000": ([progress(0.1, "heaven")], 40),
     "ember_pepper_100": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.1, duration=60, source="raw_ember_pepper_100")], 30),
     "mist_lotus_100": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.3, duration=540, source="raw_mist_lotus_100")], 24),
     "cloudtop_orchid_100": ([effect("add_body_xp", amount=220)], 40),
@@ -534,19 +554,20 @@ def build_items():
                                      ("jade_core", "heaven", 3, "A jade core from a Forgotten Monastery sentinel."),
                                      ("pebble_core", "common", 1, "A tiny earth core from a Pebble Imp.")]:
         # A core can be absorbed for Qi (it counts toward a hollow foundation), or, from rank 2, burnt as Beast Fire (S44).
-        qp = 0.05 if grade == "common" else 0.1
-        use_text = " Absorb it for Qi, or burn it as Beast Fire." if rank >= 2 else " Absorb it for Qi. Too weak a core to burn as Beast Fire."
-        rows.append(item(cid, "core", grade, 99, desc + use_text, core={"qp_pct": qp, "rank": rank},
-                         use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
+        qp = cultivation(0.05 if grade == "common" else 0.1, grade)
+        use_text = (" Absorb it for Qi (%s), or burn it as Beast Fire." if rank >= 2 else " Absorb it for Qi (%s). Too weak a core to burn as Beast Fire.") % cult_text(qp)
+        rows.append(item(cid, "core", grade, 99, desc + use_text, core={"qp": qp, "rank": rank},
+                         use=[effect("add_progress", amount=qp)], raw={"toxicity": 12}, family="accumulation"))
     # S46 beast cores: every beast of rank 2 or more drops one at 2% per rank, by its element and rank tier. A pet of
     # the same element devours it for XP; the Core Exchange buys them; they burn as Beast Fire like any core.
-    for tier, rank, grade, qp in (("low", 2, "earth", 0.1), ("mid", 4, "heaven", 0.15), ("high", 6, "mystic", 0.2), ("peak", 8, "spirit", 0.25)):
+    for tier, rank, grade, share in (("low", 2, "earth", 0.1), ("mid", 4, "heaven", 0.15), ("high", 6, "mystic", 0.2), ("peak", 8, "spirit", 0.25)):
+        qp = cultivation(share, grade)
         for el in CORE_ELEMENTS:
             rows.append(item("%s_core_%s" % (el, tier), "core", grade, 99,
-                             "The core of a rank %d-%d %s beast. A %s spirit animal devours it for growth; the Core Exchange buys it; it burns as Beast Fire."
-                             % (rank, rank + 1, el, el), name="%s %s Core" % (tier.capitalize(), el.capitalize()),
-                             core={"qp_pct": qp, "rank": rank, "element": el, "tier": tier},
-                             use=[effect("add_progress", pct_of_need=qp)], raw={"toxicity": 12}, family="accumulation"))
+                             "The core of a rank %d-%d %s beast. Absorb it for Qi (%s); a %s spirit animal devours it for growth; the Core Exchange buys it; "
+                             "it burns as Beast Fire." % (rank, rank + 1, el, cult_text(qp), el), name="%s %s Core" % (tier.capitalize(), el.capitalize()),
+                             core={"qp": qp, "rank": rank, "element": el, "tier": tier},
+                             use=[effect("add_progress", amount=qp)], raw={"toxicity": 12}, family="accumulation"))
     # S46 pet medicine.
     rows.append(item("purifying_offering", "taming", "earth", 20, "Incense and salt bound in a lotus leaf. Offered to a weakened demonic beast, it lets the beast be tamed; offered to a Hollowed one, it cleanses the grey from it first. Use it from quick-use beside one.",
                      use=[], use_action="tame"))
@@ -628,6 +649,13 @@ def build_items():
             ("fish_bait", "plain", "Worms and dough in a clay pot. The fish of the valley are not picky.")]:
         rows.append(item(oid, "material", grade, 99, desc))
     rows.append(item("calm_incense", "other", "plain", 99, "Calming incense. Burn it and meditate to steady the heart.", use=[effect("add_composure", amount=30)]))
+    # Decision 45: cultivation speed a new disciple can buy. Granny Liu burns Qi-Gathering Incense in the village from
+    # Bone Forging 1; Stoneford's store sells the stronger Deep Current stick from Qi Kindling 1. One stick burns at a time
+    # (the same source: a new one replaces the one alight); both show on the Cultivation page's speed list.
+    rows.append(item("qi_gathering_incense", "other", "plain", 99, "Burn it and sit: the smoke draws the Qi to you. Cultivation +30% for 10 minutes.",
+                     use=[effect("add_modifier", stat="accumulation_rate", op="flat", value=0.3, duration=600, source="qi_incense")]))
+    rows.append(item("deep_current_incense", "other", "common", 99, "A thick stick rolled with ginseng dust. Cultivation +50% for 15 minutes.",
+                     use=[effect("add_modifier", stat="accumulation_rate", op="flat", value=0.5, duration=900, source="qi_incense")]))
     rows.append(item("myriad_year_calm_incense", "treasure", "heaven", 1, "Clears Heart Demons (-20) and steadies Composure for an hour. Never sold.", sell=False,
                      use=[effect("add_heart_demon", amount=-20), effect("add_modifier", stat="will", op="flat", value=20, duration=3600, source="calm_incense")]))
     # Natural treasures (Part 5): one job each, never sold.
@@ -639,8 +667,8 @@ def build_items():
     # S49 treasure births (Part 8): a Spirit Fruit ripens in a field room every fourth day; rivals and a guardian stand
     # in the way. It carries a slice of the next realm and steadies the heart.
     rows.append(item("spirit_fruit", "treasure", "heaven", 3,
-                     "A fruit that ripened on Qi alone: 8% of this realm's progress at once, and heart demons -5. Never sold.", sell=False,
-                     use=[effect("add_progress", pct_of_need=0.08), effect("add_heart_demon", amount=-5)]))
+                     "A fruit that ripened on Qi alone: %s at once, and heart demons -5. Never sold." % cult_text(cultivation(0.08, "heaven")), sell=False,
+                     use=[progress(0.08, "heaven"), effect("add_heart_demon", amount=-5)]))
     # S49 leisure arts: a seven-string guqin. Play it (from the bag) and a steady hand calms the Qi: meditation runs
     # faster for half an hour, more the better you play.
     rows.append(item("guqin", "tool", "earth", 1, "A seven-string guqin in a cloth wrap. Play it to calm the Qi: meditation runs up to 15% faster for 30 minutes.",
@@ -878,13 +906,15 @@ def build_artifacts():
         for slot, (id, name, look) in slots.items():
             extra = {"dye": GRADE_DYE[grade][slot]} if slot in ("robe", "trousers") else {}
             rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None), **extra))
-    gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 25, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 30, 8),
-              ("jadeiron_gourd", "earth", "Jadeiron Gourd", 35, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 40, 12),
-              ("mistjade_gourd", "mystic", "Mistjade Gourd", 45, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 50, 16),
-              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 55, 18), ("driftglass_gourd", "sovereign", "Driftglass Gourd", 60, 19),
-              ("lantern_gourd", "will", "Lantern Gourd", 65, 20)]
-    for id, grade, name, bag, quick in gourds:
-        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": bag, "quick": quick}, ilv=(1 if grade == "plain" else None),
+    # Decision 45: the bag starts at 50 (stats.json bag.base); each gourd up the ladder adds its 5 on top of that, as it
+    # added them on top of 25 before (the Starter Spirit Gourd 50, from 25; the Lantern Gourd 90, from 65).
+    gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 0, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 5, 8),
+              ("jadeiron_gourd", "earth", "Jadeiron Gourd", 10, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 15, 12),
+              ("mistjade_gourd", "mystic", "Mistjade Gourd", 20, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 25, 16),
+              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 30, 18), ("driftglass_gourd", "sovereign", "Driftglass Gourd", 35, 19),
+              ("lantern_gourd", "will", "Lantern Gourd", 40, 20)]
+    for id, grade, name, extra_slots, quick in gourds:
+        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": BAG_BASE + extra_slots, "quick": quick}, ilv=(1 if grade == "plain" else None),
                              **({"source": ["story"]} if id == "starter_gourd" else {})))   # the starting kit (AccountAuthority)
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"], named=tag("general", "valley")))
     for fid, grade, name, icon, desc, stats in FURNACES:

@@ -63,7 +63,9 @@ def shops():
                    s("sealing_gourd", price=900, requires=all_of(realm("spirit_awakening_1")))],
          "rotation": {"count": 1, "pool": [s("willow_moss"), s("boar_hide"), s("river_mud"), s("cloth")]}},
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",
-         "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
+         # Decision 45: Qi-Gathering Incense, the village's own cultivation speed (+30% for 10 minutes), from Bone Forging 1.
+         "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("qi_gathering_incense", price=12, requires=all_of(realm("bone_forging_1"))),
+                   s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
                    s("calm_incense", requires=all_of(realm("qi_unfurling_9"))),
                    # S45 seeds (Part 8): the common three, for the garden beds.
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
@@ -72,6 +74,8 @@ def shops():
                    s("spirit_spade", price=900, requires=all_of(realm("cloud_stride_1"))), s("rice_wine", price=12),
                    s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
+                   # Decision 45: incense for cultivation speed, the village's stick and the stronger Deep Current.
+                   s("qi_gathering_incense", price=12), s("deep_current_incense", price=45, requires=all_of(realm("qi_kindling_1"))),
                    s("rubbing_kit", price=120, requires=all_of(realm("qi_kindling_5")))],   # P13a: for rubbings of carved stones
          "rotation": {"count": 1, "pool": [s("bamboo_rod"), s("lantern_wick"), s("clay_pot")]}},
         {"id": "stoneford_tea", "name": "Stoneford Tea House", "currency": "silver_tael",

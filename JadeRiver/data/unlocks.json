@@ -377,6 +377,26 @@
    "same_stage_ok": true
   },
   {
+   "id": "qi_pool",
+   "label": "Qi",
+   "trigger": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_1"
+     }
+    ]
+   },
+   "reveals": [
+    "hud:qi_bar"
+   ],
+   "effects": [],
+   "scope": "character",
+   "quest": "the_river_token",
+   "same_stage_ok": true,
+   "toast": false
+  },
+  {
    "id": "body_training",
    "label": "Body training",
    "trigger": {
@@ -853,24 +873,6 @@
    "toast": false
   },
   {
-   "id": "qi_pool",
-   "label": "Qi",
-   "trigger": {
-    "all": [
-     {
-      "kind": "realm_at_least",
-      "realm": "bone_forging_7"
-     }
-    ]
-   },
-   "reveals": [
-    "hud:qi_bar"
-   ],
-   "effects": [],
-   "scope": "character",
-   "quest": "the_first_current"
-  },
-  {
    "id": "qi_springs",
    "label": "Qi springs",
    "trigger": {
@@ -884,9 +886,7 @@
    "reveals": [],
    "effects": [],
    "scope": "character",
-   "quest": "the_first_current",
-   "same_stage_ok": true,
-   "toast": false
+   "quest": "the_first_current"
   },
   {
    "id": "element_affinity",

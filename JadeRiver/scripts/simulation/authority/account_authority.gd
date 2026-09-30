@@ -132,6 +132,7 @@ func _apply_skip_prologue(c, start: Dictionary) -> void:
 	for e in start.get("effects", []): game.apply_effects(c.id, [e], "skip_prologue")
 	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
+	c.pools.qi = c.pools.max_qi   # decision 45: the Qi pool of Bone Forging 2 starts full, as it opens full in play
 
 # ------------------------------------------------------------------ Max Test character (debug tools, S38)
 ## A character for checking everything, built only where debug tools run (debug builds and the Max Test APK).

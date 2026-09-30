@@ -36,7 +36,9 @@
      "count": 1
     }
    ],
-   "next": "a_quiet_river"
+   "next": "a_quiet_river",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "a_quiet_river",
@@ -69,7 +71,9 @@
     ]
    },
    "target_room": "lf_village",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "the_runaway_kite",
@@ -113,7 +117,9 @@
     ]
    },
    "target_room": "lf_village",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "the_lost_ladle",
@@ -165,7 +171,9 @@
    ],
    "hand_in_any": [
     "aunt_ping"
-   ]
+   ],
+   "tier": "mortal",
+   "cultivation": 50
   },
   {
    "id": "mas_delivery",
@@ -212,7 +220,9 @@
      "currency": "silver_tael",
      "amount": 10
     }
-   ]
+   ],
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "grannys_remedy",
@@ -269,7 +279,9 @@
     ]
    },
    "target_room": "lf_village",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "race_to_the_tower",
@@ -310,7 +322,9 @@
    "target_room": "lf_village",
    "chapter": "prologue",
    "time_limit_s": 25,
-   "fail_text": "Too slow! Talk to Shen Lian to try again."
+   "fail_text": "Too slow! Talk to Shen Lian to try again.",
+   "tier": "mortal",
+   "cultivation": 50
   },
   {
    "id": "fists_first",
@@ -367,7 +381,9 @@
     ]
    },
    "target_room": "lf_village",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "crab_trouble",
@@ -440,7 +456,9 @@
     ]
    },
    "target_room": "lf_reed_shallows",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "evening_on_the_river",
@@ -491,7 +509,9 @@
     ]
    },
    "target_room": "lf_village",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 0
   },
   {
    "id": "the_hollow_night",
@@ -541,7 +561,9 @@
     ]
    },
    "target_room": "lf_village_night",
-   "chapter": "prologue"
+   "chapter": "prologue",
+   "tier": "mortal",
+   "cultivation": 130
   },
   {
    "id": "the_river_token",
@@ -593,7 +615,7 @@
    ],
    "complete_text": [
     "Bone Forging. Your first step. The body is the cup; Qi will be the water.",
-    "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. In the body stages it needs no Qi, only breath.",
+    "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. It spends a little of the Qi you just woke; sit, or only breathe, and it comes back.",
     "Take this River Token. Go west along the Willow Path and try the palm on the boarlets. There's a note waiting for you."
    ],
    "auto_accept": true,
@@ -614,14 +636,16 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.98
+     "amount": 490
     },
     {
      "kind": "codex",
      "entry": "lotus_ferry"
     }
    ],
-   "next": "the_willow_path"
+   "next": "the_willow_path",
+   "tier": "mortal",
+   "cultivation": 130
   },
   {
    "id": "the_willow_path",
@@ -665,7 +689,7 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.35
+     "amount": 210
     },
     {
      "kind": "codex",
@@ -678,7 +702,9 @@
    "offered_by_unlock": true,
    "auto_accept": true,
    "target_room": "wp_west",
-   "chapter": "bf1"
+   "chapter": "bf1",
+   "tier": "bone_forging_1",
+   "cultivation": 90
   },
   {
    "id": "the_recruitment_fair",
@@ -725,7 +751,9 @@
    "giver_any": [
     "recruiter_qing_lan",
     "recruiter_mo_yun"
-   ]
+   ],
+   "tier": "bone_forging_2",
+   "cultivation": 140
   },
   {
    "id": "entry_trial",
@@ -760,7 +788,7 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 180
     },
     {
      "kind": "codex",
@@ -784,7 +812,9 @@
    },
    "auto_accept": true,
    "target_room": "sf_fairground",
-   "chapter": "bf2"
+   "chapter": "bf2",
+   "tier": "bone_forging_2",
+   "cultivation": 140
   },
   {
    "id": "a_disciples_chores",
@@ -854,7 +884,9 @@
     "jade_steward",
     "cloud_steward"
    ],
-   "target_room": "ja_gate_street"
+   "target_room": "ja_gate_street",
+   "tier": "bone_forging_2",
+   "cultivation": 90
   },
   {
    "id": "tea_for_the_elder",
@@ -915,7 +947,9 @@
      "item": "lotus_root_tea",
      "count": 1
     }
-   ]
+   ],
+   "tier": "bone_forging_3",
+   "cultivation": 120
   },
   {
    "id": "fish_gutting_fists",
@@ -940,7 +974,7 @@
     },
     {
      "kind": "add_progress",
-     "pct_of_need": 0.45
+     "amount": 410
     },
     {
      "kind": "grant_title",
@@ -963,7 +997,9 @@
     ]
    },
    "chapter": "1",
-   "target_room": "sf_fairground"
+   "target_room": "sf_fairground",
+   "tier": "bone_forging_2",
+   "cultivation": 230
   },
   {
    "id": "the_weapon_hall",
@@ -1052,7 +1088,9 @@
      "unless_owned": true
     }
    ],
-   "target_room": "ja_weapon_hall"
+   "target_room": "ja_weapon_hall",
+   "tier": "bone_forging_3",
+   "cultivation": 180
   },
   {
    "id": "eyes_for_qi",
@@ -1109,7 +1147,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "lf_reed_shallows"
+   "target_room": "lf_reed_shallows",
+   "tier": "bone_forging_4",
+   "cultivation": 240
   },
   {
    "id": "outer_trial",
@@ -1164,7 +1204,9 @@
      "kind": "learn_secret_art",
      "art": "plunge"
     }
-   ]
+   ],
+   "tier": "bone_forging_4",
+   "cultivation": 240
   },
   {
    "id": "leaf_on_the_wind",
@@ -1218,7 +1260,9 @@
      "kind": "learn_secret_art",
      "art": "falling_leaf_glide"
     }
-   ]
+   ],
+   "tier": "qi_kindling_3",
+   "cultivation": 800
   },
   {
    "id": "swallow_dart",
@@ -1265,7 +1309,9 @@
      "kind": "learn_secret_art",
      "art": "swallow_dart"
     }
-   ]
+   ],
+   "tier": "qi_kindling_7",
+   "cultivation": 800
   },
   {
    "id": "stone_and_sweat",
@@ -1309,7 +1355,9 @@
    ],
    "offered_by_unlock": true,
    "target_room": "sq_quarry_rim",
-   "chapter": "bf5"
+   "chapter": "bf5",
+   "tier": "bone_forging_5",
+   "cultivation": 470
   },
   {
    "id": "a_second_path",
@@ -1344,7 +1392,9 @@
    "offered_by_unlock": true,
    "chapter": "qk1",
    "target_room": "",
-   "complete_on": "any"
+   "complete_on": "any",
+   "tier": "qi_kindling_1",
+   "cultivation": 800
   },
   {
    "id": "keeping_post",
@@ -1394,7 +1444,9 @@
      "item": "hour_incense_1",
      "count": 1
     }
-   ]
+   ],
+   "tier": "qi_kindling_1",
+   "cultivation": 800
   },
   {
    "id": "glowflies",
@@ -1432,7 +1484,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk1",
-   "target_room": "lf_reed_shallows"
+   "target_room": "lf_reed_shallows",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "a_pouch_for_the_road",
@@ -1469,7 +1523,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk1",
-   "target_room": "sf_market"
+   "target_room": "sf_market",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "snares_before_swords",
@@ -1513,7 +1569,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk2",
-   "target_room": "lf_reed_shallows"
+   "target_room": "lf_reed_shallows",
+   "tier": "qi_kindling_2",
+   "cultivation": 530
   },
   {
    "id": "the_ancestors_regard",
@@ -1546,7 +1604,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk3",
-   "target_room": "sf_county_hall"
+   "target_room": "sf_county_hall",
+   "tier": "qi_kindling_3",
+   "cultivation": 530
   },
   {
    "id": "an_apprentices_hands",
@@ -1578,7 +1638,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk1",
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "an_idle_art",
@@ -1611,7 +1673,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk6",
-   "target_room": "ja_elder_hu_peak"
+   "target_room": "ja_elder_hu_peak",
+   "tier": "qi_kindling_6",
+   "cultivation": 530
   },
   {
    "id": "seals_in_red_ink",
@@ -1644,7 +1708,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qu2",
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "tier": "qi_unfurling_2",
+   "cultivation": 470
   },
   {
    "id": "the_guardian_stones",
@@ -1677,7 +1743,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qu6",
-   "target_room": "ja_east_terrace"
+   "target_room": "ja_east_terrace",
+   "tier": "qi_unfurling_6",
+   "cultivation": 470
   },
   {
    "id": "the_county_tribute",
@@ -1710,7 +1778,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht2",
-   "target_room": "sf_county_hall"
+   "target_room": "sf_county_hall",
+   "tier": "heart_tempering_2",
+   "cultivation": 670
   },
   {
    "id": "fire_and_salt",
@@ -1748,7 +1818,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht6",
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "tier": "heart_tempering_6",
+   "cultivation": 670
   },
   {
    "id": "flags_over_the_posts",
@@ -1781,7 +1853,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht7",
-   "target_room": "ja_east_terrace"
+   "target_room": "ja_east_terrace",
+   "tier": "heart_tempering_8",
+   "cultivation": 670
   },
   {
    "id": "echoes_in_bronze",
@@ -1814,7 +1888,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "ht6",
-   "target_room": "ja_elder_hu_peak"
+   "target_room": "ja_elder_hu_peak",
+   "tier": "heart_tempering_6",
+   "cultivation": 670
   },
   {
    "id": "earning_your_keep",
@@ -1860,7 +1936,9 @@
      "count": 5
     }
    ],
-   "target_room": "ja_gate_street"
+   "target_room": "ja_gate_street",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "the_first_current",
@@ -1889,8 +1967,8 @@
     }
    ],
    "offer_text": [
-    "You feel it, don't you? A current inside. That's Qi. Your cup can hold water now.",
-    "The old spring by Granny Liu's hut has woken. Sit in it."
+    "You feel it, don't you? The current inside runs deeper now. Your cup is ready for more water.",
+    "The old spring by Granny Liu's hut has woken. Sit in it: a spring doubles what you gather."
    ],
    "complete_text": [
     "Your first current. Don't let it flood you."
@@ -1905,7 +1983,9 @@
       "realm": "bone_forging_7"
      }
     ]
-   }
+   },
+   "tier": "bone_forging_7",
+   "cultivation": 780
   },
   {
    "id": "aunt_pings_broth",
@@ -1963,7 +2043,9 @@
      "kind": "learn_recipe",
      "recipe": "boar_bone_broth"
     }
-   ]
+   ],
+   "tier": "bone_forging_8",
+   "cultivation": 470
   },
   {
    "id": "the_wall",
@@ -2007,7 +2089,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "bone_forging_9",
+   "cultivation": 470
   },
   {
    "id": "first_technique",
@@ -2057,7 +2141,9 @@
      "technique": "flowing_palm"
     }
    ],
-   "target_room": "ja_pavilion_rooftops"
+   "target_room": "ja_pavilion_rooftops",
+   "tier": "qi_kindling_1",
+   "cultivation": 800
   },
   {
    "id": "mei_qings_furnace",
@@ -2106,7 +2192,9 @@
      "recipe": "healing_pill"
     }
    ],
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "tier": "qi_kindling_2",
+   "cultivation": 800
   },
   {
    "id": "stones_that_move_you",
@@ -2143,7 +2231,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk3",
-   "target_room": "sf_market"
+   "target_room": "sf_market",
+   "tier": "qi_kindling_3",
+   "cultivation": 800
   },
   {
    "id": "listening_to_the_waterfall",
@@ -2188,7 +2278,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "cf_falls_pool"
+   "target_room": "cf_falls_pool",
+   "tier": "qi_kindling_4",
+   "cultivation": 800
   },
   {
    "id": "two_hands_full",
@@ -2232,7 +2324,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "bg_thicket_heart"
+   "target_room": "bg_thicket_heart",
+   "tier": "qi_kindling_5",
+   "cultivation": 800
   },
   {
    "id": "is_it_real",
@@ -2271,7 +2365,9 @@
      "item": "dusty_curio",
      "count": 3
     }
-   ]
+   ],
+   "tier": "qi_kindling_6",
+   "cultivation": 800
   },
   {
    "id": "the_caravan_road",
@@ -2309,7 +2405,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk7",
-   "target_room": "cr_caravan_road"
+   "target_room": "cr_caravan_road",
+   "tier": "qi_kindling_7",
+   "cultivation": 800
   },
   {
    "id": "batch_work",
@@ -2348,7 +2446,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qk8",
-   "target_room": "sf_artisan_row"
+   "target_room": "sf_artisan_row",
+   "tier": "qi_kindling_8",
+   "cultivation": 800
   },
   {
    "id": "toward_cleansing_peak",
@@ -2406,7 +2506,9 @@
       "realm": "qi_kindling_9"
      }
     ]
-   }
+   },
+   "tier": "qi_kindling_9",
+   "cultivation": 1300
   },
   {
    "id": "after_the_cleansing",
@@ -2465,7 +2567,9 @@
       "flute": "reed_song"
      }
     }
-   ]
+   ],
+   "tier": "qi_unfurling_1",
+   "cultivation": 710
   },
   {
    "id": "ink_and_paper",
@@ -2556,7 +2660,9 @@
      "item": "ember_pepper",
      "count": 1
     }
-   ]
+   ],
+   "tier": "qi_kindling_6",
+   "cultivation": 800
   },
   {
    "id": "the_sect_forge",
@@ -2614,7 +2720,9 @@
      "kind": "learn_recipe",
      "recipe": "iron_gauntlets"
     }
-   ]
+   ],
+   "tier": "qi_unfurling_2",
+   "cultivation": 710
   },
   {
    "id": "seeds_of_the_valley",
@@ -2667,7 +2775,9 @@
      "item": "willow_moss_seed",
      "count": 3
     }
-   ]
+   ],
+   "tier": "qi_unfurling_4",
+   "cultivation": 710
   },
   {
    "id": "a_friend_in_the_reeds",
@@ -2698,7 +2808,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qu5",
-   "target_room": "rm_hermit_stilt_house"
+   "target_room": "rm_hermit_stilt_house",
+   "tier": "qi_unfurling_5",
+   "cultivation": 710
   },
   {
    "id": "full_hands",
@@ -2737,7 +2849,9 @@
    "hand_in_any": [
     "jade_hall_master",
     "cloud_hall_master"
-   ]
+   ],
+   "tier": "qi_unfurling_6",
+   "cultivation": 710
   },
   {
    "id": "the_riverbed_serpent",
@@ -2782,7 +2896,9 @@
     "jade_deacon",
     "cloud_deacon"
    ],
-   "target_room": "dw_serpents_shallows"
+   "target_room": "dw_serpents_shallows",
+   "tier": "qi_unfurling_7",
+   "cultivation": 710
   },
   {
    "id": "calming_the_wild",
@@ -2813,7 +2929,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "qu7",
-   "target_room": "rm_marsh_edge"
+   "target_room": "rm_marsh_edge",
+   "tier": "qi_unfurling_7",
+   "cultivation": 710
   },
   {
    "id": "the_bracket",
@@ -2853,7 +2971,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "cs1",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "tier": "cloud_stride_1",
+   "cultivation": 1200
   },
   {
    "id": "the_valley_finals",
@@ -2892,7 +3012,9 @@
     "Valley Champion. Wear it lightly."
    ],
    "offered_by_unlock": true,
-   "chapter": "cs7"
+   "chapter": "cs7",
+   "tier": "cloud_stride_7",
+   "cultivation": 1200
   },
   {
    "id": "the_valley_tournament",
@@ -2926,7 +3048,9 @@
     "You're in. The bracket opens at Cloud Stride."
    ],
    "offered_by_unlock": true,
-   "chapter": "7"
+   "chapter": "7",
+   "tier": "qi_unfurling_8",
+   "cultivation": 710
   },
   {
    "id": "the_quiet_heart",
@@ -2977,7 +3101,9 @@
      "item": "calm_incense",
      "count": 1
     }
-   ]
+   ],
+   "tier": "qi_unfurling_9",
+   "cultivation": 710
   },
   {
    "id": "lines_in_the_sand",
@@ -3023,7 +3149,9 @@
      "item": "fuel_crystal_low",
      "count": 3
     }
-   ]
+   ],
+   "tier": "heart_tempering_1",
+   "cultivation": 1000
   },
   {
    "id": "cloud_ladder",
@@ -3070,7 +3198,9 @@
      "kind": "learn_secret_art",
      "art": "cloud_ladder_step"
     }
-   ]
+   ],
+   "tier": "qi_unfurling_6",
+   "cultivation": 710
   },
   {
    "id": "between_two_walls",
@@ -3124,7 +3254,9 @@
      "kind": "learn_secret_art",
      "art": "wall_step"
     }
-   ]
+   ],
+   "tier": "heart_tempering_4",
+   "cultivation": 1000
   },
   {
    "id": "a_treasure_in_hand",
@@ -3172,7 +3304,9 @@
      "item": "practice_bell",
      "count": 1
     }
-   ]
+   ],
+   "tier": "heart_tempering_1",
+   "cultivation": 1000
   },
   {
    "id": "the_infirmary",
@@ -3214,7 +3348,9 @@
    "hand_in_any": [
     "jade_physician",
     "cloud_physician"
-   ]
+   ],
+   "tier": "heart_tempering_3",
+   "cultivation": 1000
   },
   {
    "id": "carry_a_wall",
@@ -3278,7 +3414,9 @@
      "item": "formation_stone",
      "count": 1
     }
-   ]
+   ],
+   "tier": "heart_tempering_5",
+   "cultivation": 1000
   },
   {
    "id": "skipping_stones",
@@ -3330,7 +3468,9 @@
      "kind": "learn_secret_art",
      "art": "water_skimming"
     }
-   ]
+   ],
+   "tier": "qi_unfurling_8",
+   "cultivation": 470
   },
   {
    "id": "the_warm_egg",
@@ -3369,7 +3509,9 @@
      "item": "spirit_egg",
      "count": 1
     }
-   ]
+   ],
+   "tier": "heart_tempering_5",
+   "cultivation": 1000
   },
   {
    "id": "brothers_in_arms",
@@ -3412,7 +3554,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "heart_tempering_6",
+   "cultivation": 1000
   },
   {
    "id": "keep_watch",
@@ -3451,7 +3595,9 @@
    "hand_in_any": [
     "jade_formation_elder",
     "cloud_formation_elder"
-   ]
+   ],
+   "tier": "heart_tempering_7",
+   "cultivation": 1000
   },
   {
    "id": "the_heart_trial",
@@ -3505,7 +3651,9 @@
       "realm": "heart_tempering_1"
      }
     ]
-   }
+   },
+   "tier": "heart_tempering_9",
+   "cultivation": 1700
   },
   {
    "id": "wings_of_cloud",
@@ -3563,7 +3711,9 @@
       "realm": "cloud_stride_1"
      }
     ]
-   }
+   },
+   "tier": "cloud_stride_1",
+   "cultivation": 2000
   },
   {
    "id": "riding_the_wind",
@@ -3601,7 +3751,9 @@
    ],
    "offered_by_unlock": true,
    "chapter": "cs1",
-   "same_stage_ok": true
+   "same_stage_ok": true,
+   "tier": "cloud_stride_1",
+   "cultivation": 1200
   },
   {
    "id": "clearer_water",
@@ -3639,7 +3791,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "cloud_stride_2",
+   "cultivation": 1200
   },
   {
    "id": "above_the_mist",
@@ -3683,7 +3837,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "cloud_stride_3",
+   "cultivation": 1200
   },
   {
    "id": "the_upper_stacks",
@@ -3722,7 +3878,9 @@
    "hand_in_any": [
     "jade_librarian",
     "cloud_librarian"
-   ]
+   ],
+   "tier": "cloud_stride_4",
+   "cultivation": 1200
   },
   {
    "id": "hands_of_wood",
@@ -3759,7 +3917,9 @@
      "item": "puppet_core",
      "count": 1
     }
-   ]
+   ],
+   "tier": "cloud_stride_5",
+   "cultivation": 1200
   },
   {
    "id": "opening_the_lake",
@@ -3805,7 +3965,9 @@
      "kind": "learn_recipe",
      "recipe": "mind_lake_opening_pill"
     }
-   ]
+   ],
+   "tier": "cloud_stride_9",
+   "cultivation": 1200
   },
   {
    "id": "a_lake_inside",
@@ -3854,7 +4016,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_1",
+   "cultivation": 1300
   },
   {
    "id": "what_the_eyes_miss",
@@ -3900,7 +4064,9 @@
       "realm": "spirit_awakening_2"
      }
     ]
-   }
+   },
+   "tier": "spirit_awakening_2",
+   "cultivation": 2200
   },
   {
    "id": "the_sleeping_blade",
@@ -3946,7 +4112,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_3",
+   "cultivation": 1300
   },
   {
    "id": "the_blade_spirit",
@@ -4005,7 +4173,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_3",
+   "cultivation": 870
   },
   {
    "id": "the_moon_spirit",
@@ -4064,7 +4234,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_3",
+   "cultivation": 870
   },
   {
    "id": "a_blade_that_answers",
@@ -4104,7 +4276,9 @@
      }
     ]
    },
-   "chapter": "12"
+   "chapter": "12",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_stone_drum",
@@ -4185,7 +4359,9 @@
      "kind": "learn_recipe",
      "recipe": "stone_drum_gauntlets"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_riverlight",
@@ -4266,7 +4442,9 @@
      "kind": "learn_recipe",
      "recipe": "riverlight_jian"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_heron_reach",
@@ -4347,7 +4525,9 @@
      "kind": "learn_recipe",
      "recipe": "heron_reach_spear"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_reedwhisper",
@@ -4428,7 +4608,9 @@
      "kind": "learn_recipe",
      "recipe": "reedwhisper_dagger"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_ferryman",
@@ -4509,7 +4691,9 @@
      "kind": "learn_recipe",
      "recipe": "ferrymans_pole"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_mountainsplit",
@@ -4590,7 +4774,9 @@
      "kind": "learn_recipe",
      "recipe": "mountainsplit_sabre"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_seven_winds",
@@ -4671,7 +4857,9 @@
      "kind": "learn_recipe",
      "recipe": "seven_winds_fan"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_crane_mourning",
@@ -4752,7 +4940,9 @@
      "kind": "learn_recipe",
      "recipe": "crane_mourning_flute"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "legend_dragonfly",
@@ -4833,7 +5023,9 @@
      "kind": "learn_recipe",
      "recipe": "dragonfly_bow"
     }
-   ]
+   ],
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "quiet_waters",
@@ -4871,7 +5063,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_4",
+   "cultivation": 1300
   },
   {
    "id": "the_mentors_gift",
@@ -4913,7 +5107,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_5",
+   "cultivation": 1300
   },
   {
    "id": "treasures_of_heaven_and_earth",
@@ -4962,7 +5158,9 @@
      "item": "evergreen_heart_seed",
      "count": 1
     }
-   ]
+   ],
+   "tier": "spirit_awakening_8",
+   "cultivation": 1300
   },
   {
    "id": "torn_pages",
@@ -5013,7 +5211,9 @@
      "item": "restoration_ink",
      "count": 1
     }
-   ]
+   ],
+   "tier": "spirit_awakening_6",
+   "cultivation": 1300
   },
   {
    "id": "passing_it_on",
@@ -5051,7 +5251,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_7",
+   "cultivation": 1300
   },
   {
    "id": "a_wider_sky",
@@ -5107,7 +5309,9 @@
       "realm": "heaven_glimpse_1"
      }
     ]
-   }
+   },
+   "tier": "heaven_glimpse_1",
+   "cultivation": 7500
   },
   {
    "id": "beyond_the_valley",
@@ -5148,7 +5352,9 @@
       "realm": "heaven_glimpse_3"
      }
     ]
-   }
+   },
+   "tier": "heaven_glimpse_3",
+   "cultivation": 7500
   },
   {
    "id": "the_elders_last_lesson",
@@ -5207,7 +5413,9 @@
      }
     ]
    },
-   "chapter": "10"
+   "chapter": "10",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 3000
   },
   {
    "id": "farewells",
@@ -5269,7 +5477,9 @@
    },
    "chapter": "10",
    "target_room": "lf_village",
-   "next": "the_ascension_gate"
+   "next": "the_ascension_gate",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 7500
   },
   {
    "id": "the_ascension_gate",
@@ -5306,7 +5516,9 @@
     ]
    },
    "chapter": "10",
-   "target_room": "mp_ascension_gate"
+   "target_room": "mp_ascension_gate",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 7500
   },
   {
    "id": "strange_tracks",
@@ -5361,7 +5573,9 @@
    ],
    "target_room": "rm_marsh_edge",
    "auto_accept": true,
-   "next": "the_humming_token"
+   "next": "the_humming_token",
+   "tier": "bone_forging_3",
+   "cultivation": 300
   },
   {
    "id": "the_humming_token",
@@ -5420,7 +5634,9 @@
     "elder_sung"
    ],
    "target_room": "rm_marsh_edge",
-   "auto_accept": true
+   "auto_accept": true,
+   "tier": "bone_forging_3",
+   "cultivation": 300
   },
   {
    "id": "mei_qings_errand",
@@ -5477,7 +5693,9 @@
     ]
    },
    "chapter": "2",
-   "target_room": "rm_marsh_edge"
+   "target_room": "rm_marsh_edge",
+   "tier": "bone_forging_3",
+   "cultivation": 300
   },
   {
    "id": "grey_at_the_edges",
@@ -5501,7 +5719,7 @@
    "rewards": [
     {
      "kind": "add_progress",
-     "pct_of_need": 0.2
+     "amount": 240
     },
     {
      "kind": "set_flag",
@@ -5536,7 +5754,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "auto_accept": true
+   "auto_accept": true,
+   "tier": "bone_forging_3",
+   "cultivation": 300
   },
   {
    "id": "bandits_on_the_road",
@@ -5575,7 +5795,9 @@
     ]
    },
    "chapter": "3",
-   "target_room": "cr_caravan_road"
+   "target_room": "cr_caravan_road",
+   "tier": "qi_kindling_6",
+   "cultivation": 1300
   },
   {
    "id": "gus_cargo",
@@ -5618,7 +5840,9 @@
     ]
    },
    "chapter": "3",
-   "target_room": "cr_caravan_road"
+   "target_room": "cr_caravan_road",
+   "tier": "qi_kindling_7",
+   "cultivation": 1300
   },
   {
    "id": "mudwater_hideout",
@@ -5666,7 +5890,9 @@
     ]
    },
    "chapter": "3",
-   "target_room": "mh_boss_den"
+   "target_room": "mh_boss_den",
+   "tier": "qi_kindling_7",
+   "cultivation": 1300
   },
   {
    "id": "the_rite",
@@ -5720,7 +5946,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "cp_cleansing_summit"
+   "target_room": "cp_cleansing_summit",
+   "tier": "qi_kindling_9",
+   "cultivation": 1300
   },
   {
    "id": "the_shrine_surfaces",
@@ -5761,7 +5989,9 @@
       "realm": "qi_unfurling_3"
      }
     ]
-   }
+   },
+   "tier": "qi_unfurling_3",
+   "cultivation": 1200
   },
   {
    "id": "lus_handwriting",
@@ -5812,7 +6042,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "ds_hall_of_lanterns"
+   "target_room": "ds_hall_of_lanterns",
+   "tier": "qi_unfurling_3",
+   "cultivation": 1200
   },
   {
    "id": "the_riverbreath_trial",
@@ -5868,7 +6100,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "ds_scripture_well"
+   "target_room": "ds_scripture_well",
+   "tier": "qi_unfurling_3",
+   "cultivation": 1200
   },
   {
    "id": "the_drowned_abbot",
@@ -5924,7 +6158,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "ds_abbots_sanctum"
+   "target_room": "ds_abbots_sanctum",
+   "tier": "qi_unfurling_3",
+   "cultivation": 1200
   },
   {
    "id": "quiet_before_the_storm",
@@ -5971,7 +6207,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "target_room": "wg_rapids_terraces"
+   "target_room": "wg_rapids_terraces",
+   "tier": "heart_tempering_1",
+   "cultivation": 1700
   },
   {
    "id": "shen_lians_failure",
@@ -6004,7 +6242,9 @@
     ]
    },
    "chapter": "6",
-   "target_room": "sf_fairground"
+   "target_room": "sf_fairground",
+   "tier": "heart_tempering_5",
+   "cultivation": 1700
   },
   {
    "id": "hidden_cargo",
@@ -6048,7 +6288,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_2",
+   "cultivation": 2200
   },
   {
    "id": "gus_warehouse",
@@ -6104,7 +6346,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_8",
+   "cultivation": 2200
   },
   {
    "id": "the_rift",
@@ -6150,7 +6394,9 @@
    "giver_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "spirit_awakening_8",
+   "cultivation": 2200
   },
   {
    "id": "allies_at_the_wall",
@@ -6190,7 +6436,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "heaven_glimpse_2",
+   "cultivation": 7500
   },
   {
    "id": "the_siege",
@@ -6240,7 +6488,9 @@
    "hand_in_any": [
     "elder_hu",
     "elder_sung"
-   ]
+   ],
+   "tier": "heaven_glimpse_2",
+   "cultivation": 7500
   },
   {
    "id": "what_remains",
@@ -6291,7 +6541,9 @@
     "elder_hu",
     "elder_sung"
    ],
-   "auto_accept": true
+   "auto_accept": true,
+   "tier": "heaven_glimpse_2",
+   "cultivation": 7500
   },
   {
    "id": "nets_and_shells",
@@ -6335,7 +6587,9 @@
      }
     ]
    },
-   "target_room": "lf_reed_shallows"
+   "target_room": "lf_reed_shallows",
+   "tier": "bone_forging_2",
+   "cultivation": 90
   },
   {
    "id": "the_muddy_wash",
@@ -6373,7 +6627,9 @@
      }
     ]
    },
-   "target_room": "lf_reed_shallows"
+   "target_room": "lf_reed_shallows",
+   "tier": "bone_forging_3",
+   "cultivation": 120
   },
   {
    "id": "beetle_shell_lacquer",
@@ -6412,7 +6668,9 @@
      }
     ]
    },
-   "target_room": "sq_quarry_rim"
+   "target_room": "sq_quarry_rim",
+   "tier": "bone_forging_5",
+   "cultivation": 310
   },
   {
    "id": "copper_for_the_bellows",
@@ -6455,7 +6713,9 @@
       "realm": "bone_forging_5"
      }
     ]
-   }
+   },
+   "tier": "bone_forging_5",
+   "cultivation": 310
   },
   {
    "id": "auntie_rongs_soup",
@@ -6502,7 +6762,9 @@
       "system": "cooking"
      }
     ]
-   }
+   },
+   "tier": "bone_forging_8",
+   "cultivation": 310
   },
   {
    "id": "kais_wager",
@@ -6540,7 +6802,9 @@
      }
     ]
    },
-   "target_room": "mh_stockade"
+   "target_room": "mh_stockade",
+   "tier": "qi_kindling_7",
+   "cultivation": 530
   },
   {
    "id": "su_qings_map",
@@ -6589,7 +6853,9 @@
      }
     ]
    },
-   "target_room": "wg_echo_cliffs"
+   "target_room": "wg_echo_cliffs",
+   "tier": "heart_tempering_3",
+   "cultivation": 670
   },
   {
    "id": "mins_first_caravan",
@@ -6627,7 +6893,9 @@
      }
     ]
    },
-   "target_room": "wg_gorge_mouth"
+   "target_room": "wg_gorge_mouth",
+   "tier": "heart_tempering_1",
+   "cultivation": 670
   },
   {
    "id": "old_scores",
@@ -6666,7 +6934,9 @@
      }
     ]
    },
-   "target_room": "wg_gorge_mouth"
+   "target_room": "wg_gorge_mouth",
+   "tier": "heart_tempering_1",
+   "cultivation": 670
   },
   {
    "id": "wen_zhaos_challenge",
@@ -6702,7 +6972,9 @@
       "quest": "the_valley_finals"
      }
     ]
-   }
+   },
+   "tier": "cloud_stride_7",
+   "cultivation": 800
   },
   {
    "id": "guos_old_wound",
@@ -6745,7 +7017,9 @@
      }
     ]
    },
-   "target_room": "lf_village"
+   "target_room": "lf_village",
+   "tier": "qi_kindling_3",
+   "cultivation": 530
   },
   {
    "id": "the_broken_kindling",
@@ -6783,7 +7057,9 @@
       "quest": "guos_old_wound"
      }
     ]
-   }
+   },
+   "tier": "qi_kindling_3",
+   "cultivation": 530
   },
   {
    "id": "a_second_try",
@@ -6827,7 +7103,9 @@
       "realm": "qi_unfurling_1"
      }
     ]
-   }
+   },
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "dous_kite_returns",
@@ -6873,7 +7151,9 @@
       "quest": "the_runaway_kite"
      }
     ]
-   }
+   },
+   "tier": "bone_forging_3",
+   "cultivation": 120
   },
   {
    "id": "dou_wants_to_train",
@@ -6909,7 +7189,9 @@
       "quest": "dous_kite_returns"
      }
     ]
-   }
+   },
+   "tier": "bone_forging_3",
+   "cultivation": 120
   },
   {
    "id": "grey_roofs",
@@ -6963,7 +7245,9 @@
      }
     ]
    },
-   "target_room": "rm_grey_pools"
+   "target_room": "rm_grey_pools",
+   "tier": "heart_tempering_1",
+   "cultivation": 670
   },
   {
    "id": "cleansing_the_well",
@@ -7012,7 +7296,9 @@
      "item": "cleansing_pill",
      "count": 1
     }
-   ]
+   ],
+   "tier": "heart_tempering_1",
+   "cultivation": 670
   },
   {
    "id": "market_day",
@@ -7050,7 +7336,9 @@
       "quest": "cleansing_the_well"
      }
     ]
-   }
+   },
+   "tier": "heart_tempering_1",
+   "cultivation": 670
   },
   {
    "id": "old_pans_errand_1",
@@ -7088,7 +7376,9 @@
       "system": "appraisal"
      }
     ]
-   }
+   },
+   "tier": "qi_kindling_6",
+   "cultivation": 530
   },
   {
    "id": "old_pans_errand_2",
@@ -7126,7 +7416,9 @@
       "quest": "old_pans_errand_1"
      }
     ]
-   }
+   },
+   "tier": "qi_kindling_6",
+   "cultivation": 530
   },
   {
    "id": "old_pans_errand_3",
@@ -7163,7 +7455,9 @@
       "quest": "old_pans_errand_2"
      }
     ]
-   }
+   },
+   "tier": "qi_kindling_6",
+   "cultivation": 530
   },
   {
    "id": "the_herb_thief",
@@ -7205,7 +7499,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "a_cure_for_stoneford",
@@ -7248,7 +7544,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "lan_yues_oath",
@@ -7290,7 +7588,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_1",
+   "cultivation": 530
   },
   {
    "id": "iron_oxs_debt",
@@ -7333,7 +7633,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "bone_forging_1",
+   "cultivation": 60
   },
   {
    "id": "the_quarry_fight",
@@ -7375,7 +7677,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "bone_forging_1",
+   "cultivation": 60
   },
   {
    "id": "stronger_than_stone",
@@ -7417,7 +7721,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "bone_forging_1",
+   "cultivation": 60
   },
   {
    "id": "the_missing_hunter",
@@ -7459,7 +7765,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_2",
+   "cultivation": 530
   },
   {
    "id": "crane_falls_at_dawn",
@@ -7506,7 +7814,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_2",
+   "cultivation": 530
   },
   {
    "id": "one_arrow",
@@ -7548,7 +7858,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_kindling_2",
+   "cultivation": 530
   },
   {
    "id": "lines_on_the_floor",
@@ -7591,7 +7903,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "the_broken_array",
@@ -7633,7 +7947,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "bai_lings_formation",
@@ -7681,7 +7997,9 @@
      }
     ]
    },
-   "chapter": "companion"
+   "chapter": "companion",
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "a_hall_of_our_own",
@@ -7708,7 +8026,9 @@
    "offer_text": [
     "(A letter) The Hidden Vale beyond Crane Falls could hold a sect. Yours."
    ],
-   "offered_by_unlock": true
+   "offered_by_unlock": true,
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "first_recruits",
@@ -7742,7 +8062,9 @@
       "quest": "a_hall_of_our_own"
      }
     ]
-   }
+   },
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "walls_of_the_vale",
@@ -7776,7 +8098,9 @@
       "quest": "first_recruits"
      }
     ]
-   }
+   },
+   "tier": "qi_unfurling_1",
+   "cultivation": 470
   },
   {
    "id": "through_the_gate",
@@ -7830,7 +8154,9 @@
    "chapter": "11",
    "target_room": "ae_landing",
    "next": "a_sky_full_of_toll_roads",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 2400
   },
   {
    "id": "a_sky_full_of_toll_roads",
@@ -7887,7 +8213,9 @@
    "chapter": "11",
    "target_room": "ae_port_market",
    "next": "storm_in_the_blood",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 2400
   },
   {
    "id": "storm_in_the_blood",
@@ -7960,7 +8288,9 @@
       "realm": "heaven_glimpse_3"
      }
     ]
-   }
+   },
+   "tier": "heaven_glimpse_3",
+   "cultivation": 2400
   },
   {
    "id": "horns_for_the_furnace",
@@ -8017,7 +8347,9 @@
    "chapter": "11",
    "target_room": "tp_thunderhorn_flats",
    "next": "sage",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 2400
   },
   {
    "id": "sage",
@@ -8067,7 +8399,9 @@
    },
    "chapter": "11",
    "target_room": "ae_condensing_hall",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 2400
   },
   {
    "id": "shards_for_sale",
@@ -8136,7 +8470,9 @@
    "chapter": "12",
    "target_room": "tp_herders_camp",
    "next": "frost_and_silence",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_1",
+   "cultivation": 25000
   },
   {
    "id": "frost_and_silence",
@@ -8203,7 +8539,9 @@
    "chapter": "12",
    "target_room": "rf_rimefrost_summit",
    "next": "the_mirror_remembers",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_1",
+   "cultivation": 25000
   },
   {
    "id": "the_mirror_remembers",
@@ -8274,7 +8612,9 @@
    },
    "chapter": "12",
    "target_room": "ml_lake_shrine",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_2",
+   "cultivation": 25000
   },
   {
    "id": "nine_seats",
@@ -8338,7 +8678,9 @@
    "chapter": "13",
    "target_room": "np_hall_of_nine",
    "next": "the_canyon_toll",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_2",
+   "cultivation": 25000
   },
   {
    "id": "going_once",
@@ -8371,7 +8713,9 @@
    "offered_by_unlock": true,
    "chapter": "13",
    "target_room": "np_auction_pavilion",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_2",
+   "cultivation": 25000
   },
   {
    "id": "the_canyon_toll",
@@ -8439,7 +8783,9 @@
    "chapter": "13",
    "target_room": "gc_canyon_mouth",
    "next": "ironroot_blood",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_2",
+   "cultivation": 25000
   },
   {
    "id": "ironroot_blood",
@@ -8510,7 +8856,9 @@
       "realm": "sage_2"
      }
     ]
-   }
+   },
+   "tier": "sage_2",
+   "cultivation": 25000
   },
   {
    "id": "glass_and_bone",
@@ -8578,7 +8926,9 @@
    "chapter": "14",
    "target_room": "sd_glass_dunes",
    "next": "the_sealed_gate",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_3",
+   "cultivation": 25000
   },
   {
    "id": "the_sealed_gate",
@@ -8652,7 +9002,9 @@
    "chapter": "14",
    "target_room": "sd_worm_sea",
    "next": "sovereign",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_3",
+   "cultivation": 25000
   },
   {
    "id": "the_tomb_king",
@@ -8733,7 +9085,9 @@
    },
    "chapter": "14",
    "target_room": "ts_sealed_gate",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_1",
+   "cultivation": 4800
   },
   {
    "id": "sovereign",
@@ -8784,7 +9138,9 @@
    "chapter": "14",
    "target_room": "sd_oasis_of_bones",
    "next": "the_tomb_king",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_3",
+   "cultivation": 25000
   },
   {
    "id": "gus_ledger",
@@ -8846,7 +9202,9 @@
    "chapter": "15",
    "target_room": "ae_shipyard",
    "next": "the_skyport_wreck",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_1",
+   "cultivation": 4800
   },
   {
    "id": "the_skyport_wreck",
@@ -8937,7 +9295,9 @@
    "chapter": "15",
    "target_room": "ae_shipyard",
    "next": "the_gate_holds",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_1",
+   "cultivation": 4800
   },
   {
    "id": "the_gate_holds",
@@ -9006,7 +9366,9 @@
    "chapter": "15",
    "target_room": "np_alliance_gate",
    "next": "lus_last_page",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_1",
+   "cultivation": 4800
   },
   {
    "id": "lus_last_page",
@@ -9069,7 +9431,9 @@
    "chapter": "16",
    "target_room": "sw_riven_peak",
    "next": "the_presence_trial",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_2",
+   "cultivation": 4800
   },
   {
    "id": "the_presence_trial",
@@ -9135,7 +9499,9 @@
    "chapter": "16",
    "target_room": "np_trial_hall",
    "next": "stars_beyond",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_2",
+   "cultivation": 4800
   },
   {
    "id": "stars_beyond",
@@ -9207,7 +9573,9 @@
    "chapter": "16",
    "target_room": "sw_starsea_launch",
    "next": "the_lantern_run",
-   "qp": "act2_main"
+   "qp": "act2_main",
+   "tier": "sage_sovereign_2",
+   "cultivation": 4800
   },
   {
    "id": "snow_for_the_cabinet",
@@ -9257,7 +9625,9 @@
     ]
    },
    "target_room": "rf_frostpine_climb",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_1",
+   "cultivation": 13000
   },
   {
    "id": "clear_skies",
@@ -9306,7 +9676,9 @@
     ]
    },
    "target_room": "ml_reedless_shore",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_2",
+   "cultivation": 13000
   },
   {
    "id": "a_lans_herd",
@@ -9362,7 +9734,9 @@
     ]
    },
    "target_room": "tp_stormgrass_verge",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "heaven_glimpse_3",
+   "cultivation": 1200
   },
   {
    "id": "silk_on_the_wind",
@@ -9412,7 +9786,9 @@
     ]
    },
    "target_room": "gc_kite_winds",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_2",
+   "cultivation": 13000
   },
   {
    "id": "plumes_for_the_bellows",
@@ -9458,7 +9834,9 @@
     ]
    },
    "target_room": "gc_harpy_roosts",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_2",
+   "cultivation": 13000
   },
   {
    "id": "cactus_water",
@@ -9504,7 +9882,9 @@
     ]
    },
    "target_room": "sd_glass_dunes",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_3",
+   "cultivation": 13000
   },
   {
    "id": "glass_teeth",
@@ -9550,7 +9930,9 @@
     ]
    },
    "target_room": "sd_worm_sea",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_3",
+   "cultivation": 13000
   },
   {
    "id": "stingers_for_the_hold",
@@ -9600,7 +9982,9 @@
     ]
    },
    "target_room": "sd_scorpion_flats",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_3",
+   "cultivation": 13000
   },
   {
    "id": "a_chart_of_ones_own",
@@ -9645,7 +10029,9 @@
    ],
    "offered_by_unlock": true,
    "target_room": "ae_shipyard",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_3",
+   "cultivation": 13000
   },
   {
    "id": "keel_and_ward",
@@ -9683,7 +10069,9 @@
    ],
    "offered_by_unlock": true,
    "target_room": "ae_shipyard",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_3",
+   "cultivation": 13000
   },
   {
    "id": "two_breaths",
@@ -9721,7 +10109,9 @@
    ],
    "offered_by_unlock": true,
    "target_room": "ae_condensing_hall",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_1",
+   "cultivation": 13000
   },
   {
    "id": "the_deserters",
@@ -9773,7 +10163,9 @@
     ]
    },
    "target_room": "sw_broken_pier",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "iron_from_a_comet",
@@ -9822,7 +10214,9 @@
     ]
    },
    "target_room": "sw_pirate_deck",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "clear_skies_over_the_peak",
@@ -9868,7 +10262,9 @@
     ]
    },
    "target_room": "sw_riven_peak",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "blood_remembers",
@@ -9922,7 +10318,9 @@
     ]
    },
    "target_room": "ir_ancestor_hall",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_2",
+   "cultivation": 13000
   },
   {
    "id": "what_the_bones_say",
@@ -9967,7 +10365,9 @@
     ]
    },
    "target_room": "ts_hall_of_sand_kings",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "the_sound_of_snow",
@@ -10021,7 +10421,9 @@
     ]
    },
    "target_room": "rf_hermits_ice_cave",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "the_lantern_run",
@@ -10078,7 +10480,9 @@
    "chapter": "17",
    "target_room": "sw_starsea_launch",
    "next": "crystal_and_jade",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_3",
+   "cultivation": 2400
   },
   {
    "id": "crystal_and_jade",
@@ -10141,7 +10545,9 @@
    "chapter": "17",
    "target_room": "lh_harbor_market",
    "next": "salt_of_the_stars",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_3",
+   "cultivation": 2400
   },
   {
    "id": "salt_of_the_stars",
@@ -10214,7 +10620,9 @@
       "realm": "sage_sovereign_3"
      }
     ]
-   }
+   },
+   "tier": "sage_sovereign_3",
+   "cultivation": 2400
   },
   {
    "id": "will_manifest",
@@ -10265,7 +10673,9 @@
    "chapter": "17",
    "target_room": "dr_moored_hulks",
    "next": "a_presence_of_ones_own",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sage_sovereign_3",
+   "cultivation": 2400
   },
   {
    "id": "a_presence_of_ones_own",
@@ -10329,7 +10739,9 @@
       "realm": "sage_sovereign_3"
      }
     ]
-   }
+   },
+   "tier": "will_manifest_1",
+   "cultivation": 4000
   },
   {
    "id": "the_pursers_ledger",
@@ -10398,7 +10810,9 @@
    "chapter": "18",
    "target_room": "bm_blackmast_docks",
    "next": "gunners_battery",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_1",
+   "cultivation": 4000
   },
   {
    "id": "gunners_battery",
@@ -10469,7 +10883,9 @@
    "chapter": "18",
    "target_room": "bm_gunners_battery",
    "next": "the_admiral",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_1",
+   "cultivation": 4000
   },
   {
    "id": "the_admiral",
@@ -10534,7 +10950,9 @@
    "chapter": "18",
    "target_room": "bm_flagship_deck",
    "next": "star_tier_beasts",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_1",
+   "cultivation": 4000
   },
   {
    "id": "star_tier_beasts",
@@ -10586,7 +11004,9 @@
       "realm": "will_manifest_2"
      }
     ]
-   }
+   },
+   "tier": "will_manifest_2",
+   "cultivation": 4000
   },
   {
    "id": "a_hollowed_brood",
@@ -10656,7 +11076,9 @@
     }
    ],
    "next": "the_last_egg",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_2",
+   "cultivation": 4000
   },
   {
    "id": "the_last_egg",
@@ -10727,7 +11149,9 @@
    "chapter": "19",
    "target_room": "wn_hatching_cave",
    "next": "the_masters_seat",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_2",
+   "cultivation": 4000
   },
   {
    "id": "the_masters_seat",
@@ -10811,7 +11235,9 @@
     "elder_sung"
    ],
    "target_room": "ja_gate_street",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_2",
+   "cultivation": 4000
   },
   {
    "id": "the_citadel",
@@ -10868,7 +11294,9 @@
    "chapter": "20",
    "target_room": "wc_wardens_hall",
    "next": "the_aspirant",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_3",
+   "cultivation": 4000
   },
   {
    "id": "the_aspirant",
@@ -10919,7 +11347,9 @@
    "chapter": "20",
    "target_room": "wc_presence_court",
    "next": "the_observatory",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_3",
+   "cultivation": 4000
   },
   {
    "id": "the_observatory",
@@ -10984,7 +11414,9 @@
    "chapter": "20",
    "target_room": "wc_observatory",
    "next": "sphere_lord",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_3",
+   "cultivation": 4000
   },
   {
    "id": "sphere_lord",
@@ -11032,7 +11464,9 @@
    },
    "chapter": "20",
    "next": "the_orbit_ruins",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_3",
+   "cultivation": 4000
   },
   {
    "id": "a_sphere_of_ones_own",
@@ -11071,7 +11505,9 @@
    "offered_by_unlock": true,
    "chapter": "20",
    "target_room": "wc_observatory",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "the_orbit_ruins",
@@ -11143,7 +11579,9 @@
    },
    "chapter": "20",
    "target_room": "or_orbit_garden",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_3",
+   "cultivation": 4000
   },
   {
    "id": "the_written_word",
@@ -11186,7 +11624,9 @@
    "offered_by_unlock": true,
    "chapter": "20",
    "target_room": "lh_star_chandlery",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "will_manifest_2",
+   "cultivation": 4000
   },
   {
    "id": "cinder_fields",
@@ -11249,7 +11689,9 @@
    "chapter": "21",
    "target_room": "ar_cinder_fields",
    "next": "kharns_pyre",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "kharns_pyre",
@@ -11311,7 +11753,9 @@
    "chapter": "21",
    "target_room": "ar_kharns_pyre",
    "next": "the_tide_breaks",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "the_tide_breaks",
@@ -11376,7 +11820,9 @@
    "chapter": "21",
    "target_room": "tf_tidebreak_bastion",
    "next": "star_warden",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "star_warden",
@@ -11442,7 +11888,9 @@
    },
    "chapter": "21",
    "target_room": "wc_wardens_hall",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "the_copperjaw_box",
@@ -11494,7 +11942,9 @@
      "count": 4
     }
    ],
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "brush_and_bell",
@@ -11540,7 +11990,9 @@
    },
    "chapter": "21",
    "target_room": "tf_tidebreak_bastion",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "the_leviathans_maw",
@@ -11590,7 +12042,9 @@
    },
    "chapter": "22",
    "target_room": "nd_leviathans_maw",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_1",
+   "cultivation": 4000
   },
   {
    "id": "lus_lantern",
@@ -11664,7 +12118,9 @@
    "chapter": "22",
    "target_room": "nd_crab_grottoes",
    "next": "greyfall",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_2",
+   "cultivation": 4000
   },
   {
    "id": "greyfall",
@@ -11747,7 +12203,9 @@
    },
    "chapter": "22",
    "target_room": "tf_greyfall_breach",
-   "qp": "act2_side"
+   "qp": "act2_side",
+   "tier": "sphere_lord_2",
+   "cultivation": 4000
   }
  ],
  "chapter_floors": {

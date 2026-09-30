@@ -76,7 +76,11 @@ func apply_weather(actor_id: String, weather: String) -> void:
 func refresh_stats(actor_id: String) -> void:
 	var c = game.character(actor_id)
 	if c == null: return
+	var qi_was: float = c.pools.max_qi
 	var changed := StatRules.rebuild(c, game.account)
+	# Decision 45: a Qi pool that opens now (with the first technique, at Bone Forging 1) opens full, so the art it came
+	# with can be cast at once. A pool that grows keeps its fill (ResourcePool.set_max).
+	if qi_was <= 0.0 and c.pools.max_qi > 0.0: c.pools.qi = c.pools.max_qi
 	if not changed.is_empty():
 		emit("stats_changed", {"actor": c.id, "changed_ids": changed})
 		for pool in ["hp", "qi", "soul"]:
@@ -727,6 +731,11 @@ func in_combat(c) -> bool:
 
 ## The body stages (stats.json technique_cost.free_without_pool): with no Qi pool yet a technique costs no Qi, only its
 ## cooldown.
+## Decision 45: the pool Qi regenerates from: the pool, or stats.json regen_per_s.qi_floor_pool when that is more, so
+## the small first pool (about 30 at Bone Forging 1) visibly refills (0.75 Qi a second at rest, 6 meditating).
+static func qi_regen_pool(c) -> float:
+	return maxf(c.pools.max_qi, float(ContentDB.stat_const("regen_per_s.qi_floor_pool", 0.0))) if c.pools.max_qi > 0.0 else 0.0
+
 func breath_only(c) -> bool:
 	return bool(ContentDB.stat_const("technique_cost", {}).get("free_without_pool", false)) and c.pools.max_qi <= 0.0
 
@@ -986,7 +995,7 @@ func _tick_pools(c, delta: float) -> void:
 		# Resting well away from a fight recovers faster (S11 regen, rest multiplier).
 		var rest := float(ContentDB.stat_const("regen_per_s.rest_mult", 4.0)) if p.since_hit >= regen_delay * 2.0 else 1.0
 		if p.hp < p.max_hp: apply_resource_change(c.id, "hp", p.max_hp * c.stats.value("hp_regen") * rest * delta, "regen", 0.0, true)
-		if p.max_qi > 0 and p.qi < p.max_qi: apply_resource_change(c.id, "qi", p.max_qi * c.stats.value("qi_regen") * delta, "regen", 0.0, true)
+		if p.max_qi > 0 and p.qi < p.max_qi: apply_resource_change(c.id, "qi", qi_regen_pool(c) * c.stats.value("qi_regen") * delta, "regen", 0.0, true)
 		if p.max_soul > 0 and p.soul < p.max_soul: apply_resource_change(c.id, "soul", p.max_soul * c.stats.value("soul_regen") * delta, "regen", 0.0, true)
 	var burdened := hollow_burdened(c)
 	if burdened and Unlocks.is_unlocked(c.id, "composure") and p.composure > 0.0:
