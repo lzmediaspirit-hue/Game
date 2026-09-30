@@ -1,8 +1,11 @@
 # Tests
 
-`tools/run_tests.sh` (Linux, macOS) and `Test.ps1` (Windows) run the same gates: the data checks under `tools/data/`,
-then the Godot suites listed in `tests/suites.txt`, in that order. Each suite is a scene, `tests/<name>.tscn`, run
-headless:
+`tools/run_tests.sh` (Linux, macOS) and `Test.ps1` (Windows) run the same gates, in the same order:
+1. the animation rules (`Validate-Animations.ps1`, where PowerShell is installed);
+2. the data checks (`tools/data/*.py --check`, `tools/lib/pix.py --check`, `tools/audio/build_audio.py --check`);
+3. the Godot suites listed in `tests/suites.txt`.
+
+Each suite is a scene, `tests/<name>.tscn`, run headless:
 
 ```
 godot --headless --path . res://tests/<name>.tscn [-- --verbose]
@@ -31,6 +34,15 @@ Every suite extends it (`extends "res://tests/lib/suite.gd"`), puts its body in 
 - **Hooks.** `report_failure(what)` and `summary_line()` are overridden by `engine_tests` only: it pushes errors, and
   prints `ENGINE_TESTS: P/N passed`. `stop(code)` quits cleanly without a summary; `valley_run` uses it when it has no
   checkpoint to resume.
+- **Timing on a shared machine.**
+  - `now_us()` is the game's own clock: the wall clock less the time the main thread waited for a CPU while other
+    processes held them all. Linux counts this per thread; elsewhere it is the wall clock.
+  - `ask_for_cpu()` and `usual_cpu()` lower and restore the main thread's niceness, where the system allows it (root on
+    Linux). Elsewhere they do nothing.
+  - Users: `perf_tests`; `rules_tests`, for the technique pictures' budget, the preview and the living world;
+    `topdown_tutorial`'s people stream.
+  - `now_us()` reads a file each call (about 20 µs), so microsecond timings keep the wall clock: the coach's cost in
+    `tutorials` is a median of 120.
 
 A new suite needs three things:
 1. a scene with one `Node` that holds its script;
@@ -40,14 +52,13 @@ A new suite needs three things:
 ## The performance gate
 
 `perf_tests` measures milliseconds on a machine it shares with other work, so every figure is taken three ways:
-- on the game's own clock: the wall clock less the time the main thread waited for a CPU while other processes held
-  them all (Linux; elsewhere, the wall clock);
+- on the game's own clock (`now_us`), with the main thread's share of a CPU asked for (`ask_for_cpu`);
 - at the machine's full speed: a fixed piece of work is timed beside each sample, and samples taken while it ran slow
   are left out;
 - as the least of three interleaved rounds.
 
-Samples are left out, never scaled, and the budgets are the gate's own. The file's section "measuring on a shared
-machine" has the details.
+Samples are left out, never scaled, and the budgets are the gate's own. `techniques.json` is timed first, on memory as
+fresh as the boot's. The file's section "measuring on a shared machine" has the details.
 
 ## Other scripts here
 
