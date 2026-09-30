@@ -969,17 +969,17 @@
   "life_work_chop_hit": {
    "file": "res://art/audio/sfx/life_work_chop_hit.wav",
    "len_s": 0.367,
-   "volume_db": -3.5
+   "volume_db": -5.5
   },
   "life_work_chop_hit_b": {
    "file": "res://art/audio/sfx/life_work_chop_hit_b.wav",
    "len_s": 0.104,
-   "volume_db": -2.5
+   "volume_db": -4.5
   },
   "life_work_chop_hit_c": {
    "file": "res://art/audio/sfx/life_work_chop_hit_c.wav",
    "len_s": 0.367,
-   "volume_db": -3.5
+   "volume_db": -5.5
   },
   "life_work_fish": {
    "file": "res://art/audio/sfx/life_work_fish.wav",

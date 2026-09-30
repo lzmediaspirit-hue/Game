@@ -21,7 +21,7 @@
 | life_work_stir.wav (at its level, -18.0 dB) | 1.18 | -21.0 | -36.0 | -34.7 | -33.0 | -0.6 | 0 | one-shot |
 | life_work_grind.wav (at its level, -18.0 dB) | 1.89 | -21.0 | -38.7 | -35.7 | -32.8 | -0.1 | 0 | one-shot |
 | life_work_chop.wav (at its level, -19.0 dB) | 0.32 | -22.0 | -36.5 | -36.9 | -36.9 | -0.2 | 0 | one-shot |
-| life_work_chop_hit.wav (at its level, -3.5 dB) | 0.37 | -6.5 | -28.9 | -29.8 | -29.8 | -5.0 | 0 | one-shot |
+| life_work_chop_hit.wav (at its level, -5.5 dB) | 0.37 | -8.5 | -30.9 | -31.8 | -31.8 | -5.0 | 0 | one-shot |
 | life_work_hammer.wav (at its level, -16.5 dB) | 0.20 | -19.5 | -35.0 | -36.9 | -36.9 | -0.1 | 0 | one-shot |
 | life_work_hammer_hit.wav (at its level, -9.0 dB) | 0.75 | -12.0 | -33.8 | -32.5 | -30.0 | -0.5 | 0 | one-shot |
 | life_work_stoke.wav (at its level, -18.0 dB) | 1.25 | -21.0 | -37.6 | -35.4 | -33.2 | -0.5 | 0 | one-shot |
@@ -40,9 +40,9 @@
 | life_work_sweep_c.wav (at its level, -17.0 dB) | 1.52 | -20.0 | -37.4 | -34.7 | -33.0 | -0.0 | 0 | one-shot |
 | life_work_chop.wav (at its level, -19.0 dB) | 0.32 | -22.0 | -36.5 | -36.9 | -36.9 | -0.2 | 0 | one-shot |
 | life_work_chop_b.wav (at its level, -19.5 dB) | 0.32 | -22.5 | -36.5 | -37.1 | -37.1 | -0.2 | 0 | one-shot |
-| life_work_chop_hit.wav (at its level, -3.5 dB) | 0.37 | -6.5 | -28.9 | -29.8 | -29.8 | -5.0 | 0 | one-shot |
-| life_work_chop_hit_b.wav (at its level, -2.5 dB) | 0.10 | -5.5 | -23.6 | -30.1 | -30.1 | -5.3 | 0 | one-shot |
-| life_work_chop_hit_c.wav (at its level, -3.5 dB) | 0.37 | -6.5 | -29.1 | -30.1 | -30.1 | -4.7 | 0 | one-shot |
+| life_work_chop_hit.wav (at its level, -5.5 dB) | 0.37 | -8.5 | -30.9 | -31.8 | -31.8 | -5.0 | 0 | one-shot |
+| life_work_chop_hit_b.wav (at its level, -4.5 dB) | 0.10 | -7.5 | -25.6 | -32.1 | -32.1 | -5.3 | 0 | one-shot |
+| life_work_chop_hit_c.wav (at its level, -5.5 dB) | 0.37 | -8.5 | -31.1 | -32.1 | -32.1 | -4.7 | 0 | one-shot |
 | life_work_hammer.wav (at its level, -16.5 dB) | 0.20 | -19.5 | -35.0 | -36.9 | -36.9 | -0.1 | 0 | one-shot |
 | life_work_hammer_b.wav (at its level, -17.5 dB) | 0.20 | -20.5 | -35.2 | -37.1 | -37.1 | -0.1 | 0 | one-shot |
 | life_work_hammer_hit.wav (at its level, -9.0 dB) | 0.75 | -12.0 | -33.8 | -32.5 | -30.0 | -0.5 | 0 | one-shot |

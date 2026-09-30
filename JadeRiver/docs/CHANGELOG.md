@@ -1,5 +1,31 @@
 # Changelog
 
+## The living world's sounds: critters, people at work, places used (decision 44)
+
+Decision 43's living world raised a named sound for each moment of life, and the bank had none, so the critters and
+the villagers at work were silent. Now they sound, synthesized in code like the rest (`tools/audio/life.py`), as
+ambience well under the fight and falling off with distance. `docs/redesign/sound.md` §10 has the design and the
+review, §9 a listening guide.
+
+- **Critters:** a flock of sparrows bursting up (wings and alarm chirps), a fish darting off (a flick and a plip), a
+  frog's squeaking leap and its plop, a hen scattering (wings, clucks, a "b-gawk"), a cat waking (a trilled "mrrp", a
+  mew, a stretch), a village dog glad to see you (two "arf"s, or a "ruff" and a whine).
+- **Work,** one for each cue of the loops: a broom on paving, a load set down off the pole, scrubbing on a ribbed
+  board, washing shaken out and pegged, a herb snapped, a ladle round the pot, a pestle in a mortar, the axe's swing
+  and its bite (splitting the log two blows in three), the hammer's swing and the anvil's ring (a lighter tap between
+  blows), the forge poked to a crackle, a line cast and recast, a net's cord drawn tight, a rustle as someone looks
+  about, a brush on paper, a meditator's slow breath.
+- **Places** for the place poses: `place_open` (a latch, a creak, a lid knocking open), `place_tend` (soil and
+  leaves), `place_sit` (settling on a straw mat).
+- **Takes** where repetition would show (the sweep, the washing, the axe, the hammer, the dog) play in turn, and every
+  one is varied a little in pitch and level. The village ranks under every sound of the fight in the voice pool: at
+  most three critters and three workers at once, and any blow, step or tell takes their voices first.
+- **Checks:** `tools/data/sound.py --check` fails when a cue the code or `data/topdown/life.json` can raise, or a place
+  sound, has no file (it reads the data's cues and the code's `raise_cue` calls); `audio_tests` checks the same in the
+  engine, plays a raised cue once where it happens, the takes in turn and a busy village under a fight. Review pictures
+  and a loudness table in `docs/redesign/feedback/sound/life/`.
+- **Size:** the audio in the APK went from 7.04 MB to 7.33 MB (38 more one-shots, 1.36 MB of sources).
+
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 
 With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh
