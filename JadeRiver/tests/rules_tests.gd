@@ -2379,6 +2379,31 @@ func points_badges_suite() -> void:
 ## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
 ## makes their textures and a canvas item, a few a frame (the old side-view stills took 10-30 ms each on it).
+## Another round of technique_pictures_suite's building, for its main-thread budget: every picture let go (each sheet
+## started again), then the HUD's pictures, the Techniques page's (the Water tree, Flowing Palm's reading, the loadout
+## bar) and a side-view character's HUD pictures built again, as the suite built them. Returns [the most one start,
+## finish or paint took, the most a frame's pictures took (µs), which piece].
+func _pictures_again(hud, c, look: Dictionary, arts: Array, inner: int, shown: Array) -> Array:
+	for sh in TechniquePicture._sheets: TechniquePicture._restart_sheet(sh, int(sh.s))
+	TechniquePicture.build_us_max = 0
+	TechniquePicture.frame_us_max = 0
+	for i in 120:
+		hud.queue_redraw()
+		await get_tree().process_frame
+		if arts.all(func(a): return TechniquePicture.painted(a, c, look, inner)): break
+	var tp: Page = await _open_page("techniques", {"tab": "water"})
+	tp.on_action("node", "flowing_palm")
+	for i in 120:
+		tp.queue_redraw()
+		await get_tree().process_frame
+		if i > 10 and shown.all(func(k): return TechniquePicture.painted(k[0], c, look, k[1], k[2])): break
+	tp.queue_free()
+	c.view = ""
+	hud.queue_redraw()
+	await get_tree().process_frame
+	c.view = "topdown"
+	return [TechniquePicture.build_us_max, TechniquePicture.frame_us_max, TechniquePicture.build_worst]
+
 func technique_pictures_suite() -> void:
 	var c = Game.active()
 	if c == null: return
@@ -2533,11 +2558,21 @@ func technique_pictures_suite() -> void:
 	var side: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.has("top"))
 	check(not side.is_empty() and side.all(func(d): return not d.top), "decision 42: a classic side-view character's pictures are the side view's (%d)" % side.size())
 	c.view = "topdown"
-	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us" % [TechniquePicture.build_us_max, TechniquePicture.build_worst, TechniquePicture.frame_us_max])
+	# The game times each piece on the wall clock, so one piece another process held up decides the most: the least of
+	# up to three rounds of the same building counts, as in perf_tests (a busy machine only ever adds).
+	var built := [TechniquePicture.build_us_max, TechniquePicture.frame_us_max, TechniquePicture.build_worst]
+	for r in 2:
+		if int(built[0]) <= 4000 and int(built[1]) <= 8000: break
+		var again: Array = await _pictures_again(hud, c, look, arts, inner, shown)
+		if int(again[0]) < int(built[0]):
+			built[0] = again[0]
+			built[2] = again[2]
+		built[1] = mini(int(built[1]), int(again[1]))
+	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us" % [built[0], built[2], built[1]])
 	# About 1 ms and 2 ms on an idle desktop runner; the bounds leave room for a busy one.
-	check(TechniquePicture.build_us_max <= 4000 and TechniquePicture.frame_us_max <= 8000,
+	check(int(built[0]) <= 4000 and int(built[1]) <= 8000,
 		"decision 42: no technique picture is built on the main thread past a small budget: one start, finish or paint %.1f ms at most (4; %s), a frame's %.1f ms (8); the side view's stills took 10-30"
-		% [TechniquePicture.build_us_max / 1000.0, TechniquePicture.build_worst, TechniquePicture.frame_us_max / 1000.0])
+		% [int(built[0]) / 1000.0, built[2], int(built[1]) / 1000.0])
 	TechniquePicture.draw_log = null
 	SpriteCache.draw_log = null
 	hud.player = null

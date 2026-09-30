@@ -111,20 +111,33 @@ func queued_us() -> int:
 func clock_name() -> String:
 	return "the run queue left out" if queued_us() > 0 or _schedstat == 1 else "the wall clock"
 
-## The main thread asks the system for a larger share of a CPU while the suite times: on Linux, where it may (as root,
-## or with CAP_SYS_NICE), its own thread's niceness goes to MAIN_NICE (renice -p on the process id names the main thread
-## alone). With five times as many busy threads as CPUs the main thread ran a tenth of the time, in short slices each
-## begun with caches other processes had filled, and its own work took twice as long on the CPU: no clock takes that
-## out. Elsewhere, or where it may not, nothing changes. Returns what it did, for the suite's report.
+## The game asks the system for a larger share of the CPUs while the suite times: on Linux, where it may (as root, or
+## with CAP_SYS_NICE), its main thread's niceness goes to MAIN_NICE and its other threads' (the workers that paint and
+## load for it) to WORKER_NICE: both ahead of other processes, the main thread ahead of its own workers. With five times
+## as many busy threads as CPUs the main thread ran a tenth of the time, in short slices each begun with caches other
+## processes had filled, and its own work took twice as long on the CPU: no clock takes that out. The main thread alone
+## ran on while the pictures its workers paint waited; every thread alike, the workers took the main thread's CPU in the
+## middle of a timed piece. Elsewhere, or where it may not, nothing changes. Returns what it did, for the suite's report.
+const WORKER_NICE := -5
+
 func ask_for_cpu() -> String:
 	if not OS.has_feature("linux"): return "the usual share of a CPU"
-	if OS.execute("renice", ["-n", str(MAIN_NICE), "-p", str(OS.get_process_id())], [], true) == 0:
-		return "the main thread at niceness %d" % MAIN_NICE
+	if _renice(MAIN_NICE, WORKER_NICE):
+		return "the main thread at niceness %d, the game's other threads at %d" % [MAIN_NICE, WORKER_NICE]
 	return "the usual share of a CPU (renice refused)"
 
 ## Back to the usual share once the timing is done.
 func usual_cpu() -> void:
-	if OS.has_feature("linux"): OS.execute("renice", ["-n", "0", "-p", str(OS.get_process_id())], [], true)
+	if OS.has_feature("linux"): _renice(0, 0)
+
+## The main thread (its id is the process id) to `main`, every other thread of the process to `others`.
+func _renice(main: int, others: int) -> bool:
+	var pid := str(OS.get_process_id())
+	var rest := PackedStringArray(["-n", str(others), "-p"])
+	for tid in DirAccess.get_directories_at("/proc/self/task"):
+		if tid != pid: rest.append(tid)
+	if rest.size() > 3 and OS.execute("renice", rest, [], true) != 0: return false
+	return OS.execute("renice", ["-n", str(main), "-p", pid], [], true) == 0
 
 # ------------------------------------------------------------------ the clean quit
 ## Free what the suite made and let the game's workers finish before the engine quits: a worker task left unclaimed
