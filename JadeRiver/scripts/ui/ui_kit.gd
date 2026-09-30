@@ -497,14 +497,21 @@ static func draw_nameplate(ci: CanvasItem, name_text: String, sub: String, y: fl
 		draw_text(ci, sub, Vector2(-w * 0.5 - 20, y + sub_px + 2), sub_size, sub_color, HORIZONTAL_ALIGNMENT_CENTER, w + 40, true)
 	return rect
 
-static var _widths: Dictionary = {}   # measured widths, so labels drawn every frame are measured once
+static var _widths: Dictionary = {}   # text -> {Vector3(size, display, text scale): width}: labels drawn every frame are measured once
+static var _widths_n := 0
 
 static func text_width(text: String, size: int, display := false) -> float:
-	var key := "%d|%s|%.2f|%s" % [size, "d" if display else "b", text_scale(), text]
-	if _widths.has(key): return float(_widths[key])
-	if _widths.size() > 4000: _widths.clear()
+	# Keyed without formatting a string (the HUD asks dozens of times a frame).
+	var key := Vector3(size, 1.0 if display else 0.0, text_scale())
+	var by: Dictionary = _widths.get(text, {})
+	if by.has(key): return float(by[key])
+	if _widths_n > 4000:
+		_widths.clear()
+		_widths_n = 0
 	var w: float = font_for(text, display, size).get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size_for(text, size, display)).x
-	_widths[key] = w
+	if by.is_empty(): _widths[text] = by
+	by[key] = w
+	_widths_n += 1
 	return w
 
 ## `s` broken into lines no wider than `width` at `size`, at its spaces and its own line breaks (a page's paragraphs, a

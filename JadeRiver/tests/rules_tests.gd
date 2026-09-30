@@ -12972,6 +12972,19 @@ func _technique_preview_suite(pg, c) -> void:
 	for k in ["reduce_motion", "damage_numbers"]:
 		if settings_was.has(k): Game.account.settings[k] = settings_was[k]
 		else: Game.account.settings.erase(k)
+	# A preview that goes before its foes' index is read takes the reading back from the worker (TopFoe.settle): a task
+	# left unclaimed crashed the engine as it quit (the tutorials suite's clean summary and non-zero exit).
+	TechniquePreview.TopFoe.settle()
+	var had: Dictionary = TechniquePreview.TopFoe._sheet
+	TechniquePreview.TopFoe._sheet = {}
+	TechniquePreview.TopFoe._task = -1
+	var early := TechniquePreview.new()
+	early.dress(st.caster.outfit, true)   # a top-down caster: the foes' index starts reading on a worker
+	var started: bool = TechniquePreview.TopFoe._task >= 0
+	early.free()
+	check(started and TechniquePreview.TopFoe._task == -2 and not TechniquePreview.TopFoe._sheet.is_empty(),
+		"a technique preview gone before its foes' index is in takes the reading back from the worker (no task left unclaimed at exit)")
+	if TechniquePreview.TopFoe._sheet.is_empty(): TechniquePreview.TopFoe._sheet = had
 
 func techniques_page_suite() -> void:
 	var c = Game.active()

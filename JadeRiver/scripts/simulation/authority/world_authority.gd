@@ -917,12 +917,13 @@ func query_context(c) -> Dictionary:
 	var best_score := INF
 	for o in game.room_rt.def.get("objects", []):
 		if not offers_context(o): continue
-		if not object_visible(c, o): continue
-		if o.has("chase") and str(chases.get(c.id, {}).get("object", "")) == str(o.id): continue   # he is off over the roofs
 		var at: Array = o.get("at", [0, 0])
 		var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
 		# M18: a chest on the ledge above never takes the button from the herb at your feet (interact would refuse it).
+		# Out of reach first: the HUD asks every frame, and whether a thing shows (its requirements) is the dear part.
 		if d > reach_of(o) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
+		if not object_visible(c, o): continue
+		if o.has("chase") and str(chases.get(c.id, {}).get("object", "")) == str(o.id): continue   # he is off over the roofs
 		var avail := object_available(c, o)
 		if avail.get("spent", false): continue
 		# A resource node not open to the character yet offers nothing (the prototype's QA: the Reed Shallows' herbs said

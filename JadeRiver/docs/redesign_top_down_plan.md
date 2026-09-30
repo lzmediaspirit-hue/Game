@@ -2077,6 +2077,40 @@ Decision 43's living world is built to `docs/redesign/art_bible.md` §14.13, in 
   the art's own size), drawn by `tools/dev/topdown_capture.tscn -- --life`. `after/` and `detail/` are drawn on the
   build merged with the rest of decision 43, so the people 1.2 times bigger and the places are in them too.
 
+### As built: the Marsh Edge fight back inside its frame (decision 43 follow-up, 2026-09-30)
+
+With all of decision 43 merged, `perf_tests`' Marsh Edge fight (25 foes on the player) measured 18.3-22.5 ms a frame
+against its 16.6 ms budget. It had been 14-17 ms before decision 43, which added about 1.5 ms (the round buttons'
+and combat flow's merge and the living world's). The frame was spread over the foes' AI, the labels' layout, the HUD,
+and views asking the authorities the same questions many times a frame; the check's window also carried one-off
+loads the living world's A/B rounds never saw. The numbers are in `docs/CHANGELOG.md`. What changed (the same
+pixels, rules and sounds):
+
+- **The names over the world** (`WorldLabels.resolve`): a label tries where it stands and last frame's row first, and
+  only when neither is clear are its other rows made and weighed, against just the boxes they can reach; the order is
+  sorted by the engine on keys. The same offsets as before (checked against the old pass on 3,000 random crowds).
+- **Asked once a frame** (`WorldShared`): whether each thing shows, a person's quest marker, a way's state, the quest
+  tracker and the direction's step, kept for the frame and asked again when `Game.revision` moves (an intent, a tick,
+  effects). The HUD's points badges likewise (`_frame_badges`; `point_badges` and `hit_targets` still ask afresh), and
+  the soft lock (`TopdownWorld.soft_target`, for the labels and the aim ring). The context button's search takes the
+  reach before the requirements.
+- **The foes**: `TopdownRoom.free_at` reads the grid directly and the chase's clear line walks it in one piece
+  (`TopdownRoom.line_clear`); a room's sanctuaries are gathered once; a foe winding up, striking or recovering does not
+  ask where the player is or whether it sees them (only the states that look do: on the grid those are
+  `TopdownBrain`'s). `ContentDB` keeps the stats, movement and curve constants it has found by path (the foes ask
+  their radius, reach, leash and hit band by name many times a tick; `load_all` forgets them) and a Level's realm.
+- **No loads inside a fight**: as a room is built, the sheets of the species it spawns and holds, the weapon
+  family's smears, the impacts, the marks and the dust are asked for on the loading threads, and the numbers' font is
+  loaded (`TopdownWorld._warm_fight`; the world waits for any still loading as it leaves).
+- **Drawn once, not each frame**: the water's four frames per chunk (the clock only shows one; it redrew every chunk in
+  view four times a second); the air's three layers each pass over the others' particles; a foe's label view, which
+  draws nothing of its own in label mode, is not redrawn empty. A foe's figure is moved once a frame and its flash
+  material set only when it changes; each species' walk cycle for the steps is worked out once; text widths are keyed
+  without formatting a string.
+- **Result** (`perf_tests` alone, three runs interleaved with 3c0bb0f's on one machine): the Marsh Edge fight 11.6-13.9
+  ms a frame against 18.2-20.2, the prototype's 22-foe fight 9.7-10.0 against 13.1-15.3, Lotus Ferry 7.7-9.3 against
+  10.4-12.0.
+
 ### Phase 5 · The animation layers (XL)
 
 - Clothe the approved body, per `AGENTS.md` rules 1–4:

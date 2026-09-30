@@ -66,6 +66,8 @@ var label_views: Dictionary = {} ## uid -> EnemyView in label mode (on the overl
 var loot_layer: Node2D
 var aim_view: Node2D
 var _atlases: Dictionary = {}
+var _warming: Array = []        ## the fight's art asked for on the loading threads as the room was built (_warm_fight)
+var _warm: Dictionary = {}      ## path -> that art once in, held for the world's life as the atlases are
 # Phase 4: the room's people, things and ways (their label views, as world.gd keeps its views; TopdownPlaces).
 var npc_views: Dictionary = {}
 var object_views: Dictionary = {}
@@ -179,6 +181,9 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
+	# The fight's art still on the loading threads is waited for and let go: no load of the world's outlives it.
+	for p in _warming: ResourceLoader.load_threaded_get(p)
+	_warming.clear()
 
 ## The room's own nodes: the floor, water and raised rows, stairs and props, its people, things and ways, the foes
 ## and the loot lying there. The body, its shadow and the effects stay from room to room.
@@ -276,6 +281,7 @@ func _build_room() -> void:
 	for n in [shadow, player, fx]: sorted.move_child(n, -1)
 	if player != null and player.bound():
 		for uid in Game.room_rt.enemies: _add_foe(Game.room_rt.enemies[uid])
+	_warm_fight()
 
 ## Phase 4: the body where the World authority put the character (a portal's arrival, a shrine, a saved spot).
 func _place_player() -> void:
@@ -309,6 +315,7 @@ func _physics_process(delta: float) -> void:
 	if live: _check_portals(delta)
 
 func _process(delta: float) -> void:
+	if not _warming.is_empty(): _collect_warm()
 	_sync(delta)
 	var m: TopdownMotor = player.motor
 	if m.grounded and m.sink_t < 0.0: cam_z = m.z
@@ -369,7 +376,9 @@ func is_occluded() -> bool:
 	var body := Rect2(feet_px.x - 5, feet_px.y - 34, 10, 30)
 	for n in sorted.get_children():
 		if n == player or n == shadow or n == fx or n.position.y <= player.position.y: continue
-		for r in n.get("rects") if n.get("rects") != null else []:
+		var rs = n.get("rects")
+		if rs == null: continue
+		for r in rs:
 			if (r as Rect2).intersects(body): return true
 	return false
 
@@ -529,10 +538,22 @@ func focus_labels() -> void:
 	var a: Dictionary = player.aim
 	var foe = a.get("target") if a.get("target") is EnemyState else null
 	if foe == null and a.is_empty() and Game.room_rt != null and WorldLabels.fight_near(Game.active(), m.pos):
-		foe = TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
+		foe = soft_target()
 	var uid: int = foe.uid if foe != null else -1
 	for k in label_views:
 		if is_instance_valid(label_views[k]): label_views[k].focused = int(k) == uid
+
+## The soft lock from the body (TopdownAim.soft_target), worked out once for the frame's labels and its aim ring: the
+## same while neither the game nor the body has moved.
+var _soft_key := []
+var _soft: EnemyState = null
+func soft_target() -> EnemyState:
+	var m: TopdownMotor = player.motor
+	var key := [Engine.get_process_frames(), Game.revision, m.pos, m.z, m.dir, m.grounded]
+	if key != _soft_key:
+		_soft_key = key
+		_soft = TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
+	return _soft
 
 ## The names over the world keep clear of each other and of the HUD's controls (WorldLabels, as world.gd places
 ## them), nearest the player first: the foes', and in the world the people's, the ways' and the things'.
@@ -638,6 +659,51 @@ func foe_sheet(path: String) -> Texture2D:
 	if not _atlases.has(path): _atlases[path] = load(path)
 	return _atlases[path]
 
+## Decision 43's perf pass: what a fight in this room asks for, asked for on the loading threads as the room is built,
+## not at its first foe, blow or number. Each was a stall inside the fight: the Marsh Edge's first frame of its fight
+## took 40 ms loading its four species' sheets, and the fists' smears, the impact marks and the numbers' font each
+## held a later frame. The sheets of the species the room spawns and holds (an elite's too), the character's weapon
+## family's smears, the impacts, the foes' tells and swipes and the dust, and the numbers' font. Art already in memory is
+## not asked for again; each piece is held once in (_collect_warm), and a foe or a blow that comes first waits for it on
+## its own load as before.
+func _warm_fight() -> void:
+	if Game.room_rt == null or room == null: return
+	var paths: Array = []
+	var species: Dictionary = room.tileset.get("foes", {}).get("species", {})
+	var kinds := {}   # def id -> an elite of it may come
+	for sp in Game.room_rt.def.get("spawns", []):
+		var id := str(sp.get("enemy", ""))
+		kinds[id] = bool(kinds.get(id, false)) or bool(sp.get("elite", false))
+	for uid in Game.room_rt.enemies:
+		var e: EnemyState = Game.room_rt.enemies[uid]
+		kinds[e.def_id] = bool(kinds.get(e.def_id, false)) or e.elite
+	for id in kinds:
+		if not species.has(id): continue
+		var look: Dictionary = species[id]
+		paths.append(str(look.get("atlas", "")))
+		if kinds[id] and look.has("elite"): paths.append(str(look.elite.get("atlas", "")))
+	var fx := TopdownFx.cfg()
+	var fams: Dictionary = fx.get("melee", {}).get("families", {})
+	var c = Game.active()
+	var fam := str(StatRules.family(c).get("id", "fists")) if c != null else "fists"
+	paths.append(str(fams.get(fam, fams.get("fists", {})).get("file", "")))
+	paths.append(str(fx.get("common", {}).get("file", "")))
+	paths.append(str(fx.get("dust", {}).get("file", "")))
+	for d in fx.get("impact", {}).get("sheets", {}).values(): paths.append(str(d.get("file", "")))
+	for p in paths:
+		if p == "" or _warm.has(p) or _warming.has(p) or ResourceLoader.has_cached(p) or not ResourceLoader.exists(p): continue
+		if ResourceLoader.load_threaded_request(p) == OK: _warming.append(p)
+	UiKit.body_font()   # the damage numbers' face (loaded once a run)
+
+## The fight's art that has come in on the loading threads, held: a later load of it (foe_sheet, SpriteCache.tex) finds
+## it in memory.
+func _collect_warm() -> void:
+	for p in _warming.duplicate():
+		var st := ResourceLoader.load_threaded_get_status(p)
+		if st == ResourceLoader.THREAD_LOAD_IN_PROGRESS: continue
+		_warming.erase(p)
+		if st == ResourceLoader.THREAD_LOAD_LOADED: _warm[p] = ResourceLoader.load_threaded_get(p)
+
 ## Draw the named tile at `at` on `ci`, its top `h` rows only (a face over water shows half).
 func blit(ci: CanvasItem, name: String, at: Vector2, h := T) -> void:
 	var src := tile(name)
@@ -674,12 +740,16 @@ class Sorted extends Node2D:
 
 ## The water, half a level under the ground, one chunk of cells: each cell's layers (Terrain v2: the water pattern,
 ## the depth, its shore case, corner foam, ripples at the pilings) in the frame of the 250 ms clock (art bible §6–§7).
-## A chunk off screen skips its redraws until it comes into view.
+## A chunk off screen keeps its frame until it comes into view. Each of the four frames is a child of its own, drawn
+## the first time it is wanted and kept; the clock then only shows one and hides the one before, on the renderer's side
+## (a node shown again is redrawn). Decision 43's perf pass: redrawing every chunk in view at each tick of the clock
+## took 5 ms, four times a second, in the Marsh Edge's fight.
 class WaterView extends Node2D:
 	var world
 	var frame := -1
 	var area: Rect2
 	var cells: Array = []   ## [screen position, [its layers in frames 0-3]]
+	var frames: Array = [null, null, null, null]   ## WaterFrame 0-3, each made when first wanted
 	func _init(w, chunk: Rect2i) -> void:
 		world = w
 		var r: TopdownRoom = w.room
@@ -687,17 +757,38 @@ class WaterView extends Node2D:
 			for x in range(chunk.position.x, chunk.end.x):
 				if r.levels[y * r.w + x] == TopdownRoom.WATER: cells.append([Vector2(x * T, y * T - TopdownRoom.WATER_Z / TopdownRoom.ART), w.terrain.water_layers(x, y)])
 		area = Rect2(Vector2(chunk.position) * T, Vector2(chunk.size) * T + Vector2(0, T))
+		if not cells.is_empty(): _show(0)   # as the chunk is first drawn, before the clock has shown it a frame
 	func _process(_d: float) -> void:
 		var f := int(Time.get_ticks_msec() / 250) % 4
 		if f != frame and _in_view():
 			frame = f
-			queue_redraw()
+			_show(f)
+	var shown := 0
+	func _show(f: int) -> void:
+		shown = f
+		if frames[f] == null:
+			frames[f] = WaterFrame.new(self, f)
+			add_child(frames[f])
+		for i in 4:
+			if frames[i] != null: RenderingServer.canvas_item_set_visible(frames[i].get_canvas_item(), i == f)
 	func _in_view() -> bool:
 		var vs := Vector2(world.viewport.size)
 		return area.intersects(Rect2(world.camera.position - vs * 0.5, vs).grow(T))
+
+## One frame of a WaterView's chunk, drawn once.
+class WaterFrame extends Node2D:
+	var water
+	var f := 0
+	func _init(wv, i: int) -> void:
+		water = wv
+		f = i
+	## Shown again with the room (the engine shows every child on the renderer's side): only the chunk's frame stays.
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
+			RenderingServer.canvas_item_set_visible(get_canvas_item(), water.shown == f)
 	func _draw() -> void:
-		for c in cells:
-			for layer in c[1][maxi(0, frame)]: world.blit_layer(self, layer, c[0])
+		for c in water.cells:
+			for layer in c[1][f]: water.world.blit_layer(self, layer, c[0])
 
 ## Ground-level tops with their light, the bank faces over water, and the ground props' floor shadows, one chunk of
 ## cells: under everything that sorts.
@@ -971,8 +1062,9 @@ class FoeView extends Sorted:
 		feet = TopdownWorld.to_screen(e.plane, e.altitude + e.hover).round()
 		var g := room.height_at(e.plane)
 		ground_y = TopdownWorld.to_screen(e.plane, g if g < INF else e.altitude).round().y
-		key(room.sort_key(e.plane, e.altitude))
-		position.x = feet.x
+		# Its key and its feet's column in one move, and none when it stands still (each move re-places it and its shadow).
+		var spot := Vector2(feet.x, room.sort_key(e.plane, e.altitude))
+		if position != spot: position = spot
 		visible = not e.hidden or (e.ai.state == "windup" and e.team != "ally")
 		if art != null:
 			art.position = Vector2(0, feet.y - position.y)
@@ -1016,7 +1108,8 @@ class FoeView extends Sorted:
 		var st := str(e.ai.get("state", ""))
 		if st == "attack" and state == "windup" and e.team == "enemy": world.tfx.mark("swipe", e.plane, e.altitude + e.hover, e.aim_dir())
 		state = st
-		material = TopdownFx.white_material() if white > 0.0 else null
+		var mat: Material = TopdownFx.white_material() if white > 0.0 else null
+		if material != mat: material = mat
 		queue_redraw()
 		get_child(0).queue_redraw()
 	func _draw() -> void:
@@ -1065,7 +1158,7 @@ class AimView extends Node2D:
 				return
 			"guard": return
 		if a.is_empty():
-			var foe := TopdownAim.soft_target(Game.room_rt.living_enemies(), m.pos, m.z, m.dir, not m.grounded)
+			var foe: EnemyState = world.soft_target()
 			if foe != null and WorldLabels.fight_near(Game.active(), m.pos): _ring(foe, Color(UiKit.PALE_GOLD, 0.45))
 			return
 		var o: Vector2 = TopdownWorld.lifted(m.pos, m.z)

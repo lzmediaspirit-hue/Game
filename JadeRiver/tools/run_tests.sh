@@ -31,6 +31,12 @@ for s in "${suites[@]}"; do
   code=$?
   grep -E "checks|passed|FAIL|SCRIPT ERROR" <<<"$out" || true
   # A script error aborts a suite part-way and skips its remaining checks, so it fails the run too.
+  # A suite that exits non-zero says with what code (a crash in teardown shows as 128 + its signal: 134 abort, 139
+  # segfault), and the last lines it printed, since its own summary may read clean.
+  if [[ $code -ne 0 ]]; then
+    echo "  $s exited with code $code$( ((code > 128)) && echo " (signal $((code - 128)))")"
+    tail -n 12 <<<"$out" | sed 's/^/  | /'
+  fi
   if [[ $code -ne 0 ]] || grep -q "SCRIPT ERROR" <<<"$out"; then failed+=("$s"); fi
 done
 if [[ ${#failed[@]} -gt 0 ]]; then echo "Failed: ${failed[*]}"; exit 1; fi

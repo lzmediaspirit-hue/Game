@@ -47,29 +47,41 @@ static func make_tag(view: Node2D, draw: Callable) -> Node2D:
 ## obstacles: [Rect2] on screen (the HUD's controls and panels).
 ## Returns {id: Vector2 offset}; every offset is a whole number of rows of its own box (row = height + ROW_GAP).
 static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 720)) -> Dictionary:
-	var order := items.filter(func(it): return (it.rect as Rect2).size.x > 0.0 and (it.rect as Rect2).size.y > 0.0)
-	order.sort_custom(func(a, b):
-		var ka := int(ORDER.get(str(a.kind), 9))
-		var kb := int(ORDER.get(str(b.kind), 9))
-		if ka != kb: return ka < kb
-		var na := float(a.get("near", 0.0))
-		var nb := float(b.get("near", 0.0))
-		if na != nb: return na < nb
-		return str(a.id) < str(b.id))
+	# The order: by kind, nearest first, then by id; the engine sorts the keys itself (a script call for every pair
+	# compared was a fifth of the pass).
+	var keys: Array = []
+	for i in items.size():
+		var it0: Dictionary = items[i]
+		var rc: Rect2 = it0.rect
+		if rc.size.x > 0.0 and rc.size.y > 0.0: keys.append([int(ORDER.get(str(it0.kind), 9)), float(it0.get("near", 0.0)), str(it0.id), i])
+	keys.sort()
 	var placed: Array = []
 	var out := {}
-	for it in order:
+	for key in keys:
+		var it: Dictionary = items[int(key[3])]
 		var r: Rect2 = it.rect
 		var dir := int(DIRECTION.get(str(it.kind), -1))
 		# A plate that would run off the screen's side is pulled in whole first, every row it tries with it (the
 		# prototype's QA: a crab's "…Crab" cut at the Reed Shallows' left edge); one wider than the screen stays.
 		var pull := Vector2(_pull_in(r.position.x, r.size.x, bounds.position.x, bounds.size.x), 0.0)
 		r = Rect2(r.position + pull, r.size)
-		var cands: Array = [Vector2.ZERO]
-		if dir != 0:
+		var base_out := _outside(r, bounds)
+		# Where it stands and last frame's row are tried first, against everything placed: most labels keep one of them,
+		# and the other rows (with only the boxes in their reach) are made only when neither is clear.
+		var first: Array = [Vector2.ZERO]
+		var prev: Vector2 = it.get("prev", Vector2.ZERO)
+		if dir != 0 and prev != Vector2.ZERO: first.append(prev - pull)
+		var best: Vector2 = first[0]
+		var best_cost := INF
+		for off in first:
+			var cost := _row_cost(r, off, placed, obstacles, bounds, base_out, best_cost)
+			if cost < best_cost:
+				best = off
+				best_cost = cost
+			if cost <= 0.0: break
+		if best_cost > 0.0 and dir != 0:
+			var cands: Array = []
 			var step := r.size.y + ROW_GAP
-			var prev: Vector2 = it.get("prev", Vector2.ZERO)
-			if prev != Vector2.ZERO: cands.append(prev - pull)
 			for k in range(1, ROWS_OUT + 1): cands.append(Vector2(0, dir * step * k))
 			# A plate under the feet with no room below goes over the head (its `flip`), and rows up from there; any other
 			# label tries rows the other way.
@@ -91,20 +103,34 @@ static func resolve(items: Array, obstacles: Array, bounds := Rect2(0, 0, 1280, 
 				for sx in [(o as Rect2).position.x - r.end.x - 4.0, (o as Rect2).end.x - r.position.x + 4.0]:
 					cands.append(Vector2(sx, 0))
 					cands.append(Vector2(sx, dir * step))
-		var best: Vector2 = cands[0]
-		var best_cost := INF
-		var base_out := _outside(r, bounds)
-		for off in cands:
-			var moved := Rect2(r.position + off, r.size)
-			# A label already partly off the screen keeps that share; a row that takes it further off is dear.
-			var cost := overlap(moved, placed, obstacles) + 4.0 * maxf(0.0, _outside(moved, bounds) - base_out)
-			if cost < best_cost:
-				best = off
-				best_cost = cost
-			if cost <= 0.0: break
+			# Only the boxes some row could meet can cost it anything: the labels placed so far and the controls within
+			# reach of all its rows (a crowd's labels otherwise weighed each row against all of them).
+			var reach := r
+			for off in cands: reach = reach.merge(Rect2(r.position + off, r.size))
+			var near_p: Array = []
+			for p in placed:
+				if reach.intersects(p): near_p.append(p)
+			var near_o: Array = []
+			for o in obstacles:
+				if reach.intersects(o): near_o.append(o)
+			for off in cands:
+				var cost := _row_cost(r, off, near_p, near_o, bounds, base_out, best_cost)
+				if cost < best_cost:
+					best = off
+					best_cost = cost
+				if cost <= 0.0: break
 		placed.append(Rect2(r.position + best, r.size))
 		out[it.id] = best + pull
 	return out
+
+## What a row `off` costs the label `r`: the boxes it covers (`overlap`) and, when it takes the label further off the
+## screen than it already is (`base_out`), four times that share. The cover only grows as it is summed, so a row
+## already as dear as `stop` (the best so far) is passed at once, returning at least `stop`.
+static func _row_cost(r: Rect2, off: Vector2, placed: Array, obstacles: Array, bounds: Rect2, base_out: float, stop: float) -> float:
+	var moved := Rect2(r.position + off, r.size)
+	var cost := _cover(moved, placed, obstacles, stop)
+	if cost >= stop: return cost
+	return cost + 4.0 * maxf(0.0, _outside(moved, bounds) - base_out)
 
 ## The shift that brings a span [x, x + w] wholly inside [lo, lo + span] (none when it is already inside, or wider).
 static func _pull_in(x: float, w: float, lo: float, span: float) -> float:
@@ -119,6 +145,23 @@ static func overlap(r: Rect2, placed: Array, obstacles: Array) -> float:
 	var cost := 0.0
 	for p in placed: cost += _shared(r, p)
 	for o in obstacles: cost += 2.0 * _shared(r, o)
+	return cost
+
+## `overlap`'s sum, the same terms in the same order, stopped as soon as it reaches `stop` (the sum only grows).
+static func _cover(r: Rect2, placed: Array, obstacles: Array, stop: float) -> float:
+	var cost := 0.0
+	for p in placed:
+		if not r.intersects(p): continue
+		var i := r.intersection(p)
+		if i.size.x > 0.0 and i.size.y > 0.0:
+			cost += i.size.x * i.size.y
+			if cost >= stop: return cost
+	for o in obstacles:
+		if not r.intersects(o): continue
+		var i := r.intersection(o)
+		if i.size.x > 0.0 and i.size.y > 0.0:
+			cost += 2.0 * (i.size.x * i.size.y)
+			if cost >= stop: return cost
 	return cost
 
 ## The area of `r` outside `bounds` (none when `bounds` is empty).

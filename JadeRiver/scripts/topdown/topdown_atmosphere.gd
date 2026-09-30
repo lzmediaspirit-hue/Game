@@ -403,36 +403,43 @@ static func envelope(p: Dictionary) -> float:
 	var k := float(p.t) / maxf(0.001, float(p.life))
 	return clampf(k * 5.0, 0.0, 1.0) * clampf((1.0 - k) * 3.0, 0.0, 1.0)
 
+## The layer each kind of particle is drawn on (a kind with none is not drawn).
+const LAYER_OF := {"mist": "low", "glint": "low", "mote": "air", "leaf": "air", "firefly": "glow"}
+
 ## The layers draw their share: `low` the mist and glints (on the water, under everything standing), `air` the motes and
 ## leaves, `glow` the fireflies and the flames of the lights (added over the night).
 func draw_layer(ci: CanvasItem, which: String) -> void:
 	for p in particles:
+		# Each layer passes over the others' particles at once (the three layers each walked every particle, its envelope
+		# and colour worked out, to draw a third of them).
+		var kind := str(p.kind)
+		if LAYER_OF.get(kind, "") != which: continue
 		var k := envelope(p)
 		if k <= 0.0: continue
 		var spec: Dictionary = TopdownLight.PARTICLES[p.kind]
 		var col: Color = p.color
 		var a := float(spec.alpha) * k
 		var at := (p.p as Vector2).floor()
-		match [which, str(p.kind)]:
-			["low", "mist"]:
+		match kind:
+			"mist":
 				var n := int(p.len)
 				ci.draw_rect(Rect2(at, Vector2(2, 1)), Color(col, a * 0.5))
 				ci.draw_rect(Rect2(at + Vector2(2, 0), Vector2(n - 4, 1)), Color(col, a))
 				ci.draw_rect(Rect2(at + Vector2(n - 2, 0), Vector2(2, 1)), Color(col, a * 0.5))
 				if p.twin: ci.draw_rect(Rect2(at + Vector2(4, -2), Vector2(maxi(2, n / 2), 1)), Color(col, a * 0.55))
-			["low", "glint"]:
+			"glint":
 				ci.draw_rect(Rect2(at, Vector2.ONE), Color(col, a))
 				if k > 0.6:
 					for d in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]: ci.draw_rect(Rect2(at + d, Vector2.ONE), Color(col, a * 0.45))
-			["air", "mote"]:
+			"mote":
 				var tw := 0.6 + 0.4 * sin(t * 3.0 + float(p.phase))
 				ci.draw_rect(Rect2(at, Vector2.ONE), Color(col, a * tw))
 				if tw > 0.85:
 					for d in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]: ci.draw_rect(Rect2(at + d, Vector2.ONE), Color(col, a * 0.25))
-			["air", "leaf"]:
+			"leaf":
 				var flat: bool = int(float(p.t) * 3.0 + float(p.phase)) % 2 == 0 or p.has("landed")
 				ci.draw_rect(Rect2(at, Vector2(2, 1) if flat else Vector2(1, 2)), Color(col, a))
-			["glow", "firefly"]:
+			"firefly":
 				var blink := clampf(sin(t * 2.2 + float(p.phase)) * 1.6 + 0.4, 0.0, 1.0)
 				if blink <= 0.0: continue
 				ci.draw_rect(Rect2(at, Vector2.ONE), Color(col, a * blink))

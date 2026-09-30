@@ -14,6 +14,9 @@ var movement: Dictionary = {}         # actor id -> ActorState (scene-free movem
 var room_rt: RoomRuntime = null       # the loaded room (one room at a time)
 var sim_time := 0.0
 var tick_count := 0
+## Bumped by every pass that may change the game (an intent, a tick, effects applied): what the views ask of the game
+## once a frame is asked again when it moves (WorldShared.object_visible).
+var revision := 0
 var paused := false
 var in_world := false
 var autosave_enabled := true
@@ -138,6 +141,7 @@ func submit(intent: Dictionary) -> Dictionary:
 
 ## Effects (Part 2 · Effect): dispatched to the owning authority's apply_* command.
 func apply_effects(actor_id: String, effects: Array, source: String) -> void:
+	revision += 1
 	for e in effects:
 		if not (e is Dictionary): continue
 		match str(e.get("kind", "")):
@@ -293,6 +297,7 @@ func tick(delta: float) -> void:
 			save_all()
 
 func _after_pass() -> void:
+	revision += 1
 	GameEvents.flush()
 	# The unlock service answers what the pass changed. A quest it offers that is taken at once (an auto-accepted lesson)
 	# unlocks its systems in the same pass, not at some later event: a few rounds settle it.
@@ -303,6 +308,7 @@ func _after_pass() -> void:
 		GameEvents.flush()
 		rounds += 1
 	GameEvents.unlock_pending = false
+	revision += 1   # and again once the pass has settled (a view may have asked while its events played)
 	if GameEvents.save_pending:
 		GameEvents.save_pending = false
 		if autosave_enabled and booted: save_all()

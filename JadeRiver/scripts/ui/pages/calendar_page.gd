@@ -169,7 +169,10 @@ func _chosen(ch, now: float, slips: Array) -> void:
 		var ok := not ProgressionRules.at_least(ch.cultivator.realm_key, str(ev.cap_below))
 		extra = Tx.t("ui.calendar.cap_ok") if ok else Tx.t("ui.calendar.cap_past")
 		extra_col = UiKit.BRIGHT_JADE if ok else UiKit.RED_TEXT
-	var used := para(Rect2(r.position.x + 16, r.position.y + 70, 440, 44 if extra != "" else 64), str(ev.get("desc", "")), 14, UiKit.PAPER, 2 if extra != "" else 3)
+	# The card holds three lines under its title: the event's words take what the line under them leaves (the Terraces
+	# Trial's "Gather on … today" runs to two lines, and its last word fell past the card's edge on trial days).
+	var extra_lines := mini(2, UiKit.wrap(extra, 14, 440).size()) if extra != "" else 0
+	var used := para(Rect2(r.position.x + 16, r.position.y + 70, 440, 44 if extra != "" else 64), str(ev.get("desc", "")), 14, UiKit.PAPER, 3 - extra_lines)
 	if extra != "": para(Rect2(r.position.x + 16, r.position.y + 72 + used, 440, 40), extra, 14, extra_col, 2)
 	# Go there: auto_path to the event's room, and how many regions away it lies.
 	var away := regions_away(ch, room)

@@ -228,7 +228,7 @@ class WayMark extends Node2D:
 	func _process(delta: float) -> void:
 		t += delta
 		var c = Game.active()
-		var st: Dictionary = Game.world.portal_state(c, def) if c else {"open": true}
+		var st: Dictionary = WorldShared.portal_state(c, def) if c else {"open": true}
 		visible = not st.get("hidden", false)
 		open = bool(st.get("open", true))
 		queue_redraw()
