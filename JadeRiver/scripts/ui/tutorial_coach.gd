@@ -31,7 +31,7 @@ extends Control
 ##     (HUD.tour_targets, TutorialRules.tours_for), and its card is a child drawn again only when it changes.
 
 const CARD_W := 560.0         ## a tour's card
-const TEXT := 20              ## the card's line (UiKit.T_BODY), at most two lines on a phone
+const TEXT := 20              ## the card's line (the type scale's body size), at most two lines on a phone
 const TEXT_W := CARD_W - 48.0
 const GUIDE_W := 400.0        ## a guide's words wrap this narrow when they still fit two lines
 const BTN_W := 136.0

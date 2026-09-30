@@ -84,6 +84,7 @@ func reduce_motion() -> bool:
 	return bool(reduce_override) if reduce_override != null else UiKit.reduce_motion()
 
 ## Look for a scene to start now (the suites call it after each step of their walk).
+## Test hook: prologue_run, hollow_night, story_scenes and the tools/dev walks.
 func poll() -> void:
 	_eval_t = 0.0
 	advance(0.0)

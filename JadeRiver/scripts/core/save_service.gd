@@ -121,7 +121,34 @@ func migrate_character(data: Dictionary) -> Dictionary:
 			var lv := ProgressionRules.level_for(str(cu.get("realm_key", "mortal")), float(cu.get("progress", 0.0)))
 			pools["hp"] = float(pools.hp) * StatRules.might_at(lv)
 		data["minor"] = GameCharacter.MINOR
+	drop_unknown_recipes(data)
 	return data
+
+## A recipe renamed or removed from the data since the save was written (BUG-01, audit 45): its id leaves the known
+## recipes, the pages held and the auto-refine queue (a batch of it is lost), with a warning, so nothing looks it up
+## later. Skipped when no recipe loaded, so a broken data build never empties a save. Runs on every load.
+func drop_unknown_recipes(data: Dictionary) -> void:
+	var cr = data.get("crafting")
+	if not (cr is Dictionary) or ContentDB.all("recipes").is_empty(): return
+	var known := func(id) -> bool: return ContentDB.has_entry("recipes", str(id))
+	var dropped := {}
+	if cr.get("recipes") is Array:
+		for id in cr.recipes:
+			if not known.call(id): dropped[str(id)] = true
+		cr["recipes"] = (cr.recipes as Array).filter(known)
+	if cr.get("auto_queue") is Array:
+		var queue: Array = []
+		for b in cr.auto_queue:
+			if b is Dictionary and known.call(b.get("recipe", "")): queue.append(b)
+			else: dropped[str(b.get("recipe", "")) if b is Dictionary else str(b)] = true
+		cr["auto_queue"] = queue
+	if cr.get("recipe_fragments") is Dictionary:
+		for id in (cr.recipe_fragments as Dictionary).keys():
+			if not known.call(id):
+				cr.recipe_fragments.erase(id)
+				dropped[str(id)] = true
+	if not dropped.is_empty():
+		push_warning("Save %s: recipes no longer in the data dropped: %s" % [str(data.get("name", data.get("slot", "?"))), ", ".join(dropped.keys())])
 
 ## Read a v2 `disciples.json` (or its .bak) if no v3 account exists yet.
 func read_v2(path := V2_PATH) -> Array:

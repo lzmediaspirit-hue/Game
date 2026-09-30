@@ -94,6 +94,7 @@ const SURFACE := {
 ## "minimap_frame:header" the band that holds the room name); a fill ending "@ink" carries words drawn with an ink
 ## outline (draw_inked, draw_outlined), which are measured on INK. The ui_suite measures every pair on the kit's own
 ## art: 4.5:1, or 3:1 where the colour is only drawn at 20 px and up. Grade and quality colours are measured on "@page".
+## Test hook: rules_tests.
 const TEXT_ON := [
 	[&"PAPER", ["@page", "tab", "button_secondary", "button_secondary:pressed", "minor_panel:disabled"], 14],
 	[&"MIST", ["@page"], 14],
@@ -219,19 +220,14 @@ const TEXT_SCALE := 1.0
 ## Headings below this size are set in the bold serif: Cormorant's hairlines fade when small.
 const DISPLAY_MIN := 22
 ## The type scale (docs/ui_style_guide.md §3): words at 14, 16, 18, 20 and 22; display (Cormorant) at 22, 26, 30 and 34.
-const T_HINT := 14
-const T_CAPTION := 16
-const T_ROW := 18
-const T_BODY := 20
-const T_BUTTON := 22
 const D_SUB := 22
-const D_HEADING := 26
 const D_DISPLAY := 30
 const D_TITLE := 34
 const WORD_SCALE_STEPS := [14, 16, 18, 20, 22]
 const DISPLAY_STEPS := [22, 26, 30, 34]
 
 ## True when `size` is a step of the scale (a display size only when set in Cormorant, from 22 up).
+## Test hook: rules_tests holds the pages' and the HUD's sizes to the scale.
 static func on_scale(size: int, display := false) -> bool:
 	return size in (DISPLAY_STEPS if display and size >= DISPLAY_MIN else WORD_SCALE_STEPS)
 

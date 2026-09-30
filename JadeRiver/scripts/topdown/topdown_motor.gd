@@ -153,6 +153,7 @@ func place(p: Vector2) -> void:
 
 ## The jump's apex over its take-off, and its airtime back to the same height (movement numbers, §As built).
 func apex() -> float: return impulse * impulse / (2.0 * gravity)
+## Test hook: the top-down suite.
 func airtime() -> float: return 2.0 * impulse / gravity
 
 ## One frame of input. `jump` and `dash` are presses (edges) this frame; the frame runs as 120 Hz substeps.

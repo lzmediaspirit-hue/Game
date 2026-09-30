@@ -10,7 +10,7 @@ extends Page
 ## an art: a found art pasted in (a manual not yet read has Read), every other leaf sealed alike and only counted
 ## (decision 19). The dock holds Ring I and II, the Inner Arts and the stance; a tap on an Inner Art or the stance opens
 ## the drawer of known Inner Arts and stances in the reading. The page reads the Progression authority's views
-## (tree_tabs, tree_view, node_needs, lost_arts_view, lost_unread) and submits intents only. Under the chooser the
+## (tree_tabs, tree_node, tree_dao_arts, node_needs, lost_arts_view, lost_unread) and submits intents only. Under the chooser the
 ## character casts the chosen art at a pack of foes (TechniquePreview); each card's picture is the character doing the
 ## art on its element's ground, the art's emblem in its corner.
 ##
@@ -550,9 +550,6 @@ func _state(it: Dictionary) -> Dictionary:
 		it.tag_of = str(it.state) + str(it.get("why", ""))
 	it.tier = int(c().cultivator.mastery.get(str(it.id), {}).get("tier", 1))
 	return it
-
-func _slot(id: String) -> String:
-	return str(TechniqueTreeRules.home(id).get("slot", "o"))
 
 ## The screen point of a chart point.
 func _on_screen(p: Vector2) -> Vector2:

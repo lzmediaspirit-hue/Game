@@ -530,10 +530,6 @@ func _bend(view: Rect2) -> void:
 			pv.queue_redraw()
 
 # ------------------------------------------------------------------ critters
-func critter_count(kind := "") -> int:
-	if kind == "": return critters.size()
-	return critters.filter(func(c): return str(c.kind) == kind).size()
-
 ## How many of each wild kind this room wants in view now: its area's table (the room's own overrides), the day-only
 ## kinds asleep after dark, fewer with the extras off or under Reduce motion.
 func wanted(kind: String) -> int:

@@ -39,6 +39,51 @@ engines will build on, made tidy first. No game behaviour changes; the data diff
   - **Kept:** the artifacts' `named.archetype` and the sets' `archetype`, which the item plan's checks and the wiki
     read. The items' `core.qp_pct` was already gone.
 
+## Dead code removed, and an old save's renamed recipe no longer crashes the Crafts page (decision 45, S1)
+
+This is phase 2, slice S1 of the code audit (`docs/architecture/audit_45.md` §3 and §5; findings DEAD-01, 02, 05, 06,
+07 and 08, and BUG-01). Each name was checked again on the tree phase 1 left behind: as a token and as a string
+(`call`, `has_method`, `connect`), in `.tscn` files, in data and in tools. The game plays the same, apart from the bug
+fix.
+
+- **Removed: 160 lines of game code nothing ran, and seven files.**
+  - `scripts/ornament.gd`, `scripts/room_gate.gd`, their `.uid` files, and the orphan `connection_visual.gd.uid`.
+  - `art/environment/room-gate.png` (1.2 MB) and its `.import`, which only `room_gate.gd` drew.
+  - Eleven functions:
+    - `SoundBank.surface_of_material` and `is_night`;
+    - `Avatar.still_image`;
+    - `SpriteCache.icon_ready`;
+    - `TechniquePicture.draw_cooldown` and `draw_qi_short` (the HUD draws the round ones);
+    - `TechniqueTreeRules.tree_state`;
+    - `TopdownLife.critter_count`;
+    - the Techniques page's `_slot`;
+    - `ContentDB.level_of` and `GameAuthority.level_of`.
+  - Constants and variables:
+    - `UiKit`'s six unused type-scale names;
+    - `Page.GROUP_GAP`, the Mail page's `DESK`, `SceneRules.TARGETS` and `SpriteCache.ICON_PX`;
+    - three HUD fan positions nothing reads.
+  - Four signals emitted but never connected, with their emits: the side world's `room_changed` and
+    `context_changed`, the top-down world's `context_changed`, and the HUD's `page_changed`.
+- **Game code only tests called.**
+  - Three functions are removed:
+    - `ProgressionAuthority.tree_view`. Its checks now read `tree_node` and `realisations`, which the page uses.
+    - `WorldRules.npc_room`. The auto-path check reads `rooms_with` itself.
+    - `ProgressionRules.npc_age` and its one check. No page shows an NPC's age.
+  - `WorldAuthority.context_portal` stays: the context button's portal loop now calls it instead of an inline copy of
+    the same rule.
+  - The 31 deliberate hooks the suites need are kept and marked `## Test hook`.
+  - The side-view and tool-only code is left for its own slices (S2, S3 and the side view's retirement).
+- **BUG-01 fixed.** A save that still named a recipe renamed or removed from the data crashed the Crafts page. The
+  auto-refine queue stopped with a SCRIPT ERROR.
+  - The page now looks every recipe id it did not take from the data up through its `made_by`, which returns
+    nothing for an unknown id. That covers six lookups.
+  - Each load drops unknown recipe ids from the known recipes, the pages held and the queue, with a warning. It skips
+    this when no recipe loaded, so a broken data build never empties a save.
+- **Tests.** The `rules_tests` suite gains `recipe_rename_suite`, with two checks. Both fail with the fix undone. It
+  loses the NPC-age check, so it goes from 2,711 checks to 2,712. Every other suite's count is unchanged. The data
+  build is unchanged. `npcs.json` `age` and `sound.json` `steps.materials` are now unread, and are left for S5 to drop
+  in their generators.
+
 ## Tutorial bugs: a card a thumb can answer, and a cheap coach (decision 45)
 
 The user played build 110 on an Android phone: the tutorial that teaches the buttons felt laggy, Done or Skip

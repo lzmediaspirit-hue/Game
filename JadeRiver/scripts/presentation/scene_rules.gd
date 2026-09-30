@@ -24,8 +24,6 @@ const WEATHER := ["storm", "rain", "clear"]
 const BOXES := ["balloon", "portrait"]
 ## The HUD controls a hand-off may point at (their roles in HUD.hit_targets).
 const HUD_ROLES := ["attack", "jump", "guard", "skill", "quick:0", "quick:1", "quick:2", "meditate", "context", "icon:bag", "icon:map", "icon:menu"]
-## What a hand-off's prompt may stand over in the world, besides an actor and a cell.
-const TARGETS := ["object", "portal", "enemy", "hud"]
 
 static func cfg() -> Dictionary:
 	return ContentDB.config("scenes").get("settings", {})
@@ -131,6 +129,7 @@ static func walk_path(grid: TopdownRoom, from: Vector2, to: Array) -> Array:
 ## the tile set, standing where a body can stand; every step is a known kind naming declared actors, known poses,
 ## emotes, sounds, effects, moments, doors and labels; every walk has a way on foot; the checkpoints' effects are ones
 ## a scene may use; and its staged time is within the settings' bounds.
+## Test hook: data_validation and story_scenes.
 static func problems(scene: Dictionary) -> Array:
 	var out: Array = []
 	var id := str(scene.get("id", "?"))
