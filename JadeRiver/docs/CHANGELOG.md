@@ -1,5 +1,55 @@
 # Changelog
 
+## Foe polish: the marsh leech redrawn, and the four-legged foes head-on (decision 44)
+
+Decision 43's foes were weakest in two places: the marsh leech read as a slug-shaped pickle, and a four-legged foe
+facing the camera or walking away read as a blob. Built in `tools/art/topdown/creature/` (art bible §8 "Foes"); every
+combat number, the hit frame and the wind-up rates are unchanged. Before and after, in the game (the Reed Shallows'
+flats, `tools/dev/topdown_capture.gd -- --monsters --monsters-polish`) and from the sheets:
+`docs/redesign/feedback/monsters/polish/`.
+
+- **The marsh leech** (`creature/leech.py`, rewritten). Its body is laid along a spine resampled by its length, so it
+  can loop and rear and keep its shape: flattened, broadest in its hind third, tapering to a narrow head, a groove
+  every ring (painted by the length along it, so the rings follow the loop); dark olive down its back going to black
+  on its flanks, a paler khaki belly banded by the same grooves. A wet sheen (`sculpt.Part.sheen`, new): where the
+  surface turns half-way between the §14 sun and the camera it steps up to the bright and highlight steps, the ramp lit
+  late so the sheen is what reaches them, and the grooves cut through it, so every ring has its own glint. At the
+  front a sucker mouth, a fleshy lip ring round a dark maw with tiny teeth, puckered as it creeps and flared into a
+  cup to feed; at the back a smaller sucker, a disc with a lit rim; pale eyespots on its head. It walks as a leech
+  does, an inchworm's loop: the rear sucker holds (sliding back at the walk's rate, so it is planted in the world)
+  while the front stretches long and thin and plants, then the rear is drawn up and the middle rises in a loop the
+  body's own length. It swims (a new `swim` row, 8 frames at the walk's rate, `creatures.EXTRA`): a flat ribbon with
+  a wave running tailward and ripples along it; the room view plays it for its walk and idle where it stands in water
+  (`TopdownWorld.FoeView`; today's leeches keep to land, as every foe that does not fly). The tell is still the S-rear
+  with the mouth wide, now clearer: it winds sideways too (wider head-on), its head level over its prey in the side
+  rows and standing up in a column facing the camera, the cup turned toward the camera. It lunges and latches, swells
+  as it drinks, balls up when struck, writhes, curls and goes limp in death. Its elite keeps the elite look: the darker
+  ramp, pale-gold Qi at its outline, and three pairs of gold glow spots down its back (`Pose.eye` with no colour now
+  draws on an elite only).
+- **Head-on and tail-on** (`motion.headon`; `creatures.Spec(view=True)` tells a pose its row's turn on the ground):
+  full in the S and N rows, nothing in SE, E and NE.
+  - *Facing the camera:* the boarlets' face lifts 12° (the otter's 10°, the rat's 4° so its snout still points), the
+    forelegs stand apart and a little forward so they show beside and below the chin and step with a higher lift, the
+    ears stand out at the head's corners, the boarlets' shoulders widen past the head and their tusks sweep out, and
+    the body behind is drawn in. The rat's reed tail lies swept out to one side on the ground (raised, it stood up
+    behind its head like a stalk).
+  - *Walking away:* the rump rounds, the hind legs spread and step, the ears rise over the back; the boarlets' tail
+    now droops dark off the top of the rump with its tassel (in every row: the hide-coloured curl was lost against the
+    rump), the otter's thick tail swings wider and curves off to one side, and the toad's golden eyes rise over the
+    moss of its back while its folded hind legs spread.
+  - Walks, tells, strikes, flinches and falls were checked in both rows for both boarlets, the rat, the otter, the
+    toad and their elites; the otter's tail now curls round toward its belly as it dies, so facing the camera it no
+    longer stands up from the body, and the hollowed boarlet's three grey strands fan out from its spine head-on and
+    tail-on (bunched, they stood over its head like one grey horn). The crab keeps its broad side to the camera, so it
+    is unchanged.
+- **Sheets** (all under 4096 px a side): the leech 2021 × 200 (from 1540 × 170) and its elite 2537 × 285 (from
+  1960 × 250), with the swim; the boarlets 1680 × 205 and 1680 × 220 (from 1610), their elites 2100 × 285 and
+  2100 × 305; the otter 1820 × 210, the rat 1575 × 170 and its elite 2030 × 245; the toad's as they were. The room
+  view still draws a foe with one call; the crab, frog, snapper, puppet, minnow and eel sheets are byte-identical.
+- **Checks:** `topdown_suite` has the leech walking on land and swimming in water from its sheet's row (its elite's
+  too); `data_validation` holds an action past the catalogue (the swim) to the frame and sheet rules;
+  `build_foes.py --check` is byte-identical; `balance_sim` green.
+
 ## The Marsh Edge fight back inside its frame; the tutorials suite's crash on quitting (decision 43 follow-up)
 
 With decision 43's seven pieces merged, `perf_tests` failed one check on the quiet test machine: chapter 2's Marsh

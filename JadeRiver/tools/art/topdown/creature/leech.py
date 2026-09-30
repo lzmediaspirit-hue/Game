@@ -1,9 +1,9 @@
 """The marsh leech (decision 44: redrawn as a leech). A flattened, segmented body, broadest in its hind third and
-tapering to a narrow head: dark olive down the back going to black on the flanks, a pair of dull ochre dashes on each
-ring, a paler khaki belly banded ring by ring, and a wet sheen that catches the §14 sun on every ring. At the front a
-sucker mouth: a fleshy lip ring round a dark maw set with tiny pale teeth, closed to a pucker as it creeps and flared
-into a cup when it feeds. At the back a smaller sucker, a disc it plants on the ground. A pair of eyespots on the head
-and paired spots down its back (an elite's burn gold).
+tapering to a narrow head: dark olive down the back going to black on the flanks, a groove round it every ring, a
+paler khaki belly banded ring by ring, and a wet sheen that catches the §14 sun on every ring, broken by the grooves.
+At the front a sucker mouth: a fleshy lip ring round a dark maw set with tiny teeth, closed to a pucker as it creeps
+and flared into a cup when it feeds. At the back a smaller sucker, a disc it plants on the ground. A pair of pale
+eyespots on the head; an elite has three pairs of gold glow spots down its back.
 
 It moves as a leech does. On land it loops like an inchworm: the rear sucker holds while the front stretches out long
 and thin and plants its mouth, then the rear lets go and is drawn up behind it, the middle rising in a high loop; in
@@ -13,8 +13,9 @@ it reads from every side, and flares its mouth wide on its teeth, facing its pre
 (the hit), swells as it drinks, then lets go and draws back; struck, it balls up short and thick; beaten, it writhes,
 curls up and goes limp and flat.
 
-`view` is the facing's turn on the ground (creatures.ANGLE): the reared head turns a little toward the camera in the
-side facings so the cup of its mouth shows.
+`view` is the facing's turn on the ground (creatures.ANGLE): the reared head turns toward the camera in the side
+facings so the cup of its mouth shows; facing the camera its reared front stands up in a column; head-on or tail-on its
+S winds wider and its loop leans a little to one side, so both show.
 """
 from __future__ import annotations
 
@@ -192,8 +193,8 @@ def leech(action: str, f: int, view: float = 90.0) -> Pose:
         b = b * (1 - curl) + hd[:, 1] * curl
     pts, total = _resample(np.stack([a, b, c], axis=1), 34)
 
-    # --- the body: flattened ellipsoids along it, overlapping into one form; rings, flank, dashes and belly painted by
-    # the length along it, so they stay on it as it loops and rears.
+    # --- the body: flattened ellipsoids along it, overlapping into one form; rings, flank and belly painted by the
+    # length along it, so they stay on it as it loops and rears.
     thick = math.sqrt(REST / max(8.0, total)) * (1.0 + 0.12 * math.sin(ph) * (action == "idle"))
     depth = DEPTH * (1.0 - 0.45 * flat) * (0.72 if swim else 1.0)
     wide = 1.0 + 0.3 * flat + (0.12 if swim else 0.0)
@@ -222,8 +223,8 @@ def leech(action: str, f: int, view: float = 90.0) -> Pose:
         sk = s * total
         P.add(E(centre, (max(0.62 * total / (n - 1) + 0.35, 0.7), w, hh), "leech", "body", m,
                 _skin(centre, Tk, Bk, Nk, w, sk), sheen=SHEEN))
-        # Paired spots down its back, one pair every third ring (gold on an elite: its glow spots).
-        if 0.18 < s < 0.8 and k % 4 == 2 and not swim:
+        # Paired spots down its back, three pairs (drawn on an elite only, in gold: its glow spots).
+        if 0.2 < s < 0.8 and k % 6 == 3 and not swim:
             for sd in (1, -1):
                 P.eye(centre + Bk * (sd * w * 0.42) + Nk * (hh + 0.25), None)
     # --- the rear sucker: a small disc under its tail, planted.
@@ -283,9 +284,9 @@ def _disc(centre, r: float):
 
 
 def _skin(centre, T, B, N, w: float, s0: float):
-    """A ring of the body's paint: the length along it `s0` at `centre`. A groove a step dark every RING with a lit ridge
-    behind it; the back dark olive, the flanks going to black; a pair of ochre dashes on each ring; the belly paler
-    and banded by the same grooves."""
+    """A ring of the body's paint: the length along it `s0` at `centre`. A groove a step dark every RING (two on its
+    back, where it cuts the sheen) with a lit ridge behind it; the back dark olive, the flanks going to black; the belly
+    paler and banded by the same grooves."""
     def skin(q, nrm):
         d = q - centre
         s = s0 + d @ T

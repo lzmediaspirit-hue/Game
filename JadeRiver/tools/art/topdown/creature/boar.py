@@ -20,7 +20,7 @@ from figure.geom import ik2
 
 from . import mats as M
 from .motion import gait, headon, pick, wave
-from .sculpt import E, L, Pose, S, chain, on, rot, v3
+from .sculpt import E, L, Pose, chain, on, rot, v3
 
 MATS = {"hide": "hide", "head": "hide_head", "stripe": "stripe", "hoof": "hoof", "snout": "snout", "bristle": "bristle"}
 HOLLOW = {"hide": "h_hide", "head": "h_head", "stripe": "h_stripe", "hoof": "h_bristle", "snout": "h_snout",
@@ -183,12 +183,17 @@ def boarlet(action: str, f: int, hollow: bool = False, view: float = 48.0) -> Po
     if hollow and action != "death":
         # The grey strands: three thin wisps rising from the spine and curling back, stirring as it breathes.
         st = {"idle": 0.5 * wave(action, f), "walk": 0.7 * wave(action, f, 0.3)}.get(action, 0.9)
+        # Head-on or tail-on they fan out from the spine, so they show as three wisps and not one grey horn.
+        ho = fr + bk
         for k, (a0, b0) in enumerate(((-4.0, 0.5), (-1.2, -0.4), (1.6, 0.3))):
-            base = at((a0, b0, 4.3))
+            fan = (1.9, -1.9, 0.0)[k]
+            bb = b0 + (fan - b0) * ho
+            base = at((a0, bb, 4.3 - 0.5 * ho * abs(fan)))
             rise = 1.0 if action not in ("attack",) else 0.6
-            pts = [base, base + v3(-0.4, st * 0.4 * (1 if k % 2 else -1), 2.4 * rise),
-                   base + v3(-1.6, -st * 0.5 * (1 if k % 2 else -1), 4.6 * rise),
-                   base + v3(-1.3 - k * 0.3, st * 0.6, 6.4 * rise - k * 0.5), base + v3(-0.2, st * 0.7, 7.2 * rise - k * 0.7)]
+            out = 0.9 * ho * fan
+            pts = [base, base + v3(-0.4, st * 0.4 * (1 if k % 2 else -1) + out * 0.3, 2.4 * rise),
+                   base + v3(-1.6, -st * 0.5 * (1 if k % 2 else -1) + out * 0.7, 4.6 * rise),
+                   base + v3(-1.3 - k * 0.3, st * 0.6 + out, 6.4 * rise - k * 0.5), base + v3(-0.2, st * 0.7 + out * 1.2, 7.2 * rise - k * 0.7)]
             P.add(chain(pts, 0.5, 0.25, "strand", "strand%d" % k, line=False))
     # Dust: the pawing hoof's scrape, the charge's skid.
     if action == "windup" and f in (1, 2):

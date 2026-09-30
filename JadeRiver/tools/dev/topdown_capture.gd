@@ -1821,19 +1821,23 @@ func monsters_polish(out: String) -> void:
 		await _monster_shot(str(st[0]), out)
 	# Leeches on the bank (looping, drawn up and stretched out) and in the river (swimming), the player between them.
 	get_tree().paused = false
-	var bank := MONSTER_SPOT + Vector2(0, 4.3)
-	var leeches: Array = await _monster_stage([["marsh_leech", Vector2(-4.2, 4.4), false], ["marsh_leech", Vector2(-2.0, 4.8), false]])
+	var bank := MONSTER_SPOT + Vector2(0, 4.9)
+	var leeches: Array = await _monster_stage([["marsh_leech", Vector2(-4.4, 4.6), false], ["marsh_leech", Vector2(-2.2, 5.0), false]])
 	m.place((bank + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	w._settle_camera()
 	get_tree().paused = false
+	var river: Array = []
 	for k in 2:
-		var e: EnemyState = Game.enemies.spawn_at("marsh_leech", (MONSTER_SPOT + Vector2(1.5 + k * 2.6, 6.2 + k * 0.3) + Vector2(0.5, 0.5)) * TopdownRoom.TILE, 1, {"elite": k == 1})
-		e.altitude = w.room.height_at(e.plane)
+		river.append((MONSTER_SPOT + Vector2(1.6 + k * 2.6, 6.0 + k * 0.35) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
+		var e: EnemyState = Game.enemies.spawn_at("marsh_leech", river[k], 1, {"elite": k == 1})
 		e.ai.state = "idle"
 		e.ai.timer = 99.0
 		leeches.append(e)
 	await frames(20)
 	get_tree().paused = true
+	for k in 2:   # held in the water (a body at the bank is walked back out of it while the game runs)
+		leeches[2 + k].plane = river[k]
+		leeches[2 + k].altitude = w.room.height_at(river[k])
 	_pose_foe(leeches[0], "walk", Vector2(1, 0), 0)
 	_pose_foe(leeches[1], "walk", Vector2(1, 0), 4)
 	_pose_foe(leeches[2], "swim", Vector2(1, 0), 2)

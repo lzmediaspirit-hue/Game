@@ -98,7 +98,8 @@ def toad(action: str, f: int, view: float = 48.0) -> Pose:
         if air:
             hip, knee, foot = v3(ahead - 4.2, s * 3.8, z - 1.0), v3(ahead - 7.4, s * 4.8, z - 1.8), v3(ahead - 10.2, s * 4.4, z - 2.4)
         else:
-            hip, knee, foot = v3(ahead - 4.0, s * 4.6, z - 1.6), v3(ahead + 0.4, s * (6.8 + 1.4 * bk), 2.2), v3(ahead - 3.0 - 0.6 * bk, s * (7.0 + 1.6 * bk), 0.6)
+            hip, knee = v3(ahead - 4.0, s * 4.6, z - 1.6), v3(ahead + 0.4, s * (6.8 + 1.4 * bk), 2.2)
+            foot = v3(ahead - 3.0 - 0.6 * bk, s * (7.0 + 1.6 * bk), 0.6)
         P.add(E(hip + v3(0.6, 0.0, 0.0), (3.2, 2.2, 2.3), "toad", "hind%d" % s, rot("c", s * 20.0), hide),
               L(hip, knee, 1.8, 1.4, "toad_leg", "hind%d" % s), L(knee, foot, 1.3, 1.0, "toad_leg", "hind%d" % s),
               E(foot + v3(-0.8 if air else 1.0, 0.0, 0.0), (2.1, 1.5, 0.55), "toad_leg", "hind%d" % s))

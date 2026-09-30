@@ -295,6 +295,8 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
     off the top of the rump (all rows now; a hide-coloured curl was lost against the rump), the otter's thick tail
     swings wider and curves off to one side, the rat's reed tail trails toward the camera between its spread hind
     feet, and the toad's golden eyes rise over the moss of its back with its folded hind legs spread at its sides;
+  - both ways the hollowed boarlet's three grey strands fan out from its spine (bunched, they stood over its head like
+    a single grey horn);
   - the crab keeps its broad side to the camera in every row, so it needed nothing.
   The walk, the tell, the strike, the flinch and the fall are all posed so in those rows; nothing moves the feet
   (the foot on the sheet's origin), the hit frame or any timing.
