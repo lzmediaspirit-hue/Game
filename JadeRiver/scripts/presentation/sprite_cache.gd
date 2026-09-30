@@ -63,11 +63,9 @@ static func icon(id: String) -> Texture2D:
 	return tex(icon_path(id))
 
 # ------------------------------------------------------------------ crisp icons
-## The art sizes an HD icon can be rendered at natively (tools/icons: 64 items, equipment and techniques, 48 and
-## 32 renders of them, 32 HUD glyphs, 24 status icons and markers, and a 12 render of a status icon).
-const ICON_PX := [64, 48, 32, 24, 12]
-## Every native render a drawing may list (`<id>@<px>`): ICON_PX, and 96 for the Works cabinet's objects (P5, mockup
-## 14 v4; tools/icons/families/works.py).
+## Every native render a drawing may list (`<id>@<px>`): the sizes an HD icon is rendered at (tools/icons: 64 items,
+## equipment and techniques, 48 and 32 renders of them, 32 HUD glyphs, 24 status icons and markers, and a 12 render of
+## a status icon), and 96 for the Works cabinet's objects (P5, mockup 14 v4; tools/icons/families/works.py).
 const RENDER_PX := [96, 64, 48, 32, 24, 12]
 ## The sizes a technique's emblem is composed at (the emblem atlas's sheets).
 const EMBLEM_PX := [64, 48, 32]
@@ -97,6 +95,7 @@ static func icon_renders(id: String) -> Dictionary:
 	return out
 
 ## True when the icon is drawn in the HD style (its family has been converted, or it is a composed emblem).
+## Test hook: rules_tests.
 static func icon_hd(id: String) -> bool:
 	var manifest: Dictionary = ContentDB.config("icon_manifest")
 	return RENDER_PX.any(func(px): return manifest.has("%s@%d" % [icon_key(id), px])) or composable(id)
@@ -146,11 +145,6 @@ static func icon_prefetch(id: String) -> void:
 	var key := icon_key(id)
 	for px in RENDER_PX: tex_async(str(manifest.get("%s@%d" % [key, px], "")))
 	tex_async(str(manifest.get(key, "")))
-
-## True when drawing icon `id` in a `box` px square composes nothing (a baked icon, or an emblem already composed at
-## that size): a page may hold back an emblem not yet composed for a later frame.
-static func icon_ready(id: String, box: float) -> bool:
-	return not composable(id) or _renders.has(id) or _emblems.has("%s@%d" % [id, _emblem_px(box)])
 
 ## Draw icon `id` centred in `rect` on whole pixels at a whole-number scale of its art (icon_fit), never a filtered
 ## or fractional scale. `box` overrides the size asked for (the HUD's technique ring asks 64 of a legacy icon, its
@@ -272,6 +266,7 @@ static func emblem_spec(t: Dictionary) -> Dictionary:
 		"stamp": "stamp:" + path if path != "" else "", "element": el, "path": path}
 
 ## True when every layer of the technique's emblem is in the atlas.
+## Test hook: data_validation.
 static func emblem_whole(id: String) -> bool:
 	var cells: Dictionary = ContentDB.config("emblem_atlas").get("cells", {})
 	var s := emblem_spec(ContentDB.entry("techniques", id))

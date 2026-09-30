@@ -1,5 +1,8 @@
 # Room gate artwork
 
+**Status (audit 45, S1):** retired. Nothing drew this gate once `PortalView` took over the ways, so its renderer
+(`scripts/room_gate.gd`) and the PNG were deleted. This note stays as the record of how it was made.
+
 Created with the built-in image generation tool. Runtime asset:
 `art/environment/room-gate.png`. The original transparent PNG is preserved.
 The renderer splits the shared texture into far/near portions for depth sorting;

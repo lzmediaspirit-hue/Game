@@ -1473,7 +1473,8 @@ func auto_path_suite() -> void:
 	for q in ContentDB.all("quests"):
 		var target := str(q.get("target_room", ""))
 		if target == "" or ContentDB.room(target).get("instanced", false): continue
-		var from := WorldRules.npc_room(str(q.get("giver", "")))
+		var gave: Array = WorldRules.rooms_with("npc=" + str(q.get("giver", "")))   # the rooms that place the giver
+		var from := str(gave[0]) if not gave.is_empty() else ""
 		if from == "": from = str(ContentDB.zone(str(ContentDB.room(target).get("zone", ""))).get("start_room", ""))
 		if from == target: continue
 		checked += 1

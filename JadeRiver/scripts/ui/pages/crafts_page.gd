@@ -189,6 +189,13 @@ func _chosen(craft: String) -> Dictionary:
 	var rec := ContentDB.entry("recipes", sel)
 	return rec if not rec.is_empty() and str(rec.get("craft", "")) == craft else {}
 
+## What recipe `id` makes (its first output's item); "" for an id the data no longer has. A save may still name a recipe
+## renamed or removed since it was written (BUG-01, audit 45): the load drops those (SaveService), and the page looks
+## every recipe id it did not take from the data up through here.
+static func made_by(id: String) -> String:
+	var outs: Array = ContentDB.entry("recipes", id).get("outputs", [])
+	return str(outs[0].get("item", "")) if not outs.is_empty() else ""
+
 ## The steps across the top, [id, name, the one thing it asks]: the furnace's screens, or a recipe, its materials and
 ## the making.
 func _steps(ch, craft: String) -> Array:
@@ -440,7 +447,7 @@ func _recipe_view(ch, craft: String) -> void:
 				else:
 					var xr := ContentDB.entry("recipes", xid)
 					slot_box(Rect2(rr.position + Vector2(4, 4), Vector2(SLOT_SMALL, SLOT_SMALL)), "manual_page")
-					text(rr.position + Vector2(60, 23), ContentDB.item_name(str(xr.outputs[0].item)), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
+					text(rr.position + Vector2(60, 23), ContentDB.item_name(made_by(xid)), 18, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
 					text(rr.position + Vector2(60, 43), Tx.t("ui.crafts.pages_held") % [Game.crafting.pages_held(ch, xid), int(xr.get("fragments", 1))], 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 70)
 				region(rr, "sel", xid)
 				return
@@ -713,7 +720,7 @@ func _forge_natal(ch, r: Rect2) -> void:
 # ------------------------------------------------------------------ talisman tracing (S47)
 func _template(r: Rect2) -> PackedVector2Array:
 	var out := PackedVector2Array()
-	var tal := ContentDB.entry("talismans", str(ContentDB.entry("recipes", sel).outputs[0].item))
+	var tal := ContentDB.entry("talismans", made_by(sel))
 	for p in tal.get("strokes", []): out.append(r.position + Vector2(float(p[0]), float(p[1])) * r.size)
 	return out
 
@@ -807,7 +814,8 @@ func _auto(ch, right: Rect2) -> void:
 	for b in q:
 		y += 30
 		var left := int(float(b.done_utc) - Clock.now_utc())
-		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(str(ContentDB.entry("recipes", str(b.recipe)).outputs[0].item)), int(b.count), Tx.t("ui.crafts.batch_ready") if left <= 0 else UiKit.span(left)], 18)
+		var made := made_by(str(b.recipe))
+		text(Vector2(right.position.x + 24, y), "%s ×%d · %s" % [ContentDB.item_name(made if made != "" else str(b.recipe)), int(b.count), Tx.t("ui.crafts.batch_ready") if left <= 0 else UiKit.span(left)], 18)
 	btn(Rect2(right.position.x + 24, y + 20, 200, 50), Tx.t("ui.crafts.collect"), "collect", null, true)
 
 # ------------------------------------------------------------------ S44 experiments, Deduce and the guild
@@ -849,7 +857,7 @@ func _experiment(ch, foot: float) -> void:
 func _deduce(ch, foot: float) -> void:
 	var s := SIDE
 	var rec := ContentDB.entry("recipes", sel)
-	var out := str(rec.outputs[0].item)
+	var out := made_by(sel)
 	var held: int = Game.crafting.pages_held(ch, sel)
 	text(s.position + Vector2(20, 34), ContentDB.item_name(out), 22, UiKit.grade_color(str(rec.get("grade", "plain"))), HORIZONTAL_ALIGNMENT_LEFT, s.size.x - 190)
 	text(Vector2(s.end.x - 180, s.position.y + 34), Tx.t("ui.crafts.pages_held") % [held, int(rec.get("fragments", 1))], 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_RIGHT, 164)
@@ -954,7 +962,7 @@ func _rank_name(craft: String, rank: String) -> String:
 func _exam_task(rk: Dictionary) -> String:
 	var mins := UiKit.span(float(rk.time_s))
 	if rk.has("recipe"):
-		var item := ContentDB.item_name(str(ContentDB.entry("recipes", str(rk.recipe)).outputs[0].item))
+		var item := ContentDB.item_name(made_by(str(rk.recipe)))
 		if str(rk.get("quality", "common")) == "common": return Tx.t("ui.guild.exam_task_count") % [item, int(rk.count), mins]
 		return Tx.t("ui.guild.exam_task") % [item, int(rk.count), str(rk.quality).capitalize(), mins]
 	return Tx.t("ui.guild.exam_task_grade") % [int(rk.count), str(rk.get("grade", "")).capitalize(), str(rk.quality).capitalize(), mins]
@@ -1525,7 +1533,7 @@ func _screen_condensation(rs: Dictionary, body: Rect2) -> void:
 	var col := UiKit.PAPER
 	if absf(off) <= float(k.get("perfect", 0.08)): col = UiKit.GOLD
 	elif off > 0.0: col = UiKit.RED
-	var out := str(ContentDB.entry("recipes", str(rs.recipe)).outputs[0].item)
+	var out := made_by(str(rs.recipe))
 	draw_arc(centre, rs0, 0, TAU, 64, Color(UiKit.HOLLOW, 0.4), 1.5, true)
 	for g in 3: draw_circle(centre, rp + 26 - g * 9, Color(UiKit.SURFACE.glow, (0.05 + 0.12 * clampf(pt / secs, 0.0, 1.0)) * (g + 1)))
 	icon_at(Rect2(centre - Vector2(32, 32), Vector2(64, 64)), str(ContentDB.item(out).get("icon", out)))
