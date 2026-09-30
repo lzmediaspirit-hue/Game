@@ -147,6 +147,7 @@ def leech(action: str, f: int, view: float = 90.0) -> Pose:
             else:
                 lo = h
         c += lo * bump
+        b += 0.5 * headon * lo * bump          # the loop leans a little to its side, so it shows from the front or behind
     c += lift_r * np.clip(1.0 - u / 0.2, 0.0, 1.0) + lift_f * np.clip((u - 0.8) / 0.2, 0.0, 1.0)
     if action == "idle":
         # Holding by its rear sucker, head lifted and questing side to side; a slow swell runs down it as it breathes.
@@ -251,10 +252,10 @@ def leech(action: str, f: int, view: float = 90.0) -> Pose:
     if gape > 0.25:
         maw = lip + face * (0.45 + 0.2 * gape)
         P.add(E(maw, (0.25, R * 0.64, R * 0.58), "leech_maw", "maw", cm, line=False))
-        # Its three jaws, tiny and pale, set in a Y in the maw.
-        for i in range(3):
-            q = math.radians(90.0 + i * 120.0)
-            P.mark(maw + face * 0.2 + fb * math.cos(q) * R * 0.34 + fn * math.sin(q) * R * 0.34, M.LEECH_TOOTH)
+        # Tiny teeth round the rim of the maw, muted so the cup reads as a mouth and not an eye.
+        for i in range(6 if gape > 0.6 else 3):
+            q = math.radians(90.0 + i * (60.0 if gape > 0.6 else 120.0))
+            P.mark(maw + face * 0.2 + fb * math.cos(q) * R * 0.5 + fn * math.sin(q) * R * 0.46, M.LEECH_TOOTH)
     else:
         P.mark(lip + face * 0.55, M.RAMPS["leech_maw"][1])
     # The bite's glints as it latches, and the water a swimmer stirs.
@@ -296,6 +297,7 @@ def _skin(centre, T, B, N, w: float, s0: float):
         belly = nz < -0.28
         flank = (lat > 0.6) | (nz < 0.25)
         names = np.where(belly, "leech_belly", np.where(flank, "leech_dark", "leech")).astype(object)
-        bias = np.where(groove, -1, np.where(ridge & ~belly, 1, 0)).astype(np.int16)
+        # The groove cuts through the sheen on its back, so the glint breaks ring by ring.
+        bias = np.where(groove, np.where(nz > 0.6, -2, -1), np.where(ridge & ~belly, 1, 0)).astype(np.int16)
         return names, bias
     return skin

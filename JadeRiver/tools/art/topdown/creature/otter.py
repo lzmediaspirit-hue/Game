@@ -102,8 +102,10 @@ def otter(action: str, f: int, view: float = 48.0) -> Pose:
     prev = root
     for k in range(1, 9):
         u = k / 8.0
-        p = v3(root[0] - 8.2 * u + curl * 5.0 * u * u, wag * math.sin(u * 2.4) + curl * 6.0 * u * u + bk * 2.4 * u * u, root[2] - 3.4 * u + (0.8 * u if rear > 20 else 0.0))
-        p[2] = max(p[2], 0.9)
+        # Beaten, it curls its tail round toward its belly, which lies along the ground once it has rolled onto its side.
+        p = v3(root[0] - 8.2 * u + curl * 5.0 * u * u, wag * math.sin(u * 2.4) + bk * 2.4 * u * u,
+               root[2] - 3.4 * u + (0.8 * u if rear > 20 else 0.0) - curl * 6.0 * u * u)
+        p[2] = max(p[2], 0.9 - curl * 9.0)
         P.add(L(prev, p, 1.7 - 0.9 * (k - 1) / 8.0, 1.7 - 0.9 * k / 8.0, "otter", "tail", caps=k == 1))
         prev = p
     roll = pick(ROLL, action, f)
