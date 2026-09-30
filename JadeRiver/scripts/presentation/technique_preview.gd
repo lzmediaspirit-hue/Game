@@ -73,6 +73,10 @@ func _init() -> void:
 func _ready() -> void:
 	fx.z_index = 0
 
+## Closed with its page (or freed unshown): the foes' index is taken back from its worker (TopFoe.settle).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PREDELETE: TopFoe.settle()
+
 ## The caster and the stage's scale for the side view or the top-down character (a new caster when the view changes).
 func _build(top_down: bool) -> void:
 	top = top_down
@@ -354,12 +358,20 @@ class TopFoe extends Node2D:
 			if _task == -1:
 				_task = WorkerThreadPool.add_task(func(): TopFoe._parsed = JSON.parse_string(FileAccess.get_file_as_string(TopdownRoom.DIR + "foes.json")))
 			elif _task >= 0 and WorkerThreadPool.is_task_completed(_task):
-				WorkerThreadPool.wait_for_task_completion(_task)
-				_task = -2
-				var ts = _parsed
-				_parsed = null
-				if ts is Dictionary: _sheet = ts
+				settle()
 		return _sheet
+
+	## The index's reading taken back from the worker (waited for if it is still reading): a preview does this as it
+	## goes, so no task of the pool is left unclaimed. One never claimed kept its function past this script's end,
+	## and the engine crashed as it quit (the tutorials suite, "53 checks, 0 failures" and a non-zero exit, when its
+	## Techniques page closed before the reading was taken back).
+	static func settle() -> void:
+		if _task < 0: return
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -2
+		var ts = _parsed
+		_parsed = null
+		if ts is Dictionary: _sheet = ts
 
 	## A species' sheet, from its loading thread (null until it is in).
 	static func texture(sp: String) -> Texture2D:

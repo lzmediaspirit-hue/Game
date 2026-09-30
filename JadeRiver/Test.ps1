@@ -9,7 +9,8 @@ $failed = @()
 foreach ($s in $suites) {
     Write-Host "== $s"
     & $GodotPath --headless --path $PSScriptRoot --scene "res://tests/$s.tscn"
-    if ($LASTEXITCODE -ne 0) { $failed += $s }
+    # A suite that exits non-zero says with what code (a crash in teardown can follow a clean summary).
+    if ($LASTEXITCODE -ne 0) { Write-Host "  $s exited with code $LASTEXITCODE"; $failed += $s }
 }
 if ($failed.Count -gt 0) { Write-Host "Failed: $($failed -join ', ')"; exit 1 }
 Write-Host 'All suites passed.'
