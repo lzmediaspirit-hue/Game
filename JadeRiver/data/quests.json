@@ -521,7 +521,7 @@
     },
     {
      "kind": "set_flag",
-     "text": "Hold the bank against the Hollow until Lu comes",
+     "text": "Hold the bank against the Hollow",
      "count": 1,
      "flag": "night_survived"
     }
@@ -589,7 +589,7 @@
    ],
    "offer_text": [
     "That thing in the water was a Hollowed eel. The grey is spreading.",
-    "You have a gift. I felt it last night. Sit. Breathe as I showed you."
+    "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you."
    ],
    "complete_text": [
     "Bone Forging. Your first step. The body is the cup; Qi will be the water.",

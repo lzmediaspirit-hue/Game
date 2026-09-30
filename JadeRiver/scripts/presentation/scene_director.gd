@@ -39,6 +39,9 @@ var _tried: Dictionary = {}       ## scene id -> true: refused by the authority 
 var _paused := false
 var _thunder_t := 0.0
 var _drew := false
+var hitstop_t := 0.0              ## a staged hit-stop's time left (the stage's clock held)
+var _lb_carry := 0.0              ## the letterbox a cut ended with, for a cut that follows straight on
+var _lb_carry_t := -1.0
 
 func _ready() -> void:
 	for r in ContentDB.all("scenes"):
@@ -92,16 +95,24 @@ func advance(delta: float) -> void:
 	if run != null and (Game.room_rt == null or Game.room_rt.room_id != str(run.row.room)):
 		_leave()   # the character walked out of the scene's room
 	if run == null:
+		_lb_carry_t -= delta
 		_eval_t -= delta
 		if _eval_t <= 0.0:
 			_eval_t = 0.25
 			var pick := _pick()
 			if not pick.is_empty(): _start(pick)
 	if run != null:
-		if run.mode == "cut" and _in_fight(): run.mode = "live"   # a fight breaks in: the scene goes on around it
-		_play(delta)
+		# A fight breaks in: the scene goes on around it (unless the scene holds the fight itself: `hold_fight`).
+		if run.mode == "cut" and _in_fight() and not run.row.get("hold_fight", false): run.mode = "live"
+		# Decision 45: a staged hit-stop holds the stage's clock, its effects and the struck foe a moment.
+		var d := delta
+		if hitstop_t > 0.0:
+			hitstop_t -= delta
+			d = 0.0
+		if world is TopdownWorld: world.stage_hold = hitstop_t > 0.0
+		_play(d)
 	if run != null:
-		_actors(delta)
+		_actors(delta if hitstop_t <= 0.0 else 0.0)
 		_camera(delta)
 		_weather(delta)
 	_homeward(delta)
@@ -155,6 +166,8 @@ func _pick() -> Dictionary:
 		var st: Dictionary = c.quests.scenes[id]
 		if not st.has("at"): continue
 		var row := SceneRules.row(str(id))
+		# A fight's moment (`resume: false`, decision 45) is not taken up again: its trigger plays it whole when it comes.
+		if str(row.get("room", "")) == here and not row.get("resume", true): continue
 		if str(row.get("room", "")) == here: return row
 		Game.submit({"type": "scene_end", "scene": str(id), "skipped": true})
 		return {}
@@ -172,7 +185,9 @@ func _seen(c, row: Dictionary) -> bool:
 func _can_play(c, row: Dictionary, here: String) -> bool:
 	if row.is_empty() or str(row.get("room", "")) != here or _seen(c, row) or _tried.has(str(row.id)): return false
 	if not RequirementRules.passes(row.get("requires", {}), Game.ctx(c)): return false
-	return row.get("live", false) or not _in_fight()
+	# A scene that holds the fight itself (`hold_fight`, decision 45: the first boss's waking and its rescue) is a cut in
+	# the fight's middle: the simulation held still, the foes with it.
+	return row.get("live", false) or row.get("hold_fight", false) or not _in_fight()
 
 ## No page over the world and no moment on the screen.
 func _stage_free() -> bool:
@@ -201,6 +216,9 @@ func _start(row: Dictionary) -> void:
 		"heard": [], "heard_from": 0, "letterbox": false, "lb": 0.0, "fade": 0.0, "fade_from": 0.0, "fade_to": 0.0, "fade_s": 0.0, "fade_t": 9.0,
 		"title": {}, "flash": {}, "weather": "", "prompt": {}, "tapped": false, "page": false,
 		"cam": {}, "zoom": 1.0, "zoom_from": 1.0, "zoom_to": 1.0, "zoom_s": 0.0, "zoom_t": 9.0, "view": _view_center(), "nodes": []}
+	# A cut straight after a cut keeps the bars where the last one left them (no slide out and in between the two).
+	if _lb_carry_t > 0.0: run.lb = _lb_carry
+	_lb_carry_t = -1.0
 	var grid: TopdownRoom = Game.room_rt.topdown
 	for name in row.get("actors", {}):
 		var h := SceneRules.home(row, str(name), Game.room_rt.def, grid)
@@ -283,12 +301,19 @@ func _begin(st: Dictionary) -> void:
 			if MomentView.claim_flash(1.0): run.flash = {"t": 0.0, "s": float(st.get("s", 0.3)), "color": MomentRules.color(st.color) if st.has("color") else UiKit.PALE_GOLD}
 		"title": run.title = {"title": str(st.title), "sub": str(st.get("sub", "")), "t": 0.0, "s": float(st.get("s", 2.6))}
 		"spawn":
-			if st.has("at"): a.pos = SceneRules.point(st.at)
+			if st.has("at"):
+				a.pos = _spot(st.at, a)
+				a.alt = _floor(a)
 			a.visible = true
 			_bind(a)
 		"despawn":
 			a.visible = false
 			_unbind(a)
+		# Decision 45: a story art's own effect (the FX pipeline's story sheets: the elders' arts, the river boiling) where
+		# a target stands; a foe of the room staged (its figure's pose, a struck flash); a hit-stop on the stage's clock.
+		"art": if world is TopdownWorld: world.tfx.story(str(st.art), _ground_of(st.get("at", "player")), float(st.get("scale", 1.0)))
+		"foe": _stage_foes({str(st.get("foe", "")): {"pose": str(st.get("pose", "")), "flash": bool(st.get("flash", false))}})
+		"hitstop": hitstop_t = 0.0 if reduce_motion() else float(st.get("s", 0.1))
 		"door": _door(str(st.portal))
 		"weather": run.weather = "" if str(st.kind) == "clear" else str(st.kind)
 		"moment": if is_instance_valid(moments): moments.play_row(str(st.row))
@@ -387,7 +412,7 @@ func _forward(to: int, stop_at_hand: bool, ask: bool) -> void:
 			"mark": if ask: Game.submit({"type": "scene_mark", "scene": run.id, "step": i})
 			"move":
 				if a.name != "player" and not (st.get("to", []) as Array).is_empty():
-					a.pos = SceneRules.point(st.to.back())
+					a.pos = _spot(st.to.back(), a)
 					a.alt = _floor(a)
 					a.path = []
 					a.moved = true
@@ -398,7 +423,9 @@ func _forward(to: int, stop_at_hand: bool, ask: bool) -> void:
 					a.pose = str(st.pose)
 					_pose_view(a)
 			"spawn":
-				if st.has("at"): a.pos = SceneRules.point(st.at)
+				if st.has("at"):
+					a.pos = _spot(st.at, a)
+					a.alt = _floor(a)
 				a.visible = true
 				_bind(a)
 			"despawn":
@@ -430,6 +457,10 @@ func _leave() -> void:
 	_finish(was_cut, true)
 
 func _finish(skipped: bool, left := false) -> void:
+	_lb_carry = float(run.lb) if run.mode == "cut" and run.letterbox else 0.0
+	_lb_carry_t = 0.3 if _lb_carry > 0.0 else -1.0
+	hitstop_t = 0.0
+	_stage_foes({})
 	Game.submit({"type": "scene_end", "scene": run.id, "skipped": skipped})
 	finished.append({"scene": run.id, "skipped": skipped, "left": left})
 	for a in run.actors.values():
@@ -530,8 +561,10 @@ func _walk(a: Dictionary, st: Dictionary) -> void:
 	a.speed = SceneRules.pace(st)
 	a.moved = true
 	var to: Array = st.get("to", [])
-	a.path = to.map(func(q): return SceneRules.point(q)) if a.prop != "" or a.name == "player" else SceneRules.walk_path(Game.room_rt.topdown, a.pos, to)
-	if (a.path as Array).is_empty() and not to.is_empty(): a.pos = SceneRules.point(to.back())   # no way on foot: there at once
+	# A waypoint beside where something stands now (decision 45) is taken as its cell as the walk begins.
+	var cells: Array = to.map(func(q): return q if q is Array else _cell_at(_spot(q, a)))
+	a.path = cells.map(func(q): return SceneRules.point(q)) if a.prop != "" or a.name == "player" else SceneRules.walk_path(Game.room_rt.topdown, a.pos, cells)
+	if (a.path as Array).is_empty() and not cells.is_empty(): a.pos = SceneRules.point(cells.back())   # no way on foot: there at once
 	_pose_view(a)
 
 func _route(a: Dictionary, goal: Vector2) -> Array:
@@ -629,6 +662,58 @@ func where(to) -> Vector2:
 			if best != null: return Vector2(best.plane.x, best.plane.y - best.altitude)
 	return Vector2.INF
 
+## A target's ground point in world units, not lifted (a spot beside it, an art's anchor on the floor): "player", an
+## actor, a cell, "object:<id>", "portal:<id>", "enemy:<def>" (the nearest living one); the player's where none is.
+func _ground_of(to) -> Vector2:
+	if to is Array: return SceneRules.point(to)
+	var s := str(to)
+	if run != null and run.actors.has(s) and s != "player": return run.actors[s].pos
+	if s.begins_with("enemy:") and Game.room_rt != null:
+		var best: EnemyState = null
+		for e in Game.room_rt.living_enemies():
+			if e.def_id == s.get_slice(":", 1) and (best == null or e.plane.distance_to(player_pos()) < best.plane.distance_to(player_pos())): best = e
+		if best != null: return best.plane
+	if s.begins_with("object:") and Game.room_rt != null:
+		var o: Dictionary = Game.room_rt.object_def(s.get_slice(":", 1))
+		if not o.is_empty(): return Vector2(float(o.at[0]), float(o.at[1]))
+	if s.begins_with("portal:") and Game.room_rt != null:
+		var p: Dictionary = Game.room_rt.portal_def(s.get_slice(":", 1))
+		if p.has("at"): return Vector2(float(p.at[0]), float(p.at[1]))
+	return player_pos()
+
+## Decision 45: a step's place, a cell [x, y] of the layout, or {"near": a target (SceneRules' kinds), "off": [cells
+## right, cells down]} beside wherever that target stands now (the elders come to where the fight is); a person's spot
+## is a place a body can stand.
+func _spot(at, a: Dictionary) -> Vector2:
+	if at is Array: return SceneRules.point(at)
+	if not (at is Dictionary): return a.get("pos", player_pos())
+	var off: Array = at.get("off", [0, 0])
+	var p := _ground_of(at.get("near", "player")) + Vector2(float(off[0]), float(off[1])) * TopdownRoom.TILE
+	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
+	if grid != null and str(a.get("prop", "")) == "": p = grid.nearest_standable(p)
+	return p
+
+## The layout cell of a ground point, as a step's waypoint names one.
+static func _cell_at(p: Vector2) -> Array:
+	return [p.x / TopdownRoom.TILE - 0.5, p.y / TopdownRoom.TILE - 0.5]
+
+## Decision 45: the room's foes a cut stages ({def: {pose, flash}}): the eel's figure held reared or struck while the
+## simulation stands still; {} lets every foe's figure be its own again.
+func _stage_foes(want: Dictionary) -> void:
+	if not (world is TopdownWorld) or Game.room_rt == null: return
+	for uid in world.foe_views:
+		var v = world.foe_views[uid]
+		var e: EnemyState = Game.room_rt.enemies.get(uid)
+		if not is_instance_valid(v) or e == null: continue
+		if want.is_empty():
+			v.staged_act = ""
+			continue
+		if not want.has(e.def_id): continue
+		var w: Dictionary = want[e.def_id]
+		if str(w.get("pose", "")) != "": v.staged_act = str(w.pose)
+		elif not w.get("flash", false): v.staged_act = ""   # neither: its figure its own again
+		if w.get("flash", false): v.staged_white = 0.08
+
 func _lift(p: Vector2) -> Vector2:
 	var g: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
 	return Vector2(p.x, p.y - (g.floor_at(p) if g else 0.0))
@@ -712,9 +797,11 @@ func _end_mode() -> void:
 		Game.pause(false)
 	if is_instance_valid(hud): hud.set_scene_lock(false)
 	hold_t = -1.0
+	hitstop_t = 0.0
 	if world is TopdownWorld:
 		world.stage_cam = null
 		world.stage_zoom = 1.0
+		world.stage_hold = false
 
 # ------------------------------------------------------------------ input (from the HUD, in a cut)
 ## A press starts the hold toward a skip; let go soon, it is a tap.

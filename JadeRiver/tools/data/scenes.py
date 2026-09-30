@@ -10,13 +10,20 @@ A scene:
   actors                  name -> {object: an NPC object of the room} | {npc: a person of npcs.json, at: [x, y] cell,
                           hidden: brought on by a `spawn` step} | {prop: a prop of the tile set, at, level}
   live                    true: a scene played around the player, the controls kept (no cut, no letterbox)
+  hold_fight              true: a cut that holds the fight itself (decision 45: the first boss's waking and its
+                          rescue): it may start while foes fight, and the simulation stands still under it
+  resume                  false: a fight's moment, not taken up again after a reload; its trigger plays it whole
   tutorial                true: a beat of the tutorial walk (tests/topdown_tutorial.gd plays each one to its end)
   steps                   the script (SceneRules.STEP_KINDS): actor steps (move, face, emote, pose, say; a pose is an
                           action of the top-down figure, data/topdown/character.json, among them the story's gestures:
                           salute, kneel, point, startle), the camera
                           (camera, zoom, shake, letterbox), the screen (fade, flash, title), the world (spawn, despawn,
-                          door, weather, moment, fx, sound), the flow (wait, wait_input, wait_event, branch, label, goto,
-                          mark) and the hand-off (handoff: the player acts, a prompt over what to do, until an event)
+                          door, weather, moment, fx, sound; decision 45: art, a story art of the FX sheets where a
+                          target stands, foe, a foe of the room staged, and hitstop, the stage's clock held a moment),
+                          the flow (wait, wait_input, wait_event, branch, label, goto, mark) and the hand-off (handoff:
+                          the player acts, a prompt over what to do, until an event). A spawn's `at` or a walk's
+                          waypoint may be `beside(target, dx, dy)`: cells from wherever that target stands as the step
+                          begins (the elders come to where the fight is)
 
 A scene only asks the authorities for what it changes: its checkpoints (`mark` and `handoff` steps) go to the Quest
 authority (scene_mark), which keeps where the scene is (a scene cut short by quitting resumes there) and applies the
@@ -40,11 +47,19 @@ SETTINGS = {
 
 
 # -------------------------------------------------------------------- the steps
-def move(actor, *to, run=False, wait=True, speed=None):
-    d = {"do": "move", "actor": actor, "to": [list(t) for t in to], "run": run, "wait": wait}
+def move(actor, *to, run=False, wait=True, speed=None, est_s=None):
+    d = {"do": "move", "actor": actor, "to": [t if isinstance(t, dict) else list(t) for t in to], "run": run, "wait": wait}
     if speed:
         d["speed"] = speed
+    if est_s:
+        d["est_s"] = est_s          # a walk to beside something where it stands: how long it holds the stage
     return d
+
+
+def beside(target, dx=0.0, dy=0.0):
+    """Decision 45: a place `dx` cells right and `dy` down of wherever `target` stands as the step begins ("player", an
+    actor, "enemy:<def>"); a person's spot is the nearest a body can stand on."""
+    return {"near": target, "off": [dx, dy]}
 
 
 def face(actor, to):
@@ -104,7 +119,7 @@ def title(t, sub="", s=2.6):
 def spawn(actor, at=None):
     d = {"do": "spawn", "actor": actor}
     if at:
-        d["at"] = list(at)
+        d["at"] = at if isinstance(at, dict) else list(at)
     return d
 
 
@@ -128,6 +143,25 @@ def fx(kind, at="player", **kw):
 
 def sound(sfx):
     return {"do": "sound", "sfx": sfx}
+
+
+def art(name, at="player", scale=1):
+    """Decision 45: a story art of the FX sheets (tools/art/fx/story_arts.py) where a target stands."""
+    d = {"do": "art", "art": name, "at": list(at) if isinstance(at, tuple) else at}
+    if scale != 1:
+        d["scale"] = scale
+    return d
+
+
+def foe(def_id, pose="", flash=False):
+    """Decision 45: a foe of the room staged in a cut: its figure held in `pose` (its sheet's action; "" its own
+    again), and struck white with `flash`."""
+    return {"do": "foe", "foe": def_id, "pose": pose, "flash": flash}
+
+
+def hitstop(s=0.12):
+    """Decision 45: the stage's clock held a moment, its effects and the struck figure with it."""
+    return {"do": "hitstop", "s": s}
 
 
 def label(name):
@@ -165,8 +199,12 @@ def mark(*effects):
 S = []
 
 
-def scene(sid, name, room, steps, actors=None, requires=None, trigger=None, live=False, tutorial=True):
+def scene(sid, name, room, steps, actors=None, requires=None, trigger=None, live=False, tutorial=True, hold_fight=False, resume=True):
     d = {"id": sid, "name": name, "room": room, "actors": actors or {}, "steps": steps, "live": live, "tutorial": tutorial}
+    if hold_fight:
+        d["hold_fight"] = True
+    if not resume:
+        d["resume"] = False
     if requires:
         d["requires"] = requires
     if trigger:
@@ -398,9 +436,10 @@ def night():
     # The Hollow Night (decision 42, docs/redesign/story_staging.md "The Hollow Night"): the tutorial's first real danger,
     # an action set piece in beats. The room's event (world.py lf_village_night) and the foes' AI (EnemyAuthority: the
     # minnows' dart, the eel's tell, lunge and window) are the fight; these scenes stage it around the player, live
-    # while the fight is on (a cut never starts in one): the storm and the first minnows, each villager running for
-    # Aunt Ping's door, the grey spreading up the lane, the eel rising, Lu coming at the climax with the palm he teaches
-    # on the boat, and the grey lifting after.
+    # while the fight is on: the storm and the first minnows, each villager running for Aunt Ping's door, the grey
+    # spreading up the lane, the eel rising; then (decision 45, the first boss) the eel waking, the cut that holds the
+    # fight, and the elders coming to slay it when it has the player down; and the grey lifting after, where the
+    # elders tell you what cultivation is.
     villagers_in = all_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe"))
     night_on = all_of(qactive("the_hollow_night"))
     ping = {"object": "npc_ping_night"}
@@ -485,47 +524,128 @@ def night():
     ], actors={"ping": ping}, requires=all_of(qactive("the_hollow_night"), flag("grey_spread")),
         trigger={"event": "enemy_aggro", "when": {"def": "hollowed_eel"}}, live=True)
 
-    # The climax (the eel below half its HP): Lu's boat comes up the river, he leaps ashore, and as the eel's great lunge
-    # lands, his palm pins it to the bank: the palm he teaches on the boat.
-    scene("lu_arrives", "Lu Comes", "lf_village_night", [
-        move("boat", (38, 36.5), wait=False, speed=160),
-        sound("water_step"),
+    # Decision 45, the first boss (docs/redesign/story_staging.md "The first boss"): at four fifths of its HP the eel
+    # wakes. A cut that holds the fight: the camera on it, the river boiling round it, its roar, the screen shaking and
+    # the night's colours bruising (TopdownWorld's dread), Aunt Ping's warning; then the controls back with the truth of
+    # it on the prompt. Played whole again if a reload cuts it short.
+    scene("eel_awakens", "The Eel Wakes", "lf_village_night", [
+        letterbox(True),
+        camera("enemy:hollowed_eel", 0.5),
+        foe("hollowed_eel", "windup"),
+        sound("story_eel_roar"),
+        shake(0.7),
+        art("river_boil", "enemy:hollowed_eel"),
+        flash("MIST", 0.3),
+        fx("ring", "enemy:hollowed_eel", color="MIST", radius=80, dur=0.9),
+        wait(0.8),
+        sound("story_river_boil"),
+        art("river_boil", "enemy:hollowed_eel"),
+        say("ping", "The river's boiling round it... it's growing!"),
+        shake(0.4),
+        emote("ping", "!", 1.0),
+        say("ping", "Child, run! No blade can cut that thing now!"),
+        foe("hollowed_eel"),
+        handoff("Its hide turns every blow now: stay alive!", "enemy:hollowed_eel", s=5.0, then="live"),
+        say("ping", "Keep moving! Don't let it pin you!"),
+    ], actors={"ping": ping}, requires=night_on, trigger={"event": "boss_phase", "when": {"def": "hollowed_eel", "action": "awaken"}},
+        hold_fight=True, resume=False)
+
+    # The rescue: the eel has the player down, and the elders of Lotus Ferry come out of the dark. Granny Liu, whom you
+    # walked to Aunt Ping's door on her old legs, binds it with Nine Seals; Old Ma, who left his shop to drown, drops
+    # the Thousand-Catty Palm on it; Lu comes up the river and his river dragon ends it (the checkpoint that slays it:
+    # the night is won). Each lands where the fight is (beside), with its art, its sound, a hit-stop and a shake.
+    elders = {"granny": {"npc": "granny_liu", "at": [6.5, 16.5], "hidden": True}, "ma": {"npc": "old_ma", "at": [9.5, 16.5], "hidden": True},
+              "lu": {"npc": "lu_boatman", "at": [36, 33], "hidden": True}}
+    scene("elders_come", "The Elders Come", "lf_village_night", [
+        letterbox(True),
+        pose("player", "knockdown"),
+        camera("player", 0.4),
+        foe("hollowed_eel", "windup"),
+        sound("story_eel_roar"),
+        shake(0.35),
+        say("ping", "No! Get away from the child!"),
+        spawn("granny", beside("player", -2.5, -1.5)),
+        fx("dust", "granny", color="PAPER", count=8, dur=0.5),
+        sound("land"),
+        face("granny", "enemy:hollowed_eel"),
+        say("granny", "Old legs, child. Not old hands."),
+        pose("granny", "cast", 0.7, wait=True),
+        art("talisman_array", "enemy:hollowed_eel"),
+        sound("story_talisman"),
+        wait(0.6),
+        foe("hollowed_eel", "hurt", flash=True),
+        hitstop(0.12),
+        flash("PALE_GOLD", 0.2),
+        shake(0.3),
+        say("granny", "Nine seals. Now it cannot dive."),
+        spawn("ma", beside("player", 2.5, -1.5)),
+        fx("dust", "ma", color="PAPER", count=8, dur=0.5),
+        sound("land"),
+        face("ma", "enemy:hollowed_eel"),
+        say("ma", "Thousand-Catty Palm! That one's for my shop!"),
+        pose("ma", "punch_2", 0.4, wait=True),
+        art("force_palm", "enemy:hollowed_eel"),
+        sound("story_palm"),
+        wait(0.3),
+        foe("hollowed_eel", "hurt", flash=True),
+        hitstop(0.18),
+        flash("GOLD", 0.2),
+        shake(0.5),
+        move("boat", beside("enemy:hollowed_eel", 5, 2.5), wait=False, speed=260),
         say("ping", "A lamp on the water... it's Lu!"),
-        spawn("lu"),
+        spawn("lu", beside("enemy:hollowed_eel", 2.5, -0.5)),
         fx("dust", "lu", color="PAPER", count=8, dur=0.5),
         sound("land"),
-        face("lu", "player"),
-        wait_event(until("attack_started", False, attack="great_lunge"), s=6.0),
-        say("lu", "Down, child! Out of its line!"),
-        pose("lu", "punch_2", 0.5, wait=True),
-        fx("wave", "enemy:hollowed_eel", color="BRIGHT_JADE", size=10, radius=70, dur=0.6),
-        sound("surge"),
-        shake(0.35),
-        say("lu", "It's pinned! Strike now, while it cannot turn!"),
-        handoff("Strike the pinned eel: tap Attack", "enemy:hollowed_eel",
-                until("actor_defeated", False, killer="active", **{"def": "hollowed_eel"}), s=20.0, then="live"),
-    ], actors={"lu": {"npc": "lu_boatman", "at": [36, 33], "hidden": True}, "boat": {"prop": "boat", "at": [52, 36.5], "level": -1},
-               "ping": ping}, requires=night_on, trigger={"event": "boss_phase", "when": {"action": "climax"}}, live=True)
+        face("lu", "enemy:hollowed_eel"),
+        say("lu", "Back to the dark, grey thing. This river is mine."),
+        pose("lu", "point", 0.8, wait=True),
+        zoom(1.15, 0.4),
+        art("water_dragon", "enemy:hollowed_eel"),
+        sound("story_dragon"),
+        wait(0.75),
+        foe("hollowed_eel", "hurt", flash=True),
+        mark({"kind": "slay_foe", "enemy": "hollowed_eel", "by": "elders"}),
+        hitstop(0.25),
+        flash("PAPER", 0.3),
+        shake(0.7),
+        sound("boss_fall"),
+        wait(1.4),
+        zoom(1.0, 0.6),
+        camera("player", 0.6),
+    ], actors=dict(elders, boat={"prop": "boat", "at": [52, 36.5], "level": -1}, ping=ping),
+        requires=all_of(qactive("the_hollow_night"), noflag("night_held")), trigger={"event": "boss_overwhelmed", "when": {"def": "hollowed_eel"}},
+        hold_fight=True, resume=False)
 
-    # The night won (the eel beaten, or the bank held until Lu came): the storm passes and Lu walks up from the river.
-    # Its last checkpoint sets lu_on_the_bank, and the event's way on takes you to his boat.
+    # The night won (the elders slew the eel; or, as a last resort, the bank held until its time ran out): the storm
+    # passes and the elders tell you what you saw. It plays as you stand in the night with it won (after a reload too);
+    # its last checkpoint sets lu_on_the_bank, and the event's way on takes you to his boat, where cultivation begins.
     scene("grey_lifts", "The Grey Lifts", "lf_village_night", [
         letterbox(True),
         weather("clear"),
         sound("gust"),
-        spawn("lu"),
-        camera((34, 33), 1.2),
-        fx("motes", (30, 36), color="PALE_GOLD", count=14, dur=1.2),
-        say("lu", "It's done. A river eel, gone grey... in our own river."),
-        move("lu", (33, 31)),
+        spawn("granny", beside("player", -2.5, -1.5)),
+        spawn("ma", beside("player", 2.5, -1.5)),
+        spawn("lu", beside("player", 2.5, 1.2)),
+        camera("player", 0.6),
+        fx("motes", "player", color="PALE_GOLD", count=14, dur=1.2),
+        mark({"kind": "heal", "pct": 1.0}),
+        pose("player", "idle"),
+        move("granny", beside("player", -1.2, -0.3), est_s=1.0),
+        face("granny", "player"),
+        say("granny", "Up you get. A bruise or two. Nothing broken."),
+        say("ping", "Granny? Old Ma? You... you fought that thing?"),
+        face("ma", "player"),
+        say("ma", "Every old dog in this village had a sect once."),
+        say("granny", "What you saw was cultivation, child. Qi, drawn in and let out."),
+        move("lu", beside("player", 1.2, 0.6), est_s=1.0),
         face("lu", "player"),
-        say("lu", "You held the bank, child. Not one of them lost."),
-        say("ping", "Lu! Is it over?"),
-        say("lu", "For tonight. The palm you saw? I'll teach it to you. Come, to my boat."),
+        say("lu", "You held the bank with a blade and nothing more."),
+        say("lu", "When it struck you, I felt your Qi stir. You have the gift."),
+        pose("lu", "point", 1.6),
+        say("lu", "Come to my boat. Tonight you begin to cultivate."),
         mark({"kind": "set_flag", "flag": "lu_on_the_bank"}),
         fade("black", 0.8),
-    ], actors={"lu": {"npc": "lu_boatman", "at": [36, 33], "hidden": True}, "ping": ping}, requires=night_on,
-        trigger={"event": "room_event_completed", "when": {"event": "hollow_night", "actor": "active"}})
+    ], actors=dict(elders, ping=ping), requires=all_of(qactive("the_hollow_night"), flag("night_held")))
 
     # Lu's boat after the storm: who Lu thinks you are. Sit, and breathe (the Cultivate button by doing).
     scene("river_token", "The River Token", "lf_lu_boat", [

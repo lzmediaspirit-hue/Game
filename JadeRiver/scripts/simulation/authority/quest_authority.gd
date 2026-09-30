@@ -1017,8 +1017,9 @@ func floor_gap(c) -> Dictionary:
 
 # ------------------------------------------------------------------ staged scenes (decision 39)
 ## What a staged scene may change through its checkpoints (data/scenes.json `mark` and `handoff` steps): a story flag,
-## a graze (HP lowered, never under SCENE_HP_FLOOR of the most), a heal.
-const SCENE_EFFECTS := ["set_flag", "clear_flag", "restore_resource", "heal"]
+## a graze (HP lowered, never under SCENE_HP_FLOOR of the most), a heal, and a foe the story slays (decision 45: the
+## elders' arts on the first boss, `slay_foe`).
+const SCENE_EFFECTS := ["set_flag", "clear_flag", "restore_resource", "heal", "slay_foe"]
 const SCENE_HP_FLOOR := 0.4
 
 ## A staged scene (played by the presentation's SceneDirector) begins: it is this character's to see (in its room, its
@@ -1030,7 +1031,9 @@ func scene_begin(c, id: String) -> Dictionary:
 	var st: Dictionary = c.quests.scenes.get(id, {})
 	if st.get("done", false) and not sc.get("repeat", false): return fail("seen")
 	if game.room_rt == null or game.room_rt.room_id != str(sc.room): return fail("wrong_room")
-	if not st.has("at"):
+	# A scene of a fight's moment (`resume: false`, decision 45: the first boss's waking and its rescue) cut short is
+	# begun again whole when its trigger next comes, its checkpoints' effects with it: after a reload the fight is new.
+	if not st.has("at") or not sc.get("resume", true):
 		if not RequirementRules.passes(sc.get("requires", {}), game.ctx(c)): return fail("not_ready")
 		c.quests.scenes[id] = {"at": 0, "applied": []}
 	var at := int(c.quests.scenes[id].at)

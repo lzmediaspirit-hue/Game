@@ -10,6 +10,11 @@ the body 46 px): SIZE is each species' size against its sculpture's art px; an e
 darker, gold-eyed, in a ring of Qi (`creature.sculpt`), and the bosses (Old Snapper, the hollowed eel, the Trial Puppet)
 are drawn larger by their own SIZE.
 
+Decision 45: a boss that wakes in its second phase (the Hollowed eel, the first boss) has an `awakened` look too, its
+own sheet (<species>_awakened.png): larger, its colours darker and bruised toward violet, its eyes burning red, more of
+the Hollow's strands off it and the Hollow's own ring round it; its tell's rate is its awake attacks' (enemies.json
+`awake`).
+
 Each species has its own sheet (art/topdown/foes/<species>.png, its elite's apart in <species>_elite.png): a row per
 drawn facing, the frames of every action along it, in a cell of its own size (the union of its frames); `build`
 returns the sheets and the manifest block the room view reads (data/topdown/foes.json). The rates: idle and hurt
@@ -57,10 +62,16 @@ class Spec:
     past the catalogue (`extra`, EXTRA's)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=()):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None):
         self.module, self.fn, self.size, self.palette = module, fn, size, palette
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
         self.aura, self.sized, self.gold, self.view, self.extra = aura, sized, gold, view, tuple(extra)
+        # decision 45: {size (against its own), ramps {material: the awakened ramp's name}}, or None
+        self.awakened = awakened
+
+    def looks(self) -> list:
+        """The looks it is drawn in: its own, its elite's, its awakened one's."""
+        return ["base"] + (["elite"] if self.elite else []) + (["awakened"] if self.awakened else [])
 
     def actions(self) -> list:
         """Its actions in the sheet's order: the catalogue, then its extras."""
@@ -71,8 +82,12 @@ class Spec:
         mod = importlib.import_module("creature." + self.module)
         return getattr(mod, self.fn)(action, f, **kw)
 
-    def look(self) -> sculpt.Look:
-        return sculpt.Look(M.palette(*self.palette), M.props(*self.palette), accents=self.accents, glow=self.glow, gold=self.gold)
+    def look(self, variant: str = "base") -> sculpt.Look:
+        pal = M.palette(*self.palette)
+        if variant == "awakened":
+            for mat, ramp in self.awakened.get("ramps", {}).items():
+                pal[mat] = M.RAMPS[ramp]
+        return sculpt.Look(pal, M.props(*self.palette), accents=self.accents, glow=self.glow, gold=self.gold)
 
 
 # Sizes (decision 43, art bible §8 "Foes"): the people grow 1.2x (about 46 px from sole to crown) and every foe grows
@@ -105,12 +120,17 @@ REGISTRY = {
     "hollow_minnow": Spec("minnow", "minnow", 1.5, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
                           accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
     "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
-                         elite=False, shadow=(13, 4), cycle=12.0, sized=True),
+                         elite=False, shadow=(13, 4), cycle=12.0, sized=True,
+                         awakened={"size": 1.22, "ramps": {"eel": "eel_wake", "eel_belly": "eel_wake_belly", "eel_fin": "eel_wake_fin",
+                                                           "eel_mouth": "eel_wake_mouth", "strand": "strand_wake"}}),
 }
 
 
-def draw(species: str, action: str, f: int, facing: str, elite: bool = False) -> np.ndarray:
-    """One frame on the working canvas (RGBA), the feet on sculpt.FOOT."""
+def draw(species: str, action: str, f: int, facing: str, elite="base") -> np.ndarray:
+    """One frame on the working canvas (RGBA), the feet on sculpt.FOOT; `elite` the look (base, elite, awakened; a bool
+    for the elite)."""
+    variant = ("elite" if elite else "base") if isinstance(elite, bool) else str(elite)
+    elite = variant == "elite"
     sp = REGISTRY[species]
     yaw = ANGLE[facing]
     kw = {}
@@ -120,14 +140,16 @@ def draw(species: str, action: str, f: int, facing: str, elite: bool = False) ->
         yaw = 90.0 if facing in ("s", "se", "e") else -90.0
         g, y = math.radians(ANGLE[facing]), math.radians(yaw)
         kw["aim"] = (math.cos(g - y), -math.sin(g - y))
-    k = sp.size * (ELITE if elite else 1.0)
+    k = sp.size * (ELITE if elite else 1.0) * (float(sp.awakened.get("size", 1.0)) if variant == "awakened" else 1.0)
+    if variant == "awakened":
+        kw["awake"] = True
     if sp.sized:
         kw["k"] = k            # a creature laid out against a fixed world height (the eel's water) is posed at its size
     if sp.view:
         kw["view"] = ANGLE[facing]
     P = sp.pose(action, f, **kw)
     P.k = k
-    return sculpt.picture(P, yaw, sp.look(), elite, f, sp.aura)
+    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura)
 
 
 def _enemies() -> dict:
@@ -135,15 +157,17 @@ def _enemies() -> dict:
     return {e["id"]: e for e in d["entries"]}
 
 
-def rates(species: str, enemies: dict) -> dict:
+def rates(species: str, enemies: dict, variant: str = "base") -> dict:
     """Each action's frame rate: the walk's by the species' speed (a cycle over `cycle` px at its size), the wind-up's so
-    its last frame (the tell) is up within 70% of its shortest wind-up (enemies.json)."""
+    its last frame (the tell) is up within 70% of its shortest wind-up (enemies.json; the awakened look's by its `awake`
+    attacks, the others' by the rest)."""
     sp = REGISTRY[species]
     e = enemies.get(species, {})
     fps = dict(FPS)
     speed = float(e.get("ai", {}).get("move_speed", 60)) * 0.5            # world units to art px (TopdownRoom.ART)
     fps["walk"] = int(max(8, min(16, round(FRAMES["walk"] * speed / (sp.cycle * sp.size)))))
-    wind = min([float(a.get("windup_s", 0.5)) for a in e.get("attacks", [])] or [0.5])
+    mine = [a for a in e.get("attacks", []) if bool(a.get("awake", False)) == (variant == "awakened")]
+    wind = min([float(a.get("windup_s", 0.5)) for a in mine] or [0.5])
     fps["windup"] = int(math.ceil((FRAMES["windup"] - 1) / (0.7 * wind)))
     fps["swim"] = fps["walk"]
     return fps
@@ -163,7 +187,7 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
     from PIL import Image
     enemies = _enemies()
     tasks = [(sp, el, d) for sp in SPECIES if sp in REGISTRY and (only is None or sp in only)
-             for el in ([False, True] if REGISTRY[sp].elite else [False]) for d in DIRS]
+             for el in REGISTRY[sp].looks() for d in DIRS]
     if jobs > 1:
         import multiprocessing as mp
         with mp.get_context("fork").Pool(jobs) as pool:
@@ -175,11 +199,11 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
     for sp in SPECIES:
         if sp not in REGISTRY or (only is not None and sp not in only):
             continue
-        fps = rates(sp, enemies)
         order = REGISTRY[sp].actions()
         n = sum(frames_of(a) for a in order)
         block: dict = {}
-        for el in ([False, True] if REGISTRY[sp].elite else [False]):
+        for el in REGISTRY[sp].looks():
+            fps = rates(sp, enemies, el)
             # Its own sheet and cell (the union of its frames): an elite's rows load only where an elite stands.
             al = np.zeros(frames[(sp, el, DIRS[0])][0].shape[:2], dtype=bool)
             for d in DIRS:
@@ -210,14 +234,14 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             idle = frames[(sp, el, "s")][0][..., 3] > 0
             iy = np.nonzero(idle.any(axis=1))[0]
             top = int(sculpt.FOOT[1] - iy.min()) if len(iy) else int(sculpt.FOOT[1] - y0)
-            k = ELITE if el else 1.0
+            k = ELITE if el == "elite" else (float(REGISTRY[sp].awakened.get("size", 1.0)) if el == "awakened" else 1.0)
             shadow = [int(round(REGISTRY[sp].shadow[0] * k)), int(round(REGISTRY[sp].shadow[1] * k))]
-            path = "art/topdown/foes/%s%s.png" % (sp, "_elite" if el else "")
+            path = "art/topdown/foes/%s%s.png" % (sp, "" if el == "base" else "_" + el)
             v = {"actions": acts, "shadow": shadow, "top": top, "atlas": "res://" + path, "cell": [cw, ch],
                  "foot": [int(sculpt.FOOT[0] - x0), int(sculpt.FOOT[1] - y0)]}
             sheets[path] = sheet
-            if el:
-                block["elite"] = v
+            if el != "base":
+                block[el] = v
             else:
                 block.update(v)
         species[sp] = block

@@ -3154,6 +3154,16 @@ func _draw_boss() -> void:
 		draw_polygon(PackedVector2Array([r.position, r.position + Vector2(fw, 0), Vector2(r.position.x + fw, ym), Vector2(r.position.x, ym)]), PackedColorArray([top, top, mid, mid]))
 		draw_polygon(PackedVector2Array([Vector2(r.position.x, ym), Vector2(r.position.x + fw, ym), r.end - Vector2(r.size.x - fw, 0), Vector2(r.position.x, r.end.y)]), PackedColorArray([mid, mid, low, low]))
 		draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1.0, fw - 1.0), 2), Color(UiKit.PALE_GOLD, 0.45), 2)
+	# Decision 45: a boss that cannot be beaten yet (the first boss awake) shows what its hide holds: the bar under its
+	# floor hatched over in stone, the floor's edge marked, and the word under it; blows that reach it glance off.
+	var hide := float(boss.ai.get("hp_floor", 0.0))
+	if hide > 0.0:
+		var hw := r.size.x * hide
+		draw_rect(Rect2(r.position, Vector2(hw, r.size.y)), Color(UiKit.INK, 0.5))
+		for k in range(0, int(hw) - 4, 7):
+			draw_line(Vector2(r.position.x + k, r.end.y - 1), Vector2(r.position.x + k + 6, r.position.y + 1), Color(UiKit.MIST, 0.4), 1.0)
+		draw_rect(Rect2(r.position.x + hw - 1.5, r.position.y - 4, 3, r.size.y + 8), UiKit.MIST)
+		UiKit.draw_outlined(self, Tx.t("hud.boss_hide"), Vector2(r.position.x, 172), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, hw - 8.0)
 	UiKit.draw_outlined(self, "%d%%" % int(round(frac * 100.0)), Vector2(r.position.x, r.position.y + 15), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	# The notches, and under each what the phase brings: the next one's caption always, the others where they fit.
 	var nxt := -1
@@ -3194,7 +3204,7 @@ func _phase_words(ph: Dictionary, done: bool) -> String:
 		var who := str(ph.get("summon", ""))
 		if who == "": return Tx.t("hud.phase_help")
 		return (Tx.t("hud.phase_summoned") if done else Tx.t("hud.phase_summon")) % ContentDB.name_of("enemies", who)
-	if act in ["enrage", "dig_in", "drink_wine", "self_detonate"]: return Tx.t("hud.phase_" + act)
+	if act in ["enrage", "dig_in", "drink_wine", "self_detonate", "awaken"]: return Tx.t("hud.phase_" + act)
 	return Tx.t("hud.phase_turn")
 
 ## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.

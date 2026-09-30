@@ -1524,6 +1524,11 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	if e.pools.has_status("freeze"):
 		for s in e.pools.statuses.duplicate():
 			if s.id == "freeze": e.pools.statuses.erase(s)
+	# Decision 45: a foe that cannot be beaten yet (the awakened eel) keeps its HP over its floor, whatever strikes it:
+	# a blow, a technique, a burn, a treasure. What its hide turns is told (`glance`), never taken.
+	var hide := float(e.ai.get("hp_floor", 0.0)) * e.pools.max_hp
+	var glance := hide > 0.0 and e.pools.hp - amount < hide
+	if glance: amount = maxf(0.0, e.pools.hp - hide)
 	e.pools.hp = maxf(0.0, e.pools.hp - amount)
 	e.flash = 0.12
 	if attacker.begins_with("c"): e.first_hit_by_player = true
@@ -1542,7 +1547,8 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 	emit("hit_landed", {"attacker": attacker, "target": str(e.uid), "target_kind": "enemy", "amount": int(amount), "type": dtype,
 		"crit": crit, "element": element, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height() * 0.8,
 		"hp": e.pools.hp, "max": e.pools.max_hp, "source": str(attack.get("source", "")),
-		"weight": CombatFeel.weight_of(attack, actors.get(attacker, {}), crit), "floor": e.altitude})
+		"weight": CombatFeel.weight_of(attack, actors.get(attacker, {}), crit), "floor": e.altitude, "glance": glance})
+	if glance: return
 	# S49: a named foe who yields at a fifth of their health waits on the victor's judgement (spare or kill).
 	if e.def.get("surrenders", false) and e.pools.hp <= e.pools.max_hp * 0.2 and game.character(attacker) != null:
 		e.pools.hp = maxf(1.0, e.pools.max_hp * 0.2)
@@ -1571,6 +1577,47 @@ func apply_execute(e: EnemyState, attacker: String) -> void:
 	if not e.alive: return
 	e.pools.hp = 0.0
 	_defeat(e, attacker)
+
+## Decision 45: a foe slain by the story, not by a blow (the elders' arts on the first boss: the scene's checkpoint, or
+## the rescue that comes without one). Its hide and its shelter go with it; `killer` names who (not a character, so no
+## Killing Intent and no boss moment of the player's), and its loot falls for the character as any kill's does.
+func slay(e: EnemyState, killer: String) -> void:
+	if e == null or not e.alive: return
+	# The player it held down beaten gets up (EnemyAuthority._eel_overwhelm's stun).
+	if str(e.ai.get("state", "")) == "looming" and game.active() != null: cure_status(game.active_id, "stun")
+	e.ai.erase("hp_floor")
+	e.ai.state = "slain"
+	e.invulnerable = false
+	e.pools.hp = 0.0
+	_defeat(e, killer)
+
+## The effect `slay_foe` (a staged scene's checkpoint): every living foe of `def` in the loaded room, slain by `killer`.
+func apply_slay(def_id: String, killer: String) -> void:
+	if game.room_rt == null: return
+	for e in game.room_rt.living_enemies():
+		if e.def_id == def_id and e.team == "enemy": slay(e, killer)
+
+## Decision 45: the awakened eel's last blow, when the player has slipped every surge (the river rises over the bank):
+## it cannot be dodged, guarded or shielded, and takes the player down to the fight's floor (`floor_k` of their most
+## HP; never lower, and never back up), knocked back from the river.
+func overwhelm(c, e: EnemyState, floor_k: float) -> void:
+	if c == null or wounded.has(c.id): return
+	var p: ResourcePool = c.pools
+	var st: ActorState = game.actor_state(c.id)
+	var amount := maxf(0.0, p.hp - p.max_hp * floor_k)
+	p.hp -= amount
+	p.since_hit = 0.0
+	var tl := timeline(c.id)
+	tl.fight_t = game.sim_time
+	tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
+	if st != null and e != null:
+		tl.forced = away(e.plane, st.plane) * 90.0 / 0.18
+		tl.forced_t = 0.18
+	if grid() != null: hitstop = maxf(hitstop, CombatFeel.hitstop_s("heavy", false))
+	emit("hit_landed", {"attacker": str(e.uid) if e != null else "", "target": c.id, "target_kind": "player", "amount": int(round(amount)), "type": "physical",
+		"crit": false, "element": "hollow", "x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0,
+		"alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": "hp", "weight": "heavy", "floor": st.altitude if st else 0.0})
+	emit("resource_changed", {"actor": c.id, "pool": "hp", "value": p.hp, "max": p.max_hp})
 
 ## A foe falls to `attacker`: Enemies records the defeat, Combat announces it, and a kill feeds Killing Intent.
 func _defeat(e: EnemyState, attacker: String) -> void:
@@ -1658,10 +1705,13 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	if game.pets.guardian_absorbs(c):
 		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid), "guardian": true})
 		return
-	# Parry: a guard begun within the family's parry window before the hit negates it.
+	# Parry: a guard begun within the family's parry window before the hit negates it. An `unblockable` blow (the
+	# awakened eel's, decision 45) passes a guard and a parry alike; only a dodge slips it.
 	var fam := StatRules.family(c)
+	var unblockable: bool = attack.get("unblockable", false)
 	var frontal := signf(float(pv.x) - e.plane.x) != float(tl.facing) or absf(float(pv.x) - e.plane.x) < 4
 	if pv.has("aim"): frontal = (e.plane - Vector2(float(pv.x), float(pv.y))).dot(pv.aim) >= 0.0   # facing the foe on the plane
+	if unblockable: frontal = false
 	if tl.guard and frontal and float(tl.guard_t) <= float(fam.get("parry_s", 0.18)) and Unlocks.is_unlocked(c.id, "guard"):
 		var stagger := float(ContentDB.stat_const("combat.parry_stagger_boss_s" if e.is_boss() else "combat.parry_stagger_s", 0.8))
 		game.enemies.stagger(e, stagger)
@@ -1681,6 +1731,12 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	var guard_pv := pv.duplicate()
 	if not (tl.guard and frontal): guard_pv.guarding = 0.0
 	var r := CombatRules.resolve(ev, guard_pv, a, Rng.stream(c.id, "combat"))
+	# A blow measured against the body itself (`hp_share`, the awakened eel's): that share of the player's most HP, whatever
+	# they wear or their evasion; it never misses.
+	if attack.has("hp_share"):
+		r.miss = false
+		r.crit = false
+		r.amount = c.pools.max_hp * float(attack.hp_share)
 	if r.miss:
 		emit("hit_missed", {"attacker": str(e.uid), "target": c.id, "x": pv.x, "y": pv.y, "alt": float(pv.alt) + 90})
 		return
@@ -1718,8 +1774,16 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		p.shield -= absorbed
 		amount -= absorbed
 	var pool := "soul" if dtype == "soul" and p.max_soul > 0 else "hp"
+	# Decision 45: while a foe that cannot be beaten is awake (the first boss), nothing takes the player under its floor;
+	# a blow that reaches it ends that fight (the player overwhelmed, the elders' rescue), never the player.
+	var floor_k: float = game.enemies.hold_floor(c) if pool == "hp" else -1.0
+	var floored := false
+	if floor_k >= 0.0 and p.hp - amount <= p.max_hp * floor_k:
+		amount = maxf(0.0, p.hp - p.max_hp * floor_k)
+		floored = true
 	var before := p.get_value(pool)
 	p.set_value(pool, before - amount)
+	if floored: game.enemies.floor_reached(c)
 	p.since_hit = 0.0
 	var tl := timeline(c.id)
 	var kb := float(attack.get("knockback", 0)) * (1.0 - clampf(c.stats.value("knockback_resistance"), 0.0, 0.9))   # S48 Iron Body, Body

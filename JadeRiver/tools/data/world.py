@@ -564,32 +564,43 @@ def lotus_ferry():
     r.edge("east", "east", "rm_marsh_edge", "west", y=820, ptype="sealed", requires=all_of(realm("bone_forging_2")),
            locked_text="The marsh path is too dangerous before Bone Forging 2.")
 
-    # P4 The Hollow Night (docs/redesign/story_staging.md "The Hollow Night", decision 42): an instanced set piece of two
-    # to four minutes in three beats. The river boils: grey minnows about each of the three villagers and more leaping up
+    # P4 The Hollow Night (docs/redesign/story_staging.md "The Hollow Night", decision 42): an instanced set piece of
+    # three to four minutes in beats. The river boils: grey minnows about each of the three villagers and more leaping up
     # the bank now and then, while you get each to Aunt Ping's door. The grey spreads: once they are in, schools pour up
-    # the lane from both ends for half a minute. The Hollowed eel rises (the boss, EnemyAuthority._eel: its tell, its
-    # lunge, its window; below half its HP the climax, when Lu comes and his palm pins it). The eel beaten, or the bank
-    # held until Lu comes (the timer), the night is won: the scene after it plays (its last step sets lu_on_the_bank),
-    # then Lu's boat. A fall wakes you at the hut's door and the night begins again (`refuge`). Each position here has
-    # its cell in the top-down layout (topdown_rooms.py village(night=True), in the same order).
+    # the lane from both ends for half a minute. The Hollowed eel rises, the first boss (decision 45, "The first boss";
+    # EnemyAuthority._eel): its tell, its lunge, its window, until at four fifths of its HP it wakes and becomes more than
+    # the player can meet. It overwhelms them (it cannot kill), and the village's elders come out of the dark and slay
+    # it (the scene elders_come); the night is won (on_complete sets night_held), the scene after it plays (its last step
+    # sets lu_on_the_bank), then Lu's boat. A fall before it wakes wakes you at the hut's door and the night begins again
+    # (`refuge`). Across a reload: the eel woke (eel_awakened) rises awake at once, with no minnows; the eel slain
+    # (night_held) leaves the night won (`won_if`), only its way on to take. The timer is a last resort (`timeout_wins`):
+    # the eel wakes 70 s into its fight at the latest and overwhelms 22 s after, so the elders come long before it. Each
+    # position here has its cell in the top-down layout (topdown_rooms.py village(night=True), in the same order).
     villagers_in = all_of(flag("dou_safe"), flag("granny_safe"), flag("ma_safe"))
     r = Room("lf_village_night", "Lotus Ferry at Night", "story", "lotus_ferry", 2, material="earth", backdrop="valley_night",
              music="night_hollow", ambience="night_ambience", spawn_point=[1500, 820], instanced=True, safe=False,
              tint="#8fa0b8", night=True, custom_ground=True, levels=[1, 1], refuge="hut_refuge",
-             event={"id": "hollow_night", "duration": 200, "win_on_kill": "hollowed_eel", "timeout_wins": True,
-                    "fixed_spawns": [{"enemy": "hollow_minnow", "at": at, "level": 1}
+             event={"id": "hollow_night", "duration": 320, "win_on_kill": "hollowed_eel", "timeout_wins": True,
+                    "won_if": all_of(flag("night_held")),
+                    "fixed_spawns": [{"enemy": "hollow_minnow", "at": at, "level": 1, "unless": all_of(flag("eel_awakened"))}
                                      for at in ([2180, 860], [2320, 850], [940, 800], [1070, 790], [1660, 810], [1790, 800])],
                     "waves": [
                         # The river boils all night: a minnow leaps up the bank now and then, never more than two about.
-                        {"enemy": "hollow_minnow", "every_s": 6.0, "first_s": 10.0, "max": 2, "level": 1, "hunt": True,
+                        {"enemy": "hollow_minnow", "every_s": 6.0, "first_s": 10.0, "max": 2, "level": 1, "hunt": True, "unless": all_of(flag("eel_awakened")),
                          "points": [[300, 880], [900, 890], [1400, 890], [2000, 890], [2400, 880]]},
                         # The grey spreads up the lane once the villagers are in: schools from both ends, for half a minute.
                         {"enemy": "hollow_minnow", "every_s": 2.5, "first_s": 1.0, "max": 4, "level": 1, "requires": villagers_in, "for_s": 24,
+                         "unless": all_of(flag("eel_awakened")),
                          "hunt": True, "points": [[120, 800], [140, 740], [2440, 800], [2420, 740], [1300, 880], [1560, 880]]}],
                     "timed_spawns": [{"enemy": "hollowed_eel", "at": [1500, 950], "level": 2, "requires": villagers_in, "delay_s": 14, "latest_s": 110,
-                                      "text": "The river heaves. Something long and grey rises out of it."}],
+                                      "unless": all_of(flag("eel_awakened")),
+                                      "text": "The river heaves. Something long and grey rises out of it."},
+                                     # Decision 45: after a reload with the eel awake, it rises again at once, awake.
+                                     {"enemy": "hollowed_eel", "at": [1500, 950], "level": 2, "requires": all_of(flag("eel_awakened")), "from_start": True, "delay_s": 2,
+                                      "text": "The river boils. The grey thing is waiting for you."}],
                     "on_complete": [{"kind": "set_flag", "flag": "dou_safe"}, {"kind": "set_flag", "flag": "granny_safe"},
-                                    {"kind": "set_flag", "flag": "ma_safe"}, {"kind": "grant_title", "title": "ferry_guardian"}],
+                                    {"kind": "set_flag", "flag": "ma_safe"}, {"kind": "set_flag", "flag": "night_held"},
+                                    {"kind": "grant_title", "title": "ferry_guardian"}],
                     "on_flawless": [{"kind": "grant_item", "item": "herbal_tea", "count": 2}],
                     "leave": {"after_s": 6.0, "grid_after_s": 30.0, "requires": all_of(flag("lu_on_the_bank")),
                               "effects": [{"kind": "set_flag", "flag": "night_survived"}, {"kind": "clear_flag", "flag": "night_active"},

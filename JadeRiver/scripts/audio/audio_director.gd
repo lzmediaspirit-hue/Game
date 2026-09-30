@@ -600,7 +600,10 @@ func scan_fight() -> Dictionary:
 		var boss: bool = e.is_boss() or bosses.has(e.def_id)
 		if not boss and (e.hidden or (listener != Vector2.INF and e.plane.distance_to(listener) > radius)): continue
 		out.fighting = true
-		if bosses.has(e.def_id): out.boss = str(bosses[e.def_id])
+		# Decision 45: a boss woken in its second phase (the first boss) has a theme of its own from then on.
+		var awake: Dictionary = SoundBank.section("music").get("boss_awake", {})
+		if awake.has(e.def_id) and e.ai.get("awake_begun", false): out.boss = str(awake[e.def_id])
+		elif bosses.has(e.def_id): out.boss = str(bosses[e.def_id])
 		elif e.is_boss() and roles.has(e.role) and out.boss == "": out.boss = str(roles[e.role])
 	return out
 

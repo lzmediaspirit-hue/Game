@@ -273,9 +273,17 @@
  "refuge": "hut_refuge",
  "event": {
   "id": "hollow_night",
-  "duration": 200,
+  "duration": 320,
   "win_on_kill": "hollowed_eel",
   "timeout_wins": true,
+  "won_if": {
+   "all": [
+    {
+     "kind": "flag_set",
+     "flag": "night_held"
+    }
+   ]
+  },
   "fixed_spawns": [
    {
     "enemy": "hollow_minnow",
@@ -283,7 +291,15 @@
      2180,
      860
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    },
    {
     "enemy": "hollow_minnow",
@@ -291,7 +307,15 @@
      2320,
      850
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    },
    {
     "enemy": "hollow_minnow",
@@ -299,7 +323,15 @@
      940,
      800
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    },
    {
     "enemy": "hollow_minnow",
@@ -307,7 +339,15 @@
      1070,
      790
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    },
    {
     "enemy": "hollow_minnow",
@@ -315,7 +355,15 @@
      1660,
      810
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    },
    {
     "enemy": "hollow_minnow",
@@ -323,7 +371,15 @@
      1790,
      800
     ],
-    "level": 1
+    "level": 1,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    }
    }
   ],
   "waves": [
@@ -334,6 +390,14 @@
     "max": 2,
     "level": 1,
     "hunt": true,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    },
     "points": [
      [
       300,
@@ -380,6 +444,14 @@
      ]
     },
     "for_s": 24,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    },
     "hunt": true,
     "points": [
      [
@@ -435,7 +507,34 @@
     },
     "delay_s": 14,
     "latest_s": 110,
+    "unless": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    },
     "text": "The river heaves. Something long and grey rises out of it."
+   },
+   {
+    "enemy": "hollowed_eel",
+    "at": [
+     1500,
+     950
+    ],
+    "level": 2,
+    "requires": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "eel_awakened"
+      }
+     ]
+    },
+    "from_start": true,
+    "delay_s": 2,
+    "text": "The river boils. The grey thing is waiting for you."
    }
   ],
   "on_complete": [
@@ -450,6 +549,10 @@
    {
     "kind": "set_flag",
     "flag": "ma_safe"
+   },
+   {
+    "kind": "set_flag",
+    "flag": "night_held"
    },
    {
     "kind": "grant_title",

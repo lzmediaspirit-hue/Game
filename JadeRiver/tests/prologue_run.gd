@@ -721,9 +721,11 @@ func step_evening() -> void:
 	check(room() == "lf_village_night", "the night falls (room %s)" % room())
 	check(c().quests.is_active("the_hollow_night"), "The Hollow Night begins")
 
-## P4 The Hollow Night (decision 42, docs/redesign/story_staging.md): the grey minnows about each villager fought off
-## and the three sent to Aunt Ping's door, the lane's schools once they are in, then the Hollowed eel on the bank, its
-## tell read and its windows struck until it falls; the scene after it, and Lu's boat.
+## P4 The Hollow Night (decision 42, docs/redesign/story_staging.md): the grey minnows about the villagers fought off
+## and the three sent to Aunt Ping's door, the lane's schools once they are in, then the Hollowed eel on the bank, the
+## first boss (decision 45): its tell read and its windows struck until it wakes at four fifths of its HP; then more
+## than the player can meet, until it has them down (never a fall) and the elders slay it; the scene after it, and Lu's
+## boat.
 func step_night() -> void:
 	var night := {"minnows": 0}
 	var count := func(n: String, p: Dictionary):
@@ -747,9 +749,12 @@ func step_night() -> void:
 	GameEvents.event.disconnect(count)
 	check(int(night.minnows) >= 6, "the grey minnows fall to the player's blows (%d cut down)" % int(night.minnows))
 	check(_night_foe("hollowed_eel") != null, "the Hollowed eel rises once the villagers are in (%.0f s on)" % t)
-	check(fight_eel(150.0), "the Hollowed eel beaten on the bank: its tell read, its windows struck (HP %d/%d)" % [int(c().pools.hp), int(c().pools.max_hp)])
+	var r := fight_eel(240.0)
+	check(r.woke and r.by_blows, "the Hollowed eel's first phase won: its tell read, its windows struck until it wakes at four fifths of its HP (%s)" % str(r))
+	check(r.overwhelmed and not r.fell, "awake it is more than the player can meet: it has them down, and they never fall (HP never under %d%%)" % int(100.0 * float(r.low)))
+	check(str(r.slain_by) == "elders", "the elders slay the eel, not the player (%s)" % str(r.slain_by))
 	var w := 0.0
-	while room() == "lf_village_night" and w < 30.0:
+	while room() == "lf_village_night" and w < 45.0:
 		step(0.5)
 		w += 0.5
 	step(1.0)   # a breath on the deck: the last blow of the night is done
@@ -763,23 +768,42 @@ func _night_foe(def_id: String) -> EnemyState:
 		if e.def_id == def_id and e.team == "enemy": return e
 	return null
 
-## The Hollowed eel as a player who has read its tell fights it (EnemyAuthority._eel): on the bank above it while it
-## glides; out of its line while it rears; beside it, striking (a technique first when one is slotted), while it lies
-## ashore; a minnow that comes close cut down between; a tea at 40% HP. True when it falls to the player.
-func fight_eel(limit_s: float) -> bool:
-	var won := {"done": false}
+## The Hollowed eel, the first boss (EnemyAuthority._eel), as a player who has read its tell fights it: on the bank above
+## it while it glides; out of its line while it rears; beside it, striking (a technique first when one is slotted),
+## while it lies ashore; a minnow that comes close cut down between; a tea at 40% HP. Awake, the same player goes on the
+## same way until it has them down; then the elders come (a scene's checkpoint where a director plays them, else the
+## rescue in the simulation). {woke, by_blows (it woke at 80% of its HP, not on its clock), overwhelmed, slain_by, fell,
+## low (the lowest HP share), phase1_s, phase2_s}.
+func fight_eel(limit_s: float) -> Dictionary:
+	var r := {"woke": false, "by_blows": false, "overwhelmed": false, "slain_by": "", "fell": false, "low": 1.0, "phase1_s": 0.0, "phase2_s": 0.0}
+	var t0 := {"t": 0.0}
 	var heard := func(n: String, p: Dictionary):
-		if n == "actor_defeated" and str(p.get("def", "")) == "hollowed_eel" and str(p.get("killer", "")) == str(c().id): won.done = true
+		match n:
+			"boss_phase":
+				if str(p.get("action", "")) == "awaken":
+					r.woke = true
+					var e := _night_foe("hollowed_eel")
+					r.by_blows = e != null and e.pools.hp <= e.pools.max_hp * 0.8 + 0.5
+			"boss_overwhelmed": r.overwhelmed = true
+			"actor_defeated": if str(p.get("def", "")) == "hollowed_eel": r.slain_by = "player" if str(p.get("killer", "")) == str(c().id) else str(p.get("killer", ""))
+			"player_gravely_wounded": r.fell = true
 	GameEvents.event.connect(heard)
 	var t := 0.0
 	var dodged := Vector2.INF
-	while not won.done and t < limit_s and Game.room_rt != null and room() == "lf_village_night":
+	while str(r.slain_by) == "" and t < limit_s and Game.room_rt != null and room() == "lf_village_night":
 		var e := _night_foe("hollowed_eel")
-		if e == null: break
+		if e == null:
+			step(0.2)
+			t += 0.2
+			continue
 		if Game.combat.is_wounded(c().id): break
+		r.low = minf(float(r.low), c().pools.hp / c().pools.max_hp)
+		if r.woke and float(r.phase1_s) == 0.0: r.phase1_s = t
 		var s := str(e.ai.get("state", ""))
 		var step_s := 0.2
-		if s == "windup":
+		if r.overwhelmed:
+			pass   # down, beaten: the elders are coming
+		elif s == "windup":
 			# Out of its line: a long step across its aim, once each time it rears.
 			var land: Vector2 = e.ai.get("land", e.plane)
 			if land != dodged:
@@ -803,13 +827,14 @@ func fight_eel(limit_s: float) -> bool:
 				# The bank above it, within its reach (it rears only at a foe it can reach).
 				var bank := Vector2(e.plane.x, e.plane.y - 96.0)
 				place(Game.room_rt.topdown.nearest_standable(bank) if Game.room_rt.topdown != null else bank)
-		if c().pools.hp < c().pools.max_hp * 0.4 and Unlocks.is_unlocked(c().id, "quick_use") and c().inventory.count("herbal_tea") > 0:
+		if not r.overwhelmed and c().pools.hp < c().pools.max_hp * 0.4 and Unlocks.is_unlocked(c().id, "quick_use") and c().inventory.count("herbal_tea") > 0:
 			submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
 		step(step_s)
 		t += step_s
+	if r.woke: r.phase2_s = t - float(r.phase1_s)
 	GameEvents.event.disconnect(heard)
 	for l in (Game.room_rt.loot.duplicate() if Game.room_rt != null else []): submit({"type": "pick_up", "uid": int(l.uid)})
-	return bool(won.done)
+	return r
 
 ## P5 Lu's Boat: the first breakthrough.
 func step_river_token() -> void:

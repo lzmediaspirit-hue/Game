@@ -22,6 +22,8 @@ and length); this table says which of them the game plays when, and how the mix 
   bosses' own themes, the stingers and the events that play them.
 - mix: the buses and the Settings slider that drives each, the master limiter, the ducking under stingers, barks and
   scenes, and the voice limit with its priorities.
+- story (decision 45): the first boss's own sounds, which its staged scenes play (the eel waking, the river boiling,
+  the elders' three arts), and the theme of the eel awakened, which the music takes up the moment it wakes.
 - life (decision 44): the living world's sounds, which TopdownLife raises as world sounds (the critters and the
   villagers at work), and the player's use of a place; the takes the director plays in turn, and their pitch spread.
   `--check` also proves that every one the code or data/topdown/life.json can raise has a sound (check_life).
@@ -190,6 +192,9 @@ MUSIC = {
         "check_s": 0.25,
     },
     "boss": {"old_snapper": "boss_snapper", "hollowed_eel": "boss_eel"},
+    # Decision 45: a boss's theme once it has woken in its second phase (the first boss): the director crosses to it on
+    # the next beat, as it does to a boss's own theme.
+    "boss_awake": {"hollowed_eel": "boss_eel_awakened"},
     "boss_roles": {"story_boss": "boss", "dungeon_boss": "boss", "field_boss": "boss"},
     "boss_fade_s": 1.0,
     "room_fade_s": 1.0,
@@ -230,6 +235,12 @@ MIX = {
         ],
     },
 }
+
+# ------------------------------------------------------------------ the first boss (decision 45)
+# The sounds its staged scenes play (data/scenes.json `sound` steps; tools/audio/story.py makes them): the eel waking
+# and the river boiling round it (eel_awakens), and the elders' arts (elders_come), each timed to its art's impact.
+STORY = {"eel_roar": "story_eel_roar", "river_boil": "story_river_boil", "talisman_array": "story_talisman",
+         "force_palm": "story_palm", "water_dragon": "story_dragon", "awakened_theme": "boss_eel_awakened"}
 
 # ------------------------------------------------------------------ the world's events
 WORLD = {
@@ -359,6 +370,7 @@ def payload() -> dict:
         "stinger_events": STINGER_EVENTS,
         "mix": MIX,
         "world": WORLD,
+        "story": STORY,
         "life": dict(LIFE, takes=life_takes()),
     }
 
@@ -374,7 +386,7 @@ def sound_ids(node=None) -> set:
         for v in node:
             out |= sound_ids(v)
     elif isinstance(node, str) and (node.startswith(("hit_", "step_", "land_", "swing_", "cast_", "tell", "die_", "bed_", "sting_",
-                                                     "door_", "talk_", "boss_", "life_", "place_"))
+                                                     "door_", "talk_", "boss_", "life_", "place_", "story_"))
                                     or node in ("hurt", "jump", "splash", "loot_drop", "bark", "scene_in")):
         out.add(node)
     return out

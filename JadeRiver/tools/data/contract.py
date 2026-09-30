@@ -26,7 +26,9 @@ CATALOGUE = {
     "Enemies": [
         "enemy_aggro", "enemy_spawned", "elite_spawned", "field_boss_spawned", "field_boss_defeated",
         # P9 finding: announced by the Enemies system but missing from the contract, so nothing checked them.
-        "boss_phase", "enemy_summoned", "boss_fled", "boss_defeated"],
+        "boss_phase", "enemy_summoned", "boss_fled", "boss_defeated",
+        # Decision 45: a boss that cannot be beaten yet has the player overwhelmed (the first boss's rescue waits on it).
+        "boss_overwhelmed"],
     "Crafting": [
         "craft_step_result", "craft_started", "craft_completed", "profession_rank_up", "fish_caught"],
     "Economy": [
@@ -232,7 +234,8 @@ PAYLOAD = {
     "system_unlocked": ["actor", "system", "toast", "label"],
     "achievement_unlocked": ["actor", "id", "name"],
     "enemy_aggro": ["enemy", "target", "def"],
-    "boss_phase": ["enemy", "phase", "action"],
+    "boss_phase": ["enemy", "phase", "action", "staged?", "def?"],
+    "boss_overwhelmed": ["actor", "enemy", "def"],
     "boss_defeated": ["room", "enemy", "role", "clean"],
     "field_boss_defeated": ["room", "enemy"],
     "loot_dropped": ["room", "items", "x", "y", "source", "first_weapon"],

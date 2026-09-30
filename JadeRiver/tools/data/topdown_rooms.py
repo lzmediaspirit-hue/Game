@@ -409,6 +409,8 @@ def scene_walks(rid, d):
             if st.get("do") != "move" or st.get("actor") not in pos:
                 continue
             for to in st["to"]:
+                if isinstance(to, dict):
+                    break          # decision 45: beside something where it stands (where the fight is): no fixed walk
                 a, b = pos[st["actor"]], tuple(to)
                 n = int(max(abs(b[0] - a[0]), abs(b[1] - a[1])) * 2) + 1
                 for k in range(n + 1):
@@ -577,11 +579,12 @@ def village(rid="lf_village", night=False):
         r.at("npc_granny_night", 18, 23)
         r.at("npc_ma_night", 38, 18)
         # The Hollow Night's event (world.py, in its order): two minnows about each villager; the river's minnows up the
-        # bank; the lane's schools from both ends once the villagers are in; the eel rising mid-river off the square.
+        # bank; the lane's schools from both ends once the villagers are in; the eel rising mid-river off the square (and,
+        # decision 45, rising there again at once, awake, after a reload once it has woken).
         r.event = {"fixed": [[42, 26.5], [46, 26], [16, 25], [20.5, 24.5], [36, 20], [40.5, 20]],
                    "waves": [[[5, 31], [15, 32], [25, 31], [35, 32], [44, 31]],
                              [[1, 20.5], [1.5, 22], [46.5, 20.5], [46, 22], [24, 31], [32, 31]]],
-                   "timed": [[30, 36.5]]}
+                   "timed": [[30, 36.5], [30, 36.5]]}
         return r
     hall = r.prop("house", 48, 11)                # the village hall
     inn = r.prop("house", 55, 11)                 # the Ferry Inn, a tile's jump beyond the hall

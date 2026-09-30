@@ -11,9 +11,10 @@ extends RefCounted
 ## Every step kind and what it works on: an actor, the camera, the screen, the world, the flow of the script, or the
 ## hand-off to the player.
 const STEP_KINDS := {"move": "actor", "face": "actor", "emote": "actor", "pose": "actor", "say": "actor",
-	"camera": "camera", "zoom": "camera", "shake": "camera", "letterbox": "camera",
+	"camera": "camera", "zoom": "camera", "shake": "camera", "letterbox": "camera", "hitstop": "camera",
 	"fade": "screen", "flash": "screen", "title": "screen",
 	"spawn": "world", "despawn": "world", "door": "world", "weather": "world", "moment": "world", "fx": "world", "sound": "world",
+	"art": "world", "foe": "world",
 	"wait": "flow", "wait_input": "flow", "wait_event": "flow", "branch": "flow", "label": "flow", "goto": "flow", "mark": "flow",
 	"handoff": "hand"}
 ## The balloons over a head (research §2.3: the "!" of surprise, the "?" of doubt, a song, a heart, a vein of anger, a
@@ -53,7 +54,11 @@ static func step_s(step: Dictionary, dist := 0.0) -> float:
 	match str(step.get("do", "")):
 		"say": return read_s(str(step.get("text", "")))
 		"wait", "fade", "title": return float(step.get("s", 2.5 if str(step.do) == "title" else 1.0))
-		"move": return dist / pace(step) if waits else 0.0
+		"move":
+			# A walk to beside something where it stands (decision 45) is measured at its `est_s`.
+			if (step.get("to", []) as Array).any(func(q): return q is Dictionary): return float(step.get("est_s", 1.5)) if waits else 0.0
+			return dist / pace(step) if waits else 0.0
+		"hitstop": return float(step.get("s", 0.1))
 		"camera", "zoom": return float(step.get("s", 1.0)) if waits else 0.0
 		"emote", "pose": return float(step.get("s", 1.0)) if step.get("wait", false) else 0.0
 		"wait_input": return float(cfg().get("tap_s", 1.0))
@@ -98,6 +103,7 @@ static func length(scene: Dictionary, def: Dictionary, grid: TopdownRoom) -> flo
 				var h := home(scene, who, def, grid)
 				at[who] = h.get("at", Vector2.ZERO)
 			for q in st.get("to", []):
+				if q is Dictionary: continue   # beside something where it stands: measured at its est_s
 				var p := point(q)
 				if who != "player": dist += (at[who] as Vector2).distance_to(p)
 				at[who] = p
@@ -165,13 +171,16 @@ static func problems(scene: Dictionary) -> Array:
 		match kind:
 			"move":
 				if (st.get("to", []) as Array).is_empty(): out.append("%s: goes nowhere" % where)
-				if who != "player" and str(actors[who].get("prop", "")) == "":
+				var beside: Array = (st.get("to", []) as Array).filter(func(q): return q is Dictionary)
+				for q in beside:
+					if not _target_ok(q.get("near", ""), actors, def): out.append("%s: goes beside %s" % [where, str(q.get("near", ""))])
+				if beside.is_empty() and who != "player" and str(actors[who].get("prop", "")) == "":
 					if not at.has(who): at[who] = home(scene, who, def, grid).get("at", Vector2.ZERO)
 					if walk_path(grid, at[who], st.get("to", [])).is_empty(): out.append("%s: %s has no way on foot to %s" % [where, who, str(st.get("to", []))])
-				if not (st.get("to", []) as Array).is_empty(): at[who] = point(st.to.back())
+				if not (st.get("to", []) as Array).is_empty() and beside.is_empty(): at[who] = point(st.to.back())
 			"face":
 				var to = st.get("to", "")
-				if not (to is Array) and not str(to) in ["n", "s", "e", "w", "player"] and not actors.has(str(to)): out.append("%s: faces %s" % [where, str(to)])
+				if not (to is Array) and not str(to) in ["n", "s", "e", "w", "player"] and not actors.has(str(to)) and not (str(to).contains(":") and _target_ok(to, actors, def)): out.append("%s: faces %s" % [where, str(to)])
 			"emote": if not str(st.get("emote", "")) in EMOTES: out.append("%s: emote %s" % [where, str(st.get("emote", ""))])
 			"pose":
 				if not str(st.get("pose", "")) in poses: out.append("%s: pose %s is not one %s has" % [where, str(st.get("pose", "")), who])
@@ -187,7 +196,19 @@ static func problems(scene: Dictionary) -> Array:
 			"moment": if not ContentDB.has_entry("moments", str(st.get("row", ""))): out.append("%s: moment %s" % [where, str(st.get("row", ""))])
 			"door": if def.get("portals", []).filter(func(p): return str(p.id) == str(st.get("portal", ""))).is_empty(): out.append("%s: door %s" % [where, str(st.get("portal", ""))])
 			"weather": if not str(st.get("kind", "")) in WEATHER: out.append("%s: weather %s" % [where, str(st.get("kind", ""))])
-			"spawn", "despawn": if not actors.get(who, {}).get("npc", actors.get(who, {}).get("prop", "")): out.append("%s: %s is no extra" % [where, who])
+			"spawn", "despawn":
+				if not actors.get(who, {}).get("npc", actors.get(who, {}).get("prop", "")): out.append("%s: %s is no extra" % [where, who])
+				if st.get("at") is Dictionary and not _target_ok(st.at.get("near", ""), actors, def): out.append("%s: spawns beside %s" % [where, str(st.at.get("near", ""))])
+			# Decision 45: a story art of the FX pipeline where a target stands, a foe of the room staged, a hit-stop.
+			"art":
+				if not (ContentDB.config("fx_topdown").get("story", {}).get("arts", {}) as Dictionary).has(str(st.get("art", ""))): out.append("%s: art %s is no story art of the FX sheets" % [where, str(st.get("art", ""))])
+				if not _target_ok(st.get("at", "player"), actors, def): out.append("%s: at %s" % [where, str(st.get("at", ""))])
+			"foe":
+				var foe := str(st.get("foe", ""))
+				var acts: Dictionary = grid.tileset.get("foes", {}).get("species", {}).get(foe, {}).get("actions", {}) if ContentDB.has_entry("enemies", foe) else {}
+				if not ContentDB.has_entry("enemies", foe): out.append("%s: foe %s" % [where, foe])
+				elif str(st.get("pose", "")) != "" and not acts.has(str(st.pose)): out.append("%s: %s has no %s on its sheet" % [where, foe, str(st.pose)])
+			"hitstop": if float(st.get("s", 0.0)) <= 0.0 or float(st.get("s", 0.0)) > 0.5: out.append("%s: a hit-stop of %.2f s" % [where, float(st.get("s", 0.0))])
 			"branch", "goto":
 				for k in ["then", "else", "label"]:
 					if st.has(k) and not marks.has(str(st[k])): out.append("%s: no label %s" % [where, str(st[k])])

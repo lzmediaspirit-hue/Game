@@ -926,13 +926,14 @@ def prologue_quests():
         requires=all_of(qdone("crab_trouble")), target_room="lf_village", chapter="prologue",
         offer=["Eat with your aunt tonight. Then come to the docks at sunset. There's something I want to show you on the water."])
     # The Hollow Night (decision 42, docs/redesign/story_staging.md): three villagers to Aunt Ping's door through the
-    # minnows, then the Hollowed eel on the bank until Lu comes. The room's event (world.py lf_village_night) is won by
-    # beating the eel or holding out; its way on sets night_survived (the last step) as it takes you to Lu's boat.
+    # minnows, then the Hollowed eel on the bank. It wakes at four fifths of its HP and overwhelms you, and the village's
+    # elders slay it (decision 45, "The first boss"). The room's event (world.py lf_village_night) is won when it falls;
+    # its way on sets night_survived (the last step) as it takes you to Lu's boat, where cultivation begins.
     quest("the_hollow_night", "The Hollow Night", "main", "lu_boatman", [
         o("set_flag", "Get Little Dou to the hut", flag="dou_safe"),
         o("set_flag", "Get Granny Liu to the hut", flag="granny_safe"),
         o("set_flag", "Get Old Ma to the hut", flag="ma_safe"),
-        o("set_flag", "Hold the bank against the Hollow until Lu comes", flag="night_survived"),
+        o("set_flag", "Hold the bank against the Hollow", flag="night_survived"),
     ], [], hand_in="", auto_accept=True, requires=all_of(flag("night_active"), noflag("night_survived")), target_room="lf_village_night", chapter="prologue")
     quest("the_river_token", "The River Token", "main", "lu_boatman", [
         o("meditate_seconds", "Meditate on the boat", 15),
@@ -942,7 +943,7 @@ def prologue_quests():
         auto_accept=True,
         requires=all_of(flag("night_survived")), target_room="lf_lu_boat", chapter="prologue",
         on_accept=[fx("learn_method", method="riverbreath_fragment"), fx("add_progress", pct_of_need=0.98), fx("codex", entry="lotus_ferry")],
-        offer=["That thing in the water was a Hollowed eel. The grey is spreading.", "You have a gift. I felt it last night. Sit. Breathe as I showed you."],
+        offer=["That thing in the water was a Hollowed eel. The grey is spreading.", "You have a gift. I felt it stir on the bank. Sit. Breathe as I tell you."],
         complete=["Bone Forging. Your first step. The body is the cup; Qi will be the water.",
                   "And a palm to go with it. Push, the way the river pushes the boat: Flowing Palm. In the body stages it needs no Qi, only breath.",
                   "Take this River Token. Go west along the Willow Path and try the palm on the boarlets. There's a note waiting for you."],

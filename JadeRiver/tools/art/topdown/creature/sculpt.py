@@ -280,10 +280,10 @@ def _solids(P: Pose, V: View) -> list:
     return out
 
 
-def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0, aura: bool = False) -> np.ndarray:
+def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0, aura=False) -> np.ndarray:
     """The posed creature seen facing `yaw_deg` on the ground (east 0, south 90): RGBA on the working canvas, its feet
     on FOOT. An elite takes the darker ramp and the ring of Qi; `aura` gives the ring alone (a boss in its own
-    colours)."""
+    colours; "hollow": the Hollow's grey-violet ring with embers of red, decision 45's awakened eel)."""
     V = View(P, yaw_deg)
     lk = look.elite() if elite else look
     rlook = render.Look(mats=lk.mats, glow=lk.glow)
@@ -332,7 +332,7 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
         if 0 <= i < raster.W and 0 <= j < raster.H:
             rgba[j, i] = _over(rgba[j, i], _rgba(col))
     if elite or aura:
-        _aura(rgba, frame_no)
+        _aura(rgba, frame_no, "hollow" if aura == "hollow" else "gold")
     return rgba
 
 
@@ -420,10 +420,19 @@ def _grow(on: np.ndarray) -> np.ndarray:
     return on | pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:]
 
 
-def _aura(rgba: np.ndarray, f: int) -> None:
+# The ring's colours: an elite's (and a boss's own) pale gold; the Hollow's, for a foe awakened by it (decision 45).
+AURA = {"gold": {"bright": (255, 244, 196), "main": (255, 214, 110), "faint": (255, 220, 130), "tongue": (255, 226, 150),
+                 "mote": (255, 240, 180)},
+        "hollow": {"bright": (255, 110, 88), "main": (150, 126, 184), "faint": (118, 100, 150), "tongue": (178, 150, 206),
+                   "mote": (255, 140, 110)}}
+
+
+def _aura(rgba: np.ndarray, f: int, tone: str = "gold") -> None:
     """The elite's mark: Qi burning round it in pale gold. A ring hugs its outline (stronger toward the top, bright
     specks flickering frame by frame), a fainter one stands off it round its upper part, tongues of it lick up off its
-    back, and motes rise over it."""
+    back, and motes rise over it. `tone` "hollow" (decision 45, the awakened eel): the Hollow's grey-violet smoke with
+    embers of red in it, the same shapes."""
+    C = AURA[tone]
     a = rgba[..., 3] > 0
     Hh, Ww = a.shape
     if not a.any():
@@ -443,11 +452,11 @@ def _aura(rgba: np.ndarray, f: int) -> None:
                 if hv < 0.1:
                     continue
                 if hv > 0.84:
-                    rgba[y, x] = (255, 244, 196, int(170 + 60 * max(0.0, u)))
+                    rgba[y, x] = C["bright"] + (int(170 + 60 * max(0.0, u)),)
                 else:
-                    rgba[y, x] = (255, 214, 110, int(max(70, 95 + 100 * u)))
+                    rgba[y, x] = C["main"] + (int(max(70, 95 + 100 * u)),)
             elif u > 0.35 and hv > 0.4:
-                rgba[y, x] = (255, 220, 130, int(40 + 50 * u))
+                rgba[y, x] = C["faint"] + (int(40 + 50 * u),)
     # Tongues of Qi licking up off its top edge: a column's highest pixel, lifted a pixel or two, flickering.
     cols = np.nonzero(a.any(axis=0))[0]
     for x in cols:
@@ -457,7 +466,7 @@ def _aura(rgba: np.ndarray, f: int) -> None:
         for d in range(n):
             y = y0 - 3 - d
             if 0 <= y < Hh and rgba[y, x, 3] == 0:
-                rgba[y, x] = (255, 226, 150, 150 - 50 * d)
+                rgba[y, x] = C["tongue"] + (150 - 50 * d,)
     # Motes rising over it, two px a frame.
     cx = int(round(xs.mean()))
     w = max(4, int((xs.max() - xs.min()) * 0.45))
@@ -465,4 +474,4 @@ def _aura(rgba: np.ndarray, f: int) -> None:
         x = cx - w + (k * 2 * w) // 4 + (k * 5 + f) % 3
         y = int(top) - 2 - ((f * 2 + k * 5) % 7)
         if 0 <= x < Ww and 0 <= y < Hh and rgba[y, x, 3] == 0:
-            rgba[y, x] = (255, 240, 180, 220 if k % 2 else 160)
+            rgba[y, x] = C["mote"] + (220 if k % 2 else 160,)
