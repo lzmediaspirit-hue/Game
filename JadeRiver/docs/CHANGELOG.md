@@ -16,8 +16,10 @@ snow and `k` packed snow. As built in the art bible, §14.14.
   creeps over paths and paving as a thin drift, packed and fresh snow over the meadow, paths, paving, granite and rock
   (fresh over packed too), each in its own pixels, with edges that wander in soft lobes. Grass creeps over sand as
   over a path. Sand darkens where its corners touch the water (the `wet` tint through the tint masks), and the water
-  by sand shows it through the shallows (`v2.water.beach`, 15 cases × 4 frames). The atlas grows from 704 to 1,088 px
-  tall; `build_tiles.py --check` stays byte-identical.
+  by sand shows it through the shallows (`v2.water.beach`, 15 cases × 4 frames). Where two kinds of face meet on one
+  level, the one whose top creeps over the other's runs into it in a lobe (`v2.face_end`), so a beach ends in the
+  grassy bank and a bare lip in the snowy one at no straight seam. The atlas grows from 704 to 1,088 px tall;
+  `build_tiles.py --check` stays byte-identical.
 - **Where they lie** (`topdown_rooms.py`, `Layout.sand` and `Layout.snow`, ground paint only):
   - sand: Lotus Ferry's waterline from Home Lane's end to the ferry landing (and at night), with the washing beach, a
     cove and the landing under the docks; the Reed Shallows' beach and sandbar; the Marsh Edge's spits and islet;

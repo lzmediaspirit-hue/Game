@@ -833,6 +833,15 @@ func _sand_snow() -> void:
 		and damp.any(func(l): return str(l[0]) == "tint_0011_13" and wet.size() == 4 and is_equal_approx((l[1] as Color).a, float(wet[3])))
 		and str(shore[0].back()[0]) == "beachfx_01_0" and bank[0] == "sand_face_top_v1",
 		"sand: grass creeps over it (%s), it creeps over a path (%s); damp by the water, the shallows sandy (%s) and its bank a beach (%s)" % [sand, path, shore[0].back()[0], bank[0]])
+	# Where a beach meets the grassy bank, or the embankment of a path, the face of the one whose top creeps over the
+	# other's runs into it in a lobe: the grass's earth into the beach, the beach into the embankment.
+	var ends := TopdownTerrain.new(grid(["0000", "~~~~"], {"paint": ["gaad", "~~~~"]}))
+	var beach_end: Array = names.call(ends.face_layers(1, 0, 0, 0, TopdownRoom.WATER))
+	var path_end: Array = names.call(ends.face_layers(3, 0, 0, 0, TopdownRoom.WATER))
+	var mid: Array = names.call(ends.face_layers(2, 0, 0, 0, TopdownRoom.WATER))
+	t.check(beach_end[0] == "sand_face_top_v1" and beach_end.has("earth_join_w1") and path_end[0] == "bank_face_top_v3"
+		and path_end.has("sand_join_w3") and not mid.any(func(n): return n.contains("_join_")),
+		"sand: the grassy bank runs into the beach's end (%s) and the beach into the embankment (%s), in lobes" % [beach_end, path_end])
 	var meadow: Array = names.call(tr.top_layers(5, 2, 0))
 	var packed: Array = names.call(tr.top_layers(8, 0, 0))
 	var packed_in: Array = names.call(tr.top_layers(9, 0, 0))

@@ -496,6 +496,21 @@ def snow_faces(seed: int = 901) -> tuple:
     return face_tiles(pat)
 
 
+def face_join(top: Img, side: str, col: int, seed: int = 1801) -> Img:
+    """A face's first row (`top`, its tile at column `col` of the 64 px pattern) running into the neighbouring cell's
+    face from its `side` ('w': it enters at the west edge): the face's own pixels up to a boundary that wanders 2-7 px
+    in from the edge, down the rows in soft lobes, so where the grassy bank meets a beach (or a beach the embankment,
+    or the snow's lip the bare rock's) the lip changes at no straight seam."""
+    t = Img(T, T)
+    for j in range(T):
+        n = pn(col * T + (0 if side == "w" else T // 2), j, seed, 4, P, T)
+        b = 2 + int(n * 6)
+        for i in range(T):
+            if (i < b) if side == "w" else (i >= T - b):
+                t.put(i, j, top.get(i, j))
+    return t
+
+
 # ====================================================================================================== creeping
 def lumps(x: int, y: int, seed: int, cell: int = 8, r: float = 4.5) -> float:
     """Round lumps, periodic in 64 px: 1 at a jittered site (one to each 8 x 8 block), falling to 0 at `r` px from it.

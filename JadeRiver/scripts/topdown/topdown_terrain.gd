@@ -416,9 +416,34 @@ func face_layers(x: int, y: int, l: int, k: int, south: int) -> Array:
 	if not f.is_empty() and name == kind + ("_face_top" if k == 0 else "_face"):
 		name = str(f.top[posmod(x, 4)]) if k == 0 else str(f.body[posmod(k - 1, 2) * 4 + posmod(x, 4)])
 	var out: Array = [_layer(name)]
+	if k == 0 and v2.has("face_end"): out.append_array(_face_joins(x, y, l, kind))
 	for e in face_ends(x, y, l, k): out.append(_layer(e))
 	if k == l - south - 1 and south >= 0 and v2.has("face_ao"): out.append(_layer(str(v2.face_ao)))
 	return out
+
+## Decision 44: where a side neighbour on the same level, over the same drop, has a face of another kind and its top
+## creeps over this cell's (grass over sand, sand over a path, snow over rock), its face's first row runs into this one
+## in a wandering lobe (`v2.face_end`), so a beach meets the grassy bank, or a snowy lip the bare one, at no straight
+## seam.
+func _face_joins(x: int, y: int, l: int, kind: String) -> Array:
+	var out: Array = []
+	var fe: Dictionary = v2.face_end
+	var drop := edge_level(x, y + 1)
+	for s in [[-1, "w"], [1, "e"]]:
+		var nx: int = x + int(s[0])
+		if not room.inside(nx, y) or lv(nx, y) != l or _stairs(nx, y) or edge_level(nx, y + 1) != drop: continue
+		var other := face(nx, y, 0, drop == TopdownRoom.WATER).trim_suffix("_face_top")
+		if other == kind or not fe.has(other) or not _creeps_over(nx, y, x, y): continue
+		out.append(_layer(str(fe[other][s[1]][posmod(x, 4)])))
+	return out
+
+## Decision 44: does the top of cell (nx, ny) creep over the top of cell (x, y)? Grass over a path or sand (`under`),
+## or a creeping material over a mark that takes it.
+func _creeps_over(nx: int, ny: int, x: int, y: int) -> bool:
+	var j := ny * room.w + nx
+	var pl: Dictionary = _plan[y * room.w + x]
+	if _grass[j] == 1 and pl.under: return true
+	return _creep[j] != 0 and (int(pl.takes) >> _creep[j]) & 1 == 1
 
 ## Decision 44: has the water cell a side neighbour on land whose mark shows through the shallows (sand)?
 func _by_beach(x: int, y: int) -> bool:

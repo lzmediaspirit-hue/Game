@@ -63,6 +63,7 @@ FACE_KINDS = ["rock", "earth", "stone", "pave", "bank", "wood", "wall", "sand", 
 # Decision 44: the materials that creep over their neighbours on the same level with overlays of their own (grass has
 # the Phase 3 set, `over`).
 CREEP = ["sand", "snow", "snowpack"]
+FACE_JOINS = ["earth", "sand", "snow"]   # the faces that run into a neighbour's where their tops creep over it
 
 
 class Packer:
@@ -155,6 +156,19 @@ def build() -> tuple[Img, dict, dict, dict]:
             place(name, img, x0 + i % t2.M, y0 + 1 + i // t2.M)
             body_names.append(name)
         v2["faces"][kind] = {"top": top_names, "body": body_names}
+    # Decision 44: a face's first row running into its neighbour's where the neighbour's top creeps over it (the grassy
+    # bank into a beach, a beach into the embankment, the snow's lip into the bare rock's), per side and column.
+    v2["face_end"] = {}
+    for kind in FACE_JOINS:
+        tops, _ = tl.face_set(kind)
+        x0, y0 = pk.block(8, 1)
+        ends = {"w": [], "e": []}
+        for si, side in enumerate(("w", "e")):
+            for c in range(t2.M):
+                name = "%s_join_%s%d" % (kind, side, c)
+                place(name, ss.face_join(tops[c], side, c), x0 + si * t2.M + c, y0)
+                ends[side].append(name)
+        v2["face_end"][kind] = ends
     for corners in tl.CORNER_KEYS:
         if corners in ((0, 0, 0, 0), (1, 1, 1, 1)):
             continue

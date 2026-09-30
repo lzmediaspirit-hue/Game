@@ -1292,6 +1292,10 @@ material it lays over its neighbours) and `takes` (the materials that may lie ov
 - **The snow's face** is the karst cliff (`rock_face_tex`, so a snowy face joins a bare one column for column) with
   snow on its ledges where the bare rock has moss, and the snow's lip over its first row: lumps lit on top and cold
   underneath with their contact shadow, and icicles.
+- **Where faces meet.** When a side neighbour on the same level, over the same drop, has a face of another kind and its
+  top creeps over this cell's, its face's first row runs into this one in a lobe that wanders 2–7 px in from the edge
+  (`v2.face_end`, per kind, side and column: the earth bank, the sand's beach, the snow's lip). So a beach ends in the
+  grassy bank, the embankment of a path in the beach, and a bare lip in the snowy one, never at a straight seam.
 
 **Decals** (by a hash of the cell, §14.4): `sand` (0.3 of cells): fan shells, a snail shell, pebbles, a heron's and a
 crab's tracks, crab holes with their pellets, bleached driftwood, a line of wrack, a tuft of dune grass; `snow` (0.2):
