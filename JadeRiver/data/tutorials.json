@@ -2334,6 +2334,244 @@
    ],
    "priority": 3,
    "hint": "ui.tutorial.formations.hint"
+  },
+  {
+   "id": "sense",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "spirit_sense"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "sense|fan",
+     "tour": true
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "sense|fan",
+     "text": "ui.tutorial.sense.1"
+    },
+    {
+     "anchor": "soul",
+     "text": "ui.tutorial.sense.2"
+    },
+    {
+     "anchor": "sense|fan",
+     "try": {
+      "event": "spirit_sense_pulsed"
+     },
+     "text": "ui.tutorial.sense.3"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.sense.hint",
+   "since": 2
+  },
+  {
+   "id": "presence",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "presence"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "presence|fan",
+     "tour": true
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "presence|fan",
+     "text": "ui.tutorial.presence.1"
+    },
+    {
+     "anchor": "soul",
+     "text": "ui.tutorial.presence.2"
+    },
+    {
+     "anchor": "presence|fan",
+     "try": {
+      "event": "presence_toggled"
+     },
+     "text": "ui.tutorial.presence.3"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.presence.hint",
+   "since": 2
+  },
+  {
+   "id": "sphere",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "sphere"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "sphere|fan",
+     "tour": true
+    },
+    {
+     "at": "hud",
+     "anchor": "icon:menu",
+     "text": "ui.tutorial.sphere.page"
+    },
+    {
+     "at": "page",
+     "page": "menu",
+     "anchor": "open:cultivation",
+     "name": "ui.menu.cultivation"
+    },
+    {
+     "at": "page",
+     "page": "cultivation",
+     "anchor": "tab:dao",
+     "name": "ui.cultivation.dao"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "sphere|fan",
+     "text": "ui.tutorial.sphere.1"
+    },
+    {
+     "anchor": "qi",
+     "text": "ui.tutorial.sphere.2"
+    },
+    {
+     "anchor": "sphere|fan",
+     "try": {
+      "event": "sphere_toggled"
+     },
+     "text": "ui.tutorial.sphere.3"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.sphere.hint",
+   "since": 2
+  },
+  {
+   "id": "treasure",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "treasures"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:bag"
+    },
+    {
+     "at": "page",
+     "page": "inventory",
+     "anchor": "treasure:0|treasure_item",
+     "element": true,
+     "text": "ui.tutorial.treasure.do"
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "treasure:0",
+     "text": "ui.tutorial.treasure.1"
+    },
+    {
+     "anchor": "qi",
+     "text": "ui.tutorial.treasure.2"
+    },
+    {
+     "anchor": "icon:bag",
+     "text": "ui.tutorial.treasure.3"
+    }
+   ],
+   "priority": 5,
+   "hint": "ui.tutorial.treasure.hint",
+   "since": 2
+  },
+  {
+   "id": "treasure_2",
+   "page": "inventory",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "treasure_slot_2"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:bag"
+    },
+    {
+     "at": "page",
+     "page": "inventory",
+     "anchor": "treasure:1|treasure_item",
+     "element": true,
+     "text": "ui.tutorial.treasure_2.do"
+    }
+   ],
+   "tour": [],
+   "priority": 4,
+   "hint": "ui.tutorial.treasure_2.hint",
+   "since": 2
+  },
+  {
+   "id": "weapon_swap",
+   "page": "hud",
+   "tab": "",
+   "trigger": {
+    "kind": "unlock",
+    "unlock": "dual_loadout"
+   },
+   "chain": [
+    {
+     "at": "hud",
+     "anchor": "icon:bag"
+    },
+    {
+     "at": "page",
+     "page": "inventory",
+     "anchor": "spare|weapon",
+     "element": true,
+     "text": "ui.tutorial.weapon_swap.do"
+    },
+    {
+     "at": "hud",
+     "anchor": "swap",
+     "text": "ui.tutorial.weapon_swap.ready",
+     "tour": true
+    }
+   ],
+   "tour": [
+    {
+     "anchor": "swap",
+     "text": "ui.tutorial.weapon_swap.1"
+    },
+    {
+     "anchor": "skill|attack",
+     "text": "ui.tutorial.weapon_swap.2"
+    },
+    {
+     "anchor": "swap",
+     "try": {
+      "event": "loadout_swapped"
+     },
+     "text": "ui.tutorial.weapon_swap.3"
+    }
+   ],
+   "priority": 4,
+   "hint": "ui.tutorial.weapon_swap.hint",
+   "since": 2
   }
  ],
  "page_scripts": {
@@ -2416,5 +2654,6 @@
    "posts",
    "art_points_free"
   ]
- }
+ },
+ "version": 2
 }

@@ -7,7 +7,9 @@ extends Authority
 ##   - queue: the guides whose trigger held, waiting in turn (priority, then arrival), so two unlocks never collide;
 ##   - at: the step each tour in progress stands at, so a reload resumes it.
 ## A guide is queued the first time its trigger holds (TutorialRules.triggered). A character saved before the tutorials
-## (or one that skipped the Prologue) counts what it already has as known, so an old save gets no flood of lessons.
+## (or one that skipped the Prologue) counts what it already has as known, so an old save gets no flood of lessons; so
+## does one saved before a later batch of them (the record's `v` older than an entry's `since`: decision 44's late HUD
+## powers). A HUD power's guide goes on after its tour to the page that manages it (TutorialRules.guide_after_tour).
 ## The coach (scripts/ui/tutorial_coach.gd) shows them and reports each step through the intents; it alone decides when
 ## (never in a fight, a staged scene or a talk). Nothing is queued while every system is forced open (debug tools).
 
@@ -24,7 +26,7 @@ func subscribe() -> void:
 	# A system opened or a thing found is answered in the same pass, not at the next poll.
 	for ev in ["system_unlocked", "item_added", "bottleneck_reached", "level_changed"]:
 		GameEvents.subscribe(ev, func(p): _on_change(p), 90)
-	GameEvents.subscribe("character_created", func(p): if p.get("skip_prologue", false): _know_prologue(game.character(str(p.get("actor", "")))), 90)
+	GameEvents.subscribe("character_created", func(p): _on_created(p), 90)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -45,8 +47,8 @@ func handle(intent: Dictionary) -> Dictionary:
 			else:
 				st.seen[id] = 2 if intent.get("skipped", false) else 1
 				st.at.erase(id)
-				# A tour seen needs no guide to it any more.
-				if st.queue.has(id):
+				# A tour seen needs no guide to it any more (a HUD power's goes on to the page that manages it).
+				if st.queue.has(id) and not TutorialRules.guide_after_tour(TutorialRules.entry(id)):
 					st.queue.erase(id)
 					st.guided[id] = 1
 			return ok()
@@ -77,7 +79,18 @@ func state(c) -> Dictionary:
 	if st.get("legacy", false):
 		st.erase("legacy")
 		_know_all(c)
+	var v := TutorialRules.version()
+	if int(st.get("v", 1)) < v:
+		_know_since(c, int(st.get("v", 1)))
+		st["v"] = v
 	return st
+
+## A new character's record is current (and one that skips the Prologue knows its systems).
+func _on_created(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null: return
+	if not c.tutorials.has("legacy"): c.tutorials["v"] = TutorialRules.version()
+	if p.get("skip_prologue", false): _know_prologue(c)
 
 func tick(delta: float) -> void:
 	_poll += delta
@@ -146,6 +159,18 @@ func _know_all(c) -> void:
 		if TutorialRules.triggered(c, e) or (gate != "" and Unlocks.is_unlocked(c.id, gate)) or (gate == "" and str(tr.get("kind", "")) == "page"):
 			st.guided[str(e.id)] = 1
 			st.seen[str(e.id)] = 1
+
+## A record saved at version `from` knows what it has of the entries a later version brought: each whose trigger holds
+## now, or whose system is open, is counted guided and seen (a Sphere Lord's old save is not taught Spirit Sense).
+func _know_since(c, from: int) -> void:
+	var st: Dictionary = c.tutorials
+	for e in TutorialRules.entries():
+		if int(e.get("since", 1)) <= from: continue
+		var gate := str(e.get("trigger", {}).get("unlock", ""))
+		if TutorialRules.triggered(c, e) or (gate != "" and Unlocks.is_unlocked(c.id, gate)):
+			st.guided[str(e.id)] = 1
+			st.seen[str(e.id)] = 1
+			st.queue.erase(str(e.id))
 
 func _know_prologue(c) -> void:
 	if c == null: return

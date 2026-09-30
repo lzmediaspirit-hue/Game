@@ -17,7 +17,12 @@ extends Node
 ##   6. two unlocks at once queue one after the other, by priority; Later passes a guide by;
 ##   7. a page's "?" plays its tour again (not recorded), and Settings' Replay tutorials clears what was seen;
 ##   8. a place step leads the direction mark to the systems-as-places table's place (data/places.json, PlaceRules.home)
-##      for a system that lives at places, to one that opens the page it teaches; else to the nearest thing it names.
+##      for a system that lives at places, to one that opens the page it teaches; else to the nearest thing it names;
+##   9. decision 44, the late HUD powers (Spirit Sense, the Presence, the Sphere, treasures, the weapon swap): each has a
+##      guide and a tour (1); every anchor of them is found once the power is unlocked, on a character at its realm;
+##      Spirit Sense end to end (the hand on the fan, then on its button, the tour, a pulse through the spotlight, done);
+##      the treasures' tour first and its guide on to the Bag, the Sphere's guide on to the Dao tab after its tour, the
+##      weapon swap's guide to a spare in the Bag before its tour; a save from before them knows the powers it has.
 ## In-game tests never use the Max Tester save. Run headless:  godot --headless --path . res://tests/tutorials.tscn
 
 const TALKS := ["dialogue", "gift", "mercy", "fates", "revival", "welcome"]   ## pages the coach waits out: no tour
@@ -25,7 +30,18 @@ const PROLOGUE_HUD := ["joystick", "context", "bag", "room_banner", "minimap", "
 	"hp_bar", "player_panel", "attack", "damage_numbers", "system_log", "enemy_hp_bars", "elite_marker", "menu"]
 ## HUD parts not taught by a tour of their own: the Prologue's quests teach them, or a guide leads through them (the map
 ## and the mail buttons are the first steps of their guides), or a bar that shows itself.
-const HUD_TAUGHT_ELSEWHERE := ["map", "mail", "soul_bar", "treasure_2", "realm_badge", "progress_bar", "cultivate"]
+const HUD_TAUGHT_ELSEWHERE := ["map", "mail", "realm_badge", "progress_bar", "cultivate"]
+## Decision 44: the late HUD powers, each by its unlock (tools/data/story.py), the HUD role of its control, the realm it
+## opens at, the unlocks its lesson's HUD needs besides its own (the panel's bars, the Menu, the Bag, the techniques)
+## and the game event its "try it" waits for ("" where it is used only in a fight).
+const LATE := {
+	"sense": {"unlock": "spirit_sense", "role": "sense", "realm": "spirit_awakening_1", "event": "spirit_sense_pulsed", "with": ["spirit_sense"]},
+	"presence": {"unlock": "presence", "role": "presence", "realm": "will_manifest_1", "event": "presence_toggled", "with": ["spirit_sense", "presence"]},
+	"sphere": {"unlock": "sphere", "role": "sphere", "realm": "sphere_lord_1", "event": "sphere_toggled", "with": ["spirit_sense", "presence", "dao_tree", "sphere"]},
+	"treasure": {"unlock": "treasures", "role": "treasure:0", "realm": "heart_tempering_1", "event": "", "with": ["treasures"]},
+	"weapon_swap": {"unlock": "dual_loadout", "role": "swap", "realm": "heart_tempering_1", "event": "loadout_swapped", "with": ["dual_loadout"]},
+}
+const LATE_BASE := ["bag", "jump", "quick_use", "attack", "menu", "cultivate", "cultivation", "technique_slots_2", "guard", "qi_pool", "navigation"]
 
 var checks := 0
 var failures := 0
@@ -66,6 +82,9 @@ func _main() -> void:
 	await _places()
 	await _save_and_load()
 	_legacy()
+	await _sense_path()
+	await _late_lessons()
+	await _late_legacy()
 	await _anchors()
 	main.queue_free()
 	await get_tree().process_frame
@@ -196,13 +215,27 @@ func _data() -> void:
 			for e in TutorialRules.entries():
 				if str(e.trigger.get("unlock", "")) == str(u.id) and (TutorialRules.hud_entry(e) or not (e.chain as Array).is_empty()): taught = true
 			if not taught: untaught.append("%s (%s)" % [el, u.id])
-	# The ones still to come in later builds are listed; the prototype's all have theirs.
-	var later := ["sense", "presence", "sphere", "treasure_1", "weapon_swap"]
-	var now: Array = []
-	for x in untaught:
-		if not later.any(func(l): return str(x).begins_with(str(l) + " ")): now.append(x)
-	check(now.is_empty(),
-		"every HUD control the prototype reaches has its lesson (%s; later: %s)" % [str(untaught), str(later)])
+	check(untaught.is_empty(), "every HUD control that opens after the Prologue has its lesson, the late powers too (%s)" % str(untaught))
+	# Decision 44: every late HUD power has a guide and a tour. The guide comes from its unlock, and its hand is on the
+	# control (a tap there plays the tour) or, for a control only a fight shows, the tour comes first and lights where it
+	# comes out. The tour has 2 to 4 steps, lights the control and, for a power used out of a fight, has a "try it" that
+	# ends when it is used. The entries are counted known by a save from before them (`since`).
+	var late_bad: Array = []
+	for id in LATE:
+		var e := TutorialRules.entry(str(id))
+		var want: Dictionary = LATE[id]
+		var tour: Array = e.get("tour", [])
+		var at := TutorialRules.tour_at(e)
+		var lit := tour.any(func(s): return str(s.anchor).get_slice("|", 0) == str(want.role))
+		var tried := str(want.event) == "" or tour.any(func(s): return str(s.get("try", {}).get("event", "")) == str(want.event))
+		var pointed := false
+		if at >= 0: pointed = str((e.chain[at] as Dictionary).anchor).get_slice("|", 0) == str(want.role)
+		elif not tour.is_empty(): pointed = str(tour[0].anchor) == str(want.role)
+		if e.is_empty() or not TutorialRules.hud_entry(e) or str(e.trigger.get("unlock", "")) != str(want.unlock) or (e.chain as Array).is_empty() \
+				or tour.size() < 2 or tour.size() > 4 or not lit or not tried or not pointed or int(e.get("since", 0)) != TutorialRules.version():
+			late_bad.append("%s (control step %d, lit %s, tried %s, pointed %s)" % [id, at, lit, tried, pointed])
+	check(late_bad.is_empty() and TutorialRules.version() == 2,
+		"every late HUD power (%s) has a guide from its unlock to its control and a tour of 2 to 4 steps that lights it and waits for its use (%s)" % [", ".join(LATE.keys()), str(late_bad)])
 	# Every page of PAGES has a tour, but the talks and events.
 	var bare: Array = []
 	for id in pages:
@@ -212,13 +245,13 @@ func _data() -> void:
 			if TutorialRules.same_page(str(e.page), str(id)) and not (e.tour as Array).is_empty(): has = true
 		if not has: bare.append(id)
 	check(bare.is_empty(), "every page of PAGES has a tour, but the talks and events (%s)" % str(bare))
-	# Page tours have 3 to 6 steps; the HUD's 1 to 3.
+	# Page tours have 3 to 6 steps; the HUD's 1 to 4.
 	var sizes: Array = []
 	for e in TutorialRules.entries():
 		var n := (e.tour as Array).size()
 		var hud := TutorialRules.hud_entry(e)
-		if n > 0 and (n > (3 if hud else 6) or (n < 3 and not hud)): sizes.append(str(e.id))
-	check(sizes.is_empty(), "every page tour has 3 to 6 steps, a HUD tour 1 to 3 (%s)" % str(sizes))
+		if n > 0 and (n > (4 if hud else 6) or (n < 3 and not hud)): sizes.append(str(e.id))
+	check(sizes.is_empty(), "every page tour has 3 to 6 steps, a HUD tour 1 to 4 (%s)" % str(sizes))
 
 # ------------------------------------------------------------------ 3: the foundation path, end to end
 func _foundation_path() -> void:
@@ -490,6 +523,274 @@ func _legacy() -> void:
 		"it knows what it has: nothing queued, its systems guided and seen (%s)" % str(old.tutorials.queue))
 	Game.characters[ch.id] = keep
 
+# ------------------------------------------------------------------ 9: the late HUD powers (decision 44)
+## A fresh character at the realm that opens the late power `id` (LATE), at rest with the fan open, its pools full, the
+## HUD's usual parts open, and every tutorial but that power's known; the power itself still shut.
+func late_fresh(id: String) -> void:
+	await fresh([id])
+	var ch = c()
+	ch.cultivator.realm_key = str(LATE[id].realm)
+	unlock(LATE_BASE)
+	Game.progression.apply_learn_technique(ch.id, "flowing_palm")
+	ch.cultivator.technique_slots[0] = "flowing_palm"
+	StatRules.rebuild(ch, Game.account)
+	ch.pools.hp = ch.pools.max_hp
+	ch.pools.qi = ch.pools.max_qi
+	ch.pools.soul = ch.pools.max_soul
+	main.hud.fan_rest_open = true
+	main.hud.fan_open = true
+	await frames(3)
+
+func _press(at: Vector2) -> InputEventMouseButton:
+	var ev := InputEventMouseButton.new()
+	ev.button_index = MOUSE_BUTTON_LEFT
+	ev.position = at
+	ev.pressed = true
+	return ev
+
+## Spirit Sense, end to end: a Spirit Awakening character at rest with the fan folded gains Spirit Sense (its unlock).
+## The hand and the "!" point at the fan that holds it, with the guide's card and Later; it waits in a fight. A tap
+## opens the fan and the hand moves to Spirit Sense's own button. A tap there is the coach's (no pulse) and plays the
+## tour: the button lit, then the SL bar, then "try it" with the hand. A tap through the spotlight pulses Spirit Sense
+## (Soul spent, 6 s to wait), and the lesson is done, nothing left queued.
+func _sense_path() -> void:
+	await late_fresh("sense")
+	var ch = c()
+	main.hud.fan_rest_open = false
+	main.hud.fan_open = false
+	await frames(3)
+	check(Game.tutorials.head(ch) == "" and coach().state().mode == "" and not main.hud.shown("sense"), "no lesson before Spirit Sense opens (%s)" % str(ch.tutorials.queue))
+	unlock(["spirit_sense"])
+	await frames(4)
+	var st := coach().state()
+	var fan: Rect2 = main.hud.tour_rect("fan")
+	check(Game.tutorials.head(ch) == "sense" and st.mode == "guide" and st.on_hud and st.rect == fan and fan.size.x > 0 and coach().hand_rect().size.x > 0
+		and str(st.line) == Tx.t("ui.tutorial.sense.hint") and st.buttons.has("later") and not coach().control,
+		"Spirit Sense opens: the hand and the badge point at the folded fan that holds it, the card says why, with Later (%s)" % str(st))
+	main.hud.fight_override = true
+	await frames(3)
+	check(coach().state().mode == "" and coach().state().waiting == "combat", "a foe near: the lesson waits (%s)" % str(coach().state().waiting))
+	at_rest()
+	await frames(3)
+	check(coach().state().mode == "guide" and coach().state().entry == "sense", "at rest again, it shows again")
+	await tap(fan.get_center())
+	await frames(3)
+	st = coach().state()
+	var sense_btn: Rect2 = main.hud.tour_rect("sense")
+	check(main.hud.fan_open and st.mode == "guide" and st.rect == sense_btn and sense_btn.size.x > 0 and coach().control,
+		"a tap opens the fan, and the hand moves to Spirit Sense's own button (%s)" % str(st))
+	var soul0: float = ch.pools.soul
+	await tap(sense_btn.get_center())
+	await frames(3)
+	st = coach().state()
+	check(st.mode == "tour" and st.entry == "sense" and st.step == 0 and st.rect == sense_btn and is_equal_approx(ch.pools.soul, soul0) and ch.pools.cooldown("sense") <= 0.0,
+		"a tap on it is the coach's (no pulse yet) and plays the tour, the button lit (%s)" % str(st))
+	check(coach().holds(_press(Vector2(300, 400))) and coach().holds(_press(sense_btn.get_center())), "the tour dims the play screen and holds its touches")
+	await tap_button("next")
+	st = coach().state()
+	var soul_bar: Rect2 = main.hud.tour_rect("soul")
+	check(st.step == 1 and st.rect == soul_bar and soul_bar.size.x > 0 and main.hud.panel_rect(ch).encloses(soul_bar), "then the SL bar on the panel, what a pulse costs (%s)" % str(st))
+	await tap_button("next")
+	st = coach().state()
+	check(st.step == 2 and st.rect == sense_btn and coach().hand_rect().size.x > 0 and st.buttons.has("next") and not coach().holds(_press(sense_btn.get_center())),
+		"the last step: try it, the hand on the button and its spotlight open to a tap (%s)" % str(st))
+	await tap(sense_btn.get_center())
+	await frames(4)
+	st = coach().state()
+	check(ch.pools.soul <= soul0 - 5.0 and ch.pools.cooldown("sense") > 0.0 and ch.tutorials.seen.get("sense", 0) == 1 and ch.tutorials.guided.has("sense")
+		and not ch.tutorials.queue.has("sense") and st.mode == "",
+		"used through the spotlight: Spirit Sense pulses (Soul %d to %d, %.1f s to wait) and the lesson is done, nothing queued (%s)" % [int(soul0), int(ch.pools.soul), ch.pools.cooldown("sense"), str(ch.tutorials.queue)])
+
+## Every late power's lesson, on a character at the realm that opens it, the power just unlocked: its guide is queued;
+## every anchor of its guide and its tour is found as the player meets it (the power's own control with the fan open,
+## the fan while it is folded; a treasure's place at rest; Swap once a spare is set; the pages' steps as they open).
+## Then the lessons that are not Spirit Sense's shape: the treasures' tour first (the button comes out only in a fight)
+## and its guide on to the Bag; the Sphere's guide on after its tour to the Dao tab; the weapon swap's guide to the Bag
+## first (a spare to set), then its control and tour, used.
+func _late_lessons() -> void:
+	var miss: Array = []
+	var found := 0
+	var queued: Array = []
+	for id in LATE:
+		await late_fresh(str(id))
+		var ch = c()
+		var want: Dictionary = LATE[id]
+		for it in [["practice_bell", 1], ["iron_jian", 2]]: Game.inventory.apply_add(ch.id, str(it[0]), int(it[1]), "test")
+		unlock(want.with)
+		await frames(3)
+		if Game.tutorials.head(ch) != str(id): queued.append("%s: %s" % [id, str(ch.tutorials.queue)])
+		coach().set_process(false)
+		coach().visible = false
+		var e := TutorialRules.entry(str(id))
+		var chain: Array = e.chain
+		for i in chain.size():
+			var s: Dictionary = chain[i]
+			found += 1
+			if s.get("tour", false) and str(id) == "weapon_swap":
+				Game.submit({"type": "set_spare_weapon", "index": ch.inventory.first_index("iron_jian")})
+				main.close_all_pages()
+				await frames(3)
+			match str(s.at):
+				"hud":
+					main.close_all_pages()
+					await frames(2)
+					var first := str(s.anchor).get_slice("|", 0)
+					if main.hud.tour_rect(first).size.x <= 0 or _hud_find(str(s.anchor)).size.x <= 0: miss.append("%s chain hud: %s" % [id, s.anchor])
+					if str(s.anchor).contains("|fan"):
+						main.hud.fan_open = false
+						await frames(2)
+						found += 1
+						if _hud_find(str(s.anchor)) != main.hud.tour_rect("fan") or main.hud.tour_rect("fan").size.x <= 0: miss.append("%s chain hud, the fan folded: %s" % [id, s.anchor])
+						main.hud.fan_open = true
+						await frames(2)
+				"page":
+					var pg := await _open(str(s.page), str(s.get("tab", "")))
+					if pg == null or _page_find(pg, str(s.anchor)).size.x <= 0: miss.append("%s chain %s/%s: %s" % [id, s.page, s.get("tab", ""), s.anchor])
+		main.close_all_pages()
+		await frames(2)
+		for s in e.tour:
+			found += 1
+			var first := str(s.anchor).get_slice("|", 0)
+			if main.hud.tour_rect(first).size.x <= 0 or not Rect2(0, 0, 1280, 720).encloses(main.hud.tour_rect(first)): miss.append("%s tour: %s" % [id, s.anchor])
+		coach().set_process(true)
+		coach().visible = true
+	for m in miss: print("  tutorials: late missing ", m)
+	check(queued.is_empty(), "each late power's unlock queues its lesson (%s)" % str(queued))
+	check(miss.is_empty() and found >= 25, "every anchor of the late powers' guides and tours (%d) is found once the power is unlocked (%d missing: %s)" % [found, miss.size(), str(miss)])
+	await _treasure_lesson()
+	await _sphere_lesson()
+	await _swap_lesson()
+
+## The treasures: the button comes out only in a fight, so the tour plays first at rest, lighting where it will come
+## out, then the Qi bar and the Bag; the guide then leads to the Bag and points at the treasure in it (Next ends it).
+func _treasure_lesson() -> void:
+	await late_fresh("treasure")
+	var ch = c()
+	Game.inventory.apply_add(ch.id, "practice_bell", 1, "test")
+	unlock(["treasures"])
+	await frames(4)
+	var st := coach().state()
+	var spot: Rect2 = main.hud.tour_rect("treasure:0")
+	check(st.mode == "tour" and st.entry == "treasure" and st.step == 0 and st.rect == spot and spot.size.x > 0 and not main.hud.hit_targets().any(func(tg): return str(tg.role) == "treasure:0"),
+		"Treasures open: the tour plays at rest, lighting where the button comes out in a fight (%s)" % str(st))
+	await tap_button("next")
+	check(coach().state().rect == main.hud.tour_rect("qi") and main.hud.tour_rect("qi").size.x > 0, "then the Qi bar a use costs (%s)" % str(coach().state().rect))
+	await tap_button("next")
+	await tap_button("next")
+	st = coach().state()
+	check(ch.tutorials.seen.has("treasure") and ch.tutorials.queue.has("treasure") and st.mode == "guide" and st.anchor == "icon:bag" and str(st.line) == Tx.t("ui.tutorial.treasure.hint"),
+		"the tour seen, the guide goes on: the hand on the Bag (%s)" % str(st))
+	await tap((st.rect as Rect2).get_center())
+	await frames(6)
+	st = coach().state()
+	var bp: Page = main.top_page()
+	check(bp != null and bp.page_id == "inventory" and st.mode == "guide" and bp.tour_rect("treasure_item").size.x > 0 and st.rect == bp.tour_rect("treasure_item") and st.buttons.has("next"),
+		"in the Bag, the hand points at the treasure to set on the button (%s)" % str(st))
+	await tap_button("next")
+	check(ch.tutorials.guided.has("treasure") and ch.tutorials.queue.is_empty() and coach().state().mode == "", "Next ends the guide, nothing left queued (%s)" % str(ch.tutorials.queue))
+	main.close_all_pages()
+	await frames(2)
+
+## The Sphere: the hand on its button, a tap plays the tour, and once it is seen the guide goes on through the Menu and
+## Cultivation to the Dao tab, where the Sphere's Dao grows; the tab open, the guide is done.
+func _sphere_lesson() -> void:
+	await late_fresh("sphere")
+	var ch = c()
+	unlock(["spirit_sense", "presence", "dao_tree", "sphere"])
+	await frames(4)
+	var btn: Rect2 = main.hud.tour_rect("sphere")
+	var st := coach().state()
+	check(st.mode == "guide" and st.entry == "sphere" and st.rect == btn and btn.size.x > 0 and coach().control, "the Sphere opens: the hand on its button in the fan (%s)" % str(st))
+	await tap(btn.get_center())
+	await frames(3)
+	check(coach().state().mode == "tour" and coach().state().entry == "sphere" and not Game.field.sphere_on(ch.id), "a tap plays its tour, the Sphere not raised by it")
+	await tap_button("next")
+	check(coach().state().rect == main.hud.tour_rect("qi"), "then the Qi bar it spends")
+	await tap_button("next")
+	await tap_button("next")
+	st = coach().state()
+	check(ch.tutorials.seen.has("sphere") and ch.tutorials.queue.has("sphere") and st.mode == "guide" and st.anchor == "icon:menu" and str(st.line) == Tx.t("ui.tutorial.sphere.page"),
+		"the tour seen, the guide goes on to the Menu (%s)" % str(st))
+	await tap((st.rect as Rect2).get_center())
+	await frames(4)
+	st = coach().state()
+	check(main.top_page() != null and main.top_page().page_id == "menu" and st.anchor == "open:cultivation", "then Cultivation's tablet (%s)" % str(st))
+	await tap((st.rect as Rect2).get_center())
+	await frames(6)
+	st = coach().state()
+	var cp: Page = main.top_page()
+	check(cp != null and cp.page_id == "cultivation" and st.mode == "guide" and st.anchor == "tab:dao" and st.rect == cp.tour_rect("tab:dao"), "then the Dao tab (%s)" % str(st))
+	if cp != null: await tap(cp.tour_rect("tab:dao").get_center())
+	await frames(4)
+	check(cp != null and cp.tab_id() == "dao" and ch.tutorials.guided.has("sphere") and ch.tutorials.queue.is_empty(), "the Dao tab open, the guide is done (%s)" % str(ch.tutorials.queue))
+	main.close_all_pages()
+	await frames(2)
+
+## The weapon swap: Swap shows only once a spare weapon is set, so the guide leads to the Bag first and points at a
+## weapon, then at Set as spare; the Bag closed, the hand is on Swap; its tap plays the tour, and a swap through the
+## spotlight ends it, the other weapon in hand.
+func _swap_lesson() -> void:
+	await late_fresh("weapon_swap")
+	var ch = c()
+	Game.inventory.apply_add(ch.id, "iron_jian", 2, "test")
+	Game.submit({"type": "equip", "index": ch.inventory.first_index("iron_jian")})
+	unlock(["dual_loadout"])
+	await frames(4)
+	var st := coach().state()
+	check(st.mode == "guide" and st.entry == "weapon_swap" and st.anchor == "icon:bag" and main.hud.tour_rect("swap").size.x <= 0, "Weapon swap opens: no Swap yet, the hand on the Bag (%s)" % str(st))
+	await tap((st.rect as Rect2).get_center())
+	await frames(6)
+	st = coach().state()
+	var bp: Page = main.top_page()
+	check(bp != null and bp.page_id == "inventory" and st.mode == "guide" and st.rect == bp.tour_rect("weapon") and bp.tour_rect("weapon").size.x > 0, "in the Bag, the hand on a weapon (%s)" % str(st))
+	if bp != null: await tap(bp.tour_rect("weapon").get_center())
+	await frames(3)
+	st = coach().state()
+	check(bp != null and st.rect == bp.tour_rect("spare") and bp.tour_rect("spare").size.x > 0, "chosen, the hand on Set as spare (%s)" % str(st))
+	if bp != null: await tap(bp.tour_rect("spare").get_center())
+	await frames(3)
+	check(ch.inventory.loadout.get("spare") != null, "the spare is set through it")
+	main.close_all_pages()
+	await frames(4)
+	st = coach().state()
+	var swap: Rect2 = main.hud.tour_rect("swap")
+	check(st.mode == "guide" and st.rect == swap and swap.size.x > 0 and coach().control and str(st.line) == Tx.t("ui.tutorial.weapon_swap.ready"), "the Bag closed, the hand is on Swap (%s)" % str(st))
+	await tap(swap.get_center())
+	await frames(3)
+	check(coach().state().mode == "tour" and coach().state().entry == "weapon_swap", "its tap plays the tour")
+	await tap_button("next")
+	await tap_button("next")
+	var held = ch.inventory.equipped.get("weapon")
+	await tap(swap.get_center())
+	await frames(4)
+	check(ch.inventory.equipped.get("weapon") != held and ch.tutorials.seen.get("weapon_swap", 0) == 1 and ch.tutorials.queue.is_empty() and coach().state().mode == "",
+		"a swap through the spotlight ends it, the other weapon in hand (%s)" % str(coach().state()))
+
+## A save from before these lessons (its record at version 1) counts what it already has as known: a Heart Tempering
+## character with Treasures and the weapon swap open gets neither lesson, while the same record at version 2 does.
+func _late_legacy() -> void:
+	await late_fresh("treasure")
+	var ch = c()
+	unlock(["treasures", "dual_loadout"])
+	var rec: Dictionary = ch.tutorials.duplicate(true)
+	for id in ["treasure", "weapon_swap"]:
+		rec.guided.erase(id)
+		rec.seen.erase(id)
+	rec.queue = []
+	rec.erase("v")
+	ch.tutorials = rec.duplicate(true)
+	Game.tutorials.evaluate(ch)
+	check(ch.tutorials.queue.is_empty() and ch.tutorials.seen.has("treasure") and ch.tutorials.guided.has("weapon_swap") and int(ch.tutorials.get("v", 0)) == 2,
+		"a save from before the late lessons knows the powers it has: nothing queued, its record brought to version 2 (%s)" % str(ch.tutorials.queue))
+	rec["v"] = 2
+	ch.tutorials = rec.duplicate(true)
+	Game.tutorials.evaluate(ch)
+	check(ch.tutorials.queue.has("treasure") and ch.tutorials.queue.has("weapon_swap"), "a current record is taught them (%s)" % str(ch.tutorials.queue))
+	ch.tutorials.queue = []
+	for id in ["treasure", "weapon_swap"]:
+		ch.tutorials.guided[id] = 1
+		ch.tutorials.seen[id] = 1
+
 # ------------------------------------------------------------------ 2: the anchors
 ## Every tour step's anchor and every guide step's is found where it is shown, the page opened as the player meets it
 ## (every system open, a sect joined, a letter carrying something, gear in the bag, points to spend), on its tab.
@@ -503,6 +804,8 @@ func _anchors() -> void:
 	var miss: Array = []
 	var seen := 0
 	for e in TutorialRules.entries():
+		# Decision 44's late powers: _late_lessons finds theirs on a character at the realm that opens each.
+		if int(e.get("since", 1)) > 1: continue
 		if TutorialRules.hud_entry(e):
 			for s in e.tour:
 				seen += 1

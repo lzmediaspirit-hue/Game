@@ -48,6 +48,7 @@ var _hand_down: ImageTexture = null  ## the finger down (over it)
 var _pressed := ""
 var _in_hole := false
 var _goal := ""               ## the room the direction mark was asked to lead to (tutorial_goal)
+var control := false          ## the guide points at a HUD power's own control: a tap there plays its tour (_control_live)
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -101,8 +102,9 @@ func _update(delta: float) -> void:
 		replay = ""
 	var head: String = Game.tutorials.head(c)
 	var he := TutorialRules.entry(head)
-	# 2. The head guide at its element on this page (the node to spend on): before the page's own tour.
-	if head != "" and top != null and TutorialRules.chain_home(he, pid, tab) and _element_step(he):
+	# 2. The head guide at its element on this page (the node to spend on): before the page's own tour. (A HUD power's
+	# guide is its lesson's, step 4.)
+	if head != "" and top != null and not TutorialRules.hud_entry(he) and TutorialRules.chain_home(he, pid, tab) and _element_step(he):
 		_show("guide", head, (he.chain as Array).size() - 1)
 		_resolve(delta)
 		return
@@ -120,13 +122,11 @@ func _update(delta: float) -> void:
 			_show("tour", tour, Game.tutorials.step_of(c, tour))
 			_resolve(delta)
 			return
-	# 4. The head guide: a HUD tour with no page open, else the chain's step for what is on screen.
+	# 4. The head guide: a HUD control's lesson (its tour with no page open, and a HUD power's guide round it), else the
+	# chain's step for what is on screen.
 	if head != "":
 		if TutorialRules.hud_entry(he):
-			if top == null:
-				_show("tour", head, Game.tutorials.step_of(c, head))
-				_resolve(delta)
-				return
+			if _hud_lesson(c, he, top, pid, tab, delta): return
 		else:
 			var i := TutorialRules.chain_step(he, pid, tab)
 			if i >= 0:
@@ -157,10 +157,43 @@ func _element_step(e: Dictionary) -> bool:
 	var chain: Array = e.get("chain", [])
 	return not chain.is_empty() and bool((chain.back() as Dictionary).get("element", false))
 
-## A guide has come home: its page is on top, on its tab when it names one, and it has no element step left to show.
+## A guide has come home: its page is on top, on its tab when it names one, and it has no element step left to show. A
+## HUD power's comes home once its tour is seen and the page (and tab) that manages the power is open.
 func _arrived(e: Dictionary, pid: String, tab: String) -> bool:
-	if e.is_empty() or TutorialRules.hud_entry(e) or _element_step(e): return false
+	if e.is_empty() or _element_step(e): return false
+	if TutorialRules.hud_entry(e):
+		var goal := TutorialRules.chain_goal(e)
+		return not goal.is_empty() and Game.tutorials.seen(Game.active(), str(e.id)) and TutorialRules.same_page(pid, str(goal[0])) \
+			and (str(goal[1]) == "" or str(goal[1]) == tab)
 	return TutorialRules.same_page(pid, str(e.get("page", ""))) and (str(e.get("tab", "")) == "" or str(e.tab) == tab)
+
+## A HUD control's lesson, at the head of the queue (decision 44 for the late powers). Its tour plays on the play screen
+## (no page open) once started, or at once when no control step comes first (TutorialRules.tour_at). Before that, the
+## guide leads to the control and points at it: a tap there plays the tour (_control_live). After the tour, the guide
+## leads on to the page that manages the power. Returns whether something shows.
+func _hud_lesson(c, e: Dictionary, top: Page, pid: String, tab: String, delta: float) -> bool:
+	var id := str(e.id)
+	var toured: bool = Game.tutorials.seen(c, id)
+	if not toured and (Game.tutorials.in_progress(c, id) or TutorialRules.tour_at(e) < 0):
+		if top != null: return false
+		_show("tour", id, Game.tutorials.step_of(c, id))
+		_resolve(delta)
+		return true
+	var at := TutorialRules.tour_at(e)
+	var control_on := at >= 0 and top == null and _find(str(((e.chain as Array)[at] as Dictionary).get("anchor", "")), true).size != Vector2.ZERO
+	var i := TutorialRules.lesson_step(e, pid, tab, toured, control_on)
+	if i < 0: return false
+	_show("guide", id, i)
+	_resolve(delta)
+	return true
+
+## The guide's hand is on a HUD power's own control (not the fan that holds it): a tap there plays its tour. Found once
+## a frame (_resolve).
+func _control_live() -> bool:
+	if mode != "guide" or not current().get("tour", false) or target.size == Vector2.ZERO or main == null: return false
+	var hud = main.get("hud")
+	var first := str(current().get("anchor", "")).get_slice("|", 0)
+	return is_instance_valid(hud) and hud.tour_rect(first).size != Vector2.ZERO
 
 ## The tour to show on the page on top: one in progress on this page, else the first unseen one for it and its tab, if
 ## no tour has played on this opening yet.
@@ -205,6 +238,7 @@ func _show(m: String, id: String, i: int) -> void:
 		card = Rect2()
 		buttons = {}
 		line = ""
+		control = false
 
 ## The step's data: a tour step, or the chain's step.
 func current() -> Dictionary:
@@ -224,6 +258,7 @@ func _resolve(delta: float) -> void:
 	target = _find(str(st.get("anchor", "")), on_hud)
 	if mode == "guide" and str(st.get("at", "")) == "place": target = _place_target(st)
 	_missing = 0.0 if target.size != Vector2.ZERO else _missing + delta
+	control = _control_live()
 	line = _words(e, st)
 	var top: Page = main.top_page()
 	# A "try it" on a tab: the tab chosen.
@@ -355,6 +390,8 @@ func _has_point(p: Vector2) -> bool:
 	if mode == "": return false
 	for b in buttons.values():
 		if (b as Rect2).has_point(p): return true
+	# A HUD power's control under the guide's hand: the tap is the coach's, and plays the power's tour.
+	if control and target.grow(8).has_point(p): return true
 	if not _dims(): return false
 	return not _passes(p)
 
@@ -372,6 +409,7 @@ func _gui_input(event: InputEvent) -> void:
 	var hit := ""
 	for k in buttons:
 		if (buttons[k] as Rect2).has_point(event.position): hit = str(k)
+	if hit == "" and control and target.grow(8).has_point(event.position): hit = "control"
 	if event.pressed:
 		_pressed = hit
 	else:
@@ -379,10 +417,15 @@ func _gui_input(event: InputEvent) -> void:
 		_pressed = ""
 	accept_event()
 
-## A card button: Next, Skip (the tour) or Later (the guide).
+## A card button: Next, Skip (the tour) or Later (the guide); or the HUD power's control the guide points at, whose tap
+## plays its tour.
 func press(which: String) -> void:
 	match which:
 		"next": _next()
+		"control":
+			if control:
+				Audio.ui("ui_tap")
+				Game.submit({"type": "tutorial_step", "tour": entry_id, "step": 0})
 		"skip", "later":
 			Audio.ui("ui_back")
 			_finish(true)
