@@ -20,7 +20,11 @@ until the frame or the game moves on. Examples are a view's plate, the HUD's bad
   - `max_keys` answers are kept. The default of 1 keeps the last key only, as the hand-written key comparisons did.
 - `memo.table(scope := null, scope2 := null)` returns the kept `Dictionary` itself, for a hot path asked many times a
   frame. It avoids making a `Callable` for each question. You get a new `Dictionary` when the frame, the revision or
-  the scope moves. `WorldShared` passes the room and the character as its scope.
+  the scope moves. `WorldShared` passes the room and the character as its scope. Scopes are compared with `==`, so pass
+  them as the same types each time, such as instance ids.
+- A repeated question costs about what a hand-written cache did. On a desktop, `table` takes 472 ns against 412, and a
+  one-key `value` takes 878 ns against 374, most of it the `Callable` made at the call. Keep `value` for questions asked
+  a few times a frame, and `table` for the ones asked for every thing in view.
 - An answer worked out while the memo was started over is returned but not kept. This happens when the `compute`
   moved the revision, or asked the memo again under another scope.
 - Keep one memo for each question: a member, or a `static var` for a static owner.
