@@ -251,7 +251,9 @@ def main():
             where.append("suites")
         if path in r_tool:
             where.append("tools/non-suite tests")
-        scripts_report.append({"path": path, "lines": f.lines, "reached_from": where})
+        refs = sorted(x for x, tg in edges.items() if path in tg and x != path)
+        scripts_report.append({"path": path, "lines": f.lines, "reached_from": where, "referenced_by": refs,
+                               "references": sorted(edges.get(path, ()))})
     unreached = [s for s in scripts_report if not s["reached_from"]]
     game_code_not_in_game = [s for s in scripts_report if s["path"].startswith("scripts/") and "game" not in s["reached_from"]]
     nonsuite_tests = [s for s in scripts_report if s["path"].startswith("tests/") and "suites" not in s["reached_from"]]
