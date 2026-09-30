@@ -1803,7 +1803,7 @@ func sec_hg1() -> void:
 	GameEvents.flush()
 	check(c().quests.is_done("the_ascension_gate"), "Act I complete: the Ascension Gate")
 	# Unlock order (Part 4): each system unlocks in timeline order.
-	var expected := ["weapons", "herb_gathering", "mining", "qi_pool", "cooking", "first_technique_slots", "daily_missions", "alchemy",
+	var expected := ["weapons", "qi_pool", "herb_gathering", "mining", "cooking", "first_technique_slots", "daily_missions", "alchemy",
 		"teleport_stones", "companions", "appraisal", "auto_refine", "spirit_animals", "taming", "formations", "healing", "spirit_eggs",
 		"guard_formation", "puppetry", "spirit_sense", "research", "teaching", "cape_slot"]
 	var last := -1
