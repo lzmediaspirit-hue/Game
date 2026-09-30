@@ -584,4 +584,23 @@ C–E on the new kit, then P5b–c. Its cost is that Phase C–E pages would be 
     - **Sand and snow ground**, so their footsteps are heard.
     - **Tours** for the late HUD powers: Spirit Sense, Presence, the Sphere, treasures and the weapon swap.
     - **Foe polish:** the marsh leech, and the four-legged foes seen head-on (facing S and N).
+45. **After build 110 (2026-09-30).** The user's feedback, in two phases:
+    - **Phase 1** (four parallel jobs):
+      - **Tutorial bugs.** The coach is laggy, and Done or Skip sometimes does nothing and the card doesn't close.
+        Play the game as a player and fix every tutorial bug.
+      - **The first boss.** This is the Hollowed Eel of the Hollow Night, before cultivation. At 80% HP it starts
+        phase 2 and becomes too strong for the player to hold off. A staged scene follows: the village elders save
+        the player and kill the boss with cultivation arts. Then the player starts learning cultivation.
+      - **Progression numbers:**
+        - a charged attack does more damage than a basic attack;
+        - the player has Qi when the first technique arrives;
+        - meditation gives much more cultivation early;
+        - systems and items that raise cultivation speed exist and are reachable;
+        - quests, pills and the like give a fixed amount of experience instead of a percentage;
+        - three quick slots instead of one;
+        - the bag starts at 50 slots.
+      - **Code audit.** Dead code, duplication and structure across the whole game, plus a plan for content engines
+        (a room generator, and monster, NPC, item and other engines) so new content is declared as data rather than
+        rewritten each time.
+    - **Phase 2:** the cleanup and the engines, built in slices from the audit's plan, after phase 1 lands.
 Still open: where the Full Review lives. The default is one page, `docs/review-v12.md`, growing through P11.
