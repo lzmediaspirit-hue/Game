@@ -1,0 +1,7705 @@
+{
+ "baseline": {
+  "commit": "35105ac",
+  "failed": [
+   "perf_tests: 'the crowd under the breakthrough and a sword swarm fits the budget (13.03, 16.66 ms)'"
+  ],
+  "gates": {
+   "audio_check": "0 failing",
+   "places": "26 places",
+   "room_lint": "168 rooms, 0 failing",
+   "sect_walks": "hold",
+   "sound": "current, 271 files",
+   "topdown_rooms": "current"
+  },
+  "note": "perf_tests is timing-bound: rerun alone under load average 7.7 on 4 cores it failed 5 of 18 (room load 330 ms, crowd 18 ms, techniques.json 191 ms, the wood tree drag, Lotus Ferry 473 ms). Every other suite passed.",
+  "suites": {
+   "audio_tests": [
+    56,
+    0
+   ],
+   "balance_sim": [
+    177,
+    0
+   ],
+   "contract_tests": [
+    1084,
+    0
+   ],
+   "data_validation": [
+    50302,
+    0
+   ],
+   "engine_tests": [
+    3908,
+    0
+   ],
+   "hollow_night": [
+    47,
+    0
+   ],
+   "perf_tests": [
+    18,
+    1
+   ],
+   "places_tests": [
+    16,
+    0
+   ],
+   "prologue_run": [
+    103,
+    0
+   ],
+   "room_sweep": [
+    3736,
+    0
+   ],
+   "rules_tests": [
+    2695,
+    0
+   ],
+   "story_scenes": [
+    90,
+    0
+   ],
+   "topdown_tutorial": [
+    969,
+    0
+   ],
+   "tutorial_order": [
+    434,
+    0
+   ],
+   "tutorials": [
+    87,
+    0
+   ],
+   "valley_run": [
+    3007,
+    0
+   ],
+   "visibility_suite": [
+    6758,
+    0
+   ]
+  },
+  "total_checks": 73487,
+  "total_failures": 1
+ },
+ "decision": 45,
+ "engines": [
+  {
+   "builds_on": [
+    "tools/data/topdown_rooms.py Layout DSL and Grid checks",
+    "tools/data/world.py field()/town() side-view templates (ids of NPCs, objects, portals, spawns)",
+    "tools/data/topdown_life.py dress()/extend() (furnishings, vistas, work spots)",
+    "tools/data/places.py",
+    "tools/data/room_lint.py"
+   ],
+   "home": "tools/content/rooms/ (engine.py, biomes.py, specs/<zone>.py)",
+   "id": "E1",
+   "migration": "1) The engine emits Layout calls, so a spec can reproduce an existing room exactly with `pins` (cells, props, places); migrate the 27 layouts one by one until `topdown_rooms --check` shows no diff. 2) Convert the 141 side-view rooms from their world.py template (which already lists the ids) plus a 10-20 line shape spec. 3) Hand-tweaks stay as pins in the spec, never edits to the JSON.",
+   "name": "Room engine",
+   "saves": "wp_east is 44 hand lines (~600 tokens) and about 60 placed coordinates; its spec is ~15 lines (~220 tokens) with 8 anchors. Across the 141 rooms left: ~8,500-15,500 hand lines at today's rate against ~2,100-2,800 spec lines.",
+   "spec_example": {
+    "anchors": {
+     "crate_3": "bank@33",
+     "herb_1": "verge.south@33",
+     "jar_2": "terrace@48",
+     "jar_4": "bank@52",
+     "note_lu": "road.north@57",
+     "npc_old_pan_wp": "knoll.top",
+     "pan_spot": "road@34",
+     "sign_wp": "road.north@60"
+    },
+    "bands": [
+     [
+      "rock",
+      0,
+      2,
+      {
+       "level": 2
+      }
+     ],
+     [
+      "terrace",
+      2,
+      5,
+      {
+       "level": 1,
+       "paint": "f"
+      }
+     ],
+     [
+      "road",
+      12,
+      3,
+      {
+       "paint": "d"
+      }
+     ],
+     [
+      "stream",
+      21,
+      5,
+      {
+       "water": true
+      }
+     ]
+    ],
+    "biome": "valley_meadow",
+    "exits": {
+     "east": [
+      "e",
+      13,
+      3
+     ],
+     "west": [
+      "w",
+      13,
+      3
+     ]
+    },
+    "features": [
+     [
+      "knoll",
+      [
+       27,
+       8,
+       8,
+       3
+      ],
+      {
+       "level": 1,
+       "stair": "s"
+      }
+     ]
+    ],
+    "flora": {
+     "density": 0.3,
+     "road": [
+      "tree_plum",
+      "tree_peach",
+      "fence_4",
+      "bush"
+     ],
+     "stream": [
+      "tree_willow",
+      "tall_grass",
+      "cattails",
+      "lotus_pads"
+     ],
+     "terrace": [
+      "tree_camphor",
+      "bush_azalea"
+     ]
+    },
+    "foes": {
+     "verge": 5
+    },
+    "ground": {
+     "sand": "stream.coves"
+    },
+    "pins": {},
+    "props": {
+     "incense": [
+      50,
+      10
+     ],
+     "reeds": {
+      "along": "stream.edge",
+      "every": 10
+     },
+     "willow": {
+      "along": "terrace",
+      "every": 11
+     }
+    },
+    "room": "wp_east",
+    "seed": "wp_east",
+    "size": [
+     64,
+     26
+    ],
+    "spawn_at": "east",
+    "stairs": "auto"
+   },
+   "tests": [
+    "determinism: build twice, byte-identical",
+    "topdown_rooms --check, places --check, room_lint, sect_walks --check",
+    "round-trip: every migrated room's JSON unchanged",
+    "tests/topdown_tutorial.gd reach checks in the game",
+    "a golden picture per biome in the capture registry"
+   ]
+  },
+  {
+   "builds_on": [
+    "tools/data/enemies.py mob()/atk()",
+    "tools/art/topdown/creatures.py Spec and SIZE",
+    "tools/art/topdown/creature/sculpt.py (E/S/L parts, Pose, Look)",
+    "creature/motion.py (gait, pick, wave, headon)",
+    "tools/data/sound.py FOE rules by race",
+    "tools/icons/families/beast_parts.py (drops)"
+   ],
+   "home": "tools/content/monsters.py (+ tools/art/topdown/creature/plans/)",
+   "id": "E2",
+   "migration": "Extract five body plans from the twelve drawn species (quadruped: rat, otter, boarlets; amphibian: frog, toad; crab; serpent/fish: eel, minnow, leech; shell: snapper; humanoid: puppet). A spec may name `pose: creature.rat:rat` as an escape hatch, so the existing modules keep working while their plans are extracted; each migrated species is checked against its old sheet (pixel diff under a threshold, then the gallery review AGENTS.md rule 3 asks for).",
+   "name": "Monster engine",
+   "saves": "a top-down species today: 95-304 lines of pose code (rat 129 lines, ~1,900 tokens) plus rows in three files; a spec is ~20 lines (~300 tokens). 110 of the 122 species still lack top-down art: ~22,000 hand lines against ~2,500.",
+   "spec_example": {
+    "data": {
+     "ai": "melee",
+     "attacks": [
+      [
+       "bite",
+       0.35,
+       36
+      ]
+     ],
+     "codex": "valley_shore",
+     "element": "none",
+     "level": 2,
+     "loot": [
+      [
+       "rat_tail",
+       0.6
+      ]
+     ],
+     "race": "beast",
+     "role": "normal"
+    },
+    "eyes": "rat_eye",
+    "id": "reedtail_rat",
+    "length_px": 38,
+    "motion": {
+     "attack": "lunge_bite",
+     "death": "topple_side",
+     "hurt": "knock_squash",
+     "idle": "sniff",
+     "tell": "rear",
+     "walk": "bound"
+    },
+    "palette": [
+     "fur",
+     "fur_light",
+     "pink",
+     "tail_a",
+     "tail_b"
+    ],
+    "parts": {
+     "ears": "round",
+     "tail": {
+      "kind": "segmented",
+      "mats": [
+       "tail_a",
+       "tail_b"
+      ],
+      "n": 14
+     },
+     "teeth": "yellow",
+     "whiskers": 3
+    },
+    "plan": "quadruped.rodent",
+    "size": 1.0,
+    "sound": "race"
+   },
+   "tests": [
+    "build_foes determinism",
+    "every action's frame count and HIT_FRAME per plan",
+    "data_validation (enemies, loot, codex)",
+    "sound.py --check (every foe has a voice)",
+    "the foe gallery (topdown_figure_gallery) reviewed by eye"
+   ]
+  },
+  {
+   "builds_on": [
+    "tools/data/story.py npcs() and outfit()",
+    "tools/data/topdown_life.py LOOPS, work, extras",
+    "the room engine's anchors",
+    "tools/data/economy.py shops",
+    "tools/art/topdown/figure (every look is already data: sets/*.py)"
+   ],
+   "home": "tools/content/npcs.py",
+   "id": "E3",
+   "migration": "Generate npcs.json rows, life.json work entries and the layouts' places from specs; start with the villagers of Lotus Ferry (the work loops exist), compare the three outputs byte for byte, then the sect disciples (templates: steward, deacon, disciple_a/b).",
+   "name": "NPC engine",
+   "saves": "an NPC today: a dict in story.py (~8 lines), a work entry in topdown_life.py (1-3 lines with hand-placed spots), an r.at() in the layout, dialogue/quest hooks by hand; one ~10-line spec, spots found by the room engine.",
+   "spec_example": {
+    "barks": [
+     "Scrub, scrub."
+    ],
+    "gives": [
+     "the_muddy_wash"
+    ],
+    "home": [
+     "lf_village",
+     "river_bank@14"
+    ],
+    "id": "washer_mei",
+    "lines": [
+     "Aunt Ping says you're finally awake before noon.",
+     "The river's cold as winter this morning."
+    ],
+    "look": {
+     "body": "light",
+     "hair": "ponytail",
+     "hair_color": 2,
+     "pants": "straight",
+     "shirt": "cardigan:white",
+     "shoes": "slippers"
+    },
+    "name": "Washer Mei",
+    "schedule": {
+     "night": "lf_village_night:npc_granny_night"
+    },
+    "shop": null,
+    "title": "Villager",
+    "work": {
+     "leash": 2.5,
+     "loop": "laundry",
+     "spots": "auto:water_edge,line"
+    }
+   },
+   "tests": [
+    "topdown_life --check (spots stand, walk legs clear)",
+    "data_validation (npcs, services, shops)",
+    "story.validate",
+    "tutorial_order and topdown_tutorial (who stands where)"
+   ]
+  },
+  {
+   "builds_on": [
+    "tools/data/items.py item(), MID_ILV, GRADE_WORD, ATTRIBUTE_REQ, ARMOUR, pills()",
+    "tools/data/gear.py ARCHETYPES",
+    "tools/icons/families/pills.py PILL_GRADES (vessel x grade already)",
+    "tools/dev/wiki.py source scan and data_validation item_source_suite",
+    "data/curves.json"
+   ],
+   "home": "tools/content/items.py (+ tools/icons family specs)",
+   "id": "E4",
+   "migration": "Re-express one family at a time (pills, herbs by age, ores, beast parts, gear by family x grade) as specs that emit the same rows; `build_data.py --check` style diff proves it. New tiers then cost one line.",
+   "name": "Item engine",
+   "saves": "an item today: a row in items.py, a price in economy.py, a recipe in crafts.py, a loot line in enemies.py and an icon function; a family spec covers the tiers at once (~10 lines for 4-9 items).",
+   "spec_example": {
+    "effect": {
+     "amount": "curve:pill_qp[tier]",
+     "kind": "add_progress"
+    },
+    "family": "pill.qi_gathering",
+    "kind": "pill",
+    "names": "{tier_word} Qi Gathering Pill",
+    "price": "curve:pill_price[tier]",
+    "sinks": [
+     "use",
+     "sell",
+     "gift"
+    ],
+    "sources": {
+     "loot": "chests>=tier",
+     "recipe": "alchemy",
+     "shop": {
+      "granny_liu": [
+       "common"
+      ]
+     }
+    },
+    "tiers": [
+     "common",
+     "earth",
+     "heaven",
+     "mystic"
+    ],
+    "vessel": "jar"
+   },
+   "tests": [
+    "wiki.py --gaps shows no new gap",
+    "data_validation item_source_suite",
+    "balance_sim (prices, Qi per hour)",
+    "icon build determinism"
+   ]
+  },
+  {
+   "builds_on": [
+    "tools/data/story.py quest(), o(), item(), taels(), fx()",
+    "unlocks.json guided quests",
+    "mission_templates.json (daily missions are already templated)"
+   ],
+   "home": "tools/content/quests.py",
+   "id": "E5",
+   "migration": "Templates for talk, fetch, kill/clear, deliver, gather, spar and escort; rewards from a band table (fixed amounts, phase 1's progression decision). Keep story beats hand-written (prologue, main quests), template the side and daily quests first.",
+   "name": "Quest engine",
+   "saves": "a side quest today: 4-8 lines with its dialogue elsewhere; a template row is 3-5 lines and its tracker text and hand-in lines are generated.",
+   "spec_example": {
+    "band": "village",
+    "giver": "washer_mei",
+    "id": "the_muddy_wash",
+    "lines": {
+     "done": "Clean sheets at last!",
+     "offer": "The rats are at the washing lines again."
+    },
+    "reward": "band",
+    "target": {
+     "count": 6,
+     "enemy": "reedtail_rat"
+    },
+    "template": "clear"
+   },
+   "tests": [
+    "story.validate",
+    "tutorial_order",
+    "valley_run and prologue_run (no change to the story's quests)",
+    "balance_sim (reward per hour)"
+   ]
+  },
+  {
+   "builds_on": [
+    "WorldShared.play",
+    "hud._handle",
+    "tools/data/sound.py (hits, steps, foes, life are already tables)",
+    "data/combat_feel.json",
+    "data/moments.json (the big set pieces are already data)"
+   ],
+   "home": "data/cues.json, data/hud_notices.json (from tools/data/cues.py)",
+   "id": "E6",
+   "migration": "Move the one-line cases first (about 180 of hud._handle's 234, most of WorldShared.play's), keep the code cases as named handlers the table can call.",
+   "name": "Cue and notice engine (FX, sound, toasts)",
+   "saves": "about 700 lines of GDScript match arms become ~250 table rows; a new event's toast is one row, no code.",
+   "spec_example": {
+    "event": "item_blooded",
+    "log": {
+     "args": [
+      "item_name:item"
+     ],
+     "colour": "MIST",
+     "key": "hud.item_blooded"
+    },
+    "when": {
+     "actor": "active"
+    }
+   },
+   "tests": [
+    "contract_tests (every event in the table is in the event contract)",
+    "tutorials and hud suites unchanged",
+    "a notices snapshot test: each row rendered once"
+   ]
+  },
+  {
+   "builds_on": [
+    "3,171 technique rows already generated from forms x rings x elements x families (P13a compact rows with defaults)"
+   ],
+   "home": "tools/data/technique_gen.py, technique_grammar.py",
+   "id": "E7",
+   "migration": "none",
+   "name": "Technique engine (exists)",
+   "saves": "done",
+   "spec_example": {
+    "note": "already an engine: extend it rather than write a new one; its row compaction is the model for the others"
+   },
+   "tests": [
+    "perf_tests techniques.json budget",
+    "rules_tests technique checks"
+   ]
+  }
+ ],
+ "findings": [
+  {
+   "action": "delete both (and their .uid)",
+   "category": "dead_script",
+   "confidence": "high",
+   "evidence": "room_gate.gd's job moved to topdown_gate.gd and the side view's portal_view.gd; architecture.md still names room_gate.gd",
+   "id": "DEAD-01",
+   "lines": 42,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py); not reachable from project.godot, any suite or any tool scene",
+   "severity": null,
+   "slice": "S1",
+   "title": "scripts/ornament.gd and scripts/room_gate.gd: nothing loads them",
+   "where": [
+    "scripts/ornament.gd",
+    "scripts/room_gate.gd"
+   ]
+  },
+  {
+   "action": "delete",
+   "category": "dead_file",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-02",
+   "lines": 1,
+   "method": "file walk: a .uid whose .gd is missing",
+   "severity": null,
+   "slice": "S1",
+   "title": "scripts/connection_visual.gd.uid has no script",
+   "where": [
+    "scripts/connection_visual.gd.uid"
+   ]
+  },
+  {
+   "action": "move to tools/art/sideview/ with their bake scripts (they are art tools, not game code)",
+   "category": "tool_only_script",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-03",
+   "lines": 99,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py)",
+   "severity": null,
+   "slice": "S3",
+   "title": "scripts/combo_rig.gd and scripts/equipment_rig.gd run only from tests/bake_combos.gd, tests/bake_equipment.gd and tools/bake_hat_cape_combos.gd (v0.13 side-view bakes)",
+   "where": [
+    "scripts/combo_rig.gd",
+    "scripts/equipment_rig.gd"
+   ]
+  },
+  {
+   "action": "move under tests/lib/ with map_generation.gd, or delete with the v0.9 map generator tests",
+   "category": "test_only_script",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-04",
+   "lines": 121,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py)",
+   "severity": null,
+   "slice": "S2",
+   "title": "scripts/simulation/map_validator.gd and world_catalog.gd are reached only by tests/map_generation.gd (not a suite)",
+   "where": [
+    "scripts/simulation/map_validator.gd",
+    "scripts/simulation/world_catalog.gd"
+   ]
+  },
+  {
+   "action": "delete",
+   "category": "dead_function",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-05",
+   "lines": 74,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py)",
+   "severity": null,
+   "slice": "S1",
+   "title": "Unreferenced functions in game code (name found nowhere else, no string use, no dynamic prefix)",
+   "where": [
+    "scripts/audio/sound_bank.gd:42 surface_of_material",
+    "scripts/audio/sound_bank.gd:119 is_night",
+    "scripts/avatar.gd:72 still_image",
+    "scripts/presentation/sprite_cache.gd:152 icon_ready",
+    "scripts/presentation/technique_picture.gd:948 draw_cooldown",
+    "scripts/presentation/technique_picture.gd:965 draw_qi_short",
+    "scripts/simulation/rules/technique_tree_rules.gd:193 tree_state",
+    "scripts/topdown/topdown_life.gd:533 critter_count",
+    "scripts/ui/pages/techniques_page.gd:554 _slot"
+   ]
+  },
+  {
+   "action": "delete (tutorial_coach.gd and hud.gd after phase 1 lands: the tutorial job edits them)",
+   "category": "dead_const",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-06",
+   "lines": 16,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py)",
+   "severity": null,
+   "slice": "S1",
+   "title": "Unreferenced constants and member variables",
+   "where": [
+    "scripts/ui/ui_kit.gd:222-228 T_HINT T_CAPTION T_ROW T_BODY T_BUTTON D_HEADING",
+    "scripts/ui/page.gd:44 GROUP_GAP",
+    "scripts/ui/pages/mail_page.gd:8 DESK",
+    "scripts/ui/tutorial_coach.gd:22 MISSING_S",
+    "scripts/ui/tutorial_coach.gd:45 _tab_was",
+    "scripts/presentation/sprite_cache.gd:68 ICON_PX",
+    "scripts/presentation/scene_rules.gd:27 TARGETS",
+    "scripts/hud.gd:111 meditate_center",
+    "scripts/hud.gd:113 sphere_center",
+    "scripts/hud.gd:114 sense_center"
+   ]
+  },
+  {
+   "action": "drop the signals and their emit lines (context is read from world.context each frame by the HUD)",
+   "category": "dead_signal",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-07",
+   "lines": 8,
+   "method": "regex for <name>.connect / connect(\"name\") / signal=\"name\" in every .gd and .tscn",
+   "severity": null,
+   "slice": "S1",
+   "title": "Signals emitted but never connected: world.gd room_changed and context_changed, topdown_world.gd context_changed, hud.gd page_changed",
+   "where": [
+    "scripts/world.gd:54",
+    "scripts/world.gd:55",
+    "scripts/topdown/topdown_world.gd:100",
+    "scripts/hud.gd:131"
+   ]
+  },
+  {
+   "action": "keep the deliberate test hooks (a suite needs them) but mark them `## test hook`; delete the rest with their tests (map_generator.generate, equipment_rig.render_sheet)",
+   "category": "test_only_api",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "DEAD-08",
+   "lines": 439,
+   "method": "grep of every .gd/.tscn/.json/.sh for the name as a token and as a string (call/has_method/Callable/connect), load/preload paths, class_name, scene ext_resources (tools/dev/audit/gd_graph.py)",
+   "severity": null,
+   "slice": "S1",
+   "title": "42 game-code symbols used only by tests or tools (set_state, touching, lock_left, restore_authoritative_snapshot, MapGenerator.generate ...)",
+   "where": [
+    "see symbols[status=not_used_by_game] in this file"
+   ]
+  },
+  {
+   "action": "five still pass (combo_tests 2057, landing_matrix 1354, map_generation 76, movement_v07 30, room_gates 276 checks): wire them into one `side_view_suite` run by run_tests.sh while the fallback exists; delete the four that no longer compile or exit 1 (obstacle_review, platform_contact, upward_landing, movement_review_v09) and the review/visual scripts that only open windows",
+   "category": "stale_test",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-09",
+   "lines": 1634,
+   "method": "tools/run_tests.sh and Test.ps1 suite lists; each run with godot -s (tools/dev/audit/run_legacy.py)",
+   "severity": null,
+   "slice": "S2",
+   "title": "27 SceneTree scripts under tests/ that no suite runs (1,634 lines); 22 were imported with v0.13 and never touched since",
+   "where": [
+    "tests/combo_tests.gd",
+    "tests/landing_matrix.gd",
+    "tests/map_generation.gd",
+    "tests/movement_v07.gd",
+    "tests/room_gates.gd",
+    "tests/movement_review_v09.gd",
+    "tests/obstacle_review.gd",
+    "tests/platform_contact.gd",
+    "tests/upward_landing.gd",
+    "tests/support_review_v08.gd",
+    "tests/generated_runtime.gd",
+    "tests/review_visual_v08.gd",
+    "tests/review_visual_v09.gd",
+    "tests/visual_checks.gd",
+    "tests/weapon_combo_outlines.gd",
+    "tests/weapon_combo_visual.gd"
+   ]
+  },
+  {
+   "action": "keep topdown_capture/hud_capture/prototype_qa/wiki/extract_strings/ui_style_audit; fold the per-decision capture scenes into one capture registry (data: shot name -> room, setup, camera) so a new review is a row, not a 150-line script; delete fix_infer.py",
+   "category": "stale_probe",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "DEAD-10",
+   "lines": 1389,
+   "method": "tools/dev/audit/mentions.py: docs, code and runners naming each stem, and its last commit",
+   "severity": null,
+   "slice": "S3",
+   "title": "tools/dev probes and captures no runner, doc or test names since their decision closed",
+   "where": [
+    "tools/dev/fix_infer.py (one-off := fixer, 2026-09-24)",
+    "tools/dev/stat_probe.gd",
+    "tools/dev/sect_capture.gd",
+    "tools/dev/places_capture.gd",
+    "tools/dev/picture_capture.gd",
+    "tools/dev/tutorial_capture.gd",
+    "tools/dev/combat_trace.gd"
+   ]
+  },
+  {
+   "action": "move the side-view pipeline (tools/art/creatures, pixel.py, helpers_batch_*, bake_*, tools/backdrops) under tools/art/sideview/ with a README saying it is frozen; delete build_topdown_proto.py and the study copies once the study's pictures are archived",
+   "category": "stale_generator",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "DEAD-11",
+   "lines": 2889,
+   "method": "tools/dev/audit/py_graph.py (imports, entry points, names outside Python) and mentions.py",
+   "severity": null,
+   "slice": "S3",
+   "title": "Side-view art generators frozen since decision 41 (paused side-view art); several one-off bakes nothing runs",
+   "where": [
+    "tools/art/bake_act2_hats.py (named nowhere)",
+    "tools/art/bake_straw_hat.py",
+    "tools/bake_hat_cape_combos.gd",
+    "tools/art/build_creatures.py",
+    "tools/art/build_topdown_proto.py (22 lines, superseded by build_tiles.py)",
+    "tools/art/topdown/study_quality/ (decision 42 study, 1,857 lines, copies raster.py and folds.py)",
+    "tools/icons/study/technique_cards.py (594 lines, no caller)"
+   ]
+  },
+  {
+   "action": "move balance.json and legendary_chains.json out of data/ (ContentDB loads every data/*.json at boot) into tests/data or tools/data; drop the unread fields in their generators; keep same_stage_ok as a generator-side check",
+   "category": "dead_data",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "DEAD-12",
+   "lines": 0,
+   "method": "tools/dev/audit/data_refs.py: table names as strings in scripts/, row keys as strings or .attribute tokens; each confirmed by grep",
+   "severity": null,
+   "slice": "S5",
+   "title": "Data the game never reads",
+   "where": [
+    "data/balance.json (tests/balance_sim.gd only)",
+    "data/legendary_chains.json (tests and wiki only)",
+    "data/topdown/td_review_heights.json (tools only)",
+    "techniques.json mastery.dmg_per_tier and mastery.cost_per_tier (117 rows each; the game reads stats.json mastery_cost_per_tier)",
+    "unlocks.json/quests.json same_stage_ok (111 rows, read by data_validation only)",
+    "shops.json buys_all (11)",
+    "items.json core.qp_pct (44 cores; the Qi comes from each core's effects)",
+    "enemies.json weak_to (4), equipment_chance (3)",
+    "artifacts.json named.archetype (29)",
+    "sets.json archetype (5)",
+    "zones.json laws, exit.to_zone (3)"
+   ]
+  },
+  {
+   "action": "drop from their generators' lists (tools/icons, tools/props) and rebuild",
+   "category": "dead_asset",
+   "confidence": "medium",
+   "evidence": "every one of the 6,714 files under art/ is named by some manifest (asset_refs.py): the only unnamed files are 4 font licences, which must stay",
+   "id": "DEAD-13",
+   "lines": 0,
+   "method": "tools/dev/audit/manifest_refs.py (every string in data and scripts, prefix-composed keys)",
+   "severity": null,
+   "slice": "S5",
+   "title": "Manifest ids nothing names: 8 legacy icons (elite_crown, gathering_log, player_arrow, portal_marker, portal_sealed, quest_main, quest_side, vendor), 8 props (broken_ring, leviathan_bones, star_iron_vein, stone_steps, void_geode, void_orchid_patch, war_drum, wooden_bridge)",
+   "where": [
+    "data/icon_manifest.json",
+    "data/prop_art.json"
+   ]
+  },
+  {
+   "action": "remove from tools/data/ui_strings.json after a grep per key (the 11 world_view.* keys are built from data prefixes: keep)",
+   "category": "dead_string",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "DEAD-14",
+   "lines": 62,
+   "method": "tools/dev/audit/strings_refs.py: literals in scripts and tests, data strings, composed prefixes, Tx.plural's _one",
+   "severity": null,
+   "slice": "S5",
+   "title": "About 62 player-facing string keys nothing asks for (ui.begin, ui.continue, ui.new_game, the Works page's *_note, ...)",
+   "where": [
+    "data/strings/en.json",
+    "tools/data/ui_strings.json"
+   ]
+  },
+  {
+   "action": "not dead: decision 41 keeps the side view as the new-game fallback setting. Freeze it: move to scripts/sideview/, keep its suites green, add nothing; delete only if the fallback setting is retired (a product decision)",
+   "category": "side_view_only",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DEAD-15",
+   "lines": 2233,
+   "method": "reachability from project.godot with main.gd's edges to world.gd and backdrop.gd cut (gd_graph.json references)",
+   "severity": null,
+   "slice": "S12",
+   "title": "Side-view-only game scripts: 13 files, 2,233 lines, reachable only through world.gd, backdrop.gd and the Avatar fallback",
+   "where": [
+    "scripts/world.gd 653",
+    "scripts/player.gd 774",
+    "scripts/backdrop.gd 124",
+    "scripts/avatar.gd 125",
+    "scripts/presentation/volume_view.gd 124",
+    "scripts/simulation/map_generator.gd 128",
+    "scripts/presentation/decor_views.gd 70",
+    "scripts/occlusion_outline.gd 50",
+    "scripts/presentation/climbable_view.gd 46",
+    "scripts/simulation/room_travel.gd 43",
+    "scripts/scenery_prop.gd 42",
+    "scripts/arrow.gd 34",
+    "scripts/shadow.gd 20"
+   ]
+  },
+  {
+   "action": "one FrameMemo (scripts/core/frame_memo.gd): memo(owner, key, callable, ttl_frames=1, on_revision=true)",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-01",
+   "lines": 80,
+   "method": "grep get_process_frames() in scripts/ (22 uses)",
+   "severity": null,
+   "slice": "S4",
+   "title": "Seven hand-rolled per-frame caches keyed on Engine.get_process_frames() and Game.revision",
+   "where": [
+    "scripts/presentation/world_shared.gd:28 _frame_memo",
+    "scripts/hud.gd:542 _frame_badges",
+    "scripts/hud.gd:2033 _look_frame",
+    "scripts/topdown/topdown_world.gd:555 soft_target",
+    "scripts/ui/pages/posts_page.gd:172 _rows_frame",
+    "scripts/simulation/rules/place_rules.gd:137 _home_cache (60-frame TTL)",
+    "scripts/presentation/sprite_cache.gd:24 slice budget"
+   ]
+  },
+  {
+   "action": "scripts/core/noise.gd: Noise.h01(i, salt), Noise.cell(x, y, s), Noise.value(x, y, s)",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-02",
+   "lines": 30,
+   "method": "grep 12.9898 (5 files) and 374761393",
+   "severity": null,
+   "slice": "S4",
+   "title": "Five copies of the sin-hash noise and one integer hash",
+   "where": [
+    "scripts/presentation/fx_layer.gd:682 _hash",
+    "scripts/presentation/hazard_view.gd:179 _h",
+    "scripts/ui/pages/map_page.gd:1308 _rnd",
+    "scripts/ui/pages/beast_kit.gd:9 noise",
+    "scripts/ui/pages/inventory_page.gd:87 _hash",
+    "scripts/topdown/topdown_terrain.gd:230 h01"
+   ]
+  },
+  {
+   "action": "Figures.for_character(ch) / Figures.for_outfit(o, top_down): one factory, one draw_on",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-03",
+   "lines": 90,
+   "method": "grep TopdownDoll.shown|Avatar.new()",
+   "severity": null,
+   "slice": "S4",
+   "title": "`TopdownDoll.new() if TopdownDoll.shown() else Avatar.new()` and its dress/draw branches in 12 files (18 sites)",
+   "where": [
+    "scripts/ui/pages/character_page.gd",
+    "scripts/ui/pages/shop_page.gd",
+    "scripts/ui/pages/inventory_page.gd",
+    "scripts/ui/pages/cultivation_page.gd",
+    "scripts/ui/pages/techniques_page.gd",
+    "scripts/shell/shell_screens.gd",
+    "scripts/presentation/technique_picture.gd",
+    "scripts/presentation/technique_preview.gd",
+    "scripts/presentation/npc_view.gd",
+    "scripts/presentation/enemy_view.gd",
+    "scripts/player.gd",
+    "scripts/hud.gd"
+   ]
+  },
+  {
+   "action": "a Notice table (data/hud_notices.json: event -> log|toast, key, args from payload, colour, filter actor==active) replaces the one-line cases of hud._handle (about 180 of 234); a Cue table (data/cues.json: event -> fx, sound, shake) replaces WorldShared.play's simple cases; a dispatcher Dictionary(name -> Callable) replaces the match chains",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-04",
+   "lines": 900,
+   "method": "function sizes (tools/dev/audit/funcs.py); count of GameEvents.event.connect (11)",
+   "severity": null,
+   "slice": "S6",
+   "title": "Event -> presentation switches: hud.gd _handle (234 branches, 615 lines, 134 add_log + 124 toast calls), WorldShared.play (147 lines), world.gd and topdown_world.gd _on_event (70 lines each), audio_director, moment_view, scene_director, tutorial_coach, page, atmosphere, life: 11 listeners each run their own match on every event",
+   "where": [
+    "scripts/hud.gd:1349-1963",
+    "scripts/presentation/world_shared.gd:82-228",
+    "scripts/world.gd:406",
+    "scripts/topdown/topdown_world.gd:576"
+   ]
+  },
+  {
+   "action": "a RoomSpace interface on RoomRuntime (distance, place_near, floor_at, ground_under, in_reach) with SideSpace and GridSpace; the authorities call the space and never branch. Freeze the side view's own files (DEAD-15)",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-05",
+   "lines": 400,
+   "method": "grep for room_rt.topdown ==/!= null, is World, grid ==/!= null, TopdownDoll.shown",
+   "severity": null,
+   "slice": "S12",
+   "title": "Parallel side-view and top-down implementations with 74 `topdown == null` checks in 20 shared files",
+   "where": [
+    "scripts/world.gd vs scripts/topdown/topdown_world.gd (_build_room 92/97 lines, _on_event 69/72)",
+    "scripts/player.gd vs scripts/topdown/topdown_player.gd",
+    "scripts/simulation/ai/enemy_brain.gd vs topdown_brain.gd",
+    "scripts/simulation/authority/world_authority.gd (21 checks)",
+    "scripts/simulation/authority/enemy_authority.gd (10)",
+    "scripts/simulation/ai/ally_brain.gd (8)",
+    "scripts/hud.gd (8)",
+    "scripts/presentation/autopilot.gd (5)"
+   ]
+  },
+  {
+   "action": "a public BrainKit (scripts/simulation/ai/brain_kit.gd) with those steps; the brains compose it",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-06",
+   "lines": 60,
+   "method": "tools/dev/audit/smells.py private_call",
+   "severity": null,
+   "slice": "S11",
+   "title": "TopdownBrain and AllyBrain drive EnemyBrain's private helpers (_set_state, _wander, _choose_attack, _start_hop, _hop, _follow_edge)",
+   "where": [
+    "scripts/simulation/ai/topdown_brain.gd:40-175",
+    "scripts/simulation/ai/ally_brain.gd:70,141"
+   ]
+  },
+  {
+   "action": "tests/lib/suite.gd (extends Node): check(), section(), finish(); every suite extends it",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-07",
+   "lines": 110,
+   "method": "tools/dev/audit/dupes.py --ext .gd (exact, window 6)",
+   "severity": null,
+   "slice": "S2",
+   "title": "Test boilerplate: the same check()/summary/quit block in 10 suites and the same pixel_stage preamble in 8 visual scripts",
+   "where": [
+    "tests/contract_tests.gd:16",
+    "tests/data_validation.gd:14",
+    "tests/balance_sim.gd:15",
+    "tests/audio_tests.gd:29",
+    "tests/room_sweep.gd:32",
+    "tests/visibility_suite.gd:25",
+    "tests/perf_tests.gd:14",
+    "tests/places_tests.gd:8",
+    "tests/prologue_run.gd:33",
+    "tests/tutorials.gd:51"
+   ]
+  },
+  {
+   "action": "tools/lib/pix.py for the primitives; the four keep their own palettes and conventions as thin wrappers. Only for new work: rebuilding the frozen side-view art is not needed",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-08",
+   "lines": 300,
+   "method": "tools/dev/audit/dupes.py --ext .py (the same 9-line line rasteriser in all four)",
+   "severity": null,
+   "slice": "S5",
+   "title": "Four pixel-drawing libraries in the Python art tools with the same line, ellipse and polygon rasterisers",
+   "where": [
+    "tools/art/pixel.py (1,410)",
+    "tools/icons/pix.py (951)",
+    "tools/props/pixlib.py (573)",
+    "tools/art/fx/fxpix.py (298)"
+   ]
+  },
+  {
+   "action": "frozen side-view art: no action now; the monster engine (ENG-2) is the answer for new species",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-09",
+   "lines": 893,
+   "method": "tools/dev/audit/dupes.py (exact, window 8)",
+   "severity": null,
+   "slice": "E2",
+   "title": "Side-view creature modules copied species to species",
+   "where": [
+    "tools/art/creatures/riverstone_ox.py <-> thunderhorn_rhino.py <-> thornback_boar.py (515 lines)",
+    "cloud_stag.py <-> hollow_stag.py (177)",
+    "ember_fox.py <-> spark_weasel.py (148)",
+    "mudshell_crab.py <-> tide_crab.py <-> void_crab.py (35)",
+    "cliff_ape.py <-> snow_ape.py (18)"
+   ]
+  },
+  {
+   "action": "keep both (the checks must run without Godot) but read the thresholds from data/movement.json in Python too, and add a parity test that runs Grid.reach and TopdownRoom.find_path on every layout and compares",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-10",
+   "lines": 40,
+   "method": "reading both",
+   "severity": null,
+   "slice": "S5",
+   "title": "The grid's walking rules exist twice: Python (tools/data/topdown_rooms.py Grid.reach, thresholds 32.5 and 8.0 hard-coded) and GDScript (TopdownRoom/TopdownMotor, from data/movement.json topdown.*); the room graph route twice (sect_walks.route and WorldRules.route)",
+   "where": [
+    "tools/data/topdown_rooms.py:222",
+    "tools/data/sect_walks.py:222",
+    "scripts/topdown/topdown_room.gd:308",
+    "scripts/simulation/rules/world_rules.gd"
+   ]
+  },
+  {
+   "action": "tools/data/common.py: emit(path, payload, check_only) and run_cli(build)",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-11",
+   "lines": 120,
+   "method": "reading",
+   "severity": null,
+   "slice": "S5",
+   "title": "Generator CLI boilerplate: build/--check/stale/write repeated in topdown_rooms, topdown_life, places, sound, sect_walks, contract, scenes",
+   "where": [
+    "tools/data/topdown_rooms.py:1746",
+    "tools/data/topdown_life.py",
+    "tools/data/places.py:342",
+    "tools/data/sound.py"
+   ]
+  },
+  {
+   "action": "tools/art/topdown/atlas.py grows pack(sheets) -> (png, manifest); delete study_quality after archiving",
+   "category": "duplication",
+   "confidence": "high",
+   "evidence": "",
+   "id": "DUP-12",
+   "lines": 160,
+   "method": "tools/dev/audit/dupes.py",
+   "severity": null,
+   "slice": "S3",
+   "title": "Atlas packing and sheet writing repeated in build_decor, build_life, build_tiles and build_foes; the study copies of raster.py (47 lines) and folds.py (56)",
+   "where": [
+    "tools/art/topdown/build_decor.py <-> build_life.py (32 lines)",
+    "tools/art/topdown/build_tiles.py:320 <-> :418 (23)",
+    "tools/art/topdown/figure/raster.py <-> study_quality/hifi.py (47)",
+    "tools/art/topdown/figure/kinds/folds.py <-> study_quality/looks.py (56)"
+   ]
+  },
+  {
+   "action": "ContentDB.recipe_output(id) returning '' for an unknown id, and a save-load sweep that drops unknown recipe ids from the queues",
+   "category": "bug",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "BUG-01",
+   "lines": 0,
+   "method": "grep ContentDB.(entry|item|room|config)(...).<field> without .get (12 sites), each traced to where its id comes from; crafting_authority.gd:1991 and :1043 read ids from data and are safe",
+   "severity": "low",
+   "slice": "S1",
+   "title": "Recipe ids read from the save are dotted into ContentDB with no check: after a recipe is renamed or removed in data, a save with it in the auto-refine queue or a refine in progress crashes the Crafts page (no load-time sweep drops unknown ids)",
+   "where": [
+    "scripts/ui/pages/crafts_page.gd:810 (ch.crafting.auto_queue)",
+    "scripts/ui/pages/crafts_page.gd:1528 (the refine in progress)",
+    "scripts/ui/pages/crafts_page.gd:716 (the selected talisman recipe)",
+    "scripts/ui/pages/crafts_page.gd:957 (a guild exam task)"
+   ]
+  },
+  {
+   "action": "handler Dictionaries (DUP-04)",
+   "category": "perf",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-02",
+   "lines": 0,
+   "method": "reading; count of listeners",
+   "severity": "medium",
+   "slice": "S6",
+   "title": "Every event is string-matched by 11 listeners, the HUD's through 234 branches: GDScript match tests them in order",
+   "where": [
+    "scripts/hud.gd:1349",
+    "scripts/core/game_events.gd:77 event.emit"
+   ]
+  },
+  {
+   "action": "const Dictionaries for the two sets; iterate the subscriber array by index with a delivering flag instead of duplicating",
+   "category": "perf",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-03",
+   "lines": 0,
+   "method": "reading",
+   "severity": "low",
+   "slice": "S4",
+   "title": "GameEvents.emit_event does a linear `in` over UNLOCK_TRIGGERS (18) and SAVE_TRIGGERS (13) per event, and flush() duplicates the subscriber list per delivered event",
+   "where": [
+    "scripts/core/game_events.gd:52",
+    "scripts/core/game_events.gd:53",
+    "scripts/core/game_events.gd:69"
+   ]
+  },
+  {
+   "action": "swap-remove by index in one pass; retire the oldest loop when no one-shot is left",
+   "category": "bug",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-04",
+   "lines": 0,
+   "method": "reading",
+   "severity": "low",
+   "slice": "S4",
+   "title": "TopdownFx's effect cap only retires one-shot effects: with MAX_NODES looping effects alive the list grows past the cap; advance() copies the list every frame and erases by value (O(n^2))",
+   "where": [
+    "scripts/topdown/topdown_fx.gd:92-97",
+    "scripts/topdown/topdown_fx.gd:101-111"
+   ]
+  },
+  {
+   "action": "public apply_*/query names for each; a contract_tests rule that fails on `\\.(_[a-z]\\w*)\\(` against another object in scripts/",
+   "category": "architecture",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-05",
+   "lines": 0,
+   "method": "tools/dev/audit/smells.py private_call",
+   "severity": "medium",
+   "slice": "S11",
+   "title": "56 calls into another object's private methods, 7 of them writes across authorities (Field -> Combat._apply_status_to_enemy x4, Enemy -> World._drop_loot, Quest -> World._start_event, Account -> Quest._refresh_offers)",
+   "where": [
+    "scripts/simulation/authority/field_authority.gd:218-226",
+    "scripts/simulation/authority/enemy_authority.gd:616",
+    "scripts/simulation/authority/quest_authority.gd:1093",
+    "scripts/simulation/authority/account_authority.gd:319",
+    "scripts/presentation/object_view.gd:194 Game.world._verb",
+    "scripts/hud.gd:2189 Game.pets._pet",
+    "scripts/ui/pages/your_sect_page.gd:282 Game.sect._on_expedition",
+    "scripts/ui/pages/works_page.gd:220 Game.posts._curve_of",
+    "scripts/ui/pages/auction_page.gd:98 Game.economy._au_cfg"
+   ]
+  },
+  {
+   "action": "a data_validation rule: every count pair names an authority and a method it has (has_method)",
+   "category": "fragile",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-06",
+   "lines": 0,
+   "method": "tools/dev/audit/smells.py data_method_call",
+   "severity": "low",
+   "slice": "S2",
+   "title": "Method names read from data and called unchecked: Game.get(row[0]).call(row[1], c)",
+   "where": [
+    "scripts/hud.gd:521",
+    "scripts/core/tutorial_rules.gd:102"
+   ]
+  },
+  {
+   "action": "scripts/shell/debug_args.gd (one function per flag, a table flag -> handler), loaded only when OS.has_feature('debug') or preview_mode",
+   "category": "debug_in_release",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-07",
+   "lines": 0,
+   "method": "tools/dev/audit/funcs.py; smells.py private_call",
+   "severity": "low",
+   "slice": "S7",
+   "title": "main.gd carries 510 lines of preview/debug flags (_handle_preview_args), several calling private authority methods (Game.combat._defeat, Game.progression._advance, _start_tribulation, Game.calendar._phenomenon, Game.combat._cast_illusion)",
+   "where": [
+    "scripts/main.gd:180-690"
+   ]
+  },
+  {
+   "action": "FrameMemo (DUP-01)",
+   "category": "perf",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-08",
+   "lines": 0,
+   "method": "tools/dev/audit/hot_paths.py and reading",
+   "severity": "low",
+   "slice": "S4",
+   "title": "hud.gd builds a per-frame cache key with points_override.duplicate() every frame",
+   "where": [
+    "scripts/hud.gd:542"
+   ]
+  },
+  {
+   "action": "push_error + a safe fallback (these are side-view files: fold into S12's freeze)",
+   "category": "fragile",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-09",
+   "lines": 0,
+   "method": "tools/dev/audit/smells.py assert_game",
+   "severity": "low",
+   "slice": "S12",
+   "title": "assert() in game code vanishes in release exports: avatar's missing-pose check, zone_geometry's duplicate surface id, map_generator's unknown theme",
+   "where": [
+    "scripts/avatar.gd:65",
+    "scripts/simulation/zone_geometry.gd:31",
+    "scripts/simulation/zone_geometry.gd:40",
+    "scripts/simulation/map_generator.gd:16"
+   ]
+  },
+  {
+   "action": "take the least of N rounds for every budget (the living-world check already does), and print but do not fail when Engine reports the process was starved",
+   "category": "flaky_gate",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-10",
+   "lines": 0,
+   "method": "two runs",
+   "severity": "medium",
+   "slice": "S2",
+   "title": "perf_tests fails under CPU load (1 of 18 in the baseline, 5 of 18 in a rerun at load 7.7): ms budgets measured on a shared machine",
+   "where": [
+    "tests/perf_tests.gd"
+   ]
+  },
+  {
+   "action": "lazy tables: parse a table on its first entry()/all()/config(); keep the realm and recipe indexes eager",
+   "category": "boot_cost",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-11",
+   "lines": 0,
+   "method": "perf_tests output; reading",
+   "severity": "medium",
+   "slice": "S4",
+   "title": "ContentDB reads and expands every data/*.json at boot, including techniques.json (974 KB, 3,171 rows, 133 ms here) and icon_manifest (2,570 keys); perf_tests' own v1.5 budget fails at 191 ms",
+   "where": [
+    "scripts/core/content_db.gd:31-92"
+   ]
+  },
+  {
+   "action": "clamp and push_error; the room engine validates footprints before writing",
+   "category": "fragile",
+   "confidence": "medium",
+   "evidence": "",
+   "id": "BUG-12",
+   "lines": 0,
+   "method": "reading",
+   "severity": "low",
+   "slice": "E1",
+   "title": "TopdownRoom.from_dict reads the level under a prop's footprint without a bounds check: a prop pushed past the edge by a hand override crashes the room load (the Python check guards today's layouts)",
+   "where": [
+    "scripts/topdown/topdown_room.gd:87",
+    "tools/data/topdown_rooms.py:192 (same read in the Python Grid)"
+   ]
+  },
+  {
+   "action": "no rewrite: publish each authority's public surface (the apply_* writers and the queries) as its doc header, enforce it with the private-call rule (BUG-05), and let new systems talk through events",
+   "category": "smell",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-13",
+   "lines": 0,
+   "method": "regex game.<authority>.<method> per file (gd_graph.json cross_authority)",
+   "severity": "low",
+   "slice": "S11",
+   "title": "Authorities are one dense mutual graph: 575 game.<authority>.<method> calls, 36 mutually dependent pairs (crafting<->inventory 54/2, world<->combat 23/5, combat<->progression 12/15, world<->quest 21/6)",
+   "where": [
+    "scripts/simulation/authority/*"
+   ]
+  },
+  {
+   "action": "split by section into parts the authority owns (scripts/simulation/authority/combat/flight.gd ...), the facade and state unchanged",
+   "category": "god_object",
+   "confidence": "high",
+   "evidence": "",
+   "id": "BUG-14",
+   "lines": 0,
+   "method": "tools/dev/audit/inventory.py and funcs.py; section headers",
+   "severity": "medium",
+   "slice": "S6-S10",
+   "title": "God objects: hud.gd (3,266 lines, 168 funcs: layout, input, 234 event cases, 40 draw panels, tours), combat_authority.gd (2,819, 169 funcs, 18 sections), world_authority.gd (2,296, 16 sections), crafting_authority.gd (2,055, 20 sections), progression_authority.gd (1,810), main.gd (1,058, 510 of them debug flags)",
+   "where": [
+    "scripts/hud.gd",
+    "scripts/simulation/authority/combat_authority.gd",
+    "scripts/simulation/authority/world_authority.gd",
+    "scripts/simulation/authority/crafting_authority.gd",
+    "scripts/simulation/authority/progression_authority.gd",
+    "scripts/main.gd"
+   ]
+  }
+ ],
+ "legacy_tests": {
+  "tests/combo_tests.gd": "pass 2057/2057",
+  "tests/gauntlet_review.gd": "timeout",
+  "tests/generated_runtime.gd": "timeout",
+  "tests/landing_matrix.gd": "pass 1354/1354",
+  "tests/map_generation.gd": "pass 76/76",
+  "tests/movement_review_v09.gd": "exit 1 (run, line 52)",
+  "tests/movement_v07.gd": "pass 30/30",
+  "tests/obstacle_review.gd": "compile error: Identifier not found: GameEvents",
+  "tests/pixel_input.gd": "exit 2: needs a window",
+  "tests/platform_contact.gd": "compile error: Identifier not found: GameEvents",
+  "tests/release_review.gd": "timeout",
+  "tests/room_gates.gd": "pass 276/276",
+  "tests/support_review_v08.gd": "timeout (opens a review window)",
+  "tests/upward_landing.gd": "compile error: Identifier not found: GameEvents",
+  "tests/visual_checks.gd": "timeout",
+  "tests/weapon_combo_outlines.gd": "timeout"
+ },
+ "scans": {
+  "assets": {
+   "summary": {
+    "assets": 6714,
+    "bytes": 129617323,
+    "unnamed": 4,
+    "unnamed_bytes": 17134
+   },
+   "unnamed": [
+    {
+     "bytes": 4400,
+     "how": "none",
+     "path": "art/fonts/SourceSerif4-OFL.txt",
+     "sources": []
+    },
+    {
+     "bytes": 3859,
+     "how": "none",
+     "path": "art/fonts/JadeRiverSymbols-LICENSE.txt",
+     "sources": []
+    },
+    {
+     "bytes": 4488,
+     "how": "none",
+     "path": "art/fonts/PixelifySans-OFL.txt",
+     "sources": []
+    },
+    {
+     "bytes": 4387,
+     "how": "none",
+     "path": "art/fonts/OFL.txt",
+     "sources": []
+    }
+   ]
+  },
+  "data": {
+   "summary": {
+    "bytes": 4542872,
+    "not_named_by_game": 3,
+    "not_named_bytes": 16126,
+    "tables": 153,
+    "unread_keys": 27
+   },
+   "tables": [
+    {
+     "boot_loaded": true,
+     "bytes": 79409,
+     "entries": 213,
+     "game_refs": 6,
+     "keys": 45,
+     "table": "data/artifacts.json",
+     "test_refs": 20,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "named.archetype",
+       "rows": 29,
+       "tests": 13,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/art/topdown/build_character.py",
+      "tools/art/topdown/study_quality/build_study.py",
+      "tools/data/economy.py",
+      "tools/data/items.py",
+      "tools/data/story.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 2745,
+     "entries": 0,
+     "game_refs": 0,
+     "keys": 0,
+     "table": "data/balance.json",
+     "test_refs": 3,
+     "tools_gd_refs": 0,
+     "unread_keys": [],
+     "writers": [
+      "tools/data/stats.py",
+      "tools/dev/audit/findings.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 1195,
+     "entries": 3,
+     "game_refs": 16,
+     "keys": 14,
+     "table": "data/bonds.json",
+     "test_refs": 5,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "inheritance",
+       "rows": 1,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 1611,
+     "entries": 4,
+     "game_refs": 27,
+     "keys": 17,
+     "table": "data/companions.json",
+     "test_refs": 11,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "outfit.shirt_dye",
+       "rows": 4,
+       "tests": 6,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/economy.py",
+      "tools/data/story.py",
+      "tools/dev/render_mockups.py",
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 186604,
+     "entries": 122,
+     "game_refs": 52,
+     "keys": 57,
+     "table": "data/enemies.json",
+     "test_refs": 57,
+     "tools_gd_refs": 2,
+     "unread_keys": [
+      {
+       "key": "weak_to",
+       "rows": 4,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "equipment_chance",
+       "rows": 3,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/art/topdown/creatures.py",
+      "tools/data/enemies.py",
+      "tools/data/moments.py",
+      "tools/data/story.py",
+      "tools/dev/audit/findings.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 867,
+     "entries": 3,
+     "game_refs": 5,
+     "keys": 4,
+     "table": "data/injuries.json",
+     "test_refs": 0,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "treatments",
+       "rows": 3,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/contract.py",
+      "tools/data/moments.py",
+      "tools/data/stats.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 180757,
+     "entries": 484,
+     "game_refs": 84,
+     "keys": 69,
+     "table": "data/items.json",
+     "test_refs": 58,
+     "tools_gd_refs": 4,
+     "unread_keys": [
+      {
+       "key": "core.qp_pct",
+       "rows": 44,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/art/topdown/build_character.py",
+      "tools/art/topdown/review_character.py",
+      "tools/art/topdown/study_quality/build_study.py",
+      "tools/data/contract.py",
+      "tools/data/economy.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 11048,
+     "entries": 9,
+     "game_refs": 0,
+     "keys": 17,
+     "table": "data/legendary_chains.json",
+     "test_refs": 3,
+     "tools_gd_refs": 0,
+     "unread_keys": [],
+     "writers": [
+      "tools/data/moments.py",
+      "tools/dev/audit/findings.py",
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 86087,
+     "entries": 127,
+     "game_refs": 60,
+     "keys": 34,
+     "table": "data/npcs.json",
+     "test_refs": 18,
+     "tools_gd_refs": 1,
+     "unread_keys": [
+      {
+       "key": "outfit.shirt_dye",
+       "rows": 127,
+       "tests": 6,
+       "tools_gd": 0
+      },
+      {
+       "key": "outfit.pants_dye",
+       "rows": 71,
+       "tests": 4,
+       "tools_gd": 0
+      },
+      {
+       "key": "service_labels.page:workshop",
+       "rows": 8,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "service_unlocks.page:workshop",
+       "rows": 8,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "service_labels.page:guild",
+       "rows": 4,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/art/topdown/review_character.py",
+      "tools/art/topdown/study_quality/build_study.py",
+      "tools/art/topdown/study_quality/options.py",
+      "tools/data/crafts.py",
+      "tools/data/economy.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 27608,
+     "entries": 6,
+     "game_refs": 80,
+     "keys": 10,
+     "table": "data/posts.json",
+     "test_refs": 10,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "tool_word",
+       "rows": 6,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/posts.py",
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 262131,
+     "entries": 229,
+     "game_refs": 48,
+     "keys": 23,
+     "table": "data/quests.json",
+     "test_refs": 63,
+     "tools_gd_refs": 6,
+     "unread_keys": [
+      {
+       "key": "same_stage_ok",
+       "rows": 9,
+       "tests": 1,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/economy.py",
+      "tools/data/moments.py",
+      "tools/data/sect_walks.py",
+      "tools/data/story.py",
+      "tools/data/technique_gen.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 70035,
+     "entries": 35,
+     "game_refs": 9,
+     "keys": 19,
+     "table": "data/scenes.json",
+     "test_refs": 4,
+     "tools_gd_refs": 3,
+     "unread_keys": [
+      {
+       "key": "actors.ping",
+       "rows": 10,
+       "tests": 2,
+       "tools_gd": 0
+      },
+      {
+       "key": "actors.lu",
+       "rows": 5,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "actors.dou",
+       "rows": 4,
+       "tests": 0,
+       "tools_gd": 1
+      },
+      {
+       "key": "actors.guo",
+       "rows": 3,
+       "tests": 2,
+       "tools_gd": 0
+      },
+      {
+       "key": "actors.shen",
+       "rows": 3,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/scenes.py",
+      "tools/data/sect_walks.py",
+      "tools/data/topdown_rooms.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 2195,
+     "entries": 5,
+     "game_refs": 2,
+     "keys": 7,
+     "table": "data/sets.json",
+     "test_refs": 13,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "archetype",
+       "rows": 5,
+       "tests": 13,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/art/topdown/build_decor.py",
+      "tools/data/gear.py",
+      "tools/data/moments.py",
+      "tools/dev/audit/findings.py",
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 69148,
+     "entries": 35,
+     "game_refs": 6,
+     "keys": 13,
+     "table": "data/shops.json",
+     "test_refs": 17,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "buys_all",
+       "rows": 11,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/economy.py",
+      "tools/dev/audit/findings.py",
+      "tools/dev/wiki.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 997150,
+     "entries": 3171,
+     "game_refs": 71,
+     "keys": 86,
+     "table": "data/techniques.json",
+     "test_refs": 94,
+     "tools_gd_refs": 11,
+     "unread_keys": [
+      {
+       "key": "mastery.dmg_per_tier",
+       "rows": 117,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "mastery.cost_per_tier",
+       "rows": 117,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/economy.py",
+      "tools/data/moments.py",
+      "tools/data/technique_gen.py",
+      "tools/data/techniques.py",
+      "tools/dev/audit/findings.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 53335,
+     "entries": 156,
+     "game_refs": 11,
+     "keys": 12,
+     "table": "data/unlocks.json",
+     "test_refs": 23,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "same_stage_ok",
+       "rows": 102,
+       "tests": 1,
+       "tools_gd": 0
+      },
+      {
+       "key": "obligation",
+       "rows": 12,
+       "tests": 2,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/economy.py",
+      "tools/data/moments.py",
+      "tools/data/places.py",
+      "tools/data/story.py",
+      "tools/data/tutorials.py"
+     ]
+    },
+    {
+     "boot_loaded": true,
+     "bytes": 14134,
+     "entries": 3,
+     "game_refs": 9,
+     "keys": 19,
+     "table": "data/zones.json",
+     "test_refs": 1,
+     "tools_gd_refs": 0,
+     "unread_keys": [
+      {
+       "key": "laws",
+       "rows": 3,
+       "tests": 0,
+       "tools_gd": 0
+      },
+      {
+       "key": "exit.to_zone",
+       "rows": 3,
+       "tests": 0,
+       "tools_gd": 0
+      }
+     ],
+     "writers": [
+      "tools/data/technique_gen.py",
+      "tools/data/world.py",
+      "tools/dev/audit/findings.py",
+      "tools/dev/wiki.py",
+      "tools/ui/build_valley_map.py"
+     ]
+    },
+    {
+     "boot_loaded": false,
+     "bytes": 2333,
+     "entries": 0,
+     "game_refs": 0,
+     "keys": 0,
+     "table": "data/topdown/td_review_heights.json",
+     "test_refs": 0,
+     "tools_gd_refs": 4,
+     "unread_keys": [],
+     "writers": [
+      "tools/dev/audit/findings.py"
+     ]
+    }
+   ]
+  },
+  "dupes_gd": {
+   "by_pair": [
+    {
+     "a": "tests/rules_tests.gd",
+     "b": "tests/rules_tests.gd",
+     "lines": 58
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/perf_tests.gd",
+     "lines": 33
+    },
+    {
+     "a": "tools/dev/topdown_capture.gd",
+     "b": "tools/dev/topdown_capture.gd",
+     "lines": 27
+    },
+    {
+     "a": "tests/movement_visual_v07.gd",
+     "b": "tests/review_visual_v09.gd",
+     "lines": 19
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/balance_sim.gd",
+     "lines": 17
+    },
+    {
+     "a": "tests/generated_visuals.gd",
+     "b": "tests/movement_visual_v07.gd",
+     "lines": 16
+    },
+    {
+     "a": "tests/combo_visual.gd",
+     "b": "tests/platform_contact_visual.gd",
+     "lines": 14
+    },
+    {
+     "a": "tests/platform_contact_visual.gd",
+     "b": "tests/release_review.gd",
+     "lines": 13
+    },
+    {
+     "a": "tests/generated_visuals.gd",
+     "b": "tests/review_visual_v09.gd",
+     "lines": 13
+    },
+    {
+     "a": "tests/valley_run.gd",
+     "b": "tests/valley_run.gd",
+     "lines": 13
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/places_tests.gd",
+     "lines": 11
+    },
+    {
+     "a": "tests/room_sweep.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 11
+    },
+    {
+     "a": "tests/prologue_run.gd",
+     "b": "tests/tutorials.gd",
+     "lines": 10
+    },
+    {
+     "a": "tests/movement_review_v09.gd",
+     "b": "tests/upward_landing.gd",
+     "lines": 9
+    },
+    {
+     "a": "tools/dev/hud_capture.gd",
+     "b": "tools/dev/picture_capture.gd",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/study_quality/study_capture.gd",
+     "b": "tools/dev/topdown_capture.gd",
+     "lines": 9
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/data_validation.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/contract_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/contract_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/perf_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/places_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/data_validation.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/data_validation.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/data_validation.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/data_validation.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/data_validation.gd",
+     "b": "tests/perf_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/data_validation.gd",
+     "b": "tests/places_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/balance_sim.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/perf_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/places_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/perf_tests.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/places_tests.gd",
+     "b": "tests/room_sweep.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/perf_tests.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/places_tests.gd",
+     "b": "tests/visibility_suite.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/perf_tests.gd",
+     "b": "tests/places_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/balance_sim.gd",
+     "b": "tests/rules_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/places_tests.gd",
+     "b": "tests/rules_tests.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/movement_visual_v07.gd",
+     "b": "tests/platform_contact_visual.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/movement_visual_v07.gd",
+     "b": "tests/release_review.gd",
+     "lines": 8
+    },
+    {
+     "a": "tests/landing_matrix.gd",
+     "b": "tests/room_gates.gd",
+     "lines": 8
+    },
+    {
+     "a": "tools/dev/prototype_qa.gd",
+     "b": "tools/dev/prototype_qa.gd",
+     "lines": 8
+    },
+    {
+     "a": "scripts/presentation/scene_director.gd",
+     "b": "scripts/presentation/scene_director.gd",
+     "lines": 7
+    },
+    {
+     "a": "scripts/simulation/rules/world_rules.gd",
+     "b": "scripts/simulation/rules/world_rules.gd",
+     "lines": 7
+    },
+    {
+     "a": "scripts/core/tutorial_rules.gd",
+     "b": "scripts/core/tutorial_rules.gd",
+     "lines": 7
+    },
+    {
+     "a": "scripts/topdown/topdown_terrain.gd",
+     "b": "scripts/topdown/topdown_terrain.gd",
+     "lines": 7
+    },
+    {
+     "a": "tests/combo_tests.gd",
+     "b": "tests/upward_landing.gd",
+     "lines": 7
+    },
+    {
+     "a": "tests/contract_tests.gd",
+     "b": "tests/contract_tests.gd",
+     "lines": 7
+    },
+    {
+     "a": "tests/review_visual_v08.gd",
+     "b": "tests/review_visual_v09.gd",
+     "lines": 7
+    },
+    {
+     "a": "scripts/ui/ui_kit.gd",
+     "b": "scripts/ui/ui_kit.gd",
+     "lines": 6
+    },
+    {
+     "a": "scripts/simulation/authority/combat_authority.gd",
+     "b": "scripts/simulation/authority/combat_authority.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/combo_tests.gd",
+     "b": "tests/movement_review_v09.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/movement_review_v09.gd",
+     "b": "tests/platform_contact.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/combo_tests.gd",
+     "b": "tests/platform_contact.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/platform_contact.gd",
+     "b": "tests/upward_landing.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/audio_tests.gd",
+     "b": "tests/tutorials.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/perf_tests.gd",
+     "b": "tests/tutorials.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/movement_visual_v07.gd",
+     "b": "tests/review_visual_v08.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/generated_visuals.gd",
+     "b": "tests/review_visual_v08.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/combo_visual.gd",
+     "b": "tests/release_review.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/movement_v07.gd",
+     "b": "tests/support_review_v08.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/landing_matrix.gd",
+     "b": "tests/platform_contact.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/platform_contact.gd",
+     "b": "tests/room_gates.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/hollow_night.gd",
+     "b": "tests/topdown_tutorial.gd",
+     "lines": 6
+    },
+    {
+     "a": "tests/story_scenes.gd",
+     "b": "tests/topdown_tutorial.gd",
+     "lines": 6
+    },
+    {
+     "a": "tools/dev/hud_capture.gd",
+     "b": "tools/dev/tutorial_capture.gd",
+     "lines": 6
+    }
+   ],
+   "summary": {
+    "duplicated_lines": 681,
+    "files": 258,
+    "mode": "exact",
+    "regions": 87,
+    "window": 6
+   }
+  },
+  "dupes_py": {
+   "by_pair": [
+    {
+     "a": "tools/art/creatures/riverstone_ox.py",
+     "b": "tools/art/creatures/thunderhorn_rhino.py",
+     "lines": 187
+    },
+    {
+     "a": "tools/art/creatures/cloud_stag.py",
+     "b": "tools/art/creatures/hollow_stag.py",
+     "lines": 177
+    },
+    {
+     "a": "tools/art/creatures/riverstone_ox.py",
+     "b": "tools/art/creatures/thornback_boar.py",
+     "lines": 167
+    },
+    {
+     "a": "tools/art/creatures/thornback_boar.py",
+     "b": "tools/art/creatures/thunderhorn_rhino.py",
+     "lines": 161
+    },
+    {
+     "a": "tools/art/creatures/ember_fox.py",
+     "b": "tools/art/creatures/spark_weasel.py",
+     "lines": 148
+    },
+    {
+     "a": "tools/art/topdown/figure/kinds/folds.py",
+     "b": "tools/art/topdown/study_quality/looks.py",
+     "lines": 56
+    },
+    {
+     "a": "tools/art/topdown/figure/raster.py",
+     "b": "tools/art/topdown/study_quality/hifi.py",
+     "lines": 47
+    },
+    {
+     "a": "tools/art/topdown/build_decor.py",
+     "b": "tools/art/topdown/build_life.py",
+     "lines": 32
+    },
+    {
+     "a": "tools/art/topdown/build_tiles.py",
+     "b": "tools/art/topdown/build_tiles.py",
+     "lines": 23
+    },
+    {
+     "a": "tools/art/creatures/mudshell_crab.py",
+     "b": "tools/art/creatures/tide_crab.py",
+     "lines": 19
+    },
+    {
+     "a": "tools/art/creatures/cliff_ape.py",
+     "b": "tools/art/creatures/snow_ape.py",
+     "lines": 18
+    },
+    {
+     "a": "tools/art/helpers_batch_a.py",
+     "b": "tools/art/helpers_batch_c.py",
+     "lines": 16
+    },
+    {
+     "a": "tools/art/bake_act2_hats.py",
+     "b": "tools/art/bake_straw_hat.py",
+     "lines": 15
+    },
+    {
+     "a": "tools/data/verticality.py",
+     "b": "tools/data/verticality.py",
+     "lines": 13
+    },
+    {
+     "a": "tools/audio/build_audio.py",
+     "b": "tools/audio/review.py",
+     "lines": 12
+    },
+    {
+     "a": "tools/art/topdown/figure/kinds/bell.py",
+     "b": "tools/art/topdown/figure/kinds/flute.py",
+     "lines": 12
+    },
+    {
+     "a": "tools/art/topdown/study_quality/build_study.py",
+     "b": "tools/art/topdown/study_quality/stats.py",
+     "lines": 12
+    },
+    {
+     "a": "tools/art/topdown/build_foes.py",
+     "b": "tools/art/topdown/build_tiles.py",
+     "lines": 11
+    },
+    {
+     "a": "tools/art/topdown/figure/render.py",
+     "b": "tools/art/topdown/study_quality/hifi.py",
+     "lines": 11
+    },
+    {
+     "a": "tools/backdrops/build_backdrops.py",
+     "b": "tools/ui/build_ui.py",
+     "lines": 10
+    },
+    {
+     "a": "tools/ui/build_valley_map.py",
+     "b": "tools/ui/build_valley_map.py",
+     "lines": 10
+    },
+    {
+     "a": "tools/data/technique_anim.py",
+     "b": "tools/data/technique_hand.py",
+     "lines": 10
+    },
+    {
+     "a": "tools/art/topdown/figure/body.py",
+     "b": "tools/art/topdown/study_quality/looks.py",
+     "lines": 10
+    },
+    {
+     "a": "tools/art/pixel.py",
+     "b": "tools/icons/pix.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/fx/fxpix.py",
+     "b": "tools/icons/pix.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/icons/pix.py",
+     "b": "tools/props/pixlib.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/fx/fxpix.py",
+     "b": "tools/art/pixel.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/pixel.py",
+     "b": "tools/props/pixlib.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/fx/fxpix.py",
+     "b": "tools/props/pixlib.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/bake_weapons.py",
+     "b": "tools/art/bake_weapons.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/creatures/comet_sparrow.py",
+     "b": "tools/art/creatures/wind_kite.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/build_life.py",
+     "b": "tools/art/topdown/build_tiles.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/build_foes.py",
+     "b": "tools/art/topdown/build_life.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/build_decor.py",
+     "b": "tools/art/topdown/build_tiles.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/build_decor.py",
+     "b": "tools/art/topdown/build_foes.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/creature/otter.py",
+     "b": "tools/art/topdown/creature/rat.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/art/topdown/figure/kinds/hair.py",
+     "b": "tools/art/topdown/study_quality/looks.py",
+     "lines": 9
+    },
+    {
+     "a": "tools/ui/build_ui.py",
+     "b": "tools/ui/build_valley_map.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/ui/build_ui_hd.py",
+     "b": "tools/ui/build_valley_map.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/backdrops/build_backdrops.py",
+     "b": "tools/ui/build_valley_map.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/ui/build_ui.py",
+     "b": "tools/ui/build_ui_hd.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/backdrops/build_backdrops.py",
+     "b": "tools/ui/build_ui_hd.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/icons/pix.py",
+     "b": "tools/icons/pix.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/icons/study/study_lib.py",
+     "b": "tools/icons/study/technique_cards.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/icons/families/critters.py",
+     "b": "tools/icons/families/fish.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/icons/families/critters.py",
+     "b": "tools/icons/families/insects.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/icons/families/fish.py",
+     "b": "tools/icons/families/insects.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/data/room_lint.py",
+     "b": "tools/data/verticality.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/art/creatures/mudshell_crab.py",
+     "b": "tools/art/creatures/void_crab.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/art/creatures/tide_crab.py",
+     "b": "tools/art/creatures/void_crab.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/art/topdown/atlas.py",
+     "b": "tools/art/topdown/atlas.py",
+     "lines": 8
+    },
+    {
+     "a": "tools/art/topdown/figure/body.py",
+     "b": "tools/art/topdown/study_quality/draw.py",
+     "lines": 8
+    }
+   ],
+   "summary": {
+    "duplicated_lines": 1423,
+    "files": 294,
+    "mode": "exact",
+    "regions": 78,
+    "window": 8
+   }
+  },
+  "gd_graph": {
+   "cross_authority": {
+    "scripts/audio/audio_director.gd": {
+     "Game.combat": 3
+    },
+    "scripts/core/tutorial_rules.gd": {
+     "Game.world": 2
+    },
+    "scripts/hud.gd": {
+     "Game.calendar": 1,
+     "Game.combat": 13,
+     "Game.companions": 1,
+     "Game.economy": 1,
+     "Game.field": 5,
+     "Game.inventory": 1,
+     "Game.mail": 2,
+     "Game.pets": 8,
+     "Game.posts": 4,
+     "Game.progression": 2,
+     "Game.quest": 5,
+     "Game.sect": 5,
+     "Game.world": 10
+    },
+    "scripts/main.gd": {
+     "Game.accounts": 2,
+     "Game.calendar": 3,
+     "Game.combat": 10,
+     "Game.companions": 1,
+     "Game.crafting": 2,
+     "Game.enemies": 1,
+     "Game.inventory": 17,
+     "Game.pets": 9,
+     "Game.posts": 8,
+     "Game.progression": 4,
+     "Game.relations": 7,
+     "Game.sect": 5,
+     "Game.training": 3,
+     "Game.world": 4
+    },
+    "scripts/player.gd": {
+     "Game.combat": 15,
+     "Game.pets": 8,
+     "Game.world": 3
+    },
+    "scripts/presentation/autopilot.gd": {
+     "Game.world": 4
+    },
+    "scripts/presentation/fx_layer.gd": {
+     "Game.combat": 2,
+     "Game.field": 5
+    },
+    "scripts/presentation/hazard_view.gd": {
+     "Game.calendar": 1,
+     "Game.progression": 2
+    },
+    "scripts/presentation/moment_view.gd": {
+     "Game.progression": 1
+    },
+    "scripts/presentation/npc_view.gd": {
+     "Game.world": 1
+    },
+    "scripts/presentation/object_view.gd": {
+     "Game.crafting": 3,
+     "Game.posts": 3,
+     "Game.sect": 4,
+     "Game.world": 6
+    },
+    "scripts/presentation/portal_view.gd": {
+     "Game.world": 1
+    },
+    "scripts/presentation/world_labels.gd": {
+     "Game.progression": 1
+    },
+    "scripts/presentation/world_shared.gd": {
+     "Game.quest": 2,
+     "Game.world": 7
+    },
+    "scripts/shell/shell_screens.gd": {
+     "Game.posts": 1
+    },
+    "scripts/simulation/ai/ally_brain.gd": {
+     "combat": 6,
+     "enemies": 1
+    },
+    "scripts/simulation/ai/enemy_brain.gd": {
+     "combat": 3,
+     "workshop": 2
+    },
+    "scripts/simulation/authority/account_authority.gd": {
+     "companions": 1,
+     "crafting": 1,
+     "economy": 3,
+     "inventory": 8,
+     "mail": 2,
+     "pets": 2,
+     "posts": 6,
+     "progression": 15,
+     "quest": 3,
+     "sect": 3,
+     "training": 3,
+     "world": 3
+    },
+    "scripts/simulation/authority/calendar_authority.gd": {
+     "combat": 2,
+     "inventory": 1,
+     "quest": 2,
+     "relations": 1,
+     "world": 4
+    },
+    "scripts/simulation/authority/combat_authority.gd": {
+     "companions": 2,
+     "crafting": 1,
+     "enemies": 8,
+     "field": 4,
+     "inventory": 9,
+     "pets": 5,
+     "progression": 12,
+     "quest": 1,
+     "relations": 2,
+     "training": 1,
+     "world": 5
+    },
+    "scripts/simulation/authority/companion_authority.gd": {
+     "combat": 2
+    },
+    "scripts/simulation/authority/crafting_authority.gd": {
+     "calendar": 1,
+     "economy": 12,
+     "inventory": 54,
+     "mail": 1,
+     "pets": 4,
+     "posts": 3,
+     "progression": 2,
+     "quest": 3,
+     "world": 8
+    },
+    "scripts/simulation/authority/economy_authority.gd": {
+     "calendar": 1,
+     "crafting": 2,
+     "inventory": 5,
+     "mail": 2,
+     "progression": 3,
+     "relations": 1,
+     "training": 1
+    },
+    "scripts/simulation/authority/enemy_authority.gd": {
+     "calendar": 1,
+     "combat": 6,
+     "quest": 1,
+     "world": 4
+    },
+    "scripts/simulation/authority/field_authority.gd": {
+     "combat": 15,
+     "enemies": 1,
+     "progression": 2
+    },
+    "scripts/simulation/authority/inventory_authority.gd": {
+     "accounts": 1,
+     "combat": 7,
+     "crafting": 2,
+     "economy": 3,
+     "mail": 2,
+     "pets": 5,
+     "posts": 1,
+     "progression": 10,
+     "quest": 3,
+     "workshop": 1
+    },
+    "scripts/simulation/authority/mail_authority.gd": {
+     "economy": 1,
+     "inventory": 2
+    },
+    "scripts/simulation/authority/pet_authority.gd": {
+     "accounts": 1,
+     "combat": 5,
+     "economy": 2,
+     "enemies": 1,
+     "inventory": 19,
+     "progression": 3,
+     "quest": 2,
+     "sect": 3,
+     "workshop": 1
+    },
+    "scripts/simulation/authority/post_authority.gd": {
+     "crafting": 1,
+     "economy": 11,
+     "inventory": 9,
+     "progression": 1,
+     "sect": 2,
+     "world": 1
+    },
+    "scripts/simulation/authority/progression_authority.gd": {
+     "combat": 15,
+     "companions": 2,
+     "crafting": 1,
+     "inventory": 9,
+     "mail": 1,
+     "pets": 1,
+     "quest": 11,
+     "relations": 5,
+     "sect": 1,
+     "training": 1,
+     "workshop": 3
+    },
+    "scripts/simulation/authority/quest_authority.gd": {
+     "enemies": 1,
+     "field": 1,
+     "inventory": 1,
+     "progression": 1,
+     "world": 6
+    },
+    "scripts/simulation/authority/relations_authority.gd": {
+     "achievements": 1,
+     "combat": 2,
+     "economy": 5,
+     "enemies": 4,
+     "inventory": 1,
+     "mail": 1,
+     "progression": 3,
+     "quest": 12,
+     "world": 1
+    },
+    "scripts/simulation/authority/sect_authority.gd": {
+     "economy": 7,
+     "inventory": 3,
+     "world": 3
+    },
+    "scripts/simulation/authority/training_sect_authority.gd": {
+     "inventory": 1,
+     "progression": 1
+    },
+    "scripts/simulation/authority/workshop_authority.gd": {
+     "combat": 2,
+     "crafting": 5,
+     "inventory": 12,
+     "pets": 2,
+     "progression": 7,
+     "relations": 1,
+     "sect": 2,
+     "training": 1
+    },
+    "scripts/simulation/authority/world_authority.gd": {
+     "calendar": 5,
+     "combat": 23,
+     "crafting": 6,
+     "economy": 1,
+     "enemies": 8,
+     "inventory": 10,
+     "pets": 4,
+     "posts": 2,
+     "progression": 10,
+     "quest": 21,
+     "sect": 2,
+     "tutorials": 1
+    },
+    "scripts/simulation/rules/place_rules.gd": {
+     "Game.accounts": 1,
+     "Game.crafting": 2,
+     "Game.mail": 1,
+     "Game.quest": 1,
+     "Game.relations": 1,
+     "Game.world": 2,
+     "quest": 2
+    },
+    "scripts/topdown/topdown_atmosphere.gd": {
+     "Game.calendar": 1
+    },
+    "scripts/topdown/topdown_place_art.gd": {
+     "Game.crafting": 1
+    },
+    "scripts/topdown/topdown_places.gd": {
+     "Game.world": 2
+    },
+    "scripts/topdown/topdown_player.gd": {
+     "Game.combat": 26,
+     "Game.world": 2
+    },
+    "scripts/topdown/topdown_world.gd": {
+     "Game.combat": 5,
+     "Game.world": 2
+    },
+    "scripts/ui/equip_prompt.gd": {
+     "Game.inventory": 1
+    },
+    "scripts/ui/page.gd": {
+     "Game.world": 1
+    },
+    "scripts/ui/pages/array_page.gd": {
+     "Game.world": 1
+    },
+    "scripts/ui/pages/auction_page.gd": {
+     "Game.economy": 7
+    },
+    "scripts/ui/pages/beast_arena_page.gd": {
+     "Game.pets": 4
+    },
+    "scripts/ui/pages/breakthrough_page.gd": {
+     "Game.progression": 2
+    },
+    "scripts/ui/pages/calendar_page.gd": {
+     "Game.calendar": 8,
+     "Game.world": 3
+    },
+    "scripts/ui/pages/character_page.gd": {
+     "Game.pets": 1,
+     "Game.progression": 5,
+     "Game.relations": 2
+    },
+    "scripts/ui/pages/characters_page.gd": {
+     "Game.posts": 2,
+     "Game.world": 1
+    },
+    "scripts/ui/pages/chess_page.gd": {
+     "Game.progression": 2
+    },
+    "scripts/ui/pages/codex_page.gd": {
+     "Game.accounts": 3,
+     "Game.combat": 1,
+     "Game.crafting": 1
+    },
+    "scripts/ui/pages/companions_page.gd": {
+     "Game.relations": 2
+    },
+    "scripts/ui/pages/core_exchange_page.gd": {
+     "Game.economy": 1,
+     "Game.pets": 3
+    },
+    "scripts/ui/pages/county_page.gd": {
+     "Game.economy": 1,
+     "Game.quest": 2,
+     "Game.relations": 6
+    },
+    "scripts/ui/pages/crafts_page.gd": {
+     "Game.combat": 1,
+     "Game.crafting": 56,
+     "Game.economy": 2,
+     "Game.inventory": 1
+    },
+    "scripts/ui/pages/cultivation_page.gd": {
+     "Game.combat": 3,
+     "Game.field": 2,
+     "Game.progression": 3,
+     "Game.relations": 1
+    },
+    "scripts/ui/pages/dialogue_page.gd": {
+     "Game.quest": 1
+    },
+    "scripts/ui/pages/emotes_page.gd": {
+     "Game.achievements": 1
+    },
+    "scripts/ui/pages/exchange_page.gd": {
+     "Game.economy": 2
+    },
+    "scripts/ui/pages/garden_page.gd": {
+     "Game.crafting": 9,
+     "Game.inventory": 2
+    },
+    "scripts/ui/pages/gift_page.gd": {
+     "Game.relations": 6
+    },
+    "scripts/ui/pages/inventory_page.gd": {
+     "Game.crafting": 1,
+     "Game.economy": 1,
+     "Game.inventory": 3
+    },
+    "scripts/ui/pages/mail_page.gd": {
+     "Game.mail": 2
+    },
+    "scripts/ui/pages/map_page.gd": {
+     "Game.calendar": 6,
+     "Game.combat": 1,
+     "Game.posts": 2,
+     "Game.progression": 1,
+     "Game.quest": 2,
+     "Game.tutorials": 1,
+     "Game.world": 4
+    },
+    "scripts/ui/pages/menu_page.gd": {
+     "Game.accounts": 1,
+     "Game.economy": 1,
+     "Game.mail": 3,
+     "Game.sect": 4,
+     "Game.world": 1
+    },
+    "scripts/ui/pages/notice_page.gd": {
+     "Game.quest": 1,
+     "Game.relations": 1
+    },
+    "scripts/ui/pages/pets_page.gd": {
+     "Game.pets": 51
+    },
+    "scripts/ui/pages/posts_page.gd": {
+     "Game.inventory": 1,
+     "Game.posts": 38,
+     "Game.world": 1
+    },
+    "scripts/ui/pages/pouches_page.gd": {
+     "Game.economy": 1,
+     "Game.posts": 3
+    },
+    "scripts/ui/pages/quest_page.gd": {
+     "Game.accounts": 2,
+     "Game.quest": 17
+    },
+    "scripts/ui/pages/relations_page.gd": {
+     "Game.economy": 1,
+     "Game.relations": 11
+    },
+    "scripts/ui/pages/revival_page.gd": {
+     "Game.combat": 2
+    },
+    "scripts/ui/pages/shop_page.gd": {
+     "Game.economy": 7
+    },
+    "scripts/ui/pages/storage_page.gd": {
+     "Game.accounts": 1,
+     "Game.sect": 2
+    },
+    "scripts/ui/pages/techniques_page.gd": {
+     "Game.combat": 2,
+     "Game.progression": 15
+    },
+    "scripts/ui/pages/teleport_page.gd": {
+     "Game.world": 1
+    },
+    "scripts/ui/pages/tower_page.gd": {
+     "Game.world": 5
+    },
+    "scripts/ui/pages/training_sect_page.gd": {
+     "Game.combat": 1
+    },
+    "scripts/ui/pages/welcome_page.gd": {
+     "Game.sect": 1
+    },
+    "scripts/ui/pages/works_page.gd": {
+     "Game.economy": 3,
+     "Game.posts": 53
+    },
+    "scripts/ui/pages/workshop_page.gd": {
+     "Game.crafting": 1,
+     "Game.sect": 1,
+     "Game.workshop": 7
+    },
+    "scripts/ui/pages/your_sect_page.gd": {
+     "Game.accounts": 1,
+     "Game.inventory": 1,
+     "Game.sect": 42
+    },
+    "scripts/ui/tutorial_coach.gd": {
+     "Game.combat": 1,
+     "Game.tutorials": 10
+    },
+    "scripts/world.gd": {
+     "Game.combat": 1,
+     "Game.relations": 1
+    },
+    "tests/audio_tests.gd": {
+     "Game.combat": 6,
+     "Game.enemies": 3
+    },
+    "tests/balance_sim.gd": {
+     "Game.combat": 6,
+     "Game.enemies": 4,
+     "Game.inventory": 1,
+     "Game.progression": 1,
+     "Game.quest": 2,
+     "Game.world": 3
+    },
+    "tests/data_validation.gd": {
+     "Game.crafting": 1,
+     "Game.quest": 7,
+     "Game.world": 2
+    },
+    "tests/hollow_night.gd": {
+     "Game.combat": 6,
+     "Game.economy": 3,
+     "Game.enemies": 3,
+     "Game.inventory": 1,
+     "Game.progression": 1
+    },
+    "tests/perf_tests.gd": {
+     "Game.combat": 2,
+     "Game.enemies": 3,
+     "Game.world": 3
+    },
+    "tests/places_suite.gd": {
+     "Game.crafting": 8,
+     "Game.inventory": 1,
+     "Game.world": 15
+    },
+    "tests/prologue_run.gd": {
+     "Game.combat": 4,
+     "Game.economy": 1,
+     "Game.quest": 10,
+     "Game.world": 12
+    },
+    "tests/rules_tests.gd": {
+     "Game.accounts": 33,
+     "Game.calendar": 39,
+     "Game.combat": 360,
+     "Game.companions": 3,
+     "Game.crafting": 174,
+     "Game.economy": 60,
+     "Game.enemies": 104,
+     "Game.field": 29,
+     "Game.inventory": 224,
+     "Game.mail": 2,
+     "Game.pets": 167,
+     "Game.posts": 116,
+     "Game.progression": 126,
+     "Game.quest": 71,
+     "Game.relations": 112,
+     "Game.sect": 26,
+     "Game.training": 1,
+     "Game.workshop": 6,
+     "Game.world": 308
+    },
+    "tests/story_scenes.gd": {
+     "Game.inventory": 1,
+     "Game.quest": 3
+    },
+    "tests/topdown_suite.gd": {
+     "Game.combat": 88,
+     "Game.companions": 4,
+     "Game.enemies": 10,
+     "Game.inventory": 2,
+     "Game.quest": 1,
+     "Game.world": 12
+    },
+    "tests/topdown_tutorial.gd": {
+     "Game.progression": 1,
+     "Game.quest": 8,
+     "Game.world": 12
+    },
+    "tests/tutorial_order.gd": {
+     "Game.inventory": 2,
+     "Game.quest": 12,
+     "Game.world": 7
+    },
+    "tests/tutorials.gd": {
+     "Game.combat": 2,
+     "Game.field": 1,
+     "Game.inventory": 4,
+     "Game.mail": 1,
+     "Game.progression": 3,
+     "Game.training": 1,
+     "Game.tutorials": 10,
+     "Game.world": 6
+    },
+    "tests/valley_run.gd": {
+     "Game.combat": 11,
+     "Game.companions": 1,
+     "Game.crafting": 12,
+     "Game.economy": 35,
+     "Game.field": 11,
+     "Game.inventory": 25,
+     "Game.pets": 5,
+     "Game.posts": 5,
+     "Game.progression": 31,
+     "Game.relations": 1,
+     "Game.training": 2,
+     "Game.workshop": 2,
+     "Game.world": 6
+    },
+    "tools/art/topdown/study_quality/study_capture.gd": {
+     "Game.world": 1
+    },
+    "tools/dev/combat_trace.gd": {
+     "Game.combat": 11,
+     "Game.enemies": 1,
+     "Game.inventory": 1
+    },
+    "tools/dev/hud_capture.gd": {
+     "Game.combat": 3,
+     "Game.inventory": 3,
+     "Game.quest": 1,
+     "Game.tutorials": 1,
+     "Game.world": 1
+    },
+    "tools/dev/picture_capture.gd": {
+     "Game.combat": 1,
+     "Game.companions": 1,
+     "Game.quest": 1,
+     "Game.world": 3
+    },
+    "tools/dev/places_capture.gd": {
+     "Game.calendar": 1,
+     "Game.crafting": 1,
+     "Game.mail": 2,
+     "Game.world": 2
+    },
+    "tools/dev/prototype_qa.gd": {
+     "Game.combat": 5,
+     "Game.progression": 1,
+     "Game.quest": 3,
+     "Game.world": 6
+    },
+    "tools/dev/sect_capture.gd": {
+     "Game.inventory": 2,
+     "Game.quest": 1
+    },
+    "tools/dev/stat_probe.gd": {
+     "Game.combat": 2
+    },
+    "tools/dev/topdown_capture.gd": {
+     "Game.calendar": 4,
+     "Game.combat": 12,
+     "Game.enemies": 9,
+     "Game.inventory": 3,
+     "Game.quest": 1,
+     "Game.world": 20
+    },
+    "tools/dev/tutorial_capture.gd": {
+     "Game.inventory": 2,
+     "Game.progression": 2,
+     "Game.world": 1
+    }
+   },
+   "dynamic_prefixes": {
+    "scripts/presentation/moment_view.gd:_draw_": "moment_view.gd:512 call(\"_draw_\" + kind)",
+    "tests/prologue_run.gd:sec_": "valley_run.gd extends prologue_run.gd; call(\"sec_\" + s)",
+    "tests/valley_run.gd:sec_": "valley_run.gd:54 call(\"sec_\" + s)"
+   },
+   "game_scripts_not_reached_from_game": [
+    {
+     "lines": 58,
+     "path": "scripts/combo_rig.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/bake_combos.gd",
+      "tests/combo_visual.gd",
+      "tests/weapon_combo_visual.gd",
+      "tools/bake_hat_cape_combos.gd"
+     ],
+     "references": [
+      "scripts/equipment_rig.gd"
+     ]
+    },
+    {
+     "lines": 41,
+     "path": "scripts/equipment_rig.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "scripts/combo_rig.gd",
+      "tests/bake_equipment.gd"
+     ],
+     "references": []
+    },
+    {
+     "lines": 22,
+     "path": "scripts/ornament.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": []
+    },
+    {
+     "lines": 20,
+     "path": "scripts/room_gate.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": []
+    },
+    {
+     "lines": 110,
+     "path": "scripts/simulation/map_validator.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/map_generation.gd"
+     ],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/room_travel.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd",
+      "scripts/surface.gd"
+     ]
+    },
+    {
+     "lines": 11,
+     "path": "scripts/simulation/world_catalog.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/generated_runtime.gd",
+      "tests/generated_visuals.gd"
+     ],
+     "references": [
+      "scripts/simulation/map_generator.gd"
+     ]
+    }
+   ],
+   "nonsuite_tests": [
+    {
+     "lines": 24,
+     "path": "tests/animation_gallery.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/animation_gallery.tscn"
+     ],
+     "references": [
+      "scripts/avatar.gd"
+     ]
+    },
+    {
+     "lines": 34,
+     "path": "tests/bake_combos.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/combo_rig.gd"
+     ]
+    },
+    {
+     "lines": 32,
+     "path": "tests/bake_equipment.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/equipment_rig.gd"
+     ]
+    },
+    {
+     "lines": 78,
+     "path": "tests/combo_tests.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/world.gd"
+     ]
+    },
+    {
+     "lines": 106,
+     "path": "tests/combo_visual.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/weapon_combo_outlines.gd"
+     ],
+     "references": [
+      "scenes/pixel_stage.tscn",
+      "scripts/avatar.gd",
+      "scripts/combo_rig.gd",
+      "scripts/occlusion_outline.gd",
+      "scripts/player.gd"
+     ]
+    },
+    {
+     "lines": 137,
+     "path": "tests/gauntlet_review.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/avatar.gd",
+      "scripts/occlusion_outline.gd",
+      "tests/gauntlet_review.gd"
+     ]
+    },
+    {
+     "lines": 126,
+     "path": "tests/generated_runtime.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/room_travel.gd",
+      "scripts/simulation/world_catalog.gd",
+      "scripts/world.gd"
+     ]
+    },
+    {
+     "lines": 40,
+     "path": "tests/generated_visuals.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/visual_checks.gd"
+     ],
+     "references": [
+      "scenes/pixel_stage.tscn",
+      "scripts/simulation/world_catalog.gd"
+     ]
+    },
+    {
+     "lines": 75,
+     "path": "tests/landing_matrix.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd"
+     ]
+    },
+    {
+     "lines": 33,
+     "path": "tests/map_generation.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/map_validator.gd"
+     ]
+    },
+    {
+     "lines": 99,
+     "path": "tests/movement_review_v09.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd",
+      "scripts/surface.gd"
+     ]
+    },
+    {
+     "lines": 69,
+     "path": "tests/movement_v07.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/map_generator.gd",
+      "scripts/world.gd"
+     ]
+    },
+    {
+     "lines": 46,
+     "path": "tests/movement_visual_v07.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/review_visual_v08.gd",
+      "tests/review_visual_v09.gd"
+     ],
+     "references": [
+      "scenes/pixel_stage.tscn"
+     ]
+    },
+    {
+     "lines": 52,
+     "path": "tests/obstacle_review.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/local_authority.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd"
+     ]
+    },
+    {
+     "lines": 68,
+     "path": "tests/pixel_input.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn"
+     ]
+    },
+    {
+     "lines": 72,
+     "path": "tests/platform_contact.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/local_authority.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd",
+      "scripts/surface.gd"
+     ]
+    },
+    {
+     "lines": 42,
+     "path": "tests/platform_contact_visual.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn"
+     ]
+    },
+    {
+     "lines": 44,
+     "path": "tests/release_review.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn"
+     ]
+    },
+    {
+     "lines": 9,
+     "path": "tests/review_visual_v08.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/movement_visual_v07.gd"
+     ]
+    },
+    {
+     "lines": 63,
+     "path": "tests/review_visual_v09.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn",
+      "tests/movement_visual_v07.gd"
+     ]
+    },
+    {
+     "lines": 55,
+     "path": "tests/room_gates.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/room_travel.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd"
+     ]
+    },
+    {
+     "lines": 115,
+     "path": "tests/support_review_v08.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/arrow.gd",
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd",
+      "scripts/surface.gd",
+      "scripts/terrain.gd",
+      "scripts/world.gd"
+     ]
+    },
+    {
+     "lines": 90,
+     "path": "tests/topdown_figure_gallery.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [
+      "tests/topdown_figure_gallery.tscn"
+     ],
+     "references": [
+      "scripts/topdown/topdown_figure.gd",
+      "tests/topdown_figure_gallery.tscn"
+     ]
+    },
+    {
+     "lines": 65,
+     "path": "tests/upward_landing.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/simulation/actor_state.gd",
+      "scripts/simulation/local_authority.gd",
+      "scripts/simulation/map_generator.gd",
+      "scripts/simulation/movement_solver.gd",
+      "scripts/simulation/zone_geometry.gd",
+      "scripts/simulation/zone_layout.gd",
+      "scripts/surface.gd"
+     ]
+    },
+    {
+     "lines": 6,
+     "path": "tests/visual_checks.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/generated_visuals.gd"
+     ]
+    },
+    {
+     "lines": 5,
+     "path": "tests/weapon_combo_outlines.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/combo_visual.gd"
+     ]
+    },
+    {
+     "lines": 49,
+     "path": "tests/weapon_combo_visual.gd",
+     "reached_from": [
+      "tools/non-suite tests"
+     ],
+     "referenced_by": [],
+     "references": [
+      "scripts/avatar.gd",
+      "scripts/combo_rig.gd"
+     ]
+    }
+   ],
+   "orphan_uids": [
+    "scripts/connection_visual.gd.uid"
+   ],
+   "signals": [
+    {
+     "connected_in": [],
+     "emitted_in": [
+      "scripts/world.gd"
+     ],
+     "line": 54,
+     "name": "room_changed",
+     "path": "scripts/world.gd"
+    },
+    {
+     "connected_in": [],
+     "emitted_in": [
+      "scripts/world.gd",
+      "scripts/topdown/topdown_world.gd"
+     ],
+     "line": 55,
+     "name": "context_changed",
+     "path": "scripts/world.gd"
+    },
+    {
+     "connected_in": [],
+     "emitted_in": [
+      "scripts/hud.gd"
+     ],
+     "line": 131,
+     "name": "page_changed",
+     "path": "scripts/hud.gd"
+    },
+    {
+     "connected_in": [],
+     "emitted_in": [
+      "scripts/world.gd",
+      "scripts/topdown/topdown_world.gd"
+     ],
+     "line": 100,
+     "name": "context_changed",
+     "path": "scripts/topdown/topdown_world.gd"
+    }
+   ],
+   "summary": {
+    "findings_by_status": {
+     "const/not_used_by_game/medium": 12,
+     "const/unreferenced/high": 11,
+     "func/not_used_by_game/medium": 29,
+     "func/unreferenced/high": 9,
+     "func/unreferenced/low": 2,
+     "func/unreferenced_but_dynamic_prefix/low": 34,
+     "func/unreferenced_private/high": 1,
+     "var/not_used_by_game/medium": 2,
+     "var/unreferenced/high": 4
+    },
+    "game_scripts_not_reached_from_game": 6,
+    "gd_files": 258,
+    "nonsuite_test_lines": 1634,
+    "nonsuite_tests": 27,
+    "not_used_by_game_func_lines": 428,
+    "orphan_uids": 1,
+    "unreached_lines": 125,
+    "unreached_scripts": 6,
+    "unreferenced_game_func_lines": 85
+   },
+   "symbols": [
+    {
+     "confidence": "medium",
+     "end": 297,
+     "kind": "func",
+     "line": 292,
+     "lines": 6,
+     "name": "voices_playing",
+     "path": "scripts/audio/audio_director.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 711,
+     "kind": "func",
+     "line": 701,
+     "lines": 11,
+     "name": "music_state",
+     "path": "scripts/audio/audio_director.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 14
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 46,
+     "kind": "func",
+     "line": 42,
+     "lines": 5,
+     "name": "surface_of_material",
+     "path": "scripts/audio/sound_bank.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 124,
+     "kind": "func",
+     "line": 119,
+     "lines": 6,
+     "name": "is_night",
+     "path": "scripts/audio/sound_bank.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 147,
+     "kind": "func",
+     "line": 138,
+     "lines": 10,
+     "name": "life_ids",
+     "path": "scripts/audio/sound_bank.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 152,
+     "kind": "func",
+     "line": 148,
+     "lines": 5,
+     "name": "named_ids",
+     "path": "scripts/audio/sound_bank.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 89,
+     "kind": "func",
+     "line": 72,
+     "lines": 18,
+     "name": "still_image",
+     "path": "scripts/avatar.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 6,
+     "kind": "const",
+     "line": 6,
+     "lines": 1,
+     "name": "RECIPES",
+     "path": "scripts/combo_rig.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 5,
+       "tools": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 57,
+     "kind": "func",
+     "line": 22,
+     "lines": 36,
+     "name": "bake",
+     "path": "scripts/combo_rig.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1,
+       "tools": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 18,
+     "kind": "func",
+     "line": 13,
+     "lines": 6,
+     "name": "simulate",
+     "path": "scripts/core/clock_service.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3,
+       "tools": 8
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 181,
+     "kind": "func",
+     "line": 179,
+     "lines": 3,
+     "name": "level_of",
+     "path": "scripts/core/content_db.gd",
+     "shared_name": true,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 45,
+     "kind": "func",
+     "line": 42,
+     "lines": 4,
+     "name": "unsubscribe_object",
+     "path": "scripts/core/game_events.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 5
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 56,
+     "kind": "func",
+     "line": 53,
+     "lines": 4,
+     "name": "wipe",
+     "path": "scripts/core/repository_local.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 5,
+     "kind": "const",
+     "line": 5,
+     "lines": 1,
+     "name": "GRIPS",
+     "path": "scripts/equipment_rig.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 40,
+     "kind": "func",
+     "line": 16,
+     "lines": 25,
+     "name": "render_sheet",
+     "path": "scripts/equipment_rig.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 60,
+     "kind": "const",
+     "line": 60,
+     "lines": 1,
+     "name": "PICTURE",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 5
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 111,
+     "kind": "var",
+     "line": 111,
+     "lines": 1,
+     "name": "meditate_center",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 112,
+     "kind": "var",
+     "line": 112,
+     "lines": 1,
+     "name": "presence_center",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 113,
+     "kind": "var",
+     "line": 113,
+     "lines": 1,
+     "name": "sphere_center",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 114,
+     "kind": "var",
+     "line": 114,
+     "lines": 1,
+     "name": "sense_center",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 298,
+     "kind": "func",
+     "line": 292,
+     "lines": 7,
+     "name": "set_state",
+     "path": "scripts/hud.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 29,
+       "tools": 5
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 989,
+     "kind": "func",
+     "line": 987,
+     "lines": 3,
+     "name": "pages_warm",
+     "path": "scripts/main.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1,
+       "tools": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 8,
+     "kind": "const",
+     "line": 8,
+     "lines": 1,
+     "name": "MATCHERS",
+     "path": "scripts/presentation/moment_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 15,
+     "kind": "const",
+     "line": 15,
+     "lines": 1,
+     "name": "ANCHORS",
+     "path": "scripts/presentation/moment_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 16,
+     "kind": "const",
+     "line": 16,
+     "lines": 1,
+     "name": "SHAPES",
+     "path": "scripts/presentation/moment_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 17,
+     "kind": "const",
+     "line": 17,
+     "lines": 1,
+     "name": "STYLES",
+     "path": "scripts/presentation/moment_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 150,
+     "kind": "func",
+     "line": 147,
+     "lines": 4,
+     "name": "lock_left",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 11
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 572,
+     "kind": "func",
+     "line": 555,
+     "lines": 18,
+     "name": "_draw_dim",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 590,
+     "kind": "func",
+     "line": 587,
+     "lines": 4,
+     "name": "_draw_flash",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 596,
+     "kind": "func",
+     "line": 591,
+     "lines": 6,
+     "name": "_draw_letterbox",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 689,
+     "kind": "func",
+     "line": 664,
+     "lines": 26,
+     "name": "_draw_strip",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 745,
+     "kind": "func",
+     "line": 717,
+     "lines": 29,
+     "name": "_draw_stats",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 775,
+     "kind": "func",
+     "line": 755,
+     "lines": 21,
+     "name": "_draw_chip",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 803,
+     "kind": "func",
+     "line": 796,
+     "lines": 8,
+     "name": "_draw_stamps",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 810,
+     "kind": "func",
+     "line": 804,
+     "lines": 7,
+     "name": "_draw_subtitle",
+     "path": "scripts/presentation/moment_view.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 88,
+     "kind": "func",
+     "line": 84,
+     "lines": 5,
+     "name": "poll",
+     "path": "scripts/presentation/scene_director.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 7
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 27,
+     "kind": "const",
+     "line": 27,
+     "lines": 1,
+     "name": "TARGETS",
+     "path": "scripts/presentation/scene_rules.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 210,
+     "kind": "func",
+     "line": 128,
+     "lines": 83,
+     "name": "problems",
+     "path": "scripts/presentation/scene_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 4
+      },
+      "other": {
+       "Validate-Animations.ps1": 16
+      },
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 68,
+     "kind": "const",
+     "line": 68,
+     "lines": 1,
+     "name": "ICON_PX",
+     "path": "scripts/presentation/sprite_cache.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 106,
+     "kind": "func",
+     "line": 100,
+     "lines": 7,
+     "name": "icon_hd",
+     "path": "scripts/presentation/sprite_cache.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 158,
+     "kind": "func",
+     "line": 152,
+     "lines": 7,
+     "name": "icon_ready",
+     "path": "scripts/presentation/sprite_cache.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 280,
+     "kind": "func",
+     "line": 275,
+     "lines": 6,
+     "name": "emblem_whole",
+     "path": "scripts/presentation/sprite_cache.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 964,
+     "kind": "func",
+     "line": 948,
+     "lines": 17,
+     "name": "draw_cooldown",
+     "path": "scripts/presentation/technique_picture.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 972,
+     "kind": "func",
+     "line": 965,
+     "lines": 8,
+     "name": "draw_qi_short",
+     "path": "scripts/presentation/technique_picture.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 189,
+     "kind": "func",
+     "line": 177,
+     "lines": 13,
+     "name": "touching",
+     "path": "scripts/presentation/world_labels.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 14
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 120,
+     "kind": "func",
+     "line": 117,
+     "lines": 4,
+     "name": "level_of",
+     "path": "scripts/simulation/authority/game_authority.gd",
+     "shared_name": true,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 1706,
+     "kind": "func",
+     "line": 1701,
+     "lines": 6,
+     "name": "tree_view",
+     "path": "scripts/simulation/authority/progression_authority.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 969,
+     "kind": "func",
+     "line": 967,
+     "lines": 3,
+     "name": "context_portal",
+     "path": "scripts/simulation/authority/world_authority.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 107,
+     "kind": "func",
+     "line": 70,
+     "lines": 38,
+     "name": "restore_authoritative_snapshot",
+     "path": "scripts/simulation/local_authority.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 6
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 123,
+     "kind": "func",
+     "line": 14,
+     "lines": 110,
+     "name": "generate",
+     "path": "scripts/simulation/map_generator.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 14
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 370,
+     "kind": "func",
+     "line": 367,
+     "lines": 4,
+     "name": "npc_age",
+     "path": "scripts/simulation/rules/progression_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 195,
+     "kind": "func",
+     "line": 193,
+     "lines": 3,
+     "name": "tree_state",
+     "path": "scripts/simulation/rules/technique_tree_rules.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 109,
+     "kind": "func",
+     "line": 105,
+     "lines": 5,
+     "name": "npc_room",
+     "path": "scripts/simulation/rules/world_rules.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 10,
+     "kind": "func",
+     "line": 7,
+     "lines": 4,
+     "name": "neighbour",
+     "path": "scripts/simulation/world_catalog.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 80,
+     "kind": "func",
+     "line": 79,
+     "lines": 2,
+     "name": "projected_front",
+     "path": "scripts/surface.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 332,
+     "kind": "func",
+     "line": 327,
+     "lines": 6,
+     "name": "_count",
+     "path": "scripts/topdown/topdown_atmosphere.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 536,
+     "kind": "const",
+     "line": 536,
+     "lines": 1,
+     "name": "vec4",
+     "path": "scripts/topdown/topdown_atmosphere.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {
+       "scripts/presentation/technique_picture_ink.gdshader": 6
+      },
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 538,
+     "kind": "func",
+     "line": 533,
+     "lines": 6,
+     "name": "critter_count",
+     "path": "scripts/topdown/topdown_life.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 158,
+     "kind": "func",
+     "line": 156,
+     "lines": 3,
+     "name": "airtime",
+     "path": "scripts/topdown/topdown_motor.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 538,
+     "kind": "func",
+     "line": 530,
+     "lines": 9,
+     "name": "add_villager",
+     "path": "scripts/topdown/topdown_world.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1,
+       "tools": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 114,
+     "kind": "func",
+     "line": 112,
+     "lines": 3,
+     "name": "gain_text",
+     "path": "scripts/ui/equip_prompt.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 3
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 21,
+     "kind": "const",
+     "line": 21,
+     "lines": 1,
+     "name": "GRID",
+     "path": "scripts/ui/page.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 22,
+     "kind": "const",
+     "line": 22,
+     "lines": 1,
+     "name": "SAFE_AREA",
+     "path": "scripts/ui/page.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 30,
+     "kind": "const",
+     "line": 30,
+     "lines": 1,
+     "name": "WINDOWS",
+     "path": "scripts/ui/page.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 44,
+     "kind": "const",
+     "line": 44,
+     "lines": 1,
+     "name": "GROUP_GAP",
+     "path": "scripts/ui/page.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 8,
+     "kind": "const",
+     "line": 8,
+     "lines": 1,
+     "name": "DESK",
+     "path": "scripts/ui/pages/mail_page.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 557,
+     "kind": "func",
+     "line": 554,
+     "lines": 4,
+     "name": "_slot",
+     "path": "scripts/ui/pages/techniques_page.gd",
+     "shared_name": true,
+     "status": "unreferenced_private",
+     "uses": {
+      "family": [
+       "scripts/ui/page.gd",
+       "scripts/ui/pages/techniques_page.gd"
+      ]
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 22,
+     "kind": "const",
+     "line": 22,
+     "lines": 1,
+     "name": "MISSING_S",
+     "path": "scripts/ui/tutorial_coach.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 45,
+     "kind": "var",
+     "line": 45,
+     "lines": 1,
+     "name": "_tab_was",
+     "path": "scripts/ui/tutorial_coach.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 97,
+     "kind": "const",
+     "line": 97,
+     "lines": 1,
+     "name": "TEXT_ON",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 1
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 222,
+     "kind": "const",
+     "line": 222,
+     "lines": 1,
+     "name": "T_HINT",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 223,
+     "kind": "const",
+     "line": 223,
+     "lines": 1,
+     "name": "T_CAPTION",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 224,
+     "kind": "const",
+     "line": 224,
+     "lines": 1,
+     "name": "T_ROW",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 225,
+     "kind": "const",
+     "line": 225,
+     "lines": 1,
+     "name": "T_BODY",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 226,
+     "kind": "const",
+     "line": 226,
+     "lines": 1,
+     "name": "T_BUTTON",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "high",
+     "end": 228,
+     "kind": "const",
+     "line": 228,
+     "lines": 1,
+     "name": "D_HEADING",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "unreferenced",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 238,
+     "kind": "func",
+     "line": 235,
+     "lines": 4,
+     "name": "on_scale",
+     "path": "scripts/ui/ui_kit.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "medium",
+     "end": 34,
+     "kind": "var",
+     "line": 34,
+     "lines": 1,
+     "name": "save_slot_index",
+     "path": "scripts/world.gd",
+     "shared_name": false,
+     "status": "not_used_by_game",
+     "uses": {
+      "data": [],
+      "ids": {
+       "tests": 2
+      },
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 562,
+     "kind": "func",
+     "line": 514,
+     "lines": 49,
+     "name": "sec_bf2",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 620,
+     "kind": "func",
+     "line": 563,
+     "lines": 58,
+     "name": "sec_bf5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 925,
+     "kind": "func",
+     "line": 881,
+     "lines": 45,
+     "name": "sec_bf8",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1006,
+     "kind": "func",
+     "line": 926,
+     "lines": 81,
+     "name": "sec_qk1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1148,
+     "kind": "func",
+     "line": 1028,
+     "lines": 121,
+     "name": "sec_qk5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1253,
+     "kind": "func",
+     "line": 1167,
+     "lines": 87,
+     "name": "sec_qu1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1308,
+     "kind": "func",
+     "line": 1254,
+     "lines": 55,
+     "name": "sec_qu5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1439,
+     "kind": "func",
+     "line": 1403,
+     "lines": 37,
+     "name": "sec_ht1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1491,
+     "kind": "func",
+     "line": 1440,
+     "lines": 52,
+     "name": "sec_ht5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1532,
+     "kind": "func",
+     "line": 1492,
+     "lines": 41,
+     "name": "sec_cs1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1559,
+     "kind": "func",
+     "line": 1533,
+     "lines": 27,
+     "name": "sec_cs5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1644,
+     "kind": "func",
+     "line": 1582,
+     "lines": 63,
+     "name": "sec_sa1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1699,
+     "kind": "func",
+     "line": 1645,
+     "lines": 55,
+     "name": "sec_sa5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1821,
+     "kind": "func",
+     "line": 1730,
+     "lines": 92,
+     "name": "sec_hg1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1903,
+     "kind": "func",
+     "line": 1822,
+     "lines": 82,
+     "name": "sec_ae1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 1964,
+     "kind": "func",
+     "line": 1918,
+     "lines": 47,
+     "name": "sec_ae2",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2054,
+     "kind": "func",
+     "line": 1965,
+     "lines": 90,
+     "name": "sec_ae3",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2144,
+     "kind": "func",
+     "line": 2058,
+     "lines": 87,
+     "name": "sec_ae4",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2315,
+     "kind": "func",
+     "line": 2199,
+     "lines": 117,
+     "name": "sec_ae5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2388,
+     "kind": "func",
+     "line": 2316,
+     "lines": 73,
+     "name": "sec_ae6",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2447,
+     "kind": "func",
+     "line": 2389,
+     "lines": 59,
+     "name": "sec_ls1",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2516,
+     "kind": "func",
+     "line": 2448,
+     "lines": 69,
+     "name": "sec_ls2",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2593,
+     "kind": "func",
+     "line": 2517,
+     "lines": 77,
+     "name": "sec_ls3",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2666,
+     "kind": "func",
+     "line": 2594,
+     "lines": 73,
+     "name": "sec_ls4",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2763,
+     "kind": "func",
+     "line": 2667,
+     "lines": 97,
+     "name": "sec_ls5",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    },
+    {
+     "confidence": "low",
+     "end": 2834,
+     "kind": "func",
+     "line": 2784,
+     "lines": 51,
+     "name": "sec_ls6",
+     "path": "tests/valley_run.gd",
+     "shared_name": false,
+     "status": "unreferenced_but_dynamic_prefix",
+     "uses": {
+      "data": [],
+      "ids": {},
+      "other": {},
+      "strings": {}
+     }
+    }
+   ],
+   "unreached_scripts": [
+    {
+     "lines": 22,
+     "path": "scripts/ornament.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": []
+    },
+    {
+     "lines": 20,
+     "path": "scripts/room_gate.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": []
+    },
+    {
+     "lines": 9,
+     "path": "tests/review_visual_v08.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/movement_visual_v07.gd"
+     ]
+    },
+    {
+     "lines": 63,
+     "path": "tests/review_visual_v09.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "scenes/pixel_stage.tscn",
+      "tests/movement_visual_v07.gd"
+     ]
+    },
+    {
+     "lines": 6,
+     "path": "tests/visual_checks.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/generated_visuals.gd"
+     ]
+    },
+    {
+     "lines": 5,
+     "path": "tests/weapon_combo_outlines.gd",
+     "reached_from": [],
+     "referenced_by": [],
+     "references": [
+      "tests/combo_visual.gd"
+     ]
+    }
+   ]
+  },
+  "hot_paths": [
+   {
+    "counts": {
+     "nested_for": 13
+    },
+    "func": "_draw_fx",
+    "lines": 180,
+    "score": 52,
+    "where": "scripts/presentation/fx_layer.gd:312"
+   },
+   {
+    "counts": {
+     "dict_literal": 1,
+     "nested_for": 7
+    },
+    "func": "_draw",
+    "lines": 250,
+    "score": 29,
+    "where": "scripts/terrain.gd:211"
+   },
+   {
+    "counts": {
+     "nested_for": 1,
+     "tx": 20
+    },
+    "func": "draw_page",
+    "lines": 57,
+    "score": 24,
+    "where": "scripts/ui/pages/settings_page.gd:26"
+   },
+   {
+    "counts": {
+     "contentdb": 3,
+     "filter_map_sort": 1,
+     "tx": 18
+    },
+    "func": "draw_page",
+    "lines": 56,
+    "score": 24,
+    "where": "scripts/ui/pages/tower_page.gd:17"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "format": 9,
+     "tx": 13
+    },
+    "func": "_draw_vigil_info",
+    "lines": 21,
+    "score": 23,
+    "where": "scripts/ui/pages/posts_page.gd:756"
+   },
+   {
+    "counts": {
+     "contentdb": 4,
+     "filter_map_sort": 1,
+     "tx": 16
+    },
+    "func": "_draw_territory",
+    "lines": 52,
+    "score": 23,
+    "where": "scripts/ui/pages/your_sect_page.gd:491"
+   },
+   {
+    "counts": {
+     "contentdb": 4,
+     "dict_literal": 1,
+     "format": 6,
+     "tx": 10
+    },
+    "func": "_draw_furnace",
+    "lines": 25,
+    "score": 21,
+    "where": "scripts/ui/pages/works_page.gd:303"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "filter_map_sort": 1,
+     "keys_values": 1,
+     "tx": 15
+    },
+    "func": "_draw_slip",
+    "lines": 50,
+    "score": 21,
+    "where": "scripts/ui/pages/works_page.gd:385"
+   },
+   {
+    "counts": {
+     "dict_literal": 5,
+     "duplicate": 1,
+     "nested_for": 3
+    },
+    "func": "_tick_arrays",
+    "lines": 40,
+    "score": 20,
+    "where": "scripts/simulation/authority/combat_authority.gd:2118"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "keys_values": 1,
+     "tx": 13
+    },
+    "func": "_draw_right",
+    "lines": 81,
+    "score": 18,
+    "where": "scripts/ui/pages/posts_page.gd:602"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "nested_for": 2,
+     "tx": 4
+    },
+    "func": "draw_page",
+    "lines": 38,
+    "score": 15,
+    "where": "scripts/ui/pages/exchange_page.gd:80"
+   },
+   {
+    "counts": {
+     "contentdb": 3,
+     "format": 2,
+     "tx": 10
+    },
+    "func": "_draw_flags",
+    "lines": 28,
+    "score": 15,
+    "where": "scripts/ui/pages/works_page.gd:329"
+   },
+   {
+    "counts": {
+     "contentdb": 8,
+     "dict_literal": 2,
+     "duplicate": 1,
+     "keys_values": 1
+    },
+    "func": "_tick_pools",
+    "lines": 47,
+    "score": 15,
+    "where": "scripts/simulation/authority/combat_authority.gd:954"
+   },
+   {
+    "counts": {
+     "dict_literal": 7,
+     "duplicate": 1,
+     "nested_for": 1
+    },
+    "func": "_tick_projectiles",
+    "lines": 79,
+    "score": 14,
+    "where": "scripts/simulation/authority/combat_authority.gd:2388"
+   },
+   {
+    "counts": {
+     "dict_literal": 1,
+     "keys_values": 2,
+     "nested_for": 2
+    },
+    "func": "advance",
+    "lines": 36,
+    "score": 13,
+    "where": "scripts/simulation/zone_geometry.gd:280"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "format": 6,
+     "tx": 4
+    },
+    "func": "_draw_player_panel",
+    "lines": 88,
+    "score": 12,
+    "where": "scripts/hud.gd:2272"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "format": 4,
+     "tx": 5
+    },
+    "func": "_draw_ranking",
+    "lines": 36,
+    "score": 12,
+    "where": "scripts/ui/pages/map_page.gd:1406"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "keys_values": 1,
+     "tx": 7
+    },
+    "func": "_draw_store",
+    "lines": 31,
+    "score": 12,
+    "where": "scripts/ui/pages/posts_page.gd:847"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "tx": 9
+    },
+    "func": "draw_page",
+    "lines": 52,
+    "score": 12,
+    "where": "scripts/ui/pages/guqin_page.gd:96"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 2,
+     "format": 1,
+     "tx": 5
+    },
+    "func": "draw_page",
+    "lines": 19,
+    "score": 12,
+    "where": "scripts/ui/pages/mail_page.gd:43"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "format": 2,
+     "tx": 8
+    },
+    "func": "_draw_arts",
+    "lines": 20,
+    "score": 12,
+    "where": "scripts/ui/pages/works_page.gd:207"
+   },
+   {
+    "counts": {
+     "nested_for": 3
+    },
+    "func": "draw_layer",
+    "lines": 52,
+    "score": 12,
+    "where": "scripts/topdown/topdown_atmosphere.gd:411"
+   },
+   {
+    "counts": {
+     "contentdb": 3,
+     "tx": 8
+    },
+    "func": "_draw_event",
+    "lines": 35,
+    "score": 11,
+    "where": "scripts/hud.gd:3201"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "dict_literal": 1,
+     "tx": 9
+    },
+    "func": "_draw_bench",
+    "lines": 33,
+    "score": 11,
+    "where": "scripts/ui/pages/posts_page.gd:778"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "dict_literal": 6,
+     "filter_map_sort": 1
+    },
+    "func": "tick",
+    "lines": 48,
+    "score": 11,
+    "where": "scripts/simulation/authority/calendar_authority.gd:64"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "dict_literal": 1,
+     "filter_map_sort": 2,
+     "keys_values": 1
+    },
+    "func": "_process",
+    "lines": 51,
+    "score": 10,
+    "where": "scripts/hud.gd:222"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "nested_for": 1,
+     "tx": 3
+    },
+    "func": "_draw_foot",
+    "lines": 27,
+    "score": 10,
+    "where": "scripts/ui/pages/map_page.gd:1212"
+   },
+   {
+    "counts": {
+     "format": 2,
+     "tx": 8
+    },
+    "func": "_draw_week",
+    "lines": 50,
+    "score": 10,
+    "where": "scripts/ui/pages/calendar_page.gd:89"
+   },
+   {
+    "counts": {
+     "contentdb": 3,
+     "tx": 7
+    },
+    "func": "_draw_seals",
+    "lines": 26,
+    "score": 10,
+    "where": "scripts/ui/pages/works_page.gd:228"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "format": 2,
+     "tx": 6
+    },
+    "func": "_draw_favours",
+    "lines": 23,
+    "score": 10,
+    "where": "scripts/ui/pages/works_page.gd:279"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "dict_literal": 1,
+     "tx": 8
+    },
+    "func": "_draw_mirror",
+    "lines": 26,
+    "score": 10,
+    "where": "scripts/ui/pages/works_page.gd:358"
+   },
+   {
+    "counts": {
+     "dict_literal": 2,
+     "format": 2,
+     "nested_for": 1,
+     "tx": 1
+    },
+    "func": "_draw_tracker",
+    "lines": 49,
+    "score": 9,
+    "where": "scripts/hud.gd:2397"
+   },
+   {
+    "counts": {
+     "format": 2,
+     "nested_for": 1,
+     "tx": 3
+    },
+    "func": "_draw_boss",
+    "lines": 61,
+    "score": 9,
+    "where": "scripts/hud.gd:3129"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "tx": 8
+    },
+    "func": "_draw_node_info",
+    "lines": 37,
+    "score": 9,
+    "where": "scripts/ui/pages/posts_page.gd:718"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "format": 2,
+     "tx": 5
+    },
+    "func": "draw_page",
+    "lines": 53,
+    "score": 9,
+    "where": "scripts/ui/pages/storage_page.gd:75"
+   },
+   {
+    "counts": {
+     "contentdb": 3,
+     "tx": 6
+    },
+    "func": "draw_page",
+    "lines": 15,
+    "score": 9,
+    "where": "scripts/ui/pages/mercy_page.gd:10"
+   },
+   {
+    "counts": {
+     "nested_for": 2,
+     "tx": 1
+    },
+    "func": "draw_worn",
+    "lines": 28,
+    "score": 9,
+    "where": "scripts/ui/pages/character_page.gd:172"
+   },
+   {
+    "counts": {
+     "contentdb": 2,
+     "tx": 7
+    },
+    "func": "draw_page",
+    "lines": 34,
+    "score": 9,
+    "where": "scripts/ui/pages/revival_page.gd:73"
+   },
+   {
+    "counts": {
+     "contentdb": 1,
+     "tx": 8
+    },
+    "func": "_draw_steles",
+    "lines": 23,
+    "score": 9,
+    "where": "scripts/ui/pages/works_page.gd:255"
+   },
+   {
+    "counts": {
+     "filter_map_sort": 1,
+     "keys_values": 1,
+     "nested_for": 1
+    },
+    "func": "_tick_ally_hots",
+    "lines": 19,
+    "score": 9,
+    "where": "scripts/simulation/authority/combat_authority.gd:2082"
+   }
+  ],
+  "inventory": {
+   "areas": {
+    "Export-Android.ps1": {
+     "ext": {
+      ".ps1": 1
+     },
+     "files": 1,
+     "funcs": 0,
+     "lines": 5
+    },
+    "Package.ps1": {
+     "ext": {
+      ".ps1": 1
+     },
+     "files": 1,
+     "funcs": 0,
+     "lines": 34
+    },
+    "Run.ps1": {
+     "ext": {
+      ".ps1": 1
+     },
+     "files": 1,
+     "funcs": 0,
+     "lines": 3
+    },
+    "Test.ps1": {
+     "ext": {
+      ".ps1": 1
+     },
+     "files": 1,
+     "funcs": 0,
+     "lines": 17
+    },
+    "Validate-Animations.ps1": {
+     "ext": {
+      ".ps1": 1
+     },
+     "files": 1,
+     "funcs": 0,
+     "lines": 57
+    },
+    "scenes": {
+     "ext": {
+      ".tscn": 2
+     },
+     "files": 2,
+     "funcs": 0,
+     "lines": 29
+    },
+    "scripts/(root: side-view world, player, hud)": {
+     "ext": {
+      ".gd": 17
+     },
+     "files": 17,
+     "funcs": 357,
+     "lines": 6943
+    },
+    "scripts/audio": {
+     "ext": {
+      ".gd": 3
+     },
+     "files": 3,
+     "funcs": 101,
+     "lines": 1212
+    },
+    "scripts/core": {
+     "ext": {
+      ".gd": 10
+     },
+     "files": 10,
+     "funcs": 127,
+     "lines": 1352
+    },
+    "scripts/presentation": {
+     "ext": {
+      ".gd": 24,
+      ".gdshader": 1
+     },
+     "files": 25,
+     "funcs": 471,
+     "lines": 7851
+    },
+    "scripts/shell": {
+     "ext": {
+      ".gd": 3
+     },
+     "files": 3,
+     "funcs": 31,
+     "lines": 424
+    },
+    "scripts/simulation": {
+     "ext": {
+      ".gd": 10
+     },
+     "files": 10,
+     "funcs": 89,
+     "lines": 1553
+    },
+    "scripts/simulation/ai": {
+     "ext": {
+      ".gd": 3
+     },
+     "files": 3,
+     "funcs": 35,
+     "lines": 849
+    },
+    "scripts/simulation/authority": {
+     "ext": {
+      ".gd": 23
+     },
+     "files": 23,
+     "funcs": 1449,
+     "lines": 19425
+    },
+    "scripts/simulation/rules": {
+     "ext": {
+      ".gd": 14
+     },
+     "files": 14,
+     "funcs": 345,
+     "lines": 3291
+    },
+    "scripts/simulation/state": {
+     "ext": {
+      ".gd": 10
+     },
+     "files": 10,
+     "funcs": 74,
+     "lines": 1126
+    },
+    "scripts/topdown": {
+     "ext": {
+      ".gd": 21
+     },
+     "files": 21,
+     "funcs": 535,
+     "lines": 8877
+    },
+    "scripts/ui": {
+     "ext": {
+      ".gd": 5
+     },
+     "files": 5,
+     "funcs": 187,
+     "lines": 2405
+    },
+    "scripts/ui/pages": {
+     "ext": {
+      ".gd": 53
+     },
+     "files": 53,
+     "funcs": 1073,
+     "lines": 17932
+    },
+    "tests": {
+     "ext": {
+      ".gd": 49,
+      ".ps1": 1,
+      ".tscn": 19
+     },
+     "files": 69,
+     "funcs": 813,
+     "lines": 31836
+    },
+    "tools/(root)": {
+     "ext": {
+      ".gd": 1,
+      ".sh": 1
+     },
+     "files": 2,
+     "funcs": 1,
+     "lines": 75
+    },
+    "tools/art": {
+     "ext": {
+      ".py": 12
+     },
+     "files": 12,
+     "funcs": 215,
+     "lines": 4020
+    },
+    "tools/art/creatures": {
+     "ext": {
+      ".py": 70
+     },
+     "files": 70,
+     "funcs": 607,
+     "lines": 21160
+    },
+    "tools/art/fx": {
+     "ext": {
+      ".py": 9
+     },
+     "files": 9,
+     "funcs": 181,
+     "lines": 3994
+    },
+    "tools/art/topdown": {
+     "ext": {
+      ".gd": 2,
+      ".py": 27,
+      ".tscn": 1
+     },
+     "files": 30,
+     "funcs": 458,
+     "lines": 10066
+    },
+    "tools/art/topdown/creature": {
+     "ext": {
+      ".py": 15
+     },
+     "files": 15,
+     "funcs": 86,
+     "lines": 2607
+    },
+    "tools/art/topdown/figure": {
+     "ext": {
+      ".py": 51
+     },
+     "files": 51,
+     "funcs": 268,
+     "lines": 5562
+    },
+    "tools/audio": {
+     "ext": {
+      ".py": 10,
+      ".sh": 2
+     },
+     "files": 12,
+     "funcs": 359,
+     "lines": 5867
+    },
+    "tools/backdrops": {
+     "ext": {
+      ".py": 1
+     },
+     "files": 1,
+     "funcs": 192,
+     "lines": 6623
+    },
+    "tools/data": {
+     "ext": {
+      ".py": 39
+     },
+     "files": 39,
+     "funcs": 677,
+     "lines": 23504
+    },
+    "tools/dev": {
+     "ext": {
+      ".gd": 10,
+      ".py": 5,
+      ".tscn": 9
+     },
+     "files": 24,
+     "funcs": 327,
+     "lines": 7467
+    },
+    "tools/icons": {
+     "ext": {
+      ".py": 35
+     },
+     "files": 35,
+     "funcs": 1090,
+     "lines": 17459
+    },
+    "tools/props": {
+     "ext": {
+      ".py": 17
+     },
+     "files": 17,
+     "funcs": 450,
+     "lines": 13265
+    },
+    "tools/ui": {
+     "ext": {
+      ".py": 3
+     },
+     "files": 3,
+     "funcs": 190,
+     "lines": 3642
+    }
+   },
+   "assets": {
+    "art": {
+     "by_ext": {
+      ".import": 6709,
+      ".ogg": 41,
+      ".png": 6434,
+      ".tres": 1,
+      ".ttf": 4,
+      ".txt": 4,
+      ".wav": 230
+     },
+     "bytes": 136055679,
+     "files": 13423
+    },
+    "data": {
+     "by_ext": {
+      ".json": 370,
+      ".txt": 1
+     },
+     "bytes": 8673410,
+     "files": 371
+    },
+    "docs": {
+     "by_ext": {
+      "": 8,
+      ".css": 2,
+      ".gif": 15,
+      ".html": 52,
+      ".js": 2,
+      ".json": 3,
+      ".md": 94,
+      ".png": 1804
+     },
+     "bytes": 335030684,
+     "files": 1980
+    }
+   },
+   "largest": [
+    {
+     "area": "tests",
+     "funcs": 174,
+     "lines": 13493,
+     "path": "tests/rules_tests.gd"
+    },
+    {
+     "area": "tools/backdrops",
+     "funcs": 192,
+     "lines": 6623,
+     "path": "tools/backdrops/build_backdrops.py"
+    },
+    {
+     "area": "scripts/(root: side-view world, player, hud)",
+     "funcs": 168,
+     "lines": 3266,
+     "path": "scripts/hud.gd"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 100,
+     "lines": 3221,
+     "path": "tools/data/world.py"
+    },
+    {
+     "area": "tests",
+     "funcs": 102,
+     "lines": 3108,
+     "path": "tests/valley_run.gd"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 39,
+     "lines": 2949,
+     "path": "tools/data/story.py"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 169,
+     "lines": 2819,
+     "path": "scripts/simulation/authority/combat_authority.gd"
+    },
+    {
+     "area": "tests",
+     "funcs": 70,
+     "lines": 2793,
+     "path": "tests/topdown_suite.gd"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 70,
+     "lines": 2592,
+     "path": "tools/props/defs_expanse.py"
+    },
+    {
+     "area": "tests",
+     "funcs": 48,
+     "lines": 2329,
+     "path": "tests/data_validation.gd"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 51,
+     "lines": 2308,
+     "path": "tools/props/defs_lantern.py"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 155,
+     "lines": 2296,
+     "path": "scripts/simulation/authority/world_authority.gd"
+    },
+    {
+     "area": "tools/dev",
+     "funcs": 61,
+     "lines": 2182,
+     "path": "tools/dev/topdown_capture.gd"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 157,
+     "lines": 2055,
+     "path": "scripts/simulation/authority/crafting_authority.gd"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 69,
+     "lines": 1969,
+     "path": "tools/props/defs_scenery.py"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 104,
+     "lines": 1940,
+     "path": "tools/icons/families/misc.py"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 135,
+     "lines": 1810,
+     "path": "scripts/simulation/authority/progression_authority.gd"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 59,
+     "lines": 1778,
+     "path": "tools/data/topdown_rooms.py"
+    },
+    {
+     "area": "tools/ui",
+     "funcs": 96,
+     "lines": 1772,
+     "path": "tools/ui/build_valley_map.py"
+    },
+    {
+     "area": "scripts/ui/pages",
+     "funcs": 120,
+     "lines": 1724,
+     "path": "scripts/ui/pages/techniques_page.gd"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 142,
+     "lines": 1690,
+     "path": "scripts/simulation/authority/pet_authority.gd"
+    },
+    {
+     "area": "scripts/ui/pages",
+     "funcs": 77,
+     "lines": 1669,
+     "path": "scripts/ui/pages/crafts_page.gd"
+    },
+    {
+     "area": "tools/art/topdown",
+     "funcs": 65,
+     "lines": 1500,
+     "path": "tools/art/topdown/terrain2.py"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 33,
+     "lines": 1470,
+     "path": "tools/data/economy.py"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 78,
+     "lines": 1453,
+     "path": "tools/icons/families/beast_parts.py"
+    },
+    {
+     "area": "scripts/ui/pages",
+     "funcs": 79,
+     "lines": 1442,
+     "path": "scripts/ui/pages/map_page.gd"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 132,
+     "lines": 1423,
+     "path": "scripts/simulation/authority/post_authority.gd"
+    },
+    {
+     "area": "tools/art",
+     "funcs": 91,
+     "lines": 1410,
+     "path": "tools/art/pixel.py"
+    },
+    {
+     "area": "tools/audio",
+     "funcs": 55,
+     "lines": 1390,
+     "path": "tools/audio/music.py"
+    },
+    {
+     "area": "scripts/topdown",
+     "funcs": 69,
+     "lines": 1373,
+     "path": "scripts/topdown/topdown_life.gd"
+    },
+    {
+     "area": "tests",
+     "funcs": 35,
+     "lines": 1296,
+     "path": "tests/balance_sim.gd"
+    },
+    {
+     "area": "tools/dev",
+     "funcs": 72,
+     "lines": 1255,
+     "path": "tools/dev/prototype_qa.gd"
+    },
+    {
+     "area": "tools/dev",
+     "funcs": 72,
+     "lines": 1250,
+     "path": "tools/dev/wiki.py"
+    },
+    {
+     "area": "scripts/topdown",
+     "funcs": 87,
+     "lines": 1230,
+     "path": "scripts/topdown/topdown_world.gd"
+    },
+    {
+     "area": "tools/ui",
+     "funcs": 65,
+     "lines": 1223,
+     "path": "tools/ui/build_ui_hd.py"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 81,
+     "lines": 1206,
+     "path": "scripts/simulation/authority/quest_authority.gd"
+    },
+    {
+     "area": "scripts/simulation/authority",
+     "funcs": 72,
+     "lines": 1063,
+     "path": "scripts/simulation/authority/inventory_authority.gd"
+    },
+    {
+     "area": "scripts/(root: side-view world, player, hud)",
+     "funcs": 35,
+     "lines": 1058,
+     "path": "scripts/main.gd"
+    },
+    {
+     "area": "scripts/presentation",
+     "funcs": 53,
+     "lines": 1043,
+     "path": "scripts/presentation/technique_picture.gd"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 100,
+     "lines": 1034,
+     "path": "tools/icons/families/hud.py"
+    },
+    {
+     "area": "tools/art/topdown",
+     "funcs": 47,
+     "lines": 1026,
+     "path": "tools/art/topdown/foliage.py"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 80,
+     "lines": 1025,
+     "path": "tools/icons/families/techniques.py"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 10,
+     "lines": 994,
+     "path": "tools/data/items.py"
+    },
+    {
+     "area": "tests",
+     "funcs": 62,
+     "lines": 983,
+     "path": "tests/prologue_run.gd"
+    },
+    {
+     "area": "tools/art/fx",
+     "funcs": 36,
+     "lines": 981,
+     "path": "tools/art/fx/forms.py"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 92,
+     "lines": 951,
+     "path": "tools/icons/pix.py"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 38,
+     "lines": 946,
+     "path": "tools/props/defs_structures.py"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 8,
+     "lines": 919,
+     "path": "tools/data/stats.py"
+    },
+    {
+     "area": "scripts/ui/pages",
+     "funcs": 45,
+     "lines": 917,
+     "path": "scripts/ui/pages/posts_page.gd"
+    },
+    {
+     "area": "tools/icons",
+     "funcs": 61,
+     "lines": 915,
+     "path": "tools/icons/families/minerals.py"
+    },
+    {
+     "area": "tools/audio",
+     "funcs": 70,
+     "lines": 914,
+     "path": "tools/audio/synth.py"
+    },
+    {
+     "area": "tests",
+     "funcs": 36,
+     "lines": 895,
+     "path": "tests/tutorials.gd"
+    },
+    {
+     "area": "scripts/ui",
+     "funcs": 84,
+     "lines": 887,
+     "path": "scripts/ui/page.gd"
+    },
+    {
+     "area": "tools/art/fx",
+     "funcs": 37,
+     "lines": 881,
+     "path": "tools/art/fx/topdown_forms.py"
+    },
+    {
+     "area": "scripts/audio",
+     "funcs": 62,
+     "lines": 876,
+     "path": "scripts/audio/audio_director.gd"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 24,
+     "lines": 842,
+     "path": "tools/props/defs_buildings.py"
+    },
+    {
+     "area": "tools/props",
+     "funcs": 26,
+     "lines": 839,
+     "path": "tools/props/defs_objects.py"
+    },
+    {
+     "area": "tools/data",
+     "funcs": 8,
+     "lines": 827,
+     "path": "tools/data/enemies.py"
+    },
+    {
+     "area": "scripts/presentation",
+     "funcs": 35,
+     "lines": 817,
+     "path": "scripts/presentation/fx_layer.gd"
+    },
+    {
+     "area": "scripts/presentation",
+     "funcs": 47,
+     "lines": 816,
+     "path": "scripts/presentation/hazard_view.gd"
+    }
+   ],
+   "totals": {
+    "gd_files": 258,
+    "gd_lines": 110305,
+    "py_files": 294,
+    "py_lines": 119796
+   }
+  },
+  "manifests": {
+   "backdrops": {
+    "ids": 32,
+    "sample": [],
+    "unnamed": 0,
+    "unnamed_bytes": 0
+   },
+   "creature_art": {
+    "ids": 70,
+    "sample": [],
+    "unnamed": 0,
+    "unnamed_bytes": 0
+   },
+   "fx_art": {
+    "ids": 0,
+    "sample": [],
+    "unnamed": 0,
+    "unnamed_bytes": 0
+   },
+   "icon_manifest": {
+    "ids": 866,
+    "sample": [
+     "elite_crown",
+     "gathering_log",
+     "player_arrow",
+     "portal_marker",
+     "portal_sealed",
+     "quest_main",
+     "quest_side",
+     "vendor"
+    ],
+    "unnamed": 8,
+    "unnamed_bytes": 3062
+   },
+   "prop_art": {
+    "ids": 214,
+    "sample": [
+     "broken_ring",
+     "leviathan_bones",
+     "star_iron_vein",
+     "stone_steps",
+     "void_geode",
+     "void_orchid_patch",
+     "war_drum",
+     "wooden_bridge"
+    ],
+    "unnamed": 8,
+    "unnamed_bytes": 21625
+   },
+   "ui_assets": {
+    "ids": 21,
+    "sample": [
+     "hud_circle",
+     "hud_circle_large",
+     "hud_circle_small",
+     "slot_empty_motif"
+    ],
+    "unnamed": 4,
+    "unnamed_bytes": 6983
+   },
+   "ui_assets_hd": {
+    "ids": 44,
+    "sample": [],
+    "unnamed": 0,
+    "unnamed_bytes": 0
+   }
+  },
+  "py_graph": {
+   "cli_named_nowhere": [],
+   "orphans": [
+    {
+     "dynamic": "",
+     "imported_by": [],
+     "lines": 27,
+     "main": false,
+     "named_outside": 4,
+     "path": "tools/dev/fix_infer.py",
+     "writes": []
+    }
+   ],
+   "summary": {
+    "cli_lines": 0,
+    "cli_modules_named_nowhere": 0,
+    "lines": 120090,
+    "modules": 294,
+    "orphan_lines": 27,
+    "orphan_modules": 1,
+    "unreferenced_top_defs": 21,
+    "unreferenced_top_lines": 139
+   },
+   "unreferenced_defs": [
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 222,
+     "lines": 6,
+     "name": "gauss_band",
+     "path": "tools/audio/synth.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 60,
+     "lines": 8,
+     "name": "hsv_shift",
+     "path": "tools/icons/pix.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 120,
+     "lines": 3,
+     "name": "stable_rng",
+     "path": "tools/icons/pix.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 61,
+     "lines": 9,
+     "name": "bez_line",
+     "path": "tools/icons/shapes.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 72,
+     "lines": 8,
+     "name": "taper_curve",
+     "path": "tools/icons/shapes.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 139,
+     "lines": 6,
+     "name": "wave_line",
+     "path": "tools/icons/shapes.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 474,
+     "lines": 2,
+     "name": "_still_pool",
+     "path": "tools/icons/study/technique_cards.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 144,
+     "lines": 6,
+     "name": "spiral_pts",
+     "path": "tools/icons/families/jades.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 122,
+     "lines": 3,
+     "name": "sparks_hd",
+     "path": "tools/icons/families/insects.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 124,
+     "lines": 2,
+     "name": "path_length",
+     "path": "tools/art/helpers_batch_b.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 329,
+     "lines": 10,
+     "name": "mist_rise",
+     "path": "tools/art/helpers_batch_c.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 73,
+     "lines": 20,
+     "name": "worley",
+     "path": "tools/art/bake_ground.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 183,
+     "lines": 4,
+     "name": "_tip",
+     "path": "tools/art/creatures/terracotta_warden.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 371,
+     "lines": 8,
+     "name": "_arch_y",
+     "path": "tools/art/creatures/nebula_leviathan.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 54,
+     "lines": 2,
+     "name": "base_hex",
+     "path": "tools/art/fx/elements.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 560,
+     "lines": 16,
+     "name": "_dome",
+     "path": "tools/art/fx/topdown_forms.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 60,
+     "lines": 3,
+     "name": "pnxy",
+     "path": "tools/art/topdown/terrain2.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 112,
+     "lines": 2,
+     "name": "_q",
+     "path": "tools/art/topdown/terrain2.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 271,
+     "lines": 4,
+     "name": "_slope",
+     "path": "tools/art/topdown/sand_snow.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 139,
+     "lines": 4,
+     "name": "chest_body",
+     "path": "tools/props/defs_objects.py"
+    },
+    {
+     "decorated": false,
+     "kind": "def",
+     "line": 493,
+     "lines": 13,
+     "name": "inner_line",
+     "path": "tools/props/pixlib.py"
+    }
+   ]
+  },
+  "smells": [
+   {
+    "at": "scripts/hud.gd:521",
+    "rule": "data_method_call",
+    "text": "var n := int(points_override[row.id]) if points_override.has(row.id) else int(Game.get(str(row.count[0])).call(str(row.count[1]), c))"
+   },
+   {
+    "at": "scripts/hud.gd:2189",
+    "rule": "private_call",
+    "text": "var bp: Dictionary = Game.pets._pet(c, str(uid))"
+   },
+   {
+    "at": "scripts/hud.gd:2216",
+    "rule": "private_call",
+    "text": "var p: Dictionary = Game.pets._pet(c, str(pc.uid))"
+   },
+   {
+    "at": "scripts/main.gd:163",
+    "rule": "print_game",
+    "text": "GameEvents.event.connect(func(n: String, p: Dictionary): if n not in [\"resource_changed\", \"meditation_tick\"]: print(\"[event] \", n, \" \", p))"
+   },
+   {
+    "at": "scripts/main.gd:299",
+    "rule": "private_call",
+    "text": "Game.calendar._phenomenon(Game.active().id, str(a).trim_prefix(\"--phenomenon=\"), Game.active().cultivator.realm_key)"
+   },
+   {
+    "at": "scripts/main.gd:402",
+    "rule": "private_call",
+    "text": "Game.combat._defeat(e, Game.active_id)"
+   },
+   {
+    "at": "scripts/main.gd:505",
+    "rule": "private_call",
+    "text": "AccountAuthority._with_ledger(welcome, Game.posts.on_entered(wc))"
+   },
+   {
+    "at": "scripts/main.gd:523",
+    "rule": "private_call",
+    "text": "Game.progression._start_tribulation(Game.active(), {\"to\": \"spirit_awakening_1\", \"risk\": \"low\", \"from\": \"cloud_stride_9\", \"used\": [], \"causes\": []})"
+   },
+   {
+    "at": "scripts/main.gd:593",
+    "rule": "private_call",
+    "text": "Game.combat._cast_illusion(Game.active(), ContentDB.entry(\"techniques\", \"phantom_double\"))"
+   },
+   {
+    "at": "scripts/main.gd:595",
+    "rule": "private_call",
+    "text": "else: Game.combat._start_step(Game.active(), ContentDB.entry(\"weapon_families\", \"fan\"), 2, 1)"
+   },
+   {
+    "at": "scripts/main.gd:664",
+    "rule": "private_call",
+    "text": "if nxt != \"\": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get(\"major\", false)))"
+   },
+   {
+    "at": "scripts/avatar.gd:65",
+    "rule": "assert_game",
+    "text": "assert(layer.animations.has(action),\"Missing equipment pose: \"+category+\" / \"+action)"
+   },
+   {
+    "at": "scripts/presentation/technique_picture.gd:315",
+    "rule": "linear_in_const",
+    "text": "AHEAD (14 entries): var fx := roundf(w * 0.5 - box.get_center().x - (roundf(w * 0.06) if form in AHEAD else 0.0))"
+   },
+   {
+    "at": "scripts/presentation/technique_picture.gd:409",
+    "rule": "private_call",
+    "text": "TechniquePicture._tend()"
+   },
+   {
+    "at": "scripts/presentation/technique_picture.gd:417",
+    "rule": "private_call",
+    "text": "TechniquePicture._release()"
+   },
+   {
+    "at": "scripts/presentation/technique_picture.gd:435",
+    "rule": "private_call",
+    "text": "TechniquePicture._draw_cell(self, cell)"
+   },
+   {
+    "at": "scripts/presentation/moment_view.gd:747",
+    "rule": "private_call",
+    "text": "return now - was if UiKit._stat_is_percent(id) or id == \"aura\" else roundf(now) - roundf(was)"
+   },
+   {
+    "at": "scripts/presentation/moment_view.gd:751",
+    "rule": "private_call",
+    "text": "if UiKit._stat_is_percent(id): return \"%.1f%%\" % (v * 100.0)"
+   },
+   {
+    "at": "scripts/presentation/hazard_view.gd:332",
+    "rule": "private_call",
+    "text": "paint.draw.connect(func(): view._draw_part(paint, part))"
+   },
+   {
+    "at": "scripts/presentation/scene_stage.gd:132",
+    "rule": "private_call",
+    "text": "\"heart\": UiKit._heart(self, Vector2(0, 1), 10.0, Color(UiKit.HEART, k))"
+   },
+   {
+    "at": "scripts/presentation/moment_rules.gd:89",
+    "rule": "bare_index0",
+    "text": "var v = value(src.values()[0], p, slots)"
+   },
+   {
+    "at": "scripts/presentation/object_view.gd:194",
+    "rule": "private_call",
+    "text": "var label := Game.world._verb(def)"
+   },
+   {
+    "at": "scripts/presentation/object_view.gd:228",
+    "rule": "private_call",
+    "text": "sub = Game.world._verb(def) if avail.ok else str(avail.get(\"text\", \"\"))"
+   },
+   {
+    "at": "scripts/ui/equip_prompt.gd:109",
+    "rule": "private_call",
+    "text": "out.append(\"%s ▲ %s\" % [Tx.t(InventoryPage._stat_key(str(rw.stat))), CharacterPage.stat_text(str(rw.stat), float(rw.after) - float(rw.before)).trim_prefix(\"+\")]"
+   },
+   {
+    "at": "scripts/ui/pages/bonds_kit.gd:83",
+    "rule": "private_call",
+    "text": "if lit: pg.glow(body.grow(26 * glow_k), Color(UiKit.GOLD, 0.45 * glow_k * pg._halo()))"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:201",
+    "rule": "private_call",
+    "text": "page._draw_layer(self)"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:424",
+    "rule": "private_call",
+    "text": "return ShapeJob._col(fam)"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:427",
+    "rule": "private_call",
+    "text": "ShapeJob._place(it, fam, ring, lanes, taken, rows)"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:430",
+    "rule": "private_call",
+    "text": "ShapeJob._route_box(it, tree, by, rows)"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:511",
+    "rule": "private_call",
+    "text": "it.at = Vector2(ShapeJob._col(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:513",
+    "rule": "private_call",
+    "text": "if not it.has(\"at\"): it.at = Vector2(ShapeJob._col(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))"
+   },
+   {
+    "at": "scripts/ui/pages/techniques_page.gd:531",
+    "rule": "private_call",
+    "text": "\"dao\": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(ShapeJob._col(str(it.family)), it.at.y + PIC * 0.5)]"
+   },
+   {
+    "at": "scripts/ui/pages/way_kit.gd:35",
+    "rule": "private_call",
+    "text": "var tone := BagPage._hash(row * 31 + i, 5) - 0.5"
+   },
+   {
+    "at": "scripts/ui/pages/inventory_page.gd:141",
+    "rule": "private_call",
+    "text": "pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)"
+   },
+   {
+    "at": "scripts/ui/pages/auction_page.gd:98",
+    "rule": "private_call",
+    "text": "var bidders: Array = Game.economy._au_cfg(house).get(\"bidders\", [])"
+   },
+   {
+    "at": "scripts/ui/pages/character_page.gd:183",
+    "rule": "private_call",
+    "text": "pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)"
+   },
+   {
+    "at": "scripts/ui/pages/your_sect_page.gd:282",
+    "rule": "private_call",
+    "text": "if busy.has(i) or Game.sect._on_expedition(i): continue"
+   },
+   {
+    "at": "scripts/ui/pages/your_sect_page.gd:415",
+    "rule": "private_call",
+    "text": "var away := Tx.t(\"ui.your_sect.away_expedition\") if Game.sect._on_expedition(i) else (Tx.t(\"ui.your_sect.away_guard\") if busy.has(i) else \"\")"
+   },
+   {
+    "at": "scripts/ui/pages/your_sect_page.gd:548",
+    "rule": "private_call",
+    "text": "if busy.has(i) or Game.sect._on_expedition(i): continue"
+   },
+   {
+    "at": "scripts/ui/pages/your_sect_page.gd:584",
+    "rule": "private_call",
+    "text": "if ids.size() < 2 and not busy.has(i) and not Game.sect._on_expedition(i): ids.append(i)"
+   },
+   {
+    "at": "scripts/ui/pages/works_page.gd:220",
+    "rule": "private_call",
+    "text": "var line := _effect(str(a.text), Game.posts._curve_of(a, lv)) if lv > 0 else Tx.t(\"ui.works.not_learned\")"
+   },
+   {
+    "at": "scripts/ui/pages/works_page.gd:221",
+    "rule": "private_call",
+    "text": "if lv < mx: line += \"   \" + Tx.t(\"ui.works.next\") % _effect(str(a.text), Game.posts._curve_of(a, lv + 1))"
+   },
+   {
+    "at": "scripts/ui/pages/works_page.gd:239",
+    "rule": "private_call",
+    "text": "var eff := Game.posts._curve_of(sd, lv)"
+   },
+   {
+    "at": "scripts/simulation/zone_geometry.gd:31",
+    "rule": "assert_game",
+    "text": "assert(not index.has(surface.id),\"Duplicate surface ID\")"
+   },
+   {
+    "at": "scripts/simulation/zone_geometry.gd:40",
+    "rule": "assert_game",
+    "text": "assert(not index.has(top_surface.id),\"Duplicate surface ID\")"
+   },
+   {
+    "at": "scripts/simulation/map_generator.gd:16",
+    "rule": "assert_game",
+    "text": "assert(catalog.has(theme),\"Unknown map theme: \"+theme)"
+   },
+   {
+    "at": "scripts/simulation/ai/ally_brain.gd:70",
+    "rule": "private_call",
+    "text": "EnemyBrain._hop(game.enemies, a, delta)"
+   },
+   {
+    "at": "scripts/simulation/ai/ally_brain.gd:141",
+    "rule": "private_call",
+    "text": "EnemyBrain._follow_edge(game.enemies, a, path[0], delta)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:40",
+    "rule": "private_call",
+    "text": "EnemyBrain._set_state(auth, e, \"patrol\", 4.0)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:42",
+    "rule": "private_call",
+    "text": "EnemyBrain._wander(auth, e, delta, 0.5)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:52",
+    "rule": "private_call",
+    "text": "var attack: Dictionary = attacks[EnemyBrain._choose_attack(auth, e, attacks)]"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:72",
+    "rule": "private_call",
+    "text": "EnemyBrain._set_state(auth, e, \"aggro\", 0.3)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:88",
+    "rule": "private_call",
+    "text": "EnemyBrain._set_state(auth, e, \"idle\", 1.0)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:132",
+    "rule": "private_call",
+    "text": "EnemyBrain._start_hop(auth, e, {\"kind\": \"jump\", \"to\": \"\", \"to_alt\": room.cell_floor(path[0]), \"to_pt\": next},"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:174",
+    "rule": "private_call",
+    "text": "var in_way: bool = auth._in_portal(e.plane)"
+   },
+   {
+    "at": "scripts/simulation/ai/topdown_brain.gd:175",
+    "rule": "private_call",
+    "text": "var ok := func(p: Vector2) -> bool: return room.free_at(p, e.altitude, r) and (in_way or not auth._in_portal(p))"
+   },
+   {
+    "at": "scripts/simulation/authority/field_authority.gd:218",
+    "rule": "private_call",
+    "text": "if float(fx.get(\"slow\", 0.0)) > 0.0: game.combat._apply_status_to_enemy(e, {\"id\": \"slow\", \"power\": float(fx.slow), \"remaining\": last, \"source\": c.id})"
+   },
+   {
+    "at": "scripts/simulation/authority/field_authority.gd:219",
+    "rule": "private_call",
+    "text": "if fx.get(\"vulnerable\", false): game.combat._apply_status_to_enemy(e, {\"id\": \"vulnerable\", \"power\": 1.0, \"remaining\": last, \"source\": c.id})"
+   },
+   {
+    "at": "scripts/simulation/authority/field_authority.gd:220",
+    "rule": "private_call",
+    "text": "if float(fx.get(\"root_s\", 0.0)) > 0.0: game.combat._apply_status_to_enemy(e, {\"id\": \"root\", \"power\": 1.0, \"remaining\": float(fx.root_s), \"source\": c.id})"
+   },
+   {
+    "at": "scripts/simulation/authority/field_authority.gd:226",
+    "rule": "private_call",
+    "text": "game.combat._apply_status_to_enemy(e, {\"id\": \"shock\", \"power\": 1.0, \"remaining\": 0.4, \"source\": c.id})"
+   },
+   {
+    "at": "scripts/simulation/authority/account_authority.gd:319",
+    "rule": "private_call",
+    "text": "game.quest._refresh_offers()"
+   },
+   {
+    "at": "scripts/simulation/authority/enemy_authority.gd:616",
+    "rule": "private_call",
+    "text": "game.world._drop_loot(c, drop, e.plane, e.altitude, \"fled\")"
+   },
+   {
+    "at": "scripts/simulation/authority/game_authority.gd:82",
+    "rule": "assert_game",
+    "text": "assert(not handlers.has(type), \"Intent registered twice: \" + type)"
+   },
+   {
+    "at": "scripts/simulation/authority/quest_authority.gd:1093",
+    "rule": "private_call",
+    "text": "game.world._start_event(c, game.room_rt, sp.room_event)"
+   },
+   {
+    "at": "scripts/simulation/authority/pet_authority.gd:1435",
+    "rule": "bare_index0",
+    "text": "return str(weights.keys()[0])"
+   },
+   {
+    "at": "scripts/core/tutorial_rules.gd:102",
+    "rule": "data_method_call",
+    "text": "return int(Game.get(str(row[0])).call(str(row[1]), c))"
+   },
+   {
+    "at": "scripts/core/game_events.gd:52",
+    "rule": "linear_in_const",
+    "text": "UNLOCK_TRIGGERS (18 entries): if name in UNLOCK_TRIGGERS: unlock_pending = true"
+   },
+   {
+    "at": "scripts/core/game_events.gd:53",
+    "rule": "linear_in_const",
+    "text": "SAVE_TRIGGERS (13 entries): if name in SAVE_TRIGGERS: save_pending = true"
+   },
+   {
+    "at": "scripts/topdown/topdown_fx.gd:95",
+    "rule": "erase_in_loop",
+    "text": "nodes.erase(old)"
+   },
+   {
+    "at": "scripts/topdown/topdown_motor.gd:480",
+    "rule": "bare_index0",
+    "text": "var best := current if rows.has(current) else str(rows.keys()[0])"
+   },
+   {
+    "at": "scripts/topdown/topdown_places.gd:79",
+    "rule": "private_call",
+    "text": "work._resume()"
+   },
+   {
+    "at": "scripts/topdown/topdown_figure.gd:108",
+    "rule": "bare_index0",
+    "text": "return \"none\" if sheets.has(\"none\") else str(sheets.keys()[0])"
+   }
+  ],
+  "strings": {
+   "composed_only": 1170,
+   "direct": 3084,
+   "keys": 4316,
+   "unasked": 62,
+   "unasked_by_namespace": {
+    "ui": 51,
+    "world_view": 11
+   },
+   "unasked_sample": [
+    "ui.begin",
+    "ui.continue",
+    "ui.new_game",
+    "ui.settings",
+    "ui.back",
+    "ui.locked",
+    "ui.breakthrough.risk",
+    "ui.breakthrough.success",
+    "ui.calendar.events",
+    "ui.calendar.season",
+    "ui.calendar.trial",
+    "ui.codex.defeated",
+    "ui.companions.bond",
+    "ui.crafts.band_high",
+    "ui.crafts.band_low",
+    "ui.crafts.refine",
+    "ui.exchange.100_taels_buy_1_spirit",
+    "ui.exchange.taels_stones",
+    "ui.gift.age",
+    "ui.gift.title",
+    "ui.gift.unknown",
+    "ui.guild.title",
+    "ui.pets.aptitude",
+    "ui.pets.bloodline_skill",
+    "ui.pets.form",
+    "ui.pets.fuse_into",
+    "ui.pets.mount",
+    "ui.posts.away_for",
+    "ui.posts.finesse_short",
+    "ui.posts.incense",
+    "ui.posts.per_hour_of",
+    "ui.posts.playing",
+    "ui.posts.pouch_full",
+    "ui.posts.roll_note",
+    "ui.posts.tab_roll",
+    "ui.posts.vigil_at",
+    "ui.pouches.cost",
+    "ui.techniques.combat",
+    "ui.techniques.inner_sleeping",
+    "ui.techniques.inner_slot_empty",
+    "ui.techniques.no_techniques_learned_at_qi",
+    "ui.techniques.qi_ds",
+    "ui.works.arts_note",
+    "ui.works.favours_note",
+    "ui.works.flags_note",
+    "ui.works.flags_note_one",
+    "ui.works.furnace_note",
+    "ui.works.mirror_note",
+    "ui.works.seals_note",
+    "ui.works.steles_note",
+    "ui.your_sect.strength_spirit_craft",
+    "world_view.phenomenon_cloud_0",
+    "world_view.phenomenon_cloud_1",
+    "world_view.phenomenon_cloud_2",
+    "world_view.phenomenon_storm_0",
+    "world_view.phenomenon_storm_1",
+    "world_view.phenomenon_storm_2",
+    "world_view.pill_cloud_bark_0",
+    "world_view.pill_cloud_bark_1",
+    "world_view.pill_cloud_bark_2",
+    "world_view.pill_cloud_pill_halo",
+    "world_view.pill_cloud_pill_soul"
+   ]
+  }
+ },
+ "schema_version": 1,
+ "slices": [
+  {
+   "after_phase1": [
+    "hud.gd",
+    "tutorial_coach.gd"
+   ],
+   "id": "S1",
+   "notes": "hud.gd and tutorial_coach.gd edits wait for the tutorial and quick-slot jobs",
+   "owns": [
+    "the files in DEAD-01/02/05/06/07",
+    "crafts_page.gd lookups and a save-load sweep for unknown recipe ids (BUG-01)"
+   ],
+   "risk": "low",
+   "size": "~300 lines removed, ~40 changed",
+   "tests": [
+    "run_tests.sh",
+    "contract_tests strings gate"
+   ],
+   "title": "Delete dead code and fix the save-id crash",
+   "wave": 1
+  },
+  {
+   "after_phase1": [
+    "tests/rules_tests.gd",
+    "tests/tutorials.gd",
+    "tests/hollow_night.gd",
+    "tests/balance_sim.gd",
+    "tests/topdown_tutorial.gd"
+   ],
+   "id": "S2",
+   "notes": "the phase-1 jobs add checks to these suites: rebase onto them",
+   "owns": [
+    "tests/lib/suite.gd (new)",
+    "tests/*.gd headers",
+    "tests/side_view_suite.tscn (new)",
+    "tools/run_tests.sh",
+    "Test.ps1"
+   ],
+   "risk": "low",
+   "size": "~150 lines new, ~200 removed, header edits in 17 suites",
+   "tests": [
+    "every suite's check count unchanged"
+   ],
+   "title": "Tests hygiene: a suite base, the side-view suite, a steadier perf gate, data-method rule",
+   "wave": 1
+  },
+  {
+   "after_phase1": [
+    "tools/dev/topdown_capture.gd (the boss job adds shots)"
+   ],
+   "id": "S3",
+   "notes": "",
+   "owns": [
+    "tools/dev/*capture*",
+    "tools/dev/prototype_qa.gd",
+    "tools/art/creatures",
+    "tools/art/pixel.py",
+    "tools/art/helpers_batch_*",
+    "tools/art/bake_*",
+    "tools/backdrops",
+    "tools/art/topdown/study_quality",
+    "scripts/combo_rig.gd",
+    "scripts/equipment_rig.gd"
+   ],
+   "risk": "low (no game code)",
+   "size": "moves ~32,000 lines, rewrites ~2,000 (captures)",
+   "tests": [
+    "each moved generator still builds byte-identical output (run once before and after)"
+   ],
+   "title": "Tools housekeeping: capture registry, side-view pipeline moved under tools/art/sideview, study copies archived",
+   "wave": 1
+  },
+  {
+   "after_phase1": [
+    "scripts/ui/pages/inventory_page.gd (the bag job)"
+   ],
+   "id": "S4",
+   "notes": "",
+   "owns": [
+    "scripts/core/frame_memo.gd (new)",
+    "scripts/core/noise.gd (new)",
+    "scripts/presentation/figures.gd (new)",
+    "scripts/core/content_db.gd",
+    "scripts/core/game_events.gd",
+    "scripts/topdown/topdown_fx.gd",
+    "the 12 pages of DUP-03 (one line each)"
+   ],
+   "risk": "medium (content_db laziness touches boot)",
+   "size": "~250 new, ~350 removed",
+   "tests": [
+    "run_tests.sh",
+    "perf_tests (boot and room load)",
+    "engine_tests"
+   ],
+   "title": "Shared runtime utilities: FrameMemo, Noise, Figures factory, lazy ContentDB tables, GameEvents sets, TopdownFx cap",
+   "wave": 1
+  },
+  {
+   "after_phase1": [
+    "tools/data/stats.py",
+    "tools/data/items.py",
+    "tools/data/story.py",
+    "tools/data/enemies.py"
+   ],
+   "id": "S5",
+   "notes": "the progression job rewrites numbers in these",
+   "owns": [
+    "tools/data/common.py",
+    "tools/data/topdown_rooms.py (Grid only)",
+    "tools/data/{stats,moments,techniques,economy,enemies,items}.py (dropped fields)",
+    "tools/lib/pix.py (new)"
+   ],
+   "risk": "low",
+   "size": "~400 changed",
+   "tests": [
+    "build_data.py then git diff: only the dropped fields change",
+    "every --check gate"
+   ],
+   "title": "Generator hygiene: common CLI, one pixel lib for new work, Grid thresholds from movement.json, dead data and fields",
+   "wave": 1
+  },
+  {
+   "after_phase1": [
+    "hud.gd (tutorial coach, quick slots, first boss HP bar)"
+   ],
+   "id": "S6",
+   "notes": "one owner for hud.gd for the whole slice",
+   "owns": [
+    "scripts/hud.gd",
+    "scripts/hud/*.gd (new: hud_input, hud_layout, hud_notices, hud_panels, hud_tours)",
+    "data/hud_notices.json",
+    "tools/data/cues.py"
+   ],
+   "risk": "medium",
+   "size": "3,266 lines moved into 5-6 files; ~450 lines of match arms become ~180 rows",
+   "tests": [
+    "tutorials",
+    "topdown_tutorial",
+    "rules_tests HUD checks",
+    "hud_capture before/after"
+   ],
+   "title": "hud.gd split and the notice table (E6's HUD half)",
+   "wave": 2
+  },
+  {
+   "after_phase1": [],
+   "id": "S7",
+   "notes": "",
+   "owns": [
+    "scripts/main.gd",
+    "scripts/shell/debug_args.gd (new)"
+   ],
+   "risk": "low",
+   "size": "~550 moved",
+   "tests": [
+    "tools/dev captures that use flags",
+    "tutorials",
+    "perf_tests"
+   ],
+   "title": "main.gd: debug flags to scripts/shell/debug_args.gd, the page table to data",
+   "wave": 2
+  },
+  {
+   "after_phase1": [
+    "combat_authority.gd (charged attack, boss phase)"
+   ],
+   "id": "S8",
+   "notes": "",
+   "owns": [
+    "scripts/simulation/authority/combat_authority.gd",
+    "scripts/simulation/authority/combat/*.gd (new)"
+   ],
+   "risk": "medium",
+   "size": "2,819 lines moved",
+   "tests": [
+    "rules_tests",
+    "balance_sim",
+    "hollow_night",
+    "valley_run"
+   ],
+   "title": "combat_authority.gd into parts (flight, arts, phantom, flying sword, melody, blood, arrays, swarm, talismans, projectiles, treasures)",
+   "wave": 2
+  },
+  {
+   "after_phase1": [],
+   "id": "S9",
+   "notes": "",
+   "owns": [
+    "scripts/simulation/authority/world_authority.gd",
+    "scripts/simulation/authority/world/*.gd (new)"
+   ],
+   "risk": "medium",
+   "size": "2,296 moved",
+   "tests": [
+    "room_sweep",
+    "tutorial_order",
+    "valley_run",
+    "places_tests"
+   ],
+   "title": "world_authority.gd into parts (ambush, herbs, arrays, objects, loot, hazards, voyages, events, nests, tower, idle)",
+   "wave": 2
+  },
+  {
+   "after_phase1": [
+    "progression_authority.gd (meditation, fixed XP)"
+   ],
+   "id": "S10",
+   "notes": "",
+   "owns": [
+    "scripts/simulation/authority/crafting_authority.gd",
+    "scripts/simulation/authority/progression_authority.gd",
+    "their part folders"
+   ],
+   "risk": "medium",
+   "size": "3,865 moved",
+   "tests": [
+    "rules_tests",
+    "balance_sim",
+    "valley_run"
+   ],
+   "title": "crafting_authority.gd and progression_authority.gd into parts",
+   "wave": 2
+  },
+  {
+   "after_phase1": [
+    "enemy_brain/topdown_brain (boss phase 2)"
+   ],
+   "id": "S11",
+   "notes": "runs after S8-S10 so the renamed methods live in their final files",
+   "owns": [
+    "the 56 call sites of BUG-05",
+    "scripts/simulation/ai/*",
+    "tests/contract_tests.gd (new rule)"
+   ],
+   "risk": "low-medium",
+   "size": "~200 changed",
+   "tests": [
+    "contract_tests",
+    "rules_tests",
+    "hollow_night"
+   ],
+   "title": "Public surfaces: private cross-calls to public API, BrainKit, the contract rule",
+   "wave": 2
+  },
+  {
+   "after_phase1": [],
+   "id": "S12",
+   "notes": "optional; only if the fallback setting stays. If the product retires it, delete instead",
+   "owns": [
+    "scripts/world.gd",
+    "scripts/player.gd",
+    "scripts/backdrop.gd",
+    "the DEAD-15 list",
+    "the topdown==null checks in world_authority/enemy_authority/ally_brain"
+   ],
+   "risk": "medium-high",
+   "size": "~400 changed, 2,233 moved",
+   "tests": [
+    "side_view_suite (S2)",
+    "engine_tests",
+    "visibility_suite",
+    "room_sweep",
+    "valley_run"
+   ],
+   "title": "Side view frozen behind RoomSpace; its files under scripts/sideview/",
+   "wave": 3
+  },
+  {
+   "after_phase1": [],
+   "id": "E1",
+   "notes": "",
+   "owns": [
+    "tools/content/rooms/ (new)",
+    "tools/data/topdown_rooms.py"
+   ],
+   "risk": "medium",
+   "size": "~900 new; the 1,778-line layouts file becomes specs",
+   "tests": [
+    "topdown_rooms/places/room_lint/sect_walks --check",
+    "topdown_tutorial"
+   ],
+   "title": "Room engine, then migrate the 27 layouts (round-trip), then new rooms",
+   "wave": 3
+  },
+  {
+   "after_phase1": [
+    "hollowed_eel (the boss job)"
+   ],
+   "id": "E2",
+   "notes": "",
+   "owns": [
+    "tools/content/monsters.py (new)",
+    "tools/art/topdown/creature/plans/ (new)",
+    "tools/art/topdown/creatures.py",
+    "tools/data/enemies.py"
+   ],
+   "risk": "medium (visual)",
+   "size": "~1,200 new",
+   "tests": [
+    "build_foes determinism",
+    "data_validation",
+    "gallery review"
+   ],
+   "title": "Monster engine: plans from the 12 species, data+art+sound from one spec",
+   "wave": 3
+  },
+  {
+   "after_phase1": [
+    "story.py (elders' scene)"
+   ],
+   "id": "E3",
+   "notes": "after E1 (anchors)",
+   "owns": [
+    "tools/content/npcs.py (new)",
+    "tools/data/story.py npcs()",
+    "tools/data/topdown_life.py work/extras"
+   ],
+   "risk": "low-medium",
+   "size": "~500 new",
+   "tests": [
+    "topdown_life --check",
+    "data_validation",
+    "tutorial_order"
+   ],
+   "title": "NPC engine",
+   "wave": 3
+  },
+  {
+   "after_phase1": [
+    "items.py (fixed-XP pills)"
+   ],
+   "id": "E4",
+   "notes": "",
+   "owns": [
+    "tools/content/items.py (new)",
+    "tools/data/items.py",
+    "tools/data/gear.py"
+   ],
+   "risk": "medium (balance)",
+   "size": "~600 new",
+   "tests": [
+    "wiki --gaps",
+    "data_validation",
+    "balance_sim"
+   ],
+   "title": "Item engine",
+   "wave": 3
+  },
+  {
+   "after_phase1": [
+    "story.py"
+   ],
+   "id": "E5",
+   "notes": "after E3",
+   "owns": [
+    "tools/content/quests.py (new)",
+    "tools/data/story.py side_quests()"
+   ],
+   "risk": "low-medium",
+   "size": "~400 new",
+   "tests": [
+    "story.validate",
+    "valley_run",
+    "balance_sim"
+   ],
+   "title": "Quest engine (side and daily quests)",
+   "wave": 3
+  },
+  {
+   "after_phase1": [],
+   "id": "E6",
+   "notes": "",
+   "owns": [
+    "scripts/presentation/world_shared.gd",
+    "data/cues.json",
+    "tools/data/cues.py"
+   ],
+   "risk": "low",
+   "size": "~250",
+   "tests": [
+    "audio_tests",
+    "rules_tests FX checks",
+    "topdown_capture before/after"
+   ],
+   "title": "Cue table for WorldShared.play (the HUD half is S6)",
+   "wave": 2
+  }
+ ],
+ "tools": "tools/dev/audit/*.py (read-only; rerun with python3 tools/dev/audit/findings.py)"
+}
