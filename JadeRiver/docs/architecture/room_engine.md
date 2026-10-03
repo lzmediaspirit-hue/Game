@@ -710,13 +710,15 @@ flight stood on or beside a walk, and auto-path's steering sent the body along a
 A scratch walk of every leg (from the spawn and each way in, to every thing and way: 521 legs over the nineteen rooms)
 found the same wedge on 16 of them. After the change it arrives on all 521.
 
-**Set pieces and the side view's mechanics on the grid.** The plains' lightning strikes a body on the grid.
-- Some of the side view has no top-down counterpart (T1's work):
-  - the slippery ice of Frostpine Climb and Rimefrost Summit (`volumes` of kind `ice`, their traction);
-  - the ropes, vines, ladders and rope bridges to the side view's ledges and cloud platforms (they are flights and
-    raised outcrops here);
-  - the sky-ships' crossings (the ferries are ways, as the doors were).
+**Set pieces and the side view's mechanics on the grid.**
+- The plains' lightning strikes a body on the grid, and flight (T1) takes off over the port and the plains as anywhere.
+- The side view's ropes, vines, ladders and rope bridges up to its ledges and cloud platforms are flights and raised
+  outcrops here. T1's `traverse` rows (`docs/architecture/topdown_mechanics.md`) were not needed.
 - The Thousand-Eye Toad's arena has no special terrain; it is fought on the hollow's open turf.
+- Still with no top-down counterpart (`topdown_mechanics.md` lists them as still to do):
+  - the slippery ice of Frostpine Climb and Rimefrost Summit (`volumes` of kind `ice`, their traction);
+  - the Shipwrights' Yard's Starsea dock and its timed route (the skiff is the dock's object, sailed by its page);
+  - the sky-ships' crossings: the ferries are ways at their gangways, as the side view's doors were.
 
 **Still to do in these rooms.**
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the Spark Weasel, the Stormgrass Stag, the
