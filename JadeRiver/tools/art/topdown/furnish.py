@@ -494,3 +494,11 @@ PROPS = {
 }
 # The washing lifts on the wind (the room view turns its frames faster in a gust, TopdownLife.WINDY).
 ANIM = {"laundry_line": (4, 420)}
+
+# R7: the dry country east of Nine Peaks, the Ironroot hold and the Tomb of Sunscar (E1's rooms): the canyons' rock and
+# prayer flags, the desert's palms, cactus, scrub and bones, the hold's anvil and brazier, the tomb's sarcophagi,
+# statues, mirrors, traps and throne, the peaks' guardian lions (tools/art/topdown/arid.py), into the sheet with these.
+import arid as _ARID  # noqa: E402
+
+PROPS.update(_ARID.PROPS)
+ANIM.update(_ARID.ANIM)

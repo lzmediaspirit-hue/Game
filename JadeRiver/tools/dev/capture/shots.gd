@@ -58,6 +58,10 @@ const E1_VIEWS := [
 	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
 	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
 	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
+	# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar (their pictures under r7/).
+	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
+	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],
+	["r7/05_presence_terrace", "np_presence_terrace", Vector2(26, 15), true], ["r7/06_trial_hall", "np_trial_hall", Vector2(13.5, 9), true],
 ]
 
 static func sets() -> Dictionary:

@@ -357,6 +357,10 @@ VISTAS = {
     "hv_vale_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "hv_sect_grounds": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "hv_back_mountain": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R7: Nine Peaks' courts among the peaks over the cloud sea.
+    "np_alliance_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "np_hall_of_nine": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "np_presence_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]
