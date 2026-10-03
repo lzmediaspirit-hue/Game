@@ -1,0 +1,627 @@
+{
+ "schema_version": 1,
+ "id": "cf_falls_pool",
+ "name": "Falls Pool",
+ "size": [
+  56,
+  30
+ ],
+ "spawn": [
+  2,
+  22
+ ],
+ "levels": [
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444~~~~44444444444444444440004444",
+  "00002222222222000000000000~~~~00000000000000000000000000",
+  "00002222222222000000000000~~~~00000000000000000000000000",
+  "0000222222222200000000~~~~~~~~~~~~0000000000000000000000",
+  "000000000000000000000~~~~~~~~~~~~~~~~~000000000000000000",
+  "000000000000000000~~~~~~~~~~~~~~~~~~~~~~0000000000000000",
+  "00000000000000000~~~~~1111~~~~~~~~~~~~~~~000000000000000",
+  "0000000000111111~~~~~~1111~~~~~~~~~~~~~~~~00000000000000",
+  "0000000000111111~~~~111111111~~~~~~~~~~~~~00000000000000",
+  "00000000001111111111111111111111~~~~~~~~~~00000000000000",
+  "00000000000000011111~~~~~~~~~111111~~~~~~000000000000000",
+  "00000000000000000~~~~~~~~~~~~~~~11111111~000000000000000",
+  "000000000000000000~~~~~~~~~~~~~~~~~111110000000000000000",
+  "00000000000000000000~~~~~~~~~~~~~~~~00000000000000000000",
+  "0000000000000000000000~~~~~~~~~~~~0000000000000000000000",
+  "000000000000000000000000000000~~~~~000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000~~~~~~000000000000000000000",
+  "00000000000000000000000000000~~~~~0000000000000000000000",
+  "0~~~~~~~~~~~000000000000000000~~~~0000000000000000000000",
+  "~~~~~~~~~~~~~~00000~~~~~~~~~~~~~~~~00~~~~~~000000000~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "ggggrrrrrrrrrrgggggsssssss~~~~gggggggggggggggggggdddgggg",
+  "ggggrrrrrrrrrrgggggsssssss~~~~gggggggggggggggggggdddgggg",
+  "ggggrrrrrrrrrrgggggggg~~~~~~~~~~~~gggggggggggggggdddgggg",
+  "gggggggsssggggggggggg~~~~~~~~~~~~~~~~~gggggggggggdddgggg",
+  "gggggggsssgggggggg~~~~~~~~~~~~~~~~~~~~~~gggggggggdddgggg",
+  "gggggggsssggggggg~~~~~rrrr~~~~~~~~~~~~~~~ggggggggdddgggg",
+  "gggggggsssrrrrrr~~~~~~rrrr~~~~~~~~~~~~~~~~gggggggdddgggg",
+  "ggggggggggrrrrrr~~~~ssrrrrsss~~~~~~~~~~~~~gggggggdddgggg",
+  "ggggggggggrrrrrsssssssrrrrssssss~~~~~~~~~~gggggggdddgggg",
+  "ggggggggggggssgsssss~~~~~~~~~ssssss~~~~~~ggggggggdddgggg",
+  "ggggggggggggssggg~~~~~~~~~~~~~~~ssssssss~ggggggggdddgggg",
+  "gggggggggggggggggg~~~~~~~~~~~~~~~~~sssssgggggggggdddgggg",
+  "gggggggggggggggggggg~~~~~~~~~~~~~~~~gggggggggggggdddgggg",
+  "gggggggggggggggggggggg~~~~~~~~~~~~gggggggggggggggdddgggg",
+  "gggggggggggggggggggggggggggggg~~~~~ggggggggggggggdddgggg",
+  "ddddddddddddddddddddddddddddssssssssdddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddssssssssdddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddssssssssdddddddddddddddddddd",
+  "ggggggggggggggggggggggggggggg~~~~~~ggggggggggggggggggggg",
+  "gaaaaaaagggaggggggggggggggggg~~~~~gggggggggggggggggggggg",
+  "g~~~~~~~~~~~aagggggaaaaaaaagag~~~~gggagaaaagggggggggagaa",
+  "~~~~~~~~~~~~~~aaaaa~~~~~~~~~~~~~~~~aa~~~~~~agaaaaaaa~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 7,
+   "y": 9,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 12,
+   "y": 15,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "tree_pine",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 5,
+   "y": 6
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 11,
+   "y": 6
+  },
+  {
+   "kind": "tree_pine",
+   "x": 17,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 7
+  },
+  {
+   "kind": "tree_pine",
+   "x": 35,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 41,
+   "y": 6
+  },
+  {
+   "kind": "tree_pine",
+   "x": 44,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 52,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 29,
+   "y": 0
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 17
+  },
+  {
+   "kind": "tree_pine",
+   "x": 6,
+   "y": 16
+  },
+  {
+   "kind": "bush_wide",
+   "x": 10,
+   "y": 12
+  },
+  {
+   "kind": "ferns",
+   "x": 16,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 32,
+   "y": 6
+  },
+  {
+   "kind": "tree_maple",
+   "x": 40,
+   "y": 18
+  },
+  {
+   "kind": "tall_grass",
+   "x": 44,
+   "y": 9
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 46,
+   "y": 9
+  },
+  {
+   "kind": "ferns",
+   "x": 48,
+   "y": 11
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 53,
+   "y": 12
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 34,
+   "y": 19
+  },
+  {
+   "kind": "bush_wide",
+   "x": 36,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 43,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 46,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 4,
+   "y": 8
+  },
+  {
+   "kind": "ferns",
+   "x": 13,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 16,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 41,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 17,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 9
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 9
+  },
+  {
+   "kind": "cattails",
+   "x": 19,
+   "y": 12
+  },
+  {
+   "kind": "cattails",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "cattails",
+   "x": 28,
+   "y": 16
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 34,
+   "y": 12
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 13,
+   "y": 12
+  },
+  {
+   "kind": "tree_maple",
+   "x": 34,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 30,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 6,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 15,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 25,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 46,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 48,
+   "y": 20
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 8,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 10,
+   "y": 25
+  },
+  {
+   "kind": "bush_wide",
+   "x": 17,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 21,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 42,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 44,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 49,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 15,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 51,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 44,
+   "y": 27
+  },
+  {
+   "kind": "ferns",
+   "x": 53,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 2,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 11,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 16,
+   "y": 28
+  },
+  {
+   "kind": "cattails",
+   "x": 19,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 25,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 37,
+   "y": 28
+  },
+  {
+   "kind": "cattails",
+   "x": 42,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 48,
+   "y": 28
+  },
+  {
+   "kind": "cattails",
+   "x": 51,
+   "y": 28
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 3,
+   "y": 28
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 6,
+   "y": 29
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 21,
+   "y": 29
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 32,
+   "y": 29
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 39,
+   "y": 29
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 54,
+   "y": 29
+  }
+ ],
+ "place": {
+  "ledge_chest": [
+   7,
+   6
+  ],
+  "rare_lotus_fp": [
+   11,
+   8
+  ],
+  "insight_falls": [
+   13,
+   14
+  ],
+  "spring_falls": [
+   12,
+   25
+  ],
+  "herb_1": [
+   23,
+   13
+  ],
+  "fish_falls": [
+   38,
+   11
+  ],
+  "shrine_falls": [
+   45,
+   13
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    22
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    22
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    22
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    22
+   ],
+   "span": 3
+  },
+  "behind": {
+   "at": [
+    25,
+    6
+   ],
+   "dir": "n",
+   "arrive": [
+    24,
+    7
+   ],
+   "span": 2
+  },
+  "vale": {
+   "at": [
+    50,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    50,
+    2
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    50,
+    18
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

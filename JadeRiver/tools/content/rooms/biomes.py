@@ -44,6 +44,49 @@ BIOMES = {
                   "walk": ["rock_small", "ferns"],
                   "water": ["cattails", "ferns"]},
     },
+    # R1: the main story's path past chapter 3 (the Reed Marsh, Greyreed, the Bamboo Grove, Crane Falls, Cleansing Peak).
+    # The living reed marsh (the Sunken Causeway, the hermit's pond): marsh grass, willows and reeds, cattails in the
+    # shallows and lotus out on the water.
+    "reed_marsh": {
+        "base": "m", "stair": "w", "density": 0.32,
+        "flora": {"wall": ["tree_willow", "bush_wide", "rock_mossy"],
+                  "ground": ["tree_willow", "bush", "tall_grass", "ferns", "reeds"],
+                  "walk": ["tall_grass", "reeds", "rock_small", "bush"],
+                  "water": ["tree_willow", "reeds", "tall_grass", "cattails", "lotus_pads"]},
+    },
+    # Where the Hollowing has drunk the marsh (the Grey Pools, Greyreed Hamlet): dead trees and grey reeds over pale
+    # marsh grass, stumps and fallen logs, cattails still in the shallows.
+    "grey_marsh": {
+        "base": "m", "stair": "w", "density": 0.3,
+        "flora": {"wall": ["dead_tree", "rock_mossy", "grey_reeds"],
+                  "ground": ["dead_tree", "grey_reeds", "tall_grass", "stump", "log", "rock_small"],
+                  "walk": ["grey_reeds", "rock_small", "stump", "tall_grass"],
+                  "water": ["dead_tree", "grey_reeds", "cattails", "lotus_pads"]},
+    },
+    # The Bamboo Grove: tall bamboo clumps over ferns and mossy rocks, short canes and tall grass along the paths.
+    "bamboo": {
+        "base": "g", "stair": "w", "density": 0.36,
+        "flora": {"wall": ["bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["bamboo_grove", "ferns", "bamboo", "rock_mossy", "tall_grass", "stump"],
+                  "walk": ["bamboo", "ferns", "rock_small", "tall_grass"],
+                  "water": ["bamboo_grove", "ferns", "cattails", "lotus_pads"]},
+    },
+    # Crane Falls: pines and maples on the rock round the pool, mossy boulders and ferns in the spray.
+    "falls": {
+        "base": "g", "stair": "s", "density": 0.32,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "ferns"],
+                  "ground": ["tree_pine", "tree_maple", "bush_wide", "ferns", "rock_mossy", "tall_grass"],
+                  "walk": ["ferns", "rock_small", "tall_grass"],
+                  "water": ["tree_maple", "ferns", "cattails", "lotus_pads"]},
+    },
+    # Cleansing Peak: wind-bent pines on the ledges, bare rock and boulders, little grass; granite steps.
+    "mountain": {
+        "base": "g", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "rock_small"],
+                  "ground": ["tree_pine", "rock_mossy", "rock_small", "bush", "tall_grass"],
+                  "walk": ["rock_small", "tall_grass"],
+                  "water": ["tall_grass", "cattails"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

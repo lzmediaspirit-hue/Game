@@ -1,0 +1,229 @@
+{
+ "schema_version": 1,
+ "id": "cp_cleansing_summit",
+ "name": "Cleansing Summit",
+ "size": [
+  40,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000220000000000000000000",
+  "0000000000000000000220000000000000000000",
+  "0000000000002200000000000022000000000000",
+  "0000000000002200000000000022000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000220000000000220000000000000",
+  "0000000000000220000000000220000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggssssgggsssgggggggggggggg",
+  "gggggggggggggsssssssssssssssgggggggggggg",
+  "ggggggggggsssssssssssssssssssggggggggggg",
+  "gggggggggsssssssssssssssssssssgggggggggg",
+  "gggggggggssssssssssssssssssssssggggggggg",
+  "ggggggggssssssssssssssssssssssssgggggggg",
+  "gggggggsssssssssssssssssssssssssgggggggg",
+  "gggggggsssssssssssssssssssssssssgggggggg",
+  "gggggggssssssssssssssssssssssssssggggggg",
+  "gggggggssssssssssssssssssssssssssggggggg",
+  "gggggggssssssssssssssssssssssssssggggggg",
+  "gggggggssssssssssssssssssssssssssggggggg",
+  "ggggggggsssssssssssssssssssssssssggggggg",
+  "gggggggggsssssssssssssssssssssssgggggggg",
+  "ggggggggggssssssssssssssssssgggggggggggg",
+  "gggggggggggssssssssssssssssggggggggggggg",
+  "gggggggggggggggssssssssssggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "incense",
+   "x": 19,
+   "y": 12
+  },
+  {
+   "kind": "incense",
+   "x": 21,
+   "y": 12
+  },
+  {
+   "kind": "rock_small",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 11,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 25,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 30,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 34,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "tree_pine",
+   "x": 8,
+   "y": 24
+  },
+  {
+   "kind": "tree_pine",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 38,
+   "y": 9
+  },
+  {
+   "kind": "tall_grass",
+   "x": 0,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 8,
+   "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 14,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 22,
+   "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 27,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 34,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 37,
+   "y": 27
+  },
+  {
+   "kind": "tree_pine",
+   "x": 8,
+   "y": 10
+  },
+  {
+   "kind": "tree_pine",
+   "x": 30,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 32,
+   "y": 22
+  }
+ ],
+ "place": {
+  "rite_cleansing": [
+   20,
+   14
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

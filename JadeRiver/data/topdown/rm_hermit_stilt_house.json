@@ -1,0 +1,353 @@
+{
+ "schema_version": 1,
+ "id": "rm_hermit_stilt_house",
+ "name": "Hermit's Stilt House",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  20,
+  21
+ ],
+ "levels": [
+  "0000000000000000000000000000000000000000",
+  "0000000022222222222222222222220000000000",
+  "0000000022222222222222222222220000000000",
+  "0000000022222222222222222222220000000000",
+  "0000000022222222222222222222220000000000",
+  "0000000022222222222222222222220000000000",
+  "00000000000000000~~~00~~0000000000000000",
+  "0000000000000~~~~~~~~~~~~~00000000000000",
+  "000000000000~~~~~~~~~~~~~~~~000000000000",
+  "000000000000~~~~~~~111~~~~~~~00000000000",
+  "00000000000~~~~~~~~111~~~~~~~~0000000000",
+  "00000000000~~~~~~~~111~~~~~~~~0000000000",
+  "0000000000~~~~~~~~~~0~~~~~~~~~0000000000",
+  "0000000000~~~~~~~~~~0~~~~~~~~~0000000000",
+  "00~~~00000~~~~~~~~~~00~~~~~~~~0000000000",
+  "0~~~~~00000~~~~~~~~~~0~~~~~~~00000000000",
+  "0~~~~~0000000~~~~~~~~0~~~~00000000000000",
+  "0~~~~~0000000000~~~~~0~~~000000000000000",
+  "00~~~00000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmm",
+  "mmmmmmmmwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmm",
+  "mmmmmmmmwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmm",
+  "mmmmmmmmwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmm",
+  "mmmmmmmmwwwwwwwwwwwwwwwwwwwwwwmmmmmmmmmm",
+  "mmmmmmmmwwmmmmmmm~~~mm~~mmmmmmmmmmmmmmmm",
+  "mmmmmmmmwwmmm~~~~~~~~~~~~~mmmmmmmmmmmmmm",
+  "mmmmmmmmwwmm~~~~~~~~~~~~~~~~mmmmmmmmmmmm",
+  "mmmmmmmmwwmm~~~~~~~rrr~~~~~~~mmmmmmmmmmm",
+  "mmmmmmmmmmm~~~~~~~~rrr~~~~~~~~mmmmmmmmmm",
+  "mmmmmmmmmmm~~~~~~~~rrr~~~~~~~~mmmmmmmmmm",
+  "mmmmmmmmmm~~~~~~~~~~r~~~~~~~~~mmmmmmmmmm",
+  "mmmmmmmmmm~~~~~~~~~~r~~~~~~~~~mmmmmmmmmm",
+  "mm~~~mmmmm~~~~~~~~~~rr~~~~~~~~mmmmmmmmmm",
+  "m~~~~~mmmmm~~~~~~~~~~r~~~~~~~mmmmmmmmmmm",
+  "m~~~~~mmmmmmm~~~~~~~~r~~~~mmmmmmmmmmmmmm",
+  "m~~~~~mmmmmmmmmm~~~~~r~~~mmmmmmmmmmmmmmm",
+  "mm~~~mmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm"
+ ],
+ "stairs": [
+  {
+   "x": 8,
+   "y": 6,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "house",
+   "x": 15,
+   "y": 1,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "lantern",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 28,
+   "y": 4
+  },
+  {
+   "kind": "drying_rack",
+   "x": 22,
+   "y": 2
+  },
+  {
+   "kind": "fish_basket",
+   "x": 9,
+   "y": 1
+  },
+  {
+   "kind": "tree_willow",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "tree_willow",
+   "x": 6,
+   "y": 1
+  },
+  {
+   "kind": "tree_willow",
+   "x": 12,
+   "y": 0
+  },
+  {
+   "kind": "tree_willow",
+   "x": 22,
+   "y": 0
+  },
+  {
+   "kind": "reeds",
+   "x": 34,
+   "y": 1
+  },
+  {
+   "kind": "tree_willow",
+   "x": 38,
+   "y": 2
+  },
+  {
+   "kind": "bush",
+   "x": 7,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 35,
+   "y": 4
+  },
+  {
+   "kind": "tree_willow",
+   "x": 0,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "kind": "reeds",
+   "x": 8,
+   "y": 13
+  },
+  {
+   "kind": "tree_willow",
+   "x": 12,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 25,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 15
+  },
+  {
+   "kind": "tall_grass",
+   "x": 32,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 8
+  },
+  {
+   "kind": "reeds",
+   "x": 2,
+   "y": 22
+  },
+  {
+   "kind": "ferns",
+   "x": 4,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 13,
+   "y": 23
+  },
+  {
+   "kind": "reeds",
+   "x": 25,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 22
+  },
+  {
+   "kind": "ferns",
+   "x": 32,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 38,
+   "y": 23
+  },
+  {
+   "kind": "tree_willow",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "reeds",
+   "x": 11,
+   "y": 9
+  },
+  {
+   "kind": "reeds",
+   "x": 17,
+   "y": 18
+  },
+  {
+   "kind": "tall_grass",
+   "x": 22,
+   "y": 18
+  },
+  {
+   "kind": "reeds",
+   "x": 26,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 17,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 22,
+   "y": 7
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 15,
+   "y": 12
+  },
+  {
+   "kind": "bush",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 20,
+   "y": 13
+  },
+  {
+   "kind": "reeds",
+   "x": 2,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 18
+  },
+  {
+   "kind": "cattails",
+   "x": 5,
+   "y": 15
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 16
+  }
+ ],
+ "place": {
+  "hermit_mat": [
+   20,
+   5
+  ],
+  "hermit_tea": [
+   25,
+   5
+  ],
+  "npc_hermit_yao": [
+   10,
+   11
+  ],
+  "pond_lotus": [
+   20,
+   11
+  ],
+  "spring_hermit": [
+   4,
+   13
+  ],
+  "shrine_hermit": [
+   34,
+   14
+  ],
+  "herb_1": [
+   37,
+   14
+  ]
+ },
+ "portals": {
+  "stairs": {
+   "at": [
+    20,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    20,
+    21
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "marsh",
+   "pad": 40
+  }
+ ]
+}
