@@ -6,6 +6,8 @@
     python3 tools/content/monsters/build.py --list       # the specs: id, plan (or hand module), size, where declared
     python3 tools/content/monsters/build.py --review ID  # a species' review images (build_foes.py --only ID --review):
                                                          # docs/redesign/feedback/monsters/sheets/<ID>_x3.png and the GIF
+    python3 tools/content/monsters/build.py --update ID[,ID]  # M1: the data, then only those species' sheets and their
+                                                         # foes.json blocks (build_foes.py --update), the rest as they are
 
 --check, without writing anything:
   specs     every spec resolves: its plan and variant, every motion style it names, its palette's ramps, its accents
@@ -261,6 +263,9 @@ def main(argv: list) -> int:
         return subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--only", sid])
     jobs = argv[argv.index("--jobs") + 1] if "--jobs" in argv else "2"
     code = subprocess.call([sys.executable, str(TOOLS / "data/build_data.py")])
+    if "--update" in argv:
+        return code or subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--jobs", jobs, "--update",
+                                        argv[argv.index("--update") + 1]])
     return code or subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--jobs", jobs])
 
 

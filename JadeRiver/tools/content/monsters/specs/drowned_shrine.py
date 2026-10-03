@@ -14,6 +14,18 @@ species("drowned_acolyte", plan="person.fighter", share=True, size=1.0, elite=Fa
                              weapon="staff", hat="none", tint="#9fc6c9"),
                   race="human", energy="primal_qi", width=18, height=90))
 
+# A floating spirit made of layered, yellowed paper talismans (the Hall of Lanterns, the Scripture Well): a hooded dome of
+# wrapped strips, a dark face under it with two eyes glowing violet and a talisman hanging over it (a red seal, red
+# script), strips of paper hanging and fluttering, red script down each, a bundle of strips at each side. It fans its
+# bundles out behind it like a peacock (the tell) and flings a talisman.
+species("paper_talisman_ghost", plan="spirit.talisman", share=True, size=2.8,
+        palette=["talisman", "talisman_old", "cinnabar", "soul_void"], accents=("cinnabar", "soul_void"), elite=False, shadow=(6, 3),
+        cycle=10.0, view=True,
+        data=dict(level=(22, 26), role="normal", element="soul", page="shrine", drops=[("talisman_paper", 0.5), ("ink", 0.3)],
+                  attacks=[("talisman_throw", 0.5, 300, 1.0, dict(damage_type="soul", projectile={"speed": 400, "art": "talisman"}))],
+                  ai="flyer_ranged", speed=70, flying=True, width=20, height=40, phases_walls=True),
+        sound=dict(body="wood"))
+
 # S47 rogue cultivators: what they carry in the open is what they drop. A long fall of hair, the cloud tunic, a jian; its
 # tell is the sword drawn back in a crouch.
 species("rogue_cultivator", plan="person.fighter", share=True, size=1.0, shadow=(8, 3), cycle=12.0,

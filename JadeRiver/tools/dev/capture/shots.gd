@@ -440,6 +440,38 @@ static func sets() -> Dictionary:
 		{"name": "12_fight", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["rock_beetle", Vector2(3, 2)], ["pebble_imp", Vector2(-4, 1)],
 			["greyfin", Vector2(-2, -3)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]}]}
 
+	# M1: the monster engine's first batch past E2 (tools/content/monsters/specs/), lined up by kind on the Reed Shallows
+	# beside drawn foes for scale: (a) the quarry's and the bamboo grove's, (b) chapter 3's and 4's beasts and the paper
+	# ghost, (c) the people (cast in the shared character body); every pose of the E2 set, their elites, and live fights
+	# in the top-down rooms they live in.
+	var m1 := []
+	for lu in [["a", M1_LINEUP_A], ["b", M1_LINEUP_B], ["c", M1_LINEUP_C]]:
+		m1.append({"do": [["lineup", lu[1]]]})
+		for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+				["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+				["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+			m1.append({"name": lu[0] + "_" + st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+		m1.append({"name": lu[0] + "_09_falling", "do": [["fell_lineup"]]})
+	for el in [["d", M1_ELITES_A], ["e", M1_ELITES_B]]:
+		m1.append({"do": [["lineup", el[1]]]})
+		m1.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
+		m1.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
+	s["monsters_m1"] = {"doc": "M1: the monster engine's first batch past E2 (the quarry's, the bamboo grove's, chapter 3-5's beasts and people) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their top-down rooms under the HUD (--tag=after)",
+		"out": "redesign/feedback/monsters/m1/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m1 + [
+		{"do": [["paused", false], ["hud", "visible", true]]},
+		{"name": "12_fight_caravan_road", "room": "cr_caravan_road", "cell": Vector2(30, 16), "wait": 60, "foes": [["mudwater_bandit", Vector2(3, 1)],
+			["bandit_archer", Vector2(-5, 1)], ["mud_hound", Vector2(2, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "13_fight_bend_shore", "room": "dw_bend_shore", "cell": Vector2(23, 15), "wait": 60, "foes": [["jade_carp", Vector2(-2, 2)],
+			["tide_crab", Vector2(3, 1)], ["ember_fox", Vector2(-4, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "14_fight_boss_den", "room": "mh_boss_den", "cell": Vector2(28, 14), "wait": 60, "foes": [["big_toad_tan", Vector2(4, 0)],
+			["mudwater_lieutenant", Vector2(-3, 2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "15_fight_flats", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["stone_tortoise", Vector2(4, 2)], ["ironclaw_mole", Vector2(-4, 1)],
+			["bamboo_monkey", Vector2(-2, -3)], ["green_viper", Vector2(3, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "16_fight_flats_shrine", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["stone_guardian", Vector2(4, 1)],
+			["paper_talisman_ghost", Vector2(-3, -2)], ["drowned_acolyte", Vector2(-4, 2)]], "turned": true, "fight": [150, false],
+			"take": [["shot"], ["view_x4", "*_x4"]]}]}
+
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
 		"out": "redesign/feedback/hud/", "vars": {"tag": "after"}, "stage": hud_stage, "rows": [
@@ -634,6 +666,28 @@ const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed
 	["wild_boarlet", Vector2(1.5, -2.2), true], ["reedtail_rat", Vector2(4.5, -2.2), false],
 	["reed_otter", Vector2(-4.5, 1.0), false], ["mossback_toad", Vector2(-1.5, 1.0), false], ["mudshell_crab", Vector2(1.5, 1.0), false],
 	["marsh_leech", Vector2(3.4, 1.0), false], ["marsh_leech", Vector2(5.2, 1.0), true]]
+# M1: the monster engine's first batch, by kind, beside drawn foes for scale (the reed rat, the rock beetle, the boarlet,
+# the mud crab), and their elites beside them.
+const M1_LINEUP_A := [["stone_tortoise", Vector2(-7.5, -2.6), false], ["ironclaw_mole", Vector2(-3.0, -2.6), false],
+	["reedtail_rat", Vector2(2.5, -2.6), false], ["thornback_boar", Vector2(7.0, -2.6), false],
+	["bamboo_monkey", Vector2(-7.5, 2.0), false], ["green_viper", Vector2(-3.5, 2.0), false], ["rock_beetle", Vector2(2.5, 2.0), false],
+	["wild_boarlet", Vector2(7.0, 2.0), false]]
+const M1_LINEUP_B := [["jade_carp", Vector2(-7.5, -2.6), false], ["tide_crab", Vector2(-3.0, -2.6), false],
+	["ember_fox", Vector2(2.5, -2.6), false], ["mud_hound", Vector2(7.0, -2.6), false],
+	["stone_guardian", Vector2(-7.5, 2.2), false], ["jade_crane_chick", Vector2(-3.0, 2.2), false],
+	["paper_talisman_ghost", Vector2(2.5, 2.2), false], ["mudshell_crab", Vector2(7.0, 2.2), false]]
+const M1_LINEUP_C := [["mudwater_bandit", Vector2(-7.5, -2.6), false], ["bandit_archer", Vector2(-4.0, -2.6), false],
+	["mudwater_lieutenant", Vector2(3.0, -2.6), false], ["big_toad_tan", Vector2(7.0, -2.6), false],
+	["drowned_acolyte", Vector2(-7.5, 2.2), false], ["rogue_cultivator", Vector2(-4.0, 2.2), false],
+	["drowned_abbot", Vector2(3.0, 2.2), false], ["gorge_bandit_adept", Vector2(7.0, 2.2), false]]
+const M1_ELITES_A := [["stone_tortoise", Vector2(-7.5, -2.4), false], ["stone_tortoise", Vector2(-3.0, -2.4), true],
+	["ironclaw_mole", Vector2(2.5, -2.4), false], ["ironclaw_mole", Vector2(6.5, -2.4), true],
+	["bamboo_monkey", Vector2(-7.5, 2.0), false], ["bamboo_monkey", Vector2(-4.0, 2.0), true],
+	["green_viper", Vector2(2.5, 2.0), false], ["green_viper", Vector2(6.5, 2.0), true]]
+const M1_ELITES_B := [["thornback_boar", Vector2(-7.5, -2.4), false], ["thornback_boar", Vector2(-2.5, -2.4), true],
+	["jade_carp", Vector2(3.0, -2.4), false], ["jade_carp", Vector2(7.0, -2.4), true],
+	["tide_crab", Vector2(-7.5, 2.2), true], ["mudwater_bandit", Vector2(-4.0, 2.2), false], ["mudwater_bandit", Vector2(3.0, 2.2), true],
+	["rogue_cultivator", Vector2(7.0, 2.2), true]]
 
 ## The sand and snow sampler's paint (40 x 22 cells, the phone's view). West: meadow, a dirt path and a paved corner round
 ## a sand flat, its beach on the water and a jetty. East: a snow field on the meadow with a packed-snow path through it,

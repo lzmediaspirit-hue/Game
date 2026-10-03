@@ -184,6 +184,34 @@ RAMPS = {
     "bamboo_leaf": _s("b9ec7c", "62b34f", "34804a", "1f5040"),
     "bamboo_cane": _s("d9f59a", "8fd05e", "4f9a4a", "2b6040"),
     "bamboo_node": _s("f4f0c0", "d6d28a", "9aa45a", "5f6c3c"),
+    # ironclaw mole: violet-black velvet and its sheen, a pink star nose and palms, iron-grey claws, brown dirt
+    "mole_fur": _s("7c7189", "4b4356", "332d3d", "221e2a"),
+    "mole_sheen": _s("9a90a8", "6c637a", "4a4357", "332d3d"),
+    "mole_pink": _s("ffc4c4", "ec8f98", "b95f70", "7c3e4e"),
+    "mole_iron": _s("e2e7ea", "9aa3aa", "646d76", "3d454d"),
+    "mole_palm": _s("d99aa0", "b0707c", "80505c", "553644"),
+    "mole_dirt": _s("b89163", "8a6841", "5f4830", "3f3023"),
+    # green viper: bamboo-green scales, a pale yellow belly and flank stripe, an orange tail tip, a pink mouth
+    "viper_scale": _s("c9f27e", "6ec24a", "358c45", "1e5a3e"),
+    "viper_belly": _s("fff6b8", "eadc80", "bba955", "7e713c"),
+    "viper_tail": _s("ffb070", "e3703f", "a8442f", "6a2a26"),
+    "viper_mouth": _s("f59aa4", "d9667a", "9c3a50", "5e1e32"),
+    # stone guardian: warm temple stone (its darker carving: mane, collar, bell), moss, a dark mouth
+    "sg_stone": _s("dcd2b4", "aaa085", "777164", "4c4a52"),
+    "sg_stone_dark": _s("a49c88", "7b7566", "57544f", "383840"),
+    "sg_moss": _s("b8d46a", "80a445", "56793a", "3a562d"),
+    "sg_mouth": _s("6a3a3a", "4a2629", "351c20", "24141a"),
+    # jade crane chick: white down shading toward jade, jade wings and tail tuft, grey-green legs, a horn beak, a red crown
+    "chick_down": _s("ffffff", "e6f3ee", "a9d3c5", "6ea596"),
+    "chick_jade": _s("9cf0d2", "43b393", "277d6a", "17514a"),
+    "chick_leg": _s("9fbab0", "6e8d85", "4e6a66", "35494a"),
+    "chick_beak": _s("fff0b0", "e2c86a", "b0944a", "76663a"),
+    "chick_crown": _s("ff9a8a", "e45858", "b33a44", "7a2432"),
+    # paper talisman ghost: aged talisman paper (the back strips older), cinnabar ink
+    "talisman": _s("fff4d2", "ecd8a0", "c4a86c", "8c7246"),
+    "talisman_old": _s("e6d4a0", "cdb67c", "a28a58", "6e5a3a"),
+    "cinnabar": _s("f08070", "cf3a3a", "962430", "5e1624"),
+    "soul_void": _s("5a4290", "3a2a5c", "2a1a40", "1a0f2a"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -242,6 +270,17 @@ PROPS = {
     "monkey_fur": {"hi": True}, "monkey_mantle": {"hi": True}, "monkey_skin": {"hi": True, "weight": 1.3},
     "bamboo_leaf": {"hi": True, "line": True, "weight": 1.4}, "bamboo_cane": {"hi": True, "line": True, "weight": 1.5},
     "bamboo_node": {"hi": True, "weight": 1.4},
+    "mole_fur": {"hi": True}, "mole_sheen": {"hi": True}, "mole_pink": {"hi": True, "weight": 1.4},
+    "mole_iron": {"hi": True, "glossy": True, "line": True, "weight": 1.6}, "mole_palm": {"hi": True, "weight": 1.3},
+    "mole_dirt": {"hi": True},
+    "viper_scale": {"hi": True, "glossy": True}, "viper_belly": {"hi": True, "weight": 1.2}, "viper_tail": {"hi": True, "weight": 1.3},
+    "viper_mouth": {"weight": 1.3},
+    "sg_stone": {"hi": True}, "sg_stone_dark": {"hi": True, "weight": 1.2}, "sg_moss": {"hi": True, "weight": 1.2},
+    "sg_mouth": {"weight": 1.4},
+    "chick_down": {"hi": True}, "chick_jade": {"hi": True, "weight": 1.2}, "chick_leg": {"hi": True, "line": True, "weight": 1.3},
+    "chick_beak": {"hi": True, "glossy": True, "weight": 1.5}, "chick_crown": {"hi": True, "weight": 1.6},
+    "talisman": {"hi": True, "thin": True}, "talisman_old": {"hi": True, "thin": True}, "cinnabar": {"hi": True, "weight": 1.5},
+    "soul_void": {"weight": 1.8},
 }
 
 # Single colours laid on as marks and points.
@@ -315,6 +354,19 @@ TB_EYE = c("FF5A3C")
 TB_EYE_DARK = c("A8201E")
 # M1: the bamboo monkey's amber eye.
 MONKEY_EYE = c("D4781E")
+# M1: the green viper's gold eye and its red tongue.
+VIPER_EYE = c("F6C945")
+VIPER_TONGUE = c("E0303C")
+# M1: the jade glow of the stone guardian's eyes and cracks (QI's, as light).
+QI_GLOW = c("7FE6CC", 120)
+# M1: the crane chick's dark eye, the wind its wings throw.
+CHICK_EYE = c("2A1A12")
+WIND = c("E6F4F0", 200)
+# M1: the paper ghost's soul light (its eye holes, its wisps), the void in its eyes.
+GHOST_GLOW = c("B89CF0")
+GHOST_GLOW_HI = c("EFE6FF")
+GHOST_VOID = c("1A0F2A")
+GHOST_AURA = c("B89CF0", 140)
 
 
 def palette(*names) -> dict:

@@ -145,7 +145,7 @@ class Figure(Pose):
                 out[mat] = [_darken(c, (0.30 - 0.03 * i) * t) for i, c in enumerate(ramp)]
         return out
 
-    def picture(self, facing: str, elite: bool = False, frame_no: int = 0, aura=False) -> np.ndarray:
+    def picture(self, facing: str, elite: bool = False, frame_no: int = 0, aura=False, lean_ring: bool = False) -> np.ndarray:
         """The person cast facing `facing` (s, se, e, ne, n) at its size: RGBA on the working canvas, its feet on
         sculpt.FOOT (the figure's anchor)."""
         geom.SCALE = geom.WORLD_SCALE * self.k
@@ -171,7 +171,7 @@ class Figure(Pose):
             rgba[..., :3] = np.clip(np.round(rgba[..., :3] * t), 0, 255).astype(np.uint8)
         # The figure's anchor is the sculpture's feet (raster AX, AY == sculpt.FOOT).
         if elite or aura:
-            sculpt._aura(rgba, frame_no, "hollow" if aura == "hollow" else "gold")
+            sculpt._aura(rgba, sculpt.ring_seed(rgba) if lean_ring else frame_no, "hollow" if aura == "hollow" else "gold", lean_ring)
         return rgba
 
 

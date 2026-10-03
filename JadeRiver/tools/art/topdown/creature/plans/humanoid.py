@@ -22,6 +22,13 @@ mantle over the back and shoulders, a pale belly), a `monkey` face (a pale heart
 round ears, a leaf tuft on the crown), long arms, a curling tail (`tail`), and a bamboo shoot in its right hand (`held`
 kind "shoot", thrown on the blow). Its styles: idle `perch`, walk `lope`, windup `wind_shoot`, attack `hurl`, hurt
 `knock`, death `tumble`.
+
+`guardian` (M1, the stone guardian): a squat temple lion-dog of carved stone on two legs: `temple` paint (warm temple
+stone in pits and flecks, moss on its shoulders and crown), the imp's `grin` face in jade (`glow` "jade": bulging glowing
+jade eyes), a mane of spiral curls round its head (`mane`), a carved collar with a stone bell (`collar`), a flame-curl
+tail, cracks that light up jade in its tell and its slam (`cracks`, the channel `glow`). It hauls both fists up over its
+head (the tell, held) and slams them down before it in dust (the blow); beaten, it comes apart into a heap of blocks.
+Its styles: idle `stand`, walk `stomp`, windup `fists_up`, attack `double_slam`, hurt `knock`, death `crumble`.
 """
 from __future__ import annotations
 
@@ -112,6 +119,20 @@ MONKEY_STYLES = {
                "chatter": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3)},
 }
 STYLES.update(MONKEY_STYLES)
+GUARDIAN_STYLES = {
+    "stand": {"sway_amp": 0.2, "guard": 0.25},
+    "stomp": {"kind": "march", "bounce": 0.45, "twist_amp": 5.0, "stride": 2.4, "lift": 1.6, "swing": 1.2},
+    "fists_up": {"lean": (-2.0, -6.0, -8.0, -8.0), "step": (-0.2, -0.5, -0.7, -0.8), "sink": (0.4, 0.2, 0.0, 0.0), "plant": True,
+                 "glare": True, "glow": (0.4, 0.8, 1.0, 1.0),
+                 "right": ((1.6, -4.4, 3.0), (-0.4, -3.4, 7.6), (-1.2, -3.0, 9.0), (-1.4, -3.0, 9.2)),
+                 "left": ((1.6, 4.4, 3.0), (-0.4, 3.4, 7.6), (-1.2, 3.0, 9.0), (-1.4, 3.0, 9.2))},
+    "double_slam": {"lean": (4.0, 24.0, 24.0, 12.0, 4.0, 0.0), "step": (0.2, 1.4, 1.4, 0.7, 0.2, 0.0), "sink": (0.0, 2.2, 2.2, 0.9, 0.2, 0.0),
+                    "plant": True, "glare": True, "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "dust": (1, 2, 3),
+                    "squash": {1: (1.04, 1.04, 0.94)},
+                    "right": ((2.6, -2.8, 8.4), (8.0, -2.4, -7.0), (8.0, -2.4, -7.0), (6.0, -3.2, -4.6), (4.4, -4.0, -3.4), (3.6, -4.6, -4.2)),
+                    "left": ((2.6, 2.8, 8.4), (8.0, 2.4, -7.0), (8.0, 2.4, -7.0), (6.0, 3.2, -4.6), (4.4, 4.0, -3.4), (3.6, 4.6, -4.2))},
+}
+STYLES.update(GUARDIAN_STYLES)
 
 IMP = {
     "hip": 5.4,
@@ -151,7 +172,33 @@ MONKEY = {
     "tail": {"root": (-2.0, 0.0, 1.2), "segs": (2.2, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.0), "r": (0.75, 0.42)},
     "held": {"kind": "shoot", "r": 0.42, "mat": "cane", "length": 4.2},
 }
+GUARDIAN = {
+    "hip": 8.2,
+    "legs": {"top": (2.6, -0.8), "foot": (3.0, 1.3, 0.9), "bones": (4.3, 4.1), "thigh": (2.4, 2.1), "shin": (2.1, 1.9), "knee": None,
+             "boot": ((1.0, 0.0, -0.4), (2.9, 1.9, 1.3)), "plant": (1.0, -1.2)},
+    "trunk": [{"at": (0.0, 0.0, 1.0), "r": (3.0, 4.0, 2.4), "paint": True}, {"at": (0.3, 0.0, 4.0), "r": (3.4, 4.4, 3.0), "paint": True},
+              {"at": (0.5, 0.0, 7.0), "r": (3.6, 5.0, 3.4), "paint": True}],
+    "neck": ((0.8, 0.0, 9.6), 1.9),
+    "head": {"at": ((1.5, 0.0, 9.8), 3.5), "r": (3.7, 4.0, 3.5)},
+    "face": {"kind": "grin", "glow": "jade", "brow": ((2.9, 0.0, 1.3), (1.4, 3.6, 1.0)), "eyes": (3.45, 1.6, 0.45),
+             "nose": ((4.0, 0.0, -0.4), 0.95), "grin": ((3.1, 0.0, -1.9), (1.1, 3.0, 0.7)), "teeth": (3.85, 2.2, -1.75, 0.7),
+             "ears": ((0.0, 3.6, 1.5), (-1.0, 5.2, 3.2), (1.25, 0.3))},
+    "mane": ((150.0, 20.0, 1.5), (180.0, 30.0, 1.5), (-150.0, 20.0, 1.5), (120.0, 45.0, 1.4), (-120.0, 45.0, 1.4), (180.0, 65.0, 1.4),
+             (90.0, 30.0, 1.3), (-90.0, 30.0, 1.3), (140.0, -15.0, 1.4), (-140.0, -15.0, 1.4), (100.0, -25.0, 1.3), (-100.0, -25.0, 1.3)),
+    "collar": {"at": 0.35, "bell": 1.15},
+    "arms": {"shoulder": (4.8, 8.4), "bones": (5.0, 4.8), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (2.0, 1.8), "elbow": None,
+             "lower": (1.8, 1.7), "wrap": None, "fist": (2.4, 2.2, 2.1), "guard": (3.4, 4.8, -4.6), "limp": (0.8, 6.4, -6.0, 0.4)},
+    "paint": {"kind": "temple"},
+    "tail": {"root": (-2.6, 0.0, 2.4), "segs": (2.4, 2.2, 2.0, 1.8, 1.4, 1.2), "r": (1.2, 0.7)},
+    "cracks": ((2, ((-40.0, 40.0), (-20.0, 20.0), (-35.0, 0.0), (-15.0, -20.0))), (1, ((30.0, 30.0), (15.0, 5.0), (30.0, -20.0))),
+               (3, ((60.0, 40.0), (45.0, 20.0), (60.0, 5.0)))),
+}
 VARIANTS = {
+    "guardian": {"parts": GUARDIAN, "mats": {"body": "sg_stone", "limb": "sg_stone", "dark": "sg_stone_dark", "joint": "sg_stone",
+                                             "neck": "sg_stone", "maw": "sg_mouth", "moss": "sg_moss", "mantle": "sg_stone_dark",
+                                             "bell": "sg_stone_dark"},
+                 "motion": {"idle": "stand", "walk": "stomp", "windup": "fists_up", "attack": "double_slam", "hurt": "knock",
+                            "death": "crumble"}},
     "monkey": {"parts": MONKEY, "mats": {"body": "monkey_fur", "limb": "monkey_fur", "dark": "monkey_skin", "joint": "monkey_fur",
                                          "neck": "monkey_fur", "pale": "monkey_skin", "mantle": "monkey_mantle", "leaf": "bamboo_leaf",
                                          "cane": "bamboo_cane", "node": "bamboo_node", "maw": "maw"},
@@ -198,6 +245,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     limb = grain
     if p.paint.kind == "stone":
         grain, limb = _stone(m, hip, tm, int(B.opts.get("seed", 0))), None
+    elif p.paint.kind == "temple":
+        grain = limb = _temple(m, hip, tm, int(B.opts.get("seed", 0)))
     elif p.paint.kind == "fur":
         grain, limb = _fur(m, hip, tm), None
 
@@ -232,9 +281,13 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         _slits(P, B, action, f, hc, hm)
     if p.get("tail"):
         _tail(P, B, action, f, up)
+    if p.get("mane"):
+        _mane(P, B, action, f, hc, hm, up, tm, grain)
     _arms(P, B, action, f, up, tm, limb, march)
     if p.get("studs"):
         _studs(P, B, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
+    if p.get("cracks"):
+        _cracks(P, B, action, f, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
     _finish(P, B, action, f, step)
     return P
 
@@ -360,20 +413,25 @@ def _grin(P, B, action: str, f: int, hc, hm, paint, facing: bool = True) -> None
         P.add(L(hc + hm @ v3(e0[0], s * e0[1], e0[2]), hc + hm @ v3(e1[0], s * e1[1], e1[2]), r0, r1, m.body, "ear%d" % s, paint))
     dark = action == "death" and f >= st.get("dark_from", 99)
     ea, eb, ec = fc.eyes
+    core, main, dim, glow = GLOWS[fc.get("glow", "ember")]
     for s in (1, -1):
         eye = hc + hm @ v3(ea, s * eb, ec)
         if dark:
             P.mark(eye, M.RAMPS[m.body][0])
             continue
         if st.get("squint"):
-            P.mark(eye, M.EMBER_DIM)
+            P.mark(eye, dim)
             continue
-        P.eye(eye, M.EMBER_CORE)
+        P.eye(eye, core)
         for d in ((0.0, 0.35, 0.0), (0.0, -0.35, 0.0), (0.0, 0.0, 0.35)):
-            P.mark(eye + hm @ v3(*d), M.EMBER)
+            P.mark(eye + hm @ v3(*d), main)
         if st.get("glare") and facing:
             for d in ((0.3, 0.0, 0.8), (0.3, 0.7, 0.4), (0.3, -0.7, 0.4), (0.3, 0.0, -0.7)):
-                P.glow.append((eye + hm @ v3(*d), M.EMBER_GLOW))
+                P.glow.append((eye + hm @ v3(*d), glow))
+
+
+# A grin face's glowing eyes: (core, main, squinting, glow) for the imp's ember and the guardian's jade (M1).
+GLOWS = {"ember": (M.EMBER_CORE, M.EMBER, M.EMBER_DIM, M.EMBER_GLOW), "jade": (M.QI_BRIGHT, M.QI, M.QI_DIM, M.QI_GLOW)}
 
 
 def _studs(P, B, up, tm, hc, hm, facing: bool = True) -> None:
@@ -411,6 +469,66 @@ def _held(P, B, action: str, f: int, end, tm) -> None:
         return
     toss = B.pick("toss", action, f)
     P.add(S(end + tm @ v3(0.9, 0.0, 0.7 + toss), h.r, m[h.mat], "pebble"))
+
+
+# ================================================================================================= the stone guardian (M1)
+def _temple(m, hip, tm, seed: int):
+    """Warm temple stone: its grain a step dark in pits, a step lit in flecks (by the species' seed), moss over the
+    tops of its shoulders and crown where the stone turns to the sky."""
+    def temple(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        pit = h01v(np.floor(loc[:, 0] * 1.3 + 40), np.floor(loc[:, 2] * 1.3 + 40) + np.floor(loc[:, 1] * 1.3), seed % 97 + 1) > 0.86
+        fleck = h01v(np.floor(loc[:, 1] * 2.0 + 60), np.floor(loc[:, 2] * 2.0 + 60), seed % 89 + 2) > 0.93
+        moss = (nl[:, 2] > 0.72) & (loc[:, 2] > 6.0) & (loc[:, 2] < 9.2) & (h01v(np.floor(loc[:, 0] * 0.8 + 70), np.floor(loc[:, 1] * 0.8 + 70), seed % 83 + 3) > 0.35)
+        names = np.where(moss, m.moss, m.body).astype(object)
+        return names, np.where(pit & ~moss, -1, np.where(fleck & ~moss, 1, 0)).astype(np.int16)
+    return temple
+
+
+def _mane(P, B, action: str, f: int, hc, hm, up, tm, paint) -> None:
+    """The lion-dog's mane: spiral curls of darker stone round the back, the sides and the crown of its head; and its
+    carved collar round the neck with a stone bell hanging at its throat."""
+    p, m = B.parts, B.mats
+    r = p.head.r
+    for u, v, cr in p.mane:
+        P.add(S(on(hc, r, hm, u, v, -cr * 0.25), cr, m.dark, "mane", paint))
+    co = p.get("collar")
+    if co:
+        n0 = up(p.neck[0])
+        for k in range(12):
+            t = math.radians(k * 30.0)
+            P.add(S(n0 + tm @ v3(math.cos(t) * 2.6, math.sin(t) * 3.0, -0.4), 0.85, m.dark, "collar", line=False))
+        bell = n0 + tm @ v3(2.9, 0.0, -1.6)
+        P.add(S(bell, co.bell, m.bell, "bell"))
+        P.mark(bell + tm @ v3(co.bell * 0.9, 0.0, -co.bell * 0.4), M.RAMPS[m.dark][0])
+
+
+def _cracks(P, B, action: str, f: int, up, tm, hc, hm, facing: bool = True) -> None:
+    """Cracks over the stone (on the trunk's pieces and the head: (piece, points round and up it)), dark; alight with jade
+    in its tell and its slam (the channel `glow`), and flaring as it breaks."""
+    p, m = B.parts, B.mats
+    g = B.pick("glow", action, f)
+    if action == "death" and f < 2:
+        g = 1.0
+    pieces = [(up(t.at), t.r, tm) for t in p.trunk] + [(hc, p.head.r, hm)]
+    for i, path in p.cracks:
+        c, rad, mm = pieces[i]
+        pts = [on(c, rad, mm, u, v, 0.15) for u, v in path]
+        for a, b in zip(pts, pts[1:]):
+            for k in range(4):
+                q = a + (b - a) * (k / 4.0)
+                if g > 0.5:
+                    P.mark(q, M.QI_BRIGHT if k % 2 else M.QI)
+                    if facing:
+                        P.glow.append((q + mm @ v3(0.4, 0.0, 0.0), M.QI_GLOW))
+                else:
+                    P.mark(q, M.RAMPS[m.dark][0] if g <= 0.0 else M.QI_DIM)
+    if f in B.style(action).get("dust", ()):
+        for k in range(10):
+            ang = math.radians(k * 36.0 + f * 20.0)
+            rr = 3.0 + f * 1.4 + (k % 3) * 0.6
+            P.fx.append((v3(8.6 + math.cos(ang) * rr, math.sin(ang) * rr, 0.3 + (k % 3) * 0.6), M.DUST if k % 2 else M.DUST_DIM))
 
 
 # ================================================================================================= the bamboo monkey (M1)

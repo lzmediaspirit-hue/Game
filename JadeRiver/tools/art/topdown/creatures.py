@@ -74,7 +74,8 @@ class Spec:
         # decision 45: {size (against its own), ramps {material: the awakened ramp's name}}, or None
         self.awakened = awakened
         # M1: identical frames of a facing share one cell of its row (a held pose, a person's repeated frames), so the
-        # sheet carries each picture once; foes.json points every frame at its cell as before.
+        # sheet carries each picture once; foes.json points every frame at its cell as before. An elite's ring is lean
+        # then: it flickers by its pose (sculpt.ring_seed), so its held poses share too, and its alphas come in steps.
         self.share = share
 
     def looks(self) -> list:
@@ -143,8 +144,8 @@ def draw(species: str, action: str, f: int, facing: str, elite="base") -> np.nda
     P.k = k
     if hasattr(P, "picture"):
         # M1: a person (plans/person.py) is cast by the character's own pipeline, dressed in its outfit, not sculpted.
-        return P.picture(facing, elite, f, "hollow" if variant == "awakened" else sp.aura)
-    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura)
+        return P.picture(facing, elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
+    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
 
 
 def _enemies() -> dict:

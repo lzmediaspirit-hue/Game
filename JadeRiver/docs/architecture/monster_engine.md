@@ -1,4 +1,4 @@
-# The monster engine (audit 45 §6.2, E2)
+# The monster engine (audit 45 §6.2, E2, M1)
 
 A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
 already existed:
@@ -19,7 +19,7 @@ Nothing else names a species: a new spec needs no edit to `enemies.py`, `creatur
 ```
 tools/content/monsters/__init__.py      the engine: species(), and what each generator asks of it (row, rows,
                                         loot, voices, art)
-tools/content/monsters/build.py         the command line: build, --check, --list, --review ID
+tools/content/monsters/build.py         the command line: build, --check, --list, --review ID, --update ID[,ID]
 tools/content/monsters/specs/*.py       the specs, one file a region (sorted by name when read)
 tools/art/topdown/creature/plans/       the body plans: kit.py (what they share), and one module a plan
 tools/art/topdown/creature/sculpt.py    the sculpture and the renderer (unchanged)
@@ -42,6 +42,50 @@ those species draws byte-identical through its plan, so the hand modules are gon
 | `fish` | `minnow`, `greyfin` | the hollow minnow; **new:** the greyfin | trunk, head, tail and lobes, dorsal plates, pectoral fins, eye socket, jaw, the Hollow's wake; `pool`: a puddle of its own, the fish under its surface (the greyfin) |
 | `shell` | `snapper`, `beetle` | Old Snapper; **new:** the rock beetle | `snapper`: dome, rim and plastron, keels, barnacles, weed, a beaked head on its neck, pillar legs, a saw tail, the crusher; `beetle`: elytra, pronotum and underside, rocky lumps, a horned head with antennae, six jointed legs, `ball` and `spin` (it curls up and rolls) |
 | `humanoid` | `puppet`, `imp` | the Trial Puppet; **new:** the pebble imp | hips, two-bone legs and arms, a trunk of three pieces, a head; joints (balls and wraps, or none), paint (`grain`, `stone`), face (`slits`, `grin`), studs and a glowing crack, a held stone, the Qi orb; `crumble`: a body of stone coming apart into a heap (`kit.collapse`) |
+
+M1 added these variants and plans. Each new part kind is optional, so the species drawn before draw byte-identical.
+
+| Plan | Variant (M1) | Made for | What it adds |
+|---|---|---|---|
+| `quadruped` | `canine` | the ember fox, the mud hound | the dogs' and cats' head kind, built once for the wolves, foxes and lynxes after: a skull on a neck, a tapering muzzle to a nose pad, a jaw that drops on its fangs and tongue, tall ears that read head-on (a short muzzle and wide ears make a cat of it), a `collar`; `digit` legs, a `brush` tail (`flame`: the fox's burning tip), a `bib` coat with dried `mud`; styles idle `alert`, `pant`, windup `crouch`, `bark`, attack `pounce_bite` |
+| `quadruped` | `talpid` | the ironclaw mole | the rodent's body made plump and low: `velvet` coat, a `star` nose, no ears, `dig` legs with great iron claws, a stub tail; its tell bursts up out of its hole rearing, clods flying |
+| `quadruped` | (`suid` parts) | the thornback boar | `coat` `vines` (vines and leaves winding over it), `crest` `thorns` (bristling in anger), `head.tusk`, `head.eyes` colours |
+| `shell` | `tortoise` | the stone tortoise | the snapper without its crusher, saw plates or weed: a shell that is a small mountain (`crag` paint in strata, crags, a pine on the saddle, cracks as it dies); styles `rear_up`, `stomp` (a ring of dust on both sides), `withdraw_crack` |
+| `crab` | (`mud` parts) | the tide crab | `claws.scale` (one great shield claw), `shell.pearls` |
+| `fish` | (`minnow` parts) | the jade carp | `Z` (it rides the water line), `barbels`, gold fin tips, `eye.ring` |
+| `serpent` | `viper` | the green viper | a slender snake, its hind body coiled flat, its neck raised in an S; styles `coiled`, `sidewind`, `draw_s`, `strike`, `recoil`, `go_limp` |
+| `humanoid` | `monkey` | the bamboo monkey | a hunched body (`hunch`), `fur` paint, a monkey face, a curling tail, a held bamboo shoot it hurls (`shoot`) |
+| `humanoid` | `guardian` | the stone guardian | a squat temple lion-dog of carved stone: `temple` paint with moss, a mane of curls, a collar and bell, jade-glowing eyes and cracks |
+| `bird` (new) | `chick` | the jade crane chick | a ball of down on two long legs (two bones by IK), a neck and round head, a beak, wings that fold, spread and beat, a tail tuft; styles `peer`, `strut`, `spread_puff`, `buffet`, `ruffle`, `fold_sit` |
+| `spirit` (new) | `talisman` | the paper talisman ghost | a floating body of layered strips: a hooded dome, a face talisman (dark eye holes glowing violet, a red seal), hanging strips that flutter, a bundle of strips at each side that fans out like a peacock in the tell; styles `hover`, `drift`, `fan`, `fling`, `flutter_back`, `come_apart` |
+| `person` (new) | `fighter`, `archer`, `brute` | the human foes | not a sculpture: the shared character body (below) |
+
+### People (`person`, M1)
+
+A human foe is drawn as the player and the villagers are. Its spec gives its outfit with `person(name, hair=...,
+shirt=..., pants=..., shoes=..., hat=..., weapon=..., tint=...)`: the fields of a villager's `art.avatar`, kept in the
+foe's row as before. `plans/person.py` maps each frame of the foe catalogue to a frame of the character's own actions
+(`tools/art/topdown/figure/actions.py`):
+
+| Foe action | Style | The character's frames |
+|---|---|---|
+| idle | `stand` | its breathing idle, eased over six frames |
+| walk | `stride` | its walk |
+| windup | `charge` (fighter) | its strike's pull-back, then the charged finisher's wind-up, held until the blow |
+| | `raise` (brute) | a heavy blow's wind-up held high (the club or staff over the head) |
+| | `draw` (archer) | the bow raised, the arrow nocked and drawn, held |
+| attack | `strike` | its weapon family's first combo step (`weapon_families.json`, `combat_feel.json`), from the frame before its blow, so the blow is on frame 1; the brute's is the overhead `swing_3` |
+| | `loose` (archer) | the drawn bow released on frame 1 |
+| hurt | `flinch` | its hurt, the recoil held a frame |
+| death | `fall` | its knock-down, lying still at the end |
+
+`creatures.draw` casts that pose through the figure's own pipeline (`figure/frame.py` `cast_all`, the same layers,
+palettes and stacking the player and villagers are composed from) at the figure's 46 px. A bandit is the same pixels
+as a villager in the same clothes. No new body movement and no new layer pose was drawn (AGENTS.md rules 1-4). An
+elite is cast at 1.2 times the figure's density (never resampled). Its clothes, hair and steel darken toward the §14
+shadow as a sculpted elite's ramps do (the skin less), its eyes turn gold, and it wears the ring of Qi. A `tint`
+multiplies the picture, as the side view's and the villagers' tint does (the drowned's pallor). The room view plays
+the sheet like any foe's, so a person has its tell, its blow on frame 1, the hit flash and its elite look.
 
 ### Parts
 
@@ -106,6 +150,7 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
 | `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
+| `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring flickers by its pose (`sculpt.ring_seed`) so its held poses share too. Every M1 species has it; the species before keep their sheets byte for byte |
 | `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
 | `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
 | `sound` | `"race"` (default: its race's and nature's voice), or `dict(body="shell" \| "slime" \| "wood", tell="water")` |
@@ -127,14 +172,17 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
 3. **Write the spec** in its region's file. If the species has a hand row in `enemies.py`, move the row into
    `data` (same values, same field order) and put `spec_row("id")` in its place. Otherwise the engine appends the row.
 4. **Build:** `python3 tools/content/monsters/build.py`. It runs `build_data.py` (rows, loot, sound, the wiki) and
-   `build_foes.py --jobs 2` (sheets, `foes.json`). Then let Godot import the new sheets
-   (`godot --headless --path . --import`) and commit the `.png.import` files.
+   `build_foes.py --jobs 2` (sheets, `foes.json`). `--update ID[,ID]` builds only those species' sheets and merges
+   their blocks into `foes.json`, leaving the rest as they are (the blocks are independent; a full build gives the same
+   bytes). Then let Godot import the new sheets (`godot --headless --path . --import`) and commit the `.png.import`
+   files.
 5. **Review by eye.** Numbers cannot certify the art (AGENTS.md rule 3). Look at every action in every facing, base
    and elite:
    - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
      (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
-   - **In the game:** the capture set `monsters_e2` (or a set of your own beside it in `tools/dev/capture/shots.gd`):
-     `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_e2`.
+   - **In the game:** the capture set `monsters_e2` or `monsters_m1` (or a set of your own beside them in
+     `tools/dev/capture/shots.gd`):
+     `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_m1`.
      It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
      struck, side-on, tail-on, falling, the elites, and a live fight. It plays on its own saves, never the Max Tester.
    - Check that the tell reads and is its own, that the blow lands on frame 1, the feet sit on the line, the head-on

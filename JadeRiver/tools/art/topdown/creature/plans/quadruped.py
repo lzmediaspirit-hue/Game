@@ -28,6 +28,11 @@ over it):
                   a flame at its tip (`flame`, the ember fox: flaring in the tell)
   coat  bib       a pale throat, chest and belly; dried mud in blotches on its flanks and legs (`mud`)
 
+M1's ironclaw mole is the rodent's body made plump and low: `coat` "velvet" (a velvet sheen along its back), the rodent
+head with no ears (`ears.kind` "none") and a pink star nose (`nose.kind` "star": feelers round the bead, twitching), and
+`legs` "dig": short hind feet, and forelegs turned out on broad pink palms with four long curved iron claws, raised as it
+rears out of its hole in the tell (clods thrown up off it) and raked down on the blow.
+
 M1's thornback boar is the suid overgrown: `coat` "vines" (green vines winding over its back and flanks, leaves on
 them), `crest` "thorns" (pale woody thorns along its spine, bristling up in anger), and the head's `eyes.colour` (its
 small fierce red eye) and `tusk` (a longer, upcurved tusk).
@@ -205,7 +210,32 @@ CANINE = {
     "tail": {"kind": "brush", "root": (-5.6, 1.3), "n": 8, "length": 7.6, "r": (0.8, 1.9, 0.5), "rest": 12.0, "droop": -26.0,
              "tip": 0.3, "flame": False},
 }
+# M1: the ironclaw mole (its side-view sheet: ~22 px tall, ~30 long with its claws): a plump, low velvet body, a
+# tapering snout to a star nose, no ears, bead eyes, great digging forepaws, a stub of a tail.
+TALPID = {
+    "Z": 3.9, "hips": (-3.0, 0.0), "pivot": (-3.0, 0.0, 0.0), "side": 3.5,
+    "body": [{"at": ((-3.0, 1.2), 0.0), "r": ((3.4, 0.0, 0.0), (3.5, 0.0, 0.3), (3.2, 0.0, 0.2))},
+             {"at": ((-0.2, 0.7), 0.3), "r": ((4.3, -1.2, 0.0), (3.8, 0.3, 0.0), (3.5, 0.0, 0.0))},
+             {"at": ((2.5, 0.0), 0.2), "r": ((2.9, 0.0, 0.0), (3.3, 0.3, 0.0), (3.0, 0.0, 0.0))}],
+    "coat": {"kind": "velvet", "sheen": 0.62},
+    "head": {"kind": "rodent", "yaw": 0.5, "pitch": (-4.0, 0.0, 8.0), "at": ((4.6, 0.4), (0.6, 0.6, 0.0)),
+             "skull": (2.5, 2.4, 2.1), "snout": ((1.1, 0.0, -0.2), (4.2, 0.0, -0.6), 1.6, 0.75),
+             "nose": {"kind": "star", "at": (4.7, 0.0, -0.6), "r": 0.6},
+             "jaw": {"kind": "limb", "gape": 0.05, "turn": 30.0, "at": (0.9, 0.0, -1.3), "to": (2.6, 0.0, -0.2), "r": (0.95, 0.5),
+                     "teeth": ((3.5, 0.3, -1.3), (3.5, -0.3, -1.3)), "tooth": (0xF4, 0xEE, 0xDC, 255)},
+             "ears": {"kind": "none"},
+             "eyes": {"at": (1.9, 1.55, 0.55), "glint": (2.1, 1.45, 0.85), "colour": "INKY", "shut": {"hurt": 0, "death": 5}, "shut_step": 0},
+             "whiskers": {"n": 0}},
+    "legs": {"kind": "dig", "fore": (2.4, 2.7), "hind": (-3.4, (2.1, 0.4, 1.0)), "lift": 1.0, "stride": 1.3},
+    "tail": {"kind": "stub", "root": (-6.2, 0.2), "tip": (-8.0, -0.6), "r": (0.7, 0.35)},
+}
 VARIANTS = {
+    "talpid": {"parts": TALPID, "mats": {"coat": "mole_fur", "sheen": "mole_sheen", "pale": "mole_palm", "pink": "mole_pink",
+                                         "iron": "mole_iron", "dirt": "mole_dirt"},
+               "motion": {"idle": "sniff", "walk": "bound", "windup": ("rear", {"clods": (0, 1, 2), "pitch": (6.0, 12.0, 18.0, 22.0)}),
+                          "attack": ("lunge_bite", {"reach": (((1.6, 0.0, 1.4),), ((3.6, 0.0, -0.4),), ((2.8, 0.0, -0.6),), ((1.4, 0.0, -0.3),)),
+                                                    "clods": (1, 2)}),
+                          "hurt": "knock_squash", "death": "topple_side"}},
     "canine": {"parts": CANINE, "mats": {"coat": "fox_fur", "pale": "fox_white", "sock": "fox_sock", "ear_in": "fox_ear_in",
                                          "tip": "fox_white", "nose": "hound_nose", "tongue": "tongue"},
                "motion": {"idle": "alert", "walk": "trot", "windup": "crouch", "attack": "pounce_bite", "hurt": "knock_squash",
@@ -244,8 +274,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     if "crest" in p:
         _crest(P, B, c)
     {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine}[p.head.kind](P, B, c)
-    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit}[p.legs.kind](P, B, c)
-    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush}[p.tail.kind](P, B, c)
+    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig}[p.legs.kind](P, B, c)
+    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub}[p.tail.kind](P, B, c)
     if B.opts.get("hollowed") and action != "death":
         _strands(P, B, c)
     if p.get("dust"):
@@ -321,6 +351,16 @@ def _coat(B, c):
             streak = ((loc[:, 0] * s[0] + np.abs(loc[:, 1]) * s[1]) % s[2] < s[3]) & (nl[:, 2] > s[4])
             return np.where(pale, m.pale, m.coat).astype(object), np.where(streak & ~pale, -1, 0).astype(np.int16)
         return coat
+
+    if co.kind == "velvet":
+        def velvet(q, n):
+            """M1, the mole: violet-black velvet, a sheen a step lit along its back (where the fur lies toward the sky),
+            the belly a step dark."""
+            nz = (n @ bm)[:, 2]
+            sheen = nz > co.sheen
+            return (np.where(sheen, m.sheen, m.coat).astype(object),
+                    np.where(sheen & (nz > 0.93), 1, np.where(nz < -0.4, -1, 0)).astype(np.int16))
+        return velvet
 
     if co.kind == "vines":
         seed = int(B.opts.get("seed", 0))
@@ -444,6 +484,15 @@ def _head_snout(P, B, c) -> None:
         P.add(E(hp(h.muzzle[0]), h.muzzle[1], m.pale, "head", hm))
     if h.nose.kind == "bead":
         P.add(S(hp(h.nose.at), h.nose.r, m.pink, "nose"))
+    elif h.nose.kind == "star":
+        # M1, the mole's star nose: a pink bead ringed by fleshy feelers, twitching.
+        P.add(S(hp(h.nose.at), h.nose.r, m.pink, "nose"))
+        tw = 0.25 * wave(a, f, 0.3) if a == "idle" else (0.35 if a == "windup" else 0.0)
+        for k in range(8):
+            ang = math.radians(k * 45.0 + 22.5)
+            rr = h.nose.r + 0.45 + tw * (k % 2)
+            P.mark(hp((h.nose.at[0] + 0.25, h.nose.at[1] + math.cos(ang) * rr, h.nose.at[2] + math.sin(ang) * rr)),
+                   M.RAMPS[m.pink][3 if k % 2 else 2])
     else:
         P.mark(hp(h.nose.at), colour(h.nose.colour))
     j = h.jaw
@@ -457,7 +506,9 @@ def _head_snout(P, B, c) -> None:
             P.mark(hp(t), j.tooth)
     e, ey = h.ears, h.eyes
     for s in (1, -1):
-        if e.kind == "leaf":
+        if e.kind == "none":
+            pass
+        elif e.kind == "leaf":
             ear_m = hm @ rot("a", s * -(e.roll[0] + e.roll[1] * fr)) @ rot("c", s * e.yaw * (1.0 - fr))
             ea, eb, ec = e.at
             ear = hp((ea[0] * (1.0 + ea[1] * bk), s * lin(eb, fr, bk), lin(ec, fr, bk)))
@@ -472,7 +523,7 @@ def _head_snout(P, B, c) -> None:
             ea, eb, ec = e.at
             P.add(S(hp((ea[0] + ea[1] * bk, s * lin(eb, fr, bk), lin(ec, fr, bk))), e.r[0] + e.r[1] * (fr + bk), m.dark, "ear%d" % s))
         w = h.whiskers
-        for k in range(w.n):
+        for k in range(w.get("n", 0)):
             P.mark(hp((w.at[0] + k * w.step[0], s * (w.at[1] + k * w.step[1]), w.at[2] + k * w.step[2])), M.RAMPS[m.pale][4])
 
 
@@ -694,6 +745,54 @@ def _legs_hoof(P, B, c) -> None:
         P.add(E(end + v3(0.3, 0.0, -0.25), (1.15, 1.0, 0.8), m.hoof, "leg_" + name))
 
 
+def _legs_dig(P, B, c) -> None:
+    """M1, the mole: short hind feet in the rat's gait; forelegs turned out to the sides on broad pink palms, each with
+    four long curved iron claws, paddling as it waddles; raised up before its face as it rears out of its hole (the
+    tell), raked forward and down on the blow (`reach`), drawn in when it curls."""
+    g, m = B.parts.legs, B.mats
+    a, f, fr, bk, at, bm, lunge = c.action, c.f, c.fr, c.bk, c.at, c.bm, c.lunge
+    st = B.style(a)
+    rr = st.get("reared", False)
+    reared = rr is True or (isinstance(rr, (list, tuple)) and f in rr)
+    hb = lin(g.hind[1], fr, bk)
+    for k, s in enumerate((1, -1)):
+        lift, stride = gait(a, f, 0.0 if s > 0 else 0.5, g.lift, g.stride)
+        top = at((g.hind[0], s * hb, -1.2))
+        foot = v3(lunge + g.hind[0] + stride + 0.6, s * hb, 0.5 + lift)
+        P.add(L(top, foot, 1.1, 0.7, m.coat, "leg_h%d" % s), E(foot + v3(0.5, 0.0, -0.1), (1.0, 0.65, 0.4), m.pink, "leg_h%d" % s))
+    for s in (1, -1):
+        lift, stride = gait(a, f, 0.5 if s > 0 else 0.0, g.lift, g.stride)
+        sh = at((g.fore[0], s * g.fore[1] * 0.85, -0.8))
+        if reared:
+            palm = sh + bm @ v3(2.0, s * 1.2, 1.4)
+        else:
+            palm = v3(lunge + g.fore[0] + 1.8 + stride * 0.5, s * (g.fore[1] + 0.9), 1.5 + lift * 0.5)
+        if "reach" in st:
+            palm = palm + v3(*dict(enumerate(st.reach)).get(f, ((0, 0, 0), (0, 0, 0)))[0])
+        if c.curl > 0.05:
+            palm = palm + (sh + bm @ v3(1.4, 0.0, -0.8) - palm) * c.curl
+        P.add(L(sh, palm, 1.55, 1.25, m.coat, "arm%d" % s))
+        # The palm turned out, and its four claws curving forward and down off its front edge.
+        pm = bm @ rot("c", s * 25.0) @ rot("a", s * 30.0)
+        P.add(E(palm, (1.4, 1.7, 0.65), m.pale, "palm%d" % s, pm))
+        for j in range(4):
+            off = (j - 1.5) * 0.75
+            base = palm + pm @ v3(1.0, off, 0.1)
+            mid = base + pm @ v3(1.5, off * 0.2, 0.15)
+            tip = mid + pm @ v3(1.1, off * 0.1, -0.55)
+            P.add(L(base, mid, 0.55, 0.42, m.iron, "claw%d" % s, line=False), L(mid, tip, 0.42, 0.16, m.iron, "claw%d" % s, line=False))
+            if j % 2 == 0:
+                P.mark(mid + v3(0.0, 0.0, 0.45), M.GLINT)
+    # Clods thrown up as it bursts from its hole (the tell) and as its claws rake the ground (the blow).
+    if f in st.get("clods", ()):
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 20.0)
+            r = 3.0 + (k % 3) * 1.0 + f * 0.6
+            P.fx.append((v3(lunge + 4.0 + math.cos(ang) * r * 0.6, math.sin(ang) * r, 0.6 + (k % 4) * 0.9),
+                         M.RAMPS[m.dirt][2 if k % 2 else 3]))
+            P.fx.append((v3(lunge + 4.0 + math.cos(ang) * r * 0.8, math.sin(ang) * r * 1.1, 0.1), M.DUST_DIM))
+
+
 def _legs_digit(P, B, c) -> None:
     """M1, the canines: legs of two bones on the toes (the foreleg's elbow and wrist, the hind leg's hock bent back),
     socks on the lower bones, small paws; a trot in diagonal pairs; the pounce reaches with the forepaws and drives off
@@ -775,6 +874,15 @@ def _tail_brush(P, B, c) -> None:
             P.glow.append((q, M.FLAME_CORE if k < 3 else (M.FLAME if k < 7 else M.FLAME_DEEP)))
         for k in range(4):
             P.glow.append((tip + v3(0.2 * k - 0.3, 0.3 * (k - 1.5), 2.0 * flare + k * 0.7 + (f % 2) * 0.5), M.FLAME_GLOW))
+
+
+def _tail_stub(P, B, c) -> None:
+    """M1, the mole: a short stub of a tail off its rump, wagging a little."""
+    t = B.parts.tail
+    wag = 0.5 * wave(c.action, c.f) if c.action in ("idle", "walk") else 0.0
+    root = c.at((t.root[0], 0.0, t.root[1]))
+    tip = c.at((t.tip[0], wag, t.tip[1]))
+    P.add(L(root, tip, t.r[0], t.r[1], _skin(B), "tail"))
 
 
 def _tail_reed(P, B, c) -> None:
