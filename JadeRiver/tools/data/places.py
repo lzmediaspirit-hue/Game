@@ -168,6 +168,22 @@ def places():
           "the Sect Storehouse", "stock"),
         P("hv_shrine", "shrines", "", "hv_sect_grounds", "shrine_hv", "shrine", "place", "the Sect Shrine", "lit"),
         P("sr_shrine", "shrines", "", "sr_frozen_shrine", "shrine_frozen", "shrine", "place", "the Frozen Shrine", "lit"),
+        # ---- R7, chapters 13 and 14: Nine Peaks' gate, the canyons' and the Hold's shrines, the Clan Hearth's anvil,
+        # the desert's shrines and the Oasis of Bones' teleport stone.
+        P("np_teleport_stone", "teleport_stones", "teleport", "np_alliance_gate", "stone_nine_peaks", "teleport_stone",
+          "place", "the Alliance Gate Teleport Stone", "attuned"),
+        P("np_shrine", "shrines", "", "np_alliance_gate", "shrine_np_gate", "shrine", "place", "the Alliance Gate Shrine",
+          "lit"),
+        P("gc_shrine", "shrines", "", "gc_harpy_roosts", "shrine_gc", "shrine", "place", "the Canyon Shrine", "lit"),
+        P("ir_shrine", "shrines", "", "ir_hold_gate", "shrine_ir", "shrine", "place", "the Hold Gate Shrine", "lit"),
+        P("ir_anvil", "smithing", "forge", "ir_clan_hearth", "anvil_ir", "anvil", "both", "the Clan Forge's Anvil",
+          "sparks"),
+        P("sd_flats_shrine", "shrines", "", "sd_scorpion_flats", "shrine_sd_flats", "shrine", "place",
+          "the Flats Shrine", "lit"),
+        P("sd_oasis_shrine", "shrines", "", "sd_oasis_of_bones", "shrine_oasis", "shrine", "place", "the Oasis Shrine",
+          "lit"),
+        P("sd_teleport_stone", "teleport_stones", "teleport", "sd_oasis_of_bones", "stone_sunscar", "teleport_stone",
+          "place", "the Oasis Teleport Stone", "attuned"),
     ]
 
 

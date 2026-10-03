@@ -411,19 +411,22 @@ def king_statue(s: Img) -> None:
 
 
 def bronze_mirror(s: Img) -> None:
-    """A bronze mirror on its stand, footprint 1 x 1: the disc polished pale at its heart, green with age round the rim,
-    a cloud-scroll frame on two dark-wood legs. 16 x 34; corner (0, 32)."""
-    s.rect(2, 30, 12, 2, DARKWOOD[2])
-    for x in (4, 11):
-        s.vline(x, 18, 12, DARKWOOD[3])
-        s.put(x, 18, DARKWOOD[4])
-    s.ellipse(8, 11, 6.5, 7, BRONZER[3], (BRONZER[5], BRONZER[1]))
-    s.ellipse(8, 11, 5, 5.5, c("3E7A66"))                       # the verdigris ring
-    s.ellipse(8, 11, 4, 4.5, c("C8C4B0"), (c("F4F0E2"), c("8E8A7A")))   # the polished face
-    s.put(6, 8, PAPER)
-    s.put(7, 8, PAPER)
-    s.put(6, 9, PAPER)
-    s.put(8, 3, JADE)
+    """A tall bronze mirror on its stand, footprint 1 x 1: the disc polished pale at its heart, green with age round
+    its rim, a jade bead at its crown, held in a frame on two dark-wood legs with a crosspiece. 24 x 42; corner
+    (4, 40)."""
+    s.rect(3, 38, 18, 2, DARKWOOD[2])
+    s.hline(3, 38, 18, DARKWOOD[4])
+    for x in (6, 17):
+        s.vline(x, 20, 18, DARKWOOD[3])
+        s.vline(x + 1, 20, 18, DARKWOOD[1])
+        s.put(x, 20, DARKWOOD[4])
+    s.hline(6, 30, 12, DARKWOOD[2])
+    s.ellipse(12, 13, 10, 10.5, BRONZER[3], (BRONZER[5], BRONZER[1]))
+    s.ellipse(12, 13, 8.2, 8.7, c("3E7A66"))                    # the verdigris ring
+    s.ellipse(12, 13, 7, 7.5, c("C8C4B0"), (c("F4F0E2"), c("8E8A7A")))   # the polished face
+    for k, (x, y) in enumerate(((9, 9), (10, 9), (9, 10), (8, 11), (14, 17), (15, 16))):
+        s.put(x, y, PAPER if k < 4 else c("E2DECE"))           # the glints
+    s.ellipse(12, 2, 1.6, 1.6, JADE)
     s.outline()
 
 
@@ -511,7 +514,7 @@ PROPS = {
     "roots": (roots, 32, 24, 2, 1, [0, 22], True, [18, -2, 15, 3]),
     "sarcophagus": (sarcophagus, 32, 26, 2, 1, [0, 24], True, [20, -2, 15, 3]),
     "king_statue": (king_statue, 24, 54, 1, 1, [4, 52], True, [12, -2, 10, 3]),
-    "bronze_mirror": (bronze_mirror, 16, 34, 1, 1, [0, 32], True, [10, -2, 7, 3]),
+    "bronze_mirror": (bronze_mirror, 24, 42, 1, 1, [4, 40], True, [12, -2, 9, 3]),
     "spike_plate": (spike_plate, 16, 16, 1, 1, [0, 16], False, None),
     "sun_throne": (sun_throne, 48, 52, 3, 1, [0, 50], True, [26, -2, 22, 3]),
     "guardian_lion": (guardian_lion, 24, 34, 1, 1, [4, 32], True, [12, -2, 10, 3]),
