@@ -283,6 +283,14 @@ VISTAS = {
     "dr_moored_hulks": [{"edge": "s", "kind": "river", "pad": 32}],
     "dr_sparrow_reefs": [{"edge": "s", "kind": "river", "pad": 32}],
     "dr_driftglass_bank": [{"edge": "s", "kind": "river", "pad": 32}],
+    # Blackmast Haven: the cove's water and the lanes going on; the flagship at anchor with water all round it.
+    "bm_blackmast_docks": [{"edge": "s", "kind": "river", "pad": 32}],
+    "bm_gunners_battery": [{"edge": "s", "kind": "river", "pad": 32}],
+    "bm_flagship_deck": [{"edge": "all", "kind": "water", "pad": 0}],
+    # The Wyrmnest Isles: the cliff islands' peaks behind, the cloud sea under their brinks.
+    "wn_nest_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wn_eggshell_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wn_guardians_crown": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]
