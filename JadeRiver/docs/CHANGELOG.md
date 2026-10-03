@@ -1,5 +1,47 @@
 # Changelog
 
+## The road east on the grid: chapter 4 top-down (decision 45, R1)
+
+The room engine's first batch past chapter 3 (`docs/architecture/room_engine.md`, "The road east: chapter 4"). The
+ten side-view rooms on the main story's path past the Marsh Edge are specs now, and a top-down character plays chapter 4
+on the grid end to end.
+
+- **Ten rooms, 13 to 23 spec lines each.**
+  - The Reed Marsh: the Grey Pools, the Sunken Causeway, the Hermit's Stilt House.
+  - Greyreed Hamlet's square.
+  - The Bamboo Grove: the Whispering Bamboo, the Thicket Heart.
+  - Crane Falls: the Falls Pool, Behind the Falls.
+  - Cleansing Peak: the Pilgrim Stairs, the Cleansing Summit.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot, and the Grey Pools' hollow puddles and the
+  Thicket Heart's thorns their areas. The side view's raised surfaces came down as levels: canopy decks on stilts,
+  round knolls and ledges with steps, the pilgrims' granite landings between three flights, the hermit's deck over his
+  pond. Its rafts and rope bridges became boardwalks and stepping stones, and the hamlet's roofs are reached up crate
+  stacks.
+- **Biomes and one engine rule.** Five new biomes: `reed_marsh`, `grey_marsh`, `bamboo`, `falls` and `mountain`. A
+  biome may set `tree_share` and `tree_gap` (the bamboo stands thick); every room before them compiles byte for byte as
+  it did. The rooms' vistas are in `topdown_life.VISTAS`.
+- **The frontier.** The Marsh Edge's way east is open, and the gate now stands at the Falls Pool's path to the Hidden
+  Vale. The story's next quest past chapter 4, The Shrine Surfaces, is past it; that quest now names its room, the
+  Drowned Shrine's Flooded Gate.
+- **Tests.**
+  - A new suite, `topdown_chapter4`. It plays Toward Cleansing Peak and The Rite on the grid: the road east room by
+    room, three Stone Guardians, and Heaven's Cleansing passed in the summit's rite circle. Beside the road it plays
+    Greyreed's Grey Roofs (the lanterns cleansed on the roofs) and Cleansing the Well, and it takes Lu's journal page
+    behind the falls. Each room is built by the view and walked by auto-path.
+  - The frontier's checks no longer name a gated way or a converted chapter, so the next batches touch none of them.
+    - `topdown_chapter3` and `topdown_chapter4` end on every way out of their rooms: it is gated exactly when its room
+      has no layout.
+    - `topdown_tutorial` walks to the nearest way off the grid from the Marsh Edge and checks the gate there. It stands
+      the story's quests on the grid done to the first one past the gate.
+    - `rules_tests` checks the gate's barrier and plate at the first gated way it finds, and it stands the story done
+      the same way.
+  - The `room_engine` capture set has the ten rooms' views (pictures in `docs/architecture/room_engine/r1/`). It keeps
+    the body whole, and never wounded, while the rooms' foes are about.
+- **Still to do.** Six species in these rooms have no top-down art yet: the bamboo monkey, the green viper, the
+  thornback boar, the Stone Guardian, the ember fox and the jade crane chick. The side view's movers, the falls'
+  updraft and the vines have no top-down counterpart.
+- **Checks.** (filled in after the final run)
 ## Follow-up fixes from the code audit (decision 45, F1)
 
 Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in

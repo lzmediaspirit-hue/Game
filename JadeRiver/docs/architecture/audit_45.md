@@ -678,6 +678,9 @@ instead of cells (`"spots": "auto:water_edge"`), so a moved building moves its w
   checks.
 - **The runners** have a new gate, `room_engine` (`test_engine.py`), and a new suite, `topdown_chapter3`. 135
   side-view rooms remain; `room_engine.md` lists them by zone and estimates the pace (4 to 6 specs an hour per agent).
+- **R1, the main story's path past chapter 3:** ten more rooms (13 to 23 spec lines), from the Grey Pools to the
+  Cleansing Summit, five biomes, and a new suite, `topdown_chapter4`, that plays chapter 4 on the grid. The frontier's
+  checks follow the gate by themselves now. 125 side-view rooms remain.
 
 ### 6.2 Monster engine (E2)
 

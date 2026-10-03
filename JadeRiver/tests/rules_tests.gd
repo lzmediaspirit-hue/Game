@@ -465,15 +465,15 @@ func prototype_suite() -> void:
 	st.altitude = float(gate_def.get("alt", 0.0))
 	var walked := Game.submit({"type": "use_portal", "portal": first[1], "crossing": true})
 	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds the gate's room again)
-	var gate_pv: PortalView = null
+	var way_pv: PortalView = null
 	for pv in w.portal_views:
-		if str(pv.def.get("id", "")) == first[1]: gate_pv = pv
+		if str(pv.def.get("id", "")) == first[1]: way_pv = pv
 	var floats_before: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
 	w.transfer_cooldown = 0.0
 	WorldShared.request_portal(w, first[1], true)
 	var floats_after: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
-	check(gate_pv != null and gate_pv.touched > 0.0 and str(gate_pv.state.get("text", "")) == road and floats_after == floats_before,
-		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [gate_pv.touched if gate_pv else -1.0, str(gate_pv.state) if gate_pv else "-", floats_after - floats_before, str(walked)])
+	check(way_pv != null and way_pv.touched > 0.0 and str(way_pv.state.get("text", "")) == road and floats_after == floats_before,
+		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [way_pv.touched if way_pv else -1.0, str(way_pv.state) if way_pv else "-", floats_after - floats_before, str(walked)])
 	w.free()
 	Game.bind_movement(td.id, st)
 	# A resource node not open yet (herb gathering before Bone Forging 4, the Temper drum before its body level) stays in

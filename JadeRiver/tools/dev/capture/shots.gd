@@ -30,7 +30,7 @@ const E1_VIEWS := [
 	["r1/01_grey_pools_jetty", "rm_grey_pools", Vector2(22, 15), true], ["r1/02_grey_pools_hamlet_way", "rm_grey_pools", Vector2(34, 12), false],
 	["r1/03_sunken_causeway", "rm_sunken_causeway", Vector2(30, 14), true], ["r1/04_hermit_stilt_house", "rm_hermit_stilt_house", Vector2(8, 12), true],
 	["r1/05_hamlet_square", "gh_hamlet_square", Vector2(27, 14), true], ["r1/06_whispering_bamboo", "bg_whispering_bamboo", Vector2(26, 14), true],
-	["r1/07_thicket_heart", "bg_thicket_heart", Vector2(30, 14), true], ["r1/08_falls_pool", "cf_falls_pool", Vector2(17, 17), true],
+	["r1/07_thicket_heart", "bg_thicket_heart", Vector2(30, 14), true], ["r1/08_falls_pool", "cf_falls_pool", Vector2(24, 12), true],
 	["r1/09_behind_falls", "cf_behind_falls", Vector2(20, 16), true], ["r1/10_pilgrim_stairs_foot", "cp_pilgrim_stairs", Vector2(28, 26), true],
 	["r1/11_pilgrim_stairs_landing", "cp_pilgrim_stairs", Vector2(36, 18), false], ["r1/12_cleansing_summit", "cp_cleansing_summit", Vector2(17, 15), true]]
 
