@@ -163,7 +163,7 @@ func _data_text() -> String:
 ## The same rules as tools/dev/extract_strings.py: a literal that reads like text is not
 ## allowed in the player-facing scripts unless it is an id, a technical token, a key,
 ## a comparison, a membership list, a const, a signature default or debug output.
-const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
+const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
 	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
 	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
 	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
@@ -304,7 +304,7 @@ func _pages_read_only() -> void:
 	var write := "[\\w.\\[\\]\"]*\\s*([-+*/]?=(?!=)|\\.(append|erase|clear|merge|push_back|push_front|remove_at|pop_back|pop_front|resize|sort)\\()"
 	var re := RegEx.create_from_string("(" + state + write + ")|(Game\\.account" + write + ")|(Game\\.[a-z_]+\\.(apply_\\w+|\\w*settle\\w*|ensure_fields)\\()")
 	var found: Array = []
-	for path in _walk("res://scripts/ui/") + ["res://scripts/hud.gd"] + _walk("res://scripts/shell/"):
+	for path in _walk("res://scripts/ui/") + ["res://scripts/hud.gd"] + _walk("res://scripts/hud/") + _walk("res://scripts/shell/"):
 		var lines := FileAccess.get_file_as_string(path).split("\n")
 		for i in lines.size():
 			if lines[i].strip_edges().begins_with("#"): continue

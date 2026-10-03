@@ -1822,7 +1822,11 @@ func _map_faults(boxes: Array, pins: Array, keep: Array, bounds: Rect2) -> Array
 ## page, the HUD or Page itself carries a colour literal, only `Color(UiKit.X, alpha)` or a white modulate, and every
 ## grade has its colour.
 func ui_style_suite() -> void:
-	var sources: Array = ["res://scripts/hud.gd", "res://scripts/ui/page.gd"]
+	# The HUD is hud.gd and its parts under scripts/hud/ (audit 45, S6).
+	var hud_paths: Array = ["res://scripts/hud.gd"]
+	for f in DirAccess.get_files_at("res://scripts/hud/"):
+		if f.ends_with(".gd"): hud_paths.append("res://scripts/hud/" + f)
+	var sources: Array = hud_paths + ["res://scripts/ui/page.gd"]
 	for f in DirAccess.get_files_at("res://scripts/ui/pages/"):
 		if f.ends_with(".gd"): sources.append("res://scripts/ui/pages/" + f)
 	var hex := RegEx.create_from_string("Color\\(\\s*\"#?[0-9a-fA-F]{6,8}\"")
@@ -1852,9 +1856,10 @@ func ui_style_suite() -> void:
 	check(bare.is_empty(), "P4: every grade has its colour (%s)" % str(bare))
 	# Type (§3): the HUD's words are asked for on the scale and never under UiKit.MIN_SIZE (the pages are checked as they
 	# draw, in the ui_suite).
-	var call := RegEx.create_from_string("UiKit\\.(draw_text|draw_outlined|draw_inked)\\(self")
+	var call := RegEx.create_from_string("UiKit\\.(draw_text|draw_outlined|draw_inked)\\((self|hud),")
 	var size_arg := RegEx.create_from_string(",\\s*(\\d+),\\s*(UiKit\\.|Color\\(|lc\\b|col\\b|ring_col\\b|$)")
-	var hud_lines := FileAccess.get_file_as_string("res://scripts/hud.gd").split("\n")
+	var hud_lines := PackedStringArray()
+	for hp in hud_paths: hud_lines.append_array(FileAccess.get_file_as_string(hp).split("\n"))
 	var hud_calls := 0
 	var hud_off: Array = []
 	for i in hud_lines.size():
@@ -1888,8 +1893,8 @@ func ui_style_suite() -> void:
 	check(pairs > 80 and low.is_empty(), "P4: every text colour reads on every fill it is drawn on (%d pairs: %s)" % [pairs, str(low.slice(0, 6))])
 	# Words over the world: plates at PLATE's alpha keep MIST at 4.5:1 over a white sky, and the HUD log is outlined.
 	var over_white := Color(UiKit.PLATE.r * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.g * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a), UiKit.PLATE.b * UiKit.PLATE.a + (1.0 - UiKit.PLATE.a))
-	var hud_src := FileAccess.get_file_as_string("res://scripts/hud.gd")
-	var log_fn := hud_src.substr(hud_src.find("func _draw_log()"), 600)
+	var hud_src := "\n".join(PackedStringArray(hud_paths.map(func(hp): return FileAccess.get_file_as_string(hp))))
+	var log_fn := hud_src.substr(hud_src.find("func draw_log()"), 600)
 	check(_contrast(UiKit.MIST, over_white) >= 4.5 and log_fn.contains("UiKit.draw_outlined(") and not log_fn.contains("UiKit.draw_text("),
 		"P4: plates over the world keep MIST at 4.5:1 over white (%.2f), and the HUD log is outlined" % _contrast(UiKit.MIST, over_white))
 
