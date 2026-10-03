@@ -126,8 +126,13 @@ picture needs something no step can do (a loop that waits on the game) does a ne
 
 ### Reproducing a picture
 
-The same set run twice frames every picture the same. The camera, the body, the foes' spots and poses, the HUD, the
-pages and the crops all match. But the game draws a few things by the wall clock, and those differ from run to run:
-the water's frames, the grass and trees swaying, a lamp's flicker, the time a sheet takes to load on its thread. Under
-the comparison harness of decision 45 (the clock and the random seed pinned, `--fixed-fps 60`), the old scripts and
-this tool gave byte-identical pictures wherever those things are out of frame (see the changelog).
+Two runs of a set frame every picture the same: the camera, the body and its pose, the HUD, the pages and the crops.
+What moves by itself can differ between runs:
+
+- the foes' wander, since a new account's random seed comes from the clock;
+- whatever the game draws by the wall clock: the water's frames, the grass and trees swaying, a lamp's flicker, and
+  the frame on which a sheet finishes loading on its thread.
+
+Decision 45's comparison pinned the clock and the random seed and ran at `--fixed-fps 60`. Then only the wall-clock
+things differed. The old scripts and this tool gave byte-identical pictures wherever those were out of frame: 245 of
+531 (see the changelog).
