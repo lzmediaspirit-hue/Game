@@ -604,6 +604,13 @@ PROPS.update({
     "drone_hive": (drone_hive, 32, 54, 2, 1, [0, 52], True, [18, -2, 15, 4]),
 })
 
+# R7: the dry country east of Nine Peaks, the Ironroot hold and the Tomb of Sunscar (E1's rooms): the canyons' rock and
+# prayer flags, the desert's palms, cactus, scrub and bones, the hold's anvil and brazier, the tomb's sarcophagi,
+# statues, mirrors, traps and throne, the peaks' guardian lions (tools/art/topdown/arid.py), into the sheet with these.
+import arid as _ARID  # noqa: E402
+
+PROPS.update(_ARID.PROPS)
+ANIM.update(_ARID.ANIM)
 
 # ================================================================================================================== R8
 # The sky-sea zones of the late game (E1's batch R8): the Skyport Wreck's broken hulls, masts, anchor, ballista and

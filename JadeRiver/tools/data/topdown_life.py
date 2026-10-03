@@ -270,6 +270,22 @@ VISTAS = {
     "tf_greyfall_breach": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "tf_hollow_wake": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "tf_drone_hive": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    # R7: Nine Peaks' courts among the peaks over the cloud sea.
+    "np_alliance_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "np_hall_of_nine": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "np_presence_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # R7: the Gale Canyons' far ranges over their north walls.
+    "gc_canyon_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_kite_winds": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_harpy_roosts": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_windbridge": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R7: Ironroot's mountain behind the Hold Gate (the Clan Hearth is a cavern under it).
+    "ir_hold_gate": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R7: the Sunscar's far ranges past its north ridges.
+    "sd_glass_dunes": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_scorpion_flats": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_oasis_of_bones": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_worm_sea": [{"edge": "n", "kind": "peaks", "pad": 56}],
     # R8: the sky-sea zones. The Skyport Wreck's peaks over the cloud sea at the Expanse's edge.
     "sw_broken_pier": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     "sw_pirate_deck": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],

@@ -1368,6 +1368,286 @@
    "remote": {}
   },
   {
+   "id": "np_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "np_alliance_gate",
+   "object": "stone_nine_peaks",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Alliance Gate Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    46,
+    16
+   ],
+   "stand": [
+    46,
+    17
+   ],
+   "at": [
+    1488.0,
+    528.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Alliance Gate Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "np_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "np_alliance_gate",
+   "object": "shrine_np_gate",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Alliance Gate Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    15,
+    7
+   ],
+   "stand": [
+    15,
+    8
+   ],
+   "at": [
+    496.0,
+    240.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Alliance Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "gc_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "gc_harpy_roosts",
+   "object": "shrine_gc",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Canyon Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    4,
+    10
+   ],
+   "stand": [
+    4,
+    11
+   ],
+   "at": [
+    144.0,
+    336.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Canyon Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "ir_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "ir_hold_gate",
+   "object": "shrine_ir",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Hold Gate Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    6,
+    17
+   ],
+   "stand": [
+    6,
+    18
+   ],
+   "at": [
+    208.0,
+    560.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Hold Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "ir_anvil",
+   "system": "smithing",
+   "page": "forge",
+   "page_args": {},
+   "room": "ir_clan_hearth",
+   "object": "anvil_ir",
+   "kind": "anvil",
+   "rule": "both",
+   "name": "the Clan Forge's Anvil",
+   "state": "sparks",
+   "added": false,
+   "cell": [
+    31,
+    9
+   ],
+   "stand": [
+    29,
+    8
+   ],
+   "at": [
+    1008.0,
+    304.0
+   ],
+   "verb": "sim.world.forge",
+   "icon": "forge_marker",
+   "kind_name": "Forge",
+   "pose": "",
+   "where": "At the Clan Forge's Anvil",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sd_flats_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sd_scorpion_flats",
+   "object": "shrine_sd_flats",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Flats Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    45,
+    13
+   ],
+   "stand": [
+    45,
+    14
+   ],
+   "at": [
+    1456.0,
+    432.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Flats Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sd_oasis_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sd_oasis_of_bones",
+   "object": "shrine_oasis",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Oasis Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    26,
+    9
+   ],
+   "stand": [
+    26,
+    10
+   ],
+   "at": [
+    848.0,
+    304.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Oasis Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sd_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "sd_oasis_of_bones",
+   "object": "stone_sunscar",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Oasis Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    47,
+    13
+   ],
+   "stand": [
+    47,
+    14
+   ],
+   "at": [
+    1520.0,
+    432.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Oasis Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
    "id": "sw_pier_shrine",
    "system": "shrines",
    "page": "",

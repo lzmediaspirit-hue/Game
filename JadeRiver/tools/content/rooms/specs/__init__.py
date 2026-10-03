@@ -12,6 +12,8 @@ ZONES += ["drowned_shrine", "whitewater_gorge"]
 ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"]
 # R5: the story's own rooms and the Tidebreak Front.
 ZONES += ["story", "tidebreak_front"]
+# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar.
+ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb_of_sunscar"]
 # R8: the sky-sea zones of the late game, in the story's order.
 ZONES += ["skyport_wreck", "lanternfall_harbor", "drifting_shoals", "blackmast_haven", "wyrmnest_isles"]
 
