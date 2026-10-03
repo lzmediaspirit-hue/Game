@@ -755,5 +755,17 @@
     18
    ]
   ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
  ]
 }
