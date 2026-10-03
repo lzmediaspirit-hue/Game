@@ -12,6 +12,7 @@ perf_tests
 prologue_run
 tutorial_order
 topdown_tutorial
+topdown_chapter3
 tutorials
 story_scenes
 hollow_night

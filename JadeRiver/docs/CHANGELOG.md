@@ -58,6 +58,52 @@ species: `docs/architecture/monster_engine.md`.
   - the escape hatch.
 - `build_foes.py --only` no longer overwrites the strip of every species' tell with only the species it drew.
 
+## The room engine: rooms from short specs, and chapter 3 on the grid (decision 45, E1)
+
+Roadmap decision 45, phase 3, the first content engine (`docs/architecture/audit_45.md` §6.1). A room on the height grid
+is now a short spec that the engine compiles, not a function of coordinates. `docs/architecture/room_engine.md`
+describes it.
+
+- **The engine (`tools/content/rooms/`).** It compiles a spec to the same layout the game has always read. No game code
+  changed.
+  - Bands and features: rects, round caverns and ponds, wavy shores.
+  - Flights of stairs wherever a walk climbs a level edge, and up onto every raised shape something stands on.
+  - Edge ways, cuts through a cliff, door paths, an interior's doorways.
+  - Anchors resolved to cells, ranked by reach from every way and by distance from the others.
+  - The foliage scattered along each band's edges, seeded by the room's id: trees to a meadow's back, bushes on its
+    lip, willows and cattails by the water, nothing astride a level edge or on a walk.
+  - The foes on the verges, clear of ways and shrines.
+  - Every value can be pinned in the spec, never in the JSON.
+- **The round trip.** The 27 world layouts are specs now, and all 27 compile to their files byte for byte.
+  - Their hand-placed props and foliage are pinned: no rule reproduces them.
+  - `topdown_rooms.py` keeps the Layout, the walking rules and the checks: 1,871 lines to 646.
+- **Chapter 3 on the grid.** Six side-view rooms are converted, each a spec of 15 to 23 lines:
+  - the Caravan Road;
+  - the Mudwater Hideout's Stockade, Tunnels, Loot Cave and Boss Den;
+  - Bend Shore.
+
+  A top-down character now plays Bandits on the Road, The Caravan Road's key, the Mudwater Hideout and Gu's Cargo on
+  the grid. The prototype's gate has moved past them: to Bend Shore's ways west, to the Serpent's Shallows and to the
+  Drowned Shrine. Their pictures are in `docs/architecture/room_engine/`.
+- **Tools.** `tools/content/rooms/build.py`:
+  - `--show <room>` draws a compiled room in text;
+  - `--new <room>` starts a spec from a side-view room, with every id it needs;
+  - otherwise it builds, as `topdown_rooms.py` does.
+- **Checks.**
+  - A new runner gate, `room_engine` (`tools/content/rooms/test_engine.py`):
+    - determinism;
+    - the round trip;
+    - every anchor kind on a sample room;
+    - the pins;
+    - auto-path through every room the engine lays out.
+  - A new suite, `topdown_chapter3`: chapter 3 played on the grid, each room built by the view and walked by
+    auto-path.
+  - `topdown_tutorial` stands chapter 3 done where its gate was. Its 962 checks are unchanged.
+  - `rules_tests`' prototype checks moved with the gate: the Fairground's tower door is its last barrier there, and
+    chapter 3 is done at the story's end. Its 2,712 checks are unchanged.
+  - Every other suite keeps its count.
+- **The living world** (`topdown_life.py`): vistas for the three outdoor rooms, and no butterflies in a cave.
+
 ## The World authority in parts (decision 45, S9)
 
 This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).

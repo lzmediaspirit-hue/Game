@@ -46,7 +46,7 @@ godot --headless --path . res://tools/dev/capture/capture.tscn -- --lint   # eve
 
 ### The sets
 
-`capture.tscn -- --list` prints them. There are 32, and each is what one of the old one-off scripts took:
+`capture.tscn -- --list` prints them. There are 33: each of the first 32 is what one of the old one-off scripts took, and `room_engine` is E1's:
 
 | Set | Folder under `docs/` | From |
 |---|---|---|
@@ -59,6 +59,7 @@ godot --headless --path . res://tools/dev/capture/capture.tscn -- --lint   # eve
 | `hud` `hud_round` `pictures` `progression` | `feedback/hud/`, `pictures/`, `progression/` | decisions 42, 43, 45 |
 | `tutorials` `tutorials_late` `places` `sect` | `feedback/tutorials/`, `places/`, `sect/` | decisions 42–44 |
 | `decision42` `decision42_route` | `feedback/combat/` | decision 42 |
+| `room_engine` | `architecture/room_engine/` | E1: every room the room engine converted from the side view (`E1_VIEWS`) |
 
 `sect` starts from `topdown_tutorial`'s checkpoints after the Weapon Hall: run
 `tests/topdown_tutorial.tscn -- --keep="The Weapon Hall,The Weapon Hall (Cloud)"` first.

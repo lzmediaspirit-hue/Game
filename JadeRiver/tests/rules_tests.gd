@@ -430,7 +430,8 @@ func prototype_suite() -> void:
 	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
 		and not tw.get("ok", false) and str(tw.get("text", "")) == road,
 		"prototype: no teleport (a stone another character found), auto-path or tower climb goes past the gate (%s; %s; %s)" % [str(tp), str(ap), str(tw)])
-	# The view stands a barrier in each way past the gate: on the Fairground at the tower's door and the Caravan Road.
+	# The view stands a barrier in each way past the gate: on the Fairground at the tower's door (the Caravan Road west of
+	# it is on the grid since the room engine's chapter 3, E1).
 	var w := TopdownWorld.new()
 	w.live = true
 	w.sim_frozen = true
@@ -440,7 +441,7 @@ func prototype_suite() -> void:
 	for g in gates: g._process(0.0)
 	var ways := {}
 	for g in gates: ways[str(g.def.id)] = true
-	check(ways.has("tower") and ways.has("west") and ways.size() == 2 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
+	check(ways.has("tower") and ways.size() == 1 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
 		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s)" % str(ways.keys()))
 	# Walked into, the gate says its line once, where it is: the tower door's own plate lights up, and nothing floats over
 	# the player (the touch line replaces the label, not stacks under it).
@@ -532,12 +533,13 @@ func prototype_suite() -> void:
 	check(not entry.is_empty() and entry[0].get("gate", false) and str(entry[0].target_room) == "" and (entry[0].lines as Array).any(func(l): return str(l.text) == road),
 		"prototype: a quest whose step is past the gate (Stone and Sweat, at the quarry) leads nowhere and says the road is still being drawn (%s)" % str(entry))
 	Game.quest.apply_drop(td.id, "stone_and_sweat", false)
-	# The story's end in the prototype: The First Current done, no lesson inside the prototype on offer.
+	# The story's end in the prototype: The First Current and chapter 3 done (on the grid since E1), no lesson inside the
+	# prototype on offer.
 	for ch in [td, sv]:
 		ch.cultivator.realm_key = "bone_forging_7"
 		for q in ContentDB.all("quests"):
 			var kind := str(q.get("kind", ""))
-			if kind in ["prologue", "main", "guided"] and (str(q.get("chapter", "")) in ["prologue", "1", "2", "bf1", "bf2"] or str(q.id) == "the_first_current" or kind == "guided"):
+			if kind in ["prologue", "main", "guided"] and (str(q.get("chapter", "")) in ["prologue", "1", "2", "3", "bf1", "bf2"] or kind == "guided"):
 				ch.quests.done[str(q.id)] = 1
 		ch.quests.active.clear()
 		ch.quests.offered.clear()

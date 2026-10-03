@@ -20,6 +20,12 @@ extends RefCounted
 
 const BASE := Vector2(22.5, 19.0) * 32.0   ## the prototype square's open middle (world units)
 const SPOT := Vector2(51, 17)              ## the Reed Shallows' flats, where the foes are lined up (cells)
+## E1's views: [picture, room, cell, whole room after it].
+const E1_VIEWS := [
+	["01_caravan_road_turnoff", "cr_caravan_road", Vector2(56, 13), true], ["02_caravan_road_west", "cr_caravan_road", Vector2(16, 14), false],
+	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
+	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
+	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -585,6 +591,16 @@ static func sets() -> Dictionary:
 		"out": "redesign/feedback/combat/", "stage": [["new_game"], ["frames", 360], ["hud", "visible", false]], "rows": [
 		{"name": "autopath_village_route", "room": "lf_village", "cell": Vector2(9, 18), "wait": 150, "take": [["route", "*", "autopath_village_frames", "east_gate"],
 			["cut", "autopath_village_route_closeup", "autopath_village_route", Rect2i(660, 220, 500, 260), Vector2i(1000, 520)]], "then": [["hud", "visible", true]]}]}
+
+	# E1, the room engine (docs/architecture/room_engine.md): every room it converted from the side view, at midday,
+	# under the HUD at a spot that shows it, the world alone x2 there, and each room whole once.
+	var e1_rows := []
+	for v in E1_VIEWS:
+		var take := [["shot"], ["world", "world/" + str(v[0])]]
+		if v[3]: take.append(["whole_room", "rooms/" + str(v[1])])
+		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
+	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
+		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360]], "rows": e1_rows}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

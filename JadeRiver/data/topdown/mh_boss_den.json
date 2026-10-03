@@ -1,0 +1,253 @@
+{
+ "schema_version": 1,
+ "id": "mh_boss_den",
+ "name": "Boss Den",
+ "size": [
+  48,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444400440044444444004444444444444444",
+  "444444444444400000000000000000000444444444444444",
+  "444444444440000000000000000000000004444444444444",
+  "444444444000000000000000000000000000000004444444",
+  "444444440000000000000000000000000000000000444444",
+  "444444440000000000000000000000000000000000444444",
+  "444444400000000000000000000000000000000000044444",
+  "444444000000000000000000000000000000000000004444",
+  "0000000000000000000~~~~~000000000000000000004444",
+  "000000000000000000~~~~~~~~0000000000000000004444",
+  "000000000000000000~~~~~~~~~000000000000000004444",
+  "000000000000000000~~~~~~~~~000000000000000004444",
+  "000000000000000000~~~~~~~~0000000000000000000000",
+  "444400000000000000~~~~~~~~0000000000000000000000",
+  "4444000000000000000~~~~~~00000000000000000000000",
+  "444400000000000000000000000000000000000000000000",
+  "444440000000000000000000000000000000000000000000",
+  "444444440000000000000000000000000000000004444444",
+  "444444444000000000000000000000000000000044444444",
+  "444444444400000000000000000000000444004444444444",
+  "444444444440000000000000000000004444444444444444",
+  "444444444444444444000444440000444444444444444444",
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrddddddddddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrddddddddddddddddddddddrrrrrrrrrrrrrr",
+  "rrrrrrrrrrddddddddddddddddddddddddddddddrrrrrrrr",
+  "rrrrrrrrrddddddddddddddddddddddddddddddddrrrrrrr",
+  "rrrrrrrrrddddddddddddddddddddddddddddddddrrrrrrr",
+  "rrrrrrrrdddddddddddmmmmmmmddddddddddddddddrrrrrr",
+  "ddddddddddddddddddm~~~~~mmmmdddddddddddddddrrrrr",
+  "dddddddddddddddddm~~~~~~~~mmmddddddddddddddrrrrr",
+  "ddddddddddddddddmm~~~~~~~~~mmddddddddddddddrrrrr",
+  "ddddddddddddddddmm~~~~~~~~~mmddddddddddddddrrrrr",
+  "ddddddddddddddddmm~~~~~~~~mmdddddddddddddddrrrrr",
+  "rrrrrddddddddddddm~~~~~~~~mmdddddddddddddddddddd",
+  "rrrrrdddddddddddddm~~~~~~mmddddddddddddddddddddd",
+  "rrrrrrdddddddddddddmmmmmdddddddddddddddddddddddd",
+  "rrrrrrrrrdddddddddddddddddddddddddddddddrrrrrrrr",
+  "rrrrrrrrrrdddddddddddddddddddddddddddddrrrrrrrrr",
+  "rrrrrrrrrrrdddddddddddddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrdddddddddddddddddddrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrdrrrrrrrddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 17
+  },
+  {
+   "kind": "lantern_red",
+   "x": 37,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "water_jar",
+   "x": 16,
+   "y": 5
+  },
+  {
+   "kind": "water_jar",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 4,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "ferns",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 34,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 31,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 34,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 17,
+   "y": 13
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 14
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 18
+  },
+  {
+   "kind": "tall_grass",
+   "x": 22,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 10
+  },
+  {
+   "kind": "cattails",
+   "x": 19,
+   "y": 11
+  }
+ ],
+ "place": {
+  "toad_wine_0": [
+   12,
+   5
+  ],
+  "toad_wine_1": [
+   23,
+   4
+  ],
+  "toad_wine_2": [
+   34,
+   5
+  ],
+  "chest_1": [
+   43,
+   18
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "exit": {
+   "at": [
+    47,
+    17
+   ],
+   "dir": "e",
+   "arrive": [
+    45,
+    17
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    32,
+    14
+   ]
+  ]
+ ]
+}
