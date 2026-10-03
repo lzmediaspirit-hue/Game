@@ -1,4 +1,4 @@
-# The monster engine (audit 45 §6.2, E2, M1)
+# The monster engine (audit 45 §6.2, E2, M1, M2)
 
 A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
 already existed:
@@ -60,6 +60,22 @@ M1 added these variants and plans. Each new part kind is optional, so the specie
 | `spirit` (new) | `talisman` | the paper talisman ghost | a floating body of paper strips (flat plates cut square, a column of red script down each, torn ends): a hooded dome, a dark face under it with eyes glowing violet and a talisman hanging over it (a red seal), strips hanging round it that flutter, a bundle of strips at each side that fans out like a peacock in the tell; styles `hover`, `drift`, `fan`, `fling`, `flutter_back`, `come_apart` |
 | `person` (new) | `fighter`, `archer`, `brute` | the human foes | not a sculpture: the shared character body (below) |
 
+M2 added these. Again each new part kind is optional, so every species drawn before draws byte for byte.
+
+| Plan | Variant (M2) | Made for | What it adds |
+|---|---|---|---|
+| `serpent` | `dragon` | the riverbed serpent | the eel's spine made a river dragon: jade scales in arcs, a belly of gold scutes, gold spines down its back, a tail fin, horns, whiskers, a gill frill, glowing gold eyes, clear water round it; its tell gathers a water orb before its open jaws (`orb`); styles `coil_sway`, `surge`, `rear_orb`, `dragon_bite`, `toss_back`, `dive_under` |
+| `serpent` | `boulder` | the boulder serpent | a thick snake under grey stone plates with a bigger head; it curls into a ball of rock (`ball`: its coils wound over a rock-painted core) and rolls; styles `rest_s`, `slither`, `curl_ball`, `boulder_roll`, `flinch_back`, `slump_crack` |
+| `quadruped` | `saurian` | the rapids lizard | a saurian head, `sprawl` legs (the elbow out at the body's height, the foot further out), a `fin` crest and a finned tail, a `river` coat; its tail whip spins it round (`spin`); styles `bask`, `scurry`, `tail_curl`, `spin_whip`, `flip_over` |
+| `quadruped` | `bovid` | the riverstone ox | a bovid head with horns and snorted steam, a `cracked` coat with a crest of `pebbles`, heavy `hoof` legs (`legs.thick`, `legs.bones`) |
+| `quadruped` | `cervid` | the hollow stag | a cervid head with antlers, hollow eyes and mist, a `saddle` coat and `hackles`; the Hollow's look without its strands (`strands: False`) |
+| `quadruped` | (`canine` parts) | the mist wolf | `opts.misty` (it comes apart into mist as it dies), a `mist` brush tail, `hackles` |
+| `bird` | `vulture`, `crane`, `hawk`, `roc` | the mist vulture, the cloudwing crane, the stormwing hawk, the cloudpeak roc | flyers (`wings.seg`): jointed wings of a span, their flight feathers painted, drawn in the air over their feet (the room view's hover is a few px); styles `soar`, `flap`, `rise_fold`, `rise_coil`, `mantle`, `gather_wind`, `dive_rake`, `swoop_peck`, `lightning_dive`, `wing_gust`, `tumble_back`, `fold_fall` |
+| `spirit` | `wisp`, `lantern` | the mirror wisp, the weeping lantern | `wisp`: one great eye in a ring of mirror shards that swing before it into a lens in its tell; `lantern`: a paper globe with a weeping face painted on it, lit from inside by a soul flame, a tassel under it; it flares, and beaten it bursts |
+| `humanoid` | `ape` | the cliff ape | the monkey's body grown: a mane, a pale face under a heavy brow, a boulder it hoists over its head and smashes down |
+| `humanoid` | `sentinel`, `gate` | the jade sentinel, the gate guardian | `armor` paint (rows of plates, a belt), a `helm` face (dome, brim, crest, mask, glowing eyes), pauldrons, tassets, gold runes, a held halberd; the gate guardian's horned crown, bronze chest plate and two jade bi rings orbiting it (`rings`) |
+| `humanoid` | `chief`, `abbot`, `elder` | Big Toad Tan, the Drowned Abbot, Elder Gu | the people of size (below) |
+
 ### People (`person`, M1)
 
 A human foe is drawn as the player and the villagers are. Its spec gives its outfit with `person(name, hair=...,
@@ -88,6 +104,27 @@ multiplies the picture, as the side view's and the villagers' tint does (the dro
 the sheet like any foe's, so a person has its tell, its blow on frame 1, the hit flash and its elite look. Its label
 (the block's `top`) stands over its head where a villager's marks do (`creatures.PERSON_LIFT`, 8 art px:
 `TopdownPlaces.HEAD_LIFT`), not on its hair.
+
+### The people of size (`humanoid`, M2)
+
+A boss who is a person needs a bulk and a posture of his own that the one figure body cannot take: cast in it, Big
+Toad Tan and the Drowned Abbot read as ordinary villagers. So the three bosses who are people (`chief`, `abbot`,
+`elder`) are sculpted on the humanoid plan's body, as the guardians are:
+- **The body first** (AGENTS.md rule 4): `opts.bare` draws the unclothed sculpture, reviewed in every action and facing
+  before anything is laid over it (`docs/redesign/feedback/monsters/m2/<id>_body_x4.png`).
+- **Then dressed:** `paint` kind `clothes` paints zones over the body's own parts (a sash, trousers, a vest, a kasaya,
+  a collar; folds and trims). A face wears no clothes. Parts are laid over the body: a robe's skirt to the floor,
+  wide sleeves, a hat, a cape. Then the props in his hands: the cleaver, the ringed staff and its bell, the tide's orb.
+- **Face kind `human`:** brows, eyes (glowing for the drowned), a nose, a mouth (a toad's grin, open in a roar), ears;
+  `hair` (`topknot`, `tail`, `loose`) and `beard` (`stubble`, `moustache`).
+
+Their rows keep `art=person(...)`: the side view still dresses its avatar in it.
+
+| Boss | Build | Tell (held) and blow |
+|---|---|---|
+| Big Toad Tan (`chief`) | a head and a half taller than his men and twice as broad: a great bare belly under an open leather vest, a red sash, baggy trousers wrapped at the shin, a small head with a topknot and a toad's grin, a wine gourd | the Mudwater Cleaver (nine brass rings on its spine) raised over his head in both hands as he roars; slammed down in dust (also the tell of his call for his bandits) |
+| the Drowned Abbot (`abbot`) | tall, gaunt and stooped, pale with the river: a waterlogged robe with weed at its hem, a faded kasaya, long white hair under a wide straw hat that drips, prayer beads | the ringed staff raised high in his right hand, its bronze bell over his hat, his eyes glowing cold; struck down in both hands as the bell tolls rings of sound and water (also the tell of his ghosts) |
+| Elder Gu (`elder`) | portly and stately: a crimson robe trimmed in gold with wide sleeves, a black sash, a dark teal cape, grey hair tied back, a drooping moustache and goatee | the river's tide gathering into an orb over his drawn-back palm; thrown as a palm strike that bursts in a crescent wave |
 
 ### Parts
 
@@ -152,6 +189,7 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
 | `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
+| `canvas` | (M2) the working canvas `(w, h)` a big species is drawn on, its feet at `(w // 2, h - 40)` (`creatures.foot_of`); the default is the sculpture's 136 x 124. `creatures.build` refuses a frame that runs off its canvas |
 | `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring is lean: it flickers by its pose (`sculpt.ring_seed`), so its held poses share too, and its alphas come in steps of 32 (`sculpt._aura`'s `lean`; the ring was half an elite sheet's cost). Every M1 species has it; the species before keep their sheets byte for byte |
 | `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
 | `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
@@ -182,8 +220,8 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
    and elite:
    - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
      (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
-   - **In the game:** the capture set `monsters_e2` or `monsters_m1` (or a set of your own beside them in
-     `tools/dev/capture/shots.gd`):
+   - **In the game:** the capture set `monsters_e2`, `monsters_m1` or `monsters_m2` (or a set of your own beside them
+     in `tools/dev/capture/shots.gd`):
      `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_m1`.
      It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
      struck, side-on, tail-on, falling, the elites, and a live fight. It plays on its own saves, never the Max Tester.
@@ -286,27 +324,77 @@ the elites' tells beside their bases); and the capture set `monsters_m1` (`docs/
 the lineups held in every pose beside drawn foes for scale, the elites, and live fights in ten of the species' own
 top-down rooms.
 
+## M2: the Act I zones' foes, and the bosses of their own build
+
+The seventeen species M1 left, in story order: the rest of the Act I zones' foes, the Trial Tower's twelve without a
+sheet among them. Each is one spec; its rows moved in unchanged (`spec_row`). `enemies.json`, `loot_tables.json` and
+`sound.json` are byte-identical, and `foes.json` changes only in their blocks and the two revised bosses'. Every species
+before draws byte for byte. The bosses were given a silhouette and a presence of their own (bulk, posture, a signature
+prop, a colour), and M1's two people-bosses were redrawn to that standard, their tells kept.
+
+| Species | Where it is first met | Plan | PNG KB (base / elite) | APK KB (base / elite) |
+|---|---|---|---|---|
+| riverbed_serpent | Deepwater Bend, the Serpent's Shallows (field boss, 25) | `serpent.dragon` | 361 | 151 |
+| rapids_lizard | Whitewater Gorge, the Rapids Terraces (28-31) | `quadruped.saurian` | 104 / 199 | 50 / 96 |
+| boulder_serpent | the Echo Cliffs (32-35) | `serpent.boulder` | 131 / 241 | 58 / 104 |
+| mist_vulture | the Echo Cliffs (34-36) | `bird.vulture` | 90 | 51 |
+| riverstone_ox | the Quarry Rim (37-38) | `quadruped.bovid` | 178 | 82 |
+| cloudwing_crane | the Crane Cliffs, the Cliff Faces (37-40) | `bird.crane` | 96 / 211 | 53 / 103 |
+| stormwing_hawk | the Cliff Faces, the Sky Ledges (38-43) | `bird.hawk` | 49 / 109 | 29 / 58 |
+| cliff_ape | the Sky Ledges (41-45) | `humanoid.ape` | 159 | 74 |
+| mist_wolf | Mist Peak, the Misty Slopes (46-50) | `quadruped.canine` (misty) | 150 / 297 | 70 / 129 |
+| mirror_wisp | the Misty Slopes, the Frozen Shrine (47-51) | `spirit.wisp` | 102 / 219 | 56 / 106 |
+| rogue_treasure_adept | the Misty Slopes (48-50) | `person.fighter` | 89 / 163 | 49 / 82 |
+| weeping_lantern | the Forgotten Monastery (50-55) | `spirit.lantern` | 81 / 175 | 46 / 86 |
+| jade_sentinel | the Forgotten Monastery (52-56) | `humanoid.sentinel` | 218 | 90 |
+| elder_gu | Gu's Warehouse (story boss, 53) | `humanoid.elder` | 150 | 65 |
+| hollow_stag | the Summit Ridge, the Windswept Ridge (55-59) | `quadruped.cervid` | 165 / 334 | 79 / 152 |
+| cloudpeak_roc | the Windswept Ridge, the Frozen Shrine (58-63) | `bird.roc` | 181 / 358 | 88 / 159 |
+| gate_guardian | the Ascension Gate (story boss, 63) | `humanoid.gate` | 573 | 227 |
+| big_toad_tan (redrawn) | the Boss Den (dungeon boss) | `humanoid.chief` (was `person.brute`, 131 / 67) | 216 | 95 |
+| drowned_abbot (redrawn) | the Abbot's Sanctum (dungeon boss) | `humanoid.abbot` (was `person.brute`, 121 / 62) | 152 | 68 |
+
+All nineteen: 5,549 KB of PNG, 2,557 KB in the APK (2.50 MiB): the bases 1,482 KB, the ten elite sheets 1,074 KB. Less
+the two boss sheets they replace, the APK grows by 2,428 KB (2.37 MiB). Every one has `share`. An elite sheet is drawn
+only where a room makes an elite (the ten above); the rest have `elite=False`. Each creature is near its side-view
+sheet's share of a person (side-view px x ~0.45: a person's 46 px), so the bosses are big because their side views
+are: the gate guardian stands twice a person's height, as its row's height (180 to a person's 90) does.
+
+- **The bosses.** The riverbed serpent rears out of clear water as a jade river dragon with gold horns, whiskers and
+  belly, and gathers a water orb before its jaws. The cloudpeak roc is the biggest bird, white and gold with a crest,
+  gathering a storm wind under its spread wings. The gate guardian towers in jade and bronze with a horned crown, its
+  two bi rings rising and spinning out to both sides in its tell. Elder Gu, the Drowned Abbot and Big Toad Tan are the
+  people of size (above).
+- **Big canvases.** A creature taller than the sculpture's 136 x 124 working canvas names its own (`canvas`): the
+  serpent (180 x 170), Big Toad Tan (164 x 156), the roc (176 x 150) and the gate guardian (200 x 186).
+  `creatures.build` raises an error when a frame runs off its canvas (an elite roc once did, and its sheet came out
+  empty), and `build.py --check` reads each sheet's cell against its canvas's feet.
+
+Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
+`docs/redesign/feedback/monsters/m2/` (the nineteen side by side facing SE beside a Mudwater bandit, idle, in their
+tells and on their blows; the elites' tells beside their bases; Tan's and the Abbot's sheets before and after; the
+three people of size's bodies beside them dressed); and the capture set `monsters_m2`
+(`docs/redesign/feedback/monsters/m2/after/`): the lineups held in every pose beside drawn foes for scale, the elites,
+and live fights in fourteen of the species' own top-down rooms.
+
 ## Still to draw
 
-The species of the top-down rooms and the Act I zones that still stand in with their side-view sheet, by when the
-story meets them (their levels), with the plan each would start from:
+The species the top-down rooms spawn that still stand in with their side-view sheet (R5's and R7's rooms, the
+Tidebreak Front's), by level. The Trial Tower has none left.
 
 | Species | Where | Start from |
 |---|---|---|
-| riverbed_serpent | Deepwater Bend, the Serpent's Shallows (field boss, 25) | `serpent.eel`: a clean jade variant (horns, whiskers, a gold belly, no Hollow strands, clear water; a water orb in the tell) |
-| rapids_lizard | Whitewater Gorge, the Rapids Terraces (28-31) | `quadruped`: a saurian head, sprawled legs and a finned tail (new kinds); its tail whip spins |
-| boulder_serpent | the Echo Cliffs (32-35) | `serpent.viper` with boulder plates, and the beetle's ball and roll |
-| mist_vulture | the Echo Cliffs (34-36) | `bird`: a flying variant (wings of a span, a bald head) |
-| riverstone_ox | the Quarry Rim (37-38) | `quadruped`: a bovid head kind |
-| cloudwing_crane | the Crane Cliffs (37-40) | `bird`: the chick grown, flying |
-| stormwing_hawk | the Crane Cliffs (38-43) | `bird`, flying |
-| cliff_ape | the Sky Ledges (41-45) | `humanoid.monkey` |
-| mist_wolf | Mist Peak, the Misty Slopes (46-50) | `quadruped.canine` |
-| mirror_wisp | the Misty Slopes (47-51) | `spirit` |
-| rogue_treasure_adept | the Misty Slopes (48-50) | `person.fighter` |
-| weeping_lantern | the Forgotten Monastery (50-55) | `spirit` |
-| jade_sentinel | the Forgotten Monastery (52-56) | `humanoid.guardian` |
-| elder_gu | Gu's Warehouse (story boss, 53) | `person` |
-| hollow_stag | the Summit Ridge (55-59) | `quadruped`: a cervid head kind, `hollowed` |
-| cloudpeak_roc | the Summit Ridge, the Frozen Shrine (58-63) | `bird`, flying |
-| gate_guardian | the Ascension Gate (story boss, 63) | `humanoid.guardian` |
+| the_reflection | the Trial of Reflections (36) | `person` (the player's own outfit, its tint) |
+| hollow_behemoth | the Siege (story boss, 58) | `humanoid.gate`'s build, `hollowed` |
+| canyon_brigand | Gale Canyons: the Canyon Mouth, the Windbridge (73-76) | `person.fighter` |
+| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge (73-76) | `bird.hawk` or a `spirit` of paper |
+| sandstorm_scorpion | the Sunscar Desert, the Sealed Gate (73-78) | `crab.mud` (a tail kind) |
+| canyon_harpy | the Harpy Roosts, the Kite Winds, the Windbridge (74-78) | `bird` flyer with a `humanoid` head |
+| nine_peaks_disciple | the Sect War (76-78) | `person.fighter` |
+| dune_worm | the Worm Sea (77-81) | `serpent.boulder` (it rises out of the sand) |
+| terracotta_warden | the Tomb of Sunscar (77) | `humanoid.sentinel` in terracotta |
+| tomb_king | the Throne (boss, 77) | `humanoid` of size |
+| starsea_pirate, pirate_captain | the Sect War (79-81) | `person.fighter`; the captain of size |
+| presence_phantom, ninth_presence | the Presence Trial (81) | `spirit`; the Ninth of size |
+| hollow_drone | the Tidebreak Front (88-99) | `spirit` or `bird`, `hollowed` |
+| hollowed_wyrmling | the Tidebreak Front (88-96) | `serpent.dragon`, `hollowed` |
