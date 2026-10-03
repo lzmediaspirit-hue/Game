@@ -213,7 +213,7 @@ func point_badges(c) -> Array:
 	var panel := panel_rect(c)
 	for row in Hud.POINT_SYSTEMS:
 		if not Unlocks.is_unlocked(c.id, str(row.unlock)): continue
-		var n := int(hud.points_override[row.id]) if hud.points_override.has(row.id) else int(Game.get(str(row.count[0])).call(str(row.count[1]), c))
+		var n := int(hud.points_override[row.id]) if hud.points_override.has(row.id) else TutorialRules.count(c, row.count)
 		if n <= 0: continue
 		out.append({"id": str(row.id), "count": n, "page": str(row.page), "tab": str(row.tab),
 			"center": Vector2(panel.end.x - 22.0 - out.size() * Hud.POINTS_PITCH, panel.position.y + 2.0)})

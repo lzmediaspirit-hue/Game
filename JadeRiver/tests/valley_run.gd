@@ -40,7 +40,7 @@ func _main() -> void:
 		checkpoint(from)
 	elif not resume(from):
 		print("valley_run: no checkpoint for ", from, "; run from the start first")
-		get_tree().quit(2)
+		stop(2)
 		return
 	var started := false
 	for s in SECTIONS:
@@ -58,7 +58,6 @@ func _main() -> void:
 		var left: Array = ContentDB.all("quests").filter(func(q): return str(q.kind) == "main" and not q.get("hidden", false) and not c().quests.is_done(str(q.id)))
 		check(left.is_empty() and guidance_steps > 0, "every main quest of Acts I-III was played, each step held to the story's guidance (%d steps; not played: %s)"
 			% [guidance_steps, str(left.map(func(q): return str(q.id)))])
-	print("valley_run: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
 # ------------------------------------------------------------------ checkpoints

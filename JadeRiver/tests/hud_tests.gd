@@ -1,12 +1,9 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Audit 45, S6: the HUD in parts (docs/architecture/hud.md). Its callers call it as before: every method it had before
 ## the split is still one of the HUD's, and a HUD made with new() (not in the tree, as the tests make it) has its parts.
 ## And the swap's place keeps clear of the context's label: ring 2's sixth place (292°, the weapon swap's) crossed the
 ## label's top corner by 3 px at 1280 × 720 until the label became CTX_LABEL_W 116 wide; nothing else moved.
 ## Run headless:  godot --headless --path . res://tests/hud_tests.tscn
-
-var checks := 0
-var failures := 0
 
 ## The HUD's methods before the split (hud.gd at audit 45's S6): the public ones, and the private ones tests and tools
 ## call by name. Each is still a method of the HUD, forwarded to its part.
@@ -23,20 +20,10 @@ const API := ["bound", "shown", "scroll_skills", "advance_scroll", "set_state", 
 	"_tick_aims", "_tick_place_pose", "_after_interact", "_caption_worthy", "_context_glyph", "_band_on_top",
 	"_edge_point", "_on_event", "_notification"]
 
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
-
 func _main() -> void:
 	_facade()
 	_swap_clear_of_label()
-	print("hud_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 func _facade() -> void:
 	var hud = load("res://scripts/hud.gd").new()

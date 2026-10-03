@@ -1,5 +1,89 @@
 # Changelog
 
+## Tests: one suite base, the broken scripts gone, a steady performance gate (decision 45, S2)
+
+Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/audit_45.md` §7): tests hygiene.
+`tests/README.md` describes the result.
+
+- **A suite base, `tests/lib/suite.gd`.** Every suite `tools/run_tests.sh` runs extends it. It holds:
+  - `check()` and the count;
+  - the summary line the runners read, and the exit code;
+  - a clean quit: it frees what the suite made, lets the game's worker tasks finish and removes the run's own folder;
+  - the Max Tester guard;
+  - the timing tools.
+
+  Each suite keeps its check count and its output. Their saves now live in the run's own folder
+  (`user://test_runs/<suite>_<pid>/`), not in fixed `user://` folders. Two runs at once, from two checkouts or two
+  agents, no longer share them.
+- **The Max Tester guard.** In-game tests never use the Max Tester save.
+  - A suite will not start in the Max Test build, or with `--max-character` or `--unlock-all`.
+  - Until the suite picks its own saves, they stand in its own folder, never in the player's `user://`.
+  - A suite fails if it ends on the player's saves, or with the Max Tester loaded.
+- **Removed: the legacy scripts that no longer run.** Each script that needs a window was run with a renderer first.
+  - The four that no longer compile or run: `obstacle_review`, `platform_contact`, `upward_landing`,
+    `movement_review_v09`.
+  - The nine that stop at once on today's `main.gd`: `generated_runtime`, `release_review`, `pixel_input`,
+    `platform_contact_visual`, `movement_visual_v07`, `review_visual_v08`/`v09`, `generated_visuals`, `visual_checks`.
+  - `support_review_v08`, which reviewed the retired v0.9 regions and failed 2 of its checks.
+  - `scenes/pixel_stage.tscn`, which only these scripts used.
+
+  Kept, and still working:
+  - `gauntlet_review` (AGENTS.md rule 1's sheets, byte-identical);
+  - `weapon_combo_visual`;
+  - `weapon_combo_outlines`, with `combo_visual`, whose dead touch-landing tail was cut.
+
+  The user has retired the side view, so there is no `side_view_suite`. The five green side-view scripts stay until the
+  side view is deleted.
+- **A steady performance gate (BUG-10).** `perf_tests` failed on this shared machine when it was loaded. Each of its
+  figures is now taken in three ways:
+  - on the game's own clock (`now_us`): the time the main thread waited for a CPU other processes held is left out;
+  - at the machine's full speed: a fixed piece of work (script arithmetic and a walk through a 4 MB table) is timed
+    beside each sample, and samples taken while it ran slow are left out;
+  - as the least of three interleaved rounds.
+
+  Where the system allows, the game also asks for its share of the CPUs (`ask_for_cpu`, renice on Linux as root): the
+  main thread at −10 and its workers at −5. With five times as many busy threads as CPUs, the main thread's work had run
+  cache-cold at twice the cost, which no clock can take out. `techniques.json` is timed first, on memory as fresh as the boot's: rows filled in on memory the round before
+  had just let go took half as long again.
+
+  Samples are left out, never scaled, and the budgets and the 18 checks are unchanged.
+
+  Pass rates, before against after, with the runs interleaved:
+  - alone: 0 of 5 (3 to 10 failures, at a load of 10 to 16 from the other agents) against 5 of 5;
+  - with four more busy loops beside it: 0 of 3 (15, 14 and 8 failures) against 3 of 3.
+
+  Two earlier batches of after-runs also passed 5 of 5 each, alone at a load of 6 to 16.
+- **Other timings.**
+  - `rules_tests` asks for its share of the CPUs, and times the technique preview and the living world on the game's
+    own clock.
+  - The technique pictures' 4 ms main-thread budget had failed at load 10 to 15, at 4.1 to 7.3 ms: the game keeps only
+    the most any piece took on the wall clock. The suite now reads each frame's most and whole, and settles each piece
+    on its own, over up to three rounds of the same building. A piece fails only if it is over budget in every round,
+    and nothing passes that was not measured within budget.
+  - `topdown_tutorial`'s people stream asks for the same share while it times, on the same clock.
+- **Methods named by data (BUG-06).**
+  - The HUD's points badges and the tutorials' points triggers count through `TutorialRules.counter`, a table of
+    getters named in code, where they used to call a method named in data.
+  - A new `contract_tests` rule holds every [authority, getter] pair in `tutorials.json` and the HUD's
+    `POINT_SYSTEMS`, and every moment layer drawn by its kind, to a method its target has (22 checks).
+  - The rule fails any other call by a name read from data.
+- **The runners.**
+  - `tests/suites.txt` is the one suite list, read by `tools/run_tests.sh` and `Test.ps1`.
+  - `Test.ps1` now runs the same data gates; reads each suite's output the same way (a SCRIPT ERROR or a non-zero exit
+    fails it); and hands the gates the same Godot (`GODOT`).
+  - Both run S5's `build_data.py --check` and `tools/lib/pix.py --check`, and E6's `cues.py --check`.
+  - Both run the suites the other slices added: S4's `shared_runtime_tests` (42 checks), E6's `cue_tests` (35 with S6's
+    rows) and S6's `hud_tests` (4). Each is moved onto the suite base, with its count unchanged.
+  - `run_tests.sh` runs the animation rules where PowerShell is installed.
+  - `topdown_tutorial`'s `reach()` takes the step and the jump from `data/movement.json`, as the Grid does.
+- **Tests.**
+  - `tools/run_tests.sh` is green on the merged tree: every gate, and 20 suites with 73,655 checks, 0 failures and no
+    SCRIPT ERROR.
+  - Every suite keeps its check count. `contract_tests` gains the new rule's 22 checks (1,087 to 1,109).
+  - `Test.ps1` ran green under PowerShell 7.4 on Linux: every gate, and two of the suites.
+  - `Validate-Animations.ps1` now reads the dye sheets' `res://` paths. Before, it reported all 1,700 of them missing,
+    and stopped the old `Test.ps1` at its first line.
+
 ## The HUD in parts, and its notices as rows of the cue table (decision 45, S6)
 
 This is phase 2, slice S6 of the code audit (`docs/architecture/audit_45.md` §2.2, §6.6 and §7). The parts, the side

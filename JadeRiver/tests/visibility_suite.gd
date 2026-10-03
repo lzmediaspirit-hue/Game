@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Visibility suite: every room, headless. Everything the player uses or walks into shows itself where it is.
 ##   Art:     every way (open, and closed), object, person and piece of solid scenery draws art: a prop whose texture
 ##            exists, with a frame of non-zero size and opaque pixels. A door in a building's front shows the doorway
@@ -17,19 +17,7 @@ const VISIBLE := 0.5       # the share of a thing's opaque pixels that must show
 const VIEW_H := 720.0      # the camera's view (world.gd camera_target: centre y clamped to the room's y range)
 const IN_VIEW := 0.5       # the share of a thing's art that must lie where the camera can show it
 
-var checks := 0
-var failures := 0
-var verbose := false
 var seen := {}             # kind -> count of things held to the rules
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	var only := ""
@@ -44,8 +32,7 @@ func _main() -> void:
 	print("visibility_suite: %d rooms, %s" % [rooms, str(seen)])
 	check(only != "" or rooms >= 160 and int(seen.get("portal", 0)) > 300 and int(seen.get("object", 0)) > 900,
 		"the suite held every room's ways and objects to the rules (%d rooms)" % rooms)
-	print("visibility_suite: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 func room(rid: String) -> void:
 	var def := ContentDB.room(rid)

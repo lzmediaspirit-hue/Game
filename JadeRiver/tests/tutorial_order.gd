@@ -80,7 +80,6 @@ func _main() -> void:
 	add_child(views)
 	run()
 	free_hud_probe()
-	print("tutorial_order: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
 # ------------------------------------------------------------------ the walk

@@ -233,6 +233,9 @@ character.
 `scripts/sideview/` and `tools/art/sideview/` (S3, S12). Its 74 branches in shared code go behind one `RoomSpace`
 interface (S12).
 
+> **Status (S2):** the user has since retired the side view; a later slice deletes it. S2 built no `side_view_suite`:
+> the five green legacy scripts stay where they are and go with the side view.
+
 Deleting the side view is a product decision: it would retire the fallback setting and save 55.7 MB of APK and about
 36,000 lines. I recommend taking that decision once the room engine (E1) has converted the remaining rooms. After
 that, no room needs the side view.
@@ -361,6 +364,22 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
     out; `pixel_input` needs a window;
   - these are one-off review renders: `review_visual_v08`/`v09`, `visual_checks`, `weapon_combo_outlines`/`visual`,
     `movement_visual_v07`, `platform_contact_visual`, `generated_visuals`.
+
+  > **Status (S2, DEAD-09 closed):** each script that needs a window was run with a renderer (Xvfb).
+  > - **Deleted:**
+  >   - the four that no longer compile or run;
+  >   - the nine that stop at once on the `main.gd` of today (`main.enter_world(<outfit>)`, `main.change_region`):
+  >     `generated_runtime`, `release_review`, `pixel_input`, `platform_contact_visual`, `movement_visual_v07` with
+  >     `review_visual_v08`/`v09`, and `generated_visuals` with `visual_checks`;
+  >   - `support_review_v08`, which reviewed the v0.9 generated regions and failed 2 of its 13,102 checks;
+  >   - `scenes/pixel_stage.tscn`, which only these scripts used.
+  > - **Kept**, each still working:
+  >   - `gauntlet_review` (AGENTS.md rule 1's sheets, byte-identical);
+  >   - `weapon_combo_visual`;
+  >   - `weapon_combo_outlines` (108 masks match), with `combo_visual`, whose dead touch-landing tail was cut.
+  > - **Left for the side view's deletion**, where the user's decision puts them: the five green scripts.
+  >
+  > `tests/README.md` lists what remains and how to run it.
 - **`tools/dev` probes nothing names** (last commit in brackets; `mentions.py`):
   - `fix_infer.py` (09-24): a one-off `:=` fixer. Delete it.
   - `stat_probe.gd` (09-27), `sect_capture.gd` (09-29), `places_capture.gd` (09-29), `picture_capture.gd` (09-29),
@@ -438,7 +457,7 @@ art (§2.4).
 | DUP-04 | **Event → presentation switches** | `hud._handle` (234 branches), `WorldShared.play` (147 lines), `world._on_event` and `topdown_world._on_event` (70 each), `audio_director`, `moment_view`, `scene_director`, `tutorial_coach`, `page`, `topdown_atmosphere`, `topdown_life` | A **notice table** (`data/hud_notices.json`) for the one-line toasts and logs (about 180 of the 234), a **cue table** (`data/cues.json`) for event → fx, sound and shake, and a `Dictionary(name → Callable)` for what stays code (E6, S6) |
 | DUP-05 | **Side view against top-down**, twice over | `world.gd`/`topdown_world.gd`, `player.gd`/`topdown_player.gd`, `EnemyBrain`/`TopdownBrain`, and 74 view branches in 20 shared files | A `RoomSpace` on `RoomRuntime` (`distance`, `place_near`, `floor_at`, `ground_under`, `in_reach`), with side and grid implementations; the authorities stop branching (S12) |
 | DUP-06 | **Brains reaching into EnemyBrain's private steps** | `topdown_brain.gd:40-175`, `ally_brain.gd:70,141` | `scripts/simulation/ai/brain_kit.gd` (public) |
-| DUP-07 | **Suite boilerplate:** `check()`, the summary and the quit block in 10 suites; the pixel_stage preamble in 8 visual scripts | `contract_tests.gd:16`, `data_validation.gd:14`, `balance_sim.gd:15`, … | `tests/lib/suite.gd` |
+| DUP-07 | **Suite boilerplate:** `check()`, the summary and the quit block in 10 suites; the pixel_stage preamble in 8 visual scripts | `contract_tests.gd:16`, `data_validation.gd:14`, `balance_sim.gd:15`, … | `tests/lib/suite.gd`. **Closed (S2):** every suite `run_tests.sh` runs extends it (check, count, summary, exit code, a clean quit, the Max Tester guard, the run's own folder); counts and output unchanged. The pixel_stage preamble went with the scripts that had it |
 | DUP-08 | **Four pixel libraries** with the same line, ellipse and polygon rasterisers | `tools/art/pixel.py` 1,410, `tools/icons/pix.py` 951, `tools/props/pixlib.py` 573, `tools/art/fx/fxpix.py` 298 | `tools/lib/pix.py` for new work; the frozen side view keeps its own |
 | DUP-09 | **Side-view creature modules copied** | ox, rhino and boar (515 lines); stag and hollow stag (177); fox and weasel (148); three crabs (35); two apes (18) | The monster engine (E2) for new species; no change to frozen art |
 | DUP-10 | **The grid's walking rules written twice:** Python (`topdown_rooms.py:222 Grid.reach`, its 32.5 and 8.0 hard-coded) and GDScript (`TopdownRoom`/`TopdownMotor`, from `movement.json` `topdown.*`); the room route written twice (`sect_walks.py:222` and `WorldRules.route`) | — | Keep both, since the checks must run without Godot. Read the thresholds from `data/movement.json` in Python, and add a parity test that runs both on every layout (S5) |
@@ -477,11 +496,11 @@ name for both views. `map_page`'s plates are map art, not world labels.
 | BUG-03 | low (perf) | `game_events.gd:52-53`, `:69` | A linear `in` over `UNLOCK_TRIGGERS` (18) and `SAVE_TRIGGERS` (13) for every emitted event, and a copy of the subscriber array for every delivered one | Constant dictionaries, and an index loop |
 | BUG-04 | low | `topdown_fx.gd:92-97`, `:101-111` | The effect cap only retires one-shot effects, so with 72 loops alive the list grows without bound. `advance()` copies the list every frame and erases by value (O(n²)) | Swap-remove in one pass; retire the oldest loop when no one-shot is left |
 | BUG-05 | medium (architecture) | `field_authority.gd:218-226`, `enemy_authority.gd:616`, `quest_authority.gd:1093`, `account_authority.gd:319`, plus 50 more private calls | Writes across authorities through private methods, against `architecture.md` | Public `apply_*` names, and a `contract_tests` rule against `other._x(` (S11) |
-| BUG-06 | low (fragile) | `hud.gd:521`, `tutorial_rules.gd:102` | `Game.get(row[0]).call(row[1], c)` with names from data: a rename fails only at runtime | A `data_validation` rule using `has_method` |
+| BUG-06 | low (fragile) | `hud.gd:521`, `tutorial_rules.gd:102` | `Game.get(row[0]).call(row[1], c)` with names from data: a rename fails only at runtime | A `data_validation` rule using `has_method`. **Closed (S2):** both sites count a points pool through `TutorialRules.counter`, a table of getters named in code, so no name read from data is called. `contract_tests` (`_data_methods`, 22 checks) holds each [authority, getter] pair in `tutorials.json` and the HUD's `POINT_SYSTEMS` to a getter Game has and a row of the table, and each moment layer drawn by kind to its `MomentView._draw_<kind>`. It fails any other call by a name read from data, and was seen to fail on a renamed getter and on a stray call |
 | BUG-07 | low (debug in release) | `main.gd:180-690` | 510 lines of preview flags in the shipped shell. Several call private methods (`Game.combat._defeat`, `Game.progression._advance`, `_start_tribulation`, `Game.calendar._phenomenon`, `Game.combat._cast_illusion`), so a rename breaks them silently | `scripts/shell/debug_args.gd`, a table of flag → handler, loaded only with the debug feature or `preview_mode` (S7) |
 | BUG-08 | low (perf) | `hud.gd:542` | A per-frame cache key built with `points_override.duplicate()` every frame | FrameMemo |
 | BUG-09 | low | `avatar.gd:65`, `zone_geometry.gd:31,40`, `map_generator.gd:16` | `assert()` in game code is removed from release exports, so the missing-pose check just draws wrong | `push_error` plus a fallback |
-| BUG-10 | **medium** (flaky gate) | `tests/perf_tests.gd` | Millisecond budgets on a shared machine: 1 failure in the baseline, 5 in a rerun under load | Least-of-N rounds for every budget, as the living-world check already does |
+| BUG-10 | **medium** (flaky gate) | `tests/perf_tests.gd` | Millisecond budgets on a shared machine: 1 failure in the baseline, 5 in a rerun under load | Least-of-N rounds for every budget, as the living-world check already does. **Closed (S2):** every figure is taken (1) on the game's own clock (`now_us`, the main thread's run-queue time left out, `/proc/thread-self/schedstat`), (2) at the machine's full speed (a fixed piece of work, arithmetic and a 4 MB table walk, timed beside each sample; slow samples left out, never scaled), (3) as the least of 3 interleaved rounds. The game also asks for its share of the CPUs (renice where allowed: main thread −10, workers −5). `techniques.json` is timed first on fresh memory. Budgets and the 18 checks are unchanged. Pass rates, before against after: alone 0/5 (3–10 failures, load 10–16) against 5/5; with four more busy loops 0/3 (15, 14, 8 failures) against 3/3. Two earlier batches of the after-runs passed 5/5 each, alone at load 6–16. Other suites' timings use the same tools (`rules_tests`, `topdown_tutorial`). `rules_tests`' 4 ms picture budget is now read frame by frame and settled piece by piece over up to 3 rounds: a piece fails only if it is over budget in every round. **Follow-up (game code):** `TechniquePicture._spend` times each piece on the wall clock, and only its most is kept; timing the pieces on the thread's own clock would make that budget exact |
 | BUG-11 | medium (boot) | `content_db.gd:31-92` | Every `data/*.json` is parsed and expanded at boot: `techniques.json` is 974 KB and 3,171 rows (133 ms, and its own v1.5 budget fails at 191 ms); `icon_manifest` has 2,570 keys | Lazy tables, parsed on first `entry`/`all`/`config` |
 | BUG-12 | low | `topdown_room.gd:87`, `topdown_rooms.py:192` | The level under a prop's footprint is read with no bounds check. A prop pushed past the edge crashes the room load; today the Python check guards it | Clamp plus `push_error`; the room engine validates footprints (E1) |
 | BUG-13 | low (structure) | `scripts/simulation/authority/*` | 575 calls between authorities, 36 pairs in both directions | Publish each authority's surface; forbid private cross-calls (S11) |
@@ -901,7 +920,7 @@ Every slice below rebases onto those changes. The ones that touch the same files
 | Wave | Slice | What | Owns | Size | Risk | Guarded by |
 |---|---|---|---|---|---|---|
 | 1 | **S1** | Delete dead code (DEAD-01/02/05/06/07) and fix the save-id crash (BUG-01) | the listed lines; the `crafts_page.gd` lookups and a load-time sweep | about 300 lines removed, about 40 changed | low | run_tests.sh, `contract_tests` |
-| 1 | **S2** | Tests: `tests/lib/suite.gd`, the `side_view_suite` (the 5 green legacy scripts), delete the 4 broken ones, least-of-N `perf_tests`, the data-method rule (BUG-06) | `tests/**`, `tools/run_tests.sh`, `Test.ps1` | about 150 new, about 200 removed | low | every suite's check count unchanged |
+| 1 | **S2** | Tests: `tests/lib/suite.gd`, the `side_view_suite` (the 5 green legacy scripts), delete the 4 broken ones, least-of-N `perf_tests`, the data-method rule (BUG-06). **Done:** DUP-07, DEAD-09, BUG-06 and BUG-10 closed; no `side_view_suite`, since the side view is retired; one suite list (`tests/suites.txt`) for both runners | `tests/**`, `tools/run_tests.sh`, `Test.ps1` | about 150 new, about 200 removed | low | every suite's check count unchanged (`contract_tests` +22, the new rule) |
 | 1 | **S3** | Tools: the capture registry (fold the 7 probes and `topdown_capture`'s 59 scenes into rows), move the side-view pipeline to `tools/art/sideview/`, archive `study_quality`, `atlas.pack()` | `tools/dev/*`, `tools/art/{creatures,pixel.py,helpers_*,bake_*}`, `tools/backdrops`, `combo_rig`/`equipment_rig` | moves about 32,000 lines, rewrites about 2,000 | low (no game code) | each moved generator rebuilds byte-identical |
 | 1 | **S4** | Shared runtime: `FrameMemo`, `Noise`, `Figures`, lazy ContentDB tables (BUG-11), GameEvents sets (BUG-03), the TopdownFx cap (BUG-04) | the new `scripts/core/*.gd`, `content_db.gd`, `game_events.gd`, `topdown_fx.gd`, one line in each of the 12 pages | about 250 new, about 350 removed | medium (boot order) | run_tests.sh, `perf_tests` (boot and room load), `engine_tests` |
 | 1 | **S5** | Generators: `common.run_cli`, `tools/lib/pix.py` for new work, Grid thresholds from `movement.json` plus a parity test, drop dead data, fields, manifest ids and string keys | `tools/data/common.py`, `topdown_rooms.py` (Grid), the field-owning generators, `tools/lib/` | about 400 changed | low | `build_data.py` then `git diff` (only the dropped fields); every `--check` |

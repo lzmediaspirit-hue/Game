@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Decision 45, phase 2 (E6): the cue table's own checks (data/cues.json, tools/data/cues.py, docs/architecture/cues.md).
 ##   1. every row against the game: its event is one the game emits (the event contract, or an emit of that name in
 ##      scripts/), its sounds are in the sound bank, its effects are FxLayer's kinds (or its label and parry), its
@@ -13,21 +13,10 @@ extends Node
 ##      once through the HUD's own _on_event: it is the row the table picks, and it writes its lines and toasts.
 ## Run headless:  godot --headless --path . res://tests/cue_tests.tscn
 
-var checks := 0
-var failures := 0
 var main: Node
 
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
-
 func _main() -> void:
-	var folder := "user://cue_test_saves/"
+	var folder := run_root() + "saves/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	main = load("res://scenes/main.tscn").instantiate()
@@ -49,8 +38,7 @@ func _main() -> void:
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
-	print("cue_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ 1. the rows against the game
 func _rows() -> void:

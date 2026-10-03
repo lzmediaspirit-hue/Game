@@ -127,9 +127,9 @@ const FACE_TOP_K := 2
 const FACE_TOP_HEAD := 10.0
 
 ## Points to spend: one row a point system the player spends by hand. The HUD reads its count from its authority
-## ([authority, getter], given the character), shows the badge `points_<id>` (tools/icons, its own colour, shape and
-## symbol) at the top right of the player panel while the unlock is open and the count is above 0, and a tap asks the
-## shell for its page and tab. Its log line on appearing is `hud.points_<id>`.
+## ([authority, getter], given the character, through TutorialRules.counter's table), shows the badge `points_<id>`
+## (tools/icons, its own colour, shape and symbol) at the top right of the player panel while the unlock is open and the
+## count is above 0, and a tap asks the shell for its page and tab. Its log line on appearing is `hud.points_<id>`.
 const POINT_SYSTEMS := [
 	{"id": "meridian", "unlock": "foundation", "count": ["progression", "meridian_points_free"], "page": "cultivation", "tab": "foundation"},
 	{"id": "realisation", "unlock": "technique_slots_2", "count": ["progression", "realisations_free"], "page": "techniques", "tab": ""},

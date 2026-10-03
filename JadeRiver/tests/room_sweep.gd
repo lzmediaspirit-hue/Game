@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Room sweep (M16, the P2 play-through pass): every room, headless, with the real movement solver.
 ##   Routes: the walkable ground is a 40 px grid built with the solver's own rules (walk_target, blocks_at along each
 ##           step, no deep water). From every way in (each portal's arrival and the spawn point) it reaches every door
@@ -23,20 +23,9 @@ const ART_SLACK := 8.0          # a footprint may stand this far past its art's 
 const MELEE := 60.0             # a training target is struck from within this
 const DIRS := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
 
-var checks := 0
-var failures := 0
 var walked_s := 0.0
 var art_seen := 0               # footprints compared with their art
 var opaque := {}                # prop id -> Vector2(first, last) opaque column of its idle frame
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	var only := ""
@@ -50,8 +39,7 @@ func _main() -> void:
 		rooms += 1
 	print("room_sweep: %d rooms, %.0f s of walking in %.1f s" % [rooms, walked_s, (Time.get_ticks_msec() - t0) / 1000.0])
 	check(only != "" or art_seen > 50 and walked_s > 1000.0, "the sweep compared %d footprints with their art and walked %.0f s" % [art_seen, walked_s])
-	print("room_sweep: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ one room
 func sweep(rid: String) -> void:

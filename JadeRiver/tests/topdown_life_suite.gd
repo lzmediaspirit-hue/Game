@@ -259,9 +259,9 @@ func run_view(suite, tree: SceneTree) -> void:
 	life.raise_cue("test", p.motor.pos)
 	t.check(extras.size() == 2 and heard == ["test"], "life view: the village's two extras work with no label (%d), and a cue is raised for a listener" % extras.size())
 	# The living world's own cost a frame.
-	var t0 := Time.get_ticks_usec()
+	var t0: int = t.now_us()   # the suite's own clock (tests/lib/suite.gd)
 	for i in 60: life._process(1.0 / 60.0)
-	measured.life_ms = (Time.get_ticks_usec() - t0) / 60000.0
+	measured.life_ms = (t.now_us() - t0) / 60000.0
 	t.check(float(measured.life_ms) < 1.5, "life view: the living world's own work is %.3f ms a frame in Lotus Ferry" % float(measured.life_ms))
 	w.queue_free()
 	await tree.process_frame
