@@ -58,6 +58,14 @@ const E1_VIEWS := [
 	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
 	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
 	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
+	# R5: the story's own rooms and the Tidebreak Front (their pictures under r5/)
+	["r5/01_gus_warehouse", "si_gus_warehouse", Vector2(22, 12), true], ["r5/02_warehouse_strongroom", "si_gus_warehouse", Vector2(36, 8), false],
+	["r5/03_trial_of_reflections", "si_trial_of_reflections", Vector2(18, 12), true], ["r5/04_presence_trial", "si_presence_trial", Vector2(20, 13), true],
+	["r5/05_siege_gate", "si_siege", Vector2(20, 15), true], ["r5/06_siege_field", "si_siege", Vector2(40, 7), false],
+	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
+	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
+	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true],
 	# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar (their pictures under r7/).
 	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
 	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],

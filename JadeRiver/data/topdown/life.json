@@ -2857,6 +2857,66 @@
     ]
    ]
   },
+  "si_presence_trial": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "si_sect_war": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "si_siege": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "si_tide_battle": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "si_trial_of_reflections": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
   "sq_lower_pit": {
    "vista": [
     {
@@ -2922,6 +2982,57 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 80
+    }
+   ]
+  },
+  "tf_drone_hive": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_greyfall_breach": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_hollow_wake": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_tidebreak_bastion": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
     }
    ]
   },

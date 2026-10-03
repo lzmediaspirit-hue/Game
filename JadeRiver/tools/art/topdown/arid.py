@@ -410,10 +410,10 @@ def king_statue(s: Img) -> None:
     s.outline()
 
 
-def bronze_mirror(s: Img) -> None:
-    """A tall bronze mirror on its stand, footprint 1 x 1: the disc polished pale at its heart, green with age round
-    its rim, a jade bead at its crown, held in a frame on two dark-wood legs with a crosspiece. 24 x 42; corner
-    (4, 40)."""
+def sun_mirror(s: Img) -> None:
+    """The Mirror Crypt's sun mirror (R5's `bronze_mirror` is the Trial of Reflections'), footprint 1 x 1: a tall bronze
+    mirror on its stand, the disc polished pale at its heart, green with age round its rim, a jade bead at its crown,
+    held in a frame on two dark-wood legs with a crosspiece. 24 x 42; corner (4, 40)."""
     s.rect(3, 38, 18, 2, DARKWOOD[2])
     s.hline(3, 38, 18, DARKWOOD[4])
     for x in (6, 17):
@@ -514,7 +514,7 @@ PROPS = {
     "roots": (roots, 32, 24, 2, 1, [0, 22], True, [18, -2, 15, 3]),
     "sarcophagus": (sarcophagus, 32, 26, 2, 1, [0, 24], True, [20, -2, 15, 3]),
     "king_statue": (king_statue, 24, 54, 1, 1, [4, 52], True, [12, -2, 10, 3]),
-    "bronze_mirror": (bronze_mirror, 24, 42, 1, 1, [4, 40], True, [12, -2, 9, 3]),
+    "sun_mirror": (sun_mirror, 24, 42, 1, 1, [4, 40], True, [12, -2, 9, 3]),
     "spike_plate": (spike_plate, 16, 16, 1, 1, [0, 16], False, None),
     "sun_throne": (sun_throne, 48, 52, 3, 1, [0, 50], True, [26, -2, 22, 3]),
     "guardian_lion": (guardian_lion, 24, 34, 1, 1, [4, 32], True, [12, -2, 10, 3]),

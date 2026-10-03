@@ -357,6 +357,16 @@ VISTAS = {
     "hv_vale_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "hv_sect_grounds": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "hv_back_mountain": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R5: the trials' and the Gate's peaks over the cloud sea, the siege's valley, the Tidebreak Front's islands over it.
+    "si_trial_of_reflections": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_presence_trial": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_sect_war": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "si_siege": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "tf_tidebreak_bastion": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_tide_battle": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "tf_greyfall_breach": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "tf_hollow_wake": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "tf_drone_hive": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     # R7: Nine Peaks' courts among the peaks over the cloud sea.
     "np_alliance_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "np_hall_of_nine": [{"edge": "n", "kind": "peaks", "pad": 56}],

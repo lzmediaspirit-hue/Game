@@ -93,8 +93,8 @@ TS_MIRROR_CRYPT = room(
     anchors={"page_sovereign_settling_pill_1": "aisle.s@12", "jar_1": "chamber@6", "chest_ledge_mv_1": "chamber@11",
              "lost_crypt_seal": "crypt@23", "journal_tomb": (28, 12), "crate_2": "aisle.s2@29",
              "lost_throne_dust_veil": "crypt@33", "jar_3": "aisle.n@46"},
-    props=[("sarcophagus", 27, 6), ("bronze_mirror", 20, 5), ("bronze_mirror", 35, 5), ("bronze_mirror", 19, 15),
-           ("bronze_mirror", 36, 15), ("brazier", 23, 4), ("brazier", 32, 4), ("brazier", 2, 9), ("brazier", 53, 9),
+    props=[("sarcophagus", 27, 6), ("sun_mirror", 20, 5), ("sun_mirror", 35, 5), ("sun_mirror", 19, 15),
+           ("sun_mirror", 36, 15), ("brazier", 23, 4), ("brazier", 32, 4), ("brazier", 2, 9), ("brazier", 53, 9),
            ("king_statue", 41, 1), ("king_statue", 16, 1)]
           + plates((8, 12), (15, 13), (41, 12), (48, 13)),
     flora={"drift": ["ribcage", "red_rock"], "density": 0.3},
