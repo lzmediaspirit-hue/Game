@@ -55,13 +55,32 @@ is (x, y, w, h). Every key but `size` may be left out.
   event     {wave, fixed, waves, timed}: a room event's cells (or a set piece's begun here: TopdownRoom.grid_event);
             routes {object id: [[x, y, s], ...]}: a rooftop run
   areas     [{kind, rect, ...}]: a hazard's areas in cells (the poison mist's pools)
+  traverse  [(kind, id, {...})]: the side view's traversal on the grid (docs/architecture/topdown_mechanics.md), each
+            named by its side-view id:
+              ("raft", id, {at, size, path, speed, wait_s, mode})   a raft on the water: its north-west cell at rest,
+                                                                   its cells (2, 2), the path's offsets in cells
+              ("updraft", id, {rect, top})                         a column of rising air: its cells, and how high
+                                                                   (levels) it lifts a body in the air
+              ("bounce", id, {rect})                               a drum, a lily pad, a bent bamboo: a landing on its
+                                                                   cells launches a body straight back up
+              ("lift", id, {at, size, path, speed, wait_s, mode, level})  a deck that rises and falls (a crane's basket,
+                                                                   a trial's plank): its path's third number in levels
+              ("crumble", id, {rect, level, break_s, return_s})    rotten boards at `level` over a pit: they give way
+                                                                   under a foot and come back
+              ("current", id, {rect, push})                        water pushing a body standing in it, units a second
+              ("flood", id, {rect, top})                           rising water up to `top` levels, on its side-view
+                                                                   volume's script (a boss's phase)
+              ("vine" | "ladder" | "rope" | "chain", id, {foot, top})  a climbable face: the cell at its foot and the
+                                                                   cell beside it at its top, a level or more higher
+  stage     {event id: [(x, y), ...]}: where a room event the side view calls to its own points (a set piece, a trial)
+            sets its foes on the grid, point for point (WorldRoomEvents; without one, the point's mapped cell)
   pins      the hand's last word, never the JSON's: {object id: (x, y)}, "spawn", "stairs", "foes", "props" (the whole
             ordered list, hand-placed), "flora" (the scatter, hand-placed), "add": [(kind, x, y)] more pieces, "drop":
             [(x, y)] scattered pieces taken out where they cover the cell
 """
 
 KEYS = ("size", "biome", "base", "level", "walls", "bands", "features", "stairs", "ways", "paths", "props", "flora", "ground",
-        "spawn", "anchors", "foes", "event", "routes", "areas", "pins")
+        "spawn", "anchors", "foes", "event", "routes", "areas", "traverse", "stage", "pins")
 PIN_KEYS = ("spawn", "stairs", "foes", "props", "flora", "add", "drop")
 
 

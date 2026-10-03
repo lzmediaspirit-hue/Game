@@ -14,6 +14,9 @@ objects, portals and their rules, foes, events) from data/rooms/ and only the pl
   spawns    one list of cells per side-view spawn, in order;  event {wave, fixed}: a room event's spawn cells
   routes    object id -> [[x, y, s], ...]: a rooftop thief's run
   areas     [{kind, rect, ...}]: a hazard's areas in cells (the poison mist's pools; TopdownRoom.merge_def)
+  traverse  [{kind, id, ...}]: T1, the side view's rafts, updrafts and climbable faces on the grid (TopdownTraverse;
+                                    docs/architecture/topdown_mechanics.md), each held to the grid by check_traverse
+  stage     event id -> [[x, y], ...]: T1, the cells a room event's side-view points are set at (WorldRoomEvents)
 
 Deterministic: `python3 tools/data/topdown_rooms.py` writes the files, `--check` proves they are current. Each layout
 is checked as it is built: every object, NPC, portal and spawn of its side-view room is placed on a cell a body can
@@ -60,6 +63,8 @@ class Layout:
         self.event = {}
         self.routes = {}
         self.areas = []
+        self.traverse = []   # T1: the side view's rafts, updrafts and climbable faces on the grid
+        self.stage = {}      # T1: event id -> the cells a room event's side-view points are set at
         self.spawn = [w // 2, h // 2]
 
     # ---------------------------------------------------------------- drawing
@@ -182,6 +187,10 @@ class Layout:
             out["routes"] = self.routes
         if self.areas:
             out["areas"] = self.areas
+        if self.traverse:
+            out["traverse"] = self.traverse
+        if self.stage:
+            out["stage"] = self.stage
         return out
 
 
@@ -385,8 +394,131 @@ def check(lay, d):
                 errs.append("spawn %d point %s: no floor" % (k, str(c)))
     errs += list(dict.fromkeys(check_foliage(lay, d, g)))
     errs += LIFE.check_furnish(lay.id, d, g, clear_cells(d))   # decision 43: furnishings and stations
+    errs += list(dict.fromkeys(check_traverse(s, d, g, walked)))
     if errs:
         raise SystemExit("%s:\n  " % lay.id + "\n  ".join(errs))
+
+
+# -------------------------------------------------------------------- T1: the side view's traversal on the grid
+# docs/architecture/topdown_mechanics.md. A layout's `traverse` puts the side view's movers, updrafts and climbables on
+# the grid (TopdownTraverse reads it), each under its side-view id; `stage` sets a room event's side-view points on
+# cells (WorldRoomEvents). Neither changes what the Grid walks: a raft, an updraft or a climb is a way more, never the
+# only one (auto-path and every reach check above walk the room without them).
+CLIMBABLES = ("vine", "ladder", "rope", "chain")
+
+
+def raft_cells(r, off):
+    """The cells a raft covers with its north-west corner at its rest cell plus `off` (fractions: every cell it
+    touches)."""
+    w, h = r.get("size", [2, 2])
+    x, y = r["at"][0] + off[0], r["at"][1] + off[1]
+    return [(cx, cy) for cy in range(math.floor(y), math.ceil(y + h - 1e-6)) for cx in range(math.floor(x), math.ceil(x + w - 1e-6))]
+
+
+def raft_samples(r):
+    """The raft's offsets along its whole run, every quarter cell: its rest, the path's points, and back to the rest for
+    a loop (a pingpong or a trigger trip comes back along the same way)."""
+    pts = [(0.0, 0.0)] + [(float(q[0]), float(q[1])) for q in r.get("path", [])]
+    if r.get("mode", "pingpong") == "loop":
+        pts.append((0.0, 0.0))
+    out = [pts[0]]
+    for a, b in zip(pts, pts[1:]):
+        n = max(1, int(math.ceil(max(abs(b[0] - a[0]), abs(b[1] - a[1])) * 4)))
+        out += [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(1, n + 1)]
+    return out
+
+
+def check_traverse(s, d, g, walked):
+    errs = []
+    side_movers = {str(m.get("surface", "")) for m in s.get("movers", [])}
+    side_volumes = {str(v.get("id", "")): v for v in s.get("volumes", [])}
+    side_climbs = {str(c.get("id", "")) for c in s.get("climbables", [])}
+    covered = {}
+    for p in d["props"]:
+        fw, fh = TILESET["props"][p["kind"]]["footprint"]
+        for yy in range(p["y"], p["y"] + fh):
+            for xx in range(p["x"], p["x"] + fw):
+                covered[(xx, yy)] = p["kind"]
+    for r in d.get("traverse", []):
+        kind, tid = r["kind"], r["id"]
+        if kind == "raft":
+            if tid not in side_movers:
+                errs.append("raft %s: no mover of that surface in the side-view room" % tid)
+            level = float(r.get("level", 0)) * LEVEL
+            for off in raft_samples(r):
+                for c in raft_cells(r, off):
+                    if not (0 <= c[0] < g.w and 0 <= c[1] < g.h) or g.lv[c[1]][c[0]] != WATER:
+                        errs.append("raft %s covers %s, not open water" % (tid, str(c)))
+                    elif c in covered:
+                        errs.append("raft %s runs over a %s at %s" % (tid, covered[c], str(c)))
+            ends = [(0.0, 0.0)]   # where it waits: its rest, and the far end of a pingpong or a trigger's trip
+            if r.get("mode", "pingpong") != "loop" and r.get("path"):
+                ends.append(tuple(r["path"][-1]))
+            for off in ends:
+                cells = set(raft_cells(r, off))
+                beside = {(cx + dx, cy + dy) for cx, cy in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
+                if not any(g.floor(*q) is not None and abs(g.floor(*q) - level) <= STEP and any(q in w for w in walked) for q in beside):
+                    errs.append("raft %s at offset %s: no landing a body walks onto it from" % (tid, str(off)))
+        elif kind == "updraft":
+            v = side_volumes.get(tid, {})
+            if str(v.get("kind", "")) != "updraft":
+                errs.append("updraft %s: no updraft volume of that id in the side-view room" % tid)
+            x, y, w, h = r["rect"]
+            if x < 0 or y < 0 or x + w > g.w or y + h > g.h or float(r.get("top", 0)) <= 0:
+                errs.append("updraft %s: its rect %s is outside the room or it lifts nowhere" % (tid, str(r["rect"])))
+        elif kind == "lift":
+            if tid not in side_movers:
+                errs.append("lift %s: no mover of that surface in the side-view room" % tid)
+            base = float(r.get("level", 0))
+            path = r.get("path", [])
+            ends = [(0.0, 0.0, base)] + ([] if not path else [(float(path[-1][0]), float(path[-1][1]), base + float(path[-1][2]) if len(path[-1]) > 2 else base)])
+            for c in raft_cells(r, (0.0, 0.0)):
+                fl = g.floor(*c) if 0 <= c[0] < g.w and 0 <= c[1] < g.h else None
+                if fl is None or fl > base * LEVEL + 0.5:
+                    errs.append("lift %s: its cell %s at rest is no floor under its deck" % (tid, str(c)))
+            for dx, dy, lv in ends:
+                cells = set(raft_cells(r, (dx, dy)))
+                beside = {(cx + ex, cy + ey) for cx, cy in cells for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
+                if not any(g.floor(*q) is not None and abs(g.floor(*q) - lv * LEVEL) <= STEP for q in beside):
+                    errs.append("lift %s: no landing at its level %g at offset %s" % (tid, lv, str((dx, dy))))
+        elif kind in ("crumble", "current", "flood"):
+            want = {"crumble": "crumble", "current": "current", "flood": "rising_water"}[kind]
+            v = side_volumes.get(tid, {})
+            if str(v.get("kind", "")) != want:
+                errs.append("%s %s: no %s volume of that id in the side-view room" % (kind, tid, want))
+            x, y, w, h = r["rect"]
+            if x < 0 or y < 0 or x + w > g.w or y + h > g.h:
+                errs.append("%s %s: its rect %s is outside the room" % (kind, tid, str(r["rect"])))
+            elif kind == "crumble" and any(g.floor(xx, yy) is not None and g.floor(xx, yy) >= float(r.get("level", 0)) * LEVEL
+                                           for yy in range(y, y + h) for xx in range(x, x + w)):
+                errs.append("crumble %s: its boards at level %s lie over no pit" % (tid, r.get("level", 0)))
+        elif kind == "bounce":
+            v = side_volumes.get(tid, {})
+            if str(v.get("kind", "")) != "bounce":
+                errs.append("bounce %s: no bounce volume of that id in the side-view room" % tid)
+            x, y, w, h = r["rect"]
+            cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)]
+            floors = {g.floor(*c) for c in cells}
+            if None in floors or len(floors) != 1 or not any(c in wk for c in cells for wk in walked):
+                errs.append("bounce %s: its cells %s are not one floor a body reaches" % (tid, str(r["rect"])))
+        elif kind in CLIMBABLES:
+            if tid not in side_climbs:
+                errs.append("%s %s: no climbable of that id in the side-view room" % (kind, tid))
+            foot, top = tuple(r["foot"]), tuple(r["top"])
+            ff, ft = g.floor(*foot), g.floor(*top)
+            if abs(foot[0] - top[0]) + abs(foot[1] - top[1]) != 1:
+                errs.append("%s %s: its foot %s and top %s are not side by side" % (kind, tid, str(foot), str(top)))
+            elif ff is None or ft is None or ft - ff < LEVEL:
+                errs.append("%s %s: its top %s is not a level or more over its foot %s" % (kind, tid, str(top), str(foot)))
+            elif not all(foot in w for w in walked):
+                errs.append("%s %s: its foot %s is not reached on foot from every way in" % (kind, tid, str(foot)))
+    lanes = {c for p in d["portals"].values() for c in portal_lane(p)}
+    for eid, cells in d.get("stage", {}).items():
+        for q in cells:
+            c = cell(q)
+            if g.floor(*c) is None or not all(c in w for w in walked) or c in lanes:
+                errs.append("stage %s: %s is not open ground reached from every way, off the ways' lanes" % (eid, str(c)))
+    return errs
 
 
 # -------------------------------------------------------------------- Terrain v2's third part: foliage and decor

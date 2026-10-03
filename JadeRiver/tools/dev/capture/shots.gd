@@ -697,6 +697,34 @@ static func sets() -> Dictionary:
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
+	# T1 (docs/architecture/topdown_mechanics.md): the side view's traversal on the grid, played in the rooms that need
+	# it: a raft carrying the body over the Grey Pools and the hermit's pond, the vine up to the Falls Pool's spray ledge,
+	# a glide from it over the falls' spray, the spray lifting a glider, the rope up the falls ledge.
+	var on_the_ledge := Vector2(-1, 1).normalized()
+	s["traversal"] = {"doc": "T1: the side view's traversal on the grid: rafts, the vine and the rope, the glide and the falls' updraft, flight",
+		"out": "architecture/topdown_mechanics/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
+			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"],
+			["secret_art", "falling_leaf_glide"]], "rows": [
+		{"name": "01_raft_grey_pools", "room": "rm_grey_pools", "cell": Vector2(19, 21), "wait": 60, "do": [["on_raft", "log_raft_a"], ["frames", 150]],
+			"take": [["shot"], ["world", "world/01_raft_grey_pools"]]},
+		{"name": "02_raft_hermit_pond", "room": "rm_hermit_stilt_house", "cell": Vector2(12, 7), "wait": 60, "do": [["on_raft", "pond_raft"], ["frames", 150]],
+			"take": [["world", "world/02_raft_hermit_pond"]]},
+		{"name": "03_vine_climb", "room": "cf_falls_pool", "cell": Vector2(34, 8), "wait": 60, "do": [["move", Vector2.UP], ["frames", 48], ["stop"], ["frames", 4]],
+			"take": [["world", "world/03_vine_climb"]], "then": [["move", Vector2.UP], ["frames", 90], ["stop"]]},
+		{"name": "04_glide_over_the_spray", "room": "cf_falls_pool", "cell": Vector2(30, 6), "wait": 60,
+			"do": [["qi_full"], ["face", on_the_ledge], ["move", on_the_ledge], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 34]],
+			"take": [["world", "world/04_glide_over_the_spray"]], "then": [["frames", 90], ["hold_jump", false], ["stop"], ["frames", 60]]},
+		{"name": "05_updraft_lifts", "room": "cf_falls_pool", "cell": Vector2(25, 11), "wait": 60,
+			"do": [["qi_full"], ["face", Vector2.RIGHT], ["move", Vector2(1, -0.4).normalized()], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 44]],
+			"take": [["world", "world/05_updraft_lifts"]], "then": [["hold_jump", false], ["stop"], ["frames", 90]]},
+		{"name": "06_rope_falls_ledge", "room": "cf_falls_pool", "cell": Vector2(14, 7), "wait": 60, "do": [["move", Vector2.LEFT], ["frames", 44], ["stop"], ["frames", 4]],
+			"take": [["world", "world/06_rope_falls_ledge"]], "then": [["move", Vector2.LEFT], ["frames", 90], ["stop"]]},
+		{"name": "07_falls_pool_whole", "room": "cf_falls_pool", "cell": Vector2(36, 8), "wait": 60, "take": [["whole_room", "rooms/cf_falls_pool"]]},
+		{"name": "08_flight_over_the_shore", "room": "cf_falls_pool", "cell": Vector2(45, 22), "wait": 60,
+			"do": [["set", "cultivator.realm_key", "cloud_stride_1"], ["unlock", ["flight"]], ["refresh"], ["qi_full"], ["face", Vector2.DOWN],
+				["jump"], ["hold_jump", true], ["frames", 60], ["hold_jump", false], ["frames", 2], ["move", Vector2.RIGHT], ["frames", 20], ["stop"], ["frames", 2]],
+			"take": [["world", "world/08_flight_over_the_shore"]], "then": [["submit", {"type": "stop_flight", "reason": "landed"}], ["frames", 90]]}]}
+
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",
 		"out": "redesign/feedback/combat/", "stage": [["proto"], ["hud", "visible", false]], "rows": [

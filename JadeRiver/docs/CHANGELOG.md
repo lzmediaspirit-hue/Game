@@ -49,9 +49,8 @@ in them on the grid.
     - `perf_tests` (18 checks) passes run alone. In the full run its frame times missed their budgets by 1 to 2 ms
       (the Marsh Edge's 18.0 ms against 16.6, the Techniques page's preview) while the machine's four cores carried
       a load of 7 to 10. It passed in the full run before the merge too.
-- **Still to do.** Most of these rooms' foes have no top-down sheet. The Reflection's heart demons still spawn at the
-  side view's points (T1's wave work). The Front's light follows the clock, not the side view's night. Details are in
-  the doc.
+- **Still to do.** Nine of these rooms' foes have no top-down sheet (M1 drew the Mudwater bandit and the gorge bandit
+  adept). The Front's light follows the clock, not the side view's night. Details are in the doc.
 
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 
@@ -126,6 +125,41 @@ R2 listed most of them as still to do.
     pictures.
   - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as the batch's
     `--update` builds.
+## The side view's mechanics on the grid (T1)
+
+Everything only the side view could do, listed with what the grid now does instead
+(`docs/architecture/topdown_mechanics.md`). The list holds 43 mechanics: traversal 18, hazards 10, room events and
+waves 10, other 5. The grid covers 31 of them, and the rest are an ordered to-do. The side view is unchanged.
+
+- **One rule for a room event's points.** R2's `grid_event`, R3's `side_points`/`from_side` and R4's raid mapping are
+  now one helper, `TopdownRoom.grid_event`, behind `WorldRoomEvents.start_event`. It takes, in order: the grid's own
+  points as they are; the layout's `stage` cells; the layout's event cells; else each side-view point mapped across
+  the room to the nearest open cell reached from the player. It covers the set pieces, Trial Tower floors, the
+  Grove, rifts, treasure births, heart demons, sect and mine events and the sect's raid. The pole trial's ground rule
+  holds on the grid too.
+- **Traversal in the room engine.** A spec's `traverse` rows (`raft`, `lift`, `updraft`, `bounce`, `crumble`,
+  `current`, `flood`, `vine`/`ladder`/`rope`/`chain`) and `stage` cells. `topdown_rooms.py` checks them against the
+  grid. Rows in use:
+  - the Grey Pools' two log rafts and the hermit's pond raft;
+  - the Falls Pool's spray updraft, vine and rope, and its spray ledge;
+  - the Cleansing Summit's stage.
+- **The motor and the player** (`TopdownTraverse`, `TopdownMotor`, `TopdownPlayer`), each art asked of Combat and
+  announced as the side view does:
+  - riding decks (rafts on the room's clock, lifts);
+  - updrafts, Falling Leaf Glide (a dash across a gap), Swallow Dart along the stick, the Cloud Ladder Step and
+    Wall-Step;
+  - climbing (the World authority's `climbable_open`), bounces, rotten boards, currents, floods (the boss-phase hook);
+  - flight (Jump held takes off and climbs, Evade held lands);
+  - a mount's pace.
+- **Art.** `art/topdown/traverse.png` (`tools/art/topdown/traverse.py`): a log raft, a lift's deck, vine, rope, ladder
+  and chain tiles, the spray, rotten boards, the glide's leaf and the flight's cloud. No new body animation: a climb
+  plays `work_hang`.
+- **Tests.** `topdown_traversal` (new, 120 checks) plays it all on a live view:
+  - the lessons: Leaf on the Wind, Skipping Stones, Swallow Dart, the Cloud Ladder, Wings of Cloud's take-off and the
+    Outer Trial's Plunge;
+  - the rafts, the rope, a lift, boards, a current, a flood and a mount;
+  - every set piece in a room on the grid, the tower, a rift and the raid.
+- **Pictures.** `capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`.
 
 ## Public surfaces: no private cross-calls (decision 45, S11)
 

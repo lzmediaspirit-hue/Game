@@ -44,6 +44,9 @@ CP_CLEANSING_SUMMIT = room(
     anchors={"rite_cleansing": (20, 14)},
     props=[("incense", 19, 12), ("incense", 21, 12)],
     flora={"summit": dict(density=0.4), "outcrop": dict(density=0.6), "outcrop_2": dict(density=0.6),
-           "outcrop_3": dict(density=0.6)})
+           "outcrop_3": dict(density=0.6)},
+    # T1 (docs/architecture/topdown_mechanics.md): Heaven's Cleansing's guardians come up over the south rim, west and
+    # east of the rite circle, wherever the side view's points would map.
+    stage={"heavens_cleansing": [(9, 26), (31, 26)]})
 
 ROOMS = [CP_PILGRIM_STAIRS, CP_CLEANSING_SUMMIT]
