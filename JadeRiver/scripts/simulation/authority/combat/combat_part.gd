@@ -1,20 +1,25 @@
 class_name CombatPart
 extends RefCounted
-## The base of CombatAuthority's parts (docs/architecture/authority_parts.md). A part holds one section of the
-## authority's rules. The state stays on the authority, and callers outside it still call the authority, which forwards.
+## Base of CombatAuthority's parts (audit 45, S8; docs/architecture/authority_parts.md). A part holds one section of
+## the authority's work and no state of its own: the authority makes one of each, keeps the state and forwards its
+## public methods to them, so every caller still calls Game.combat.<method>. In a part:
+##   - the authority's state and its methods are reached through `combat` (combat.flying, combat.player_view);
+##   - a helper that another part keeps to itself is called on that part (combat.projectiles.spawn_projectile);
+##   - emit, ok and fail work as they do in an authority.
 
-var game   # the Game autoload, as an authority has it
+var _authority: WeakRef   # weak: the authority holds its parts, and Game builds new authorities on every boot
+var game   # the Game autoload, as Authority.game
 
-## The authority this part belongs to. It is read through the Game, never kept: a part and its authority holding each
-## other would never be freed (RefCounted has no cycle collector), and Game.reset_state builds new ones.
+## The authority this part belongs to.
 var combat: CombatAuthority:
-	get: return game.combat
+	get: return _authority.get_ref()
 
-func _init(g) -> void:
-	game = g
+func _init(authority: CombatAuthority) -> void:
+	_authority = weakref(authority)
+	game = authority.game
 
 func emit(name: String, payload: Dictionary) -> void:
-	GameEvents.emit_event(name, payload)
+	combat.emit(name, payload)
 
 static func ok(extra: Dictionary = {}) -> Dictionary:
 	return Authority.ok(extra)

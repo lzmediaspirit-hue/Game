@@ -57,19 +57,19 @@ var riders: CombatRiders             # what a landed blow carries after its dama
 
 func _init(g) -> void:
 	super(g)
-	flight = CombatFlight.new(g)
-	phantom = CombatPhantom.new(g)
-	sword = CombatSword.new(g)
-	swarm = CombatSwarm.new(g)
-	flute = CombatFlute.new(g)
-	heals = CombatHeals.new(g)
-	blood_path = CombatBloodPath.new(g)
-	plates = CombatPlates.new(g)
-	talismans = CombatTalismans.new(g)
-	projectiles = CombatProjectiles.new(g)
-	treasures = CombatTreasures.new(g)
-	revival = CombatRevival.new(g)
-	riders = CombatRiders.new(g)
+	flight = CombatFlight.new(self)
+	phantom = CombatPhantom.new(self)
+	sword = CombatSword.new(self)
+	swarm = CombatSwarm.new(self)
+	flute = CombatFlute.new(self)
+	heals = CombatHeals.new(self)
+	blood_path = CombatBloodPath.new(self)
+	plates = CombatPlates.new(self)
+	talismans = CombatTalismans.new(self)
+	projectiles = CombatProjectiles.new(self)
+	treasures = CombatTreasures.new(self)
+	revival = CombatRevival.new(self)
+	riders = CombatRiders.new(self)
 
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
@@ -181,16 +181,16 @@ func handle(intent: Dictionary) -> Dictionary:
 		"guard_end": return guard(c, false)
 		"dodge": return dodge(c, intent.get("direction", Vector2.ZERO), int(intent.get("facing", 1)), bool(intent.get("moves", true)))
 		"move_cancel": return move_cancel(c)
-		"choose_revival": return revival.choose_revival(c, str(intent.get("where", "shrine")))
-		"start_flight": return flight.start_flight(c)
-		"use_treasure": return treasures.use_treasure(c, int(intent.get("slot", 0)))
-		"toggle_sword_release": return sword.toggle_sword_release(c)
-		"self_detonate": return treasures.self_detonate(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
-		"channel_melody": return flute.channel_melody(c, bool(intent.get("on", true)))
-		"plunge": return flight.plunge(c)
-		"glide": return flight.glide(c, bool(intent.get("on", true)))
+		"choose_revival": return choose_revival(c, str(intent.get("where", "shrine")))
+		"start_flight": return start_flight(c)
+		"use_treasure": return use_treasure(c, int(intent.get("slot", 0)))
+		"toggle_sword_release": return toggle_sword_release(c)
+		"self_detonate": return self_detonate(c, int(intent.get("index", -1)), bool(intent.get("confirm", false)))
+		"channel_melody": return channel_melody(c, bool(intent.get("on", true)))
+		"plunge": return plunge(c)
+		"glide": return glide(c, bool(intent.get("on", true)))
 		"stop_flight":
-			flight.stop_flight(c.id, str(intent.get("reason", "landed")))
+			stop_flight(c.id, str(intent.get("reason", "landed")))
 			return ok()
 	return fail("unknown_intent")
 
@@ -1720,15 +1720,19 @@ func end_spar(actor_id: String) -> void:
 	if c != null: apply_resource_change(actor_id, "hp", c.pools.max_hp, "spar")
 
 # ------------------------------------------------------------------ the parts' faces
-# What code outside the authority (other authorities, views, pages, tests, tools) calls on a part, by the names it
-# always had. A part's intents come in through handle, and the authority and the parts call a part directly.
+# Every public method that moved into a part, and the private ones that tests and tools call by name (S11 renames
+# those), forwarded under the names they always had. The authority's own flow and the parts call a part directly.
 
 # Flight and the movement arts (combat_flight.gd).
+func start_flight(c) -> Dictionary: return flight.start_flight(c)
+func stop_flight(actor_id: String, reason: String) -> void: flight.stop_flight(actor_id, reason)
 func flight_allowed(actor_id: String) -> bool: return flight.flight_allowed(actor_id)
 func is_flying(actor_id: String) -> bool: return flight.is_flying(actor_id)
 func vessel_qi_mult(c) -> float: return flight.vessel_qi_mult(c)
 func air_qi_mult(c) -> float: return flight.air_qi_mult(c)
 func knows_art(c, art: String) -> bool: return flight.knows_art(c, art)
+func plunge(c) -> Dictionary: return flight.plunge(c)
+func glide(c, on: bool) -> Dictionary: return flight.glide(c, on)
 func is_gliding(actor_id: String) -> bool: return flight.is_gliding(actor_id)
 
 # Phantom Double (combat_phantom.gd).
@@ -1738,6 +1742,8 @@ func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Di
 
 # The flying sword, Sword Intent and Killing Intent (combat_sword.gd).
 func natal_demand(inst: Dictionary) -> float: return sword.natal_demand(inst)
+func knows_sword_release(c) -> bool: return sword.knows_sword_release(c)
+func toggle_sword_release(c) -> Dictionary: return sword.toggle_sword_release(c)
 func _tick_sword(c, delta: float) -> void: sword.tick_sword(c, delta)
 func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void: sword.feed_intent(c, e, attack)
 func intent_penetration(c) -> float: return sword.intent_penetration(c)
@@ -1752,6 +1758,7 @@ func swarm_of(actor_id: String) -> int: return swarm.swarm_of(actor_id)
 func _end_swarm(c, why: String) -> void: swarm.end_swarm(c, why)
 
 # The flute's melody (combat_flute.gd).
+func channel_melody(c, on: bool) -> Dictionary: return flute.channel_melody(c, on)
 func is_playing(actor_id: String) -> bool: return flute.is_playing(actor_id)
 
 # Heals (combat_heals.gd).
@@ -1780,6 +1787,8 @@ func _tick_projectiles(delta: float) -> void: projectiles.tick_projectiles(delta
 # Treasures and throwables (combat_treasures.gd).
 static func treasure_of(item_id: String) -> Dictionary: return CombatTreasures.treasure_of(item_id)
 static func treasure_soul_cost(c, t: Dictionary) -> float: return CombatTreasures.treasure_soul_cost(c, t)
+func use_treasure(c, slot: int) -> Dictionary: return treasures.use_treasure(c, slot)
+func self_detonate(c, index: int, confirm: bool) -> Dictionary: return treasures.self_detonate(c, index, confirm)
 func _tick_treasures(c, delta: float) -> void: treasures.tick_treasures(c, delta)
 func apply_throw(actor_id: String, e: Dictionary) -> void: treasures.apply_throw(actor_id, e)
 func _burst(c, p: Dictionary, first: EnemyState) -> void: treasures.burst(c, p, first)
