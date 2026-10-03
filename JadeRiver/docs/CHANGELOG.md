@@ -33,16 +33,17 @@ in them on the grid.
   ways back from the Sect War and the Presence Trial, the Bastion's skiff and the Drone Hive's way east lead to rooms
   with no layout and are gated.
 - **Tests.**
-  - A new suite, `topdown_story_rooms`, with 68 checks. It plays The Heart Trial, Gu's Warehouse, The Siege, The Gate
-    Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the grid) and Greyfall's stand. It walks
-    the grey fields to the Drone Hive and back. Each room is built by the view and walked by auto-path.
+  - A new suite, `topdown_story_rooms`, with 69 checks. It plays The Heart Trial (its heart demons too), Gu's
+    Warehouse, The Siege, The Gate Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the
+    grid) and Greyfall's stand. It walks the grey fields to the Drone Hive and back. Each room is built by the view and
+    walked by auto-path.
   - The `room_engine` capture set has R5's views (`docs/architecture/room_engine/r5/`).
   - One frontier check moved. No way off the grid is in walking reach from the Marsh Edge now, so `topdown_tutorial`
     sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
   - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
     R4's closed-cheek `flights`.
   - The run after merging R4 and S11: every gate holds (the grid's parity on 88 layouts), with no script error.
-    - `topdown_story_rooms` is new, with 68 checks.
+    - `topdown_story_rooms` is new, with 69 checks.
     - `room_engine` has 268 checks, three for each room it lays out (30 for R5's ten).
     - `contract_tests` 1,112, `rules_tests` 2,712 (its route tour over 89 rooms), `room_sweep` 3,736,
       `visibility_suite` 6,758, `topdown_tutorial` 1,030 and `valley_run` 3,000.

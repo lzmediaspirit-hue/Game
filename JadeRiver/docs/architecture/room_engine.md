@@ -685,9 +685,10 @@ the layout's cells to that set piece's room event (`topdown_rooms.set_piece_even
 The tide battle's lantern drains within 180 units of the great lantern and relights within 120 of it. On the grid
 these are its place's plane distance, about six and four cells.
 
-**Tested in** `tests/topdown_story_rooms.tscn` (68 checks), by test shortcuts along the story:
+**Tested in** `tests/topdown_story_rooms.tscn` (69 checks), by test shortcuts along the story:
 - every room is entered on the grid, built by the view and walked by auto-path from every way in;
-- The Heart Trial: the Reflection defeated on its arena;
+- The Heart Trial: the heart demons come with the Reflection on the arena's open ground, and the Reflection is
+  defeated;
 - Gu's Warehouse: the strongbox opened on the strongroom, Gu held off until he flees with his ledger dropped;
 - The Siege: the Behemoth and the boarlets come out of the grey north of the wall, at the room's cells;
 - The Gate Holds: the pirates, the turncoats and Rao come at their cells, and Rao falls;

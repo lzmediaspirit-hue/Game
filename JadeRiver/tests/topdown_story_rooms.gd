@@ -10,7 +10,8 @@ extends "res://tests/prologue_run.gd"
 ##      for every way); in each, auto-path (TopdownRoute.reach: a hop up a level, no running jump) reaches every NPC,
 ##      object and way from the spawn and every way in;
 ##   2. the Trial of Reflections (The Heart Trial): the circle on Elder Hu's peak, the Reflection standing on the
-##      arena's floor at its own cell, defeated; back to the peak;
+##      arena's floor at its own cell, the heart demons it brings on the arena's open ground; the Reflection defeated;
+##      back to the peak;
 ##   3. Gu's Warehouse (Gu's Warehouse): in through the trade house's door from Artisan Row, the strongbox on the
 ##      strongroom's dais opened, Elder Gu defeated at his office for the ledger; out again;
 ##   4. the Siege of Two Sects (The Siege): the war gong on Gate Street; the Behemoth and the boarlets come out of the
@@ -224,6 +225,7 @@ func _reflections() -> void:
 	_realm("heart_tempering_9")
 	check(_load("ja_elder_hu_peak"), "on Elder Hu's peak on the grid, Heart Tempering 9 (room %s)" % room())
 	_take("the_heart_trial")
+	c().cultivator.heart_demon = 50.0   # two heart demons come with the Reflection (a test shortcut: the meter)
 	var began := interact("rite_reflection")
 	GameEvents.flush()
 	place(Vector2(float(c().position.x), float(c().position.y)))
@@ -231,6 +233,13 @@ func _reflections() -> void:
 		"the circle on the peak opens the Trial of Reflections, on the grid (%s; room %s)" % [str(began), room()])
 	var got := _spawned_at("the_reflection", _event_cells("fixed"))
 	check(got[0] == 1 and got[1], "the Reflection stands on the arena's floor at its own cell, across from the way in (%s)" % str(got))
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var demons := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "heart_demon" and e.summoned)
+	var at: Array = demons.map(func(e): return TopdownRoom.cell_of(e.spawn_point))
+	check(demons.size() == 2 and at.all(func(q): return grid.standable(q)),
+		"the heart demons come with the Reflection, on the arena's open ground (T1's grid_points; %s)" % str(at))
+	for e in demons: Game.enemies.release(e)   # their fight is the balance's; the room's spawns are what is tested
+	c().cultivator.heart_demon = 0.0
 	check(_boss("the_reflection") >= 1 and "heart_trial" in c().cultivator.events_passed, "the Reflection defeated in its mirrored arena: the Heart Trial passed")
 	_done("the_heart_trial", "the trial won")
 	_whole()
