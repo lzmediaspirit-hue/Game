@@ -51,6 +51,9 @@ EXTRA = {"swim": 8}
 LOOP = {"idle": True, "walk": True, "swim": True}
 FPS = {"idle": 7, "attack": 20, "hurt": 12, "death": 10}
 ELITE = 1.2          # an elite's size against its species'
+# M1: a person's label (its `top`) stands over its head where a villager's marks do (TopdownPlaces.HEAD_LIFT: 16 world
+# units, 8 art px), not on its hair.
+PERSON_LIFT = 8
 MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
 
 
@@ -65,13 +68,18 @@ class Spec:
     monster engine makes one from each spec (content.monsters.art)."""
 
     def __init__(self, pose=None, plan=None, body=None, size=1.0, palette=(), accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None,
+                 share=False):
         self.hand, self.plan, self.body, self._body = pose, plan, dict(body or {}), None
         self.size, self.palette = size, list(palette)
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
         self.aura, self.sized, self.gold, self.view, self.extra = aura, sized, gold, view, tuple(extra)
         # decision 45: {size (against its own), ramps {material: the awakened ramp's name}}, or None
         self.awakened = awakened
+        # M1: identical frames of a facing share one cell of its row (a held pose, a person's repeated frames), so the
+        # sheet carries each picture once; foes.json points every frame at its cell as before. An elite's ring is lean
+        # then: it flickers by its pose (sculpt.ring_seed), so its held poses share too, and its alphas come in steps.
+        self.share = share
 
     def looks(self) -> list:
         """The looks it is drawn in: its own, its elite's, its awakened one's."""
@@ -137,7 +145,10 @@ def draw(species: str, action: str, f: int, facing: str, elite="base") -> np.nda
         kw["view"] = ANGLE[facing]
     P = sp.pose(action, f, **kw)
     P.k = k
-    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura)
+    if hasattr(P, "picture"):
+        # M1: a person (plans/person.py) is cast by the character's own pipeline, dressed in its outfit, not sculpted.
+        return P.picture(facing, elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
+    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
 
 
 def _enemies() -> dict:
@@ -201,8 +212,17 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             x0, x1 = xs.min() - 1, xs.max() + 2
             y0, y1 = ys.min() - 1, ys.max() + 2
             cw, ch = int(x1 - x0), int(y1 - y0)
-            per = max(1, min(n, MAX_SIDE // cw))
-            rows_per = -(-n // per)
+            # Each facing's cells: every frame its own, or (`share`) each distinct picture once, the frames pointing at it.
+            cells = {}
+            for d in DIRS:
+                seen, idx = {}, []
+                for im in frames[(sp, el, d)]:
+                    key = im[y0:y1, x0:x1].tobytes() if REGISTRY[sp].share else len(idx)
+                    idx.append(seen.setdefault(key, len(seen)))
+                cells[d] = idx
+            m = max(max(v) + 1 for v in cells.values())
+            per = max(1, min(m, MAX_SIDE // cw))
+            rows_per = -(-m // per)
             sheet = Image.new("RGBA", (per * cw, len(DIRS) * rows_per * ch), (0, 0, 0, 0))
             acts: dict = {}
             for di, d in enumerate(DIRS):
@@ -211,7 +231,8 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
                     entry = acts.setdefault(a, {"fps": fps[a], "loop": LOOP.get(a, False), "frames": {}})
                     lst = []
                     for _ in range(frames_of(a)):
-                        col, r = i % per, di * rows_per + i // per
+                        c = cells[d][i]
+                        col, r = c % per, di * rows_per + c // per
                         sheet.paste(Image.fromarray(np.ascontiguousarray(frames[(sp, el, d)][i][y0:y1, x0:x1]), "RGBA"), (col * cw, r * ch))
                         lst.append([col * cw, r * ch])
                         i += 1
@@ -222,6 +243,8 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             idle = frames[(sp, el, "s")][0][..., 3] > 0
             iy = np.nonzero(idle.any(axis=1))[0]
             top = int(sculpt.FOOT[1] - iy.min()) if len(iy) else int(sculpt.FOOT[1] - y0)
+            if str(REGISTRY[sp].plan or "").startswith("person."):
+                top += PERSON_LIFT
             k = ELITE if el == "elite" else (float(REGISTRY[sp].awakened.get("size", 1.0)) if el == "awakened" else 1.0)
             shadow = [int(round(REGISTRY[sp].shadow[0] * k)), int(round(REGISTRY[sp].shadow[1] * k))]
             path = "art/topdown/foes/%s%s.png" % (sp, "" if el == "base" else "_" + el)

@@ -13,6 +13,14 @@ The motion styles (STYLES): idle `breathe_snap`, walk `lumber`, windup `rear_cru
 `pull_in`, death `roll_plastron`. Channels: lunge, rear (the shell's pitch), sink, neck (how far the head is out),
 hpitch, gape, crusher (elbow, palm, pitch, yaw, open), roll, curl (legs), tuck (legs), splash.
 
+`tortoise` (the stone tortoise, M1): the snapper without its crusher, its saw plates or its river weed: a shell that is
+a small stone mountain (`paint` "crag": pale granite in strata and faces, moss on its ledges, a dark scute rim; crags
+standing up off the dome, `crags`; a little wind-bent pine on the saddle, `pine`), a stub of a tail (`plates` off). It
+rears onto its hind legs in the tell (`rear_up`: the front lifted about the hind feet, the forefeet off the ground) and
+stamps down on the blow in a ring of dust (`stomp`); struck, it pulls in; beaten, its head and legs withdraw and the
+mountain cracks (`withdraw_crack`). Its styles: idle `breathe_snap`, walk `lumber`, windup `rear_up`, attack `stomp`,
+hurt `pull_in`, death `withdraw_crack`.
+
 `beetle` (the rock beetle, E2): elytra, a pronotum and a chitin underside (shell `kind` "beetle": rocky plates, lichen
 and flecks by the species' seed, lumps breaking the line), a horned head with clubbed antennae, six jointed legs in
 tripods; `ball` curls it into a stone ball and `spin` rolls it. Its styles: idle `twitch`, walk `tripod`, windup
@@ -84,6 +92,18 @@ BEETLE_STYLES = {
                   "paw": (4, 6), "edge": (6.0, 3.0), "shut_from": 4},
 }
 STYLES.update(BEETLE_STYLES)
+TORTOISE_STYLES = {
+    "rear_up": {"lunge": (-0.4, -0.9, -1.3, -1.5), "rear": (6.0, 13.0, 19.0, 22.0), "neck": (1.1, 1.2, 1.3, 1.3),
+                "hpitch": (6.0, 12.0, 18.0, 20.0), "gape": (0.2, 0.4, 0.6, 0.7), "reared": (0.3, 0.6, 0.9, 1.0)},
+    "stomp": {"lunge": (0.6, 1.6, 1.6, 1.2, 0.6, 0.2), "rear": (10.0, -3.0, -2.0, -0.8, 0.0, 0.0), "sink": (0.0, 0.8, 0.6, 0.2, 0.0, 0.0),
+              "hpitch": (10.0, -10.0, -8.0, -4.0, -1.0, 0.0), "gape": (0.7, 0.3, 0.2, 0.1, 0.0, 0.0), "reared": (0.5, 0.0, 0.0, 0.0, 0.0, 0.0),
+              "ring": (0.0, 1.0, 1.7, 2.4, 0.0, 0.0), "squash": {1: (1.03, 1.03, 0.93)}},
+    "withdraw_crack": {"rear": (3.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0), "sink": (0.0, 0.6, 1.2, 1.6, 1.8, 1.8, 1.8, 1.8),
+                       "neck": (0.8, 0.5, 0.25, 0.1, 0.05, 0.0, 0.0, 0.0), "hpitch": (8.0, -6.0, -10.0, -12.0, -12.0, -12.0, -12.0, -12.0),
+                       "gape": (0.5, 0.3, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0), "tuck": (0.0, 0.3, 0.6, 0.85, 1.0, 1.0, 1.0, 1.0),
+                       "crack": (0.0, 0.0, 0.2, 0.45, 0.7, 0.9, 1.0, 1.0), "shut_from": 3, "dust": (2, 3, 4)},
+}
+STYLES.update(TORTOISE_STYLES)
 
 BEETLE = {
     "Z": 2.9,
@@ -97,7 +117,25 @@ BEETLE = {
     "legs": {"kind": "jointed", "at": (2.8, 0.2, -2.6), "hip": (3.0, -0.8), "knee": (5.4, 0.5), "foot": (6.7, 0.3),
              "lean": (2.2, 0.3, -2.2), "r": ((0.62, 0.52), (0.5, 0.28)), "lift": 1.2, "stride": 1.4},
 }
+TORTOISE = {
+    "Z": 6.0,
+    "shell": {"rim": ((0.0, 0.0, -2.4), (11.6, 10.0, 2.2)), "plastron": ((0.4, 0.0, -3.4), (10.0, 8.4, 1.9)),
+              "dome": ((0.0, 0.0, -0.8), (10.8, 9.2, 6.6)), "paint": "crag",
+              # Crags standing up off the dome: (along, across, rise over the dome, radius); the pine on the saddle.
+              "crags": ((-2.6, 1.8, 2.6, 2.6), (2.6, -1.4, 1.6, 2.2), (-5.6, -2.4, 0.9, 2.0), (5.0, 3.0, 0.6, 1.8), (-0.4, -3.8, 0.8, 1.7)),
+              "pine": (1.0, 2.2), "cracks": (((-6.0, -4.0), (-3.0, -1.6), (-1.0, -2.4), (2.4, 0.2)),
+                                             ((1.0, 4.4), (2.0, 1.6), (4.6, 0.6), (6.4, -2.0)))},
+    "head": {"kind": "beaked", "neck": ((7.0, 0.0, -1.4), (9.6, 3.0, -0.6), (2.4, 2.6)), "skull": (3.6, 3.1, 2.8),
+             "scales": (3.8, 3.3, 3.0), "beak": ((3.2, 0.0, -0.4), (1.8, 2.1, 1.8)), "shut_from": 5},
+    "legs": {"kind": "pillar", "at": ((5.4, 8.0), (5.4, -8.0), (-5.8, 7.6), (-5.8, -7.6)), "lift": 1.2, "stride": 1.4},
+    "tail": {"kind": "saw", "root": (-9.6, 0.0, -2.4), "tip": (-13.0, 1.0), "r": (1.6, 0.6), "plates": False},
+}
 VARIANTS = {
+    "tortoise": {"parts": TORTOISE, "mats": {"shell": "mtn_rock", "rim": "mtn_rim", "moss": "mtn_moss", "moss_lit": "mtn_moss",
+                                             "skin": "tort_skin", "belly": "tort_belly", "beak": "tort_beak", "eye": "snap_eye", "maw": "maw",
+                                             "pine": "mtn_pine", "bark": "mtn_bark"},
+                 "motion": {"idle": "breathe_snap", "walk": "lumber", "windup": "rear_up", "attack": "stomp", "hurt": "pull_in",
+                            "death": "withdraw_crack"}},
     "snapper": {"parts": SNAPPER, "mats": {"shell": "snap_shell", "moss": "snap_moss", "moss_lit": "snap_moss_lit", "skin": "snap_skin",
                                            "belly": "snap_belly", "beak": "snap_beak", "claw": "crusher", "tip": "crusher_tip",
                                            "weed": "weed", "eye": "snap_eye", "maw": "maw"},
@@ -127,6 +165,9 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     breathe = B.pick("breathe", action, f)
     rear = B.pick("rear", action, f)
     c.z = p.Z + breathe * 0.4 - B.pick("sink", action, f)
+    if B.has("reared", action):
+        # M1, the tortoise's rear: the front lifted about the hind feet, so the shell rises as it pitches.
+        c.z += 6.0 * math.sin(math.radians(max(0.0, rear)))
     c.C = v3(c.lunge, 0.0, c.z)
     c.bm = rot("a", c.rock) @ rot("b", rear)
     C, bm = c.C, c.bm
@@ -138,6 +179,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         {"saw": _tail_saw}[p.tail.kind](P, B, c)
     if "claw" in p:
         {"crusher": _crusher}[p.claw.kind](P, B, c)
+    if B.has("ring", action) or B.has("crack", action) or "dust" in st:
+        _quake(P, B, c)
     roll = B.pick("roll", action, f)
     if roll:
         edge, back = st.edge
@@ -171,6 +214,21 @@ def _shell(P, B, c) -> None:
                         np.min(np.abs(a[:, None] - np.array([-3.2, 0.6, 4.2])[None, :]), axis=1)) < 0.45
         return ring | rows
 
+    def crag(q, n):
+        """M1, the stone tortoise's mountain: pale granite laid in strata, its faces a step lit or shaded by a hash
+        (rock faces, not plates), moss on its ledges (where the stone turns flat to the sky), the pale plastron under it."""
+        loc, ln = local(q, n)
+        a, b, z = loc[:, 0], loc[:, 1], loc[:, 2]
+        belly = ln[:, 2] < -0.25
+        face = h01v(np.floor(a * 0.7 + 40), np.floor(b * 0.7 + 40) + np.floor(z * 0.7), 7)
+        strata = ((z * 1.15 + 0.35 * np.sin(a * 0.8 + b * 0.3)) % 1.7) < 0.24
+        ledge = h01v(np.floor(a * 0.9 + 60), np.floor(b * 0.9 + 60), 11)
+        moss = (ln[:, 2] > 0.95 - 0.16 * ledge) & ~belly & (ledge > 0.35)
+        names = np.where(belly, m.belly, np.where(moss, m.moss, m.shell)).astype(object)
+        bias = np.where(belly | moss, np.where(moss & (ledge > 0.75), 1, 0),
+                        np.where(strata, -1, np.where(face > 0.72, 1, np.where(face < 0.22, -1, 0)))).astype(np.int16)
+        return names, bias
+
     def carapace(q, n):
         """Moss over the dome's top in patches, lighter blotches in it and the plates' seams faint under it; the dark
         green plates on the flanks, their seams a step darker; the pale plastron underneath."""
@@ -186,11 +244,13 @@ def _shell(P, B, c) -> None:
 
     rim_c, rim_r = at(sh.rim[0]), sh.rim[1]
 
+    rim_mat = m.get("rim", m.shell)
+
     def rim(q, n):
         loc, ln = local(q, n)
         belly = ln[:, 2] < -0.35
         seam = (np.degrees(np.arctan2(loc[:, 1] / rim_r[1], loc[:, 0] / rim_r[0])) % 30.0) < 5.0
-        return np.where(belly, m.belly, m.shell).astype(object), np.where(seam & ~belly, -1, 0).astype(np.int16)
+        return np.where(belly, m.belly, rim_mat).astype(object), np.where(seam & ~belly, -1, 0).astype(np.int16)
 
     def plastron(q, n):
         loc, _ = local(q, n)
@@ -198,25 +258,42 @@ def _shell(P, B, c) -> None:
         return np.full(len(q), m.belly, dtype=object), np.where(seam, -1, 0).astype(np.int16)
 
     (da, db, dc), (ra, rb, rc) = sh.dome
-    P.add(E(rim_c, rim_r, m.shell, "shell", bm, rim),
+    if sh.get("paint") == "crag":
+        carapace = crag
+    P.add(E(rim_c, rim_r, rim_mat, "shell", bm, rim),
           E(at(sh.plastron[0]), sh.plastron[1], m.belly, "shell", bm, plastron),
           E(at(sh.dome[0]), sh.dome[1], m.shell, "shell", bm, carapace))
+    # M1: crags standing up off the dome (the tortoise's mountain), and a little pine on its saddle, swaying.
+    for a0, b0, rise, r in sh.get("crags", ()):
+        top = dc + rc * math.sqrt(max(0.0, 1.0 - (a0 / ra) ** 2 - (b0 / rb) ** 2))
+        P.add(E(at((a0, b0, top + rise - r * 1.1)), (r, r * 0.85, r * 1.6), m.shell, "crag", bm, crag, line=False),
+              E(at((a0 + r * 0.25, b0 - r * 0.2, top + rise + r * 0.25)), (r * 0.5, r * 0.45, r * 0.8), m.shell, "crag", bm, crag, line=False))
+    if sh.get("pine"):
+        a0, b0 = sh.pine
+        top = dc + rc * math.sqrt(max(0.0, 1.0 - (a0 / ra) ** 2 - (b0 / rb) ** 2))
+        sway = 0.3 * wave(a_, f) if a_ in ("idle", "walk") else 0.0
+        foot = at((a0, b0, top - 0.6))
+        tip = foot + bm @ v3(-0.3 + sway, 0.2, 5.2)
+        P.add(L(foot, tip, 0.5, 0.25, m.bark, "pine"))
+        for k, (u, rr, hh) in enumerate(((0.35, 2.0, 0.8), (0.6, 1.6, 0.75), (0.85, 1.05, 0.7))):
+            q = foot + (tip - foot) * u + v3(0.4 * (1 if k % 2 else -1) * 0.5, 0.0, 0.0)
+            P.add(E(q, (rr * 1.15, rr, hh), m.pine, "pine", bm))
     # Three keels of knobs along the dome, and the serrated back edge.
-    for b0, row in sh.keels:
+    for b0, row in sh.get("keels", ()):
         for a0 in row:
             top = dc + rc * math.sqrt(max(0.0, 1.0 - (a0 / ra) ** 2 - (b0 / rb) ** 2))
             P.add(E(at((a0, b0, top - 0.1)), (1.4, 1.0, 1.0), m.shell, "keel", bm, carapace, line=False))
     rz = rim_c
-    for ang in sh.serrate:
+    for ang in sh.get("serrate", ()):
         P.add(E(at((rim_r[0] * math.cos(math.radians(ang)), rim_r[1] * math.sin(math.radians(ang)), sh.rim[0][2])), (1.4, 1.4, 1.0), m.shell, "shell", bm))
-    for u, v in sh.barnacles:
+    for u, v in sh.get("barnacles", ()):
         for du, dv, col in ((0.0, 0.0, M.BARNACLE), (4.0, -12.0, M.BARNACLE_SHADE)):
             cu, su = math.cos(math.radians(u + du)), math.sin(math.radians(u + du))
             cv, sv = math.cos(math.radians(v + dv)), math.sin(math.radians(v + dv))
             P.mark(rz + bm @ v3(sh.on_rim[0] * cv * cu, sh.on_rim[1] * cv * su, sh.on_rim[2] * sv), col)
     # River weed trailing from the back edge, stirring as it moves.
     sway = c.st.sway_amp * wave(a_, f) if "sway_amp" in c.st else 0.3
-    for k, b0 in enumerate(sh.weed):
+    for k, b0 in enumerate(sh.get("weed", ())):
         root = at((-11.2 + abs(b0) * 0.2, b0, -2.4))
         tip = v3(c.lunge - 15.0 - k * 0.6, b0 * 1.1 + sway * (1.0 if k % 2 else -1.0), 0.8)
         midp = (root + tip) * 0.5 + v3(0.0, sway * 0.6, -0.4)
@@ -268,6 +345,8 @@ def _legs_pillar(P, B, c) -> None:
     a_, f, at, lunge = c.action, c.f, c.at, c.lunge
     curl = B.pick("curl", a_, f)
     tuck = B.pick("tuck", a_, f)
+    reared = B.pick("reared", a_, f)
+    withdraw = B.pick("withdraw", a_, f)
     paw = st.get("paw")
     for k, (a, b) in enumerate(g.at):
         up, stride = gait(a_, f, 0.0 if k in (0, 3) else 0.5, g.lift, g.stride)
@@ -275,6 +354,11 @@ def _legs_pillar(P, B, c) -> None:
         out = 1.0 - 0.4 * curl - 0.3 * tuck
         paw_wave = 0.6 * math.sin(f * 1.7 + k) * (1.0 if paw is not None and paw[0] <= f <= paw[1] else 0.0)
         foot = v3(lunge + a * (0.9 + 0.1 * out) + stride, b * (0.78 + 0.34 * out), 1.1 + up + curl * 3.4 + paw_wave)
+        if reared > 0.0 and a > 0:
+            # M1: rearing, the forefeet lift off the ground and hang forward under the raised front.
+            foot = foot + (hip + v3(1.6, b * 0.1, -3.2) - foot) * reared
+        if withdraw > 0.0:
+            foot = foot + (hip + v3(0.0, b * 0.12, -1.2) - foot) * withdraw
         pad = foot + v3(0.8 if a > 0 else -0.5, 0.0, -0.2)
         P.add(L(hip, foot, 2.4, 2.1, m.skin, "leg%d" % k), E(pad, (2.4, 2.1, 1.1), m.skin, "leg%d" % k))
         if a > 0:
@@ -290,9 +374,42 @@ def _tail_saw(P, B, c) -> None:
     wag = st.wag_amp * wave(c.action, c.f) if "wag_amp" in st else 0.0
     root, tip = c.at(t.root), v3(c.lunge + t.tip[0], wag * 2.0, t.tip[1])
     P.add(L(root, tip, t.r[0], t.r[1], m.skin, "tail"))
-    for u in (0.25, 0.45, 0.65, 0.82):
+    for u in ((0.25, 0.45, 0.65, 0.82) if t.get("plates", True) else ()):
         q = root + (tip - root) * u
         P.add(E(q + v3(0.0, 0.0, 2.0 - 1.3 * u + 0.1), (0.8, 0.5, 0.7), m.skin, "saw", line=False))
+
+
+def _quake(P, B, c) -> None:
+    """M1, the stone tortoise: the stamp's ring of dust spreading over the ground before it (`ring`), the mountain's
+    cracks spreading over the dome as it dies (`crack`: the share of each crack drawn), dust shaken off it (`dust`)."""
+    sh, st = B.parts.shell, c.st
+    a_, f, at = c.action, c.f, c.at
+    ring = B.pick("ring", a_, f)
+    if ring > 0.0:
+        cx = c.lunge + 4.0
+        rr = 5.0 + 4.0 * ring
+        for k in range(48):
+            ang = math.radians(k * 7.5 + ring * 13.0)
+            ca, sa = math.cos(ang), math.sin(ang) * 0.95
+            for d, col in ((0.0, M.DUST), (0.9, M.DUST_DIM)):
+                P.fx.append((v3(cx + ca * (rr + d), sa * (rr + d), 0.2 + 0.4 * (k % 3 == 0) * (1.5 - ring * 0.5)), col))
+            if k % 3 == 1 and ring < 2.0:
+                P.fx.append((v3(cx + ca * (rr - 1.4), sa * (rr - 1.4), 1.0 + 0.8 * (2.0 - ring)), M.DUST))
+    crack = B.pick("crack", a_, f)
+    if crack > 0.0:
+        (da, db, dc), (ra, rb, rc) = sh.dome
+        for path in sh.get("cracks", ()):
+            pts = []
+            for (a0, b0), (a1, b1) in zip(path, path[1:]):
+                for t in np.linspace(0.0, 1.0, 6, endpoint=False):
+                    pts.append((a0 + (a1 - a0) * t, b0 + (b1 - b0) * t))
+            for a0, b0 in pts[:max(1, int(round(len(pts) * crack)))]:
+                top = dc + rc * math.sqrt(max(0.0, 1.0 - (a0 / ra) ** 2 - (b0 / rb) ** 2))
+                P.mark(at((a0, b0, top + 0.15)), M.CRACK)
+    if f in st.get("dust", ()):
+        for k in range(10):
+            ang = math.radians(k * 36.0 + f * 17.0)
+            P.fx.append((v3(c.lunge + math.cos(ang) * 11.5, math.sin(ang) * 10.0, 0.3 + (k % 3) * 0.5), M.DUST if k % 2 else M.DUST_DIM))
 
 
 # ------------------------------------------------------------------------------------------------ the crusher

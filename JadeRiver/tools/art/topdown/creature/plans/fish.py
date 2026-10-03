@@ -10,6 +10,8 @@ trailing as its wake.
   fins   the dorsal plates (along it, height), the pectoral fins' place and size
   eye    the socket and the eye's colour (the Hollow's empty white), closed or dulled when struck or beaten
   wake   the Hollow's strands from the tail (a minnow's), how long they trail per action
+  M1 (the jade carp): `Z` (it rides at the water line, its belly on the ground), `barbels` (whiskers trailing from the
+         mouth's corners), a `gold` material tipping the fins and the lobes, ringing the eye (`eye.ring`)
 
 The motion styles (STYLES): idle `hang`, walk `swish`, windup `curl_c`, attack `dart`, hurt `jerk_roll`, death
 `belly_up_mist`. The channels: `dart` (along the way it goes), `bob` (up), `swish` (the tail's swing, degrees),
@@ -120,7 +122,7 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     gape = B.pick("gape", action, f)
     flap = -10.0 - 20.0 * max(0.0, math.sin(f * 1.3)) if st.get("flap") else 0.0
     body_m = rot("b", nose) @ rot("c", -swish * 0.25)        # the head turns against the tail
-    C = v3(dart, 0.0, bob)
+    C = v3(dart, 0.0, bob + p.get("Z", 0.0))
     at = lambda q: C + body_m @ v3(q)
 
     def fish(q, n):
@@ -140,17 +142,30 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     piv = at((t.pivot, 0.0, 0.0))
     P.add(E(piv + tm @ v3(t.seg[0]), t.seg[1], m.skin, "body", tm, fish))
     la, lc, lr, lspread = t.lobe
+    gold = m.get("gold")
     for s in (1, -1):   # the forked tail: an upper and a lower lobe
-        P.add(E(piv + tm @ v3(la, 0.0, s * lc), lr, m.fin, "tail", tm @ rot("b", -s * lspread)))
+        lm = tm @ rot("b", -s * lspread)
+        P.add(E(piv + tm @ v3(la, 0.0, s * lc), lr, m.fin, "tail", lm))
+        if gold:
+            P.mark(piv + tm @ v3(la, 0.0, s * lc) + lm @ v3(-lr[0] * 0.9, 0.0, 0.0), M.RAMPS[gold][3])
     d = p.dorsal
     for a, h in d.plates:   # the ragged dorsal fin
         P.add(E(at((a, 0.0, d.base + h * 0.5)), (d.r[0], d.r[1], h), m.fin, "dorsal", body_m))
+        if gold:
+            P.mark(at((a, 0.0, d.base + h * 1.4)), M.RAMPS[gold][3])
     e = p.eye
     for s in (1, -1):
         P.add(E(at((p.pecs.at[0], s * p.pecs.at[1], p.pecs.at[2])), p.pecs.r, m.fin, "pec%d" % s, body_m @ rot("a", s * flap)))
         sock = at(e.socket)
-        P.mark(sock + body_m @ v3(e.rim[0], s * e.rim[1], e.rim[2]), M.RAMPS[m.back][0])
+        P.mark(sock + body_m @ v3(e.rim[0], s * e.rim[1], e.rim[2]), M.RAMPS[gold][2] if gold and e.get("ring") else M.RAMPS[m.back][0])
         P.mark(sock + body_m @ v3(e.at[0], s * e.at[1], e.at[2]), M.RAMPS[m.back][0] if st.get("dull") else getattr(M, e.colour))
+        if p.get("barbels"):
+            # Whiskers from the mouth's corners, trailing back and down, swaying.
+            ba, bb, bc = p.barbels
+            sway = 0.5 * wave(action, f, 0.3 if s > 0 else 0.8) if action in ("idle", "walk") else 0.2
+            root = at((ba, s * bb, bc))
+            pts = [root, root + body_m @ v3(-1.0, s * 0.6, -0.6 + sway * 0.4), root + body_m @ v3(-2.2, s * 1.0 + sway * 0.3, -1.2 + sway)]
+            P.add(chain(pts, 0.32, 0.22, gold or m.fin, "barbel%d" % s, line=False))
     P.mark(at(p.mouth), M.FISH_MOUTH)
     j = p.jaw
     if gape > 0.1:
