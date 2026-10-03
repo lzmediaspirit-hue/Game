@@ -43,8 +43,8 @@ Every suite extends it (`extends "res://tests/lib/suite.gd"`), puts its body in 
     own painters. Elsewhere they do nothing.
   - Users: `perf_tests`; `rules_tests`, for the technique pictures' budget, the preview and the living world;
     `topdown_tutorial`'s people stream.
-  - `rules_tests` reads its pictures' main-thread budget frame by frame, and settles each piece on its own over up to
-    three rounds of the same building. A piece fails only if it is over budget in every round (`_pictures_round`).
+  - The technique pictures time their own main-thread budget on the same clock (`TechniquePicture._clock_us`), and
+    `rules_tests` reads it over one building.
   - `now_us()` reads a file each call (about 20 µs), so microsecond timings keep the wall clock: the coach's cost in
     `tutorials` is a median of 120.
 

@@ -1,5 +1,9 @@
 # Map engine v0.13
 
+**Status (decision 45):** this is the record of v0.13's side-view map engine. The game no longer opens in a generated
+map, and the side view is retiring. Only `tests/map_generation.gd` calls `MapGenerator.generate` today. The game's rooms
+are top-down layouts (`docs/redesign_top_down_plan.md`).
+
 The game now opens in a generated village. Pass fully through an entrance gate to travel through village → road → forest → cave → mountain → town and back around. The same joystick touch remains active across transitions. Existing disciples migrate from the old authored map to a safe village entry while retaining appearance, equipment and resources.
 
 ## Responsibilities
@@ -20,7 +24,7 @@ The current map extent is 5400 units, with a 480-unit ground-depth band. Buildin
 
 Theme fields: `ground` (earth/moss/slate/stone), `background` (settlement/forest/cave), `ascent_kind` (tree_branch/rock_ledge), `building_count`, `building_width`, `tree_count`, `rock_count`, `climb`, `clouds`. Overrides merge with the selected profile before generation. Invalid capacity requests are reported by the validator rather than silently accepted.
 
-For a direct development preview, use Godot user arguments `--preview-world --map-theme=forest --map-seed=7`. New profiles can be previewed the same way; add their names to WorldCatalog.REGIONS to include them in the travel circuit.
+v0.13 previewed a theme with `--preview-world --map-theme=forest --map-seed=7`. Those two flags are gone; `tests/map_generation.gd` generates and validates every profile. A new profile still needs its name in WorldCatalog.REGIONS to join the travel circuit.
 
 ## Save and compatibility
 
@@ -28,10 +32,10 @@ Progress includes theme, seed, generator version, surface ID and plane coordinat
 
 ## Verification
 
-- `tests/map_generation.gd`: 72 seeded maps across all six themes, three deliberately broken layouts and a custom profile (76 cases).
-- `tests/generated_runtime.gd`: continuous player traversal from entry through branches/ledges/clouds, descent, real disk saves/reloads, scene transitions, held joystick transfer and legacy migration (127 checks).
-- `tests/engine_tests.tscn`: existing movement, collision, equipment, animation, save and input regression checks (1,963).
-- `tests/pixel_input.gd`: actual viewport touch/mouse checks (7).
-- `tests/generated_visuals.gd`: captures ground, ascent and elevated views for every region into the workspace previews folder.
+- `tests/map_generation.gd`: 72 seeded maps across all six themes, three deliberately broken layouts and a custom profile (76 cases). No suite runs it; it is one of the side-view scripts in `tests/README.md` ("Other scripts here"):
+  `godot --headless --path . -s res://tests/map_generation.gd`, or `tools/dev/audit/run_legacy.py`, which runs them all.
+- `engine_tests`, a suite in `tests/suites.txt`: movement, collision, equipment, animation, save and input regression checks.
 
-Run tests with the Godot 4.5.1 executable and `--path game`; use `--script res://tests/<name>.gd` for script runners and `res://tests/engine_tests.tscn` for the scene test. Visual/input runners need a graphics display. Physical Android performance remains a device-testing limitation.
+v0.13's traversal run (`generated_runtime.gd`), its viewport touch checks (`pixel_input.gd`) and its region captures (`generated_visuals.gd`) were deleted in decision 45 (S2). The game's review pictures come from the capture registry, `tools/dev/capture/capture.tscn -- <set>` (`tools/dev/README.md`).
+
+Run everything from `JadeRiver/` with the Godot 4.5.1 executable: `tools/run_tests.sh` runs the gates and every suite of `tests/suites.txt`, and `godot --headless --path . res://tests/<name>.tscn` runs one suite. Physical Android performance remains a device-testing limitation.
