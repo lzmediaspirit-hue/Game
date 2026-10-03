@@ -4,6 +4,8 @@ import importlib
 
 ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend"]
 ZONES += ["stonewall_quarry"]   # R3
+# R1: the main story's path past chapter 3 (reed_marsh's rooms past the Marsh Edge are in its module).
+ZONES += ["greyreed_hamlet", "bamboo_grove", "crane_falls", "cleansing_peak"]
 
 
 def all_specs():

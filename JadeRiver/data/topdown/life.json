@@ -604,6 +604,38 @@
   }
  },
  "rooms": {
+  "bg_thicket_heart": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "bg_whispering_bamboo": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "cf_falls_pool": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "cm_array_court": {
    "vista": [
     {
@@ -1013,6 +1045,29 @@
     }
    }
   },
+  "cp_cleansing_summit": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "cp_pilgrim_stairs": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "cr_caravan_road": {
    "vista": [
     {
@@ -1032,6 +1087,20 @@
     {
      "edge": "n",
      "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "gh_hamlet_square": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "marsh",
      "pad": 40
     },
     {
@@ -1981,6 +2050,29 @@
     }
    ]
   },
+  "rm_grey_pools": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "marsh",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "rm_hermit_stilt_house": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "marsh",
+     "pad": 40
+    }
+   ]
+  },
   "rm_marsh_edge": {
    "extras": [
     {
@@ -2056,6 +2148,20 @@
      ]
     }
    }
+  },
+  "rm_sunken_causeway": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "marsh",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
   },
   "sf_artisan_row": {
    "animals": [

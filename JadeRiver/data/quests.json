@@ -5973,6 +5973,7 @@
     "elder_hu",
     "elder_sung"
    ],
+   "target_room": "ds_flooded_gate",
    "requires": {
     "all": [
      {

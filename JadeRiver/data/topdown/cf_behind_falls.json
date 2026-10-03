@@ -1,0 +1,242 @@
+{
+ "schema_version": 1,
+ "id": "cf_behind_falls",
+ "name": "Behind the Falls",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  20,
+  21
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444444440000444444444444444444",
+  "4444444400440000000000000222222222444444",
+  "4444444000000000000000000222222222444444",
+  "4444411111111000000000000222222222444444",
+  "4444011111111000000000000222222222044444",
+  "4440011111111000000000000000000000004444",
+  "4440011111111000000000000000000000004444",
+  "4440000000000000~~~~~0000000000000000444",
+  "44400000000000~~~~~~~~000000000000000044",
+  "4440000000000~~~~~~~~~~00000000000000044",
+  "4440000000000~~~~~~~~~~00000000000000044",
+  "44400000000000~~~~~~~~000000000000000444",
+  "444400000000000~~~~~~0000000000000000444",
+  "4444000000000000000000000000000000004444",
+  "4444000000000000000000000000000000444444",
+  "4444400000000000000000000000000044444444",
+  "4444444444000000000000000000000444444444",
+  "4444444444440000000000000000004444444444",
+  "~~~~~~~~~~~~~~~~~~00000~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~00000~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~00000~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~00000~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddddddrrrrrsssrrrrrrrr",
+  "rrrrdrrrrrrrrddddddddddddddddsssdddrrrrr",
+  "rrrrdddsssdddddd~~~~~ddddddddsssdddrrrrr",
+  "rrrrdddsssdddd~~~~~~~~dddddddsssddddrrrr",
+  "rrrrddddddddd~~~~~~~~~~ddddddddddddddrrr",
+  "rrrrddddddddd~~~~~~~~~~dddddddddddddrrrr",
+  "rrrrrddddddddd~~~~~~~~ddddddddddddddrrrr",
+  "rrrrrdddddddddd~~~~~~ddddddddddddddrrrrr",
+  "rrrrrddddddddddddddddddddddddddddrrrrrrr",
+  "rrrrrrdddddddddddddddddddddddddrrrrrrrrr",
+  "rrrrrrrrrrrdddddddddddddddddddrrrrrrrrrr",
+  "rrrrrrrrrrrrrddddddddddddddddrrrrrrrrrrr",
+  "rrrrrrrrrrrrrddddddddddddddddrrrrrrrrrrr",
+  "~~~~~~~~~~~~~~~~~~ddddd~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~ddddd~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~ddddd~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~ddddd~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 7,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 29,
+   "y": 7,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "mat",
+   "x": 21,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 2,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 36,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 6,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 30,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 33,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 28,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 32,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 33,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 6
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "ferns",
+   "x": 4,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 11,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 4,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 9,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 15,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 37,
+   "y": 20
+  }
+ ],
+ "place": {
+  "journal_falls": [
+   8,
+   8
+  ],
+  "chest_1": [
+   30,
+   6
+  ],
+  "rare_lotus_bf": [
+   27,
+   6
+  ],
+  "spring_behind": [
+   20,
+   8
+  ],
+  "mindwell_lotus_cf": [
+   14,
+   14
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    20,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    20,
+    21
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}
