@@ -30,7 +30,7 @@ const E1_VIEWS := [
 	["r3/09_alchemy_hall", "ja_alchemy_hall", Vector2(12.5, 11), true], ["r3/10_library", "ja_library", Vector2(14, 9), true],
 	["r3/11_retreat", "ja_retreat", Vector2(13, 9), true], ["r3/12_cave_abode", "ja_cave_abode", Vector2(20, 12), true],
 	["r3/13_cloud_library", "cm_cloud_library", Vector2(13, 9), true], ["r3/14_cloud_retreat", "cm_retreat", Vector2(14, 9), true],
-	["r3/15_cloud_herb_terraces", "cm_herb_terraces", Vector2(20, 18), true], ["r3/16_cloud_terraces_pond", "cm_herb_terraces", Vector2(44, 9), false],
+	["r3/15_cloud_herb_terraces", "cm_herb_terraces", Vector2(20, 18), true], ["r3/16_cloud_terraces_upper", "cm_herb_terraces", Vector2(34, 11), false],
 	["r3/17_cloud_cave_abode", "cm_cave_abode", Vector2(19, 12), true], ["r3/18_county_hall", "sf_county_hall", Vector2(11.5, 9), true],
 	["r3/19_trial_tower", "sf_trial_tower", Vector2(20, 14), true], ["r3/20_beast_grove", "sf_beast_grove", Vector2(20, 16), true],
 	["r3/21_quarry_rim", "sq_quarry_rim", Vector2(14, 18), true], ["r3/22_quarry_scaffold", "sq_quarry_rim", Vector2(34, 12), false],

@@ -15,18 +15,21 @@ SQ_QUARRY_RIM = room(
            ("hillside", 20, 8, dict(level=0, paint="g"))],
     features=[("scaffold", (27, 4, 14, 2), dict(level=3, paint="w")),
               ("quarry_road", (12, 20, 3, 8), dict(paint="d")),
-              ("spoil", (40, 21, 9, 4), dict(level=1, paint="r", shape="round"))],
+              ("spoil", (40, 21, 9, 4), dict(level=1, paint="r", shape="round")),
+              ("cheek", (27, 6, 1, 2), dict(level=4, paint="w")),            # the scaffold ladder's posts
+              ("cheek_2", (31, 6, 1, 2), dict(level=4, paint="w"))],
     stairs="auto",
     ways={"south": ("s", 13), "east": ("e", "road")},
     spawn="south",
-    anchors={"ore_1": "wall_foot@9", "ore_2": "wall_foot@27", "ore_3": "wall_foot@46", "jar_4": "bench@11",
+    anchors={"ore_1": "wall_foot@9", "ore_2": "wall_foot@22", "ore_3": "wall_foot@46", "jar_4": "bench@11",
              "crate_5": "scaffold@28", "jar_6": "verge.s@29", "crate_7": "verge.n@39", "jar_8": "verge.n@49",
              "npc_dong_rim": "road.n@10", "rift_tear": "yard@31", "spirit_fruit_tree": "hillside@24",
              "trail_mist_hare": "hillside@32"},
     props=[("storehouse", 2, 9), ("crates", 7, 11), ("barrel", 9, 11), ("woodpile", 14, 10), ("sacks", 20, 10),
            ("crates", 39, 10), ("barrel", 41, 10), ("lantern", 11, 20), ("lantern", 15, 20)],
     flora={"hillside": dict(density=0.34)},
-    foes=["auto", "auto:scaffold", "auto", "auto"])
+    foes=["auto", "auto:scaffold", "auto", "auto"],
+    pins={"stairs": [(26, 9, 3, 4, 0, 2), (28, 6, 3, 2, 2, 3)]})
 
 
 # The Lower Pit: the quarry's floor under the rim, its walls cut in two benches up to the north rim (the chest left on

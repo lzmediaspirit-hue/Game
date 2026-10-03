@@ -282,7 +282,11 @@ ROOMS = [JA_GATE_STREET, JA_WEAPON_HALL, JA_PAVILION_ROOFTOPS, JA_EAST_TERRACE, 
 JA_ALCHEMY_HALL = room(
     "ja_alchemy_hall", size=(26, 16), base="s", walls=dict(high=4),
     features=[("loft", (1, 1, 7, 4), dict(level=2, paint="w")),            # the recipe loft
-              ("dais", (10, 4, 6, 4), dict(level=1, paint="p"))],          # the furnace's dais
+              ("cheek", (4, 5, 1, 4), dict(level=3, paint="w")),           # the flights' cheeks, a level over their heads
+              ("cheek_2", (7, 5, 1, 4), dict(level=3, paint="w")),
+              ("dais", (10, 4, 6, 4), dict(level=1, paint="p")),           # the furnace's dais
+              ("cheek_3", (11, 8, 1, 2), dict(level=2, paint="p")),
+              ("cheek_4", (14, 8, 1, 2), dict(level=2, paint="p"))],
     stairs=[(5, 5, 2, 4, 0, 2, "w"), (12, 8, 2, 2, 0, 1, "s")],
     ways={"exit": ("s", 12.5)},
     spawn="exit",
@@ -300,7 +304,11 @@ JA_ALCHEMY_HALL = room(
 JA_LIBRARY = room(
     "ja_library", size=(28, 16), base="s", walls=dict(high=6),
     features=[("gallery", (1, 1, 9, 9), dict(level=2, paint="w")),          # the first gallery
-              ("upper_gallery", (1, 1, 9, 3), dict(level=3, paint="w"))],  # the second, under the roof
+              ("upper_gallery", (1, 1, 9, 3), dict(level=3, paint="w")),   # the second, under the roof
+              ("cheek", (6, 4, 1, 2), dict(level=4, paint="w")),           # the flights' cheeks, a level over their heads
+              ("cheek_2", (9, 4, 1, 2), dict(level=4, paint="w")),
+              ("cheek_3", (6, 10, 1, 4), dict(level=3, paint="w")),
+              ("cheek_4", (9, 10, 1, 4), dict(level=3, paint="w"))],
     stairs=[(7, 4, 2, 2, 2, 3, "w"), (7, 10, 2, 4, 0, 2, "w")],
     ways={"exit": ("s", 14.5)},
     spawn="exit",
@@ -319,6 +327,8 @@ JA_LIBRARY = room(
 JA_RETREAT = room(
     "ja_retreat", size=(28, 14), base="s", walls=dict(high=4),
     features=[("dais", (9, 1, 10, 6), dict(level=1, paint="w")),           # the meditation dais
+              ("cheek", (12, 7, 1, 2), dict(level=2, paint="w")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (15, 7, 1, 2), dict(level=2, paint="w")),
               ("bath_floor", (1, 1, 7, 5), dict(level=0, paint="w"))],     # the bath's boards
     stairs=[(13, 7, 2, 2, 0, 1, "w")],
     ways={"exit": ("s", 8.5), "roof": ("e", 7.5)},

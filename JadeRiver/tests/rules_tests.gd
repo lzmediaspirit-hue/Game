@@ -412,26 +412,24 @@ func prototype_suite() -> void:
 			if str(ctx.get("portal", "")) == str(p.id): ok = ok and not ctx.get("ok", true) and str(ctx.get("text", "")) == road
 			gated.append("%s:%s" % [rid, p.id])
 			if not ok: wrong.append("%s:%s %s %s" % [rid, p.id, str(ps), str(tried)])
-	check(gated.size() >= 15 and gated.has("rm_marsh_edge:east") and gated.has("sf_fairground:tower") and gated.has("ja_gate_street:library") and wrong.is_empty(),
+	check(gated.size() >= 5 and gated.has("rm_marsh_edge:east") and gated.has("sf_artisan_row:warehouse_door") and wrong.is_empty(),
 		"prototype: every way from a room on the grid into one without a layout (%d) is closed by the gate, and says the road beyond is still being drawn on its plate, a touch and the context button; no route through it (%s)" % [gated.size(), str(wrong.slice(0, 3))])
 	# A side-view character in the same room is not gated; a way between two rooms on the grid is open.
 	Game.world.load_room(td, "rm_marsh_edge", "")
 	check(not Game.world.portal_state(sv, Game.room_rt.portal_def("east")).get("gate", false) and not Game.world.portal_state(td, Game.room_rt.portal_def("west")).get("gate", false),
 		"prototype: the gate closes a top-down character's way off the grid only (a side-view character's is as before; a way on the grid is open)")
-	# No teleport, tower climb or auto-path past it.
+	# No teleport or auto-path past it (the Trial Tower's climb is on the grid since the room engine's R3 batch).
 	Game.account.teleports["hidden_vale"] = true
 	Game.inventory.apply_add(td.id, "spirit_stone_shard", 50, "prototype_suite")
 	Unlocks.force_unlock(td.id, "teleport_stones")
 	Game.world.load_room(td, "sf_market", "")
 	var tp := Game.submit({"type": "teleport", "stone": "hidden_vale"})
 	var ap := Game.submit({"type": "auto_path", "target": "rm_grey_pools"})
-	Game.world.load_room(td, "sf_fairground", "")
-	var tw := Game.world.climb_tower(td, 1)
-	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
-		and not tw.get("ok", false) and str(tw.get("text", "")) == road,
-		"prototype: no teleport (a stone another character found), auto-path or tower climb goes past the gate (%s; %s; %s)" % [str(tp), str(ap), str(tw)])
-	# The view stands a barrier in each way past the gate: on the Fairground at the tower's door (the Caravan Road west of
-	# it is on the grid since the room engine's chapter 3, E1).
+	Game.world.load_room(td, "sf_artisan_row", "")
+	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_artisan_row" and not ap.get("ok", false),
+		"prototype: no teleport (a stone another character found) or auto-path goes past the gate (%s; %s)" % [str(tp), str(ap)])
+	# The view stands a barrier in each way past the gate: on Artisan Row at Gu's Warehouse door (the Fairground's ways
+	# are all on the grid since the room engine's R3 batch).
 	var w := TopdownWorld.new()
 	w.live = true
 	w.sim_frozen = true
@@ -441,21 +439,21 @@ func prototype_suite() -> void:
 	for g in gates: g._process(0.0)
 	var ways := {}
 	for g in gates: ways[str(g.def.id)] = true
-	check(ways.has("tower") and ways.size() == 1 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
+	check(ways.has("warehouse_door") and ways.size() == 1 and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
 		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s)" % str(ways.keys()))
-	# Walked into, the gate says its line once, where it is: the tower door's own plate lights up, and nothing floats over
+	# Walked into, the gate says its line once, where it is: the warehouse door's own plate lights up, and nothing floats over
 	# the player (the touch line replaces the label, not stacks under it).
-	var tower_def: Dictionary = Game.room_rt.portal_def("tower")
+	var tower_def: Dictionary = Game.room_rt.portal_def("warehouse_door")
 	st.plane = Vector2(float(tower_def.at[0]), float(tower_def.at[1]))
 	st.altitude = float(tower_def.get("alt", 0.0))
-	var walked := Game.submit({"type": "use_portal", "portal": "tower", "crossing": true})
-	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds the Fairground again)
+	var walked := Game.submit({"type": "use_portal", "portal": "warehouse_door", "crossing": true})
+	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds Artisan Row again)
 	var tower_pv: PortalView = null
 	for pv in w.portal_views:
-		if str(pv.def.get("id", "")) == "tower": tower_pv = pv
+		if str(pv.def.get("id", "")) == "warehouse_door": tower_pv = pv
 	var floats_before: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
 	w.transfer_cooldown = 0.0
-	WorldShared.request_portal(w, "tower", true)
+	WorldShared.request_portal(w, "warehouse_door", true)
 	var floats_after: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
 	check(tower_pv != null and tower_pv.touched > 0.0 and str(tower_pv.state.get("text", "")) == road and floats_after == floats_before,
 		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [tower_pv.touched if tower_pv else -1.0, str(tower_pv.state) if tower_pv else "-", floats_after - floats_before, str(walked)])
@@ -528,11 +526,11 @@ func prototype_suite() -> void:
 	check(back_at_once and Game.room_rt.enemies.values().all(func(e): return not e.def.get("spar", false)),
 		"prototype: the spar over, his partner is gone at once and Shen Lian stands in the square again, to be talked to")
 	# A quest whose step is past the gate leads nowhere and says so.
-	Game.quest.apply_start(td.id, "stone_and_sweat")
-	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == "stone_and_sweat")
+	Game.quest.apply_start(td.id, "two_breaths")
+	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == "two_breaths")
 	check(not entry.is_empty() and entry[0].get("gate", false) and str(entry[0].target_room) == "" and (entry[0].lines as Array).any(func(l): return str(l.text) == road),
-		"prototype: a quest whose step is past the gate (Stone and Sweat, at the quarry) leads nowhere and says the road is still being drawn (%s)" % str(entry))
-	Game.quest.apply_drop(td.id, "stone_and_sweat", false)
+		"prototype: a quest whose step is past the gate (Two Breaths, in the Condensing Hall; the quarry is on the grid since R3) leads nowhere and says the road is still being drawn (%s)" % str(entry))
+	Game.quest.apply_drop(td.id, "two_breaths", false)
 	# The story's end in the prototype: The First Current and chapter 3 done (on the grid since E1), no lesson inside the
 	# prototype on offer.
 	for ch in [td, sv]:
@@ -557,8 +555,8 @@ func prototype_suite() -> void:
 	# A lesson inside the prototype still comes first; one past the gate never does.
 	td.quests.done.erase("eyes_for_qi")
 	td.quests.offered["eyes_for_qi"] = true
-	td.quests.done.erase("stone_and_sweat")
-	td.quests.offered["stone_and_sweat"] = true
+	td.quests.done.erase("two_breaths")
+	td.quests.offered["two_breaths"] = true
 	Game.quest._story_cache = {}
 	var lesson := Game.quest.story_next(td)
 	check(str(lesson.get("quest", "")) == "eyes_for_qi" and not lesson.get("gate", false), "prototype: a lesson on offer inside the prototype comes before its end, one past the gate never (%s)" % str(lesson.get("name", "")))
@@ -606,7 +604,7 @@ func _array_picker_checks(td, st: ActorState, road: String) -> void:
 	var nodes := WorldRules.array_nodes()
 	var shut := ""   # a room off the grid: a node of the sect's network there would lie past the gate
 	for rid in ContentDB.rooms:
-		if shut == "" and not TopdownRoom.has_layout(str(rid)) and str(ContentDB.room(str(rid)).get("region", "")) == "jade_sect": shut = str(rid)
+		if shut == "" and not TopdownRoom.has_layout(str(rid)): shut = str(rid)   # (the Jade Sect's rooms are all on the grid since R3)
 	nodes["array_test_past_gate"] = {"id": "array_test_past_gate", "room": shut, "network": "jade_sect", "at": [0, 0]}
 	Game.quest.apply_flag(td.id, "array_array_test_past_gate")
 	var view: Dictionary = Game.world.array_view(td, "array_ja_gate")

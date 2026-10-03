@@ -204,6 +204,10 @@ CM_CLOUD_LIBRARY = room(
     "cm_cloud_library", size=(28, 16), base="s", walls=dict(high=6),
     features=[("gallery", (18, 1, 9, 9), dict(level=2, paint="w")),         # the first gallery
               ("upper_gallery", (18, 1, 9, 3), dict(level=3, paint="w")),  # the second, under the roof
+              ("cheek", (18, 4, 1, 2), dict(level=4, paint="w")),          # the flights' cheeks, a level over their heads
+              ("cheek_2", (21, 4, 1, 2), dict(level=4, paint="w")),
+              ("cheek_3", (18, 10, 1, 4), dict(level=3, paint="w")),
+              ("cheek_4", (21, 10, 1, 4), dict(level=3, paint="w")),
               ("cliff_landing", (27, 7, 1, 2), dict(level=2, paint="w"))], # the cliff door's sill, off the gallery
     stairs=[(19, 4, 2, 2, 2, 3, "w"), (19, 10, 2, 4, 0, 2, "w")],
     ways={"exit": ("s", 12.5), "cliff_door": ("e", 7.5)},
@@ -223,6 +227,8 @@ CM_CLOUD_LIBRARY = room(
 CM_RETREAT = room(
     "cm_retreat", size=(28, 14), base="s", walls=dict(high=4),
     features=[("dais", (9, 1, 10, 6), dict(level=1, paint="w")),           # the meditation dais
+              ("cheek", (12, 7, 1, 2), dict(level=2, paint="w")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (15, 7, 1, 2), dict(level=2, paint="w")),
               ("bath_floor", (20, 1, 7, 5), dict(level=0, paint="w"))],    # the bath's boards
     stairs=[(13, 7, 2, 2, 0, 1, "w")],
     ways={"exit": ("s", 5.5)},

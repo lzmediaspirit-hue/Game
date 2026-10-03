@@ -222,7 +222,9 @@ ROOMS = [SF_GATE, SF_MARKET, SF_ARTISAN_ROW, SF_FAIRGROUND, SF_TRIAL_JADE, SF_TR
 # red lanterns at the door.
 SF_COUNTY_HALL = room(
     "sf_county_hall", size=(24, 14), base="w", walls=dict(high=4),
-    features=[("dais", (8, 1, 8, 4), dict(level=1, paint="w"))],          # the magistrate's dais
+    features=[("dais", (8, 1, 8, 4), dict(level=1, paint="w")),           # the magistrate's dais
+              ("cheek", (10, 5, 1, 2), dict(level=2, paint="w")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (13, 5, 1, 2), dict(level=2, paint="w"))],
     stairs=[(11, 5, 2, 2, 0, 1, "w")],
     ways={"entry": ("s", 11.5)},
     spawn="entry",
@@ -239,7 +241,9 @@ SF_COUNTY_HALL = room(
 SF_TRIAL_TOWER = room(
     "sf_trial_tower", size=(40, 22), base="s", walls=dict(high=4),
     features=[("arena", (9, 10, 24, 9), dict(level=0, paint="d")),         # the arena's sand
-              ("dais", (14, 1, 14, 5), dict(level=1, paint="p"))],         # the guardians' dais
+              ("dais", (14, 1, 14, 5), dict(level=1, paint="p")),          # the guardians' dais
+              ("cheek", (19, 6, 1, 2), dict(level=2, paint="p")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (22, 6, 1, 2), dict(level=2, paint="p"))],
     stairs=[(20, 6, 2, 2, 0, 1)],
     ways={"entry": ("s", 5.5)},
     spawn="entry",

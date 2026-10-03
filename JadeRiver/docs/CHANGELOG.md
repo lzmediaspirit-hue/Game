@@ -1,5 +1,45 @@
 # Changelog
 
+## The room engine's third batch: Stoneford's insides, the quarry and the sects' halls on the grid (E1, R3)
+
+Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (`docs/architecture/room_engine.md`,
+"The third batch"). The prototype's gate has moved past them.
+
+- **The rooms:**
+  - the Jade Sect's Alchemy Hall, Library, Retreat Rooms and Cave Abode;
+  - the Cloud Sect's Cloud Library, Retreat Rooms, Herb Terraces and Cave Abode;
+  - Stoneford's County Hall, Trial Tower and Beast Trial Grove;
+  - Stonewall Quarry's rim, lower pit and collapsed tunnel (a new zone module, `specs/stonewall_quarry.py`).
+- **The halls' look.**
+  - Halls with taller walls, and raised floors for what each is for: the furnace's dais, the libraries' two galleries,
+    the retreats' meditation dais, the magistrate's dais, the tower's arena under the guardians' dais.
+  - Four new furnishings, original pixel art in the prop kit (`tools/art/topdown/furnish.py`): a library's
+    `scroll_shelf`, an alchemist's `apothecary` chest of drawers, a painted folding `screen` and a writing `desk`.
+  - Hangings on the halls' back walls.
+- **The caves.** The abodes and the tunnel keep a low rock front, so nothing on a cave's floor hides behind its south
+  wall in the 3/4 view.
+- **Stair cheeks.** The halls' flights and the quarry scaffold's ladder stand between cheeks a level over their heads.
+  Auto-path's grid let a body step off a flight's side that its motor's foot box would not cross, and the body
+  stalled. The route's rule itself is left for a fix of its own (room_engine.md, "The third batch").
+- **The biomes.** Three new ones: `sect_terraces`, `quarry` and `bamboo_clearing`. The vistas of the terraces, the
+  grove and the quarry, and Mei Qing's, the librarians', the magistrate's and the foreman's work loops are in
+  `topdown_life.py`.
+- **The places.** Three new rows in `places.py`: the Alchemy Hall's furnace (`ja_furnace`) and both Cave Abodes' beds
+  (`ja_abode_garden`, `cm_abode_garden`).
+- **The trials on the grid.** A Trial Tower floor's foes and the Grove's waves, written in the side view's coordinates,
+  now stand on the room's floor on the grid: `WorldRoomEvents.side_points`, through `TopdownRoom.from_side`.
+- **The checks.**
+  - `room_engine` walks the fourteen rooms: 145 checks.
+  - A new suite, `topdown_sect_halls`, plays them top-down:
+    - each room walked into, and out and back through each of its ways;
+    - auto-path reaching every thing;
+    - every page a thing opens;
+    - the three places;
+    - a tower floor and a guardian floor fought;
+    - the Grove's trial begun;
+    - Stone and Sweat's copper and beetles mined and fought at the Quarry Rim.
+  - The capture set `room_engine` takes their pictures into `docs/architecture/room_engine/r3/`.
+
 ## Follow-up fixes from the code audit (decision 45, F1)
 
 Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in

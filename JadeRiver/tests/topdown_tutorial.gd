@@ -35,7 +35,7 @@ extends "res://tests/tutorial_order.gd"
 ##      its lanterns and doorways over the story's night, which stays night with Settings' extras off;
 ##  12. the end of the prototype (decision 41): the story played on to The First Current, the lessons inside the
 ##      prototype next, then the tracker's first entry is the prototype's end, leading nowhere, and every way off the
-##      grid is closed by a gate that says why (the Marsh Edge's road east, the Trial Tower's door): no route,
+##      grid is closed by a gate that says why (the Marsh Edge's road east): no route,
 ##      auto-path or hop through one; the tracker never leads to herbs the player cannot pick yet.
 ## Run headless:  godot --headless --path . res://tests/topdown_tutorial.tscn [-- --verbose]
 
@@ -336,8 +336,8 @@ func _to_the_gate() -> void:
 		c().quests.done[q] = 1
 	GameEvents.flush()
 	# The story's next quest past it (Toward Cleansing Peak, at the Pilgrim Stairs) is past the gate. The lessons on offer
-	# inside the prototype still come first (Eyes for Qi, the Outer Trial), never one past it (Stone and Sweat, at the
-	# quarry).
+	# inside the prototype still come first (Eyes for Qi, the Outer Trial, Stone and Sweat at the quarry since R3), never
+	# one past it.
 	var lessons: Array = []
 	for i in 8:
 		var nx := Game.quest.story_next(c())
@@ -350,7 +350,7 @@ func _to_the_gate() -> void:
 		c().quests.offered.erase(str(ld.id))
 		c().quests.done[str(ld.id)] = 1
 		GameEvents.flush()
-	check(lessons.has("eyes_for_qi") and not lessons.has("stone_and_sweat"), "the lessons on offer inside the prototype led first, none past the gate (%s)" % str(lessons))
+	check(lessons.has("eyes_for_qi") and lessons.has("stone_and_sweat"), "the lessons on offer inside the prototype led first (the quarry's Stone and Sweat among them since R3), none past the gate (%s)" % str(lessons))
 	var tr: Array = Game.quest.tracker(c())
 	var head: Dictionary = tr[0] if not tr.is_empty() else {}
 	check(head.get("gate", false) and str(head.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(head.get("target_room", "x")) == ""
@@ -572,7 +572,7 @@ func _layouts() -> void:
 # ------------------------------------------------------------------ 7: the real view drives the body
 ## The character's own view (a live TopdownWorld, bound, as main.gd mounts it) moves the body on the grid: the context
 ## button offers a talk beside a person; auto-path (the tracker's go button) walks it to the Cloud Sect's road and in
-## through its door (the Trial Tower's door is the prototype's gate), and back on the Fairground out through its east
+## through its door, and back on the Fairground out through its east
 ## edge into Artisan Row, the view following.
 func _walk_on_the_grid() -> void:
 	var w := _live_view()
@@ -598,9 +598,9 @@ func _walk_on_the_grid() -> void:
 		back = fig.art.row if not fig.twin.focus else "still focused"
 	check(turned == "w" and fig.art.action == fig.art.stand and back == fig.art.rest and back != "w",
 		"Shen Lian's top-down figure turns west to the player talking to her, and back to her rest (%s) when he walks off (turned %s, back %s)" % [fig.art.rest if fig else "-", turned, back])
-	# Decision 41: the Trial Tower has no top-down layout yet, so its door is the prototype's gate: no auto-path to it.
-	check(not submit({"type": "auto_path", "target": "sf_trial_tower"}).get("ok", false) and Game.world.portal_state(c(), Game.room_rt.portal_def("tower")).get("gate", false),
-		"the Trial Tower's door is closed by the prototype's gate, and auto-path finds no way in")
+	# Decision 41: the Trial Tower is on the grid since the room engine's R3 batch, so its door is no gate.
+	check(not Game.world.portal_state(c(), Game.room_rt.portal_def("tower")).get("gate", false),
+		"the Trial Tower's door is not the prototype's gate (its hall is on the grid)")
 	check(_auto_path(w, "cm_cliff_stair", 40.0), "auto-path walks the body across the Fairground to the Cloud Sect's road and in through its door (room %s)" % room())
 	# Decision 42: the tracker's go button takes the sect's transfer array where its route does: the body walks to the
 	# node and steps onto it, and comes out on the far one (up to the mentor's peak and back down to the gate).

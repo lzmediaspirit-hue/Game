@@ -17,8 +17,8 @@
   "44444444444444444444444444444444444444444444444444444444",
   "22222222222222222222222222233333333333333222222222222222",
   "22222222222222222222222222233333333333333222222222222222",
-  "22222222222222222222222222222222222222222222222222222222",
-  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222242224222222222222222222222222",
+  "22222222222222222222222222242224222222222222222222222222",
   "22222222222222222222222222222222222222222222222222222222",
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
@@ -47,8 +47,8 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwwwwwwwwwwrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrwssswrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrwssswrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ddddddddddddddddddddddddddsssddddddddddddddddddddddddddd",
   "ddddddddddddddddddddddddddsssddddddddddddddddddddddddddd",
@@ -150,12 +150,12 @@
   },
   {
    "kind": "rock_small",
-   "x": 21,
+   "x": 20,
    "y": 4
   },
   {
-   "kind": "tree_pine",
-   "x": 24,
+   "kind": "rock_small",
+   "x": 26,
    "y": 5
   },
   {
@@ -355,8 +355,8 @@
    5
   ],
   "ore_2": [
-   27,
-   4
+   22,
+   5
   ],
   "ore_3": [
    46,
@@ -367,7 +367,7 @@
    6
   ],
   "crate_5": [
-   29,
+   28,
    4
   ],
   "jar_6": [
@@ -454,15 +454,15 @@
   ],
   [
    [
-    31,
-    5
-   ],
-   [
-    34,
+    30,
     4
    ],
    [
-    37,
+    33,
+    4
+   ],
+   [
+    36,
     4
    ]
   ],
