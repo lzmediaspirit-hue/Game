@@ -5,6 +5,9 @@
    "fish": 2,
    "sparrow": 1
   },
+  "cave": {
+   "fish": 1
+  },
   "interior": {},
   "marsh": {
    "butterfly": 2,
@@ -921,6 +924,34 @@
     }
    }
   },
+  "cr_caravan_road": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dw_bend_shore": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "ja_east_terrace": {
    "vista": [
     {
@@ -1722,6 +1753,15 @@
     {
      "edge": "s",
      "kind": "river",
+     "pad": 40
+    }
+   ]
+  },
+  "mh_stockade": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
      "pad": 40
     }
    ]

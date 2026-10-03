@@ -653,6 +653,32 @@ instead of cells (`"spots": "auto:water_edge"`), so a moved building moves its w
 - one golden capture per biome in the capture registry;
 - a unit test that every anchor kind resolves on a sample band set.
 
+#### Status (phase 3, E1): the room engine, done
+
+- **The engine** is in `tools/content/rooms/`: about 1,300 lines of `engine.py`, `spec.py`, `biomes.py` and
+  `build.py`, and a 210-line check, `test_engine.py`. `docs/architecture/room_engine.md` describes it.
+  - It compiles a spec to the `Layout` that `topdown_rooms.py` writes: bands and features (rects, round caverns and
+    ponds, wavy shores), stairs "auto", ways, cuts and door paths.
+  - Anchors resolve to cells, ranked by reach and spread. The flora is a seeded scatter along each band's edges, and
+    the foes go on the verges.
+  - Then `LIFE.dress`/`extend` and the existing checks. It is deterministic: the seed is the room's id.
+  - Every value can be pinned.
+- **The round trip: 27 of 27 layouts byte for byte.**
+  - The terrain, ways, doorways, door paths, sand and snow come from bands, features and ways.
+  - In all 27 the hand-placed props and foliage are pinned (`pins["props"]`): no rule reproduces them. The anchors and
+    the foes' cells are written as cells.
+  - `topdown_rooms.py` went from 1,871 lines to 646, with no hand layout left.
+- **The first new rooms: chapter 3 on the grid,** six rooms of 15 to 23 spec lines each:
+  - the Caravan Road;
+  - the Mudwater Hideout's Stockade, Tunnels, Loot Cave and Boss Den;
+  - Bend Shore.
+
+  A new suite, `topdown_chapter3`, plays Bandits on the Road, The Caravan Road, the Mudwater Hideout and Gu's Cargo
+  through them on the grid. `topdown_tutorial` stands chapter 3 done where its gate used to be, and keeps its 962
+  checks.
+- **The runners** have a new gate, `room_engine` (`test_engine.py`), and a new suite, `topdown_chapter3`. 135
+  side-view rooms remain; `room_engine.md` lists them by zone and estimates the pace (4 to 6 specs an hour per agent).
+
 ### 6.2 Monster engine (E2)
 
 **What exists to build on:**

@@ -284,8 +284,9 @@ func take_array(node: String, to: String) -> bool:
 ## Past The Humming Token, the rest of the story inside the prototype on the grid: Mei Qing's Errand (willow moss from
 ## the Marsh Edge's reed frogs, since herbs open only at Bone Forging 4, and grey hides from its Hollowed Boarlets,
 ## handed in at Artisan Row), Grey at the Edges (reported to the mentor), the wait for Bone Forging 7 (hunted on the
-## grid; a test shortcut here) and The First Current (Lu, the Lotus Ferry's Qi spring). The story's next quest (Bandits
-## on the Road, on the Caravan Road) is played past the prototype's gate: the lessons on offer inside the prototype lead
+## grid; a test shortcut here) and The First Current (Lu, the Lotus Ferry's Qi spring). Chapter 3 is topdown_chapter3's
+## (a test shortcut here); the story's next quest after it (Toward Cleansing Peak, at the Pilgrim Stairs) is played past
+## the prototype's gate: the lessons on offer inside the prototype lead
 ## first, and then the tracker's first entry is the prototype's end, "The Tale Rests Here", the road beyond still being
 ## drawn, leading nowhere (no target, no mark). At the prototype's last way east, the Marsh Edge's road to the Grey
 ## Pools, the gate is shut and says why: walked into, no route, no auto-path, no hop through it; the view stands the
@@ -328,8 +329,15 @@ func _to_the_gate() -> void:
 	submit({"type": "stop_meditation"})
 	hand_in("lu_boatman", "the_first_current")
 	invariants("The First Current")
-	# The story's next quest (Bandits on the Road, on the Caravan Road) is past the gate. The lessons on offer inside the
-	# prototype still come first (Eyes for Qi, the Outer Trial), never one past it (Stone and Sweat, at the quarry).
+	# Chapter 3 (Bandits on the Road, The Caravan Road's key, the Mudwater Hideout, Gu's Cargo) is played on the grid by
+	# tests/topdown_chapter3.gd, through the rooms the room engine laid out (E1); here it stands done (a test shortcut).
+	for q in ["bandits_on_the_road", "the_caravan_road", "mudwater_hideout", "gus_cargo"]:
+		c().quests.offered.erase(q)
+		c().quests.done[q] = 1
+	GameEvents.flush()
+	# The story's next quest past it (Toward Cleansing Peak, at the Pilgrim Stairs) is past the gate. The lessons on offer
+	# inside the prototype still come first (Eyes for Qi, the Outer Trial), never one past it (Stone and Sweat, at the
+	# quarry).
 	var lessons: Array = []
 	for i in 8:
 		var nx := Game.quest.story_next(c())

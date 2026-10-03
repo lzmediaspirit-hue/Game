@@ -29,6 +29,10 @@ if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
 # Redesign Phase 4: the top-down layouts are current and every thing in them is placed and reached on foot.
 echo "== topdown_rooms"
 if ! python3 tools/data/topdown_rooms.py --check; then failed+=("topdown_rooms"); fi
+# Audit 45 (E1): the room engine compiles every spec the same twice and to its layout, resolves every anchor kind, and
+# auto-path walks every room it lays out (tools/content/rooms/test_engine.py).
+echo "== room_engine"
+if ! python3 tools/content/rooms/test_engine.py; then failed+=("room_engine"); fi
 # Decision 42: no step of the sect stretch asks for a plain walk over 35 s with nothing on the way, nor a walk out and back.
 echo "== sect_walks"
 if ! python3 tools/data/sect_walks.py --check; then failed+=("sect_walks"); fi
