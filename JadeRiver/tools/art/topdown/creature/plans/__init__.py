@@ -1,13 +1,20 @@
 """Body plans (audit 45 §6.2, the monster engine): the pose functions the foes are drawn with, each extracted from the
 species first drawn by hand with it, parameterised by part sizes and motion styles.
 
-  quadruped  rodent, mustelid, suid    the reed rat, the reed otter, the boarlets (and the hollowed boarlet)
+  quadruped  rodent, mustelid, suid    the reed rat, the reed otter, the boarlets (and the hollowed boarlet);
+             canine, talpid            M1: the mud hound and the ember fox (the canine head kind the wolves and foxes
+                                       after them take); the ironclaw mole
   amphibian  frog, toad                the reed frog, the mossback toad
-  crab       mud                       the mud crab
-  serpent    eel, leech                the hollowed eel, the marsh leech
-  fish       minnow, greyfin           the hollow minnow; the greyfin (E2's first new species)
-  shell      snapper, beetle           Old Snapper; the rock beetle (new)
-  humanoid   puppet, imp               the Trial Puppet; the pebble imp (new)
+  crab       mud                       the mud crab (M1: the tide crab, its great claw and pearls)
+  serpent    eel, leech, viper         the hollowed eel, the marsh leech; M1: the green viper
+  fish       minnow, greyfin           the hollow minnow; the greyfin (E2's first new species); M1: the jade carp
+  shell      snapper, beetle, tortoise Old Snapper; the rock beetle (new); M1: the stone tortoise
+  humanoid   puppet, imp, monkey,      the Trial Puppet; the pebble imp (new); M1: the bamboo monkey, the stone guardian
+             guardian
+  person     fighter, archer, brute    M1: the human foes, the shared character body dressed in their outfit and cast by
+                                       the character's own pipeline (figure/), not sculpted
+  bird       chick                     M1: the jade crane chick
+  spirit     talisman                  M1: the paper talisman ghost
 
 A species names its plan and variant ("quadruped.rodent"), and may lay its own parts, materials and motion over the
 variant's (`resolve`); its sheet is then drawn by the plan's `pose(body, action, frame, **facing)`, cast and coloured by
@@ -19,7 +26,7 @@ import importlib
 
 from .kit import Body, merge
 
-PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid")
+PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid", "person", "bird", "spirit")
 
 
 def module(plan: str):

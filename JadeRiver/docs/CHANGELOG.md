@@ -1,5 +1,79 @@
 # Changelog
 
+## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
+
+The species a top-down player meets next, by chapter, drawn with the monster engine
+(`docs/architecture/monster_engine.md`, "M1"). Until now they stood in with their side-view sheets at half size. R1 and
+R2 listed most of them as still to do.
+
+- **Twenty new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
+  every action in five drawn facings, an elite sheet where a room makes an elite. Their rows, loot and voices are
+  unchanged byte for byte; the only change to `foes.json` is their twenty blocks.
+  - **People are drawn as the player and the villagers are.** A new plan, `person`, dresses the shared character body
+    in the foe's own outfit (its row's `art.avatar`, written with `person(...)` in the spec) and casts it through the
+    character's own pipeline (`tools/art/topdown/figure/`), from the character's own poses. A bandit is the same pixels
+    as a villager in the same clothes, and now has its tell, its blow on frame 1, the hit flash and an elite look. Its
+    label stands over its head where a villager's marks do. No new body movement or layer pose was drawn.
+    - Fighters (the weapon drawn back in a crouch, held; the blow is the weapon family's first combo step): the Mudwater
+      bandit, Lieutenant Kuai, the drowned acolyte, the rogue cultivator, the gorge bandit adept.
+    - The bandit archer: the bow raised and drawn, held; loosed on the blow.
+    - Big Toad Tan and the Drowned Abbot: the staff raised overhead, held, then brought down. Tan stands a head taller
+      than his men, and the drowned wear the river's pallor.
+  - **Beasts and a spirit:**
+    - the ironclaw mole (Stonewall Quarry): a plump velvet mole with a star nose and iron claws. It bursts up out of
+      its hole rearing, clods flying, and rakes.
+    - the stone tortoise: its shell a small stone mountain, crags in strata and a pine on its saddle. It rears and
+      stamps down in a ring of dust; beaten, it draws in and the mountain cracks.
+    - the mud hound: lean and mud-caked, a collar, one ear torn. It barks with its head up, then pounces.
+    - the jade carp: riding the water line, gold-tipped fins and whiskers. Its tail curls up, then it darts and slaps.
+    - the tide crab: a pearled shell and one great shield claw that rears up and gapes, then snaps shut.
+    - the ember fox and the jade crane chick, the spirit animals met wild: a fox kit whose tail tip burns and flares, and
+      a white-and-jade chick that spreads its wings and puffs up, then buffets.
+    - the bamboo monkey: hunched on its knuckles, gold fur under an olive mantle. It draws a bamboo shoot back over its
+      shoulder, chattering, and hurls it.
+    - the green viper: coiled with its neck raised in an S. It draws back into a tight S and strikes along the ground.
+    - the thornback boar: the boarlet's body grown huge and overgrown with thorny vines that bristle in anger.
+    - the stone guardian (Cleansing Peak): a carved temple lion-dog. It hauls both fists up as its cracks light jade,
+      slams them down in dust, and comes apart into blocks.
+    - the paper talisman ghost (the Drowned Shrine): a hooded spirit of yellowed paper strips with red script down
+      each, violet eyes in a dark face under a talisman. Its strip bundles fan out behind it like a peacock, then it
+      flings a talisman.
+- **New plan kinds.** Each is optional, so every species drawn before draws byte for byte:
+  - `quadruped.canine`, the head kind for the dogs, foxes, wolves and cats, built once; `quadruped.talpid`; the suid's
+    vines, thorns and tusk;
+  - `shell.tortoise`, `serpent.viper`, `humanoid.monkey` and `humanoid.guardian`;
+  - the crab's great claw and pearls, the fish's barbels and water line;
+  - three new plans: `person`, `bird` (chick) and `spirit` (talisman).
+- **Leaner sheets.** A spec's `share` lets identical frames of a facing share one cell of the sheet, and makes an
+  elite's ring lean: it flickers by its pose, and its alphas come in steps of 32 instead of one per pixel row. It is the
+  same look to the eye, and the nine elite sheets cost a quarter less in the APK (the ring was half an elite's cost).
+  Every M1 species has it.
+- **`build.py --update ID[,ID]`** (and `build_foes.py --update`) builds only the named species and merges their blocks
+  into `foes.json`, leaving the rest as they are.
+- **Size.** The new sheets are 3,620 KB of PNG and 1,807 KB in the APK (the imported `.ctex`): the twenty bases 1,038
+  KB, the nine elite sheets 769 KB. That is about twice the ~0.9 MiB the APK had left. The engine doc lists every
+  sheet's cost; a spec's `elite=False` (then `build.py --update ID`) drops an elite sheet.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m1/`: the twenty side by side, idle, in their tells and on their blows, and the
+    elites' tells beside their bases.
+  - The capture set `monsters_m1` (`docs/redesign/feedback/monsters/m1/after/`): the lineups in every pose beside drawn
+    foes for scale, the elites, and live fights in ten of their own rooms.
+- **Still to draw:** seventeen species of the Act I zones, listed in story order in the engine doc. The next is the
+  Riverbed Serpent.
+- `topdown_suite`'s stand-in check spawns a sandstorm scorpion. The stone tortoise it used has its own sheet now.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R1 to R4 and S11.
+  - Every gate passed, `boot` among them. `build_data` writes no data file: the rows are byte-identical. The `monsters`
+    gate has 1,038 checks (471 at E2); it grows with the species, now 35.
+  - All 25 suites passed with no SCRIPT ERROR: 74,023 checks. No count grows with this batch: the suites check the
+    foes' art once a room (or once over the sheet), whatever is drawn. `contract_tests` (1,112) finds no private
+    cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - Two timing checks missed once each in earlier full runs while the machine was loaded, and pass in this one:
+    `perf_tests`' Marsh Edge fight (no M1 species in it; it passed run alone too) and `rules_tests`' Techniques page
+    pictures.
+  - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as the batch's
+    `--update` builds.
+
 ## Public surfaces: no private cross-calls (decision 45, S11)
 
 This is phase 2, slice S11 of the code audit (`docs/architecture/audit_45.md` §2.3 and §7, BUG-05 and BUG-13). Every

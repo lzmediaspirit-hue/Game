@@ -6,6 +6,8 @@
     python3 tools/content/monsters/build.py --list       # the specs: id, plan (or hand module), size, where declared
     python3 tools/content/monsters/build.py --review ID  # a species' review images (build_foes.py --only ID --review):
                                                          # docs/redesign/feedback/monsters/sheets/<ID>_x3.png and the GIF
+    python3 tools/content/monsters/build.py --update ID[,ID]  # M1: the data, then only those species' sheets and their
+                                                         # foes.json blocks (build_foes.py --update), the rest as they are
 
 --check, without writing anything:
   specs     every spec resolves: its plan and variant, every motion style it names, its palette's ramps, its accents
@@ -85,8 +87,14 @@ def check_specs(C: Checks) -> None:
                 ok = False
             C.check(ok, "%s: its hand module %s loads" % (sid, sp.pose))
         pal = list(spec.palette)
-        C.check(bool(pal) and all(n in M.RAMPS for n in pal), "%s: every palette material is a ramp (%s)" % (
+        # A person (plans/person.py) is coloured by its outfit's own palettes, so it names no ramps of its own.
+        person = str(sp.plan or "").startswith("person.")
+        C.check((bool(pal) or person) and all(n in M.RAMPS for n in pal), "%s: every palette material is a ramp (%s)" % (
             sid, [n for n in pal if n not in M.RAMPS]))
+        if person:
+            av = sp.data.get("art", {}).get("avatar", {})
+            C.check(isinstance(av, dict) and av.get("body") == "light" and bool(av.get("name")),
+                    "%s: a person's row has its outfit (art.avatar, content.monsters.person)" % sid)
         C.check(set(spec.accents) <= set(pal) and set(spec.gold) <= set(pal), "%s: its accents and gold are in its palette" % sid)
         if spec.awakened:
             C.check(all(r in M.RAMPS for r in spec.awakened.get("ramps", {}).values()), "%s: its awakened ramps exist" % sid)
@@ -255,6 +263,9 @@ def main(argv: list) -> int:
         return subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--only", sid])
     jobs = argv[argv.index("--jobs") + 1] if "--jobs" in argv else "2"
     code = subprocess.call([sys.executable, str(TOOLS / "data/build_data.py")])
+    if "--update" in argv:
+        return code or subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--jobs", jobs, "--update",
+                                        argv[argv.index("--update") + 1]])
     return code or subprocess.call([sys.executable, str(TOOLS / "art/topdown/build_foes.py"), "--jobs", jobs])
 
 
