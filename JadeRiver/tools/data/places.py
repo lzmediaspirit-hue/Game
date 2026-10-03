@@ -152,6 +152,13 @@ def places():
           beds=["bed_cm_0", "bed_cm_1", "bed_cm_2"], where="At the Array Court"),
         P("cm_furnace", "alchemy", "alchemy", "cm_array_court", "furnace_cm", "furnace", "earned",
           "the Array Court Furnace", "smoke", sect="cloud_sect"),
+        # ---- R4, the peaks: the Hidden Vale's stone, its grounds' storehouse and shrine; the summit's Frozen Shrine.
+        P("hv_teleport_stone", "teleport_stones", "teleport", "hv_vale_gate", "stone_hv", "teleport_stone", "place",
+          "the Vale Gate Teleport Stone", "attuned"),
+        P("hv_storehouse", "storage", "storage", "hv_sect_grounds", "storage_hv", "storehouse", "earned",
+          "the Sect Storehouse", "stock"),
+        P("hv_shrine", "shrines", "", "hv_sect_grounds", "shrine_hv", "shrine", "place", "the Sect Shrine", "lit"),
+        P("sr_shrine", "shrines", "", "sr_frozen_shrine", "shrine_frozen", "shrine", "place", "the Frozen Shrine", "lit"),
     ]
 
 

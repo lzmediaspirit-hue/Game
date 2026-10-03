@@ -14,6 +14,7 @@ tutorial_order
 topdown_tutorial
 topdown_chapter3
 topdown_chapter4
+topdown_peaks
 tutorials
 story_scenes
 hollow_night

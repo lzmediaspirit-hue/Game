@@ -28,7 +28,8 @@ HV_VALE_GATE = room(
 # treasury, the main hall's pagoda, the meditation pavilion, the beast pavilion, the alchemy hall); the hall's altar,
 # the mission hall, the forge, the library, the watchtower, the guest house, the mirror and the ancestral shrine stand
 # on the walk below; on the lawn the herb terraces' beds, the array's nodes, the storehouse chest, the shrine, the
-# alarm bell and a lotus pond. Each building is drawn once it is raised; until then the lawns and their trees.
+# alarm bell, a lotus pond and the training posts (the raiders of a defence come in at the lawn's west and east,
+# cells 9 and 46 of row 26). Each building is drawn once it is raised; until then the lawns and their trees.
 HV_SECT_GROUNDS = room(
     "hv_sect_grounds", size=(56, 30), biome="hidden_vale",
     bands=[("crown", 0, 3, dict(level=6, paint="r", wall=True)),
@@ -38,7 +39,7 @@ HV_SECT_GROUNDS = room(
            ("lawn", 22, 8, dict(level=0))],
     features=[("upper_walk", (0, 8, 56, 3), dict(paint="p")), ("court_walk", (0, 15, 56, 3), dict(paint="p")),
               ("axis", (25, 10, 7, 9), dict(paint="p")),
-              ("pond", (41, 25, 13, 5), dict(water=True, shape="round"))],
+              ("pond", (33, 24, 11, 6), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "road"), "east": ("e", "road")},
     spawn="west",
@@ -50,9 +51,10 @@ HV_SECT_GROUNDS = room(
              "terrace_bed_1": "lawn@11", "terrace_bed_2": "lawn@14", "storage_hv": "verge.s@18",
              "array_node_0": "lawn@25", "array_node_1": "lawn@31", "shrine_hv": "verge.s@38", "defence_bell": "verge.s@50"},
     props=[("banner_jade", 7, 10), ("banner_jade", 49, 10), ("lantern", 26, 17), ("lantern", 33, 17),
-           ("post", 35, 25), ("post", 38, 27), ("weapon_rack", 30, 28)],
+           ("post", 49, 25), ("post", 52, 27), ("weapon_rack", 48, 28)],
     flora={"upper": dict(density=0.4), "court": dict(density=0.4), "lawn": dict(density=0.34)},
-    foes="auto")
+    foes="auto",
+    pins={"drop": [(46, 26)]})   # the defence's east raiders come in here
 
 # The Back Mountain: the sect's quiet ground behind the grounds, where disciples sit. A glade by a spring pool (the
 # Qi spring on its bank, the mist lotus at its edge), the scholar's rock with the Vale Serpent's writing, the treasure
