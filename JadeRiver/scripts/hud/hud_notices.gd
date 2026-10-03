@@ -195,7 +195,7 @@ func handle(name: String, p: Dictionary) -> void:
 ## log ({"log": text, "color": token, "always": bool}) or a toast ({"toast": text, "style": kind, "sub": text}).
 func play(row: Dictionary, p: Dictionary) -> void:
 	for s in row.get("do", []):
-		if s.has("log"): hud.add_log(Cues.text(s["log"], p), Cues.color(s.get("color", "PAPER"), p), bool(s.get("always", false)))
+		if s.has("log"): hud.add_log(Cues.text(s["log"], p), Cues.color(s["color"], p), bool(s.get("always", false)))
 		elif s.has("toast"): hud.toast(Cues.text(s["toast"], p), str(s.get("style", "unlock")), Cues.text(s["sub"], p) if s.has("sub") else "")
 
 ## Each frame: the log's lines and the toasts age and go, and so do the room's name, a fortune card, a caption and the

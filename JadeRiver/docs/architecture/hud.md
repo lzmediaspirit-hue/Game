@@ -134,5 +134,6 @@ fight clears it too. `tests/hud_tests.gd` checks it right- and left-handed, with
 - `rules_tests`' HUD suites, `tutorials`, `topdown_tutorial`, `tutorial_order`, `prologue_run`, `hollow_night` and
   `contract_tests` guard the move. Their check counts are as before.
 - The capture sets `hud`, `hud_round` (at 1280 × 720 and at 2400 × 1080), `tutorials` and `tutorials_late` were taken
-  before and after under the pinned clock and seed. The pictures differ only where the game draws by the wall clock
-  (water, grass, trees and reeds), and in the context's label where it is wider than 116 px.
+  under the pinned clock and seed, twice on the base and once after. The HUD is the same pixel for pixel (the labels
+  in them, such as "Talk · Lu", are narrower than 116 px). The pictures differ only where the game draws by the wall
+  clock (the water, the trees and the reeds), as two runs of the base do.
