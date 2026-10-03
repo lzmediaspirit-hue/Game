@@ -35,7 +35,6 @@ var screen := "title"
 var shell: Page
 var pages: Array = []
 var preview_mode := false       ## started with arguments: the preview saves, and the flags (debug_args) read
-var boot_report: Dictionary = {}
 var creator: Page
 var topdown := false            ## the world mounted is the top-down prototype room (redesign Phase 1)
 var proto_isolated := false     ## opened from the title screen on PROTO_SAVES; leaving it restores the player's saves
@@ -91,7 +90,7 @@ func _ready() -> void:
 	if preview_mode:
 		_debug_args = load(DEBUG_ARGS).new(self, user_args)
 		_debug_args.before_boot()
-	boot_report = Game.boot()
+	var boot_report := Game.boot()
 	# The Max Test APK (custom feature "max_test"; --max-character in the editor): every way open, every system
 	# unlocked, and on first launch a ready-made character at the top of this build.
 	if OS.has_feature("max_test") or "--max-character" in user_args:

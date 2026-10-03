@@ -1,5 +1,32 @@
 # Changelog
 
+## The shell: the debug flags in a script of their own, and the page registry (decision 45, S7)
+
+This is phase 2, slice S7 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7, BUG-07). `scripts/main.gd`
+had 1,061 lines and now has 522. The game plays the same, and every flag a tool, a test or a document uses works
+with the same spelling. `docs/architecture/shell.md` describes the shell.
+
+- **The debug flags moved to `scripts/dev/debug_args.gd`.**
+  - `_handle_preview_args` was one 510-line chain of `if`s. The flags are now tables of rows, `[flag, handler, needs]`,
+    read in the same steps and order as before. Each handler is a small function: before the boot, the screen, the
+    preview character, the state the picture shows, and with `--capture` the picture.
+  - `main.gd` loads the script only when the game starts with arguments after `--`. That is the guard the flags always
+    had, and a player's game, which has none, now never even loads the script.
+  - The script is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state, and
+    the flags write it on purpose.
+  - Six flags that nothing in `tools/`, `tests/`, `docs/` or the capture registry used are gone: `--body=`, `--learn=`,
+    `--physique=`, `--set-piece=`, `--tribulation` and `--test-saves`. The last did nothing of its own, since any
+    argument already chose the preview saves.
+- **The page table moved to a registry, `scripts/shell/page_registry.gd`.**
+  - It maps each page id to its script, with `script_of(id)` and `scripts()`. `main.gd` keeps `PAGES` as a name for
+    it, for the tests and tools that read it there.
+  - `tools/data/tutorials.py` reads the registry for the tutorials' page map, and `tutorials.json` is unchanged.
+  - The five ids that are no page (`_harvest`, `_exit`, `_tour`, `_import` and `_switch`) are one `match` in
+    `_shell_action`. Opening, closing and Back behave as before.
+- **The side view in `main.gd`** is one section, "side view (retiring)". It holds the side view's world, the backdrop
+  following it, and the swap when a room of the other kind is entered. The `World` preload and the four side-view
+  lines elsewhere (in `_add_world_view`, `_unmount_world` and `_on_game_event`) are marked `# side view`.
+- **Dead in `main.gd`:** `boot_report` was a member that only `_ready` read, and it is now a local.
 ## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
 
 The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7). No game code changed.
