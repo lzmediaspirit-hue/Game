@@ -136,6 +136,7 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
 - `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
 - `tests/topdown_drowned_shrine.tscn`: R2's ten rooms played on the grid (below).
 - `tests/topdown_story_rooms.tscn`: R5's ten rooms, the story's events in them played on the grid (below).
+- `tests/topdown_sunscar.tscn`: R7's twenty rooms, chapters 13 and 14 and the Tomb King played on the grid (below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
   alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`, `r2/`; a
   view under a folder keeps its x2 copy and its whole room in that folder's `world/` and `rooms/`). The set keeps the
@@ -729,6 +730,128 @@ walks to the nearest. Past it, the Sect War's and the Presence Trial's ways back
 rooms, the Bastion's skiff to the Citadel, and the Drone Hive's way east to the Nebula Deep. Those rooms have no
 layout, so the four ways are gated. The Tidebreak Front's own rooms join each other on the grid.
 
+## Nine Peaks to the Tomb of Sunscar (R7)
+
+The twenty rooms of Act II's chapters 13 and 14, now on the grid: Nine Peaks, the Gale Canyons, Ironroot Hold, the
+Sunscar Desert and the Tomb of Sunscar. `topdown_sunscar` plays them by test shortcuts, a top-down character at Sage 2
+set down off the sky-ship at the Alliance Gate, then walked room by room through their ways:
+- Nine Seats: the envoy heard in the Hall of Nine, an Alliance seat taken, handed in to Elder Zhong; the Auction
+  Pavilion's door and its block (the auction's page); the Trial Hall off the Presence Terrace and back;
+- The Canyon Toll: the tollkeeper at the Canyon Mouth, six veiled brigands broken in the canyons, over the Windbridge to
+  the Hold Gate;
+- Ironroot Blood: the warden's spar won in the Hold Gate's yard, the Matriarch at the Clan Hearth's fire, the
+  iron-root tablets honoured in the Ancestor Hall behind the forge's door;
+- Glass and Bone (Sage 3): down the desert road over the Glass Dunes and the Scorpion Flats to the Oasis of Bones, six
+  sandstorm scorpions, the bone-reader, the oasis's teleport stone;
+- The Sealed Gate: dune worms fought on the Worm Sea for the sun seal's shards, down the portal into the Sealed Gate,
+  the bronze doors shut until the lock is fitted and read (Insight 80), then open;
+- Sovereign, and The Tomb King: through the Hall of Sand Kings to the Mirror Crypt (Lu's page), the Tomb King risen on
+  his throne hall's sand floor and defeated there, the sun seal taken up and kept from the Grey Pilgrim, the old stair
+  out to the Worm Sea, handed in at the oasis.
+
+In each room it checks the walks and the view as `topdown_peaks` does: 57 checks.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r7/`) |
+|---|---|---|---|
+| `np_alliance_gate` | 21 | `sect_terraces` | `01_alliance_gate_dock`, `02_alliance_gate_lions`, `rooms/np_alliance_gate` |
+| `np_hall_of_nine` | 24 | `sect_terraces` | `03_hall_of_nine`, `rooms/np_hall_of_nine` |
+| `np_auction_pavilion` | 13 | (interior) | `04_auction_pavilion`, `rooms/np_auction_pavilion` |
+| `np_presence_terrace` | 21 | `sect_terraces` | `05_presence_terrace`, `rooms/np_presence_terrace` |
+| `np_trial_hall` | 16 | (interior) | `06_trial_hall`, `rooms/np_trial_hall` |
+| `gc_canyon_mouth` | 18 | `canyon` | `07_canyon_mouth_toll`, `08_canyon_mouth_mesa`, `rooms/gc_canyon_mouth` |
+| `gc_kite_winds` | 19 | `canyon` | `09_kite_winds`, `rooms/gc_kite_winds` |
+| `gc_harpy_roosts` | 20 | `canyon` | `10_harpy_roosts`, `rooms/gc_harpy_roosts` |
+| `gc_windbridge` | 24 | `canyon` | `11_windbridge`, `rooms/gc_windbridge` |
+| `ir_hold_gate` | 23 | `iron_hold` | `12_hold_gate`, `rooms/ir_hold_gate` |
+| `ir_clan_hearth` | 15 | `iron_hold` | `13_clan_hearth`, `rooms/ir_clan_hearth` |
+| `ir_ancestor_hall` | 12 | (interior) | `14_ancestor_hall`, `rooms/ir_ancestor_hall` |
+| `sd_glass_dunes` | 16 | `desert` | `15_glass_dunes`, `rooms/sd_glass_dunes` |
+| `sd_scorpion_flats` | 17 | `desert` | `16_scorpion_flats`, `rooms/sd_scorpion_flats` |
+| `sd_oasis_of_bones` | 20 | `desert` | `17_oasis_of_bones`, `rooms/sd_oasis_of_bones` |
+| `sd_worm_sea` | 20 | `desert` | `18_worm_sea_tomb_door`, `rooms/sd_worm_sea` |
+| `ts_sealed_gate` | 17 | `tomb` | `19_sealed_gate`, `rooms/ts_sealed_gate` |
+| `ts_hall_of_sand_kings` | 21 | `tomb` | `20_hall_of_sand_kings`, `rooms/ts_hall_of_sand_kings` |
+| `ts_mirror_crypt` | 19 | `tomb` | `21_mirror_crypt`, `rooms/ts_mirror_crypt` |
+| `ts_throne` | 17 | `tomb` | `22_throne_of_the_tomb_king`, `rooms/ts_throne` |
+
+As R4's, the capture's x2 copies of the world alone are not kept. The specs: `specs/nine_peaks.py`, `gale_canyons.py`,
+`ironroot_hold.py`, `sunscar_desert.py`, `tomb_of_sunscar.py`.
+
+**The looks.**
+- **Nine Peaks** takes R3's `sect_terraces`: paved courts on granite terraces under the crags, pines, plum and maples,
+  the cloud sea under the brinks. The Hall of Nine stands on a granite platform with a grand stair; the Presence
+  Terrace's champions spar on a round terrace of dressed granite the road crosses; guardian lions and the Alliance's
+  banners at the gates. The sky-ship's dock is a pier out over a bay cut back in the brink, its way off the south edge,
+  where the cloud sea's vista draws the gangway down into the haze.
+- **`canyon`** (the Gale Canyons). The earth paint's face carries a grass lip, which no red canyon has, so every ledge,
+  mesa, pinnacle and wall is decision 44's sand: its faces are layered banks that read as sandstone. Only the room's
+  lowest floor is red earth (`earth` over `lowest`, below), the trail a sandy wash across it, or trodden red earth
+  where it runs on a shelf (`SHELF_GROUND`). Hoodoos, banded boulders, wind-killed grey trees and dry scrub; prayer
+  flags on the wind; plank steps with sandstone at their cheeks. The south rim is humps a level up that stop a row
+  short of the room's edge (a raised cell on the south edge leaves the void past the room under its lip).
+- **`desert`** (the Sunscar): sand over everything, the caravan track trodden red earth, dunes with a crest a level
+  higher toward the wind (`dunes()`), cactus, scrub, bleached ribs. The Oasis of Bones keeps a ring of grass round its
+  pool out of the sand (`-green`, below): palms, reeds, the keeper's yurt. The Worm Sea's portal is a block of dressed
+  stone set in a mound of sand, its door sunk a level into it, sand kings and braziers either side.
+- **`iron_hold`**: the clan's grey rock, the iron-root trees' roots breaking out of it, pines, rubble by the walls. The
+  Hold Gate is the gatehouse (a hall) at the cliff's foot, its door the way into the Clan Hearth: a cavern with the
+  longhouse, the forge's house (its door the Ancestor Hall), the anvil, forges and braziers round the hearth.
+- **`tomb`**: flagstone halls inside walls of cut sandstone (walls of sand paint), sand drifted in through the cracks,
+  pillars (some crumbled), sand kings, sarcophagi, bronze mirrors, braziers, and the spike traps' pressure plates in the
+  aisles (the side view's `spike_traps` strike near the body wherever it walks; the plates are their tell). The
+  throne hall's floor is sand round the Tomb King's sun throne. Raised floors are paving, whose faces are blue-grey
+  ashlar.
+- **The prop kit** (`tools/art/topdown/arid.py`, joined to the sheet in `furnish.py`'s R7 block, built with
+  `build_tiles.py`): a sandstone boulder, a hoodoo, prayer flags (four frames), a date palm, columnar cactus, dry scrub
+  (walk-through), a ribcage, a yurt, an anvil, an iron brazier (four frames), the iron-root roots, a sarcophagus, a sand
+  king's statue, a bronze mirror, a spike plate (flat, walk-through), the sun throne and a guardian lion. None is of
+  the foliage kit, so the sand laid after the scatter runs under each.
+
+**Engine rules** (`engine.py`, additive: every room before them compiles byte for byte, and `test_engine` holds it):
+- a `ground` paint `earth`: bare earth (`d`) over meadow, flowers, marsh or sand, never under a plant of the foliage kit
+  nor on paving, granite, rock or planks;
+- a `ground` name `lowest`: the room's lowest floor off the walks and their cuts;
+- a `ground` name `-name`: a band's or a feature's own cells kept out of that paint.
+
+**Places.** Eight new rows in `places.py`, 41 places in all: the Alliance Gate's teleport stone and shrine, the Canyon
+Shrine, the Hold Gate's shrine, the Clan Forge's anvil (smithing), the Scorpion Flats' and the oasis's shrines and the
+Oasis of Bones' teleport stone.
+
+**How the side view's verticality came down.** The canyons' rock ledges and cloud ledges are mesas, shelves and
+pinnacles with plank stairs; the Windbridge spans a chasm on timber trestles three levels over a river that falls in
+at the chasm's head; the Hold's decks are a timber watch tower; the tomb's ledges are galleries and alcoves a level or
+two up. Every rope, vine and ladder of these rooms reached a ledge or a branch route and none is sealed, so each is a
+flight of stairs or gone.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; M-batches): the wind kite, canyon brigand, canyon harpy,
+  sandstorm scorpion, dune worm, terracotta warden and the Tomb King; and the spar opponents, the alliance champion
+  and Warden Tie Shan.
+- Mechanics: none of the twenty rooms has a mover, a volume or a sealed climbable, so T1's rows have nothing to carry
+  here. Their hazards are the World authority's and play on the grid: the canyons' wind gusts, the sandstorm, the
+  scorching heat, the spike traps, and the quicksand, whose pull takes the Worm Sea's three `areas`.
+- Light: the rooms' backdrops (`nine_peaks`, `gale_canyon`, `quarry`, `sunscar`, `sunscar_tomb`) have no TopdownLight
+  area, so the cavern and the tomb follow the day's clock as the outdoors does. A lamplit area for them is game code,
+  outside a room batch.
+- Terrain: the kit has no red-rock or dressed-sandstone paint of its own. The canyons' walls and the tomb's are sand,
+  and its raised paving faces blue-grey. A paint with its own warm faces would suit both.
+- A capture spot must be open floor: a spot on a flight's cheek drew an empty world.
+- Auto-path's route tour (`rules_tests`' topdown suite) found two things the pictures did not. First, a flight run
+  down across the road holds the body at its cheek, so the Scorpion Flats' outcrop stops two rows short of the track.
+  Second, every drop off a ledge turns the body back on landing (the steering aims at the drop's cell from the air),
+  and more than two turns back on one leg fail. So the Windbridge's crag stands two levels over the shelf with its
+  stair the one way up, and the crate lies on the shelf's lip rather than down in the chasm. A scan of every R7 flight
+  against the walks (none crosses one now) and the tour over the twenty rooms (107 legs, none lost, none past one turn
+  back but the Alliance Gate's ferry-to-east leg at two) back it.
+- The world map: these are the first places outside the valley, and the map opened on a place showed the zone you
+  stand in, not the place's. `map_page.gd`'s setup now opens the named place's own zone (`places_tests`).
+
+**The frontier now** (R7): Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout
+(R6). The Alliance Gate's war gong and the Trial Hall's circle belong to chapters 15 and 16, whose events are R5's
+story rooms (`si_sect_war`, `si_presence_trial`). Every other way out of an R7 room leads to a room on the grid. With
+these rooms laid out, the Sect War's and the Presence Trial's ways back to the Alliance Gate (gated in R5's frontier
+above) open; `topdown_story_rooms` checks them against `has_layout`, so it follows.
+
 ## The rooms left, and the pace
 
 80 side-view rooms remain, by zone (`region`); the struck ones are done:
@@ -763,9 +886,9 @@ layout, so the four ways are gated. The Tidebreak Front's own rooms join each ot
 - **Act II and after:**
   - `cloudgate_port` (6);
   - `thunderhorn_plains`, `rimefrost_heights`, `mirrorwater_lake` (4, 4, 5);
-  - `nine_peaks` (5);
-  - `gale_canyons`, `ironroot_hold` (4, 3);
-  - `sunscar_desert`, `tomb_of_sunscar` (4, 4);
+  - ~~`nine_peaks` (5)~~ (R7);
+  - ~~`gale_canyons`, `ironroot_hold` (4, 3)~~ (R7);
+  - ~~`sunscar_desert`, `tomb_of_sunscar` (4, 4)~~ (R7);
   - `skyport_wreck` (4);
   - `lanternfall_harbor`, `drifting_shoals`, `blackmast_haven` (4, 4, 4);
   - `wyrmnest_isles` (4);

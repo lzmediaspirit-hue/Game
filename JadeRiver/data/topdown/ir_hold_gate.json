@@ -1,0 +1,528 @@
+{
+ "schema_version": 1,
+ "id": "ir_hold_gate",
+ "name": "Hold Gate",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  15
+ ],
+ "levels": [
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66662222222226666666666666666666666666666666222222222266",
+  "66222222222222666666666666666666600000006662222222222226",
+  "02222222222222266000000666666000000000000022222222222222",
+  "22222222222222220000000000000000000000000022222222222222",
+  "22222222222222220000000000000000000000000022222222222222",
+  "02222222222222220000000000000000000000000022222222222220",
+  "00222222222222200000000000000000000000000002222222222200",
+  "00002222222200000000000000000000000000000000000222220000",
+  "00000000000000000000000000000000000000002222000000000000",
+  "00000000000000000000000000000000000000002222000000000000",
+  "00000000000000000000000000000000000000002222000000000000",
+  "00000000000000000000000000000000000000002222000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000022222222222222222222222222222222222222220000",
+  "00000000000022222222222222222222222222222222222222220000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrdddddddddddddddddrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrddddddddddddddddddddddrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddddddddddddddddddddddrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrdddddddddddddddddddddddrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrddddddddddddddddddddddddrwwwwrrrrrrrrrrrr",
+  "dddddddddddddddddddddddddddddddddddddddrwwwwrrrrrrrrrrrr",
+  "dddddddddddddddddddddddddddddddddddddddrwwwwrrrrrrrrrrrr",
+  "dddddddddddddddddddddddddddddddddddddddrwwwwrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrdddddddddddddddddddddddrssrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrddddddddddddddddddddddddssddrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrddddddddddddddddddddddddssdrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddddddddddddddddddddssrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrddddddddddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrr",
+  "rrrrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 40,
+   "y": 17,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 9
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 10
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 11
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 12
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 13
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 19
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 20
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 21
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 22
+  },
+  {
+   "kind": "hall",
+   "x": 24,
+   "y": 8,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "brazier",
+   "x": 22,
+   "y": 11
+  },
+  {
+   "kind": "brazier",
+   "x": 33,
+   "y": 11
+  },
+  {
+   "kind": "banner_jade",
+   "x": 21,
+   "y": 9
+  },
+  {
+   "kind": "banner_jade",
+   "x": 34,
+   "y": 9
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 17,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 29,
+   "y": 20
+  },
+  {
+   "kind": "post",
+   "x": 33,
+   "y": 19
+  },
+  {
+   "kind": "woodpile",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "crates",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "barrel",
+   "x": 38,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 20
+  },
+  {
+   "kind": "tree_pine",
+   "x": 0,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 13,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 25,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 36,
+   "y": 7
+  },
+  {
+   "kind": "roots",
+   "x": 39,
+   "y": 7
+  },
+  {
+   "kind": "tree_pine",
+   "x": 45,
+   "y": 8
+  },
+  {
+   "kind": "stump",
+   "x": 0,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 3,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 10
+  },
+  {
+   "kind": "rock_small",
+   "x": 10,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 6,
+   "y": 11
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 42,
+   "y": 6
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "tree_pine",
+   "x": 51,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 55,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 45,
+   "y": 12
+  },
+  {
+   "kind": "stump",
+   "x": 51,
+   "y": 12
+  },
+  {
+   "kind": "roots",
+   "x": 54,
+   "y": 12
+  },
+  {
+   "kind": "stump",
+   "x": 9,
+   "y": 18
+  },
+  {
+   "kind": "stump",
+   "x": 15,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 3,
+   "y": 20
+  },
+  {
+   "kind": "stump",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "tree_pine",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 45,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 51,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 21
+  },
+  {
+   "kind": "stump",
+   "x": 16,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 21,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 48,
+   "y": 22
+  },
+  {
+   "kind": "stump",
+   "x": 52,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 24,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 29,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 37,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 45,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 48,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "roots",
+   "x": 13,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 53,
+   "y": 27
+  }
+ ],
+ "place": {
+  "shrine_ir": [
+   6,
+   17
+  ],
+  "npc_ironroot_warden": [
+   24,
+   17
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    15
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    15
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    27.5,
+    11
+   ],
+   "dir": "n",
+   "arrive": [
+    27.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
+ ]
+}

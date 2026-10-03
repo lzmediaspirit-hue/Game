@@ -83,6 +83,9 @@ func setup() -> void:
 	if ch == null: return
 	var here_zone := str(ContentDB.zone_of_room(str(ch.position.get("room", ""))).get("id", ""))
 	if here_zone != "": zone_id = here_zone
+	# A place named opens on its own zone's tab, wherever you stand (R7: the first places outside the valley).
+	var pl := PlaceRules.get_place(str(args.get("place", "")))
+	if not pl.is_empty(): zone_id = str(ContentDB.zone_of_room(str(pl.room)).get("id", zone_id))
 	# A tag per zone, a locked one for a zone not yet set foot in; the Heaven Ranking beside them (S49).
 	tabs = []
 	for z in ContentDB.all("zones"):
@@ -95,7 +98,6 @@ func setup() -> void:
 	var v := str(args.get("view", args.get("tab", "")))
 	if v in VIEWS: view = v
 	# A place named (a tap on its mark on the minimap, decision 43): the Places view on it.
-	var pl := PlaceRules.get_place(str(args.get("place", "")))
 	if not pl.is_empty():
 		view = "places"
 		place_kind = str(pl.kind)

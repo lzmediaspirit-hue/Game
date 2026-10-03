@@ -40,7 +40,9 @@ is (x, y, w, h). Every key but `size` may be left out.
             for its role where the spec names none), seeded by the room's id (a Poisson disc), clear of every anchor,
             way, lane, walk and foe; trees to a band's back, bushes on its lip, none on a road's shoulder
   ground    {"sand" | "snow" | "snowpack": [rect | band name | "*" | "walk"]}: decision 44's sand and snow, laid after
-            the flora ("*" every cell, "walk" the walks and their cuts, neither on a stair); the biome's when unset
+            the flora ("*" every cell, "walk" the walks and their cuts, neither on a stair); the biome's when unset;
+            (R7) "earth": bare earth (`d`) over the meadow, the canyons' floor, laid in the dict's order with the rest;
+            "lowest" the room's lowest floor off the walks; "-name" a band's or feature's cells kept out of that paint
   spawn     (x, y) or a way's id: where a new character wakes (default: the first way's arrival)
   anchors   {object id: (x, y) | "anchor"}: every NPC and object of the side-view room; an anchor resolves to a cell:
               "road@34"   a band at a column (its middle row)       "road.n@60" "road.s"   the row north or south of it

@@ -1,0 +1,194 @@
+{
+ "schema_version": 1,
+ "id": "np_trial_hall",
+ "name": "Trial Hall",
+ "size": [
+  28,
+  16
+ ],
+ "spawn": [
+  5,
+  14
+ ],
+ "levels": [
+  "5555555555555555555555555555",
+  "5111111111111551111111111115",
+  "5111111111111551111111111115",
+  "5111111111111111111111111115",
+  "5111111111111111111111111115",
+  "5000020020000000000200200005",
+  "5000020020000000000200200005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "1111001111111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllll",
+  "lwwwwwwwwwwwwsswwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwsswwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lsssswwwwsssssssssswwwwssssl",
+  "lsssswwwwsssssssssswwwwssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "llllssllllllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 6,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 20,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "mat",
+   "x": 1,
+   "y": 2
+  },
+  {
+   "kind": "mat",
+   "x": 4,
+   "y": 2
+  },
+  {
+   "kind": "mat",
+   "x": 8,
+   "y": 2
+  },
+  {
+   "kind": "mat",
+   "x": 10,
+   "y": 3
+  },
+  {
+   "kind": "mat",
+   "x": 16,
+   "y": 3
+  },
+  {
+   "kind": "mat",
+   "x": 18,
+   "y": 2
+  },
+  {
+   "kind": "mat",
+   "x": 22,
+   "y": 2
+  },
+  {
+   "kind": "mat",
+   "x": 25,
+   "y": 2
+  },
+  {
+   "kind": "incense",
+   "x": 12,
+   "y": 3
+  },
+  {
+   "kind": "incense",
+   "x": 15,
+   "y": 3
+  },
+  {
+   "kind": "banner_jade",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "banner_jade",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 24,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 9,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 13
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 26,
+   "y": 13
+  }
+ ],
+ "place": {
+  "presence_gate": [
+   13.5,
+   9
+  ],
+  "npc_trial_master_wen": [
+   22,
+   9
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    4.5,
+    13.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}
