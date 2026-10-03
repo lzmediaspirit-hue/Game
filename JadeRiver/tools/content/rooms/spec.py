@@ -62,6 +62,9 @@ def room(rid, **kw):
                                                                              ", ".join(unknown), ", ".join(KEYS)))
     if "size" not in kw:
         raise ValueError("room %s: no size" % rid)
+    stray = sorted(k for k in kw.get("pins", {}) if k not in PIN_KEYS and k not in kw.get("anchors", {}))
+    if stray:
+        raise ValueError("room %s: pins %s are neither %s nor an anchor's id" % (rid, ", ".join(stray), ", ".join(PIN_KEYS)))
     out = {"id": rid}
     out.update(kw)
     return out

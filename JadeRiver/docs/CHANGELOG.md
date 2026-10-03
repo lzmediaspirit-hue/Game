@@ -41,6 +41,9 @@ describes it.
   - A new suite, `topdown_chapter3`: chapter 3 played on the grid, each room built by the view and walked by
     auto-path.
   - `topdown_tutorial` stands chapter 3 done where its gate was. Its 962 checks are unchanged.
+  - `rules_tests`' prototype checks moved with the gate: the Fairground's tower door is its last barrier there, and
+    chapter 3 is done at the story's end. Its 2,712 checks are unchanged.
+  - Every other suite keeps its count.
 - **The living world** (`topdown_life.py`): vistas for the three outdoor rooms, and no butterflies in a cave.
 
 ## The shell: the debug flags in a script of their own, and the page registry (decision 45, S7)

@@ -175,8 +175,11 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
 
    Fix what looks wrong in the spec: a band's `wavy`, a feature's `shape="round"`, a density, an anchor, a pin.
 6. The layout's file opens the gate: a top-down character walks in. Tests that name the prototype's frontier move with
-   it. `topdown_tutorial` stands the converted chapter done, and `topdown_chapter3`'s last checks name the gated ways
-   at its end. `rules_tests` holds every way still gated to the gate.
+   it:
+   - `topdown_tutorial` stands the converted chapter done;
+   - `topdown_chapter3`'s last checks name the gated ways at its end;
+   - `rules_tests`' prototype checks name the Fairground's gated ways and the chapters done at the story's end, and
+     hold every way still gated to the gate.
 
 ## The first rooms: chapter 3
 
