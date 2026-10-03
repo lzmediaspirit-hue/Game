@@ -17,6 +17,13 @@ def _r(*h):
     return [c(x) for x in h]
 
 
+def _s(light, base, shadow, deep):
+    """M1: a five-step ramp from a side-view sheet's material (pixel.material: light, base, shadow, deep), as E2 took the
+    rock beetle's: a step under its deep, its deep, shadow and base, and its light as the highlight."""
+    d = c(deep)
+    return [tuple(int(round(v * 0.62)) for v in d[:3]) + (255,), d, c(shadow), c(base), c(light)]
+
+
 RAMPS = {
     # mud crab
     "shell": _r("3A2A30", "5A4034", "7E5A3E", "A07A52", "C4A276"),
@@ -123,6 +130,88 @@ RAMPS = {
     "peb_ochre": _r("3C2E22", "5E4734", "8B6945", "BB8F59", "E6BF7E"),
     "peb_slate": _r("272C2F", "3C4347", "5C6466", "838C8B", "B7BEBB"),
     "peb_rust": _r("33201C", "4F302B", "784A3C", "A7684E", "D49373"),
+    # M1 (the monster engine's first batch past E2). Each from its side-view sheet's materials (tools/art/creatures/).
+    # ember fox: orange-red fur, a white bib and muzzle, dark socks, cream ear insides
+    "fox_fur": _s("ffb35e", "e06d2e", "ab4328", "6b2926"),
+    "fox_white": _s("fffbf0", "f2e4cd", "ccb4a2", "927873"),
+    "fox_sock": _s("70403a", "4b2a28", "361d1e", "241314"),
+    "fox_ear_in": _s("fbe3c4", "e8bf98", "bf8f74", "8a6255"),
+    # mud hound: wet mud browns and dried mud, a pale chest, a leather collar (its brass ring the puppet's brass)
+    "hound_fur": _s("c7a574", "927350", "644f40", "3e3232"),
+    "hound_mud": _s("6a5440", "4a3b30", "352b27", "231c1c"),
+    "hound_pale": _s("e0cda2", "b8a17a", "88745c", "5a4c41"),
+    "collar": _s("a4583a", "7a3b2a", "552822", "361a18"),
+    "hound_nose": _s("5e4b4c", "3a2d31", "2a2025", "1b1418"),
+    # stone tortoise: a shell of pale granite (its scute rim darker), moss on its ledges, a little pine and its bark; an
+    # old grey-olive hide, a pale belly and beak
+    "mtn_rock": _s("d6d0bd", "a39e8f", "72726b", "4b4e50"),
+    "mtn_rim": _s("8e897a", "6a675c", "4c4b45", "333431"),
+    "mtn_moss": _s("b9d86c", "7fa947", "557f39", "36572e"),
+    "mtn_pine": _s("6f9c55", "3f6e44", "2c5139", "1d372b"),
+    "mtn_bark": _s("9a7452", "6d4f38", "4c372a", "33251e"),
+    "tort_skin": _s("b8ae8e", "888067", "5e5a4a", "3d3c33"),
+    "tort_belly": _s("d9cc9e", "ae9f76", "7f735a", "554d3f"),
+    "tort_beak": _s("e5d7a8", "b9a77a", "877858", "5a5040"),
+    # jade carp: jade-green scales over a darker back, a pale gold belly, jade fins tipped in gold, gold whiskers
+    "carp_scale": _s("a6ecc8", "3fae8a", "1f7a6c", "134c4c"),
+    "carp_back": _s("5cc4a0", "1f7a6c", "165e58", "0e3a3c"),
+    "carp_belly": _s("fff4c0", "f0d98a", "c2a85c", "86703e"),
+    "carp_fin": _s("b8f2dc", "67d6bd", "2c9e8f", "1a6a66"),
+    "carp_gold": _s("fff0a8", "e5b84c", "b0802e", "6e4e22"),
+    # tide crab: a deep sea teal-blue shell, a paler shield claw, a pale rim, a sandy underside, teal legs, coral tips,
+    # pearls
+    "tide_shell": _s("7ecae4", "2f80aa", "1f567e", "163658"),
+    "tide_claw": _s("b2f2e4", "4cbab0", "2a8088", "1c5264"),
+    "tide_rim": _s("d4f4ec", "8fd4d0", "4fa0aa", "2e6a7c"),
+    "tide_under": _s("f0e2c2", "c9b690", "948468", "625a4e"),
+    "tide_leg": _s("7ccfd8", "3690a8", "23627e", "183f58"),
+    "tide_tip": _s("f4a07c", "d8664e", "9a3e3c", "5e2230"),
+    "pearl": _s("ffffff", "f6e2ea", "d0aec4", "8e7294"),
+    # thornback boar: a dark umber hide and mane, wood-green vines and their leaves, pale woody thorns, a pink-brown snout,
+    # dark hooves
+    "tb_hide": _s("a57d59", "735442", "4c3a32", "2f2426"),
+    "tb_mane": _s("5a4436", "3f2f29", "2d2222", "1e1719"),
+    "tb_vine": _s("a9dc6a", "62a046", "3a6c3c", "23443a"),
+    "tb_leaf": _s("c9f08a", "7fbf52", "4a8a44", "2b5a3c"),
+    "tb_thorn": _s("f2e8b0", "c9b878", "8a7e4e", "565034"),
+    "tb_snout": _s("d49a88", "a86e62", "7a4a48", "4e3036"),
+    "tb_hoof": _s("5e4a44", "3e302e", "2c2222", "1c1617"),
+    # bamboo monkey: gold fur under an olive-green mantle, pale peach skin (its face, hands and feet), the bamboo shoot's
+    # cane and pale nodes, its leaf tuft
+    "monkey_fur": _s("fbd98a", "d9a24c", "a06a36", "63432e"),
+    "monkey_mantle": _s("bdc460", "879a3e", "56693a", "34452f"),
+    "monkey_skin": _s("ffe4bd", "efbd92", "bd8468", "7d5048"),
+    "bamboo_leaf": _s("b9ec7c", "62b34f", "34804a", "1f5040"),
+    "bamboo_cane": _s("d9f59a", "8fd05e", "4f9a4a", "2b6040"),
+    "bamboo_node": _s("f4f0c0", "d6d28a", "9aa45a", "5f6c3c"),
+    # ironclaw mole: violet-black velvet and its sheen, a pink star nose and palms, iron-grey claws, brown dirt
+    "mole_fur": _s("7c7189", "4b4356", "332d3d", "221e2a"),
+    "mole_sheen": _s("9a90a8", "6c637a", "4a4357", "332d3d"),
+    "mole_pink": _s("ffc4c4", "ec8f98", "b95f70", "7c3e4e"),
+    "mole_iron": _s("e2e7ea", "9aa3aa", "646d76", "3d454d"),
+    "mole_palm": _s("d99aa0", "b0707c", "80505c", "553644"),
+    "mole_dirt": _s("b89163", "8a6841", "5f4830", "3f3023"),
+    # green viper: bamboo-green scales, a pale yellow belly and flank stripe, an orange tail tip, a pink mouth
+    "viper_scale": _s("c9f27e", "6ec24a", "358c45", "1e5a3e"),
+    "viper_belly": _s("fff6b8", "eadc80", "bba955", "7e713c"),
+    "viper_tail": _s("ffb070", "e3703f", "a8442f", "6a2a26"),
+    "viper_mouth": _s("f59aa4", "d9667a", "9c3a50", "5e1e32"),
+    # stone guardian: warm temple stone (its darker carving: mane, collar, bell), moss, a dark mouth
+    "sg_stone": _s("dcd2b4", "aaa085", "777164", "4c4a52"),
+    "sg_stone_dark": _s("a49c88", "7b7566", "57544f", "383840"),
+    "sg_moss": _s("b8d46a", "80a445", "56793a", "3a562d"),
+    "sg_mouth": _s("6a3a3a", "4a2629", "351c20", "24141a"),
+    # jade crane chick: white down shading toward jade, jade wings and tail tuft, grey-green legs, a horn beak, a red crown
+    "chick_down": _s("ffffff", "e6f3ee", "a9d3c5", "6ea596"),
+    "chick_jade": _s("9cf0d2", "43b393", "277d6a", "17514a"),
+    "chick_leg": _s("9fbab0", "6e8d85", "4e6a66", "35494a"),
+    "chick_beak": _s("fff0b0", "e2c86a", "b0944a", "76663a"),
+    "chick_crown": _s("ff9a8a", "e45858", "b33a44", "7a2432"),
+    # paper talisman ghost: aged talisman paper (the back strips older), cinnabar ink
+    "talisman": _s("fff4d2", "ecd8a0", "c4a86c", "8c7246"),
+    "talisman_old": _s("e6d4a0", "cdb67c", "a28a58", "6e5a3a"),
+    "cinnabar": _s("f08070", "cf3a3a", "962430", "5e1624"),
+    "soul_void": _s("5a4290", "3a2a5c", "2a1a40", "1a0f2a"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -162,6 +251,36 @@ PROPS = {
     "beetle_chitin": {"hi": True, "glossy": True, "thin": True}, "beetle_horn": {"hi": True, "glossy": True, "weight": 1.5},
     "imp_stone": {"hi": True}, "imp_limb": {"hi": True}, "peb_ochre": {"hi": True, "weight": 1.3},
     "peb_slate": {"hi": True, "weight": 1.3}, "peb_rust": {"hi": True, "weight": 1.3},
+    # M1
+    "fox_fur": {"hi": True}, "fox_white": {"hi": True, "weight": 1.2}, "fox_sock": {"hi": True, "weight": 1.2},
+    "fox_ear_in": {"hi": True, "weight": 1.3},
+    "hound_fur": {"hi": True}, "hound_mud": {"hi": True, "weight": 1.2}, "hound_pale": {"hi": True, "weight": 1.2},
+    "collar": {"hi": True, "weight": 1.6, "line": True}, "hound_nose": {"hi": True, "glossy": True, "weight": 1.5},
+    "mtn_rock": {"hi": True}, "mtn_rim": {"hi": True}, "mtn_moss": {"hi": True}, "mtn_pine": {"hi": True, "weight": 1.3},
+    "mtn_bark": {"hi": True, "line": True, "weight": 1.4}, "tort_skin": {"hi": True}, "tort_belly": {"hi": True},
+    "tort_beak": {"hi": True, "glossy": True, "weight": 1.3},
+    "carp_scale": {"hi": True, "glossy": True}, "carp_back": {"hi": True, "glossy": True}, "carp_belly": {"hi": True},
+    "carp_fin": {"hi": True, "thin": True}, "carp_gold": {"hi": True, "glossy": True, "line": True, "weight": 1.4},
+    "tide_shell": {"glossy": True, "hi": True}, "tide_claw": {"hi": True, "glossy": True}, "tide_rim": {"hi": True},
+    "tide_under": {}, "tide_leg": {"hi": True, "thin": True}, "tide_tip": {"hi": True, "glossy": True},
+    "pearl": {"hi": True, "glossy": True, "weight": 1.6},
+    "tb_hide": {"hi": True}, "tb_mane": {"hi": True, "weight": 1.2}, "tb_vine": {"hi": True, "weight": 1.3},
+    "tb_leaf": {"hi": True, "weight": 1.4}, "tb_thorn": {"hi": True, "line": True, "weight": 1.5}, "tb_snout": {"hi": True, "weight": 1.3},
+    "tb_hoof": {"hi": True, "weight": 1.3},
+    "monkey_fur": {"hi": True}, "monkey_mantle": {"hi": True}, "monkey_skin": {"hi": True, "weight": 1.3},
+    "bamboo_leaf": {"hi": True, "line": True, "weight": 1.4}, "bamboo_cane": {"hi": True, "line": True, "weight": 1.5},
+    "bamboo_node": {"hi": True, "weight": 1.4},
+    "mole_fur": {"hi": True}, "mole_sheen": {"hi": True}, "mole_pink": {"hi": True, "weight": 1.4},
+    "mole_iron": {"hi": True, "glossy": True, "line": True, "weight": 1.6}, "mole_palm": {"hi": True, "weight": 1.3},
+    "mole_dirt": {"hi": True},
+    "viper_scale": {"hi": True, "glossy": True}, "viper_belly": {"hi": True, "weight": 1.2}, "viper_tail": {"hi": True, "weight": 1.3},
+    "viper_mouth": {"weight": 1.3},
+    "sg_stone": {"hi": True}, "sg_stone_dark": {"hi": True, "weight": 1.2}, "sg_moss": {"hi": True, "weight": 1.2},
+    "sg_mouth": {"weight": 1.4},
+    "chick_down": {"hi": True}, "chick_jade": {"hi": True, "weight": 1.2}, "chick_leg": {"hi": True, "line": True, "weight": 1.3},
+    "chick_beak": {"hi": True, "glossy": True, "weight": 1.5}, "chick_crown": {"hi": True, "weight": 1.6},
+    "talisman": {"hi": True, "thin": True}, "talisman_old": {"hi": True, "thin": True}, "cinnabar": {"hi": True, "weight": 1.5},
+    "soul_void": {"weight": 1.8},
 }
 
 # Single colours laid on as marks and points.
@@ -216,6 +335,38 @@ PUDDLE_RIM = c("9AA8AE")
 PUDDLE_EDGE = c("0C1217")
 PUDDLE_RIPPLE = c("7A8891")
 FISH_TOOTH = c("F2F1E6")
+# M1: the ember fox's amber eyes and its tail's flame (deep red, orange, pale gold), the mud hound's eyes, a canine's
+# nose and teeth.
+FOX_EYE = c("FFB62E")
+FLAME_DEEP = c("E2452C")
+FLAME = c("FF9A36")
+FLAME_CORE = c("FFE9A6")
+FLAME_GLOW = c("FF9A36", 150)
+HOUND_EYE = c("F0B43C")
+CANINE_NOSE = c("221214")
+FANG = c("FFF6E2")
+# M1: the stone tortoise's cracks.
+CRACK = c("23272A")
+# M1: the jade carp's gold eye.
+CARP_EYE = c("F2C24A")
+# M1: the thornback boar's fierce red eye and its dark rim.
+TB_EYE = c("FF5A3C")
+TB_EYE_DARK = c("A8201E")
+# M1: the bamboo monkey's amber eye.
+MONKEY_EYE = c("D4781E")
+# M1: the green viper's gold eye and its red tongue.
+VIPER_EYE = c("F6C945")
+VIPER_TONGUE = c("E0303C")
+# M1: the jade glow of the stone guardian's eyes and cracks (QI's, as light).
+QI_GLOW = c("7FE6CC", 120)
+# M1: the crane chick's dark eye, the wind its wings throw.
+CHICK_EYE = c("2A1A12")
+WIND = c("E6F4F0", 200)
+# M1: the paper ghost's soul light (its eye holes, its wisps), the void in its eyes.
+GHOST_GLOW = c("B89CF0")
+GHOST_GLOW_HI = c("EFE6FF")
+GHOST_VOID = c("1A0F2A")
+GHOST_AURA = c("B89CF0", 140)
 
 
 def palette(*names) -> dict:

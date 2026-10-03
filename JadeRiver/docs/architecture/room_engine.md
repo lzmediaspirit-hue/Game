@@ -699,10 +699,10 @@ these are its place's plane distance, about six and four cells.
 The ways to rooms with no layout are gated: the Alliance Gate, the Citadel's skiff and the Nebula Deep.
 
 **Still to do in these rooms.**
-- Foes with no top-down sheets yet (the view draws stand-ins; E2's work): the Mudwater bandit, Elder Gu and his
-  hired gorge bandit adepts, the Hollow Behemoth, the starsea pirate, the Nine Peaks disciple, the pirate captain, the
-  presence phantom, the ninth Presence, the hollow drone and the hollowed wyrmling. The Reflection and the heart demons
-  draw the player's own figure, as the side view does. The hollowed boarlet has its sheet.
+- Foes with no top-down sheets yet (the view draws stand-ins; E2's work): Elder Gu, the Hollow Behemoth, the starsea
+  pirate, the Nine Peaks disciple, the pirate captain, the presence phantom, the ninth Presence, the hollow drone and
+  the hollowed wyrmling. The Reflection and the heart demons draw the player's own figure, as the side view does. The
+  Mudwater bandit, the gorge bandit adept (Gu's hired blades) and the hollowed boarlet have their sheets (M1).
 - Mechanics with no top-down counterpart yet (T1's work):
   - The Reflection's heart demons are spawned at the side view's points (`WorldRoomEvents.start_event`: x
     700 + 260 per demon, y 860), read as world units on the grid. On the arena's 36 by 22 cells they land outside

@@ -26,6 +26,7 @@ No randomness: a rebuild is byte-identical.
 from __future__ import annotations
 
 import math
+import zlib
 
 import numpy as np
 
@@ -280,7 +281,8 @@ def _solids(P: Pose, V: View) -> list:
     return out
 
 
-def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0, aura=False) -> np.ndarray:
+def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: int = 0, aura=False,
+            lean_ring: bool = False) -> np.ndarray:
     """The posed creature seen facing `yaw_deg` on the ground (east 0, south 90): RGBA on the working canvas, its feet
     on FOOT. An elite takes the darker ramp and the ring of Qi; `aura` gives the ring alone (a boss in its own
     colours; "hollow": the Hollow's grey-violet ring with embers of red, decision 45's awakened eel)."""
@@ -332,8 +334,14 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
         if 0 <= i < raster.W and 0 <= j < raster.H:
             rgba[j, i] = _over(rgba[j, i], _rgba(col))
     if elite or aura:
-        _aura(rgba, frame_no, "hollow" if aura == "hollow" else "gold")
+        _aura(rgba, ring_seed(rgba) if lean_ring else frame_no, "hollow" if aura == "hollow" else "gold", lean_ring)
     return rgba
+
+
+def ring_seed(rgba: np.ndarray) -> int:
+    """M1: the ring's flicker seeded by the picture under it, not the frame's number, so a pose held over frames keeps
+    one ring and its frames share a cell of the sheet (creatures.Spec `share`, with _aura's `lean`)."""
+    return zlib.crc32(rgba.tobytes()) % 997
 
 
 def _rgba(col) -> np.ndarray:
@@ -427,12 +435,14 @@ AURA = {"gold": {"bright": (255, 244, 196), "main": (255, 214, 110), "faint": (2
                    "mote": (255, 140, 110)}}
 
 
-def _aura(rgba: np.ndarray, f: int, tone: str = "gold") -> None:
+def _aura(rgba: np.ndarray, f: int, tone: str = "gold", lean: bool = False) -> None:
     """The elite's mark: Qi burning round it in pale gold. A ring hugs its outline (stronger toward the top, bright
     specks flickering frame by frame), a fainter one stands off it round its upper part, tongues of it lick up off its
     back, and motes rise over it. `tone` "hollow" (decision 45, the awakened eel): the Hollow's grey-violet smoke with
-    embers of red in it, the same shapes."""
+    embers of red in it, the same shapes. `lean` (M1, creatures.Spec `share`): its alphas in steps of 32, not a step
+    for every pixel row, the same look to the eye at a third less of the sheet (an elite's ring was half its cost)."""
     C = AURA[tone]
+    q = (lambda v: int(min(255, max(32, round(v / 32.0) * 32)))) if lean else int
     a = rgba[..., 3] > 0
     Hh, Ww = a.shape
     if not a.any():
@@ -452,11 +462,11 @@ def _aura(rgba: np.ndarray, f: int, tone: str = "gold") -> None:
                 if hv < 0.1:
                     continue
                 if hv > 0.84:
-                    rgba[y, x] = C["bright"] + (int(170 + 60 * max(0.0, u)),)
+                    rgba[y, x] = C["bright"] + (q(170 + 60 * max(0.0, u)),)
                 else:
-                    rgba[y, x] = C["main"] + (int(max(70, 95 + 100 * u)),)
+                    rgba[y, x] = C["main"] + (q(max(70, 95 + 100 * u)),)
             elif u > 0.35 and hv > 0.4:
-                rgba[y, x] = C["faint"] + (int(40 + 50 * u),)
+                rgba[y, x] = C["faint"] + (q(40 + 50 * u),)
     # Tongues of Qi licking up off its top edge: a column's highest pixel, lifted a pixel or two, flickering.
     cols = np.nonzero(a.any(axis=0))[0]
     for x in cols:

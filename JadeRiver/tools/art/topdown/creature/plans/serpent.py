@@ -10,6 +10,13 @@ a spine, its radius a profile along it, posed by moving the spine.
          in water (`swim`), its front half rearing in an S in the tell; a sucker mouth that flares into a cup, a rear
          sucker, eyespots, an elite's gold glow spots; the wet sheen on every ring.
 
+  viper  (M1, the green viper) a slender snake: its hind body coiled flat on the ground, its neck raised in an S, a
+         wedge of a head (a brow scale, gold slit eyes, fangs, a forked tongue); green with faint crossbands, a pale
+         belly and flank stripe, an orange tail tip; it side-winds, draws back into a tight S (the tell), strikes along
+         the ground, recoils, goes limp and rolls onto its back. Styles: idle `coiled`, walk `sidewind`, windup `draw_s`,
+         attack `strike`, hurt `recoil`, death `go_limp`; channels `neck` (rise, bend back, reach, head height), `lunge`,
+         `gape`, `hpitch`, `writhe`, `limp`, `roll`.
+
 The motion styles (STYLES): the eel's idle `sway`, walk `glide`, windup `rear_back`, attack `lunge_snap`, hurt
 `snap_back`, death `sink`, its key poses written per frame as (control points, head tilt, gape, eyes, sunk); the leech's
 idle `quest`, walk `inchworm`, swim `ribbon`, windup `rear_s`, attack `latch_drink`, hurt `ball_up`, death `writhe_flat`.
@@ -87,6 +94,28 @@ STYLES = {
                     "flat": (0.0, 0.0, 0.0, 0.1, 0.25, 0.4, 0.5, 0.55)},
 }
 
+VIPER_STYLES = {
+    "coiled": {"neck": ((4.6, 1.4, 3.6, 4.4), (4.7, 1.5, 3.5, 4.5), (4.8, 1.6, 3.5, 4.6), (4.7, 1.5, 3.6, 4.5), (4.6, 1.4, 3.7, 4.4),
+                        (4.5, 1.3, 3.7, 4.3)), "sway": 0.7, "tongue": (1, 4)},
+    "sidewind": {"kind": "wind", "tongue": (3,)},
+    "draw_s": {"neck": ((5.0, 1.9, 2.8, 4.8), (5.4, 2.5, 2.0, 5.3), (5.6, 2.9, 1.5, 5.6), (5.7, 3.0, 1.4, 5.7)),
+               "gape": (0.15, 0.35, 0.55, 0.7), "hpitch": (4.0, 8.0, 10.0, 10.0), "lunge": (-0.3, -0.6, -0.8, -0.9)},
+    "strike": {"neck": ((4.2, 0.4, 6.4, 3.4), (2.8, -0.6, 9.4, 1.9), (2.8, -0.4, 9.0, 2.0), (3.6, 0.4, 6.6, 3.1), (4.3, 1.1, 4.6, 4.0),
+                        (4.6, 1.4, 3.8, 4.4)),
+               "lunge": (0.6, 1.6, 1.4, 0.8, 0.3, 0.0), "gape": (1.0, 0.9, 0.5, 0.2, 0.1, 0.0), "hpitch": (0.0, -8.0, -6.0, -2.0, 0.0, 0.0),
+               "streaks": (0, 1)},
+    "recoil": {"neck": ((5.2, 2.8, 1.4, 5.6), (4.9, 2.1, 2.4, 5.0), (4.7, 1.6, 3.2, 4.6)), "hpitch": (18.0, 8.0, 2.0),
+               "gape": (0.5, 0.2, 0.0), "writhe": (0.7, -0.3, 0.0)},
+    "go_limp": {"neck": ((5.0, 2.4, 2.0, 5.2),) + ((4.6, 1.4, 3.6, 4.4),) * 7, "limp": (0.0, 0.2, 0.45, 0.7, 0.9, 1.0, 1.0, 1.0),
+                "roll": (0.0, 0.0, 0.0, 0.0, 40.0, 110.0, 150.0, 165.0), "writhe": (0.9, -0.6, 0.4, -0.2, 0.0, 0.0, 0.0, 0.0),
+                "gape": (0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2), "dead_from": 3},
+}
+STYLES.update(VIPER_STYLES)
+VIPER = {
+    "length": 24.0, "coil_share": 0.62, "coil_r": 4.2, "neck_rest": (4.6, 1.4, 3.6, 4.4), "tip": 0.1,
+    "width": ((0.0, 0.2), (0.15, 0.6), (0.45, 1.0), (0.7, 0.9), (0.88, 0.62), (1.0, 0.7)),
+    "head": {"skull": (2.0, 1.45, 1.0), "snout": ((1.4, 0.0, -0.2), (1.2, 0.95, 0.7)), "brow": (0.6, 0.9, 0.7), "eye": (0.9, 1.15, 0.45)},
+}
 EEL = {
     "lift": 20.0,                    # the game hovers it this far over the water (art px): its water is drawn under its feet
     "ahead": 0.5, "up": 0.55,        # the side view's art px to the figure's, ahead and up
@@ -105,6 +134,8 @@ LEECH = {
     "depth": 0.56,
 }
 VARIANTS = {
+    "viper": {"parts": VIPER, "mats": {"skin": "viper_scale", "belly": "viper_belly", "tip": "viper_tail", "mouth": "viper_mouth"},
+              "motion": {"idle": "coiled", "walk": "sidewind", "windup": "draw_s", "attack": "strike", "hurt": "recoil", "death": "go_limp"}},
     "eel": {"parts": EEL, "mats": {"skin": "eel", "belly": "eel_belly", "fin": "eel_fin", "mouth": "eel_mouth"},
             "motion": {"idle": "sway", "walk": "glide", "windup": "rear_back", "attack": "lunge_snap", "hurt": "snap_back",
                        "death": "sink"}},
@@ -115,6 +146,8 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: float = 90.0) -> Pose:
+    if "coil_share" in B.parts:
+        return _viper(B, action, f, view)
     if B.variant == "leech" or "rest" in B.parts:
         return _leech(B, action, f, view)
     return _eel(B, action, f, k, awake)
@@ -581,5 +614,148 @@ def _ringed(m, ring: float, centre, T, B, N, w: float, s0: float):
         names = np.where(belly, m.belly, np.where(flank, m.dark, m.skin)).astype(object)
         # The groove cuts through the sheen on its back, so the glint breaks ring by ring.
         bias = np.where(groove, np.where(nz > 0.6, -2, -1), np.where(ridge & ~belly, 1, 0)).astype(np.int16)
+        return names, bias
+    return skin
+
+
+# ================================================================================================= the viper (M1)
+def _viper(B, action: str, f: int, view: float) -> Pose:
+    """A slender pit viper (M1, the green viper): its hind body coiled flat on the ground in a loose loop, its neck raised
+    in an S with the head held level, a wedge of a head (a heavy brow scale, gold eyes with a slit, a jaw that drops on
+    its fangs, a forked tongue flicking); the back green with faint crossbands, a pale yellow belly and a pale stripe
+    along each flank, the tail's tip orange. It side-winds as it moves (a wave running down a body laid out behind it),
+    draws its neck back into a tight S with its jaws parting (the tell), strikes along the ground (the blow on frame 1),
+    recoils when struck, and goes limp, rolling onto its back. The spine is a coil on the ground and a neck curve through
+    control points (`neck`: per frame the S's rise, its bend back, the head's reach and height), resampled evenly; the
+    body is ellipsoids along it, painted by the length along it so the bands stay on it."""
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    P = Pose()
+    L_ = p.length
+    ph = f / 8.0 * math.tau
+    rise, bend, reach, hz = B.pick("neck", action, f, p.neck_rest)
+    gape = B.pick("gape", action, f)
+    lunge = B.pick("lunge", action, f)
+    sway = st.get("sway", 0.0) * wave(action, f)
+    hp_ = B.pick("hpitch", action, f)
+    roll = B.pick("roll", action, f)
+    y = math.radians(view)
+    fronton = max(0.0, math.sin(y))
+    uc = p.coil_share
+    if st.get("kind") == "wind":
+        # Side-winding: the body laid out behind the head in a wave that runs down it as it goes.
+        K = 40
+        u = np.linspace(0.0, 1.0, K)
+        a = -L_ * (1.0 - u) * 0.82 + 2.0
+        b = 2.2 * np.sin(2 * math.pi * 1.3 * u - ph) * (0.35 + 0.65 * (1.0 - u))
+        c = 0.0 * u + np.clip((u - 0.82) / 0.18, 0.0, 1.0) ** 2 * 1.4
+        spine = np.stack([a, b, c], axis=1)
+    else:
+        # The coil: a loose loop on the ground behind the neck (the tail innermost), then the neck's S.
+        # The loop runs round from the tail (innermost, at its back) and ends at its front, where the neck rises.
+        R = p.coil_r
+        coil = []
+        for k in range(26):
+            t = k / 25.0
+            th = math.radians(-20.0 - (1.0 - t) * 310.0)
+            r = R * (0.55 + 0.45 * t)
+            coil.append(v3(-R * 0.8 + r * math.cos(th), r * math.sin(th) * (1.0 - 0.2 * fronton), 0.0))
+        end = coil[-1]
+        lean = 0.6 * fronton
+        ctrl = [end, end + v3(0.6, 0.2, rise * 0.25), end + v3(0.6 - bend, 0.4 * sway, rise * 0.75),
+                end + v3(0.4 - bend * 0.6 + reach * 0.5 + lunge * 0.5, 0.6 * sway - lean, rise),
+                end + v3(reach + lunge, sway - lean, hz)]
+        neck = _spline(ctrl, 16)
+        spine = np.array(coil + list(neck[1:]))
+        if B.has("limp", action):
+            # Going limp: the neck sinks to the ground and the coil slackens.
+            lim = B.pick("limp", action, f)
+            straight = np.stack([np.linspace(-L_ * 0.6, 3.0, len(spine)), 1.4 * np.sin(np.linspace(0.0, 3.0, len(spine))),
+                                 np.zeros(len(spine))], axis=1)
+            spine = spine * (1.0 - lim) + straight * lim
+            spine[:, 2] = np.maximum(0.0, spine[:, 2] * (1.0 - lim))
+    if B.has("writhe", action):
+        wr = B.pick("writhe", action, f)
+        n0 = len(spine)
+        spine = spine + np.stack([np.zeros(n0), wr * 1.4 * np.sin(np.linspace(0.0, 9.0, n0) + f), np.zeros(n0)], axis=1)
+    pts, total = _resample(np.asarray(spine, float), 30)
+    n = len(pts)
+    T = np.gradient(pts, axis=0)
+    T /= np.maximum(1e-6, np.linalg.norm(T, axis=1))[:, None]
+    up = np.array((0.0, 0.0, 1.0))
+    prevB = np.array((0.0, 1.0, 0.0))
+    W = p.width
+    for k in range(n):
+        Tk = T[k]
+        Bk = np.cross(up, Tk)
+        if np.linalg.norm(Bk) < 0.2:
+            Bk = prevB
+        Bk = Bk / np.linalg.norm(Bk)
+        prevB = Bk
+        Nk = np.cross(Tk, Bk)
+        s = k / (n - 1.0)
+        r = _width(W, s)
+        centre = pts[k] + np.array((0.0, 0.0, r * 0.85))
+        mm = np.stack([Tk, Bk, Nk], axis=1)
+        P.add(E(centre, (max(0.6 * total / (n - 1) + 0.3, 0.7), r, r * 0.85), m.skin, "body", mm,
+                _scaled(m, centre, Tk, Bk, Nk, r, s * total, s < p.tip)))
+    # The head: a wedge at the neck's end, held level (pitched by `hpitch`), the jaw dropping on its fangs.
+    Tn = T[-1].copy()
+    Tn[2] *= 0.3
+    Tn /= np.linalg.norm(Tn)
+    Bn = np.cross(up, Tn)
+    Bn = Bn / max(1e-6, np.linalg.norm(Bn))
+    hm = np.stack([Tn, Bn, np.cross(Tn, Bn)], axis=1) @ rot("b", hp_ + 4.0 * fronton)
+    hc = pts[-1] + np.array((0.0, 0.0, _width(W, 1.0) * 0.85)) + hm @ v3(1.2, 0.0, 0.1)
+    hd = p.head
+    P.add(E(hc, hd.skull, m.skin, "head", hm, _scaled(m, hc, hm[:, 0], hm[:, 1], hm[:, 2], hd.skull[1], total, False)))
+    P.add(E(hc + hm @ v3(hd.snout[0]), hd.snout[1], m.skin, "head", hm))
+    for sd in (1, -1):
+        P.add(E(hc + hm @ v3(hd.brow[0], sd * hd.brow[1], hd.brow[2]), (0.8, 0.55, 0.35), m.skin, "brow", hm, line=False))
+        eye = hc + hm @ v3(hd.eye[0], sd * hd.eye[1], hd.eye[2])
+        if action == "death" and f >= st.get("dead_from", 99):
+            P.mark(eye, M.RAMPS[m.skin][0])
+        else:
+            P.eye(eye, M.VIPER_EYE)
+            P.mark(eye + hm @ v3(0.0, sd * 0.05, 0.35), M.INKY)
+    if gape > 0.08:
+        jm = hm @ rot("b", -gape * 38.0)
+        hinge = hc + hm @ v3(-0.6, 0.0, -0.6)
+        P.add(E(hinge + jm @ v3(1.6, 0.0, -0.1), (1.6, 1.15, 0.4), m.belly, "jaw", jm))
+        P.add(E(hinge + hm @ v3(1.5, 0.0, -0.15), (1.2, 0.9, 0.3), m.mouth, "maw", hm, line=False))
+        for sd in (1, -1):
+            P.mark(hc + hm @ v3(hd.snout[0][0] + 0.4, sd * 0.45, -0.9), M.FANG)
+    if f in st.get("tongue", ()):
+        tip = hc + hm @ v3(hd.snout[0][0] + hd.snout[1][0] + 0.4, 0.0, -0.3)
+        for t in (0.0, 0.6, 1.2):
+            P.mark(tip + hm @ v3(t, 0.0, 0.0), M.VIPER_TONGUE)
+        for sd in (1, -1):
+            P.mark(tip + hm @ v3(1.7, sd * 0.45, 0.0), M.VIPER_TONGUE)
+    if action == "attack" and f in st.get("streaks", ()):
+        for k in range(3):
+            for d in range(3):
+                P.fx.append((hc - hm @ v3(2.0 + d * 1.1, (k - 1) * 0.9, 0.0), M.DUST_DIM if d else M.DUST))
+    if roll:
+        P.m = rot("a", roll)
+        turned = P.m @ v3(0.0, 0.0, 1.0)
+        P.shift = v3(-turned[0], -turned[1], 1.0 - turned[2])
+    return P
+
+
+def _scaled(m, centre, T, B, N, w: float, s0: float, tip: bool):
+    """The viper's scales: the green back crossed by faint darker bands every two units along it, a pale stripe along
+    each flank, the pale yellow belly; the tail's tip orange."""
+    def skin(q, nrm):
+        d = q - centre
+        s = s0 + d @ T
+        lat = (d @ B) / max(0.3, w)
+        nz = nrm @ N
+        belly = nz < -0.3
+        stripe = (np.abs(np.abs(lat) - 0.72) < 0.12) & (nz > -0.3) & (nz < 0.45)
+        band = ((s / 2.1) % 1.0 < 0.22) & (nz > 0.2)
+        if tip:
+            return np.full(len(q), m.tip, dtype=object), np.where(belly, -1, 0).astype(np.int16)
+        names = np.where(belly | stripe, m.belly, m.skin).astype(object)
+        bias = np.where(stripe, 1, np.where(band & ~belly, -1, 0)).astype(np.int16)
         return names, bias
     return skin
