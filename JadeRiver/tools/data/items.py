@@ -1,8 +1,9 @@
 """S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases).
 
-Decision 45 (audit 45 §6.4): the item engine writes the rows of its families (tools/content/items/specs: pills, herbs,
-ores, creature parts, gear); this module places each family section among the rows written here, which are the
-one-offs (quest items, keys, unique treasures and the like) and the groups not yet in a family.
+Decision 45 (audit 45 §6.4): the item engine (tools/content/items, docs/architecture/item_engine.md) writes the rows of
+its families: the pills, the herbs by age and their seeds, the ores, the creature parts and the gear by family × grade.
+build_items() and build_artifacts() place each family section (E.items(...)) where its rows have always stood, among
+the rows written here by hand: the one-offs, and the small groups no family writes yet.
 """
 import os
 import sys
@@ -22,7 +23,18 @@ from content.items.kinds import artifact, item  # noqa: E402  (every module's ro
 BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", "ore", "hollow", "herb", "fish", "insect", "critter", "jade",
                                               "wisp", "oil", "legend_piece"]}
 
+# ============================================================================================================ families
+# What the other generators read of the families: the S45 herb ages, family by family, and the seeds (herbs.py,
+# garden.json), and the weapon families' looks (the legendary weapons below).
+HERB_AGE = E.herb_ages()
+SEEDS = E.seeds()
+FAMILY_APPEARANCE = E.spec("gear").FAMILY_APPEARANCE
 
+# ============================================================================================================ one-offs
+# Every row below that is not E.items(...) is written by hand. The one-offs stay plain rows, never forced into a
+# family (item_engine.md, "One-offs"): quest items and keys, the unique treasures, relics, flames and named pieces,
+# the charts and vessels, the curios. So do the small groups no family writes yet: foods, fish, talismans and their
+# inks, tools, scrolls and manuals, beast cores, pet medicine and books, the post goods (posts.py).
 
 PET_BOOKS = [
     ("iron_hide", "Iron Hide", "common", "An animal that learns it takes 10% less damage."),
@@ -33,15 +45,12 @@ PET_BOOKS = [
     ("guardian_spirit", "Guardian Spirit", "heaven", "Once every 30 seconds it takes a blow meant for you."),
 ]
 
-CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "metal", "star", "space"]   # v1.2: metal, star, space
-# S45 herb ages and seeds, as garden.json reads them (herbs.py): the herb families' (specs/herbs.py).
-HERB_AGE = E.herb_ages()
-SEEDS = E.seeds()
+# S46 beast cores: one of each element at each rank tier (v1.2: metal, star, space).
+CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "metal", "star", "space"]
 # S47 talisman craft: inks and papers (Part 8).
 TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it.", "Cinnabar"),
                  ("beast_blood_ink", "earth", "Ink cut with a beast's blood; it holds a stronger charge than cinnabar alone.", "Beast-Blood Ink"),
                  ("spirit_paper", "earth", "Talisman paper steeped with Mist Lotus until it drinks Qi.", "Spirit Paper")]
-# The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
 # Item text: one line on where it comes from and what it is for (the UI shows it under the name).
 FISH_DESC = {
     "river_minnow": "A silver minnow from the Jade River shallows. Bait, or a quick snack.",
@@ -75,7 +84,7 @@ TOOL_DESC = {
     "spirit_spade": "A jade-edged spade that cuts earth without cutting roots. With Expert gathering, dig a rare herb up whole and move it to a garden bed.",
     "verdant_dew_vial": "A green glass vial that fills with one drop of dew a day, even while you are away (it holds three). A drop ages the herb in a bed one tier.",
 }
-
+# The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
 TALISMANS = [("flame_talisman", "common", "attack", "Thrown, it bursts into a sheet of fire: 180% fire damage at the talisman's own grade within 80."),
              ("thunder_talisman", "earth", "attack", "Thrown, it calls a bolt: 240% thunder damage at the talisman's own grade, and Shock."),
              ("iron_wall_talisman", "common", "defence", "Burned, it wraps you in iron Qi: a shield that absorbs 20% of your max HP for 6 s."),
@@ -552,12 +561,6 @@ def build_items():
     entries("items.json", rows, bag_kinds=BAG_KINDS)
     entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows
-
-
-# Gear by family × grade (specs/gear.py): the grade words, the weapon families' looks and the armour ladder, as the
-# named pieces below and economy.py read them.
-GEAR = E.spec("gear")
-GRADE_WORD, FAMILY_APPEARANCE, ARMOUR, BAG_BASE = GEAR.GRADE_WORD, GEAR.FAMILY_APPEARANCE, GEAR.ARMOUR, GEAR.BAG_BASE
 
 
 def build_artifacts():

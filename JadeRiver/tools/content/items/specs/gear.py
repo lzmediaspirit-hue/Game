@@ -208,6 +208,5 @@ FAMILIES += [
 # artifacts.json lists the banded bases grade by grade, every family in its order within a grade; the forge's
 # blueprints likewise.
 ORDER = {"weapons": "grade", "armour": "grade", "smithing.weapons": "grade", "smithing.armour": "grade"}
+# The weapon families' looks, as items.py's legendary weapons read them.
 FAMILY_APPEARANCE = {f.stem: f.fields["appearance"] for f in FAMILIES if f.kind == "weapon"}
-ARMOUR = {g: {f.stem: next((m["id"], m["name"], m["appearance"]) for m in f.members if m["grade"] == g) for f in FAMILIES if f.kind == "armour"}
-          for g in GRADES}

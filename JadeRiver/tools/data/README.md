@@ -61,6 +61,13 @@ if __name__ == "__main__":
 3. If it has a check worth running on every change, add `python3 tools/data/<module>.py --check` to
    `tools/run_tests.sh` (as `places` and `sound` are).
 
+## The item engine
+
+The pills, the herbs by age, the ores, the creature parts and the gear by family × grade are families of the item
+engine (`tools/content/items`, `docs/architecture/item_engine.md`): a new item of those kinds is a spec there, not a row
+here. `items.py` places their rows among its one-offs, and `economy.py` their recipes and shop lines. Its gate is
+`python3 tools/content/items/engine.py --check`.
+
 ## The gates here (tools/run_tests.sh runs them)
 
 - `room_lint.py`: the side-view rooms against the verticality rules.

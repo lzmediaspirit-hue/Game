@@ -9,7 +9,6 @@ import os
 
 from common import DATA, write, entries, realm, unlocked, flag, all_of, run_cli
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
-import items
 from items import E   # the item engine (tools/content/items): its families' shop lines and recipes
 from techniques import SOURCES as TECH_SOURCES
 import posts
@@ -87,8 +86,7 @@ def shops():
          "rotation": {"count": 1, "pool": [s("ember_pepper_stew"), s("toad_oil_dumplings"), s("riverfish_soup")]}},
         {"id": "mei_qing", "name": "Mei Qing's Stall", "currency": "silver_tael",
          "stock": [F("willow_moss"), F("riverreed_ginseng_10"), F("healing_pill"), F("qi_restoration_pill"), F("qi_gathering_pill"),
-                   L("healing_pill"), F("pearl"),
-                   F("mist_lotus"), F("cloudtop_orchid")],
+                   L("healing_pill"), F("pearl"), F("mist_lotus"), F("cloudtop_orchid")],
          "rotation": {"count": 1, "pool": [F("clear_mind_pill"), F("foundation_guard_pill"), F("bone_strengthening_pill")]}},
         # The recipes the pill families sell here (specs/pills.py, recipe learn=).
         {"id": "mei_qing_recipes", "name": "Mei Qing's Recipe Box", "currency": "silver_tael", "stock": []},
@@ -96,10 +94,7 @@ def shops():
         {"id": "alchemist_guild", "name": "Alchemist Guild", "currency": "silver_tael",
          "stock": [L("foundation_guard_pill"), L("clear_mind_pill"), L("meridian_reversal_pill"),
                    s("recipe_scroll", learn="jadeiron_furnace", price=900, requires=all_of(flag("guild_alchemy_adept"))),
-                   F("mist_lotus"),
-                   F("jade_scale"),
-                   L("storm_blood_pill"),
-                   F("soulbell_flower"), F("frost_lotus")]},
+                   F("mist_lotus"), F("jade_scale"), L("storm_blood_pill"), F("soulbell_flower"), F("frost_lotus")]},
         # S49: the Forge Guild's counter at Smith Bao's: ores for members, finer ores as the badge rises.
         {"id": "forge_guild", "name": "Forge Guild", "currency": "silver_tael",
          "stock": [F("jadeiron"), F("riverstone"), s("refining_essence", price=60, requires=all_of(flag("guild_smithing_adept"))),
@@ -190,8 +185,7 @@ def shops():
                    s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), F("mistjade_gourd")],
          "rotation": {"count": 2, "pool": [F("clear_mind_pill"), F("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone",
-         "stock": [F("stormsteel_ore"), F("mystic_ore"),
-                  ] + [L("stormsteel_" + f) for f in old_six] + [L("bp_stormsilk_robe")]},
+         "stock": [F("stormsteel_ore"), F("mystic_ore")] + [L("stormsteel_" + f) for f in old_six] + [L("bp_stormsilk_robe")]},
         {"id": "port_apothecary", "name": "Apothecary Wu's Cabinet", "currency": "spirit_stone",
          "stock": [F("soulbell_flower"), F("cloudtop_orchid"), F("mist_lotus"), F("healing_pill"), F("qi_restoration_pill"),
                    L("storm_blood_pill")],

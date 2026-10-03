@@ -1,18 +1,21 @@
 """The item engine's spec language (docs/architecture/item_engine.md). A spec module under specs/ imports from here and
 lists its families in `FAMILIES`; nothing here reads data/ or writes a file.
 
-    family(fid, kind=..., tiers=(...) | members=[...], name=..., desc=..., <kind fields>,
+    family(fid, kind=..., tiers=(...) | members=[member(...)], id=, name=, desc=, <the kind's fields>,
            recipe=dict(...), icon=dict(...), sources=dict(...), row=dict(...), section=..., sinks=(...))
 
 - `fid` is "<kind>.<stem>". A one-member family's id is its stem unless `id=` says otherwise; a ladder's `id`, `name`
-  and `desc` are templates over the member's context ({tier}, {Tier}, {word}, {Word}, {pct}, {minutes}, {cult}...).
-- `tiers=` makes one member a grade (a ladder); `members=[member(...)]` lists them (each its own id, grade and fields).
-- Any value may be `curve(name[, key])` (the member's grade on a curve of curves.py) or `per({tier: value})`.
-- `row=` pins values in the finished row (hand tweaks live here, never in the JSON); `DROP` removes a key.
+  and `desc` are templates over the member's context ({tier}, {Tier}, {Grade}, {word}, {Word}, {pct}, {minutes},
+  {cult}, and the member's own fields).
+- `tiers=` makes one member of each grade (a ladder; `words={grade: word}` names them); `members=[member(...)]` lists
+  them by hand, each with its own id, grade and fields (a field of the member's wins over the family's).
+- Any value may be `curve(name[, key])` (the member's grade on a curve of curves.py) or `per({tier: value}, default=)`.
+- `qi(share)` is decision 45's fixed cultivation for the member's grade; `effect(kind, ...)` any other use effect.
+- `row=` pins values in the finished row (hand tweaks live here, never in the JSON); a pin of `DROP` removes a key.
+- `gear(family, kind=weapon|armour|gourd|pet_gear|furnace, ...)` is family() for gear, the fid made from the kind.
 """
-import copy
 
-DROP = object()   # a `row` pin that removes the key
+DROP = object()   # a `row` pin (or a pill's `cause` / `soul`) that removes the key
 _MISSING = object()
 
 
@@ -25,7 +28,8 @@ class Curve:
 
 
 class Per:
-    """A value that differs by member: keyed by tier (grade, or a herb's age) or by the member's id, else `default`."""
+    """A value that differs by member: keyed by the member's id, tier (a grade, or a herb's age) or grade, else
+    `default`."""
     def __init__(self, table, default=_MISSING):
         self.table = dict(table)
         self.default = default
@@ -60,13 +64,12 @@ def member(tier=None, grade=None, **fields):
     return d
 
 
+# Where a member comes from (engine.CHANNEL): `shop` and `recipe` the engine writes, the rest it finds in the data.
 SOURCE_KEYS = {"shop", "auction", "recipe", "drop", "chest", "gather", "garden", "craft", "reward", "mail", "mark"}
-FAMILY_KEYS = {"kind", "tiers", "members", "id", "name", "desc", "section", "words", "sources", "recipe", "icon", "row",
-               "sinks", "stack", "seed", "grade", "ilv"}
 
 
 class Family:
-    """A family as its spec wrote it; engine.compile() turns it into members and rows."""
+    """A family as its spec wrote it; engine.compile_families() turns it into members and rows."""
 
     def __init__(self, fid, kind, tiers=None, members=None, sources=None, **fields):
         if "." not in fid:
@@ -96,7 +99,7 @@ def family(fid, kind, **kw):
 
 
 def gear(fid, kind="weapon", **kw):
-    """A gear family over the grades (gear.py ARCHETYPES names its archetype): family(fid, kind=weapon|armour|gourd)."""
+    """A gear family over the grades: family("<kind>.<fid>", kind, ...)."""
     return Family(fid if "." in fid else "%s.%s" % (kind, fid), kind, **kw)
 
 
@@ -118,4 +121,4 @@ def resolve(value, ctx):
         return [resolve(v, ctx) for v in value]
     if isinstance(value, tuple):
         return tuple(resolve(v, ctx) for v in value)
-    return copy.deepcopy(value) if isinstance(value, (set,)) else value
+    return value

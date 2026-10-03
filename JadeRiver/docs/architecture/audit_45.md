@@ -818,6 +818,16 @@ about 10 lines for 4–9 items. `wiki --gaps` stays empty by construction, becau
 - `balance_sim` (prices, and Qi per hour from pills);
 - icon build determinism.
 
+**Status (phase 3, E4): built** (`docs/architecture/item_engine.md`). `tools/content/items/`: the spec language, the
+curves, a row template a kind and the engine (about 1,000 lines), its gate `engine.py --check` (in both runners) and 17
+tests of its own. The migration ran in the order above, each step with an empty `git diff data/`: 30 pill families, 9
+herb families with their seeds, the ores, 4 creature-part families (each part naming its creatures) and the gear (11
+weapon families, 4 armour slots, the gourds, the pet gear and far furnace ladders): 290 rows, their recipes, shop lines
+and pill icons, with about 650 hand lines gone from items.py, economy.py and pills.py. The one-offs stay plain rows in
+items.py's labelled section. Two departures from the spec above: recipes live in `economy.py` (`crafts.py` holds the
+professions), and the loot lines stay the monster engine's (E2): a family names its creatures and chests and the gate
+finds it there. The first new family, the Streams Pills (a cultivation-speed ladder, Heaven to Sovereign), is one spec.
+
 ### 6.5 Quest engine (E5)
 
 **What exists to build on:**
