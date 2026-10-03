@@ -4,20 +4,56 @@
   "progress_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "HUD bars read the cultivator each frame."
   },
   "bottleneck_reached": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "breakthrough_started": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -30,7 +66,19 @@
   "breakthrough_succeeded": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -43,7 +91,19 @@
   "breakthrough_failed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -56,7 +116,19 @@
   "realm_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -69,70 +141,202 @@
   "consolidation_finished": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "stability_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "injury_added": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "injury_healed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "meditation_started": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "meditation_stopped": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "Allies and the lotus ring read the meditating flag."
   },
   "meditation_tick": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "qi_backlash": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "offline_claimed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The shell opens the welcome page from the enter result."
   },
   "insight_gained": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Dao page reads insight; one per technique use is too frequent for a notice."
   },
   "dao_tier_up": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -143,51 +347,147 @@
   "method_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "technique_equipped": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The HUD skill arc reads the technique slots each frame."
   },
   "technique_mastery_up": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "attributes_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "meridian_gate_opened": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "toxicity_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The HUD icon and Cultivation page read toxicity."
   },
   "aptitude_revealed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "body_level_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -197,58 +497,166 @@
   "purity_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "soul_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "attunement_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "pill_resistance_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "Pill tooltips and the Heart tab read each family's count."
   },
   "foundation_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Heart tab and the risk preview read the foundation share."
   },
   "heart_demon_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "residue_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Cultivation page's Heart tab reads residue."
   },
   "body_trial_passed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "body_tier_reached": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -259,31 +667,91 @@
   "physique_awakened": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "core_graded": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "fate_offered": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "fate_chosen": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "tribulation_started": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -296,13 +764,37 @@
   "tribulation_bolt": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "tribulation_result": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -316,79 +808,235 @@
   "qi_deviation": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "inner_art_learned": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "inner_art_equipped": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "stance_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "vow_taken": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "vow_broken": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "false_realm_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "epiphany": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "soul_escaped": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "guqin_played": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "chess_solved": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "path_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ]
   },
   "level_changed": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -398,35 +1046,95 @@
   "tree_node_realised": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
   },
   "tree_node_unrealised": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
   },
   "tree_reset": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Techniques page reads the trees when it draws (P13b builds the chart)."
   },
   "lost_art_found": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "polled": "The Lost Arts board reads lost_arts_view when it draws; the art's own learned event carries the toast."
   },
   "technique_learned": {
    "system": "Progression",
    "files": [
-    "progression_authority"
+    "progression_authority",
+    "progression_attunement",
+    "progression_body",
+    "progression_condition",
+    "progression_fates",
+    "progression_insight",
+    "progression_meditation",
+    "progression_part",
+    "progression_realms",
+    "progression_techniques",
+    "progression_trees",
+    "progression_tribulation",
+    "progression_vows"
    ],
    "payload": [
     "actor",
@@ -980,14 +1688,34 @@
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "craft_started": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ],
    "polled": "The crafts page drives its own mini-game."
   },
@@ -995,14 +1723,34 @@
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "profession_rank_up": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ],
    "payload": [
     "actor",
@@ -1014,21 +1762,51 @@
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "flame_absorbed": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "pill_cloud": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ],
    "payload": [
     "actor",
@@ -1040,91 +1818,221 @@
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "enhancement_inherited": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "affixes_rerolled": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "affix_locked": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "talisman_crafted": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "relic_restored": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "furnace_blast": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "recipe_page_found": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "recipe_deduced": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "experiment_result": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "guild_exam_started": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "guild_exam_failed": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "guild_rank_changed": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ],
    "payload": [
     "actor",
@@ -1137,112 +2045,272 @@
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "pill_tribulation_result": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "pill_soul_flight": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "herb_harvested": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "seed_found": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "herb_planted": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "bed_watered": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "bed_enriched": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "herb_aged": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "spring_bottled": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "transplant_result": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "rack_started": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "rack_collected": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "garden_raided": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "herb_appraised": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ]
   },
   "weapon_awakened": {
    "system": "Crafting",
    "files": [
     "crafting_authority",
-    "workshop_authority"
+    "workshop_authority",
+    "crafting_forge",
+    "crafting_furnaces",
+    "crafting_garden",
+    "crafting_gathering",
+    "crafting_guilds",
+    "crafting_part",
+    "crafting_professions",
+    "crafting_recipes",
+    "crafting_refine",
+    "crafting_research"
    ],
    "payload": [
     "actor",
