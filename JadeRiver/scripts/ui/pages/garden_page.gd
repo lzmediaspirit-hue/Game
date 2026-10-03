@@ -114,7 +114,7 @@ func _basket(ch) -> void:
 func _terrace(ch, key: String, r: Rect2, i: int) -> void:
 	var v: Dictionary = Game.crafting.bed_view(ch, key)
 	var bed := Rect2(r.position, Vector2(r.size.x, r.size.y - 22))
-	if key == sel: glow(r.grow(14), Color(UiKit.GOLD, 0.35 * _halo()))
+	if key == sel: glow(r.grow(14), Color(UiKit.GOLD, 0.35 * halo_k()))
 	WorkshopKit.bricks(self, Rect2(r.position.x, bed.end.y, r.size.x, 22), 11.0, 36.0)
 	WorkshopKit.soil(self, bed, float(RICH.get(str(v.grade), 0.0)))
 	if key == sel: draw_rect(bed.grow(2), UiKit.GOLD, false, 2.0)
@@ -129,7 +129,7 @@ func _terrace(ch, key: String, r: Rect2, i: int) -> void:
 				draw_line(base, base + Vector2(5, -12), UiKit.JADE, 3.0, true)
 		elif frac < 0.6: icon_at(Rect2(spot.get_center() - Vector2(16, 16), Vector2(32, 32)), str(v.herb))
 		else:
-			if v.ready: glow(spot.grow(16), Color(UiKit.GOLD, 0.55 * _halo()))
+			if v.ready: glow(spot.grow(16), Color(UiKit.GOLD, 0.55 * halo_k()))
 			icon_at(Rect2(spot.get_center() - Vector2(32, 32), Vector2(64, 64)), str(v.herb))
 	# The grade on a stake at the bed's far end.
 	var stake := Rect2(bed.end.x - 140, bed.position.y + 10, 124, 30)

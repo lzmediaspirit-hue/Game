@@ -332,7 +332,7 @@ func _fight_music() -> void:
 	_run(leave * 0.5 + 0.3)
 	st = Audio.music_state()
 	check(st.mode == "explore", "a few seconds after the last foe falls the fight is over (%s)" % [st])
-	var bar := beat * float(Audio._grid("field").get("bar_beats", 4))
+	var bar := beat * float(Audio.music_grid("field").get("bar_beats", 4))
 	_run(bar + 0.1)
 	st = Audio.music_state()
 	check(float(st.stem_target) == 0.0 and float(st.explore_trim_db) == 0.0, "the stem leaves on the next bar line (within %.2f s) and the tune comes back up (%s)" % [bar, st])

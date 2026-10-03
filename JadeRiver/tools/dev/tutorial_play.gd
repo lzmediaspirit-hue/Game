@@ -135,11 +135,11 @@ func look(first: Dictionary) -> void:
 		var over: float = card.intersection(target).get_area()
 		if clear or card.has_point(target.get_center()) or over > 0.125 * target.get_area():
 			bug("the card covers what it explains (%.0f%% of it)" % (100.0 * over / maxf(1.0, target.get_area())), st)
-	var hr: Rect2 = coach().hand_rect(false) if coach()._hand_shown() else Rect2()
+	var hr: Rect2 = coach().hand_rect(false) if coach().hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO:
 		if not safe.encloses(hr): bug("the hand runs off the screen %s" % str(hr), st)
 		if card.intersects(hr): bug("the card covers the hand %s" % str(hr), st)
-	var lines: Array = coach()._lines()
+	var lines: Array = coach().card_lines()
 	if lines.size() > 2: bug("the card's words run to %d lines" % lines.size(), st)
 	for ln in lines:
 		var w := UiKit.text_width(str(ln), TutorialCoach.TEXT)
@@ -294,7 +294,7 @@ func sweep() -> void:
 	# at rest (the driver's shortcut, noted; the lessons are what is played).
 	for i in 8:
 		if main.scenes == null or main.scenes.run == null: break
-		main.scenes._finish(true)
+		main.scenes.finish(true)
 		await _read(2)
 	if room() != "lf_village":
 		say("sweep: set in the village from %s (a driver's shortcut)" % room())

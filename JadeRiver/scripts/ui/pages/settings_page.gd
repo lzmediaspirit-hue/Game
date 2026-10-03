@@ -85,7 +85,7 @@ func setup() -> void:
 	exports = Saves.list_exports()
 
 ## A toggle's state; a dictionary setting (notification categories) is on while any part is.
-func _is_on(key: String) -> bool:
+func is_on(key: String) -> bool:
 	var v = setting(key, not key in DEFAULT_OFF)
 	if v is Dictionary: return (v as Dictionary).values().any(func(x): return bool(x))
 	return bool(v)
@@ -94,14 +94,14 @@ func _flip(key: String) -> void:
 	var v = setting(key, not key in DEFAULT_OFF)
 	if v is Dictionary:
 		var all := {}
-		var turn_on := not _is_on(key)
+		var turn_on := not is_on(key)
 		for k in v: all[k] = turn_on
 		set_setting(key, all)
 	else:
-		set_setting(key, not _is_on(key))
+		set_setting(key, not is_on(key))
 
 func _toggle(p: Vector2, key: String, label: String) -> void:
-	var on := _is_on(key)
+	var on := is_on(key)
 	text(p + Vector2(0, 32), label, 22)
 	var r := Rect2(p.x + 360, p.y + 4, 110, 48)
 	# P4 (§6): on is its own state, the selected art; Off is secondary words, not the disabled grey.

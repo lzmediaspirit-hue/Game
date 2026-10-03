@@ -101,9 +101,9 @@ func resolve_plunge(c, st: ActorState) -> void:
 		"range": [1.0, 1.0], "knockback": 0.0, "source": "plunge"}
 	for e in combat._enemies_within(here, radius):
 		if not CombatAuthority.hit_test(pv, 1, hitbox, combat.enemy_view(e), true): continue
-		combat._player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+		combat.player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 		if e.alive and not e.is_boss():
-			combat._apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(ContentDB.movement("plunge.stun_s", 0.5)), "source": c.id})
+			combat.apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(ContentDB.movement("plunge.stun_s", 0.5)), "source": c.id})
 	for o in game.world.hittable_objects(pv, 1, hitbox):
 		game.world.apply_object_hit(c.id, o)
 	emit("system_used", {"actor": c.id, "system": "plunge_strike"})

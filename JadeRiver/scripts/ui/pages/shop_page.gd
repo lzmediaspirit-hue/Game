@@ -177,7 +177,7 @@ func _shelves(ch, stock: Array) -> void:
 func _ware(_ch, s: Dictionary, i: int, r: Rect2) -> void:
 	var locked := str(s.locked) != ""
 	if sel_buy == i:
-		glow(r.grow(10), Color(UiKit.GOLD, 0.22 * _halo()))
+		glow(r.grow(10), Color(UiKit.GOLD, 0.22 * halo_k()))
 		draw_rect(r.grow(-1), UiKit.GOLD, false, 2.0)
 	var mat := Rect2(r.position + Vector2(15, 2), Vector2(80, 80))
 	rounded(Rect2(mat.position + Vector2(0, 3), mat.size), 6.0, Color(UiKit.INK, 0.35))
@@ -237,7 +237,7 @@ func _front(ch, shop: Dictionary, currency: String) -> void:
 	for cur in ["silver_tael", "spirit_stone"]:
 		if not cur in purses and (cur == "silver_tael" or Game.economy.balance(cur, ch) > 0): purses.append(cur)
 	for cur in purses:
-		if cur == currency: glow(Rect2(x - 14, FRONT_Y + 14, UiKit.text_width(UiKit.fmt(Game.economy.balance(cur, ch)), 18) + 82, 62), Color(UiKit.GOLD, 0.3 * _halo()))
+		if cur == currency: glow(Rect2(x - 14, FRONT_Y + 14, UiKit.text_width(UiKit.fmt(Game.economy.balance(cur, ch)), 18) + 82, 62), Color(UiKit.GOLD, 0.3 * halo_k()))
 		x += currency_pill(Vector2(x, FRONT_Y + 28), cur, Game.economy.balance(cur, ch)) + 16.0
 		if x > 500.0: break
 	text(Vector2(552, FRONT_Y + 38), Tx.t("ui.shop.prices_in") % currency_name(currency), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 240)

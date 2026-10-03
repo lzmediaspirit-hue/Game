@@ -222,10 +222,10 @@ func tick(delta: float) -> void:
 	if _auction_t < 2.0: return
 	_auction_t = 0.0
 	for house in HOUSES:
-		_auction_close(house)
+		auction_close(house)
 		auction_roll(house)
 
-func _au_cfg(house: String) -> Dictionary:
+func auction_config(house: String) -> Dictionary:
 	var base := ContentDB.config("auction")
 	if house == "pavilion": return base
 	var v: Dictionary = base.get(house, {}).duplicate()
@@ -238,7 +238,7 @@ func auction_lots(house := "pavilion") -> Array:
 
 ## The Pavilion is always open; the valley's house only on Auction Day. Returns the day's end (or INF).
 func auction_open_until(house: String) -> float:
-	var cal := str(_au_cfg(house).get("calendar", ""))
+	var cal := str(auction_config(house).get("calendar", ""))
 	if cal == "": return INF
 	var occ: Dictionary = game.calendar.active_of(cal)
 	return float(occ.end) if not occ.is_empty() else -1.0
@@ -246,7 +246,7 @@ func auction_open_until(house: String) -> float:
 ## A house keeps a few lots open at all times: when one closes, the next is drawn from the
 ## pool (seeded by the lot's running number and the account, so the sequence is fixed per account).
 func auction_roll(house := "pavilion") -> void:
-	var cfg := _au_cfg(house)
+	var cfg := auction_config(house)
 	if cfg.is_empty() or (cfg.get("pool", []) as Array).is_empty(): return
 	var until := auction_open_until(house)
 	if until < 0.0: return
@@ -308,17 +308,17 @@ func auction_price(l: Dictionary) -> int:
 	if str(l.get("bidder", "npc")) != "npc": return int(l.bid)
 	var span := maxf(1.0, float(l.ends) - float(l.opened))
 	var f := clampf((Clock.now_utc() - float(l.opened)) / span, 0.0, 1.0)
-	var drift := int(round(float(l.start) + (float(l.cap) * float(_au_cfg(str(l.get("house", "pavilion"))).get("npc_drift", 0.6)) - float(l.start)) * f))
+	var drift := int(round(float(l.start) + (float(l.cap) * float(auction_config(str(l.get("house", "pavilion"))).get("npc_drift", 0.6)) - float(l.start)) * f))
 	return maxi(int(l.bid), mini(drift, int(l.cap)))
 
 func auction_min_bid(l: Dictionary) -> int:
-	var inc := float(_au_cfg(str(l.get("house", "pavilion"))).get("min_increment", 0.1))
+	var inc := float(auction_config(str(l.get("house", "pavilion"))).get("min_increment", 0.1))
 	var p := auction_price(l)
 	return maxi(p + 1, int(ceil(p * (1.0 + inc))))
 
 ## The house premium on top of a bid: smaller on the free path (S20).
 func auction_fee(c, house := "pavilion") -> float:
-	var fees: Dictionary = _au_cfg(house).get("premium", {})
+	var fees: Dictionary = auction_config(house).get("premium", {})
 	var path := "alliance" if c.quests.has_flag("path_alliance") else ("independent" if c.quests.has_flag("path_independent") else "none")
 	return float(fees.get(path, 0.1))
 
@@ -337,7 +337,7 @@ func auction_bid(c, lot_id: String, amount: int, house := "pavilion") -> Diction
 	emit("system_used", {"actor": c.id, "system": "auction_bid"})
 	# An NPC answers at once while the bid is inside its limit.
 	if amount < int(l.cap):
-		l.bid = mini(int(l.cap), maxi(amount + 1, int(ceil(amount * (1.0 + float(_au_cfg(house).get("min_increment", 0.1)))))))
+		l.bid = mini(int(l.cap), maxi(amount + 1, int(ceil(amount * (1.0 + float(auction_config(house).get("min_increment", 0.1)))))))
 		if str(l.bidder) != "npc": _auction_refund(l)
 		l.bidder = "npc"
 		emit("auction_outbid", {"actor": c.id, "lot": lot_id, "item": str(l.item), "bid": int(l.bid)})
@@ -365,7 +365,7 @@ func _auction_rebase(house := "pavilion") -> void:
 		l.opened = now
 		l.ends = float(l.ends) - back
 
-func _auction_close(house := "pavilion") -> void:
+func auction_close(house := "pavilion") -> void:
 	_auction_rebase(house)
 	var now := Clock.now_utc()
 	for l in auction_lots(house):

@@ -189,7 +189,7 @@ func _view(rid: String) -> void:
 		Game.active_id = was
 	else:
 		probe.room = Game.room_rt.topdown
-		probe._build_room()
+		probe.build_room()
 	var def: Dictionary = Game.room_rt.def
 	var npcs: Array = def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "npc")
 	var things: Array = def.get("objects", []).filter(func(o): return not str(o.get("type", "")) in ["npc", "decor"])
@@ -281,7 +281,7 @@ func _tower() -> void:
 	off = _foes_on_floor()
 	check(r.get("ok", false) and str(row.get("kind", "")) == "guardian" and guardian.size() == 1 and off.is_empty(),
 		"a guardian floor (5): its guardian %s and escorts stand on the floor where auto-path reaches them (%s)" % [str(row.get("guardian", "")), str(off)])
-	Game.world._end_event(c(), Game.room_rt, true)
+	Game.world.end_event(c(), Game.room_rt, true)
 	GameEvents.flush()
 	travel("sf_fairground")
 
@@ -291,7 +291,7 @@ func _grove() -> void:
 	var wolf: Dictionary = c().pets.back()
 	wolf.level = 30
 	c().active_pet = str(wolf.uid)
-	Game.pets._spawn(c())
+	Game.pets.spawn(c())
 	c().cooldowns.erase("grove_day")
 	var r: Dictionary = Game.world.start_beast_trial(c())
 	var grid: TopdownRoom = Game.room_rt.topdown
@@ -307,7 +307,7 @@ func _grove() -> void:
 	var foes: Array = Game.room_rt.living_enemies().filter(func(e): return e.team != "ally")
 	var off := _foes_on_floor()
 	check(not foes.is_empty() and off.is_empty(), "its first wave comes onto floor auto-path reaches (%d foes; %s)" % [foes.size(), str(off)])
-	Game.world._end_event(c(), Game.room_rt, true)
+	Game.world.end_event(c(), Game.room_rt, true)
 	GameEvents.flush()
 
 # ------------------------------------------------------------------ 5: the quarry's lesson

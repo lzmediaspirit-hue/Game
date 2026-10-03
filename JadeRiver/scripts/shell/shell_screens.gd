@@ -164,7 +164,7 @@ class SelectionScreen extends Page:
 				text(r.position + Vector2(0, 260), Tx.t("shell.create_disciple"), 24, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 				region(r, "create", slot)
 			else:
-				_lock_icon(r.get_center() - Vector2(6, 60))
+				lock_icon(r.get_center() - Vector2(6, 60))
 				var why := Tx.t("shell.locked")
 				for rule in rules:
 					if int(rule.slot) == slot:

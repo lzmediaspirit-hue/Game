@@ -93,7 +93,7 @@ func state(c) -> Dictionary:
 	if not (st.get("queue") is Array): st["queue"] = []
 	if st.get("legacy", false):
 		st.erase("legacy")
-		_know_all(c)
+		know_all(c)
 	var v := TutorialRules.version()
 	if int(st.get("v", 1)) < v:
 		_know_since(c, int(st.get("v", 1)))
@@ -169,7 +169,7 @@ func in_progress(c, tour: String) -> bool:
 
 ## An old save (or a character that skipped the Prologue) knows what it has: each entry whose trigger holds now, or
 ## whose page it could open, is counted guided and seen.
-func _know_all(c) -> void:
+func know_all(c) -> void:
 	var st: Dictionary = c.tutorials
 	for e in TutorialRules.entries():
 		var tr: Dictionary = e.get("trigger", {})

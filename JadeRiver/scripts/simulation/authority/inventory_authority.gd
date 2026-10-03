@@ -587,7 +587,7 @@ func equip(c, index: int) -> Dictionary:
 	c.inventory.equipped[slot] = inst
 	c.inventory.bag[index] = old
 	if slot == "gourd": c.inventory.resize(c.inventory.capacity())
-	_first_wear(c, inst, slot)
+	first_wear(c, inst, slot)
 	emit("equipment_changed", {"actor": c.id, "slot": slot, "old": old.id if old else "", "new": inst.id})
 	# S47: an awake spirit in a hand too weak to hold it says so.
 	if str(inst.get("spirit", "")) == "awake" and not StatRules.spirit_controlled(c, inst): speak(c, inst, "refuse", true)
@@ -595,7 +595,7 @@ func equip(c, index: int) -> Dictionary:
 
 ## First time a piece is worn: its look joins the account's wardrobe, and a Plain to Heaven piece takes a drop of
 ## blood (S47 blood-drop bind: cosmetic, before S14 binding matters).
-func _first_wear(c, inst: Dictionary, slot: String) -> void:
+func first_wear(c, inst: Dictionary, slot: String) -> void:
 	var cat := str(WARDROBE_CATEGORY.get(slot, ""))
 	var look := str(inst.get("appearance", ContentDB.item(str(inst.id)).get("appearance", "none")))
 	if cat != "" and look != "none" and ContentDB.parts.get(cat, {}).has(look): game.account.wardrobe_unlocked["%s:%s" % [cat, look]] = true

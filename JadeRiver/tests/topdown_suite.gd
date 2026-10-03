@@ -1194,7 +1194,7 @@ func _foe_facings(base: Vector2) -> void:
 	fv.sync(1.0 / 60.0)
 	seen.append(fv.facing)
 	var acts: Dictionary = w.room.tileset.foes.species.wild_boarlet.actions
-	Game.combat._damage_enemy(e, e.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(e, e.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
 	fv.sync(0.1)
 	fv.sync(2.0)
 	var last: Array = acts.death.frames.n.back()
@@ -1322,7 +1322,7 @@ func _push_and_dodge(base: Vector2) -> void:
 	fresh(base)
 	var e := foe("wild_boarlet", base + Vector2(20, 20), 60)
 	var from := e.plane
-	Game.combat._player_hits_enemy(c, Game.combat.player_view(c), e, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "knockback": 60, "never_miss": true, "source": "test"}, 1)
+	Game.combat.player_hits_enemy(c, Game.combat.player_view(c), e, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "knockback": 60, "never_miss": true, "source": "test"}, 1)
 	var stop := Game.combat.hitstop
 	var held: bool = Game.combat.hold_for_hitstop(1.0 / 60.0)
 	for i in 8: Game.enemies.tick(1.0 / 60.0)
@@ -1568,7 +1568,7 @@ func _drops_and_prompt(tree: SceneTree) -> void:
 	var dropped: Array = []
 	for i in 6:
 		var rat := foe("reedtail_rat", spot)
-		Game.combat._damage_enemy(rat, rat.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
+		Game.combat.damage_enemy(rat, rat.pools.max_hp * 10.0, c.id, "physical", "none", false, {})
 		Game.tick(1.0 / 60.0)
 		dropped = Game.room_rt.loot.duplicate()
 		if not dropped.is_empty(): break
@@ -1580,7 +1580,7 @@ func _drops_and_prompt(tree: SceneTree) -> void:
 	tree.root.add_child(hud)
 	await tree.process_frame
 	fresh(spot)
-	Game.world._drop_loot(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), 32.0, "enemy")
 	var uid := -1
 	for l in Game.room_rt.loot: uid = int((l.instance as Dictionary).get("uid", -1))
 	frames(40)
@@ -1597,7 +1597,7 @@ func _hud_aim(tree: SceneTree, base: Vector2) -> void:
 	var ac: Vector2 = hud.attack_center
 	hud.press(7, ac)
 	hud.drag(7, ac + Vector2(90, 0))
-	hud._tick_aims(0.2)
+	hud.tick_aims(0.2)
 	var shown: Dictionary = w.player.aim.duplicate()
 	hud.release(7)
 	var snapped: Vector2 = Game.combat.timeline(c.id).aim
@@ -1609,7 +1609,7 @@ func _hud_aim(tree: SceneTree, base: Vector2) -> void:
 	foe("wild_boarlet", base + Vector2(0, 60), 60)
 	hud.press(8, ac)
 	hud.drag(8, ac + Vector2(0, -90))
-	hud._tick_aims(0.2)
+	hud.tick_aims(0.2)
 	hud.release(8)
 	var up_aim: Vector2 = Game.combat.timeline(c.id).aim
 	t.check(up_aim.is_equal_approx(Vector2.UP), "topdown: with no foe near the line, the blow goes exactly where it was dragged (%s)" % str(up_aim))
@@ -1618,7 +1618,7 @@ func _hud_aim(tree: SceneTree, base: Vector2) -> void:
 		var sc: Vector2 = hud.slots[s]
 		hud.press(20 + s, sc)
 		hud.drag(20 + s, sc + Vector2(-80, 0))
-		hud._tick_aims(0.2)
+		hud.tick_aims(0.2)
 		forms.append(str(w.player.aim.get("form", "")))
 		hud.drag(20 + s, sc)
 		var cd: int = c.pools.cooldowns.size()
@@ -1629,10 +1629,10 @@ func _hud_aim(tree: SceneTree, base: Vector2) -> void:
 	fresh(base)
 	hud.fight_override = null
 	hud._settled = false
-	hud._tick_fight(0.1)
+	hud.tick_fight(0.1)
 	var rest: bool = hud.fight
 	foe("wild_boarlet", base + Vector2(200, 0), 60)
-	hud._tick_fight(0.1)
+	hud.tick_fight(0.1)
 	t.check(not rest and hud.fight, "topdown: the HUD's rest and fight ring follows the room's foes")
 
 # ------------------------------------------------------------------ decision 35: Attack's drag moves in the fight
@@ -1651,7 +1651,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	var ahead := foe("wild_boarlet", base + Vector2(-1, -1).normalized() * 40.0)
 	hud.press(30, ac)
 	hud.drag(30, ac + Vector2(-95, -95))
-	hud._tick_aims(0.1)
+	hud.tick_aims(0.1)
 	var armed_as: String = hud.armed(hud.attack_gesture())
 	var shown := str(w.player.aim.get("move", ""))
 	await tree.process_frame   # the button draws its lit line and the word
@@ -1670,7 +1670,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	frames(3)
 	hud.press(32, ac)
 	hud.drag(32, ac + Vector2(0, -130))
-	hud._tick_aims(0.05)
+	hud.tick_aims(0.05)
 	hud.release(32)
 	var seen: Array = []
 	for i in 120:
@@ -1692,7 +1692,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	var ready: bool = w.player.plunge_ready()
 	hud.press(40, ac)
 	hud.drag(40, ac + Vector2(0, 70))
-	hud._tick_aims(0.05)
+	hud.tick_aims(0.05)
 	armed_as = hud.armed(hud.attack_gesture())
 	shown = str(w.player.aim.get("move", ""))
 	await tree.process_frame
@@ -1722,7 +1722,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	frames(8)
 	hud.press(41, ac)
 	hud.drag(41, ac + Vector2(0, 70))
-	hud._tick_aims(0.05)
+	hud.tick_aims(0.05)
 	armed_as = hud.armed(hud.attack_gesture())
 	hud.release(41)
 	tl = Game.combat.timeline(c.id)
@@ -1738,9 +1738,9 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	var striker := foe("wild_boarlet", base + Vector2(30, 0), maxi(1, ProgressionRules.level(c)))   # blows that matter at any level
 	striker.aim = Vector2.LEFT
 	hud.press(50, ac)
-	hud._tick_aims(0.2)
+	hud.tick_aims(0.2)
 	var not_yet: bool = Game.combat.timeline(c.id).guard
-	hud._tick_aims(0.15)
+	hud.tick_aims(0.15)
 	var g: AimGesture = hud.attack_gesture()
 	tl = Game.combat.timeline(c.id)
 	var guarding: bool = g != null and g.guarding and g.guard_kind == "guard" and tl.guard and str(w.player.aim.get("move", "")) == "guard"
@@ -1780,7 +1780,7 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 	if not c.cultivator.techniques_known.has(tid): Game.apply_effects(c.id, [{"kind": "learn_technique", "technique": tid}], "topdown_suite")
 	var eq: Dictionary = Game.submit({"type": "equip_technique", "slot": 3, "id": tid})
 	hud.press(51, ac)
-	hud._tick_aims(0.35)
+	hud.tick_aims(0.35)
 	g = hud.attack_gesture()
 	var kind := g.guard_kind if g != null else ""
 	frames(20)
@@ -1805,26 +1805,26 @@ func _drag_moves(tree: SceneTree, base: Vector2) -> void:
 		"topdown drag moves: the guard draws the figure's guard pose while held and idle once let go (%s, %s, %s)" % [str(drawn), str(guard_box), str(after)])
 	# Left-handed: the button moves to the left; a drag to the left edge is the finisher, back on the button cancels.
 	hud.left_handed = true
-	hud._layout()
+	hud.place_cluster()
 	var lc: Vector2 = hud.attack_center
 	fresh(base)
 	hud.set_state(true)
 	hud.press(60, lc)
 	hud.drag(60, lc + Vector2(-70, 0))
-	hud._tick_aims(0.05)
+	hud.tick_aims(0.05)
 	var left_armed: String = hud.armed(hud.attack_gesture())
 	hud.drag(60, lc + Vector2(5, 0))
 	var cancel: String = hud.armed(hud.attack_gesture())
 	hud.release(60)
 	var idle: bool = str(Game.combat.timeline(c.id).action) == ""
 	hud.left_handed = false
-	hud._layout()
+	hud.place_cluster()
 	# Reduce motion: the armed marks hold still (no pulse), and the button still draws them.
 	var was: bool = bool(Game.account.settings.get("reduce_motion", false))
 	Game.account.settings["reduce_motion"] = true
 	hud.press(61, ac)
 	hud.drag(61, ac + Vector2(-95, -95))
-	hud._tick_aims(0.05)
+	hud.tick_aims(0.05)
 	var g1: float = hud.armed_glow()
 	hud.t += 0.37
 	var g2: float = hud.armed_glow()
@@ -1890,12 +1890,12 @@ func _view_rules() -> void:
 	# The minimap's direction mark: toward a way that lies south it points south, from the frame's bottom edge.
 	var hud_script = load("res://scripts/hud.gd")
 	var way: Vector2 = hud_script.minimap_way(Vector2(10, 10), Vector2(10, 40))
-	var edge: Vector2 = hud_script._edge_point(Rect2(0, 0, 100, 50), Vector2(50, 25), way)
+	var edge: Vector2 = hud_script.edge_point(Rect2(0, 0, 100, 50), Vector2(50, 25), way)
 	t.check(way == Vector2(0, 1) and edge == Vector2(50, 50), "topdown minimap: the direction mark points south to a way south, on the frame's bottom edge (%s at %s)" % [str(way), str(edge)])
 
 ## The companion of the character in the room (spawned again after `fresh` clears the room).
 func _ally() -> EnemyState:
-	Game.companions._spawn_all(c)
+	Game.companions.spawn_all(c)
 	return Game.room_rt.enemies.get(int(Game.companions.allies.get("lan_yue", -1)))
 
 ## A companion on the grid (AllyBrain steering by TopdownBrain): it comes in on the player's floor, follows onto the
@@ -1967,12 +1967,12 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	a.altitude = 32.0
 	a.pools.hp = a.pools.max_hp
 	var bite: Dictionary = biter.def.attacks[0]
-	Game.combat._enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
+	Game.combat.enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
 	var spared: bool = a.pools.hp == a.pools.max_hp
 	biter.plane = Vector2(26.5, 14.5) * 32.0
 	a.plane = biter.plane + Vector2(0, -29.0)
 	a.altitude = 0.0
-	Game.combat._enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
+	Game.combat.enemy_hits_allies(biter, bite, Game.combat.enemy_view(biter))
 	t.check(spared and a.pools.hp < a.pools.max_hp, "topdown allies: a foe's blow from the square spares a companion on the terrace above and reaches one on its own level")
 	# A fight on one level: the companion closes and strikes.
 	fresh(base)
@@ -1991,11 +1991,11 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	pet.team = "ally"
 	pet.plane = base + Vector2(-40, 0)
 	Game.room_rt.enemies[pet.uid] = pet
-	w._add_foe(pet)
+	w.add_foe(pet)
 	var imp := foe("sandstorm_scorpion", base + Vector2(60, 0))
-	w._add_foe(imp)
+	w.add_foe(imp)
 	var snapper := foe("old_snapper", base + Vector2(60, 60))
-	w._add_foe(snapper)
+	w.add_foe(snapper)
 	var pv = w.foe_views.get(pet.uid)
 	var iv = w.foe_views.get(imp.uid)
 	var sv = w.foe_views.get(snapper.uid)
@@ -2004,7 +2004,7 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	t.check(sv != null and sv.art == null and not (sv.acts as Dictionary).is_empty(), "topdown: Old Snapper is drawn by its own rows of the grid's foe sheet, not a stand-in")
 	fresh(base)
 	c.companions.active = had
-	Game.companions._spawn_all(c)
+	Game.companions.spawn_all(c)
 
 ## Hazards and weather on the grid: their spots fall all round on the plane at their floor's height; a strike reaches
 ## only its own level; a gust carries the body; the view sorts each spot's parts with the room (a ring over the terrace
@@ -2015,7 +2015,7 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	fresh(edge)
 	var rt: RoomRuntime = Game.room_rt
 	var st: ActorState = Game.actor_state(c.id)
-	var spots: Array = Game.world._hazard_spots(rt, st, {"kind": "strike", "count": 24, "spread": 320}, Rng.keyed(7, "hazard_test"))
+	var spots: Array = Game.world.hazard_spots(rt, st, {"kind": "strike", "count": 24, "spread": 320}, Rng.keyed(7, "hazard_test"))
 	var on_floor := spots.all(func(sp): return w.room.standable(TopdownRoom.cell_of(Vector2(float(sp[0]), float(sp[1])))) and float(sp[2]) == w.room.floor_at(Vector2(float(sp[0]), float(sp[1]))))
 	var deep := spots.any(func(sp): return absf(float(sp[1]) - st.plane.y) > 60.0)
 	var raised := spots.any(func(sp): return float(sp[2]) == 32.0)
@@ -2026,11 +2026,11 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 		if n == "hazard_struck": struck.append(p)
 	GameEvents.event.connect(grab)
 	var hs := {"phase": "active", "t": 0.0, "dur": 0.5, "spots": [[edge.x, edge.y - 40.0, 32.0]], "dir": 1, "pulse": 0.0, "inside": false}
-	Game.world._hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_a"), false)
+	Game.world.hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_a"), false)
 	GameEvents.flush()
 	var over := struck.is_empty()
 	hs.spots = [[edge.x, edge.y + 20.0, 0.0]]
-	Game.world._hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_b"), false)
+	Game.world.hazard_enter(c, rt, st, h, hs, Rng.keyed(7, "hazard_b"), false)
 	GameEvents.flush()
 	GameEvents.event.disconnect(grab)
 	t.check(over and struck.size() == 1, "topdown hazards: a bolt on the terrace 40 units off does not strike a body on the square below; one on its own floor does")
@@ -2058,7 +2058,7 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var pieces: Array = hv.pieces.filter(func(pc): return pc.visible)
 	var rings: Array = pieces.filter(func(pc): return str(pc.part.kind) == "strike")
 	var bolts: Array = pieces.filter(func(pc): return str(pc.part.kind) == "bolt")
-	var marks: Array = hv._parts(rt).filter(func(pt): return pt.mark)
+	var marks: Array = hv.parts(rt).filter(func(pt): return pt.mark)
 	var ring_hi: Array = rings.filter(func(pc): return float(pc.part.z) == 32.0)
 	var ring_lo: Array = rings.filter(func(pc): return float(pc.part.z) == 0.0)
 	var row_key := (floorf(high.y / 32.0) + 1.0) * 16.0
@@ -2083,11 +2083,11 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	Game.combat.ground_fires.clear()
 	var hp0: float = c.pools.hp
 	Game.combat.ground_fires.append({"x": edge.x, "y": edge.y - 10.0, "alt": 0.0, "r": 70.0, "t": 5.0, "tick": 0.0, "pct": 0.1, "source": "test"})
-	Game.combat._tick_ground_fires(0.1)
+	Game.combat.tick_ground_fires(0.1)
 	var unburnt: bool = c.pools.hp == hp0
 	Game.combat.ground_fires[0].alt = 32.0
 	Game.combat.ground_fires[0].tick = 0.0
-	Game.combat._tick_ground_fires(0.1)
+	Game.combat.tick_ground_fires(0.1)
 	var burnt: bool = c.pools.hp < hp0
 	Game.combat.ground_fires.clear()
 	c.pools.hp = c.pools.max_hp
@@ -2105,10 +2105,10 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	fresh(west)
 	var slot := {"spec": {"enemy": "wild_boarlet", "points": [[east.x, east.y]]}, "index": 0, "point": east, "uid": 0, "timer": 0.0, "held": false, "entry": false}
 	var slot2 := {"spec": {"enemy": "wild_boarlet", "points": [[far_east.x, far_east.y]]}, "index": 1, "point": far_east, "uid": 0, "timer": 0.0, "held": false, "entry": false}
-	var in_view: Vector2 = Game.enemies._spawn_point(slot)
-	var out_view: Vector2 = Game.enemies._spawn_point(slot2)
+	var in_view: Vector2 = Game.enemies.spawn_point(slot)
+	var out_view: Vector2 = Game.enemies.spawn_point(slot2)
 	var shown := foe("wild_boarlet", east)
-	t.check(not in_view.is_finite() and out_view == far_east and absf(east.x - st.plane.x) >= 700.0 and not hud._caption_worthy("enemy_aggro", {"enemy": shown.uid}),
+	t.check(not in_view.is_finite() and out_view == far_east and absf(east.x - st.plane.x) >= 700.0 and not hud.caption_worthy("enemy_aggro", {"enemy": shown.uid}),
 		"topdown audit: by the west wall a spot 24 tiles east is on the camera (the old rule, 700 across, called it off screen): no respawn there and no off-screen notice; one past the view's edge respawns")
 	# The ways: reached only on their own floor, along and across as they are turned.
 	fresh(Vector2(26.5, 12.4) * 32.0)
@@ -2120,36 +2120,36 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	t.check(not from_below and side_rule and Game.world.portal_near(c, door), "topdown audit: a way on the terrace is not taken from the square below its face (the old reach was), and is on the terrace")
 	# Pickups: a drop on the terrace's edge is not drawn in from the square below; a spill over a ledge stays on its floor.
 	fresh(Vector2(26.5, 12.4) * 32.0)
-	Game.world._drop_loot(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, 32.0, "enemy")
 	frames(40)
 	var left: bool = rt.loot.size() == 1 and float(rt.loot[0].alt) == 32.0
 	w.player.motor.place(Vector2(26.5, 11.4) * 32.0)
 	w.player.physics_step(0.0001)
 	frames(40)
-	var spill: Vector3 = WorldAuthority._loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 32.0, 0.0, 22.0)
+	var spill: Vector3 = WorldAuthority.loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 32.0, 0.0, 22.0)
 	t.check(left and rt.loot.is_empty() and spill.z == 32.0 and spill.y < 12.0 * 32.0,
 		"topdown audit: a drop on the terrace's edge is not picked up from the square below (the old reach, 60 up, took it), and is on the terrace; a spill over the ledge lies on its own floor")
 	# Auto-path arrives only on the goal's own floor, not under it on the square below.
 	fresh(Vector2(26.5, 12.4) * 32.0)
 	var pilot := Autopilot.new(w.player)
 	var goal := Vector2(26.5, 11.7) * 32.0
-	var going: Vector2 = pilot._toward_grid(goal, 30.0)
+	var going: Vector2 = pilot.toward_grid(goal, 30.0)
 	w.player.motor.place(Vector2(26.5, 11.3) * 32.0)
 	w.player.physics_step(0.0001)
-	t.check(going != Vector2.INF and pilot._toward_grid(goal, 30.0) == Vector2.INF, "topdown audit: auto-path is not there under a terrace spot 22 units off on the plane, only on the terrace")
+	t.check(going != Vector2.INF and pilot.toward_grid(goal, 30.0) == Vector2.INF, "topdown audit: auto-path is not there under a terrace spot 22 units off on the plane, only on the terrace")
 	# The names: the nearest keep their rows by the distance on the plane, not across.
 	fresh(base)
 	var north := foe("wild_boarlet", base + Vector2(0, -150))
-	w._add_foe(north)
+	w.add_foe(north)
 	(w.label_views[north.uid] as EnemyView).sync(north, 0.0)
 	var mine: Array = WorldShared.label_views(w, w.player_feet(), Vector2.ONE).filter(func(v): return v.id == "e%d" % north.uid)
 	t.check(not mine.is_empty() and absf(float(mine[0].near) - 150.0) < 4.0, "topdown audit: a foe's name straight north of the player is 150 off for the label order (across it was 0)")
 	# A foe picks its ranged or its close blow by the distance on the plane.
 	var rogue := foe("rogue_cultivator", base + Vector2(0, -300))
-	var pick: int = EnemyBrain._choose_attack(Game.enemies, rogue, rogue.def.attacks)
+	var pick: int = EnemyBrain.choose_attack(Game.enemies, rogue, rogue.def.attacks)
 	t.check(float(rogue.def.attacks[pick].hitbox.x[1]) > 200.0, "topdown audit: a rogue cultivator 300 north throws its sword Qi (across the distance was 0 and it chose its thrust)")
 	# A rare herb's guardian wakes by the approach on the plane.
-	t.check(not Game.world._guardian_wakes({"at": [base.x, base.y - 600.0], "alt": 0.0}, st) and Game.world._guardian_wakes({"at": [base.x, base.y - 300.0], "alt": 0.0}, st),
+	t.check(not Game.world.guardian_wakes({"at": [base.x, base.y - 600.0], "alt": 0.0}, st) and Game.world.guardian_wakes({"at": [base.x, base.y - 300.0], "alt": 0.0}, st),
 		"topdown audit: a herb's guardian wakes for a body 300 off on the plane, not 600 straight north (across it was 0)")
 	# Things the rules put in the room land on its floors: a spar partner, a summoned add, an ambush.
 	var by_water := Vector2(25.5, 22.5) * 32.0
@@ -2476,12 +2476,12 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	tl.charged = false
 	var blow := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1], "never_miss": true, "source": "basic"}
 	var pv: Dictionary = Game.combat.player_view(c)
-	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	Game.combat.player_hits_enemy(c, pv, dummy, blow, 1)
 	var light: float = Game.combat.hitstop
 	Game.combat.hitstop = 0.0
 	tl.stop_spent = 0.0   # the dragged finisher is an action of its own (decision 43: one action's hit-stop has a cap)
 	tl.charged = true
-	Game.combat._player_hits_enemy(c, pv, dummy, blow, 1)
+	Game.combat.player_hits_enemy(c, pv, dummy, blow, 1)
 	var heavy: float = Game.combat.hitstop
 	tl.charged = false
 	var f := 1.0 / 60.0
@@ -2571,13 +2571,13 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	GameEvents.flush()
 	var told: bool = _fx_now().has("common")
 	w.player.dodge()
-	for ev in w.player.physics_step(1.0 / 60.0): w._feedback(ev)
+	for ev in w.player.physics_step(1.0 / 60.0): w.feedback(ev)
 	var dusted: bool = _fx_now().has("dust")
 	Game.submit({"type": "guard_start"})
-	w._hold_marks()
+	w.hold_marks()
 	var guard_on: bool = w.tfx.guard_node != null and is_instance_valid(w.tfx.guard_node)
 	Game.submit({"type": "guard_end"})
-	w._hold_marks()
+	w.hold_marks()
 	t.check(told and dusted and guard_on and w.tfx.guard_node == null, "topdown feel: a foe's wind-up shows its tell, a dash kicks dust, and a guard holds its wall of qi while it lasts")
 	# The eight directions, the west three mirrored.
 	var dirs: Array = []
@@ -2589,7 +2589,7 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	var struck := sturdy("wild_boarlet", base + Vector2(30, 0))
 	GameEvents.flush()
 	var view = w.foe_views.get(struck.uid)
-	Game.combat._player_hits_enemy(c, Game.combat.player_view(c), struck, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1],
+	Game.combat.player_hits_enemy(c, Game.combat.player_view(c), struck, {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1, 1],
 		"never_miss": true, "knockback": 60, "source": "basic"}, 1)
 	view.sync(0.0)
 	var white0: float = view.white
@@ -2601,10 +2601,10 @@ func _combat_feel(_tree: SceneTree, base: Vector2) -> void:
 	w.tfx.clear()
 	var sm = w.tfx.smear("", str(fam.id), "step_1", Vector2.RIGHT, base, 0.0, -1.0)
 	w.held = true
-	w._sync(0.1)
+	w.sync_views(0.1)
 	var froze: bool = sm != null and absf(float(sm.t)) < 0.001
 	w.held = false
-	w._sync(0.1)
+	w.sync_views(0.1)
 	var ran: bool = sm != null and float(sm.t) > 0.09
 	t.check(white0 == 1.0 and view.white == 0.0 and top >= 2.0 and froze and ran,
 		"topdown feel: a struck foe flashes white, then tinted, a knockback hops it %.0f px, and a hit-stop freezes the effects with the fight" % top)

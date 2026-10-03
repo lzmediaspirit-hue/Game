@@ -195,7 +195,7 @@ func party_chips(c) -> Array:
 		specs.append({"kind": "companion", "uid": str(cid), "name": ContentDB.name_of("companions", str(cid))})
 	if hud.shown("pet"):
 		for uid in c.pet_bag:
-			var bp: Dictionary = Game.pets._pet(c, str(uid))
+			var bp: Dictionary = Game.pets.pet_of(c, str(uid))
 			if bp.is_empty() or seen.has(str(uid)) or str(uid) == c.active_pet: continue
 			specs.append({"kind": "bag", "uid": str(uid), "name": str(bp.get("name", ""))})
 			seen[str(uid)] = true

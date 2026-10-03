@@ -180,13 +180,13 @@ func _ready() -> void:
 		caption.layer = 4
 		add_child(caption)
 		caption.add_child(Caption.new(self))
-	_build_room()
+	build_room()
 	if player.bound():
 		Game.bind_movement(player.actor_id, player.state)
 		GameEvents.event.connect(_on_event)
 		if not live: _loadout(Game.active())
-		if live: _place_player()
-	_settle_camera()
+		if live: place_player()
+	settle_camera()
 
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
@@ -196,7 +196,7 @@ func _exit_tree() -> void:
 
 ## The room's own nodes: the floor, water and raised rows, stairs and props, its people, things and ways, the foes
 ## and the loot lying there. The body, its shadow and the effects stay from room to room.
-func _build_room() -> void:
+func build_room() -> void:
 	for n in _room_nodes:
 		if is_instance_valid(n): n.queue_free()
 	_room_nodes.clear()
@@ -289,11 +289,11 @@ func _build_room() -> void:
 	# The body, its shadow and its dust after the room's own nodes, so a tie in the sort goes to the body.
 	for n in [shadow, player, fx]: sorted.move_child(n, -1)
 	if player != null and player.bound():
-		for uid in Game.room_rt.enemies: _add_foe(Game.room_rt.enemies[uid])
+		for uid in Game.room_rt.enemies: add_foe(Game.room_rt.enemies[uid])
 	_warm_fight()
 
 ## Phase 4: the body where the World authority put the character (a portal's arrival, a shrine, a saved spot).
-func _place_player() -> void:
+func place_player() -> void:
 	var c = Game.active()
 	player.motor.room = room
 	player.motor.place(Vector2(float(c.position.get("x", room.spawn.x)), float(c.position.get("y", room.spawn.y))))
@@ -304,10 +304,10 @@ func _place_player() -> void:
 	player.physics_step(0.0001)
 	transfer_cooldown = 0.4
 
-func _settle_camera() -> void:
+func settle_camera() -> void:
 	cam_z = player.motor.z
-	_sync(0.0)
-	cam = _cam_target()
+	sync_views(0.0)
+	cam = cam_target()
 	camera.position = cam.round()
 
 func _physics_process(delta: float) -> void:
@@ -319,18 +319,18 @@ func _physics_process(delta: float) -> void:
 		elif Game.combat.hold_for_hitstop(delta):
 			held = true
 			return
-	for e in player.physics_step(delta): _feedback(e)
+	for e in player.physics_step(delta): feedback(e)
 	if player.bound(): Game.tick(delta)
-	if live: _check_portals(delta)
+	if live: check_portals(delta)
 
 func _process(delta: float) -> void:
 	if not _warming.is_empty(): _collect_warm()
-	_sync(delta)
+	sync_views(delta)
 	var m: TopdownMotor = player.motor
 	if m.grounded and m.sink_t < 0.0: cam_z = m.z
 	elif m.z < cam_z and m.sink_t < 0.0: cam_z = m.z   # a fall below the last floor is followed down
 	var k := 1.0 - exp(-delta * 3.0 / float(TopdownMotor.conf("camera_settle_s", 0.3)))
-	var goal := _cam_target()
+	var goal := cam_target()
 	if stage_cam != null: goal = _clamp_cam((stage_cam as Vector2) / TopdownRoom.ART)   # a staged scene looks elsewhere
 	if not camera_hold.is_empty():
 		var h := camera_hold
@@ -346,14 +346,14 @@ func _process(delta: float) -> void:
 	overlay.scale = camera.zoom
 	overlay.position = (Vector2(VIEW) * 0.5 - (camera.position + camera.offset) * stage_zoom) * TopdownRoom.ART
 	if player.bound():
-		if live: _update_context()
+		if live: update_context()
 		focus_labels()
 		layout_labels()
 
 ## The camera's goal in art px: the feet on the ground underfoot (not the jump arc) plus a look-ahead, inside the room
 ## as it is drawn (a ridge on its north edge included) and never leaving the body out of view (TopdownRoom.camera_for,
 ## which the Enemies authority also asks what the player sees).
-func _cam_target() -> Vector2:
+func cam_target() -> Vector2:
 	var m: TopdownMotor = player.motor
 	return room.camera_for(m.pos, cam_z, m.vel)
 
@@ -368,14 +368,14 @@ func _clamp_cam(t: Vector2) -> Vector2:
 	t.y = b.get_center().y if b.size.y <= (half.y - bar) * 2.0 else clampf(t.y, b.position.y + half.y - bar, b.end.y - half.y + bar)
 	return t
 
-func _sync(delta: float) -> void:
+func sync_views(delta: float) -> void:
 	# Decision 45: a staged scene's hit-stop holds the struck figures and the effects a moment, as a blow's does.
 	var fd := 0.0 if stage_hold else delta
 	player.sync(fd)
 	shadow.sync()
 	fx.advance(fd)
 	if not held and not stage_hold: tfx.advance(delta)
-	_hold_marks()
+	hold_marks()
 	for uid in foe_views.keys():
 		if is_instance_valid(foe_views[uid]): foe_views[uid].sync(fd)
 		else: foe_views.erase(uid)
@@ -409,7 +409,7 @@ func is_occluded() -> bool:
 			if (r as Rect2).intersects(body): return true
 	return false
 
-func _feedback(e: Dictionary) -> void:
+func feedback(e: Dictionary) -> void:
 	var m: TopdownMotor = player.motor
 	match str(e.type):
 		"jumped": sound.jumped()   # decision 43: the push-off on its surface and the jump
@@ -434,7 +434,7 @@ func _feedback(e: Dictionary) -> void:
 ## A way out walked into: at the way (the World authority's reach round it) with the stick pushing out through it (an
 ## edge's side, into a building's door, out of an interior's), the World authority takes it; a shut one says why. On
 ## the grid a door needs no hold: "up" is a real direction (plan §1.7).
-func _check_portals(delta: float) -> void:
+func check_portals(delta: float) -> void:
 	transfer_cooldown = maxf(0.0, transfer_cooldown - delta)
 	var c = Game.active()
 	if transfer_cooldown > 0.0 or c == null or Game.room_rt == null or not player.motor.grounded: return
@@ -450,7 +450,7 @@ func _check_portals(delta: float) -> void:
 func request_portal(portal_id: String, crossing := false) -> void:
 	WorldShared.request_portal(self, portal_id, crossing)
 
-func _update_context() -> void:
+func update_context() -> void:
 	var ctx := WorldShared.context(Game.active(), player.motor.pos)
 	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
 	if ctx.hash() != context.hash(): context = ctx
@@ -529,7 +529,7 @@ func feel_hit(p: Dictionary) -> void:
 
 ## The marks held while a state lasts: the guard's wall of qi while guarding, the charge gathering while a finisher is
 ## armed on Attack.
-func _hold_marks() -> void:
+func hold_marks() -> void:
 	if not player.bound(): return
 	var m: TopdownMotor = player.motor
 	tfx.hold("guard", bool(Game.combat.timeline(player.actor_id).guard), m.pos, m.z, m.dir)
@@ -540,7 +540,7 @@ func _hold_marks() -> void:
 		var fill := CombatFeel.charge_k(str(StatRules.family(Game.character(player.actor_id)).get("id", "fists")), player.charge_t)
 		tfx.charge_node.modulate = Color(1.3, 1.15, 0.75) if fill >= 1.0 else Color(1, 1, 1, 0.5 + 0.5 * fill)
 
-func _add_foe(e: EnemyState) -> void:
+func add_foe(e: EnemyState) -> void:
 	if foe_views.has(e.uid) and is_instance_valid(foe_views[e.uid]): return
 	var v := FoeView.new(self, e)
 	sorted.add_child(v)
@@ -602,9 +602,9 @@ func _on_event(name: String, p: Dictionary) -> void:
 			# Phase 4: the next room on the grid (a room without a layout is world.gd's; main.gd swaps the views).
 			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null and Game.room_rt.topdown != null:
 				room = Game.room_rt.topdown
-				_build_room()
-				_place_player()
-				_settle_camera()
+				build_room()
+				place_player()
+				settle_camera()
 				# Decision 42: come out of a transfer array in a column of the sect's light.
 				if _array_glow != Color.TRANSPARENT:
 					effects.add("pillar", player_feet(), {"color": _array_glow, "radius": 18.0, "height": 300.0, "dur": 0.9})
@@ -617,7 +617,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				_array_glow = UiKit.MIST if net == "cloud_sect" else UiKit.BRIGHT_JADE
 		"enemy_spawned", "ally_spawned":
 			var e: EnemyState = Game.room_rt.enemies.get(int(p.get("enemy", p.get("uid", 0)))) if Game.room_rt else null
-			if e: _add_foe(e)
+			if e: add_foe(e)
 		"equipment_changed":
 			if str(p.get("actor", "")) == player.actor_id: player.refresh_outfit()
 		"attack_started":

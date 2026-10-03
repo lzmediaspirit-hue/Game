@@ -3098,7 +3098,7 @@ func ride_the_crane() -> void:
 		if str(p.species) == "jade_crane": crane = str(p.uid)
 	check(crane != "", "the crane is yours")
 	if crane == "": return
-	var was_role: String = str(Game.pets._pet(c(), crane).get("role", "mount"))
+	var was_role: String = str(Game.pets.pet_of(c(), crane).get("role", "mount"))
 	submit({"type": "set_active_pet", "pet": crane})
 	check(submit({"type": "set_pet_role", "pet": crane, "role": "mount"}).get("ok", false), "ride the crane")
 	check(absf(Game.pets.mount_speed(c()) - 1.5) < 0.001 and Game.pets.ally_uid == 0, "a mount carries you at 1.5x and does not follow on foot")

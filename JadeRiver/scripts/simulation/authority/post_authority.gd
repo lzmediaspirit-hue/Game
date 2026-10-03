@@ -380,7 +380,7 @@ func settle_all() -> Dictionary:
 		var c = game.character(str(id))
 		if c != null:
 			migrate_idle(c)
-			_bench_settle(c)
+			bench_settle(c)
 		if c == null or str(id) == game.active_id or not has_post(c): continue
 		var r := settle_post(c)
 		var led: Dictionary = r.get("ledger", {})
@@ -961,7 +961,7 @@ func bench_rate_of(c, id: String) -> float:
 
 ## Production since the last look, into the bench's own stock (each component up to the bench's capacity);
 ## smithing EXP for what was made.
-func _bench_settle(c) -> void:
+func bench_settle(c) -> void:
 	if c == null or not Unlocks.is_unlocked(c.id, "apprentice_bench"): return
 	var b := bench(c)
 	var el := Clock.elapsed_since(float(b.get("updated", Clock.now_utc())))
@@ -987,7 +987,7 @@ func bench_assign(c, slot: int, id: String) -> Dictionary:
 	if not Unlocks.is_unlocked(c.id, "apprentice_bench"): return fail("locked", {"text": Unlocks.locked_text("apprentice_bench")})
 	if id != "" and component(id).is_empty(): return fail("unknown_component")
 	if id != "" and ProgressionRules.level(c) < int(component(id).get("gate", 1)): return fail("level", {"text": t("sim.posts.bench_level") % int(component(id).gate)})
-	_bench_settle(c)
+	bench_settle(c)
 	var b := bench(c)
 	while b.slots.size() < apprentices(c): b.slots.append("")
 	if slot < 0 or slot >= apprentices(c): return fail("slot", {"text": t("sim.posts.no_apprentice")})
@@ -999,14 +999,14 @@ func bench_assign(c, slot: int, id: String) -> Dictionary:
 func bench_point(c, kind: String) -> Dictionary:
 	if c == null or not kind in ["speed", "capacity", "exp"]: return fail("bad_kind")
 	if bench_points_free(c) <= 0: return fail("points", {"text": t("sim.posts.no_points")})
-	_bench_settle(c)
+	bench_settle(c)
 	bench(c).points[kind] = int(bench(c).points.get(kind, 0)) + 1
 	return ok()
 
 ## Take the bench's whole components into the pouch (the pouch's own capacity applies).
 func bench_collect(c) -> Dictionary:
 	if c == null: return fail("no_character")
-	_bench_settle(c)
+	bench_settle(c)
 	var b := bench(c)
 	var got := {}
 	for id in b.stock:
@@ -1048,13 +1048,13 @@ func settle_account() -> void:
 ## so what they show is current.
 func settle_works(c, part: String) -> Dictionary:
 	match part:
-		"bench": _bench_settle(c)
+		"bench": bench_settle(c)
 		"furnace": calcination_settle()
 		"mirror": mirror_settle()
 		_: return fail("unknown_part")
 	return ok()
 
-func _curve_of(def: Dictionary, lv: float) -> float:
+func curve_of(def: Dictionary, lv: float) -> float:
 	return PostRules.curve(str(def.get("curve", "add")), float(def.get("x1", 0.0)), float(def.get("x2", 0.0)), lv, float(def.get("base", 0.0)))
 
 func _pay_storehouse(c, item_id: String, count: int, source: String) -> bool:
@@ -1088,7 +1088,7 @@ func art_sum(c, key: String) -> float:
 	if c == null: return 0.0
 	var n := 0.0
 	for a in ContentDB.config("posts").get("post_arts", []):
-		if key in a.get("gives", []): n += _curve_of(a, art_level(c, str(a.id)))
+		if key in a.get("gives", []): n += curve_of(a, art_level(c, str(a.id)))
 	return n
 
 func learn_post_art(c, id: String) -> Dictionary:
@@ -1141,7 +1141,7 @@ func seal_sum(c, key: String, craft := "") -> float:
 	for sd in ContentDB.config("posts").get("seals", []):
 		if not key in sd.get("gives", []): continue
 		if key == "finesse_flat" and str(sd.get("craft", "")) != craft: continue
-		n += _curve_of(sd, seal_effective(c, sd))
+		n += curve_of(sd, seal_effective(c, sd))
 	return n
 
 func seal_next_cost(id: String) -> Dictionary:

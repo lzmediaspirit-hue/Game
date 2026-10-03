@@ -127,7 +127,7 @@ func _process(delta: float) -> void:
 		elif str(trib.stage) == "soul" and el > float(trib.catch_at) + float(trib.window):
 			_trib_catch(99.0)
 		queue_redraw()
-	if not tabs.is_empty() and str(tabs[tab].id) == "alchemy": _tick_furnace(delta)
+	if not tabs.is_empty() and str(tabs[tab].id) == "alchemy": tick_furnace(delta)
 	if game_on:
 		needle += needle_dir * delta * (0.9 + scores.size() * 0.35)
 		if needle > 1.0:
@@ -254,7 +254,7 @@ func _strip(ch, craft: String) -> void:
 		var x := STRIP.position.x + i * w
 		var dot := Vector2(x + 24, STRIP.position.y + 30)
 		var col: Color = UiKit.JADE if i < at else (UiKit.GOLD if i == at else UiKit.SURFACE.wood_dark)
-		if i == at: glow(Rect2(dot - Vector2(24, 24), Vector2(48, 48)), Color(UiKit.GOLD, 0.45 * _halo()))
+		if i == at: glow(Rect2(dot - Vector2(24, 24), Vector2(48, 48)), Color(UiKit.GOLD, 0.45 * halo_k()))
 		draw_circle(dot, 13.0, UiKit.INK, true, -1.0, true)
 		draw_circle(dot, 11.0, col, true, -1.0, true)
 		if i > at: draw_arc(dot, 10.0, 0, TAU, 24, Color(UiKit.HOLLOW, 0.7), 2.0, true)
@@ -286,7 +286,7 @@ func _hearth(ch, craft: String, live: bool) -> void:
 	var heat := float(HEAT.get(craft, 0.12))
 	if live and str(play.get("stage", "")) == "extraction": heat = float(play.get("heat", 0.3))
 	var fcol := _fire_col(craft)
-	glow(Rect2(cx - 240, block.position.y - 170, 480, 280), Color(fcol, (0.12 + 0.2 * heat) * _halo()))
+	glow(Rect2(cx - 240, block.position.y - 170, 480, 280), Color(fcol, (0.12 + 0.2 * heat) * halo_k()))
 	WorkshopKit.bricks(self, block)
 	var mouth := Rect2(cx - 96, block.position.y + 22, 192, BLOCK_H - 22)
 	draw_colored_polygon(PostKit.arch(mouth, 30.0), UiKit.SURFACE.furnace_mouth)
@@ -785,7 +785,7 @@ func _gui_input(event: InputEvent) -> void:
 			for id in hot_rects:
 				if (hot_rects[id] as Rect2).has_point(event.position):
 					if id == "fan": fanning = true
-					else: _hot(str(id))
+					else: press_hot(str(id))
 					accept_event()
 					return
 	if trace_on and str(tabs[tab].id) == "talisman":
@@ -1378,7 +1378,7 @@ func _hot_btn(rect: Rect2, label: String, id: String, held := false) -> void:
 	hot_rects[id] = rect
 
 ## Where a herb's band sits at time `t` (its centre, as a share of the gauge from the bottom).
-static func _band_mid(herb: Dictionary, t: float) -> float:
+static func band_mid(herb: Dictionary, t: float) -> float:
 	return float(herb.centre) + float(herb.sway) * sin(TAU * maxf(0.0, t) / maxf(0.5, float(herb.period)) + float(herb.phase))
 
 ## The furnace's mouth on the hearth, where the screens are played: over the vessel's top.
@@ -1422,7 +1422,7 @@ func _screen_extraction(rs: Dictionary, body: Rect2) -> void:
 	draw_rect(g.grow(4), UiKit.INK)
 	draw_rect(g, UiKit.BAR_TROUGH)
 	var heat := float(play.get("heat", 0.3))
-	var mid := _band_mid(herb, pt)
+	var mid := band_mid(herb, pt)
 	var half := float(herb.width) * 0.5
 	var inside := absf(heat - mid) <= half
 	draw_rect(Rect2(g.position.x, g.end.y - g.size.y * (mid + half), g.size.x, g.size.y * half * 2.0), Color(UiKit.GOLD, 0.75 if inside else 0.45))
@@ -1567,7 +1567,7 @@ func _preview(stage: String) -> void:
 		"condensation": play = {"stage": "condensation", "t": 1.9, "frozen": true}
 
 ## The hand's side of the screen being played: timers, the heat, marks gone by, a ring gone too far.
-func _tick_furnace(delta: float) -> void:
+func tick_furnace(delta: float) -> void:
 	var rs := _session()
 	if rs.is_empty() or not trib.is_empty() or play.get("frozen", false): return
 	var ready := float(_fg("extraction").get("ready_s", 1.2))
@@ -1582,7 +1582,7 @@ func _tick_furnace(delta: float) -> void:
 			var k := _fg("extraction")
 			var herb: Dictionary = rs.herbs[int(rs.at)]
 			play.heat = clampf(float(play.heat) + (float(k.get("rise_per_s", 0.6)) if fanning else -float(k.get("fall_per_s", 0.45))) * delta, 0.0, 1.0)
-			if absf(float(play.heat) - _band_mid(herb, float(play.t))) <= float(herb.width) * 0.5: play.inside = float(play.inside) + delta
+			if absf(float(play.heat) - band_mid(herb, float(play.t))) <= float(herb.width) * 0.5: play.inside = float(play.inside) + delta
 			var secs := float(k.get("seconds", 5.0))
 			if float(play.t) >= secs:
 				play.sent = true
@@ -1615,7 +1615,7 @@ func _tick_furnace(delta: float) -> void:
 			if float(play.t) - float(kc.get("seconds", 2.4)) > float(kc.get("late", 0.2)) + 0.1: _send_condense(float(play.t) - float(kc.get("seconds", 2.4)))
 
 ## A timed control pressed.
-func _hot(id: String) -> void:
+func press_hot(id: String) -> void:
 	var rs := _session()
 	match id:
 		"trib":

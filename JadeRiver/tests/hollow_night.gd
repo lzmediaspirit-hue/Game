@@ -187,7 +187,7 @@ func _eel_in_the_river(e: EnemyState) -> void:
 	step(0.3)
 	var lock := TopdownAim.soft_target(Game.room_rt.living_enemies(), st.plane, st.altitude, (e.plane - st.plane).normalized())
 	var hp := e.pools.hp
-	Game.combat._player_hits_enemy(c(), Game.combat.player_view(c()), e, {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0]}, 1)
+	Game.combat.player_hits_enemy(c(), Game.combat.player_view(c()), e, {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0]}, 1)
 	check(lock == null and e.invulnerable and not TopdownAim.compatible(e.altitude + e.hover - st.altitude) and e.pools.hp == hp,
 		"the eel gliding in the river is out of every blow's band and the soft lock, and unhurt there (feet %.0f, lock %s, HP %d -> %d)"
 		% [e.altitude + e.hover - st.altitude, str(lock.def_id if lock else "none"), int(hp), int(e.pools.hp)])
@@ -265,9 +265,9 @@ func _cannot_be_won() -> void:
 	check(e.ai.get("awake_begun", false) and ch.quests.has_flag("eel_awakened") and Game.room_rt.living_enemies().all(func(x): return x.def_id == EEL),
 		"at 79%% of its HP the eel wakes (its flag kept), the river cleared of every minnow (%s, %.1f s)" % [str(e.ai.state), t])
 	var floor_hp: float = e.pools.max_hp * float(aw.hp_floor)
-	Game.combat._damage_enemy(e, 1.0e9, ch.id, "physical", "none", true, {"source": ""})
+	Game.combat.damage_enemy(e, 1.0e9, ch.id, "physical", "none", true, {"source": ""})
 	var after_blow := e.pools.hp
-	Game.combat._damage_enemy(e, e.pools.max_hp, ch.id, "dot", "burn", false, {})
+	Game.combat.damage_enemy(e, e.pools.max_hp, ch.id, "dot", "burn", false, {})
 	Game.combat.apply_slay("", "nobody")
 	GameEvents.flush()
 	check(e.alive and after_blow >= floor_hp - 0.5 and e.pools.hp >= floor_hp - 0.5 and int(heard.glances) >= 2,
@@ -275,7 +275,7 @@ func _cannot_be_won() -> void:
 	# A technique of any size, as the combat resolves one, glances off too (the eel ashore, open to blows).
 	var tech := {"damage_type": "qi", "element": "water", "mult": [1.0e6, 1.0e6], "range": [1.0, 1.0], "source": "tech:flowing_palm"}
 	e.invulnerable = false
-	Game.combat._player_hits_enemy(ch, Game.combat.player_view(ch), e, tech, 1)
+	Game.combat.player_hits_enemy(ch, Game.combat.player_view(ch), e, tech, 1)
 	check(e.alive and e.pools.hp >= floor_hp - 0.5, "a technique a million times over leaves it at its floor too (%d HP)" % int(e.pools.hp))
 	# Its surge passes a guard begun in the parry window, and takes its share of the player's HP whatever they wear.
 	var surge: Dictionary = e.def.attacks[1]
@@ -287,13 +287,13 @@ func _cannot_be_won() -> void:
 	tl.guard_t = 0.0
 	var hp0: float = ch.pools.hp
 	var pv := Game.combat.player_view(ch)
-	Game.combat._enemy_hits_player(e, ch, Game.combat.enemy_view(e), pv, surge)
+	Game.combat.enemy_hits_player(e, ch, Game.combat.enemy_view(e), pv, surge)
 	tl.guard = false
 	var took: float = hp0 - ch.pools.hp
 	check(surge.get("unblockable", false) and int(heard.parried) == 0 and absf(took - ch.pools.max_hp * float(surge.hp_share)) < 1.0,
 		"its surge passes a guard in the parry window and takes its share of the player's HP (%d of %d, %d%%)" % [int(took), int(ch.pools.max_hp), int(round(100.0 * took / ch.pools.max_hp))])
 	# No blow takes the player under the floor: a blow of a billion leaves them at it, standing, and ends the fight.
-	Game.combat._damage_player(ch, 1.0e9, str(e.uid), "physical", {}, false, e)
+	Game.combat.damage_player(ch, 1.0e9, str(e.uid), "physical", {}, false, e)
 	var at_floor: float = ch.pools.hp / ch.pools.max_hp
 	step(0.2)
 	check(not Game.combat.is_wounded(ch.id) and absf(at_floor - float(aw.overwhelm_hp)) < 0.01,
@@ -571,7 +571,7 @@ func _reload_in_the_rescue() -> void:
 	var e := _to_the_waking()
 	check(e != null, "the eel woken before the rescue")
 	var ch = c()
-	Game.combat._damage_player(ch, 1.0e9, str(e.uid) if e != null else "", "physical", {}, false, e)
+	Game.combat.damage_player(ch, 1.0e9, str(e.uid) if e != null else "", "physical", {}, false, e)
 	# The stage driven by hand here, so the rescue can be caught part-way (settle_scenes would play it to its end).
 	tick_watch = Callable()
 	var t := 0.0
@@ -603,7 +603,7 @@ func _reload_in_the_rescue() -> void:
 func _reload_after_the_kill() -> void:
 	var e := _to_the_waking()
 	var ch = c()
-	Game.combat._damage_player(ch, 1.0e9, str(e.uid) if e != null else "", "physical", {}, false, e)
+	Game.combat.damage_player(ch, 1.0e9, str(e.uid) if e != null else "", "physical", {}, false, e)
 	tick_watch = Callable()
 	var t := 0.0
 	while t < 90.0 and not (ch.quests.has_flag("night_held") and scene_director.run != null and str(scene_director.run.id) == "grey_lifts"):

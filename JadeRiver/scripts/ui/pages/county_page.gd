@@ -88,7 +88,7 @@ func tab_rects() -> Array:
 
 func draw_tab(r: Rect2, i: int, state: String) -> void:
 	var on := state == "selected"
-	if on: glow(r.grow(14), Color(UiKit.GOLD, 0.25 * _halo()))
+	if on: glow(r.grow(14), Color(UiKit.GOLD, 0.25 * halo_k()))
 	rounded(r.grow(2), 4.0, UiKit.INK)
 	vshade(r, UiKit.SURFACE.lacquer.lerp(UiKit.BLOOD, 0.35 if on else 0.1), UiKit.SURFACE.lacquer)
 	draw_rect(r.grow(-4), Color(UiKit.GOLD, 0.9 if on else 0.45), false, 1.5)
@@ -185,7 +185,7 @@ func _desk(ch, jobs: Array) -> void:
 	glow(Rect2(TUBE.position.x - 10, TUBE.end.y - 6, TUBE.size.x + 20, 16), Color(UiKit.INK, 0.5))
 	# The relief box: a slotted camphor box with its word on a brass plate; a tap reads the fund.
 	var relief := str(tabs[tab].id) == "relief"
-	if relief: glow(BOX.grow(20), Color(UiKit.GOLD, 0.25 * _halo()))
+	if relief: glow(BOX.grow(20), Color(UiKit.GOLD, 0.25 * halo_k()))
 	rounded(BOX, 4.0, UiKit.SURFACE.wood)
 	MarketKit.planks(self, BOX.grow(-4), UiKit.SURFACE.wood, 22.0, false)
 	draw_rect(Rect2(BOX.get_center().x - 40, BOX.position.y + 6, 80, 8), UiKit.INK)
