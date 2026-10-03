@@ -91,8 +91,8 @@ TF_GREYFALL_BREACH = room(
               ("road", (0, 20, 33, 3), dict(paint="p", walk=True)),             # the Wardens' road from the Bastion
               ("road_n", (29, 7, 4, 16), dict(paint="d", walk=True)),           # north through the breach
               ("road_e", (29, 7, 35, 3), dict(paint="d", walk=True)),           # and east through the grey
-              ("outcrop", (42, 0, 10, 5), dict(level=1, paint="r", shape="round")),
-              ("outcrop_2", (8, 23, 10, 4), dict(level=1, paint="r", shape="round"))],
+              ("outcrop", (42, 0, 10, 5), dict(level=1, paint="r", shape="round", flights=[46])),
+              ("outcrop_2", (8, 21, 10, 4), dict(level=1, paint="r", shape="round", flights=[12]))],
     stairs="auto",
     ways={"west": ("w", 21), "east": ("e", 8)},
     spawn="west",
