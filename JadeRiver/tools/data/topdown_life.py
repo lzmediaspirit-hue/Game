@@ -5,9 +5,12 @@ data/topdown/life.json:
   loops     the work loops: at each work spot the steps (a character action, seconds, a cue for the view: dust off a
             broom, sparks off an anvil, chips off a block), the tool held, the weapon worn, the walk between spots;
   work      room -> NPC object id -> {loop, spots [[x, y, facing, steps?], ...]}: a villager's or a disciple's loop
-            between work spots within LEASH tiles of their own spot (spots in cells, like the layouts' places);
+            between work spots within LEASH tiles of their own spot (spots in cells, like the layouts' places); each
+            person's is written in their spec (the NPC engine, tools/content/npcs), a spot there a cell or an anchor
+            resolved here on the built layout;
   extras    room -> [{id, outfit, loop, spots}]: a few people with no part in the story at work where the room has
-            a job and no one to do it (a fisherman on the bank, a sweeper in a court); they speak to no one;
+            a job and no one to do it (a fisherman on the bank, a sweeper in a court); they speak to no one (the NPC
+            engine's `extra` specs);
   animals   room -> [[kind, x, y], ...]: the hens, cats and dogs that live there (the view keeps them near home);
   critters  area (the room's backdrop) -> kind -> how many at most in view (the wild ones: sparrows, butterflies,
             dragonflies, fish, frogs), and room -> overrides;

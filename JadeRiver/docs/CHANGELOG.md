@@ -37,7 +37,9 @@ them into every place the game reads them from. The game reads nothing new.
 - **Tests.** A new gate, `npc_engine` (`tools/content/npcs/engine.py --check`), in both runners. It checks that two
   compiles are the same, that every spec resolves, that the built data holds every person as the engine writes them, and
   runs the engine's 12 tests. The three villagers add three rows to `npcs.json`, three objects and three anchors to the
-  hamlet, and three work loops to `life.json`.
+  hamlet, and three work loops to `life.json`, and with them checks to three suites: `data_validation` 50,349 to
+  50,403, `room_sweep` 3,736 to 3,744 and `visibility_suite` 6,758 to 6,764. Every other count is unchanged. A side-view
+  point the engine picks keeps clear of every other thing's talk (`data_validation`'s M18).
 
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 
