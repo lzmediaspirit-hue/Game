@@ -37,10 +37,13 @@ Every suite extends it (`extends "res://tests/lib/suite.gd"`), puts its body in 
 - **Timing on a shared machine.**
   - `now_us()` is the game's own clock: the wall clock less the time the main thread waited for a CPU while other
     processes held them all. Linux counts this per thread; elsewhere it is the wall clock.
-  - `ask_for_cpu()` and `usual_cpu()` lower and restore the main thread's niceness, where the system allows it (root on
-    Linux). Elsewhere they do nothing.
+  - `ask_for_cpu()` and `usual_cpu()` lower and restore the game's niceness, where the system allows it (root on
+    Linux). The main thread goes to −10 and its workers to −5: ahead of other processes, the main thread ahead of its
+    own painters. Elsewhere they do nothing.
   - Users: `perf_tests`; `rules_tests`, for the technique pictures' budget, the preview and the living world;
     `topdown_tutorial`'s people stream.
+  - `rules_tests` also takes its pictures' budget as the least of up to three rounds of the same building, as
+    `perf_tests` does.
   - `now_us()` reads a file each call (about 20 µs), so microsecond timings keep the wall clock: the coach's cost in
     `tutorials` is a median of 120.
 
