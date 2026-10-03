@@ -471,7 +471,7 @@ def _beetle_head(P, B, c) -> None:
     tw = B.pick("antennae", action, f)
     for s in (1, -1):
         ea, eb, ec = h.eyes
-        P.mark(hc + hm @ v3(ea, s * eb, ec), M.RAMPS[m.chitin][1] if dead else M.BEETLE_EYE)
+        (P.mark if dead else P.eye)(hc + hm @ v3(ea, s * eb, ec), M.RAMPS[m.chitin][1] if dead else M.BEETLE_EYE)
         if not dead:
             P.mark(hc + hm @ v3(ea + 0.3, s * (eb - 0.2), ec + 0.5), M.GLINT)
         if ball < 0.6:

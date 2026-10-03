@@ -44,6 +44,10 @@ if ! python3 tools/data/cues.py --check; then failed+=("cues"); fi
 # Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
 echo "== pix"
 if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
+# Audit 45 (E2): the monster engine: every species spec resolves and poses in every action and facing, and its rows,
+# loot, voice and sheets are what it makes (tools/content/monsters/build.py).
+echo "== monsters"
+if ! python3 tools/content/monsters/build.py --check; then failed+=("monsters"); fi
 # The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
 # load their own scenes, so only this catches a missing or broken main scene.
 echo "== boot"

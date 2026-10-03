@@ -13,8 +13,8 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 # A small, grinning earth spirit of stone studded with pebbles, a glowing crack in its belly; it pelts you with stones
 # and crumbles into a heap of them.
 species("pebble_imp", plan="humanoid.imp", size=1.5,
-        palette=["imp_stone", "imp_limb", "maw", "peb_ochre", "peb_slate", "peb_rust"], accents=("peb_slate",), shadow=(9, 3), view=True,
-        cycle=8.0,
+        palette=["imp_stone", "imp_limb", "maw", "peb_ochre", "peb_slate", "peb_rust"], accents=("peb_slate",), elite=False, shadow=(9, 3),
+        view=True, cycle=8.0,
         data=dict(level=(4, 6), role="normal", element="earth", page="quarry", drops=[("riverstone", 0.5), ("pebble_core", 0.08)],
                   attacks=[("pebble_throw", 0.4, 300, 0.9, dict(projectile={"speed": 380, "art": "pebble"}))], ai="ranged", speed=70,
                   width=16, height=32, keep_distance=180),

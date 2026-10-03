@@ -99,7 +99,7 @@ IMP = {
     # Pebbles studding it (on the belly, the chest, the head: which piece, round it, up it, how big) and the glowing crack
     # in its belly (points round and up the belly).
     "studs": ((1, 30.0, 40.0, 0.55, "ochre"), (1, -40.0, 10.0, 0.6, "slate"), (1, 70.0, -20.0, 0.5, "rust"), (2, -60.0, 50.0, 0.5, "ochre"),
-              (2, 110.0, 30.0, 0.55, "slate"), (3, 150.0, 30.0, 0.6, "rust"), (3, -120.0, 50.0, 0.5, "ochre")),
+              (2, 110.0, 30.0, 0.55, "slate"), (3, 150.0, 30.0, 0.6, "slate"), (3, -120.0, 50.0, 0.5, "ochre")),
     "crack": ((-16.0, 34.0), (-6.0, 22.0), (-13.0, 10.0), (-3.0, -2.0), (-10.0, -14.0)),
     "held": {"r": 1.0, "mat": "slate"},
 }
