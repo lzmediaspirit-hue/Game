@@ -87,7 +87,7 @@ SAMPLE = room(
     stairs="auto",
     ways={"east": ("e", "road"), "west": ("w", "road"), "hut": ("door", "hut", dict(path="auto")),
           "north": ("n", 40, dict(cut=3))},
-    props=[("house", 18, 4, "hut")],
+    props=[("house", 18, 4, "hut"), {"kind": "lantern", "along": "road", "every": 12, "row": 10}],
     anchors={"o_cell": (2, 12), "o_band": "road@20", "o_north": "road.n@30", "o_south": "road.s@24",
              "o_verge": "verge@10", "o_verge_s": "verge.s@44", "o_bank": "bank@20", "o_water": "water@26",
              "o_door": "door:hut", "o_near": "near:o_band", "o_top": "knoll.top", "o_back": "meadow.back@38",
@@ -139,6 +139,8 @@ def anchors():
     walk = {c for c in r["road"].cells()}
     check(not any(tuple(q) in walk for lst in lay.spawns for q in lst), "foes auto: none on the road")
     check(any(p["kind"] in engine.TREES for p in lay.props), "flora: trees scattered")
+    lamps = [(p["x"], p["y"]) for p in lay.props if p["kind"] == "lantern"]
+    check(len(lamps) >= 3 and all(y == 10 for x, y in lamps), "props by rule: a lantern every 12 cells along the road's north side (%s)" % lamps)
     errs = walks(b, lay)
     check(not errs, "sample: auto-path reaches every thing and way (%s)" % errs[:3])
     return b, lay

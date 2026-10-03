@@ -15,7 +15,6 @@ The steps, in order (each one's rules are its function's):
 LIFE.dress and LIFE.extend and the checks follow in topdown_rooms.build. Deterministic: the seed is the room's id, and
 every choice is a hash of it and a cell (lib.pix.h01), never Python's random.
 """
-import math
 import os
 import sys
 import zlib
@@ -32,10 +31,9 @@ from content.rooms import biomes as BIOMES  # noqa: E402
 
 DIRS = TR.DIRS
 WATER = TR.WATER
-# The kinds of the foliage kit by how they grow (TopdownRoom's tile set): a tree's canopy may hide what stands north of
-# it; a walk-through plant never blocks.
+# The trees of the foliage kit (TopdownRoom's tile set): a canopy that may hide what stands north of it.
 TREES = sorted(k for k, v in TR.TILESET["props"].items() if v.get("canopy"))
-WALK_THROUGH = sorted(k for k, v in TR.TILESET["props"].items() if v.get("foliage") and not v.get("solid", True))
+# How far apart two scattered pieces of a class stand at least (cells; two of different classes, 0.6 of it).
 SPACING = {"tree": 5, "solid": 3, "soft": 2, "water": 3}
 # The objects a side-view room has, by type: where an anchor of that type goes when the spec says "auto".
 AUTO_BY_TYPE = {"herb_patch": "verge", "ore_vein": "wall_foot", "jar": "verge", "crate": "verge", "chest": "verge",
@@ -211,8 +209,8 @@ class Build:
 
     def _round(self, x, y, w, h, salt):
         """A round shape in its rect (a cavern, a pond): the ellipse the rect holds, its edge worn by the room's seed so
-        no two are alike, then smoothed three times (a cell is in where five of the nine round it are), so no lone spur or pit
-        is left."""
+        no two are alike, then smoothed three times (a cell is in where five of the nine round it are), so no lone spur
+        or pit is left."""
         cx, cy = x + w / 2.0, y + h / 2.0
         rx, ry = w / 2.0, h / 2.0
         cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w) if 0 <= xx < self.w and 0 <= yy < self.h]
@@ -1064,9 +1062,3 @@ def _spacing_class(kind):
 def compile_room(spec):
     """A spec (spec.room) compiled to its Layout."""
     return Build(spec).run()
-
-
-def compile_verbose(spec):
-    b = Build(spec)
-    lay = b.run()
-    return lay, b.notes

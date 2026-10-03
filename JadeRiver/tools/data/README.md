@@ -68,5 +68,7 @@ if __name__ == "__main__":
   foot, and their Grid walks as the game does. The Grid's measures come from `data/movement.json` `topdown`
   (`step_up`, and the jump's `impulse`, `gravity` and `mantle`); `parity()` asks the game, through
   `grid_parity.tscn` (Godot from `$GODOT`, else `godot` on the PATH), for every layout's floors and auto-path reach
-  (`TopdownRoute.reach`) and compares them cell for cell. Without a Godot it says it did not run.
+  (`TopdownRoute.reach`) and compares them cell for cell. Without a Godot it says it did not run. Every room is a spec
+  of the room engine (E1, `tools/content/rooms/`, `docs/architecture/room_engine.md`); its own gate,
+  `tools/content/rooms/test_engine.py`, runs beside this one.
 - `sect_walks.py --check`, `places.py --check`, `sound.py --check`.
