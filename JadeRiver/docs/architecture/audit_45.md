@@ -952,19 +952,20 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 
 ### Status (phase 2, S8): `combat_authority.gd` in parts, done
 
-- **BUG-14, for Combat: done.** `combat_authority.gd` went from 2,912 lines to 1,798. It keeps the state, `handle`,
-  the tick and the attack and resolution flow. Thirteen parts in `scripts/simulation/authority/combat/` hold the rest,
-  1,303 lines: flight and the movement arts, Phantom Double, the flying sword and the intents, the swarm, the flute,
-  heals, the Blood path, Array Plates, talismans, projectiles, treasures, revival, and a blow's riders.
-- **The pattern is in `docs/architecture/authority_parts.md`**, for S9 and S10.
-  - A part extends a small per-authority base and reads the authority through `game`, never a kept reference, so
-    nothing leaks when `Game.reset_state` rebuilds the authorities.
-  - The state stays on the authority. Every name that code outside called is still there, with 50 one-line
-    forwarders.
-  - Part files carry the authority's prefix (`combat_*.gd`).
+- **BUG-14, for Combat: done.** `combat_authority.gd` had 2,912 lines and now has 1,807. It keeps the state,
+  `handle`, the tick, and the attack and resolution flow. The rest is in thirteen parts under `authority/combat/`,
+  1,280 lines in all, plus the 28-line base `CombatPart`:
+  - flight and the movement arts, Phantom Double, the flying sword and the intents, the swarm, the flute;
+  - heals, the Blood path, Array Plates, talismans;
+  - projectiles, treasures, revival, and what a landed blow carries.
+- **The pattern is S10's,** and `docs/architecture/authority_parts.md` describes it for every authority.
+  - A part holds a weak reference to its authority, and the authority keeps all the state.
+  - The authority forwards every moved public method, and 17 private names that tests and tools call, with 59
+    one-line forwarders.
+  - Part files carry the authority's prefix (`combat_*.gd`). Only the `files` lists of the Combat events changed in
+    `data/event_contract.json`.
 - **Dead code:** one local, `_resolve_plunge`'s `struck`. Every function of the file is still called.
 - **Checks:** STATUS_CHECKS_PLACEHOLDER
-
 
 ## 8. Rerunning the audit
 

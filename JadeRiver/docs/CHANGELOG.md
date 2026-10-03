@@ -2,14 +2,15 @@
 
 ## CombatAuthority in parts (decision 45, S8)
 
-This is phase 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7). `combat_authority.gd` was
-one file of 2,912 lines in 18 sections. The attack, tick and resolution flow stays in it, and the systems around the
-fight are now its parts in `scripts/simulation/authority/combat/`. The pattern is written down in
-`docs/architecture/authority_parts.md`, for S9 and S10 to follow. The game plays the same: the slice moves code and
-removes one dead local.
+This is phase 2, wave 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`combat_authority.gd` was one file of 2,912 lines in 18 sections. The attack, tick and resolution flow stays in it,
+and the systems around the fight are now its parts in `scripts/simulation/authority/combat/`. The parts follow the
+same pattern as S10's. `docs/architecture/authority_parts.md` describes it for every authority. The game plays the
+same: the slice moves code and removes one dead local. Every caller still calls `Game.combat.<method>`, and the save
+data is untouched.
 
-- **The parts.** `combat_authority.gd` is 1,798 lines: 1,721 of core flow, and 77 of forwarders. The parts hold
-  1,303 lines:
+- **The parts.** `combat_authority.gd` is 1,807 lines: 1,721 of core flow, and 86 of forwarders. The parts hold
+  1,308 lines:
   - `combat_flight.gd` (143): flight, and the movement arts Plunge and Falling Leaf Glide;
   - `combat_phantom.gd` (42): Phantom Double;
   - `combat_sword.gd` (132): natal overcharge, Sword Release, Sword Intent and Killing Intent;
@@ -24,18 +25,18 @@ removes one dead local.
   - `combat_revival.gd` (68): grave wounds and revival;
   - `combat_riders.gd` (110): what a landed blow carries after its damage (weapon riders, the Soul line's marks, the
     Poison Body, oils, the Artifact Spirit's and the awakened weapon's skills);
-  - `combat_part.gd` (23): their base.
-- **The pattern.**
-  - A part `extends CombatPart`, a `RefCounted` that holds `game` and reads the authority through a `combat` getter on
-    `game.combat`. It does not keep a reference, because a part and an authority holding each other would never be
-    freed, and every boot builds new ones (`Game.reset_state`).
+  - `combat_part.gd` (28): their base, `CombatPart`.
+- **How the parts work** (the same as S10's).
+  - A part is a `RefCounted` with no state of its own. It holds a weak reference to the authority behind a typed
+    `combat` getter, because the authority holds its parts and `Game` builds new authorities on every boot. A probe
+    that rebuilds them finds the old authority and its parts freed.
   - The state stays on the authority, so the save and every reader of `Game.combat.<var>` are unchanged.
-  - The authority makes its parts in `_init`, and its tick calls them in the old order.
-  - Every name that code outside called is still on the authority, with the same arguments and results. For the 50
-    that moved, it is a one-line forwarder in its last section, "the parts' faces". A method only an intent reaches is
-    called from `handle`.
-  - Part files carry the authority's name (`combat_*.gd`), because `contract_tests` and the event contract key
-    scripts by base name.
+  - The authority makes its parts in `_init`, and its tick calls them in the old order. `handle` is unchanged.
+  - Every moved public method keeps a one-line forwarder on the authority, with the same arguments and results. So do
+    17 private names that tests and tools call, such as `_tick_projectiles` and `_cast_illusion`, until S11 renames
+    them. The 59 forwarders are the file's last section, "the parts' faces".
+  - The parts are named after the authority (`combat_*.gd`). S10's `with_parts()` lists them in the event contract,
+    and in `data/event_contract.json` only the `files` lists of the Combat events changed.
 - **Tidied while moving.**
   - Sections that sat in the wrong place went to their homes:
     - Killing Intent, the boss's self-detonation, the tribulation's bolt, `technique_element` and `body_hp_cost` sat
