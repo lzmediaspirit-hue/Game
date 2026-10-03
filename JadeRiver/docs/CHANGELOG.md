@@ -54,9 +54,9 @@ and the save data is untouched.
   - The two copies of how long a won event's way on waits are now one helper, `_leave_after`.
   - The side-view half of auto-path's place point is now `_side_place_point`.
 - **Checks.**
-  - The full run on the merged tree passed every suite with the base's check count and no script errors, apart from
-    `perf_tests`' millisecond budgets. The base, run alongside at a load of about 12, missed them as well: S9 missed 3
-    of 18 checks and the base 2.
+  - The final run on the tree merged with S7 passed every suite with the base's check count and no script errors,
+    apart from one `perf_tests` budget. The base, run alongside, missed the same one: the sword swarm's frame, at
+    16.84 ms on S9 and 17.05 ms on the base.
   - Three interleaved `perf_tests` runs at a load of about 3 compared the two:
     - The base missed 1, 1 and 0 of its 18 checks, and S9 missed 0, 1 and 2. They were the same borderline budgets
       flipping both ways: the sword swarm, the Marsh Edge's fight and the wood tree's drag.
