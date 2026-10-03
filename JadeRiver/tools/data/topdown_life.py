@@ -240,6 +240,7 @@ CRITTERS = {
     "valley_dusk": {"fish": 4, "dragonfly": 1},
     "valley_night": {"fish": 2, "frog": 3},
     "interior": {},
+    "cave": {"fish": 1},
     "": {"sparrow": 1, "butterfly": 2, "fish": 2},
 }
 # By day only (the clock's morning, day and evening): these sleep at night.
@@ -300,6 +301,10 @@ VISTAS = {
     "sf_trial_jade": [{"edge": "s", "kind": "cloud_sea", "pad": 64}],
     "sf_trial_cloud": [{"edge": "s", "kind": "cloud_sea", "pad": 64}],
     "lf_lu_boat": [{"edge": "all", "kind": "water", "pad": 0}],
+    # E1's rooms (tools/content/rooms/specs/): the Caravan Road's hills and creek, the Bend's river, the stockade's hill.
+    "cr_caravan_road": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "dw_bend_shore": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "mh_stockade": [{"edge": "n", "kind": "hills", "pad": 40}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]
