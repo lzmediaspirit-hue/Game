@@ -988,6 +988,28 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   - `data_validation` reads the part folders for `use_system` reports.
 - Behaviour, the balance figures and every suite's check count are unchanged.
 
+### Status (phase 2, S8): `combat_authority.gd` in parts, done
+
+- **BUG-14, for Combat: done.** `combat_authority.gd` had 2,912 lines and now has 1,807. It keeps the state,
+  `handle`, the tick, and the attack and resolution flow. The rest is in thirteen parts under `authority/combat/`,
+  1,280 lines in all, plus the 28-line base `CombatPart`:
+  - flight and the movement arts, Phantom Double, the flying sword and the intents, the swarm, the flute;
+  - heals, the Blood path, Array Plates, talismans;
+  - projectiles, treasures, revival, and what a landed blow carries.
+- **The pattern is S10's,** and `docs/architecture/authority_parts.md` describes it for every authority.
+  - A part holds a weak reference to its authority, and the authority keeps all the state.
+  - The authority forwards every moved public method, and 17 private names that tests and tools call, with 59
+    one-line forwarders.
+  - Part files carry the authority's prefix (`combat_*.gd`). Only the `files` lists of the Combat events changed in
+    `data/event_contract.json`.
+- **Dead code:** one local, `_resolve_plunge`'s `struck`. Every function of the file is still called.
+- **Checks:**
+  - Every suite has the base's check count, with no script error. `rules_tests`, `balance_sim`, `hollow_night`,
+    `valley_run` and `contract_tests` pass.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike, at a load of about 14 on 4 cores.
+  - The data build is unchanged apart from the contract's Combat `files` lists.
+  - After S3 and E6 were merged, the full runs passed every suite, apart from `perf_tests`' time budgets in one run.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:
