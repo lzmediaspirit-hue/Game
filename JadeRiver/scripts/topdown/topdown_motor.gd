@@ -335,17 +335,21 @@ func _pace() -> float:
 	return shallow_factor if _wading.has(room.paint_at(cp.x, cp.y)) and absf(z - room.height_at(pos)) < 0.5 else 1.0
 
 ## The nearest spot to `p` a body stands on dry: `p` itself unless the water has come over it (a flood risen over the last
-## safe spot sends the body to the nearest dry floor instead).
+## safe spot sends the body to the nearest dry floor instead). T2: within a level of the safe spot's floor where there is
+## one (a gallery, a rock, the dry edge of the room; never the top of a pillar the flood laps).
 func _dry(p: Vector2) -> Vector2:
 	if not _water_at(p): return p
 	var c0 := TopdownRoom.cell_of(p)
+	var near := Vector2.INF
 	for r in range(1, maxi(room.w, room.h)):
 		for dy in range(-r, r + 1):
 			for dx in range(-r, r + 1):
 				if maxi(absi(dx), absi(dy)) != r: continue
 				var q := (Vector2(c0 + Vector2i(dx, dy)) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
-				if room.standable(TopdownRoom.cell_of(q)) and not _water_at(q): return q
-	return p
+				if not room.standable(TopdownRoom.cell_of(q)) or _water_at(q): continue
+				if floor_at(q) <= safe_z + TopdownRoom.LEVEL + 0.5: return q
+				if near == Vector2.INF: near = q
+	return near if near != Vector2.INF else p
 
 ## T1 · a raft carries its rider: the deck's move since the last frame (the room's clock, the side view's mover rule),
 ## before the body's own step. Boarding it is announced (the side view's mover_boarded) and sets a trigger raft off.

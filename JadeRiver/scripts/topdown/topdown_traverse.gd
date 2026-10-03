@@ -113,8 +113,9 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			# starts it, how fast, how long it holds, back), up to `top` levels; under it a floor is water.
 			var fc: Array = r.get("rect", [0, 0, 1, 1])
 			var rises: Array = side.get(id, {}).get("rise", [])
+			var alt: Array = side.get(id, {}).get("alt", [-100, -20])
 			t.floods.append({"id": id, "kind": kind, "rect": Rect2(float(fc[0]) * T, float(fc[1]) * T, float(fc[2]) * T, float(fc[3]) * T),
-				"top": float(r.get("top", 1.0)) * TopdownRoom.LEVEL, "rises": rises, "goal": {}, "level": -INF})
+				"top": float(r.get("top", 1.0)) * TopdownRoom.LEVEL, "rises": rises, "goal": {}, "level": -INF, "rest": float(alt[1])})
 		elif kind == "updraft":
 			var rc: Array = r.get("rect", [0, 0, 1, 1])
 			t.updrafts.append({"id": id, "kind": kind, "rect": Rect2(float(rc[0]) * T, float(rc[1]) * T, float(rc[2]) * T, float(rc[3]) * T),
@@ -222,7 +223,13 @@ func on_event(event_name: String, payload: Dictionary) -> void:
 			var fits := true
 			for k in r.get("match", {}):
 				if str(payload.get(k, "")) != str(r.match[k]): fits = false
-			if fits: f.goal = {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "hold": float(r.get("hold_s", -1.0)), "back": r.has("back_to")}
+			if not fits: continue
+			# T2: a row that takes the water back down to its rest (the Serpent's when it is beaten: its `to` no higher than
+			# the volume's resting top) lowers a risen flood from where it stands now; any other raises it.
+			if f.has("rest") and float(r.get("to", 1.0)) <= float(f.rest) + 0.5:
+				var now := flood_k(f)
+				f.goal = {} if now <= 0.0 else {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "fall": now}
+			else: f.goal = {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "hold": float(r.get("hold_s", -1.0)), "back": r.has("back_to")}
 
 ## How far up its top a flood's water stands now (0 at rest, 1 risen), on the room's clock: up over `over_s`, held
 ## `hold_s`, back down over the same (or held for good without a way back).
@@ -230,6 +237,11 @@ func flood_k(f: Dictionary) -> float:
 	var g: Dictionary = f.goal
 	if g.is_empty(): return 0.0
 	var e := time - float(g.t0)
+	if g.has("fall"):
+		if e >= float(g.over):
+			f.goal = {}
+			return 0.0
+		return float(g.fall) * (1.0 - e / float(g.over))
 	var over := float(g.over)
 	if e < over: return e / over
 	if not bool(g.back) or float(g.hold) < 0.0: return 1.0

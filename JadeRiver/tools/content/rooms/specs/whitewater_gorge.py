@@ -74,8 +74,10 @@ WG_ECHO_CLIFFS = room(
            ("river", 21, 5, dict(water=True, wavy=True, rapids=0.03))],
     features=[("ledge_0", (4, 7, 10, 4), dict(level=4, paint="r")),
               ("ledge_1", (16, 5, 9, 5), dict(level=5, paint="r")),
-              ("wall_w", (27, 3, 3, 8), dict(level=7, paint="r", wall=True)),
-              ("wall_e", (32, 3, 3, 8), dict(level=7, paint="r", wall=True)),
+              # T2: the two walls stand five levels over the shaft's floor, so three Wall-Step kicks rise between them to the
+              # nest without clearing their tops.
+              ("wall_w", (27, 3, 3, 8), dict(level=8, paint="r", wall=True)),
+              ("wall_e", (32, 3, 3, 8), dict(level=8, paint="r", wall=True)),
               ("ledge_3", (40, 6, 10, 4), dict(level=5, paint="r")),
               # T2 (docs/architecture/topdown_mechanics.md): the vultures' nest at the shaft's head, three levels over its
               # floor: Wall-Step kicks up between the two walls to it (Between Two Walls).
