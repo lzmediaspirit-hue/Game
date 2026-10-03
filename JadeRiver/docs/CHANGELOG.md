@@ -1,5 +1,56 @@
 # Changelog
 
+## The World authority in parts (decision 45, S9)
+
+This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`world_authority.gd` had 2,321 lines in 16 sections. It now has 430, and the rest of its work is in 14 parts under
+`scripts/simulation/authority/world/`.
+
+The code moved as it was. The game plays the same, every caller still calls `Game.world.<method>` by the same name,
+and the save data is untouched.
+
+- **How the parts work.** They follow the shared pattern in `docs/architecture/authority_parts.md`, which also lists
+  them.
+  - The authority keeps its state, its intents, its subscriptions, the room's lifecycle (loading and entering a room,
+    the character's memory of it) and the tick. Its public methods are one-line forwarders to the part that does the
+    work.
+  - A part is a class over `WorldPart`, made by the authority. It has no state of its own, and it holds the authority
+    through a weak reference, `world`.
+    - The rare-herb clock, auto-hunt's check and the direction mark's cache stay on the authority, with the rest of the
+      state.
+    - The two private ones are now named `auto_check` and `guide_cache`.
+  - A part calls the authority's public methods as any caller would (`world.load_room`, `world.chases`). It calls a
+    helper that another part keeps to itself on that part (`world.loot.drop_loot`).
+  - The tests and `ObjectView` call 15 private helpers by name, such as `_start_event`, `_drop_loot` and `_verb`. Their
+    forwarders keep those names until S11 gives them public ones.
+- **The parts** (`world_<part>.gd`), 2,133 lines in all, plus the 29-line base:
+  - ambushes;
+  - rare herbs and their guardians;
+  - portals, hidden ways, routes, teleports and Spirit Sense;
+  - the transfer arrays;
+  - room objects: what shows, what is open, their states, and blows on jars and training posts;
+  - `interact` and the context button;
+  - beast cores and loot;
+  - the rooftop chases and timed routes;
+  - hazards and hazard volumes;
+  - the Starsea voyages;
+  - room events;
+  - the Beast Kings' nests, the Beast Tide and the Beast Trial Grove;
+  - the Trial Tower;
+  - idle rooms, auto-hunt, auto-path and the direction mark.
+- **BUG-05: two of its seven private cross-calls are public now.**
+  - `EnemyAuthority._flee` calls the new `apply_loot_drop` instead of `_drop_loot`.
+  - `QuestAuthority.start_set_piece` calls `start_room_event` instead of `_start_event`. The two calls are the same.
+- **Dead code dropped:** the `set_sail` intent. It was registered but never sent: a dock goes through `interact`, and
+  auto-path goes through `auto_path_board`. `set_sail` itself stays.
+- **The side view.** There are now 20 sites, down from 22. Each one asks one helper, `WorldAuthority.side_view(rt)`
+  (13 sites), or finds `grid_for` null (7 sites). Retiring the side view (S12) means deleting those branches.
+  - The two copies of how long a won event's way on waits are now one helper, `_leave_after`.
+  - The side-view half of auto-path's place point is now `_side_place_point`.
+- **Checks.** TESTS
+  - In `data/event_contract.json`, only the `files` lists of the World events changed: S10's `with_parts()` now finds
+    the `world/` folder. Apart from that, the data build is unchanged.
+
 ## CombatAuthority in parts (decision 45, S8)
 
 This is phase 2, wave 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).

@@ -2,11 +2,10 @@
 
 Roadmap decision 45, phase 2 (`docs/architecture/audit_45.md` §7). A large authority is split into parts. The
 authority stays the one owner of its state and the one name the rest of the game calls. Its parts do the work of its
-sections. Three authorities use the pattern:
+sections. Four authorities use the pattern:
 - `CombatAuthority` (S8);
+- `WorldAuthority` (S9);
 - `CraftingAuthority` and `ProgressionAuthority` (S10).
-
-`WorldAuthority` (S9) follows it.
 
 ## The shape
 
@@ -165,5 +164,39 @@ The core file keeps these sections:
   `_damage_player`;
 - the `apply_*` commands;
 - the parts' faces.
+
+## WorldAuthority's parts (S9)
+
+`world_authority.gd` went from 2,321 lines to 430. Its facade is 106 one-line forwarders: 91 for public methods,
+including the new `apply_loot_drop` (BUG-05), and 15 for private names that tests and `ObjectView` call. The parts
+hold 2,133 lines.
+
+| Member | File | Lines | What it holds | State it works on |
+|---|---|---:|---|---|
+| — | `world_part.gd` | 29 | The base: the weak reference behind `world`, `game`, `emit`, `ok` and `fail` | — |
+| `ambush` | `world_ambush.gd` | 48 | Bandit ambushes on the road rooms (S48) | `ambush_cd` |
+| `herbs` | `world_herbs.gd` | 87 | Rare herbs: ripening, their guardians and what stops a pick (S45) | `herb_clock`, `sensed_herbs` |
+| `portals` | `world_portals.gd` | 204 | Portals and hidden ways, the prototype's gate, the open ways and the route, teleports, the shrine a fall wakes you at, Spirit Sense and the Wandering Eye | `debug_open_ways`, `sensed_herbs` |
+| `arrays` | `world_arrays.gd` | 95 | The sect's transfer arrays (decision 42) | the character's flags |
+| `objects` | `world_objects.gd` | 165 | Whether a room object shows and is open; its states and regrowth; blows on jars and training posts; gravity switches; shrines attuned in passing; the first Spirit Fruit's announcement | `debug_open_ways`, `chases` |
+| `context` | `world_context.gd` | 269 | `interact`, and the context button with its ranks and verbs | `chases` |
+| `loot` | `world_loot.gd` | 233 | Beast ranks and cores (S46), the roll on a kill, starter gear, the drops on the ground and picking them up | `RoomRuntime.loot` |
+| `races` | `world_races.gd` | 164 | The rooftop chases and the timed routes (S43 rule 15) | `chases`, `runs` |
+| `hazards` | `world_hazards.gd` | 213 | Room hazards (S17), hazard volumes (S43) and the drift they push | `RoomRuntime.hazards` |
+| `starsea` | `world_starsea.gd` | 41 | The Starsea voyages (S18) | `voyages` |
+| `events` | `world_events.gd` | 227 | Room events: waves, timed spawns, the lantern, kill-to-win, and the way on | `RoomRuntime.event`, `voyages` |
+| `nests` | `world_nests.gd` | 102 | The Beast Kings' nests, the Beast Tide and the Beast Trial Grove (S46) | the character's cooldowns |
+| `tower` | `world_tower.gd` | 87 | The Trial Tower (S49) | the character's `tower` |
+| `idle` | `world_idle.gd` | 198 | Idle rooms, auto-hunt, auto-path and the direction mark | `auto_hunt`, `auto_paths`, `auto_check`, `guide_cache` |
+
+The authority's file keeps these sections:
+- the state, the parts, `intents`, `subscribe` and `handle`;
+- the room's lifecycle: `load_room`, `enter_world`, `enter_grid_room`, the arrival, `grid_for` and the ground;
+- the character's memory of a room: `room_mem`, `slain_foes` and the foes slain and returned;
+- the tick;
+- the facade, and the old private names at its end.
+
+Its brief asked S9 to group the side-view branches where that was free. Each of them asks `WorldAuthority.side_view(rt)`
+(13 sites) or finds `grid_for` null (7 sites), so retiring the side view can find them all.
 
 Crafting's and Progression's parts are listed in the S10 entry of `docs/CHANGELOG.md`.
