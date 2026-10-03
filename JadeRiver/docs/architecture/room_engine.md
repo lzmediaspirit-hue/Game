@@ -695,6 +695,15 @@ flight of stairs or gone.
 - Terrain: the kit has no red-rock or dressed-sandstone paint of its own. The canyons' walls and the tomb's are sand,
   and its raised paving faces blue-grey. A paint with its own warm faces would suit both.
 - A capture spot must be open floor: a spot on a flight's cheek drew an empty world.
+- Auto-path's route tour (`rules_tests`' topdown suite) found two things the pictures did not. First, a flight run
+  down across the road holds the body at its cheek, so the Scorpion Flats' outcrop stops two rows short of the track.
+  Second, every drop off a ledge turns the body back on landing (the steering aims at the drop's cell from the air),
+  and more than two turns back on one leg fail. So the Windbridge's crag stands two levels over the shelf with its
+  stair the one way up, and the crate lies on the shelf's lip rather than down in the chasm. A scan of every R7 flight
+  against the walks (none crosses one now) and the tour over the twenty rooms (107 legs, none lost, none past one turn
+  back but the Alliance Gate's ferry-to-east leg at two) back it.
+- The world map: these are the first places outside the valley, and the map opened on a place showed the zone you
+  stand in, not the place's. `map_page.gd`'s setup now opens the named place's own zone (`places_tests`).
 
 **The frontier now** (R7): Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout
 (R6). The Alliance Gate's war gong and the Trial Hall's circle belong to chapters 15 and 16, whose events are R5's

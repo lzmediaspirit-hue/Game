@@ -49,7 +49,7 @@ SD_SCORPION_FLATS = room(
     "sd_scorpion_flats", size=(72, 28), biome="desert",
     bands=[("ridge", 0, 3, dict(RIDGE, level=3)),
            ("road", 14, 3, dict(walk=True))],
-    features=[("outcrop", (22, 3, 16, 9), dict(level=2, shape="round", flights=[30])),
+    features=[("outcrop", (22, 3, 16, 7), dict(level=2, shape="round", flights=[30])),
               ("rock", (1, 3, 8, 6), dict(level=1, shape="round", flights=[4]))]
              + dunes((40, 20, 20, 7), (4, 20, 16, 7), (60, 4, 12, 8)),
     stairs="auto",

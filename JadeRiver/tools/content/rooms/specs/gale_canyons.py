@@ -97,8 +97,9 @@ GC_HARPY_ROOSTS = room(
 
 # The Windbridge: the canyon splits under the trail into a chasm a river runs down, and the Windbridge spans it, planks
 # on trestles three levels over the water, prayer flags at either end. West of the chasm the shelf the trail comes in
-# on, a crag with a chest under the wall; a stair cut down the shelf's south face to the floor of the chasm, where the
-# river's crate washed up; east of it the shelf on to Ironroot Hold.
+# on, a crag two levels tall with a chest under the wall (its stair the one way up); the river's crate washed up on the
+# shelf's lip by the bridge, a stair cut down the shelf's south face to the floor of the chasm; east of it the shelf on
+# to Ironroot Hold.
 GC_WINDBRIDGE = room(
     "gc_windbridge", size=(72, 28), biome="canyon",
     bands=[("shelf", 3, 17, dict(level=3, wavy="s", flights=[12])),
@@ -112,12 +113,12 @@ GC_WINDBRIDGE = room(
               ("river", (34, 13, 6, 10), dict(water=True, shape="round")),
               ("river", (33, 20, 6, 12), dict(water=True, shape="round")),
               ("head", (24, 0, 22, 3), dict(level=4, paint="g", wall=True)),  # the chasm's head, the river falling over it
-              ("crag", (14, 3, 9, 5), dict(level=4, shape="round", flights=[18])),
+              ("crag", (14, 3, 9, 5), dict(level=5, shape="round", flights=[18])),
               ("bridge", (23, 12, 26, 3), dict(level=3, paint="w"))] + rim(24, (0, 52), (18, 22)),
     stairs="auto",
     ways={"west": ("w", "trail"), "east": ("e", "trail")},
     spawn="west",
-    anchors={"jar_1": "verge.n@5", "chest_ledge_mv_1": "crag@18", "crate_2": "floor@29", "jar_3": "verge.s@60"},
+    anchors={"jar_1": "verge.n@5", "chest_ledge_mv_1": "crag@18", "crate_2": "verge.s@24", "jar_3": "verge.s@60"},
     props=[("waterfall", 33, 3), ("prayer_flags", 20, 11), ("prayer_flags", 49, 11), ("prayer_flags", 20, 15),
            ("prayer_flags", 49, 15)],
     flora={"shelf": dict(density=0.32), "floor": dict(density=0.3), "river": ["dry_scrub", "cattails", "tall_grass"]},
