@@ -14,7 +14,7 @@ extends "res://tests/prologue_run.gd"
 ##      and handed in; Gu's Cargo, the cart escorted to Bend Shore; the tracker leading into these rooms on the way;
 ##   4. past chapter 3 the story's next quest (Toward Cleansing Peak, at the Pilgrim Stairs) is played past the
 ##      prototype's gate: the tracker's first entry is the prototype's end, and Bend Shore's ways west, to the Serpent's
-##      Shallows and to the Drowned Shrine are gated.
+##      Shallows and to the Drowned Shrine lead onto the grid (R2: tests/topdown_drowned_shrine.gd), none gated.
 ## Run headless:  godot --headless --path . res://tests/topdown_chapter3.tscn [-- --verbose]
 
 const ROOMS := ["cr_caravan_road", "mh_stockade", "mh_tunnels", "mh_loot_cave", "mh_boss_den", "dw_bend_shore"]
@@ -236,4 +236,4 @@ func _past_the_chapter() -> void:
 		var way: Dictionary = Game.room_rt.portal_def(pid)
 		var gs: Dictionary = Game.world.portal_state(c(), way)
 		if gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn"): gated.append(pid)
-	check(gated == ["west", "shallows", "shrine"], "Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine are closed by the prototype's gate (%s)" % str(gated))
+	check(gated.is_empty(), "Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine lead onto the grid (R2), none closed by the prototype's gate (%s)" % str(gated))

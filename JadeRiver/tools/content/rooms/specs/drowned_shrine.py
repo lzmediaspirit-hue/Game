@@ -84,33 +84,35 @@ DS_HALL_OF_LANTERNS = room(
 
 # The Scripture Well: a round shaft sunk through the shrine's floor to the river's own water, ringed by the ledges the
 # monks read on: the rim against the north wall where the sutra chest stands, a ledge a level up in the west and one in
-# the east. South of it the floor where Lu's trial is held, the river over its south end; in the east alcove the
-# flooded shaft drops to the Drowned Grotto.
+# the north-east corner. South of it the floor where Lu's trial is held, the river over its south end; beside the east
+# ledge the flooded shaft drops to the Drowned Grotto. (The flights stand clear of the ways across the hall: auto-path's
+# steering never crosses a flight from its side.)
 DS_SCRIPTURE_WELL = room(
     "ds_scripture_well", size=(56, 26), biome="drowned_shrine", walls=granite(4),
-    features=[("floor", (1, 15, 54, 3), dict(paint="p", walk=True))] + silt(18)
+    features=[("floor", (1, 15, 54, 3), dict(paint="p", walk=True))] + silt(18, 2)
              + [("flood", (1, 20, 54, 5), dict(paint="q", wavy=True)),
                 ("rim", (18, 1, 20, 3), dict(level=2, paint="s")),
                 ("ledge_w", (11, 6, 6, 3), dict(level=1, paint="s")),
-                ("ledge_e", (39, 5, 6, 3), dict(level=1, paint="s")),
+                ("ledge_e", (49, 1, 6, 4), dict(level=1, paint="s")),
                 ("well", (20, 5, 16, 9), dict(water=True, shape="round")),
-                ("shaft", (46, 2, 4, 4), dict(water=True))]
+                ("shaft", (42, 2, 4, 4), dict(water=True))]
              + rubble((1, 1, 9, 6), (47, 8, 8, 6)),
     stairs="auto",
-    ways={"west": ("w", 16), "east": ("e", 16), "grotto": dict(at=(47.5, 6), dir="n", arrive=(47.5, 7.5), span=2)},
+    ways={"west": ("w", 16), "east": ("e", 16), "grotto": dict(at=(43.5, 6), dir="n", arrive=(43.5, 7.5), span=2)},
     spawn="west",
     anchors={"chest_6": "rim@25", "inscription_ds_scripture_well_0": "rim@31", "jar_2": "ledge_w@15",
-             "inscription_ds_scripture_well_2": "ledge_w@12", "jar_1": "ledge_e@43", "inscription_ds_scripture_well_1": "ledge_e@40",
+             "inscription_ds_scripture_well_2": "ledge_w@12", "jar_1": "ledge_e@53", "inscription_ds_scripture_well_1": "ledge_e@50",
              "rite_riverbreath": (28, 15), "lost_scripture_well": "floor.n@22", "page_method_conversion_pill_2": "floor.n@34",
              "jar_3": "floor.n@6", "jar_4": "flood@44", "jar_5": "floor.s@51"},
-    props=[("lantern", 9, 14), ("lantern", 46, 14), ("lantern", 23, 14), ("lantern", 33, 14), ("lantern", 45, 2),
-           ("lantern", 50, 2)],
+    props=[("lantern", 9, 14), ("lantern", 46, 14), ("lantern", 23, 14), ("lantern", 33, 14), ("lantern", 41, 2),
+           ("lantern", 46, 2)],
     flora=RUBBLE,
+    event={"wave": [(21, 17), (35, 17)]},   # the Riverbreath Trial's drowned rise either side of the ring
     foes=["auto:rim", "auto:ledge_e", "auto"])
 
 
 # The Abbot's Sanctum: the shrine's heart, where the Drowned Abbot keeps his vigil. Four bells hang on the platforms
-# along the north wall, low and high in turn, a colonnade before them; the sleeping blade lies on the altar's dais in
+# along the north wall, a step up each (their short flights clear of the walk before them), a colonnade before them; the sleeping blade lies on the altar's dais in
 # the east, the sealed vault beside it; the river stands round the sanctum's south and west. The stair in the
 # north-east corner climbs back to Bend Shore.
 DS_ABBOTS_SANCTUM = room(
@@ -118,8 +120,8 @@ DS_ABBOTS_SANCTUM = room(
     features=[("nave", (1, 12, 54, 3), dict(paint="s", walk=True))] + silt(16, 2)
              + [("flood", (1, 17, 54, 8), dict(paint="q", wavy=True)),
                 ("flood_w", (1, 2, 6, 10), dict(paint="q", shape="round")),
-                ("bell_0", (8, 1, 7, 3), dict(level=1, paint="s")), ("bell_1", (20, 1, 7, 3), dict(level=2, paint="s")),
-                ("bell_2", (32, 1, 7, 3), dict(level=1, paint="s")), ("bell_3", (44, 1, 7, 3), dict(level=2, paint="s")),
+                ("bell_0", (8, 1, 7, 3), dict(level=1, paint="s")), ("bell_1", (20, 1, 7, 3), dict(level=1, paint="s")),
+                ("bell_2", (32, 1, 7, 3), dict(level=1, paint="s")), ("bell_3", (44, 1, 7, 3), dict(level=1, paint="s")),
                 ("dais", (38, 16, 9, 3), dict(level=1, paint="s")),
                 ("vault", (49, 16, 6, 6), dict(level=1, paint="s"))]
              + rubble((15, 18, 9, 7)) + pillars(range(9, 50, 6), 9, [3, 3, 3, 2, 3, 3, 3]),

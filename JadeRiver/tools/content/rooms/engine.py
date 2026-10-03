@@ -646,6 +646,11 @@ class Build:
             if not on and not (r.kind == "band" and r.h >= 3):
                 continue
             wanted.append((r, on))
+        # R2: a flight stands off the walks (a road) where it can: the walk along it would cross the flight from its
+        # side, which auto-path's steering cannot (it stalls against the cheek); and its foot on its landing's own level
+        # where it can (a step lower shows the flight's front as a slot). Where no spot is so (a tower over a narrow
+        # yard), the nearest spot as before.
+        walks = {c for q in self.regions.values() if q.walk for c in q.cells()}
         for r, on in wanted:
             if r.name in self.climbed:
                 continue
@@ -653,32 +658,40 @@ class Build:
             xs = [c[0] for c in on] or [r.x + r.w // 2]
             want = sorted(xs)[len(xs) // 2]
             spots = sorted(range(r.x, r.x1 - width + 1), key=lambda x: (abs(x + width // 2 - want), x))
-            for x in spots:
-                # The flight's top row lies against the shape's south edge, the same row under every column of it.
-                bottoms = {r.bottom(xx) for xx in range(x, x + width)}
-                if len(bottoms) != 1 or None in bottoms:
-                    continue
-                top = bottoms.pop() + 1
-                if top >= self.h:
-                    continue
-                below = self.lay.lv[top][x]
-                if below == WATER or below >= r.level:
-                    continue
-                depth = 2 * (r.level - below)
-                cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
-                       or (xx, yy) in lanes for xx, yy in cells):
-                    continue
-                # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
-                foot = [(xx, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - 1 <= self.lay.lv[yy][xx] <= below
-                       or (xx, yy) in taken for xx, yy in foot):
-                    continue
-                self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
-                self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
-                break
+            flight = self._flight(r, spots, width, taken, lanes, walks, 0) or self._flight(r, spots, width, taken, lanes, walks) \
+                or self._flight(r, spots, width, taken, lanes, set())
+            if flight:
+                self.lay.stair(*flight, self.stair_paint)
+                self.notes.append("stair up onto %s at %d,%d" % (r.name, flight[0], flight[1]))
             else:
                 self.notes.append("no stair up onto %s (no room under it)" % r.name)
+
+    def _flight(self, r, spots, width, taken, lanes, walks, drop=1):
+        """The first spot (x, y, w, h, from, to) where a flight up onto `r` fits, its cells off `walks`, its foot at most
+        `drop` levels under its landing; None if none."""
+        for x in spots:
+            # The flight's top row lies against the shape's south edge, the same row under every column of it.
+            bottoms = {r.bottom(xx) for xx in range(x, x + width)}
+            if len(bottoms) != 1 or None in bottoms:
+                continue
+            top = bottoms.pop() + 1
+            if top >= self.h:
+                continue
+            below = self.lay.lv[top][x]
+            if below == WATER or below >= r.level:
+                continue
+            depth = 2 * (r.level - below)
+            cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
+                   or (xx, yy) in lanes or (xx, yy) in walks for xx, yy in cells):
+                continue
+            # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
+            foot = [(xx, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - drop <= self.lay.lv[yy][xx] <= below
+                   or (xx, yy) in taken for xx, yy in foot):
+                continue
+            return (x, top, width, depth, below, r.level)
+        return None
 
     # ================================================================ 6. the foes
     def foes(self):
