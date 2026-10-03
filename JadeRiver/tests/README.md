@@ -2,8 +2,8 @@
 
 `tools/run_tests.sh` (Linux, macOS) and `Test.ps1` (Windows) run the same gates, in the same order:
 1. the animation rules (`Validate-Animations.ps1`, where PowerShell is installed);
-2. the data checks (`tools/data/*.py --check`, including `build_data` and `cues`; `tools/lib/pix.py --check`;
-   `tools/audio/build_audio.py --check`);
+2. the data checks (`tools/data/*.py --check`, including `build_data` and `cues`; `tools/lib/pix.py --check`; the
+   monster engine's `tools/content/monsters/build.py --check`; `tools/audio/build_audio.py --check`);
 3. the Godot suites listed in `tests/suites.txt`.
 
 Each suite is a scene, `tests/<name>.tscn`, run headless:

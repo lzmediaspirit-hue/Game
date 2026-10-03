@@ -749,6 +749,34 @@ One spec writes all of these:
 - `sound --check`;
 - the foe gallery (`topdown_figure_gallery`), reviewed.
 
+**Status (phase 3, E2): done.** `docs/architecture/monster_engine.md` describes it.
+- **Body plans:** `tools/art/topdown/creature/plans/`. They are `quadruped` (rodent, mustelid, suid), `amphibian`
+  (frog, toad), `crab` (mud), `serpent` (eel, leech), `fish` (minnow, greyfin), `shell` (snapper, beetle) and
+  `humanoid` (puppet, imp).
+  - Each is a pose function over part kinds and sizes. The hand modules' key-frame tables became named motion styles.
+- **Engine:** `tools/content/monsters/`, 158 lines, plus `build.py` with 262 lines (build, `--check`, `--list`,
+  `--review`). Specs are in `specs/`, one file a region.
+  - A spec writes the `enemies.json` row and its loot extras, the `foes.json` block and the sheets, and its voice in
+    `sound.json`. The codex page is its row's `page`, and the wiki follows from the data.
+  - `enemies.py`, `creatures.py` and `sound.py` read the specs. A spec placed with `spec_row()`, or named in
+    `sound.py`'s lists, keeps its place, so nothing reshuffles.
+- **Migration:** all twelve drawn species are byte-identical, in sheets, `foes.json` and data, so no frame needed a
+  reviewed diff and none kept the escape hatch.
+  - The eleven hand pose modules (1,879 lines) are deleted.
+  - The plans, with the three new bodies, are 3,085 lines. Extracting byte for byte kept every species' own code path
+    as a part kind. The saving is in the species to come.
+- **New species:** the rock beetle, the pebble imp and the greyfin. They are the first foes past the top-down rooms:
+  Stonewall Quarry off Stoneford's quarry road, and the Grey Pools east of the Marsh Edge.
+  - Each needed a new body kind (`shell.beetle`, `humanoid.imp`, `fish.greyfin`, about 200 lines each) and a spec of
+    about ten lines. Their rows were moved into the specs unchanged.
+  - They were reviewed in every action, facing and look (`docs/redesign/feedback/monsters/sheets/`) and in the game
+    (the capture set `monsters_e2`).
+- **Tests:** the `monsters` gate in both runners, `build.py --check`, with 471 checks.
+  - It checks that every spec resolves, poses every action and frame in every facing and look, and round-trips its
+    row, loot and voice. It checks `foes.json` and the sheets on disk against sampled frames drawn twice, the elite
+    ring, and the escape hatch.
+  - `build_foes.py --check` covers determinism.
+
 ### 6.3 NPC engine (E3)
 
 **What exists to build on:**
