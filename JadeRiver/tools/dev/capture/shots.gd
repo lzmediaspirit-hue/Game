@@ -65,7 +65,21 @@ const E1_VIEWS := [
 	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
 	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
 	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
-	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true]]
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true],
+	# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar (their pictures under r7/).
+	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
+	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],
+	["r7/05_presence_terrace", "np_presence_terrace", Vector2(26, 15), true], ["r7/06_trial_hall", "np_trial_hall", Vector2(13.5, 9), true],
+	["r7/07_canyon_mouth_toll", "gc_canyon_mouth", Vector2(14, 13), true], ["r7/08_canyon_mouth_mesa", "gc_canyon_mouth", Vector2(34, 12), false],
+	["r7/09_kite_winds", "gc_kite_winds", Vector2(30, 14), true], ["r7/10_harpy_roosts", "gc_harpy_roosts", Vector2(32, 12), true],
+	["r7/11_windbridge", "gc_windbridge", Vector2(36, 13), true],
+	["r7/12_hold_gate", "ir_hold_gate", Vector2(30, 15), true], ["r7/13_clan_hearth", "ir_clan_hearth", Vector2(28, 11), true],
+	["r7/14_ancestor_hall", "ir_ancestor_hall", Vector2(11.5, 8), true],
+	["r7/15_glass_dunes", "sd_glass_dunes", Vector2(30, 15), true], ["r7/16_scorpion_flats", "sd_scorpion_flats", Vector2(30, 12), true],
+	["r7/17_oasis_of_bones", "sd_oasis_of_bones", Vector2(28, 15), true], ["r7/18_worm_sea_tomb_door", "sd_worm_sea", Vector2(58, 13), true],
+	["r7/19_sealed_gate", "ts_sealed_gate", Vector2(40, 12), true], ["r7/20_hall_of_sand_kings", "ts_hall_of_sand_kings", Vector2(30, 13), true],
+	["r7/21_mirror_crypt", "ts_mirror_crypt", Vector2(28, 13), true], ["r7/22_throne_of_the_tomb_king", "ts_throne", Vector2(28, 12), true],
+]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]

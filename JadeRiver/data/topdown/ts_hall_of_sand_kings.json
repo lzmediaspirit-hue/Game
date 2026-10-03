@@ -1,0 +1,444 @@
+{
+ "schema_version": 1,
+ "id": "ts_hall_of_sand_kings",
+ "name": "Hall of Sand Kings",
+ "size": [
+  72,
+  24
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444444444444444444444444444",
+  "400000000000111111110000000000000000222222222000000000000000111111110004",
+  "400000000000111111110000000000000000222222222000000000000000111111110004",
+  "400000000000111111110000000000000000222222222000000000000000111111110004",
+  "400000000000111111110000000000000000222222222000000000000000111111110004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000111111111100000000000000000000000000000000000004",
+  "400000000000000000000000111111111100000000000000000000000000000000000004",
+  "400000000000000000000000111111111100000000000000000000000000000000000004",
+  "400000000000000000000000111111111100000000000000000000000000000000000004",
+  "400000400000040000004000000200000040000004000000400000040000003000000404",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000400000030000004000000400000040000004000000200000040000004000000404",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "400000000000000000000000000000000000000000000000000000000000000000000004",
+  "111111111111111111111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "apaaappppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aaaaaapppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aaaaaaappppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aaaaaaappppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "apaaaappppppppsssppppppppppppppppppppppsssppppppppppppppppppppsssppppppa",
+  "appaapppppppppsssppppppppppppppppppppppsssppppppppppppppppppppsssppppppa",
+  "appppppppppppppppppppppppppppppppppppppssspppppppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppssspppppppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "apppppappppppappppppappppppapsssppappppppappppppappppppappppppappppppapa",
+  "appppppppppppppppppppppppppppssspppppppppppppppppppppppppppppppppppppppa",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "apppppappppppappppppappppppappppppappppppappppppappppppappppppappppppapa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "appppaaaaaaaaapppppppppppppppppppppppppppppppppppppppppppaaaaaaaaapppppa",
+  "apaaaaaaaaaaaaaapppppppppppaaaaaaaaaaaaaappppppppppppaaaaaaaaaaaaaaaappa",
+  "aaaaaaaaaaaaaaaaapppppppppaaaaaaaaaaaaaaaappppppppppaaaaaaaaaaaaaaaaaapa",
+  "aaaaaaaaaaaaaaaaapppppppppaaaaaaaaaaaaaaaaapppppppppaaaaaaaaaaaaaaaaaapa",
+  "apaaaaaaaaaaaaaappppppppppaaaaaaaaaaaaaaaapppppppppppaaaaaaaaaaaaaaaappa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 14,
+   "y": 5,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 39,
+   "y": 5,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 62,
+   "y": 5,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 29,
+   "y": 10,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "sarcophagus",
+   "x": 28,
+   "y": 7
+  },
+  {
+   "kind": "king_statue",
+   "x": 9,
+   "y": 2
+  },
+  {
+   "kind": "king_statue",
+   "x": 22,
+   "y": 2
+  },
+  {
+   "kind": "king_statue",
+   "x": 33,
+   "y": 2
+  },
+  {
+   "kind": "king_statue",
+   "x": 48,
+   "y": 2
+  },
+  {
+   "kind": "king_statue",
+   "x": 57,
+   "y": 2
+  },
+  {
+   "kind": "brazier",
+   "x": 25,
+   "y": 6
+  },
+  {
+   "kind": "brazier",
+   "x": 33,
+   "y": 6
+  },
+  {
+   "kind": "brazier",
+   "x": 2,
+   "y": 10
+  },
+  {
+   "kind": "brazier",
+   "x": 69,
+   "y": 10
+  },
+  {
+   "kind": "brazier",
+   "x": 2,
+   "y": 16
+  },
+  {
+   "kind": "brazier",
+   "x": 69,
+   "y": 16
+  },
+  {
+   "kind": "spike_plate",
+   "x": 12,
+   "y": 13
+  },
+  {
+   "kind": "spike_plate",
+   "x": 21,
+   "y": 12
+  },
+  {
+   "kind": "spike_plate",
+   "x": 39,
+   "y": 14
+  },
+  {
+   "kind": "spike_plate",
+   "x": 46,
+   "y": 12
+  },
+  {
+   "kind": "spike_plate",
+   "x": 60,
+   "y": 13
+  },
+  {
+   "kind": "spike_plate",
+   "x": 35,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 13,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 17,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 13,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 17,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 61,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 65,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 61,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 65,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 11
+  },
+  {
+   "kind": "ribcage",
+   "x": 3,
+   "y": 5
+  },
+  {
+   "kind": "ribcage",
+   "x": 3,
+   "y": 21
+  },
+  {
+   "kind": "red_rock",
+   "x": 8,
+   "y": 19
+  },
+  {
+   "kind": "ribcage",
+   "x": 14,
+   "y": 20
+  },
+  {
+   "kind": "red_rock",
+   "x": 11,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 62,
+   "y": 20
+  },
+  {
+   "kind": "red_rock",
+   "x": 67,
+   "y": 21
+  },
+  {
+   "kind": "ribcage",
+   "x": 55,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 64,
+   "y": 23
+  },
+  {
+   "kind": "ribcage",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "ribcage",
+   "x": 40,
+   "y": 21
+  },
+  {
+   "kind": "ribcage",
+   "x": 26,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 33,
+   "y": 23
+  }
+ ],
+ "place": {
+  "jar_1": [
+   16,
+   2
+  ],
+  "lost_sand_glyph_snare": [
+   31,
+   15
+  ],
+  "chest_5": [
+   38,
+   1
+  ],
+  "chest_ledge_mv_1": [
+   42,
+   1
+  ],
+  "crate_2": [
+   47,
+   11
+  ],
+  "jar_3": [
+   49,
+   15
+  ],
+  "page_sovereign_settling_pill_2": [
+   57,
+   15
+  ],
+  "crate_4": [
+   64,
+   4
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    13
+   ],
+   "span": 2
+  },
+  "east": {
+   "at": [
+    71,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    69.5,
+    13
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    10
+   ],
+   [
+    20,
+    15
+   ],
+   [
+    30,
+    17
+   ],
+   [
+    41,
+    17
+   ],
+   [
+    51,
+    17
+   ],
+   [
+    63,
+    10
+   ]
+  ]
+ ]
+}

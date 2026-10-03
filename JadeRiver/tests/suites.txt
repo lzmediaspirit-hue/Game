@@ -19,6 +19,7 @@ topdown_drowned_shrine
 topdown_peaks
 topdown_story_rooms
 topdown_traversal
+topdown_sunscar
 tutorials
 story_scenes
 hollow_night

@@ -1,0 +1,347 @@
+{
+ "schema_version": 1,
+ "id": "ir_clan_hearth",
+ "name": "Clan Hearth",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444440000000444444000044004444444444444444",
+  "44444444444444000000000000000000000000000444444444444444",
+  "44444444440000000000000000000000000000000000004444444444",
+  "44444444400000000000000000000000000000000000000444444444",
+  "44444444000000000000000000000000000000000000000004444444",
+  "44444440000000000000000000000000000000000000000000044444",
+  "44400000000000000000000000000000000000000000000000000444",
+  "44400000000000000000000000000000000000000000000000000044",
+  "44000000000000000000000000000000000000000000000000000004",
+  "44000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "44000000000000000000000000000000000000000000000000000004",
+  "44400000000000000000000000000000000000000000000000000044",
+  "44400000000000000000000000000000000000000000000000044444",
+  "44440000000000000000000000000000000000000000000000444444",
+  "44444400440000000000000000000000000000000000000000444444",
+  "11111111111000000000000000000000000000000000000001111111",
+  "11111111111100000000000000000000000000000000000011111111",
+  "11111111111110000000000000000000000000000000011111111111",
+  "11111111111111111111110011110000000000000011111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrdddddrrrrrrrrddrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrdddddddddddddddddddddddddrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrddddddddddddddddddddddddddddddddddrrrrrrrrrrr",
+  "rrrrrrrrrrddddddddddddppddppddddddddppddddddddrrrrrrrrrr",
+  "rrrrrrrrrdddddddddddppppppppppppppddppddddddddddrrrrrrrr",
+  "rrrrrrrrddddddddddpppppppppppppppppdppddddddddddddrrrrrr",
+  "rrrrdddddddddddddpppppppppppppppppppppddddddddddddddrrrr",
+  "rrrrdddddddddddddpppppppppppppppppppppdddddddddddddddrrr",
+  "rrrddddddddddddddpppppppppppppppppppppddddddddddddddddrr",
+  "dddddddddddddddddpppppppppppppppppppppdddddddddddddddddd",
+  "dddddddddddddddddpppppppppppppppppppppdddddddddddddddddd",
+  "dddddddddddddddddpppppppppppppppppppppdddddddddddddddddd",
+  "rrrrdddddddddddddppppppppppppppppppppddddddddddddddddrrr",
+  "rrrrdddddddddddddpppppppppppppppppppddddddddddddddrrrrrr",
+  "rrrrrdddddddddddddpppppppppppppppppddddddddddddddrrrrrrr",
+  "rrrrrrrrrrrddddddddpppppppppppppppdddddddddddddddrrrrrrr",
+  "rrrrrrrrrrrdddddddddddddppppppppdddddddddddddddddrrrrrrr",
+  "rrrrrrrrrrrddddddddddddddddddddddddddddddddddddddrrrrrrr",
+  "rrrrrrrrrrrrddddddddddddddddddddddddddddddddddddrrrrrrrr",
+  "rrrrrrrrrrrrrddddddddddddddddddddddddddddddddrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrddrrrrddddddddddddddrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 10,
+   "y": 5,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 34,
+   "y": 3,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "forge",
+   "x": 29,
+   "y": 6
+  },
+  {
+   "kind": "forge",
+   "x": 41,
+   "y": 7
+  },
+  {
+   "kind": "stove",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "brazier",
+   "x": 22,
+   "y": 16
+  },
+  {
+   "kind": "brazier",
+   "x": 29,
+   "y": 16
+  },
+  {
+   "kind": "brazier",
+   "x": 18,
+   "y": 11
+  },
+  {
+   "kind": "brazier",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 20,
+   "y": 6
+  },
+  {
+   "kind": "mat",
+   "x": 21,
+   "y": 7
+  },
+  {
+   "kind": "woodpile",
+   "x": 44,
+   "y": 9
+  },
+  {
+   "kind": "crates",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "barrel",
+   "x": 8,
+   "y": 9
+  },
+  {
+   "kind": "sacks",
+   "x": 14,
+   "y": 7
+  },
+  {
+   "kind": "water_jar",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 3,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 3,
+   "y": 15
+  },
+  {
+   "kind": "lantern",
+   "x": 52,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 52,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 13,
+   "y": 3
+  },
+  {
+   "kind": "roots",
+   "x": 26,
+   "y": 2
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 40,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 4,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 23
+  },
+  {
+   "kind": "roots",
+   "x": 26,
+   "y": 23
+  },
+  {
+   "kind": "roots",
+   "x": 46,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 50,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 21
+  },
+  {
+   "kind": "rock_small",
+   "x": 15,
+   "y": 23
+  },
+  {
+   "kind": "roots",
+   "x": 34,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 25
+  },
+  {
+   "kind": "roots",
+   "x": 9,
+   "y": 26
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 27
+  },
+  {
+   "kind": "roots",
+   "x": 28,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 37,
+   "y": 26
+  },
+  {
+   "kind": "rock_small",
+   "x": 42,
+   "y": 26
+  },
+  {
+   "kind": "roots",
+   "x": 51,
+   "y": 27
+  }
+ ],
+ "place": {
+  "npc_matriarch_tie": [
+   22,
+   9
+  ],
+  "anvil_ir": [
+   31,
+   9
+  ],
+  "npc_clan_smith_gang": [
+   33,
+   10
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "desert_road": {
+   "at": [
+    55,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    13
+   ],
+   "span": 3
+  },
+  "hall_door": {
+   "at": [
+    36.5,
+    6
+   ],
+   "dir": "n",
+   "arrive": [
+    36.5,
+    6.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}
