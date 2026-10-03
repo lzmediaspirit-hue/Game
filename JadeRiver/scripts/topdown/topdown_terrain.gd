@@ -29,6 +29,10 @@ extends RefCounted
 ## its neighbours, its `takes` the materials that may lie over it. The layers go: the base, sand creeping over a path
 ## or paving, the damp (`wet`) tint where sand touches the water, grass over the path or the sand, then snow over all of
 ## it. The water by sand (`beach`) shows the sand through its shallows (`v2.water.beach`).
+## R2 (tools/art/topdown/flood.py): a mark that `flood`s (the Drowned Shrine's flagstones, a river's sandy bed) is a floor
+## under shallow water a body wades through: over its top lies the water's overlay (`v2.flood`) of its corner case, a
+## corner flooded where every cell round it in the room is a flooded mark or open water, so the water's edge wanders
+## through the flooded cells along dry floor.
 ## Every pick is a pure function of the room (its id seeds the hashes), so a room always looks the same.
 
 const T := 16.0
@@ -64,6 +68,8 @@ var _creep_by: Array = []      ## per material: corner key as an int -> its over
 var _wet := PackedByteArray()  ## per corner: 1 where a cell round it is water (the damp sand's tint)
 var _near := PackedByteArray() ## per cell: bit (1 << material) where a cell of its 3 x 3 creeps with it (a quick sieve)
 var _beach := PackedByteArray() ## per cell: 1 where its mark shows through the shallows by it (sand)
+var _flood := PackedByteArray() ## R2: per corner, 1 where every cell round it is flooded or open water
+var _flood_by: Array = []      ## R2: corner key as an int -> the flood overlays by place
 
 func _init(r: TopdownRoom) -> void:
 	room = r
@@ -105,18 +111,21 @@ func _plans() -> void:
 			for t in info.get("takes", []):
 				if CREEP.find(str(t)) > 0 and v2.get("creep", {}).has(str(t)): takes |= 1 << CREEP.find(str(t))
 			by_mark[info] = {"tiles": m.get("tiles", []), "w": int(m.get("w", 1)), "h": int(m.get("h", 1)), "decals": decals,
-				"under": str(info.get("under", "")) != "", "takes": takes, "wet": bool(info.get("wet", false))}
+				"under": str(info.get("under", "")) != "", "takes": takes, "wet": bool(info.get("wet", false)),
+				"flood": bool(info.get("flood", false))}
 		_plan[i] = by_mark[info]
 	for k in 16:
 		var key := "%d%d%d%d" % [(k >> 3) & 1, (k >> 2) & 1, (k >> 1) & 1, k & 1]
 		_over_by.append(v2.get("over", {}).get(key, []))
 		_mask_by.append(v2.get("tint_mask", {}).get(key, []))
+		_flood_by.append(v2.get("flood", {}).get(key, []))
 	for mat in CREEP:
 		var by: Array = []
 		for k in 16:
 			var key := "%d%d%d%d" % [(k >> 3) & 1, (k >> 2) & 1, (k >> 1) & 1, k & 1]
 			by.append(v2.get("creep", {}).get(mat, {}).get(key, []))
 		_creep_by.append(by)
+	_floods()
 	_near.resize(n)
 	for i in n:
 		if _creep[i] == 0: continue
@@ -124,6 +133,29 @@ func _plans() -> void:
 		var cy := i / room.w
 		for oy in range(maxi(0, cy - 1), mini(room.h, cy + 2)):
 			for ox in range(maxi(0, cx - 1), mini(room.w, cx + 2)): _near[oy * room.w + ox] |= 1 << _creep[i]
+
+## R2: each corner's flood (1 where every cell round it inside the room is a flooded mark or open water), when the
+## room has a flooded mark at all.
+func _floods() -> void:
+	var n := room.w * room.h
+	var any := false
+	var wet := PackedByteArray()
+	wet.resize(n)
+	for i in n:
+		var f: bool = _plan[i].flood
+		any = any or f
+		wet[i] = 1 if f or room.levels[i] == TopdownRoom.WATER else 0
+	if not any: return
+	var cw := room.w + 1
+	_flood.resize(cw * (room.h + 1))
+	for cy in room.h + 1:
+		for cx in cw:
+			var all := 1
+			for c in 4:
+				var x := cx - 1 + (c & 1)
+				var y := cy - 1 + (c >> 1)
+				if x >= 0 and y >= 0 and x < room.w and y < room.h and wet[y * room.w + x] == 0: all = 0
+			_flood[cy * cw + cx] = all
 
 ## The grid's level of a cell (a prop's top is a sprite, not the grid); `out` outside the room.
 func lv(x: int, y: int, out := 99) -> int:
@@ -342,7 +374,8 @@ func _tint_layer(key: int, x: int, y: int, kind: String) -> Array:
 ## The layers of a cell's top at level `l`, bottom to top: the base (its macro tile, or under grass the path's with
 ## the positional grass overlay), a decal, the sun and shade patches, the light overlays (rims, contact and cast
 ## shade). Decision 44: sand creeping over a path or paving, the damp sand by the water, then grass, then packed and
-## fresh snow over all of it; a cell covered at every corner takes the covering material's own tile.
+## fresh snow over all of it; a cell covered at every corner takes the covering material's own tile. R2: the shallow
+## water over a flooded mark, under the light overlays.
 func top_layers(x: int, y: int, l: int) -> Array:
 	if v2.is_empty():
 		return [_layer(top(x, y))] + overlays(x, y, l).map(func(o): return _layer(o))
@@ -379,6 +412,9 @@ func top_layers(x: int, y: int, l: int) -> Array:
 				var names: Array = d[0]
 				out.append([names[int(HashNoise.cell(x, y, seed + 6) * names.size())], Color.WHITE])
 				break
+	if pl.flood and not _flood.is_empty():
+		var fk := _ckey(_flood, x, y, 1)
+		if fk and not (_flood_by[fk] as Array).is_empty(): out.append([_flood_by[fk][(y & 3) * 4 + (x & 3)], Color.WHITE])
 	if not _tone.is_empty():
 		var sun := _ckey(_tone, x, y, 1)
 		if sun: out.append(_tint_layer(sun, x, y, "sun"))

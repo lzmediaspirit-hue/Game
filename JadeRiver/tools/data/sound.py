@@ -83,7 +83,8 @@ HITS = {
 # with its sounds, and every such surface is heard in a room).
 SURFACES = ["grass", "dirt", "stone", "wood", "sand", "water", "reeds", "roof", "snow"]
 PAINT_SURFACE = {"g": "grass", "f": "grass", "b": "grass", "m": "reeds", "d": "dirt", "p": "stone", "s": "stone",
-                 "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow", "k": "snow"}
+                 "r": "stone", "l": "stone", "w": "wood", "t": "roof", "a": "sand", "n": "snow", "k": "snow",
+                 "q": "water", "h": "water"}   # R2: the flooded floors (flagstones, a river's bed) wade
 PROP_TOP_SURFACE = {"crates": "wood", "house": "roof", "hall": "roof", "storehouse": "roof", "boat": "wood"}
 
 STEPS = {

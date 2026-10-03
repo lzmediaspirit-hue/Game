@@ -859,6 +859,8 @@ class Build:
             land = lambda cs: [c for c in cs if 0 <= c[1] < H and lv[c[1]][c[0]] != WATER]
             return [("bank_back", land(r.beside(2)), 7), ("bank", land(r.beside(1)), 6),
                     ("shallow", shallow, 7), ("water", deep, 9)]
+        if r.opts.get("paint") in TR.FLOODED:
+            return [("shallow", [c for c in r.cells() if lv[c[1]][c[0]] != WATER], 7)]   # R2: a wading floor's reeds
         if r.walk:
             return [("verge", rows([r.y - 2, r.y - 1, r.y1, r.y1 + 1]), 7)]
         if r.wall:
@@ -889,7 +891,7 @@ class Build:
                     if not water:
                         return False
                     continue
-                if kind in TR.WADING and water:
+                if kind in TR.WADING and (water or self.lay.pt[yy][xx] in TR.FLOODED):
                     continue
                 if water or any(s["x"] <= xx < s["x"] + s["w"] and s["y"] <= yy < s["y"] + s["h"] for s in self.lay.stairs):
                     return False

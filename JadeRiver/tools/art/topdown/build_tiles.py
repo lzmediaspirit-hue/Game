@@ -85,6 +85,14 @@ PAINT = {
     "n": {"top": ["snow_a", "snow_b"], "face": "snow", "macro": "snow", "decals": [["snow", 0.2]], "creep": "snow"},
     "k": {"top": ["snowpack_a", "snowpack_b"], "face": "snow", "macro": "snowpack", "decals": [["snowpack", 0.28]],
           "creep": "snowpack", "takes": ["snow"]},
+    # R2 (tools/art/topdown/flood.py): floors under shallow water a body wades through, `flood` the water laid over
+    # them (v2.flood, per corner case: a corner floods where every cell round it is flooded or open water). `q` the
+    # Drowned Shrine's flagstones, its granite embankment where it drops into a deep pool; `h` a river's sandy bed, a
+    # beach where it runs into the deep water.
+    "q": {"top": ["paving_a", "paving_b", "paving_c"], "face": "pave", "macro": "pave", "decals": [["pave", 0.22]],
+          "flood": True},
+    "h": {"top": ["sand_a", "sand_b", "sand_c"], "face": "sand", "keep_face": True, "macro": "sand",
+          "decals": [["sand", 0.2]], "flood": True},
 }
 
 # Terrain sets of the TileSet (art bible §6).

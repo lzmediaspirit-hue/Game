@@ -270,7 +270,9 @@
    "t": "roof",
    "a": "sand",
    "n": "snow",
-   "k": "snow"
+   "k": "snow",
+   "q": "water",
+   "h": "water"
   },
   "prop_tops": {
    "crates": "wood",
