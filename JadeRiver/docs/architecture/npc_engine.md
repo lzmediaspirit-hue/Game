@@ -244,4 +244,4 @@ The capture set `npc_engine` (`docs/architecture/npc_engine/`):
 Their three anchors moved a few of the hamlet's scattered plants (a dead tree stood where the washer lives): the room
 engine keeps its flora clear of every anchor.
 
-**Engine size.** `spec.py` 182 lines, `spots.py` 204, `engine.py` 407, `tests.py` 206; the specs 641.
+**Engine size.** `spec.py` 181 lines, `spots.py` 204, `engine.py` 418, `tests.py` 206; the specs 641.

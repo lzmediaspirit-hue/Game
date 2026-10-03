@@ -33,7 +33,7 @@ if __name__ == "__main__" and not __package__:
     from content.npcs import engine as _engine
     raise SystemExit(_engine.main())
 
-from .spec import DROP, HEAD, KEYS, SpecError  # noqa: E402
+from .spec import DROP, KEYS, SpecError  # noqa: E402
 from . import spots as SPOTS  # noqa: E402
 
 
@@ -267,7 +267,8 @@ def check_built(errs, st=None):
     built = {r["id"]: r for r in _json("npcs.json")["entries"]}
     order = [r["id"] for r in _json("npcs.json")["entries"]]
     mine = [s["id"] for s in st.npcs]
-    if [i for i in order if i in set(mine)] != mine:
+    have_mine = set(mine)
+    if [i for i in order if i in have_mine] != mine:
         errs.append("data/npcs.json does not list the specs' people in the specs' order (run build_data.py)")
     for s in st.npcs:
         want = row(s)
@@ -298,9 +299,19 @@ def check_built(errs, st=None):
                 if have["spots"] != want:
                     errs.append("%s %s: life.json's spots are not the engine's (run build_data.py)" % (rid, oid))
     for rid, xs in extras(st).items():
-        have = [e["id"] for e in life.get(rid, {}).get("extras", [])]
-        if [e["id"] for e in xs] != have[:len(xs)]:
-            errs.append("%s: life.json's extras are not the engine's, first and in order (run build_data.py)" % rid)
+        have = life.get(rid, {}).get("extras", [])
+        lay = _json("topdown", rid + ".json")
+        if lay is None:
+            continue
+        g = TR.Grid(lay)
+        for i, e in enumerate(xs):
+            try:
+                want = dict(e, spots=resolve_spots(rid, e["id"], lay, g, e["spots"]))
+            except SPOTS.SpotError as ex:
+                errs.append(str(ex))
+                continue
+            if i >= len(have) or have[i] != want:
+                errs.append("%s %s: life.json's extras are not the engine's, first and in order (run build_data.py)" % (rid, e["id"]))
     return errs
 
 

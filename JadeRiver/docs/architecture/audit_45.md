@@ -829,8 +829,8 @@ loops exist, then the two sects' staff.
 
 #### Status (phase 3, E3): the NPC engine, done
 
-- **The engine** is in `tools/content/npcs/`: `spec.py` (the spec language, 182 lines), `spots.py` (work spots by
-  anchors, 204), `engine.py` (the compile, the hosts' channels, the checks, 407) and `tests.py` (12 tests, 206).
+- **The engine** is in `tools/content/npcs/`: `spec.py` (the spec language, 181 lines), `spots.py` (work spots by
+  anchors, 204), `engine.py` (the compile, the hosts' channels, the checks, 418) and `tests.py` (12 tests, 206).
   `docs/architecture/npc_engine.md` describes it.
   - One `npc(...)` spec names the person's id, name and title, their look (the character pipeline's parts and dyes),
     their voice, services and dialogue tree, and their places with each place's work loop.

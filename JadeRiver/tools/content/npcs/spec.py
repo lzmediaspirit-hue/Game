@@ -34,7 +34,7 @@ names who the person is and where they live and work; the engine (engine.py) wri
                (spots.py), so that a building moved moves its workers:
                  "home"            the person's own spot
                  "water_edge"      the bank beside open water, facing it
-                 "by:<prop kind>"  beside a prop of that kind (the wash tub, the anvil's forge, a stall), facing it
+                 "by:<prop kind>"  beside a prop of that kind (the wash tub, the forge, a net rack), facing it
                  "near:<oid>"      beside another thing of the room (the shrine, the notice board), facing it
                  "open"            a free spot round the person, facing out
                then, each optional and in this order, "@x" or "@x,y" (the point to look round: the person's own
@@ -42,10 +42,11 @@ names who the person is and where they live and work; the engine (engine.py) wri
                steps there): "by:wash_tub>e:wash". "auto:water_edge" reads as "water_edge".
     auto       n spots round the person by a hash of the room and the person (topdown_life.auto_spots)
 
-  role(title, look, lines, barks, services=(), loop=None, **keys) and staff(role, sect, name, at=(), **over)
-    a role template for a sect's staff (specs/sects.py ROLES) and one person from it: the id "<sect>_<role>", the
-    role's title, look, lines, barks, services and keys with "{Sect}", "{sect}", "{dye}" and "{weapon}" filled from
-    the sect (SECTS), the sect's id as `sect`; `over` wins over the role
+  role(title, look, lines, barks, services=(), loop=None, **keys) and staff(role, roles, sect, name, at=(), **over)
+    a role template for a sect's staff (specs/sects.py ROLES, `look` as look()'s keywords) and one person from it: the
+    id "<sect key>_<role>", the role's title, look, lines, barks, services, keys and loop with "{Sect}", "{sect}",
+    "{key}", "{dye}" and "{weapon}" filled from the sect (a SECTS row), the sect's id as `sect`; `over` wins over the
+    role (specs/sects.py's staff(role, sect, name) passes its ROLES)
 
   extra(id, room, look, work)
     a figure at work with no part in the story (life.json `extras`): no row, no talk; its first spot is its home
@@ -54,9 +55,7 @@ import copy
 
 # The keys of an npcs.json row past its fixed head, in the order the row has them (story.py's hand rows had them so).
 KEYS = ("scale", "tint", "tree", "on_talk", "service_labels", "service_unlocks", "companion", "sect")
-HEAD = ("id", "name", "title", "outfit", "lines", "barks", "services")
 LOOK_KEYS = ("hair", "shirt", "pants", "shoes", "hat", "cape", "weapon", "body")
-PLACE_KEYS = ("room", "oid", "work", "anchor", "side", "obj")
 
 
 class Drop:
