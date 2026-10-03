@@ -49,6 +49,9 @@ T1 built the grid's traversal and listed what was left (`docs/architecture/topdo
   - The capture set `traversal_t2` writes `docs/architecture/topdown_mechanics/t2/`.
   - The doc keeps the inventory and the ordered to-do of what is left: the Cloudwing Cranes' sheets, the mounts' art,
     the Lower Pit's cracked slab, Act II's items and presentation.
+- **Checks.** The full run (merged with R7, E5 and R6): all 32 suites pass, 76,031 checks with 0 failures and no
+  SCRIPT ERROR. Only `topdown_traversal` grows: 236 checks, its twelve new parts 110 of them (T1's set-piece part
+  walks R5's and R6's rooms too). Grid parity holds for 127 layouts and 383 starts.
 
 ## The quest engine: a side quest is one spec (decision 45, E5)
 
