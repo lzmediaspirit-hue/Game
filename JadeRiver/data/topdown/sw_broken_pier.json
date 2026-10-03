@@ -1,0 +1,617 @@
+{
+ "schema_version": 1,
+ "id": "sw_broken_pier",
+ "name": "Broken Pier",
+ "size": [
+  64,
+  28
+ ],
+ "spawn": [
+  5,
+  19
+ ],
+ "levels": [
+  "5555555555555555555555555555555555555555555555555555555555555555",
+  "5555555555555555555555555555555555555555555555555555555555555555",
+  "1155555555555555555555555555555555555511111111111555555555555555",
+  "2222222222333322222222222222222222222222222222222222222233322222",
+  "2222222223333332222222222233333333332222222222222222223333332222",
+  "2222222223333333222222223333333333332222333333222222233333333222",
+  "2222222223333333222222333333333333332222333333332222233333333222",
+  "2222222222333332222222333333333333332222333333333322223333332222",
+  "2222222222222222222222333333333333332222333333333322222333322222",
+  "2222222222222222222222223333333333332222333333332222222222222222",
+  "2222222222222222222222222233333333332222333333222222222222222222",
+  "2222222222222222222111111122222222222222222222222211222222222222",
+  "2211111111111222211111111111122222222222222222211111112222222211",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111000000001111111111111111100000000000001111111111110001111111",
+  "0001111100000011111111111100000000000000000011111111000000111111",
+  "0001111100000000000011100000000000000000000000011100000000000000",
+  "0001111100000000000011100000000000000000000000011100000000000000",
+  "0001111100000000000011100000000000000000000000011100000000000000",
+  "0001111100000000000011100000000000000000000000011100000000000000",
+  "0001111100000000000011100000000000000000000000000000000000000000",
+  "0001111100000000000011100000000000000000000000000000000000000000",
+  "0001111100000000000000000000000000000000000000000000000000000000",
+  "0001111100000000000000000000000000000000000000000000000000000000",
+  "0001111100000000000000000000000000000000000000000000000000000000",
+  "0001111100000000000000000000000000000000000000000000000000000000",
+  "0001111100000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "pppppppppprrrrpppppppppppppppppppppppppppppppppppppppppprrrppppp",
+  "ppppppppprrrrrrpppppppppppwwwwwwwwwwpppppppppppppppppprrrrrrpppp",
+  "ppppppppprrrrrrrppppppppwwwwwwwwwwwwppppwwwwwwppppppprrrrrrrrppp",
+  "ppppppppprrrrrrrppppppwwwwwwwwwwwwwwppppwwwwwwwwppppprrrrrrrrppp",
+  "pppppppppprrrrrpppppppwwwwwwwwwwwwwwppppwwwwwwwwwwpppprrrrrrpppp",
+  "pppppppppppsssppppppppwwwwwwwwwwwwwwppppwwwwwwwwwwppppprrrrppppp",
+  "pppppppppppsssppppppppppwwwwwwwwwwwwppppwwwwwwwwppppppppsssppppp",
+  "ppppppppppppppppppppppppppwwwwwwwwwwppppwwwwwwppppppppppsssppppp",
+  "ppppppppppppppppppprsssrrrpppssspppppppppssppppppprrpppppppppppp",
+  "pprrrrrrrrrrrpppprrrsssrrrrrrssspppppppppsspppprrrrrrrpppppppprr",
+  "ppppppppppppppppppppppppppppppppppppppppppppsssppppppppppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppppppppsssppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "rrrwwwwwrrrrrrrrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrwwwrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrppppprrrwwwrrrrrrrppppppprrrrrrrrrrwwwrrrrpppppprrrr",
+  "rrrwwwwwrrrppppppprrwwwrrrrrrppppppppprrrrrrrrrwwwrrrpppppppprrr",
+  "rrrwwwwwrrrppppppprrwwwrrrrrpppppppppprrrrrrrrrwwwrrrpppppppprrr",
+  "rrrwwwwwrrrrppppprrrwwwrrrrrpppppppppprrrrrrrrrwwwrrrrpppppprrrr",
+  "rrrwwwwwrrrrrrrrrrrrwwwrrrrrrpppppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 20,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  },
+  {
+   "x": 44,
+   "y": 13,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  },
+  {
+   "x": 29,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  },
+  {
+   "x": 41,
+   "y": 11,
+   "w": 2,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  },
+  {
+   "x": 11,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  },
+  {
+   "x": 56,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  }
+ ],
+ "props": [
+  {
+   "kind": "broken_mast",
+   "x": 31,
+   "y": 8
+  },
+  {
+   "kind": "broken_mast",
+   "x": 44,
+   "y": 9
+  },
+  {
+   "kind": "hull_ribs",
+   "x": 36,
+   "y": 9
+  },
+  {
+   "kind": "starsea_anchor",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "lantern_red",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 25,
+   "y": 12
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 39,
+   "y": 12
+  },
+  {
+   "kind": "post",
+   "x": 3,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 20,
+   "y": 22
+  },
+  {
+   "kind": "post",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "post",
+   "x": 47,
+   "y": 20
+  },
+  {
+   "kind": "post",
+   "x": 49,
+   "y": 20
+  },
+  {
+   "kind": "crates",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 25,
+   "y": 17
+  },
+  {
+   "kind": "hull_ribs",
+   "x": 53,
+   "y": 23
+  },
+  {
+   "kind": "broken_mast",
+   "x": 31,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 23,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 55,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 59,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 55,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 59,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 55,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 59,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 10,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 58,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 11
+  },
+  {
+   "kind": "dead_tree",
+   "x": 50,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "tall_grass",
+   "x": 53,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 54,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 1,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 56,
+   "y": 16
+  },
+  {
+   "kind": "dead_tree",
+   "x": 1,
+   "y": 20
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 20
+  },
+  {
+   "kind": "log",
+   "x": 13,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 18
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 25
+  },
+  {
+   "kind": "log",
+   "x": 39,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 41,
+   "y": 21
+  },
+  {
+   "kind": "log",
+   "x": 45,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 53,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 63,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 17,
+   "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 21,
+   "y": 26
+  },
+  {
+   "kind": "log",
+   "x": 26,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 32,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 42,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 52,
+   "y": 27
+  },
+  {
+   "kind": "stump",
+   "x": 57,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 18,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 38,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 19
+  }
+ ],
+ "place": {
+  "dock_wreck": [
+   5,
+   27
+  ],
+  "shrine_sw_pier": [
+   11,
+   12
+  ],
+  "sign_sw": [
+   10,
+   22
+  ],
+  "jar_2": [
+   12,
+   3
+  ],
+  "ore_1": [
+   38,
+   12
+  ],
+  "chest_ledge_mv_1": [
+   28,
+   9
+  ],
+  "chest_cloud_mv": [
+   43,
+   5
+  ],
+  "jar_4": [
+   41,
+   16
+  ],
+  "crate_3": [
+   57,
+   3
+  ],
+  "crate_5": [
+   57,
+   22
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    63,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    3,
+    17
+   ],
+   [
+    22,
+    16
+   ],
+   [
+    32,
+    17
+   ],
+   [
+    43,
+    18
+   ],
+   [
+    55,
+    12
+   ]
+  ],
+  [
+   [
+    24,
+    12
+   ],
+   [
+    33,
+    10
+   ],
+   [
+    50,
+    18
+   ]
+  ],
+  [
+   [
+    35,
+    18
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

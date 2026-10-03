@@ -1,0 +1,430 @@
+{
+ "schema_version": 1,
+ "id": "lh_harbor_market",
+ "name": "Harbor Market",
+ "size": [
+  64,
+  28
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444444444444444444444422244",
+  "4444444444444444444444444444444444444444444444444444444444422244",
+  "4444111111114444444411111111111144444444444444444444411111422244",
+  "1111111111111111111111111111111111111111111111111111111112222222",
+  "1111111111111111111111111111111111111111111111111111111112222222",
+  "1111111111111111111111111111111111111111111111111111111112222222",
+  "1111111111111111111111111111111111111111111111111111111112222222",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "~~~~~~~~~~~~~~~~~~~~~~~~111111~~~~~~~~~~~~~~~~11111~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~111111~~~~~~~~~~~~~~~~11111~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~111111~~~~~~~~~~~~~~~~11111~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~111111~~~~~~~~~~~~~~~~11111~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~111111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrr",
+  "rrrrpppppppprrrrrrrrpppppppppppprrrrrrrrrrrrrrrrrrrrrppppprdddrr",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppssdddss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppssdddss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppssdddss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppssdddss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppssspp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppssspp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppdddpp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppdddpp",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppwwwwwwppppppppppppppppwwwwwppppppppppppp",
+  "~~~~~~~~~~~~~~~~~~~~~~~~wwwwww~~~~~~~~~~~~~~~~wwwww~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~wwwwww~~~~~~~~~~~~~~~~wwwww~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~wwwwww~~~~~~~~~~~~~~~~wwwww~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~wwwwww~~~~~~~~~~~~~~~~wwwww~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~wwwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 59,
+   "y": 7,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "house",
+   "x": 9,
+   "y": 5,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "hall",
+   "x": 21,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 52,
+   "y": 5,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "market_stall",
+   "x": 15,
+   "y": 9
+  },
+  {
+   "kind": "market_stall",
+   "x": 37,
+   "y": 9
+  },
+  {
+   "kind": "forge",
+   "x": 45,
+   "y": 9
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 50,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 8,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 19,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 30,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 44,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 56,
+   "y": 10
+  },
+  {
+   "kind": "star_lantern",
+   "x": 4,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 14,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 33,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 40,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 55,
+   "y": 18
+  },
+  {
+   "kind": "barrel",
+   "x": 56,
+   "y": 8
+  },
+  {
+   "kind": "barrel",
+   "x": 57,
+   "y": 9
+  },
+  {
+   "kind": "crates",
+   "x": 47,
+   "y": 6
+  },
+  {
+   "kind": "sacks",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "water_jar",
+   "x": 18,
+   "y": 6
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 15,
+   "y": 6
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 32,
+   "y": 4
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 35,
+   "y": 6
+  },
+  {
+   "kind": "boat",
+   "x": 31,
+   "y": 22
+  },
+  {
+   "kind": "boat",
+   "x": 52,
+   "y": 21
+  },
+  {
+   "kind": "post",
+   "x": 24,
+   "y": 23
+  },
+  {
+   "kind": "post",
+   "x": 29,
+   "y": 23
+  },
+  {
+   "kind": "post",
+   "x": 46,
+   "y": 22
+  },
+  {
+   "kind": "post",
+   "x": 50,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 9,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 20,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 37,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 40,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 51,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 59,
+   "y": 19
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 10,
+   "y": 21
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 12,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 24,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 36,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 61,
+   "y": 23
+  }
+ ],
+ "place": {
+  "board_lh": [
+   6,
+   7
+  ],
+  "npc_peddler_ning": [
+   20,
+   10
+  ],
+  "storage_lh": [
+   30,
+   7
+  ],
+  "exchange_lh": [
+   34,
+   9
+  ],
+  "npc_clerk_yu": [
+   32,
+   10
+  ],
+  "npc_apothecary_sang": [
+   41,
+   10
+  ],
+  "npc_smith_ou": [
+   49,
+   10
+  ],
+  "stone_lanternfall": [
+   36,
+   16
+  ],
+  "sign_lh_market": [
+   61,
+   16
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    12
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    12
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    12
+   ],
+   "span": 3
+  },
+  "chandlery_door": {
+   "at": [
+    11.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    11.5,
+    8.5
+   ],
+   "span": 2
+  },
+  "inn_door": {
+   "at": [
+    24.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    24.5,
+    8.5
+   ],
+   "span": 2
+  },
+  "lantern_stair": {
+   "at": [
+    60,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    60,
+    2
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

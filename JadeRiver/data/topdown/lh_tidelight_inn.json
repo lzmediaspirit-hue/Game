@@ -1,0 +1,183 @@
+{
+ "schema_version": 1,
+ "id": "lh_tidelight_inn",
+ "name": "Tidelight Inn",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  4,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000002222222222222224",
+  "400000002222222222222224",
+  "400000002222222222222224",
+  "400000000000000000300304",
+  "400000000000000000300304",
+  "400000000000000000300304",
+  "400000000000000000300304",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111001111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lllwwlllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 4,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "desk",
+   "x": 8,
+   "y": 5
+  },
+  {
+   "kind": "desk",
+   "x": 10,
+   "y": 5
+  },
+  {
+   "kind": "water_jar",
+   "x": 13,
+   "y": 5
+  },
+  {
+   "kind": "water_jar",
+   "x": 14,
+   "y": 5
+  },
+  {
+   "kind": "stove",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 1,
+   "y": 3
+  },
+  {
+   "kind": "cabinet",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "tea_table",
+   "x": 5,
+   "y": 9
+  },
+  {
+   "kind": "mat",
+   "x": 5,
+   "y": 10
+  },
+  {
+   "kind": "tea_table",
+   "x": 11,
+   "y": 9
+  },
+  {
+   "kind": "mat",
+   "x": 11,
+   "y": 10
+  },
+  {
+   "kind": "tea_table",
+   "x": 16,
+   "y": 10
+  },
+  {
+   "kind": "mat",
+   "x": 16,
+   "y": 11
+  },
+  {
+   "kind": "bed",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "bed",
+   "x": 14,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 12,
+   "y": 1
+  },
+  {
+   "kind": "bed",
+   "x": 18,
+   "y": 1
+  },
+  {
+   "kind": "lantern_red",
+   "x": 1,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 7
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 22,
+   "y": 5
+  }
+ ],
+ "place": {
+  "npc_innkeeper_fei": [
+   9,
+   6
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    3.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    3.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

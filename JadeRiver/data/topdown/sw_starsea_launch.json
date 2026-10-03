@@ -1,0 +1,300 @@
+{
+ "schema_version": 1,
+ "id": "sw_starsea_launch",
+ "name": "Starsea Launch",
+ "size": [
+  48,
+  26
+ ],
+ "spawn": [
+  2,
+  16
+ ],
+ "levels": [
+  "555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555",
+  "555555555111555555555555555555555511155555551111",
+  "111122222111111111111111111111111111111111111111",
+  "111222222211111111111111111111111111111111111111",
+  "112222222221111111111111111111111111111111111111",
+  "112222222221111111111111111111111111111111111111",
+  "111222222211111111111111111111111111111111111111",
+  "111122221111111111111111111111111111111111111111",
+  "111111111111111111111111222221111111111111111111",
+  "111111111111111111111111222221111111111111111111",
+  "111111111111111111111111222221111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "000000000000000000000000000000000000000111110000",
+  "000000000000000000000000000000000000000111110000",
+  "000000000000000000000000000000000000000111110000",
+  "000000000000000000000000000000000000000111110000",
+  "000000000000000000000000000000000000000111110000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ppppgggggppppppppppppppppppppppppppppppppppppppp",
+  "pppgggggggppppppppppppppsssssppppppppppppppppppp",
+  "ppgggggggggppppppppppssssssssssppppppppppppppppp",
+  "ppgggggggggpppppppppsssssssssssspppppppppppppppp",
+  "pppgggggggppppppppppsssssssssssssppppppppppppppp",
+  "ppppggggppppppppppppsssssssssssssspppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssspppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssspppppppppppppp",
+  "ppppppppppppppppppppsssssssssssssppppppppppppppp",
+  "ppppppppppppppppppppsssssssssssspppppppppppppppp",
+  "pppppppppppppppppppppssssssssssppppppppppppppppp",
+  "ppppppppppppppppppppppppsssssspppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppwwwwwpppp",
+  "pppppppppppppppppppppppppppppppppppppppwwwwwpppp",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwwwrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 25,
+   "y": 12,
+   "w": 2,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "armillary",
+   "x": 9,
+   "y": 11
+  },
+  {
+   "kind": "starsea_anchor",
+   "x": 5,
+   "y": 19
+  },
+  {
+   "kind": "lantern",
+   "x": 20,
+   "y": 8
+  },
+  {
+   "kind": "lantern",
+   "x": 32,
+   "y": 8
+  },
+  {
+   "kind": "lantern",
+   "x": 20,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "star_lantern",
+   "x": 38,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 44,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 39,
+   "y": 25
+  },
+  {
+   "kind": "post",
+   "x": 43,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 2,
+   "y": 6
+  },
+  {
+   "kind": "tall_grass",
+   "x": 4,
+   "y": 6
+  },
+  {
+   "kind": "bush",
+   "x": 6,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 4,
+   "y": 8
+  },
+  {
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 7
+  },
+  {
+   "kind": "bush",
+   "x": 8,
+   "y": 7
+  },
+  {
+   "kind": "stump",
+   "x": 9,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 19,
+   "y": 21
+  },
+  {
+   "kind": "dead_tree",
+   "x": 21,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 23
+  },
+  {
+   "kind": "log",
+   "x": 31,
+   "y": 22
+  },
+  {
+   "kind": "log",
+   "x": 36,
+   "y": 21
+  },
+  {
+   "kind": "dead_tree",
+   "x": 46,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 0,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 24
+  },
+  {
+   "kind": "stump",
+   "x": 13,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 16,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 22,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 31,
+   "y": 24
+  },
+  {
+   "kind": "log",
+   "x": 36,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 44,
+   "y": 24
+  }
+ ],
+ "place": {
+  "launch_ring": [
+   26,
+   11
+  ],
+  "dock_launch": [
+   41,
+   25
+  ],
+  "shrine_sw_launch": [
+   14,
+   11
+  ],
+  "stone_skyport": [
+   36,
+   14
+  ],
+  "npc_launch_warden_he": [
+   24,
+   18
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    16
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    16
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

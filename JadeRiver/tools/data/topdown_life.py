@@ -270,6 +270,14 @@ VISTAS = {
     "tf_greyfall_breach": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "tf_hollow_wake": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "tf_drone_hive": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    # R8: the sky-sea zones. The Skyport Wreck's peaks over the cloud sea at the Expanse's edge.
+    "sw_broken_pier": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_pirate_deck": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_riven_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_starsea_launch": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # Lanternfall Harbor's quays: the starsea's water going on past the harbour, other islands far off.
+    "lh_arrival_quay": [{"edge": "s", "kind": "river", "pad": 32}],
+    "lh_harbor_market": [{"edge": "s", "kind": "river", "pad": 32}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

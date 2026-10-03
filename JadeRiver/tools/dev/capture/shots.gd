@@ -65,7 +65,14 @@ const E1_VIEWS := [
 	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
 	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
 	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
-	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true]]
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true],
+	# R8: the sky-sea zones of the late game (their pictures under r8/)
+	["r8/01_broken_pier_dock", "sw_broken_pier", Vector2(12, 18), true], ["r8/02_broken_pier_wreck", "sw_broken_pier", Vector2(36, 11), false],
+	["r8/03_pirate_deck", "sw_pirate_deck", Vector2(32, 13), true], ["r8/04_riven_peak", "sw_riven_peak", Vector2(30, 17), true],
+	["r8/05_starsea_launch", "sw_starsea_launch", Vector2(28, 15), true],
+	["r8/06_arrival_quay", "lh_arrival_quay", Vector2(20, 12), true], ["r8/07_harbor_market", "lh_harbor_market", Vector2(24, 12), true],
+	["r8/08_harbor_market_stair", "lh_harbor_market", Vector2(50, 12), false], ["r8/09_star_chandlery", "lh_star_chandlery", Vector2(12, 9), true],
+	["r8/10_tidelight_inn", "lh_tidelight_inn", Vector2(14, 8), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
