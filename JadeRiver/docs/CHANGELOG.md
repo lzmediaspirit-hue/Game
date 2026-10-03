@@ -1,5 +1,154 @@
 # Changelog
 
+## CombatAuthority in parts (decision 45, S8)
+
+This is phase 2, wave 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`combat_authority.gd` was one file of 2,912 lines in 18 sections. The attack, tick and resolution flow stays in it,
+and the systems around the fight are now its parts in `scripts/simulation/authority/combat/`. The parts follow the
+same pattern as S10's. `docs/architecture/authority_parts.md` describes it for every authority. The game plays the
+same: the slice moves code and removes one dead local. Every caller still calls `Game.combat.<method>`, and the save
+data is untouched.
+
+- **The parts.** `combat_authority.gd` is 1,807 lines: 1,721 of core flow, and 86 of forwarders. The parts hold
+  1,308 lines:
+  - `combat_flight.gd` (143): flight, and the movement arts Plunge and Falling Leaf Glide;
+  - `combat_phantom.gd` (42): Phantom Double;
+  - `combat_sword.gd` (132): natal overcharge, Sword Release, Sword Intent and Killing Intent;
+  - `combat_swarm.gd` (83): the sword swarm;
+  - `combat_flute.gd` (88): the flute's melody;
+  - `combat_heals.gd` (97): heals over time on you and on allies, the healing song, the sect roles' support;
+  - `combat_blood_path.gd` (52): the Blood path;
+  - `combat_plates.gd` (61): Array Plates;
+  - `combat_talismans.gd` (51): talismans from the bag;
+  - `combat_projectiles.gd` (136): every shot in flight;
+  - `combat_treasures.gd` (217): treasures, throwables, self-detonation;
+  - `combat_revival.gd` (68): grave wounds and revival;
+  - `combat_riders.gd` (110): what a landed blow carries after its damage (weapon riders, the Soul line's marks, the
+    Poison Body, oils, the Artifact Spirit's and the awakened weapon's skills);
+  - `combat_part.gd` (28): their base, `CombatPart`.
+- **How the parts work** (the same as S10's).
+  - A part is a `RefCounted` with no state of its own. It holds a weak reference to the authority behind a typed
+    `combat` getter, because the authority holds its parts and `Game` builds new authorities on every boot. A probe
+    that rebuilds them finds the old authority and its parts freed.
+  - The state stays on the authority, so the save and every reader of `Game.combat.<var>` are unchanged.
+  - The authority makes its parts in `_init`, and its tick calls them in the old order. `handle` is unchanged.
+  - Every moved public method keeps a one-line forwarder on the authority, with the same arguments and results. So do
+    17 private names that tests and tools call, such as `_tick_projectiles` and `_cast_illusion`, until S11 renames
+    them. The 59 forwarders are the file's last section, "the parts' faces".
+  - The parts are named after the authority (`combat_*.gd`). S10's `with_parts()` lists them in the event contract,
+    and in `data/event_contract.json` only the `files` lists of the Combat events changed.
+- **Tidied while moving.**
+  - Sections that sat in the wrong place went to their homes:
+    - Killing Intent, the boss's self-detonation, the tribulation's bolt, `technique_element` and `body_hp_cost` sat
+      in the flight section;
+    - the heals over time sat in Phantom Double's and the Blood path's sections;
+    - `_enemies_within` and `_nearest_enemy` sat in the treasures' section;
+    - `raise_shield` sat among the treasures.
+  - The core's own sections are now views, the player's attacks, the tick, resolution, a foe's end, foes' blows and
+    harm to the player, and the `apply_*` commands.
+- **Dead code.** One local was removed: `_resolve_plunge` counted the foes it struck in `struck` and never read it.
+  Every function of the file is still called, by grep over `scripts/`, `tests/` and `tools/`.
+- **Checks.**
+  - The base, origin with S10, and S8 each ran the whole of `tools/run_tests.sh` side by side, on a shared 4-core
+    machine at a load of about 14. Every suite has the same check count on both, and neither has a script error.
+  - The guard suites pass on S8:
+    - `rules_tests`, 2,712 checks;
+    - `balance_sim`, 177;
+    - `hollow_night`, 76;
+    - `valley_run`, 3,000;
+    - `contract_tests`, 1,087.
+  - The technique pictures' main-thread time budget in `rules_tests` missed once in the full run, at 4.2 ms against 4.
+    It missed on the base in an earlier run too. Run alone, `rules_tests` passes all 2,712 checks.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike at that load: 8 and 6 of its 18 checks in
+    the side-by-side runs.
+    - Over three interleaved rounds, the least of the fight frames does not lean either way. Fifteen monsters took
+      12.08 ms on the base and 10.92 ms on S8, the top-down fight 11.69 and 11.43 ms, and the sword swarm 15.44 and
+      16.30 ms.
+    - A part reads the authority through a weak reference. A part's method with its getter costs about 0.5 µs more
+      than reading the state directly.
+  - A comparison of each moved function with the base finds them all the same, apart from three changes. The
+    `combat.` prefixes and part calls are expected. The dead local is gone. And four ticks keep a local alias of the
+    authority's dictionary that they walk.
+  - The data build is unchanged apart from the event contract's Combat `files` lists.
+  - S3 and then E6 were merged in, with a full run after each. Both passed every suite, apart from `perf_tests`' time
+    budgets, which passed 18 of 18 in the first run and missed 5 in the second.
+
+## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
+
+The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7). No game code changed.
+
+- **One capture tool.** `tools/dev/capture/capture.tscn -- <set>` now takes every review picture the game draws of
+  itself. It replaces `topdown_capture.gd` with its 22 modes, plus `hud_capture`, `picture_capture`, `sect_capture`,
+  `places_capture`, `tutorial_capture` and `progression_capture` (3,560 lines, now 2,802).
+  - The pictures are data. `shots.gd` holds 32 sets and 375 rows. A row gives the picture's name, its room, cell and
+    wait, the clock's hour, the foes and their fight, the steps before it, how it is taken and what follows.
+  - A new picture is a row, not a function. `tools/dev/README.md` says how to add one.
+  - `capture_steps.gd` holds the shared steps that rows use: stand, act, set the character, pin the clock, open a page,
+    wait on a scene. It also holds the takes: the window, the world alone x2, a detail, a close-up, a whole room, a
+    strip, a sheet, panels, and before-and-after pairs.
+  - `capture_scripted.gd` holds the old scripts' loops that wait on the game, ported call for call: the eel's fight, a
+    worker's pose, a frozen staged scene, the foes' lineups and the tutorials' tours.
+  - `--out-root=<dir>` writes a set outside `docs/`, and `--only=<text>` takes some of its pictures. `--list` names
+    the sets, and `--lint` checks every row's steps and argument counts without playing.
+  - Every set plays on saves of its own (`user://capture_<set>/`), never a player's or the Max Tester's. The review
+    room loads from `tests/data/topdown/`, where S5 moved it.
+- **The same pictures, the same framing.** Every set was run with the old script and with the registry under a harness
+  that pins the clock and the random seed, at `--fixed-fps 60`. Most ran the old script twice, to see where it differs
+  from itself. The two phone-size sets ran at 2400x1080 too.
+  - All 531 pictures came out with the same names and sizes. 245 are byte-identical to an old run, among them:
+    - every weapon family's combo sheet, both weaves, phase 2's strips and aimed shots;
+    - the monsters' and the polish's lineups at x4 (the foes' spots and poses);
+    - every page (Techniques, the trees, the shop, the Bag, the Character, the Cultivation page, the travel picker);
+    - the places' close-ups and minimap, the Techniques page's tour, nine of the thirteen workers shown;
+    - all 49 before-and-after pairs (terrain, foliage, sand and snow), and `boxes.json`.
+  - The first boss's log of beats is identical: every scene's start and end, the waking and the overwhelm, at the same
+    sim seconds.
+  - The rest differ only where the game draws by the wall clock, which is also where two runs of the old script differ
+    from each other: the water's frames, grass and trees swaying, a lamp's flicker, and a sheet loaded a frame sooner
+    on its thread.
+- **Removed (2,542 lines):**
+  - the decision-42 study `tools/art/topdown/study_quality/`, superseded since the B renderer shipped (its pictures
+    stay in `docs/redesign/feedback/character_quality/`, and git history keeps its code);
+  - `tools/icons/study/technique_cards.py`, which nothing ran;
+  - the `build_topdown_proto.py` shim;
+  - `tools/dev/fix_infer.py`;
+  - five helpers no builder calls (`terrain2.pnxy` and `_q`, `sand_snow._slope`, `elements.base_hex`,
+    `topdown_forms._dome`).
+- **Kept on purpose:**
+  - The side view is retiring, and its pipeline will be deleted with it in a later slice, so it is not moved. That is
+    `build_creatures.py`, `bake_act2_hats.py`, `bake_straw_hat.py`, `tools/bake_hat_cape_combos.gd`, `combo_rig.gd`
+    and `equipment_rig.gd`.
+  - `stat_probe.gd` and `combat_trace.gd` are numeric probes that docs cite, not screenshot captures.
+  - `prototype_qa.gd` is the QA walk that `tutorial_play.gd` builds on.
+- **One sheet packer** (audit DUP-12). `tools/art/topdown/sheet.py` has `pack()` (shelf rows), `png_bytes()` and the
+  builders' `run()` (build, `--check`, write, `--review`).
+  - `build_decor.py` and `build_life.py` use all three, and `build_tiles.py` and `build_foes.py` use `png_bytes()`.
+  - `build_tiles.py`'s two review sheets share one layout.
+  - Every output is byte-identical. All 31 files the four builders write have the same sha1 before and after, and
+    each builder's `--check` passes. So do `build_fx_topdown.py --check` and `build_fx.py --verify`, and the review
+    sheets are byte-identical too.
+- **Found, not fixed:** `build_tiles.py --review` stops with a KeyError on the `sand` decals, in the Terrain v2
+  sheet's ground table. This predates the slice. `--review-sand-snow` runs.
+## The cue table: the world's answers to events as rows (decision 45, E6 world half)
+
+This is phase 2, slice E6 of the code audit, its world half (`docs/architecture/audit_45.md` §6.6). The format and how
+to add a cue are in `docs/architecture/cues.md`. The game plays, draws and sounds the same.
+
+- **`data/cues.json`, built by `tools/data/cues.py`, holds the effects, sounds and shakes the world views play for
+  the game's events.** It has 60 rows for 41 events. A row names its event, when it holds, and its steps in order: an
+  effect of the effects layer at an anchor, a sound of the sound bank by its id, a shake, a thing's hit flash, or a
+  named handler. `build_data.py` runs the module, and `--check` works as for the other generators.
+- **`WorldShared.play` reads the table** through `Cues` (`scripts/presentation/cues.gd`). It plays the first of an
+  event's rows whose condition holds, as the `match` arm did.
+  - The arms are gone. What stays code is five handlers the rows call: a blow's hit and words, a drop's loot views,
+    what a use did, and the flute's scattered notes.
+  - The top-down room's artifact spirit line is now a row too. Its other answers draw with its own pieces and stay.
+- **A new suite, `cue_tests`,** checks every row against the game: its event is emitted, its sounds exist, its effects
+  are FxLayer's, its anchors, handlers, colours and string keys are known. It also plays every row once.
+- **Checked the same:** every arm's sample payloads, played before and after on a stub host with the random seed fixed,
+  make the same effects, sounds, shakes and random draws.
+
+
 ## Crafting and Progression in parts (decision 45, S10)
 
 This is phase 2, wave 2, slice S10 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7). The two
@@ -64,6 +213,7 @@ The code moved as it was. The game plays the same, every caller still calls `Gam
   - The data build is unchanged apart from the contract's `files` lists.
   - `perf_tests` misses its millisecond budgets on the base and on S10 alike, at a load of about 14 on 4 cores. Over
     two interleaved rounds, the base failed 9 and then 5 of its 18 checks, and S10 failed 6 and then 2.
+
 
 ## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
 

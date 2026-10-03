@@ -369,6 +369,15 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
 
   Fold them into one capture registry, where a shot is a data row (room, setup, camera, frames) (S3).
 
+**Status (phase 2, S3): DEAD-10, closed.**
+- **Folded.** `tools/dev/capture/` (`capture.tscn -- <set>`, `tools/dev/README.md`) holds every set that
+  `topdown_capture.gd` and the six per-decision captures took: 32 sets, 375 rows in `shots.gd`, over shared steps. The
+  seven scripts (3,560 lines) are deleted, and so is `fix_infer.py`.
+- **Compared** under a pinned clock and seed at `--fixed-fps 60`. Every picture has the same name and size. 245 of 531
+  are byte-identical to an old run, and the rest differ only in what the game draws by the wall clock (water, sway).
+- **Kept:** `stat_probe.gd` and `combat_trace.gd` are numeric probes that docs cite (`stat_scaling_research.md`,
+  `combat_feel.py`), not captures. `prototype_qa.gd` is the QA walk that `tutorial_play.gd` extends.
+
 ### 3.4 Obsolete paths and stale generators
 
 - **One-off bakes nothing runs:**
@@ -386,6 +395,20 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
 - **Python functions nothing calls:** 21 top-level functions, 139 lines, for example `synth.gauss_band`,
   `pix.hsv_shift`, `shapes.bez_line`, `terrain2.pnxy`, `pixlib.inner_line` and `defs_objects.chest_body`
   (`py_graph.json`).
+
+**Status (phase 2, S3): DEAD-11 and DUP-12, closed; DEAD-03 left for the side view's deletion.**
+- **Deleted:** `study_quality/` (with its copies of `raster.py` and `folds.py`), `technique_cards.py` and
+  `build_topdown_proto.py`. Their pictures stay in `docs/`, and the docs that named them say so.
+- **Deleted too:** the five unreferenced helpers in the top-down tile and FX builders (`terrain2.pnxy` and `_q`,
+  `sand_snow._slope`, `elements.base_hex`, `topdown_forms._dome`). The other 16 belong to the icon, audio and prop kits
+  and to the side view.
+- **Not moved:** the side view is retiring, so its pipeline stays where it is, to be deleted with it (S12). That is
+  `tools/art/creatures`, `tools/backdrops`, `pixel.py`, `helpers_batch_*` and the `bake_*` scripts (with
+  `bake_act2_hats.py` and `bake_straw_hat.py`), plus `build_creatures.py`, `tools/bake_hat_cape_combos.gd`,
+  `combo_rig.gd` and `equipment_rig.gd` (DEAD-03).
+- **DUP-12:** `tools/art/topdown/sheet.py` has `pack()`, `png_bytes()` and `run()`. It is not in `atlas.py`, which
+  imports the whole terrain kit. `build_decor`, `build_life`, `build_tiles` and `build_foes` use it, and every output
+  is byte-identical (`--check`, and the sha1 of all 31 files).
 
 ### 3.5 Data
 
@@ -832,6 +855,21 @@ cases become named handlers the table calls.
 - `tutorials` and the HUD checks in `rules_tests`;
 - a notices snapshot.
 
+**Status (phase 2, E6 world half): done.** `docs/architecture/cues.md` has the format and how to add a cue.
+- `tools/data/cues.py` writes `data/cues.json`: 60 rows for 41 events, a row a line. `WorldShared.play` plays the first
+  row of an event whose `when` holds, and `Cues` (`scripts/presentation/cues.gd`) reads the table. Its conditions,
+  values, colours and texts are meant for the HUD half too, whose texts are already moments.json's (`MomentRules.text`).
+- `WorldShared.play` and `_treasure` went from 178 lines of arms to 102: the player, its anchors and the five
+  handlers. `world_shared.gd` is 76 lines shorter. The reader, `cues.gd`, is 93 lines and is meant to serve the HUD's
+  234 arms as well; a new world cue is now a row.
+- Five answers stay code, named by a row's `call`: a blow's hit and words (`CombatFx`), a drop's `LootView`s, what a use
+  did (`UiKit.use_parts`) and the flute's scattered notes.
+- The top-down room had no copy of these answers. Its artifact spirit's line is now a row. Its array light, its parry
+  mark and its casts stay its own, and so do the side view's answers and the audio director's `EVENT_SFX`.
+- Every sample payload of every arm, played on a stub host with the random seed fixed, makes the same effects,
+  sounds, shakes and random draws before and after. The new suite `cue_tests` checks every row against the game and
+  plays each once.
+
 ### 6.7 Technique engine (exists), FX and sound
 
 `tools/data/technique_gen.py` and `technique_grammar.py` already generate 3,171 techniques from forms × rings ×
@@ -950,24 +988,48 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   - `data_validation` reads the part folders for `use_system` reports.
 - Behaviour, the balance figures and every suite's check count are unchanged.
 
+### Status (phase 2, S8): `combat_authority.gd` in parts, done
+
+- **BUG-14, for Combat: done.** `combat_authority.gd` had 2,912 lines and now has 1,807. It keeps the state,
+  `handle`, the tick, and the attack and resolution flow. The rest is in thirteen parts under `authority/combat/`,
+  1,280 lines in all, plus the 28-line base `CombatPart`:
+  - flight and the movement arts, Phantom Double, the flying sword and the intents, the swarm, the flute;
+  - heals, the Blood path, Array Plates, talismans;
+  - projectiles, treasures, revival, and what a landed blow carries.
+- **The pattern is S10's,** and `docs/architecture/authority_parts.md` describes it for every authority.
+  - A part holds a weak reference to its authority, and the authority keeps all the state.
+  - The authority forwards every moved public method, and 17 private names that tests and tools call, with 59
+    one-line forwarders.
+  - Part files carry the authority's prefix (`combat_*.gd`). Only the `files` lists of the Combat events changed in
+    `data/event_contract.json`.
+- **Dead code:** one local, `_resolve_plunge`'s `struck`. Every function of the file is still called.
+- **Checks:**
+  - Every suite has the base's check count, with no script error. `rules_tests`, `balance_sim`, `hollow_night`,
+    `valley_run` and `contract_tests` pass.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike, at a load of about 14 on 4 cores.
+  - The data build is unchanged apart from the contract's Combat `files` lists.
+  - After S3 and E6 were merged, the full runs passed every suite, apart from `perf_tests`' time budgets in one run.
+
 ### Status (phase 2, S9): the World authority in parts, done
 
-- **`world_authority.gd` went from 2,321 lines to 441.** It keeps the room's lifecycle, the character's memory of a
-  room, the tick, the shared state and the forwarders.
-- **14 parts in `scripts/simulation/authority/world/`**, each `world_<part>.gd` over the base `world_part.gd`:
-  - ambush (47 lines), herbs (87), portals (203, with routes, teleports and Spirit Sense), arrays (93);
-  - objects (164), context (268, with `interact` and the context button), loot (232, with beast cores);
-  - races (163, the rooftop chases and timed routes), hazards (211), starsea (40, the voyages);
-  - events (226), nests (101, with the Beast Tide and the Grove), tower (86), idle (200, with auto-path and the
-    direction mark).
-- **Every caller asks `Game.world` by the same names.** The authority forwards every public method it had, and the
-  15 old private names the tests and `ObjectView._verb` still call. S11 can move those calls to the parts' public
-  names.
-- **BUG-05: two of its seven calls are public now.** Enemies calls `apply_loot_drop`, and Quest calls
-  `start_room_event`.
+- **`world_authority.gd` had 2,321 lines and now has 430.** It keeps the state, the intents, the subscriptions, the
+  room's lifecycle (loading and entering a room, the character's memory of it), the tick and a forwarder for every
+  public method.
+- **The work is in 14 parts under `authority/world/`**, 2,133 lines in all, plus the 29-line base `WorldPart`. It
+  follows S10's pattern:
+  - ambushes, rare herbs, and portals with routes, teleports and Spirit Sense;
+  - the transfer arrays, room objects, and `interact` with the context button;
+  - beast cores and loot, the rooftop chases and timed routes, hazards, and the Starsea voyages;
+  - room events, the nests with the Beast Tide and the Grove, the Trial Tower, and idle rooms with auto-path and the
+    direction mark.
+- **Old private names.** Tests and `ObjectView` call 15 private helpers by name, so their forwarders keep the private
+  names. S11 renames them.
+- **BUG-05: two of its seven calls are public now.**
+  - Enemies calls `apply_loot_drop`.
+  - Quest calls `start_room_event`, which was already the same call.
 - **Dead code:** the `set_sail` intent, which nothing sent.
-- **Side view:** 20 sites, down from 22. Each asks `WorldAuthority.side_view(rt)` (13) or finds `grid_for` null (7),
-  ready for S12.
+- **The side view: 20 sites, down from 22.** Each asks `WorldAuthority.side_view(rt)` (13 sites) or finds `grid_for`
+  null (7), so S12 can find them.
 - **Checks:** TESTS
 
 ## 8. Rerunning the audit
