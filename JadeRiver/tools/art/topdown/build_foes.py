@@ -1,5 +1,6 @@
 """Decision 43: build the top-down foes (art bible §8 "Foes"; tools/art/topdown/creatures.py and creature/), a sheet a
-species, and the manifest the room view reads.
+species, and the manifest the room view reads. The species are the monster engine's specs (tools/content/monsters,
+audit 45 §6.2), each drawn by its body plan (creature/plans/); docs/architecture/monster_engine.md.
 
 Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no metadata, byte-identical on every build):
   art/topdown/foes/<species>.png   a row per drawn facing (S, SE, E, NE, N), the frames of every action along it in
@@ -54,7 +55,7 @@ def _cell(sheet: Image.Image, look: dict, action: str, facing: str, i: int) -> I
     return sheet.crop((at[0], at[1], at[0] + cw, at[1] + ch))
 
 
-def review(sheets: dict, man: dict) -> None:
+def review(sheets: dict, man: dict, every: bool = True) -> None:
     """Each species' sheet at x3 (`<species>_x3.png`, an elite's `<species>_elite_x3.png`): a row per facing, the actions'
     names over their columns."""
     from PIL import ImageDraw, ImageFont
@@ -89,11 +90,11 @@ def review(sheets: dict, man: dict) -> None:
                 dr.text((6, th + r * ch * z + ch * z // 2 - 8), ("%s %s" % (label, d.upper())).strip(), font=head,
                         fill=(232, 225, 207, 255))
             out.save(REVIEW / ("%s%s_x3.png" % (sp, "_" + label if label else "")))
-    anims(sheets, man)
+    anims(sheets, man, every)
     print("review images in", REVIEW.relative_to(ROOT))
 
 
-def anims(sheets: dict, man: dict) -> None:
+def anims(sheets: dict, man: dict, every: bool = True) -> None:
     """Each species facing SE at x4 on a meadow tone, playing its whole catalogue at the game's rates (the loops twice),
     as a GIF (`<species>_se.gif`, the elite's beside it where it has one, their feet on one line); and the tells side by
     side, every species' wind-up held on its last frame, their feet on one line (`tells_x4.png`)."""
@@ -121,6 +122,8 @@ def anims(sheets: dict, man: dict) -> None:
         frames[0].save(REVIEW / ("%s_se.gif" % sp), save_all=True, append_images=frames[1:], duration=durations, loop=0,
                        optimize=False, disposal=1)
         tells.append((_cell(_sheet(sheets, block), block, "windup", "se", -1), block["foot"][1]))
+    if not every:
+        return          # --only: the strip of every species' tell is left as the last full review made it
     w = sum(t.width for t, _ in tells) + 4 * (len(tells) - 1)
     base = max(fy for _, fy in tells)
     h = base + max(t.height - fy for t, fy in tells)
@@ -143,7 +146,7 @@ def main(argv: list[str]) -> int:
     outputs, sheets = build_all(jobs, only)
     man = json.loads(outputs[MANIFEST])
     if only is not None:
-        review(sheets, man)
+        review(sheets, man, every=False)
         return 0
     if "--check" in argv:
         again, _ = build_all(jobs)

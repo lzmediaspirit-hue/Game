@@ -7412,6 +7412,118 @@
    "source": "system"
   },
   {
+   "id": "three_streams_pill",
+   "name": "Three Streams Pill",
+   "type": "pill",
+   "grade": "heaven",
+   "ilv": 45,
+   "stack": 99,
+   "icon": "three_streams_pill",
+   "desc": "It opens three streams of the meridians to the Qi around you: cultivation +30% for 45 minutes. A new pill takes over from one still at work.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 8,
+    "cause": "energy",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.3,
+     "duration": 2700,
+     "source": "streams_pill"
+    }
+   ],
+   "soul_effect": "iron_skin",
+   "family": "accumulation"
+  },
+  {
+   "id": "five_streams_pill",
+   "name": "Five Streams Pill",
+   "type": "pill",
+   "grade": "mystic",
+   "ilv": 59,
+   "stack": 99,
+   "icon": "five_streams_pill",
+   "desc": "It opens five streams of the meridians to the Qi around you: cultivation +40% for 45 minutes. A new pill takes over from one still at work.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 10,
+    "cause": "energy",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.4,
+     "duration": 2700,
+     "source": "streams_pill"
+    }
+   ],
+   "soul_effect": "iron_skin",
+   "family": "accumulation"
+  },
+  {
+   "id": "seven_streams_pill",
+   "name": "Seven Streams Pill",
+   "type": "pill",
+   "grade": "sage",
+   "ilv": 77,
+   "stack": 99,
+   "icon": "seven_streams_pill",
+   "desc": "It opens seven streams of the meridians to the Qi around you: cultivation +60% for 45 minutes. A new pill takes over from one still at work.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 12,
+    "cause": "energy",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.6,
+     "duration": 2700,
+     "source": "streams_pill"
+    }
+   ],
+   "soul_effect": "iron_skin",
+   "family": "accumulation"
+  },
+  {
+   "id": "nine_streams_pill",
+   "name": "Nine Streams Pill",
+   "type": "pill",
+   "grade": "sovereign",
+   "ilv": 86,
+   "stack": 99,
+   "icon": "nine_streams_pill",
+   "desc": "It opens nine streams of the meridians to the Qi around you: cultivation +70% for 45 minutes. A new pill takes over from one still at work.",
+   "pill": {
+    "mark": "spiral_up",
+    "toxicity": 12,
+    "cause": "energy",
+    "group": "buff"
+   },
+   "use": [
+    {
+     "kind": "add_modifier",
+     "stat": "accumulation_rate",
+     "op": "flat",
+     "value": 0.7,
+     "duration": 2700,
+     "source": "streams_pill"
+    }
+   ],
+   "soul_effect": "iron_skin",
+   "family": "accumulation"
+  },
+  {
    "id": "herbal_tea",
    "name": "Herbal Tea",
    "type": "food",

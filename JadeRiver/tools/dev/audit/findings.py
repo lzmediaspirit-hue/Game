@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Audit 45: writes docs/architecture/audit_45.json, the machine-readable half of docs/architecture/audit_45.md.
 
-Usage: python3 tools/dev/audit/findings.py [--out docs/architecture/audit_45.json] [--no-scan]
+Usage: python3 tools/dev/audit/findings.py [--out docs/architecture/audit_45.json] [--no-scan | --keep-scans]
 
 It runs every read-only scan of this folder (inventory, gd_graph, py_graph, asset_refs, manifest_refs, data_refs,
 strings_refs, dupes, hot_paths, smells) into a temporary folder, keeps their summaries and their lists, and adds the
 curated findings below (each read and confirmed by a person: where, how it was checked, confidence, severity, the
 phase-2 slice that owns it), the engine designs and the phase-2 slices. `--no-scan` writes the curated part alone.
+`--keep-scans` rebuilds the curated part and keeps the scans already in the output file: the scans describe the tree
+the audit read (commit 35105ac), so a slice's status note or a fixed path does not rescan a tree the slices changed.
 Deterministic apart from the scans' own inputs: the JSON is sorted and has no timestamps.
 """
 import json
@@ -341,7 +343,7 @@ SLICES = [
     {"id": "S3", "wave": 1, "title": "Tools housekeeping: capture registry, side-view pipeline moved under tools/art/sideview, study copies archived",
      "owns": ["tools/dev/*capture*", "tools/dev/prototype_qa.gd", "tools/art/creatures", "tools/art/pixel.py", "tools/art/helpers_batch_*", "tools/art/bake_*", "tools/backdrops", "tools/art/topdown/study_quality", "scripts/combo_rig.gd", "scripts/equipment_rig.gd"],
      "size": "moves ~32,000 lines, rewrites ~2,000 (captures)", "risk": "low (no game code)", "tests": ["each moved generator still builds byte-identical output (run once before and after)"],
-     "after_phase1": ["tools/dev/topdown_capture.gd (the boss job adds shots)"],
+     "after_phase1": ["tools/dev/capture/shots.gd (the boss job adds shots: the first_boss set)"],
      "notes": "done: the capture registry tools/dev/capture/ (32 sets, 375 rows; the seven captures and fix_infer.py deleted; 245 of 531 pictures byte-identical to the old scripts under a pinned clock, the rest differ only in wall-clock water and sway); study_quality, technique_cards.py, build_topdown_proto.py and five unreferenced helpers deleted; tools/art/topdown/sheet.py (DUP-12). Not moved: the side-view pipeline, combo_rig and equipment_rig, which are deleted with the side view (S12). Kept: stat_probe and combat_trace (numeric probes), prototype_qa (the QA walk)."},
     {"id": "S4", "wave": 1, "title": "Shared runtime utilities: FrameMemo, Noise, Figures factory, lazy ContentDB tables, GameEvents sets, TopdownFx cap",
      "owns": ["scripts/core/frame_memo.gd (new)", "scripts/core/noise.gd (new)", "scripts/presentation/figures.gd (new)", "scripts/core/content_db.gd", "scripts/core/game_events.gd", "scripts/topdown/topdown_fx.gd", "the 12 pages of DUP-03 (one line each)"],
@@ -353,7 +355,7 @@ SLICES = [
      "after_phase1": ["tools/data/stats.py", "tools/data/items.py", "tools/data/story.py", "tools/data/enemies.py"], "notes": "the progression job rewrites numbers in these"},
     {"id": "S6", "wave": 2, "title": "hud.gd split and the notice table (E6's HUD half)",
      "owns": ["scripts/hud.gd", "scripts/hud/*.gd (new: hud_input, hud_layout, hud_notices, hud_panels, hud_tours)", "data/hud_notices.json", "tools/data/cues.py"],
-     "size": "3,266 lines moved into 5-6 files; ~450 lines of match arms become ~180 rows", "risk": "medium", "tests": ["tutorials", "topdown_tutorial", "rules_tests HUD checks", "hud_capture before/after"],
+     "size": "3,266 lines moved into 5-6 files; ~450 lines of match arms become ~180 rows", "risk": "medium", "tests": ["tutorials", "topdown_tutorial", "rules_tests HUD checks", "capture.tscn -- hud --tag=before|after"],
      "after_phase1": ["hud.gd (tutorial coach, quick slots, first boss HP bar)"], "notes": "one owner for hud.gd for the whole slice"},
     {"id": "S7", "wave": 2, "title": "main.gd: debug flags to scripts/shell/debug_args.gd, the page table to data",
      "owns": ["scripts/main.gd", "scripts/shell/debug_args.gd (new)"], "size": "~550 moved", "risk": "low", "tests": ["tools/dev captures that use flags", "tutorials", "perf_tests"],
@@ -373,7 +375,7 @@ SLICES = [
      "notes": "runs after S8-S10 so the renamed methods live in their final files"},
     {"id": "S12", "wave": 3, "title": "Side view frozen behind RoomSpace; its files under scripts/sideview/",
      "owns": ["scripts/world.gd", "scripts/player.gd", "scripts/backdrop.gd", "the DEAD-15 list", "the topdown==null checks in world_authority/enemy_authority/ally_brain"],
-     "size": "~400 changed, 2,233 moved", "risk": "medium-high", "tests": ["side_view_suite (S2)", "engine_tests", "visibility_suite", "room_sweep", "valley_run"],
+     "size": "~400 changed, 2,233 moved", "risk": "medium-high", "tests": ["the side-view scripts (tools/dev/audit/run_legacy.py; S2 made no side_view_suite)", "engine_tests", "visibility_suite", "room_sweep", "valley_run"],
      "after_phase1": [], "notes": "optional; only if the fallback setting stays. If the product retires it, delete instead"},
     {"id": "E1", "wave": 3, "title": "Room engine, then migrate the 27 layouts (round-trip), then new rooms", "owns": ["tools/content/rooms/ (new)", "tools/data/topdown_rooms.py"],
      "size": "~900 new; the 1,778-line layouts file becomes specs", "risk": "medium", "tests": ["topdown_rooms/places/room_lint/sect_walks --check", "topdown_tutorial"], "after_phase1": [], "notes": ""},
@@ -386,7 +388,7 @@ SLICES = [
     {"id": "E5", "wave": 3, "title": "Quest engine (side and daily quests)", "owns": ["tools/content/quests.py (new)", "tools/data/story.py side_quests()"], "size": "~400 new", "risk": "low-medium",
      "tests": ["story.validate", "valley_run", "balance_sim"], "after_phase1": ["story.py"], "notes": "after E3"},
     {"id": "E6", "wave": 2, "title": "Cue table for WorldShared.play (the HUD half is S6)", "owns": ["scripts/presentation/world_shared.gd", "data/cues.json", "tools/data/cues.py"], "size": "~250", "risk": "low",
-     "tests": ["audio_tests", "rules_tests FX checks", "topdown_capture before/after"], "after_phase1": [], "notes": ""},
+     "tests": ["audio_tests", "rules_tests FX checks", "capture.tscn -- combat before/after (--out-root)"], "after_phase1": [], "notes": ""},
 ]
 
 
@@ -434,7 +436,10 @@ def main():
     out_path = sys.argv[sys.argv.index("--out") + 1] if "--out" in sys.argv else os.path.join(ROOT, "docs", "architecture", "audit_45.json")
     doc = {"schema_version": 1, "decision": 45, "baseline": BASELINE, "legacy_tests": LEGACY_RUN, "findings": F, "engines": ENGINES, "slices": SLICES,
            "tools": "tools/dev/audit/*.py (read-only; rerun with python3 tools/dev/audit/findings.py)"}
-    if "--no-scan" not in sys.argv:
+    if "--keep-scans" in sys.argv:
+        with open(out_path, encoding="utf-8") as fh:
+            doc["scans"] = json.load(fh)["scans"]
+    elif "--no-scan" not in sys.argv:
         with tempfile.TemporaryDirectory() as tmp:
             doc["scans"] = trim(run_scans(tmp))
     os.makedirs(os.path.dirname(out_path), exist_ok=True)

@@ -1,14 +1,14 @@
-"""The top-down foes (art bible §8 "Foes", decision 43): the prototype room's early monsters, those of chapter 2's
-stretch (the Trial Puppet, the Reed Marsh's frog, leech and otter, the hollowed boarlet) and the tutorial rooms' others
-(Old Snapper, the mossback toad, and the night's hollow minnow and hollowed eel), in eight facings (five drawn, SW, W
-and NW mirrored in the room view).
+"""The top-down foes (art bible §8 "Foes", decision 43): every species with a spec in the monster engine
+(tools/content/monsters, audit 45 §6.2), in eight facings (five drawn, SW, W and NW mirrored in the room view).
 
-Each species is a posed sculpture in its own module (tools/art/topdown/creature/), cast and coloured by the
-character's renderer (creature/sculpt.py), in the action catalogue of creature/motion.py: idle 6, walk 8, windup 4,
-attack 6 (its blow on HIT_FRAME), hurt 3 and death 8 frames. The foes grow with the people (decision 43: about 1.2x,
-the body 46 px): SIZE is each species' size against its sculpture's art px; an elite is drawn ELITE times larger again,
-darker, gold-eyed, in a ring of Qi (`creature.sculpt`), and the bosses (Old Snapper, the hollowed eel, the Trial Puppet)
-are drawn larger by their own SIZE.
+Each species is posed by its body plan (tools/art/topdown/creature/plans/: quadruped, amphibian, crab, serpent, fish,
+shell, humanoid), sized and styled by its spec, or by a hand-written pose module where its spec says so (the escape
+hatch, `pose="creature.<module>:<function>"`); cast and coloured by the character's renderer (creature/sculpt.py), in
+the action catalogue of creature/motion.py: idle 6, walk 8, windup 4, attack 6 (its blow on HIT_FRAME), hurt 3 and
+death 8 frames. The foes grow with the people (decision 43: about 1.2x, the body 46 px): a spec's `size` is the
+species' size against its sculpture's art px; an elite is drawn ELITE times larger again, darker, gold-eyed, in a ring
+of Qi (`creature.sculpt`), and the bosses (Old Snapper, the hollowed eel, the Trial Puppet) are drawn larger by their
+own size.
 
 Decision 45: a boss that wakes in its second phase (the Hollowed eel, the first boss) has an `awakened` look too, its
 own sheet (<species>_awakened.png): larger, its colours darker and bruised toward violet, its eyes burning red, more of
@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -34,14 +35,15 @@ from creature import sculpt
 from creature.motion import FRAMES, HIT_FRAME
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.append(str(ROOT / "tools"))           # the content engines
+from content import monsters as MON  # noqa: E402
+
 DIRS = ["s", "se", "e", "ne", "n"]
 MIRROR = {"sw": "se", "w": "e", "nw": "ne"}
 # The drawn facings' turn on the ground (east 0, south 90). As the figure's (figure/geom.py FACINGS), the side and
 # back-diagonal rows are turned a little toward the camera so a face reads; the front and back rows a little off the
 # axis too, so a beast facing the camera or walking away shows a flank and never reads as a capsule.
 ANGLE = {"s": 80.0, "se": 48.0, "e": 14.0, "ne": -36.0, "n": -100.0}
-SPECIES = ["mudshell_crab", "reedtail_rat", "wild_boarlet", "trial_puppet", "reed_frog", "marsh_leech", "reed_otter",
-           "hollowed_boarlet", "old_snapper", "mossback_toad", "hollow_minnow", "hollowed_eel"]
 ORDER = ["idle", "walk", "windup", "attack", "hurt", "death"]   # the sheet's column order
 # Actions a species may draw past the catalogue, after it on its rows (decision 44: the leech's swim, which the room
 # view plays for its walk and idle where it is in water), and their frames.
@@ -53,17 +55,19 @@ MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
 
 
 class Spec:
-    """A species: its pose function (action, frame) -> Pose, its size, palette, the materials its elite keeps (accents)
-    or turns gold (`gold`: its eyes), whether it has an elite, whether it wears the elite's ring of Qi in its own colours
-    (`aura`, a boss's presence), its blob shadow (rx, ry art px), how far one walk cycle carries it (art px at size 1,
-    for the walk's rate), whether it keeps its broad side to the camera (`sideways`, the crab), whether it is posed
-    at its size (`sized`, the eel against its water), whether its pose is told the facing's turn on the ground (`view`,
-    creatures.ANGLE: a beast seen head-on or from behind is posed to read so, decision 44) and the actions it draws
-    past the catalogue (`extra`, EXTRA's)."""
+    """A species' picture: its pose (a body plan with its resolved body, or a hand module "creature.<module>:<fn>"),
+    its size, palette, the materials its elite keeps (accents) or turns gold (`gold`: its eyes), whether it has an
+    elite, whether it wears the elite's ring of Qi in its own colours (`aura`, a boss's presence), its blob shadow
+    (rx, ry art px), how far one walk cycle carries it (art px at size 1, for the walk's rate), whether it keeps its
+    broad side to the camera (`sideways`, the crab), whether it is posed at its size (`sized`, the eel against its
+    water), whether its pose is told the facing's turn on the ground (`view`, creatures.ANGLE: a beast seen head-on or
+    from behind is posed to read so, decision 44) and the actions it draws past the catalogue (`extra`, EXTRA's). The
+    monster engine makes one from each spec (content.monsters.art)."""
 
-    def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
+    def __init__(self, pose=None, plan=None, body=None, size=1.0, palette=(), accents=(), elite=True, shadow=(10, 3),
                  cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None):
-        self.module, self.fn, self.size, self.palette = module, fn, size, palette
+        self.hand, self.plan, self.body, self._body = pose, plan, dict(body or {}), None
+        self.size, self.palette = size, list(palette)
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
         self.aura, self.sized, self.gold, self.view, self.extra = aura, sized, gold, view, tuple(extra)
         # decision 45: {size (against its own), ramps {material: the awakened ramp's name}}, or None
@@ -77,10 +81,20 @@ class Spec:
         """Its actions in the sheet's order: the catalogue, then its extras."""
         return ORDER + list(self.extra)
 
+    def resolved(self):
+        """Its body plan resolved (creature.plans.Body), once."""
+        from creature import plans
+        if self._body is None:
+            self._body = plans.resolve(self.plan, **self.body)
+        return self._body
+
     def pose(self, action: str, f: int, **kw):
+        if self.plan:
+            from creature import plans
+            return plans.pose(self.resolved(), action, f, **kw)
         import importlib
-        mod = importlib.import_module("creature." + self.module)
-        return getattr(mod, self.fn)(action, f, **kw)
+        mod, _, fn = self.hand.partition(":")
+        return getattr(importlib.import_module(mod), fn)(action, f, **kw)
 
     def look(self, variant: str = "base") -> sculpt.Look:
         pal = M.palette(*self.palette)
@@ -95,35 +109,9 @@ class Spec:
 # rat about 38 px long with its tail, the boarlets about 37 px long, the frog 20, the toad 28, the leech 32, the otter 41
 # with its tail, the minnow 31 with its wake. The trial and the bosses grow more: the Trial Puppet about 51 px tall, a
 # head over a disciple; Old Snapper 1.5x, about 77 px from its tail to its crusher; the hollowed eel about 1.4x, rising
-# about 60 px out of the river. An elite is ELITE times its species' size.
-REGISTRY = {
-    "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
-                          accents=("claw_tip",), gold=("eye",), shadow=(12, 4), cycle=10.0, sideways=True),
-    "reedtail_rat": Spec("rat", "rat", 1.26, ["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
-                         shadow=(10, 3), cycle=11.0, view=True),
-    "wild_boarlet": Spec("boar", "boarlet", 1.4, ["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
-                         accents=("tusk",), shadow=(13, 4), cycle=13.0, view=True),
-    "trial_puppet": Spec("puppet", "puppet", 1.58, ["timber", "timber_dark", "brass", "puppet_jade", "rope"],
-                         accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
-    "reed_frog": Spec("frog", "frog", 1.42, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
-                      shadow=(11, 4), cycle=6.0),
-    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_dark", "leech_belly", "leech_lip", "leech_maw"],
-                        accents=("leech_lip",), shadow=(13, 4), cycle=8.0, view=True, extra=("swim",)),
-    "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0, view=True),
-    "hollowed_boarlet": Spec("boar", "hollowed", 1.4, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
-                             accents=("tusk", "strand"), shadow=(13, 4), cycle=13.0, view=True),
-    "old_snapper": Spec("snapper", "snapper", 1.8, ["snap_shell", "snap_moss", "snap_moss_lit", "snap_skin", "snap_belly", "snap_beak",
-                                                   "crusher", "crusher_tip", "weed", "snap_eye", "maw"],
-                        accents=("crusher", "snap_eye"), elite=False, aura=True, shadow=(26, 6), cycle=9.0),
-    "mossback_toad": Spec("toad", "toad", 1.56, ["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
-                                                 "toad_eye", "maw"], accents=("toad_eye", "tongue"), shadow=(12, 4), cycle=7.0, view=True),
-    "hollow_minnow": Spec("minnow", "minnow", 1.5, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
-                          accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
-    "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
-                         elite=False, shadow=(13, 4), cycle=12.0, sized=True,
-                         awakened={"size": 1.22, "ramps": {"eel": "eel_wake", "eel_belly": "eel_wake_belly", "eel_fin": "eel_wake_fin",
-                                                           "eel_mouth": "eel_wake_mouth", "strand": "strand_wake"}}),
-}
+# about 60 px out of the river. An elite is ELITE times its species' size. Each species' numbers are in its spec.
+REGISTRY = {sid: Spec(**MON.art(sid)) for sid in MON.ids()}
+SPECIES = list(REGISTRY)
 
 
 def draw(species: str, action: str, f: int, facing: str, elite="base") -> np.ndarray:
