@@ -16,7 +16,7 @@ ZONES += ["story", "tidebreak_front"]
 ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb_of_sunscar"]
 # R9: the star field's end, in the story's order: the Starsea's crossings, the Star Warden Citadel, the Orbit Ruins, the
 # Ashen Reach, the Nebula Deep and the Lantern Heart.
-ZONES += ["starsea", "lantern_crossing"]
+ZONES += ["starsea", "lantern_crossing", "warden_citadel"]
 
 
 def all_specs():

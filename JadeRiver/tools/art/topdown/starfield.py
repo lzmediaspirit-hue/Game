@@ -300,6 +300,30 @@ def star_chart_table(s: Img) -> None:
     s.outline()
 
 
+def star_globe(s: Img) -> None:
+    """The Observatory's armillary of the heavens, footprint 2 x 1: bronze rings of the sky's circles round a little
+    gilt sun, tilted on their meridian ring in a four-legged stand of dark wood, the ecliptic's band picked out in gold.
+    32 x 46; corner (0, 44)."""
+    for x0, x1 in ((3, 9), (29, 23)):                            # the stand's legs, splayed
+        _line(s, x0, 43, x1, 30, DARKWOOD[3] if x0 < 16 else DARKWOOD[2])
+        _line(s, x0 + 1, 43, x1 + 1, 30, DARKWOOD[1])
+    s.rect(8, 29, 16, 3, WOOD[3])                                # the horizon ring's wooden band
+    s.hline(8, 29, 16, WOOD[5])
+    s.hline(8, 31, 16, DARKWOOD[1])
+    cx, cy = 16, 17
+    for k, (rx, ry, tilt) in enumerate(((12, 12, 0.0), (12, 4, 0.35), (4, 12, 0.0), (12, 6, -0.6))):
+        col = (BRONZER[4], GOLDR[2], BRONZER[3], BRONZER[2])[k]
+        for t in range(160):
+            a = t * math.pi * 2 / 160
+            x, y = math.cos(a) * rx, math.sin(a) * ry
+            x, y = x * math.cos(tilt) - y * math.sin(tilt), x * math.sin(tilt) + y * math.cos(tilt)
+            s.put(int(round(cx + x)), int(round(cy + y)), col)
+    s.ellipse(cx, cy, 2.6, 2.6, GOLDR[2], (GOLDR[4], GOLDR[1]))  # the sun at its heart
+    s.vline(cx, 3, 28, BRONZER[1])                               # the polar axis
+    s.put(cx, 3, GOLDR[3])
+    s.outline()
+
+
 def pressure_pillar(s: Img, f: int = 0) -> None:
     """A pressure pillar of the Presence Court, footprint 1 x 1: a square column of dark slate on a stepped foot, a
     capital of granite, a long panel down its face cut with glyphs that glow violet as a Presence presses on the court
@@ -759,6 +783,7 @@ PROPS = {
     "warden_banner": (warden_banner, 16, 62, 1, 1, [0, 60], True, [10, -2, 6, 3]),
     "ballista": (ballista, 32, 30, 2, 1, [0, 28], True, [18, -2, 15, 3]),
     "star_chart_table": (star_chart_table, 32, 28, 2, 1, [0, 26], True, [20, -2, 15, 3]),
+    "star_globe": (star_globe, 32, 46, 2, 1, [0, 44], True, [16, -2, 13, 3]),
     "pressure_pillar": (pressure_pillar, 16, 64, 1, 1, [0, 62], True, [10, -2, 7, 3]),
     "orbit_stone": (orbit_stone, 32, 44, 2, 1, [0, 42], True, None),
     "star_crystal": (star_crystal, 24, 34, 1, 1, [4, 32], True, [12, -2, 9, 3]),

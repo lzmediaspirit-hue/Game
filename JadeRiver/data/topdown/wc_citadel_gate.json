@@ -1,0 +1,578 @@
+{
+ "schema_version": 1,
+ "id": "wc_citadel_gate",
+ "name": "Citadel Gate",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  10,
+  23
+ ],
+ "levels": [
+  "566666665555555555555555555555555555555555555555555555555555555666666665",
+  "566666665555555555555555555555555555555555555555555555555555555666666665",
+  "566666665555555555555555555555555555555566666666665555555555555666666665",
+  "566666665555555555555555555555555555555566666666665555555555555666666665",
+  "566666665555555555555555555555555555555566666666665555555555555666666665",
+  "066666660000000000000000000000000000000066666666660000000000000666666660",
+  "066666660000000000000000000000001111110066660066660000000000000666666660",
+  "000000000000000000000000000000001111110066660066660000000000000000000000",
+  "000000000000000000000000000000001111110066660066660000000033333000000000",
+  "000000000000000000000000000000001111110000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000033333000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssttttttttttssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssttttttttttssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssttttttttttssssssssssssssssssssss",
+  "psssssssppppppppppppppppppppppppppppppppttttttttttpppppppppppppssssssssp",
+  "psssssssppppppppppppppppppppppppssssssppttttppttttpppppppppppppssssssssp",
+  "ppppppppppppppppppppppppppppppppssssssppttttppttttpppppppppppppppppppppp",
+  "pppppppppppppppppppppppppsspppppssssssppttttppttttppppppppsssssppppppppp",
+  "pppppppppppppppppppppppppsspppppssssssppppppppppppppppppppsssssppppppppp",
+  "pppppppppppppppppppppppppsspppppppppppppppppppppppppppppppsssssppppppppp",
+  "pppppppppppppppppppppppppsspppppppppppppppppppppppppppppppsssssppppppppp",
+  "pppppppppppppppppppppppppsspppppppppppppppppppppppppppppppsssssppppppppp",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "pppppppppppppgggggggggggpppppppppppppppppggggggggggggpppppsssssppppppppp",
+  "pppppppppppppgggggggggggpppppppppppppppppggggggggggggpppppsssssppppppppp",
+  "pppppppppppppgggggggggggpppppppppppppppppggggggggggggpppppsssssppppppppp",
+  "pppppppppppppgggggggggggpppppppppppppppppggggggggggggpppppsssssppppppppp",
+  "pppppppppwwwpgggggggggggrrrwwwpppppwwwrrrgggpppggggggpppppsssssppppppppp",
+  "pppppppprwwwrrrrrrrggrrrrrrwwwpprrrwwwrrrgrrrrrrrggggrppppppppprrrrrrppp",
+  "rrrrrrrrrwwwrrrrrrrrrrrrrrrwwwrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrwwwrrrrrrrrrrrrrrrwwwrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrwwwrrrrrrrrrrrrrrrwwwrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrwwwrrrrrrrrrrrrrrrwwwrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrwwwrrrrrrrrrrrrrrrwwwrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 22,
+   "y": 5,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "lantern_cage",
+   "x": 34,
+   "y": 7
+  },
+  {
+   "kind": "warden_statue",
+   "x": 23,
+   "y": 9
+  },
+  {
+   "kind": "warden_statue",
+   "x": 28,
+   "y": 9
+  },
+  {
+   "kind": "warden_statue",
+   "x": 42,
+   "y": 9
+  },
+  {
+   "kind": "warden_statue",
+   "x": 47,
+   "y": 9
+  },
+  {
+   "kind": "warden_banner",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "warden_banner",
+   "x": 18,
+   "y": 5
+  },
+  {
+   "kind": "warden_banner",
+   "x": 52,
+   "y": 5
+  },
+  {
+   "kind": "warden_banner",
+   "x": 56,
+   "y": 5
+  },
+  {
+   "kind": "star_lantern",
+   "x": 32,
+   "y": 10
+  },
+  {
+   "kind": "star_lantern",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "ballista",
+   "x": 59,
+   "y": 9
+  },
+  {
+   "kind": "ballista",
+   "x": 59,
+   "y": 18
+  },
+  {
+   "kind": "star_lantern",
+   "x": 8,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 12,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 26,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 30,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 34,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 38,
+   "y": 21
+  },
+  {
+   "kind": "post",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 11,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 27,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 29,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 35,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 37,
+   "y": 27
+  },
+  {
+   "kind": "crates",
+   "x": 5,
+   "y": 18
+  },
+  {
+   "kind": "barrel",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "kind": "sacks",
+   "x": 31,
+   "y": 18
+  },
+  {
+   "kind": "barrel",
+   "x": 32,
+   "y": 19
+  },
+  {
+   "kind": "crates",
+   "x": 64,
+   "y": 18
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 64,
+   "y": 9
+  },
+  {
+   "kind": "barrel",
+   "x": 67,
+   "y": 10
+  },
+  {
+   "kind": "star_lantern",
+   "x": 4,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 13,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 31,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 40,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 49,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 58,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 67,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 8,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 35,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 53,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 62,
+   "y": 17
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 23,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 41,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 52,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "kind": "hedge_2",
+   "x": 18,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 49,
+   "y": 21
+  },
+  {
+   "kind": "hedge_2",
+   "x": 21,
+   "y": 21
+  },
+  {
+   "kind": "tree_plum",
+   "x": 44,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 48,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 41,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 52,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 2,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 15,
+   "y": 25
+  },
+  {
+   "kind": "star_crystal",
+   "x": 22,
+   "y": 24
+  },
+  {
+   "kind": "star_crystal",
+   "x": 32,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 40,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 44,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 47,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 50,
+   "y": 25
+  },
+  {
+   "kind": "star_crystal",
+   "x": 55,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 62,
+   "y": 25
+  },
+  {
+   "kind": "star_crystal",
+   "x": 66,
+   "y": 24
+  },
+  {
+   "kind": "star_crystal",
+   "x": 69,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 0,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 18,
+   "y": 26
+  },
+  {
+   "kind": "star_crystal",
+   "x": 22,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 58,
+   "y": 26
+  },
+  {
+   "kind": "rock_small",
+   "x": 65,
+   "y": 27
+  }
+ ],
+ "place": {
+  "sign_wc": [
+   14,
+   12
+  ],
+  "shrine_wc_gate": [
+   39,
+   9
+  ],
+  "stone_star_citadel": [
+   55,
+   19
+  ]
+ },
+ "portals": {
+  "skiff": {
+   "at": [
+    10,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    10,
+    23
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    15
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    15
+   ],
+   "span": 3
+  },
+  "hall_door": {
+   "at": [
+    25.5,
+    8
+   ],
+   "dir": "n",
+   "arrive": [
+    25.5,
+    8.5
+   ],
+   "span": 2
+  },
+  "observatory_door": {
+   "at": [
+    44.5,
+    6
+   ],
+   "dir": "n",
+   "arrive": [
+    44.5,
+    10
+   ],
+   "span": 2
+  },
+  "ash_skiff": {
+   "at": [
+    28,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    28,
+    23
+   ],
+   "span": 3
+  },
+  "tide_skiff": {
+   "at": [
+    36,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    36,
+    23
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    15
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    15
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

@@ -290,6 +290,8 @@ VISTAS = {
     # the cloud sea under them, as R5's Tidebreak Front's do.
     "ss_starsea_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
     "ss_lantern_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
+    "wc_citadel_gate": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wc_presence_court": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

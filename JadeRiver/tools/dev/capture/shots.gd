@@ -81,6 +81,9 @@ const E1_VIEWS := [
 	["r7/21_mirror_crypt", "ts_mirror_crypt", Vector2(28, 13), true], ["r7/22_throne_of_the_tomb_king", "ts_throne", Vector2(28, 12), true],
 	# R9: the star field's end, the Starsea's crossings to the Lantern Heart (their pictures under r9/).
 	["r9/01_starsea_crossing", "ss_starsea_crossing", Vector2(30, 12), true], ["r9/02_lantern_crossing", "ss_lantern_crossing", Vector2(30, 12), true],
+	["r9/03_citadel_gate_court", "wc_citadel_gate", Vector2(34, 13), true], ["r9/04_citadel_gate_piers", "wc_citadel_gate", Vector2(30, 20), false],
+	["r9/05_wardens_hall", "wc_wardens_hall", Vector2(13.5, 11), true], ["r9/06_observatory", "wc_observatory", Vector2(13.5, 11), true],
+	["r9/07_presence_court", "wc_presence_court", Vector2(27, 17), true],
 ]
 
 static func sets() -> Dictionary:

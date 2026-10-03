@@ -246,11 +246,12 @@ BIOMES = {
     # The star field's end (the art: tools/art/topdown/starfield.py, none of it of the foliage kit). R5's `bastion` (the
     # Wardens' Tidebreak fortress) is the Citadel's stone, and R5's cloud sea lies under every island's brink.
     # The Star Warden Citadel: the Wardens' white granite and flagstones on the Field's central island, its gardens kept
-    # (pines, plum and hedges in their beds), star crystals where the island's rock shows, weeds in the joints.
+    # (pines, plum and hedges in their beds), star crystals where the island's rock shows, weeds in the joints; a
+    # flight's open cheeks lined with star lanterns.
     "citadel": {
-        "base": "p", "stair": "s", "density": 0.2,
+        "base": "p", "stair": "s", "density": 0.2, "cheek": "star_lantern",
         "flora": {"wall": ["tree_pine", "rock_mossy", "bush"],
-                  "ground": ["tree_pine", "tree_plum", "hedge_2", "bush", "rock_mossy", "star_crystal"],
+                  "ground": ["tree_pine", "tree_plum", "hedge_2", "bush", "bush_azalea", "rock_mossy"],
                   "walk": ["bush", "rock_small"],
                   "water": ["tall_grass", "cattails", "lotus_pads"]},
     },
