@@ -203,7 +203,7 @@ func touch(c: Dictionary) -> void:
 ## T2 · boards that were the floor itself (`under`) and are gone now, at a ground point ({} when none).
 func crumble_gone_at(p: Vector2) -> Dictionary:
 	for c in crumbles:
-		if bool(c.flush) and (c.rect as Rect2).has_point(p) and crumble_state(c) == "broken": return c
+		if bool(c.get("flush", false)) and (c.rect as Rect2).has_point(p) and crumble_state(c) == "broken": return c
 	return {}
 
 # ------------------------------------------------------------------ currents

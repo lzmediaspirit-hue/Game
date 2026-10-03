@@ -540,14 +540,16 @@ func _wall_and_bounce() -> void:
 func _falls_pool() -> bool:
 	return room() == "cf_falls_pool" or enter("cf_falls_pool", "west")
 
-## Water Skimming set aside for a part that wants a body the water takes (a skimmer runs on it): whether it was known.
-func _unskim() -> bool:
-	var had: bool = c().cultivator.secret_arts.has("water_skimming")
-	c().cultivator.secret_arts.erase("water_skimming")
+## Water Skimming set aside for a part that wants a body the water takes (a skimmer runs on it), and T2's Breath Control
+## (a swimmer swims it; the realm the parts reach knows it): the arts that were known.
+func _unskim() -> Array:
+	var had: Array = ["water_skimming", "breath_control"].filter(func(a): return c().cultivator.secret_arts.has(a))
+	for a in had: c().cultivator.secret_arts.erase(a)
 	return had
 
-func _reskim(had: bool) -> void:
-	if had and not c().cultivator.secret_arts.has("water_skimming"): c().cultivator.secret_arts.append("water_skimming")
+func _reskim(had: Array) -> void:
+	for a in had:
+		if not c().cultivator.secret_arts.has(a): c().cultivator.secret_arts.append(a)
 
 ## A lift (a crane's basket, a trial's plank) laid at the foot of the Falls Pool's cliff (level 4): boarded from the
 ## shore it sets off, carries its rider up four levels to the cliff's top, the rider steps off onto the cliff, and the

@@ -700,8 +700,9 @@ func _vertical(h: float) -> void:
 			events.append({"type": "fell", "z": z})
 		else:
 			z = ground   # stairs and small steps follow the floor
-			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1).
-			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z:
+			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2).
+			var trs := traverse()
+			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()):
 				safe = pos
 				safe_z = z
 			# T1 · Water Skimming: stepping out onto the water's surface is the art's use, announced once an outing.
@@ -791,7 +792,8 @@ func _land() -> void:
 	hold_t = 0.0
 	jumps = 0
 	if plunged: buffer = 0.0   # a Jump pressed on the way down does not bounce out of the impact
-	if _water_at(pos) and not water_walk:
+	# T2: a pit takes a skimmer too (Water Skimming runs on water, not on air).
+	if (_water_at(pos) and not water_walk) or _hole_at(pos) == "pit":
 		# T2 · Breath Control: open water is swum while the breath lasts (a splash, then the swim).
 		if _swims_at(pos) and swim_left > 0.0:
 			swimming = true

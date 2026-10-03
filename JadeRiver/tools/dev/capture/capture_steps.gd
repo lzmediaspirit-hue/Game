@@ -330,6 +330,12 @@ func s_submit(cmd: Dictionary) -> void:
 func s_flush() -> void:
 	GameEvents.flush()
 
+## T2 (docs/architecture/topdown_mechanics.md): a game event as an authority sends it (a boss's phase that raises a
+## flood), and its subscribers told at once.
+func s_event(name: String, payload: Dictionary) -> void:
+	GameEvents.emit_event(name, payload.duplicate(true))
+	GameEvents.flush()
+
 func s_effects(list: Array) -> void:
 	Game.apply_effects(_c().id, list.duplicate(true), "capture")
 

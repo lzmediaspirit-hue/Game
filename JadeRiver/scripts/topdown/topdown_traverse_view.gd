@@ -38,7 +38,10 @@ static func build(world) -> Array:
 	for r in tr.rafts: out.append(LanternView.new(world, tr, r) if str(r.kind) == "lantern" else RaftView.new(world, tr, r))
 	for c in tr.climbs: out.append(ClimbView.new(world, c))
 	for u in tr.updrafts: out.append(SprayView.new(world, u))
-	for c in tr.crumbles: out.append(BoardsView.new(world, tr, c))
+	for c in tr.crumbles:
+		# T2: a row of boards a node, so boards on a raised floor draw over its strip of that row (see BoardsView).
+		var r: Rect2 = c.rect
+		for cy in range(TopdownRoom.cell_of(r.position).y, TopdownRoom.cell_of(r.end - Vector2.ONE).y + 1): out.append(BoardsView.new(world, tr, c, cy))
 	for f in tr.floods: out.append(FloodView.new(world, tr, f))
 	# T2 (topdown_mechanics.md): the hatches, the bounces, the ice and the wind.
 	for h in tr.hatches: out.append(HatchView.new(world, h))
@@ -201,17 +204,19 @@ class BoardsView extends TopdownWorld.Sorted:
 	var c: Dictionary
 	var state := ""
 	var cells: Array = []
-	func _init(w, t: TopdownTraverse, cr: Dictionary) -> void:
+	func _init(w, t: TopdownTraverse, cr: Dictionary, cy: int) -> void:
 		super(w)
 		tr = t
 		c = cr
 		var r: Rect2 = cr.rect
 		var c0 := TopdownRoom.cell_of(r.position)
 		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
-		for cy in range(c0.y, c1.y + 1):
-			for cx in range(c0.x, c1.x + 1):
-				cells.append(TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, float(cr.z)).round())
-		key(floorf(r.position.y / TopdownRoom.ART))
+		for cx in range(c0.x, c1.x + 1):
+			cells.append(TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, float(cr.z)).round())
+		# T2: one row; on the ground keyed at its north edge, as T1's; up on a raised floor (or over one) just past that
+		# row's own strip of the floor (its south edge), before a body standing on it (TopdownRoom.sort_key's +0.25).
+		var north := float(cy) * TopdownRoom.TILE / TopdownRoom.ART
+		key(north + TopdownRoom.TILE / TopdownRoom.ART + 0.125 if float(cr.z) > 0.5 else north)
 		rects.clear()
 	func _ready() -> void:
 		set_process(true)
@@ -371,7 +376,7 @@ class LanternView extends TopdownWorld.Sorted:
 		var n := int(maxf(absf(top.x - from.x), absf(top.y - from.y)))
 		for i in range(0, n, 2):
 			var q := from.lerp(top, float(i) / float(maxi(1, n))).round()
-			draw_rect(Rect2(q, Vector2(1, 1)), Color(0.36, 0.40, 0.42) if (i / 2) % 2 == 0 else Color(0.22, 0.26, 0.28))
+			draw_rect(Rect2(q, Vector2(1, 1)), Color(0.74, 0.64, 0.42) if (i / 2) % 2 == 0 else Color(0.42, 0.34, 0.22))
 		var r := TopdownTraverseView.src("lantern", frame)
 		draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position, r.size), r)
 

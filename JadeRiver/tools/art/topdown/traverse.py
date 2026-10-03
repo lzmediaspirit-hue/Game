@@ -585,31 +585,35 @@ def hole_water(s: Img) -> None:
 
 
 def ice(s: Img, f: int = 0) -> None:
-    """Ice glazed over a floor (16 x 16): a pale blue sheen, streaks of white along the grain of the cold, and a glint
-    that moves along a streak between the frames."""
+    """Ice glazed over a floor (16 x 16): a cold blue-white sheen over it, darker where the ice is thick, white streaks
+    along the grain of the cold, and a glint that moves along a streak between the frames."""
+    glaze = (196, 226, 240, 255)
     for y in range(16):
         for x in range(16):
-            s.put(x, y, alpha(SNOW2[5], 70))
+            thick = h01(x // 3, y // 3, 93) < 0.3
+            s.put(x, y, alpha((150, 196, 222, 255), 150) if thick else alpha(glaze, 125))
     for k in range(3):
         y0 = 2 + k * 5
         for x in range(1 + k, 14):
             if h01(x, k, 89) < 0.7:
-                s.put(x, y0 + (x // 5) % 2, alpha(SNOW2[6], 150))
+                s.put(x, y0 + (x // 5) % 2, alpha((246, 252, 255, 255), 215))
     gx = 4 + f * 6
-    s.put(gx, 3, alpha(SNOW2[6], 240))
-    s.put(gx + 1, 3, alpha((255, 255, 255, 255), 240))
-    s.put(gx, 2, alpha(SNOW2[6], 180))
+    s.put(gx, 3, (255, 255, 255, 255))
+    s.put(gx + 1, 3, (255, 255, 255, 255))
+    s.put(gx, 2, alpha((255, 255, 255, 255), 200))
 
 
 def wind(s: Img, f: int = 0) -> None:
     """A curl of wind-blown snow and grit (12 x 5), drawn trailing to the east (the view mirrors it for a wind the other
-    way): a line of motes that curls up at its head; its length grows between the frames."""
-    n = 6 + f * 2
+    way): a line of white motes that curls up at its head, a blue-grey shadow under it so it reads on snow; its length
+    grows between the frames."""
+    n = 7 + f * 2
     for k in range(n):
         x = 11 - k
-        y = 3 if k > 2 else 3 - (2 - k)
+        y = 2 if k > 2 else 2 - (2 - k) // 2
         if x >= 0:
-            s.put(x, y, alpha(SNOW2[6], 230 - k * 18))
+            s.put(x, y, alpha((255, 255, 255, 255), 240 - k * 14))
+            s.put(x, y + 1, alpha(SNOW2[2], 200 - k * 14))
 
 
 def icicle(s: Img, f: int = 0) -> None:
