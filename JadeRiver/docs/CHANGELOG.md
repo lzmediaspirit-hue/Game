@@ -41,7 +41,13 @@ on the grid end to end.
 - **Still to do.** Six species in these rooms have no top-down art yet: the bamboo monkey, the green viper, the
   thornback boar, the Stone Guardian, the ember fox and the jade crane chick. The side view's movers, the falls'
   updraft and the vines have no top-down counterpart.
-- **Checks.** (filled in after the final run)
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with E2, E4 and F1. Every gate passed, `room_engine` (133
+  checks), `topdown_rooms` with the grid's parity, `item_engine`, `monsters` and `boot` among them. All 22 suites
+  passed: 73,869 checks, 0 failures and no SCRIPT ERROR.
+  - `topdown_chapter4` is new, with 47 checks.
+  - `topdown_tutorial` has 1,011, four more: the walk to the nearest gate and back, and chapter 4's quests stood done.
+  - `topdown_chapter3` has 41, one fewer: Bend Shore's two gate checks are now one over every way of its rooms.
+  - `rules_tests` keeps its 2,712. No other suite counts its checks by these rooms.
 ## Follow-up fixes from the code audit (decision 45, F1)
 
 Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in
