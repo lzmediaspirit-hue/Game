@@ -924,6 +924,26 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 - **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),
   and so are the 51 `ui.*` string keys. The 11 `world_view.*` keys stay.
 
+### Status (phase 2, S9): the World authority in parts, done
+
+- **`world_authority.gd` went from 2,321 lines to 441.** It keeps the room's lifecycle, the character's memory of a
+  room, the tick, the shared state and the forwarders.
+- **14 parts in `scripts/simulation/authority/world/`**, each `world_<part>.gd` over the base `world_part.gd`:
+  - ambush (47 lines), herbs (87), portals (203, with routes, teleports and Spirit Sense), arrays (93);
+  - objects (164), context (268, with `interact` and the context button), loot (232, with beast cores);
+  - races (163, the rooftop chases and timed routes), hazards (211), starsea (40, the voyages);
+  - events (226), nests (101, with the Beast Tide and the Grove), tower (86), idle (200, with auto-path and the
+    direction mark).
+- **Every caller asks `Game.world` by the same names.** The authority forwards every public method it had, and the
+  15 old private names the tests and `ObjectView._verb` still call. S11 can move those calls to the parts' public
+  names.
+- **BUG-05: two of its seven calls are public now.** Enemies calls `apply_loot_drop`, and Quest calls
+  `start_room_event`.
+- **Dead code:** the `set_sail` intent, which nothing sent.
+- **Side view:** 20 sites, down from 22. Each asks `WorldAuthority.side_view(rt)` (13) or finds `grid_for` null (7),
+  ready for S12.
+- **Checks:** TESTS
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:
