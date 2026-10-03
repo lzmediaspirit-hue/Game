@@ -51,7 +51,7 @@ RF_SNOW_APE_LEDGES = room(
     "rf_snow_ape_ledges", size=(72, 28), biome="snowfield",
     bands=[("slope", 3, 9, dict(level=1, paint="r", wavy=True, flights=[11])),
            ("crags", 0, 4, CRAGS),
-           ("trail", 12, 3, dict(level=0, paint="d", walk=True, wavy=True)),
+           ("trail", 12, 3, dict(level=0, paint="d", walk=True, wavy="s")),
            ("field", 15, 13, dict(level=0, paint="r"))],
     features=[("shelf_w", (14, 3, 15, 6), dict(SHELF, flights=[25])), ("shelf_e", (37, 3, 11, 6), dict(SHELF, flights=[44]))],
     stairs="auto",

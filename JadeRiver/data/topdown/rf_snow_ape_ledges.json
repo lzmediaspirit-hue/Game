@@ -22,8 +22,8 @@
   "111111111111111112222222111111111111111122222211111111111111111111111111",
   "111111111111111111111111111111111111111111111111111111111111111111111111",
   "111111111111111111111111111111111111111111111111111111111111111111111111",
-  "111111100000011111100001111111111000000000011111100000010000000000001100",
-  "000000000000000000000000000000000000000000001110000000000000000000000000",
+  "111111100000011111111111111111111100000000011111111111111111011111111100",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -51,9 +51,9 @@
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnrnnnnnnsssnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnrn",
-  "nnnnnnnnnnnnnnnnnnnnnsssnnnnrnnnnnnnnnnnnnnsssnnnnnnnnnnnnrnnnnnnrnnnnnn",
-  "nnnnnnnnnsssnnnnnnnkkkknnnnnnnnrnkkkkkknnnnnnnnnnkkkkkknkkkkkkkkkkkknnnn",
-  "kkkkkkknnsssnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnnnnnnnnnnnnnnnnnnnsssnnnnrnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnsssnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnrnnnnnnnnnnrnnnnnnnnnn",
+  "kkkkkkkkkssskkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "nnnkkkkkkkkkkknnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnkkkkkkkkkkkkk",
   "nnnnnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnknnnnnnnkkkknnnnnrnnnnnnnnnnnkkkknnnn",
@@ -126,16 +126,6 @@
    "kind": "boulder",
    "x": 12,
    "y": 11
-  },
-  {
-   "kind": "boulder",
-   "x": 8,
-   "y": 12
-  },
-  {
-   "kind": "boulder",
-   "x": 12,
-   "y": 12
   },
   {
    "kind": "boulder",
@@ -313,24 +303,24 @@
    "y": 11
   },
   {
-   "kind": "boulder",
-   "x": 50,
-   "y": 10
-  },
-  {
    "kind": "rock_small",
-   "x": 58,
-   "y": 10
+   "x": 50,
+   "y": 11
   },
   {
    "kind": "dead_tree",
-   "x": 62,
-   "y": 10
+   "x": 58,
+   "y": 11
   },
   {
    "kind": "rock_small",
+   "x": 61,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
    "x": 65,
-   "y": 10
+   "y": 11
   },
   {
    "kind": "boulder",

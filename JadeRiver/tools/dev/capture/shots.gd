@@ -67,7 +67,7 @@ const E1_VIEWS := [
 	["r6/09_stormgrass_verge", "tp_stormgrass_verge", Vector2(40, 11), true], ["r6/10_herders_camp", "tp_herders_camp", Vector2(26, 12), true],
 	["r6/11_thunderhorn_flats_pool", "tp_thunderhorn_flats", Vector2(36, 17), true], ["r6/12_lightning_scar", "tp_lightning_scar", Vector2(34, 17), true],
 	["r6/14_frostpine_climb", "rf_frostpine_climb", Vector2(24, 16), true], ["r6/15_frostpine_climb_high", "rf_frostpine_climb", Vector2(50, 9), false],
-	["r6/16_snow_ape_ledges", "rf_snow_ape_ledges", Vector2(24, 11), true], ["r6/17_rimefrost_summit", "rf_rimefrost_summit", Vector2(36, 15), true],
+	["r6/16_snow_ape_ledges", "rf_snow_ape_ledges", Vector2(24, 11), true], ["r6/17_rimefrost_summit", "rf_rimefrost_summit", Vector2(37, 16), true],
 	["r6/18_rimefrost_summit_rim", "rf_rimefrost_summit", Vector2(33, 24), false], ["r6/19_hermits_ice_cave", "rf_hermits_ice_cave", Vector2(16, 10), true],
 	["r6/20_reedless_shore_ferry", "ml_reedless_shore", Vector2(10, 15), true], ["r6/21_reedless_shore_mirror", "ml_reedless_shore", Vector2(40, 14), false],
 	["r6/22_mirror_shallows", "ml_mirror_shallows", Vector2(30, 14), true], ["r6/23_sentinel_causeway", "ml_sentinel_causeway", Vector2(27, 14), true],
