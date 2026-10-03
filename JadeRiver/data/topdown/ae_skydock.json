@@ -51,7 +51,7 @@
   "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
   "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
   "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
-  "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
   "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
   "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
   "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
@@ -75,7 +75,7 @@
   {
    "kind": "hall",
    "x": 41,
-   "y": 7,
+   "y": 8,
    "door": [
     3,
     4
@@ -102,12 +102,12 @@
   {
    "kind": "lantern",
    "x": 40,
-   "y": 9
+   "y": 10
   },
   {
    "kind": "lantern",
    "x": 49,
-   "y": 9
+   "y": 10
   },
   {
    "kind": "banner_cloud",
@@ -383,12 +383,12 @@
   "hall_door": {
    "at": [
     44.5,
-    10
+    11
    ],
    "dir": "n",
    "arrive": [
     44.5,
-    10.5
+    11.5
    ],
    "span": 2
   },

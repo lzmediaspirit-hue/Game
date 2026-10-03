@@ -969,8 +969,9 @@ class Build:
             half = 2 if kind in TREES else 0
             at = (x, y + 1 + skip)
             # The water under it all: by the foot the trunk's three columns, further out the crown's five.
+            span = lambda yy: half if yy > at[1] else min(half, 1)
             if at in taken or not all(wet(xx, yy) for yy in range(at[1], at[1] + depth)
-                                      for xx in range(x - (half if yy > at[1] else min(half, 1)), x + (half if yy > at[1] else min(half, 1)) + 1)):
+                                      for xx in range(x - span(yy), x + span(yy) + 1)):
                 continue
             self._prop(name, at[0], at[1])
             added += 1
