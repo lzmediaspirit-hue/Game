@@ -392,6 +392,23 @@ def check(lay, d):
 # cells (WorldRoomEvents). Neither changes what the Grid walks: a raft, an updraft or a climb is a way more, never the
 # only one (auto-path and every reach check above walk the room without them).
 CLIMBABLES = ("vine", "ladder", "rope", "chain")
+RAFT_LOOKS = ("raft", "driftwood", "plank")      # T2: how a raft row is drawn (TopdownTraverseView)
+BOUNCE_LOOKS = ("drum", "lily", "bamboo")
+
+
+def lantern_samples(r):
+    """T2: a lantern's offsets from its rest over one period, every 1/48 of it, in cells (ZoneGeometry.mover_offset's
+    swing and circle on the plane: a swing east-west along its arc, a circle round from its rest)."""
+    out = []
+    for k in range(48):
+        a = 2.0 * math.pi * k / 48.0
+        if r.get("mode") == "circle":
+            rad = float(r.get("radius", 1.5))
+            out.append((rad * math.sin(a), rad * (1.0 - math.cos(a))))
+        else:
+            th = math.radians(float(r.get("amp_deg", 30.0))) * math.sin(a)
+            out.append((float(r.get("length", 3.0)) * math.sin(th), 0.0))
+    return out
 
 
 def raft_cells(r, off):
@@ -420,6 +437,8 @@ def check_traverse(s, d, g, walked):
     side_movers = {str(m.get("surface", "")) for m in s.get("movers", [])}
     side_volumes = {str(v.get("id", "")): v for v in s.get("volumes", [])}
     side_climbs = {str(c.get("id", "")) for c in s.get("climbables", [])}
+    side_climbs_rows = {str(c.get("id", "")): c for c in s.get("climbables", [])}
+    side_mover_rows = {str(m.get("surface", "")): m for m in s.get("movers", [])}
     covered = {}
     for p in d["props"]:
         fw, fh = TILESET["props"][p["kind"]]["footprint"]
@@ -431,6 +450,8 @@ def check_traverse(s, d, g, walked):
         if kind == "raft":
             if tid not in side_movers:
                 errs.append("raft %s: no mover of that surface in the side-view room" % tid)
+            if r.get("look", "raft") not in RAFT_LOOKS:
+                errs.append("raft %s: look %r is none of %s" % (tid, r.get("look"), ", ".join(RAFT_LOOKS)))
             level = float(r.get("level", 0)) * LEVEL
             for off in raft_samples(r):
                 for c in raft_cells(r, off):
@@ -468,17 +489,59 @@ def check_traverse(s, d, g, walked):
                 beside = {(cx + ex, cy + ey) for cx, cy in cells for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
                 if not any(g.floor(*q) is not None and abs(g.floor(*q) - lv * LEVEL) <= STEP for q in beside):
                     errs.append("lift %s: no landing at its level %g at offset %s" % (tid, lv, str((dx, dy))))
-        elif kind in ("crumble", "current", "flood"):
-            want = {"crumble": "crumble", "current": "current", "flood": "rising_water"}[kind]
+        elif kind in ("crumble", "current", "flood", "hazard", "ice", "wind"):
+            want = {"crumble": "crumble", "current": "current", "flood": "rising_water"}.get(kind, kind)
             v = side_volumes.get(tid, {})
             if str(v.get("kind", "")) != want:
                 errs.append("%s %s: no %s volume of that id in the side-view room" % (kind, tid, want))
             x, y, w, h = r["rect"]
+            cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)]
             if x < 0 or y < 0 or x + w > g.w or y + h > g.h:
                 errs.append("%s %s: its rect %s is outside the room" % (kind, tid, str(r["rect"])))
+            elif kind == "crumble" and "under" in r:
+                # T2: boards that are the floor itself, reached on foot: gone, they drop to a lower floor or open a hole.
+                under, lv = r["under"], float(r.get("level", 0))
+                if under not in ("water", "pit") and not (isinstance(under, (int, float)) and under < lv):
+                    errs.append("crumble %s: under %r is neither a level under its boards nor water or a pit" % (tid, under))
+                if any(g.floor(*c) is None or abs(g.floor(*c) - lv * LEVEL) > 0.5 or g.stair[c[1]][c[0]] for c in cells):
+                    errs.append("crumble %s: its boards %s are not the floor at level %g" % (tid, str(r["rect"]), lv))
+                elif not all(any(c in wk for c in cells) for wk in walked):
+                    errs.append("crumble %s: its boards %s are not reached on foot from every way in" % (tid, str(r["rect"])))
             elif kind == "crumble" and any(g.floor(xx, yy) is not None and g.floor(xx, yy) >= float(r.get("level", 0)) * LEVEL
                                            for yy in range(y, y + h) for xx in range(x, x + w)):
                 errs.append("crumble %s: its boards at level %s lie over no pit" % (tid, r.get("level", 0)))
+            elif kind in ("ice", "wind") and not any(g.floor(*c) is not None for c in cells):
+                errs.append("%s %s: its rect %s holds no floor" % (kind, tid, str(r["rect"])))
+        elif kind == "hatch":
+            # T2: a sealed hatch over a flight of stairs (a loft's, a library floor's), named by the side view's climbable
+            # it stands for, which seals it (`requires`).
+            cl = side_climbs_rows.get(tid, {})
+            if not cl.get("requires"):
+                errs.append("hatch %s: no sealed climbable of that id in the side-view room" % tid)
+            x, y, w, h = r["rect"]
+            if not all(0 <= xx < g.w and 0 <= yy < g.h and g.stair[yy][xx] for yy in range(y, y + h) for xx in range(x, x + w)):
+                errs.append("hatch %s: its rect %s is not a flight of stairs" % (tid, str(r["rect"])))
+        elif kind == "lantern":
+            # T2: a deck hanging over the floor that swings or goes round (its side-view mover): every cell it sweeps is
+            # inside the room, under its level and clear of props, and somewhere on its sweep a floor reached on foot lies
+            # beside it a level under it or level with it (a body hops on).
+            m = side_mover_rows.get(tid, {})
+            if str(m.get("mode", "")) not in ("swing", "circle") or r.get("mode") not in ("swing", "circle"):
+                errs.append("lantern %s: no swinging or circling mover of that surface in the side-view room" % tid)
+            lv = float(r.get("level", 0)) * LEVEL
+            landed = False
+            for off in lantern_samples(r):
+                cells = set(raft_cells(r, off))
+                for c in cells:
+                    if not (0 <= c[0] < g.w and 0 <= c[1] < g.h) or g.level(*c) == SOLID:
+                        errs.append("lantern %s sweeps over %s, a prop or the room's edge" % (tid, str(c)))
+                    elif g.floor(*c) is not None and g.floor(*c) > lv + 0.5:
+                        errs.append("lantern %s sweeps into %s, a floor over its level" % (tid, str(c)))
+                beside = {(cx + dx, cy + dy) for cx, cy in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
+                landed = landed or any(g.floor(*q) is not None and lv - LEVEL - 0.5 <= g.floor(*q) <= lv + 0.5
+                                       and all(q in wk for wk in walked) for q in beside)
+            if not landed:
+                errs.append("lantern %s: nowhere on its sweep a floor reached on foot to hop onto it from" % tid)
         elif kind == "bounce":
             v = side_volumes.get(tid, {})
             if str(v.get("kind", "")) != "bounce":
@@ -488,6 +551,8 @@ def check_traverse(s, d, g, walked):
             floors = {g.floor(*c) for c in cells}
             if None in floors or len(floors) != 1 or not any(c in wk for c in cells for wk in walked):
                 errs.append("bounce %s: its cells %s are not one floor a body reaches" % (tid, str(r["rect"])))
+            if r.get("look", "drum") not in BOUNCE_LOOKS:
+                errs.append("bounce %s: look %r is none of %s" % (tid, r.get("look"), ", ".join(BOUNCE_LOOKS)))
         elif kind in CLIMBABLES:
             if tid not in side_climbs:
                 errs.append("%s %s: no climbable of that id in the side-view room" % (kind, tid))

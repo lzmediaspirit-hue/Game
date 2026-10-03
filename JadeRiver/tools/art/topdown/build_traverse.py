@@ -76,7 +76,34 @@ def review(outputs: dict) -> None:
     for f in range(2):
         img.alpha_composite(cut("glide", f), (110 + f * 40, 80))
         img.alpha_composite(cut("cloud", f), (200 + f * 40, 84))
-    img.resize((img.width * 4, img.height * 4), Image.NEAREST).save(out_dir / "traverse_x4.png")
+    # T2: the rows T1 left, over the floors they stand on.
+    t2 = Image.new("RGBA", (300, 130), (20, 26, 30, 255))
+    for x in range(0, 300):
+        for y in range(0, 130):
+            t2.putpixel((x, y), WATER2[3] if y < 30 and x < 130 else (88, 74, 60, 255) if (x // 16 + y // 16) % 2 else (96, 82, 66, 255))
+    t2.alpha_composite(cut("driftwood", 0), (4, 6))
+    t2.alpha_composite(cut("plank", 0), (60, 6))
+    t2.alpha_composite(cut("plank", 1), (96, 6))
+    t2.alpha_composite(cut("seal_gate"), (140, 2))
+    t2.alpha_composite(cut("drum"), (180, 2))
+    t2.alpha_composite(cut("lily"), (220, 4))
+    t2.alpha_composite(cut("bamboo"), (260, 2))
+    for f in range(2):
+        t2.alpha_composite(cut("lantern", f), (4 + f * 40, 40))
+    for i, name in enumerate(("pit", "gap", "hole_water")):
+        t2.alpha_composite(cut(name), (90 + i * 20, 44))
+    for f in range(2):
+        t2.alpha_composite(cut("ice", f), (90 + f * 20, 70))
+        t2.alpha_composite(cut("ripple", f), (150 + f * 30, 70))
+    for f in range(3):
+        t2.alpha_composite(cut("wind", f), (220 + f * 16, 72))
+    for i, name in enumerate(("boards",)):
+        t2.alpha_composite(cut(name, 0), (90, 96))
+        t2.alpha_composite(cut(name, 1), (110, 96))
+    both = Image.new("RGBA", (300, 250), (20, 26, 30, 255))
+    both.alpha_composite(img, (0, 0))
+    both.alpha_composite(t2, (0, 120))
+    both.resize((both.width * 4, both.height * 4), Image.NEAREST).save(out_dir / "traverse_x4.png")
     print("review image in", (out_dir / "traverse_x4.png").relative_to(ROOT))
 
 

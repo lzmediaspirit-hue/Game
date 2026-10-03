@@ -1208,10 +1208,14 @@ class Build:
     # ================================================================ T1: the side view's traversal and set pieces
     # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event
     # the side view calls to its own points sets its foes. topdown_rooms.check_traverse holds each to the grid.
-    TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level"), "updraft": ("rect", "top", "speed"),
-                     "bounce": ("rect", "speed"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
-                     "crumble": ("rect", "level", "break_s", "return_s"), "current": ("rect", "push"), "flood": ("rect", "top"),
-                     "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top")}
+    # T2: a raft's and a bounce's `look`, a crumble's `under` (boards that are the floor itself), and the hatch, lantern,
+    # hazard, ice and wind rows.
+    TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level", "look"), "updraft": ("rect", "top", "speed"),
+                     "bounce": ("rect", "speed", "look"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
+                     "crumble": ("rect", "level", "break_s", "return_s", "under"), "current": ("rect", "push"), "flood": ("rect", "top"),
+                     "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top"),
+                     "hatch": ("rect",), "lantern": ("at", "size", "level", "mode", "length", "amp_deg", "period_s", "phase_deg", "radius"),
+                     "hazard": ("rect",), "ice": ("rect",), "wind": ("rect",)}
 
     def traverse_rows(self):
         out = []
