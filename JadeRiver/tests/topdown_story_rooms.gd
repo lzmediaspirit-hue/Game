@@ -246,9 +246,17 @@ func _warehouse() -> void:
 	var vault := interact("gus_vault")
 	var alt := float(Game.room_rt.object_def("gus_vault").get("alt", 0.0))
 	check(vault.get("ok", false) and alt >= 3.0 * TopdownRoom.LEVEL - 1.0, "Gu's strongbox opened on the strongroom's dais up the east loft (alt %.0f; %s)" % [alt, str(vault)])
+	step(1.0)
 	var gu := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "elder_gu")
 	check(gu.size() == 1 and TopdownRoom.cell_of(gu[0].spawn_point).x >= 32, "Elder Gu waits at his office in the east (%s)" % str(gu.map(func(e): return TopdownRoom.cell_of(e.spawn_point))))
-	check(_boss("elder_gu") >= 1 and c().inventory.count("smuggler_ledger") >= 1, "Elder Gu defeated in his warehouse, his ledger taken")
+	# Gu cannot be beaten here: he holds his ground, calls his hired blades, and flees through a Tide rift, the ledger
+	# dropped as he goes.
+	_whole()
+	fight("elder_gu", 1, 75.0, 0.0, true)
+	for l in Game.room_rt.loot.duplicate(): submit({"type": "pick_up", "uid": int(l.uid)})
+	GameEvents.flush()
+	check(Game.room_rt.living_enemies().all(func(e): return e.def_id != "elder_gu") and c().inventory.count("smuggler_ledger") >= 1,
+		"Elder Gu held off in his warehouse until he fled, his ledger taken")
 	_done("gus_warehouse", "the warehouse raided")
 	_whole()
 	check(go("entry") and room() == "sf_artisan_row", "out through the door to Artisan Row (room %s)" % room())

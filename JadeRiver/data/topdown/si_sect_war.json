@@ -131,7 +131,7 @@
   {
    "kind": "crates",
    "x": 24,
-   "y": 1
+   "y": 2
   },
   {
    "kind": "lantern_red",
@@ -156,7 +156,7 @@
   {
    "kind": "barrel",
    "x": 9,
-   "y": 2
+   "y": 3
   },
   {
    "kind": "banner_jade",

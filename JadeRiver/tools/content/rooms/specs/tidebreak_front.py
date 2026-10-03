@@ -126,7 +126,7 @@ TF_HOLLOW_WAKE = room(
     stairs="auto",
     ways={"west": ("w", "track"), "east": ("e", "track")},
     spawn="west",
-    anchors={"jar_1": "outcrop@15", "crate_2": "outcrop_2@33", "jar_3": "track.s2@35", "crate_4": "rise@57",
+    anchors={"jar_1": "outcrop.front@15", "crate_2": "outcrop_2@33", "jar_3": "track.s2@35", "crate_4": "rise@57",
              "chest_cloud_mv": "rise@24", "journal_wake": "track.s@24"},
     props=[("drone_hive", 6, 23), ("drone_hive", 27, 2), ("drone_hive", 45, 23), ("drone_hive", 59, 2)],
     flora={"rise": {"kinds": GREY, "density": 0.3}, "rise_s": {"kinds": GREY, "density": 0.3},

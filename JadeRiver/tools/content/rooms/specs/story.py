@@ -33,29 +33,29 @@ def flights(*made):
 # north wall from the west stair to the east one, the catwalk between them over the floor (the side view's stealth
 # route under the roof), and Gu's strongbox sits on the strongroom's dais at the east loft's end. Gu keeps his office on
 # a floor of boards in the east: his desk, his cabinet and his screen, the open floor before them where he makes his stand.
-_WH = flights(stair_with_cheeks(5, 6, 2, 0, 2), stair_with_cheeks(35, 7, 2, 0, 2), stair_with_cheeks(40, 3, 2, 2, 3))
+_WH = flights(stair_with_cheeks(5, 6, 2, 0, 2), stair_with_cheeks(35, 9, 2, 0, 2), stair_with_cheeks(40, 5, 2, 2, 3))
 SI_GUS_WAREHOUSE = room(
     "si_gus_warehouse", size=(44, 20), base="p", walls=dict(high=4),
     features=[("office", (32, 9, 11, 10), dict(paint="w")),                 # Gu's office, its floor of boards
               ("loft_w", (1, 1, 11, 5), dict(level=2, paint="w")),           # the west loft
               ("catwalk", (12, 1, 22, 2), dict(level=2, paint="w")),         # the catwalk along the north wall
-              ("loft_e", (34, 1, 9, 6), dict(level=2, paint="w")),           # the east loft
-              ("vault", (38, 1, 5, 2), dict(level=3, paint="w"))]            # the strongroom's dais
+              ("loft_e", (34, 1, 9, 8), dict(level=2, paint="w")),           # the east loft
+              ("vault", (38, 1, 5, 4), dict(level=3, paint="w"))]            # the strongroom's dais
              + _WH[0],
     stairs=_WH[1],
     ways={"entry": ("s", 3.5)},
     spawn="entry",
-    anchors={"gus_vault": (40.5, 1)},
-    props=[("crates", 1, 1), ("sacks", 3, 1), ("barrel", 4, 1), ("crates", 8, 1), ("sacks", 10, 1),
+    anchors={"gus_vault": (40.5, 3)},
+    props=[("crates", 1, 2), ("sacks", 3, 2), ("barrel", 4, 2), ("crates", 8, 2), ("sacks", 10, 2),
            ("crates", 14, 8), ("crates", 16, 8), ("crates", 14, 9), ("sacks", 16, 9), ("barrel", 17, 9),
            ("crates", 22, 12), ("crates", 24, 12), ("barrel", 22, 13), ("sacks", 23, 13), ("crates", 24, 13),
            ("crates", 12, 15), ("sacks", 14, 15), ("barrel", 15, 15), ("crates", 20, 7), ("crates", 22, 7),
            ("sacks", 24, 7), ("crates", 27, 7), ("barrel", 29, 7),
-           ("desk", 38, 11), ("cabinet", 41, 8), ("screen", 39, 8), ("lantern_red", 33, 10), ("lantern_red", 42, 13),
+           ("desk", 38, 13), ("cabinet", 41, 9), ("screen", 39, 9), ("lantern_red", 33, 12), ("lantern_red", 42, 15),
            ("weapon_rack", 26, 17), ("lantern_red", 9, 7), ("lantern_red", 20, 4), ("lantern_red", 30, 4),
            ("sacks", 1, 12), ("sacks", 1, 13), ("barrel", 1, 17), ("crates", 8, 17), ("barrel", 42, 17),
            ("crates", 29, 17), ("sacks", 31, 17), ("pot_bonsai", 33, 17)],
-    foes=["auto", [(37, 14)]])                                                # the bandits on the floor, Gu at his office
+    foes=["auto", [(37, 15)]])                                                # the bandits on the floor, Gu at his office
 
 
 # The Trial of Reflections: a granite arena on Elder Hu's peak, every line of it mirrored about the bronze mirror on its
@@ -165,8 +165,8 @@ SI_SECT_WAR = room(
     ways={"exit": ("s", 30)},
     spawn="exit",
     props=[("post", 17, 3), ("post", 30, 2), ("post", 41, 3), ("crates", 14, 5), ("barrel", 16, 6), ("crates", 34, 5),
-           ("barrel", 44, 4), ("crates", 24, 1), ("lantern_red", 12, 7), ("lantern_red", 45, 7), ("lantern_red", 26, 7),
-           ("lantern_red", 33, 7), ("barrel", 9, 2),
+           ("barrel", 44, 4), ("crates", 24, 2), ("lantern_red", 12, 7), ("lantern_red", 45, 7), ("lantern_red", 26, 7),
+           ("lantern_red", 33, 7), ("barrel", 9, 3),
            ("banner_jade", 6, 20), ("banner_cloud", 13, 20), ("banner_jade", 20, 20), ("banner_cloud", 39, 20),
            ("banner_jade", 46, 20), ("banner_cloud", 53, 20), ("weapon_rack", 9, 22), ("weapon_rack", 48, 22),
            ("banner_jade", 23, 25), ("banner_cloud", 36, 25), ("lantern", 26, 27), ("lantern", 33, 27)],
