@@ -53,7 +53,17 @@ and the save data is untouched.
   (13 sites), or finds `grid_for` null (7 sites). Retiring the side view (S12) means deleting those branches.
   - The two copies of how long a won event's way on waits are now one helper, `_leave_after`.
   - The side-view half of auto-path's place point is now `_side_place_point`.
-- **Checks.** TESTS
+- **Checks.**
+  - The full run on the merged tree passed every suite with the base's check count and no script errors, apart from
+    `perf_tests`' millisecond budgets. The base, run alongside at a load of about 12, missed them as well: S9 missed 3
+    of 18 checks and the base 2.
+  - Three interleaved `perf_tests` runs at a load of about 3 compared the two:
+    - The base missed 1, 1 and 0 of its 18 checks, and S9 missed 0, 1 and 2. They were the same borderline budgets
+      flipping both ways: the sword swarm, the Marsh Edge's fight and the wood tree's drag.
+    - The medians are within the noise: the Marsh Edge's fight 15.68 ms a frame against 15.28, Lotus Ferry 10.98 against
+      10.80, and a room's load 26 ms against 25.
+  - A line-by-line comparison finds every code line of the old file in the split. The only differences are the
+    changes named above.
   - In `data/event_contract.json`, only the `files` lists of the World events changed: S10's `with_parts()` now finds
     the `world/` folder. Apart from that, the data build is unchanged.
 

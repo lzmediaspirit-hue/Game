@@ -1075,7 +1075,11 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 - **Dead code:** the `set_sail` intent, which nothing sent.
 - **The side view: 20 sites, down from 22.** Each asks `WorldAuthority.side_view(rt)` (13 sites) or finds `grid_for`
   null (7), so S12 can find them.
-- **Checks:** TESTS
+- **Checks:**
+  - Every suite keeps its check count, with no failures and no script errors.
+  - The exception is `perf_tests`' borderline budgets, which the base misses as well. Over three interleaved runs, the
+    base missed 1, 1 and 0 checks, and S9 missed 0, 1 and 2.
+  - The data build is unchanged apart from the contract's World `files` lists.
 
 ## 8. Rerunning the audit
 
