@@ -1190,7 +1190,13 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   - Three planted violations failed it, each by file and line, and were removed.
 - **The side view:** `world.gd` and `player.gd` keep their names. `perf_tests`' crowd still calls `w._cast` and
   `w._on_event` on `world.gd`. Both lines are marked `# side view` and left to S12.
-- **Checks:** S11_AUDIT_CHECKS
+- **Checks:**
+  - On the tree merged with E1, E2, E4 and F1, every gate passed with no script error, and so did every suite but
+    `perf_tests`.
+  - There are 73,776 checks against the base's 73,773: only `contract_tests` grew, by the rule's 3.
+  - `perf_tests`' borderline budgets missed on both sides, as on the base before (S9). Alone, over three interleaved
+    rounds, S11 missed 1, 0 and 1 checks and the base 0, 0 and 1.
+  - The data build is unchanged.
 
 ## 8. Rerunning the audit
 

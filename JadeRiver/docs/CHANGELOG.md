@@ -55,7 +55,18 @@ it so. Only names changed: the game plays the same, and the save data is untouch
 - **The side view.** `world.gd` and `player.gd` keep their names. Two calls into `world.gd` are left out of the rule
   with a `# side view` mark: `w._cast` and `w._on_event` in `perf_tests`' crowd, which runs in the side view. Renaming
   them would only touch the side view, and S12 deletes it.
-- **Checks.** S11_CHECKS
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with E1, E2, E4 and F1, and on that base alone
+  (`eac2130`).
+  - Every gate passed on both, `boot` among them, with no SCRIPT ERROR.
+  - The 21 suites have 73,776 checks, against the base's 73,773. `contract_tests` has 1,112 against 1,109, the rule's
+    3 checks. Every other suite kept its count.
+  - `perf_tests` missed one millisecond budget on each side: the Marsh Edge's fight on S11 and the sword swarm on the
+    base. The two full runs shared the machine, at a load of about 7.
+  - Three more interleaved rounds ran `perf_tests` alone. S11 missed 1, 0 and 1 checks, and the base 0, 0 and 1. The
+    misses were the same borderline budgets flipping both ways: the sword swarm (16.68 ms against 16.6), the wood
+    tree's drag, and the Marsh Edge's fight.
+  - `build_data.py` writes nothing. `data/` is unchanged, `event_contract.json` included, because no emit moved
+    between files.
 
 ## Follow-up fixes from the code audit (decision 45, F1)
 
