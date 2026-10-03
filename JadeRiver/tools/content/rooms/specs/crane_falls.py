@@ -38,6 +38,7 @@ CF_FALLS_POOL = room(
     traverse=[("updraft", "falls_spray", dict(rect=(26, 7, 4, 5), top=3.5)),
               ("vine", "falls_vine", dict(foot=(34, 8), top=(34, 7))),
               ("rope", "falls_step_rope", dict(foot=(14, 7), top=(13, 7)))],
+    pins={"drop": [(35, 7)]},   # T1: the pine that hid the vine
     foes="auto")
 
 # Behind the Falls: the grotto behind the curtain of Crane Falls, its floor worn round by the spray, a still spring in

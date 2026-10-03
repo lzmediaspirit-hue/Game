@@ -1,0 +1,141 @@
+{
+ "schema_version": 1,
+ "sheet": "res://art/topdown/traverse.png",
+ "sprites": {
+  "chain_foot": {
+   "frames": 1,
+   "rect": [
+    17,
+    54,
+    16,
+    16
+   ]
+  },
+  "chain_mid": {
+   "frames": 1,
+   "rect": [
+    0,
+    54,
+    16,
+    16
+   ]
+  },
+  "chain_top": {
+   "frames": 1,
+   "rect": [
+    102,
+    38,
+    16,
+    16
+   ]
+  },
+  "glide": {
+   "frames": 2,
+   "rect": [
+    0,
+    102,
+    26,
+    10
+   ]
+  },
+  "ladder_foot": {
+   "frames": 1,
+   "rect": [
+    85,
+    38,
+    16,
+    16
+   ]
+  },
+  "ladder_mid": {
+   "frames": 1,
+   "rect": [
+    68,
+    38,
+    16,
+    16
+   ]
+  },
+  "ladder_top": {
+   "frames": 1,
+   "rect": [
+    51,
+    38,
+    16,
+    16
+   ]
+  },
+  "raft_2x2": {
+   "frames": 2,
+   "rect": [
+    0,
+    0,
+    32,
+    38
+   ]
+  },
+  "rope_foot": {
+   "frames": 1,
+   "rect": [
+    34,
+    38,
+    16,
+    16
+   ]
+  },
+  "rope_mid": {
+   "frames": 1,
+   "rect": [
+    17,
+    38,
+    16,
+    16
+   ]
+  },
+  "rope_top": {
+   "frames": 1,
+   "rect": [
+    0,
+    38,
+    16,
+    16
+   ]
+  },
+  "spray": {
+   "frames": 4,
+   "rect": [
+    34,
+    54,
+    16,
+    48
+   ]
+  },
+  "vine_foot": {
+   "frames": 1,
+   "rect": [
+    99,
+    0,
+    16,
+    16
+   ]
+  },
+  "vine_mid": {
+   "frames": 1,
+   "rect": [
+    82,
+    0,
+    16,
+    16
+   ]
+  },
+  "vine_top": {
+   "frames": 1,
+   "rect": [
+    65,
+    0,
+    16,
+    16
+   ]
+  }
+ }
+}

@@ -255,6 +255,10 @@ func _build_room() -> void:
 		var pv := PropView.new(self, p)
 		sorted.add_child(pv)
 		_room_nodes.append(pv)
+	# T1: the side view's traversal on the grid: rafts, climbable faces, updrafts' spray (TopdownTraverseView).
+	for tv in TopdownTraverseView.build(self):
+		sorted.add_child(tv)
+		_room_nodes.append(tv)
 	viewport.add_child(foliage)
 	_room_nodes.append_array(foliage.build())
 	npc_views = {}
@@ -451,7 +455,10 @@ func request_portal(portal_id: String, crossing := false) -> void:
 	WorldShared.request_portal(self, portal_id, crossing)
 
 func _update_context() -> void:
-	var ctx := WorldShared.context(Game.active(), player.motor.pos)
+	# T1: a climbable face in reach offers Climb when nothing else is offered, as the side view's ladder does.
+	var near: Dictionary = player.climb_near() if player.motor.climbing.is_empty() else {}
+	var climb := {"type": "climbable", "climbable": str(near.climb.id), "label": Tx.t("hud.climb")} if not near.is_empty() else {}
+	var ctx := WorldShared.context(Game.active(), player.motor.pos, climb)
 	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
 	if ctx.hash() != context.hash(): context = ctx
 

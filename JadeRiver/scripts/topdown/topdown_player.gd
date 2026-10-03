@@ -628,6 +628,8 @@ func sync(delta: float) -> void:
 		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
+	# T1: a body on a climbable face draws in front of it, and of the raised floor's whole side it hangs on.
+	if not m.climbing.is_empty(): position.y = maxf(position.y, float(m.climbing.get("front_key", 0.0)) + 0.25)
 	# A cut holds the body's clocks still (Game.paused): no flinch's red or dodge's blink is held through it (decision 45).
 	var inv: bool = not Game.paused and (motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0))
 	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0 and not Game.paused
@@ -666,3 +668,5 @@ func _draw() -> void:
 	# A cut holds the simulation (and this body's clock) still: no blow's white is held through it either.
 	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) and not Game.paused else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)
+	# T1: Falling Leaf Glide's leaf of qi spread over the body while it glides (an effect: no new body pose).
+	if motor.gliding: TopdownTraverseView.draw_glide(self, Vector2(0, screen.y - position.y))

@@ -61,8 +61,16 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			var foot := TopdownRoom.cell_point(r.get("foot", [0, 0]))
 			var top := TopdownRoom.cell_point(r.get("top", [0, 0]))
 			var dir := (top - foot).normalized()
+			# The sort key a body on it and its own tiles draw after (art px): the face's own row on a south face; on an east
+			# or west side, past the raised floor's front row in that column (the body hangs in front of the whole side).
+			var tc := TopdownRoom.cell_of(top)
+			var front := tc.y + 1
+			if absf(dir.x) > 0.5:
+				var lv := room.level(tc.x, tc.y)
+				while front < room.h and room.level(tc.x, front) >= lv and room.level(tc.x, front) != TopdownRoom.SOLID: front += 1
+			else: front = maxi(tc.y, TopdownRoom.cell_of(foot).y)
 			t.climbs.append({"id": id, "kind": kind, "foot": foot, "top": top, "dir": dir, "face": (foot + top) * 0.5,
-				"foot_z": room.floor_at(foot), "top_z": room.floor_at(top)})
+				"foot_z": room.floor_at(foot), "top_z": room.floor_at(top), "front_key": float(front) * TopdownRoom.TILE / TopdownRoom.ART + 0.25})
 	return t
 
 ## A number of the top-down traversal (movement.json `topdown.traverse`).
