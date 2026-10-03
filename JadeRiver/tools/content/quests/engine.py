@@ -5,7 +5,7 @@ board as specs, compiled into the rows the game reads.
     python3 tools/content/quests/engine.py --list        # every quest: its band, room, realm and pay
     python3 tools/content/quests/engine.py --show ID     # one quest: the row, and what was derived and pinned
     python3 tools/content/quests/engine.py --bands       # the band table: Levels, need, cultivation, pay
-    python3 tools/content/quests/engine.py --diffs       # the quests that pay otherwise than their band
+    python3 tools/content/quests/engine.py --diffs       # the quests that pay otherwise than their band, or sit far from their room
 
 A spec (specs/<module>.py, spec.py) writes:
 - the quest's quests.json row (story.py places each section with `rows(section)` among its hand quests and calls
@@ -544,6 +544,27 @@ def differences(st=None, w=None):
     return out
 
 
+def far_rooms(st=None, w=None, above=4, below=8):
+    """[(quest, tier, Level, room, band)] for every quest whose room (its target, or where its first step leads when it
+    names none) lies more than `above` Levels over its tier (the kill gap's full-credit band, stats.json) or `below`
+    under it: a quest pitched at a tier its fights do not match."""
+    import realms as R
+    st, w = st or state(), w or world()
+    built = {r["id"]: r for r in _read("quests.json")["entries"]}
+    out = []
+    for q in st.quests:
+        b = built.get(q["id"])
+        if b is None:
+            continue
+        d = derive(q, w)
+        room = d["target_room"] or d["derived_room"]
+        band = w.band(room) if room else None
+        lv = next((int(r["level"]) for r in R.ladder() if r["key"] == b["tier"]), 0)
+        if band and (band[0] > lv + above or band[1] < lv - below):
+            out.append((q["id"], b["tier"], lv, room, "%d-%d" % band))
+    return out
+
+
 def main(argv=None):
     import argparse
     ap = argparse.ArgumentParser(prog="engine.py", description=__doc__.strip().split("\n\n")[0])
@@ -551,7 +572,7 @@ def main(argv=None):
     ap.add_argument("--list", action="store_true", help="every quest: its section, band, room, realm and pay")
     ap.add_argument("--show", metavar="ID", help="one quest: the row, what was derived and what is pinned")
     ap.add_argument("--bands", action="store_true", help="the band table")
-    ap.add_argument("--diffs", action="store_true", help="the quests that pay otherwise than their band")
+    ap.add_argument("--diffs", action="store_true", help="the quests that pay otherwise than their band, and those pitched far from their room")
     args = ap.parse_args(argv)
     st, w = state(), world()
     if args.list:
@@ -572,8 +593,12 @@ def main(argv=None):
             print("%-18s %-9s %-8d +%-11d %d %s" % (b[0], "%d-%d" % (lv[0], lv[-1]), R.need_at_level(b[1]), B.experience(b), b[3], b[2]))
         return 0
     if args.diffs:
+        print("pay: the quests that pay otherwise than the band at their tier")
         for row in differences(st, w):
-            print("%-28s %-16s %-18s band: %-28s quest: %s" % row)
+            print("  %-28s %-16s %-18s band: %-28s quest: %s" % row)
+        print("rooms: the quests whose room's Levels are far from their tier")
+        for row in far_rooms(st, w):
+            print("  %-28s %-18s Level %-4d %-24s Levels %s" % row)
         return 0
     errs = []
     deterministic(errs)
@@ -587,10 +612,12 @@ def main(argv=None):
         print("quest engine:\n  " + "\n  ".join(errs), file=sys.stderr)
         return 1
     st = state()
-    pinned = sum(1 for q in st.quests if q["pay"] is not AUTO)
-    print("quest engine: %d quests in %d sections (%d pay their band, %d pinned), %d daily templates with %d jobs; %d "
-          "tests; the specs, determinism, the built data and the bands hold" % (len(st.quests), len(st.sections), len(st.quests) - pinned,
-                                                                              pinned, len(st.dailies), sum(len(d["jobs"]) for d in st.dailies), ran))
+    band = sum(1 for q in st.quests if q["pay"] is AUTO)
+    none = sum(1 for q in st.quests if q["pay"] is None)
+    print("quest engine: %d quests in %d sections (%d pay their band, %d a pinned sum, %d no money), %d daily templates with "
+          "%d jobs; %d tests; the specs, determinism, the built data and the bands hold" % (
+              len(st.quests), len(st.sections), band, len(st.quests) - band - none, none, len(st.dailies),
+              sum(len(d["jobs"]) for d in st.dailies), ran))
     return 0
 
 
@@ -610,6 +637,6 @@ def show(qid, st, w):
                                                        " (pinned)" if q["realm"] is not AUTO else " (derived)"))
     if built:
         band = band_of_tier(built["tier"])
-        print("tier %s, band %s: +%d cultivation, %s; pay %s" % (built["tier"], band[0], B.experience(band), B.pay(band),
-                                                                 "pinned %r" % (q["pay"],) if q["pay"] is not AUTO else "the band's"))
+        print("tier %s, band %s: +%d cultivation, %d %s; this quest pays %s" % (built["tier"], band[0], B.experience(band), band[3], band[2],
+                                                                                "the band's" if q["pay"] is AUTO else "pinned: %r" % (q["pay"],)))
     return 0
