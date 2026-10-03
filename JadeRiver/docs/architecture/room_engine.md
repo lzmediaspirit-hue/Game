@@ -135,6 +135,7 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
 - `tests/topdown_chapter3.tscn`: chapter 3 played on the grid through the six new rooms (see below).
 - `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
 - `tests/topdown_drowned_shrine.tscn`: R2's ten rooms played on the grid (below).
+- `tests/topdown_story_rooms.tscn`: R5's ten rooms, the story's events in them played on the grid (below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
   alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`, `r2/`; a
   view under a folder keeps its x2 copy and its whole room in that folder's `world/` and `rooms/`). The set keeps the
@@ -585,9 +586,141 @@ from the Falls Pool and by its teleport stone. `topdown_peaks` still sets its bo
 the peaks alone. Chapter 7's rooms are on the grid now, and Act I ends there at the Ascension Gate. Its first quest,
 Wings of Cloud, still asks for the side view's flight (above).
 
+## The story's rooms and the Tidebreak Front (R5)
+
+The ten rooms the story keeps for its own events, and the Tidebreak Front's, now on the grid: five instanced story
+rooms (`specs/story.py`) and the Front's five (`specs/tidebreak_front.py`, the Tide battle among them). Each is laid out
+for its event: an arena with clear fighting ground, a wall with its gate for the siege, the Gate's line for the war, the
+trials' own shapes. `tests/topdown_story_rooms` plays every event in them (below). Gu's Warehouse was the last way off
+the grid in Act I; its door on Artisan Row is open now.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r5/`) |
+|---|---|---|---|
+| `si_gus_warehouse` | 22 | (an interior) | `01_gus_warehouse`, `02_warehouse_strongroom`, `rooms/si_gus_warehouse` |
+| `si_trial_of_reflections` | 16 | `mountain` | `03_trial_of_reflections`, `rooms/si_trial_of_reflections` |
+| `si_presence_trial` | 16 | `mountain` | `04_presence_trial`, `rooms/si_presence_trial` |
+| `si_siege` | 30 | `valley_road` | `05_siege_gate`, `06_siege_field`, `rooms/si_siege` |
+| `si_sect_war` | 29 | `mountain` | `07_sect_war_gate`, `08_sect_war_junk`, `rooms/si_sect_war` |
+| `tf_tidebreak_bastion` | 28 | `bastion` | `09_tidebreak_bastion`, `rooms/tf_tidebreak_bastion` |
+| `si_tide_battle` | 17 | `bastion` | `10_tide_battle`, `rooms/si_tide_battle` |
+| `tf_greyfall_breach` | 27 | `tidebreak` | `11_greyfall_breach`, `rooms/tf_greyfall_breach` |
+| `tf_hollow_wake` | 21 | `tidebreak` | `12_hollow_wake`, `rooms/tf_hollow_wake` |
+| `tf_drone_hive` | 17 | `tidebreak` | `13_drone_hive`, `rooms/tf_drone_hive` |
+
+The line counts take in the props written out; the siege's camp and the Bastion's yard are the longest. As R1's and
+R4's, the capture's x2 copies of the world alone are not kept.
+
+**The rooms.**
+- *Gu's Warehouse*: a flagstone store under lamplight, the goods in stacks a body can climb (crates) between aisles
+  where the bandits keep watch. A loft of boards runs along the north wall from the west stair to the east one, the
+  catwalk between them the side view's stealth route under the roof. Gu's strongbox stands on the strongroom's dais
+  at the east loft's end, a level higher again. Gu holds his office in the east, on a floor of boards.
+- *The Trial of Reflections*: an octagon of granite on Elder Hu's peak, every line of it mirrored about the bronze
+  mirror on its dais: two granite ledges a step up, the same flight up each, the lanterns and censers in pairs. The
+  Reflection waits where the player's mirror image would stand, across from the way in.
+- *The Presence Trial*: the Nine Peaks' court above the Trial Hall. Nine seats look down on a circle of paving in a
+  horseshoe open to the south, each on a plinth too high to climb. The ninth, empty, is the highest, between its two
+  pressure pillars. The phantoms come from the court's west, east and south, and the ninth Presence rises before the
+  ninth seat.
+- *The Siege of Two Sects*: the wall across the valley with its gate on the road, a tower each side of the gate and
+  one at each end, flights up to the wall-walk from the camp. The sects' camp is south of it, the valley the Hollow
+  turned grey north of it. The boarlets come out of the grey, and the Behemoth stands on the road before the gate.
+- *The Sect War at the Alliance Gate*: the comet sails' junk run aground along the pass's north edge, its deck a long
+  hull two levels over the rock, gangways down from it. The forecourt lies between it and the Alliance's line, a
+  granite parapet a step high with its gap on the road. The Gate's two great pillars stand behind it, the way out
+  south. The pirates and the turncoats come down the gangways, and Comet Captain Rao drops from the rail between them.
+- *The Tidebreak Bastion*: the Wardens' yard of flagstones under the great wall and its towers, the granite road from
+  the skiff dock over the cloud sea to the east gate between two more towers. The lantern's cage stands on its dais,
+  star lanterns line the road, and the great bell hangs on its own dais.
+- *The Tide Breaks*: the wall's outer terrace. The great lantern burns on a dais against the wall in the middle. A
+  barricade of crates and barrels crosses the terrace each side of it, a gap where the road runs: the lines the
+  Wardens hold. The Tide comes from both ends, up over the rim.
+- *The Greyfall Breach*: the Bastion's outer wall across the grey, broken in the middle. The Wardens' road comes in
+  along the wall's south side, turns north through the breach and runs east through the grey. The wall steps down at
+  the breach's ragged edges. Shen Lian holds the gap, the warning bell beside it on the Wardens' side, and the stand's
+  waves come out of the grey north of the wall.
+- *The Hollow Wake*: the scar the Tide left, a trough of drained rock between two low rises, the track along its
+  floor, grey pools standing in it, three outcrops climbing from the rises. Lu's journal page lies on its rack by the
+  first pool.
+- *The Drone Hive*: the Hollow's hive mound in two tiers thick with hives, the chests on its crown. The track skirts it
+  to the south and runs east to where the dark thins into the nebula.
+
+**The looks.**
+- Two biomes (`biomes.py`, R5's block):
+  - `tidebreak`: the grey fields, bare rock the Tide has drunk, dead trees and grey reeds, stumps and logs;
+  - `bastion`: a Wardens' fortress of granite and flagstones, little growing but weeds and fallen stones.
+- Three props (`tools/art/topdown/furnish.py`, R5's block; the prop sheet rebuilt by `build_tiles.py`):
+  - `trial_seat`: a granite throne of the Nine Peaks, a jade stone in its crown and a lilac cushion;
+  - `bronze_mirror`: the side view's mirror in its curved frame on a pedestal, a jade mist in its face;
+  - `drone_hive`: a cone of grey papery stone in scalloped courses, its cells glowing violet.
+- Vistas (`topdown_life.VISTAS`): peaks behind the trials, the Gate, the siege and the grey fields, and the cloud sea
+  under the brinks of the peaks and the Tidebreak Front.
+- **A wall that must read as one runs east and west.** In the 3/4 view only a south face shows. A wall running north
+  and south is its top alone, a strip of stone on the ground (the first drafts of the siege and the Breach). So the
+  siege's wall, the Alliance's line and the Breach's outer wall cross their rooms east to west, and their events come
+  from the north. The Tide battle's lines must cross a terrace the Tide reaches from both ends, so they are built of
+  crates and barrels, which stand up from the ground.
+- The specs' helpers (`specs/story.py`): `octagon()`, a floor of rects laid one over another so a trial's arena stays
+  exactly symmetric (a round shape wears with the room's seed), and `stair_with_cheeks()`, R3's flight between cheeks.
+- R4's rule holds: a raised thing stands at least its level in rows from the north edge. Gu's strongbox is on the
+  strongroom's dais at row 3, level 3.
+
+**An engine rule.** A layout's `event` gives the cells of the room's own event (`TopdownRoom.merge_def`), or of a set
+piece begun in it (`TopdownRoom.grid_event`). The checks compared them with the room's own event only. The Greyfall
+Breach has none: its stand is the set piece its bell begins. Now, for a room with no event of its own, `check` holds
+the layout's cells to that set piece's room event (`topdown_rooms.set_piece_event`). Every older room is unchanged.
+
+**The events on the grid.** Every event in these rooms spawns on the layout's own cells:
+- the Reflection, the Behemoth and the siege's boarlets;
+- the war's pirates, turncoats and captain;
+- the phantoms and the ninth Presence;
+- the Tide's drones and wyrmlings;
+- the Greyfall stand's waves.
+
+The tide battle's lantern drains within 180 units of the great lantern and relights within 120 of it. On the grid
+these are its place's plane distance, about six and four cells.
+
+**Tested in** `tests/topdown_story_rooms.tscn` (68 checks), by test shortcuts along the story:
+- every room is entered on the grid, built by the view and walked by auto-path from every way in;
+- The Heart Trial: the Reflection defeated on its arena;
+- Gu's Warehouse: the strongbox opened on the strongroom, Gu held off until he flees with his ledger dropped;
+- The Siege: the Behemoth and the boarlets come out of the grey north of the wall, at the room's cells;
+- The Gate Holds: the pirates, the turncoats and Rao come at their cells, and Rao falls;
+- The Presence Trial: the phantoms come, and the ninth Presence rises before its seat;
+- The Tide Breaks: the bell rung, the drones come at both ends, the lantern relit by a Warden beside it and drained by
+  a foe near it, then held;
+- the grey fields walked east to the Drone Hive and back:
+  - Lu's journal page taken in the Wake;
+  - the chest on the hive's crown;
+  - Greyfall's stand rung and held beside Shen Lian, its waves out of the grey at the room's cells.
+
+The ways to rooms with no layout are gated: the Alliance Gate, the Citadel's skiff and the Nebula Deep.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; E2's work): the Mudwater bandit, Elder Gu and his
+  hired gorge bandit adepts, the Hollow Behemoth, the starsea pirate, the Nine Peaks disciple, the pirate captain, the
+  presence phantom, the ninth Presence, the hollow drone and the hollowed wyrmling. The Reflection and the heart demons
+  draw the player's own figure, as the side view does. The hollowed boarlet has its sheet.
+- Mechanics with no top-down counterpart yet (T1's work):
+  - The Reflection's heart demons are spawned at the side view's points (`WorldRoomEvents.start_event`: x
+    700 + 260 per demon, y 860), read as world units on the grid. On the arena's 36 by 22 cells they land outside
+    the room. They want `TopdownRoom.from_side`, or a cell in the layout's event.
+  - The side view's stealth route over the rafters is the catwalk loft here. Whether Concealment hides a body up there
+    from the floor's bandits is the side view's rule, not the grid's.
+  - The Tidebreak Front's backdrop is the side view's night sky, but the grid's light follows the clock there (no
+    area in `TopdownLight.AREAS` for `tidebreak_front` or `nine_peaks`). The siege's `valley_dusk` and the warehouse's
+    interior keep their hours.
+- Some side-view decor has no top-down counterpart: the star ballista, the sky ship's sails, the pirate and the
+  alliance banners (the sects' jade and cloud banners stand in), the paifang's roof.
+
+**The frontier now** (R5): Gu's Warehouse is on the grid. In Act I the gate stands only at the Ascension Gate's way
+up to the Azure Expanse (Act II). Past it, the Sect War's and the Presence Trial's ways back lead to the Nine Peaks'
+rooms, the Bastion's skiff to the Citadel, and the Drone Hive's way east to the Nebula Deep. Those rooms have no
+layout, so the four ways are gated. The Tidebreak Front's own rooms join each other on the grid.
+
 ## The rooms left, and the pace
 
-90 side-view rooms remain, by zone (`region`); the struck ones are done:
+80 side-view rooms remain, by zone (`region`); the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -611,10 +744,11 @@ Wings of Cloud, still asks for the side view's flight (above).
   - `summit_ridge`: ~~`sr_windswept_ridge`~~, ~~`sr_frozen_shrine`~~;
   - `hidden_vale`: ~~`hv_vale_gate`~~, ~~`hv_sect_grounds`~~, ~~`hv_back_mountain`~~;
   - `unmapped`: ~~`hg_hidden_grotto`~~.
-- **The story's own rooms:**
-  - `story`: `si_gus_warehouse`, `si_presence_trial`, `si_sect_war`, `si_siege`, `si_trial_of_reflections`;
-  - `tidebreak_front`: `si_tide_battle`, `tf_drone_hive`, `tf_greyfall_breach`, `tf_hollow_wake`,
-    `tf_tidebreak_bastion`.
+- **The story's own rooms** (R5, all done: "The story's rooms and the Tidebreak Front (R5)" above):
+  - `story`: ~~`si_gus_warehouse`~~, ~~`si_presence_trial`~~, ~~`si_sect_war`~~, ~~`si_siege`~~,
+    ~~`si_trial_of_reflections`~~;
+  - `tidebreak_front`: ~~`si_tide_battle`~~, ~~`tf_drone_hive`~~, ~~`tf_greyfall_breach`~~, ~~`tf_hollow_wake`~~,
+    ~~`tf_tidebreak_bastion`~~.
 - **Act II and after:**
   - `cloudgate_port` (6);
   - `thunderhorn_plains`, `rimefrost_heights`, `mirrorwater_lake` (4, 4, 5);
