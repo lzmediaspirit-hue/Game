@@ -802,7 +802,7 @@ static func sets() -> Dictionary:
 		t2.call("20_wind_ridge", "sr_windswept_ridge", Vector2(40, 16), [["frames", 210]]),
 		t2.call("21_swim_drowned_grotto", "ds_drowned_grotto", Vector2(9, 12), [["set", "cultivator.secret_arts", ["breath_control"]], ["refresh"], ["move", Vector2.DOWN],
 			["frames", 16], ["stop"], ["frames", 16]]),
-		t2.call("22_wade_hermit_pond", "rm_hermit_stilt_house", Vector2(11, 10), [["move", Vector2.RIGHT], ["frames", 40], ["stop"], ["frames", 4]])]}
+		t2.call("22_wade_scripture_well", "ds_scripture_well", Vector2(12, 22), [["move", Vector2.RIGHT], ["frames", 40], ["stop"], ["frames", 4]])]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

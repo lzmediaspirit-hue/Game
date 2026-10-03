@@ -223,7 +223,7 @@ its own room:
 - the Tunnels' spike pit, the Flooded Gate's plank and the lanterns;
 - the Abbot's flood and the Wall-Step shaft;
 - the court's ice, an icicle shelf, the monastery's rotten floor, the wind;
-- the swim in the Drowned Grotto's pool, and the wade through the hermit's shallow pond.
+- the swim in the Drowned Grotto's pool, and the wade through the Scripture Well's flooded floor.
 
 ## To do, in order
 
