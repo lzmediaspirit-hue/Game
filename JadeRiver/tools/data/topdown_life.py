@@ -295,6 +295,10 @@ VISTAS = {
     "or_tumbling_stair": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "or_orbit_garden": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "or_golem_foundry": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_cinder_fields": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_ashborn_palisade": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_war_camp": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_kharns_pyre": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

@@ -266,14 +266,14 @@ BIOMES = {
                   "water": ["star_crystal", "rock_small"]},
     },
     # The Ashen Reach: the burnt plain where the Ashborn camp, dark earth under drifts of ash (the earth laid over all
-    # after the scatter, R7's `earth`), its rises grey with ash; charred trees, beds of embers still glowing, boulders
-    # and blackened stones.
+    # after the scatter, R7's `earth`), its rises grey with ash; charred trees, beds of embers still glowing, boulders.
+    # No piece of the foliage kit: the earth is never laid under one, and it would keep a tuft of meadow round it.
     "ashen": {
         "base": "g", "stair": "s", "density": 0.3, "cheek": "boulder",
-        "flora": {"wall": ["charred_tree", "boulder", "ash_drift", "rock_small"],
-                  "ground": ["charred_tree", "ash_drift", "embers", "boulder", "rock_small", "ash_drift"],
-                  "walk": ["embers", "rock_small", "ash_drift"],
-                  "water": ["rock_small", "ash_drift"]},
+        "flora": {"wall": ["charred_tree", "boulder", "ash_drift"],
+                  "ground": ["charred_tree", "ash_drift", "embers", "boulder", "ash_drift"],
+                  "walk": ["embers", "ash_drift", "boulder"],
+                  "water": ["boulder", "ash_drift"]},
         "ground": {"earth": ["*"]},
     },
     # The Nebula Deep: reefs of dark rock and pale nebula sand in the luminous sea the nebula runs as (its water), coral

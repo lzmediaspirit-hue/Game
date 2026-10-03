@@ -1,0 +1,275 @@
+{
+ "schema_version": 1,
+ "id": "lt_flame_heart",
+ "name": "Flame Heart",
+ "size": [
+  56,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "66666666666666666666666666666666666666666666666666666666",
+  "62222222220000000000000000000000000000000000000000000006",
+  "62222222220000000000000000000000000000000000000000000006",
+  "62222222220000000000000000000000000000000000000000000006",
+  "62222222220000000000000000000000000000000000000000000006",
+  "62222222220000000000000000000000000000000000000000000006",
+  "60000000000000000000000011111111000000000000000000000006",
+  "60000000000000000000000111111111110000000000000000000006",
+  "60000000000000000000001111111111111000000000000000000006",
+  "60000000000000000000001111111111111000000000000000000006",
+  "60000000000000000000001111111111110000000000000000000006",
+  "00000000000000000000001111111111110000000000000000000006",
+  "00000000000000000000000111111111100000000000000000000006",
+  "60000000000000000000000011111111000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "60000000000000000000000000000000000000000000000000000006",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "appppppppprrrrrrrpprrrpprrrrrrrrpppprrrrrrrrrrrrrrrrrrra",
+  "appppppppprrrrrrppppppppppppppppppppppprrrrrrrrrrrrrrrra",
+  "appppppppprrrrrppppppppppppppppppppppppprrrrrrrrrrrrrrra",
+  "appppppppprpppppppppppppppppppppppppppppppppprrrrrrrrrra",
+  "appppppppppppppppppppppppppppppppppppppppppppprrrrrrrrra",
+  "arrrsssrrpppppppppppppppsssssssspppppppppppppprrrrrrrrra",
+  "arrrsssrpppppppppppppppsssssssssssppppppppppppprrrrrrrra",
+  "arrrssspppppppppppppppsssssssssssssppppppppppppprrrrrrra",
+  "arrrssspppppppppppppppsssssssssssssppppppppppppprrrrrrra",
+  "arrrrrppppppppppppppppssssssssssssppppppppppppppprrrrrra",
+  "rrrrrrppppppppppppppppssssssssssssppppppppppppppprrrrrra",
+  "rrrrrrpppppppppppppppppsssssssssspppppppppppppppprrrrrra",
+  "arrrrrppppppppppppppppppssssssssppppppppppppppppprrrrrra",
+  "arrrrrpppppppppppppppppppsssppppppppppppppppppppprrrrrra",
+  "arrrrrrppppppppppppppppppsssppppppppppppppppppppprrrrrra",
+  "arrrrrrrppppppppppppppppppppppppppppppppppppppppprrrrrra",
+  "arrrrrrrrppppppppppppppppppppppppppppppppppppppprrrrrrra",
+  "arrrrrrrrppppppppppppppppppppppppppppppppppppprrrrrrrrra",
+  "arrrrrrrrrppppppppppppppppppppppppppppppppprrrrrrrrrrrra",
+  "arrrrrrrrrrrppppppppppppppppppppppppppppprrrrrrrrrrrrrra",
+  "arrrrrrrrrrrrrrrppppppppppppppppppppppprrrrrrrrrrrrrrrra",
+  "arrrrrrrrrrrrrrrrrrrrppprrpppprrrrpprrrrrrrrrrrrrrrrrrra",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 25,
+   "y": 14,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 4,
+   "y": 6,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern_cage",
+   "x": 27,
+   "y": 9
+  },
+  {
+   "kind": "flame_basin",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "flame_basin",
+   "x": 32,
+   "y": 9
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 11,
+   "y": 11
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 44,
+   "y": 11
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 14,
+   "y": 18
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 41,
+   "y": 18
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 20,
+   "y": 21
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 35,
+   "y": 21
+  },
+  {
+   "kind": "star_lantern",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "star_lantern",
+   "x": 2,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 9
+  },
+  {
+   "kind": "star_crystal",
+   "x": 51,
+   "y": 1
+  },
+  {
+   "kind": "star_crystal",
+   "x": 54,
+   "y": 3
+  },
+  {
+   "kind": "star_crystal",
+   "x": 51,
+   "y": 4
+  },
+  {
+   "kind": "star_crystal",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "star_crystal",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "star_crystal",
+   "x": 1,
+   "y": 22
+  },
+  {
+   "kind": "star_crystal",
+   "x": 48,
+   "y": 20
+  },
+  {
+   "kind": "star_crystal",
+   "x": 51,
+   "y": 20
+  },
+  {
+   "kind": "star_crystal",
+   "x": 54,
+   "y": 20
+  }
+ ],
+ "place": {
+  "heart_flame": [
+   28,
+   15
+  ],
+  "chest_ledge_mv_1": [
+   6,
+   5
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    12
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

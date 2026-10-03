@@ -86,6 +86,13 @@ const E1_VIEWS := [
 	["r9/07_presence_court", "wc_presence_court", Vector2(27, 17), true],
 	["r9/08_tumbling_stair", "or_tumbling_stair", Vector2(30, 15), true], ["r9/09_orbit_garden", "or_orbit_garden", Vector2(25, 15), true],
 	["r9/10_golem_foundry", "or_golem_foundry", Vector2(34, 13), true], ["r9/11_inverted_hall", "or_inverted_hall", Vector2(30, 12), true],
+	["r9/12_cinder_fields_landing", "ar_cinder_fields", Vector2(14, 15), true], ["r9/13_cinder_fields_camp", "ar_cinder_fields", Vector2(52, 14), false],
+	["r9/14_ashborn_palisade", "ar_ashborn_palisade", Vector2(31, 15), true], ["r9/15_war_camp", "ar_war_camp", Vector2(30, 14), true],
+	["r9/16_kharns_pyre", "ar_kharns_pyre", Vector2(28, 13), true],
+	["r9/17_nebula_verge", "nd_nebula_verge", Vector2(30, 13), true], ["r9/18_eel_currents", "nd_eel_currents", Vector2(38, 13), true],
+	["r9/19_crab_grottoes", "nd_crab_grottoes", Vector2(46, 12), true], ["r9/20_leviathans_maw", "nd_leviathans_maw", Vector2(42, 13), true],
+	["r9/21_wick_gate", "lt_wick_gate", Vector2(30, 12), true], ["r9/22_hall_of_burning_stars", "lt_hall_of_burning_stars", Vector2(36, 12), true],
+	["r9/23_flame_heart", "lt_flame_heart", Vector2(28, 17), true],
 ]
 
 static func sets() -> Dictionary:

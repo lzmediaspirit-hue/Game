@@ -574,38 +574,43 @@ def ashborn_banner(s: Img, f: int = 0) -> None:
 
 
 def embers(s: Img, f: int = 0) -> None:
-    """A bed of embers where a fire burned down on the plain, footprint 1 x 1 (walk-through, flat): grey ash with
-    charred sticks and coals glowing through it, the glow moving coal to coal frame by frame. 16 x 16; corner
-    (0, 16)."""
-    for i in range(16):
+    """A bed of embers where a fire burned down on the plain, footprint 2 x 1 (walk-through, flat): a ring of black
+    char and grey ash round a heart of coals glowing orange through it, charred sticks across it, the glow moving
+    coal to coal frame by frame. 32 x 16; corner (0, 16)."""
+    for i in range(32):
         for j in range(16):
-            d = math.hypot((i + 0.5 - 8) / 7.5, (j + 0.5 - 9) / 5.5)
-            if d <= 1.0 and h01(i, j, 953) < 1.15 - d * 0.6:
-                s.put(i, j, ASH[3] if d > 0.7 else ASH[2])
-    _line(s, 3, 10, 11, 7, CHAR[1])
-    _line(s, 5, 6, 12, 12, CHAR[2])
-    for k in range(9):
-        x, y = 3 + int(h01(k, 1, 957) * 10), 5 + int(h01(k, 2, 957) * 8)
+            d = math.hypot((i + 0.5 - 16) / 14.5, (j + 0.5 - 8.5) / 6.5)
+            if d > 1.0 or h01(i, j, 953) > 1.25 - d * 0.5:
+                continue
+            col = ASH[4] if d > 0.82 else CHAR[1] if d > 0.6 else CHAR[2] if d > 0.4 else EMBER[1]
+            s.put(i, j, col)
+    _line(s, 6, 11, 22, 6, CHAR[3])                              # charred sticks across it
+    _line(s, 10, 5, 25, 11, CHAR[2])
+    for k in range(14):                                          # the coals, glowing
+        a, r = h01(k, 1, 957) * math.pi * 2, h01(k, 2, 957) ** 0.7
+        x, y = int(16 + math.cos(a) * r * 8), int(8.5 + math.sin(a) * r * 3.5)
         hot = (k + f) % 4 == 0
-        s.put(x, y, EMBER[4] if hot else EMBER[2] if k % 2 else EMBER[3])
-        if hot:
-            s.put(x + 1, y, EMBER[3])
+        s.put(x, y, EMBER[5] if hot else EMBER[3] if k % 2 else EMBER[4])
+        s.put(x + 1, y, EMBER[4] if hot else EMBER[2])
+    s.outline()
 
 
 def ash_drift(s: Img) -> None:
-    """A drift of ash blown against the plain's stones, footprint 2 x 1 (walk-through, flat): a low pale mound with
-    the wind's ripples across it and a charred stick half buried. 32 x 16; corner (0, 16)."""
+    """A drift of ash blown against the plain's stones, footprint 2 x 1 (walk-through, flat): a low mound of pale grey
+    ash, lit along its windward crest and darker in its lee, the wind's ripples across it and a charred stick half
+    buried. 32 x 16; corner (0, 16)."""
     for i in range(32):
         for j in range(16):
-            u, v = (i + 0.5 - 16) / 15.5, (j + 0.5 - 9) / 6.0
+            u, v = (i + 0.5 - 16) / 15.5, (j + 0.5 - 9) / 6.2
             d = u * u + v * v
-            if d > 1.0 or h01(i // 2, j, 961) > 1.35 - d:
+            if d > 1.0 or h01(i // 2, j, 961) > 1.5 - d:
                 continue
-            col = ASH[5] if v < -0.2 else ASH[4] if v < 0.5 else ASH[3]
-            if (i + int(j * 2.2)) % 9 == 0:
-                col = ASH[3]                                     # the wind's ripples
+            col = ASH[6] if v < -0.35 else ASH[5] if v < 0.25 else ASH[4] if v < 0.65 else ASH[3]
+            if (i + int(j * 2.2)) % 9 == 0 and v > -0.35:
+                col = ASH[4] if v < 0.25 else ASH[3]             # the wind's ripples
             s.put(i, j, col)
     _line(s, 20, 8, 26, 6, CHAR[2])
+    s.outline()
 
 
 def charred_tree(s: Img) -> None:
@@ -799,7 +804,7 @@ PROPS = {
     "ash_pyre": (ash_pyre, 32, 48, 2, 1, [0, 46], True, [18, -2, 15, 3]),
     "cinder_tent": (cinder_tent, 64, 58, 4, 2, [0, 56], True, [34, -4, 30, 5]),
     "ashborn_banner": (ashborn_banner, 16, 62, 1, 1, [0, 60], True, [10, -2, 6, 3]),
-    "embers": (embers, 16, 16, 1, 1, [0, 16], False, None),
+    "embers": (embers, 32, 16, 2, 1, [0, 16], False, None),
     "ash_drift": (ash_drift, 32, 16, 2, 1, [0, 16], False, None),
     "charred_tree": (charred_tree, 40, 58, 1, 1, [12, 56], True, [14, -2, 12, 4]),
     "nebula_coral": (nebula_coral, 24, 36, 1, 1, [4, 34], True, [12, -2, 9, 3]),
