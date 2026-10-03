@@ -1,0 +1,1093 @@
+{
+ "schema_version": 1,
+ "id": "bg_thicket_heart",
+ "name": "Thicket Heart",
+ "size": [
+  60,
+  30
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000022222200000000000000000000000",
+  "000111110000000000000000000000000000000011111000000000000000",
+  "000111110000000000000011111000000000000011111000000000000000",
+  "000111110000000000000011111000000000000011111000000000000000",
+  "000000000000000000000011111000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggwwwwwwgggggggggggggggggggggggggggggggwwwwwwwgggg",
+  "ggggggggggggwwwwwwgggggggggggggwwwwwwggggggggggggwwwwwwwgggg",
+  "ggggggggggggwwwwwwgggggggggggggwwwwwwggggggggggggwwwwwwwgggg",
+  "gggggggggggggwwggggggggggggggggwwwwwwgggggggggggggggwwgggggg",
+  "gggwwwwwgggggwwgggggggggggggggggwwggggggwwwwwgggggggwwgggggg",
+  "gggwwwwwgggggwwgggggggwwwwwgggggwwggggggwwwwwgggggggwwgggggg",
+  "gggwwwwwgggggwwgggggggwwwwwgggggwwggggggwwwwwgggggggwwgggggg",
+  "ggggwwggggggggggggggggwwwwwgggggwwgggggggwwggggggggggggggggg",
+  "ggggwwgggggggggggggggggwwggggggggggggggggwwggggggggggggggggg",
+  "gggggggggddddggggggdddgwwgggddddgggggggdddgggggggddddddddddg",
+  "ggggggdddddddddddddddddddgddddddddggggdddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddddggdddddddddddddddddddddddddddggggggggddd",
+  "gggggggggggggddddggggggggggggggggddddddgggddddddgggggggggggd",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 4,
+   "y": 9,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 13,
+   "y": 5,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 23,
+   "y": 10,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 32,
+   "y": 6,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 41,
+   "y": 9,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 52,
+   "y": 5,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 4,
+   "y": 4
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 7,
+   "y": 5
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 9,
+   "y": 2
+  },
+  {
+   "kind": "stump",
+   "x": 11,
+   "y": 8
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 15,
+   "y": 7
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 16,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 18,
+   "y": 3
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 23,
+   "y": 5
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 26,
+   "y": 1
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 27,
+   "y": 5
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 29,
+   "y": 8
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 0
+  },
+  {
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 2
+  },
+  {
+   "kind": "stump",
+   "x": 35,
+   "y": 7
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 37,
+   "y": 1
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 38,
+   "y": 5
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 44,
+   "y": 1
+  },
+  {
+   "kind": "ferns",
+   "x": 46,
+   "y": 8
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 47,
+   "y": 1
+  },
+  {
+   "kind": "stump",
+   "x": 49,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 51,
+   "y": 0
+  },
+  {
+   "kind": "stump",
+   "x": 54,
+   "y": 1
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 56,
+   "y": 4
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 58,
+   "y": 8
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 2,
+   "y": 10
+  },
+  {
+   "kind": "bamboo",
+   "x": 6,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 9,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "stump",
+   "x": 15,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 35,
+   "y": 11
+  },
+  {
+   "kind": "bamboo",
+   "x": 38,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 43,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 45,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "ferns",
+   "x": 53,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 2
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 0
+  },
+  {
+   "kind": "tall_grass",
+   "x": 4,
+   "y": 2
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 6,
+   "y": 2
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 13,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 18,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 21,
+   "y": 0
+  },
+  {
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 1
+  },
+  {
+   "kind": "ferns",
+   "x": 28,
+   "y": 0
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 32,
+   "y": 0
+  },
+  {
+   "kind": "ferns",
+   "x": 39,
+   "y": 2
+  },
+  {
+   "kind": "stump",
+   "x": 42,
+   "y": 1
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 56,
+   "y": 1
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 2,
+   "y": 3
+  },
+  {
+   "kind": "stump",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "bamboo",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "bamboo",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "stump",
+   "x": 28,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 37,
+   "y": 3
+  },
+  {
+   "kind": "stump",
+   "x": 43,
+   "y": 4
+  },
+  {
+   "kind": "bamboo",
+   "x": 48,
+   "y": 4
+  },
+  {
+   "kind": "bamboo",
+   "x": 59,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 7,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 17,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 25,
+   "y": 17
+  },
+  {
+   "kind": "bamboo",
+   "x": 32,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 39,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 50,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 59,
+   "y": 10
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 23
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 3,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 5,
+   "y": 18
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 9,
+   "y": 23
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 10,
+   "y": 17
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 14,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 18,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 21,
+   "y": 20
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 22,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 25,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 29,
+   "y": 27
+  },
+  {
+   "kind": "ferns",
+   "x": 31,
+   "y": 19
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 33,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 36,
+   "y": 23
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 39,
+   "y": 24
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 41,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 43,
+   "y": 22
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 46,
+   "y": 20
+  },
+  {
+   "kind": "bamboo",
+   "x": 47,
+   "y": 18
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 50,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 54,
+   "y": 20
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 56,
+   "y": 25
+  },
+  {
+   "kind": "stump",
+   "x": 58,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 3,
+   "y": 29
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 5,
+   "y": 29
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 8,
+   "y": 28
+  },
+  {
+   "kind": "bamboo",
+   "x": 11,
+   "y": 28
+  },
+  {
+   "kind": "tall_grass",
+   "x": 16,
+   "y": 28
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 29
+  },
+  {
+   "kind": "stump",
+   "x": 25,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 29
+  },
+  {
+   "kind": "ferns",
+   "x": 32,
+   "y": 28
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 38,
+   "y": 29
+  },
+  {
+   "kind": "bamboo",
+   "x": 42,
+   "y": 29
+  },
+  {
+   "kind": "bamboo",
+   "x": 45,
+   "y": 29
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 50,
+   "y": 28
+  },
+  {
+   "kind": "tall_grass",
+   "x": 54,
+   "y": 29
+  },
+  {
+   "kind": "stump",
+   "x": 56,
+   "y": 29
+  },
+  {
+   "kind": "stump",
+   "x": 59,
+   "y": 28
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 3,
+   "y": 22
+  },
+  {
+   "kind": "bamboo",
+   "x": 5,
+   "y": 21
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 6,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 15,
+   "y": 18
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 25
+  },
+  {
+   "kind": "stump",
+   "x": 7,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 11,
+   "y": 25
+  },
+  {
+   "kind": "stump",
+   "x": 14,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "bamboo",
+   "x": 48,
+   "y": 21
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 49,
+   "y": 18
+  },
+  {
+   "kind": "bamboo",
+   "x": 52,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 57,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 45,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 48,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 50,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 52,
+   "y": 25
+  },
+  {
+   "kind": "bamboo",
+   "x": 54,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 27,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 36,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 20,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 28,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 34,
+   "y": 25
+  },
+  {
+   "kind": "stump",
+   "x": 36,
+   "y": 26
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 6,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 9,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 12,
+   "y": 22
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 17,
+   "y": 23
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 20,
+   "y": 27
+  },
+  {
+   "kind": "bamboo",
+   "x": 22,
+   "y": 26
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 26,
+   "y": 22
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 29,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 31,
+   "y": 26
+  },
+  {
+   "kind": "tall_grass",
+   "x": 39,
+   "y": 27
+  },
+  {
+   "kind": "bamboo",
+   "x": 41,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 45,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 48,
+   "y": 27
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 52,
+   "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 56,
+   "y": 23
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 0,
+   "y": 29
+  },
+  {
+   "kind": "ferns",
+   "x": 14,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 18,
+   "y": 29
+  },
+  {
+   "kind": "stump",
+   "x": 22,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 29
+  }
+ ],
+ "place": {
+  "jar_3": [
+   5,
+   7
+  ],
+  "beast_nest_0": [
+   14,
+   3
+  ],
+  "jar_4": [
+   24,
+   7
+  ],
+  "rare_pepper_th": [
+   33,
+   5
+  ],
+  "herb_1": [
+   42,
+   8
+  ],
+  "beast_nest_1": [
+   53,
+   3
+  ],
+  "chest_8": [
+   50,
+   2
+  ],
+  "herb_2": [
+   47,
+   23
+  ],
+  "jar_5": [
+   30,
+   16
+  ],
+  "jar_6": [
+   41,
+   16
+  ],
+  "jar_7": [
+   56,
+   11
+  ],
+  "swarm_jade_scarab": [
+   15,
+   23
+  ],
+  "rift_tear": [
+   33,
+   23
+  ],
+  "spirit_fruit_tree": [
+   25,
+   24
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    59,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    57,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    11,
+    10
+   ],
+   [
+    21,
+    11
+   ],
+   [
+    29,
+    10
+   ],
+   [
+    41,
+    18
+   ],
+   [
+    50,
+    11
+   ]
+  ],
+  [
+   [
+    18,
+    9
+   ],
+   [
+    44,
+    11
+   ]
+  ],
+  [
+   [
+    35,
+    16
+   ]
+  ]
+ ],
+ "areas": [
+  {
+   "kind": "thorns",
+   "rect": [
+    12,
+    11,
+    4,
+    2
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    27,
+    16,
+    4,
+    2
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    44,
+    11,
+    4,
+    2
+   ]
+  },
+  {
+   "kind": "thorns",
+   "rect": [
+    52,
+    16,
+    4,
+    2
+   ]
+  }
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  }
+ ]
+}

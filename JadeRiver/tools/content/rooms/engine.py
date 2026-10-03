@@ -893,8 +893,10 @@ class Build:
                     rest = [kk for kk in kinds if kk not in TREES] or trees
                     for (x, y) in seg:
                         # Where trees grow (a meadow's back, the bank behind the water) six pieces in ten are trees, as
-                        # the hand set them, at a cliff's foot four; the rest bushes, rocks and grass.
-                        share = 0.4 if habitat == "foot" else 0.6
+                        # the hand set them, at a cliff's foot four; the rest bushes, rocks and grass. A biome's
+                        # `tree_share` sets the six (a grove's bamboo stands thicker), the foot two thirds of it.
+                        share = self.biome.get("tree_share", 0.6)
+                        share = (0.4 if share == 0.6 else share * 2.0 / 3.0) if habitat == "foot" else share
                         pick = trees if trees and h01(x, y, salt + 5) < share else rest
                         kind = pick[int(h01(x, y, salt + 3) * len(pick)) % len(pick)]
                         if not self._fits_flora(kind, x, y, clear, walks, lanes, spots, placed):
@@ -945,9 +947,9 @@ class Build:
             return False          # a piece stands on one level: never astride an edge (it would float)
         taken = self._prop_cells()
         cls = _spacing_class(kind)
-        gap = SPACING[cls]
+        gap = self._gap(cls)
         for k, px, py in placed:
-            other = SPACING[_spacing_class(k)]
+            other = self._gap(_spacing_class(k))
             if max(abs(px - x), abs(py - y)) < max(gap, other) * (1.0 if cls == _spacing_class(k) else 0.6):
                 return False
         for yy in range(y, y + fh):
@@ -984,6 +986,10 @@ class Build:
                 if k < key and rr[0] < box[0] + box[2] and box[0] < rr[0] + rr[2] and rr[1] < box[1] + box[3] and box[1] < rr[1] + rr[3]:
                     return False
         return True
+
+    def _gap(self, cls):
+        """How far apart two scattered pieces of a class stand (SPACING; a biome's `tree_gap` for its trees)."""
+        return self.biome.get("tree_gap", SPACING["tree"]) if cls == "tree" else SPACING[cls]
 
     def _spots(self, d, g):
         """What a canopy may not hide (topdown_rooms.check_foliage's rule): every placed thing and every way's lane."""
