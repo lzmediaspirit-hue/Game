@@ -9,17 +9,6 @@ func on_hit_during_event(p: Dictionary) -> void:
 	if rt == null or not rt.event.get("active", false) or str(p.get("target_kind", "")) != "player": return
 	if int(p.get("amount", 0)) > 0: rt.event.hits_taken = int(rt.event.get("hits_taken", 0)) + 1
 
-## A trial's spawn points written for the side view (a Trial Tower floor's, the Grove's waves), for the loaded room: as
-## they are in the side view; on the height grid, each across the room as across the side view's, on a floor
-## (TopdownRoom.from_side; R3, E1's rooms: the tower's and the Grove's trials are fought on the grid).
-func side_points(points: Array) -> Array:
-	var rt: RoomRuntime = game.room_rt
-	if rt == null or rt.topdown == null: return points
-	var bounds: Array = ContentDB.room(rt.room_id).get("bounds", [])
-	return points.map(func(p):
-		var q: Vector2 = rt.topdown.from_side(Vector2(float(p[0]), float(p[1])), bounds)
-		return [q.x, q.y])
-
 ## Start a timed event in the loaded room (set pieces, sect defence).
 func start_room_event(c, ev: Dictionary) -> void:
 	if game.room_rt: start_event(c, game.room_rt, ev)
@@ -44,8 +33,11 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 			rt.event.leaving = _leave_after(rt, ev)
 		return
 	rt.event = ev.duplicate(true)
-	_stage_on_grid(c, rt)
-	ev = rt.event   # on the grid its points are set on the grid's floors (T1); the rest of it is the event as given
+	# T1 (docs/architecture/topdown_mechanics.md): on the height grid every event's points go through the one rule,
+	# TopdownRoom.grid_event: the layout's cells for it, else the side view's points mapped across the room onto open
+	# ground the player walks to. Every room event starts here, so no caller maps its own.
+	if not WorldAuthority.side_view(rt): rt.event = rt.topdown.grid_event(rt.event, _player_at(c), rt.def.get("side_bounds", []))
+	ev = rt.event
 	rt.event.active = true
 	rt.event.remaining = float(ev.get("duration", 60))
 	# A voyage lasts as long as its vessel takes to cross (S18).
@@ -86,65 +78,19 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
 	var at_demons: Array = []
 	for i in demons: at_demons.append([700.0 + 260.0 * i, 860.0])
-	if not at_demons.is_empty() and not WorldAuthority.side_view(rt): at_demons = _grid_points(c, rt, at_demons, false)
+	if not at_demons.is_empty() and not WorldAuthority.side_view(rt): at_demons = rt.topdown.grid_points(at_demons, _player_at(c), rt.def.get("side_bounds", []))
 	for i in demons:
 		game.enemies.spawn_at(str(ev.heart_demons), Vector2(float(at_demons[i][0]), float(at_demons[i][1])), int(ev.get("level", -1)))
 	if demons > 0: emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(ev.heart_demons),
 		"text": Tx.t("sim.world.heart_demons_rise") % demons})
 
-## T1 (docs/architecture/topdown_mechanics.md) · on the height grid an event's points are set on the grid's floors as it
-## starts, once: the side view calls its waves, fixed and timed spawns to points in its own room (a set piece's data,
-## the sect's defence, a mine's), read here as the layout says. The room's own event the layout already placed
-## (`on_grid`, TopdownRoom.merge_def) keeps its cells; an event built from where things stand on the grid (`on_plane`:
-## a rift round the player, a treasure birth round its tree) is only moved onto open ground.
-func _stage_on_grid(c, rt: RoomRuntime) -> void:
-	var ev: Dictionary = rt.event
-	if WorldAuthority.side_view(rt) or ev.get("on_grid", false): return
-	var pts: Array = []   # every point of the event in order: the waves', the fixed spawns', the timed spawns'
-	var waves: Array = ev.get("waves", [])
-	for w in waves + ([ev.wave] if ev.get("wave") is Dictionary else []): pts += w.get("points", [])
-	for sp in ev.get("fixed_spawns", []): pts.append(sp.get("at", [0, 0]))
-	for ts in ev.get("timed_spawns", []): pts.append(ts.get("at", [0, 0]))
-	var placed := _grid_points(c, rt, pts, bool(ev.get("on_plane", false)), str(ev.get("id", "")))
-	var k := 0
-	for w in waves + ([ev.wave] if ev.get("wave") is Dictionary else []):
-		var mine: Array = []
-		for i in (w.get("points", []) as Array).size():
-			mine.append(placed[k])
-			k += 1
-		if w.has("points"): w.points = mine
-	for sp in ev.get("fixed_spawns", []):
-		sp.at = placed[k]
-		k += 1
-	for ts in ev.get("timed_spawns", []):
-		ts.at = placed[k]
-		k += 1
-	ev.on_grid = true
-
-## Points set on the grid (T1): the layout's stage for the event, cell for point in order (its cells dealt out again
-## when it has fewer), or each point mapped across the room from the side-view room's bounds (`plane`: already on the
-## grid's plane) and moved to the nearest open cell a body walks to from the player, a cell apart from the others.
-func _grid_points(c, rt: RoomRuntime, pts: Array, plane: bool, event_id := "") -> Array:
-	var grid: TopdownRoom = rt.topdown
-	var stage := grid.stage_points(event_id) if event_id != "" else []
-	var out: Array = []
-	if not stage.is_empty():
-		for i in pts.size(): out.append(stage[i % stage.size()])
-		return out
+## Where the player stands in the loaded room: an event's foes on the grid are set where it walks to from there. The
+## character's position, which the World authority keeps (an event begun as its room is loaded, a Trial Tower floor,
+## finds the body still where it was before), else the body's own; INF when neither is in this room.
+func _player_at(c) -> Vector2:
+	if str(c.position.get("room", "")) == game.room_rt.room_id: return Vector2(float(c.position.get("x", 0)), float(c.position.get("y", 0)))
 	var st: ActorState = game.actor_state(c.id)
-	var reach := grid.reached_from(TopdownRoom.cell_of(st.plane)) if st != null else {}
-	var sb: Array = rt.def.get("side_bounds", [0, 480, 1280, 480])
-	var bounds := Rect2(float(sb[0]), float(sb[1]), float(sb[2]), float(sb[3]))
-	var taken := {}
-	for p in pts:
-		var at := Vector2(float(p[0]), float(p[1]))
-		if not plane: at = grid.side_point(at, bounds)
-		var q := grid.open_cell_near(at, reach, taken)
-		var qc := TopdownRoom.cell_of(q)
-		for dy in range(-1, 2):
-			for dx in range(-1, 2): taken[qc + Vector2i(dx, dy)] = true
-		out.append([q.x, q.y])
-	return out
+	return st.plane if st != null else Vector2.INF
 
 func tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	var ev: Dictionary = rt.event

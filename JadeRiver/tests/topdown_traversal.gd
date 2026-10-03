@@ -119,6 +119,7 @@ func _sync() -> void:
 func stand(cell: Vector2) -> void:
 	w.player.motor.place(TopdownRoom.cell_point([cell.x, cell.y]))
 	w.player.physics_step(0.0001)
+	Game.tick(0.0001)   # the World authority keeps the character's spot from the body
 
 ## Frames of the game as the world runs them: the body's step under the stick (and Jump held), then the simulation.
 ## `each` (optional) is called after every frame and stops the run when it returns true.
@@ -181,6 +182,21 @@ func _set_pieces() -> void:
 	var pts: Array = Game.room_rt.event.get("waves", [{}])[0].get("points", [])
 	check(pts.map(func(q): return TopdownRoom.cell_of(Vector2(float(q[0]), float(q[1])))) == [Vector2i(9, 26), Vector2i(31, 26)],
 		"Heaven's Cleansing calls its guardians to the summit's stage, the south rim (%s)" % str(pts))
+	# A set piece begun where the layout keeps the room's event cells (the Scripture Well's Riverbreath Trial): its cells.
+	check(enter("ds_scripture_well"), "to the Scripture Well")
+	Game.world.start_room_event(c(), ContentDB.entry("set_pieces", "riverbreath_trial").room_event)
+	var well: Array = Game.room_rt.event.get("waves", [{}])[0].get("points", [])
+	check(well == TopdownRoom.cell_points(Game.room_rt.topdown.def.get("event", {}).get("wave", [])) and not well.is_empty(),
+		"the Riverbreath Trial's drowned rise on the Scripture Well's own event cells (%s)" % str(well))
+	# A Trial Tower floor (fixed spawns and a guardian, written for the side view) on the tower's grid, by the same rule.
+	check(enter("sf_fairground"), "to the Fairground, the tower's foot")
+	c().tower = {"cleared": 4}
+	var tw: Dictionary = Game.world.climb_tower(c(), 5)
+	GameEvents.flush()   # the view follows into the tower
+	var tower_off := _event_points_off()
+	check(tw.get("ok", false) and room() == "sf_trial_tower" and Game.room_rt.topdown != null and tower_off.is_empty()
+		and (Game.room_rt.event.get("fixed_spawns", []) as Array).size() >= 2, "a Trial Tower floor's foes on the tower's open floor (%s; %s)" % [str(tw), str(tower_off)])
+	st = w.player.state
 	# A room smaller than the side view's points: the Jade Body trial's x 2300 on the 1920-wide Sword Court is inside it.
 	var jade: Dictionary = ContentDB.entry("set_pieces", "jade_body_trial").room_event
 	check(enter("cm_sword_court"), "to the Cloud Sect's Sword Court")

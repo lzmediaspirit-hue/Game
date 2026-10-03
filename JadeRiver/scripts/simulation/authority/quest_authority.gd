@@ -1100,9 +1100,7 @@ func start_set_piece(c, event: String) -> Dictionary:
 	if sp.has("room"):
 		return game.world.load_room(c, str(sp.room), str(sp.get("portal", "")))
 	if sp.has("room_event") and game.room_rt:
-		var ev: Dictionary = sp.room_event
-		if game.room_rt.topdown != null: ev = game.room_rt.topdown.grid_event(ev)   # R2: its spawns on the grid's cells
-		game.world.start_room_event(c, ev)
+		game.world.start_room_event(c, sp.room_event)   # on the grid its points are set there (TopdownRoom.grid_event, T1)
 	return ok()
 
 func start_spar_from_object(c, o: Dictionary) -> Dictionary:
