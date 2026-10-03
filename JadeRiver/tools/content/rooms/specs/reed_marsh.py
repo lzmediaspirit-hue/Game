@@ -81,4 +81,77 @@ RM_MARSH_EDGE = room(
     ]})
 
 
-ROOMS = [RM_MARSH_EDGE]
+# R1: the Reed Marsh past the Marsh Edge, the main story's way east (generated rooms: the engine's terrain, anchors,
+# stairs, foes and flora).
+
+# The Grey Pools: the marsh the Hollowing has drunk grey. The path east from the Marsh Edge between grey pools, the
+# deep one with a jetty and a moored raft (the chest), dead trees and grey reeds; the reed bank under the lily ledge,
+# and a boardwalk north over the channel to Greyreed Hamlet; hollow puddles on the path's verges.
+RM_GREY_POOLS = room(
+    "rm_grey_pools", size=(60, 30), biome="grey_marsh",
+    bands=[("hamlet_bank", 0, 2, dict(level=1, paint="m")), ("channel", 2, 4, dict(water=True, wavy=True)),
+           ("reedbank", 6, 5, dict(level=1, paint="m", wavy=True)), ("path", 13, 3, dict(paint="d")), ("flats", 16, 9, dict(level=0)),
+           ("deeps", 25, 5, dict(water=True, wavy=True))],
+    features=[("bridge", (29, 1, 3, 6), dict(level=1, paint="w")), ("lily_ledge", (44, 5, 9, 5), dict(level=2, paint="r", shape="round")),
+              ("grey_pool", (8, 17, 22, 10), dict(water=True, shape="round")),
+              ("jetty", (19, 17, 2, 6), dict(level=0, paint="w")),
+              ("pool_east", (40, 18, 13, 8), dict(water=True, shape="round"))],
+    stairs="auto",
+    ways={"west": ("w", "path"), "east": ("e", "path"), "hamlet": ("n", 30, dict(cut=(3, "w")))},
+    spawn="west",
+    anchors={"jar_2": "reedbank@5", "jar_5": "reedbank@36", "jar_8": "lily_ledge@47", "chest_moored_raft": "jetty.front@19",
+             "jar_3": "verge.s@33", "jar_4": "verge.s@37", "jar_6": "verge@53", "herb_1": "flats@40",
+             "swarm_reed_cicada": "pool_east.n@45", "mine_grey_pools_seep": "flats@53", "rift_tear": "flats@33",
+             "spirit_fruit_tree": "reedbank@13"},
+    props=[("boat", 21, 22), ("lantern", 28, 7), ("lantern", 32, 7)],
+    flora={"reedbank": dict(density=0.4)},
+    areas=[{"kind": "hollow_puddle", "rect": r} for r in ([9, 11, 3, 2], [20, 11, 3, 2], [28, 16, 3, 2], [36, 11, 3, 2],
+                                                           [50, 11, 3, 2])],
+    foes=["auto:flats", "auto", "auto:flats"])
+
+# The Sunken Causeway: the old paved causeway across the open marsh, sunk in two places and laid over with planks, reed
+# isles either side, a boardwalk north to the hermit's stilt house, the broken pillar's plinth on the east isle (two
+# jars on it), and the east shore where the signpost points on to the Whispering Bamboo.
+RM_SUNKEN_CAUSEWAY = room(
+    "rm_sunken_causeway", size=(60, 30), biome="reed_marsh",
+    bands=[("north_water", 0, 12, dict(water=True, wavy=True)), ("south_water", 16, 14, dict(water=True, wavy=True)),
+           ("causeway", 12, 4, dict(level=0, paint="p", walk=True))],
+    features=[("west_shore", (-6, 5, 14, 21), dict(level=0, paint="m", shape="round")),
+              ("isle_nw", (9, 5, 14, 8), dict(level=0, paint="m", shape="round")),
+              ("pillar_isle", (42, 3, 14, 10), dict(level=0, paint="m", shape="round")),
+              ("plinth", (46, 6, 6, 3), dict(level=1, paint="s")),
+              ("isle_s", (20, 15, 16, 8), dict(level=0, paint="m", shape="round")),
+              ("east_shore", (53, 4, 14, 22), dict(level=0, paint="m", shape="round")),
+              ("boardwalk", (29, 0, 3, 12), dict(level=0, paint="w")),
+              ("sunk_w", (15, 12, 4, 4), dict(paint="w")), ("sunk_e", (37, 12, 3, 4), dict(paint="w"))],
+    stairs="auto",
+    ways={"west": ("w", "causeway"), "east": ("e", "causeway"), "stilts": ("n", 30)},
+    spawn="west",
+    anchors={"herb_1": "isle_s@29", "jar_2": "isle_nw@12", "jar_3": "isle_s@24", "jar_4": "east_shore@55",
+             "jar_5": "plinth@47", "jar_6": "plinth@50", "sign_rm": "causeway.n@56"},
+    props=[("lantern", 28, 10), ("lantern", 32, 10)],
+    flora={"causeway": ["cattails", "reeds"], "isle_nw": dict(density=0.45), "isle_s": dict(density=0.4)},
+    foes=["auto", "auto:bank"])
+
+# The Hermit's Stilt House: Hermit Yao's house on its deck over the north of his pond, the ladder down at its west end
+# where he keeps, stepping stones out to the rock where the mist lotus grows, the still spring in the reeds to the
+# west, his shrine on the east bank, and the boardwalk down to the Sunken Causeway.
+RM_HERMIT_STILT_HOUSE = room(
+    "rm_hermit_stilt_house", size=(40, 24), biome="reed_marsh",
+    bands=[("north", 0, 5, dict(level=0)), ("meadow", 5, 19, dict(level=0))],
+    features=[("pond", (10, 6, 20, 12), dict(water=True, shape="round")),
+              ("deck", (8, 1, 22, 5), dict(level=2, paint="w")),
+              ("rock", (19, 9, 3, 3), dict(level=1, paint="r")),
+              ("stones", (20, 12, 1, 3), dict(level=0, paint="s")), ("stones_2", (21, 14, 1, 4), dict(level=0, paint="s")),
+              ("reedbed", (28, 17, 11, 6), dict(water=True, shape="round")),
+              ("spring", (1, 14, 6, 5), dict(water=True, shape="round")),
+              ("boardwalk", (19, 18, 3, 6), dict(level=0, paint="w"))],
+    stairs=[(8, 6, 2, 4, 0, 2, "w")],
+    ways={"stairs": ("s", 20)},
+    spawn="stairs",
+    anchors={"hermit_mat": "deck.front@20", "hermit_tea": "deck.front@25", "npc_hermit_yao": (10, 11),
+             "pond_lotus": "rock@20", "spring_hermit": "spring.n@4", "shrine_hermit": "meadow@34", "herb_1": "meadow@37"},
+    props=[("house", 15, 1), ("lantern", 10, 4), ("lantern", 28, 4), ("drying_rack", 22, 2), ("fish_basket", 9, 1)],
+    flora={"meadow": dict(density=0.4)})
+
+ROOMS = [RM_MARSH_EDGE, RM_GREY_POOLS, RM_SUNKEN_CAUSEWAY, RM_HERMIT_STILT_HOUSE]

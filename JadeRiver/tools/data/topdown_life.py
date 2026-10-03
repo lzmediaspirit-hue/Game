@@ -305,6 +305,17 @@ VISTAS = {
     "cr_caravan_road": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "dw_bend_shore": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "mh_stockade": [{"edge": "n", "kind": "hills", "pad": 40}],
+    # R1: the main story's path past chapter 3: the marsh's reeds and water, the grove's hills, the falls' and the
+    # peak's mountains over the cloud sea.
+    "rm_grey_pools": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "rm_sunken_causeway": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "rm_hermit_stilt_house": [{"edge": "n", "kind": "marsh", "pad": 40}],
+    "gh_hamlet_square": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "bg_whispering_bamboo": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "bg_thicket_heart": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "cf_falls_pool": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    "cp_pilgrim_stairs": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "cp_cleansing_summit": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

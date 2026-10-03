@@ -3,7 +3,9 @@
 A biome is the look a room's spec asks for by name: the ground under it (`base`), the paint of the flights the engine
 cuts (`stair`), and its foliage pools by the role of a band (`flora`): `wall` a cliff's foot, `ground` a meadow or a
 terrace, `walk` a road's verges, `water` the bank, the shallows and the open water. A spec's own `flora` names bands and
-replaces the pool for those; `density` is how thick the scatter lies (pieces per two cells of edge).
+replaces the pool for those; `density` is how thick the scatter lies (pieces per two cells of edge). Two knobs a
+biome may set (R1): `tree_share`, the share of trees where trees grow (0.6; at a cliff's foot two thirds of it), and
+`tree_gap`, how far apart its trees stand (5 cells).
 
 The kinds are the foliage kit's (data/topdown/proto_tileset.json, `foliage`); each grows where the kit says (a tree or a
 bush on meadow, flowers, marsh or rock; cattails on the land or in the shallows; lotus pads on the water)."""
@@ -43,6 +45,49 @@ BIOMES = {
                   "ground": ["rock_small", "ferns", "rock_mossy"],
                   "walk": ["rock_small", "ferns"],
                   "water": ["cattails", "ferns"]},
+    },
+    # R1: the main story's path past chapter 3 (the Reed Marsh, Greyreed, the Bamboo Grove, Crane Falls, Cleansing Peak).
+    # The living reed marsh (the Sunken Causeway, the hermit's pond): marsh grass, willows and reeds, cattails in the
+    # shallows and lotus out on the water.
+    "reed_marsh": {
+        "base": "m", "stair": "w", "density": 0.32,
+        "flora": {"wall": ["tree_willow", "bush_wide", "rock_mossy"],
+                  "ground": ["tree_willow", "bush", "tall_grass", "ferns", "reeds"],
+                  "walk": ["tall_grass", "reeds", "rock_small", "bush"],
+                  "water": ["tree_willow", "reeds", "tall_grass", "cattails", "lotus_pads"]},
+    },
+    # Where the Hollowing has drunk the marsh (the Grey Pools, Greyreed Hamlet): dead trees and grey reeds over pale
+    # marsh grass, stumps and fallen logs, cattails still in the shallows.
+    "grey_marsh": {
+        "base": "m", "stair": "w", "density": 0.3,
+        "flora": {"wall": ["dead_tree", "rock_mossy", "grey_reeds"],
+                  "ground": ["dead_tree", "grey_reeds", "tall_grass", "stump", "log", "rock_small"],
+                  "walk": ["grey_reeds", "rock_small", "stump", "tall_grass"],
+                  "water": ["dead_tree", "grey_reeds", "cattails", "lotus_pads"]},
+    },
+    # The Bamboo Grove: tall bamboo clumps over ferns and mossy rocks, short canes and tall grass along the paths.
+    "bamboo": {
+        "base": "g", "stair": "w", "density": 0.36, "tree_share": 0.8, "tree_gap": 3,
+        "flora": {"wall": ["bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["bamboo_grove", "ferns", "bamboo", "rock_mossy", "tall_grass", "stump"],
+                  "walk": ["bamboo", "ferns", "rock_small", "tall_grass"],
+                  "water": ["bamboo_grove", "ferns", "cattails", "lotus_pads"]},
+    },
+    # Crane Falls: pines and maples on the rock round the pool, mossy boulders and ferns in the spray.
+    "falls": {
+        "base": "g", "stair": "s", "density": 0.32,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "ferns"],
+                  "ground": ["tree_pine", "tree_maple", "bush_wide", "ferns", "rock_mossy", "tall_grass"],
+                  "walk": ["ferns", "rock_small", "tall_grass"],
+                  "water": ["tree_maple", "ferns", "cattails", "lotus_pads"]},
+    },
+    # Cleansing Peak: wind-bent pines on the ledges, bare rock and boulders, little grass; granite steps.
+    "mountain": {
+        "base": "g", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "rock_small"],
+                  "ground": ["tree_pine", "rock_mossy", "rock_small", "bush", "tall_grass"],
+                  "walk": ["rock_small", "tall_grass"],
+                  "water": ["tall_grass", "cattails"]},
     },
     # Generic meadow (the default).
     "": {
