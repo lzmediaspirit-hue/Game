@@ -64,6 +64,67 @@ Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that 
 - **Still to draw:** sixteen species of R5's and R7's rooms and the Tidebreak Front, listed by level in the engine doc.
   The Trial Tower has none left.
 
+## The quest engine: a side quest is one spec (decision 45, E5)
+
+A side quest used to be a `quest(...)` call in `story.py`, with its target room, the realm it opens at and its pay each
+chosen by hand. The daily mission board was a hand table in `economy.py`. The quest engine (`tools/content/quests/`,
+`docs/architecture/quest_engine.md`) makes a side quest one `side(...)` spec and a daily job one `job(...)`. It
+derives where a quest leads, when it opens and what it pays, and writes the rows the game has always read.
+
+- **The spec.** A side quest names:
+  - its giver, an NPC engine id;
+  - its steps, from seven templates (`clear`, `fetch`, `deliver`, `gather`, `talk`, `spar` and `escort`, with `reach`
+    and `step` for the rest);
+  - its words.
+
+  The engine derives:
+  - the target room, from where the target is: where a foe spawns most, where what it drops or a node yields is, or
+    where a person lives;
+  - the realm it opens at, from the middle of that room's band of Levels;
+  - its pay, from the band table at its tier.
+
+  Every derived value can be pinned in the spec.
+- **The band table** (`bands.py`): decision 45's fixed amounts as one rule.
+  - A band is a run of Levels with one need, so its cultivation is one number. It is phase 1's own, the number
+    `quest_tiers` pays at every tier of the band.
+  - Its money: taels in Act I, spirit stones in Act II, sage crystals in Act III. Each sum was set from the middle of
+    the hand quests in the band.
+- **The round trip: byte for byte.** The data came out unchanged for:
+  - the 53 side quests of the side sections (the valley's 21, the companions' 12 favours from one template, the Hidden
+    Vale's 3, Act II's 8, the Starsea's 6, Act III's 3, each placed in its chapter);
+  - the daily board's 6 templates and 19 jobs.
+
+  `story.py` lost 281 lines (20 added) and `economy.py` 30 (4 added); the row layout and its parts have their one home
+  in the engine. The prologue, the main story and the guided lessons stay hand-written.
+- **Where the hand quests pay otherwise.** 35 quests pin their sum and 7 pay no money, so nothing changed. The doc lists
+  them by band, and 14 quests whose rooms lie far from their tier (the companions' favours, the Grey Pools, some of
+  Act II's). Some may be balance bugs worth a later look; none is fixed here.
+- **Four new side quests** for converted Act I rooms that had none, each from a person of the NPC engine who had no
+  quest. Each is one spec of five to seven lines, with no room, realm or sum written:
+  - Apprentice Tao's Claws for the Grindstone (the Lower Pit);
+  - Rui's Pelted at the Fair (Whispering Bamboo);
+  - Vendor He's Scales for the Lanterns (Bend Shore);
+  - Fisher Gan's The Weir at the Rapids (the Rapids Terraces), once the hamlet is home again.
+- **Tests.**
+  - A new gate, `quest_engine` (`tools/content/quests/engine.py --check`), in both runners. It checks the specs,
+    determinism, the built data (each quest's pay settled at its tier, its cultivation phase 1's) and the bands, and
+    runs 9 tests of its own.
+  - `balance_sim` shows what each band's side quests pay an hour of their detour against the session's hour. Two new
+    checks hold it for Act I. The new quests leave every band within range (Qi Kindling 0.60 times the hour in
+    cultivation, 0.76 in taels), and every pacing row within ±15%.
+  - A new suite, `topdown_side_quests` (20 checks), plays Claws for the Grindstone on the grid:
+    - offered at the derived realm and not before;
+    - led to the Lower Pit by Stoneford Gate and the quarry road;
+    - the moles fought for their claws;
+    - handed in for the band's +310 cultivation and 90 taels.
+- **Checks.** The full run after merging R7 passes every gate (`quest_engine` among them; grid parity on 108 layouts)
+  and all 29 suites: 74,413 checks with 0 failures and no SCRIPT ERROR. Three counts are E5's:
+  - `topdown_side_quests` is new, at 20 checks;
+  - `data_validation` went from 50,403 to 50,445, for the four new quests' rows;
+  - `balance_sim` went from 183 to 185, for the side quests' pay an hour.
+
+  Every other count is as it was; `rules_tests` at 2,722, `room_engine` at 328 and `topdown_sunscar` at 57 are R7's.
+
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
 The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The
