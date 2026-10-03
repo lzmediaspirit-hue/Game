@@ -2380,40 +2380,53 @@ func points_badges_suite() -> void:
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
 ## makes their textures and a canvas item, a few a frame (the old side-view stills took 10-30 ms each on it).
 # ------------------------------------------------------------------ the technique pictures' main-thread budget
-## The game times each piece of a picture (a start, a finish, a paint) on the wall clock and keeps the most
-## (TechniquePicture.build_us_max), so a single piece another process held up decided the budget. The suite reads the
-## most frame by frame instead (each frame's, then set back to 0). A frame on which the main thread waited over
-## PIC_QUEUE_US in the run queue (tests/lib/suite.gd) does not count, since its pieces' times were not their own.
-## Like perf_tests, it does count when fewer than half the frames would be left. `_pic_frames` holds, for each frame
-## that built a piece: [the frame's most, its pictures' whole, which piece, its run-queue µs].
-const PIC_QUEUE_US := 250
-var _pic_frames: Array = []
-var _pic_q := 0
+## The game times each piece of a picture (a start, a finish, a paint) on the wall clock and keeps only the most
+## (TechniquePicture.build_us_max), so a single piece another process held up decided the budget. The suite reads it
+## frame by frame instead (each frame's most and whole, then set back to 0) and settles each piece on its own:
+##   - in a frame whose most is within PIECE_US, every piece is;
+##   - in one whose most is over, the others together took the whole less the most: within PIECE_US, each of them is,
+##     and the round stays settled; otherwise the round settles nothing;
+##   - the piece named as a frame's most over PIECE_US is held to another settled round in which it is not.
+## So the budget holds when the pieces left over in the settled rounds share none. A piece over its budget in each of
+## up to three rounds of the same building fails it; a piece held up once by another process does not. Every figure is
+## a timing the game took, so nothing passes that was not measured within budget.
+const PIECE_US := 4000
+const FRAME_US := 8000
+var _pic_frames: Array = []   # [the frame's most, its pictures' whole, which piece] for each frame that built a piece
 
 func _picture_frame() -> void:
-	var q := queued_us()
 	if TechniquePicture.build_us_max > 0 or TechniquePicture.frame_us_max > 0:
-		_pic_frames.append([TechniquePicture.build_us_max, TechniquePicture.frame_us_max, TechniquePicture.build_worst, q - _pic_q])
+		_pic_frames.append([TechniquePicture.build_us_max, TechniquePicture.frame_us_max, TechniquePicture.build_worst])
 	TechniquePicture.build_us_max = 0
 	TechniquePicture.frame_us_max = 0
-	_pic_q = q
 
-## The frames watched since the last reading: [the most one piece took, the most a frame's pictures took (µs), which
-## piece, frames counted, frames left out].
-func _pictures_budget() -> Array:
+## A round's reading of the frames watched since the last: {"most": the most one piece took (µs), "worst": which,
+## "frame": the most a frame's pictures took, "settled": every frame over PIECE_US bounds its other pieces within it,
+## "over": the pieces named over PIECE_US}.
+func _pictures_round() -> Dictionary:
 	_picture_frame()   # the frame under way
-	var clean := _pic_frames.filter(func(f): return int(f[3]) <= PIC_QUEUE_US)
-	var use: Array = clean if clean.size() * 2 >= _pic_frames.size() else _pic_frames
-	var out := [0, 0, "", use.size(), _pic_frames.size() - use.size()]
-	for f in use:
-		if int(f[0]) > int(out[0]):
-			out[0] = f[0]
-			out[2] = f[2]
-		out[1] = maxi(int(out[1]), int(f[1]))
+	var out := {"most": 0, "worst": "", "frame": 0, "settled": true, "over": []}
+	for f in _pic_frames:
+		if int(f[0]) > int(out.most):
+			out.most = int(f[0])
+			out.worst = str(f[2])
+		out.frame = maxi(int(out.frame), int(f[1]))
+		if int(f[0]) > PIECE_US:
+			if not (out.over as Array).has(str(f[2])): out.over.append(str(f[2]))
+			if int(f[1]) - int(f[0]) > PIECE_US: out.settled = false
 	_pic_frames.clear()
 	return out
 
-## Another round of technique_pictures_suite's building, for its main-thread budget (read by _pictures_budget): every
+## The pieces over PIECE_US in every settled round of `rounds` (null when no round settled).
+static func _pictures_left(rounds: Array) -> Variant:
+	var left = null
+	for rd in rounds:
+		if not rd.settled: continue
+		var over: Array = rd.over
+		left = over.duplicate() if left == null else (left as Array).filter(func(k): return over.has(k))
+	return left
+
+## Another round of technique_pictures_suite's building, for its main-thread budget (read by _pictures_round): every
 ## picture let go (each sheet started again), then the HUD's pictures, the Techniques page's (the Water tree, Flowing
 ## Palm's reading, the loadout bar) and a side-view character's HUD pictures built again, as the suite built them.
 func _pictures_again(hud, c, look: Dictionary, arts: Array, inner: int, shown: Array) -> void:
@@ -2459,7 +2472,6 @@ func technique_pictures_suite() -> void:
 	TechniquePicture.build_us_max = 0
 	TechniquePicture.frame_us_max = 0
 	_pic_frames.clear()
-	_pic_q = queued_us()
 	get_tree().process_frame.connect(_picture_frame)
 	var stub_src := GDScript.new()
 	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
@@ -2591,26 +2603,28 @@ func technique_pictures_suite() -> void:
 	var side: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.has("top"))
 	check(not side.is_empty() and side.all(func(d): return not d.top), "decision 42: a classic side-view character's pictures are the side view's (%d)" % side.size())
 	c.view = "topdown"
-	# Read frame by frame, frames on which the main thread waited for a CPU left out (_pictures_budget); and the least of
-	# up to three rounds of the same building, as in perf_tests (a busy machine only ever adds).
-	var built: Array = _pictures_budget()
+	# Read frame by frame and settled piece by piece, over up to three rounds of the same building (_pictures_round).
+	var rounds: Array = [_pictures_round()]
 	for r in 2:
-		if int(built[0]) <= 4000 and int(built[1]) <= 8000: break
+		var left_now = _pictures_left(rounds)
+		if left_now != null and (left_now as Array).is_empty() and rounds.any(func(rd): return int(rd.frame) <= FRAME_US): break
 		await _pictures_again(hud, c, look, arts, inner, shown)
-		var again: Array = _pictures_budget()
-		if int(again[0]) < int(built[0]):
-			built[0] = again[0]
-			built[2] = again[2]
-		built[1] = mini(int(built[1]), int(again[1]))
-		built[3] = int(built[3]) + int(again[3])
-		built[4] = int(built[4]) + int(again[4])
+		rounds.append(_pictures_round())
 	get_tree().process_frame.disconnect(_picture_frame)
-	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us (%d frames counted, %d left out with the main thread waiting for a CPU)"
-		% [built[0], built[2], built[1], built[3], built[4]])
+	var left = _pictures_left(rounds)
+	var best: Dictionary = rounds[0]
+	var frame_us := int(rounds[0].frame)
+	for rd in rounds:
+		if int(rd.most) < int(best.most): best = rd
+		frame_us = mini(frame_us, int(rd.frame))
+	var held: String = "no round settled" if left == null else ", ".join(left)
+	if held == "": held = "none"
+	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us (the least of %d rounds; over %.0f ms in every settled round: %s)"
+		% [int(best.most), str(best.worst), frame_us, rounds.size(), PIECE_US / 1000.0, held])
 	# About 1 ms and 2 ms on an idle desktop runner; the bounds leave room for a busy one.
-	check(int(built[0]) <= 4000 and int(built[1]) <= 8000,
-		"decision 42: no technique picture is built on the main thread past a small budget: one start, finish or paint %.1f ms at most (4; %s), a frame's %.1f ms (8); the side view's stills took 10-30"
-		% [int(built[0]) / 1000.0, built[2], int(built[1]) / 1000.0])
+	check(left != null and (left as Array).is_empty() and frame_us <= FRAME_US,
+		"decision 42: no technique picture is built on the main thread past a small budget: one start, finish or paint %.1f ms at most (4; over it in every round: %s), a frame's %.1f ms (8); the side view's stills took 10-30"
+		% [int(best.most) / 1000.0, held, frame_us / 1000.0])
 	TechniquePicture.draw_log = null
 	SpriteCache.draw_log = null
 	hud.player = null

@@ -54,9 +54,12 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
 
   Two earlier batches of after-runs also passed 5 of 5 each, alone at a load of 6 to 16.
 - **Other timings.**
-  - `rules_tests` asks for its share of the CPUs. It times the technique preview and the living world on the game's own
-    clock, and takes the technique pictures' 4 ms main-thread budget as the least of up to three rounds of the same
-    building. The budget had failed once at load 15, at 4.1 ms.
+  - `rules_tests` asks for its share of the CPUs, and times the technique preview and the living world on the game's
+    own clock.
+  - The technique pictures' 4 ms main-thread budget had failed at load 10 to 15, at 4.1 to 7.3 ms: the game keeps only
+    the most any piece took on the wall clock. The suite now reads each frame's most and whole, and settles each piece
+    on its own, over up to three rounds of the same building. A piece fails only if it is over budget in every round,
+    and nothing passes that was not measured within budget.
   - `topdown_tutorial`'s people stream asks for the same share while it times, on the same clock.
 - **Methods named by data (BUG-06).**
   - The HUD's points badges and the tutorials' points triggers count through `TutorialRules.counter`, a table of
@@ -68,8 +71,8 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
   - `tests/suites.txt` is the one suite list, read by `tools/run_tests.sh` and `Test.ps1`.
   - `Test.ps1` now runs the same data gates; reads each suite's output the same way (a SCRIPT ERROR or a non-zero exit
     fails it); and hands the gates the same Godot (`GODOT`).
-  - Both run S5's `build_data.py --check` and `tools/lib/pix.py --check`, and S4's `shared_runtime_tests` suite (on the
-    suite base, 42 checks).
+  - Both run S5's `build_data.py --check` and `tools/lib/pix.py --check`, and E6's `cues.py --check`.
+  - Both run S4's `shared_runtime_tests` (42 checks) and E6's `cue_tests` (24 checks), each moved onto the suite base.
   - `run_tests.sh` runs the animation rules where PowerShell is installed.
   - `topdown_tutorial`'s `reach()` takes the step and the jump from `data/movement.json`, as the Grid does.
 - **Tests:** TOTALS.

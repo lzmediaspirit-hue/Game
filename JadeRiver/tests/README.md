@@ -2,7 +2,8 @@
 
 `tools/run_tests.sh` (Linux, macOS) and `Test.ps1` (Windows) run the same gates, in the same order:
 1. the animation rules (`Validate-Animations.ps1`, where PowerShell is installed);
-2. the data checks (`tools/data/*.py --check`, `tools/lib/pix.py --check`, `tools/audio/build_audio.py --check`);
+2. the data checks (`tools/data/*.py --check`, including `build_data` and `cues`; `tools/lib/pix.py --check`;
+   `tools/audio/build_audio.py --check`);
 3. the Godot suites listed in `tests/suites.txt`.
 
 Each suite is a scene, `tests/<name>.tscn`, run headless:
@@ -42,8 +43,8 @@ Every suite extends it (`extends "res://tests/lib/suite.gd"`), puts its body in 
     own painters. Elsewhere they do nothing.
   - Users: `perf_tests`; `rules_tests`, for the technique pictures' budget, the preview and the living world;
     `topdown_tutorial`'s people stream.
-  - `rules_tests` also takes its pictures' budget as the least of up to three rounds of the same building, as
-    `perf_tests` does.
+  - `rules_tests` reads its pictures' main-thread budget frame by frame, and settles each piece on its own over up to
+    three rounds of the same building. A piece fails only if it is over budget in every round (`_pictures_round`).
   - `now_us()` reads a file each call (about 20 µs), so microsecond timings keep the wall clock: the coach's cost in
     `tutorials` is a median of 120.
 
