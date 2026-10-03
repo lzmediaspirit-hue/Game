@@ -292,6 +292,9 @@ VISTAS = {
     "ss_lantern_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
     "wc_citadel_gate": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
     "wc_presence_court": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "or_tumbling_stair": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "or_orbit_garden": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "or_golem_foundry": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

@@ -352,14 +352,15 @@ def pressure_pillar(s: Img, f: int = 0) -> None:
 
 # ============================================================================================================ the Ruins
 def orbit_stone(s: Img, f: int = 0) -> None:
-    """A chunk of the first Wardens' masonry that floats over its rune ring in the Orbit Ruins, footprint 2 x 1: the
-    ring a circle of jade glyphs cut in the floor, softly lit; over it, a hand's breadth up, a dressed block broken off
-    a wall, moss on its top and roots trailing from its broken underside; four frames of its slow bob (it rides a pixel
-    up and down, its shadow on the ring breathing with it). 32 x 44; corner (0, 42)."""
+    """A piece of the first Wardens' temple that floats over its rune ring in the Orbit Ruins, as the side view's
+    islands do, footprint 2 x 1: the ring a circle of jade glyphs cut in the floor, softly lit; well over it a little
+    island of the temple, dressed masonry on top (a stub of wall, moss in its joints) on a cone of broken rock tapering
+    down to a point; four frames of its slow bob (it rides up and down a pixel or two, its shadow on the ring breathing
+    with it). 32 x 52; corner (0, 50)."""
     bob = (0, -1, -2, -1)[f % 4]
     for i in range(0, 32):                                       # the rune ring on the floor
-        for j in range(30, 42):
-            u, v = (i + 0.5 - 16) / 15.5, (j + 0.5 - 36) / 5.6
+        for j in range(38, 50):
+            u, v = (i + 0.5 - 16) / 15.5, (j + 0.5 - 44) / 5.6
             d = u * u + v * v
             if 0.62 <= d <= 1.0:
                 s.put(i, j, QI[2] if (i + j) % 5 else QI[3])
@@ -367,31 +368,37 @@ def orbit_stone(s: Img, f: int = 0) -> None:
                 s.put(i, j, QI[1])
     for k in range(6):                                           # its glyph marks
         a = k * math.pi / 3 + 0.4
-        x, y = int(16 + math.cos(a) * 13), int(36 + math.sin(a) * 4.6)
-        s.put(x, y, QI[4])
-    sh = 9 - (f % 4 in (1, 3)) - 2 * (f % 4 == 2)                # the block's shadow on the ring
-    s.ellipse(16, 36, sh, 2.2, c("142A30"))
-    y0 = 6 + bob
-    s.rect(5, y0 + 6, 22, 12, STONE[2])                          # the block's face
-    s.rect(5, y0, 22, 6, STONE[4])                               # its top
-    s.hline(5, y0, 22, STONE[5])
-    s.vline(5, y0, 18, STONE[4])
-    s.vline(26, y0 + 1, 17, STONE[1])
-    s.hline(5, y0 + 6, 22, STONE[3])
-    for x in (12, 20):                                           # its courses' joints
-        s.vline(x, y0 + 7, 5, STONE[1])
-    s.hline(6, y0 + 12, 20, STONE[1])
-    s.vline(16, y0 + 13, 5, STONE[1])
-    for i in range(5, 27):                                       # the broken underside, ragged
-        d = int(h01(i, 3, 919) * 4)
-        for j in range(y0 + 18, y0 + 18 + d):
-            s.put(i, j, STONE[1] if j > y0 + 18 else STONE[2])
-    for k in range(10):                                          # moss on its top
-        x, y = 6 + int(h01(k, 1, 923) * 20), y0 + int(h01(k, 2, 923) * 5)
+        s.put(int(16 + math.cos(a) * 13), int(44 + math.sin(a) * 4.6), QI[4])
+    sh = 6 - (f % 4 in (1, 3)) - 2 * (f % 4 == 2)                # the island's shadow on the ring
+    s.ellipse(16, 44, sh, 1.8, c("142A30"))
+    rock = [c("201C2C"), c("332D40"), c("4A4458"), c("625C6E"), c("837C8A")]
+    y0 = 2 + bob
+    top = y0 + 12                                                # the island's flat top, its masonry on it
+    for j in range(top, top + 22):                               # the rock cone under it, tapering to a point
+        t = (j - top) / 21.0
+        half = 13 * (1.0 - t) ** 1.3 + 0.5
+        wob = (h01(j // 2, 1, 929) - 0.5) * 2.5 * (1.0 - t)
+        for i in range(int(16 - half + wob), int(16 + half + wob) + 1):
+            u = (i + 0.5 - (16 - half + wob)) / (2 * half + 1)
+            col = rock[3] if u < 0.3 else rock[2] if u < 0.7 else rock[1]
+            if h01(i, j, 931) < 0.12:
+                col = rock[0] if u > 0.5 else rock[4]
+            s.put(i, j, col)
+    s.ellipse(16, top, 14, 3.2, STONE[3], (STONE[5], STONE[2]))  # the island's top, its paving
+    for i in range(4, 29, 5):
+        s.put(i, top, STONE[2])
+    s.rect(6, y0 + 3, 10, 8, STONE[2])                           # a stub of the temple's wall on it
+    s.rect(6, y0, 10, 3, STONE[4])
+    s.hline(6, y0, 10, STONE[5])
+    s.vline(6, y0, 11, STONE[4])
+    s.vline(15, y0 + 1, 10, STONE[1])
+    s.hline(7, y0 + 6, 8, STONE[1])
+    s.vline(11, y0 + 3, 3, STONE[1])
+    s.rect(19, y0 + 7, 4, 4, STONE[3])                           # a fallen block beside it
+    s.hline(19, y0 + 7, 4, STONE[5])
+    for k in range(9):                                           # moss in its joints and on the rock's lip
+        x, y = 5 + int(h01(k, 1, 923) * 22), top - 1 + int(h01(k, 2, 923) * 3)
         s.put(x, y, c("4E8A4C") if k % 3 else c("7CB060"))
-    for x in (9, 18, 23):                                        # roots trailing from it
-        for j in range(3 + (x % 3)):
-            s.put(x + (j % 2), y0 + 19 + j, c("4A3A2A"))
     s.outline()
 
 
@@ -785,7 +792,7 @@ PROPS = {
     "star_chart_table": (star_chart_table, 32, 28, 2, 1, [0, 26], True, [20, -2, 15, 3]),
     "star_globe": (star_globe, 32, 46, 2, 1, [0, 44], True, [16, -2, 13, 3]),
     "pressure_pillar": (pressure_pillar, 16, 64, 1, 1, [0, 62], True, [10, -2, 7, 3]),
-    "orbit_stone": (orbit_stone, 32, 44, 2, 1, [0, 42], True, None),
+    "orbit_stone": (orbit_stone, 32, 52, 2, 1, [0, 50], True, None),
     "star_crystal": (star_crystal, 24, 34, 1, 1, [4, 32], True, [12, -2, 9, 3]),
     "gravity_plate": (gravity_plate, 16, 16, 1, 1, [0, 16], False, None),
     "golem_husk": (golem_husk, 32, 28, 2, 1, [0, 26], True, [18, -2, 15, 3]),
