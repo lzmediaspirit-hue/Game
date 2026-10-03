@@ -754,9 +754,11 @@ func _breakthrough(a: String) -> void:
 ## The picture: after 2.5 s, or just past the moment's t; then --auto-path= and --auto-hunt, --wait=s, --hazard=; saved
 ## as ../<shot>-preview.png beside the project, and the game quits.
 func _capture() -> void:
-	# Side view: a cast's fixed step (--cast with --capture) counts the wait in frames.
-	if is_instance_valid(world) and world.fx.fixed_step > 0.0:
-		for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / world.fx.fixed_step): await main.get_tree().process_frame
+	# Side view: a cast's fixed step (--cast with --capture) counts the wait in frames. The top-down FX view has none.
+	var fx = world.get("fx") if is_instance_valid(world) else null
+	var step: float = fx.fixed_step if fx != null and "fixed_step" in fx else 0.0
+	if step > 0.0:
+		for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / step): await main.get_tree().process_frame
 	else:
 		await _after(2.5 if moment_t < 0.0 else moment_t + 0.05)
 	for stage in CAPTURE: await _run(stage)

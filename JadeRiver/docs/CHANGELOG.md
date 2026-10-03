@@ -57,6 +57,116 @@ it so. Only names changed: the game plays the same, and the save data is untouch
   them would only touch the side view, and S12 deletes it.
 - **Checks.** S11_CHECKS
 
+## Follow-up fixes from the code audit (decision 45, F1)
+
+Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in
+the game changed.
+
+- **`build_tiles.py --review` draws again.** It stopped with a `KeyError` on the `sand` decals: Terrain v2's sheet laid
+  each decal set on a ground from a table, and decision 44's sand, snow and packed snow were not in it.
+  - A decal set named for a material now lies on that material's first tile. The three sets that are not a material
+    (flowers, the paving's holes, the marsh) keep their own ground.
+  - `--check` now also draws every review sheet in memory and writes none, so a sheet that the tables have outgrown
+    fails there.
+  - The built tiles, props, TileSet and manifest are byte-identical: `--check` passes, and a build leaves `art/` and
+    `data/` unchanged. The sand and snow sheet comes out byte-identical too.
+  - The Phase 3 and Terrain v2 review sheets in `docs/` were drawn before decision 44 and are left as they are.
+- **No live references to the scripts S2 and S3 deleted.**
+  - `tools/dev/audit/run_legacy.py` runs the side-view and review scripts that exist (`tests/README.md`, "Other
+    scripts here"). A named script that is not on disk is reported, and the run fails.
+  - `tools/dev/audit/findings.py`: the slices' tests and waits name the capture registry
+    (`capture.tscn -- hud`, `-- combat`, the `first_boss` set in `shots.gd`). S12's check names the side-view scripts,
+    since S2 made no `side_view_suite`. The findings and the baseline still name what the audit found.
+  - `findings.py --keep-scans` rebuilds the curated part of `audit_45.json` and keeps its scans, which describe the
+    audited tree (`35105ac`). `audit_45.json` was rebuilt with it, and only those lines changed.
+  - `docs/map-generation.md` says it is the record of v0.13's side-view map engine. Its checks are today's:
+    `tests/map_generation.gd` run with `godot -s`, and `engine_tests` in `tests/suites.txt`. Its pictures now come
+    from the capture registry.
+  - `docs/redesign_top_down_plan.md`'s Phase 1 and 2 tables note that decision 45 removed `build_topdown_proto.py`.
+- **`--capture` photographs a top-down world.** Its wait read `world.fx.fixed_step`, which the top-down FX view does
+  not have, so it stopped with a script error before the picture.
+  - The wait now counts frames only where the side view's `FxLayer` has a fixed step.
+  - The proof is a top-down capture of Lotus Ferry through the main scene, on saves of its own:
+    `godot --path . -- --topdown --preview-world --room=lf_village --capture --shot=<name>`.
+  - `docs/architecture/shell.md` is updated to match.
+- **The technique pictures' budget is timed on the main thread's own clock.**
+  - `TechniquePicture` times each start, finish and paint with `_clock_us()`.
+    - On desktop Linux, this is the wall clock less the time the thread stood in the run queue
+      (`/proc/thread-self/schedstat`), the clock `tests/lib/suite.gd` uses for `perf_tests`.
+    - Elsewhere, Android among them, it is the wall clock.
+    - The same file's CPU time is not used: it moves only on the scheduler's tick, which is too coarse.
+    - A read during which the thread was taken off the CPU is read again.
+  - A piece that is slow on its own, whether working or blocked, still counts in full. A 6 ms busy paint and a 5 ms
+    blocking finish both read over the 4 ms budget.
+  - The same building was timed in alternate rounds on each clock (scratch runs).
+    - At a load of about 5, 2 of 9 wall-clock rounds had a piece over 4 ms (5.8 and 6.5 ms). The most any piece took
+      on the new clock in 9 rounds was 1.8 ms.
+    - With four extra busy loops, 3 of 6 wall-clock rounds were over (4.3 to 5.6 ms). On the new clock, the most was
+      1.2 ms.
+  - `rules_tests` reads one building again. S2's rounds and its frame-by-frame settling are gone, the budgets (4 ms a
+    piece, 8 ms a frame) are unchanged, and the suite still has 2,712 checks.
+  - `tests/README.md` is updated to match.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with E1 and E4. Every gate passed, `boot` among them, and so
+  did all 21 suites: 73,773 checks, 0 failures and no SCRIPT ERROR. Every suite kept its count. `build_data.py` writes
+  0 of 302 files.
+## The monster engine: a species is one spec (decision 45, E2)
+
+Roadmap decision 45, phase 3, the monster engine (`docs/architecture/audit_45.md` §6.2). How it works and how to add a
+species: `docs/architecture/monster_engine.md`.
+
+- **Body plans** (`tools/art/topdown/creature/plans/`), extracted from the twelve species drawn by hand. Each is a pose
+  function over part kinds and sizes, and the hand modules' key-frame tables (`LUNGE`, `PITCH`, `HEAD`, ...) became
+  named motion styles:
+  - `quadruped`: rodent, mustelid and suid;
+  - `amphibian`: frog and toad;
+  - `crab`: mud;
+  - `serpent`: eel and leech;
+  - `fish`: minnow, and the new greyfin;
+  - `shell`: snapper, and the new beetle;
+  - `humanoid`: puppet, and the new imp.
+- **The engine** (`tools/content/monsters/`). One `species(...)` spec in `specs/<region>.py` makes:
+  - the `enemies.json` row, through `mob()`, `atk()` and `d()`;
+  - its loot extras: the starter mark, early finds and quest drops;
+  - its `foes.json` block and sheets, through `creatures.Spec` and the plan;
+  - its voice in `sound.json`;
+  - its codex page (the row's `page`). The wiki follows from the data.
+
+  A new species needs no edit to `enemies.py`, `creatures.py` or `sound.py`. The engine is deterministic: the seed
+  is the id. `pose="module:fn"` keeps a hand-written pose module (the escape hatch).
+- **The twelve drawn species moved onto specs byte for byte.** Their sheets, `foes.json`, `enemies.json`,
+  `loot_tables.json` and `sound.json` are unchanged. The eleven hand pose modules (1,879 lines) are deleted.
+- **Three new top-down species**, the first foes past the top-down rooms. Until now they stood in with their side-view
+  sheets.
+  - **The rock beetle** (Stonewall Quarry): a carapace of rocky plates with ochre lichen and pale flecks, a curved
+    ochre horn, clubbed antennae, six legs walking in tripods.
+    - Tell: it curls into a stone ball.
+    - It rolls at you, the plates and its tucked belly turning with the roll.
+    - Struck, it rears; beaten, it flips onto its back, its legs pawing the air.
+  - **The pebble imp** (Stonewall Quarry): a grinning stone spirit with shard ears, glowing amber eyes, a crack of
+    ember in its pot belly, pebbles studding it. It tosses a stone in its hand.
+    - Tell: it twists back and raises the stone, its eyes flaring.
+    - It throws on the blow's frame, the stone leaving its hand.
+    - Beaten, it crumbles into a heap of stones.
+  - **The greyfin** (the Grey Pools): a Hollow fish in a grey puddle of its own. Its torn fin cuts the surface and its
+    dark shape shows through.
+    - Tell: it sinks, then its head breaks the surface, jaws gaping.
+    - It leaps out to bite and falls back in, the water thrown up.
+    - Beaten, it flops out and comes apart into the Hollow's mist.
+
+  The beetle and the greyfin have elite sheets, since their rooms make elites. The imp has none, since no room makes
+  one an elite.
+  - New sheets: 488 KB of PNG, about 250 KB in the APK.
+  - Their rows moved into their specs unchanged.
+  - Review: `docs/redesign/feedback/monsters/sheets/` and the capture set `monsters_e2`
+    (`docs/redesign/feedback/monsters/e2/after/`).
+- **A new gate, `monsters`, in both runners** (`tools/content/monsters/build.py --check`). It proves:
+  - every spec resolves and poses every action and frame in its facings and looks;
+  - its row, loot and voice are what it makes;
+  - `foes.json` and the sheets on disk equal sampled frames drawn twice;
+  - the elite ring;
+  - the escape hatch.
+- `build_foes.py --only` no longer overwrites the strip of every species' tell with only the species it drew.
+
 ## The room engine: rooms from short specs, and chapter 3 on the grid (decision 45, E1)
 
 Roadmap decision 45, phase 3, the first content engine (`docs/architecture/audit_45.md` §6.1). A room on the height grid
@@ -102,6 +212,85 @@ describes it.
     chapter 3 is done at the story's end. Its 2,712 checks are unchanged.
   - Every other suite keeps its count.
 - **The living world** (`topdown_life.py`): vistas for the three outdoor rooms, and no butterflies in a cave.
+## The item engine: items as families, and the Streams Pills (decision 45, E4)
+
+Roadmap decision 45, phase 3, engine E4 (`docs/architecture/audit_45.md` §6.4). The user wants engines that make
+items, monsters, NPCs and rooms from small specs, so new content costs fewer tokens. A new ladder of items used to touch
+four or five files (its rows, its shops, its recipes, its loot, its icons); it is now one spec. The spec, the checks and
+how to add a family are in `docs/architecture/item_engine.md`.
+
+- **The engine** (`tools/content/items/`, about 1,000 lines). A family × tier spec writes, for each member:
+  - its row in `items.json` or `artifacts.json`;
+  - its recipe, with its element and its ancient pages;
+  - its shop lines, and the lines that sell its recipe;
+  - its pill icon: the vessel by kind and the grade's kit (`PILL_GRADES`);
+  - each tier's values from the curves (`curves.py`: `MID_ILV`, decision 45's fixed `cultivation`, `SPEED`,
+    `PILL_TOXICITY`, `RECIPE_TIME`).
+
+  Gear works the same way: `gear("jian", ...)`, each weapon family under the `gear.py` `ARCHETYPES` archetype that lists
+  it. Hand tweaks are `row` pins in the spec (`DROP` removes a key), never edits to the JSON. A family must name its
+  sources: the engine refuses a member nothing hands out, and its gate finds every named source in the built data. A
+  creature part names its creatures, and each must drop it.
+- **The hosts.** `items.py` places each family's section among the rows it still writes by hand. `economy.py` places
+  the recipe blocks, and its shop lists name a family's line only where it must stand (`F(item)`, `L(recipe)`); any
+  other declared line joins the end of its shop. `pills.py` draws the families' pill icons from `engine.pill_icons()`.
+  Recipes live in `economy.py`, not `crafts.py` (which holds the professions); the loot tables stay the monster
+  engine's (E2).
+- **The migration**, one family at a time, each step with an empty `git diff data/` (and the same icons):
+  - the pills (30 families);
+  - the herbs by age (9 families) and their seeds;
+  - the ores;
+  - the creature parts, a family a zone;
+  - the gear by family × grade (11 weapon families, 4 armour slots, the gourds, the pet gear ladders and the far
+    zones' furnaces).
+
+  That is 290 rows with their recipes, 212 shop lines and 30 pill icons. About 650 hand lines left `items.py` (1,031
+  lines to 672), `economy.py` and `pills.py`; 676 spec lines replace them. The one-offs stay plain rows in `items.py`'s
+  labelled section: quest items and keys, the unique treasures, relics, flames and named pieces. So do the small
+  groups no family writes yet: foods, fish, talismans, tools, scrolls, cores, the pet medicine and the post goods.
+  Decision 45's numbers are kept: the Qi Gathering Pill +420, a raw ginseng +130, +240 and +800, the Qi Flow Pill +20%
+  for an hour (now `SPEED`'s Earth rung). Every `balance_sim` figure is unchanged.
+- **The first new family: the Streams Pills** (`specs/streams.py`, 36 lines). Cultivation speed from Cloud Stride to
+  Will Manifest, where the incense and the Qi Flow Pill stop:
+
+  | Pill | Grade | Speed | Sold | Recipe |
+  |---|---|---|---|---|
+  | Three Streams | Heaven | +30% for 45 min | Mei Qing's stall, from Cloud Stride 1 | Alchemist Guild (Expert), 1,900 taels |
+  | Five Streams | Mystic | +40% for 45 min | Mei Qing's stall, from Heaven Glimpse 1 | Alchemist Guild (Expert), 2,900 taels |
+  | Seven Streams | Sage | +60% for 45 min | Alchemist Fen's stores, from Sage Sovereign 1 | Apothecary Wu, 45 stones |
+  | Nine Streams | Sovereign | +70% for 45 min | Apothecary Sang, from Will Manifest 1 | Apothecary Sang, 5 crystals |
+
+  One works at a time (one source, `streams_pill`); they stack with the incense and the Qi Flow Pill and count toward
+  the accumulation family's resistance. Their price is the game's for their Level, about 16 to 20 minutes of the taels
+  an hour brings at their realm. Their toxicity and brewing time come from the curves. Their four icons are the pill
+  kit's lifting gourd in each grade's material: 13.6 KB of PNG.
+
+  `balance_sim`'s new speed ladder: the Qi of an active hour at each rung's realm, without and with it working, and
+  what one use adds to a sitting. Each rung adds more than the rung below:
+
+  | Item | Realm | Qi an hour | With it | One use |
+  |---|---|---|---|---|
+  | Qi-Gathering Incense | Bone Forging 5 | 5,711 | 6,594 (+15%) | 588 |
+  | Deep Current Incense | Qi Kindling 5 | 5,147 | 6,334 (+23%) | 1,187 |
+  | Qi Flow Pill | Qi Unfurling 9 | 4,293 | 4,597 (+7%) | 1,216 |
+  | Three Streams Pill | Cloud Stride 9 | 4,158 | 4,573 (+10%) | 1,247 |
+  | Five Streams Pill | Heaven Glimpse 2 | 4,324 | 4,945 (+14%) | 1,862 |
+  | Seven Streams Pill | Sage Sovereign 2 | 4,428 | 5,421 (+22%) | 2,980 |
+  | Nine Streams Pill | Will Manifest 2 | 4,531 | 5,763 (+27%) | 3,694 |
+
+  The Cultivation page's list of ways does not name them yet; while one works, the bonus list does, by its name.
+- **The gate: `item_engine`** (`python3 tools/content/items/engine.py --check`, in `tools/run_tests.sh` and `Test.ps1`).
+  It checks that:
+  - two compiles write the same bytes;
+  - the built data holds every member's row, recipe and icon;
+  - every named source is found, and every named creature drops its part;
+  - each family pill icon renders the same bytes twice and the same as on disk;
+  - the engine's 17 tests pass.
+- **Tests.** `tools/run_tests.sh` on the merged tree: every gate (`item_engine` and `boot` among them), and 20 suites
+  with 73,731 checks, 0 failures and no SCRIPT ERROR (`perf_tests` met one budget over at a load of 5 in the full run
+  and passed 18 of 18 alone, as it failed 2 at the start of this work at a load of 12). Every suite keeps its count
+  through the migration. With the Streams Pills, `data_validation` counts their items, recipes and shop lines (50,278
+  to 50,348) and `balance_sim` gains the speed ladder's six checks (177 to 183).
 
 ## The World authority in parts (decision 45, S9)
 

@@ -641,6 +641,134 @@
    ]
   },
   {
+   "id": "three_streams_pill",
+   "craft": "alchemy",
+   "grade": "heaven",
+   "inputs": [
+    {
+     "item": "cloudtop_orchid",
+     "count": 1
+    },
+    {
+     "item": "mist_lotus",
+     "count": 2
+    },
+    {
+     "item": "cloud_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "three_streams_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 600,
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "five_streams_pill",
+   "craft": "alchemy",
+   "grade": "mystic",
+   "inputs": [
+    {
+     "item": "riverreed_ginseng_1000",
+     "count": 1
+    },
+    {
+     "item": "soulbell_flower",
+     "count": 2
+    },
+    {
+     "item": "roc_feather",
+     "count": 1
+    }
+   ],
+   "outputs": [
+    {
+     "item": "five_streams_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 900,
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "seven_streams_pill",
+   "craft": "alchemy",
+   "grade": "sage",
+   "inputs": [
+    {
+     "item": "ember_cactus",
+     "count": 1
+    },
+    {
+     "item": "frost_lotus",
+     "count": 1
+    },
+    {
+     "item": "harpy_plume",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "seven_streams_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1200,
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
+   "id": "nine_streams_pill",
+   "craft": "alchemy",
+   "grade": "sovereign",
+   "inputs": [
+    {
+     "item": "star_lotus",
+     "count": 1
+    },
+    {
+     "item": "frost_lotus",
+     "count": 1
+    },
+    {
+     "item": "comet_plume",
+     "count": 2
+    }
+   ],
+   "outputs": [
+    {
+     "item": "nine_streams_pill",
+     "count": 1
+    }
+   ],
+   "time_s": 1200,
+   "element": "earth",
+   "roles": [
+    "principal",
+    "minister",
+    "assistant"
+   ]
+  },
+  {
    "id": "herbal_tea",
    "craft": "cooking",
    "grade": "plain",

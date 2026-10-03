@@ -327,7 +327,7 @@ unless one of these two entries is used.
 | Controller | `scripts/topdown/topdown_motor.gd` (`TopdownMotor`) | Pure simulation at 120 Hz on (x, depth y, z). Numbers from `movement.json` `topdown` |
 | View | `scripts/topdown/topdown_world.gd` (`TopdownWorld`) | The 640×360 SubViewport shown ×2, floor and water under one Y-sorted layer, the silhouette, shadow, dust and splash, the camera |
 | Player | `scripts/topdown/topdown_player.gd` | The HUD's player interface (joystick, Jump, Dodge, Attack, keyboard) over the motor, and the placeholder body |
-| Art | `tools/art/build_topdown_proto.py` → `art/topdown/*.png`, `data/topdown/proto_tileset.json` | Deterministic and original, in Jade River's palette, 1 art px = 1 viewport px, nearest neighbour |
+| Art | `tools/art/build_topdown_proto.py` (removed in decision 45; `tools/art/topdown/build_tiles.py` builds them today) → `art/topdown/*.png`, `data/topdown/proto_tileset.json` | Deterministic and original, in Jade River's palette, 1 art px = 1 viewport px, nearest neighbour |
 | Shell | `scripts/main.gd`, `scripts/shell/shell_screens.gd`, `scripts/hud.gd` | The two entries; the HUD's Dodge calls the prototype's dash; its minimap is off in the prototype (it draws side-view rooms) |
 
 **Differences from the plan as written.**
@@ -453,7 +453,7 @@ The side-view game is unchanged; nothing loads the grid code unless the prototyp
 | Shared effects | `FxLayer.cast` / `FxLayer.hit`, `scripts/presentation/combat_fx.gd` (`CombatFx`), `shake_rig.gd` | The effects layer draws a cast and a hit for both views. `cast` takes the aim: its forms, slashes and shots turn to it, with the body's `chest` height. `CombatFx` is the view's glue round them (the Heaven-grade first-hit shake, the heavy-blow shake, the sound, Miss/Immune/Evade) |
 | Art as data (decision 31) | `data/topdown/proto_tileset.json` | The view reads its atlases' files (`atlas`), every tile, prop, body and foe rect, and which tiles each paint mark draws (`paint`) from the manifest. The Phase 3 art replaces sheets and rows, not code |
 | Touch | `scripts/topdown/aim_gesture.gd` (`AimGesture`), `hud.gd` | Attack and technique touches read as a tap or an aim (see below) |
-| Art | `tools/art/build_topdown_proto.py` | The storehouse. A 2-frame strike pose on the placeholder body. `art/topdown/placeholder_foes.png`: crab, rat and boarlet, east drawn and west mirrored, with idle, walk, wind-up, attack and hurt. The manifest marks it `"placeholder": true`; the full art is Phase 3/5 |
+| Art | `tools/art/build_topdown_proto.py` (removed in decision 45) | The storehouse. A 2-frame strike pose on the placeholder body. `art/topdown/placeholder_foes.png`: crab, rat and boarlet, east drawn and west mirrored, with idle, walk, wind-up, attack and hurt. The manifest marks it `"placeholder": true`; the full art is Phase 3/5 |
 
 **Aiming (decision 30; research in `docs/research/alabaster_dawn_2_5d.md` §3.8).**
 

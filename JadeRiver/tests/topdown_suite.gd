@@ -1980,8 +1980,8 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var prey := foe("wild_boarlet", a.plane + Vector2(90, 0))
 	frames(180)
 	t.check(hurt(prey), "topdown allies: the companion closes on a foe on its own level and strikes it (hp %.0f / %.0f)" % [prey.pools.hp, prey.pools.max_hp])
-	# A spirit animal and a foe the grid's sheet does not draw yet (a pebble imp) get stand-ins too, not the crab; Old
-	# Snapper, drawn for the grid since, takes its own rows.
+	# A spirit animal and a foe the grid's sheet does not draw yet (a stone tortoise; the pebble imp it once was here has its
+	# own rows since E2) get stand-ins too, not the crab; Old Snapper, drawn for the grid since, takes its own rows.
 	fresh(base)
 	var pet := EnemyState.new()
 	pet.uid = Game.room_rt.uid()
@@ -1991,15 +1991,15 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	pet.plane = base + Vector2(-40, 0)
 	Game.room_rt.enemies[pet.uid] = pet
 	w.add_foe(pet)
-	var imp := foe("pebble_imp", base + Vector2(60, 0))
+	var imp := foe("stone_tortoise", base + Vector2(60, 0))
 	w.add_foe(imp)
 	var snapper := foe("old_snapper", base + Vector2(60, 60))
 	w.add_foe(snapper)
 	var pv = w.foe_views.get(pet.uid)
 	var iv = w.foe_views.get(imp.uid)
 	var sv = w.foe_views.get(snapper.uid)
-	t.check(pv != null and pv.art is EnemyView and pv.art.sprite != null and iv != null and iv.art is EnemyView and iv.art.sprite != null and iv.art.sprite.creature_id == "pebble_imp",
-		"topdown allies: a spirit animal and a pebble imp (no rows in the grid's sheet) are drawn by their own creature sheets as stand-ins")
+	t.check(pv != null and pv.art is EnemyView and pv.art.sprite != null and iv != null and iv.art is EnemyView and iv.art.sprite != null and iv.art.sprite.creature_id == "stone_tortoise",
+		"topdown allies: a spirit animal and a stone tortoise (no rows in the grid's sheet) are drawn by their own creature sheets as stand-ins")
 	t.check(sv != null and sv.art == null and not (sv.acts as Dictionary).is_empty(), "topdown: Old Snapper is drawn by its own rows of the grid's foe sheet, not a stand-in")
 	fresh(base)
 	c.companions.active = had

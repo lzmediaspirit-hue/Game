@@ -94,9 +94,10 @@ in the flag's own spelling.
 `--learn=`, `--physique=`, `--set-piece=`, `--tribulation` and `--test-saves`. The last never did anything of its own,
 because any argument already chose the preview saves.
 
-**Known, unchanged.** `--capture`'s wait reads `world.fx.fixed_step`, which only the side view's `FxLayer` has. On a
-top-down world it stops with a script error before the picture is taken, as it did before S7. `--cast=` and `--fly`
-also work only in the side view. The capture registry (`tools/dev/capture/`) takes the top-down pictures.
+**Side view only.** `--cast=` and `--fly` work only in the side view. `--capture` works in both views: its wait counts
+frames only when the side view's `FxLayer` has a fixed step (`--cast` with `--capture`), and the top-down FX view has
+none (fixed in F1; it used to stop with a script error before the picture). The capture registry
+(`tools/dev/capture/`) takes the review pictures.
 
 ## The side view in main.gd
 

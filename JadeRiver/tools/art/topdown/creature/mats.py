@@ -109,6 +109,20 @@ RAMPS = {
     "minnow_belly": _r("7D8990", "A4AFB1", "CDD4D0", "E9ECE4", "F2F4EE"),
     "minnow_fin": _r("535F69", "77848C", "A3AEB3", "D3DBDB", "E4EAE8"),
     "mist": _r("5F6B72", "7F8B92", "A3AEB2", "C9D2D3", "E6ECEA"),
+    # rock beetle (E2, its side-view sheet's ramps): a carapace of rocky grey-brown plates and a paler pronotum, ochre
+    # lichen on them, dark umber chitin underneath and on the legs, a curved ochre horn
+    "beetle_rock": _r("2C2723", "473F37", "6C604F", "998B70", "C2B593"),
+    "beetle_pronotum": _r("282320", "3F3833", "5E5446", "857861", "AEA185"),
+    "beetle_lichen": _r("3E3020", "5E4A30", "8A6A3E", "B8904E", "E2C27A"),
+    "beetle_chitin": _r("171211", "271F1D", "3B302B", "56463C", "7D675A"),
+    "beetle_horn": _r("3A2A1A", "5C452E", "8C6A41", "C29B5B", "ECD49A"),
+    # pebble imp (E2, its side-view sheet's ramps): warm grey-brown stone, its limbs a little darker, and the pebbles
+    # studding it (ochre, slate, rust)
+    "imp_stone": _r("2C2724", "463E39", "6C6052", "9B8B71", "C6B693"),
+    "imp_limb": _r("292522", "403A36", "62584C", "8C7D66", "B6A586"),
+    "peb_ochre": _r("3C2E22", "5E4734", "8B6945", "BB8F59", "E6BF7E"),
+    "peb_slate": _r("272C2F", "3C4347", "5C6466", "838C8B", "B7BEBB"),
+    "peb_rust": _r("33201C", "4F302B", "784A3C", "A7684E", "D49373"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -144,6 +158,10 @@ PROPS = {
     "eel_mouth": {"weight": 1.3},
     "minnow": {"hi": True, "glossy": True}, "minnow_back": {"hi": True}, "minnow_belly": {"hi": True},
     "minnow_fin": {"hi": True, "thin": True}, "mist": {"hi": True},
+    "beetle_rock": {"hi": True}, "beetle_pronotum": {"hi": True, "glossy": True}, "beetle_lichen": {"hi": True},
+    "beetle_chitin": {"hi": True, "glossy": True, "thin": True}, "beetle_horn": {"hi": True, "glossy": True, "weight": 1.5},
+    "imp_stone": {"hi": True}, "imp_limb": {"hi": True}, "peb_ochre": {"hi": True, "weight": 1.3},
+    "peb_slate": {"hi": True, "weight": 1.3}, "peb_rust": {"hi": True, "weight": 1.3},
 }
 
 # Single colours laid on as marks and points.
@@ -181,6 +199,23 @@ POOL = c("1F2830", 150)
 FOAM = c("DCE4E4", 235)
 RIPPLE = c("B7C4C8", 210)
 RIPPLE_DIM = c("7F8E96", 160)
+# E2: the rock beetle's amber eye and the pale specks in its stone; the pebble imp's ember glow (its eyes and the crack
+# in its belly), its grin and teeth; the greyfin's grey puddle (its side-view sheet's), its rim, the fish's dark shape
+# under the surface and its teeth.
+BEETLE_EYE = c("F0B23E")
+SPECK = c("E6DCC0")
+EMBER = c("FFBE45")
+EMBER_CORE = c("FFF1B8")
+EMBER_DIM = c("A8692C")
+EMBER_GLOW = c("FFBE45", 120)
+GRIN = c("2B1712")
+IMP_TOOTH = c("F4EAD0")
+PUDDLE = c("44525C")
+PUDDLE_DEEP = c("2E3A43")
+PUDDLE_RIM = c("9AA8AE")
+PUDDLE_EDGE = c("0C1217")
+PUDDLE_RIPPLE = c("7A8891")
+FISH_TOOTH = c("F2F1E6")
 
 
 def palette(*names) -> dict:

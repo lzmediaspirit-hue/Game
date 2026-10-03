@@ -30,7 +30,8 @@ extends RefCounted
 const INK_SHADER = preload("res://scripts/presentation/technique_picture_ink.gdshader")
 const SHEET := 512                ## an atlas sheet's side, px
 const MAX_SHEETS := 10            ## sheets kept at most (a full set starts its least used one again)
-const BUDGET_US := 1500           ## main-thread µs a frame for starting and finishing pictures (a start always fits one)
+const BUDGET_US := 1500           ## main-thread µs a frame for starting and finishing pictures (a start always fits one),
+                                  ## on the main thread's own clock (_clock_us)
 const STARTS_A_FRAME := 6         ## pictures begun a frame at most (each hands its painting to a worker thread)
 ## The forms an art cast from a sitting (its action meditate_burst, or none) is pictured seated for, as the reference
 ## draws them (a ward's dome, a domain's springs, a chorus's notes); the rest cast standing, the hand seal toward its foe.
@@ -58,6 +59,7 @@ static var _boxes: Dictionary = {}    # radius -> {colour -> StyleBoxFlat}
 static var _looks: Dictionary = {}    # outfit hash|family -> [family, the outfit the art is pictured in] (art_look)
 static var _look_memo: Dictionary = {}   # art|size|muted|top -> [the outfit, the character, its look] (_look)
 static var _frame := -1               # the frame the budget below is for
+static var _schedstat := -1           # 1 where the system counts the run queue per thread (desktop Linux), else 0; -1 unasked
 static var _spent_us := 0
 static var _started := 0
 ## Moves on when a sheet starts again: a caller that keeps its drawing (the Techniques tree's tiles) draws again.
@@ -264,7 +266,7 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	if not cell.is_empty(): return cell
 	_budget_frame()
 	if _started >= STARTS_A_FRAME or (_started > 0 and _spent_us >= BUDGET_US): return {}
-	var t0 := Time.get_ticks_usec()
+	var t0 := _clock_us()
 	var at := _slot(s)
 	if at.is_empty(): return {}
 	var sheet: Dictionary = at[0]
@@ -381,13 +383,38 @@ static func _budget_frame() -> void:
 	_spent_us = 0
 	_started = 0
 
+## A piece's main-thread µs since `t0` (a _clock_us reading) counted against the frame's budget, and kept for the tests.
 static func _spend(t0: int, what := "") -> void:
 	_budget_frame()
-	var us := Time.get_ticks_usec() - t0
+	var us := _clock_us() - t0
 	_spent_us += us
 	if us > build_us_max: build_worst = what
 	build_us_max = maxi(build_us_max, us)
 	frame_us_max = maxi(frame_us_max, _spent_us)
+
+## The main thread's own clock, µs, that times each piece. On desktop Linux it is the wall clock less the time the thread
+## stood in the run queue, ready to run while other processes held every CPU (/proc/thread-self/schedstat, the same clock
+## as the test suites' now_us): a busy machine does not spend a picture's budget, and a piece that is slow on its own,
+## working or blocked, still is. The same file's CPU time moves only on the scheduler's tick, too coarse for a piece of a
+## millisecond. The file is read afresh each time (about 20 µs; a kept one does not move on), and read again when the
+## thread was taken off the CPU while it read, since that wait might be in one of the two figures and not the other.
+## Elsewhere, Android among them, it is the wall clock.
+const SCHEDSTAT := "/proc/thread-self/schedstat"
+const READ_SLACK_US := 250        ## a read longer than this had the thread taken off the CPU in the middle of it
+
+static func _clock_us() -> int:
+	var now := Time.get_ticks_usec()
+	if _schedstat < 0: _schedstat = 1 if OS.has_feature("linux") and FileAccess.file_exists(SCHEDSTAT) else 0
+	if _schedstat == 0: return now
+	var queued := 0
+	for i in 3:
+		var f := FileAccess.open(SCHEDSTAT, FileAccess.READ)
+		if f == null: return now
+		queued = int(f.get_line().get_slice(" ", 1)) / 1000
+		var after := Time.get_ticks_usec()
+		if after - now <= READ_SLACK_US: break
+		now = after
+	return now - queued
 
 ## The node that holds the sheets and finishes the cells (made once, under the tree's root; it runs while anything is
 ## pending, paused or not).
@@ -445,7 +472,7 @@ static func _tend() -> void:
 			continue
 		if str(cell.state) == "painting":
 			if _spent_us >= BUDGET_US or not WorkerThreadPool.is_task_completed(int(cell.task)): continue
-			var t0 := Time.get_ticks_usec()
+			var t0 := _clock_us()
 			WorkerThreadPool.wait_for_task_completion(int(cell.task))
 			var sp: Dictionary = cell.spec
 			cell.back = ImageTexture.create_from_image(cell.out.back)
@@ -474,7 +501,7 @@ static func _tend() -> void:
 ## sheets once they are in) over its light rim (its silhouette an art pixel out each way), the front marks; all through
 ## the ink.
 static func _draw_cell(node: Node2D, cell: Dictionary) -> void:
-	var t0 := Time.get_ticks_usec()
+	var t0 := _clock_us()
 	var sp: Dictionary = cell.spec
 	var s := float(sp.s)
 	var K := float(sp.k)
