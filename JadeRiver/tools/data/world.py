@@ -21,6 +21,9 @@ import random
 
 from common import DATA, write, entries, clear, req, c, realm, flag, noflag, qdone, qactive, qaccepted, sect, all_of, any_of, run_cli
 from common import unlocked as unlock
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content.npcs import engine as NPCS  # noqa: E402  decision 45, E3: the people the NPC engine places itself
 
 ROOMS_DIR = os.path.join(DATA, "rooms")
 GROUND_Y = 620
@@ -2583,6 +2586,23 @@ def _ledge_reward(r, sid, x, width, h, loot=None):
     return o
 
 
+def npc_engine_pass():
+    """Decision 45, E3: a person the NPC engine places in a room itself (a spec's `place(room, anchor=...)`,
+    tools/content/npcs) is an object of the side-view room like a hand-placed one, after the room's own; the room engine
+    gives it its cell on the grid. The passes after this one treat it as any other NPC."""
+    rooms = {p["room"] for s in NPCS.state().npcs for p in s["at"] if p["anchor"] is not None}
+    missing = sorted(rooms - set(ROOMS))
+    if missing:
+        raise SystemExit("world: the NPC engine places people in %s, which no room is" % ", ".join(missing))
+    for rid in sorted(rooms):
+        r = ROOMS[rid]
+        have = {o["id"] for o in r.d["objects"]}
+        for o in NPCS.objects(rid, r.d.get("bounds")):
+            if o["id"] in have:
+                raise SystemExit("world: %s's object %s is the room's own and the NPC engine's" % (rid, o["id"]))
+            r.d["objects"].append(o)
+
+
 def earth_vents():
     """Earth Fire (gap report G1): one vent to a zone, where an alchemist sets a furnace over the ground's own fire."""
     for rid, oid, y in [("wg_rapids_terraces", "earth_vent_wg", 900), ("sd_scorpion_flats", "earth_vent_sd", 900)]:
@@ -3181,6 +3201,7 @@ def build():
     sunscar()
     skyport_wreck()
     lantern.build()   # Act III · the Lantern Star Field (v1.2)
+    npc_engine_pass()   # decision 45, E3: the people the NPC engine places in a room itself, before the passes over rooms
     earth_vents()
     movement_extras()
     rogue_cultivators()

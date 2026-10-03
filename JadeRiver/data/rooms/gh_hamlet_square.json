@@ -172,6 +172,60 @@
    ]
   },
   {
+   "id": "npc_washer_ying",
+   "type": "npc",
+   "at": [
+    386,
+    864
+   ],
+   "npc": "washer_ying",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_fisher_gan",
+   "type": "npc",
+   "at": [
+    531,
+    864
+   ],
+   "npc": "fisher_gan",
+   "facing": -1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   }
+  },
+  {
+   "id": "npc_old_jiu",
+   "type": "npc",
+   "at": [
+    1014,
+    864
+   ],
+   "npc": "old_jiu",
+   "facing": 1,
+   "visible_if": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   }
+  },
+  {
    "id": "grey_lantern_hall",
    "type": "inspect",
    "at": [

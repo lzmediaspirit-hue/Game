@@ -637,6 +637,21 @@ static func sets() -> Dictionary:
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
+	# E3, the NPC engine (docs/architecture/npc_engine.md): its first new people, Greyreed Hamlet's three villagers come
+	# home once the well runs clean, each one spec placed and set to work by anchors.
+	s["npc_engine"] = {"doc": "E3, the NPC engine: Greyreed Hamlet's square before the well runs clean and after, its three villagers home and at work (each worker up close), a word with one, and the square whole",
+		"out": "architecture/npc_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": [
+		{"name": "01_hamlet_before", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120},
+		{"do": [["quests_done", ["grey_roofs", "cleansing_the_well"]]]},
+		{"name": "02_hamlet_home_again", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 240},
+		{"name": "03_washer_ying_wash", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "tend"]]},
+		{"name": "04_washer_ying_hang", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "work_hang"]]},
+		{"name": "05_fisher_gan_mend", "take": [["worker", "*", "gh_hamlet_square", "npc_fisher_gan", "work_mend"]]},
+		{"name": "06_old_jiu_sweep", "take": [["worker", "*", "gh_hamlet_square", "npc_old_jiu", "work_sweep"]]},
+		{"name": "07_talk_washer_ying", "room": "gh_hamlet_square", "cell": Vector2(11, 20), "wait": 60, "do": [["talk", "npc_washer_ying"], ["frames", 40], ["dialogue_end"], ["frames", 4]],
+			"then": [["close_pages"], ["frames", 10]]},
+		{"name": "08_hamlet_whole", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120, "take": [["whole_room", "rooms/gh_hamlet_square"]]}]}
+
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",
 		"out": "redesign/feedback/combat/", "stage": [["proto"], ["hud", "visible", false]], "rows": [

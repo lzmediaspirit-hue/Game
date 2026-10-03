@@ -455,8 +455,11 @@ func s_log_light() -> void:
 func s_worker(name, room: String, who: String, action: String) -> void:
 	var life: Dictionary = TopdownLife.room_life(room)
 	var home := Vector2.ZERO
+	var spots: Array = life.get("work", {}).get(who, {}).get("spots", [])
 	for e in life.get("extras", []):
-		if str(e.id) == who: home = TopdownRoom.cell_point(e.spots[0])
+		if str(e.id) == who:
+			home = TopdownRoom.cell_point(e.spots[0])
+			spots = e.spots
 	if home == Vector2.ZERO:
 		var lay := TopdownRoom.load_room(room)
 		home = TopdownRoom.cell_point(lay.def.place.get(who, [0, 0]))
@@ -466,11 +469,12 @@ func s_worker(name, room: String, who: String, action: String) -> void:
 	await frames(10)
 	_bind()
 	# out of the worker's notice (72 units): the first side of them the player can stand on well away (by a river bank
-	# the south is water, and the nearest standable cell there would be at the worker's elbow)
+	# the south is water, and the nearest standable cell there would be at the worker's elbow), and out of it at every
+	# spot of the worker's loop too (E3: a washer's spot at the water's edge, a step from the nearest dry cell)
 	var stand: Vector2 = w.room.nearest_standable(far)
 	for off in [Vector2(0, 4.5), Vector2(0, -4.5), Vector2(4.5, 0), Vector2(-4.5, 0), Vector2(3.5, 3.5), Vector2(-3.5, -3.5)]:
 		var q: Vector2 = w.room.nearest_standable(home + off * TopdownRoom.TILE)
-		if q.distance_to(home) > 100.0:
+		if q.distance_to(home) > 100.0 and spots.all(func(s): return q.distance_to(TopdownRoom.cell_point(s)) > TopdownWork.NOTICE + 16.0):
 			stand = q
 			break
 	m.place(stand)

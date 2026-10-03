@@ -183,13 +183,19 @@ def _best(room, where, kind, arg, centre, home, floor, prev, chosen, others, lea
                 continue
             t = min(targets, key=lambda q: (math.hypot(q[0] - c[0], q[1] - c[1]), q))
             aim = (t[0] - c[0], t[1] - c[1])
-            rank = float(d)
+            # beside it first (a figure at a tub or an anvil reads side-on), then in front, then behind it
+            rows = {q[1] for q in targets}
+            rank = (d, 0 if c[1] in rows else 1 if c[1] > max(rows) else 2)
         else:   # open: as far from the person and the spots chosen as the leash allows
             ref = [home] + chosen if home is not None else chosen
             rank = -min([math.hypot(p[0] - q[0], p[1] - q[1]) for q in ref] + [3.0])
             aim = (p[0] - home[0], p[1] - home[1]) if home is not None else (0.0, 1.0)
+        if not isinstance(rank, tuple):
+            rank = (rank, 0)
         dist = abs(p[0] - centre[0]) if centre[1] is None else math.hypot(p[0] - centre[0], p[1] - centre[1])
-        key = (rank, round(dist, 6), h01(seed, p[0], p[1]))
+        # the tie broken by a hash of the room, the person and the offset from the point looked round, so that a building
+        # moved with its worker keeps the worker's spots round it as they were
+        key = (rank, round(dist, 6), h01(seed, p[0] - int(round(centre[0])), p[1] - (int(round(centre[1])) if centre[1] is not None else 0)))
         if best_key is None or key < best_key:
             best, best_key = [p[0], p[1], facing_to(*aim)], key
     if best is None:

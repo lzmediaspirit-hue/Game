@@ -1,7 +1,12 @@
-"""The people along the valley's roads out of Stoneford (docs/architecture/npc_engine.md): Greyreed Hamlet's elder and
-trader, the Caravan Road's night peddler, the Reed Marsh's hermit, and a fisherman at the Marsh Edge."""
-from content.npcs.spec import extra, look, npc, work
+"""The people along the valley's roads out of Stoneford (docs/architecture/npc_engine.md): Greyreed Hamlet's elder,
+trader and villagers, the Caravan Road's night peddler, the Reed Marsh's hermit, and a fisherman at the Marsh Edge."""
+from common import all_of, qdone
+from content.npcs.spec import extra, look, npc, place, work
 
+# The engine's first new people (decision 45, E3): Greyreed's villagers come home once the well runs clean (Cleansing
+# the Well), as Elder Gao hoped. Each is one spec: their place in the hamlet is an anchor of the room, their work spots
+# anchors of its layout (the water's edge, the laundry line, the net rack, the square).
+HOME_AGAIN = dict(visible_if=all_of(qdone("cleansing_the_well")))
 
 NPCS = [
     npc("hamlet_elder_gao", "Elder Gao", "Greyreed Hamlet", look("long_tied:1", "vneck:grey", "loose", "folded"),
@@ -9,6 +14,19 @@ NPCS = [
          "If the well runs clean again, we might come home."], ["..."], at=["gh_hamlet_square"]),
     npc("hamlet_trader_min", "Trader Min", "Greyreed trade post", look("ponytail", "vneck:jade", "cuffed", "boots"),
         ["Greyreed trades again! Thanks to you."], ["Market day!"], services=["shop:greyreed"], at=["gh_hamlet_square"]),
+    npc("washer_ying", "Washer Ying", "Greyreed villager", look("ponytail", "cardigan:rose", "straight:grey", "slippers"),
+        ["The pools took the grey downstream. The washing comes out white again.",
+         "Elder Gao wept when the well ran clear. Don't tell him I told you."], ["Scrub, scrub.", "White as a heron."],
+        at=[place("gh_hamlet_square", anchor="commons@9", facing=1, **HOME_AGAIN,
+                  work=work("laundry", "water_edge:wash", "by:laundry_line:hang"))]),
+    npc("fisher_gan", "Fisher Gan", "Greyreed villager", look("short_knot:5", "vneck:grey", "cuffed:earth", "folded", hat="straw"),
+        ["The pools gave the fish back before they gave back the colour.",
+         "Three seasons on my cousin's floor in Stoneford. Never again."], ["Knot, pull, knot.", "Mind the hooks."],
+        at=[place("gh_hamlet_square", anchor="commons@12", facing=-1, **HOME_AGAIN, work=work("mend", "by:net_rack", "water_edge"))]),
+    npc("old_jiu", "Old Jiu", "Greyreed villager", look("topknot:1", "vneck:earth", "loose", "slippers"),
+        ["Grey dust everywhere. It sweeps like ash, but it is only dust now.",
+         "We came home the day the well ran clear. The hamlet remembers who cleaned it."], ["Sweep, sweep.", "Mind your feet."],
+        at=[place("gh_hamlet_square", anchor="square@22", facing=1, **HOME_AGAIN, work=work("sweep", "home", "open", "open"))]),
     # Part 8 (S49 karma): the night peddler of the Caravan Road. Everything on his mat is a small sin.
     npc("peddler_shao", "Peddler Shao", "Sells after dark",
         look("long_tied:4", "cardigan:ink", "loose:ink", "folded", hat="weimao"),
