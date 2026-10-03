@@ -113,7 +113,13 @@ STEPS = {
 
 # ------------------------------------------------------------------ foes
 # The voice of a foe's tell (its wind-up), its body when struck, and its death. By race, then nature, then the named
-# exceptions (the creatures whose shell, slime or paper the race does not say).
+# exceptions (the creatures whose shell, slime or paper the race does not say). A species spec of the monster engine
+# (tools/content/monsters, `sound=dict(body=..., tell=...)`) names its own; these lists name the hand-written foes' and
+# keep the table's order: a spec listed here takes its place in it with the spec's own voice (none: its race's), and a
+# spec not listed comes after them.
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content import monsters as MON  # noqa: E402
+
 SHELL = ["mudshell_crab", "old_snapper", "rock_beetle", "stone_tortoise", "ironclaw_mole", "tide_crab", "sandstorm_scorpion",
          "void_crab", "boulder_serpent", "pebble_imp", "mirror_wisp", "gravity_golem", "riverstone_ox"]
 SLIME = ["hollow_minnow", "hollowed_eel", "marsh_leech", "reed_frog", "mossback_toad", "star_jellyfish", "greyfin", "jade_carp",
@@ -122,14 +128,32 @@ WOOD = ["trial_puppet", "paper_talisman_ghost", "weeping_lantern", "stone_guardi
         "terracotta_warden", "gate_guardian"]
 WATER_VOICE = SLIME + ["mudshell_crab", "tide_crab", "old_snapper", "void_crab", "reed_otter"]
 
+
+def _named(lists, key: str) -> dict:
+    """id -> its named voice (`key` "body" or "tell"), in the lists' order: a hand-written foe's from the list it is in,
+    a species spec's from its spec (left out where the spec takes its race's); then the specs no list names."""
+    specs = MON.voices()
+    out = {}
+    for value, ids in lists:
+        for e in ids:
+            if e not in specs:
+                out[e] = value
+            elif specs[e].get(key):
+                out[e] = specs[e][key]
+    for e, v in specs.items():
+        if e not in out and v.get(key):
+            out[e] = v[key]
+    return out
+
+
 FOES = {
     "body_by_race": {"beast": "flesh", "human": "flesh", "construct": "wood", "ghost": "slime", "ashborn": "flesh", "undead": "shell"},
     "body_by_nature": {"hollowed": "slime"},
-    "body": dict({e: "shell" for e in SHELL}, **{e: "slime" for e in SLIME}, **{e: "wood" for e in WOOD}),
+    "body": _named((("shell", SHELL), ("slime", SLIME), ("wood", WOOD)), "body"),
     "tell_by_race": {"beast": "tell_beast", "human": "tell_human", "construct": "tell_construct", "ghost": "tell_spirit",
                      "ashborn": "tell_human", "undead": "tell_construct"},
     "tell_by_nature": {"hollowed": "tell_spirit", "demonic": "tell_beast"},
-    "tell": {e: "tell_water" for e in WATER_VOICE},
+    "tell": _named((("tell_water", WATER_VOICE),), "tell"),
     "tell_tick": "tell",           # the readable tick every wind-up shares, under its voice
     "tell_tick_db": -6.0,
     "death_by_body": {"flesh": "die_flesh", "shell": "die_shell", "wood": "die_wood", "slime": "die_slime"},

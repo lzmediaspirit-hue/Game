@@ -1,5 +1,14 @@
-"""S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses)."""
+"""S13 enemies.json and S32 loot_tables.json (Part 8 monsters and bosses).
+
+A species with a spec in the monster engine (tools/content/monsters, audit 45 §6.2) has its row made from its spec
+(`spec_row`, through mob(), atk() and d() here) and says its own loot extras (starter, early finds, quest drops); the
+rows below are the hand-written foes', and a spec's row sits where it always did (a new spec's comes after them)."""
+import os
+import sys
+
 from common import entries, titled, run_cli
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content import monsters as MON  # noqa: E402
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 LOST_MANUALS = {s["src"]["item"]: s["id"] for s in LOST_HAND.LOST if s["src"]["kind"] == "drop"}   # P13a: manual -> lost art
@@ -206,8 +215,9 @@ def equipment(kind, chance=None):
 
 
 # The foes of the valley's first rooms (the Reed Shallows, Willow Path West and East): their tables are marked `starter`
-# (LootRules.make_starter; the first weapon and the pity in WorldAuthority._starter_drop).
-STARTER = {"mudshell_crab", "reedtail_rat", "old_snapper", "wild_boarlet", "mossback_toad"}
+# (LootRules.make_starter; the first weapon and the pity in WorldAuthority._starter_drop). A species spec says it itself
+# (`loot=dict(starter=True)`); the set below is the hand-written foes' (none now).
+STARTER = set() | {i for i in MON.ids() if MON.loot(i).get("starter")}
 
 
 # P7b (item_plan §3.4, §4.2): named rows, each rolled on every kill like a rare row (`elite_named`: only by an elite).
@@ -219,9 +229,14 @@ NAMED_ROWS = {"big_toad_tan": {"named": [{"item": "mudwater_robe", "chance": 0.0
 # Early surprises (docs/research/player_motivation.md item 7, §3.4): the first monsters carry rare rows, a river pearl
 # (sold for coin) and a manual page. `find` marks a rare find: its drop plays the rare-find moment (MomentRules.is_rare).
 _EARLY = [{"item": "pearl", "chance": 0.02, "count": [1, 1], "find": True}, {"item": "manual_page", "chance": 0.005, "count": [1, 1], "find": True}]
-EARLY_FINDS = {"mudshell_crab": _EARLY, "reedtail_rat": _EARLY, "wild_boarlet": _EARLY, "mossback_toad": _EARLY}
-# The Hollow Night's minnows leave a grey sliver behind now and then: the first Hollow shard the story puts in your hand.
-EARLY_FINDS["hollow_minnow"] = [{"item": "tiny_hollow_shard", "chance": 0.25, "count": [1, 1]}]
+# A species spec names its own (`loot=dict(finds="early")` for these, or its rows: the Hollow Night's minnows' grey
+# sliver, the first Hollow shard the story puts in your hand).
+EARLY_FINDS = {i: (_EARLY if MON.loot(i)["finds"] == "early" else MON.loot(i)["finds"]) for i in MON.ids() if MON.loot(i).get("finds")}
+
+
+def spec_row(id):
+    """A species spec's enemies.json row (tools/content/monsters), made by mob(), atk() and d() as a hand row is."""
+    return MON.row(id, mob, atk, d)
 
 
 # P12 par times in seconds (research §6.2 and docs/boss_design.md §2.4).
@@ -231,57 +246,17 @@ BOSS_PAR_S = {"big_toad_tan": 90, "riverbed_serpent": 120, "drowned_abbot": 180,
 
 
 def build():
+    # A spec_row is a species written once in the monster engine (tools/content/monsters/specs): its data, sheets and
+    # voice in one place. It keeps its place among the hand rows, so the table does not move.
     M = [
-        mob("mudshell_crab", 1, "normal", "water", "valley_shore", [d("crab_shell", 0.7), d("river_mud", 0.4)],
-            [atk("pinch", 0.4, 40)], ai="slow_melee", speed=55, width=20, height=26, aggro=0),
-        mob("reedtail_rat", 2, "normal", "none", "valley_shore", [d("rat_tail", 0.6)], [atk("bite", 0.35, 36)],
-            ai="melee", speed=120, flee=0.25, width=18, height=22, aggro=150),
-        mob("old_snapper", 3, "elite", "water", "valley_shore", [d("snapper_claw", 1.0)],
-            [atk("claw_slam", 0.6, 74, 1.4, depth=34, knockback=40)], ai="snapper", speed=45, width=40, height=56,
-            phases=[{"below": 0.5, "action": "dig_in", "duration": 3.0, "invulnerable": True}], appears_after={"item": "crab_shell", "count": 5},
-            # Tuned for a Mortal with bare fists (83 HP, no defence): about 135 HP and a 9-point claw, so a player who
-            # never steps out of the slam still wins with a tea or two, and one who reads the tell barely gets touched.
-            hp_mult=0.24, attack_mult=0.33),
-        # The Hollow Night (docs/redesign/story_staging.md "The Hollow Night"): grey minnows leap out of the river and dart
-        # at you in schools, a short tell and then a dash along the ground. One blow fells one, so a combo swung through a
-        # school fells several. On the height grid they skim under the blow's band (EnemyAuthority._hover). Those about a
-        # villager turn on you only as you come to the villager (a short sight); the event's waves hunt you (`hunt`).
-        mob("hollow_minnow", 1, "event", "hollow", None, [], [atk("dart", 0.55, 30, 0.6, depth=26, dash=60)], ai="flyer", speed=85,
-            hp_override=5, width=14, height=18, flying=True, hollowing=1, aggro=150),
-        # The night's great foe, the first boss (decision 45, docs/redesign/story_staging.md "The first boss"), fought
-        # in two phases (EnemyAuthority._eel). Phase 1, the fight a player can read: it rears out of the river (the tell),
-        # lunges onto the bank where you stood, and lies stranded there, open to blows, until it slides back. Tuned for
-        # the story's Mortal (Level 0, about 80 HP, the first crab's short blade or Guo's gauntlets, no technique yet):
-        # a lunge takes about an eighth of that; the short blade takes it to four fifths of its HP in about three of its
-        # windows (tests/balance_sim.gd, "story night").
-        # Phase 2 at 80% of its HP (or 90 s into the fight, for a player who never strikes it): it wakes. It throws
-        # itself back into the river and rises again greater (the awakened sheet, its own music, the scene
-        # `eel_awakens`), the grey minnows fleeing it, and becomes more than a Mortal can meet: the surge, a faster tell,
-        # a longer reach and a band three tiles wide, that no guard or parry stops and that takes a share of the
-        # player's HP whatever they wear (a fifth: three or four of them have the player down); and the thrash round it
-        # where it lands. Its hide turns every blow: its HP never falls below `hp_floor` (72%) again. It cannot be won
-        # and it cannot kill: no blow takes the player under
-        # `overwhelm_hp` (30%), and the fight ends the moment one reaches it, or after `overwhelm_s` of the phase in any
-        # case (a player who dodges every surge: the river itself rises over the bank). The eel looms over the fallen
-        # player and the elders come (the scene `elders_come`, whose checkpoint slays it); should no scene play (the side
-        # view), the elders slay it in the simulation after `rescue_s`. Its flags carry the phase over a reload.
-        mob("hollowed_eel", 2, "story_boss", "hollow", None, [d("pearl", 1.0)],
-            [atk("lunge", 1.1, 34, 1.0, depth=40, knockback=80),
-             atk("surge", 0.6, 60, 1.0, depth=96, knockback=150, unblockable=True, hp_share=0.18, awake=True),
-             atk("thrash", 0.45, 70, 1.0, depth=70, knockback=120, both_sides=True, unblockable=True, hp_share=0.12, awake=True)],
-            ai="event_eel", width=26, height=60, flying=True, hollowing=2, hp_mult=1.0, attack_mult=0.3,
-            phases=[{"below": 0.8, "after_s": 90, "action": "awaken", "staged": True}], first_defeat=["hollow_eel_fang"],
-            eel={"glide_speed": 70, "reach": 190, "lunge_s": 0.28, "beached_s": 2.4, "retreat_s": 0.5, "rest_s": [1.6, 2.6],
-                 "awaken_s": 1.6,
-                 "awake": {"glide_speed": 150, "reach": 300, "lunge_s": 0.18, "beached_s": 0.5, "retreat_s": 0.35, "rest_s": [0.9, 1.4],
-                           "thrash_every": 2, "hp_floor": 0.72, "overwhelm_hp": 0.3, "overwhelm_s": 22.0, "rise_s": 1.2, "rescue_s": 30.0},
-                 "flags": {"awake": "eel_awakened", "overwhelmed": "eel_overwhelmed"}}),
-        mob("trial_puppet", 2, "trial", "none", None, [d("entry_token", 1.0)], [atk("counter_palm", 0.5, 44, 1.0)],
-            ai="guard_counter", speed=60, width=22, height=60, knockback_immune=True, no_death_penalty=True),
-        mob("wild_boarlet", (1, 2), "normal", "earth", "willow_path", [d("boar_hide", 0.5), d("tough_meat", 0.5)],
-            [atk("charge", 0.45, 40, 1.0, dash=70)], ai="charger", speed=80, width=22, height=30),
-        mob("mossback_toad", (2, 3), "normal", "wood", "willow_path", [d("toad_oil", 0.5), d("moss", 0.5)],
-            [atk("tongue_lash", 0.4, 110, 0.9)], ai="ranged_melee", speed=50, tameable=True, width=20, height=26),
+        spec_row("mudshell_crab"),
+        spec_row("reedtail_rat"),
+        spec_row("old_snapper"),
+        spec_row("hollow_minnow"),
+        spec_row("hollowed_eel"),
+        spec_row("trial_puppet"),
+        spec_row("wild_boarlet"),
+        spec_row("mossback_toad"),
         mob("rock_beetle", (4, 5), "normal", "earth", "quarry", [d("beetle_shell", 0.6), d("copper_ore", 0.3)],
             [atk("roll", 0.5, 40, 1.1, dash=90)], ai="charger", speed=60, width=20, height=24),
         mob("pebble_imp", (4, 6), "normal", "earth", "quarry", [d("riverstone", 0.5), d("pebble_core", 0.08)],
@@ -292,14 +267,11 @@ def build():
             hp_mult=1.4),
         mob("ironclaw_mole", (5, 7), "normal", "earth", "quarry", [d("mole_claw", 0.5), d("ore_dust", 0.6)],
             [atk("burst_claw", 0.6, 44, 1.2)], ai="burrower", speed=70, tameable=True, width=20, height=26),
-        mob("reed_frog", (4, 6), "normal", "wood", "marsh", [d("frog_leg", 0.6), d("willow_moss", 0.3)],
-            [atk("jump_kick", 0.35, 40, 1.0, dash=80)], ai="charger", speed=90, width=16, height=22),
-        mob("marsh_leech", (5, 7), "normal", "water", "marsh", [d("leech_oil", 0.6)],
-            [atk("latch", 0.4, 38, 0.8, dash=50, drain=0.3)], ai="melee", speed=40, width=20, height=16),
+        spec_row("reed_frog"),
+        spec_row("marsh_leech"),
         mob("greyfin", (7, 11), "normal", "hollow_water", "marsh", [d("tiny_hollow_shard", 0.4)],
             [atk("leap_bite", 0.5, 44, 1.0, dash=100)], ai="leaper", speed=70, width=18, height=22, hollowing=3),
-        mob("hollowed_boarlet", (7, 12), "normal", "hollow_earth", "marsh", [d("hollow_shard", 0.12), d("grey_hide", 0.5)],
-            [atk("double_charge", 0.45, 40, 1.0, dash=70, repeat=2)], ai="charger", speed=85, width=22, height=30, hollowing=4),
+        spec_row("hollowed_boarlet"),
         mob("bamboo_monkey", (10, 12), "normal", "wood", "bamboo", [d("bamboo_shoot", 0.6)],
             [atk("shoot_toss", 0.4, 280, 0.9, projectile={"speed": 420, "art": "bamboo"})], ai="ranged", speed=120, agile=True,
             tameable=True, width=18, height=34, steals_coins=True, keep_distance=150),
@@ -711,11 +683,14 @@ def build():
     ]
     # Starter spirit animals exist as enemy templates (non-hostile wild versions from Qi Unfurling 7).
     for pid, el in [("reed_otter", "water"), ("ember_fox", "fire"), ("jade_crane_chick", "wind")]:
-        M.append(mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
+        M.append(spec_row(pid) if pid in MON.load() else
+                 mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
                      passive=True))
     # S46: the Riverstone Ox grazes Quarry Rim from Cloud Stride 1; a mount-only spirit beast, tamed like the others.
     M.append(mob("riverstone_ox", (37, 38), "normal", "earth", None, [], [atk("horn_toss", 0.5, 50, 0.9)], ai="wild_pet", tameable=True,
                  width=30, height=46, passive=True))
+    # The species specs not placed above (a new species needs no row here): after the hand rows, in the specs' order.
+    M += MON.rows({m["id"] for m in M}, mob, atk, d)
     beast_ranks(M)
     # P12 (research §6.2): a boss's health is the par character's DPS at its Level times its par time, in place of the
     # role's factor and the old hp_mult (StatRules.mob_stats). Elder Gu cannot be hurt and flees on his clock.
@@ -730,10 +705,11 @@ def build():
     QUEST_DROPS = {"mudwater_bandit": [{"item": "mudwater_key", "chance": 0.3, "count": [1, 1], "quest": "the_caravan_road"}],
                    "dune_worm": [{"item": "sun_seal_shard", "chance": 0.5, "count": [1, 1], "quest": "the_sealed_gate"}],
                    "tomb_king": [{"item": "sunscar_seal", "chance": 1.0, "count": [1, 1], "quest": "the_tomb_king"}],
-                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}],
-                   # Research §3.3: Guo's three shells and Mei Qing's three grey hides drop every kill while still wanted.
-                   "mudshell_crab": [{"item": "crab_shell", "chance": 1.0, "count": [1, 1], "quest": "crab_trouble"}],
-                   "hollowed_boarlet": [{"item": "grey_hide", "chance": 1.0, "count": [1, 1], "quest": "mei_qings_errand"}]}
+                   "starsea_pirate": [{"item": "ledger_page", "chance": 0.35, "count": [1, 1], "quest": "the_skyport_wreck"}]}
+    # A species spec names its own (`loot=dict(quest=[...])`: Guo's three shells, Mei Qing's three grey hides).
+    for sid in MON.ids():
+        if MON.loot(sid).get("quest"):
+            QUEST_DROPS.setdefault(sid, []).extend(dict(x) for x in MON.loot(sid)["quest"])
     # S47 legendary chains: each piece drops from its foe while that chain's quest still wants it.
     for ch in LEGENDS:
         for pid, pname, src, chance, zone in ch["pieces"]:
