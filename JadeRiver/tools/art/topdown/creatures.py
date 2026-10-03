@@ -62,8 +62,10 @@ class Spec:
     past the catalogue (`extra`, EXTRA's)."""
 
     def __init__(self, module: str, fn: str, size: float, palette: list, accents=(), elite=True, shadow=(10, 3),
-                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None):
+                 cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None,
+                 plan=None, body=None):
         self.module, self.fn, self.size, self.palette = module, fn, size, palette
+        self.plan, self.body, self._body = plan, dict(body or {}), None
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
         self.aura, self.sized, self.gold, self.view, self.extra = aura, sized, gold, view, tuple(extra)
         # decision 45: {size (against its own), ramps {material: the awakened ramp's name}}, or None
@@ -78,6 +80,11 @@ class Spec:
         return ORDER + list(self.extra)
 
     def pose(self, action: str, f: int, **kw):
+        if self.plan:
+            from creature import plans
+            if self._body is None:
+                self._body = plans.resolve(self.plan, **self.body)
+            return plans.pose(self._body, action, f, **kw)
         import importlib
         mod = importlib.import_module("creature." + self.module)
         return getattr(mod, self.fn)(action, f, **kw)
@@ -99,23 +106,23 @@ class Spec:
 REGISTRY = {
     "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
                           accents=("claw_tip",), gold=("eye",), shadow=(12, 4), cycle=10.0, sideways=True),
-    "reedtail_rat": Spec("rat", "rat", 1.26, ["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
+    "reedtail_rat": Spec("rat", "rat", 1.26, plan="quadruped.rodent", palette=["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
                          shadow=(10, 3), cycle=11.0, view=True),
-    "wild_boarlet": Spec("boar", "boarlet", 1.4, ["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
+    "wild_boarlet": Spec("boar", "boarlet", 1.4, plan="quadruped.suid", palette=["hide", "hide_head", "stripe", "hoof", "snout", "bristle", "tusk", "pink"],
                          accents=("tusk",), shadow=(13, 4), cycle=13.0, view=True),
     "trial_puppet": Spec("puppet", "puppet", 1.58, ["timber", "timber_dark", "brass", "puppet_jade", "rope"],
                          accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
-    "reed_frog": Spec("frog", "frog", 1.42, ["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
+    "reed_frog": Spec("frog", "frog", 1.42, plan="amphibian.frog", palette=["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
                       shadow=(11, 4), cycle=6.0),
     "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_dark", "leech_belly", "leech_lip", "leech_maw"],
                         accents=("leech_lip",), shadow=(13, 4), cycle=8.0, view=True, extra=("swim",)),
-    "reed_otter": Spec("otter", "otter", 1.44, ["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0, view=True),
-    "hollowed_boarlet": Spec("boar", "hollowed", 1.4, ["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
+    "reed_otter": Spec("otter", "otter", 1.44, plan="quadruped.mustelid", palette=["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0, view=True),
+    "hollowed_boarlet": Spec("boar", "hollowed", 1.4, plan="quadruped.suid", body={"mats": {"hide": "h_hide", "head": "h_head", "stripe": "h_stripe", "hoof": "h_bristle", "snout": "h_snout", "bristle": "h_bristle", "tusk": "tusk", "ear": ("h_snout", 1)}, "opts": {"hollowed": True}}, palette=["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
                              accents=("tusk", "strand"), shadow=(13, 4), cycle=13.0, view=True),
     "old_snapper": Spec("snapper", "snapper", 1.8, ["snap_shell", "snap_moss", "snap_moss_lit", "snap_skin", "snap_belly", "snap_beak",
                                                    "crusher", "crusher_tip", "weed", "snap_eye", "maw"],
                         accents=("crusher", "snap_eye"), elite=False, aura=True, shadow=(26, 6), cycle=9.0),
-    "mossback_toad": Spec("toad", "toad", 1.56, ["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
+    "mossback_toad": Spec("toad", "toad", 1.56, plan="amphibian.toad", palette=["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
                                                  "toad_eye", "maw"], accents=("toad_eye", "tongue"), shadow=(12, 4), cycle=7.0, view=True),
     "hollow_minnow": Spec("minnow", "minnow", 1.5, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
                           accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
