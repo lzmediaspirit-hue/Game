@@ -70,7 +70,8 @@ data is untouched.
     `combat.` prefixes and part calls are expected. The dead local is gone. And four ticks keep a local alias of the
     authority's dictionary that they walk.
   - The data build is unchanged apart from the event contract's Combat `files` lists.
-  - After S3 was merged too, the last full run passed every suite, `perf_tests` included (18 of 18).
+  - S3 and then E6 were merged in, with a full run after each. Both passed every suite, apart from `perf_tests`' time
+    budgets, which passed 18 of 18 in the first run and missed 5 in the second.
 
 ## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
 

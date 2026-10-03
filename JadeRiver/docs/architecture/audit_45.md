@@ -1008,7 +1008,7 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
     `valley_run` and `contract_tests` pass.
   - `perf_tests` misses its millisecond budgets on the base and on S8 alike, at a load of about 14 on 4 cores.
   - The data build is unchanged apart from the contract's Combat `files` lists.
-  - The last full run, after merging S3, passed every suite, `perf_tests` included.
+  - After S3 and E6 were merged, the full runs passed every suite, apart from `perf_tests`' time budgets in one run.
 
 ## 8. Rerunning the audit
 
