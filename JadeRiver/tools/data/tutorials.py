@@ -4,7 +4,7 @@ character's progress through them and the coach (scripts/ui/tutorial_coach.gd) s
 
 An entry:
   id                  the system or page it teaches (its tour's id)
-  page, tab           the page (a main.gd PAGES id, "hud" for the HUD) and tab its tour is about ("" the whole page)
+  page, tab           the page (a page registry id, "hud" for the HUD) and tab its tour is about ("" the whole page)
   trigger             when its guide is queued: {kind: unlock, unlock} a system opened; {kind: points, points, unlock}
                       the first of a resource (the HUD's points badges); {kind: item, bag_kind} the first thing of a kind in
                       the bag; {kind: bottleneck, unlock} the first bottleneck; {kind: technique, unlock} the first art in a
@@ -51,8 +51,9 @@ E = []
 
 
 def page_scripts():
-    """main.gd PAGES: page id -> the script it opens (page ids sharing a script are one page)."""
-    src = open(os.path.join(ROOT, "scripts", "main.gd"), encoding="utf-8").read()
+    """The page registry's PAGES (scripts/shell/page_registry.gd): page id -> the script it opens (page ids sharing a
+    script are one page)."""
+    src = open(os.path.join(ROOT, "scripts", "shell", "page_registry.gd"), encoding="utf-8").read()
     block = re.search(r"const PAGES := \{(.*?)\n\}", src, re.S).group(1)
     return dict(re.findall(r'"([a-z_]+)":\s*"res://scripts/ui/pages/([a-z_]+)\.gd"', block))
 

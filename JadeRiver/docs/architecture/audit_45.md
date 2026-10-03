@@ -1081,6 +1081,51 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 - The new suite `hud_tests` and the extended `cue_tests` cover the slice. Every other suite's check count is
   unchanged.
 
+### Status (phase 2, S7): the shell, done
+
+- **BUG-07: done.** `main.gd` had 1,061 lines and now has 522. `docs/architecture/shell.md` describes it.
+  - The preview and debug flags are tables of rows with small handlers in `scripts/dev/debug_args.gd`. `main.gd`
+    loads that script only when the game starts with arguments, which is the guard the flags always had.
+  - It is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state.
+  - Six flags that nothing used are gone: `--body=`, `--learn=`, `--physique=`, `--set-piece=`, `--tribulation` and
+    `--test-saves`. With `--tribulation`, the call to `Game.progression._start_tribulation` went too.
+  - The flags still call six private methods: `Game.combat._defeat`, `_cast_illusion` and `_start_step`,
+    `Game.progression._advance`, `Game.calendar._phenomenon`, and `AccountAuthority._with_ledger`. Those go to S11.
+- **The page table is a registry**, `scripts/shell/page_registry.gd`. `main.gd`'s `PAGES` names it, and
+  `tools/data/tutorials.py` reads it. The data pipeline held no page metadata of its own, only the copy it takes from
+  this table, so the table stays in GDScript.
+- **The side view's four branches in `main.gd`** (§2.4) are in one section, "side view (retiring)", with their call
+  sites marked.
+- Behaviour and every suite's check count are unchanged.
+
+### Status (phase 2, S9): the World authority in parts, done
+
+- **`world_authority.gd` had 2,321 lines and now has 433.** It keeps the state, the intents, the subscriptions, the
+  room's lifecycle (loading and entering a room, the character's memory of it), the tick and a forwarder for every
+  public method.
+- **Its part members are untyped.** Typed, they made a cycle at boot that left `ActorState`'s untyped members
+  unresolved for later scripts, so `rules_tests.gd` failed to parse (`authority_parts.md`, S9).
+- **The work is in 14 parts under `authority/world/`**, 2,133 lines in all, plus the 29-line base `WorldPart`. They
+  follow the pattern in `docs/architecture/authority_parts.md`, which lists them:
+  - ambushes, rare herbs, and portals with routes, teleports and Spirit Sense;
+  - the transfer arrays, room objects, and `interact` with the context button;
+  - beast cores and loot, the rooftop chases and timed routes, hazards, and the Starsea voyages;
+  - room events, the nests with the Beast Tide and the Grove, the Trial Tower, and idle rooms with auto-path and the
+    direction mark.
+- **Old private names.** Tests and `ObjectView` call 15 private helpers by name, so their forwarders keep the private
+  names. S11 renames them.
+- **BUG-05: two of its seven calls are public now.**
+  - Enemies calls `apply_loot_drop`.
+  - Quest calls `start_room_event`, which was already the same call.
+- **Dead code:** the `set_sail` intent, which nothing sent.
+- **The side view: 20 sites, down from 22.** Each asks `WorldAuthority.side_view(rt)` (13 sites) or finds `grid_for`
+  null (7), so S12 can find them.
+- **Checks:**
+  - Every suite keeps its check count, with no failures and no script errors.
+  - The exception is `perf_tests`' borderline budgets, which the base misses as well. Over three interleaved runs, the
+    base missed 1, 1 and 0 checks, and S9 missed 0, 1 and 2.
+  - The data build is unchanged apart from the contract's World `files` lists.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:

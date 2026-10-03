@@ -58,6 +58,134 @@ species: `docs/architecture/monster_engine.md`.
   - the escape hatch.
 - `build_foes.py --only` no longer overwrites the strip of every species' tell with only the species it drew.
 
+## The World authority in parts (decision 45, S9)
+
+This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`world_authority.gd` had 2,321 lines in 16 sections. It now has 433, and the rest of its work is in 14 parts under
+`scripts/simulation/authority/world/`.
+
+The code moved as it was. The game plays the same, every caller still calls `Game.world.<method>` by the same name,
+and the save data is untouched.
+
+- **How the parts work.** They follow the shared pattern in `docs/architecture/authority_parts.md`, which also lists
+  them.
+  - The authority keeps its state, its intents, its subscriptions, the room's lifecycle (loading and entering a room,
+    the character's memory of it) and the tick. Its public methods are one-line forwarders to the part that does the
+    work.
+  - A part is a class over `WorldPart`, made by the authority. It has no state of its own, and it holds the authority
+    through a weak reference, `world`.
+    - The rare-herb clock, auto-hunt's check and the direction mark's cache stay on the authority, with the rest of the
+      state.
+    - The two private ones are now named `auto_check` and `guide_cache`.
+  - A part calls the authority's public methods as any caller would (`world.load_room`, `world.chases`). It calls a
+    helper that another part keeps to itself on that part (`world.loot.drop_loot`).
+  - The tests and `ObjectView` call 15 private helpers by name, such as `_start_event`, `_drop_loot` and `_verb`. Their
+    forwarders keep those names until S11 gives them public ones.
+  - Unlike the other split authorities, `WorldAuthority` keeps its part members untyped.
+    - Typed, they put the parts in a cycle with the authority while `Game` boots. Godot's analyzer then leaves
+      `ActorState`'s untyped members unresolved for every script it compiles later.
+    - `rules_tests.gd` failed to parse, and the suite hung.
+    - `authority_parts.md` has the details. The room events part is `room_events`, because `ActorState` already has
+      an `events` member.
+- **The parts** (`world_<part>.gd`), 2,133 lines in all, plus the 29-line base:
+  - ambushes;
+  - rare herbs and their guardians;
+  - portals, hidden ways, routes, teleports and Spirit Sense;
+  - the transfer arrays;
+  - room objects: what shows, what is open, their states, and blows on jars and training posts;
+  - `interact` and the context button;
+  - beast cores and loot;
+  - the rooftop chases and timed routes;
+  - hazards and hazard volumes;
+  - the Starsea voyages;
+  - room events;
+  - the Beast Kings' nests, the Beast Tide and the Beast Trial Grove;
+  - the Trial Tower;
+  - idle rooms, auto-hunt, auto-path and the direction mark.
+- **BUG-05: two of its seven private cross-calls are public now.**
+  - `EnemyAuthority._flee` calls the new `apply_loot_drop` instead of `_drop_loot`.
+  - `QuestAuthority.start_set_piece` calls `start_room_event` instead of `_start_event`. The two calls are the same.
+- **Dead code dropped:** the `set_sail` intent. It was registered but never sent: a dock goes through `interact`, and
+  auto-path goes through `auto_path_board`. `set_sail` itself stays.
+- **The side view.** There are now 20 sites, down from 22. Each one asks one helper, `WorldAuthority.side_view(rt)`
+  (13 sites), or finds `grid_for` null (7 sites). Retiring the side view (S12) means deleting those branches.
+  - The two copies of how long a won event's way on waits are now one helper, `_leave_after`.
+  - The side-view half of auto-path's place point is now `_side_place_point`.
+- **Checks.**
+  - The final run on the tree merged with S7 passed every suite with the base's check count and no script errors,
+    apart from one `perf_tests` budget. The base, run alongside, missed the same one: the sword swarm's frame, at
+    16.84 ms on S9 and 17.05 ms on the base.
+  - Three interleaved `perf_tests` runs at a load of about 3 compared the two:
+    - The base missed 1, 1 and 0 of its 18 checks, and S9 missed 0, 1 and 2. They were the same borderline budgets
+      flipping both ways: the sword swarm, the Marsh Edge's fight and the wood tree's drag.
+    - The medians are within the noise: the Marsh Edge's fight 15.68 ms a frame against 15.28, Lotus Ferry 10.98 against
+      10.80, and a room's load 26 ms against 25.
+  - A line-by-line comparison finds every code line of the old file in the split. The only differences are the
+    changes named above.
+  - In `data/event_contract.json`, only the `files` lists of the World events changed: S10's `with_parts()` now finds
+    the `world/` folder. Apart from that, the data build is unchanged.
+
+## The shell: the debug flags in a script of their own, and the page registry (decision 45, S7)
+
+This is phase 2, slice S7 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7, BUG-07). `scripts/main.gd`
+had 1,061 lines and now has 522. The game plays the same, and every flag a tool, a test or a document uses works
+with the same spelling. `docs/architecture/shell.md` describes the shell.
+
+- **The debug flags moved to `scripts/dev/debug_args.gd`.**
+  - `_handle_preview_args` was one 510-line chain of `if`s. The flags are now tables of rows, `[flag, handler, needs]`,
+    and each row holds its handler, a small function, as a `Callable`. The tables are read in the same steps and
+    order as before: before the boot, the screen, the preview character, the state the picture shows, and with
+    `--capture` the picture.
+  - `main.gd` loads the script only when the game starts with arguments after `--`. That is the guard the flags always
+    had, and a player's game, which has none, now never even loads the script.
+  - The script is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state, and
+    the flags write it on purpose.
+  - Six flags that nothing in `tools/`, `tests/`, `docs/` or the capture registry used are gone: `--body=`, `--learn=`,
+    `--physique=`, `--set-piece=`, `--tribulation` and `--test-saves`. The last did nothing of its own, since any
+    argument already chose the preview saves.
+- **The page table moved to a registry, `scripts/shell/page_registry.gd`.**
+  - It maps each page id to its script, with `script_of(id)` and `scripts()`. `main.gd` keeps `PAGES` as a name for
+    it, for the tests and tools that read it there.
+  - `tools/data/tutorials.py` reads the registry for the tutorials' page map, and `tutorials.json` is unchanged.
+  - The five ids that are no page (`_harvest`, `_exit`, `_tour`, `_import` and `_switch`) are one `match` in
+    `_shell_action`. Opening, closing and Back behave as before.
+- **The side view in `main.gd`** is one section, "side view (retiring)". It holds the side view's world, the backdrop
+  following it, and the swap when a room of the other kind is entered. The `World` preload and the four side-view
+  lines elsewhere (in `_add_world_view`, `_unmount_world` and `_on_game_event`) are marked `# side view`.
+- **Dead in `main.gd`:** `boot_report` was a member that only `_ready` read, and it is now a local.
+- **Found, not fixed:** `--capture` cannot take a top-down picture. Its wait reads `world.fx.fixed_step`, which only the
+  side view's `FxLayer` has, so on a top-down world it stops with a script error before the picture, as it did before.
+  The capture registry takes the top-down pictures.
+- **Checks.** The base is the tree before S7, and both sides ran on the same busy 4-core machine.
+  - Every suite's check count is the same as on the base, with no SCRIPT ERROR: 18 suites, 73,594 checks. Only
+    `perf_tests` failed, on its millisecond budgets, and it fails as often on the base under the same load.
+  - After the merge with S2, S6, S8 and E6, every gate passes, the boot gate among them. The 20 suites hold S2's
+    73,655 checks with no SCRIPT ERROR. The only failures were the two timing budgets that also fail on the base under
+    load: `rules_tests`' technique pictures on the main thread, and `perf_tests`' crowd under a sword swarm.
+  - **Flag-driven pictures.** 28 command lines ran through `main.tscn` with `--capture`, on the base and on S7, under a
+    harness that pins the clock and the random seed, at `--fixed-fps 60`, each on fresh saves. A 29th, for `--mine=`,
+    `--assault=` and `--mount=`, ran on the base and on the merged tree. Together they use 80 of the 81 flags that are
+    left; the Max Test's `--max-character` is the one not used.
+    - 22 of the 25 pictures are byte-identical.
+    - The other three differ only in what the game draws by the wall clock: an array's spin, a sword of the swarm and
+      a ring's pulse. A second base run differs from the first in the same places.
+    - `--log-events` printed the same 21 events.
+    - The three top-down command lines stop at the same script error on both (above).
+    - After the merge with S2, S6, S8 and E6, and with the rows holding Callables, 12 of them ran again. Eleven match
+      the base byte for byte, and the twelfth differs only by a sword of the swarm. One more, run after the merge alone,
+      differs only where S6 now shortens the context button's label.
+  - **The capture registry.** `--lint` is clean. The sets `phase1`, `hud`, `progression` and `places` (42 pictures) ran
+    under the same harness. 22 pictures are byte-identical. The rest differ only in the water, the swaying grass and
+    trees, and an array's spin, by about as much as two runs of the base differ from each other.
+  - **The tools that hand their arguments to `main`.** `prototype_qa` walks to Quiet River in the same 14 steps, with no
+    finds and no falls. `tutorial_prof` runs clean. README's own preview command runs through the main scene.
+  - `build_data.py` writes nothing (301 files current), and its `--check` and `tutorials.py --check` pass.
+  - **Boot and room loads** are within the noise. Over two interleaved rounds:
+    - `main.gd`'s `_ready` ended 3,467 and 3,511 ms after the engine started on the base, and 3,270 and 3,531 ms on S7;
+    - the page scripts were all warm at 12.4 and 11.2 s on the base, and 11.1 and 10.8 s on S7;
+    - rooms loaded in 30 and 28 ms on average on the base, and 32 and 31 ms on S7;
+    - Lotus Ferry was entered in 323 and 257 ms on the base, and 239 and 237 ms on S7.
+
 ## Tests: one suite base, the broken scripts gone, a steady performance gate (decision 45, S2)
 
 Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/audit_45.md` §7): tests hygiene.
