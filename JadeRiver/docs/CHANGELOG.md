@@ -1,5 +1,59 @@
 # Changelog
 
+## The story's rooms and the Tidebreak Front on the grid (R5)
+
+The room engine's fifth batch (`docs/architecture/room_engine.md`, "The story's rooms and the Tidebreak Front (R5)").
+The story's five instanced rooms and the Tidebreak Front's five are specs now. A top-down character plays every event
+in them on the grid.
+
+- **Ten rooms, 16 to 30 spec lines each.**
+  - The story's: Gu's Warehouse, the Trial of Reflections, the Presence Trial, the Siege of Two Sects and the Sect War
+    at the Alliance Gate.
+  - The Tidebreak Front's: the Tidebreak Bastion, the Tide battle on its wall, the Greyfall Breach, the Hollow Wake and
+    the Drone Hive.
+
+  Each is laid out for its event:
+  - the warehouse's aisles of climbable stacks under a catwalk loft, Gu's strongbox on the strongroom's dais;
+  - the Reflection's mirrored octagon about the bronze mirror;
+  - the Presence Trial's horseshoe of nine seats on plinths round the circle;
+  - the siege's wall with its gate and towers, the camp behind it and the grey valley before it;
+  - the Sect War's grounded junk and the Alliance's line across the pass;
+  - the Tide battle's lantern dais between two barricades;
+  - the Breach's broken outer wall, the road through it.
+
+  Every event spawns on the layout's own cells. Every object and way of each side-view room has its spot.
+- **Looks.**
+  - Two biomes: `tidebreak` (the grey fields) and `bastion` (the Wardens' granite and flagstones).
+  - Three props in `furnish.py`, the prop sheet rebuilt: `trial_seat`, `bronze_mirror` and `drone_hive`.
+  - Vistas in `topdown_life.VISTAS`.
+  - A wall that must read as one runs east and west: only a south face shows in the 3/4 view.
+- **An engine rule.** `topdown_rooms.check` holds a layout's `event` cells to the room event of a set piece begun in
+  the room when the room has none of its own (the Greyfall Breach's stand). Every older room is unchanged.
+- **The frontier.** Gu's Warehouse was the last way off the grid in Act I, and its door on Artisan Row is open. The
+  ways back from the Sect War and the Presence Trial, the Bastion's skiff and the Drone Hive's way east lead to rooms
+  with no layout and are gated.
+- **Tests.**
+  - A new suite, `topdown_story_rooms`, with 69 checks. It plays The Heart Trial (its heart demons too), Gu's
+    Warehouse, The Siege, The Gate Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the
+    grid) and Greyfall's stand. It walks the grey fields to the Drone Hive and back. Each room is built by the view and
+    walked by auto-path.
+  - The `room_engine` capture set has R5's views (`docs/architecture/room_engine/r5/`).
+  - One frontier check moved. No way off the grid is in walking reach from the Marsh Edge now, so `topdown_tutorial`
+    sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
+  - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
+    R4's closed-cheek `flights`.
+  - The run after merging R4, S11, M1 and T1: every gate holds (the grid's parity on 88 layouts), with no script
+    error.
+    - `topdown_story_rooms` is new, with 69 checks.
+    - `room_engine` has 268 checks, three for each room it lays out (30 for R5's ten).
+    - `contract_tests` 1,112, `rules_tests` 2,712 (its route tour over 89 rooms), `room_sweep` 3,736,
+      `visibility_suite` 6,758, `topdown_tutorial` 1,030, `topdown_traversal` 123 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes run alone. In the full run two of its frame times missed their budgets by 1 to
+      2 ms (the Marsh Edge's 16.7 ms against 16.6, the breakthrough crowd's 17.7) while the machine's four cores
+      carried a load of 6 to 10. Neither touches R5's rooms.
+- **Still to do.** Nine of these rooms' foes have no top-down sheet (M1 drew the Mudwater bandit and the gorge bandit
+  adept). The Front's light follows the clock, not the side view's night. Details are in the doc.
+
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 
 The species a top-down player meets next, by chapter, drawn with the monster engine
