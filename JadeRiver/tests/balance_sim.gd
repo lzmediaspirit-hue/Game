@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Balance simulator (S38, Part 7): a rate-based bot plays the data to the end of Act I
 ## and reports hours to each realm. Each Level it spends an active minute as
 ## tests/data/balance.json says (fighting at the right Level, meditating at the best spot it
@@ -13,24 +13,14 @@ extends Node
 ## The pacing table and the drop budget (tools/data/stats.py writes it): the simulator's own, so not in data/ (audit 45).
 const BALANCE := "res://tests/data/balance.json"
 
-var checks := 0
-var failures := 0
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
-
 func _main() -> void:
 	var cfg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BALANCE))
 	check(not cfg.is_empty(), "balance.json is present")
 	var c = _character()
 	check(c != null, "a character to simulate")
-	if c == null: return _finish()
+	if c == null:
+		end_suite()
+		return
 	var quest_levels := _quest_levels()
 	var hours := {}              # realm key -> hours when it is reached
 	var t := float(cfg.get("prologue_hours", 0.5)) * 60.0   # active minutes
@@ -83,7 +73,7 @@ func _main() -> void:
 	_starter_checks(c, cfg)
 	_technique_checks(c, cfg)
 	_codex_seals(c)
-	_finish()
+	end_suite()
 
 # ------------------------------------------------------------------ story fights against the par character
 ## Research player_motivation P1: every fight the story asks for in the first 5 hours (a kill step of a prologue, main
@@ -1237,10 +1227,6 @@ func _account_month() -> void:
 	check(float(rows[30].mult) >= 1.5 and float(rows[30].mult) <= 2.5, "day 30: the account web multiplies Finesse by %.2f (1.5-2.5 in the first month; 2-4 later)" % float(rows[30].mult))
 	check(int(line.rank) >= 3, "a month of the Cinnabar line reaches rank %d (opening the Verdigris line)" % int(line.rank))
 
-func _finish() -> void:
-	print("balance_sim: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
-
 ## QP per active minute at this stage, from the real rules.
 func _income(c, cfg: Dictionary, key: String, lv: int) -> float:
 	var mix: Dictionary = cfg.get("mix", {})
@@ -1272,7 +1258,7 @@ func _quest_levels() -> Dictionary:
 	return out
 
 func _character():
-	var folder := "user://balance_sim/"
+	var folder := run_root() + "saves/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)

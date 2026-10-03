@@ -1,9 +1,10 @@
 # The cue table
 
-Roadmap decision 45, phase 2, slice E6, the world half (`docs/architecture/audit_45.md` §6.6). The world views
-answered the game's events with effects, sounds and shakes in one long `match` in `WorldShared.play`, an arm an event.
-Those answers are now rows of a table: a new cue is a row, not code. The HUD half of E6 (the toasts and log lines of
-`hud.gd`, slice S6) is meant to use the same format, reader and generator.
+Roadmap decision 45, phase 2, slice E6 (`docs/architecture/audit_45.md` §6.6). The world views answered the game's
+events with effects, sounds and shakes in one long `match` in `WorldShared.play`, an arm an event, and the HUD answered
+them with log lines and toasts in a longer one (`hud.gd`'s 234 arms). Those answers are now rows of one table: a new
+cue or a new notice is a row, not code. The world half came first (E6); the HUD half came with the HUD's split (S6,
+`docs/architecture/hud.md`).
 
 | File | What it is |
 |---|---|
@@ -11,6 +12,7 @@ Those answers are now rows of a table: a new cue is a row, not code. The HUD hal
 | `data/cues.json` | the table the game reads (generated, a row a line: never edit it by hand) |
 | `scripts/presentation/cues.gd` | `Cues`, the reading half: the rows of an event, their conditions, values, colours and texts |
 | `scripts/presentation/world_shared.gd` | `WorldShared.play`, the world's player: the steps, the anchors and the handlers |
+| `scripts/hud/hud_notices.gd` | `HudNotices.play`, the HUD's player: a line of the log or a toast |
 | `tests/cue_tests.gd` | the suite `cue_tests`: every row against the game, and every row played once |
 
 ```
@@ -27,6 +29,10 @@ does that row's steps in order. The first match wins, as the `match` arm and its
 the narrowest to the widest, and a row without `when` comes last. `play` returns false for an event with no rows, so
 the view knows the table leaves it alone.
 
+The HUD hands every event to `HudNotices.handle`. For an event with rows `to: "hud"` it plays the first whose `when`
+holds (`HudNotices.play`) and stops there; the events without rows are the arms of its `match` (`hud.md` says which and
+why). The two players read the same event independently: `item_blooded` has a row for each.
+
 ## The format
 
 `data/cues.json` is a list table, `{"schema_version": 1, "_note": ..., "entries": [row, ...]}`, so
@@ -40,16 +46,19 @@ the view knows the table leaves it alone.
 ```
 
 - **`id`**: `<to>.<event>`, and `.<name>` when an event has several rows. It is unique over the whole table.
-- **`to`**: who plays the row. `world` is `WorldShared.play`. The HUD half adds `hud`.
+- **`to`**: who plays the row. `world` is `WorldShared.play`, `hud` is `HudNotices.play`.
 - **`event`**: a `GameEvents` event the game emits. It is written as `"event": "<name>"`, which is how
   `contract_tests` finds a reactor in data.
 - **`when`** (optional): every key must hold.
   - `"actor": "active"` (or `"target"`): the payload's actor is the active character.
   - Any other key tests the payload's value by the type of the value written. A key the payload leaves out holds
-    `false`, `0` or `""`, as `p.get(key, default)` did. A list holds for one of its values, and `{"gt": n}` for more
-    than `n`.
+    `false`, `0` or `""`, as `p.get(key, default)` did. A list holds for one of its values. `{"gt": n}`, `{"ge": n}`,
+    `{"lt": n}` and `{"le": n}` compare a number, and `{"not": v}` holds for anything `v` does not (`{"not": ""}`: the
+    payload says something there).
   - `"@active": true` holds when a character is active. `"@<path>"` tests a value of the active character, such as
-    `"@pools.max_qi": {"gt": 0}`; without an active character it never holds.
+    `"@pools.max_qi": {"gt": 0}`; without an active character it never holds. `"@revealed": "hud:system_log"` holds
+    when the active character has had that element of the screen revealed (`Game.is_revealed`), and
+    `"@unlocked": "mail"` when it has that system (`Unlocks.is_unlocked`).
 - **`do`**: the steps, in order. Each step is one of:
   - `{"fx": kind, "at": anchor, "off": [x, y], "flip": "side", ...}`: an effect. `kind` is one of `FxLayer.KINDS`,
     added with `FxLayer.add`, or `label` (`FxLayer.label`, a word that rises like a number: `text`, `color`, `size`),
@@ -59,6 +68,12 @@ the view knows the table leaves it alone.
   - `{"shake": s}`: `host.add_shake(s)`.
   - `{"hit_flash": s}`: the view of the payload's `object` flashes for `s` seconds.
   - `{"call": handler}`: one of `WorldShared.HANDLERS`, for an answer that is code (below).
+
+  A HUD row's steps are its own two:
+  - `{"log": text, "color": token, "always": true}`: a line of the log (`hud.add_log`) in its colour; `always` shows it
+    before the log is revealed (what a consumable did, in the prologue).
+  - `{"toast": text, "style": s, "sub": text}`: a toast at the top centre (`hud.toast`), `s` one of `unlock`, `gold`,
+    `quest` and `danger`, with its second line when `sub` is there.
 
 **Anchors** (`at`, default `feet`), then moved by `off`. With `"flip": "side"`, the offset's x is turned by the
 payload's `side`.
@@ -82,8 +97,19 @@ the guard's by default); `{"if": ...}`. The hex colours are the ones the arms wr
 one fits.
 
 **Texts** are moments.json's sources (`MomentRules.text`): `{"key": k, "args": [...]}`, a string key and its
-arguments; `{"name_of": table, "id": ref}`; `"payload.<key>"`; `{"first": [...]}`, the first that says something; or a
-mark written as it is (`"!"`, `"·"`). Words the player reads are string keys, never literals.
+arguments; `{"name_of": table, "id": ref}`; `{"item": ref}`, an item's name; `{"field_of": table, "id": ref, "field":
+f}`; `{"realm": ref}`; `"payload.<key>"`; `{"first": [...]}`, the first that says something; or a mark written as it
+is (`"!"`, `"·"`, a space). Words the player reads are string keys, never literals. `Cues.text` adds:
+
+- on a key, `"plural": n` (the count that picks its `_one` twin, `Tx.plural`) and `"suffix": v` (a value the key ends
+  in: `{"key": "ui.relations.align_", "suffix": "payload.word"}`; a whole number is written as one, `2` and not `2.0`);
+- `{"join": [text, ...]}`, the texts one after another (`Tx.t("hud.codex")` and a title);
+- a key's arguments (and its plural count, and its suffix) through `Cues.arg`: a value as it is (`"payload.<key>"`,
+  `{"payload": key, "or": d}`), or a number made of one, `{"int": ref}` (with `"times": k`, of the product),
+  `{"float": ref}`, `{"round": ref, "times": k}`, `{"neg": ref}`, `{"count": ref}` (a list's size); or words made of
+  one, `{"span": ref, "times": k}` (a duration, `UiKit.span`), `{"fmt": ref}` (a sum, `UiKit.fmt`), `{"title": ref}`
+  (an id as words), `{"lower": ref}`, `{"pet_name": ref}` (the active character's spirit animal, "your spirit animal"
+  when it has none); or any text above.
 
 ## Adding a cue
 
@@ -98,6 +124,11 @@ mark written as it is (`"!"`, `"·"`). Words the player reads are string keys, n
    `data/audio.json`, a string key not in the strings, an unknown step or anchor, or a row that can never play.
 3. Run `cue_tests`. It checks the rest against the game (the effect kinds, anchors, handlers and colour tokens), and
    plays every row once.
+
+A notice for the HUD is a row of `hud()`, with the helpers `hrow`, `log`, `toast` and the argument helpers (`p`, `i`,
+`f`, `item`, `name`, `field`, `pet`, `span`, `ui`, `join`). `docs/architecture/hud.md` has examples. The build also
+fails on a step the row's player does not play and on a toast style the HUD does not know; `cue_tests` checks that no
+event is both a HUD row and an arm of `HudNotices.handle`, and plays every HUD row through the HUD's own `_on_event`.
 
 ## What stays code, and why
 
@@ -119,11 +150,14 @@ mark written as it is (`"!"`, `"·"`). Words the player reads are string keys, n
   bus), the door on a room change and the loot's drop are already a table there, played whatever view is up. They are
   candidates for rows with a bus once the HUD half lands.
 
-## For the HUD half (S6)
+- **The HUD's 47 code arms** (`HudNotices.handle`): an event that opens a page, sets the banner, a fortune card, the
+  equip prompt or a pulse, buzzes, sounds or schedules a notification; asks the world, the calendar or a quest; works
+  out what it says (a sum, a difference, a prefix, a payload's field that is true when left out); or reads deep into
+  data. `docs/architecture/hud.md` lists them. The captions (a sound written out) stay the HUD's `CAPTIONS`.
 
-The notices can use this file or a table of their own from the same generator:
-- rows `to: "hud"`, ids `hud.<event>[.<name>]`, with steps such as `{"log": text, "color": ...}` and
-  `{"toast": text, "style": ...}`, played by `hud/notices.gd`;
-- `Cues.pick("hud", event, payload)`, `Cues.holds`, `Cues.value`, `Cues.color` and `Cues.text` as they are. The HUD's
-  own gates (`shown("system_log")`) are new `when` keys, added to `Cues.holds`;
-- `cues.py`'s `TO` and its checks take the new player and steps.
+## The HUD half (S6)
+
+237 rows `to: "hud"` answer 188 events: 187 of `hud.gd`'s 234 arms (one arm answered two events). Every arm's
+payloads (1,417 variants, each field in turn left out, set, unset and given other values) were played through the old
+HUD and the new one, and wrote the same log lines, colours, toasts, styles and second lines. One string key was added
+for a line that was a literal format: `hud.currency_gained` ("+%d %s").

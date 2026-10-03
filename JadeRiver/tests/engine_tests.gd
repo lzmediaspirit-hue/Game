@@ -1,14 +1,12 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 const World=preload("res://scripts/world.gd")
 const Hud=preload("res://scripts/hud.gd")
-var failures: Array[String]=[]
-var count=0
-func check(value: bool,message: String):
-	count+=1
-	if not value:
-		failures.append(message)
-		push_error(message)
-func _ready(): call_deferred("run")
+## A failed check is pushed as an error, and the summary reads "ENGINE_TESTS: passed/checks passed".
+func report_failure(what: String) -> void:
+	push_error(what)
+func summary_line() -> String:
+	return "ENGINE_TESTS: %d/%d passed" % [checks - failures, checks]
+func _main(): run()
 func place(p,world,id: String,point: Vector2):
 	p.surface=world.by_id(id)
 	p.plane=point
@@ -260,7 +258,7 @@ func run():
 	check(not second_authority.restore_authoritative_snapshot(trusted),"Snapshot for another zone is rejected")
 	# Saves (Part 5 · format v3) use their own folder and never touch real player data.
 	var old_repo=Saves.repo
-	Saves.use_folder("user://engine-test-saves/")
+	Saves.use_folder(run_root() + "saves/")
 	Saves.repo.wipe()
 	var hero=GameCharacter.new()
 	hero.slot=2
@@ -309,8 +307,7 @@ func run():
 	check(creator.origin!=first_origin,"Origin choice works")
 	main.show_selection()
 	check(main.screen=="selection","Cancel returns safely")
-	print("ENGINE_TESTS: ",count-failures.size(),"/",count," passed")
-	get_tree().quit(0 if failures.is_empty() else 1)
+	end_suite()
 ## Every gauntlet wears a look drawn on the hands in every registered pose, both facings, frame for frame with the
 ## body, and only over pixels the body itself draws there (the hands; a gauntlet is never drawn off the figure).
 func gauntlet_poses():

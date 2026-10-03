@@ -1,22 +1,10 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Decision 45, phase 2 (S4): the shared runtime's own checks (docs/architecture/shared_runtime.md). HashNoise answers
 ## bit for bit as the copies it replaced did; FrameMemo keeps and drops answers as the hand-rolled caches did; the
 ## GameEvents sets and listener lists keep their order and semantics (BUG-03); the TopdownFx cap holds with loops alive
 ## and never drops the effect just begun (BUG-04); Figures makes the figure each view draws; and ContentDB's tables,
 ## read when first asked for or on the loading thread (BUG-11), answer every lookup as a boot that read everything did.
 ## Run headless:  godot --headless --path . res://tests/shared_runtime_tests.tscn
-
-var checks := 0
-var failures := 0
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	_noise()
@@ -25,8 +13,7 @@ func _main() -> void:
 	_fx_cap()
 	_figures()
 	await _content()
-	print("shared_runtime_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 # ------------------------------------------------------------------ HashNoise (DUP-02)
 ## The copies as they were (FxLayer._hash, HazardView._h, MapPage._rnd, BeastKit.noise, the Bag's _hash; and

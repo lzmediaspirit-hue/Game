@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Scripted Prologue run (S27 test): drives the real authorities through intents
 ## only, from a new character to Bone Forging 2, checking the HUD reveal order and
 ## that no weapon appears before the Weapon Hall. Movement is a bound ActorState
@@ -8,12 +8,9 @@ extends Node
 ## reading the dialogue), which tutorial_order's first-hour pacing check reads. Run headless:
 ##   godot --headless --path . res://tests/prologue_run.tscn
 
-var failures := 0
-var checks := 0
 var reveal_log: Array = []
 var events: Array = []
 var st: ActorState
-var verbose := false
 ## The first-hour clock (research player_motivation P2): an estimate of the seconds a new player spends, as the walk
 ## plays. The simulated time the walk steps; the walking between the points it stands at, room by room, at the pace of
 ## a thumb on the joystick (a portal's far side is where the walk out ends); a look round each room the first time;
@@ -30,27 +27,13 @@ const TAP_S := 1.5           # a tap on the dialogue page
 const USE_S := 2.0           # an interaction: pick up, inspect, pray
 const HIT_S := 0.45          # one blow of the combo on a stump or dummy
 
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-	elif verbose:
-		print("ok: ", what)
-
-func _ready() -> void:
-	verbose = "--verbose" in OS.get_cmdline_user_args()
-	call_deferred("_main")
+## With --verbose, every check that passes is printed too ("ok: ...").
+func _init() -> void:
+	echo_passes = true
 
 func _main() -> void:
 	run()
-	print("prologue_run: %d checks, %d failures" % [checks, failures])
 	end_suite()
-
-## End the suite: drop this run's own save folder and quit with the result.
-func end_suite() -> void:
-	_remove_tree(run_root())
-	get_tree().quit(1 if failures > 0 else 0)
 
 # ------------------------------------------------------------------ determinism
 ## Every scripted run plays the same on any machine under any load: the dice are seeded (start_new), the clock is
@@ -60,15 +43,8 @@ func end_suite() -> void:
 const START_UTC := 1789997760.0   # the start of an in-game morning (a multiple of the 48-minute day)
 const RUN_SEED := 20260925
 
-## This run's own folder under user:// (other runs of the suite, in other checkouts too, share user://).
-func run_root() -> String:
-	return "user://test_runs/%s_%d/" % [str(get_script().resource_path).get_file().get_basename(), OS.get_process_id()]
-
-func _remove_tree(dir: String) -> void:
-	if not DirAccess.dir_exists_absolute(dir): return
-	for d in DirAccess.get_directories_at(dir): _remove_tree(dir + d + "/")
-	for f in DirAccess.get_files_at(dir): DirAccess.remove_absolute(dir + f)
-	DirAccess.remove_absolute(dir)
+# The run's own folder under user:// is the suite base's run_root() (other runs of the suite, in other checkouts too,
+# share user://); end_suite() removes it.
 
 # ------------------------------------------------------------------ helpers
 ## Called after every tick of the simulation (tests/tutorial_order.gd watches what the HUD shows of each fight).

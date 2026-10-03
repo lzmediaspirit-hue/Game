@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Data validation and room-walk suites (Part 7 · Quality gates).
 ##   Data: every ID reference resolves, no duplicates, effect and requirement kinds
 ##         are known to their rules, appearances and dyes exist in parts.json.
@@ -6,19 +6,8 @@ extends Node
 ##          spawns stand on their surfaces, no portal inside a spawn area.
 ## Run headless:  godot --headless --path . res://tests/data_validation.tscn
 
-var checks := 0
-var failures := 0
 var effect_kinds := {}
 var req_kinds := {}
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	_learn_kinds()
@@ -41,8 +30,7 @@ func _main() -> void:
 	combat_feel_suite()
 	topdown_character_suite()
 	fixed_rewards_suite()
-	print("data_validation: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 ## Decision 45: quests, items and events pay fixed cultivation. No content grants a share of the stage (`pct_of_need`:
 ## the engine keeps it for a dev tool's full bar only); every add_progress names its `amount`; an item that gives

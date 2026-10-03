@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 # Quality gates (Part 7) on Linux/macOS. Usage: tools/run_tests.sh
 # GODOT=/path/to/godot overrides the binary. valley_run plays all of Act I (about a minute).
+# Test.ps1 runs the same gates and the same suites (tests/suites.txt), in the same order, on Windows.
 set -u
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-godot}"
-suites=(engine_tests data_validation room_sweep visibility_suite rules_tests contract_tests balance_sim perf_tests prologue_run tutorial_order topdown_tutorial tutorials story_scenes hollow_night audio_tests valley_run places_tests shared_runtime_tests cue_tests)
+# Exported, so the data gates that ask Godot (topdown_rooms.py --check's grid parity) use the same binary.
+export GODOT="${GODOT:-godot}"
+# The Godot suites, one a line (tests/README.md): each prints "<name>: N checks, M failures", read below.
+suites=()
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="${line%%#*}"
+  line="${line//[[:space:]]/}"
+  if [[ -n "$line" ]]; then suites+=("$line"); fi
+done < tests/suites.txt
 
 failed=()
+# The animation rules (AGENTS.md; Validate-Animations.ps1), where PowerShell is installed.
+if command -v pwsh >/dev/null 2>&1; then
+  echo "== animations"
+  if ! pwsh -NoProfile -File Validate-Animations.ps1; then failed+=("animations"); fi
+fi
+# Audit 45 (S5): every data/*.json file is what its generator writes.
+echo "== build_data"
+if ! python3 tools/data/build_data.py --check; then failed+=("build_data"); fi
 # S43 room lint and reach contract over the built rooms (Part 7).
 echo "== room_lint"
 if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
@@ -22,6 +38,12 @@ if ! python3 tools/data/places.py --check; then failed+=("places"); fi
 # Decision 43: the sound pass's table is current, and every sound on disk passes its levels, loop seams and phone band.
 echo "== sound"
 if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
+# Audit 45 (E6): the cue table (data/cues.json) is what its generator writes.
+echo "== cues"
+if ! python3 tools/data/cues.py --check; then failed+=("cues"); fi
+# Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
+echo "== pix"
+if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
 alog="$(mktemp)"
 if ! python3 tools/audio/build_audio.py --check > "$alog" 2>&1; then grep -E "FAIL|MISSING|Error" "$alog" | head -20; failed+=("audio_check"); else tail -1 "$alog"; fi
 rm -f "$alog"

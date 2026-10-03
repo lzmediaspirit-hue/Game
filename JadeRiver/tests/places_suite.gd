@@ -20,7 +20,7 @@ var c
 
 func run_all(suite, tree: SceneTree) -> void:
 	t = suite
-	var folder := "user://places_suite/"
+	var folder: String = suite.run_root() + "places_suite/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	Saves.use_folder(folder)
