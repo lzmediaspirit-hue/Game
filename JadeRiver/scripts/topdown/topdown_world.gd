@@ -662,8 +662,6 @@ func _on_event(name: String, p: Dictionary) -> void:
 			if str(p.get("actor", "")) == player.actor_id: player.parried()   # decision 37: the deflection drawn
 			feel("heavy", pd)
 			WorldShared.play(self, name, p)
-		"artifact_spirit_spoke":
-			if str(p.get("actor", "")) == Game.active_id: effects.add("text", player_feet() + Vector2(0, -110), {"text": str(p.get("line", "")), "color": UiKit.PAPER, "size": 17, "dur": 3.0})
 		_:
 			WorldShared.play(self, name, p)
 

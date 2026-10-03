@@ -855,6 +855,21 @@ cases become named handlers the table calls.
 - `tutorials` and the HUD checks in `rules_tests`;
 - a notices snapshot.
 
+**Status (phase 2, E6 world half): done.** `docs/architecture/cues.md` has the format and how to add a cue.
+- `tools/data/cues.py` writes `data/cues.json`: 60 rows for 41 events, a row a line. `WorldShared.play` plays the first
+  row of an event whose `when` holds, and `Cues` (`scripts/presentation/cues.gd`) reads the table. Its conditions,
+  values, colours and texts are meant for the HUD half too, whose texts are already moments.json's (`MomentRules.text`).
+- `WorldShared.play` and `_treasure` went from 178 lines of arms to 102: the player, its anchors and the five
+  handlers. `world_shared.gd` is 76 lines shorter. The reader, `cues.gd`, is 93 lines and is meant to serve the HUD's
+  234 arms as well; a new world cue is now a row.
+- Five answers stay code, named by a row's `call`: a blow's hit and words (`CombatFx`), a drop's `LootView`s, what a use
+  did (`UiKit.use_parts`) and the flute's scattered notes.
+- The top-down room had no copy of these answers. Its artifact spirit's line is now a row. Its array light, its parry
+  mark and its casts stay its own, and so do the side view's answers and the audio director's `EVENT_SFX`.
+- Every sample payload of every arm, played on a stub host with the random seed fixed, makes the same effects,
+  sounds, shakes and random draws before and after. The new suite `cue_tests` checks every row against the game and
+  plays each once.
+
 ### 6.7 Technique engine (exists), FX and sound
 
 `tools/data/technique_gen.py` and `technique_grammar.py` already generate 3,171 techniques from forms × rings ×
