@@ -48,6 +48,13 @@ character plays the peaks' story on the grid.
   - One frontier check moved: `rules_tests`' teleport past the gate now takes the first stone in a room with no layout,
     since the Hidden Vale's stone is on the grid.
   - The `room_engine` capture set has the peaks' views (pictures in `docs/architecture/room_engine/r4/`).
+  - The run after merging R2 and R3: every gate holds and every suite is green, with no script error.
+    - `topdown_peaks` is new, with 35 checks.
+    - `room_engine` has 238 checks, three for each room it lays out (33 for the peaks' eleven).
+    - The suites that walk every room on the grid: `rules_tests` 2,712, `room_sweep` 3,736, `visibility_suite` 6,758
+      and `valley_run` 3,000.
+    - `perf_tests`' Marsh Edge frame time (16.6 ms at most) passes run alone (14.9 ms). In the full run it measured
+      18.2 ms while other work shared the machine's four cores.
 
 ## The Drowned Shrine and Whitewater Gorge on the grid (decision 45, R2)
 
