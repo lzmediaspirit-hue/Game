@@ -29,11 +29,11 @@
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000~~~~000~~~~00000000000000000000000000000000000000000",
+  "0000000~~~~~~~~~000~~~~~~~~0000000000000000000000000000000000000",
   "000000~~~~~~~~~~000~~~~~~~~~000000000000000000000000000000000000",
-  "000000~~~~~~~~~~000~~~~~~~~~000000000000000000000000000000000000",
-  "000000~~~~~~~~~~~~~~~~~~~~~~000000000000000000000000000000000000",
-  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~000~~~~~~~~~",
+  "~~0000~~~~~~~~~~~~~~~~~~~~~~0~0000000000000000000000000000000000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~0000~~~~~~~~~~000~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~000~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~000~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~000~~~~~~~~~",
@@ -60,12 +60,12 @@
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggaaaagaaawwwaaaaaaagggggggggggggggggggggggggggggggggggggg",
-  "gggggg~~~~~~~~~~www~~~~~~~~~gggggggggggggggggggggggggggggggggggg",
-  "gggggg~~~~~~~~~~www~~~~~~~~~gggggggggggggggggggggggggggggggggggg",
-  "aaaaag~~~~~~~~~~~~~~~~~~~~~~aaaaaaaggaaaggaaaaaaaaaasssaaaaaaaaa",
-  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaa~~~~~~~~~~~~~~~~~~~sss~~~~~~~~~",
+  "ggggggggggggaaaggaaaaaaggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggaaaaa~~~~www~~~~aaagggggggggggggggggggggggggggggggggggggg",
+  "ggggggg~~~~~~~~~www~~~~~~~~agggggggggggggggggggggggggggggggggggg",
+  "aagggg~~~~~~~~~~www~~~~~~~~~ggaaagggggggggggggggggggsssggggggggg",
+  "~~aaag~~~~~~~~~~~~~~~~~~~~~~a~aaaaaggaggggaaaaaaaaaasssaaaaaaaaa",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaa~~~~~aaaa~~~~~~~~~~sss~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaa~~~~~~~~~~~~~~~~~~~sss~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaa~~~~~~~~~~~~~~~~~~~sss~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaa~~~~~~~~~~~~~~~~~~~sss~~~~~~~~~",
@@ -326,9 +326,9 @@
    "y": 14
   },
   {
-   "kind": "tall_grass",
-   "x": 19,
-   "y": 13
+   "kind": "rock_small",
+   "x": 24,
+   "y": 14
   },
   {
    "kind": "tall_grass",
@@ -366,14 +366,14 @@
    "y": 17
   },
   {
-   "kind": "ferns",
+   "kind": "tall_grass",
    "x": 5,
-   "y": 16
+   "y": 19
   },
   {
-   "kind": "ferns",
+   "kind": "tall_grass",
    "x": 12,
-   "y": 18
+   "y": 16
   },
   {
    "kind": "tree_maple",
@@ -416,8 +416,8 @@
    "y": 21
   },
   {
-   "kind": "tall_grass",
-   "x": 32,
+   "kind": "ferns",
+   "x": 29,
    "y": 20
   },
   {
@@ -447,18 +447,18 @@
   },
   {
    "kind": "tall_grass",
-   "x": 15,
-   "y": 17
+   "x": 18,
+   "y": 16
   },
   {
    "kind": "tree_willow",
    "x": 21,
-   "y": 17
+   "y": 16
   },
   {
    "kind": "tall_grass",
-   "x": 6,
-   "y": 18
+   "x": 15,
+   "y": 17
   },
   {
    "kind": "tall_grass",
@@ -467,32 +467,27 @@
   },
   {
    "kind": "cattails",
-   "x": 14,
+   "x": 12,
    "y": 19
   },
   {
    "kind": "cattails",
-   "x": 27,
-   "y": 20
+   "x": 22,
+   "y": 19
   },
   {
    "kind": "lotus_pads",
-   "x": 13,
-   "y": 21
+   "x": 10,
+   "y": 24
   },
   {
    "kind": "lotus_pads",
-   "x": 24,
-   "y": 21
-  },
-  {
-   "kind": "tree_willow",
-   "x": 1,
-   "y": 20
+   "x": 25,
+   "y": 23
   },
   {
    "kind": "tall_grass",
-   "x": 29,
+   "x": 2,
    "y": 20
   },
   {
@@ -512,6 +507,11 @@
   },
   {
    "kind": "cattails",
+   "x": 2,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
    "x": 27,
    "y": 22
   },
@@ -523,7 +523,7 @@
   {
    "kind": "cattails",
    "x": 42,
-   "y": 22
+   "y": 23
   },
   {
    "kind": "cattails",
@@ -562,8 +562,8 @@
   },
   {
    "kind": "lotus_pads",
-   "x": 39,
-   "y": 25
+   "x": 48,
+   "y": 28
   },
   {
    "kind": "lotus_pads",
@@ -615,7 +615,7 @@
   ],
   "fish_8": [
    40,
-   23
+   24
   ],
   "rift_tear": [
    35,
@@ -687,24 +687,24 @@
  "spawns": [
   [
    [
-    10,
-    13
+    11,
+    18
    ],
    [
     21,
-    14
-   ],
-   [
-    31,
-    16
-   ],
-   [
-    43,
     17
    ],
    [
-    51,
-    19
+    30,
+    22
+   ],
+   [
+    43,
+    21
+   ],
+   [
+    49,
+    21
    ]
   ],
   [
@@ -713,12 +713,12 @@
     17
    ],
    [
-    22,
-    18
+    23,
+    13
    ],
    [
     43,
-    21
+    16
    ],
    [
     40,
@@ -726,19 +726,19 @@
    ],
    [
     51,
-    16
+    17
    ]
   ],
   [
    [
     37,
-    16
+    21
    ]
   ],
   [
    [
-    24,
-    15
+    20,
+    13
    ],
    [
     43,
@@ -748,7 +748,7 @@
   [
    [
     50,
-    13
+    14
    ]
   ]
  ],

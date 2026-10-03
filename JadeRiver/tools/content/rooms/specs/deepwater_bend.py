@@ -11,11 +11,11 @@ DW_BEND_SHORE = room(
            ("woods", 3, 6, dict(level=1)),
            ("path", 10, 3, dict(paint="d", walk=True)),
            ("shore", 13, 9, dict(level=0)),
-           ("river", 22, 8, dict(water=True))],
-    features=[("bay", (6, 19, 22, 3), dict(water=True)),
+           ("river", 22, 8, dict(water=True, wavy=True))],
+    features=[("bay", (5, 18, 24, 7), dict(water=True, shape="round")),
               ("jetty", (16, 18, 3, 3), dict(level=0, paint="w")),
-              ("ford", (30, 22, 3, 8), dict(level=0, paint="a")),
-              ("steps", (52, 21, 3, 6), dict(level=0, paint="s"))],
+              ("ford", (30, 20, 3, 10), dict(level=0, paint="a")),
+              ("steps", (52, 20, 3, 7), dict(level=0, paint="s"))],
     stairs="auto",
     ways={"east": ("e", "path"), "west": ("w", "path"), "shallows": ("s", 31),
           "shrine": dict(at=(53, 26), dir="s", arrive=(53, 24), span=3)},
@@ -27,6 +27,6 @@ DW_BEND_SHORE = room(
     props=[("boat", 19, 20), ("lantern", 51, 21), ("lantern", 55, 21)],
     flora={"woods": dict(density=0.5)},
     ground={"sand": ["river.bank", "bay.bank"]},
-    foes=["auto:shore", "auto:shore", "auto:shore", "auto:shore", "auto:shore"])
+    foes=["auto:bank", "auto:shore", "auto:bank", "auto:shore", "auto:shore"])
 
 ROOMS = [DW_BEND_SHORE]

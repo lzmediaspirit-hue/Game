@@ -177,14 +177,14 @@
    "y": 17
   },
   {
-   "kind": "rock_mossy",
-   "x": 14,
+   "kind": "rock_small",
+   "x": 12,
    "y": 18
   },
   {
    "kind": "ferns",
    "x": 17,
-   "y": 21
+   "y": 20
   },
   {
    "kind": "cattails",

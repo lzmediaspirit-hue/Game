@@ -35,8 +35,8 @@
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~00000000000000000~~~~~~~~000000~~~~~00000000000000000000~~~~~~000~~~~~",
+  "~~~~~~~~~~~~~0000~~~~~~~~~~~~000~~~~~~~~00~~~~~~00000000~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -66,9 +66,9 @@
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "aaaaggaaggaaaaaaaaaaaaaaaggaaaaaggggaaaaaaaaaaggaaaggaaaaggaaaaggaaaggaa",
-  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "aagggggggggggggggggaaaaaaaaggggggaaaggggggggggggggggggggggggaagggggaaaaa",
+  "~~aaaggaggaaaggggaa~~~~~~~~aaggga~~~~~aaggaaaaggggggggggaa~~~~~~aaa~~~~~",
+  "~~~~~~~~~~~~~aagg~~~~~~~~~~~~agg~~~~~~~~aa~~~~~~aaaggaaa~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -144,9 +144,9 @@
    "y": 4
   },
   {
-   "kind": "rock_mossy",
+   "kind": "tree_pine",
    "x": 34,
-   "y": 4
+   "y": 3
   },
   {
    "kind": "rock_mossy",
@@ -415,7 +415,7 @@
   },
   {
    "kind": "tree_willow",
-   "x": 1,
+   "x": 2,
    "y": 23
   },
   {
@@ -426,7 +426,7 @@
   {
    "kind": "tree_willow",
    "x": 22,
-   "y": 23
+   "y": 22
   },
   {
    "kind": "tall_grass",
@@ -435,8 +435,13 @@
   },
   {
    "kind": "tall_grass",
-   "x": 36,
-   "y": 23
+   "x": 34,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 24
   },
   {
    "kind": "tree_willow",
@@ -446,16 +451,11 @@
   {
    "kind": "tree_willow",
    "x": 54,
-   "y": 23
+   "y": 24
   },
   {
    "kind": "tall_grass",
-   "x": 60,
-   "y": 23
-  },
-  {
-   "kind": "tall_grass",
-   "x": 4,
+   "x": 5,
    "y": 24
   },
   {
@@ -465,18 +465,18 @@
   },
   {
    "kind": "tall_grass",
-   "x": 25,
-   "y": 24
+   "x": 15,
+   "y": 25
   },
   {
    "kind": "tall_grass",
-   "x": 32,
-   "y": 24
+   "x": 30,
+   "y": 25
   },
   {
    "kind": "tall_grass",
-   "x": 34,
-   "y": 24
+   "x": 36,
+   "y": 23
   },
   {
    "kind": "tall_grass",
@@ -486,32 +486,22 @@
   {
    "kind": "tall_grass",
    "x": 51,
-   "y": 24
-  },
-  {
-   "kind": "tall_grass",
-   "x": 57,
-   "y": 24
-  },
-  {
-   "kind": "tall_grass",
-   "x": 63,
-   "y": 24
-  },
-  {
-   "kind": "tall_grass",
-   "x": 68,
-   "y": 24
-  },
-  {
-   "kind": "cattails",
-   "x": 6,
    "y": 25
   },
   {
+   "kind": "tall_grass",
+   "x": 58,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 62,
+   "y": 23
+  },
+  {
    "kind": "cattails",
-   "x": 17,
-   "y": 25
+   "x": 12,
+   "y": 26
   },
   {
    "kind": "cattails",
@@ -521,12 +511,17 @@
   {
    "kind": "cattails",
    "x": 40,
-   "y": 25
+   "y": 26
   },
   {
    "kind": "cattails",
-   "x": 61,
-   "y": 25
+   "x": 47,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 60,
+   "y": 24
   },
   {
    "kind": "cattails",
@@ -550,18 +545,18 @@
   },
   {
    "kind": "lotus_pads",
-   "x": 32,
-   "y": 27
+   "x": 37,
+   "y": 29
   },
   {
    "kind": "lotus_pads",
-   "x": 39,
-   "y": 27
+   "x": 40,
+   "y": 28
   },
   {
    "kind": "lotus_pads",
    "x": 47,
-   "y": 27
+   "y": 29
   },
   {
    "kind": "lotus_pads",

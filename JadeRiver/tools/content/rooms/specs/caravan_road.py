@@ -11,7 +11,7 @@ CR_CARAVAN_ROAD = room(
            ("hillside", 3, 6, dict(level=1)),
            ("road", 12, 4, dict(paint="d", walk=True)),
            ("meadow", 16, 8, dict(level=0)),
-           ("creek", 25, 5, dict(water=True))],
+           ("creek", 25, 5, dict(water=True, wavy=True))],
     features=[("outcrop", (27, 4, 8, 3), dict(level=2, paint="r")),
               ("cart_east", (42, 9, 6, 3), dict(paint="d")),
               ("cart_west", (14, 16, 7, 3), dict(paint="d"))],

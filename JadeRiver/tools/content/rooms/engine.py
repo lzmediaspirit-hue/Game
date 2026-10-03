@@ -87,6 +87,20 @@ class Region:
         ys = [c[1] for c in self.cells() if c[0] == x]
         return max(ys) if ys else None
 
+    def top(self, x):
+        """The first row the shape covers in column x (None where it covers none)."""
+        ys = [c[1] for c in self.cells() if c[0] == x]
+        return min(ys) if ys else None
+
+    def beside(self, k):
+        """The cells k rows outside its edges, column by column (k = 1: the row along it), north then south."""
+        out = []
+        for x in range(self.x, self.x1):
+            t, b = self.top(x), self.bottom(x)
+            if t is not None:
+                out += [(x, t - k), (x, b + k)]
+        return out
+
     def role(self):
         return "water" if self.water else "walk" if self.walk else "wall" if self.wall else "ground"
 
@@ -152,8 +166,11 @@ class Build:
 
     def _lay(self, name, x, y, w, h, opts, kind):
         shape = None
+        if opts.get("wavy"):
+            shape = self._wavy(x, y, w, h, len(self.regions))
         if opts.get("shape") == "round":
             shape = self._round(x, y, w, h, len(self.regions))
+        if shape is not None:
             for cx, cy in shape:
                 if opts.get("water"):
                     self.lay.water(cx, cy, 1, 1)
@@ -174,6 +191,23 @@ class Build:
             c = (shape or [(min(self.w - 1, x + w // 2), min(self.h - 1, y + h // 2))])[len(shape or [0]) // 2]
             r.level = self.lay.lv[c[1]][c[0]]
         self.regions[name] = r
+
+    def _wavy(self, x, y, w, h, salt):
+        """A band whose edges wander (`wavy`): each edge inside the room moves a row in or out along its length, by a
+        smooth noise of the room's seed (a value every five columns, eased between), so a shore or a terrace's lip is
+        never a ruled line."""
+        def wander(xx, k):
+            i, f = divmod(xx / 5.0, 1.0)
+            a = h01(int(i), k, self.seed + 17 * salt)
+            b = h01(int(i) + 1, k, self.seed + 17 * salt)
+            v = a + (b - a) * (f * f * (3 - 2 * f))
+            return -1 if v < 0.33 else (1 if v > 0.67 else 0)
+        out = []
+        for xx in range(x, x + w):
+            top = y + (wander(xx, 1) if y > 0 else 0)
+            bot = y + h - 1 + (wander(xx, 2) if y + h < self.h else 0)
+            out += [(xx, yy) for yy in range(max(0, top), min(self.h, bot + 1))]
+        return sorted(out, key=lambda c: (c[1], c[0]))
 
     def _round(self, x, y, w, h, salt):
         """A round shape in its rect (a cavern, a pond): the ellipse the rect holds, its edge worn by the room's seed so
@@ -824,8 +858,8 @@ class Build:
                 land = [q for q in _ring(x, y, 1, W, H) if lv[q[1]][q[0]] != WATER]
                 (shallow if land else deep).append((x, y))
             deep = [c for c in deep if all(lv[q[1]][q[0]] == WATER for q in _ring(c[0], c[1], 2, W, H))]
-            land = lambda cs: [c for c in cs if lv[c[1]][c[0]] != WATER]
-            return [("bank_back", land(rows([r.y - 2, r.y1 + 1])), 7), ("bank", land(rows([r.y - 1, r.y1])), 6),
+            land = lambda cs: [c for c in cs if 0 <= c[1] < H and lv[c[1]][c[0]] != WATER]
+            return [("bank_back", land(r.beside(2)), 7), ("bank", land(r.beside(1)), 6),
                     ("shallow", shallow, 7), ("water", deep, 9)]
         if r.walk:
             return [("verge", rows([r.y - 2, r.y - 1, r.y1, r.y1 + 1]), 7)]
@@ -838,6 +872,9 @@ class Build:
     def _fits_flora(self, kind, x, y, clear, walks, lanes, spots, placed):
         art = TR.TILESET["props"][kind]
         fw, fh = art["footprint"]
+        if len({self.lay.lv[yy][xx] for yy in range(y, y + fh) for xx in range(x, x + fw)
+                if 0 <= xx < self.w and 0 <= yy < self.h}) > 1:
+            return False          # a piece stands on one level: never astride an edge (it would float)
         taken = self._prop_cells()
         cls = _spacing_class(kind)
         gap = SPACING[cls]
@@ -948,7 +985,7 @@ class Build:
         if r is None:
             raise SpecError("%s: ground names no band %r" % (self.id, name))
         if tail == "bank":
-            return [(r.x, r.y - 1, r.w, 1), (r.x, r.y1, r.w, 1)]
+            return [(x, y, 1, 1) for x, y in r.beside(1)]
         return [(r.x, r.y, r.w, r.h)]
 
     def _spawn_cell(self):
