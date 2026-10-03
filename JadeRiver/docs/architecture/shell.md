@@ -80,7 +80,8 @@ A row is `[flag, handler, needs]`:
 - In an `EACH` table, a row runs once for each time its flag is given, in the order the flags are given. In a `ONCE`
   table, a row runs once if its flag is given (or any flag of a list), in the table's order.
 - The handler is a function of the script. It gets the whole argument (`"--foe=ashborn_raider:2"`), and `_val(a)` is
-  the text after the `=`.
+  the text after the `=`. The row holds the function itself, never its name, because `contract_tests` forbids calling
+  a method by a name. That is why the tables are variables rather than constants.
 - `needs` names what must be there for the row to run: `active`, `actor`, `sect`, `room`, `world`, `hud`, `moments`,
   `page` or `technique_preview`. A row that lacks one is skipped.
 - A handler that waits on a timer holds every row after it, so the picture is taken once everything before it has

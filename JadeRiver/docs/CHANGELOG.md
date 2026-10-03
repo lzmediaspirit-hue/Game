@@ -8,8 +8,9 @@ with the same spelling. `docs/architecture/shell.md` describes the shell.
 
 - **The debug flags moved to `scripts/dev/debug_args.gd`.**
   - `_handle_preview_args` was one 510-line chain of `if`s. The flags are now tables of rows, `[flag, handler, needs]`,
-    and each row's handler is a small function. The tables are read in the same steps and order as before: before the
-    boot, the screen, the preview character, the state the picture shows, and with `--capture` the picture.
+    and each row holds its handler, a small function, as a `Callable`. The tables are read in the same steps and
+    order as before: before the boot, the screen, the preview character, the state the picture shows, and with
+    `--capture` the picture.
   - `main.gd` loads the script only when the game starts with arguments after `--`. That is the guard the flags always
     had, and a player's game, which has none, now never even loads the script.
   - The script is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state, and
@@ -33,6 +34,9 @@ with the same spelling. `docs/architecture/shell.md` describes the shell.
 - **Checks.** The base is the tree before S7, and both sides ran on the same busy 4-core machine.
   - Every suite's check count is the same as on the base, with no SCRIPT ERROR: 18 suites, 73,594 checks. Only
     `perf_tests` failed, on its millisecond budgets, and it fails as often on the base under the same load.
+  - After the merge with S2, S6, S8 and E6, every gate passes, the boot gate among them. The 20 suites hold S2's
+    73,655 checks with no SCRIPT ERROR. The only failures were the two timing budgets that also fail on the base under
+    load: `rules_tests`' technique pictures on the main thread, and `perf_tests`' crowd under a sword swarm.
   - **Flag-driven pictures.** 28 command lines ran through `main.tscn` with `--capture`, on the base and on S7, under a
     harness that pins the clock and the random seed, at `--fixed-fps 60`, each on fresh saves. A 29th, for `--mine=`,
     `--assault=` and `--mount=`, ran on the base and on the merged tree. Together they use 80 of the 81 flags that are
@@ -42,7 +46,8 @@ with the same spelling. `docs/architecture/shell.md` describes the shell.
       a ring's pulse. A second base run differs from the first in the same places.
     - `--log-events` printed the same 21 events.
     - The three top-down command lines stop at the same script error on both (above).
-    - After the merge with S2, S6, S8 and E6, nine of them ran again. Eight match the base byte for byte, and the ninth
+    - After the merge with S2, S6, S8 and E6, and with the rows holding Callables, 12 of them ran again. Eleven match
+      the base byte for byte, and the twelfth differs only by a sword of the swarm. One more, run after the merge alone,
       differs only where S6 now shortens the context button's label.
   - **The capture registry.** `--lint` is clean. The sets `phase1`, `hud`, `progression` and `places` (42 pictures) ran
     under the same harness. 22 pictures are byte-identical. The rest differ only in the water, the swaying grass and
