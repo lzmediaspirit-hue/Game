@@ -155,30 +155,32 @@ Pictures: `tools/dev/capture/capture.tscn -- traversal` writes `docs/architectur
 
 ## To do, in order
 
-Story order first, then the systems no story room needs yet. A "row" is a line in a room's spec; each room's owner
-adds it, and `check_traverse` holds it to the grid.
+Wings of Cloud first, as the gate to Act II. Then story order, then the systems no story room needs yet. A "row" is a
+line in a room's spec; each room's owner adds it, and `check_traverse` holds it to the grid.
 
-1. **Sealed ladders as open stairs** (prologue to chapter 3): Old Ma's storeroom, the fisher's loft, the Jade and
+1. **Wings of Cloud** (chapter 7, the story's gate between the peaks and Act II). Done on the grid: the flight it
+   teaches and its first objective. The Cliff Faces, its second, are on the grid (R4). Left:
+   - the Cloudwing Cranes, its third, need top-down sheets (M-batches);
+   - Cloud Lung's air distance (`CombatFlight._air_distance`) should count the plane's speed on the grid. It counts
+     `velocity.x`, so a flight north or south earns nothing. This is a grid hook in the authority.
+2. **Sealed ladders as open stairs** (prologue to chapter 3): Old Ma's storeroom, the fisher's loft, the Jade and
    Cloud libraries' upper floors. The side view gates them through `climbable_open`. Give each a `ladder` row under
    its side id in place of the stair, or gate the stair itself.
-2. **Reed Shallows' driftwood ×3 and Bend Shore's ferry**: `raft` rows.
-3. **Bounces**: `bounce` rows for the Fairground's drum, the Whispering Bamboo's bent bamboo and the Grey Pools' pad.
-4. **The Entry Trials and the quarry**: `lift` rows for the Jade trial's planks and the Quarry Rim's crane (mode
+3. **Reed Shallows' driftwood ×3 and Bend Shore's ferry**: `raft` rows.
+4. **Bounces**: `bounce` rows for the Fairground's drum, the Whispering Bamboo's bent bamboo and the Grey Pools' pad.
+5. **The Entry Trials and the quarry**: `lift` rows for the Jade trial's planks and the Quarry Rim's crane (mode
    `trigger`), a `crumble` row for the Cloud trial's ledge. Then review the lift and boards art in place and capture
    them.
-5. **The Tunnels**: six `crumble` rows. The spike pits need a hazard area on the grid (an `areas` kind that
+6. **The Tunnels**: six `crumble` rows. The spike pits need a hazard area on the grid (an `areas` kind that
    `HazardRules` reads, or a traversal `hazard` kind).
-6. **The Drowned Shrine and the gorge** (chapter 5):
+7. **The Drowned Shrine and the gorge** (chapter 5):
    - the Flooded Gate's planks (`raft` ×3) and currents (`current` ×2);
    - the Hall of Lanterns' swinging and circling lanterns (a `swing`/`circle` row: `mover_offset` already computes
      them, the rows and a deck that moves on its arc are missing);
    - floods for Serpent's Shallows and the Abbot's Sanctum (`flood`, named by the side volume's id);
    - the Rapids' current (`current`) and its hazard's `areas`.
-7. **The Echo Cliffs' shaft** (Between Two Walls, ht4): two facing walls on the grid to kick up between, and its
+8. **The Echo Cliffs' shaft** (Between Two Walls, ht4): two facing walls on the grid to kick up between, and its
    three-kick objective played on the grid.
-8. **Wings of Cloud's other objectives** (chapter 7): the art and the first objective are done, and the Cliff Faces
-   are on the grid (R4). The Cloudwing Cranes need top-down sheets (M-batches). `_air_distance` should count the
-   plane's speed on the grid.
 9. **The peaks' leftovers**: the Frozen Shrine's and the Forgotten Monastery's crumbling floors (`crumble` rows), the
    Frozen Shrine's ice and the Windswept Ridge's wind volume (motor rules: the side view's traction and the wind's push).
 10. **Breath Control**: swimming deep water for its 30 s on the grid instead of the reset.
