@@ -1,25 +1,40 @@
-"""S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
+"""S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases).
+
+Decision 45 (audit 45 §6.4): the item engine (tools/content/items, docs/architecture/item_engine.md) writes the rows of
+its families: the pills, the herbs by age and their seeds, the ores, the creature parts and the gear by family × grade.
+build_items() and build_artifacts() place each family section (E.items(...)) where its rows have always stood, among
+the rows written here by hand: the one-offs, and the small groups no family writes yet.
+"""
+import os
+import sys
+
 from common import entries, titled, run_cli
 from legends import CHAINS as LEGENDS, piece_rows
 from gear import ARCHETYPES, tag
 import posts
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content.items import engine as E  # noqa: E402
+from content.items.curves import MID_ILV  # noqa: E402
+from content.items.kinds import artifact, item  # noqa: E402  (every module's row constructors)
 
 # P5 (the Bag, decision 24): the kinds its filters show, by item type. Gear is every equipment piece (artifacts.json);
 # a type not listed here is "other".
 BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", "ore", "hollow", "herb", "fish", "insect", "critter", "jade",
                                               "wisp", "oil", "legend_piece"]}
 
-MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
-# Decision 45: the spaces of the bag with no gourd worn, and of the Starter Spirit Gourd (stats.json bag.base).
-BAG_BASE = 50
+# ============================================================================================================ families
+# What the other generators read of the families: the S45 herb ages, family by family, and the seeds (herbs.py,
+# garden.json), and the weapon families' looks (the legendary weapons below).
+HERB_AGE = E.herb_ages()
+SEEDS = E.seeds()
+FAMILY_APPEARANCE = E.spec("gear").FAMILY_APPEARANCE
 
-
-def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **extra):
-    row = {"id": id, "name": name or titled(id), "type": type, "grade": grade, "ilv": extra.pop("ilv", MID_ILV.get(grade, 5)),
-           "stack": stack, "icon": icon or id, "desc": desc}
-    row.update(extra)
-    return row
-
+# ============================================================================================================ one-offs
+# Every row below that is not E.items(...) is written by hand. The one-offs stay plain rows, never forced into a
+# family (item_engine.md, "One-offs"): quest items and keys, the unique treasures, relics, flames and named pieces,
+# the charts and vessels, the curios. So do the small groups no family writes yet: foods, fish, talismans and their
+# inks, tools, scrolls and manuals, beast cores, pet medicine and books, the post goods (posts.py).
 
 PET_BOOKS = [
     ("iron_hide", "Iron Hide", "common", "An animal that learns it takes 10% less damage."),
@@ -30,118 +45,13 @@ PET_BOOKS = [
     ("guardian_spirit", "Guardian Spirit", "heaven", "Once every 30 seconds it takes a blow meant for you."),
 ]
 
-HERBS = [
-    ("willow_moss", "plain", "Soft moss from willow roots. The base of many remedies."),
-    ("riverreed_ginseng_10", "common", "A ten-year riverreed ginseng root.", "Riverreed Ginseng (10 yr)"),
-    ("riverreed_ginseng_100", "earth", "A century-old root with golden hairs; strong and rare.", "Riverreed Ginseng (100 yr)"),
-    ("ember_pepper", "common", "A fiery red pepper that warms the meridians."),
-    ("mist_lotus", "earth", "A pale lotus that only opens in waterfall mist."),
-    ("cloudtop_orchid", "heaven", "An orchid that grows on ledges only flyers can reach."),
-    ("soulbell_flower", "heaven", "Its bell-shaped petals ring softly against the soul."),
-    ("frost_lotus", "spirit", "A lotus that blooms in snow on Rimefrost Heights. Cold to the touch, clear to the mind."),
-    # S45 aged herbs: rare nodes ripen them, and a garden bed can age a planted herb.
-    ("riverreed_ginseng_1000", "heaven", "A thousand-year root, gold to the tip. It grows on the rock the Riverbed Serpent sleeps around.",
-     "Riverreed Ginseng (1,000 yr)"),
-    # v1.1: the valley's Qi holds a herb at a thousand years; ten-thousand-year roots are the Azure Expanse's.
-    ("riverreed_ginseng_10000", "mystic", "A ten-thousand-year root, pale as jade and warm as a hand. The valley's Qi is too thin to grow one: "
-     "it ripens only on the Expanse's high ledges, or in an Expanse garden bed.", "Riverreed Ginseng (10,000 yr)"),
-    ("ember_pepper_100", "earth", "A century-old ember pepper, dark red and hot enough to blister the hand that picks it.", "Ember Pepper (100 yr)"),
-    ("mist_lotus_100", "heaven", "A century-old mist lotus. Its petals never quite dry.", "Mist Lotus (100 yr)"),
-    ("cloudtop_orchid_100", "mystic", "A century-old orchid from the highest ledge. It smells of thin air.", "Cloudtop Orchid (100 yr)"),
-    ("soulbell_flower_100", "mystic", "A century-old soulbell. Its ring carries in the soul for a whole breath.", "Soulbell Flower (100 yr)"),
-    ("ember_cactus", "sage", "A cactus flower that stores the Sunscar sun. It glows like a coal long after dusk."),
-    # v1.2 · the Lantern Star Field.
-    ("star_lotus", "sovereign", "A lotus of the Drifting Shoals' starlit shallows. A small star sleeps in every seed head."),
-]
-# S44 / Part 8 herb nature: a hot herb moves the Extraction band up 8% of its range, a cold one down. Roles are the
-# recipe slots a herb can fill (Principal, Minister, Assistant, Envoy); an Alchemy Dao tier-5 substitute must match both.
-HERB_NATURE = {"willow_moss": ("neutral", ["assistant", "envoy"]),
-               "riverreed_ginseng_10": ("hot", ["principal", "minister", "assistant"]),
-               "riverreed_ginseng_100": ("hot", ["principal", "minister", "assistant"]),
-               "ember_pepper": ("hot", ["minister", "assistant", "envoy"]),
-               "mist_lotus": ("cold", ["principal", "minister", "assistant"]),
-               "cloudtop_orchid": ("cold", ["principal", "minister"]),
-               "soulbell_flower": ("neutral", ["principal", "assistant", "envoy"]),
-               "frost_lotus": ("cold", ["principal", "minister"]),
-               "riverreed_ginseng_1000": ("hot", ["principal", "minister"]),
-               "riverreed_ginseng_10000": ("hot", ["principal", "minister"]),
-               "ember_pepper_100": ("hot", ["minister", "assistant", "envoy"]),
-               "mist_lotus_100": ("cold", ["principal", "minister", "assistant"]),
-               "cloudtop_orchid_100": ("cold", ["principal", "minister"]),
-               "soulbell_flower_100": ("neutral", ["principal", "assistant", "envoy"]),
-               "ember_cactus": ("hot", ["principal", "minister"]),
-               "star_lotus": ("cold", ["principal", "minister", "assistant"])}
-# S45 herb ages: every herb belongs to a family and has an age (10, 100, 1,000 or, in the Azure Expanse, 10,000 years). A perfect harvest keeps the
-# age; a miss or an early pick drops one tier. An older herb stands in for a younger one of its family in a recipe.
-CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "metal", "star", "space"]   # v1.2: metal, star, space
-HERB_AGE = {"willow_moss": ("willow_moss", 10), "riverreed_ginseng_10": ("riverreed_ginseng", 10),
-            "riverreed_ginseng_100": ("riverreed_ginseng", 100), "riverreed_ginseng_1000": ("riverreed_ginseng", 1000),
-            "riverreed_ginseng_10000": ("riverreed_ginseng", 10000),
-            "ember_pepper": ("ember_pepper", 10), "ember_pepper_100": ("ember_pepper", 100),
-            "mist_lotus": ("mist_lotus", 10), "mist_lotus_100": ("mist_lotus", 100),
-            "cloudtop_orchid": ("cloudtop_orchid", 10), "cloudtop_orchid_100": ("cloudtop_orchid", 100),
-            "soulbell_flower": ("soulbell_flower", 10), "soulbell_flower_100": ("soulbell_flower", 100),
-            "frost_lotus": ("frost_lotus", 10), "ember_cactus": ("ember_cactus", 10), "star_lotus": ("star_lotus", 10)}
-# Seeds (S45, Part 8): common ones from Granny Liu's and Greyreed Hamlet; Mist Lotus only from a perfect harvest;
-# Cloudtop Orchid and Soulbell only from inheritances (and secret realms, S49).
-SEEDS = [("willow_moss_seed", "willow_moss", "plain", "Dust-fine spores of willow moss, wrapped in a leaf. Granny Liu sells them."),
-         ("ember_pepper_seed", "ember_pepper", "common", "Flat, pale pepper seeds that are warm to hold. Granny Liu sells them."),
-         ("riverreed_ginseng_seed", "riverreed_ginseng", "common", "Red ginseng berries with the seed still inside. Granny Liu sells them."),
-         ("mist_lotus_seed", "mist_lotus", "earth", "A lotus seed from a perfect harvest. No shop in the valley sells them."),
-         ("cloudtop_orchid_seed", "cloudtop_orchid", "heaven", "Orchid seed finer than flour, sealed in wax. Only old inheritances hold them."),
-         ("soulbell_flower_seed", "soulbell_flower", "heaven", "A soulbell seed that hums when you hold it to your ear. Only old inheritances hold them.")]
-NATURE_TEXT = {"hot": " A hot herb: it drives the Extraction band up.", "cold": " A cold herb: it draws the Extraction band down.",
-               "neutral": ""}
-ORES = [
-    ("copper_ore", "plain", "Soft copper ore from the quarry rim.", "Copper"),
-    ("riverstone", "common", "Dense river-polished stone used in forging and building."),
-    ("jadeiron", "earth", "Iron veined with jade; it holds Qi paths well."),
-    ("spirit_stone_shard", "earth", "A splinter of crystallised Qi. Fuel and small change.", "Spirit Stone Shard"),
-    ("cloudsteel_ore", "heaven", "Feather-light ore from the sky ledges."),
-    ("mystic_ore", "mystic", "Ore that hums faintly in cold wind."),
-    ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
-    ("sunglass_ore", "sage", "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp.", "Sunglass"),
-    ("driftglass", "sovereign", "Glass the star tides have worn smooth on the Driftglass Bank. Lantern-makers grind it into lenses.", "Driftglass"),
-]
+# S46 beast cores: one of each element at each rank tier (v1.2: metal, star, space).
+CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "metal", "star", "space"]
 # S47 talisman craft: inks and papers (Part 8).
 TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it.", "Cinnabar"),
                  ("beast_blood_ink", "earth", "Ink cut with a beast's blood; it holds a stronger charge than cinnabar alone.", "Beast-Blood Ink"),
                  ("spirit_paper", "earth", "Talisman paper steeped with Mist Lotus until it drinks Qi.", "Spirit Paper")]
-# The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
 # Item text: one line on where it comes from and what it is for (the UI shows it under the name).
-BEAST_DESC = {
-    "ore_dust": "Glittering grit from an Ironclaw Mole's tunnels. Smiths pack it into Thunderclap Pellets.",
-    "crab_shell": "A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime.",
-    "rat_tail": "A Reedtail Rat's tail. Ink-makers boil it down for its binding fat.",
-    "boar_hide": "Bristly hide from a Wild Boarlet. Smiths wrap iron hilts with it.",
-    "tough_meat": "Stringy meat from a big beast. Slow-stewed, it builds a body up.",
-    "toad_oil": "Slick oil wrung from a Mossback Toad's skin. Cooks fold it into dumplings.",
-    "moss": "Damp moss scraped from a Mossback Toad's back. Qi Gathering Pills start with it.",
-    "beetle_shell": "A Rock Beetle's plate, hard as slate. Needle-smiths and Iron Wall talismans both use it.",
-    "tortoise_plate": "A slab of Stone Tortoise shell. Bone Strengthening Pills and Body Jades need it.",
-    "mole_claw": "A digging claw from an Ironclaw Mole, still sharp enough to scratch iron.",
-    "frog_leg": "A Reed Frog's leg. Jade-smiths set its spring into a Swift Jade.",
-    "leech_oil": "Oil pressed from a Marsh Leech. Qi Restoration Pills and Essence Jades use it.",
-    "bamboo_shoot": "A tender shoot a Bamboo Monkey was hoarding. Traders buy them by the basket.",
-    "viper_fang": "A Green Viper's fang, still beaded with venom. It binds a sealing talisman's stroke.",
-    "venom_sac": "A Green Viper's venom sac. Antidotes start here, and so do poisons.",
-    "thorn_hide": "Hide from a Thornback Boar, studded with thorn-like bristles. Tiger Blood Pills need it.",
-    "hound_fang": "A Mud Hound's fang. Boiled with rat tail, it makes beast-blood ink.",
-    "jade_scale": "A green scale from a Jade Carp, cool to the touch. Jadeiron smiths and alchemists both want it.",
-    "tide_shell": "A Tide Crab's shell, ridged like waves. It rings when tapped.",
-    "pearl": "A small river pearl. Traders buy them; alchemists grind them for clear pills.",
-    "lizard_scale": "A slick scale from a Rapids Lizard. Water runs off it without wetting it.",
-    "serpent_scale": "A heavy scale from a river serpent. Traders pay well for an unchipped one.",
-    "vulture_plume": "A grey Mist Vulture plume. A Wind Step talisman's stroke needs its lightness.",
-    "cloud_feather": "A white Cloudwing Crane feather that drifts upward when dropped.",
-    "storm_feather": "A Stormwing Hawk's feather that crackles in dry air. Thunder talismans need it.",
-    "ape_fur": "Thick fur from a Cliff Ape, warm enough for the high passes.",
-    "mist_pelt": "A Mist Wolf's pelt, grey and hard to look at directly.",
-    "mirror_dust": "Silver dust shed by a Mirror Wisp. It remembers what it last reflected.",
-    "soul_wax": "Wax from a Weeping Lantern that burns without heat. Soul Soothing Pills need it.",
-    "hollow_antler": "A Hollow Stag's antler, grey and cold. Handle it with gloves.",
-    "roc_feather": "A great flight feather from a Cloudpeak Roc, as long as a spear.",
-}
 FISH_DESC = {
     "river_minnow": "A silver minnow from the Jade River shallows. Bait, or a quick snack.",
     "reed_perch": "A striped perch that hides among the reeds.",
@@ -174,7 +84,7 @@ TOOL_DESC = {
     "spirit_spade": "A jade-edged spade that cuts earth without cutting roots. With Expert gathering, dig a rare herb up whole and move it to a garden bed.",
     "verdant_dew_vial": "A green glass vial that fills with one drop of dew a day, even while you are away (it holds three). A drop ages the herb in a bed one tier.",
 }
-
+# The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
 TALISMANS = [("flame_talisman", "common", "attack", "Thrown, it bursts into a sheet of fire: 180% fire damage at the talisman's own grade within 80."),
              ("thunder_talisman", "earth", "attack", "Thrown, it calls a bolt: 240% thunder damage at the talisman's own grade, and Shock."),
              ("iron_wall_talisman", "common", "defence", "Burned, it wraps you in iron Qi: a shield that absorbs 20% of your max HP for 6 s."),
@@ -183,17 +93,6 @@ TALISMANS = [("flame_talisman", "common", "attack", "Thrown, it bursts into a sh
              ("binding_talisman", "earth", "sealing", "Thrown, it roots the nearest foe for 2 s. Bosses shrug it off.")]
 # S47 gear upkeep: what Salvage gives back, and what steadies an enhancement.
 REFINING = [("refining_essence", "common", "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it.", "Refining Essence")]
-BEAST = ["ore_dust", "crab_shell", "rat_tail", "boar_hide", "tough_meat", "toad_oil", "moss", "beetle_shell", "tortoise_plate",
-         "mole_claw", "frog_leg", "leech_oil", "bamboo_shoot", "viper_fang", "venom_sac", "thorn_hide", "hound_fang", "jade_scale",
-         "tide_shell", "pearl", "lizard_scale", "serpent_scale", "vulture_plume", "cloud_feather", "storm_feather", "ape_fur",
-         "mist_pelt", "mirror_dust", "soul_wax", "hollow_antler", "roc_feather"]
-BEAST_GRADE = {"ore_dust": "plain", "crab_shell": "plain", "rat_tail": "plain", "boar_hide": "plain", "tough_meat": "plain",
-               "toad_oil": "plain", "moss": "plain", "beetle_shell": "plain", "tortoise_plate": "plain", "mole_claw": "plain",
-               "frog_leg": "plain", "leech_oil": "plain", "bamboo_shoot": "common", "viper_fang": "common", "venom_sac": "common",
-               "thorn_hide": "common", "hound_fang": "common", "jade_scale": "earth", "tide_shell": "earth", "pearl": "earth",
-               "lizard_scale": "earth", "serpent_scale": "earth", "vulture_plume": "earth", "cloud_feather": "heaven",
-               "storm_feather": "heaven", "ape_fur": "heaven", "mist_pelt": "heaven", "mirror_dust": "heaven", "soul_wax": "heaven",
-               "hollow_antler": "mystic", "roc_feather": "mystic"}
 FISH = [("river_minnow", "plain"), ("reed_perch", "plain"), ("jade_carp_fish", "earth"), ("river_eel", "common"),
         ("mist_trout", "earth"), ("rapids_salmon", "earth"), ("moon_carp", "heaven")]
 
@@ -291,78 +190,6 @@ def cult_text(n):
     return "+{:,} cultivation".format(n)
 
 
-# S44 · Pill families for lifetime resistance (Part 8). Pills not listed are exempt.
-PILL_FAMILIES = {"qi_gathering_pill": "accumulation", "qi_flow_pill": "accumulation", "bone_strengthening_pill": "body",
-                 "clear_mind_pill": "insight", "soul_soothing_pill": "soul", "foundation_guard_pill": "support", "cleansing_pill": "support"}
-# The unique effect a Pill Soul of each recipe carries (S44 soul_effect; the effects live in grades.json pill.soul).
-SOUL_BY_GROUP = {"healing": "mend_meridians", "restoration": "mend_meridians", "buff": "iron_skin", "utility": "steady_heart"}
-SOUL_EFFECT = {"clear_mind_pill": "clear_mind", "soul_soothing_pill": "clear_mind", "mind_lake_opening_pill": "clear_mind",
-               "method_conversion_pill": "clear_mind", "bone_strengthening_pill": "iron_skin", "tiger_blood_pill": "iron_skin"}
-
-
-def pills():
-    P = []
-
-    def pill(id, grade, mark, desc, toxicity, effects, cause=None, group="restoration", **extra):
-        fam = PILL_FAMILIES.get(id)
-        if fam:
-            extra["family"] = fam
-        P.append(item(id, "pill", grade, 99, desc, pill={"mark": mark, "toxicity": toxicity, "cause": cause, "group": group},
-                      use=effects, soul_effect=SOUL_EFFECT.get(id, SOUL_BY_GROUP.get(group, "steady_heart")), **extra))
-    pill("healing_pill", "common", "heart", "Cures a minor body injury and restores 30% HP over 5 s.", 5,
-         [effect("cure_injury", injury="body", max_severity=1), effect("heal", pct=0.3, over_s=5)], cause="structure", group="healing")
-    pill("qi_restoration_pill", "common", "spiral", "Restores 40% QI and cures a minor meridian injury.", 5,
-         [effect("restore_resource", pool="qi", pct=0.4), effect("cure_injury", injury="meridian", max_severity=1)], cause="energy")
-    pill("qi_gathering_pill", "common", "spiral_up", cult_text(cultivation(0.08, "common")) + ".", 10,
-         [progress(0.08, "common")], cause="energy", group="utility")
-    pill("bone_strengthening_pill", "common", "bone", "Adds 150 body XP.", 8, [effect("add_body_xp", amount=150)], cause="structure", group="utility")
-    pill("purging_pill", "common", "leaf", "Purges 30 toxicity.", 0, [effect("add_toxicity", amount=-30)], group="utility")
-    pill("viper_antidote", "common", "leaf", "Cures poison.", 0, [effect("cure_status", status="poison")], group="utility")
-    pill("tiger_blood_pill", "common", "flame", "+20% attack for 60 s, then exhaustion (-20% for 60 s).", 12,
-         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.2, duration=60, source="tiger_blood"),
-          effect("apply_status", status="exhausted", delay=60, duration=60)], group="buff", burst=True)
-    pill("cleansing_pill", "common", "gate", "Support item: lowers the risk of Heaven's Cleansing by one step.", 10,
-         [], cause="environment", group="utility", support={"risk": -1, "event": "heavens_cleansing"})
-    pill("foundation_guard_pill", "earth", "gate", "Breakthrough support: lowers risk by one step.", 12, [],
-         cause="structure", group="utility", support={"risk": -1})
-    pill("clear_mind_pill", "earth", "lamp", "+50% insight rate for 30 minutes.", 8,
-         [effect("add_modifier", stat="insight_rate", op="flat", value=0.5, duration=1800, source="clear_mind")], cause="understanding", group="buff")
-    pill("meridian_reversal_pill", "earth", "arrows_loop", "Resets all meridian points.", 10, [effect("reset_meridians")], group="utility")
-    pill("method_conversion_pill", "earth", "arrows", "Halves the cost of switching cultivation methods.", 10, [], group="utility", method_conversion=True)
-    pill("qi_refining_pill", "earth", "spiral", "Required to break through from Heart Tempering 9 to Cloud Stride 1.", 15, [], cause="material", group="utility")
-    # S48 Core Forging: refined only over a Heavenly Flame; taken within the hour before the core forms, it is one preparation point.
-    pill("heavenly_flame_pill", "earth", "flame", "Refined over a Heavenly Flame. Taken within the hour before Heart Tempering 9 → Cloud Stride 1, "
-         "it is one Core Forging preparation point. Composure +20.", 6, [effect("add_composure", amount=20)], cause="energy", group="utility")
-    pill("soul_soothing_pill", "heaven", "eye", "Cures a soul injury; +20% Soul for 10 minutes.", 8,
-         [effect("cure_injury", injury="soul", max_severity=3), effect("add_modifier", stat="max_soul", op="pct_add", value=0.2, duration=600, source="soul_soothing"),
-          effect("add_soul", amount=50)], cause="soul")
-    pill("mind_lake_opening_pill", "heaven", "eye_gate", "Required to break through from Cloud Stride 9 to Spirit Awakening 1.", 15, [], cause="material", group="utility")
-    pill("sage_condensing_pill", "mystic", "knot", "Required to break through from Heaven Glimpse 3 to Sage 1.", 20, [], cause="material", group="utility")
-    pill("sovereign_settling_pill", "sage", "knot", "Settles a new Sage Sovereign stage at once: its consolidation ends.", 15,
-         [effect("settle_consolidation")], cause="structure", group="utility")
-    pill("will_tempering_pill", "sage", "eye", "+40 Will for 30 minutes: another's Presence weighs less on you.", 12,
-         [effect("add_modifier", stat="will", op="flat", value=40, duration=1800, source="will_tempering")], cause="soul", group="buff")
-    # v1.2 (S28): the Hollow Tide's cleansing: 40 points of Hollowing drawn out at once.
-    pill("tide_cleansing_pill", "sovereign", "knot", "Draws 40 points of Hollowing out of you at once.", 12,
-         [effect("cleanse_hollowing", amount=40)], cause="soul", group="restoration")
-    pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
-         [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
-    # S44 / Part 8 new forms. The Qi Flow Pill's debt comes due when its hour is up (`then`, applied on buff_expired).
-    pill("qi_flow_pill", "earth", "spiral_up", "+20% accumulation for 60 minutes. When it wears off, the toxicity it held back comes due: +15.", 5,
-         [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.2, duration=3600, source="qi_flow_pill")],
-         cause="energy", group="buff", then=[effect("add_toxicity", amount=15)])
-    # S44 hidden recipes, found only by experiment.
-    pill("sunfire_pill", "common", "flame", "Found by experiment: ginseng and Ember Pepper. +12% attack for 10 minutes.", 8,
-         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.12, duration=600, source="sunfire_pill")], group="buff", burst=True)
-    pill("stillwater_pill", "earth", "drop_leaf", "Found by experiment: Mist Lotus, Soulbell and willow moss. Composure +40, heart demon -5.", 6,
-         [effect("add_composure", amount=40), effect("add_heart_demon", amount=-5)], cause="soul", group="utility")
-    pill("cloudstep_pill", "heaven", "arrows", "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.", 8,
-         [effect("add_modifier", stat="move_speed", op="pct_add", value=0.10, duration=1200, source="cloudstep_pill")], group="buff")
-    pill("murky_pill", "plain", "drop_leaf", "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.", 8,
-         [], group="utility", value_override=1, source="system")
-    return P
-
-
 def foods():
     F = []
 
@@ -398,58 +225,12 @@ def foods():
     return F
 
 
-# Eaten raw (gap report G1): 30% of the herb's pill at twice its toxicity. An emergency, and the reason
-# alchemy exists. Herbs never rot.
-RAW_HERB = {
-    "willow_moss": ([effect("heal", pct=0.09, over_s=5)], 10),
-    "riverreed_ginseng_10": ([progress(0.024, "common")], 20),
-    "riverreed_ginseng_100": ([progress(0.05, "earth")], 30),
-    "ember_pepper": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.06, duration=60, source="raw_ember_pepper")], 24),
-    "mist_lotus": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.15, duration=540, source="raw_mist_lotus")], 16),
-    "cloudtop_orchid": ([effect("add_body_xp", amount=90)], 30),
-    "soulbell_flower": ([effect("add_soul", amount=15)], 16),
-    "frost_lotus": ([effect("cure_injury", injury="meridian", max_severity=1), effect("add_composure", amount=20)], 30),
-    "riverreed_ginseng_1000": ([progress(0.1, "heaven")], 40),
-    "ember_pepper_100": ([effect("add_modifier", stat="physical_attack", op="pct_add", value=0.1, duration=60, source="raw_ember_pepper_100")], 30),
-    "mist_lotus_100": ([effect("add_modifier", stat="insight_rate", op="flat", value=0.3, duration=540, source="raw_mist_lotus_100")], 24),
-    "cloudtop_orchid_100": ([effect("add_body_xp", amount=220)], 40),
-    "soulbell_flower_100": ([effect("add_soul", amount=35)], 24),
-    "ember_cactus": ([effect("heal", pct=0.1, over_s=5)], 30),
-    "star_lotus": ([effect("add_soul", amount=60)], 30),
-}
-
-
-def raw_family(effects):
-    """A raw herb counts toward the family of what it builds up (S44)."""
-    kinds = {e["kind"] for e in effects}
-    for kind, fam in (("add_progress", "accumulation"), ("add_body_xp", "body"), ("add_soul", "soul"), ("add_insight", "insight")):
-        if kind in kinds:
-            return fam
-    return ""
-
-
 def build_items():
+    E.begin("items")
     rows = []
     TREASURE_DEFS.clear()
-    for h in HERBS:
-        raw = RAW_HERB.get(h[0])
-        extra = {"use": raw[0], "raw": {"toxicity": raw[1]}} if raw else {}
-        if raw:
-            fam = raw_family(raw[0])
-            if fam:
-                extra["family"] = fam
-        nature, roles = HERB_NATURE[h[0]]
-        extra["nature"] = nature
-        extra["roles"] = roles
-        fam, age = HERB_AGE[h[0]]
-        extra["herb"] = {"family": fam, "age": age}
-        # Decision 45: a root eaten raw for Qi says its fixed cultivation.
-        gain = sum(int(e.get("amount", 0)) for e in (raw[0] if raw else []) if e["kind"] == "add_progress")
-        eat = (" Can be eaten raw in need (%s): weak, and hard on the meridians." % cult_text(gain) if gain else
-               " Can be eaten raw in need: weak, and hard on the meridians.") if raw else ""
-        rows.append(item(h[0], "herb", h[1], 99, h[2] + NATURE_TEXT[nature] + eat, name=h[3] if len(h) > 3 else None, **extra))
-    for sid, fam, grade, desc in SEEDS:
-        rows.append(item(sid, "seed", grade, 99, desc + " Plant it in a garden bed.", seed={"family": fam}))
+    rows.extend(E.items("herbs"))   # specs/herbs.py: the herbs by age, then their seeds
+    rows.extend(E.items("seeds"))
     # S45 garden materials and tools.
     rows.append(item("spring_water", "material", "common", 20, "Qi-spring water in a stoppered gourd. Poured on a garden bed, it hurries the herb along by a quarter. A spring gives three bottles a day.",
                      name="Bottled Spring Water"))
@@ -457,8 +238,7 @@ def build_items():
                      name="Dyed Root", source="system"))
     rows.append(item("rice_wine", "material", "common", 20, "A clay jar of cloudy rice wine. Herbs soaked in it on a drying rack make stronger pills."))
     rows.append(item("spirit_soil", "material", "heaven", 20, "Black earth that still remembers a spirit vein. Worked into a garden bed, it raises the bed's field grade one step, for good. Strong beasts sometimes carry it in their hides."))
-    for o in ORES:
-        rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
+    rows.extend(E.items("ores"))   # specs/ores.py
     for o in REFINING + TALISMAN_MATS:
         rows.append(item(o[0], "material", o[1], 99, o[2], name=o[3]))
     for tid, grade, kind, desc in TALISMANS:
@@ -474,22 +254,9 @@ def build_items():
                      "of Heaven grade or better, for one whose Dao of that weapon has reached Explanation.", name="Weapon Soul Crystal", sell=False))
     rows.append(item("shattered_moon_blade", "relic_shard", "heaven", 1, "The pieces of a jian that once held a spirit, pale as moonlight. "
                      "A smith of Expert rank could restore it at the forge.", name="Shattered Moon Blade", sell=False, restores="moonlit_blade"))
-    for b in BEAST:
-        rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, BEAST_DESC.get(b, "A material taken from a valley beast.")))
-    # Azure Expanse beasts (Act II)
-    rows.append(item("spark_pelt", "beast_part", "spirit", 99, "A golden pelt that snaps with static. Taken from Spark Weasels."))
-    rows.append(item("thunder_horn", "beast_part", "spirit", 99, "A thunderhorn's horn. It still holds a charge."))
-    rows.append(item("rime_fang", "beast_part", "spirit", 99, "A frost lynx's fang, rimed with ice that never melts."))
-    rows.append(item("snow_ape_hide", "beast_part", "spirit", 99, "A thick white hide from a Snow Ape. Warm even in a blizzard."))
-    rows.append(item("dragonet_scale", "beast_part", "spirit", 99, "An azure scale from a carp halfway to becoming a dragon."))
-    rows.append(item("sentinel_core", "material", "spirit", 99, "The polished heart-stone of a River Sentinel. Water turns slowly inside it."))
-    rows.append(item("mirror_eye", "material", "spirit", 99, "One of the Thousand-Eye Toad's mirror eyes. It still shows what it last saw."))
-    rows.append(item("kite_silk", "beast_part", "spirit", 99, "Painted silk from a Wind Kite. It still pulls toward the wind."))
-    rows.append(item("harpy_plume", "beast_part", "spirit", 99, "A russet plume from a Canyon Harpy's crest, barred like a hawk's."))
-    rows.append(item("scorpion_stinger", "beast_part", "spirit", 99, "A Sandstorm Scorpion's stinger, a bead of amber venom still inside."))
-    rows.append(item("worm_glass_tooth", "beast_part", "sage", 99, "A tooth of clear desert glass from a Dune Worm's ringed maw."))
-    rows.append(item("terracotta_shard", "material", "spirit", 99, "A shard of a Terracotta Warden. The clay is warm, as if fired yesterday."))
-    rows.append(item("sun_crown_fragment", "material", "sage", 99, "A gold ray broken from the Tomb King's sun crown. It never cools."))
+    # Creature parts (specs/parts.py): the valley's beasts, then the Azure Expanse's (Act II) and its monsters' materials.
+    rows.extend(E.items("parts.valley"))
+    rows.extend(E.items("parts.expanse"))
     rows.append(item("sun_seal_shard", "material", "sage", 9, "A curved piece of a gold and jade disc, swallowed long ago by a Dune Worm.",
                      sell=False, quest_item=True))
     rows.append(item("sunscar_seal", "key", "sage", 1, "The Tomb King's sun seal: a disc of gold and jade, warm as a living hand.", sell=False,
@@ -500,9 +267,7 @@ def build_items():
     rows.append(item("star_reading", "material", "sage", 99,
                      "A star's place, taken through a sighting ring and written in sky ink. Charts are made of them."))
     rows.append(item("sky_ink", "material", "spirit", 99, "Ink ground with star-dust. The Starsea wind cannot fade it."))
-    rows.append(item("comet_iron", "material", "sage", 99, "Iron hammered from a pirate hull that once flew through a comet's tail. It rings like a bell."))
-    rows.append(item("alliance_badge", "beast_part", "spirit", 99, "A Nine Peaks disciple's jade badge, its peak scratched out by a deserter's knife.",
-                     name="Scratched Alliance Badge"))
+    rows.extend(E.items("parts.starsea"))   # the pirates' hull iron, the deserters' badges
     rows.append(item("ledger_page", "material", "sage", 9, "A page of the Black Ledger: valley family names, and what each paid to keep them secret.",
                      name="Black Ledger Page", sell=False, quest_item=True))
     rows.append(item("black_ledger", "key", "sage", 1, "Elder Gu's Black Ledger, stitched back together. Every valley family that ever paid him is in it.",
@@ -522,27 +287,12 @@ def build_items():
     # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md): shards for the Starsea Endurance jades and the Shoals' beasts.
     rows.append(item("star_shard", "material", "sovereign", 999,
                      "A chip of fallen starlight. Levels your Starsea Endurance jades (Character > Attunement)."))
-    rows.append(item("jelly_silk", "beast_part", "sovereign", 99, "A Star Jellyfish's trailing silk. It glows for a day after the jelly dies, and stings for two."))
-    rows.append(item("comet_plume", "beast_part", "sovereign", 99, "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."))
-    # v1.2 Phase B · Blackmast Haven and the Wyrmnest Isles: the pirates' powder, the guardians' scales, the Hollowed brood's
-    # ash, the Admiral's seal, and the last star-wyrm egg; the Hollow Tide's cleansings.
-    rows.append(item("star_powder", "material", "sovereign", 99, "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."))
-    rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
-    # v1.2 · Phase C: the Orbit Ruins.
-    # v1.2 Phase D · the Ashen Reach and the Tidebreak Front.
-    # v1.2 Phase E · the Nebula Deep.
-    rows.append(item("eel_essence", "beast_part", "will", 99, "The bright thread of a Nebula Eel's life, coiled in a drop. It bends the space around it a hair's width."))
-    rows.append(item("void_carapace", "beast_part", "will", 99, "A plate of Void Crab shell. Look into it and it is deeper than it is thick."))
-    rows.append(item("leviathan_scale", "beast_part", "will", 99, "A scale from the Nebula Leviathan, as broad as a shield. Stars move in it, slowly."))
-    rows.append(item("cinder_ash", "material", "will", 99, "Ash from an Ashborn's cinder Qi. It stays warm for days. Smiths temper blades in it."))
-    rows.append(item("pyre_ember", "material", "will", 99, "An ember from an Ashborn pyre that will not go out. Alchemists use it to keep a furnace steady."))
-    rows.append(item("drone_shell", "material", "will", 99, "The grey carapace of a Hollow Drone: metal that forgot it was metal. Copperjaw beetles love it."))
+    # The Lantern Star Field's creature parts (specs/parts.py): the Drifting Shoals, Blackmast Haven and the Wyrmnest
+    # Isles (v1.2 Phase B), the Nebula Deep, the Ashen Reach and the Tidebreak Front (Phases D and E).
+    rows.extend(E.items("parts.lantern"))
     rows.append(item("kharns_glaive_shard", "valuable", "will", 1, "A shard of General Kharn's cinder glaive. Whether he lived or not, the Ashborn will know this piece.",
                      sell=False))
-    rows.append(item("gravity_core", "beast_part", "will", 99, "The heavy heart of a Gravity Golem. Set it down and small things roll toward it."))
-    rows.append(item("orbit_stone_chip", "material", "sovereign", 99, "A chip of an orbit stone. It turns slowly in the palm, by itself."))
-    rows.append(item("moth_dust", "beast_part", "sovereign", 99, "Silver dust from an Orbit Moth's wings. It hangs in the air a long while."))
-    rows.append(item("wyrm_ash", "beast_part", "will", 99, "Grey ash from a Hollowed Wyrmling. It is cold, and it is not quite dead. Cleansing pills are made from it."))
+    rows.extend(E.items("parts.orbit"))   # v1.2 Phase C: the Orbit Ruins, and the Hollowed brood's ash
     rows.append(item("admirals_seal", "key", "will", 1, "Admiral Voss's seal of command: a bronze star on a chain. Every pirate lane in the Field answered to it.",
                      sell=False, quest_item=True))
     rows.append(item("wyrm_egg", "egg", "will", 1, "The last star-wyrm egg of the Wyrmnest Isles: pearl-white, warm, humming. It will not hatch for anyone below "
@@ -799,133 +549,30 @@ def build_items():
                      use=[{"kind": "deploy_array", "array": "killing", "radius": 160, "duration": 10, "mult": 0.5}]))
     rows.append(item("binding_array_plate", "formation", "earth", 20, "A binding array for 10 s: every foe inside its ring is slowed by 40%.",
                      use=[{"kind": "deploy_array", "array": "binding", "radius": 160, "duration": 10, "slow": 0.4}]))
-    rows.extend(pills())
+    rows.extend(E.items("pills"))   # specs/pills.py
     rows.extend(foods())
     # v1.2 Phase D · the Copperjaw Beetle swarm: a box of beetles that grows on ore, online or off.
     rows.append(item("copperjaw_box", "other", "will", 1, "A lacquered box of Copperjaw beetles. Feed it ore and the swarm grows, an hour at a time, "
                      "even while you are away. Open it and for 8 s the swarm chews every foe near you, the bigger it is the harder "
                      "(Wood foes shrug off half). It comes home after, and rests 30 s.", use=[], use_action="swarm", sell=False, ilv=92))
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.", sell=False, ilv=95))
-    rows.append(item("law_condensing_pill", "pill", "law", 99, "Converts Sage Qi toward Law Qi. (Later zones.)", ilv=105, pill={"mark": "arrows", "toxicity": 20, "group": "utility"}, use=[]))
-    rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
-    rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
-    rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
+    rows.extend(E.items("pills.later"))   # the Law and Monarch pills
+    E.end("items")
     entries("items.json", rows, bag_kinds=BAG_KINDS)
     entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows
 
 
-FAMILY_APPEARANCE = {"gauntlets": "gauntlets", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
-                     # S47 v1.1 families
-                     "heavy_sabre": "sabre", "fan": "fan", "flute": "flute",
-                     # P7b (item_plan §2.9): the brush and the bell at every grade, so the formation master and the bell musician
-                     # hold a weapon of their own from Level 1 (G4)
-                     "brush": "brush", "bell": "bell"}
-# The attribute a family asks for at each grade (the bow Agility, the staff and heavy sabre Body, the flute and brush
-# Insight, the bell Essence).
-FAMILY_ATTRIBUTE = {"bow": "agility", "staff": "body", "heavy_sabre": "body", "flute": "insight", "brush": "insight", "bell": "essence"}
-ATTRIBUTE_REQ = {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92, "sovereign": 100, "will": 110}
-# Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
-GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
-             "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
-             "mystic": {"robe": "white", "trousers": "jade"}, "spirit": {"robe": "indigo", "trousers": "cloud"},
-             "sage": {"robe": "ochre", "trousers": "crimson"}, "sovereign": {"robe": "rose", "trousers": "indigo"},
-             "will": {"robe": "white", "trousers": "ink"}}
-# P7b (item_plan §2.9, G1): Sovereign and Will, the Lantern Star Field's grades: driftsteel weapons and starsilk armour,
-# lanternsteel and lanternsilk.
-GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade", "spirit": "stormsteel",
-              "sage": "sunsteel", "sovereign": "driftsteel", "will": "lanternsteel"}
-ARMOUR = {
-    "plain": {"hat": ("plain_straw_hat", "Plain Straw Hat", "straw"), "robe": ("hemp_robe", "Hemp Robe", "sleeveless"),
-              "trousers": ("hemp_trousers", "Hemp Trousers", "loose"), "boots": ("straw_sandals", "Straw Sandals", "slippers")},
-    "common": {"hat": ("bamboo_hat", "Bamboo Hat", "straw"), "robe": ("cotton_robe", "Cotton Robe", "disciple"),
-               "trousers": ("cotton_trousers", "Cotton Trousers", "straight"), "boots": ("cloth_boots", "Cloth Boots", "boots")},
-    "earth": {"hat": ("jadeiron_hat", "Jadeiron Circlet", "headband"), "robe": ("jadeiron_robe", "Jadeiron-Trimmed Robe", "cardigan"),
-              "trousers": ("jadeiron_trousers", "Jadeiron-Trimmed Trousers", "martial"), "boots": ("jadeiron_boots", "Jadeiron Greaves", "folded")},
-    "heaven": {"hat": ("cloudsilk_hat", "Cloudsilk Band", "tied"), "robe": ("cloudsilk_robe", "Cloudsilk Robe", "vneck"),
-               "trousers": ("cloudsilk_trousers", "Cloudsilk Trousers", "cuffed"), "boots": ("cloudsilk_boots", "Cloudsilk Boots", "boots")},
-    "mystic": {"hat": ("mistjade_hat", "Mistjade Circlet", "headband"), "robe": ("mistjade_robe", "Mistjade Robe", "scholar"),
-               "trousers": ("mistjade_trousers", "Mistjade Trousers", "scholar"), "boots": ("mistjade_boots", "Mistjade Boots", "folded")},
-    # Spirit grade (Azure Expanse, Sage realm)
-    "spirit": {"hat": ("stormsilk_hat", "Stormsilk Crown", "guan"), "robe": ("stormsilk_robe", "Stormsilk Robe", "vneck"),
-               "trousers": ("stormsilk_trousers", "Stormsilk Trousers", "martial"), "boots": ("stormsilk_boots", "Stormsilk Boots", "boots")},
-    # Sage grade (Sunscar, Sage Sovereign realm): sunsilk worked with desert glass; the veiled hat keeps the sun off.
-    "sage": {"hat": ("sunsilk_hat", "Sunsilk Veil", "weimao"), "robe": ("sunsilk_robe", "Sunsilk Robe", "scholar"),
-             "trousers": ("sunsilk_trousers", "Sunsilk Trousers", "cuffed"), "boots": ("sunsilk_boots", "Sunsilk Boots", "folded")},
-    # Sovereign grade (the Drifting Shoals to the Orbit Ruins): starsilk, woven from star jellies' silk.
-    "sovereign": {"hat": ("starsilk_hat", "Starsilk Band", "tied"), "robe": ("starsilk_robe", "Starsilk Robe", "disciple"),
-                  "trousers": ("starsilk_trousers", "Starsilk Trousers", "straight"), "boots": ("starsilk_boots", "Starsilk Slippers", "slippers")},
-    # Will grade (the Ashen Reach to the Lantern Heart): lanternsilk, cut for the Wardens' watch.
-    "will": {"hat": ("lanternsilk_hat", "Lanternsilk Crown", "guan"), "robe": ("lanternsilk_robe", "Lanternsilk Robe", "cardigan"),
-             "trousers": ("lanternsilk_trousers", "Lanternsilk Trousers", "martial"), "boots": ("lanternsilk_boots", "Lanternsilk Boots", "boots")},
-}
-# P7b (item_plan §2.9, G5, G6): banded ladders of pet gear and furnaces, forged at the forge. A pet piece gains 1% of its
-# stat a grade (defence half that) from the first piece of its kind; a furnace's heat, batch, filter and yield by grade.
-PET_LADDER = {"pet_collar": ("Collar", "common", {"hp": 0.10}, "earth", "+{hp}% HP for the animal that wears it."),
-              "pet_talisman": ("Beast Talisman", "earth", {"attack": 0.10, "defence": 0.05}, "common",
-                               "+{attack}% attack and +{defence}% defence for the animal that wears it."),
-              "pet_saddle": ("Saddle", "common", {"mount_speed": 0.10}, "earth", "A mount wearing it carries you {mount_speed}% faster.")}
-PET_STEP = {"hp": 0.01, "attack": 0.01, "defence": 0.005, "mount_speed": 0.01}
-BANDED_FURNACES = [
-    ("stormsteel_furnace", "spirit", "Stormsteel Furnace", "Blue-black stormsteel that drinks the lightning's heat. Ten pills to a batch.",
-     {"band": 0.11, "batch": 10, "filter": 0.33, "yield": 0.16}),
-    ("sunsteel_furnace", "sage", "Sunsteel Furnace", "Sunsteel set with desert glass that holds the fire's glow. Eleven pills to a batch.",
-     {"band": 0.12, "batch": 11, "filter": 0.36, "yield": 0.17}),
-    ("driftsteel_furnace", "sovereign", "Driftsteel Furnace", "Driftsteel walls lined with ground driftglass. Eleven pills to a batch, and little ash gets through.",
-     {"band": 0.13, "batch": 11, "filter": 0.39, "yield": 0.18}),
-    ("lanternsteel_furnace", "will", "Lanternsteel Furnace", "Cast from a lantern cage's metal; the fire in it never quite goes out. Twelve pills to a batch.",
-     {"band": 0.14, "batch": 12, "filter": 0.42, "yield": 0.20}),
-]
-
-
-def artifact(id, slot, grade, name, appearance, family=None, ilv=None, icon=None, **extra):
-    row = {"id": id, "name": name, "slot": slot, "grade": grade, "ilv": ilv or MID_ILV[grade], "appearance": appearance,
-           "energy_type": {"plain": "none", "common": "primal_qi", "earth": "primal_qi", "heaven": "true_qi", "mystic": "true_qi", "spirit": "sage_qi",
-                           "sage": "sage_qi", "sovereign": "sage_qi", "will": "sage_qi"}[grade],
-           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3, "sovereign": 3, "will": 3}[grade], "icon": icon or id, "type": "equipment",
-           "stack": 1}
-    if family:
-        row["family"] = family
-    row.update(extra)
-    return row
-
-
 def build_artifacts():
-    rows = []
-    for grade, word in GRADE_WORD.items():
-        for fam, look in FAMILY_APPEARANCE.items():
-            id = "%s_%s" % (word, fam)
-            name = "%s %s" % (word.capitalize(), {"short_blade": "Short Blade", "jian": "Jian", "heavy_sabre": "Heavy Sabre"}.get(fam, titled(fam)))
-            extra = {}
-            if grade == "plain":
-                # The weapon slot is open from the start, and a training weapon asks nothing of its wearer: a first-hour
-                # foe may drop one (grades.json drop.starter), and the Weapon Hall hands out three.
-                extra["ilv"] = 5
-                extra["source"] = ["weapon_hall"]
-            if fam in FAMILY_ATTRIBUTE:
-                extra["attribute_req"] = {FAMILY_ATTRIBUTE[fam]: ATTRIBUTE_REQ[grade]}
-            rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
-    for grade, slots in ARMOUR.items():
-        for slot, (id, name, look) in slots.items():
-            extra = {"dye": GRADE_DYE[grade][slot]} if slot in ("robe", "trousers") else {}
-            rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None), **extra))
-    # Decision 45: the bag starts at 50 (stats.json bag.base); each gourd up the ladder adds its 5 on top of that, as it
-    # added them on top of 25 before (the Starter Spirit Gourd 50, from 25; the Lantern Gourd 90, from 65).
-    gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 0, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 5, 8),
-              ("jadeiron_gourd", "earth", "Jadeiron Gourd", 10, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 15, 12),
-              ("mistjade_gourd", "mystic", "Mistjade Gourd", 20, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 25, 16),
-              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 30, 18), ("driftglass_gourd", "sovereign", "Driftglass Gourd", 35, 19),
-              ("lantern_gourd", "will", "Lantern Gourd", 40, 20)]
-    for id, grade, name, extra_slots, quick in gourds:
-        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": BAG_BASE + extra_slots, "quick": quick}, ilv=(1 if grade == "plain" else None),
-                             **({"source": ["story"]} if id == "starter_gourd" else {})))   # the starting kit (AccountAuthority)
+    E.begin("artifacts")
+    # The banded bases (specs/gear.py): every weapon family and armour slot grade by grade, then the gourds.
+    rows = E.items("weapons") + E.items("armour") + E.items("gourds")
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"], named=tag("general", "valley")))
     for fid, grade, name, icon, desc, stats in FURNACES:
         extra = {"sell": False} if stats.get("named") else {}
         rows.append(artifact(fid, "tool_furnace", grade, name, "none", icon=icon, desc=desc, furnace=stats, sockets=0,
                              energy_type="none", ilv=(1 if grade == "plain" else None), named=tag("alchemist", "valley"), **extra))
-    for fid, grade, name, desc, stats in BANDED_FURNACES:
-        rows.append(artifact(fid, "tool_furnace", grade, name, "none", desc=desc, furnace=stats, sockets=0, energy_type="none"))
+    rows.extend(E.items("furnaces"))   # specs/gear.py: the furnace ladder of the far zones
     rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none", named=tag("general", "valley")))
     # S46 pet gear: a Collar, a Talisman and (for mounts) a Saddle, forged from beast materials and enhanced at the
     # forge (+10% of the base a level). Worn by a spirit animal, never by you.
@@ -935,14 +582,7 @@ def build_artifacts():
             ("reed_saddle", "pet_saddle", "common", "Reed Saddle", {"mount_speed": 0.10}, "Woven reed on boar hide. A mount wearing it carries you 10% faster.")]:
         rows.append(artifact(gid, gslot, grade, gname, "none", desc=desc, pet_gear=stats, sockets=0, energy_type="none", ilv=MID_ILV[grade],
                              named=tag("beast", "valley")))
-    grades = list(MID_ILV)
-    for gslot, (word, base_grade, base, first, text) in PET_LADDER.items():
-        for grade in grades[grades.index(first):grades.index("will") + 1]:
-            if grade == base_grade:
-                continue
-            stats = {k: round(v + PET_STEP[k] * (grades.index(grade) - grades.index(base_grade)), 3) for k, v in base.items()}
-            rows.append(artifact("%s_%s" % (GRADE_WORD[grade], word.lower().replace(" ", "_")), gslot, grade, "%s %s" % (GRADE_WORD[grade].capitalize(), word),
-                                 "none", sockets=0, energy_type="none", pet_gear=stats, desc=text.format(**{k: "%g" % (v * 100) for k, v in stats.items()})))
+    rows.extend(E.items("pet_gear"))   # specs/gear.py: P7b's pet gear ladders
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):
@@ -1018,6 +658,7 @@ def build_artifacts():
         rows.append(artifact(iid, "weapon", "heaven", name, "sword", "jian", icon="cloudsteel_jian", ilv=48,
                              imitation={"of": of, "share": 0.6, "effect": fx}, named=tag("sword", "valley"),
                              desc="A forge copy of %s. It keeps six parts in ten of the original's gift, and no spirit." % ("the Moonlit Blade" if of == "moonlit_blade" else "the Sleeping Blade")))
+    E.end("artifacts")
     entries("artifacts.json", rows)
     return rows
 

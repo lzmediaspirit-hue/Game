@@ -430,6 +430,23 @@ static func sets() -> Dictionary:
 		at_the_flats.merged({"do": [["hud", "visible", false], ["lineup", POLISH_LINEUP]]})] + polish + [
 		{"name": "21_leech_bank_and_river", "do": [["leeches"]], "then": [["paused", false]]}]}
 
+	# Audit 45 (E2): the monster engine's first new species, each one spec (tools/content/monsters/specs/).
+	var e2 := []
+	for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+			["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+			["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+		e2.append({"name": st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+	s["monsters_e2"] = {"doc": "Audit 45 E2: the first species drawn from a monster-engine spec (the rock beetle, the pebble imp, the greyfin) beside the reed rat, the crab and a boarlet for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and a live fight under the HUD (--tag=after)",
+		"out": "redesign/feedback/monsters/e2/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false], ["lineup", E2_LINEUP]]})] + e2 + [
+		{"name": "09_falling", "do": [["fell_lineup"]]},
+		{"do": [["lineup", E2_ELITES]]},
+		{"name": "10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]},
+		{"name": "11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]},
+		{"do": [["paused", false], ["hud", "visible", true]]},
+		{"name": "12_fight", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["rock_beetle", Vector2(3, 2)], ["pebble_imp", Vector2(-4, 1)],
+			["greyfin", Vector2(-2, -3)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]}]}
+
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
 		"out": "redesign/feedback/hud/", "vars": {"tag": "after"}, "stage": hud_stage, "rows": [
@@ -614,6 +631,12 @@ const MONSTER_ELITES := [["wild_boarlet", Vector2(-7.0, -2.0), false], ["wild_bo
 	["mudshell_crab", Vector2(5.0, -2.0), false], ["mudshell_crab", Vector2(8.0, -2.0), true],
 	["mossback_toad", Vector2(-7.0, 1.5), false], ["mossback_toad", Vector2(-4.0, 1.5), true],
 	["reedtail_rat", Vector2(3.0, 1.5), false], ["reedtail_rat", Vector2(5.5, 1.5), true], ["marsh_leech", Vector2(8.0, 1.5), true]]
+## Audit 45 (E2): the new species beside drawn ones for scale, and their elites beside them.
+const E2_LINEUP := [["rock_beetle", Vector2(-7.0, -2.5), false], ["pebble_imp", Vector2(-3.0, -2.5), false],
+	["greyfin", Vector2(1.5, -2.5), false], ["reedtail_rat", Vector2(6.0, -2.5), false],
+	["mudshell_crab", Vector2(-7.0, 1.5), false], ["wild_boarlet", Vector2(6.0, 1.5), false]]
+const E2_ELITES := [["rock_beetle", Vector2(-7.0, -2.0), false], ["rock_beetle", Vector2(-3.5, -2.0), true],
+	["greyfin", Vector2(1.0, -2.0), false], ["greyfin", Vector2(5.5, -2.0), true], ["pebble_imp", Vector2(-5.0, 2.0), false]]
 const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed_boarlet", Vector2(-1.5, -2.2), false],
 	["wild_boarlet", Vector2(1.5, -2.2), true], ["reedtail_rat", Vector2(4.5, -2.2), false],
 	["reed_otter", Vector2(-4.5, 1.0), false], ["mossback_toad", Vector2(-1.5, 1.0), false], ["mudshell_crab", Vector2(1.5, 1.0), false],

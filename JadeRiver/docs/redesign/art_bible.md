@@ -336,6 +336,7 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   | **Trial Puppet** (a trial) | 1.58 | 51 px tall: a sparring figure a head over a disciple |
   | **Old Snapper** (an elite by role) | 1.8, 1.5× its earlier size | 77 px from its tail to its crusher, 44 tall |
   | **Hollowed eel** (a story boss) | 1.44 | rising about 58 px out of the river |
+  | Rock beetle, pebble imp, greyfin (E2) | 1.6, 1.5, 1.4 | 32 px long with its horn; 33 px tall; its pool 32 px across |
 
   A foe's blob shadow grows with it (the manifest's `shadow`, an elite's its own). A new foe is sized against the
   46 px person the same way: a small beast (a frog, a toad, a crab) half to two thirds of a person's height across, a
@@ -344,8 +345,9 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
   larger, its ramps darkened toward the §14 shadow, gold eyes, and Qi burning round it in pale gold (a ring hugging its
   outline, stronger toward its top and flickering frame by frame, a fainter ring standing off it, tongues licking up
   off its back and motes rising). Every beast that can be an elite on the grid has one: the crab, the rat, both
-  boarlets, the frog, the leech, the otter and the toad. The Trial Puppet, Old Snapper, the minnow and the eel have
-  none; Old Snapper wears the ring of Qi in its own colours as its boss presence.
+  boarlets, the frog, the leech, the otter, the toad, the rock beetle and the greyfin (the greyfin's ring hugs its
+  puddle). The Trial Puppet, Old Snapper, the minnow, the eel and the pebble imp have none; Old Snapper wears the ring
+  of Qi in its own colours as its boss presence.
 - **Sheets.** A sheet a species (`art/topdown/foes/<species>.png`), and its elite's apart
   (`<species>_elite.png`): a row per drawn facing, the 35 frames of every action along it (43 for the leech, its swim
   after them), in a cell of its own size
@@ -422,10 +424,23 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
     beaten, it convulses and sinks until only the stain and the rings are left. The game hovers it 20 art px over the
     water and the view draws a foe's feet at its hover, so its water is drawn that far under its feet, where its shadow
     falls.
+- **The first foes past the top-down rooms (decision 45, E2: the monster engine's first new species):**
+  - the rock beetle (Stonewall Quarry): a carapace of rocky plates with ochre lichen and pale flecks, a dark chitin
+    underside, a curved ochre horn, clubbed antennae, six legs in tripods. **Tell:** it curls into a stone ball. It
+    rolls at you, its plates and tucked belly turning with the roll; beaten, it flips onto its back, legs pawing;
+  - the pebble imp (Stonewall Quarry): a grinning stone spirit about two thirds of a person, shard ears, glowing amber
+    eyes, an ember crack in its pot belly, pebbles studding it, a stone in its hand. **Tell:** it twists back, the
+    stone raised, its eyes flaring. It throws on frame 1; beaten, it crumbles into a heap of stones. It has no elite
+    sheet (no room makes it an elite);
+  - the greyfin (the Grey Pools): a Hollow fish (the minnow's greys) in a grey puddle of its own, drawn flat round its
+    feet; its torn fin cuts the surface and its dark shape shows through, ripples spreading. **Tell:** it sinks, then
+    its head breaks the surface, jaws gaping. It leaps out to bite and falls back in; beaten, it flops out and comes
+    apart into mist.
 - **Not yet drawn:** every other creature (Phase 5 by region). A species not drawn yet (an ambush, a hunter or a
   summons can bring one onto the grid) stands in with its side-view sheet at half size (`TopdownPlaces.stand_in`), as
-  spirit animals do. The pebble imps do not appear in the prototype room. A new species is a module in
-  `creature/` and a row of `creatures.REGISTRY`, drawn in the whole catalogue with a tell of its own.
+  spirit animals do. A new species is a spec of the monster engine (`tools/content/monsters/specs/`,
+  `docs/architecture/monster_engine.md`): a body plan and its sizes and styles, drawn in the whole catalogue with a
+  tell of its own.
 
 ## 9. What makes it xianxia (and Jade River's)
 
