@@ -1,0 +1,517 @@
+{
+ "schema_version": 1,
+ "id": "dr_jellyfish_shallows",
+ "name": "Jellyfish Shallows",
+ "size": [
+  64,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "00~~~~~~~000~~~~~~~~~~~~~~~~~~0~~~~~~~~~~~~~~~~~~0000~~~~~~~~~~~",
+  "0000~~~0000000~~~~~~~~~~~~~0000000~~~~~~~~~~~~~00000000000~~~~00",
+  "000000000000000000000000002222000000000~~~~~~~~00000000000000000",
+  "000111111000000000000000022222200000000~~~~~~~~00000000000000000",
+  "0011111111000000000000000222222000000000~~~~~~~00000000000000000",
+  "00111111110000000000000002222220000000000~~~~~000000000000000000",
+  "0001111110000000000000000022220000000000000000000000000000000000",
+  "0000111100000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000~~~~~~~~0000000000000000000000000000000000000000",
+  "0000000000000~~~~~~~~~~~~000000000000000000000000000000000000000",
+  "000000000000~~~~~~~~~~~~~~00000000000000000000000000000000000000",
+  "000000000000~~~~~~~~~~~~~~00000000000000000000000000000000000000",
+  "0000000000000~~~~~~~~~~~~000000000000000000000000000000000000000",
+  "0000000000~~~~~~~~~~~~~~~~~000000000000000000000~~~~~~~~00000000",
+  "~~~00000~~~~~~~~~~~~~~~~~~~~~~0000000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "hh~~~~~~~hhh~~~~~~~~~~~~~~~~~~h~~~~~~~~~~~~~~~~~~hhhh~~~~~~~~~~~",
+  "hhhaaaaahhhhhh~~~~~~~~~~aaaaaaaaah~~~~~~~~~~~~~hhhhhhhhhhh~~~~hh",
+  "hhaaaaaaaaahhhhhhhhhhhaaaarrrraaaahhhhh~~~~~~~~hhhhhhhhhhhhhhhhh",
+  "harrrrrrraaahhhhhhhhhaaaarrrrrrraaahhhh~~~~~~~~hhhhhhhaaaaaaahhh",
+  "arrrrrrrrraahhhhhhhhaaarrrrrrrrrraaahhhh~~~~~~~hhhhaaaaaaaaaaaah",
+  "rrrrrrrrrrraahhhhhhhaarrrrrrrrrrrraaahhhh~~~~~hhhhaaarrrrrrraaaa",
+  "rrrrrrrrrrrraahhhhhaaarrrrrrrrrrrrraahhhhhhhhhhhhaaarrrrrrrrrrra",
+  "rrrrrrrrrrrrrahhhhhaaarrrrrsssrrrrrahhhhhhhhhhhhaaarrrrrrrrrrrrr",
+  "rrrrrsssrrrrraahhhhaaaarrrrsssrrrraahhhhhhhhhhhhaarrrrrrrrrrrrrr",
+  "rrrrrsssrrrrraahhhhhaaaaarrsssrraaaahhhhhhhhhhhharrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrraahhhhhhhaaaaasssaaaaahhhhhhhhhhhhharrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrraahhhhhhhhhhaaaaaaahhhhhhhhhhhhhhaaarrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrraahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhaaarrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrahhhhhhhhhhhhhhhhhhhhaaaaaaahhhhhaaarrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrraahhhhhhhhhhhhhhhhhhhaaaaaaaaaahhhhaarrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrraah~~~~~~~~hhhhhhhhhhaaarrrraaaahhhaarrrrrrrrrrrrrr",
+  "arrrrrrrrrrra~~~~~~~~~~~~hhhhhhhhhaaarrrraaaahhhharrrrrrrrrrrrra",
+  "aarrrrrrraaa~~~~~~~~~~~~~~hhhhhhhhaaarrrraaaahhhhharrrrrrrrrrraa",
+  "aaaarrraaaaa~~~~~~~~~~~~~~hhhhhhhhhaaaaaaaaahhhhhhhaaaaarrrrraaa",
+  "haaaaaaaaahhh~~~~~~~~~~~~hhhhhhhhhhhaaaaahhhhhhhhhhhaaaaaaaaaaah",
+  "hhaaaaaahh~~~~~~~~~~~~~~~~~hhhhhhhhhhhhhhhhhhhhh~~~~~aaaaaaaaahh",
+  "~~~hhhhh~~~~~~~~~~~~~~~~~~~~~~hhhhhhh~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 5,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 27,
+   "y": 10,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "star_lantern",
+   "x": 2,
+   "y": 11
+  },
+  {
+   "kind": "star_lantern",
+   "x": 2,
+   "y": 16
+  },
+  {
+   "kind": "driftglass",
+   "x": 46,
+   "y": 11
+  },
+  {
+   "kind": "star_crystal",
+   "x": 61,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 11
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 5,
+   "y": 0
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 17,
+   "y": 2
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 23,
+   "y": 1
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 47,
+   "y": 0
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 58,
+   "y": 0
+  },
+  {
+   "kind": "cattails",
+   "x": 40,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 46,
+   "y": 4
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 43,
+   "y": 4
+  },
+  {
+   "kind": "driftglass",
+   "x": 5,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 9,
+   "y": 9
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "star_crystal",
+   "x": 25,
+   "y": 6
+  },
+  {
+   "kind": "star_crystal",
+   "x": 31,
+   "y": 11
+  },
+  {
+   "kind": "star_crystal",
+   "x": 28,
+   "y": 7
+  },
+  {
+   "kind": "driftglass",
+   "x": 25,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 3,
+   "y": 6
+  },
+  {
+   "kind": "tall_grass",
+   "x": 4,
+   "y": 19
+  },
+  {
+   "kind": "driftglass",
+   "x": 2,
+   "y": 20
+  },
+  {
+   "kind": "driftglass",
+   "x": 7,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "tall_grass",
+   "x": 3,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 34,
+   "y": 9
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 51,
+   "y": 13
+  },
+  {
+   "kind": "tall_grass",
+   "x": 53,
+   "y": 13
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 59,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 52,
+   "y": 11
+  },
+  {
+   "kind": "driftglass",
+   "x": 53,
+   "y": 16
+  },
+  {
+   "kind": "driftglass",
+   "x": 59,
+   "y": 8
+  },
+  {
+   "kind": "driftglass",
+   "x": 51,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 55,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 59,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 7,
+   "y": 15
+  },
+  {
+   "kind": "driftglass",
+   "x": 11,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 54,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 57,
+   "y": 10
+  },
+  {
+   "kind": "star_crystal",
+   "x": 37,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 13,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 18,
+   "y": 18
+  },
+  {
+   "kind": "cattails",
+   "x": 23,
+   "y": 19
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 20,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 1,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 9,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 24,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 46,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 59,
+   "y": 24
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 16,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 21,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 32,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 44,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 48,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 54,
+   "y": 27
+  }
+ ],
+ "place": {
+  "sign_dr_shallows": [
+   4,
+   11
+  ],
+  "jar_2": [
+   6,
+   6
+  ],
+  "jar_3": [
+   13,
+   14
+  ],
+  "swarm_starwing_mote": [
+   22,
+   15
+  ],
+  "chest_ledge_mv_1": [
+   27,
+   9
+  ],
+  "chest_cloud_mv": [
+   30,
+   6
+  ],
+  "herb_1": [
+   33,
+   11
+  ],
+  "jar_4": [
+   40,
+   11
+  ],
+  "journal_jellyfish": [
+   39,
+   19
+  ],
+  "jar_5": [
+   57,
+   19
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    16
+   ],
+   [
+    18,
+    16
+   ],
+   [
+    27,
+    15
+   ],
+   [
+    36,
+    10
+   ],
+   [
+    46,
+    16
+   ],
+   [
+    55,
+    16
+   ]
+  ],
+  [
+   [
+    18,
+    9
+   ],
+   [
+    47,
+    9
+   ]
+  ],
+  [
+   [
+    35,
+    17
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

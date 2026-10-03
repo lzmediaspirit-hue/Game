@@ -72,7 +72,9 @@ const E1_VIEWS := [
 	["r8/05_starsea_launch", "sw_starsea_launch", Vector2(28, 15), true],
 	["r8/06_arrival_quay", "lh_arrival_quay", Vector2(20, 12), true], ["r8/07_harbor_market", "lh_harbor_market", Vector2(24, 12), true],
 	["r8/08_harbor_market_stair", "lh_harbor_market", Vector2(50, 12), false], ["r8/09_star_chandlery", "lh_star_chandlery", Vector2(12, 9), true],
-	["r8/10_tidelight_inn", "lh_tidelight_inn", Vector2(14, 8), true]]
+	["r8/10_tidelight_inn", "lh_tidelight_inn", Vector2(14, 8), true],
+	["r8/11_jellyfish_shallows", "dr_jellyfish_shallows", Vector2(22, 13), true], ["r8/12_moored_hulks", "dr_moored_hulks", Vector2(20, 13), true],
+	["r8/13_sparrow_reefs", "dr_sparrow_reefs", Vector2(30, 13), true], ["r8/14_driftglass_bank", "dr_driftglass_bank", Vector2(32, 13), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]

@@ -13,7 +13,7 @@ ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"
 # R5: the story's own rooms and the Tidebreak Front.
 ZONES += ["story", "tidebreak_front"]
 # R8: the sky-sea zones of the late game, in the story's order.
-ZONES += ["skyport_wreck", "lanternfall_harbor"]
+ZONES += ["skyport_wreck", "lanternfall_harbor", "drifting_shoals"]
 
 
 def all_specs():

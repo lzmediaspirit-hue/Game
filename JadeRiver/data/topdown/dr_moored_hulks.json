@@ -1,0 +1,472 @@
+{
+ "schema_version": 1,
+ "id": "dr_moored_hulks",
+ "name": "Moored Hulks",
+ "size": [
+  48,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~000000000000000000~~~~~~~~~~~~~~~~00000",
+  "0000333332222222200000000000~~~~~~~~~00000000000",
+  "000033333222222222200000000000222222222000000000",
+  "000033333222222222222000000022222222222220000000",
+  "000033333222222222222220000022222222222222200000",
+  "000022222222222222222000000022222222222222200000",
+  "000022222222222222200000000022222222222220000000",
+  "000022222222222220000000000000222222222000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000011110000",
+  "000~~~~~~~000000000~~~~00000~~~~~000000011110000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11110000",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~"
+ ],
+ "paint": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~hhhhhhhhhhhhhhhhhh~~~~~~~~~~~~~~~~hhhhh",
+  "hhhhwwwwwwwwwwwwwhhhaaaaaaaaa~~~~~~~~hhhhhhhhhhh",
+  "hhhhwwwwwwwwwwwwwwwaaaaaaaaaaawwwwwwwwwhhhhhhhhh",
+  "hhhhwwwwwwwwwwwwwwwwwrrrrrrrwwwwwwwwwwwwwhhhhhhh",
+  "hhhhwwwwwwwwwwwwwwwwwwwrrrrrwwwwwwwwwwwwwwwhhhhh",
+  "hhhhwwwwwwwwwwwwwwwwwrrrrrrrwwwwwwwwwwwwwwwhhhhh",
+  "hhhhwwwwwwwwwwwwwwwrrrrrrrrrwwwwwwwwwwwwwaaaahhh",
+  "hhhhwwwwwwwwwwwwwrrrrrrrrrrrrrwwwwwwwwwrrraaaahh",
+  "hhhaaarrrsssrrrrrrrrrrrrrrrrrrrrrsssrrrrrrraaahh",
+  "hhaaarrrrsssrrrrrrrrrrrrrrrrrrrrrsssrrrrrrraaahh",
+  "hhaaarrrrsssrrrrrrrrrrrrrrrrrrrrrsssrrrrrrraaahh",
+  "hhaarrrrrsssrrrrrrrrrrrrrrrrrrrrrsssrrrrrraaahhh",
+  "hhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaahhhh",
+  "hhhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaahhhhh",
+  "hhhhaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrawwwwhhhh",
+  "hhhhhaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrraaawwwwhhhh",
+  "hhhhhhaaaaarrraarrrrrrrrrrrrrrrrrrrraaaawwwwhhhh",
+  "hhhhhhhaaaaaaaaaaarrrraarrrrrrraaaaaaaahwwwwhhhh",
+  "hhhhhhhhhhhhaaaaaaaaaaaaaaaaaaaaaaaaahhhwwwwhhhh",
+  "hhhhhhhhhhhhhhhhhhhaaahhaahhaahhaaahhhhhwwwwhhhh",
+  "hhh~~~~~~~hhhhhhhhh~~~~hhhhh~~~~~hhhhhhhwwwwhhhh",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwwhhhh",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 9,
+   "y": 10,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 33,
+   "y": 10,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "stove",
+   "x": 23,
+   "y": 10
+  },
+  {
+   "kind": "water_jar",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "barrel",
+   "x": 21,
+   "y": 10
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 17
+  },
+  {
+   "kind": "sacks",
+   "x": 24,
+   "y": 17
+  },
+  {
+   "kind": "star_lantern",
+   "x": 12,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 30,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 20,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 39,
+   "y": 12
+  },
+  {
+   "kind": "star_lantern",
+   "x": 39,
+   "y": 16
+  },
+  {
+   "kind": "star_lantern",
+   "x": 44,
+   "y": 16
+  },
+  {
+   "kind": "post",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 43,
+   "y": 27
+  },
+  {
+   "kind": "boat",
+   "x": 44,
+   "y": 25
+  },
+  {
+   "kind": "black_mast",
+   "x": 13,
+   "y": 8
+  },
+  {
+   "kind": "broken_mast",
+   "x": 35,
+   "y": 8
+  },
+  {
+   "kind": "driftglass",
+   "x": 4,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 12
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 1,
+   "y": 0
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 38,
+   "y": 0
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 12
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
+   "x": 26,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 35,
+   "y": 16
+  },
+  {
+   "kind": "star_crystal",
+   "x": 42,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 15
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 17
+  },
+  {
+   "kind": "driftglass",
+   "x": 17,
+   "y": 13
+  },
+  {
+   "kind": "star_crystal",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 9
+  },
+  {
+   "kind": "tall_grass",
+   "x": 37,
+   "y": 14
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 18,
+   "y": 18
+  },
+  {
+   "kind": "driftglass",
+   "x": 21,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 29,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 18
+  },
+  {
+   "kind": "driftglass",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 16,
+   "y": 11
+  },
+  {
+   "kind": "tall_grass",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "driftglass",
+   "x": 30,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 37,
+   "y": 11
+  },
+  {
+   "kind": "cattails",
+   "x": 6,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 9,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 16,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 27,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 36,
+   "y": 23
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 5,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 11,
+   "y": 25
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 23,
+   "y": 25
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 30,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 46,
+   "y": 26
+  }
+ ],
+ "place": {
+  "shrine_dr_hulks": [
+   11,
+   9
+  ],
+  "bed_dr_0": [
+   15,
+   3
+  ],
+  "bed_dr_1": [
+   16,
+   9
+  ],
+  "npc_hulk_keeper_bo": [
+   25,
+   12
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    47,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    45,
+    14
+   ],
+   "span": 3
+  },
+  "wyrm_skiff": {
+   "at": [
+    42,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    42,
+    25
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

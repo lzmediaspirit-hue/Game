@@ -278,6 +278,11 @@ VISTAS = {
     # Lanternfall Harbor's quays: the starsea's water going on past the harbour, other islands far off.
     "lh_arrival_quay": [{"edge": "s", "kind": "river", "pad": 32}],
     "lh_harbor_market": [{"edge": "s", "kind": "river", "pad": 32}],
+    # The Drifting Shoals: the starsea's water going on past the shallows' south edge.
+    "dr_jellyfish_shallows": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_moored_hulks": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_sparrow_reefs": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_driftglass_bank": [{"edge": "s", "kind": "river", "pad": 32}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

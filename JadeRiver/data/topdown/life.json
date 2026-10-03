@@ -1110,6 +1110,42 @@
     }
    ]
   },
+  "dr_driftglass_bank": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_jellyfish_shallows": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_moored_hulks": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_sparrow_reefs": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "dw_bend_shore": {
    "vista": [
     {
