@@ -482,12 +482,33 @@ def _static_checks(st):
     return errs
 
 
+def _drops():
+    """{creature: the items its loot table and first defeat hand out} from the built data (enemies.json, loot_tables.json)."""
+    data = os.path.join(TOOLS, "..", "data")
+    tables = {t["id"]: t for t in json.load(open(os.path.join(data, "loot_tables.json"), encoding="utf-8"))["entries"]}
+    out = {}
+    for e in json.load(open(os.path.join(data, "enemies.json"), encoding="utf-8"))["entries"]:
+        t = tables.get(e.get("loot", e["id"]), {})
+        got = {x["item"] for k in ("guaranteed", "rare", "quest_drops", "named", "elite_named", "lost") for x in t.get(k, [])}
+        got |= {x["item"] for g in t.get("groups", []) for x in g.get("pick", [])}
+        out[e["id"]] = got | set(e.get("first_defeat", [])) | set(e.get("elite_first_defeat", []))
+    return out
+
+
 def check_sources(errs):
-    """Each source a family names but does not write is found in the built data (wiki.py's channels)."""
+    """Each source a family names but does not write is found in the built data (wiki.py's channels); a part's named
+    creatures each drop it (their rows are the monster engine's, tools/data/enemies.py)."""
     sys.path.append(os.path.join(TOOLS, "dev"))
     import wiki
     found = wiki.Sources(wiki.Data()).run().by_item
+    drops = _drops()
     for m in state().members:
+        creatures = (m.get("sources") or {}).get("drop")
+        for c in creatures if isinstance(creatures, list) else []:
+            if c not in drops:
+                errs.append("%s names the creature %s, which enemies.json does not hold" % (m["id"], c))
+            elif m["id"] not in drops[c]:
+                errs.append("%s names %s, which does not drop it (its loot table is the monster engine's, enemies.py)" % (m["id"], c))
         ids = [m["id"]]
         have = {c for _, c, _ in found.get(m["id"], set())}
         named = {k for k in (m.get("sources") or {}) if k not in ("mark", "shop", "recipe")}

@@ -45,39 +45,6 @@ TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the i
                  ("spirit_paper", "earth", "Talisman paper steeped with Mist Lotus until it drinks Qi.", "Spirit Paper")]
 # The talismans themselves: (id, grade, kind, desc). Numbers live in talismans.json.
 # Item text: one line on where it comes from and what it is for (the UI shows it under the name).
-BEAST_DESC = {
-    "ore_dust": "Glittering grit from an Ironclaw Mole's tunnels. Smiths pack it into Thunderclap Pellets.",
-    "crab_shell": "A mud-brown shell from a Mudshell Crab. Traders buy it to burn for lime.",
-    "rat_tail": "A Reedtail Rat's tail. Ink-makers boil it down for its binding fat.",
-    "boar_hide": "Bristly hide from a Wild Boarlet. Smiths wrap iron hilts with it.",
-    "tough_meat": "Stringy meat from a big beast. Slow-stewed, it builds a body up.",
-    "toad_oil": "Slick oil wrung from a Mossback Toad's skin. Cooks fold it into dumplings.",
-    "moss": "Damp moss scraped from a Mossback Toad's back. Qi Gathering Pills start with it.",
-    "beetle_shell": "A Rock Beetle's plate, hard as slate. Needle-smiths and Iron Wall talismans both use it.",
-    "tortoise_plate": "A slab of Stone Tortoise shell. Bone Strengthening Pills and Body Jades need it.",
-    "mole_claw": "A digging claw from an Ironclaw Mole, still sharp enough to scratch iron.",
-    "frog_leg": "A Reed Frog's leg. Jade-smiths set its spring into a Swift Jade.",
-    "leech_oil": "Oil pressed from a Marsh Leech. Qi Restoration Pills and Essence Jades use it.",
-    "bamboo_shoot": "A tender shoot a Bamboo Monkey was hoarding. Traders buy them by the basket.",
-    "viper_fang": "A Green Viper's fang, still beaded with venom. It binds a sealing talisman's stroke.",
-    "venom_sac": "A Green Viper's venom sac. Antidotes start here, and so do poisons.",
-    "thorn_hide": "Hide from a Thornback Boar, studded with thorn-like bristles. Tiger Blood Pills need it.",
-    "hound_fang": "A Mud Hound's fang. Boiled with rat tail, it makes beast-blood ink.",
-    "jade_scale": "A green scale from a Jade Carp, cool to the touch. Jadeiron smiths and alchemists both want it.",
-    "tide_shell": "A Tide Crab's shell, ridged like waves. It rings when tapped.",
-    "pearl": "A small river pearl. Traders buy them; alchemists grind them for clear pills.",
-    "lizard_scale": "A slick scale from a Rapids Lizard. Water runs off it without wetting it.",
-    "serpent_scale": "A heavy scale from a river serpent. Traders pay well for an unchipped one.",
-    "vulture_plume": "A grey Mist Vulture plume. A Wind Step talisman's stroke needs its lightness.",
-    "cloud_feather": "A white Cloudwing Crane feather that drifts upward when dropped.",
-    "storm_feather": "A Stormwing Hawk's feather that crackles in dry air. Thunder talismans need it.",
-    "ape_fur": "Thick fur from a Cliff Ape, warm enough for the high passes.",
-    "mist_pelt": "A Mist Wolf's pelt, grey and hard to look at directly.",
-    "mirror_dust": "Silver dust shed by a Mirror Wisp. It remembers what it last reflected.",
-    "soul_wax": "Wax from a Weeping Lantern that burns without heat. Soul Soothing Pills need it.",
-    "hollow_antler": "A Hollow Stag's antler, grey and cold. Handle it with gloves.",
-    "roc_feather": "A great flight feather from a Cloudpeak Roc, as long as a spear.",
-}
 FISH_DESC = {
     "river_minnow": "A silver minnow from the Jade River shallows. Bait, or a quick snack.",
     "reed_perch": "A striped perch that hides among the reeds.",
@@ -119,17 +86,6 @@ TALISMANS = [("flame_talisman", "common", "attack", "Thrown, it bursts into a sh
              ("binding_talisman", "earth", "sealing", "Thrown, it roots the nearest foe for 2 s. Bosses shrug it off.")]
 # S47 gear upkeep: what Salvage gives back, and what steadies an enhancement.
 REFINING = [("refining_essence", "common", "The refined Qi of a salvaged piece. The forge feeds it into an enhancement to steady it.", "Refining Essence")]
-BEAST = ["ore_dust", "crab_shell", "rat_tail", "boar_hide", "tough_meat", "toad_oil", "moss", "beetle_shell", "tortoise_plate",
-         "mole_claw", "frog_leg", "leech_oil", "bamboo_shoot", "viper_fang", "venom_sac", "thorn_hide", "hound_fang", "jade_scale",
-         "tide_shell", "pearl", "lizard_scale", "serpent_scale", "vulture_plume", "cloud_feather", "storm_feather", "ape_fur",
-         "mist_pelt", "mirror_dust", "soul_wax", "hollow_antler", "roc_feather"]
-BEAST_GRADE = {"ore_dust": "plain", "crab_shell": "plain", "rat_tail": "plain", "boar_hide": "plain", "tough_meat": "plain",
-               "toad_oil": "plain", "moss": "plain", "beetle_shell": "plain", "tortoise_plate": "plain", "mole_claw": "plain",
-               "frog_leg": "plain", "leech_oil": "plain", "bamboo_shoot": "common", "viper_fang": "common", "venom_sac": "common",
-               "thorn_hide": "common", "hound_fang": "common", "jade_scale": "earth", "tide_shell": "earth", "pearl": "earth",
-               "lizard_scale": "earth", "serpent_scale": "earth", "vulture_plume": "earth", "cloud_feather": "heaven",
-               "storm_feather": "heaven", "ape_fur": "heaven", "mist_pelt": "heaven", "mirror_dust": "heaven", "soul_wax": "heaven",
-               "hollow_antler": "mystic", "roc_feather": "mystic"}
 FISH = [("river_minnow", "plain"), ("reed_perch", "plain"), ("jade_carp_fish", "earth"), ("river_eel", "common"),
         ("mist_trout", "earth"), ("rapids_salmon", "earth"), ("moon_carp", "heaven")]
 
@@ -291,22 +247,9 @@ def build_items():
                      "of Heaven grade or better, for one whose Dao of that weapon has reached Explanation.", name="Weapon Soul Crystal", sell=False))
     rows.append(item("shattered_moon_blade", "relic_shard", "heaven", 1, "The pieces of a jian that once held a spirit, pale as moonlight. "
                      "A smith of Expert rank could restore it at the forge.", name="Shattered Moon Blade", sell=False, restores="moonlit_blade"))
-    for b in BEAST:
-        rows.append(item(b, "beast_part", BEAST_GRADE[b], 99, BEAST_DESC.get(b, "A material taken from a valley beast.")))
-    # Azure Expanse beasts (Act II)
-    rows.append(item("spark_pelt", "beast_part", "spirit", 99, "A golden pelt that snaps with static. Taken from Spark Weasels."))
-    rows.append(item("thunder_horn", "beast_part", "spirit", 99, "A thunderhorn's horn. It still holds a charge."))
-    rows.append(item("rime_fang", "beast_part", "spirit", 99, "A frost lynx's fang, rimed with ice that never melts."))
-    rows.append(item("snow_ape_hide", "beast_part", "spirit", 99, "A thick white hide from a Snow Ape. Warm even in a blizzard."))
-    rows.append(item("dragonet_scale", "beast_part", "spirit", 99, "An azure scale from a carp halfway to becoming a dragon."))
-    rows.append(item("sentinel_core", "material", "spirit", 99, "The polished heart-stone of a River Sentinel. Water turns slowly inside it."))
-    rows.append(item("mirror_eye", "material", "spirit", 99, "One of the Thousand-Eye Toad's mirror eyes. It still shows what it last saw."))
-    rows.append(item("kite_silk", "beast_part", "spirit", 99, "Painted silk from a Wind Kite. It still pulls toward the wind."))
-    rows.append(item("harpy_plume", "beast_part", "spirit", 99, "A russet plume from a Canyon Harpy's crest, barred like a hawk's."))
-    rows.append(item("scorpion_stinger", "beast_part", "spirit", 99, "A Sandstorm Scorpion's stinger, a bead of amber venom still inside."))
-    rows.append(item("worm_glass_tooth", "beast_part", "sage", 99, "A tooth of clear desert glass from a Dune Worm's ringed maw."))
-    rows.append(item("terracotta_shard", "material", "spirit", 99, "A shard of a Terracotta Warden. The clay is warm, as if fired yesterday."))
-    rows.append(item("sun_crown_fragment", "material", "sage", 99, "A gold ray broken from the Tomb King's sun crown. It never cools."))
+    # Creature parts (specs/parts.py): the valley's beasts, then the Azure Expanse's (Act II) and its monsters' materials.
+    rows.extend(E.items("parts.valley"))
+    rows.extend(E.items("parts.expanse"))
     rows.append(item("sun_seal_shard", "material", "sage", 9, "A curved piece of a gold and jade disc, swallowed long ago by a Dune Worm.",
                      sell=False, quest_item=True))
     rows.append(item("sunscar_seal", "key", "sage", 1, "The Tomb King's sun seal: a disc of gold and jade, warm as a living hand.", sell=False,
@@ -317,9 +260,7 @@ def build_items():
     rows.append(item("star_reading", "material", "sage", 99,
                      "A star's place, taken through a sighting ring and written in sky ink. Charts are made of them."))
     rows.append(item("sky_ink", "material", "spirit", 99, "Ink ground with star-dust. The Starsea wind cannot fade it."))
-    rows.append(item("comet_iron", "material", "sage", 99, "Iron hammered from a pirate hull that once flew through a comet's tail. It rings like a bell."))
-    rows.append(item("alliance_badge", "beast_part", "spirit", 99, "A Nine Peaks disciple's jade badge, its peak scratched out by a deserter's knife.",
-                     name="Scratched Alliance Badge"))
+    rows.extend(E.items("parts.starsea"))   # the pirates' hull iron, the deserters' badges
     rows.append(item("ledger_page", "material", "sage", 9, "A page of the Black Ledger: valley family names, and what each paid to keep them secret.",
                      name="Black Ledger Page", sell=False, quest_item=True))
     rows.append(item("black_ledger", "key", "sage", 1, "Elder Gu's Black Ledger, stitched back together. Every valley family that ever paid him is in it.",
@@ -339,27 +280,12 @@ def build_items():
     # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md): shards for the Starsea Endurance jades and the Shoals' beasts.
     rows.append(item("star_shard", "material", "sovereign", 999,
                      "A chip of fallen starlight. Levels your Starsea Endurance jades (Character > Attunement)."))
-    rows.append(item("jelly_silk", "beast_part", "sovereign", 99, "A Star Jellyfish's trailing silk. It glows for a day after the jelly dies, and stings for two."))
-    rows.append(item("comet_plume", "beast_part", "sovereign", 99, "A tail feather of a Comet Sparrow, still warm, trailing sparks when it is waved."))
-    # v1.2 Phase B · Blackmast Haven and the Wyrmnest Isles: the pirates' powder, the guardians' scales, the Hollowed brood's
-    # ash, the Admiral's seal, and the last star-wyrm egg; the Hollow Tide's cleansings.
-    rows.append(item("star_powder", "material", "sovereign", 99, "Pirate gunpowder cut with star-dust. It burns blue and bangs gold."))
-    rows.append(item("guardian_scale", "beast_part", "sovereign", 99, "A bronze plate from a Nest Guardian's shell, set with a crystal that still glows."))
-    # v1.2 · Phase C: the Orbit Ruins.
-    # v1.2 Phase D · the Ashen Reach and the Tidebreak Front.
-    # v1.2 Phase E · the Nebula Deep.
-    rows.append(item("eel_essence", "beast_part", "will", 99, "The bright thread of a Nebula Eel's life, coiled in a drop. It bends the space around it a hair's width."))
-    rows.append(item("void_carapace", "beast_part", "will", 99, "A plate of Void Crab shell. Look into it and it is deeper than it is thick."))
-    rows.append(item("leviathan_scale", "beast_part", "will", 99, "A scale from the Nebula Leviathan, as broad as a shield. Stars move in it, slowly."))
-    rows.append(item("cinder_ash", "material", "will", 99, "Ash from an Ashborn's cinder Qi. It stays warm for days. Smiths temper blades in it."))
-    rows.append(item("pyre_ember", "material", "will", 99, "An ember from an Ashborn pyre that will not go out. Alchemists use it to keep a furnace steady."))
-    rows.append(item("drone_shell", "material", "will", 99, "The grey carapace of a Hollow Drone: metal that forgot it was metal. Copperjaw beetles love it."))
+    # The Lantern Star Field's creature parts (specs/parts.py): the Drifting Shoals, Blackmast Haven and the Wyrmnest
+    # Isles (v1.2 Phase B), the Nebula Deep, the Ashen Reach and the Tidebreak Front (Phases D and E).
+    rows.extend(E.items("parts.lantern"))
     rows.append(item("kharns_glaive_shard", "valuable", "will", 1, "A shard of General Kharn's cinder glaive. Whether he lived or not, the Ashborn will know this piece.",
                      sell=False))
-    rows.append(item("gravity_core", "beast_part", "will", 99, "The heavy heart of a Gravity Golem. Set it down and small things roll toward it."))
-    rows.append(item("orbit_stone_chip", "material", "sovereign", 99, "A chip of an orbit stone. It turns slowly in the palm, by itself."))
-    rows.append(item("moth_dust", "beast_part", "sovereign", 99, "Silver dust from an Orbit Moth's wings. It hangs in the air a long while."))
-    rows.append(item("wyrm_ash", "beast_part", "will", 99, "Grey ash from a Hollowed Wyrmling. It is cold, and it is not quite dead. Cleansing pills are made from it."))
+    rows.extend(E.items("parts.orbit"))   # v1.2 Phase C: the Orbit Ruins, and the Hollowed brood's ash
     rows.append(item("admirals_seal", "key", "will", 1, "Admiral Voss's seal of command: a bronze star on a chain. Every pirate lane in the Field answered to it.",
                      sell=False, quest_item=True))
     rows.append(item("wyrm_egg", "egg", "will", 1, "The last star-wyrm egg of the Wyrmnest Isles: pearl-white, warm, humming. It will not hatch for anyone below "

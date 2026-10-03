@@ -67,7 +67,7 @@ def shops():
          "stock": [s("herbal_tea", price=6), s("rice_ball", price=4), s("rice", price=2), s("bamboo_rod", requires=all_of(realm("bone_forging_8"))),
                    s("bonding_offering_common", requires=all_of(realm("qi_unfurling_5"))),
                    s("sealing_gourd", price=900, requires=all_of(realm("spirit_awakening_1")))],
-         "rotation": {"count": 1, "pool": [F("willow_moss"), s("boar_hide"), s("river_mud"), s("cloth")]}},
+         "rotation": {"count": 1, "pool": [F("willow_moss"), F("boar_hide"), s("river_mud"), s("cloth")]}},
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",
          # Decision 45: Qi-Gathering Incense, the village's own cultivation speed (+30% for 10 minutes), from Bone Forging 1.
          "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("qi_gathering_incense", price=12, requires=all_of(realm("bone_forging_1"))),
@@ -89,7 +89,7 @@ def shops():
          "rotation": {"count": 1, "pool": [s("ember_pepper_stew"), s("toad_oil_dumplings"), s("riverfish_soup")]}},
         {"id": "mei_qing", "name": "Mei Qing's Stall", "currency": "silver_tael",
          "stock": [F("willow_moss"), F("riverreed_ginseng_10"), F("healing_pill"), F("qi_restoration_pill"), F("qi_gathering_pill"),
-                   L("healing_pill"), s("pearl", price=40, requires=all_of(realm("heart_tempering_5"))),
+                   L("healing_pill"), F("pearl"),
                    F("mist_lotus"), F("cloudtop_orchid")],
          "rotation": {"count": 1, "pool": [F("clear_mind_pill"), F("foundation_guard_pill"), F("bone_strengthening_pill")]}},
         # The recipes the pill families sell here (specs/pills.py, recipe learn=).
@@ -99,7 +99,7 @@ def shops():
          "stock": [L("foundation_guard_pill"), L("clear_mind_pill"), L("meridian_reversal_pill"),
                    s("recipe_scroll", learn="jadeiron_furnace", price=900, requires=all_of(flag("guild_alchemy_adept"))),
                    F("mist_lotus"),
-                   s("jade_scale", price=30, requires=all_of(flag("guild_alchemy_adept"))),
+                   F("jade_scale"),
                    L("storm_blood_pill"),
                    F("soulbell_flower"), F("frost_lotus")]},
         # S49: the Forge Guild's counter at Smith Bao's: ores for members, finer ores as the badge rises.
@@ -111,7 +111,7 @@ def shops():
         {"id": "formation_guild", "name": "Formation Guild", "currency": "silver_tael",
          "stock": [s("blank_plate", price=45, requires=all_of(flag("guild_formations_adept"))),
                    s("formation_stone", price=60, requires=all_of(flag("guild_formations_adept"))),
-                   s("ore_dust", price=8, requires=all_of(flag("guild_formations_adept"))),
+                   F("ore_dust"),
                    s("killing_array_plate", price=260, requires=all_of(flag("guild_formations_expert"))),
                    s("binding_array_plate", price=260, requires=all_of(flag("guild_formations_expert")))]},
         {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael",
@@ -213,7 +213,7 @@ def shops():
         {"id": "port_apothecary", "name": "Apothecary Wu's Cabinet", "currency": "spirit_stone",
          "stock": [F("soulbell_flower"), F("cloudtop_orchid"), F("mist_lotus"), F("healing_pill"), F("qi_restoration_pill"),
                    L("storm_blood_pill")],
-         "rotation": {"count": 1, "pool": [s("jade_core", price=20), s("roc_feather", price=12)]}},
+         "rotation": {"count": 1, "pool": [s("jade_core", price=20), F("roc_feather")]}},
         {"id": "wayfarers_inn", "name": "Wayfarers' Inn Kitchen", "currency": "spirit_stone",
          "stock": [s("rice_ball"), s("herbal_tea"), s("jade_carp_congee"), s("cloudtop_orchid_broth"), s("thunderhorn_stew")]},
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
@@ -225,7 +225,7 @@ def shops():
                   # P7b (item_plan §2.10): star and space cores for star-tier animals hatched young, two a day each.
                   + [s("%s_core_%s" % (el, tier), price=p, daily=2, requires=all_of(realm("will_manifest_1")))
                      for el in ("star", "space") for tier, p in (("low", 1), ("mid", 3), ("high", 8))],
-         "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), s("jelly_silk", price=2)]}},
+         "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), F("jelly_silk")]}},
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
          "stock": [F("star_lotus"), F("ember_cactus"), F("frost_lotus"), F("clear_mind_pill"), F("soul_soothing_pill"),
                    s("calm_incense"), s("lantern_incense", price=4), L("tide_cleansing_pill")]},
@@ -266,7 +266,7 @@ def shops():
          "stock": [s("spirit_wood", price=40), s("formation_stone"), F("stormsteel_ore")]},
         {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone",
          "stock": [s("herbal_tea"), s("rice_ball"), F("viper_antidote"), F("qi_restoration_pill"), F("storm_blood_pill"), s("cactus_water", price=12),
-                   s("tough_meat")]},
+                   F("tough_meat")]},
         # A back-room market (gap report G1 karma): every purchase is a small sin.
         {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone", "black_market": True,
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
@@ -277,8 +277,8 @@ def shops():
                    s("soul_core_low", price=20, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("soul_core_mid", price=45, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("beast_essence_blood", price=25, requires=all_of({"kind": "alignment_at_most", "value": -20}))],
-         "rotation": {"count": 2, "pool": [F("sage_condensing_pill"), s("mirror_eye", price=70), s("jade_core", price=18),
-                                           s("sentinel_core", price=30), F("frost_lotus")]}},
+         "rotation": {"count": 2, "pool": [F("sage_condensing_pill"), F("mirror_eye"), s("jade_core", price=18), F("sentinel_core"),
+                                           F("frost_lotus")]}},
         # Part 8 (S49 karma): the Caravan Road's night peddler. +5 sin a purchase (karma.json "night_peddler").
         {"id": "night_peddler", "name": "Peddler Shao's Mat", "currency": "silver_tael", "black_market": True,
          "requires": {"all": [{"kind": "time_of_day", "phases": ["night"]}]},
@@ -308,7 +308,7 @@ def shops():
                    s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsteel_gourd", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone",
-         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), F("storm_blood_pill"),
+         "stock": [F("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), F("storm_blood_pill"),
                    s("beast_bag_star", price=160, requires=all_of(realm("sage_1")))]},
     ]
     entries("shops", E.shelves(rows))
