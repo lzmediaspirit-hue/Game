@@ -82,7 +82,9 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
   - The nine that stop at once on today's `main.gd`: `generated_runtime`, `release_review`, `pixel_input`,
     `platform_contact_visual`, `movement_visual_v07`, `review_visual_v08`/`v09`, `generated_visuals`, `visual_checks`.
   - `support_review_v08`, which reviewed the retired v0.9 regions and failed 2 of its checks.
-  - `scenes/pixel_stage.tscn`, which only these scripts used.
+  - `scenes/pixel_stage.tscn` went with them by mistake: it is the game's main scene (`project.godot`
+    `run/main_scene`), so the game failed to start. It is restored, and both runners now have a `boot` gate that
+    loads the main scene and runs a few frames, since the suites load their own scenes and could not catch it.
 
   Kept, and still working:
   - `gauntlet_review` (AGENTS.md rule 1's sheets, byte-identical);
