@@ -38,14 +38,16 @@ from PIL import Image  # noqa: E402
 
 ROOT = UI_KIT = HUD = ""
 PAGES: list = []
+HUD_PARTS: list = []   # the HUD's parts (scripts/hud/, audit 45 S6)
 
 
 def set_root(path: str) -> None:
-    global ROOT, UI_KIT, PAGES, HUD
+    global ROOT, UI_KIT, PAGES, HUD, HUD_PARTS
     ROOT = os.path.normpath(path)
     UI_KIT = os.path.join(ROOT, "scripts", "ui", "ui_kit.gd")
     PAGES = sorted(glob.glob(os.path.join(ROOT, "scripts", "ui", "pages", "*.gd")))
     HUD = os.path.join(ROOT, "scripts", "hud.gd")
+    HUD_PARTS = sorted(glob.glob(os.path.join(ROOT, "scripts", "hud", "*.gd")))
 
 
 set_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -306,7 +308,7 @@ def sec_literals(tk):
     print("| File:line | Literal | Nearest token | Distance |\n|---|---|---|---|")
     n = 0
     floats = {}
-    for path in PAGES + [HUD]:
+    for path in PAGES + [HUD] + HUD_PARTS:
         for i, ln in enumerate(read(path).splitlines(), 1):
             for m in re.finditer(r'Color\("#?([0-9a-fA-F]{6})"\)', ln):
                 tname, d = _nearest_token(m.group(1).lower(), tk)
@@ -321,7 +323,7 @@ def sec_sizes():
     lo = ui_kit_int("MIN_SIZE")
     print("## Text asked for under MIN_SIZE (%d) by a literal size\n" % lo)
     pat = re.compile(r"\b(text|draw_text|draw_outlined|para|fit)\((?:[^()]|\([^()]*(?:\([^()]*\))*[^()]*\))*?,\s*(\d{1,2})\s*(?:,|\))")
-    for path in PAGES + [HUD, os.path.join(ROOT, "scripts", "ui", "page.gd")]:
+    for path in PAGES + [HUD] + HUD_PARTS + [os.path.join(ROOT, "scripts", "ui", "page.gd")]:
         for i, ln in enumerate(read(path).splitlines(), 1):
             for m in pat.finditer(ln):
                 size = int(m.group(2))
@@ -417,18 +419,20 @@ def sec_icons():
                                           " %d" % w if shrink else ""), w - shrink, kind))
         for m in re.finditer(r"draw_texture_rect\(\w+, Rect2\([^)]*, (\d+), (\d+)\)", src):
             rows.append(_size_row("%s:%d draw_texture_rect" % (base, src[:m.start()].count("\n") + 1), int(m.group(1)), "any"))
-    hud = read(HUD)
-    func = ""
-    for i, ln in enumerate(hud.splitlines(), 1):
-        if ln.startswith("func "): func = ln[5:ln.find("(")]
-        m = re.search(r"\bglyph\((.+), (\d+)(?:, [^,()]*(?:\([^()]*\))?[^,()]*)?\)\s*$", ln)
-        if m and "func glyph" not in ln:
-            # The status stack passes status icon ids (`ic`); every other glyph() is a HUD glyph.
-            rows.append(_size_row("hud.gd:%d glyph" % i, int(m.group(2)), "status" if m.group(1).startswith("ic,") else "glyph"))
-        m = re.search(r"draw_texture_rect\((\w+), Rect2\(\w+ - Vector2\((\d+), \2\), Vector2\((\d+), \3\)\)", ln)
-        if m:
-            kind = "any" if m.group(1) == "motif" else ("technique" if func == "draw_skill_slot" else "item")
-            rows.append(_size_row("hud.gd:%d %s" % (i, m.group(1)), int(m.group(3)), kind))
+    for hpath in [HUD] + HUD_PARTS:
+        hud = read(hpath)
+        hbase = os.path.basename(hpath)
+        func = ""
+        for i, ln in enumerate(hud.splitlines(), 1):
+            if ln.startswith("func "): func = ln[5:ln.find("(")]
+            m = re.search(r"\bglyph\((.+), (\d+)(?:, [^,()]*(?:\([^()]*\))?[^,()]*)?\)\s*$", ln)
+            if m and "func glyph" not in ln:
+                # The status stack passes status icon ids (`ic`); every other glyph() is a HUD glyph.
+                rows.append(_size_row("%s:%d glyph" % (hbase, i), int(m.group(2)), "status" if m.group(1).startswith("ic,") else "glyph"))
+            m = re.search(r"draw_texture_rect\((\w+), Rect2\(\w+ - Vector2\((\d+), \2\), Vector2\((\d+), \3\)\)", ln)
+            if m:
+                kind = "any" if m.group(1) == "motif" else ("technique" if func == "draw_skill_slot" else "item")
+                rows.append(_size_row("%s:%d %s" % (hbase, i, m.group(1)), int(m.group(3)), kind))
     off = [r for r in rows if r[3] == "off"]
     print("| Place | Drawn at | Kind | |\n|---|---|---|---|")
     for r in off: print("| `%s` | %d | %s | %s |" % r)

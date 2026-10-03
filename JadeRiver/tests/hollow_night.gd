@@ -52,7 +52,6 @@ func _main() -> void:
 	_reload_after_the_kill()
 	if is_instance_valid(scene_director): scene_director.free()
 	Game.pause(false)
-	print("hollow_night: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
 func _new_director() -> void:

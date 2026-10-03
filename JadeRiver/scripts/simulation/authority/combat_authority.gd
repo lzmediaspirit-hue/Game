@@ -3,6 +3,8 @@ extends Authority
 ## S11/S12/S30/S31 · Owns the ResourcePools (HP, QI, Soul, Composure, Hollowing),
 ## StatBlock recalculation, active attacks and projectiles, status effects,
 ## cooldowns and combat timers. One damage pipeline (CombatRules) for everyone.
+## The attack, tick and resolution flow is here. The systems around it are its parts in combat/, which work on the state
+## kept here; what code outside calls on a part is forwarded at the end (docs/architecture/authority_parts.md).
 
 var actors: Dictionary = {}          # actor id -> combat timeline for players/companions
 var wounded: Dictionary = {}         # actor -> {cause, timer, no_penalty}
@@ -38,15 +40,46 @@ var spirit_hits: Dictionary = {}     # actor -> blows since the Artifact Spirit'
 var awaken_hits: Dictionary = {}     # actor -> blows since an awakened weapon's skill last struck (S47; not saved)
 var blood_essence: Dictionary = {}   # actor -> {v, t}: the Blood path's meter, fed by kills (S48; transient, not saved)
 
+# The parts (combat/*.gd), one system around the fight each.
+var flight: CombatFlight             # flight and the movement arts
+var phantom: CombatPhantom           # Phantom Double
+var sword: CombatSword               # the flying sword, Sword Intent and Killing Intent
+var swarm: CombatSwarm               # the sword swarm
+var flute: CombatFlute               # the flute's melody
+var heals: CombatHeals               # heals over time, the healing song, the sect roles' support
+var blood_path: CombatBloodPath       # the Blood path
+var plates: CombatPlates             # Array Plates
+var talismans: CombatTalismans       # talismans from the bag
+var projectiles: CombatProjectiles   # shots in flight
+var treasures: CombatTreasures       # treasures, throwables, self-detonation
+var revival: CombatRevival           # grave wounds and revival
+var riders: CombatRiders             # what a landed blow carries after its damage
+
+func _init(g) -> void:
+	super(g)
+	flight = CombatFlight.new(self)
+	phantom = CombatPhantom.new(self)
+	sword = CombatSword.new(self)
+	swarm = CombatSwarm.new(self)
+	flute = CombatFlute.new(self)
+	heals = CombatHeals.new(self)
+	blood_path = CombatBloodPath.new(self)
+	plates = CombatPlates.new(self)
+	talismans = CombatTalismans.new(self)
+	projectiles = CombatProjectiles.new(self)
+	treasures = CombatTreasures.new(self)
+	revival = CombatRevival.new(self)
+	riders = CombatRiders.new(self)
+
 func subscribe() -> void:
 	for ev in STAT_EVENTS:
 		GameEvents.subscribe(ev, _on_stat_source, 20)
 	GameEvents.subscribe("attunement_changed", func(p): attune[str(p.get("actor", ""))] = {"dealt": float(p.dealt), "taken": float(p.taken)}, 20)
-	GameEvents.subscribe("room_entered", func(p): if flying.has(str(p.get("actor", ""))): stop_flight(str(p.actor), "room"), 20)
-	GameEvents.subscribe("room_entered", func(p): if melody.has(str(p.get("actor", ""))): _end_melody(game.character(str(p.actor)), "room"), 20)
+	GameEvents.subscribe("room_entered", func(p): if flying.has(str(p.get("actor", ""))): flight.stop_flight(str(p.actor), "room"), 20)
+	GameEvents.subscribe("room_entered", func(p): if melody.has(str(p.get("actor", ""))): flute.end_melody(game.character(str(p.actor)), "room"), 20)
 	GameEvents.subscribe("room_entered", func(_p): ally_hots.clear(), 20)
 	GameEvents.subscribe("room_entered", func(_p): _clear_room_marks(), 20)
-	GameEvents.subscribe("actor_defeated", _feed_blood_essence, 20)
+	GameEvents.subscribe("actor_defeated", blood_path.feed_blood_essence, 20)
 	GameEvents.subscribe("fell_out", _on_fell_out, 20)
 
 func _on_stat_source(p: Dictionary) -> void:
@@ -60,6 +93,15 @@ func _on_fell_out(p: Dictionary) -> void:
 		return
 	var cost: float = minf(c.pools.max_hp * float(ContentDB.stat_const("move.fall_cost_pct", 0.05)), c.pools.hp - 1.0)
 	if cost > 0.0: apply_resource_change(c.id, "hp", -cost, "fall")
+
+func _clear_room_marks() -> void:
+	arrays.clear()
+	ground_fires.clear()
+	searched.clear()
+	poison_touch.clear()
+	for aid in decoys.keys():
+		decoys.erase(aid)
+		emit("illusion_broken", {"actor": aid, "reason": "room"})
 
 ## S49 weather (v1.1): the sky over this room lends its modifiers (calendar.json weather_effects); never gating.
 func apply_weather(actor_id: String, weather: String) -> void:
@@ -152,233 +194,6 @@ func handle(intent: Dictionary) -> Dictionary:
 			return ok()
 	return fail("unknown_intent")
 
-# ------------------------------------------------------------------ flight (S18)
-## Cloud Stride lets Qi hold the body in the air. The movement solver moves it; Combat
-## owns whether it may, and pays the QI every second.
-func start_flight(c) -> Dictionary:
-	var cfg: Dictionary = ContentDB.stat_const("flight", {})
-	if not Unlocks.is_unlocked(c.id, str(cfg.get("unlock", "flight"))): return fail("locked", {"text": Unlocks.locked_text("flight")})
-	if flying.has(c.id): return fail("already_flying")
-	if wounded.has(c.id) or c.pools.blocked("move"): return fail("blocked")
-	if not flight_allowed(c.id):
-		return fail("no_flight", {"text": Tx.t("sim.combat.no_flight_here")})
-	if c.pools.qi < c.pools.max_qi * float(cfg.get("start_qi_pct", 0.1)) or c.pools.max_qi <= 0.0:
-		return fail("no_qi", {"text": Tx.t("sim.combat.not_enough_qi_to_fly")})
-	flying[c.id] = true
-	emit("flight_started", {"actor": c.id})
-	emit("system_used", {"actor": c.id, "system": "flight"})
-	return ok({"climb": float(cfg.get("climb", 220)), "ceiling": float(cfg.get("ceiling", 340))})
-
-## Flight is refused indoors, on sect grounds, in dungeons, in rooms that forbid it and inside a no_flight
-## volume (S43); gliding still works there.
-func flight_allowed(actor_id: String) -> bool:
-	var room: Dictionary = game.room_rt.def if game.room_rt else {}
-	if room.get("no_flight", false) or str(room.get("type", "")) in ContentDB.stat_const("flight.no_flight_types", ["interior"]): return false
-	var st: ActorState = game.actor_state(actor_id)
-	if st != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "no_flight").is_empty(): return false
-	return true
-
-func stop_flight(actor_id: String, reason: String) -> void:
-	if not flying.has(actor_id): return
-	flying.erase(actor_id)
-	emit("flight_ended", {"actor": actor_id, "reason": reason})
-
-func is_flying(actor_id: String) -> bool:
-	return flying.has(actor_id)
-
-## S48 Killing Intent: a kill within 10 s of the last adds a stack (up to 10), +1% crit each. At 10, weaker foes
-## nearby hesitate for half a second. The Silence vow keeps it sheathed.
-func _gain_killing_intent(c, victim: EnemyState) -> void:
-	if game.progression.vow_forbids(c, "presence") != "": return
-	var k: Dictionary = ContentDB.stat_const("killing_intent", {})
-	var ki: Dictionary = killing_intent.get(c.id, {"stacks": 0, "t": 0.0})
-	var before := int(ki.stacks)
-	ki.stacks = mini(int(k.get("max", 10)), before + 1) if float(ki.t) > 0.0 or before == 0 else 1
-	ki.t = float(k.get("window_s", 10.0))
-	killing_intent[c.id] = ki
-	if int(ki.stacks) != before: emit("killing_intent_changed", {"actor": c.id, "stacks": int(ki.stacks)})
-	if int(ki.stacks) >= int(k.get("max", 10)) and game.room_rt:
-		var lv := ProgressionRules.level(c)
-		var st: ActorState = game.actor_state(c.id)
-		for e in game.room_rt.living_enemies():
-			if e == victim or e.team != "enemy" or e.is_boss() or e.level >= lv: continue
-			if st != null and e.plane.distance_to(st.plane) > float(k.get("radius", 520)): continue
-			game.enemies.stagger(e, float(k.get("hesitate_s", 0.5)))
-
-func killing_intent_stacks(actor_id: String) -> int:
-	return int(killing_intent.get(actor_id, {}).get("stacks", 0))
-
-## S48 boss self-detonation: the blast, then the boss is gone (the fight is won and the loot still falls).
-func resolve_boss_detonation(e: EnemyState) -> void:
-	var d: Dictionary = e.ai.get("detonation", {})
-	var c = game.active()
-	if c != null: apply_detonation_blast(c, e, float(d.get("radius", 280)), float(d.get("damage", 0.6)))
-	e.invulnerable = false
-	e.pools.hp = 0.0
-	var payload: Dictionary = game.enemies.defeat(e, c.id if c != null else "")
-	if not payload.is_empty():
-		payload.self_detonated = true
-		emit("actor_defeated", payload)
-
-## S48 boss self-detonation: the blast reaches the player inside its ring; a dodge slips it, a guard halves it.
-func apply_detonation_blast(c, e: EnemyState, radius: float, share: float) -> void:
-	var st: ActorState = game.actor_state(c.id)
-	if st == null or st.plane.distance_to(e.plane) > radius: return
-	var tl := timeline(c.id)
-	if float(tl.dodge_t) > 0.0 or c.pools.invulnerable > 0.0:
-		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
-		return
-	var dmg: float = c.pools.max_hp * share * (0.5 if tl.guard else 1.0)
-	_damage_player(c, dmg, str(e.uid), "qi", {"damage_type": "qi", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "knockback": 160.0}, false, e)
-
-## A technique's element; under Qi Deviation (S48) the Qi goes astray and each use takes a random one (combat stream).
-func technique_element(c, t: Dictionary) -> String:
-	if c.pools.has_status("qi_deviation"):
-		var els: Array = ContentDB.stat_const("qi_deviation", {}).get("elements", ["water", "wood", "fire", "earth", "metal"])
-		return str(els[Rng.stream(c.id, "combat").randi_range(0, els.size() - 1)])
-	return str(t.get("element", "none"))
-
-## S48 heavenly tribulation: one bolt lands where its ring was drawn. Cover does not help (roofs, shelter), a step
-## out of the ring does, guarding halves it, and a Lightning Rod Talisman in the bag takes it whole and burns away.
-## A bolt that would kill leaves the body at a tenth of its HP and reports `lethal`: the breakthrough fails.
-func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Dictionary:
-	var st: ActorState = game.actor_state(c.id)
-	var here: Vector2 = st.plane if st else at
-	# The ring on the ground: the side view's flattened strip (radius across, depth deep); on the height grid, where the
-	# ground is seen whole, a circle of the radius.
-	if grid() != null:
-		if here.distance_to(at) > radius: return {"hit": false}
-	elif absf(here.x - at.x) > radius or absf(here.y - at.y) > depth: return {"hit": false}
-	if c.inventory.count("lightning_rod_talisman") > 0:
-		game.inventory.apply_remove(c.id, "lightning_rod_talisman", 1, "tribulation")
-		return {"hit": true, "absorbed": true, "damage": 0.0}
-	var tl := timeline(c.id)
-	var cu = c.cultivator
-	var dmg := ProgressionRules.tribulation_damage(c.pools.max_hp, int(c.relations.sin), float(cu.heart_demon), bool(tl.guard))
-	var p: ResourcePool = c.pools
-	var lethal := p.hp - dmg <= 0.0
-	p.set_value("hp", p.max_hp * float(ContentDB.config("tribulations").get("survive_hp", 0.1)) if lethal else p.hp - dmg)
-	p.since_hit = 0.0
-	tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
-	emit("hit_landed", {"attacker": "heaven", "target": c.id, "target_kind": "player", "amount": int(round(dmg)), "type": "qi", "crit": false,
-		"element": "thunder", "x": here.x, "y": here.y, "alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": "hp"})
-	emit("resource_changed", {"actor": c.id, "pool": "hp", "value": p.hp, "max": p.max_hp})
-	return {"hit": true, "absorbed": false, "damage": dmg, "lethal": lethal}
-
-## S48: the HP a body technique spends when QI is short (Copper Body and above); 0 when it spends QI or cannot.
-func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
-	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
-	var k: Dictionary = ContentDB.stat_const("body_path", {})
-	var hp: float = c.pools.max_hp * qi_cost / maxf(1.0, c.pools.max_qi) * float(k.get("hp_share_per_qi_share", 1.0))   # P12: shares, as Might scales HP only
-	return hp if c.pools.hp - hp >= c.pools.max_hp * float(k.get("hp_floor", 0.2)) else 0.0
-
-## The flight vessel ridden (S47): what the air costs.
-func vessel_qi_mult(c) -> float:
-	return float(ContentDB.item(str(c.inventory.vessel)).get("flight", {}).get("qi_mult", 1.0)) if str(c.inventory.vessel) != "" else 1.0
-
-func _tick_flight(c, delta: float) -> void:
-	if not flying.has(c.id): return
-	if wounded.has(c.id):
-		stop_flight(c.id, "wounded")
-		return
-	if not flight_allowed(c.id):
-		stop_flight(c.id, "no_flight")
-		return
-	var cfg: Dictionary = ContentDB.stat_const("flight", {})
-	var cost = maxf(float(cfg.get("qi_min_per_s", 2.0)), c.pools.max_qi * float(cfg.get("qi_pct_per_s", 0.02))) * delta * game.pets.flight_qi_mult(c) \
-		* vessel_qi_mult(c) * air_qi_mult(c)
-	if c.pools.qi <= cost:
-		stop_flight(c.id, "no_qi")
-		return
-	apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
-	_air_distance(c, delta)
-
-## S48 Cloud Lung and the flight_qi stat: what the air costs this body.
-func air_qi_mult(c) -> float:
-	var gate := float(ContentDB.stat_const("gates", {}).get("flight_qi_mult", 0.8)) if StatRules.gate_flag(c, "flight_qi_20") else 1.0   # S10 Essence 50
-	return maxf(0.5, (1.0 + c.stats.value("flight_qi")) * gate)
-
-## The ground covered in the air counts toward Cloud Lung (S48).
-func _air_distance(c, delta: float) -> void:
-	var st: ActorState = game.actor_state(c.id)
-	if st != null: game.progression.add_air_distance(c.id, absf(st.velocity.x) * delta)
-
-# ------------------------------------------------------------------ movement arts (S43)
-## The movement art a secret art grants (secret_arts.json `movement_art`), known to this character.
-func knows_art(c, art: String) -> bool:
-	for sa in c.cultivator.secret_arts:
-		if str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", "")) == art: return true
-	return false
-
-## Plunge (Bone Forging 4): Down + Attack in the air drops at 900; the landing strikes within 60.
-func plunge(c) -> Dictionary:
-	if not knows_art(c, "plunge"): return fail("locked")
-	var why := can_act(c)
-	if why != "": return fail(why)
-	if c.pools.cooldown("plunge") > 0.0: return fail("cooldown")
-	var st: ActorState = game.actor_state(c.id)
-	if st == null: return fail("no_body")
-	st.arts["plunge"] = true
-	if not MovementSolver.plunge(st): return fail("not_airborne")
-	c.pools.cooldowns["plunge"] = float(ContentDB.movement("plunge.cooldown_s", 4.0))
-	LocalAuthority.announce(st, c.id)
-	return ok()
-
-## The Plunge lands: 120% damage and a 0.5 s stun to foes within 60 of the landing, breakables broken (S43).
-func _resolve_plunge(c, st: ActorState) -> void:
-	var at: Dictionary = st.plunge_impact
-	st.plunge_impact = {}
-	var here := Vector2(float(at.x), float(at.y))
-	var radius := float(ContentDB.movement("plunge.radius", 60.0))
-	var pv := player_view(c)
-	var hitbox := {"x": [-radius, radius], "depth": radius, "alt": ContentDB.movement("combat_bands.melee", [-30, 60])}
-	var atk := {"damage_type": "physical", "element": "none", "mult": [float(ContentDB.movement("plunge.mult", 1.2)), float(ContentDB.movement("plunge.mult", 1.2))],
-		"range": [1.0, 1.0], "knockback": 0.0, "source": "plunge"}
-	var struck := 0
-	for e in _enemies_within(here, radius):
-		if not hit_test(pv, 1, hitbox, enemy_view(e), true): continue
-		_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
-		if e.alive and not e.is_boss():
-			_apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(ContentDB.movement("plunge.stun_s", 0.5)), "source": c.id})
-		struck += 1
-	for o in game.world.hittable_objects(pv, 1, hitbox):
-		game.world.apply_object_hit(c.id, o)
-	emit("system_used", {"actor": c.id, "system": "plunge_strike"})
-
-## Falling Leaf Glide (Qi Kindling 3): Jump held while descending. 2 QI a second while it lasts.
-func glide(c, on: bool) -> Dictionary:
-	var st: ActorState = game.actor_state(c.id)
-	if not on:
-		gliding.erase(c.id)
-		if st != null: MovementSolver.glide(st, false)
-		return ok()
-	if not knows_art(c, "glide"): return fail("locked")
-	if wounded.has(c.id) or c.pools.blocked("move"): return fail("blocked")
-	if st == null: return fail("no_body")
-	if c.pools.max_qi <= 0.0 or c.pools.qi < float(ContentDB.movement("glide.qi_per_s", 2.0)) * 0.25: return fail("no_qi", {"text": Tx.t("sim.combat.not_enough_qi_to_glide")})
-	st.arts["glide"] = true
-	if not MovementSolver.glide(st, true): return fail("not_airborne")
-	gliding[c.id] = true
-	LocalAuthority.announce(st, c.id)
-	return ok()
-
-func is_gliding(actor_id: String) -> bool:
-	return gliding.has(actor_id)
-
-func _tick_glide(c, delta: float) -> void:
-	if not gliding.has(c.id): return
-	var st: ActorState = game.actor_state(c.id)
-	if st == null or not st.gliding:
-		gliding.erase(c.id)
-		return
-	var cost := float(ContentDB.movement("glide.qi_per_s", 2.0)) * delta * air_qi_mult(c)
-	if c.pools.qi <= cost:
-		gliding.erase(c.id)
-		MovementSolver.glide(st, false)
-		return
-	apply_resource_change(c.id, "qi", -cost, "glide", 0.0, true)
-	_air_distance(c, delta)
-
 # ------------------------------------------------------------------ views
 ## Half the player's body across, for a blow to land on it: the side view's 14, on the height grid as much wider as the
 ## people there are drawn (decision 43, TopdownRoom.PEOPLE: 17).
@@ -392,8 +207,8 @@ func player_view(c) -> Dictionary:
 	v.merge({"id": c.id, "vulnerable": c.pools.has_status("vulnerable"), "shocked": c.pools.has_status("shock"),
 		"guarding": c.stats.value("guard") if tl.guard else 0.0, "facing": int(tl.facing),
 		"x": st.plane.x if st else 0.0, "y": st.plane.y if st else 0.0, "alt": st.altitude if st else 0.0, "half_width": body_half_width(), "height": 88.0})
-	v.crit_chance = float(v.crit_chance) + killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
-	v.penetration = float(v.penetration) + intent_penetration(c)
+	v.crit_chance = float(v.crit_chance) + sword.killing_intent_stacks(c.id) * float(ContentDB.stat_const("killing_intent", {}).get("crit_per_stack", 0.01))
+	v.penetration = float(v.penetration) + sword.intent_penetration(c)
 	if grid() != null:   # redesign Phase 2: its blows go along its aim, between compatible heights
 		v.aim = tl.get("aim", Vector2(tl.facing, 0))
 		v.band = TopdownAim.band(airborne(c.id))
@@ -632,8 +447,8 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	var tid = c.cultivator.technique_slots[slot]
 	if tid == null or str(tid) == "": return fail("empty_slot")
 	var t := ContentDB.entry("techniques", str(tid))
-	if str(t.get("damage_type", "")) == "sword_release": return toggle_sword_release(c)
-	if str(t.get("damage_type", "")) == "sword_swarm": return toggle_sword_swarm(c, t)
+	if str(t.get("damage_type", "")) == "sword_release": return sword.toggle_sword_release(c)
+	if str(t.get("damage_type", "")) == "sword_swarm": return swarm.toggle_sword_swarm(c, t)
 	var tl := timeline(c.id)
 	# Decision 42 (on the grid): a technique cuts a basic step's recovery once its blow has landed; sooner the hands are
 	# busy (the player's buffer holds the press until the cut, CombatFeel.weave). The cut is made once the technique is
@@ -678,10 +493,10 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	if float(t.get("hp_cost_pct", 0.0)) > 0.0:
 		var blood: float = c.pools.max_hp * float(t.hp_cost_pct)
 		# S48 the Blood path: blood essence pays first, a point for each 1% of max HP.
-		var covered := minf(essence_of(c.id), float(t.hp_cost_pct) * 100.0) if t.get("blood_path", false) else 0.0
+		var covered := minf(blood_path.essence_of(c.id), float(t.hp_cost_pct) * 100.0) if t.get("blood_path", false) else 0.0
 		blood -= c.pools.max_hp * covered / 100.0
 		if c.pools.hp - blood < 1.0: return fail("no_hp", {"text": Tx.t("sim.combat.not_enough_blood")})
-		if covered > 0.0: _spend_essence(c.id, covered)
+		if covered > 0.0: blood_path.spend_essence(c.id, covered)
 		if blood > 0.0: apply_resource_change(c.id, "hp", -blood, "technique")
 		if t.get("blood_path", false):
 			game.training.apply_reputation(c.id, "", int(ContentDB.stat_const("paths", {}).get("blood", {}).get("use_reputation", -1)))
@@ -689,13 +504,13 @@ func use_technique(c, slot: int, facing: int, aim_in := Vector2.ZERO, aimed := f
 	if hp_cost > 0.0: apply_resource_change(c.id, "hp", -hp_cost, "technique")
 	elif cost > 0.0: apply_resource_change(c.id, "qi", -cost, "technique")
 	tl.fight_t = game.sim_time
-	_natal_overcharge(c)
+	sword.natal_overcharge(c)
 	if float(t.get("soul_cost", 0)) > 0: apply_resource_change(c.id, "soul", -float(t.soul_cost), "technique")
 	if float(t.get("composure_cost", 0)) > 0:
 		apply_resource_change(c.id, "composure", -float(t.composure_cost), "technique")
 		c.pools.since_composure_use = 0.0
 	c.pools.cooldowns["tech:" + str(tid)] = maxf(0.5, float(t.get("cooldown_s", 5)) + (ProgressionRules.sect_tree_flag(c, "signature_cooldown") if not sig.is_empty() else 0.0))
-	if sig.has("heal_pct") or sig.has("shield_pct"): _sect_support(c, sig)
+	if sig.has("heal_pct") or sig.has("shield_pct"): heals.sect_support(c, sig)
 	var aim := target_for(c, TopdownAim.reach_of(t) if grid() != null else float(t.hitbox.x[1]), float(t.hitbox.get("depth", 30)), 1 if facing >= 0 else -1, aim_in, aimed)
 	if aim.has("aim"):
 		# Redesign Phase 2: the aim on the plane, and where a circle at a point lands: the drag's length, else the foe
@@ -764,6 +579,20 @@ func technique_cost(c, t: Dictionary) -> float:
 	cut += float(TechniqueTreeRules.passives(c, t).get("cost", 0.0))   # P13a: the tree's even-ring passages (within the 30% cap)
 	return maxf(0.0, base * (1.0 + float(st.get("per_level", 0.04)) * lv) * (1.0 - minf(0.3, cut)) * (1.0 + mastery_red + dao_red) * comp)
 
+## S48: the HP a body technique spends when QI is short (Copper Body and above); 0 when it spends QI or cannot.
+func body_hp_cost(c, t: Dictionary, qi_cost: float) -> float:
+	if not t.get("body", false) or qi_cost <= 0.0 or c.pools.qi >= qi_cost or not StatRules.body_flag(c, "hp_techniques"): return 0.0
+	var k: Dictionary = ContentDB.stat_const("body_path", {})
+	var hp: float = c.pools.max_hp * qi_cost / maxf(1.0, c.pools.max_qi) * float(k.get("hp_share_per_qi_share", 1.0))   # P12: shares, as Might scales HP only
+	return hp if c.pools.hp - hp >= c.pools.max_hp * float(k.get("hp_floor", 0.2)) else 0.0
+
+## A technique's element; under Qi Deviation (S48) the Qi goes astray and each use takes a random one (combat stream).
+func technique_element(c, t: Dictionary) -> String:
+	if c.pools.has_status("qi_deviation"):
+		var els: Array = ContentDB.stat_const("qi_deviation", {}).get("elements", ["water", "wood", "fire", "earth", "metal"])
+		return str(els[Rng.stream(c.id, "combat").randi_range(0, els.size() - 1)])
+	return str(t.get("element", "none"))
+
 func guard(c, on: bool) -> Dictionary:
 	if on and not Unlocks.is_unlocked(c.id, "guard"): return fail("locked")
 	var tl := timeline(c.id)
@@ -810,7 +639,7 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	if free: treasure_fx[c.id].erase("free_dodge")   # spent only by a dodge that happens
 	# Swallow Dart (Qi Kindling 7): an Evade tap in the air darts 140 and holds the height for 0.25 s,
 	# once per airtime. It shares the dodge's cooldown.
-	if moves and st != null and st.surface == null and not st.flying and st.climbing.is_empty() and knows_art(c, "air_dash") and not st.air_dash_used \
+	if moves and st != null and st.surface == null and not st.flying and st.climbing.is_empty() and flight.knows_art(c, "air_dash") and not st.air_dash_used \
 			and c.pools.cooldown("dodge") <= 0.0:
 		st.arts["air_dash"] = true
 		if MovementSolver.air_dash(st):
@@ -900,20 +729,20 @@ func tick(delta: float) -> void:
 	if c != null:
 		_tick_player(c, delta)
 		_tick_pools(c, delta)
-		_tick_flight(c, delta)
-		_tick_glide(c, delta)
-		_tick_treasures(c, delta)
-		_tick_sword(c, delta)
-		_tick_swarm(c, delta)
-		_tick_hots(c, delta)
-		_tick_melody(c, delta)
-		_tick_blood(c, delta)
+		flight.tick_flight(c, delta)
+		flight.tick_glide(c, delta)
+		treasures.tick_treasures(c, delta)
+		sword.tick_sword(c, delta)
+		swarm.tick_swarm(c, delta)
+		heals.tick_hots(c, delta)
+		flute.tick_melody(c, delta)
+		blood_path.tick_blood(c, delta)
 		var body: ActorState = game.actor_state(c.id)
-		if body != null and not body.plunge_impact.is_empty(): _resolve_plunge(c, body)
-	_tick_projectiles(delta)
-	_tick_ally_hots(delta)
-	_tick_decoys(delta)
-	_tick_arrays(delta)
+		if body != null and not body.plunge_impact.is_empty(): flight.resolve_plunge(c, body)
+	projectiles.tick_projectiles(delta)
+	heals.tick_ally_hots(delta)
+	phantom.tick_decoys(delta)
+	plates.tick_arrays(delta)
 	_tick_ground_fires(delta)
 	for uid in searched.keys():
 		searched[uid].t = float(searched[uid].t) - delta
@@ -1045,7 +874,7 @@ func _resolve_basic(c) -> void:
 	var facing := int(tl.facing)
 	if fam.get("ranged", false):
 		# The bow looses an arrow; the flute (S47 v1.1) sends a note of Qi.
-		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 28, "y": float(pv.y), "alt": float(pv.alt) + 58,
+		projectiles.spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 28, "y": float(pv.y), "alt": float(pv.alt) + 58,
 			"dir": facing, "speed": float(fam.get("projectile_speed", 620)), "range": float(fam.get("reach", 480)),
 			"pierce": 1 if str(fam.get("damage_type", "physical")) == "qi" and StatRules.gate_flag(c, "projectile_pierce") else 0,
 			"art": str(fam.get("projectile_art", "arrow")), "attack": {"damage_type": str(fam.get("damage_type", "physical")), "element": "none",
@@ -1056,7 +885,7 @@ func _resolve_basic(c) -> void:
 		# The fan's third stroke (S47 v1.1): thrown, it flies out and comes back, lifting what it cuts both ways.
 		var th: Dictionary = step.throw
 		var tm := float(step.get("mult", 1.0))
-		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y), "alt": float(pv.alt) + 56,
+		projectiles.spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y), "alt": float(pv.alt) + 56,
 			"dir": facing, "speed": float(th.get("speed", 520)), "range": float(th.get("range", 280)), "pierce": 99, "returning": true,
 			"art": str(th.get("art", "fan")), "attack": {"damage_type": "physical", "element": "wind", "mult": [tm, tm], "range": fam.get("range", [0.9, 1.1]),
 			"dao_tier": _dao_tier(c, str(fam.get("dao", ""))), "knockup_s": float(th.get("knockup_s", 0.8)), "source": "basic",
@@ -1114,11 +943,11 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		var healed := 0
 		if float(t.get("allies_heal_pct", 0.0)) > 0.0:
 			var song: float = 1.0 + (c.stats.value("melody_power") if str(t.get("dao", "")) == "music" else 0.0)
-			healed = heal_circle(c, float(t.allies_heal_pct) * song, float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
+			healed = heals.heal_circle(c, float(t.allies_heal_pct) * song, float(t.get("allies_heal_s", 6)), float(t.get("heal_radius", 220)), "tech:" + str(t.id))
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": healed})
 		return
 	if dtype == "illusion":
-		_cast_illusion(c, t)
+		phantom.cast_illusion(c, t)
 		emit("technique_used", {"actor": c.id, "technique": t.id, "hits": 1, "targets": 0})
 		return
 	if dtype == "stance":
@@ -1199,7 +1028,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		var pr: Dictionary = t.projectile
 		var count := int(pr.get("count", 1)) + (1 if tier >= 3 and str(t.id) == "twin_reed_shot" else 0)
 		for i in count:
-			_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 30, "y": float(pv.y) + (i - (count - 1) * 0.5) * 8.0,
+			projectiles.spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 30, "y": float(pv.y) + (i - (count - 1) * 0.5) * 8.0,
 				"alt": float(pv.alt) + 56 + i * 4, "dir": facing, "speed": float(pr.get("speed", 600)), "range": float(pr.get("range", 400)),
 				"pierce": int(pr.get("pierce", 0)) + (1 if dtype == "qi" and StatRules.gate_flag(c, "projectile_pierce") else 0),   # S10 Essence 100
 				"art": str(pr.get("art", "qi_" + str(t.get("element", "none")) if dtype == "qi" else "arrow")),
@@ -1279,6 +1108,24 @@ func _enemies_in(pv: Dictionary, facing: int, hitbox: Dictionary, both_sides: bo
 		if hit_test(pv, facing, hitbox, enemy_view(e), both_sides): out.append(e)
 	return out
 
+func _enemies_within(at: Vector2, radius: float) -> Array:
+	var out: Array = []
+	if game.room_rt == null: return out
+	for e in game.room_rt.living_enemies():
+		if e.team == "enemy" and not e.hidden and e.plane.distance_to(at) <= radius: out.append(e)
+	return out
+
+func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
+	var best: EnemyState = null
+	var d := radius
+	for e in game.room_rt.living_enemies():
+		if e.team != "enemy": continue
+		var dist = e.plane.distance_to(at)
+		if dist < d:
+			d = dist
+			best = e
+	return best
+
 func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, facing: int) -> void:
 	if e.invulnerable or bool(e.def.get("invulnerable", false)):
 		emit("hit_immune", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover})
@@ -1338,8 +1185,8 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 			attack = attack.duplicate()
 			attack.knockback = keep
 	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing, away(Vector2(float(pv.x), float(pv.y)), e.plane) if grid() != null else Vector2.ZERO)
-	_lifesteal(c, amount, attack)
-	_feed_intent(c, e, attack)
+	blood_path.lifesteal(c, amount, attack)
+	sword.feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
 		var s: Dictionary = attack.status
 		if not e.pools.steadfast.has(str(s.id)):
@@ -1347,177 +1194,11 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 			if not applied.is_empty():
 				applied.source = c.id
 				_apply_status_to_enemy(e, applied)
-	if e.alive: _oil_strike(c, e, ev)
-	if e.alive: _weapon_after_hit(c, e, attack)
+	if e.alive: riders.oil_strike(c, e, ev)
+	if e.alive: riders.weapon_after_hit(c, e, attack)
 	# Decision 38: the hit-stop by the blow's weight (CombatFeel: a light step 3 frames up to a finisher's 8, a crit 2 more),
 	# within the action's cap (decision 43).
 	_add_hitstop(timeline(c.id), CombatFeel.hitstop_s(CombatFeel.weight_of(attack, timeline(c.id)), r.crit))
-
-## S47 v1.1 families: the heavy sabre breaks armour (sundered: hits ignore part of its defence); the fan's wind lifts a
-## foe into the air, helpless until it lands (not a boss, a flyer or anything that cannot be moved).
-func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
-	var ab: Dictionary = attack.get("armour_break", {})
-	if not ab.is_empty() and not e.pools.steadfast.has("sundered"):
-		var chance := float(ab.get("chance", 0.3)) * float(ProgressionRules.path_flag(c, "armour_break_mult", 1.0))
-		if Rng.stream(c.id, "weapon").randf() < chance:
-			_apply_status_to_enemy(e, {"id": "sundered", "power": 1.0, "remaining": float(ab.get("duration_s", 4)), "source": c.id})
-	var up := float(attack.get("knockup_s", 0.0))
-	if up > 0.0 and not e.is_boss() and not e.def.get("knockback_immune", false) and not e.def.get("flying", false) \
-			and not e.pools.steadfast.has("launched") and not e.pools.has_status("launched"):
-		_apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
-	# v1.2 the brush's talisman: one on a foe at a time, written by a technique.
-	var tal: Dictionary = attack.get("talisman", {})
-	if not tal.is_empty() and float(e.ai.get("talisman_until", 0.0)) <= game.sim_time and not e.pools.steadfast.has(str(tal.id)):
-		e.ai["talisman_until"] = game.sim_time + float(tal.remaining)
-		_apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.power), "remaining": float(tal.remaining), "source": c.id})
-	# S48 the Soul line: Sense Lock fixes the soul's eye on the foe; Soul Search marks an elite for its memories.
-	var lock := float(attack.get("sense_lock_s", 0.0))
-	if lock > 0.0:
-		_apply_status_to_enemy(e, {"id": "sense_locked", "power": 1.0, "remaining": lock, "source": c.id})
-		e.hidden = false
-	var search := float(attack.get("soul_search_s", 0.0))
-	if search > 0.0 and (e.elite or e.is_boss() or e.role == "elite"):
-		_apply_status_to_enemy(e, {"id": "soul_searched", "power": 1.0, "remaining": search, "source": c.id})
-		searched[str(e.uid)] = {"actor": c.id, "t": search}
-	_poison_body(c, e)
-	_spirit_skill(c, attack)
-
-## S47 Artifact Spirit depth: an awake spirit strikes on its own every so many blows of its blade (its skill), weighed
-## by its affinity and level. A spirit its wielder cannot control keeps its skill to itself. S47 weapon awakening: an
-## awakened weapon strikes on its own too (its family's skill, or a legend's own), on a count of its own.
-func _spirit_skill(c, attack: Dictionary) -> void:
-	var src := str(attack.get("source", ""))
-	if not (src == "basic" or src.begins_with("tech:")): return
-	var w = c.inventory.equipped.get("weapon")
-	if not (w is Dictionary): return
-	if str(w.get("spirit", "")) == "awake" and not w.get("sealed", false) and StatRules.spirit_controlled(c, w):
-		var sk: Dictionary = ContentDB.item(str(w.id)).get("spirit", {}).get("skill", {})
-		if not sk.is_empty() and _count_to(spirit_hits, c.id, int(sk.get("every_hits", 8))):
-			_skill_strike(c, sk, float(sk.get("mult", 1.5)) * StatRules.spirit_power(c, w), "spirit:" + str(w.id), str(w.id))
-	if w.get("awakened", false):
-		var ak := CraftingAuthority.awakened_skill(str(w.id))
-		if not ak.is_empty() and _count_to(awaken_hits, c.id, int(ak.get("every_hits", 12))):
-			_skill_strike(c, ak, float(ak.get("mult", 1.5)), "awakened:" + str(w.id), str(w.id))
-
-## One more blow on a counter; true (and the count starts again) when it reaches `every`.
-func _count_to(counts: Dictionary, actor_id: String, every: int) -> bool:
-	var n := int(counts.get(actor_id, 0)) + 1
-	if n < every:
-		counts[actor_id] = n
-		return false
-	counts[actor_id] = 0
-	return true
-
-## A skill that strikes on its own: a ring around the wielder, or projectiles that pass through every foe in their path.
-func _skill_strike(c, sk: Dictionary, m: float, source: String, item_id: String) -> void:
-	var pv := player_view(c)
-	var atk := {"damage_type": str(sk.get("damage_type", "qi")), "element": str(sk.get("element", "none")), "mult": [m, m], "range": [0.95, 1.05], "source": source}
-	var here := Vector2(float(pv.x), float(pv.y))
-	if str(sk.get("shape", "")) == "ring":
-		for e in _enemies_within(here, float(sk.get("reach", 160))):
-			_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
-	else:
-		var n := maxi(1, int(sk.get("count", 1)))
-		for i in n:
-			_spawn_projectile({"team": "player", "owner": c.id, "x": here.x, "y": here.y + (i - (n - 1) * 0.5) * 14.0, "alt": float(pv.alt) + 60.0,
-				"dir": int(timeline(c.id).facing), "speed": 760.0, "range": float(sk.get("reach", 260)), "pierce": 99, "art": str(sk.get("art", "flying_sword")),
-				"attack": atk, "delay": i * 0.08})
-	emit("artifact_skill_used", {"actor": c.id, "item": item_id, "skill": str(sk.get("name", "")), "x": here.x, "y": here.y,
-		"ring": float(sk.get("reach", 0)) if str(sk.get("shape", "")) == "ring" else 0.0, "awakened": source.begins_with("awakened")})
-
-## S48 the Poison Body (v1.1): with a poison art known and toxicity past half its tolerance, each hit turns a point of
-## the body's own toxicity into poison on the foe (once per foe per half second).
-func poison_body_active(c) -> bool:
-	if c == null: return false
-	var tol: float = maxf(1.0, c.stats.value("toxicity_tolerance"))
-	return float(c.cultivator.toxicity) > tol * poison_body_threshold(c) and ProgressionRules.knows_poison_art(c)
-
-## The share of toxicity tolerance past which the Poison Body opens (Venom Hand lowers it).
-func poison_body_threshold(c) -> float:
-	return float(StatRules.set_flag(c, "venom_hand").get("threshold", ContentDB.stat_const("poison_body", {}).get("threshold", 0.5)))
-
-func _poison_body(c, e: EnemyState) -> void:
-	if not e.alive or e.pools.steadfast.has("poison") or not poison_body_active(c): return
-	var cfg: Dictionary = ContentDB.stat_const("poison_body", {})
-	if game.sim_time - float(poison_touch.get(e.uid, -99.0)) < float(cfg.get("per_foe_s", 0.5)): return
-	poison_touch[e.uid] = game.sim_time
-	game.progression.apply_toxicity(c.id, -float(cfg.get("toxicity_per_hit", 1.0)))
-	_apply_status_to_enemy(e, {"id": "poison", "power": float(cfg.get("power", 0.02)), "remaining": float(cfg.get("duration_s", 4.0)), "source": c.id})
-
-func _clear_room_marks() -> void:
-	arrays.clear()
-	ground_fires.clear()
-	searched.clear()
-	poison_touch.clear()
-	for aid in decoys.keys():
-		decoys.erase(aid)
-		emit("illusion_broken", {"actor": aid, "reason": "room"})
-
-# ------------------------------------------------------------------ Phantom Double (S48 the Soul line)
-## An illusion of the caster stands where they were: foes within its radius (not bosses) turn on it until it has
-## been struck its number of times or its time runs out. It fights no one.
-func _cast_illusion(c, t: Dictionary) -> void:
-	var pv := player_view(c)
-	var secs := float(t.get("illusion_s", 6.0)) + _dao_tier(c, "soul")
-	decoys[c.id] = {"x": float(pv.x), "y": float(pv.y), "alt": float(pv.alt), "t": secs, "hits": 0,
-		"max_hits": int(t.get("illusion_hits", 3)), "radius": float(t.get("illusion_radius", 500)), "facing": int(pv.get("facing", 1))}
-	emit("illusion_cast", {"actor": c.id, "x": float(pv.x), "y": float(pv.y), "alt": float(pv.alt), "duration": secs, "facing": int(pv.get("facing", 1))})
-
-## Where an enemy should aim: the illusion when one draws it, else nothing (the brain uses the player).
-func decoy_for(e: EnemyState, actor_id: String) -> Dictionary:
-	var d: Dictionary = decoys.get(actor_id, {})
-	if d.is_empty() or e.is_boss() or e.team != "enemy": return {}
-	if e.plane.distance_to(Vector2(float(d.x), float(d.y))) > float(d.radius): return {}
-	return d
-
-func _tick_decoys(delta: float) -> void:
-	for aid in decoys.keys():
-		var d: Dictionary = decoys[aid]
-		d.t = float(d.t) - delta
-		if float(d.t) <= 0.0:
-			decoys.erase(aid)
-			emit("illusion_broken", {"actor": aid, "reason": "time"})
-
-## A foe's blow lands on the illusion instead: each strike wears it down.
-func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Dictionary) -> void:
-	var c = game.active()
-	if c == null or not decoys.has(c.id): return
-	var d: Dictionary = decoys[c.id]
-	var view := {"x": float(d.x), "y": float(d.y), "alt": float(d.alt), "half_width": body_half_width(), "height": 60.0}
-	if not CombatAuthority.hit_test(ev, e.facing, hitbox, view, attack.get("both_sides", false)): return
-	d.hits = int(d.hits) + 1
-	emit("hit_landed", {"attacker": str(e.uid), "target": "decoy", "target_kind": "decoy", "amount": 0, "type": "physical",
-		"crit": false, "element": e.element, "x": float(d.x), "y": float(d.y), "alt": 60.0})
-	if int(d.hits) >= int(d.max_hits):
-		decoys.erase(c.id)
-		emit("illusion_broken", {"actor": c.id, "reason": "struck"})
-
-func _tick_hots(c, delta: float) -> void:
-	var list: Array = hots.get(c.id, [])
-	if list.is_empty(): return
-	if wounded.has(c.id):
-		hots.erase(c.id)
-		return
-	var gain := 0.0
-	for h in list:
-		var step := minf(delta, float(h.left))
-		gain += float(h.per_s) * step
-		h.left = float(h.left) - step
-	hots[c.id] = list.filter(func(h): return float(h.left) > 0.0)
-	if gain > 0.0 and c.pools.hp < c.pools.max_hp: apply_resource_change(c.id, "hp", gain, "heal", 0.0, true)
-
-## A weapon oil on the blade (S44): each hit may carry its status to the foe. Rolled on its own stream, so a
-## fight without oil keeps the combat stream's sequence.
-func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void:
-	var venom := StatRules.set_flag(c, "venom_hand")
-	for st in c.pools.statuses:
-		var oil: Dictionary = ContentDB.entry("status_effects", str(st.id)).get("oil", {})
-		if oil.is_empty() or e.pools.steadfast.has(str(oil.status)): continue
-		var applied := CombatRules.status_roll({"id": str(oil.status), "chance": float(venom.get("oil_chance", oil.get("chance", 0.2))), "power": float(oil.get("power", 0.02)),
-			"duration_s": float(oil.get("duration_s", 4.0))}, ev, Rng.stream(c.id, "oil"))
-		if not applied.is_empty():
-			applied.source = c.id
-			_apply_status_to_enemy(e, applied)
 
 ## Another authority lays a status on a monster (S46 bloodline suppression: Fear).
 func apply_enemy_status(e: EnemyState, s: Dictionary) -> void:
@@ -1593,6 +1274,7 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 			return
 	if e.pools.hp <= 0.0: _defeat(e, attacker)
 
+# ------------------------------------------------------------------ a foe's end
 ## S49: the victor finishes a foe who yielded (Relations' judgement). The death is Combat's to announce.
 func apply_execute(e: EnemyState, attacker: String) -> void:
 	if not e.alive: return
@@ -1653,8 +1335,32 @@ func _defeat(e: EnemyState, attacker: String) -> void:
 	var payload: Dictionary = game.enemies.defeat(e, attacker)
 	if not payload.is_empty(): emit("actor_defeated", payload)
 	var killer = game.character(attacker)
-	if killer != null: _gain_killing_intent(killer, e)
+	if killer != null: sword.gain_killing_intent(killer, e)
 
+## S48 boss self-detonation: the blast, then the boss is gone (the fight is won and the loot still falls).
+func resolve_boss_detonation(e: EnemyState) -> void:
+	var d: Dictionary = e.ai.get("detonation", {})
+	var c = game.active()
+	if c != null: apply_detonation_blast(c, e, float(d.get("radius", 280)), float(d.get("damage", 0.6)))
+	e.invulnerable = false
+	e.pools.hp = 0.0
+	var payload: Dictionary = game.enemies.defeat(e, c.id if c != null else "")
+	if not payload.is_empty():
+		payload.self_detonated = true
+		emit("actor_defeated", payload)
+
+## S48 boss self-detonation: the blast reaches the player inside its ring; a dodge slips it, a guard halves it.
+func apply_detonation_blast(c, e: EnemyState, radius: float, share: float) -> void:
+	var st: ActorState = game.actor_state(c.id)
+	if st == null or st.plane.distance_to(e.plane) > radius: return
+	var tl := timeline(c.id)
+	if float(tl.dodge_t) > 0.0 or c.pools.invulnerable > 0.0:
+		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
+		return
+	var dmg: float = c.pools.max_hp * share * (0.5 if tl.guard else 1.0)
+	_damage_player(c, dmg, str(e.uid), "qi", {"damage_type": "qi", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "knockback": 160.0}, false, e)
+
+# ------------------------------------------------------------------ foes' blows and harm to the player
 ## Enemy strikes (called by EnemyAuthority at the hit moment of a melee attack).
 func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 	var c = game.active()
@@ -1664,7 +1370,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	if hit_test(ev, e.facing, hitbox, pv, attack.get("both_sides", false)):
 		_enemy_hits_player(e, c, ev, pv, attack)
-	_strike_decoy(e, ev, hitbox, attack)
+	phantom.strike_decoy(e, ev, hitbox, attack)
 	_enemy_hits_allies(e, attack, ev)
 	# v1.2 Phase D: some blows leave the ground burning where they land (the Ashborn's cinders, Kharn's pyre).
 	var gf: Dictionary = attack.get("ground_fire", {})
@@ -1682,6 +1388,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 ## v1.2 Phase D: burning patches on the ground. Standing in one (not flying, not high above it) burns a share of max HP
 ## each half second; a dodge or invulnerability passes through it.
 var ground_fires: Array = []
+
 func _tick_ground_fires(delta: float) -> void:
 	if ground_fires.is_empty(): return
 	var c = game.active()
@@ -1779,6 +1486,33 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	if float(e.def.get("hollowing", 0)) > 0: apply_resource_change(c.id, "hollowing", float(e.def.hollowing), "hollow")
 	if float(attack.get("drain", 0)) > 0: e.pools.hp = minf(e.pools.max_hp, e.pools.hp + r.amount * float(attack.drain))
 
+## S48 heavenly tribulation: one bolt lands where its ring was drawn. Cover does not help (roofs, shelter), a step
+## out of the ring does, guarding halves it, and a Lightning Rod Talisman in the bag takes it whole and burns away.
+## A bolt that would kill leaves the body at a tenth of its HP and reports `lethal`: the breakthrough fails.
+func apply_tribulation_strike(c, at: Vector2, radius: float, depth: float) -> Dictionary:
+	var st: ActorState = game.actor_state(c.id)
+	var here: Vector2 = st.plane if st else at
+	# The ring on the ground: the side view's flattened strip (radius across, depth deep); on the height grid, where the
+	# ground is seen whole, a circle of the radius.
+	if grid() != null:
+		if here.distance_to(at) > radius: return {"hit": false}
+	elif absf(here.x - at.x) > radius or absf(here.y - at.y) > depth: return {"hit": false}
+	if c.inventory.count("lightning_rod_talisman") > 0:
+		game.inventory.apply_remove(c.id, "lightning_rod_talisman", 1, "tribulation")
+		return {"hit": true, "absorbed": true, "damage": 0.0}
+	var tl := timeline(c.id)
+	var cu = c.cultivator
+	var dmg := ProgressionRules.tribulation_damage(c.pools.max_hp, int(c.relations.sin), float(cu.heart_demon), bool(tl.guard))
+	var p: ResourcePool = c.pools
+	var lethal := p.hp - dmg <= 0.0
+	p.set_value("hp", p.max_hp * float(ContentDB.config("tribulations").get("survive_hp", 0.1)) if lethal else p.hp - dmg)
+	p.since_hit = 0.0
+	tl.flinch = float(ContentDB.stat_const("combat.flinch_s", 0.4))
+	emit("hit_landed", {"attacker": "heaven", "target": c.id, "target_kind": "player", "amount": int(round(dmg)), "type": "qi", "crit": false,
+		"element": "thunder", "x": here.x, "y": here.y, "alt": (st.altitude if st else 0.0) + 92.0, "hp": p.hp, "max": p.max_hp, "pool": "hp"})
+	emit("resource_changed", {"actor": c.id, "pool": "hp", "value": p.hp, "max": p.max_hp})
+	return {"hit": true, "absorbed": false, "damage": dmg, "lethal": lethal}
+
 ## S17 · Damage from the room, not a foe. A dodge, invulnerability or arrival protection avoids it
 ## (returns -1).
 func apply_hazard_damage(c, amount: float, dtype: String, element: String, source: String) -> float:
@@ -1843,7 +1577,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 	# heals 2% a second for 5 s, once a minute.
 	if pool == "hp" and p.hp > 0.0 and p.hp < p.max_hp * 0.3 and "lotus_heart_breathing" in c.cultivator.secret_arts and p.cooldown("lotus_heart") <= 0.0:
 		p.cooldowns["lotus_heart"] = 60.0
-		apply_heal(c.id, 0.10, 0.0, 5.0, "lotus_heart_breathing")
+		heals.apply_heal(c.id, 0.10, 0.0, 5.0, "lotus_heart_breathing")
 		emit("system_used", {"actor": c.id, "system": "lotus_heart_breathing"})
 	if p.get_value(pool) <= 0.0:
 		if StatRules.gate_flag(c, "survive_lethal") and not tl.get("survived_lethal", false):
@@ -1853,919 +1587,7 @@ func _damage_player(c, amount: float, attacker: String, dtype: String, attack: D
 		if spar.has(c.id):
 			p.set_value(pool, 1.0)
 			return
-		_gravely_wound(c, "soul" if pool == "soul" else "hp")
-
-func _gravely_wound(c, cause: String) -> void:
-	# The Prologue (before the Willow Path unlocks progress from fights) carries no penalty (S27), and nor does a fall
-	# before Bone Forging 5 (the early grace, P12).
-	var grace: bool = Unlocks.is_unlocked(c.id, "kill_progress") and ProgressionRules.death_grace(c.cultivator.realm_key)
-	var no_penalty: bool = not Unlocks.is_unlocked(c.id, "kill_progress") or grace or bool(game.room_rt.def.get("no_death_penalty", false) if game.room_rt else false)
-	wounded[c.id] = {"cause": cause, "timer": 0.0, "no_penalty": no_penalty, "grace": grace}
-	var tl := timeline(c.id)
-	tl.action = ""
-	tl.guard = false
-	if c.cultivator.meditating: game.progression.stop_meditation(c, "wounded")
-	emit("player_gravely_wounded", {"actor": c.id, "cause": cause, "no_penalty": no_penalty,
-		"talisman": c.inventory.count("revival_talisman"), "can_revive_here": revive_here_allowed(c)})
-
-func revive_here_allowed(c) -> Dictionary:
-	if c.inventory.count("revival_talisman") <= 0: return {"ok": false, "text": Tx.t("sim.combat.no_revival_talisman")}
-	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": Tx.t("sim.combat.not_allowed_here")}
-	var until := float(c.cooldowns.get("revival_talisman_utc", 0.0))
-	if Clock.now_utc() < until: return {"ok": false, "text": Tx.t("sim.combat.talisman_recovering_ds") % Tx.span(until - Clock.now_utc())}
-	return {"ok": true, "text": ""}
-
-## An Evergreen Heart fruit (natural treasure) lifts you where you fell, whole.
-func fruit_revival_allowed(c) -> Dictionary:
-	if c.inventory.count("evergreen_heart_fruit") <= 0: return {"ok": false, "text": ""}
-	if game.room_rt and game.room_rt.def.get("no_revive_here", false): return {"ok": false, "text": Tx.t("sim.combat.not_allowed_here")}
-	return {"ok": true, "text": ""}
-
-func choose_revival(c, where: String) -> Dictionary:
-	if not wounded.has(c.id): return fail("not_wounded")
-	var info: Dictionary = wounded[c.id]
-	var death: Dictionary = ContentDB.stat_const("death", {})
-	if info.get("grace", false): game.quest.apply_flag(c.id, "death_grace_told")   # the revival page has explained it once
-	if where == "fruit":
-		var fruit := fruit_revival_allowed(c)
-		if not fruit.ok: return fail("not_allowed", {"text": fruit.text})
-		game.inventory.apply_remove(c.id, "evergreen_heart_fruit", 1, "revive")
-		wounded.erase(c.id)
-		c.pools.hp = c.pools.max_hp
-		if c.pools.max_soul > 0: c.pools.soul = c.pools.max_soul
-		c.pools.statuses.clear()
-		c.pools.invulnerable = float(ContentDB.stat_const("treasures", {}).get("fruit_invuln_s", 3))
-		emit("player_revived", {"actor": c.id, "where": "fruit"})
-		emit("natural_treasure_used", {"actor": c.id, "treasure": "evergreen_heart_fruit"})
-	elif where == "here":
-		var allowed := revive_here_allowed(c)
-		if not allowed.ok: return fail("not_allowed", {"text": allowed.text})
-		game.inventory.apply_remove(c.id, "revival_talisman", 1, "revive")
-		c.cooldowns["revival_talisman_utc"] = Clock.now_utc() + float(death.get("talisman_cooldown_s", 300))
-		wounded.erase(c.id)
-		c.pools.hp = c.pools.max_hp * float(death.get("talisman_hp", 0.3))
-		c.pools.invulnerable = float(death.get("talisman_invuln_s", 5))
-		emit("player_revived", {"actor": c.id, "where": "here"})
-	else:
-		wounded.erase(c.id)
-		c.pools.hp = c.pools.max_hp * (1.0 if info.no_penalty else float(death.get("wake_hp", 0.5)))
-		if c.pools.max_soul > 0: c.pools.soul = maxf(c.pools.soul, c.pools.max_soul * 0.3)
-		c.pools.statuses.clear()
-		c.pools.invulnerable = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
-		emit("player_revived", {"actor": c.id, "where": "shrine"})
-		game.world.apply_return_to_shrine(c.id)
-	for pool in ["hp", "soul"]:
-		emit("resource_changed", {"actor": c.id, "pool": pool, "value": c.pools.get_value(pool), "max": c.pools.get_max(pool)})
-	return ok()
-
-# ------------------------------------------------------------------ flying sword and Sword Intent (S47)
-## S47 natal overcharge: a natal weapon asks 10 + 5 x its natal level of Spirit to command. Below that, each
-## technique drawn through it has a 5% chance to break it.
-func natal_demand(inst: Dictionary) -> float:
-	return float(ContentDB.stat_const("natal.demand_base", 10)) + float(ContentDB.stat_const("natal.demand_per_level", 5)) * int(inst.get("natal_level", 0))
-
-func _natal_overcharge(c) -> void:
-	var inst: Dictionary = game.inventory.natal_of(c)
-	if inst.is_empty() or c.inventory.equipped.get("weapon") != inst or inst.get("broken", false): return
-	if StatRules.attribute(c, "spirit") >= natal_demand(inst): return
-	if Rng.stream(c.id, "combat").randf() < float(ContentDB.stat_const("natal.overcharge_chance", 0.05)): game.inventory.natal_break(c, "overcharge")
-
-func knows_sword_release(c) -> bool:
-	return c.cultivator.techniques_known.has("sword_release")
-
-## Sword Release: the jian leaves the hand and strikes on its own, homing on the nearest foe (60% of the jian's
-## attack, 1.5 strikes a second) for up to 8 s or until recalled; meanwhile the hands fight with Qi palms.
-func toggle_sword_release(c) -> Dictionary:
-	if sword_released.has(c.id):
-		_return_sword(c, "recalled")
-		return ok({"released": false})
-	if not knows_sword_release(c): return fail("locked", {"text": Tx.t("sim.combat.sword_release_locked")})
-	if str(StatRules.family(c).get("id", "")) != "jian": return fail("wrong_weapon", {"text": Tx.t("sim.combat.needs_a") % "jian"})
-	var reason := can_act(c)
-	if reason != "": return fail(reason)
-	if c.pools.cooldown("tech:sword_release") > 0.0: return fail("cooldown")
-	var t := ContentDB.entry("techniques", "sword_release")
-	var cost := technique_cost(c, t)
-	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi")
-	apply_resource_change(c.id, "qi", -cost, "technique")
-	c.pools.cooldowns["tech:sword_release"] = float(t.get("cooldown_s", 12))
-	sword_released[c.id] = {"t": float(t.get("release_s", 8.0)), "next": 0.15}
-	emit("sword_released", {"actor": c.id, "weapon": str(c.inventory.equipped.weapon.id)})
-	emit("technique_used", {"actor": c.id, "technique": "sword_release", "hits": 0, "targets": 0})
-	return ok({"released": true})
-
-func _return_sword(c, why: String) -> void:
-	if not sword_released.has(c.id): return
-	sword_released.erase(c.id)
-	emit("sword_returned", {"actor": c.id, "reason": why})
-
-func _tick_sword(c, delta: float) -> void:
-	var ki: Dictionary = killing_intent.get(c.id, {})
-	if not ki.is_empty() and float(ki.t) > 0.0:
-		ki.t = float(ki.t) - delta
-		if float(ki.t) <= 0.0:
-			killing_intent.erase(c.id)
-			emit("killing_intent_changed", {"actor": c.id, "stacks": 0})
-	var si: Dictionary = sword_intent.get(c.id, {})
-	if not si.is_empty() and int(si.stacks) > 0:
-		si.t = float(si.t) - delta
-		if float(si.t) <= 0.0:
-			si.stacks = 0
-			emit("sword_intent_changed", {"actor": c.id, "stacks": 0})
-	if not sword_released.has(c.id): return
-	if wounded.has(c.id) or str(StatRules.family(c).get("id", "")) != "jian":
-		_return_sword(c, "lost")
-		return
-	var s: Dictionary = sword_released[c.id]
-	s.t = float(s.t) - delta
-	if float(s.t) <= 0.0:
-		_return_sword(c, "time")
-		return
-	s.next = float(s.next) - delta
-	if float(s.next) > 0.0 or game.room_rt == null: return
-	var t := ContentDB.entry("techniques", "sword_release")
-	s.next = 1.0 / float(t.get("strikes_per_s", 1.5))
-	var pv := player_view(c)
-	var foe := _nearest_enemy(Vector2(float(pv.x), float(pv.y)), float(t.get("seek_radius", 420)))
-	if foe == null: return
-	var from := Vector2(float(pv.x) - int(pv.facing) * 20.0, float(pv.y))
-	var dir := 1 if foe.plane.x >= from.x else -1
-	var m: Array = t.get("mult", [0.6, 0.6])
-	_spawn_projectile({"team": "player", "owner": c.id, "x": from.x, "y": from.y, "alt": float(pv.alt) + 70.0, "dir": dir, "speed": 900.0,
-		"range": absf(foe.plane.x - from.x) + 90.0, "pierce": 0, "seek": true, "art": "flying_sword",
-		"attack": {"damage_type": "physical", "element": "metal", "mult": m, "range": [0.95, 1.05], "source": "flying_sword",
-			"dao_tier": _dao_tier(c, "sword")}})
-
-# ------------------------------------------------------------------ the flute's melody (S47 v1.1, the Music path)
-## Hold Attack with a flute to channel a melody aura: every half second it slows the foes around you and may confuse
-## them, and you and your allies (companions, pets) recover a little health, while Composure drains. It ends on
-## release, when Composure runs out, or when you are stunned, wounded, attack, use a technique or change weapon.
-func channel_melody(c, on: bool) -> Dictionary:
-	if not on:
-		_end_melody(c, "released")
-		return ok({"on": false})
-	var ch: Dictionary = StatRules.family(c).get("channel", {})
-	if ch.is_empty(): return fail("wrong_weapon", {"text": Tx.t("sim.combat.melody_needs_flute")})
-	if not Unlocks.is_unlocked(c.id, "composure"): return fail("locked", {"text": Unlocks.locked_text("composure")})
-	if melody.has(c.id): return ok({"on": true})
-	var reason := can_act(c)
-	if reason != "": return fail(reason)
-	if climbing(c.id) or flying.has(c.id): return fail("busy")
-	var tl := timeline(c.id)
-	if is_busy(c.id):
-		# The note of the tap flies first; then the hands settle into the melody.
-		if tl.technique != "" or not tl.hit_done: return fail("busy")
-		tl.action = ""
-		tl.queued = 0
-	if c.pools.composure < float(ch.get("min_composure", 5)): return fail("no_composure", {"text": Tx.t("sim.combat.melody_no_composure")})
-	melody[c.id] = {"next": float(ch.get("tick_s", 0.5)) * 0.5}
-	emit("melody_changed", {"actor": c.id, "on": true, "reason": "played"})
-	return ok({"on": true})
-
-func is_playing(actor_id: String) -> bool:
-	return melody.has(actor_id)
-
-func _end_melody(c, why: String) -> void:
-	if c == null or not melody.has(c.id): return
-	melody.erase(c.id)
-	emit("melody_changed", {"actor": c.id, "on": false, "reason": why})
-
-func _tick_melody(c, delta: float) -> void:
-	if not melody.has(c.id): return
-	var ch: Dictionary = StatRules.family(c).get("channel", {})
-	if ch.is_empty():
-		_end_melody(c, "weapon")
-		return
-	if wounded.has(c.id) or c.pools.blocked("attack") or is_busy(c.id) or flying.has(c.id):
-		_end_melody(c, "broken")
-		return
-	var m: Dictionary = melody[c.id]
-	var note := StatRules.set_flag(c, "sustained_note")
-	m.played = float(m.get("played", 0.0)) + delta
-	if m.played > float(note.get("free_s", 0.0)):
-		var cost := float(ch.get("composure_per_s", 8)) * float(ProgressionRules.path_flag(c, "channel_cost_mult", 1.0)) * delta
-		apply_resource_change(c.id, "composure", -cost, "melody", 0.0, true)
-	c.pools.since_composure_use = 0.0
-	if c.pools.composure <= 0.0:
-		_end_melody(c, "composure")
-		return
-	m.next = float(m.next) - delta
-	if float(m.next) > 0.0: return
-	var tick := float(ch.get("tick_s", 0.5))
-	m.next = tick
-	var pv := player_view(c)
-	var at := Vector2(float(pv.x), float(pv.y))
-	# Each tier of the Music Dao carries the melody 5% further.
-	var radius := float(ch.get("radius", 220)) * (1.0 + 0.05 * _dao_tier(c, "music"))
-	var rng := Rng.stream(c.id, "melody")
-	var power: float = 1.0 + c.stats.value("melody_power")
-	var ally_heal: float = (float(ch.get("ally_heal_pct", 0.02)) + float(note.get("ally_heal", 0.0))) * power
-	var foes := 0
-	var allies := 0
-	if game.room_rt != null:
-		for e in game.room_rt.living_enemies():
-			if e.plane.distance_to(at) > radius: continue
-			if e.team == "ally":
-				if e.pools.hp < e.pools.max_hp:
-					e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * ally_heal * tick)
-				allies += 1
-				continue
-			if e.hidden or e.ai.get("surrendered", false): continue
-			foes += 1
-			var sl: Dictionary = ch.get("slow", {})
-			if not sl.is_empty() and not e.pools.steadfast.has("slow"):
-				_apply_status_to_enemy(e, {"id": "slow", "power": minf(0.9, float(sl.get("power", 0.3)) * power), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
-			if not e.is_boss() and not e.pools.steadfast.has("confusion") and not e.pools.has_status("confusion") \
-					and rng.randf() < float(ch.get("confusion_chance", 0.08)):
-				_apply_status_to_enemy(e, {"id": "confusion", "power": 1.0, "remaining": float(ch.get("confusion_s", 1.5)), "source": c.id})
-	var self_heal: float = c.pools.max_hp * float(ch.get("self_heal_pct", 0.01)) * tick * power * (1.0 + c.stats.value("healing_received"))
-	if self_heal > 0.0 and c.pools.hp < c.pools.max_hp: apply_resource_change(c.id, "hp", self_heal, "melody", 0.0, true)
-	emit("melody_pulse", {"actor": c.id, "x": at.x, "y": at.y, "radius": radius, "foes": foes, "allies": allies})
-
-## A healing song around the caster (Clear Heart Melody): the caster and every ally within the radius recover
-## `pct` of their health each second for `seconds`. Returns how many allies it reached.
-func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -> int:
-	apply_heal(c.id, pct * seconds, 0.0, seconds, source)
-	if game.room_rt == null: return 0
-	var pv := player_view(c)
-	var at := Vector2(float(pv.x), float(pv.y))
-	var n := 0
-	for e in game.room_rt.living_enemies():
-		if e.team != "ally" or e.plane.distance_to(at) > radius: continue
-		var list: Array = ally_hots.get(e.uid, [])
-		list.append({"per_s": e.pools.max_hp * pct, "left": seconds})
-		ally_hots[e.uid] = list
-		n += 1
-	# S48 the Buddhist path: healing an ally is merit (a few times a day).
-	if n > 0: game.relations.apply_daily_deed(c.id, "heal_ally", int(ContentDB.stat_const("paths", {}).get("buddhist", {}).get("heal_ally_daily", 5)))
-	return n
-
-# ------------------------------------------------------------------ sect role variants (S48)
-## The support variant: a heal for you and your allies near you (Mending Current) or a shield for you and a heal for
-## your allies (Guarding Cloud). It grows with the crafts you have ranked up and the Lotus branch.
-func sect_support_mult(c) -> float:
-	var cfg: Dictionary = ContentDB.config("sect_roles")
-	var ranks := 0
-	for craft in c.professions: ranks += game.crafting.rank_index(str(c.professions[craft].get("rank", "apprentice")))
-	var craft_bonus := minf(float(cfg.get("profession_cap", 0.5)), float(cfg.get("profession_scaling", 0.05)) * ranks)
-	return (1.0 + craft_bonus) * (1.0 + ProgressionRules.sect_tree_flag(c, "support_heal_mult"))
-
-func _sect_support(c, v: Dictionary) -> void:
-	var mult := sect_support_mult(c)
-	var pct := float(v.get("heal_pct", 0.0)) * mult
-	if pct > 0.0 and not v.get("allies_only", false): apply_heal(c.id, pct, 0.0, 0.0, "sect_support")
-	if float(v.get("shield_pct", 0.0)) > 0.0:
-		raise_shield(c, c.pools.max_hp * float(v.shield_pct) * mult, float(v.get("shield_s", 4)))
-	if pct <= 0.0 or game.room_rt == null: return
-	var pv := player_view(c)
-	var at := Vector2(float(pv.x), float(pv.y))
-	for e in game.room_rt.living_enemies():
-		if e.team == "ally" and e.plane.distance_to(at) <= float(v.get("radius", 220)):
-			e.pools.hp = minf(e.pools.max_hp, e.pools.hp + e.pools.max_hp * pct)
-
-# ------------------------------------------------------------------ the Blood path (S48)
-func _blood_cfg() -> Dictionary:
-	return ContentDB.stat_const("paths", {}).get("blood", {})
-
-## Lifesteal while walking the Blood path: 3% of the damage dealt, +1% a Blood Dao tier; Blood arts drink twice that.
-func blood_lifesteal(c) -> float:
-	if not ProgressionAuthority.walks(c, "blood"): return 0.0
-	var cfg := _blood_cfg()
-	return float(cfg.get("lifesteal_base", 0.03)) + float(cfg.get("lifesteal_per_tier", 0.01)) * _dao_tier(c, "blood")
-
-func _lifesteal(c, amount: float, attack: Dictionary) -> void:
-	var ls := blood_lifesteal(c)
-	if ls <= 0.0 or amount <= 0.0 or c.pools.hp >= c.pools.max_hp: return
-	var tid := str(attack.get("technique", ""))
-	if tid != "" and bool(ContentDB.entry("techniques", tid).get("blood_path", false)): ls *= float(_blood_cfg().get("blood_art_lifesteal_mult", 2.0))
-	apply_resource_change(c.id, "hp", amount * ls, "lifesteal", 0.0, true)
-
-func essence_of(actor_id: String) -> float:
-	return float(blood_essence.get(actor_id, {}).get("v", 0.0))
-
-func _spend_essence(actor_id: String, amount: float) -> void:
-	if not blood_essence.has(actor_id): return
-	blood_essence[actor_id].v = maxf(0.0, float(blood_essence[actor_id].v) - amount)
-
-## Kills fill the blood-essence meter of one who walks the Blood path: 10 a foe, 25 an elite, 50 a boss (to 100).
-func _feed_blood_essence(p: Dictionary) -> void:
-	if str(p.get("victim_kind", "")) != "enemy": return
-	var c = game.character(str(p.get("killer", "")))
-	if c == null or not ProgressionAuthority.walks(c, "blood"): return
-	var cfg := _blood_cfg()
-	var def := ContentDB.entry("enemies", str(p.get("def", "")))
-	var gain := float(cfg.get("essence_kill", 10))
-	if str(p.get("role", def.get("role", ""))) == "boss": gain = float(cfg.get("essence_boss", 50))
-	elif bool(p.get("elite", false)): gain = float(cfg.get("essence_elite", 25))
-	var be: Dictionary = blood_essence.get(c.id, {"v": 0.0, "t": 0.0})
-	be.v = minf(float(cfg.get("essence_max", 100)), float(be.v) + gain)
-	be.t = game.sim_time
-	blood_essence[c.id] = be
-
-func _tick_blood(c, delta: float) -> void:
-	var be: Dictionary = blood_essence.get(c.id, {})
-	if be.is_empty(): return
-	if not ProgressionAuthority.walks(c, "blood"):
-		blood_essence.erase(c.id)
-		return
-	var cfg := _blood_cfg()
-	if game.sim_time - float(be.t) > float(cfg.get("essence_decay_after_s", 20.0)):
-		be.v = maxf(0.0, float(be.v) - float(cfg.get("essence_decay_per_s", 2.0)) * delta)
-
-func _tick_ally_hots(delta: float) -> void:
-	if ally_hots.is_empty() or game.room_rt == null: return
-	for uid in ally_hots.keys():
-		var e: EnemyState = game.room_rt.enemies.get(uid)
-		if e == null or not e.alive:
-			ally_hots.erase(uid)
-			continue
-		var list: Array = ally_hots[uid]
-		for h in list:
-			var step := minf(delta, float(h.left))
-			e.pools.hp = minf(e.pools.max_hp, e.pools.hp + float(h.per_s) * step)
-			h.left = float(h.left) - step
-		list = list.filter(func(h): return float(h.left) > 0.0)
-		if list.is_empty(): ally_hots.erase(uid)
-		else: ally_hots[uid] = list
-
-# ------------------------------------------------------------------ Array Plates in a fight (S48)
-## An Array Plate laid at your feet: a guarding array (defence while you stand in it), a killing array (Qi damage to
-## every foe inside each second) or a binding array (foes inside slowed). The Formation Dao lengthens them (+10% from
-## tier 1) and sharpens the killing array (+20% a tier); each plate laid teaches it a little.
-func deploy_array(actor_id: String, e: Dictionary) -> void:
-	var c = game.character(actor_id)
-	if c == null or game.room_rt == null: return
-	var pv := player_view(c)
-	var tier := _dao_tier(c, "formation")
-	var power: float = 1.0 + c.stats.value("array_power")
-	var living := StatRules.set_flag(c, "living_array")
-	var secs: float = float(e.get("duration", 10)) * (1.1 if tier >= 1 else 1.0) * power
-	var a := {"actor": c.id, "kind": str(e.get("array", "guard")), "x": float(pv.x), "y": float(pv.y),
-		"radius": float(e.get("radius", 150)) * (1.0 + float(living.get("wider", 0.0))), "t": secs, "tick": 0.0,
-		"mult": float(e.get("mult", 0.5)) * (1.0 + 0.2 * tier) * power, "slow": float(e.get("slow", 0.4)), "defense": float(e.get("defense", 0.15)),
-		"talisman": living.get("talismans", {}).get(str(e.get("array", "guard")), {}), "marked": {}}
-	arrays.append(a)
-	game.progression.apply_insight(c.id, "formation", 3.0, "array_plate")
-	emit("array_deployed", {"actor": c.id, "kind": a.kind, "x": a.x, "y": a.y, "radius": a.radius, "duration": secs})
-
-func _tick_arrays(delta: float) -> void:
-	if arrays.is_empty(): return
-	for a in arrays.duplicate():
-		a.t = float(a.t) - delta
-		if float(a.t) <= 0.0:
-			arrays.erase(a)
-			emit("array_faded", {"actor": str(a.actor), "kind": str(a.kind)})
-			continue
-		a.tick = float(a.tick) - delta
-		if float(a.tick) > 0.0: continue
-		var c = game.character(str(a.actor))
-		if c == null or game.room_rt == null: continue
-		var here := Vector2(float(a.x), float(a.y))
-		var tal: Dictionary = a.talisman
-		if not tal.is_empty():
-			for e in _enemies_within(here, float(a.radius)):
-				if a.marked.has(e.uid) or e.pools.steadfast.has(str(tal.id)): continue
-				a.marked[e.uid] = true
-				_apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.get("power", 1)), "remaining": float(tal.get("duration_s", 1.0)), "source": c.id})
-		match str(a.kind):
-			"killing":
-				a.tick = 1.0
-				var pv := player_view(c)
-				var atk := {"damage_type": "qi", "element": "none", "mult": [float(a.mult), float(a.mult)], "range": [0.95, 1.05], "source": "array:killing",
-					"dao_tier": _dao_tier(c, "formation")}
-				for e in _enemies_within(here, float(a.radius)):
-					_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
-			"binding":
-				a.tick = 0.5
-				for e in _enemies_within(here, float(a.radius)):
-					if not e.pools.steadfast.has("slow"): _apply_status_to_enemy(e, {"id": "slow", "power": float(a.slow), "remaining": 1.0, "source": c.id})
-			_:
-				a.tick = 0.5
-				var st: ActorState = game.actor_state(c.id)
-				if st != null and st.plane.distance_to(here) <= float(a.radius):
-					c.stats.add_modifier({"stat": "physical_defense", "op": "pct_add", "value": float(a.defense), "duration": 0.8, "source": "array:guard"})
-					refresh_stats(c.id)
-
-# ------------------------------------------------------------------ the sword swarm (S47 v1.1)
-## How many swords would answer: 3 at Sword Dao 5, 9 with the Nine Swords Array (released, or set in a Treasure
-## slot), 36 with it at Original Application (tier 6). Spirit is the control demand: one sword for each 10 Spirit.
-func swarm_count(c, with_treasure: bool) -> int:
-	var cfg: Dictionary = ContentDB.stat_const("sword_swarm", {})
-	var counts: Array = cfg.get("counts", [3, 9, 36])
-	var tier := _dao_tier(c, "sword")
-	var has_set: bool = with_treasure or "nine_sword_array" in c.inventory.treasures
-	var n := 0
-	if tier >= 5: n = int(counts[0])
-	if has_set: n = int(counts[1])
-	if has_set and tier >= 6: n = int(counts[2])
-	if n <= 0: return 0
-	var cap := maxi(1, int(floor(c.stats.value("spirit") / float(cfg.get("spirit_per_sword", 10)))))
-	return mini(n, cap)
-
-## The Sword Swarm technique: a toggle like Sword Release, paid in QI.
-func toggle_sword_swarm(c, t: Dictionary) -> Dictionary:
-	if sword_swarm.has(c.id):
-		_end_swarm(c, "recalled")
-		return ok({"swarm": 0})
-	var reason := can_act(c)
-	if reason != "": return fail(reason)
-	if c.pools.cooldown("tech:sword_swarm") > 0.0: return fail("cooldown")
-	var cost := technique_cost(c, t)
-	if c.pools.max_qi <= 0.0 or c.pools.qi < cost: return fail("no_qi")
-	var r := start_swarm(c, false, float(ContentDB.stat_const("sword_swarm", {}).get("duration_s", 12.0)))
-	if not r.get("ok", false): return r
-	apply_resource_change(c.id, "qi", -cost, "technique")
-	c.pools.cooldowns["tech:sword_swarm"] = float(t.get("cooldown_s", 30))
-	emit("technique_used", {"actor": c.id, "technique": "sword_swarm", "hits": 0, "targets": 0})
-	return r
-
-func start_swarm(c, from_treasure: bool, secs: float) -> Dictionary:
-	var n := swarm_count(c, from_treasure)
-	if n <= 0: return fail("locked", {"text": Tx.t("sim.combat.swarm_locked")})
-	if sword_released.has(c.id): _return_sword(c, "swarm")
-	sword_swarm[c.id] = {"t": secs, "n": n, "next": 0.2, "i": 0}
-	emit("sword_released", {"actor": c.id, "weapon": "swarm", "swarm": n})
-	return ok({"swarm": n})
-
-func swarm_of(actor_id: String) -> int:
-	return int(sword_swarm.get(actor_id, {}).get("n", 0))
-
-func _end_swarm(c, why: String) -> void:
-	if not sword_swarm.has(c.id): return
-	sword_swarm.erase(c.id)
-	emit("sword_returned", {"actor": c.id, "reason": why, "swarm": true})
-
-## Each sword strikes in turn: one strike every 1.2 s / n, at 0.9 / sqrt(n) of the jian's attack (so more swords
-## add damage, but not in proportion).
-func _tick_swarm(c, delta: float) -> void:
-	if not sword_swarm.has(c.id): return
-	if wounded.has(c.id):
-		_end_swarm(c, "lost")
-		return
-	var s: Dictionary = sword_swarm[c.id]
-	s.t = float(s.t) - delta
-	if float(s.t) <= 0.0:
-		_end_swarm(c, "time")
-		return
-	s.next = float(s.next) - delta
-	if float(s.next) > 0.0 or game.room_rt == null: return
-	var cfg: Dictionary = ContentDB.stat_const("sword_swarm", {})
-	var n := maxi(1, int(s.n))
-	s.next = float(cfg.get("strike_every_s", 1.2)) / n
-	var pv := player_view(c)
-	var foe := _nearest_enemy(Vector2(float(pv.x), float(pv.y)), float(cfg.get("seek_radius", 420)))
-	if foe == null: return
-	s.i = (int(s.i) + 1) % n
-	var ang := TAU * float(s.i) / n
-	var orbit := float(cfg.get("orbit", 46))
-	var from := Vector2(float(pv.x) + cos(ang) * orbit, float(pv.y) + sin(ang) * orbit * 0.3)
-	var dir := 1 if foe.plane.x >= from.x else -1
-	var m := float(cfg.get("mult_total", 0.9)) / sqrt(float(n))
-	_spawn_projectile({"team": "player", "owner": c.id, "x": from.x, "y": from.y, "alt": float(pv.alt) + 70.0 + sin(ang) * 16.0, "dir": dir,
-		"speed": 900.0, "range": absf(foe.plane.x - from.x) + 90.0, "pierce": 0, "seek": true, "art": "flying_sword",
-		"attack": {"damage_type": "physical", "element": "metal", "mult": [m, m], "range": [0.95, 1.05], "source": "flying_sword",
-			"dao_tier": _dao_tier(c, "sword")}})
-
-## Sword Intent: consecutive jian hits stack (max 10, +1% penetration each); at 10 a weaker foe may fear (10%).
-## It fades 3 s after the last jian hit.
-func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
-	var src := str(attack.get("source", ""))
-	if not (src == "basic" or src == "flying_sword" or src.begins_with("tech:")): return
-	if sword_released.has(c.id) and src == "basic": return   # palms are not the sword
-	if str(StatRules.family(c).get("id", "")) != "jian": return
-	var si: Dictionary = sword_intent.get(c.id, {"stacks": 0, "t": 0.0})
-	var before := int(si.stacks)
-	var honed := StatRules.set_flag(c, "honed_intent")
-	var most := int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))) + int(honed.get("stacks", 0))   # Sword Heart: 12
-	si.stacks = mini(most, before + 1)
-	si.t = float(ContentDB.stat_const("sword_intent.fade_s", 3.0)) * float(honed.get("fade_mult", 1.0))
-	sword_intent[c.id] = si
-	if int(si.stacks) != before: emit("sword_intent_changed", {"actor": c.id, "stacks": int(si.stacks)})
-	if int(si.stacks) >= 10 and e.alive and e.level < ProgressionRules.level(c) and not e.pools.steadfast.has("fear"):
-		if Rng.stream(c.id, "combat").randf() < float(ContentDB.stat_const("sword_intent.fear_chance", 0.1)):
-			_apply_status_to_enemy(e, {"id": "fear", "power": 1.0, "remaining": 2.0, "source": c.id})
-
-func intent_penetration(c) -> float:
-	if str(StatRules.family(c).get("id", "")) != "jian": return 0.0
-	return 0.01 * int(sword_intent.get(c.id, {}).get("stacks", 0))
-
-## Self-detonation (S47): a spare artifact (an unworn piece of equipment, or a treasure) bursts around you for
-## damage by its grade, and is destroyed. The one thing the game ever destroys, and only after you confirm.
-func self_detonate(c, index: int, confirm: bool) -> Dictionary:
-	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
-	var inst: Dictionary = c.inventory.bag[index]
-	var def := ContentDB.item(str(inst.id))
-	if not (ContentDB.is_equipment(str(inst.id)) or def.has("treasure")) or str(def.get("slot", "")) == "tool_furnace": return fail("not_artifact", {"text": Tx.t("sim.combat.detonate_what")})
-	if c.inventory.locked.has(int(inst.get("uid", -1))): return fail("locked_item", {"text": Tx.t("ui.forge.locked_item")})
-	var reason := can_act(c)
-	if reason != "": return fail(reason)
-	if not confirm: return fail("confirm", {"text": Tx.t("sim.combat.detonate_confirm") % ContentDB.item_name(str(inst.id))})
-	var gi := StatRules.grade_index(str(def.get("grade", "plain")))
-	var power := float(ContentDB.stat_const("detonation.base", 1.5)) + float(ContentDB.stat_const("detonation.per_grade", 0.75)) * gi
-	var pv := player_view(c)
-	var n := 0
-	if game.room_rt:
-		for e in game.room_rt.living_enemies():
-			if e.team != "enemy" or e.hidden: continue
-			if e.plane.distance_to(Vector2(float(pv.x), float(pv.y))) > float(ContentDB.stat_const("detonation.radius", 180)): continue
-			_player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "none", "mult": [power, power], "range": [1.0, 1.0], "source": "detonation",
-				"knockback": 140.0}, 1 if e.plane.x >= float(pv.x) else -1)
-			n += 1
-	game.inventory.apply_remove_index(c.id, index, 1, "self_detonate")
-	emit("artifact_detonated", {"actor": c.id, "item": str(inst.id), "grade": str(def.get("grade", "plain")), "targets": n,
-		"x": pv.x, "y": pv.y, "alt": pv.alt})
-	return ok({"targets": n, "power": power})
-
-# ------------------------------------------------------------------ talismans (S47)
-## Use a talisman from the bag. Attack talismans strike at the talisman's own grade and quality, never the user's
-## stats; Iron Wall shields; Wind Step holds a free dodge; the Veil hides you; Binding roots (bosses shrug it off).
-func use_talisman(c, index: int) -> Dictionary:
-	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
-	var s: Dictionary = c.inventory.bag[index]
-	var tal := ContentDB.entry("talismans", str(s.id))
-	if tal.is_empty() or str(tal.get("kind", "")) in ["revival", "tribulation"]: return fail("not_usable", {"text": Tx.t("sim.combat.talisman_passive")})
-	var reason := can_act(c)
-	if reason != "": return fail(reason)
-	var cfg: Dictionary = ContentDB.config("talismans")
-	var qmult := float(cfg.get("quality_mult", {}).get(str(s.get("quality", "common")), 1.0))
-	var pv := player_view(c)
-	var at := Vector2(float(pv.x), float(pv.y))
-	var hits := 0
-	match str(tal.kind):
-		"attack":
-			var base := float(cfg.get("base_power", {}).get(str(tal.get("grade", "common")), 90.0))
-			var amount := base * float(tal.get("power", 1.0)) * qmult
-			var facing := int(pv.facing)
-			var center := at + Vector2(facing * minf(float(tal.get("range", 300)), 160.0), 0)
-			var foe := _nearest_enemy(at + Vector2(facing * 80, 0), float(tal.get("range", 300)))
-			if foe != null: center = foe.plane
-			for e in game.room_rt.living_enemies() if game.room_rt else []:
-				if e.team != "enemy" or e.hidden or e.plane.distance_to(center) > float(tal.get("radius", 80)): continue
-				_damage_enemy(e, amount, c.id, "qi", str(tal.get("element", "none")), false, {"source": "talisman"}, facing)
-				if e.alive and tal.has("status") and not e.pools.steadfast.has(str(tal.status.id)):
-					_apply_status_to_enemy(e, {"id": str(tal.status.id), "power": float(tal.status.get("power", 1)), "remaining": float(tal.status.get("duration_s", 2)), "source": c.id})
-				hits += 1
-			at = center
-		"defence":
-			raise_shield(c, c.pools.max_hp * float(tal.get("shield_pct", 0.2)) * qmult, float(tal.get("duration_s", 6)))
-		"movement":
-			var fx2: Dictionary = treasure_fx.get(c.id, {})
-			if str(tal.get("effect", "")) == "free_dodge": fx2.free_dodge = float(tal.get("duration_s", 60))
-			else: apply_status(c.id, "veiled", float(tal.get("duration_s", 10)) * qmult, 1.0)
-			treasure_fx[c.id] = fx2
-		"sealing":
-			var foe2 := _nearest_enemy(at, float(tal.get("range", 260)))
-			if foe2 == null: return fail("no_target", {"text": Tx.t("sim.combat.no_target_near")})
-			if foe2.is_boss() or foe2.pools.steadfast.has("root"): emit("hit_immune", {"attacker": c.id, "target": str(foe2.uid), "x": foe2.plane.x, "y": foe2.plane.y, "alt": foe2.altitude})
-			else: _apply_status_to_enemy(foe2, {"id": "root", "power": 1.0, "remaining": float(tal.status.get("duration_s", 2)) * qmult, "source": c.id})
-			at = foe2.plane
-			hits = 1
-	game.inventory.apply_remove_index(c.id, index, 1, "talisman")
-	emit("talisman_used", {"actor": c.id, "item": str(s.id), "kind": str(tal.kind), "targets": hits, "x": at.x, "y": at.y, "alt": pv.alt})
-	return ok({"kind": str(tal.kind), "targets": hits})
-
-# ------------------------------------------------------------------ projectiles
-func _spawn_projectile(p: Dictionary) -> void:
-	if game.room_rt == null: return
-	p.uid = game.room_rt.uid()
-	p.travelled = 0.0
-	p.hits = []
-	p.delay = float(p.get("delay", 0.0))
-	if grid() != null: _aim_shot(p)
-	game.room_rt.projectiles.append(p)
-	emit("projectile_spawned", {"uid": p.uid, "team": p.team, "art": str(p.get("art", "arrow")), "element": str(p.get("element", "none"))})
-
-## Redesign Phase 2: a shot on the plane leaves along its thrower's aim. Its spot, laid out along x by the spawner (so
-## far ahead, so far aside), turns with the aim; it flies at its thrower's feet (`feet`) along the ground plane.
-func _aim_shot(p: Dictionary) -> void:
-	var o := Vector2(float(p.x), float(p.y))
-	var feet := 0.0
-	var aim := Vector2(float(p.dir), 0)
-	var foe: EnemyState = game.room_rt.enemies.get(int(str(p.owner))) if str(p.owner).is_valid_int() else null
-	if foe != null:
-		o = foe.plane
-		feet = foe.altitude
-		aim = foe.aim_dir()
-	elif game.actor_state(str(p.owner)) != null:
-		o = game.actor_state(str(p.owner)).plane
-		feet = game.actor_state(str(p.owner)).altitude
-		aim = timeline(str(p.owner)).get("aim", aim)
-	var ahead := (float(p.x) - o.x) * float(p.dir)
-	var aside := float(p.y) - o.y
-	var at := o + aim * ahead + Vector2(-aim.y, aim.x) * aside
-	p.x = at.x
-	p.y = at.y
-	p.aim = aim
-	p.feet = feet
-	p.dir = 1 if aim.x >= 0.0 else -1
-
-## A shot's view for the hit test: at chest height in the side view; on the plane, at its thrower's feet along its aim
-## with the ground band.
-func _shot_view(p: Dictionary) -> Dictionary:
-	if not p.has("aim"): return {"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}
-	return {"x": p.x, "y": p.y, "alt": float(p.feet), "aim": p.aim, "band": TopdownAim.band(false)}
-
-## Does a shot stop here: at a block or wall (S43 rule 10), or on the plane at a face higher than shot_wall over its
-## feet?
-func _shot_stops(rt: RoomRuntime, p: Dictionary) -> bool:
-	if not p.has("aim"): return rt.geometry.stops_shot(Vector2(p.x, p.y), float(p.alt))
-	return rt.topdown.height_at(Vector2(p.x, p.y)) > float(p.feet) + float(ContentDB.movement("topdown.combat.shot_wall", 24))
-
-func spawn_enemy_projectile(e: EnemyState, attack: Dictionary) -> void:
-	var pr: Dictionary = attack.get("projectile", {})
-	_spawn_projectile({"team": "enemy", "owner": str(e.uid), "x": e.plane.x + e.facing * e.half_width(), "y": e.plane.y,
-		"alt": e.altitude + e.hover + e.height() * 0.55, "dir": e.facing, "speed": float(pr.get("speed", 400)),
-		"range": float(attack.hitbox.x[1]), "pierce": 0, "art": str(pr.get("art", "pebble")), "enemy_attack": attack,
-		"element": e.element})
-
-func _tick_projectiles(delta: float) -> void:
-	if game.room_rt == null: return
-	var rt = game.room_rt
-	var c = game.active()
-	for p in rt.projectiles.duplicate():
-		if float(p.delay) > 0.0:
-			p.delay = float(p.delay) - delta
-			continue
-		var step := float(p.speed) * delta
-		var remaining := minf(step, float(p.range) - float(p.travelled))
-		var done := false
-		while remaining > 0.001 and not done:
-			var s := minf(remaining, 6.0)
-			if p.get("seek", false) and p.team == "player":
-				var tgt := _nearest_enemy(Vector2(p.x, p.y), 220.0)
-				if tgt: p.y = move_toward(float(p.y), tgt.plane.y, 60.0 * delta)
-			var along: Vector2 = p.get("aim", Vector2(float(p.dir), 0))
-			p.x = float(p.x) + along.x * s
-			p.y = float(p.y) + along.y * s
-			p.travelled = float(p.travelled) + s
-			remaining -= s
-			# S43 rule 10: shots pass through platform decks but stop at blocks and walls, whoever threw them.
-			if _shot_stops(rt, p):
-				done = true
-				break
-			if p.team == "player":
-				for e in rt.living_enemies():
-					if e.team != "enemy" or e.hidden or p.hits.has(e.uid): continue
-					# Shots fly at chest height; the band reaches down to the ground so a crab or a rat
-					# under the line is struck too. Fired from the air, a shot still passes over them.
-					if hit_test(_shot_view(p), int(p.dir), {"x": [-12, 12], "depth": 26, "alt": [-56, 40]}, enemy_view(e)):
-						p.hits.append(e.uid)
-						if c != null:
-							var view := player_view(c)
-							_player_hits_enemy(c, view, e, p.attack, int(p.dir))
-							if float(p.get("burst", 0.0)) > 0.0: _burst(c, p, e)
-						if p.hits.size() > int(p.get("pierce", 0)):
-							done = true
-							break
-			elif c != null and not wounded.has(c.id):
-				var cv := player_view(c)
-				var fxs: Dictionary = treasure_fx.get(c.id, {})
-				# The Sealing Gourd drinks every missile that comes within its reach (S47).
-				if float(fxs.get("gourd", 0.0)) > 0.0 and Vector2(float(p.x), float(p.y)).distance_to(Vector2(float(cv.x), float(cv.y))) < float(fxs.get("gourd_r", 240.0)):
-					emit("projectile_absorbed", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
-					done = true
-					break
-				if hit_test(_shot_view(p), int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv) \
-						and float(fxs.get("reflect", 0.0)) > 0.0:
-					# The Bright Mirror sends it back at whoever threw it (S47).
-					p.team = "player"
-					p.dir = -int(p.dir)
-					if p.has("aim"): p.aim = -(p.aim as Vector2)
-					p.owner = c.id
-					p.travelled = 0.0
-					p.hits = []
-					p.attack = {"damage_type": "qi", "element": str(p.get("element", "none")), "mult": [1.4, 1.4], "range": [1.0, 1.0], "source": "bright_mirror"}
-					emit("projectile_reflected", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt})
-					break
-				if hit_test(_shot_view(p), int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
-					var e2: EnemyState = rt.enemies.get(int(str(p.owner)))
-					if e2 != null:
-						_enemy_hits_player(e2, c, enemy_view(e2), cv, p.enemy_attack)
-					done = true
-		if (done or float(p.travelled) >= float(p.range)) and p.get("returning", false) and not p.get("returned", false):
-			# A thrown fan (S47 v1.1) turns at the end of its flight and cuts its way back.
-			p.returned = true
-			p.dir = -int(p.dir)
-			if p.has("aim"): p.aim = -(p.aim as Vector2)
-			p.travelled = 0.0
-			p.hits = []
-			continue
-		if done or float(p.travelled) >= float(p.range):
-			# A poison pill that meets no one still breaks where it lands.
-			if c != null and p.team == "player" and (p.hits as Array).is_empty() and not (p.get("cloud", {}) as Dictionary).is_empty():
-				_burst(c, p, null)
-			rt.projectiles.erase(p)
-			emit("projectile_ended", {"uid": p.uid, "x": p.x, "y": p.y, "alt": p.alt})
-
-# ------------------------------------------------------------------ treasures, throwables, talismans (gap report G2)
-func _enemies_within(at: Vector2, radius: float) -> Array:
-	var out: Array = []
-	if game.room_rt == null: return out
-	for e in game.room_rt.living_enemies():
-		if e.team == "enemy" and not e.hidden and e.plane.distance_to(at) <= radius: out.append(e)
-	return out
-
-func _treasure_attack(t: Dictionary, source: String, dtype := "physical", element := "none") -> Dictionary:
-	var m := float(t.get("mult", 1.0))
-	return {"damage_type": dtype, "element": element, "mult": [m, m], "range": [1.0, 1.0], "knockback": float(t.get("knockback", 0.0)), "source": source}
-
-## What a treasure does (treasures.json, S47), from its bag item id; {} if the item is not a treasure.
-static func treasure_of(item_id: String) -> Dictionary:
-	var tid := str(ContentDB.item(item_id).get("treasure", ""))
-	return ContentDB.entry("treasures", tid) if tid != "" else {}
-
-## Its Soul cost: a treasure also draws on the Soul from Spirit Awakening 1 (S47).
-static func treasure_soul_cost(c, t: Dictionary) -> float:
-	if c.pools.max_soul <= 0.0 or not ProgressionRules.at_least(c.cultivator.realm_key, "spirit_awakening_1"): return 0.0
-	return float(t.get("soul", 0))
-
-## One of the HUD's Treasure buttons. Each treasure is one action with a cooldown and a flat QI cost (S47);
-## a talisman treasure spends one of its charges instead.
-func use_treasure(c, slot: int) -> Dictionary:
-	if slot < 0 or slot > 1: return fail("bad_slot")
-	var id := str(c.inventory.treasures[slot])
-	if id == "": return fail("empty")
-	if not Unlocks.is_unlocked(c.id, "treasures" if slot == 0 else "treasure_slot_2"): return fail("locked")
-	if c.inventory.count(id) <= 0:
-		c.inventory.treasures[slot] = ""
-		return fail("missing")
-	var why := can_act(c)
-	if why != "": return fail(why)
-	var t := treasure_of(id)
-	if t.is_empty(): return fail("unknown_treasure")
-	var cd_key := "treasure:" + id
-	if c.pools.cooldown(cd_key) > 0.0: return fail("cooldown", {"remaining": c.pools.cooldown(cd_key)})
-	var cost := float(t.get("qi", 0))
-	if cost > 0.0 and (c.pools.max_qi <= 0.0 or c.pools.qi < cost): return fail("no_qi", {"text": Tx.t("sim.combat.treasure_no_qi")})
-	var soul := treasure_soul_cost(c, t)
-	if soul > 0.0 and c.pools.soul < soul: return fail("no_soul", {"text": Tx.t("sim.combat.treasure_no_soul")})
-	var pv := player_view(c)
-	var here := Vector2(float(pv.x), float(pv.y))
-	var tl := timeline(c.id)
-	var out := {"action": str(t.action), "treasure": id, "targets": 0, "x": pv.x, "y": pv.y}
-	var fxs: Dictionary = treasure_fx.get(c.id, {})
-	match str(t.action):
-		"bell":
-			for e in _enemies_within(here, float(t.get("radius", 150))):
-				if not e.is_boss(): _apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.0)), "source": c.id})
-				if float(t.get("seal_s", 0)) > 0.0:
-					_apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.seal_s), "source": c.id})
-				out.targets = int(out.targets) + 1
-		"pagoda":
-			# One foe, an elite first if one is in reach; bosses are too great for it.
-			var tgt: EnemyState = null
-			for e in _enemies_within(here, float(t.get("range", 320))):
-				if e.is_boss(): continue
-				if tgt == null or (e.elite and not tgt.elite) or (e.elite == tgt.elite and e.plane.distance_to(here) < tgt.plane.distance_to(here)): tgt = e
-			if tgt == null:
-				var near_boss := _nearest_enemy(here, float(t.get("range", 320)))
-				if near_boss != null and near_boss.is_boss(): return fail("immune", {"text": Tx.t("sim.combat.pagoda_boss")})
-				return fail("no_target", {"text": Tx.t("sim.combat.treasure_no_target")})
-			_apply_status_to_enemy(tgt, {"id": "stun", "power": 1.0, "remaining": float(t.get("imprison_s", 4.0)), "source": c.id})
-			out.targets = 1
-			out.x = tgt.plane.x
-			out.y = tgt.plane.y
-		"mirror":
-			fxs.reflect = float(t.get("reflect_s", 2.0))
-		"seal":
-			var atk := _treasure_attack(t, "treasure:" + id, str(t.get("damage_type", "qi")), "earth")
-			for e in _enemies_within(here, float(t.get("radius", 120))):
-				_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
-				out.targets = int(out.targets) + 1
-		"cauldron":
-			var best: EnemyState = null
-			for e in _enemies_within(here, float(t.get("range", 260))):
-				if e.is_boss() or str(e.def.get("race", "beast")) != "beast": continue
-				if e.pools.hp > e.pools.max_hp * float(t.get("below", 0.2)): continue
-				if best == null or e.plane.distance_to(here) < best.plane.distance_to(here): best = e
-			if best == null: return fail("no_target", {"text": Tx.t("sim.combat.cauldron_no_target")})
-			captured[str(best.uid)] = true
-			out.x = best.plane.x
-			out.y = best.plane.y
-			_damage_enemy(best, best.pools.hp + 1.0, c.id, "physical", "none", false, {"source": "treasure:" + id})
-			out.targets = 1
-		"banner":
-			fxs.wisps = {"left": float(t.get("duration", 10)), "tick": 1.0, "n": int(t.get("wisps", 3)), "mult": float(t.get("mult", 0.6)),
-				"range": float(t.get("range", 280))}
-		"swarm":
-			var sw := start_swarm(c, true, float(t.get("duration", 12)))
-			if not sw.get("ok", false): return sw
-			out.targets = int(sw.get("swarm", 0))
-		"gourd":
-			fxs.gourd = float(t.get("absorb_s", 3.0))
-			fxs.gourd_r = float(t.get("radius", 240.0))
-		"palm":
-			# Elder Hu's Heaven-Splitting Palm: 600% Qi Attack along a line before you, one charge a use.
-			var facing := int(tl.facing)
-			var atk := {"damage_type": "qi", "element": "metal", "mult": [float(t.get("mult", 6.0)), float(t.get("mult", 6.0))], "range": [1.0, 1.0],
-				"knockback": 160.0, "source": "treasure:" + id}
-			for e in _enemies_in(pv, facing, {"x": [0, float(t.get("reach", 540))], "depth": float(t.get("depth", 70)), "alt": [-40, 160]}, false):
-				_player_hits_enemy(c, pv, e, atk, facing)
-				out.targets = int(out.targets) + 1
-			out.facing = facing
-			out.reach = float(t.get("reach", 540))
-		_:
-			return fail("unknown_treasure")
-	treasure_fx[c.id] = fxs
-	if cost > 0.0: apply_resource_change(c.id, "qi", -cost, "treasure")
-	if soul > 0.0: apply_resource_change(c.id, "soul", -soul, "treasure")
-	if float(t.get("cooldown_s", 0)) > 0.0: c.pools.cooldowns[cd_key] = float(t.cooldown_s)
-	if t.has("charges"):
-		var idx: int = c.inventory.first_index(id)
-		if idx >= 0:
-			var stack: Dictionary = c.inventory.bag[idx]
-			var left := int(stack.get("charges", int(t.charges))) - 1
-			out.charges = maxi(0, left)
-			if left <= 0:
-				game.inventory.apply_remove_index(c.id, idx, 1, "charges_spent")
-				c.inventory.treasures[slot] = ""
-			else:
-				stack.charges = left
-			emit("bag_changed", {"actor": c.id})
-	tl.flinch = 0.0
-	out.actor = c.id
-	emit("treasure_used", out)
-	emit("system_used", {"actor": c.id, "system": "treasure"})
-	return ok(out)
-
-## A shield that takes blows until its time is up (Iron Wall, Soul Lantern Ward, Guarding Cloud, Unbroken).
-func raise_shield(c, amount: float, seconds: float) -> void:
-	c.pools.shield = maxf(c.pools.shield, amount)
-	var fx: Dictionary = treasure_fx.get(c.id, {})
-	fx["shield_t"] = seconds
-	treasure_fx[c.id] = fx
-
-func _tick_treasures(c, delta: float) -> void:
-	var fxs: Dictionary = treasure_fx.get(c.id, {})
-	if fxs.is_empty(): return
-	for k in ["reflect", "gourd"]:
-		if float(fxs.get(k, 0.0)) > 0.0: fxs[k] = maxf(0.0, float(fxs[k]) - delta)
-	# S47 talismans: Iron Wall's shield fades when its time is up; Wind Step's free dodge lapses unused.
-	if fxs.has("shield_t"):
-		fxs.shield_t = float(fxs.shield_t) - delta
-		if float(fxs.shield_t) <= 0.0:
-			fxs.erase("shield_t")
-			c.pools.shield = 0.0
-	if fxs.has("free_dodge"):
-		fxs.free_dodge = float(fxs.free_dodge) - delta
-		if float(fxs.free_dodge) <= 0.0: fxs.erase("free_dodge")
-	var w: Dictionary = fxs.get("wisps", {})
-	if not w.is_empty():
-		w.left = float(w.left) - delta
-		w.tick = float(w.tick) - delta
-		if float(w.tick) <= 0.0 and game.room_rt:
-			w.tick = float(w.tick) + 1.0
-			var pv := player_view(c)
-			var here := Vector2(float(pv.x), float(pv.y))
-			var targets := _enemies_within(here, float(w.range))
-			targets.sort_custom(func(a, b): return a.plane.distance_to(here) < b.plane.distance_to(here))
-			var atk := {"damage_type": "qi", "element": "none", "mult": [float(w.mult), float(w.mult)], "range": [1.0, 1.0], "source": "treasure:wisp_banner"}
-			for i in mini(int(w.n), targets.size()):
-				var e: EnemyState = targets[i]
-				_player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
-				emit("wisp_struck", {"actor": c.id, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height() * 0.6})
-		if float(w.left) <= 0.0: fxs.erase("wisps")
-
-## A throwable from the quick-use slot (G2): needles, knives, a thunderclap pellet. Any weapon family can throw.
-func apply_throw(actor_id: String, e: Dictionary) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	var pv := player_view(c)
-	var facing := int(timeline(c.id).facing)
-	var n := int(e.get("count", 1))
-	for i in n:
-		_spawn_projectile({"team": "player", "owner": c.id, "x": float(pv.x) + facing * 24, "y": float(pv.y) + (i - (n - 1) * 0.5) * 6.0,
-			"alt": float(pv.alt) + 56 + i * 3, "dir": facing, "speed": float(e.get("speed", 600)), "range": float(e.get("range", 380)),
-			"pierce": int(e.get("pierce", 0)), "art": str(e.get("art", "needle")), "delay": i * 0.05, "element": "none",
-			"attack": _treasure_attack(e, "throw:" + str(e.get("art", "needle"))), "burst": float(e.get("burst", 0.0)),
-			"cloud": e.get("cloud", {})})
-	emit("system_used", {"actor": c.id, "system": "throw"})
-
-## A thunderclap pellet bursts where it lands: everything close by takes the blow and is thrown back.
-func _burst(c, p: Dictionary, first: EnemyState) -> void:
-	var at := Vector2(float(p.x), float(p.y))
-	var pv := player_view(c)
-	for e in _enemies_within(at, float(p.burst)):
-		if e == first: continue
-		_player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
-	# A poison pill leaves a cloud (S44): its status on everything inside, the first foe too.
-	var cloud: Dictionary = p.get("cloud", {})
-	if not cloud.is_empty():
-		for e in _enemies_within(at, float(p.burst)):
-			if e.alive and not e.pools.steadfast.has(str(cloud.status)):
-				_apply_status_to_enemy(e, {"id": str(cloud.status), "power": float(cloud.get("power", 0.02)), "remaining": float(cloud.get("duration_s", 5.0)), "source": c.id})
-	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst, "cloud": str(cloud.get("status", ""))})
-
-func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
-	var best: EnemyState = null
-	var d := radius
-	for e in game.room_rt.living_enemies():
-		if e.team != "enemy": continue
-		var dist = e.plane.distance_to(at)
-		if dist < d:
-			d = dist
-			best = e
-	return best
+		revival.gravely_wound(c, "soul" if pool == "soul" else "hp")
 
 # ------------------------------------------------------------------ apply_* commands
 ## The public command other authorities use to change a pool (Part 2).
@@ -2810,26 +1632,12 @@ func _hollow_seizure(c) -> void:
 	c.pools.set_value("hollowing", float(h.get("after_seizure", 80)))
 	emit("hollow_seizure", {"actor": c.id, "turned": turned})
 
-func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, source: String) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	var total := heal_total(c, pct, amount)
-	if over_s > 0.0:
-		# A fifth at once, the rest spread over the time given; it runs in a fight too, and resting does not multiply it.
-		apply_resource_change(actor_id, "hp", total * 0.2, source)
-		var list: Array = hots.get(actor_id, [])
-		list.append({"per_s": total * 0.8 / over_s, "left": over_s, "total": over_s, "source": source})
-		hots[actor_id] = list
-	else:
-		apply_resource_change(actor_id, "hp", total, source)
-
-## The HP a heal of `pct` of max HP plus `amount` gives this character (S48 Mercy raises it).
-static func heal_total(c, pct: float, amount: float) -> float:
-	return (amount + c.pools.max_hp * pct) * (1.0 + c.stats.value("healing_received"))
-
-## The heals over time still running on a character, for the HUD's status row: [{source, left, total, per_s}].
-func hots_of(actor_id: String) -> Array:
-	return hots.get(actor_id, [])
+## A shield that takes blows until its time is up (Iron Wall, Soul Lantern Ward, Guarding Cloud, Unbroken).
+func raise_shield(c, amount: float, seconds: float) -> void:
+	c.pools.shield = maxf(c.pools.shield, amount)
+	var fx: Dictionary = treasure_fx.get(c.id, {})
+	fx["shield_t"] = seconds
+	treasure_fx[c.id] = fx
 
 func apply_buff(actor_id: String, e: Dictionary, source: String) -> void:
 	var c = game.character(actor_id)
@@ -2910,3 +1718,90 @@ func end_spar(actor_id: String) -> void:
 	spar.erase(actor_id)
 	var c = game.character(actor_id)
 	if c != null: apply_resource_change(actor_id, "hp", c.pools.max_hp, "spar")
+
+# ------------------------------------------------------------------ the parts' faces
+# Every public method that moved into a part, and the private ones that tests and tools call by name (S11 renames
+# those), forwarded under the names they always had. The authority's own flow and the parts call a part directly.
+
+# Flight and the movement arts (combat_flight.gd).
+func start_flight(c) -> Dictionary: return flight.start_flight(c)
+func stop_flight(actor_id: String, reason: String) -> void: flight.stop_flight(actor_id, reason)
+func flight_allowed(actor_id: String) -> bool: return flight.flight_allowed(actor_id)
+func is_flying(actor_id: String) -> bool: return flight.is_flying(actor_id)
+func vessel_qi_mult(c) -> float: return flight.vessel_qi_mult(c)
+func air_qi_mult(c) -> float: return flight.air_qi_mult(c)
+func knows_art(c, art: String) -> bool: return flight.knows_art(c, art)
+func plunge(c) -> Dictionary: return flight.plunge(c)
+func glide(c, on: bool) -> Dictionary: return flight.glide(c, on)
+func is_gliding(actor_id: String) -> bool: return flight.is_gliding(actor_id)
+
+# Phantom Double (combat_phantom.gd).
+func _cast_illusion(c, t: Dictionary) -> void: phantom.cast_illusion(c, t)
+func decoy_for(e: EnemyState, actor_id: String) -> Dictionary: return phantom.decoy_for(e, actor_id)
+func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Dictionary) -> void: phantom.strike_decoy(e, ev, hitbox, attack)
+
+# The flying sword, Sword Intent and Killing Intent (combat_sword.gd).
+func natal_demand(inst: Dictionary) -> float: return sword.natal_demand(inst)
+func knows_sword_release(c) -> bool: return sword.knows_sword_release(c)
+func toggle_sword_release(c) -> Dictionary: return sword.toggle_sword_release(c)
+func _tick_sword(c, delta: float) -> void: sword.tick_sword(c, delta)
+func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void: sword.feed_intent(c, e, attack)
+func intent_penetration(c) -> float: return sword.intent_penetration(c)
+func _gain_killing_intent(c, victim: EnemyState) -> void: sword.gain_killing_intent(c, victim)
+func killing_intent_stacks(actor_id: String) -> int: return sword.killing_intent_stacks(actor_id)
+
+# The sword swarm (combat_swarm.gd).
+func swarm_count(c, with_treasure: bool) -> int: return swarm.swarm_count(c, with_treasure)
+func toggle_sword_swarm(c, t: Dictionary) -> Dictionary: return swarm.toggle_sword_swarm(c, t)
+func start_swarm(c, from_treasure: bool, secs: float) -> Dictionary: return swarm.start_swarm(c, from_treasure, secs)
+func swarm_of(actor_id: String) -> int: return swarm.swarm_of(actor_id)
+func _end_swarm(c, why: String) -> void: swarm.end_swarm(c, why)
+
+# The flute's melody (combat_flute.gd).
+func channel_melody(c, on: bool) -> Dictionary: return flute.channel_melody(c, on)
+func is_playing(actor_id: String) -> bool: return flute.is_playing(actor_id)
+
+# Heals (combat_heals.gd).
+func apply_heal(actor_id: String, pct: float, amount: float, over_s: float, source: String) -> void: heals.apply_heal(actor_id, pct, amount, over_s, source)
+static func heal_total(c, pct: float, amount: float) -> float: return CombatHeals.heal_total(c, pct, amount)
+func hots_of(actor_id: String) -> Array: return heals.hots_of(actor_id)
+func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -> int: return heals.heal_circle(c, pct, seconds, radius, source)
+func sect_support_mult(c) -> float: return heals.sect_support_mult(c)
+func _sect_support(c, v: Dictionary) -> void: heals.sect_support(c, v)
+
+# The Blood path (combat_blood_path.gd).
+func blood_lifesteal(c) -> float: return blood_path.blood_lifesteal(c)
+func _lifesteal(c, amount: float, attack: Dictionary) -> void: blood_path.lifesteal(c, amount, attack)
+func essence_of(actor_id: String) -> float: return blood_path.essence_of(actor_id)
+func _feed_blood_essence(p: Dictionary) -> void: blood_path.feed_blood_essence(p)
+
+# Array Plates (combat_plates.gd) and talismans (combat_talismans.gd).
+func deploy_array(actor_id: String, e: Dictionary) -> void: plates.deploy_array(actor_id, e)
+func use_talisman(c, index: int) -> Dictionary: return talismans.use_talisman(c, index)
+
+# Projectiles (combat_projectiles.gd).
+func _spawn_projectile(p: Dictionary) -> void: projectiles.spawn_projectile(p)
+func spawn_enemy_projectile(e: EnemyState, attack: Dictionary) -> void: projectiles.spawn_enemy_projectile(e, attack)
+func _tick_projectiles(delta: float) -> void: projectiles.tick_projectiles(delta)
+
+# Treasures and throwables (combat_treasures.gd).
+static func treasure_of(item_id: String) -> Dictionary: return CombatTreasures.treasure_of(item_id)
+static func treasure_soul_cost(c, t: Dictionary) -> float: return CombatTreasures.treasure_soul_cost(c, t)
+func use_treasure(c, slot: int) -> Dictionary: return treasures.use_treasure(c, slot)
+func self_detonate(c, index: int, confirm: bool) -> Dictionary: return treasures.self_detonate(c, index, confirm)
+func _tick_treasures(c, delta: float) -> void: treasures.tick_treasures(c, delta)
+func apply_throw(actor_id: String, e: Dictionary) -> void: treasures.apply_throw(actor_id, e)
+func _burst(c, p: Dictionary, first: EnemyState) -> void: treasures.burst(c, p, first)
+
+# Grave wounds and revival (combat_revival.gd).
+func _gravely_wound(c, cause: String) -> void: revival.gravely_wound(c, cause)
+func revive_here_allowed(c) -> Dictionary: return revival.revive_here_allowed(c)
+func fruit_revival_allowed(c) -> Dictionary: return revival.fruit_revival_allowed(c)
+func choose_revival(c, where: String) -> Dictionary: return revival.choose_revival(c, where)
+
+# What a landed blow carries after its damage (combat_riders.gd).
+func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void: riders.weapon_after_hit(c, e, attack)
+func poison_body_active(c) -> bool: return riders.poison_body_active(c)
+func poison_body_threshold(c) -> float: return riders.poison_body_threshold(c)
+func _poison_body(c, e: EnemyState) -> void: riders.poison_body(c, e)
+func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void: riders.oil_strike(c, e, ev)

@@ -10,7 +10,7 @@ foreach ($family in @('swing','thrust','punch')) {
         if (-not $catalog._actions.$action -or $catalog._actions.$action.loop -ne $false) { $problems.Add("Missing non-looping combo stage: $action"); continue }
         $body = $catalog.body.light.layers[0].animations.$action
         if ($body.sheets) {
-            $path = Join-Path $PSScriptRoot ($body.sheets[0] -replace '^art_v12/','art/')
+            $path = Join-Path $PSScriptRoot ($body.sheets[0] -replace '^art_v12/','art/' -replace '^res://','')
             if (Test-Path -LiteralPath $path) { $hashes += (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash }
         }
     }
@@ -37,7 +37,7 @@ foreach ($category in @('body','hair','shirt','pants','shoes','weapon')) {
                 if ($category -eq 'hair' -and $animation.sheets.Count -ne 6) { $problems.Add("Hair pose must cover six dyes: $label") }
                 if ($animation.rig -and $animation.rig.track.Count -ne $action.Value.frames) { $problems.Add("Rig frame count differs from body: $label") }
                 foreach ($sheet in $animation.sheets) {
-                    $path = Join-Path $PSScriptRoot ($sheet -replace '^art_v12/','art/')
+                    $path = Join-Path $PSScriptRoot ($sheet -replace '^art_v12/','art/' -replace '^res://','')
                     if (-not (Test-Path -LiteralPath $path)) { $problems.Add("Missing sprite: $sheet"); continue }
                     $bytes = [IO.File]::ReadAllBytes($path)
                     if ($bytes.Length -lt 24 -or $bytes[0] -ne 137 -or $bytes[1] -ne 80) { $problems.Add("Invalid PNG: $sheet"); continue }

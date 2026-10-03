@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## audio_tests (decision 43, the sound pass; docs/redesign/sound.md): nobody listens during the build, so this suite
 ## checks what can be checked without ears.
 ##   1. every sound id the data and the code name has a file: data/sound.json's, the moments' sound layers, the
@@ -22,21 +22,10 @@ extends Node
 ##      at most three critters and three people at work at once, and never keeps a sound of the fight from a voice.
 ## Run headless:  godot --headless --path . res://tests/audio_tests.tscn
 
-var checks := 0
-var failures := 0
 var main: Node
 
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
-
 func _main() -> void:
-	var folder := "user://audio_test_saves/"
+	var folder := run_root() + "saves/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
 	main = load("res://scenes/main.tscn").instantiate()
@@ -63,8 +52,7 @@ func _main() -> void:
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
-	print("audio_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	end_suite()
 
 func _has(id: String) -> bool:
 	return SoundBank.has_sound(id)

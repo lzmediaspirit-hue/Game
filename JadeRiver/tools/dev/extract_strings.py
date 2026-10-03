@@ -19,7 +19,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "tools", "data", "ui_strings.json")
 
 SCOPE = [
-    ("scripts/ui/pages", "ui"), ("scripts/ui/page.gd", "ui.page"), ("scripts/hud.gd", "hud"), ("scripts/shell", "shell"),
+    ("scripts/ui/pages", "ui"), ("scripts/ui/page.gd", "ui.page"), ("scripts/hud.gd", "hud"), ("scripts/hud", "hud"), ("scripts/shell", "shell"),
     ("scripts/main.gd", "main"), ("scripts/world.gd", "world_view"), ("scripts/player.gd", "player"),
     ("scripts/presentation/enemy_view.gd", "view"), ("scripts/presentation/loot_view.gd", "view"),
     ("scripts/presentation/portal_view.gd", "view"), ("scripts/presentation/npc_view.gd", "view"),

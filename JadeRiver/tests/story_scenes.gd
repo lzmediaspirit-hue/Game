@@ -27,7 +27,6 @@ func _main() -> void:
 	_talks_close()
 	if is_instance_valid(scene_director): scene_director.free()
 	Game.pause(false)
-	print("story_scenes: %d checks, %d failures" % [checks, failures])
 	end_suite()
 
 # ------------------------------------------------------------------ 1

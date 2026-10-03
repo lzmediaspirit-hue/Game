@@ -1,4 +1,4 @@
-extends Node
+extends "res://tests/lib/suite.gd"
 ## Event contract (Part 7 · Quality gates): every event in the Part 4 catalogue
 ## (data/event_contract.json, built by tools/data/contract.py) is emitted only by
 ## the scripts of its system, and something reacts to it — a subscriber, a HUD or
@@ -9,18 +9,7 @@ extends Node
 ## time from Clock.
 ## Run headless:  godot --headless --path . res://tests/contract_tests.tscn
 
-var checks := 0
-var failures := 0
 var sources: Dictionary = {}   # script name (no extension) -> Array of lines
-
-func check(ok: bool, what: String) -> void:
-	checks += 1
-	if not ok:
-		failures += 1
-		print("FAIL: ", what)
-
-func _ready() -> void:
-	call_deferred("_main")
 
 func _main() -> void:
 	_read_scripts("res://scripts/")
@@ -63,8 +52,8 @@ func _main() -> void:
 	_version_one_place()
 	_controls_line()
 	_technique_intents()
-	print("contract_tests: %d checks, %d failures" % [checks, failures])
-	get_tree().quit(1 if failures > 0 else 0)
+	_data_methods()
+	end_suite()
 
 ## P4 (docs/ui_style_guide.md §4): durations are written in one style, by Tx.span (UiKit.span on the pages): no string
 ## but the span's own keys and the countdown clock's prints a count straight before a unit of time, except a few that
@@ -163,7 +152,7 @@ func _data_text() -> String:
 ## The same rules as tools/dev/extract_strings.py: a literal that reads like text is not
 ## allowed in the player-facing scripts unless it is an id, a technical token, a key,
 ## a comparison, a membership list, a const, a signature default or debug output.
-const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
+const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
 	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
 	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
 	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
@@ -304,7 +293,7 @@ func _pages_read_only() -> void:
 	var write := "[\\w.\\[\\]\"]*\\s*([-+*/]?=(?!=)|\\.(append|erase|clear|merge|push_back|push_front|remove_at|pop_back|pop_front|resize|sort)\\()"
 	var re := RegEx.create_from_string("(" + state + write + ")|(Game\\.account" + write + ")|(Game\\.[a-z_]+\\.(apply_\\w+|\\w*settle\\w*|ensure_fields)\\()")
 	var found: Array = []
-	for path in _walk("res://scripts/ui/") + ["res://scripts/hud.gd"] + _walk("res://scripts/shell/"):
+	for path in _walk("res://scripts/ui/") + ["res://scripts/hud.gd"] + _walk("res://scripts/hud/") + _walk("res://scripts/shell/"):
 		var lines := FileAccess.get_file_as_string(path).split("\n")
 		for i in lines.size():
 			if lines[i].strip_edges().begins_with("#"): continue
@@ -422,3 +411,38 @@ func _technique_intents() -> void:
 		keys["lineage.%s.rule" % lin.id] = true
 	var missing: Array = keys.keys().filter(func(k): return not ContentDB.strings.has(str(k)))
 	check(keys.size() > 40 and missing.is_empty(), "every generated art's words are written (%d lines; %s)" % [keys.size(), str(missing.slice(0, 6))])
+
+# ------------------------------------------------------------------ methods named by data (audit 45, BUG-06)
+## A method the game calls by a name its data gives exists on its target, so a rename fails here, never at run time:
+##   - the points pools: tutorials.json "points" and the HUD's POINT_SYSTEMS name each pool's getter as [authority,
+##     getter]; Game's authority of that name has the getter, and TutorialRules.counter's table maps the pair to it;
+##   - the moments' screen layers: MomentView draws each layer drawn under or over the screen by its kind, _draw_<kind>
+##     (data_validation holds every layer in the data to MomentRules.LAYER_KINDS);
+## and no other script calls a method by a name it reads (Game.get(<name>).call(<name>), call(<a name built>),
+## Callable(<object>, <a name built>)): a new one comes with its rule here.
+const NAMED_CALL_SITES := {"moment_view": "the screen layers' _draw_<kind>"}
+
+func _data_methods() -> void:
+	var pairs := {}
+	var pools: Dictionary = ContentDB.config("tutorials").get("points", {})
+	for id in pools: pairs["tutorials.json points " + str(id)] = pools[id]
+	for row in load("res://scripts/hud.gd").POINT_SYSTEMS: pairs["the HUD's POINT_SYSTEMS " + str(row.id)] = row.count
+	check(pools.size() >= 4 and pairs.size() >= 8, "the points pools are named in tutorials.json and the HUD (%d pairs)" % pairs.size())
+	for where in pairs:
+		var pair: Array = pairs[where]
+		var target = Game.get(str(pair[0])) if pair.size() == 2 else null
+		check(target is Object and target.has_method(str(pair[1])) and TutorialRules.counter(pair).is_valid(),
+			"%s names %s: Game has the getter, and TutorialRules.counter maps it" % [where, ".".join(pair)])
+	var drawn := {}
+	for m in (load("res://scripts/presentation/moment_view.gd") as Script).get_script_method_list(): drawn[str(m.name)] = true
+	for kind in MomentRules.LAYER_KINDS:
+		if MomentRules.LAYER_KINDS[kind] in ["under", "over"]:
+			check(drawn.has("_draw_" + str(kind)), "a moment's %s layer (drawn %s the screen) has MomentView._draw_%s" % [kind, MomentRules.LAYER_KINDS[kind], kind])
+	var named := RegEx.create_from_string("Game\\.get\\(.*\\)\\.call\\(|(?<![\\w.])call(v|_deferred)?\\((?!\\s*\"[^\"]*\"\\s*[,)])|Callable\\(\\s*[\\w.]+\\s*,\\s*[^\\s\"]")
+	var unheld: Array = []
+	for name in sources:
+		var lines: Array = sources[name]
+		for i in lines.size():
+			if str(lines[i]).strip_edges().begins_with("#"): continue
+			if named.search(str(lines[i])) != null and not NAMED_CALL_SITES.has(name): unheld.append("%s:%d" % [name, i + 1])
+	check(unheld.is_empty(), "no script calls a method by a name it reads, but %s (%s)" % [", ".join(NAMED_CALL_SITES.values()), ", ".join(unheld.slice(0, 6))])
