@@ -41,6 +41,13 @@ The motion styles (STYLES) are the hand modules' key-frame tables, named: idle `
 `bound`, `lope`, `trot`; windup `rear`, `sit_up`, `paw_ground`; attack `lunge_bite`, `lunge_shake`, `charge_toss`;
 hurt `knock_squash`, `flinch`, `stumble`; death `topple_side`, `curl_side`, `buckle_roll`. M1's: idle `alert`, `pant`;
 windup `crouch` (low, the tail raised), `bark` (the head up, barking); attack `pounce_bite` (the forepaws reaching).
+
+M2's variants: `saurian` (the rapids lizard: a saurian head with a cheek fin, `sprawl` legs, a `fin` crest and finned
+tail, a `river` coat; styles idle `bask`, walk `scurry`, windup `tail_curl`, attack `spin_whip`, death `flip_over`),
+`bovid` (the riverstone ox: a horned head snorting steam, heavy `hoof` legs by `legs.thick` and `legs.bones`, a
+`cracked` coat under a crest of `pebbles`) and `cervid` (the hollow stag: antlers, hollow eyes and mist, a `saddle` coat,
+`hackles`; the Hollow's look without its strands, `strands` False). The mist wolf is the canine with `opts.misty` (its
+fall comes apart into mist) and a `mist` brush tail.
 """
 from __future__ import annotations
 

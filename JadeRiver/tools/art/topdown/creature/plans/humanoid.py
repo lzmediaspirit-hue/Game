@@ -29,6 +29,22 @@ jade eyes), a mane of spiral curls round its head (`mane`), a carved collar with
 tail, cracks that light up jade in its tell and its slam (`cracks`, the channel `glow`). It hauls both fists up over its
 head (the tell, held) and slams them down before it in dust (the blow); beaten, it comes apart into a heap of blocks.
 Its styles: idle `stand`, walk `stomp`, windup `fists_up`, attack `double_slam`, hurt `knock`, death `crumble`.
+
+`ape` (M2, the cliff ape): the monkey's body grown heavy, a mane over its shoulders, a pale face under a heavy brow
+(`monkey` face, `brow`), and a boulder held over its head in both hands (`held` kind "boulder"). Its styles: idle
+`knuckle`, walk `knuckle_lope`, windup `hoist`, attack `boulder_smash`, hurt `knock`, death `topple_back`.
+
+`sentinel` and `gate` (M2, the jade sentinel and the gate guardian): an armoured body, `armor` paint (rows of plates, a
+belt), a `helm` face (a dome, a brim, a crest, a mask, glowing eyes; the gate's brows, mouth and eave horns), pauldrons,
+tassets and gold runes (`armor`); the sentinel's halberd (`held` kind "halberd"), the gate guardian's bronze chest plate
+and two jade bi rings orbiting it (`rings`). Styles: the sentinel's idle `halberd_rest`, walk `march`, windup
+`halberd_back`, attack `halberd_sweep`, hurt `armor_rock`, death `topple_crack`; the gate's idle `ring_orbit`, walk
+`ring_stomp`, windup `rings_rise`, attack `ring_sweep`, hurt `ring_wobble`, death `kneel_crack`.
+
+`chief`, `abbot` and `elder` (M2, the people of size: Big Toad Tan, the Drowned Abbot, Elder Gu): see "the people of
+size" below. Their styles: Tan's `chief_idle`, `chief_waddle`, `cleaver_raise`, `cleaver_slam`, `chief_rock`,
+`chief_fall`; the Abbot's `abbot_sway`, `abbot_glide`, `staff_raise`, `staff_slam`, `abbot_rock`, `abbot_collapse`;
+Gu's `elder_stand`, `elder_walk`, `tide_draw`, `tide_strike`, `elder_rock`, `elder_fall`.
 """
 from __future__ import annotations
 

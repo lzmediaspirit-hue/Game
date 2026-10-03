@@ -20,6 +20,12 @@ a spine, its radius a profile along it, posed by moving the spine.
 The motion styles (STYLES): the eel's idle `sway`, walk `glide`, windup `rear_back`, attack `lunge_snap`, hurt
 `snap_back`, death `sink`, its key poses written per frame as (control points, head tilt, gape, eyes, sunk); the leech's
 idle `quest`, walk `inchworm`, swim `ribbon`, windup `rear_s`, attack `latch_drink`, hurt `ball_up`, death `writhe_flat`.
+
+M2's variants: `dragon` (the riverbed serpent: the eel's key poses with a jade river dragon on them, gold belly scutes
+and spines, horns, whiskers, a gill frill, a water orb gathered before its jaws in the tell; styles `coil_sway`,
+`surge`, `rear_orb`, `dragon_bite`, `toss_back`, `dive_under`) and `boulder` (the boulder serpent: a thick snake under
+stone plates that curls into a ball of rock and rolls; styles `rest_s`, `slither`, `curl_ball`, `boulder_roll`,
+`flinch_back`, `slump_crack`).
 """
 from __future__ import annotations
 

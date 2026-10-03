@@ -15,6 +15,11 @@ The motion styles (STYLES): idle `peer`, walk `strut`, windup `spread_puff`, att
 `fold_sit`. Channels: `lunge`, `rise` (the body's lift), `hop` (off the ground), `pitch`, `head` (its pitch), `yaw`,
 `reach` (the neck), `puff`, `spread` (the wings, 0 folded to 1 spread wide), `sweep` (the wings swept forward, degrees),
 `beak`, `sit`, `tuck`, `wind` (wind lines from the buffet).
+
+M2's flyers (`wings.seg`): `vulture`, `crane`, `hawk` and `roc`, jointed wings of a span with their flight feathers
+painted, drawn in the air over their feet. Styles: idle `soar`, walk `flap`, hurt `tumble_back`, death `fold_fall`; the
+tells `rise_fold` (the vulture), `rise_coil` (the crane), `mantle` (the hawk), `gather_wind` (the roc); the blows
+`dive_rake`, `swoop_peck`, `lightning_dive`, `wing_gust`.
 """
 from __future__ import annotations
 

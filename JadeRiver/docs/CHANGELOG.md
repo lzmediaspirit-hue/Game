@@ -15,9 +15,9 @@ Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that 
   - the rapids lizard: a finned river lizard on sprawled legs. It curls its tail, then spins round in a tail whip.
   - the boulder serpent: a thick snake under grey stone plates. It curls into a ball of rock and rolls at you.
   - the mist vulture, the cloudwing crane, the stormwing hawk and the cloudpeak roc: flyers with wings of a span,
-    drawn in the air over their shadows. The vulture mantles and rakes, the crane rises with its neck coiled and
-    stabs, the hawk dives in a flash of lightning, and the roc (white and gold, the biggest of them) gathers a storm
-    wind under its spread wings and beats a gust.
+    drawn in the air over their shadows. The vulture rises with its wings folded and dives to rake, the crane rises
+    with its neck coiled and swoops to stab, the hawk mantles its wings and dives in a flash of lightning, and the roc
+    (white and gold, the biggest of them) gathers a storm wind under its spread wings and beats a gust.
   - the riverstone ox: a river-grey hide with pebbles grown into its back. It paws the ground snorting steam, then
     charges to toss with its horns.
   - the cliff ape: a maned ape that hoists a boulder over its head and smashes it down.
