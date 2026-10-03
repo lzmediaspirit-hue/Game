@@ -552,7 +552,7 @@ static func badge_color(kind: String) -> Color:
 static func affix_text(a: Dictionary) -> String:
 	var v := float(a.get("value", 0.0))
 	var stat := str(a.get("stat", ""))
-	var pct := str(a.get("op", "flat")) != "flat" or _stat_is_percent(stat)
+	var pct := str(a.get("op", "flat")) != "flat" or stat_is_percent(stat)
 	var mag := ("%d%%" % int(round(absf(v) * 100))) if pct else fmt(absf(v))
 	var label := stat.replace("_", " ")
 	var el := str((a.get("condition", {}) as Dictionary).get("element", "")) if a.get("condition") is Dictionary else ""
@@ -567,7 +567,7 @@ static func seal_gift(rule: Dictionary, named := true) -> String:
 		if str(e.get("kind", "")) == "add_leaf": parts.append(Tx.t("ui.codex.gift_leaf") % ContentDB.name_of("enemies", str(e.enemy)) if named else Tx.t("ui.codex.gift_leaf_plain"))
 	return " · ".join(parts)
 
-static func _stat_is_percent(stat: String) -> bool:
+static func stat_is_percent(stat: String) -> bool:
 	for s in ContentDB.stat_const("stats", []):
 		if str(s.get("id", "")) == stat: return str(s.get("format", "")) == "percent"
 	return false
@@ -699,11 +699,11 @@ static func _creature_bounds(key: String, texture: Texture2D, cell: Rect2i) -> R
 static func draw_hearts(ci: CanvasItem, pos: Vector2, filled: int, total: int, r := 10.0) -> void:
 	for i in total:
 		var c := pos + Vector2(r + i * r * 2.5, 0)
-		_heart(ci, c, r + 1.5, Color(INK, 0.85))
-		_heart(ci, c, r, HEART if i < filled else Color(HEART.darkened(0.6), 0.9))
+		draw_heart(ci, c, r + 1.5, Color(INK, 0.85))
+		draw_heart(ci, c, r, HEART if i < filled else Color(HEART.darkened(0.6), 0.9))
 		if i < filled: ci.draw_circle(c + Vector2(-r * 0.45, -r * 0.4), r * 0.18, Color(1, 1, 1, 0.55))
 
-static func _heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
+static func draw_heart(ci: CanvasItem, c: Vector2, r: float, col: Color) -> void:
 	ci.draw_circle(c + Vector2(-r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_circle(c + Vector2(r * 0.48, -r * 0.22), r * 0.56, col)
 	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 1.02, -r * 0.08), c + Vector2(r * 1.02, -r * 0.08), c + Vector2(0, r * 0.98)]), col)

@@ -645,7 +645,7 @@ func _draw_right() -> void:
 	# The Bench: what the apprentices made on its table, and the craft levels that bring more.
 	if ch == null: return
 	if not Unlocks.is_unlocked(ch.id, "apprentice_bench"):
-		_lock_icon(Vector2(CAB.position.x + 20, BENCH_Y + 54), 1.5)
+		lock_icon(Vector2(CAB.position.x + 20, BENCH_Y + 54), 1.5)
 		para(Rect2(CAB.position.x + 50, BENCH_Y + 52, CAB.size.x - 66, 60), Unlocks.locked_text("apprentice_bench"), 18, UiKit.PAPER, 2)
 		para(Rect2(CAB.position.x + 16, BENCH_Y + 138, CAB.size.x - 32, 40), Tx.t("ui.posts.bench_short"), 14, UiKit.MIST, 2)
 		return

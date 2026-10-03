@@ -53,6 +53,7 @@ func _main() -> void:
 	_controls_line()
 	_technique_intents()
 	_data_methods()
+	_public_surfaces()
 	end_suite()
 
 ## P4 (docs/ui_style_guide.md §4): durations are written in one style, by Tx.span (UiKit.span on the pages): no string
@@ -446,3 +447,161 @@ func _data_methods() -> void:
 			if str(lines[i]).strip_edges().begins_with("#"): continue
 			if named.search(str(lines[i])) != null and not NAMED_CALL_SITES.has(name): unheld.append("%s:%d" % [name, i + 1])
 	check(unheld.is_empty(), "no script calls a method by a name it reads, but %s (%s)" % [", ".join(NAMED_CALL_SITES.values()), ", ".join(unheld.slice(0, 6))])
+
+# ------------------------------------------------------------------ public surfaces (audit 45, S11)
+## A script calls another script by its public names only: no `<expr>._name(` into a method another script keeps to
+## itself (nor `<expr>.call("_name", …)` or `Callable(<expr>, "_name")`), in scripts/, tests/ or tools/
+## (docs/architecture/authority_parts.md, "Public surfaces"). The one allowance: a part, under
+## scripts/simulation/authority/<name>/ or scripts/hud/, calls its owner's own helpers through its back-reference
+## (`combat._dao_tier`, `hud._x`), since the owner and its parts are one owner. Outside the rule, being no other
+## script's private method: a call on self or super; a script's own private function, called on another of its kind or
+## from one of its inner classes (`coach._draw_card`, TechniquePicture's Host calling `TechniquePicture._tend()`); and
+## Godot's virtual callbacks (`_process`, `_gui_input` …), the engine's names. A line marked `# side view` is left to
+## the side view's retirement (S12).
+const ENGINE_CALLBACKS := ["_process", "_physics_process", "_input", "_unhandled_input", "_unhandled_key_input",
+	"_shortcut_input", "_gui_input", "_draw", "_ready", "_init", "_enter_tree", "_exit_tree", "_notification",
+	"_initialize", "_finalize", "_get", "_set", "_get_property_list", "_to_string"]
+const SURFACE_ROOTS := ["res://scripts/", "res://tests/", "res://tools/"]
+
+var _surface_classes := {}   # global class or autoload name -> its script's path
+
+func _public_surfaces() -> void:
+	for row in ProjectSettings.get_global_class_list(): _surface_classes[str(row["class"])] = str(row["path"])
+	for p in ProjectSettings.get_property_list():
+		var key := str(p["name"])
+		if key.begins_with("autoload/"): _surface_classes[key.get_slice("/", 1)] = str(ProjectSettings.get_setting(key)).trim_prefix("*")
+	var def_re := RegEx.create_from_string("^\\s*(?:static\\s+)?func\\s+(_\\w+)\\s*\\(")
+	var lines_of := {}
+	var privates := {}   # path -> {name: true}: every private function of the script, its inner classes' too
+	for root in SURFACE_ROOTS:
+		for path in _walk(root):
+			var lines := Array(FileAccess.get_file_as_string(path).split("\n"))
+			lines_of[path] = lines
+			var own := {}
+			for line in lines:
+				var m := def_re.search(line)
+				if m != null: own[m.get_string(1)] = true
+			privates[path] = own
+	var faults: Array = []
+	var by_parts := 0
+	for path in lines_of:
+		var r := _private_calls(path, lines_of[path], privates)
+		faults.append_array(r.faults)
+		by_parts += int(r.by_parts)
+	check(lines_of.size() >= 200 and by_parts > 0, "the public-surface rule reads scripts/, tests/ and tools/ (%d scripts) and lets the parts call their owners' helpers (%d calls)" % [lines_of.size(), by_parts])
+	check(faults.is_empty(), "no script calls another script's private method (%d): %s" % [faults.size(), ", ".join(faults.slice(0, 8))])
+	# The rule on lines of its own: each it must catch, and each it must let through.
+	var part := "res://scripts/simulation/authority/combat/combat_probe.gd"
+	var page := "res://scripts/ui/pages/probe_page.gd"
+	privates[part] = {}
+	privates[page] = {"_own": true}
+	var caught: Array = []
+	for line in ["\tGame.posts._probe(c)", "\tvar x = game.world._probe(c)", "\tUiKit._probe(1.0)", "\tpg._probe()",
+			"\tGame.combat.call(\"_probe\", c)", "\tvar f := Callable(Game.combat, \"_probe\")", "\thud._probe()"]:
+		if _private_calls(page, [line], privates).faults.size() == 1: caught.append(line.strip_edges())
+	for line in ["\tcombat.sword._probe(c)", "\tcombat._probe(c)"]:
+		if _private_calls(part, [line], privates).faults.size() == 1: caught.append(line.strip_edges())
+	var passed: Array = []
+	for line in ["\tself._own()", "\tother._own(1)", "\tw._process(0.1)", "\tpg._gui_input(ev)", "\tw._probe(1)   # side view",
+			"\tsuper._ready()", "\t# x._probe()", "\tprint(\"a._probe(\")", "\tcall_deferred(\"_own\")"]:
+		if _private_calls(page, [line], privates).faults.is_empty(): passed.append(line.strip_edges())
+	if _private_calls(part, ["\tcombat._dao_tier(c)"], privates).faults.is_empty(): passed.append("combat._dao_tier(c)")
+	check(caught.size() == 9 and passed.size() == 10, "the rule catches each call into another script's private method (%d of 9: %s) and lets each other call through (%d of 10: %s)" % [caught.size(), caught, passed.size(), passed])
+
+## The calls of one script that the public-surface rule refuses, as "path:line: receiver._name", and how many calls
+## it let through as a part's calls to its owner.
+func _private_calls(path: String, lines: Array, privates: Dictionary) -> Dictionary:
+	var call_re := RegEx.create_from_string("([\\w.]*[\\w)\\]])\\._(\\w+)\\(")
+	var named_re := RegEx.create_from_string("([\\w.]*[\\w)\\]])\\.call(?:v|_deferred)?\\(\\s*&?\"_(\\w+)\"|Callable\\(\\s*([\\w.]+)\\s*,\\s*&?\"_(\\w+)\"")
+	var owner_path := ""
+	var back := ""
+	if path.begins_with("res://scripts/simulation/authority/") and path.get_base_dir() != "res://scripts/simulation/authority":
+		back = path.get_base_dir().get_file()
+		owner_path = "res://scripts/simulation/authority/%s_authority.gd" % back
+	elif path.begins_with("res://scripts/hud/"):
+		back = "hud"
+		owner_path = "res://scripts/hud.gd"
+	var faults: Array = []
+	var by_parts := 0
+	var triple := false
+	for i in lines.size():
+		var line: String = lines[i]
+		var has_triple := line.contains("\"\"\"")
+		if not has_triple and (triple or not (line.contains("._") or line.contains(".call") or line.contains("Callable("))): continue
+		var split := _code_of(line, triple)
+		triple = split[3]
+		if str(split[2]).begins_with("# side view"): continue
+		var code: String = split[0]
+		var raw: String = split[1]
+		var found: Array = []   # [receiver, method]
+		for m in call_re.search_all(code): found.append([m.get_string(1), "_" + m.get_string(2)])
+		for m in named_re.search_all(raw):
+			if code[m.get_start()] != raw[m.get_start()]: continue   # inside a string
+			if m.get_string(1) != "": found.append([m.get_string(1), "_" + m.get_string(2)])
+			else: found.append([m.get_string(3), "_" + m.get_string(4)])
+		for f in found:
+			var recv: String = f[0]
+			var method: String = f[1]
+			if recv in ["self", "super"] or method in ENGINE_CALLBACKS: continue
+			if back != "" and recv == back:
+				if privates.get(owner_path, {}).has(method): by_parts += 1
+				else: faults.append("%s:%d: %s.%s" % [path.trim_prefix("res://"), i + 1, recv, method])
+				continue
+			var target := _surface_target(recv)
+			var ok: bool = target == path if target != "" else privates.get(path, {}).has(method)
+			if not ok: faults.append("%s:%d: %s.%s" % [path.trim_prefix("res://"), i + 1, recv, method])
+	return {"faults": faults, "by_parts": by_parts}
+
+## The script a receiver names when it names one: an authority of Game's (`Game.combat`, `game.combat`), a global class
+## or an autoload; "" for anything else (a local, a member, an expression).
+func _surface_target(recv: String) -> String:
+	var bits := recv.split(".")
+	if bits.size() == 2 and bits[0] in ["Game", "game"]:
+		var a = Game.get(bits[1])
+		return str(a.get_script().resource_path) if a is Object and a.get_script() != null else ""
+	return str(_surface_classes.get(recv, ""))
+
+## A line's code with its strings blanked (a space for each character, so places match) and its comment cut; the code
+## with its strings kept; the comment; and whether a triple-quoted string runs on past the line (`in_triple`: one ran
+## into it).
+func _code_of(line: String, in_triple: bool) -> Array:
+	var code := PackedStringArray()
+	var raw := PackedStringArray()
+	var q := "\"\"\"" if in_triple else ""
+	var comment := ""
+	var i := 0
+	while i < line.length():
+		var ch := line[i]
+		if q == "\"\"\"":
+			if line.substr(i, 3) == q:
+				code.append("   ")
+				raw.append(q)
+				q = ""
+				i += 3
+				continue
+			code.append(" ")
+			raw.append(ch)
+		elif q != "":
+			if ch == "\\" and i + 1 < line.length():
+				code.append("  ")
+				raw.append(line.substr(i, 2))
+				i += 2
+				continue
+			code.append(ch if ch == q else " ")
+			raw.append(ch)
+			if ch == q: q = ""
+		elif ch == "#":
+			comment = line.substr(i)
+			break
+		elif line.substr(i, 3) == "\"\"\"":
+			q = "\"\"\""
+			code.append("   ")
+			raw.append(q)
+			i += 3
+			continue
+		else:
+			if ch == "\"" or ch == "'": q = ch
+			code.append(ch)
+			raw.append(ch)
+		i += 1
+	return ["".join(code), "".join(raw), comment, q == "\"\"\""]

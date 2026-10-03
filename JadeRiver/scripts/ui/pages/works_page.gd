@@ -90,7 +90,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 	PostKit.hemp(self, lab)
 	text(lab.position + Vector2(8 + (18.0 if locked else 0.0), 17), str(tabs[i].label), 16, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, lab.size.x - 30)
 	if locked:
-		_lock_icon(lab.position + Vector2(8, 3))
+		lock_icon(lab.position + Vector2(8, 3))
 		para(Rect2(lab.position + Vector2(8, 20), Vector2(lab.size.x - 14, 38)), line, 14, UiKit.PAPER_INK, 2)
 	else:
 		text(lab.position + Vector2(8, 36), line, 14, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, lab.size.x - 14)
@@ -217,8 +217,8 @@ func _draw_arts() -> void:
 		var id := str(a.id)
 		var lv := Game.posts.art_level(ch, id)
 		var mx := int(a.get("max", 1))
-		var line := _effect(str(a.text), Game.posts._curve_of(a, lv)) if lv > 0 else Tx.t("ui.works.not_learned")
-		if lv < mx: line += "   " + Tx.t("ui.works.next") % _effect(str(a.text), Game.posts._curve_of(a, lv + 1))
+		var line := _effect(str(a.text), Game.posts.curve_of(a, lv)) if lv > 0 else Tx.t("ui.works.not_learned")
+		if lv < mx: line += "   " + Tx.t("ui.works.next") % _effect(str(a.text), Game.posts.curve_of(a, lv + 1))
 		_row(rr, "", "%s · %s" % [str(a.name), Tx.t("ui.works.level_of") % [lv, mx]], lv > 0, line, UiKit.BRIGHT_JADE if lv > 0 else UiKit.MIST, rr.size.x - 190)
 		if lv < mx:
 			btn(_btn_at(rr), Tx.t("ui.works.learn"), "art", id, true, Game.posts.art_points_free(ch) > 0, Tx.t("sim.posts.no_art_points"), 18)
@@ -236,7 +236,7 @@ func _draw_seals() -> void:
 		var lv := Game.posts.seal_level(id)
 		var mx := int(sd.get("max", 10))
 		var craft := str(sd.get("craft", ""))
-		var eff := Game.posts._curve_of(sd, lv)
+		var eff := Game.posts.curve_of(sd, lv)
 		var what := Tx.t("ui.works.seal_" + str(sd.gives[0])) % str(snappedf(eff, 0.1))
 		if craft != "": what += " · " + Tx.t("ui.works.seal_yours") % Game.posts.seal_effective(ch, sd)
 		_row(rr, str(ContentDB.entry("posts", craft).get("icon", "")) if craft != "" else str(sd.ladder[0]), str(sd.name), lv > 0,

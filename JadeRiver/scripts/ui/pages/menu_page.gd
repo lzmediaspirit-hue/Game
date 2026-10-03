@@ -65,7 +65,7 @@ func content_rect() -> Rect2:
 func draw_surface(_r: Rect2) -> void:
 	# The hall's lacquered wall, lit from above, with its lattice frieze and the floor's boards.
 	vshade(HALL, UiKit.SURFACE.river_lacquer, UiKit.SURFACE.space.lerp(UiKit.INK, 0.3))
-	glow(Rect2(HALL.get_center().x - 420, HALL.position.y - 160, 840, 360), Color(UiKit.GOLD, 0.10 * _halo()))
+	glow(Rect2(HALL.get_center().x - 420, HALL.position.y - 160, 840, 360), Color(UiKit.GOLD, 0.10 * halo_k()))
 	ground(HALL, UiKit.SURFACE.river_lacquer)
 	var fr := Rect2(HALL.position, Vector2(HALL.size.x, FRIEZE))
 	PostKit.lattice(self, fr, Color(UiKit.BRIGHT_JADE, 0.08), 10.0)
@@ -79,10 +79,10 @@ func draw_surface(_r: Rect2) -> void:
 	# The red-lacquered pillars between the bays, a lantern's light at each capital.
 	for i in range(1, BAYS.size()):
 		var x := HALL.position.x + 8.0 + i * BAY_PITCH - (BAY_PITCH - BAY_W) * 0.5
-		glow(Rect2(x - 30, HALL.position.y + 12, 60, 60), Color(UiKit.PALE_GOLD, 0.3 * _halo()))
+		glow(Rect2(x - 30, HALL.position.y + 12, 60, 60), Color(UiKit.PALE_GOLD, 0.3 * halo_k()))
 		SectKit.pillar(self, Rect2(x - 5, HALL.position.y + FRIEZE, 10, HALL.size.y - FRIEZE - FLOOR))
 
-func _bay_x(i: int) -> float:
+func bay_x(i: int) -> float:
 	return HALL.position.x + 8.0 + i * BAY_PITCH
 
 func draw_page() -> void:
@@ -93,7 +93,7 @@ func draw_page() -> void:
 	var seals := ready_seals(ch)
 	var k := unfold()
 	for b in BAYS.size():
-		var x := _bay_x(b)
+		var x := bay_x(b)
 		var ids: Array = BAYS[b][1]
 		var top := HALL.position.y + 20.0
 		# The cord down the bay, behind its tablets.
@@ -176,7 +176,7 @@ func _tablet(ch, e: Array, r: Rect2, seals: Dictionary) -> void:
 	draw_circle(sc, 22.0, UiKit.JADE_SHADOW.lerp(UiKit.INK, 0.45) if not locked else UiKit.SURFACE.stone.lerp(UiKit.INK, 0.5), true, -1.0, true)
 	draw_circle(sc + Vector2(-5, -6), 11.0, Color(UiKit.JADE, 0.18 if not locked else 0.0), true, -1.0, true)
 	icon_at(Rect2(sc - Vector2(16, 16), Vector2(32, 32)), str(e[2]), Color(1, 1, 1, 0.4) if locked else Color.WHITE)
-	if locked: _lock_icon(sc + Vector2(8, 4))
+	if locked: lock_icon(sc + Vector2(8, 4))
 	if locked and not tour_marks.has("locked"): tour_mark("locked", r)   # the first shut tablet
 	var line := Unlocks.locked_text(e[3]) if locked else line_of(ch, id)
 	var at_place := not locked and at_place_line(ch, id) != ""   # decision 43: where it lives, in jade

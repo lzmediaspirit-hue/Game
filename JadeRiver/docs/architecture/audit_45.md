@@ -1165,6 +1165,43 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
     base missed 1, 1 and 0 checks, and S9 missed 0, 1 and 2.
   - The data build is unchanged apart from the contract's World `files` lists.
 
+### Status (phase 2, S11): public surfaces, done
+
+- **The private cross-calls: none left.** 190 private methods on 44 owners have public names, and the 473 calls into
+  them in `scripts/`, `tests/` and `tools/` use those names. The audit's 56 counted the game's own calls before the
+  splits. With the tests and tools there were 475, and 2 of them are the side view's (below).
+  - The most renamed: Combat 29 (its 17 old forwarders and 12 core helpers, `damage_enemy` and `player_hits_enemy`
+    among them), the HUD 17, World 14, Progression 11, Pets 10 and TopdownWorld 10.
+  - Most names only lose the underscore. Where the bare name was taken or unclear, the method got a clearer one,
+    such as `place_cluster`, `pet_of`, `is_on_expedition` and `auction_config`. `docs/CHANGELOG.md` lists them.
+  - `BagPage._hash` had already gone in S4, to `Noise`.
+- **The splits' private-name forwarders: all 65 gone.** That is 17 on Combat, 15 on World, 5 on Crafting, 12 on
+  Progression and 16 on the HUD. 63 carry their part's public name now, and 2 copies of public methods are dropped:
+  World's `_drop_loot` and Progression's `_spend_fate_next`.
+- **BUG-05: closed.** The last two calls are public: `game.combat.apply_status_to_enemy` from Field, and
+  `game.quest.refresh_offers` from Accounts. **BUG-07's six private calls** from the debug flags are public too.
+- **BUG-13, the private half: closed.** `contract_tests` has the rule. The 575 calls between authorities remain, all
+  of them through public names now.
+- **BrainKit:** TopdownBrain and AllyBrain drove six of EnemyBrain's private helpers. They are EnemyBrain's public
+  rules now, beside the eight TopdownBrain already called. There is no separate class: EnemyBrain is the brains'
+  shared surface.
+- **The rule:** `contract_tests` `_public_surfaces` (+3 checks). It refuses `<expr>._name(…)`,
+  `<expr>.call("_name", …)` and `Callable(<expr>, "_name")` into another script's private method.
+  - The one allowance is a part's call to its own owner's helpers through its back-reference: 27 calls, all
+    Combat's.
+  - Calls on `self` or `super`, a script's own private functions and Godot's virtual callbacks are not counted.
+  - Three planted violations failed it, each by file and line, and were removed.
+- **The side view:** `world.gd` and `player.gd` keep their names. `perf_tests`' crowd still calls `w._cast` and
+  `w._on_event` on `world.gd`. Both lines are marked `# side view` and left to S12.
+- **Checks:**
+  - On the tree merged with R2 and R3, every gate and all 24 suites passed: 73,985 checks, no script error. Every
+    suite kept its base's count (73,982), apart from `contract_tests`, which grew by the rule's 3.
+  - Merged with R4 too, every gate and all 25 suites passed, `perf_tests` among them: 74,023 checks.
+  - `perf_tests`' borderline budgets (S9) missed now and then on both sides on the shared machine. Over eight
+    interleaved rounds alone, S11 missed 7 checks and the base 3. S11's rounds mostly ran at a higher load, and in
+    the pair run at about the same load both passed with about the same figures.
+  - The data build is unchanged.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:

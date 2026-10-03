@@ -102,20 +102,20 @@ func setup() -> void:
 		place_id = str(pl.id)
 	elif str(args.get("kind", "")) != "": place_kind = str(args.kind)
 	sel = ""
-	_sync_tab()
+	sync_tab()
 
 func _process(delta: float) -> void:
 	super._process(delta)
-	_sync_tab()
+	sync_tab()
 
 ## The tab names the zone (or the Heaven Ranking); a zone newly shown chooses where you stand, else its first known area.
-func _sync_tab() -> void:
+func sync_tab() -> void:
 	if tabs.is_empty(): return
 	var id := str(tabs[tab].id)
 	title = Tx.t("ui.map.ranking_title") if id == "ranking" else str(tabs[tab].label)
 	if id == "ranking" or (id == zone_id and sel != ""): return
 	zone_id = id
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	var ch = c()
 	sel = str(z.node_of.get(str(ch.position.get("room", "")), "")) if ch != null else ""
 	for rid in z.order:
@@ -135,12 +135,12 @@ func regions() -> Array:
 	return ContentDB.zone(zone_id).get("regions", []).filter(func(r): return not r.get("hidden", false))
 
 func region_rooms(rid: String) -> Array:
-	return _zone(zone_id).rooms.get(rid, [])
+	return zone(zone_id).rooms.get(rid, [])
 
 func visited(rid: String) -> bool:
 	return region_rooms(rid).any(func(id): return Game.account.visited_rooms.has(id))
 
-func _region(rid: String) -> Dictionary:
+func region_of(rid: String) -> Dictionary:
 	for r in regions():
 		if str(r.id) == rid: return r
 	return {}
@@ -151,7 +151,7 @@ func _region(rid: String) -> Dictionary:
 ## not place: a room whose region is hidden (a story instance, somewhere unmapped) shows at the nearest placed room's
 ## area by portals, else the zone's first; a region without a `map` position stands at the mean of its placed
 ## neighbours, moved clear of every other node.
-static func _zone(zid: String) -> Dictionary:
+static func zone(zid: String) -> Dictionary:
 	if _zones.has(zid): return _zones[zid]
 	var zd := ContentDB.zone(zid)
 	var order: Array = []
@@ -242,12 +242,12 @@ func _reach(ch, z: Dictionary) -> Dictionary:
 
 ## The way from where you stand to area `rid` (or to `room` in it) by the portals open to you: {room: the first of its
 ## rooms reached, path: the areas on the way, the first where you stand}; {} when there is none, or you are there.
-func _route(ch, rid: String, room := "") -> Dictionary:
+func route_to(ch, rid: String, room := "") -> Dictionary:
 	var from := str(ch.position.get("room", ""))
 	var key := "route|%s|%s|%s|%d|%d" % [from, rid, room, Game.account.visited_rooms.size(), ch.quests.done.size()]
 	if _cache.has(key): return _cache[key]
 	if _cache.size() > 300: _cache.clear()
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	var best: Array = []
 	var target := ""
 	for id in ([room] if room != "" else z.rooms.get(rid, [])):
@@ -268,7 +268,7 @@ func _route(ch, rid: String, room := "") -> Dictionary:
 ## Where each herb, ore and fish of the zone is found (built once a zone): {kind: {item: {at: {rid: [[room, n]]}, rank,
 ## regrow}}}, from its rooms' patches, veins and spots (Game.posts.outputs_of names what each gives).
 func _res() -> Dictionary:
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	if z.has("res"): return z.res
 	var out := {}
 	for k in KINDS: out[k] = {}
@@ -312,13 +312,13 @@ func _res_list(kind: String) -> Array:
 # ------------------------------------------------------------------ what the painting shows now
 ## Each area's state (here, open or locked), the chosen area's way, the quests and events on the map, the resource the
 ## Resources card holds, and which nodes wear the ring.
-func _model(ch) -> Dictionary:
-	var z := _zone(zone_id)
+func model(ch) -> Dictionary:
+	var z := zone(zone_id)
 	var here := str(z.node_of.get(str(ch.position.get("room", "")), ""))
 	var reach := _reach(ch, z)
 	var state := {}
 	for rid in z.order:
-		state[rid] = "here" if rid == here else ("open" if reach.has(rid) and not _region(rid).get("planned", false) else "locked")
+		state[rid] = "here" if rid == here else ("open" if reach.has(rid) and not region_of(rid).get("planned", false) else "locked")
 	var events := {}
 	var now := Clock.now_utc()
 	for o in Game.calendar.schedule():
@@ -344,13 +344,13 @@ func _model(ch) -> Dictionary:
 		var near := ""
 		var best := 1 << 30
 		for rid in m.rings:
-			var way := _route(ch, rid)
+			var way := route_to(ch, rid)
 			var n: int = 0 if rid == here else (way.path.size() if not way.is_empty() else 1 << 20)
 			if n < best:
 				best = n
 				near = rid
 		m.near = near if near != "" else here
-		m.route = _route(ch, near) if near != "" else {}
+		m.route = route_to(ch, near) if near != "" else {}
 	elif view == "places":
 		# Decision 43: every area that holds a place of the chosen kind wears the ring and its mark; the chosen place
 		# (the one named, else the nearest by the ways open to you, the room you stand in first) has the way lit.
@@ -362,7 +362,7 @@ func _model(ch) -> Dictionary:
 		var best := 1 << 30
 		for rid in at:
 			for r in at[rid]:
-				var n: int = 0 if str(r.room) == here_room else (_route(ch, rid, str(r.room)).get("path", []).size() if not _route(ch, rid, str(r.room)).is_empty() else 1 << 20)
+				var n: int = 0 if str(r.room) == here_room else (route_to(ch, rid, str(r.room)).get("path", []).size() if not route_to(ch, rid, str(r.room)).is_empty() else 1 << 20)
 				if str(r.id) == place_id: n = -1
 				if n < best:
 					best = n
@@ -371,7 +371,7 @@ func _model(ch) -> Dictionary:
 		if not chosen.is_empty():
 			place_id = str(chosen.id)
 			sel = str(m.z.node_of.get(str(chosen.room), sel))
-		m.route = {} if chosen.is_empty() or str(chosen.room) == here_room else _route(ch, sel, str(chosen.room))
+		m.route = {} if chosen.is_empty() or str(chosen.room) == here_room else route_to(ch, sel, str(chosen.room))
 	elif view == "objectives":
 		m.objectives = _objectives(ch, m)
 		var o: Dictionary = {}
@@ -379,10 +379,10 @@ func _model(ch) -> Dictionary:
 			if o.is_empty() or str(it.id) == goal: o = it
 		m.goal = o
 		if not o.is_empty() and str(o.rid) != "": sel = str(o.rid)
-		m.route = _route(ch, sel, str(o.room)) if str(o.get("room", "")) != "" else {}
+		m.route = route_to(ch, sel, str(o.room)) if str(o.get("room", "")) != "" else {}
 		m.rings[sel] = true
 	else:
-		m.route = {} if sel == here else _route(ch, sel)
+		m.route = {} if sel == here else route_to(ch, sel)
 		m.rings[sel] = true
 	return m
 
@@ -408,7 +408,7 @@ func content_rect() -> Rect2:
 
 ## The painting of the zone under its vignette, the foot band, the lacquered frame and the sect's pennant.
 func draw_surface(_r: Rect2) -> void:
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	var art := SpriteCache.tex("res://art/ui/maps/%s_map.png" % PAINTED[zone_id]) if PAINTED.has(zone_id) else null
 	if art != null: draw_texture_rect(art, PAINT, false)
 	else: _paint_tokens(PAINT, z)
@@ -546,11 +546,11 @@ func draw_page() -> void:
 	if _ranking():
 		_draw_ranking(ch)
 		return
-	var m := _model(ch)
+	var m := model(ch)
 	tour_mark("map", MAP)   # decision 43: a tour's anchors
 	tour_mark("card", CARD)
 	_draw_routes(m)
-	var placed := _place(ch, m)
+	var placed := place_marks(ch, m)
 	for rid in m.z.order:
 		var p: Vector2 = m.z.anchor[rid]
 		_node(p, str(m.state[rid]), m.rings.has(rid))
@@ -597,7 +597,7 @@ func _draw_routes(m: Dictionary) -> void:
 	var lit := 1.0 if UiKit.reduce_motion() else clampf((t - chosen_at) / 0.3, 0.0, 1.0) * dots.size()
 	for i in dots.size():
 		var a := clampf(lit - i, 0.0, 1.0)
-		draw_circle(dots[i], 5.0, Color(UiKit.GOLD, 0.45 * a * _halo()), true, -1.0, true)
+		draw_circle(dots[i], 5.0, Color(UiKit.GOLD, 0.45 * a * halo_k()), true, -1.0, true)
 		draw_circle(dots[i], 2.5, Color(UiKit.PALE_GOLD, a), true, -1.0, true)
 
 ## The dots of a route from area `a` to area `b`, spaced `step` apart, starting and ending clear of both nodes.
@@ -617,7 +617,7 @@ func _dots(m: Dictionary, a: String, b: String, step: float) -> Array:
 func _node(p: Vector2, state: String, ring: bool) -> void:
 	var r: float = NODE_R[state]
 	if ring:
-		glow(Rect2(p - Vector2.ONE * (r + 20), Vector2.ONE * (r + 20) * 2.0), Color(UiKit.PALE_GOLD, 0.5 * _halo()))
+		glow(Rect2(p - Vector2.ONE * (r + 20), Vector2.ONE * (r + 20) * 2.0), Color(UiKit.PALE_GOLD, 0.5 * halo_k()))
 		draw_arc(p, r + RING, 0.0, TAU, 48, Color(UiKit.INK, 0.7), 4.0, true)
 		draw_arc(p, r + RING, 0.0, TAU, 48, UiKit.PALE_GOLD, 2.0, true)
 	if state == "locked":
@@ -625,10 +625,10 @@ func _node(p: Vector2, state: String, ring: bool) -> void:
 		draw_circle(p, r + 2.0, UiKit.INK, true, -1.0, true)
 		draw_circle(p, r, UiKit.SURFACE.stone.darkened(0.35), true, -1.0, true)
 		draw_circle(p - Vector2(2, 3), r * 0.55, UiKit.SURFACE.stone.darkened(0.1), true, -1.0, true)
-		_lock_icon(p - Vector2(6, 9))
+		lock_icon(p - Vector2(6, 9))
 		return
 	var tones: Array = [UiKit.BRONZE, UiKit.GOLD, UiKit.PALE_GOLD, UiKit.PAPER] if state == "here" else [UiKit.JADE_SHADOW, UiKit.JADE, UiKit.BRIGHT_JADE, UiKit.PAPER.lerp(UiKit.BRIGHT_JADE, 0.3)]
-	glow(Rect2(p - Vector2.ONE * (r + 14), Vector2.ONE * (r + 14) * 2.0), Color(tones[2], 0.45 * _halo()))
+	glow(Rect2(p - Vector2.ONE * (r + 14), Vector2.ONE * (r + 14) * 2.0), Color(tones[2], 0.45 * halo_k()))
 	draw_circle(p, r + 4.0, Color(tones[2], 0.55), true, -1.0, true)
 	draw_circle(p, r + 2.0, UiKit.INK, true, -1.0, true)
 	for i in 4: draw_circle(p + Vector2(-0.2, -0.3) * r * i * 0.45, r * (1.0 - i * 0.22), tones[i], true, -1.0, true)
@@ -637,7 +637,7 @@ func _node(p: Vector2, state: String, ring: bool) -> void:
 func _lantern(c: Vector2, k: float) -> void:
 	var s := Vector2(22, 30) * k
 	var r := Rect2(c - s * 0.5 + Vector2(0, 2) * k, s - Vector2(0, 4) * k)
-	glow(r.grow(12.0 * k), Color(UiKit.GOLD, (0.45 + 0.1 * _pulse()) * _halo()))
+	glow(r.grow(12.0 * k), Color(UiKit.GOLD, (0.45 + 0.1 * _pulse()) * halo_k()))
 	rounded(r.grow(2.0 * k), 9.0 * k, UiKit.INK)
 	rounded(r, 8.0 * k, UiKit.BLOOD)
 	rounded(r.grow(-3.0 * k), 6.0 * k, UiKit.GOLD)
@@ -656,7 +656,7 @@ func _wind(p: Vector2) -> void:
 
 ## The chosen resource's disc beside an area that holds it: its icon in a gold ring.
 func _res_disc(c: Vector2, item: String) -> void:
-	glow(Rect2(c - Vector2.ONE * 34.0, Vector2.ONE * 68.0), Color(UiKit.GOLD, 0.4 * _halo()))
+	glow(Rect2(c - Vector2.ONE * 34.0, Vector2.ONE * 68.0), Color(UiKit.GOLD, 0.4 * halo_k()))
 	draw_circle(c, 22.0, Color(UiKit.INK, 0.85), true, -1.0, true)
 	draw_arc(c, 21.0, 0.0, TAU, 48, UiKit.GOLD, 2.0, true)
 	icon_at(Rect2(c - Vector2(16, 16), Vector2(32, 32)), item)
@@ -673,7 +673,7 @@ func _leader(at: Vector2, r: float, rect: Rect2) -> void:
 ## the card). A locked area beside none you know has no plate, its padlock alone: "".
 func _plate_name(m: Dictionary, rid: String) -> String:
 	if m.state[rid] == "locked" and not visited(rid) and not m.z.links.any(func(l): return rid in l and visited(l[0] if l[1] == rid else l[1])): return ""
-	return str(_region(rid).name)
+	return str(region_of(rid).name)
 
 ## The field bosses in `rooms`: [{name, when: "ready" or the time till it rises, ready}].
 func _bosses(rooms: Array) -> Array:
@@ -692,13 +692,13 @@ func _band(reg: Dictionary) -> String:
 	return Tx.t("ui.map.lv_at") % int(lv[0]) if int(lv[0]) == int(lv[1]) else Tx.t("ui.map.lv") % [int(lv[0]), int(lv[1])]
 
 ## The size of a plate round a name.
-static func _plate_size(name: String) -> Vector2:
+static func plate_size(name: String) -> Vector2:
 	return Vector2(ceilf(UiKit.text_width(name, PLATE_TEXT, true) + 20.0), ceilf(UiKit.size_for(name, PLATE_TEXT, true) * 1.12 + 7.0))
 
 ## The marks and plates of this view, placed by the one pass: marks first beside their nodes, then the plates of the
 ## area you stand in, the chosen one and the rest (open before locked), each in reading order. Kept while nothing that
 ## decides it changes.
-func _place(ch, m: Dictionary) -> Dictionary:
+func place_marks(ch, m: Dictionary) -> Dictionary:
 	var z: Dictionary = m.z
 	var pins: Array = []
 	# A node's pin reaches to its halo (or its ring's outer edge, when it wears one).
@@ -727,7 +727,7 @@ func _place(ch, m: Dictionary) -> Dictionary:
 		var name := _plate_name(m, rid)
 		if name == "": continue
 		var rank := 0 if m.state[rid] == "here" else (1 if rid == sel else (2 if m.state[rid] == "open" else 3))
-		plates.append({"id": rid, "at": p, "r": r, "sizes": [_plate_size(name)], "ways": PLATE_WAYS, "name": name, "rank": rank})
+		plates.append({"id": rid, "at": p, "r": r, "sizes": [plate_size(name)], "ways": PLATE_WAYS, "name": name, "rank": rank})
 	plates.sort_custom(func(a, b): return a.rank < b.rank if a.rank != b.rank else (a.at.y < b.at.y if a.at.y != b.at.y else a.at.x < b.at.x))
 	var bounds := Rect2(EDGE + 3.0, EDGE + 3.0, CARD.position.x - 8.0 - EDGE - 3.0, FOOT - 3.0 - EDGE - 3.0)
 	var key := str([zone_id, view, sel, res_item, place_kind, UiKit.text_scale(), m.state, m.rings.keys(), marks.map(func(x): return x.id), plates.map(func(x): return [x.id, x.name])])
@@ -823,7 +823,7 @@ func _plate(r: Rect2, name: String, dim: bool) -> void:
 ## The rooms of the zone with a path above your arts now open that you have not stood on (S43): {room: [the arts]}.
 func _paths_open(ch) -> Dictionary:
 	var out := {}
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	for e in ContentDB.all("paths_above"):
 		if z.node_of.has(str(e.room)) and not Game.account.paths_above.has(str(e.id)) and _art_known(ch, str(e.art)):
 			out[str(e.room)] = out.get(str(e.room), []) + [str(e.art_name)]
@@ -915,7 +915,7 @@ func _why(m: Dictionary, rid: String) -> String:
 ## (Act II's attunement), the tracked quest that leads there with Walk there, its world events, its rooms (you, the
 ## quest's room, seen, unknown) with their hazards, paths above and field bosses, and Track Route.
 func _card_area(ch, m: Dictionary, r: Rect2) -> void:
-	var reg := _region(sel)
+	var reg := region_of(sel)
 	if reg.is_empty(): return
 	var st := str(m.state[sel])
 	var named := st != "locked" or _plate_name(m, sel) != ""
@@ -948,7 +948,7 @@ func _card_area(ch, m: Dictionary, r: Rect2) -> void:
 		_lantern(Vector2(x + 5, y + 24), 0.66)
 		var line: Dictionary = q.lines[0] if not q.lines.is_empty() else {}
 		var there := str(q.target_room) == str(ch.position.get("room", ""))
-		var walk := not there and not _route(ch, sel, str(q.target_room)).is_empty()
+		var walk := not there and not route_to(ch, sel, str(q.target_room)).is_empty()
 		# The button as narrow as its label (and a shut one's lock) allows, so the quest's line has the rest.
 		var bw := UiKit.text_width(Tx.t("ui.map.walk_there"), 14) + (24.0 if walk else 48.0)
 		var room := r.end.x - 10.0 - bw - 6.0 - (x + 16.0)
@@ -1081,7 +1081,7 @@ func _card_resources(ch, m: Dictionary, r: Rect2) -> void:
 			var most: Array = (e.at[rid] as Array).duplicate()
 			most.sort_custom(func(a, b): return int(a[1]) > int(b[1]) if int(a[1]) != int(b[1]) else str(a[0]) < str(b[0]))
 			var spots: Array = most.map(func(s): return Tx.t("ui.map.spot") % [ContentDB.name_of("rooms", str(s[0])), int(s[1])])
-			runs.append([Tx.t("ui.map.at_area") % str(_region(rid).get("name", rid)), UiKit.BRIGHT_JADE])
+			runs.append([Tx.t("ui.map.at_area") % str(region_of(rid).get("name", rid)), UiKit.BRIGHT_JADE])
 			runs.append([", ".join(spots) + ".", UiKit.PAPER])
 		if float(e.regrow) > 0.0: runs.append([Tx.t("ui.map.regrows") % UiKit.span(float(e.regrow)), UiKit.PAPER])
 		y += 28.0
@@ -1126,7 +1126,7 @@ func _card_objectives(ch, m: Dictionary, r: Rect2) -> void:
 		_cell(rr, str(o.id) == str(g.get("id", "")))
 		if o.event: _blossom(Vector2(rr.position.x + 18, rr.get_center().y), o.live, 1.0)
 		else: _lantern(Vector2(rr.position.x + 18, rr.get_center().y), 0.66 if o.main else 0.55)
-		var where := str(_region(str(o.rid)).get("name", "")) if str(o.rid) != "" else ContentDB.name_of("rooms", str(o.room))
+		var where := str(region_of(str(o.rid)).get("name", "")) if str(o.rid) != "" else ContentDB.name_of("rooms", str(o.room))
 		text(Vector2(rr.position.x + 38, rr.position.y + 21), str(o.name), 16, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 46, true)
 		text(Vector2(rr.position.x + 38, rr.position.y + 41), " · ".join([str(o.line) + ((" " + str(o.count)) if str(o.count) != "" else ""), where].filter(func(s): return s.strip_edges() != "")),
 			14, UiKit.BRIGHT_JADE if o.event and o.live else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 46)
@@ -1139,7 +1139,7 @@ func _card_objectives(ch, m: Dictionary, r: Rect2) -> void:
 func _places_of(ch, kind: String) -> Dictionary:
 	var key := "places|%s|%s|%s|%d" % [zone_id, kind, str(ch.training_sect.get("id", "")), ch.quests.flags.size()]
 	if _cache.has(key): return _cache[key]
-	var z := _zone(zone_id)
+	var z := zone(zone_id)
 	var out := {}
 	for r in PlaceRules.all():
 		if str(r.kind) != kind: continue
@@ -1241,10 +1241,10 @@ func _legend_glyph(k: String, c: Vector2) -> void:
 	match k:
 		"available", "here":
 			var col := UiKit.BRIGHT_JADE if k == "available" else UiKit.GOLD
-			glow(Rect2(c - Vector2(8, 8), Vector2(16, 16)), Color(col, 0.6 * _halo()))
+			glow(Rect2(c - Vector2(8, 8), Vector2(16, 16)), Color(col, 0.6 * halo_k()))
 			draw_circle(c, 6.0, UiKit.INK, true, -1.0, true)
 			draw_circle(c, 4.5, col, true, -1.0, true)
-		"locked": _lock_icon(c - Vector2(6, 8))
+		"locked": lock_icon(c - Vector2(6, 8))
 		"route":
 			for i in 4: draw_circle(c + Vector2(-12 + i * 8, 0), 1.8, UiKit.PALE_GOLD, true, -1.0, true)
 		"tracked": _lantern(c, 0.55)

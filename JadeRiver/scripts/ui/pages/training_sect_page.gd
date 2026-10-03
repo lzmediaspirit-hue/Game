@@ -73,7 +73,7 @@ func draw_surface(r: Rect2) -> void:
 	var dais := Rect2(BACK.position.x + 40, BACK.end.y - 22, BACK.size.x - 80, 22)
 	draw_colored_polygon(PackedVector2Array([dais.position, Vector2(dais.end.x, dais.position.y), dais.end + Vector2(18, 0), Vector2(dais.position.x - 18, dais.end.y)]), UiKit.SURFACE.wood)
 	draw_rect(Rect2(dais.position, Vector2(dais.size.x, 2)), Color(UiKit.GOLD, 0.6))
-	glow(Rect2(BACK.get_center().x - 200, BACK.position.y - 30, 400, 220), Color(UiKit.GOLD, 0.16 * _halo()))
+	glow(Rect2(BACK.get_center().x - 200, BACK.position.y - 30, 400, 220), Color(UiKit.GOLD, 0.16 * halo_k()))
 	# The red pillars: a pair flanking the dais, and a pair at the door we look in by.
 	for x in [BACK.position.x - 8.0, BACK.end.x - 4.0]: SectKit.pillar(self, Rect2(x, BACK.position.y - 30, 12, BACK.size.y + 34))
 	for x in [r.position.x + 6.0, r.end.x - 26.0]: SectKit.pillar(self, Rect2(x, r.position.y + 8, 20, FRONT_Y - r.position.y - 8))
@@ -94,7 +94,7 @@ func _doors() -> void:
 		draw_colored_polygon(q, UiKit.SURFACE.lacquer)
 		var inner := PackedVector2Array([q[0].lerp(q[2], 0.08), q[1].lerp(q[3], 0.08), q[2].lerp(q[0], 0.04), q[3].lerp(q[1], 0.04)])
 		draw_colored_polygon(inner, UiKit.INK.lerp(UiKit.SURFACE.wood_dark, 0.3))
-		glow(Rect2(q[0].x + (q[1].x - q[0].x) * 0.2 - 10, q[1].y + 40, absf(q[1].x - q[0].x) * 0.8, 120), Color(UiKit.PALE_GOLD, 0.12 * _halo()))
+		glow(Rect2(q[0].x + (q[1].x - q[0].x) * 0.2 - 10, q[1].y + 40, absf(q[1].x - q[0].x) * 0.8, 120), Color(UiKit.PALE_GOLD, 0.12 * halo_k()))
 
 ## A door's corners on its wall (top near, top far, foot far, foot near), from its span along the wall.
 func _door_quad(span: Array, left: bool) -> PackedVector2Array:
@@ -171,7 +171,7 @@ func _row(j: int, order: Array, mine: int, a: float) -> void:
 	var held := j <= mine
 	var next := j == mine + 1
 	var col: Color = RANK_COL[mini(j, RANK_COL.size() - 1)]
-	if next: glow(Rect2(640 - ROW_W * 0.55 * s, y - 50 * s, ROW_W * 1.1 * s, 80 * s), Color(UiKit.PALE_GOLD, 0.35 * a * _halo()))
+	if next: glow(Rect2(640 - ROW_W * 0.55 * s, y - 50 * s, ROW_W * 1.1 * s, 80 * s), Color(UiKit.PALE_GOLD, 0.35 * a * halo_k()))
 	var n := 1 if j == order.size() - 1 else SEATS
 	for i in n:
 		var r := _seat(j, i)
@@ -179,7 +179,7 @@ func _row(j: int, order: Array, mine: int, a: float) -> void:
 		draw_colored_polygon(_cushion(r), Color(UiKit.INK, 0.5 * a))
 		draw_colored_polygon(_cushion(r.grow(-1.5 * s)), Color(shade, a))
 		draw_line(Vector2(r.position.x + r.size.x * 0.2, r.position.y + r.size.y * 0.35), Vector2(r.end.x - r.size.x * 0.2, r.position.y + r.size.y * 0.35), Color(UiKit.PAPER, 0.25 * a), 1.0, true)
-		if j == mine and i == SEATS / 2: glow(r.grow(18 * s), Color(UiKit.PALE_GOLD, 0.5 * a * _halo()))
+		if j == mine and i == SEATS / 2: glow(r.grow(18 * s), Color(UiKit.PALE_GOLD, 0.5 * a * halo_k()))
 	var name := ContentDB.rank_name(str(order[j]))
 	var size := 16 if s > 0.45 else 14
 	var lx := 640.0 - ROW_W * 0.5 * s - 16.0
@@ -225,7 +225,7 @@ func _door_words(ch) -> void:
 		var plaque := Rect2(box.get_center().x - 70, box.position.y + 34, 140, 36)
 		SectKit.lacquer(self, plaque, _is_pressed(str(d[2])))
 		text(plaque.position + Vector2(0, 24), str(d[3]), 18, UiKit.PALE_GOLD if d[4] else UiKit.HOLLOW, HORIZONTAL_ALIGNMENT_CENTER, plaque.size.x)
-		if not d[4]: _lock_icon(plaque.position + Vector2(plaque.size.x - 20, 4))
+		if not d[4]: lock_icon(plaque.position + Vector2(plaque.size.x - 20, 4))
 		region(box.merge(plaque), str(d[2]), null, d[4], str(d[5]))
 
 # ------------------------------------------------------------------ the Role tab: the teaching boards

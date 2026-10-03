@@ -129,7 +129,7 @@ func _emote(at: Vector2, kind: String, left: float, still: bool) -> void:
 			draw_circle(Vector2(-3, 6), 4.5, Color(UiKit.JADE, k))
 			draw_line(Vector2(1, 6), Vector2(1, -9), Color(UiKit.JADE, k), 2.5)
 			draw_line(Vector2(1, -9), Vector2(8, -5), Color(UiKit.JADE, k), 2.5)
-		"heart": UiKit._heart(self, Vector2(0, 1), 10.0, Color(UiKit.HEART, k))
+		"heart": UiKit.draw_heart(self, Vector2(0, 1), 10.0, Color(UiKit.HEART, k))
 		"anger":
 			for q in [Vector2(-5, -5), Vector2(5, -5), Vector2(-5, 5), Vector2(5, 5)]:
 				draw_arc(q * 1.1, 5.0, (q.angle() + PI) - 0.9, (q.angle() + PI) + 0.9, 8, Color(UiKit.RED, k), 2.5)

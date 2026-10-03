@@ -79,10 +79,10 @@ func tick_melody(c, delta: float) -> void:
 			foes += 1
 			var sl: Dictionary = ch.get("slow", {})
 			if not sl.is_empty() and not e.pools.steadfast.has("slow"):
-				combat._apply_status_to_enemy(e, {"id": "slow", "power": minf(0.9, float(sl.get("power", 0.3)) * power), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
+				combat.apply_status_to_enemy(e, {"id": "slow", "power": minf(0.9, float(sl.get("power", 0.3)) * power), "remaining": float(sl.get("duration_s", 1.2)), "source": c.id})
 			if not e.is_boss() and not e.pools.steadfast.has("confusion") and not e.pools.has_status("confusion") \
 					and rng.randf() < float(ch.get("confusion_chance", 0.08)):
-				combat._apply_status_to_enemy(e, {"id": "confusion", "power": 1.0, "remaining": float(ch.get("confusion_s", 1.5)), "source": c.id})
+				combat.apply_status_to_enemy(e, {"id": "confusion", "power": 1.0, "remaining": float(ch.get("confusion_s", 1.5)), "source": c.id})
 	var self_heal: float = c.pools.max_hp * float(ch.get("self_heal_pct", 0.01)) * tick * power * (1.0 + c.stats.value("healing_received"))
 	if self_heal > 0.0 and c.pools.hp < c.pools.max_hp: combat.apply_resource_change(c.id, "hp", self_heal, "melody", 0.0, true)
 	emit("melody_pulse", {"actor": c.id, "x": at.x, "y": at.y, "radius": radius, "foes": foes, "allies": allies})
