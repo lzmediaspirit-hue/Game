@@ -190,3 +190,100 @@ CM_WEAPON_HALL = weapon_hall("cm_weapon_hall", "banner_cloud", "npc_cloud_weapon
 
 
 ROOMS = [CM_CLIFF_STAIR, CM_SWORD_COURT, CM_WEAPON_HALL, CM_ARRAY_COURT, CM_ELDER_SUNG_PEAK]
+
+
+# ==================================================================================================================== R3
+# The sect's insides and its herb gardens (E1's batch R3): the Cloud Library behind the Sword Court (its cliff door
+# out onto the Cliff Stair's top ledge), the Retreat Rooms off the Array Court, the Herb Terraces east of it, the Cave
+# Abode behind Elder Sung's pagoda.
+
+# The Cloud Library: the sect's manuals up two galleries in the east (the middle grade on the first, the deeper arts on
+# the second, under the roof), the cliff door high in the east wall off the first gallery, the librarian at her desk,
+# reading desks, and the ancestral altar before a painted screen in the west.
+CM_CLOUD_LIBRARY = room(
+    "cm_cloud_library", size=(28, 16), base="s", walls=dict(high=6),
+    features=[("gallery", (18, 1, 9, 9), dict(level=2, paint="w")),         # the first gallery
+              ("upper_gallery", (18, 1, 9, 3), dict(level=3, paint="w")),  # the second, under the roof
+              ("cheek", (18, 4, 1, 2), dict(level=4, paint="w")),          # the flights' cheeks, a level over their heads
+              ("cheek_2", (21, 4, 1, 2), dict(level=4, paint="w")),
+              ("cheek_3", (18, 10, 1, 4), dict(level=3, paint="w")),
+              ("cheek_4", (21, 10, 1, 4), dict(level=3, paint="w")),
+              ("cliff_landing", (27, 7, 1, 2), dict(level=2, paint="w"))], # the cliff door's sill, off the gallery
+    stairs=[(19, 4, 2, 2, 2, 3, "w"), (19, 10, 2, 4, 0, 2, "w")],
+    ways={"exit": ("s", 12.5), "cliff_door": ("e", 7.5)},
+    spawn="exit",
+    anchors={"floor_3_shelves": (23, 2), "floor_2_shelves": (23, 5), "npc_cloud_librarian": (13, 6),
+             "ancestral_altar": (5, 3)},
+    props=[("scroll_shelf", 18, 1), ("scroll_shelf", 21, 1), ("scroll_shelf", 23, 1), ("scroll_shelf", 25, 1),
+           ("scroll_shelf", 22, 4), ("scroll_shelf", 24, 4), ("scroll_shelf", 10, 1), ("scroll_shelf", 12, 1),
+           ("scroll_shelf", 14, 1), ("desk", 12, 7), ("desk", 9, 11), ("desk", 14, 11), ("screen", 4, 1),
+           ("incense", 2, 3), ("incense", 8, 3), ("banner_cloud", 1, 1), ("banner_cloud", 9, 1), ("scroll_shelf", 2, 8),
+           ("scroll_shelf", 6, 8), ("lantern", 17, 1), ("lantern", 1, 13), ("lantern", 26, 13), ("pot_bonsai", 4, 8),
+           ("pot_orchid", 1, 6)])
+
+
+# The Retreat Rooms: the meditation dais in the middle of a granite hall (the seclusion mat between two cushions, painted
+# screens at its back corners), the cedar bath behind screens in the east, a tea corner in the west by the door.
+CM_RETREAT = room(
+    "cm_retreat", size=(28, 14), base="s", walls=dict(high=4),
+    features=[("dais", (9, 1, 10, 6), dict(level=1, paint="w")),           # the meditation dais
+              ("cheek", (12, 7, 1, 2), dict(level=2, paint="w")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (15, 7, 1, 2), dict(level=2, paint="w")),
+              ("bath_floor", (20, 1, 7, 5), dict(level=0, paint="w"))],    # the bath's boards
+    stairs=[(13, 7, 2, 2, 0, 1, "w")],
+    ways={"exit": ("s", 5.5)},
+    spawn="exit",
+    anchors={"mat_cm_retreat": (13.5, 4), "bath_cm_retreat": (23, 3)},
+    props=[("screen", 9, 1), ("screen", 17, 1), ("banner_cloud", 11, 1), ("banner_cloud", 16, 1), ("incense", 13, 1),
+           ("mat", 10, 4), ("mat", 16, 4), ("lantern", 9, 6), ("lantern", 18, 6), ("stove", 25, 1), ("water_jar", 20, 1),
+           ("screen", 20, 6), ("screen", 25, 6), ("scroll_shelf", 1, 1), ("cabinet", 3, 1), ("tea_table", 3, 8),
+           ("mat", 3, 9), ("lantern", 1, 12), ("lantern", 26, 12), ("pot_bonsai", 6, 1), ("pot_orchid", 7, 6)])
+
+
+# The Herb Terraces: three terraces stepping up the mountainside east of the Array Court above the cloud sea, the
+# path along their foot from the court, the crags and their spurs behind, and a garden pond in the meadow below where
+# the mist lotus grows.
+CM_HERB_TERRACES = room(
+    "cm_herb_terraces", size=(56, 28), biome="sect_terraces",
+    bands=[("crags", 0, 3, dict(level=5, paint="r", wall=True)),
+           ("terrace_3", 3, 5, dict(level=3)),
+           ("terrace_2", 8, 5, dict(level=2)),
+           ("terrace_1", 13, 4, dict(level=1)),
+           ("path", 17, 3, dict(paint="d", walk=True)),
+           ("meadow", 20, 8, dict(level=0))],
+    features=[("spur_w", (0, 3, 6, 9), dict(level=5, paint="r", wall=True)),   # the crags' spurs breaking the terraces
+              ("spur_e", (51, 3, 5, 5), dict(level=5, paint="r", wall=True)),
+              ("pond", (39, 21, 10, 5), dict(water=True, shape="round")),       # the garden pond in the meadow
+              ("beds", (28, 14, 14, 2), dict(paint="b")),
+              ("beds_2", (6, 9, 12, 2), dict(paint="b"))],
+    stairs="auto",
+    ways={"west": ("w", "path")},
+    spawn="west",
+    anchors={"herb_1": "terrace_1@9", "herb_2": "terrace_2@24", "herb_3": "terrace_3@33", "herb_4": "pond.n@44"},
+    props=[("drying_rack", 18, 22), ("herb_baskets", 21, 22), ("lantern", 2, 17), ("lantern", 2, 21)],
+    flora={"meadow": dict(density=0.34)},
+    ground={"snow": [(0, 0, 56, 2)]})
+
+
+# The Cave Abode: a cavern behind Elder Sung's pagoda, the passage in from its door in the south; the living cave's
+# dressed floor in the west (the seclusion mat, the stone bed in its alcove, shelves and a screen), the Qi spring by its
+# seep pool and the cedar bath in the north-east, the treasure plot and two garden beds of dark earth by the passage.
+CM_CAVE_ABODE = room(
+    "cm_cave_abode", size=(40, 24), biome="cave", level=4,
+    features=[("front", (0, 15, 40, 9), dict(level=1, paint="r")),           # the cave's low front, nothing hidden behind it
+              ("cavern", (3, 2, 34, 18), dict(level=0, paint="d", shape="round")),
+              ("passage", (17, 14, 4, 10), dict(level=0, paint="d", walk=True)),
+              ("hall_floor", (7, 4, 11, 6), dict(level=0, paint="s")),
+              ("garden", (23, 13, 9, 4), dict(level=0, paint="g")),
+              ("seep", (26, 4, 6, 4), dict(water=True, shape="round"))],
+    ways={"exit": ("s", 19)},
+    spawn="exit",
+    anchors={"spring_cm_cave_abode": (24, 6), "bath_cm_cave_abode": (33, 9), "plot_cm_cave_abode": (11, 14),
+             "mat_cm_cave_abode": (12, 7), "bed_cm_cave_abode": (8, 5), "bed_0_cm_cave_abode": (25, 14),
+             "bed_1_cm_cave_abode": (29, 14)},
+    props=[("scroll_shelf", 14, 4), ("screen", 16, 4), ("incense", 12, 5), ("lantern", 7, 9), ("lantern", 17, 9),
+           ("lantern", 16, 19), ("lantern", 22, 19), ("water_jar", 34, 7), ("herb_baskets", 31, 15),
+           ("pot_orchid", 10, 4)],
+    flora={"density": 0.18})
+
+ROOMS += [CM_CLOUD_LIBRARY, CM_RETREAT, CM_HERB_TERRACES, CM_CAVE_ABODE]   # R3

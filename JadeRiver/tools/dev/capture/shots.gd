@@ -26,6 +26,16 @@ const E1_VIEWS := [
 	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
 	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
 	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true],
+	# R3: the sects' insides, Stoneford's hall, tower and grove, the quarry (pictures under r3/)
+	["r3/09_alchemy_hall", "ja_alchemy_hall", Vector2(12.5, 11), true], ["r3/10_library", "ja_library", Vector2(14, 9), true],
+	["r3/11_retreat", "ja_retreat", Vector2(13, 9), true], ["r3/12_cave_abode", "ja_cave_abode", Vector2(20, 12), true],
+	["r3/13_cloud_library", "cm_cloud_library", Vector2(13, 9), true], ["r3/14_cloud_retreat", "cm_retreat", Vector2(14, 9), true],
+	["r3/15_cloud_herb_terraces", "cm_herb_terraces", Vector2(20, 18), true], ["r3/16_cloud_terraces_upper", "cm_herb_terraces", Vector2(34, 11), false],
+	["r3/17_cloud_cave_abode", "cm_cave_abode", Vector2(19, 12), true], ["r3/18_county_hall", "sf_county_hall", Vector2(11.5, 9), true],
+	["r3/19_trial_tower", "sf_trial_tower", Vector2(20, 14), true], ["r3/20_beast_grove", "sf_beast_grove", Vector2(20, 16), true],
+	["r3/21_quarry_rim", "sq_quarry_rim", Vector2(14, 18), true], ["r3/22_quarry_scaffold", "sq_quarry_rim", Vector2(34, 12), false],
+	["r3/23_lower_pit", "sq_lower_pit", Vector2(26, 18), true], ["r3/24_pit_tunnel_mouth", "sq_lower_pit", Vector2(50, 14), false],
+	["r3/25_collapsed_tunnel", "sq_collapsed_tunnel", Vector2(20, 12), true],
 	# R1: the main story's path past chapter 3 (pictures under r1/).
 	["r1/01_grey_pools_jetty", "rm_grey_pools", Vector2(22, 15), true], ["r1/02_grey_pools_hamlet_way", "rm_grey_pools", Vector2(34, 12), false],
 	["r1/03_sunken_causeway", "rm_sunken_causeway", Vector2(30, 14), true], ["r1/04_hermit_stilt_house", "rm_hermit_stilt_house", Vector2(8, 12), true],

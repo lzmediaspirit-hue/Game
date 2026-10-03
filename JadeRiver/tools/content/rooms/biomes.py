@@ -46,6 +46,34 @@ BIOMES = {
                   "walk": ["rock_small", "ferns"],
                   "water": ["cattails", "ferns"]},
     },
+    # R3 -------------------------------------------------------------------------------------------------------------
+    # A sect's terraced herb gardens on the mountain (the Cloud Sect's Herb Terraces): plum, pine and maple over the
+    # terraces, hedges and azaleas along their lips, pines and mossy rocks under the crags, reeds round a terrace pond.
+    "sect_terraces": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "bush", "rock_mossy"],
+                  "ground": ["tree_plum", "tree_pine", "tree_maple", "hedge_3", "bush_azalea", "bush", "ferns"],
+                  "walk": ["bush", "rock_small", "tall_grass"],
+                  "water": ["tall_grass", "cattails", "lotus_pads"]},
+    },
+    # A quarry in the hills behind Stoneford (Stonewall Quarry): bare cut rock, gravel and spoil, a few pines and
+    # stumps where the trees were felled for the scaffolds, rocks along the haul roads.
+    "quarry": {
+        "base": "r", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["tree_pine", "rock_small", "stump"],
+                  "ground": ["tree_pine", "rock_small", "rock_mossy", "stump", "tall_grass", "bush"],
+                  "walk": ["rock_small", "stump"],
+                  "water": ["cattails", "tall_grass"]},
+    },
+    # A bamboo grove (the Beast Trial Grove north of Market Street): bamboo thick round a mossy clearing, ferns and
+    # mossy rocks under it, grass along the path.
+    "bamboo_clearing": {
+        "base": "g", "stair": "s", "density": 0.36,
+        "flora": {"wall": ["bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["bamboo_grove", "tree_maple", "ferns", "rock_mossy", "tall_grass", "bush"],
+                  "walk": ["ferns", "tall_grass", "rock_small"],
+                  "water": ["cattails", "tall_grass", "lotus_pads"]},
+    },
     # R1: the main story's path past chapter 3 (the Reed Marsh, Greyreed, the Bamboo Grove, Crane Falls, Cleansing Peak).
     # The living reed marsh (the Sunken Causeway, the hermit's pond): marsh grass, willows and reeds, cattails in the
     # shallows and lotus out on the water.

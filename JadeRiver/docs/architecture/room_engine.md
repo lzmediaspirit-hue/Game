@@ -277,12 +277,25 @@ lips wander (`wavy`), each laid over the one below it, with the stair landings f
 **The frontier now** (R2 opened Bend Shore's three ways, below):
 - the Echo Cliffs' way west (Crane Cliffs);
 - the Falls Pool's misty path to the Hidden Vale;
+- ~~the sects' halls and abodes;~~
+- ~~the Trial Tower;~~
+- ~~the Quarry Road;~~
+- ~~the Beast Grove;~~
+- ~~the County Hall;~~
+- Gu's Warehouse.
+
+The struck ways opened with the third batch (R3, below).
+
+The story's next quest past chapter 4, The Shrine Surfaces (the Drowned Shrine), is past the gate.
+
+## The third batch (R3): Stoneford's insides, the quarry, the sects' halls
+
+Fourteen rooms around the Fairground and the two sects, laid out from the side view. Every way into them is open now:
 - the sects' halls and abodes;
 - the Trial Tower;
 - the Quarry Road;
 - the Beast Grove;
-- the County Hall;
-- Gu's Warehouse.
+- the County Hall.
 
 With R2 the story plays on past chapter 4: chapter 5 in the Drowned Shrine, and chapter 6's Quiet Before the Storm on the
 Rapids Terraces. Its next quest past the gate is chapter 7's Wings of Cloud, at the Cliff Faces past the Echo Cliffs'
@@ -369,10 +382,98 @@ else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it
   - the currents' push;
   - the rising water of the Serpent's and the Abbot's floods;
   - the Drowned Grotto's swim (it is wading water here).
+| Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
+|---|---|---|
+| `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
+| `ja_library` | 15 | `10_library`, `rooms/ja_library` |
+| `ja_retreat` | 12 | `11_retreat`, `rooms/ja_retreat` |
+| `ja_cave_abode` | 17 | `12_cave_abode`, `rooms/ja_cave_abode` |
+| `cm_cloud_library` | 16 | `13_cloud_library`, `rooms/cm_cloud_library` |
+| `cm_retreat` | 12 | `14_cloud_retreat`, `rooms/cm_retreat` |
+| `cm_herb_terraces` | 20 | `15_cloud_herb_terraces`, `16_cloud_terraces_upper`, `rooms/cm_herb_terraces` |
+| `cm_cave_abode` | 17 | `17_cloud_cave_abode`, `rooms/cm_cave_abode` |
+| `sf_county_hall` | 11 | `18_county_hall`, `rooms/sf_county_hall` |
+| `sf_trial_tower` | 13 | `19_trial_tower`, `rooms/sf_trial_tower` |
+| `sf_beast_grove` | 14 | `20_beast_grove`, `rooms/sf_beast_grove` |
+| `sq_quarry_rim` | 21 | `21_quarry_rim`, `22_quarry_scaffold`, `rooms/sq_quarry_rim` |
+| `sq_lower_pit` | 22 | `23_lower_pit`, `24_pit_tunnel_mouth`, `rooms/sq_lower_pit` |
+| `sq_collapsed_tunnel` | 19 | `25_collapsed_tunnel`, `rooms/sq_collapsed_tunnel` |
+
+The quarry is a new zone module, `specs/stonewall_quarry.py`; the others went into their zones' modules.
+
+**The looks.**
+- *A sect's hall* is an interior with taller walls (`walls=dict(high=4)`, a library's 6), so what stands on a loft or a
+  gallery stays inside them, and a raised floor of boards or flagstones for what the hall is for:
+  - the Alchemy Hall's furnace dais and its recipe loft;
+  - the libraries' two galleries, a level apart, up flights of boards;
+  - the retreats' meditation dais;
+  - the County Hall's dais and the Trial Tower's guardians' dais over its sand arena.
+- *New furnishings* (`tools/art/topdown/furnish.py`):
+  - `scroll_shelf`: a library's pigeonholes of scrolls and bound books;
+  - `apothecary`: an alchemist's chest of little drawers, jars on top;
+  - `screen`: a folding screen painted with a landscape;
+  - `desk`: a scholar's writing desk.
+
+  With the kit's lanterns, banners, mats, incense, stoves and potted plants, and the back walls' hangings
+  (`topdown_life.HANGINGS`: plaques, windows, scrolls, herbs), they furnish the halls.
+- *Stair cheeks.* Each hall's flight stands between two cheeks a level over its head: the scaffold's ladder at the
+  Quarry Rim too, whose flights are pinned.
+  - Why: auto-path's grid (`TopdownRoute.step_rise`) lets a body step off a flight's side where the floor beside it is
+    a step (8) from the flight's floor at the cell's middle.
+  - The motor tests its foot box's corners, a little higher or lower up the slope, and stops there.
+  - A two-row flight's last row is exactly a step off the floor at its foot and its head. Without cheeks, a body
+    walking off a flight sideways stalled: `rules_tests`' steering tour lost the recipe shelf and the upper gallery.
+  - The engine's own flights (`stairs="auto"`) still have open sides. A fix in the route's rule would fit every room;
+    it belongs to the route and its Python twin (`topdown_rooms.Grid`), not to a batch of rooms.
+- *A cave's low front.* A cave room's rock stands four levels high. Drawn in the 3/4 view, the rock south of the floor
+  hides the four rows behind it. The abodes and the collapsed tunnel lay a `front` feature of level-1 rock under their
+  caverns first, so the cave reads as an interior with a low sill and nothing on its floor is hidden.
+- *Biomes* (`biomes.py`):
+  - `sect_terraces`: the Cloud Herb Terraces' plum, pine and hedges over the cloud sea;
+  - `quarry`: cut rock, stumps and pines;
+  - `bamboo_clearing`: the Grove's bamboo round a mossy clearing.
+
+  Vistas for the terraces, the grove and the quarry are in `topdown_life.VISTAS`.
+
+**The places.** Three new rows in `tools/data/places.py`:
+- `ja_furnace`: the Alchemy Hall's furnace, alchemy, earned, for the Jade Sect;
+- `ja_abode_garden` and `cm_abode_garden`: each Cave Abode's two beds, the herb garden, earned.
+
+Each stands where auto-path reaches it from every way in.
+
+**The trials on the grid.** The Trial Tower's floors and the Grove's waves were written in the side view's coordinates
+(`world_tower.gd`, `data/beast_arena.json`).
+- `WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`: across the room as across the side view, a
+  cell in from the edges, onto the nearest floor.
+- The side view gets them unchanged.
+
+**Tested in** `tests/topdown_sect_halls.tscn`:
+- every room walked into through its ways, and out and back through each;
+- auto-path reaching every thing;
+- every page a thing opens;
+- the three places;
+- a tower floor and a guardian floor fought on the grid;
+- the Grove's trial begun with a spirit beast;
+- Stone and Sweat's copper and beetles at the Quarry Rim.
+
+**Still to do.** Several foes of these rooms have no top-down sheets yet, and the view draws stand-ins:
+- the quarry's: `stone_tortoise`, `ironclaw_mole`, `riverstone_ox`;
+- the Grove's waves: `mud_hound`, `tide_crab`;
+- most of the tower's 28 species.
+
+Some side-view props have no top-down counterpart:
+- the guardian lions;
+- the quarry's crane lift (a side-only mover).
+
+Some waves still spawn at the side view's points, read as world units on the grid:
+- the spatial rift's waves, in every room with a rift tear, at the side view's depth (y 860);
+- the set pieces' waves (R1's note above).
+
+The tower's and the Grove's mapping (`WorldRoomEvents.side_points`) is the model for them.
 
 ## The rooms left, and the pace
 
-125 side-view rooms remain, by zone (`region`); the struck ones are done:
+111 side-view rooms remain, by zone (`region`); the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -390,6 +491,15 @@ else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it
   - `stonewall_quarry`: `sq_quarry_rim`, `sq_lower_pit`, `sq_collapsed_tunnel`;
   - `jade_sect`: `ja_alchemy_hall`, `ja_library`, `ja_retreat`, `ja_cave_abode`;
   - `cloud_sect`: `cm_cloud_library`, `cm_herb_terraces`, `cm_retreat`, `cm_cave_abode`.
+  - `deepwater_bend`: `dw_serpents_shallows`;
+  - `drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
+    `ds_drowned_grotto`;
+  - `whitewater_gorge`: `wg_gorge_mouth`, `wg_rapids_terraces`, `wg_echo_cliffs`, `wg_waterfall_cave`.
+- **Stoneford and the sects' insides** (R3, all done: "The third batch" above):
+  - `stoneford`: ~~`sf_beast_grove`~~, ~~`sf_county_hall`~~, ~~`sf_trial_tower`~~;
+  - `stonewall_quarry`: ~~`sq_quarry_rim`~~, ~~`sq_lower_pit`~~, ~~`sq_collapsed_tunnel`~~;
+  - `jade_sect`: ~~`ja_alchemy_hall`~~, ~~`ja_library`~~, ~~`ja_retreat`~~, ~~`ja_cave_abode`~~;
+  - `cloud_sect`: ~~`cm_cloud_library`~~, ~~`cm_herb_terraces`~~, ~~`cm_retreat`~~, ~~`cm_cave_abode`~~.
 - **The peaks:**
   - `crane_cliffs`: `cc_cliff_faces`, `cc_sky_ledges`;
   - `mist_peak`: `mp_misty_slopes`, `mp_forgotten_monastery`, `mp_ascension_gate`;

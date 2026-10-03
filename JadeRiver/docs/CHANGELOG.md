@@ -47,6 +47,59 @@ lines: `docs/architecture/room_engine.md`, "The Drowned Shrine and Whitewater Go
     alone, it passed all 18 checks.
 - **Still to do.** Nine foe species of these rooms have no top-down sheets (E2's work), and the side view's moving parts
   here (rafts, currents, rising floods, the grotto's swim) have no top-down counterpart.
+## The room engine's third batch: Stoneford's insides, the quarry and the sects' halls on the grid (E1, R3)
+
+Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (`docs/architecture/room_engine.md`,
+"The third batch"). The prototype's gate has moved past them.
+
+- **The rooms:**
+  - the Jade Sect's Alchemy Hall, Library, Retreat Rooms and Cave Abode;
+  - the Cloud Sect's Cloud Library, Retreat Rooms, Herb Terraces and Cave Abode;
+  - Stoneford's County Hall, Trial Tower and Beast Trial Grove;
+  - Stonewall Quarry's rim, lower pit and collapsed tunnel (a new zone module, `specs/stonewall_quarry.py`).
+- **The halls' look.**
+  - Halls with taller walls, and raised floors for what each is for: the furnace's dais, the libraries' two galleries,
+    the retreats' meditation dais, the magistrate's dais, the tower's arena under the guardians' dais.
+  - Four new furnishings, original pixel art in the prop kit (`tools/art/topdown/furnish.py`): a library's
+    `scroll_shelf`, an alchemist's `apothecary` chest of drawers, a painted folding `screen` and a writing `desk`.
+  - Hangings on the halls' back walls.
+- **The caves.** The abodes and the tunnel keep a low rock front, so nothing on a cave's floor hides behind its south
+  wall in the 3/4 view.
+- **Stair cheeks.** The halls' flights and the quarry scaffold's ladder stand between cheeks a level over their heads.
+  Auto-path's grid let a body step off a flight's side that its motor's foot box would not cross, and the body
+  stalled. The route's rule itself is left for a fix of its own (room_engine.md, "The third batch").
+- **The biomes.** Three new ones: `sect_terraces`, `quarry` and `bamboo_clearing`. The vistas of the terraces, the
+  grove and the quarry, and Mei Qing's, the librarians', the magistrate's and the foreman's work loops are in
+  `topdown_life.py`.
+- **The places.** Three new rows in `places.py`: the Alchemy Hall's furnace (`ja_furnace`) and both Cave Abodes' beds
+  (`ja_abode_garden`, `cm_abode_garden`).
+- **The trials on the grid.** A Trial Tower floor's foes and the Grove's waves, written in the side view's coordinates,
+  now stand on the room's floor on the grid: `WorldRoomEvents.side_points`, through `TopdownRoom.from_side`.
+- **The checks.**
+  - `room_engine` compiles and walks the fourteen rooms.
+  - A new suite, `topdown_sect_halls`, plays them top-down:
+    - each room walked into, and out and back through each of its ways;
+    - auto-path reaching every thing;
+    - every page a thing opens;
+    - the three places;
+    - a tower floor and a guardian floor fought;
+    - the Grove's trial begun;
+    - Stone and Sweat's copper and beetles mined and fought at the Quarry Rim.
+  - The capture set `room_engine` takes their pictures into `docs/architecture/room_engine/r3/`.
+  - `rules_tests`, the smallest edits on R1's data-driven frontier checks. Four checks still named R3's rooms, and now
+    hold either way:
+    - the tower climb is tried only while the tower has no layout;
+    - the lesson past the gate is the quest the check above finds past it, no longer Stone and Sweat;
+    - the side view's hunting grounds may all be on the grid now;
+    - the transfer array's node past the gate lies in any room off the grid, now every Jade Sect room is on it.
+  - The final run, merged with R1: 74,568 checks.
+    - Every gate passes, every suite passes, and there is no SCRIPT ERROR.
+    - `perf_tests`' frame-time checks missed their budget in the full runs while the machine was loaded (6 to 7 runs on
+      4 cores), a different check each time, none about these rooms. Run again on a quieter machine, all 18 passed.
+    - `topdown_sect_halls` is new, with 51 checks.
+    - The counts that grow with the rooms:
+      - `room_engine`: 175 checks, three for each room it lays out (42 for R3's fourteen);
+      - `rules_tests`' steering tour: 58 rooms.
 
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
