@@ -26,7 +26,7 @@ ND_NEBULA_VERGE = room(
            ("nebula", 20, 8, dict(water=True, wavy="n"))],
     features=[("grey", (0, 3, 15, 17), dict(level=0, paint="r")),
               ("rise", (15, 3, 10, 6), dict(level=1, paint="r", shape="round")),
-              ("rise_2", (37, 3, 11, 7), dict(level=2, paint="r", shape="round")),
+              ("rise_2", (37, 3, 11, 5), dict(level=2, paint="r", shape="round")),
               ("inlet", (28, 16, 12, 6), dict(water=True, shape="round")),
               ("inlet_2", (56, 15, 10, 7), dict(water=True, shape="round"))]
              + islets((44, 22, 6, 4), (22, 23, 5, 4), (62, 24, 6, 3)),
@@ -56,7 +56,7 @@ ND_EEL_CURRENTS = room(
               ("road", (0, 12, 72, 3), dict(level=0, **WAY)),
               ("rise", (18, 3, 9, 6), dict(level=1, paint="r", shape="round")),
               ("stack", (28, 3, 6, 5), dict(level=2, paint="r", flights=[30])),
-              ("rise_2", (42, 3, 9, 6), dict(level=2, paint="r", shape="round"))]
+              ("rise_2", (42, 3, 9, 5), dict(level=2, paint="r", shape="round"))]
              + islets((22, 23, 5, 3), (46, 23, 6, 4)),
     stairs="auto",
     ways={"west": ("w", "road"), "east": ("e", "road")},

@@ -54,7 +54,7 @@ OR_TUMBLING_STAIR = room(
            ("road", 13, 3, dict(paint="s", walk=True)),
            ("brink", 23, 5, dict(level=0, wavy="n"))],
     features=[("landing", (11, 5, 10, 6), dict(level=1, paint="s", flights=[16])),
-              ("landing_2", (31, 4, 12, 7), dict(level=2, paint="s", flights=[37])),
+              ("landing_2", (31, 3, 12, 6), dict(level=2, paint="s", flights=[37])),
               ("landing_3", (50, 5, 10, 6), dict(level=1, paint="s", flights=[55])),
               ("block", (24, 6, 2, 2), dict(level=2, paint="s")),                   # the stair's tumbled blocks
               ("block_2", (27, 9, 2, 1), dict(level=1, paint="s")),
@@ -113,7 +113,7 @@ OR_GOLEM_FOUNDRY = room(
            ("road", 14, 3, dict(paint="s", walk=True)),
            ("brink", 23, 5, dict(level=0, wavy="n"))],
     features=[("ledge", (12, 4, 10, 5), dict(level=1, paint="r", flights=[18])),
-              ("gallery", (27, 4, 14, 6), dict(level=3, paint="s", flights=[34])),
+              ("gallery", (27, 3, 14, 4), dict(level=3, paint="s", flights=[34])),
               ("hall_house", (60, 2, 11, 9), dict(level=5, paint="s", wall=True)),   # the Inverted Hall's house
               ("doorway", (64, 8, 2, 3), dict(level=0, paint="p"))],
     stairs="auto",

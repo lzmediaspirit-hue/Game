@@ -1,5 +1,51 @@
 # Changelog
 
+## The star field's end on the grid (R9)
+
+The room engine's last batch (`docs/architecture/room_engine.md`, "The star field's end (R9)"). The twenty-one side-view
+rooms of the Lantern Star Field's last zones are specs now, and a top-down character plays Act III's chapters 20 to 22
+and the Starsea's voyages on the grid.
+
+- **Twenty-one rooms, 7 to 38 spec lines each, anchors included.**
+  - The Starsea's crossings: the Wreck Run's and the Lantern Run's decks (one `deck()` helper, a skiff's hull).
+  - The Star Warden Citadel: the Citadel Gate, the Wardens' Hall, the Observatory and the Presence Court.
+  - The Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry and the Inverted Hall.
+  - The Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp and Kharn's Pyre.
+  - The Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes and the Leviathan's Maw.
+  - The Lantern Heart: the Wick Gate, the Hall of Burning Stars and the Flame Heart.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The fields' platforms are dunes, rises,
+  landings, galleries and lookouts with their flights; the Inverted Hall's high gallery is a flight.
+- **Looks.**
+  - Six biomes: `citadel` (the Wardens' granite and flagstones, kept gardens, lantern-lined stairs), `orbit_ruins`
+    (granite floors and broken rings on grey rock, star crystals), `ashen` (dark earth, ash dunes, ash drifts and
+    embers, charred trees), `nebula` (reefs round the nebula's water, coral trees, islets), `lantern_heart` (golden
+    sandstone halls, wick pillars, flame basins) and `starsea` (a deck on the sea). R5's Wardens' stone and cloud sea,
+    R7's tomb walls, `earth` rule and brazier are reused.
+  - Twenty-four props (`tools/art/topdown/starfield.py`, joined through `furnish.py`'s R9 block; the prop sheet rebuilt
+    with `build_tiles.py`): a star lantern, a lantern cage, a Warden statue and banner, a ballista, a star chart table,
+    an armillary, a pressure pillar, a floating orbit stone, star crystals, a gravity plate, a golem husk, an Ashborn
+    pyre, tent and banner, embers, an ash drift, a charred tree, nebula coral, a coral tree, a void crab's shell, a wick
+    pillar, a flame basin and a mast.
+  - The vistas (the cloud sea under the islands' brinks, the sea round the decks) are in `topdown_life.VISTAS`.
+- **No engine rule changed**: `engine.py` is as R7 left it. The specs' own helpers lay the rings (`ring()`), the hull
+  (`deck()`), the dunes, the islets and the wick pillars' rows.
+- **Places.** Seven rows join `places.py` (48 in all): the Citadel Gate's teleport stone and shrine, and the shrines of
+  the Tumbling Stair, the Wardens' landing, the War Camp, the Nebula Verge and the Wick Gate.
+- **The frontier.** The Citadel's skiff to Lanternfall and the Wick Gate's stair to the Harbor Market are gated exactly
+  while Lanternfall Harbor has no layout (R8). The Tidebreak Bastion's skiff to the Citadel and the Drone Hive's way
+  into the Nebula Deep are open now. 39 rooms remain without a layout, all R6's and R8's.
+- **Tests.**
+  - A new suite, `topdown_starfield` (in `tests/suites.txt` after `topdown_sunscar`), 65 checks. It sails both
+    crossings (the waves boarding onto the deck's cells, the vessel making port), and plays The Citadel, The Aspirant,
+    The Observatory, The Orbit Ruins, Cinder Fields, Kharn's Pyre, Lu's Lantern and The Leviathan's Maw room by room on
+    the grid, checking every room's walks and view.
+  - `room_engine` holds the twenty-one new specs; `rules_tests`' route tour walks them with auto-path.
+- **Still to do** (room_engine.md lists it): top-down sheets for fourteen species (the starsea pirate to the Nebula
+  Leviathan); the gravity switches' low gravity, the crossing's moving vessel and the Leviathan's swim on the grid; a
+  star-field TopdownLight area, the lit props' light at night, a star-water paint and a void vista.
+- **Checks.** (filled in by the final run)
+
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
 The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The

@@ -81,6 +81,9 @@ WC_WARDENS_HALL = room(
 # Observatory); Stargazer Ming at the chart tables below it, the lens of far seeing on its stand by the east wall, scroll
 # racks of star charts round the walls, star lanterns, the Wardens' banners at the door.
 _obs_cheeks, _obs_stairs = flights(stair_with_cheeks(13, 6, 2, 0, 1, "s"))
+# Its cheeks two levels over the dais, not one: from the dais a cheek a level up is a hop, and a body that hopped onto
+# it (the great scope's spot is beside the stair's head) stalled coming off (rules_tests' route tour).
+_obs_cheeks = [(n, r, dict(o, level=3)) for n, r, o in _obs_cheeks]
 WC_OBSERVATORY = room(
     "wc_observatory", size=(28, 16), base="p", walls=HALL_WALLS,
     features=[("floor", (3, 1, 22, 14), dict(paint="s", shape="round")),

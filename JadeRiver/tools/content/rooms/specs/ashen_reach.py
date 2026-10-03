@@ -53,25 +53,25 @@ AR_CINDER_FIELDS = room(
 AR_ASHBORN_PALISADE = room(
     "ar_ashborn_palisade", size=(72, 28), biome="ashen",
     bands=[("ridge", 0, 3, RIDGE),
-           ("palisade", 11, 2, dict(level=3, paint="w", wall=True)),
-           ("road", 17, 3, dict(TRACK, w=34)),
+           ("palisade", 13, 2, dict(level=3, paint="w", wall=True)),
+           ("road", 18, 3, dict(TRACK, w=34)),
            ("brink", 23, 5, dict(level=0, wavy="n"))],
-    features=[("gate", (30, 11, 4, 2), dict(level=0, paint="a")),
-              ("gatehouse", (27, 10, 3, 3), dict(level=4, paint="w", wall=True)),
-              ("gatehouse_2", (34, 10, 3, 3), dict(level=4, paint="w", wall=True)),
-              ("road_n", (30, 7, 4, 13), TRACK),
-              ("road_e", (30, 7, 42, 3), TRACK),
+    features=[("gate", (30, 13, 4, 2), dict(level=0, paint="a")),
+              ("gatehouse", (27, 12, 3, 3), dict(level=4, paint="w", wall=True)),
+              ("gatehouse_2", (34, 12, 3, 3), dict(level=4, paint="w", wall=True)),
+              ("road_n", (30, 9, 4, 12), TRACK),
+              ("road_e", (30, 9, 42, 3), TRACK),
               ("tower", (13, 3, 6, 4), dict(level=1, paint="w", flights=[16])),
-              ("platform", (40, 3, 9, 3), dict(level=2, paint="w", flights=[44]))]
-             + dunes(((8, 20, 12, 4), 1), ((44, 16, 14, 6), 1)),
+              ("platform", (40, 3, 9, 2), dict(level=2, paint="w", flights=[44]))]
+             + dunes(((8, 21, 12, 3), 1), ((44, 17, 14, 5), 1)),
     stairs="auto",
-    ways={"west": ("w", 18), "east": ("e", 8)},
+    ways={"west": ("w", 19), "east": ("e", 10)},
     spawn="west",
     anchors={"jar_1": "tower@16", "chest_cloud_mv": "platform@42", "crate_2": "platform@46", "jar_3": "verge.s@46",
              "crate_4": "road_e.n@63"},
-    props=[("brazier", 29, 13), ("brazier", 34, 13), ("ash_pyre", 23, 8), ("cinder_tent", 3, 4), ("cinder_tent", 52, 3),
-           ("cinder_tent", 60, 3)] + banners((26, 13), (37, 13), (21, 4), (50, 8), (12, 14), (58, 14))
-          + [("embers", 25, 9), ("embers", 21, 10), ("crates", 7, 8), ("barrel", 9, 8)],
+    props=[("brazier", 29, 15), ("brazier", 34, 15), ("ash_pyre", 23, 9), ("cinder_tent", 3, 4), ("cinder_tent", 52, 3),
+           ("cinder_tent", 60, 3)] + banners((26, 15), (37, 15), (21, 4), (50, 8), (12, 16), (58, 16))
+          + [("embers", 25, 11), ("embers", 20, 11), ("crates", 7, 9), ("barrel", 9, 9)],
     flora={"dune": dict(density=0.5), "tower": [], "platform": [], "density": 0.3},
     ground={"earth": ["*", "-road", "-road_n", "-road_e", "-gate"]},
     foes="auto")

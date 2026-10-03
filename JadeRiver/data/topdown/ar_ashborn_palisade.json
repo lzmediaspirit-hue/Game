@@ -8,7 +8,7 @@
  ],
  "spawn": [
   2,
-  18
+  19
  ],
  "levels": [
   "555555555555555555555555555555555555555555555555555555555555555555555555",
@@ -16,8 +16,10 @@
   "555555550000005555555555555550000555555555555555555550000555555555555000",
   "000000000000011111155555555000000000000022222222200000000005555555500000",
   "000000000000011111100000000000000000000022222222200000000000000000000000",
-  "000000000000011111100000000000000000000022222222200000000000000000000000",
   "000000000000011111100000000000000000000000000000000000000000000000000000",
+  "000000000000011111100000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -26,14 +28,12 @@
   "333333333333333333333333333444000044433333333333333333333333333333333333",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000001111111000000000000000000",
+  "000000000000000000000000000000000000000000000011111111000000000000000000",
+  "000000000000000000000000000000000000000000000111111111110000000000000000",
+  "000000000000000000000000000000000000000000000111111111111000000000000000",
   "000000000000000000000000000000000000000000000011111111110000000000000000",
-  "000000000000000000000000000000000000000000000111111111111000000000000000",
-  "000000000000000000000000000000000000000000000111111111111000000000000000",
-  "000000000011111111000000000000000000000000000011111111110000000000000000",
-  "000000000111111111100000000000000000000000000000111111000000000000000000",
-  "000000000111111111000000000000000000000000000000000000000000000000000000",
+  "000000000011111110000000000000000000000000000001111111000000000000000000",
+  "000000000011111111000000000000000000000000000000000000000000000000000000",
   "000000000011111110000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -46,24 +46,24 @@
   "rrrrrrrrddddddrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrddd",
   "dddddddddddddwwwwwwrrrrrrrrdddddddddddddwwwwwwwwwddddddddddrrrrrrrrddddd",
   "dddddddddddddwwwwwwdddddddddddddddddddddwwwwwwwwwddddddddddddddddddddddd",
-  "dddddddddddddwwwwwwdddddddddddddddddddddwwwwwwwwwddddddddddddddddddddddd",
   "dddddddddddddwwwwwwddddddddddddddddddddddddsssdddddddddddddddddddddddddd",
-  "dddddddddddddddssdddddddddddddaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "dddddddddddddddssdddddddddddddaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "ddddddddddddddddddddddddddddddaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddwwwwwwddddddddddddddddddddddddsssdddddddddddddddddddddddddd",
+  "dddddddddddddddssddddddddddddddddddddddddddsssdddddddddddddddddddddddddd",
+  "dddddddddddddddssddddddddddddddddddddddddddsssdddddddddddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "ddddddddddddddddddddddddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "ddddddddddddddddddddddddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "dddddddddddddddddddddddddddwwwaaaawwwddddddddddddddddddddddddddddddddddd",
   "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwaaaawwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
   "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwaaaawwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
   "ddddddddddddddddddddddddddddddaaaadddddddddddddddddddddddddddddddddddddd",
   "ddddddddddddddddddddddddddddddaaaadddddddddddddddddddddddddddddddddddddd",
-  "ddddddddddddddddddddddddddddddaaaadddddddddddddddddddddddddddddddddddddd",
-  "ddddddddddddddddddddddddddddddaaaadddddddddddddrrrrrrrdddddddddddddddddd",
+  "ddddddddddddddddddddddddddddddaaaaddddddddddddrrrrrrrrdddddddddddddddddd",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddddddddrrrrrrrrrrrdddddddddddddddd",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddddddddrrrrrrrrrrrrddddddddddddddd",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaddddddddddddrrrrrrrrrrdddddddddddddddd",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddddddddrrrrrrrrrrrrddddddddddddddd",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddddddddrrrrrrrrrrrrddddddddddddddd",
-  "ddddddddddrrrrrrrrddddddddddddddddddddddddddddrrrrrrrrrrdddddddddddddddd",
-  "dddddddddrrrrrrrrrrdddddddddddddddddddddddddddddrrrrrrdddddddddddddddddd",
-  "dddddddddrrrrrrrrrdddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddrrrrrrrddddddddddddddddddddddddddddddrrrrrrrdddddddddddddddddd",
+  "ddddddddddrrrrrrrrdddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "ddddddddddrrrrrrrddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
@@ -81,7 +81,7 @@
   },
   {
    "x": 43,
-   "y": 6,
+   "y": 5,
    "w": 3,
    "h": 4,
    "from": 0,
@@ -92,17 +92,17 @@
   {
    "kind": "brazier",
    "x": 29,
-   "y": 13
+   "y": 15
   },
   {
    "kind": "brazier",
    "x": 34,
-   "y": 13
+   "y": 15
   },
   {
    "kind": "ash_pyre",
    "x": 23,
-   "y": 8
+   "y": 9
   },
   {
    "kind": "cinder_tent",
@@ -122,12 +122,12 @@
   {
    "kind": "ashborn_banner",
    "x": 26,
-   "y": 13
+   "y": 15
   },
   {
    "kind": "ashborn_banner",
    "x": 37,
-   "y": 13
+   "y": 15
   },
   {
    "kind": "ashborn_banner",
@@ -142,32 +142,32 @@
   {
    "kind": "ashborn_banner",
    "x": 12,
-   "y": 14
+   "y": 16
   },
   {
    "kind": "ashborn_banner",
    "x": 58,
-   "y": 14
+   "y": 16
   },
   {
    "kind": "embers",
    "x": 25,
-   "y": 9
+   "y": 11
   },
   {
    "kind": "embers",
-   "x": 21,
-   "y": 10
+   "x": 20,
+   "y": 11
   },
   {
    "kind": "crates",
    "x": 7,
-   "y": 8
+   "y": 9
   },
   {
    "kind": "barrel",
    "x": 9,
-   "y": 8
+   "y": 9
   },
   {
    "kind": "boulder",
@@ -192,12 +192,42 @@
   {
    "kind": "boulder",
    "x": 42,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
    "y": 6
   },
   {
    "kind": "boulder",
    "x": 46,
    "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 8
   },
   {
    "kind": "boulder",
@@ -260,74 +290,74 @@
    "y": 4
   },
   {
-   "kind": "boulder",
-   "x": 30,
-   "y": 20
-  },
-  {
-   "kind": "boulder",
-   "x": 33,
-   "y": 6
-  },
-  {
-   "kind": "boulder",
-   "x": 38,
-   "y": 10
+   "kind": "embers",
+   "x": 32,
+   "y": 22
   },
   {
    "kind": "embers",
-   "x": 49,
-   "y": 10
+   "x": 34,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 51,
+   "y": 7
   },
   {
    "kind": "embers",
-   "x": 55,
-   "y": 10
+   "x": 54,
+   "y": 7
   },
   {
-   "kind": "ash_drift",
+   "kind": "boulder",
    "x": 3,
-   "y": 13
+   "y": 15
   },
   {
    "kind": "ash_drift",
-   "x": 8,
-   "y": 13
+   "x": 6,
+   "y": 16
   },
   {
    "kind": "ash_drift",
-   "x": 13,
-   "y": 13
-  },
-  {
-   "kind": "ash_drift",
-   "x": 39,
-   "y": 14
-  },
-  {
-   "kind": "boulder",
-   "x": 45,
-   "y": 13
-  },
-  {
-   "kind": "boulder",
-   "x": 52,
-   "y": 13
-  },
-  {
-   "kind": "ash_drift",
-   "x": 61,
-   "y": 14
+   "x": 10,
+   "y": 15
   },
   {
    "kind": "charred_tree",
-   "x": 66,
-   "y": 13
+   "x": 37,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 15
   },
   {
    "kind": "charred_tree",
-   "x": 69,
-   "y": 13
+   "x": 57,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 64,
+   "y": 16
+  },
+  {
+   "kind": "charred_tree",
+   "x": 71,
+   "y": 16
   },
   {
    "kind": "ash_drift",
@@ -340,14 +370,14 @@
    "y": 17
   },
   {
-   "kind": "boulder",
-   "x": 53,
-   "y": 16
+   "kind": "charred_tree",
+   "x": 54,
+   "y": 19
   },
   {
    "kind": "ash_drift",
    "x": 57,
-   "y": 17
+   "y": 19
   },
   {
    "kind": "embers",
@@ -360,68 +390,63 @@
    "y": 20
   },
   {
-   "kind": "charred_tree",
-   "x": 55,
+   "kind": "ash_drift",
+   "x": 56,
    "y": 21
   },
   {
-   "kind": "embers",
+   "kind": "ash_drift",
    "x": 5,
-   "y": 20
+   "y": 21
   },
   {
-   "kind": "embers",
+   "kind": "boulder",
    "x": 8,
-   "y": 15
+   "y": 17
   },
   {
-   "kind": "embers",
-   "x": 17,
+   "kind": "ash_drift",
+   "x": 19,
+   "y": 17
+  },
+  {
+   "kind": "ash_drift",
+   "x": 25,
    "y": 16
   },
   {
    "kind": "boulder",
-   "x": 25,
-   "y": 20
+   "x": 26,
+   "y": 22
   },
   {
-   "kind": "embers",
-   "x": 27,
-   "y": 20
+   "kind": "charred_tree",
+   "x": 9,
+   "y": 22
   },
   {
    "kind": "boulder",
-   "x": 10,
-   "y": 20
+   "x": 12,
+   "y": 23
   },
   {
    "kind": "ash_drift",
-   "x": 14,
-   "y": 21
+   "x": 15,
+   "y": 22
   },
   {
-   "kind": "embers",
-   "x": 19,
-   "y": 21
+   "kind": "ash_drift",
+   "x": 17,
+   "y": 23
   },
   {
-   "kind": "embers",
+   "kind": "boulder",
    "x": 8,
-   "y": 23
-  },
-  {
-   "kind": "boulder",
-   "x": 13,
-   "y": 23
-  },
-  {
-   "kind": "boulder",
-   "x": 10,
-   "y": 24
+   "y": 25
   },
   {
    "kind": "ash_drift",
-   "x": 16,
+   "x": 11,
    "y": 25
   },
   {
@@ -521,39 +546,39 @@
   ],
   "crate_2": [
    46,
-   5
+   3
   ],
   "jar_3": [
    46,
-   10
+   12
   ],
   "crate_4": [
    63,
-   6
+   8
   ]
  },
  "portals": {
   "west": {
    "at": [
     0,
-    18
+    19
    ],
    "dir": "w",
    "arrive": [
     2,
-    18
+    19
    ],
    "span": 3
   },
   "east": {
    "at": [
     71,
-    8
+    10
    ],
    "dir": "e",
    "arrive": [
     69,
-    8
+    10
    ],
    "span": 3
   }
@@ -566,19 +591,19 @@
    ],
    [
     22,
-    20
+    21
    ],
    [
     35,
-    5
+    7
    ],
    [
     49,
-    5
+    8
    ],
    [
     62,
-    10
+    6
    ]
   ],
   [
@@ -588,13 +613,13 @@
    ],
    [
     51,
-    10
+    12
    ]
   ],
   [
    [
     40,
-    5
+    8
    ]
   ]
  ],

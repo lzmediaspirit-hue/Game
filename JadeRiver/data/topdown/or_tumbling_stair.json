@@ -14,14 +14,14 @@
   "444444444444444444444444444444444444444444444444444444444444444444444444",
   "444444444444444444444444444444444444444444444444444444444444444444444444",
   "444444444444444444444444444444444444444444444444444444444444444444444444",
-  "000000000000000000000000444444444444444444444444444444444444440000044444",
+  "000000000000000000000000444444422222222222244444444444444444440000044444",
   "000000000000000000000000000000022222222222200000000004444400000000000000",
   "000000000001111111111000000000022222222222200000001111111111000000000000",
   "000000000001111111111000220000022222222222200220001111111111000000000000",
   "000000000001111111111000220000022222222222200220001111111111000000000000",
   "000000000001111111111000000000022222222222200000001111111111000000000000",
-  "000000000001111111111000000110022222222222200001001111111111000000000000",
-  "000000000001111111111000000000022222222222200000001111111111000000000000",
+  "000000000001111111111000000110000000000000000001001111111111000000000000",
+  "000000000001111111111000000000000000000000000000001111111111000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -44,14 +44,14 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrssssssssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrssssssssssssrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrssssssssssrrrrrrrrrrssssssssssssrrrrrrrssssssssssrrrrrrrrrrrr",
   "rrrrrrrrrrrssssssssssrrrssrrrrrssssssssssssrrssrrrssssssssssrrrrrrrrrrrr",
   "rrrrrrrrrrrssssssssssrrrssrrrrrssssssssssssrrssrrrssssssssssrrrrrrrrrrrr",
   "rrrrrrrrrrrssssssssssrrrrrrrrrrssssssssssssrrrrrrrssssssssssrrrrrrrrrrrr",
-  "rrrrrrrrrrrssssssssssrrrrrrssrrssssssssssssrrrrsrrssssssssssrrrrrrrrrrrr",
-  "rrrrrrrrrrrssssssssssrrrrrrrrrrssssssssssssrrrrrrrssssssssssrrrrrrrrrrrr",
+  "rrrrrrrrrrrssssssssssrrrrrrssrrrrrrrsssrrrrrrrrsrrssssssssssrrrrrrrrrrrr",
+  "rrrrrrrrrrrssssssssssrrrrrrrrrrrrrrrsssrrrrrrrrrrrssssssssssrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrr",
   "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
@@ -81,7 +81,7 @@
   },
   {
    "x": 36,
-   "y": 11,
+   "y": 9,
    "w": 3,
    "h": 4,
    "from": 0,
@@ -176,6 +176,26 @@
    "kind": "boulder",
    "x": 18,
    "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 35,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 35,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 10
   },
   {
    "kind": "boulder",

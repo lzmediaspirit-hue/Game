@@ -16,10 +16,10 @@
   "444440444444~~~~~444444444440000444444~~~44444444000444~~~~~444444444444",
   "000000000444~~~~~444111100002222224~~~~~~44422222000000~~~~~440000000000",
   "000000000000~~~~~001111111002222220~~~~~~00222222200000~~~~~000000000000",
-  "000000000000~~~~~011111111102222220~~~~~~02222222220000~~~~~000000000000",
-  "000000000000~~~~~011111111102222220~~~~~~02222222220000~~~~~000000000000",
-  "000000000000~~~~~001111111002222220~~~~~~00222222200000~~~~~000000000000",
-  "000000000000~~~~~000111110000000000~~~~~~00022222000000~~~~~000000000000",
+  "000000000000~~~~~011111111102222220~~~~~~02222222200000~~~~~000000000000",
+  "000000000000~~~~~011111111102222220~~~~~~02222222200000~~~~~000000000000",
+  "000000000000~~~~~001111111002222220~~~~~~00222222000000~~~~~000000000000",
+  "000000000000~~~~~000111110000000000~~~~~~00000000000000~~~~~000000000000",
   "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
   "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
   "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
@@ -49,11 +49,11 @@
   "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
   "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
   "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
-  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrssrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
   "rrrrrrrrrrrr~~~~~rrrsssrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
   "rrrrrrrrrrrr~~~~~rrrsssrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
   "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
@@ -89,7 +89,7 @@
   },
   {
    "x": 44,
-   "y": 9,
+   "y": 8,
    "w": 3,
    "h": 4,
    "from": 0,
@@ -198,11 +198,6 @@
    "y": 4
   },
   {
-   "kind": "nebula_coral",
-   "x": 44,
-   "y": 3
-  },
-  {
    "kind": "coral_tree",
    "x": 50,
    "y": 4
@@ -273,14 +268,9 @@
    "y": 7
   },
   {
-   "kind": "rock_small",
-   "x": 46,
-   "y": 6
-  },
-  {
    "kind": "star_crystal",
-   "x": 42,
-   "y": 8
+   "x": 44,
+   "y": 6
   },
   {
    "kind": "nebula_coral",
@@ -454,7 +444,7 @@
   ],
   "crate_2": [
    45,
-   8
+   4
   ],
   "jar_3": [
    46,
