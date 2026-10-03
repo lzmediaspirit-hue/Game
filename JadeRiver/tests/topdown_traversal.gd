@@ -19,7 +19,9 @@ extends "res://tests/prologue_run.gd"
 ##      foot, give way into the water and come back;
 ##   9. a current pushes a body standing in it; a flood rises on a boss's phase, sends the body to dry floor, and falls;
 ##  10. flight: Jump held takes to the air (Wings of Cloud's objective), climbs, holds, lands on Evade held, ends out
-##      of QI, and glides where flight is refused.
+##      of QI, and glides where flight is refused;
+##  11. a mount: the rider goes at its pace, steps down to climb the rope and is back on at its top, kicks off no wall;
+##  12. the Plunge off the Pavilion Rooftops' roof, the Outer Trial's objective counted.
 ## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose]
 
 const BEFORE := ["prologue", "main"]
@@ -38,7 +40,7 @@ func _main() -> void:
 	_shortcut()
 	_world()
 	for part in [_set_pieces, _rafts, _leaf_on_the_wind, _rope, _skipping_stones, _dart_and_ladder, _wall_and_bounce,
-			_lift_and_boards, _current_and_flood, _flight]:
+			_lift_and_boards, _current_and_flood, _flight, _mount, _plunge]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -640,3 +642,62 @@ func _flight() -> void:
 	check(not m.flying and not Game.combat.is_flying(c().id) and bool(glid.on), "where flight is refused the hold glides instead (flying %s, glided %s, knows %s)" % [str(m.flying), str(glid.on), str(Game.combat.knows_art(c(), "glide"))])
 	frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
 	Game.room_rt.def.erase("no_flight")
+
+# ------------------------------------------------------------------ 11: a mount
+## A ground mount on the grid: the rider goes at its pace (PetAuthority.mount_speed), steps down to climb the rope and
+## back on at its top (PetAuthority's climb_started / climb_finished, heard from the grid's climb), and kicks off no wall.
+func _mount() -> void:
+	check(_falls_pool(), "to the Falls Pool to ride")
+	var m := motor()
+	c().cultivator.unlocked["mounts"] = true   # a test shortcut: the Beast Hall's Mount slot opens later in the story
+	Game.pets.apply_grant(c().id, "riverstone_ox")
+	var ox: Dictionary = c().pets.back()
+	check(Game.submit({"type": "set_mount", "pet": ox.uid}).get("ok", false) and c().riding, "the Riverstone Ox in the Mount slot, ridden")
+	Game.submit({"type": "set_mount", "on": false})
+	stand(Vector2(34, 22))
+	frames(int(0.6 / DT), Vector2.RIGHT)
+	var walked := m.pos.x - TopdownRoom.cell_point([34, 22]).x
+	Game.submit({"type": "set_mount", "on": true})
+	stand(Vector2(34, 22))
+	frames(int(0.6 / DT), Vector2.RIGHT)
+	var rode := m.pos.x - TopdownRoom.cell_point([34, 22]).x
+	var k := rode / maxf(1.0, walked)
+	check(absf(k - Game.pets.mount_speed(c())) < 0.15, "the ox carries its rider at its pace on the grid (x%.2f, the mount's x%.2f; %.0f walked, %.0f rode)" % [k, Game.pets.mount_speed(c()), walked, rode])
+	if not Game.combat.knows_art(c(), "wall_step"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "wall_step"}], "test")
+	frames(1)
+	check(Game.combat.knows_art(c(), "wall_step") and not m.wall_step, "no Wall-Step kick from a ground mount")
+	# The rope: the rider steps down to climb it, and back on at the landing.
+	var off := {"all_the_way": true}   # off the ox for every frame on the rope
+	stand(Vector2(14.4, 7.0))
+	frames(int(0.6 / DT), Vector2.LEFT, false, func(): return not m.climbing.is_empty())
+	frames(int(3.0 / DT), Vector2.LEFT, false, func():
+		if not m.climbing.is_empty() and not Game.pets.mount_of(c()).is_empty(): off.all_the_way = false
+		return m.climbing.is_empty())
+	frames(2)
+	check(bool(off.all_the_way) and m.grounded and absf(m.z - 2.0 * TopdownRoom.LEVEL) < 0.5 and not Game.pets.mount_of(c()).is_empty(),
+		"the rider steps down to climb the rope and is back on the ox at its top (z %.0f)" % m.z)
+	Game.submit({"type": "set_mount", "on": false})
+	c().cultivator.unlocked.erase("mounts")
+
+# ------------------------------------------------------------------ 12: the Plunge from a roof
+## The Outer Trial's "Climb a roof and Plunge to the practice ground", on the Pavilion Rooftops' grid: off the roof's
+## south edge (walked off the eaves), the Plunge drops the body straight down, and the objective counts it.
+func _plunge() -> void:
+	check(enter("ja_pavilion_rooftops", "west"), "to the Pavilion Rooftops on the grid")
+	var m := motor()
+	if not Game.combat.knows_art(c(), "plunge"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "plunge"}], "test")
+	# The trial again, its spars won (a test shortcut: the shortcut took chapter 1 as done).
+	c().quests.done.erase("outer_trial")
+	c().quests.active["outer_trial"] = {"state": "active", "progress": [3, 0], "accepted_tick": 0}
+	c().pools.cooldowns.erase("plunge")
+	stand(Vector2(44, 8))   # west of the roof's stair (x 48-50)
+	check(absf(m.z - 2.0 * TopdownRoom.LEVEL) < 0.5, "on the pavilion's roof (z %.0f)" % m.z)
+	frames(int(0.8 / DT), Vector2.DOWN, false, func(): return not m.grounded)   # off the eaves
+	frames(2, Vector2.DOWN)
+	var r: Dictionary = w.player.plunge()
+	var dropped := {"fast": false}
+	frames(int(1.5 / DT), Vector2.ZERO, false, func(): dropped.fast = bool(dropped.fast) or m.vz < -600.0; return m.grounded)
+	GameEvents.flush()
+	var prog: Array = c().quests.active.get("outer_trial", {}).get("progress", [0, 0])
+	check(r.get("ok", false) and bool(dropped.fast) and m.grounded and absf(m.z) < 0.5 and int(prog[1]) >= 1,
+		"off the roof the Plunge drops straight down, and the Outer Trial counts it on the grid (%s; %s; fast %s, z %.0f, grounded %s)" % [str(r), str(prog), str(dropped.fast), m.z, str(m.grounded)])

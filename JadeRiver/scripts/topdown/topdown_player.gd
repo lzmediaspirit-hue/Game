@@ -432,7 +432,8 @@ func physics_step(delta: float) -> Array:
 		if move.length() > motor.tiptoe_axis and Game.combat.is_busy(actor_id) and weave.is_empty() and dodge_buffer <= 0.0 \
 				and CombatFeel.phase_of(tl, c) == "recovery" and CombatFeel.dodge_cancel(tl, c) == "cancel":
 			Game.submit({"type": "move_cancel"})
-		motor.speed_k = Game.combat.move_factor(actor_id) if not Game.combat.is_wounded(actor_id) else 0.0
+		# T1: a mount carries the rider at its pace (PetAuthority.mount_speed), as the side view's walk.
+		motor.speed_k = Game.combat.move_factor(actor_id) * Game.pets.mount_speed(c) if not Game.combat.is_wounded(actor_id) else 0.0
 		# Decision 43: the feet are planted through a blow's anticipation and active frames on the ground (its lunge
 		# carries it; the recovery keeps the attack's walk).
 		if motor.grounded and CombatFeel.phase_of(tl, c) in ["anticipation", "active"]: motor.speed_k *= float(CombatFeel.flow().get("plant", 0.0))
@@ -440,7 +441,7 @@ func physics_step(delta: float) -> Array:
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
 		# T1: the movement arts this character knows reach the motor, as the side view's _sync_arts reaches its solver.
 		motor.double_jump = Game.combat.knows_art(c, "double_jump")
-		motor.wall_step = Game.combat.knows_art(c, "wall_step")
+		motor.wall_step = Game.combat.knows_art(c, "wall_step") and not Game.pets.ground_mounted(c)   # no mount kicks off a wall
 		_hold_jump(c)
 		_climb_hold(c, move, delta)
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
