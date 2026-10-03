@@ -15,8 +15,9 @@ func use_context() -> void:
 		finish_tap(float(hud.tapping.t) / maxf(0.01, float(hud.tapping.ring)))
 		return
 	if hud.channel.object != "": return
-	if str(hud.context.get("type", "")) == "climbable":   # side view: only world.gd offers a ladder or a rope
-		hud.side_view.climb()
+	if str(hud.context.get("type", "")) == "climbable":
+		if hud.player.has_method("climb_near"): hud.player.climb()   # T1: a climbable face on the grid
+		else: hud.side_view.climb()   # side view: a ladder or a rope in world.gd
 		return
 	if hud.context.has("portal"):
 		hud.world.request_portal(str(hud.context.portal))

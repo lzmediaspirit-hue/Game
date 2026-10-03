@@ -17,8 +17,8 @@
   "44444444444444444444444444~~~~44444444444444444440004444",
   "44444444444444444444444444~~~~44444444444444444440004444",
   "44444444444444444444444444~~~~44444444444444444440004444",
-  "00002222222222000000000000~~~~00000000000000000000000000",
-  "00002222222222000000000000~~~~00000000000000000000000000",
+  "00002222222222000000000000~~~~33333000000000000000000000",
+  "00002222222222000000000000~~~~33333000000000000000000000",
   "0000222222222200000000~~~~~~~~~~~~0000000000000000000000",
   "000000000000000000000~~~~~~~~~~~~~~~~~000000000000000000",
   "000000000000000000~~~~~~~~~~~~~~~~~~~~~~0000000000000000",
@@ -49,8 +49,8 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
-  "ggggrrrrrrrrrrgggggsssssss~~~~gggggggggggggggggggdddgggg",
-  "ggggrrrrrrrrrrgggggsssssss~~~~gggggggggggggggggggdddgggg",
+  "ggggrrrrrrrrrrgggggsssssss~~~~rrrrrggggggggggggggdddgggg",
+  "ggggrrrrrrrrrrgggggsssssss~~~~rrrrrggggggggggggggdddgggg",
   "ggggrrrrrrrrrrgggggggg~~~~~~~~~~~~gggggggggggggggdddgggg",
   "gggggggsssggggggggggg~~~~~~~~~~~~~~~~~gggggggggggdddgggg",
   "gggggggsssgggggggg~~~~~~~~~~~~~~~~~~~~~~gggggggggdddgggg",
@@ -116,11 +116,6 @@
   {
    "kind": "ferns",
    "x": 30,
-   "y": 7
-  },
-  {
-   "kind": "tree_pine",
-   "x": 35,
    "y": 7
   },
   {
@@ -616,6 +611,43 @@
     18
    ]
   ]
+ ],
+ "traverse": [
+  {
+   "kind": "updraft",
+   "id": "falls_spray",
+   "rect": [
+    26,
+    7,
+    4,
+    5
+   ],
+   "top": 3.5
+  },
+  {
+   "kind": "vine",
+   "id": "falls_vine",
+   "foot": [
+    34,
+    8
+   ],
+   "top": [
+    34,
+    7
+   ]
+  },
+  {
+   "kind": "rope",
+   "id": "falls_step_rope",
+   "foot": [
+    14,
+    7
+   ],
+   "top": [
+    13,
+    7
+   ]
+  }
  ],
  "vista": [
   {

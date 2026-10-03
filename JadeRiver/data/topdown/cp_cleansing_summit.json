@@ -274,6 +274,18 @@
   }
  },
  "spawns": [],
+ "stage": {
+  "heavens_cleansing": [
+   [
+    9,
+    26
+   ],
+   [
+    31,
+    26
+   ]
+  ]
+ },
  "vista": [
   {
    "edge": "n",
