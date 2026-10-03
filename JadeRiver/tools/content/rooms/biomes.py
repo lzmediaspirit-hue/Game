@@ -146,6 +146,37 @@ BIOMES = {
                   "walk": ["ferns", "rock_small"],
                   "water": ["cattails", "ferns"]},
     },
+    # R4: the peaks (Mist Peak, Summit Ridge, the Hidden Vale; the Crane Cliffs take R1's `mountain`; Act II's
+    # Rimefrost Heights reuses them).
+    # Mist Peak: the slopes in the soul-mist, pines and grey dead trees, ferns and wet turf (the mist lies over a
+    # spec's `m` hollows, TopdownAtmosphere), mossy stones along the trail.
+    "mist_peak": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "dead_tree", "rock_mossy", "ferns"],
+                  "ground": ["tree_pine", "dead_tree", "rock_mossy", "ferns", "tall_grass", "bush"],
+                  "walk": ["rock_small", "ferns", "tall_grass"],
+                  "water": ["tall_grass", "cattails", "ferns"]},
+    },
+    # The snow line (Summit Ridge): every floor under fresh snow and the walks trodden to packed snow (decision 44,
+    # its `ground` the default for a spec that names none: "*" the whole room, "walk" the walks and their cuts), pines
+    # and dead trees standing out of it, boulders and bare rocks.
+    "snowfield": {
+        "base": "r", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["tree_pine", "boulder", "rock_small"],
+                  "ground": ["tree_pine", "dead_tree", "boulder", "rock_small", "rock_mossy"],
+                  "walk": ["rock_small", "boulder"],
+                  "water": ["rock_small"]},
+        "ground": {"snow": ["*"], "snowpack": ["walk"]},
+    },
+    # The Hidden Vale: a sheltered sect valley among the peaks, plum and peach blossom, maples and bamboo, azaleas on
+    # the lawns, willows and lotus on its water.
+    "hidden_vale": {
+        "base": "g", "stair": "s", "density": 0.32,
+        "flora": {"wall": ["tree_pine", "bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["tree_plum", "tree_camphor", "tree_maple", "tree_pine", "bush_azalea", "bush", "ferns", "tall_grass"],
+                  "walk": ["bush_azalea", "rock_small", "ferns"],
+                  "water": ["tree_willow", "cattails", "lotus_pads", "tall_grass"]},
+    },
     # R5 ------------------------------------------------------------------------------------------------------------
     # The Tidebreak Front's grey fields past the Bastion (the Greyfall Breach, the Hollow Wake, the Drone Hive): bare grey
     # rock where the Tide has drunk the land, dead trees and grey reeds, stumps, fallen logs and broken stone, a little

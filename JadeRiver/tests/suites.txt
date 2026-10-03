@@ -16,6 +16,8 @@ topdown_chapter3
 topdown_sect_halls
 topdown_chapter4
 topdown_drowned_shrine
+topdown_peaks
+topdown_story_rooms
 tutorials
 story_scenes
 hollow_night

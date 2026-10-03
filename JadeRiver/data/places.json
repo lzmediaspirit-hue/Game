@@ -1215,6 +1215,157 @@
     "first_use": true,
     "text": "Tend your beds from anywhere after your first harvest."
    }
+  },
+  {
+   "id": "hv_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "hv_vale_gate",
+   "object": "stone_hv",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Vale Gate Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    8,
+    11
+   ],
+   "stand": [
+    8,
+    12
+   ],
+   "at": [
+    272.0,
+    368.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Vale Gate Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "hv_storehouse",
+   "system": "storage",
+   "page": "storage",
+   "page_args": {},
+   "room": "hv_sect_grounds",
+   "object": "storage_hv",
+   "kind": "storehouse",
+   "rule": "earned",
+   "name": "the Sect Storehouse",
+   "state": "stock",
+   "added": false,
+   "cell": [
+    18,
+    22
+   ],
+   "stand": [
+    18,
+    23
+   ],
+   "at": [
+    592.0,
+    720.0
+   ],
+   "verb": "sim.world.open",
+   "icon": "storage",
+   "kind_name": "Storehouse",
+   "pose": "open",
+   "where": "At the Sect Storehouse",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "pouch_sewing"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Opens from anywhere once Tailor Xun has sewn you a pouch (A Pouch for the Road)."
+   }
+  },
+  {
+   "id": "hv_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "hv_sect_grounds",
+   "object": "shrine_hv",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Sect Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    38,
+    22
+   ],
+   "stand": [
+    38,
+    23
+   ],
+   "at": [
+    1232.0,
+    720.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Sect Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sr_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sr_frozen_shrine",
+   "object": "shrine_frozen",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Frozen Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    51,
+    8
+   ],
+   "stand": [
+    51,
+    9
+   ],
+   "at": [
+    1648.0,
+    272.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Frozen Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
   }
  ],
  "kinds": {

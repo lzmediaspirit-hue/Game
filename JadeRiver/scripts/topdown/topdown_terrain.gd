@@ -70,6 +70,10 @@ var _near := PackedByteArray() ## per cell: bit (1 << material) where a cell of 
 var _beach := PackedByteArray() ## per cell: 1 where its mark shows through the shallows by it (sand)
 var _flood := PackedByteArray() ## R2: per corner, 1 where every cell round it is flooded or open water
 var _flood_by: Array = []      ## R2: corner key as an int -> the flood overlays by place
+var _lit := PackedByteArray()  ## per cell: 1 on the top of a small raised block (`_lit_blocks`)
+const LIT := Color(1.0, 0.97, 0.86, 0.3)    ## the lit top of a small raised block (a pillar, a plinth, a ruined wall)
+const FACE_LIT := Color(0.86, 0.9, 1.0, 0.16)   ## and its face, lit by the sky a step under its top
+const LIT_CELLS := 12
 
 func _init(r: TopdownRoom) -> void:
 	room = r
@@ -87,6 +91,7 @@ func _init(r: TopdownRoom) -> void:
 		_plans()
 		_tones()
 		_water_depth()
+		_lit_blocks()
 
 ## Terrain v2: per cell, what its mark draws (looked up once, so drawing a room is a few array reads per cell).
 func _plans() -> void:
@@ -156,6 +161,40 @@ func _floods() -> void:
 				var y := cy - 1 + (c >> 1)
 				if x >= 0 and y >= 0 and x < room.w and y < room.h and wet[y * room.w + x] == 0: all = 0
 			_flood[cy * cw + cx] = all
+
+## A small raised block (a pillar, a plinth, a stretch of ruined wall: at most LIT_CELLS cells of one level, standing two
+## levels or more over the ground round it): its top takes the LIT tint, so it reads as a lit top over its own face and
+## shadow, never as a dark square sunk into the floor of the same stone.
+func _lit_blocks() -> void:
+	var n := room.w * room.h
+	_lit.resize(n)
+	var seen := PackedByteArray()
+	seen.resize(n)
+	for i in n:
+		var l := room.levels[i]
+		if seen[i] or l < 1 or room.stair_of[i] != 0: continue
+		var block: Array = [i]
+		var low := 99
+		seen[i] = 1
+		var k := 0
+		while k < block.size():
+			var c: int = block[k]
+			k += 1
+			var cx := c % room.w
+			var cy := c / room.w
+			for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				var nx: int = cx + d.x
+				var ny: int = cy + d.y
+				if not room.inside(nx, ny): continue
+				var j: int = ny * room.w + nx
+				if room.levels[j] == l and room.stair_of[j] == 0:
+					if not seen[j]:
+						seen[j] = 1
+						block.append(j)
+				else:
+					low = mini(low, room.levels[j])
+		if block.size() <= LIT_CELLS and l - low >= 2:
+			for c in block: _lit[c] = 1
 
 ## The grid's level of a cell (a prop's top is a sprite, not the grid); `out` outside the room.
 func lv(x: int, y: int, out := 99) -> int:
@@ -420,6 +459,8 @@ func top_layers(x: int, y: int, l: int) -> Array:
 		if sun: out.append(_tint_layer(sun, x, y, "sun"))
 		var shade := _ckey(_tone, x, y, 2)
 		if shade: out.append(_tint_layer(shade, x, y, "shade"))
+	if not _lit.is_empty() and _lit[y * room.w + x] and not (_mask_by[15] as Array).is_empty():
+		out.append([_mask_by[15][(y & 3) * 4 + (x & 3)], LIT])
 	for o in overlays(x, y, l): out.append([o, Color.WHITE])
 	return out
 
@@ -436,6 +477,9 @@ func face_layers(x: int, y: int, l: int, k: int, south: int) -> Array:
 	var out: Array = [_layer(name)]
 	if k == 0 and v2.has("face_end"): out.append_array(_face_joins(x, y, l, kind))
 	for e in face_ends(x, y, l, k): out.append(_layer(e))
+	# A small raised block's face takes the sky's light too, a step under its lit top (`_lit_blocks`).
+	if not _lit.is_empty() and _lit[y * room.w + x] and not (_mask_by[15] as Array).is_empty():
+		out.append([_mask_by[15][(k & 3) * 4 + (x & 3)], FACE_LIT])
 	if k == l - south - 1 and south >= 0 and v2.has("face_ao"): out.append(_layer(str(v2.face_ao)))
 	return out
 

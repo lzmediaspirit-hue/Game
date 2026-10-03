@@ -346,6 +346,17 @@ VISTAS = {
     "wg_gorge_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "wg_rapids_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "wg_echo_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    # R4, the peaks: the mountains behind the north cliffs, the cloud sea under the south brinks.
+    "cc_cliff_faces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "cc_sky_ledges": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "mp_misty_slopes": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "mp_forgotten_monastery": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "mp_ascension_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sr_windswept_ridge": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "sr_frozen_shrine": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "hv_vale_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    "hv_sect_grounds": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "hv_back_mountain": [{"edge": "n", "kind": "peaks", "pad": 56}],
     # R5: the trials' and the Gate's peaks over the cloud sea, the siege's valley, the Tidebreak Front's islands over it.
     "si_trial_of_reflections": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     "si_presence_trial": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
