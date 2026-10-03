@@ -29,4 +29,28 @@ DW_BEND_SHORE = room(
     ground={"sand": ["river.bank", "bay.bank"]},
     foes=["auto:bank", "auto:shore", "auto:bank", "auto:shore", "auto:shore"])
 
-ROOMS = [DW_BEND_SHORE]
+# R2 --------------------------------------------------------------------------------------------------------------
+# The Serpent's Shallows: south of Bend Shore's ford, where the river spreads wide and shallow over its sandy bed (`h`,
+# a floor under water a body wades) and the Riverbed Serpent hunts. The ford's path comes down the willow bank to a
+# strand of sand; three rocks stand out of the shallows (the King's nest on the east one, the old ginseng on the middle
+# one); sandbars and deep runs break the wading floor; the river flows on deep along the south.
+DW_SERPENTS_SHALLOWS = room(
+    "dw_serpents_shallows", size=(72, 28), biome="river_shore",
+    bands=[("bank", 0, 5, dict(level=1)),
+           ("strand", 7, 3, dict(paint="a", walk=True, wavy=True)),
+           ("shallows", 10, 12, dict(paint="h", wavy=True)),
+           ("river", 22, 6, dict(water=True, wavy=True))],
+    features=[("bar", (3, 13, 9, 4), dict(paint="a", shape="round")), ("bar", (56, 15, 11, 4), dict(paint="a", shape="round")),
+              ("run", (21, 16, 9, 6), dict(water=True, shape="round")),
+              ("rock_w", (14, 11, 6, 4), dict(level=1, paint="r", shape="round")),
+              ("rock_mid", (30, 12, 7, 4), dict(level=1, paint="r", shape="round")),
+              ("rock_e", (46, 11, 7, 5), dict(level=1, paint="r", shape="round"))],
+    stairs=[(30, 5, 3, 2, 0, 1)],                     # down from the ford's cut; the rocks are a hop up
+    ways={"shore": ("n", 31, dict(cut=3)), "east": ("e", 8)},
+    spawn="shore",
+    anchors={"serpent_nest": "rock_e@49", "rare_ginseng_ss": "rock_mid@33"},
+    flora={"bank": dict(density=0.45), "shallows": dict(kinds=["cattails"], density=0.25)},
+    ground={"sand": ["river.bank"]},
+    foes="auto")
+
+ROOMS = [DW_BEND_SHORE, DW_SERPENTS_SHALLOWS]

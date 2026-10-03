@@ -6,6 +6,8 @@ faces lit, east ends and fronts a step down), outlined (§4), with a floor shado
   interiors   a bed under a quilt, a clay stove with its wok and fire mouth, a tall cabinet of jars, rice sacks, a low
               tea table, a meditation mat, a stone mortar, a herb-drying rack, bolts of cloth, a big water jar and a
               forge hearth;
+  sect halls  a library's shelf of scrolls and bound books, an alchemist's chest of little drawers, a folding screen
+              painted with a landscape and a scholar's writing desk (the halls, libraries and retreats of E1's rooms);
   stations    a laundry line whose washing waves (four frames on the wind), a woodpile, a chopping block, a net rack, a
               wash tub, baskets of herbs and a basket of fish.
 
@@ -15,7 +17,7 @@ rooms' own module keeps its lines. Every value is a coordinate hash or a constan
 from __future__ import annotations
 
 from canvas import Img, h01
-from palette import (BAMBOO, BRONZER, CLOUD, DARKWOOD, DIRT, GOLDR, JADE, LANTERN, LEAF, MOSS2, PAPER, PLASTER2,
+from palette import (BAMBOO, BRONZER, CLOUD, DARKWOOD, DIRT, GOLDR, JADE, LANTERN, LEAF, MOSS2, PAPER, PINE, PLASTER2,
                      RED, REED, STONE2, WATER2, WOOD, WOOD2, c)
 
 INDIGO = [c("1B2140"), c("283463"), c("3A4C8A"), c("5B72B2"), c("8FA4D6")]
@@ -362,6 +364,108 @@ def fish_basket(s: Img) -> None:
     s.outline()
 
 
+# ===================================================================================== the sect halls (R3, E1's rooms)
+def scroll_shelf(s: Img) -> None:
+    """A library's tall shelf of dark wood against the back wall: four rows of pigeonholes, rolled scrolls stacked in
+    them (their paper ends, tied with coloured cords) and thread-bound books lying flat in indigo covers, a carved crest
+    on its top. Footprint 2 x 1 (it stands on the cell's north half). 32 x 48; corner (0, 46)."""
+    _box(s, 0, 2, 32, 6, 32, WOOD, DARKWOOD + [WOOD[3]])
+    s.hline(3, 0, 26, DARKWOOD[2])                            # the crest along its top
+    s.hline(2, 1, 28, DARKWOOD[3])
+    for x in (3, 28):
+        s.put(x, 0, GOLDR[1])
+    ties = [RED[3], JADE, GOLDR[2], c("5B72B2")]
+    for row, y in enumerate((9, 17, 25, 33)):
+        for col, x in enumerate((2, 10, 17, 24)):
+            s.rect(x, y, 6, 7, DARKWOOD[0])                    # the pigeonhole's dark back
+            if h01(row, col, 81) < 0.3:                        # books lying flat, spines out
+                for k in range(3):
+                    yy = y + 6 - k * 2
+                    s.hline(x, yy, 6, INDIGO[2] if k % 2 == 0 else INDIGO[1])
+                    s.put(x + 5, yy, PAPER)
+                continue
+            for k, (dx, dy) in enumerate(((0, 4), (3, 4), (1, 2), (4, 2), (2, 0))):
+                if k == 4 and h01(row, col, 82) < 0.5:
+                    continue
+                s.rect(x + dx, y + 1 + dy, 2, 2, PAPER if (k + row) % 3 else PLASTER2[3])
+                s.put(x + dx + 1, y + 2 + dy, PLASTER2[2])
+                s.put(x + dx, y + 1 + dy, ties[int(h01(row * 5 + k, col, 83) * 4) % 4])
+        s.hline(2, y + 7, 28, WOOD[4])                         # the shelf's lit edge
+    s.outline()
+
+
+def apothecary(s: Img) -> None:
+    """An alchemist's chest of little drawers, five by five, each with a brass ring and a paper label; a row of jars
+    and a bronze censer on its top. Footprint 2 x 1 (on the cell's north half). 32 x 46; corner (0, 44)."""
+    _box(s, 0, 8, 32, 6, 30, WOOD2, DARKWOOD + [WOOD2[3]])
+    for r in range(5):
+        for k in range(5):
+            x, y = 2 + k * 6, 15 + r * 6
+            s.rect(x, y, 5, 5, WOOD2[3] if (r + k) % 2 else WOOD2[4])
+            s.hline(x, y, 5, WOOD2[5])
+            s.put(x + 1, y + 1, PAPER)                         # the label
+            s.put(x + 2, y + 1, PLASTER2[3])
+            s.put(x + 2, y + 3, GOLDR[2])                      # the ring
+    for i, (x, kind) in enumerate(((4, 0), (10, 1), (21, 0), (26, 1))):   # jars on its top
+        col = (c("5B3A2A"), c("8A5A3A")) if kind == 0 else (JADE, c("7FD8C6"))
+        s.ellipse(x, 8 - (i % 2), 2.5, 3, col[0], (col[1], c("2A1A12")))
+        s.put(x, 4 - (i % 2), WOOD[4])
+    s.ellipse(16, 7, 3, 2.5, BRONZER[3], (BRONZER[5], BRONZER[1]))   # the censer
+    s.hline(15, 3, 3, BRONZER[4])
+    s.outline()
+
+
+def screen(s: Img) -> None:
+    """A folding screen of four paper panels in a black lacquer frame, standing in a shallow zigzag, an ink landscape
+    across them (far peaks in grey wash, a pine, a red seal). Footprint 2 x 1. 32 x 40; corner (0, 38)."""
+    frame = (c("1C1418"), c("3A2A30"))
+    for k in range(4):
+        x0 = k * 8
+        lit = k % 2 == 0
+        s.rect(x0, 2, 8, 34, frame[1] if lit else frame[0])
+        for j in range(4, 34):
+            for i in range(x0 + 1, x0 + 7):
+                s.put(i, j, PAPER if lit else PLASTER2[3])
+        s.hline(x0, 2, 8, GOLDR[1] if lit else GOLDR[0])
+        for x in (x0 + 1, x0 + 6):                             # its little feet
+            s.put(x, 36, frame[0])
+            s.put(x, 37, frame[0])
+    for i in range(1, 31):                                     # the far peaks' wash, across the panels
+        if i % 8 in (0, 7):
+            continue
+        top = 20 - int(6 * abs(((i * 0.23) % 2.0) - 1.0)) - (3 if 10 < i < 18 else 0)
+        for j in range(top, 26):
+            s.put(i, j, PLASTER2[1] if j < top + 2 else PLASTER2[2])
+    for j in range(14, 30):                                    # a pine on the third panel
+        s.put(19, j, DARKWOOD[1])
+    for j, w in ((13, 3), (16, 5), (19, 4), (22, 5)):
+        s.hline(19 - w // 2, j, w, PINE[2])
+        s.hline(19 - w // 2, j + 1, w, PINE[1])
+    s.rect(5, 8, 2, 2, RED[3])                                 # the seal
+    s.outline()
+
+
+def desk(s: Img) -> None:
+    """A scholar's low writing desk of dark wood: a sheet of paper half written, the inkstone, a brush on its rest and
+    a scroll rolled at the end. Footprint 2 x 1, 8 px high. 32 x 26; corner (0, 24)."""
+    _box(s, 1, 2, 30, 14, 6, WOOD2, DARKWOOD + [WOOD2[3]])
+    for x in (2, 28):
+        s.rect(x, 22, 2, 2, DARKWOOD[1])
+    s.rect(6, 4, 11, 9, PAPER)                                 # the sheet
+    for j in (6, 8, 10):
+        for i in range(8, 15):
+            if h01(i, j, 91) < 0.6:
+                s.put(i, j, c("2A2A30"))
+    s.rect(19, 5, 5, 6, c("1C1C22"))                           # the inkstone
+    s.rect(20, 6, 3, 2, c("3A3A48"))
+    for k in range(6):                                         # the brush on its rest
+        s.put(19 + k, 12 - k // 3, BAMBOO[3] if k < 5 else c("1C1C22"))
+    s.rect(26, 4, 3, 9, PLASTER2[3])                           # a scroll rolled up
+    s.vline(26, 4, 9, PAPER)
+    s.put(27, 8, RED[3])
+    s.outline()
+
+
 # kind: (draw, w, h, footprint w, h, origin, solid, shadow [dx, dy, rx, ry]) as props.PROPS
 PROPS = {
     "bed": (bed, 32, 26, 2, 1, [0, 24], True, [20, -2, 15, 3]),
@@ -382,6 +486,11 @@ PROPS = {
     "wash_tub": (wash_tub, 16, 16, 1, 1, [0, 14], True, [10, -2, 7, 3]),
     "herb_baskets": (herb_baskets, 16, 14, 1, 1, [0, 12], True, [10, -2, 7, 2]),
     "fish_basket": (fish_basket, 16, 14, 1, 1, [0, 12], True, [10, -2, 7, 2]),
+    # R3: the sect halls' libraries, alchemy hall and retreats (E1's rooms)
+    "scroll_shelf": (scroll_shelf, 32, 48, 2, 1, [0, 46], True, [22, -8, 14, 3]),
+    "apothecary": (apothecary, 32, 46, 2, 1, [0, 44], True, [22, -8, 14, 3]),
+    "screen": (screen, 32, 40, 2, 1, [0, 38], True, [17, -2, 15, 3]),
+    "desk": (desk, 32, 26, 2, 1, [0, 24], True, [20, -2, 15, 3]),
 }
 # The washing lifts on the wind (the room view turns its frames faster in a gust, TopdownLife.WINDY).
 ANIM = {"laundry_line": (4, 420)}

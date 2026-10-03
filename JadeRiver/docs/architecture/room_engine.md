@@ -83,20 +83,24 @@ The keys (the full list is `spec.py`'s docstring):
 `engine.Build.run()`, in order:
 
 1. Lays the ground: the base, an interior's walls and doorways, the bands, the features, the stairs written out. A
-   cave biome's `rubble` turns the earth floor beside a wall to rock, where its ferns and rocks grow.
+   cave biome's `rubble` turns the earth floor beside a wall to rock, where its ferns and rocks grow. A water band's
+   `rapids` breaks its stream with boulders (R2, below).
 2. Places the props written out (or `pins["props"]`, the whole hand-placed list).
 3. The ways: door paths, cuts through the bands for a north or south way.
-4. Resolves the anchors. A raised shape that will get a flight counts as reached here; the checks hold the result.
+4. Resolves the anchors. A raised shape that will get a flight counts as reached here (its cells still at its level);
+   the checks hold the result.
 5. `stairs="auto"`: a flight under a cut wherever it climbs a level edge, as wide as the path, and one up onto every
    raised shape something stands on (or every terrace band three rows deep), on its south face at the column nearest
-   what stands on it, two rows a level, its foot on the ground below.
+   what stands on it, two rows a level, its foot on the ground below. R2: off the walks where it can, its foot level
+   with its landing where it can (see below).
 6. The foes' spawns.
 7. The props a rule lays, then the flora. Each band's edges are cut into strips by habitat: a meadow's back (trees
    among bushes) and its lip, a cliff's foot, a road's verges (no tree on its shoulder), the water's bank, shallows
    and open water. Each strip is cut into stretches whose ends wander, one piece tried in each in the order of a hash
    of the seed and the cell (a Poisson disc kept even along the edge, never a fence-straight row). A piece fits where
    the foliage kit's rules hold (its ground, off kept-clear cells, ways' lanes and stairs, its canopy hiding no thing
-   or way), stands on one level, keeps its kind's spacing, and cuts nothing off.
+   or way), stands on one level, keeps its kind's spacing, and cuts nothing off. A shape laid again under one name
+   (`rubble`, `rubble_2`) takes the pool its name is given; a floor under shallow water grows reeds (R2).
 8. The sand and snow, then the spawn, places, ways, spawns, event, routes and areas onto the layout.
 
 `topdown_rooms.build()` then calls `LIFE.dress` (an interior's furnishings) and `LIFE.extend` (the vista), and runs
@@ -129,8 +133,12 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
   - in every room the engine lays out, auto-path (no running jump) reaches every thing and way from every way in.
 - `places.py --check`, `room_lint.py`, `sect_walks.py --check`, `build_data.py --check`: unchanged, and green.
 - `tests/topdown_chapter3.tscn`: chapter 3 played on the grid through the six new rooms (see below).
+- `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
+- `tests/topdown_drowned_shrine.tscn`: R2's ten rooms played on the grid (below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
-  alone at x2, and whole, into `docs/architecture/room_engine/`.
+  alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`, `r2/`; a
+  view under a folder keeps its x2 copy and its whole room in that folder's `world/` and `rooms/`). The set keeps the
+  body whole (`keep_whole`, which also never leaves it wounded), so a foe the room spawns does not lay it down.
 
 ## The migration (the round trip)
 
@@ -174,12 +182,18 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
    - no ruled line where nature would not draw one.
 
    Fix what looks wrong in the spec: a band's `wavy`, a feature's `shape="round"`, a density, an anchor, a pin.
-6. The layout's file opens the gate: a top-down character walks in. Tests that name the prototype's frontier move with
-   it:
-   - `topdown_tutorial` stands the converted chapter done;
-   - `topdown_chapter3`'s last checks name the gated ways at its end;
-   - `rules_tests`' prototype checks name the Fairground's gated ways and the chapters done at the story's end, and
-     hold every way still gated to the gate.
+6. The layout's file opens the gate: a top-down character walks in. The tests of the prototype's frontier follow it
+   by themselves since R1; none names a gated way or a converted chapter:
+   - `topdown_tutorial` walks to the nearest way off the grid from the Marsh Edge (a breadth-first search over the ways
+     open to it) and checks its gate there; the story's quests on the grid past chapter 3 stand done as they come, to
+     the first one played past the gate; the Trial Tower's door is a gate while the tower has no layout;
+   - `topdown_chapter3` and `topdown_chapter4` end on every way out of their rooms: gated exactly when its room has no
+     layout;
+   - `rules_tests`' prototype checks hold every way into a room without a layout to the gate, show the view's barrier
+     and the walked-into plate at the first such way, and stand the story done to the first quest past the gate.
+
+   A batch that converts rooms touches none of them. A quest that should end the prototype names its room
+   (`target_room`), as The Shrine Surfaces now does.
 
 ## The first rooms: chapter 3
 
@@ -204,39 +218,288 @@ Each picture also has an x2 copy under `world/`.
 Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. The side view's
 crumbling boards in the tunnels have no top-down counterpart.
 
-**The frontier now:**
-- Bend Shore's ways west (Whitewater Gorge), to the Serpent's Shallows and to the Drowned Shrine;
-- the Marsh Edge's way east;
+**The frontier then** (E1): Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine; the Marsh
+Edge's way east; the sects' halls and abodes; the Trial Tower; the Quarry Road; the Beast Grove; the County Hall; Gu's
+Warehouse. Toward Cleansing Peak was past the gate. R1 opened the Marsh Edge's way east (below).
+
+## The road east: chapter 4 (R1)
+
+The ten rooms on the main story's path past the Marsh Edge, now on the grid: the road east through the Reed Marsh, the
+Bamboo Grove and Crane Falls up Cleansing Peak, and the three rooms beside it. Chapter 4 plays there end to end:
+- Toward Cleansing Peak: from the mentor's peak along the road to the Pilgrim Stairs, three Stone Guardians;
+- The Rite: Heaven's Cleansing passed in the summit's rite circle.
+
+Beside the road, `topdown_chapter4` also plays Greyreed Hamlet's Grey Roofs (the grey lanterns cleansed on the hall's
+and the granary's roofs, reached up a crate stack, as the Fisher's Hut's roof is) and Cleansing the Well, takes Lu's
+journal page behind the falls, and visits the hermit.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r1/`) |
+|---|---|---|---|
+| `rm_grey_pools` | 21 | `grey_marsh` | `01_grey_pools_jetty`, `02_grey_pools_hamlet_way`, `rooms/rm_grey_pools` |
+| `rm_sunken_causeway` | 20 | `reed_marsh` | `03_sunken_causeway`, `rooms/rm_sunken_causeway` |
+| `rm_hermit_stilt_house` | 17 | `reed_marsh` | `04_hermit_stilt_house`, `rooms/rm_hermit_stilt_house` |
+| `gh_hamlet_square` | 17 | `grey_marsh` | `05_hamlet_square`, `rooms/gh_hamlet_square` |
+| `bg_whispering_bamboo` | 19 | `bamboo` | `06_whispering_bamboo`, `rooms/bg_whispering_bamboo` |
+| `bg_thicket_heart` | 22 | `bamboo` | `07_thicket_heart`, `rooms/bg_thicket_heart` |
+| `cf_falls_pool` | 23 | `falls` | `08_falls_pool`, `rooms/cf_falls_pool` |
+| `cf_behind_falls` | 13 | `cave` | `09_behind_falls`, `rooms/cf_behind_falls` |
+| `cp_pilgrim_stairs` | 16 | `mountain` | `10_pilgrim_stairs_foot`, `11_pilgrim_stairs_landing`, `rooms/cp_pilgrim_stairs` |
+| `cp_cleansing_summit` | 16 | `mountain` | `12_cleansing_summit`, `rooms/cp_cleansing_summit` |
+
+The capture's x2 copies of the world alone match the pictures under the HUD here and are not kept. The specs:
+`specs/reed_marsh.py` (after the Marsh Edge), `greyreed_hamlet.py`, `bamboo_grove.py`, `crane_falls.py`,
+`cleansing_peak.py`.
+
+**Biomes and an engine rule.**
+- Five biomes: `reed_marsh` (willows, reeds, cattails, lotus), `grey_marsh` (dead trees, grey reeds, stumps and logs
+  where the Hollowing drank the marsh), `bamboo`, `falls` (pines and maples, mossy rocks, ferns), `mountain` (pines on
+  the ledges, bare rock).
+- Two knobs a biome may set: `tree_share`, the share of trees where trees grow (0.6), and `tree_gap`, how far apart its
+  trees stand (5 cells). The grove's bamboo stands at 0.8 and 3. Every other room compiles byte for byte as before.
+
+**How the side view's verticality came down.** A raised surface became a level: the canopy decks are wooden platforms
+on stilts with their ladders, the lily ledge and the knolls round rocks with steps, the pilgrims' landings granite
+terraces between three flights, the hermit's deck a level-2 floor over his pond. A rope bridge or a raft became a
+boardwalk or stepping stones across the water; the hamlet's roofs are reached up crate stacks. The terraces' and banks'
+lips wander (`wavy`), each laid over the one below it, with the stair landings fixed as features.
+
+**Still to do in these rooms.**
+- Foes with no top-down art yet (the view draws stand-ins; E2's work): the bamboo monkey, the green viper, the
+  thornback boar, the Stone Guardian, and the wild pets ember fox and jade crane chick. The greyfin, the hollowed
+  boarlet and the marsh leech have theirs.
+- The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
+  top-down counterpart; Leaf on the Wind's glide is the side view's.
+- A set piece's waves are called to the side view's points, read as world units on the grid: the summit is 28 rows
+  deep and the Pilgrim Stairs 72 cells wide so that Heaven's Cleansing's and the Iron Body trial's points land on open
+  ground. Converting their points is the engine's work, not a room's. (R2: `TopdownRoom.grid_event` now gives a set
+  piece the room's own event cells, or else the nearest spot a body stands on; a point already on open ground stays.)
+
+**The frontier now** (R2 opened Bend Shore's three ways, below):
+- the Echo Cliffs' way west (Crane Cliffs);
+- the Falls Pool's misty path to the Hidden Vale;
+- ~~the sects' halls and abodes;~~
+- ~~the Trial Tower;~~
+- ~~the Quarry Road;~~
+- ~~the Beast Grove;~~
+- ~~the County Hall;~~
+- Gu's Warehouse.
+
+The struck ways opened with the third batch (R3, below).
+
+The story's next quest past chapter 4, The Shrine Surfaces (the Drowned Shrine), is past the gate.
+
+## The third batch (R3): Stoneford's insides, the quarry, the sects' halls
+
+Fourteen rooms around the Fairground and the two sects, laid out from the side view. Every way into them is open now:
 - the sects' halls and abodes;
 - the Trial Tower;
 - the Quarry Road;
 - the Beast Grove;
-- the County Hall;
-- Gu's Warehouse.
+- the County Hall.
 
-The story's next quest past it, Toward Cleansing Peak (the Pilgrim Stairs), is past the gate.
+With R2 the story plays on past chapter 4: chapter 5 in the Drowned Shrine, and chapter 6's Quiet Before the Storm on the
+Rapids Terraces. Its next quest past the gate is chapter 7's Wings of Cloud, at the Cliff Faces past the Echo Cliffs'
+way west.
+
+## The Drowned Shrine and Whitewater Gorge (R2)
+
+The ten rooms south and west of Bend Shore, now on the grid. Bend Shore's three gated ways lead onto them: the ford
+south to the Serpent's Shallows, the steps down into the Drowned Shrine, and the road west into Whitewater Gorge.
+`tests/topdown_drowned_shrine` plays them (below).
+
+| Room | Spec lines | Pictures (`docs/architecture/room_engine/r2/`) |
+|---|---|---|
+| `dw_serpents_shallows` | 18 | `06_serpents_shallows`, `rooms/dw_serpents_shallows` |
+| `ds_flooded_gate` | 20 | `01_flooded_gate_court`, `rooms/ds_flooded_gate` |
+| `ds_hall_of_lanterns` | 21 | `02_hall_of_lanterns`, `rooms/ds_hall_of_lanterns` |
+| `ds_scripture_well` | 22 | `03_scripture_well`, `rooms/ds_scripture_well` |
+| `ds_abbots_sanctum` | 20 | `04_abbots_sanctum`, `rooms/ds_abbots_sanctum` |
+| `ds_drowned_grotto` | 16 | `05_drowned_grotto`, `rooms/ds_drowned_grotto` |
+| `wg_gorge_mouth` | 19 | `07_gorge_mouth_bridge`, `rooms/wg_gorge_mouth` |
+| `wg_rapids_terraces` | 19 | `08_rapids_terraces_falls`, `rooms/wg_rapids_terraces` |
+| `wg_echo_cliffs` | 20 | `09_echo_cliffs`, `rooms/wg_echo_cliffs` |
+| `wg_waterfall_cave` | 16 | `10_waterfall_cave`, `rooms/wg_waterfall_cave` |
+
+`world/` keeps the x2 copies of the four views that show the new looks: `01`, `02`, `06` and `08`.
+
+**The looks** (`biomes.py`, R2's block). Later zones reuse them:
+- `drowned_shrine`: dressed granite walls (`walls=dict(paint="s")`) round flagstone halls. The spec module's helpers
+  lay the rest:
+  - granite pillars a cell each, some broken low;
+  - rubble heaps of rock, thick with ferns and mossy stones;
+  - silt drifted over the flagstones along the water's edge (sand creeps over paving);
+  - stone and paper lanterns along the dry walks.
+
+  No trees grow under the river. The rooms are lamp-lit (the side view's `cave` backdrop).
+- `gorge`: grey rock walls with a wavering foot, pines on the ledges, mossy boulders and ferns, the river white over
+  its stones.
+- `grotto`: a cave's rock round wet sand and shallows.
+
+**Floors under shallow water** (paint `q` flagstones, `h` a river's pebbled bed). A body walks them and wades: they are
+floors to the grid, and their steps are the water's (`sound.py`). Their look:
+- each draws its own floor, then the water's overlay (`tools/art/topdown/flood.py`, the manifest's `v2.flood`): clear
+  blue-green water, the floor showing through, a lit ripple now and then;
+- a corner floods where every cell round it is a flooded floor or open water, so the water's edge wanders through the
+  flooded cells along dry floor, lit on its sunny side, a damp line beyond it (`TopdownTerrain`);
+- cattails grow in them; nothing else does.
+
+**The waterfall** (`tools/art/topdown/falls.py`, the prop `waterfall`): a fall three cells wide over a cliff four levels
+high, on the water's clock. It stands on the water at the cliff's foot (Whitewater Gorge's stream, the Rapids Terraces'
+pool, the Waterfall Cave's cleft).
+
+**Engine rules** (`engine.py`):
+- `rapids` on a water band: rocks of a cell or two in its open water, three apart, a boulder on each. The water's shore
+  foam round them makes the river white. No one reaches them.
+- A flight stands off the walks where it can, and with its foot level with its landing where it can. Auto-path's
+  steering cannot cross a flight from its side: it stalls on the cheek (`rules_tests`' route tour found it). Where no
+  spot is free, as for the Stockade's towers over their yard, the old choice stands. Every older room is unchanged.
+- A raised shape counts as reached for its anchors only where it is still at its level. A cliff laid over a terrace's
+  edge is no part of the terrace.
+- A shape laid again under one name (`rubble`, `rubble_2`) takes its name's flora.
+- A floor under shallow water is a band of reeds (the `shallow` habitat).
+- Bands are laid in order, so a terrace laid a row into the cliff above it, with the cliff laid after it `wavy`, gives a
+  wandering foot with no pit between them (`whitewater_gorge.py`'s `CLIFF_FOOT`).
+
+**Set pieces on the grid.** A rite circle's set piece (the Riverbreath Trial at the Scripture Well) brings side-view
+spawn points. `TopdownRoom.grid_event` gives them the layout's own cells for the room's event (the spec's `event`), or
+else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it in a room on the grid.
+
+**The suite** (`tests/topdown_drowned_shrine`, 44 checks):
+- each room is entered through its ways, built by the view, and walked by auto-path from every way in;
+- the Riverbed Serpent is defeated in its shallows;
+- chapter 5's shrine plays through: The Shrine Surfaces, Lu's Handwriting, The Riverbreath Trial (its drowned rise on
+  the grid's floor), the flooded shaft to the Grotto, The Drowned Abbot (his four bells rung) and the Sanctum's stair
+  back up;
+- the gorge is walked: the Waterfall Cave behind the falls and back, and the Echo Cliffs' way west stays gated.
+
+**Still to do.**
+- Their foes have no top-down art yet: the Riverbed Serpent, the Drowned Acolyte, the Paper Talisman Ghost, the Drowned
+  Abbot, the Rogue Cultivator, the Gorge Bandit Adept, the Rapids Lizard, the Boulder Serpent and the Mist Vulture. The
+  view draws its stand-ins; drawing them is E2's work.
+- The side view's moving parts have no top-down counterpart:
+  - the Flooded Gate's drifting planks;
+  - the swinging lanterns;
+  - the currents' push;
+  - the rising water of the Serpent's and the Abbot's floods;
+  - the Drowned Grotto's swim (it is wading water here).
+| Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
+|---|---|---|
+| `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
+| `ja_library` | 15 | `10_library`, `rooms/ja_library` |
+| `ja_retreat` | 12 | `11_retreat`, `rooms/ja_retreat` |
+| `ja_cave_abode` | 17 | `12_cave_abode`, `rooms/ja_cave_abode` |
+| `cm_cloud_library` | 16 | `13_cloud_library`, `rooms/cm_cloud_library` |
+| `cm_retreat` | 12 | `14_cloud_retreat`, `rooms/cm_retreat` |
+| `cm_herb_terraces` | 20 | `15_cloud_herb_terraces`, `16_cloud_terraces_upper`, `rooms/cm_herb_terraces` |
+| `cm_cave_abode` | 17 | `17_cloud_cave_abode`, `rooms/cm_cave_abode` |
+| `sf_county_hall` | 11 | `18_county_hall`, `rooms/sf_county_hall` |
+| `sf_trial_tower` | 13 | `19_trial_tower`, `rooms/sf_trial_tower` |
+| `sf_beast_grove` | 14 | `20_beast_grove`, `rooms/sf_beast_grove` |
+| `sq_quarry_rim` | 21 | `21_quarry_rim`, `22_quarry_scaffold`, `rooms/sq_quarry_rim` |
+| `sq_lower_pit` | 22 | `23_lower_pit`, `24_pit_tunnel_mouth`, `rooms/sq_lower_pit` |
+| `sq_collapsed_tunnel` | 19 | `25_collapsed_tunnel`, `rooms/sq_collapsed_tunnel` |
+
+The quarry is a new zone module, `specs/stonewall_quarry.py`; the others went into their zones' modules.
+
+**The looks.**
+- *A sect's hall* is an interior with taller walls (`walls=dict(high=4)`, a library's 6), so what stands on a loft or a
+  gallery stays inside them, and a raised floor of boards or flagstones for what the hall is for:
+  - the Alchemy Hall's furnace dais and its recipe loft;
+  - the libraries' two galleries, a level apart, up flights of boards;
+  - the retreats' meditation dais;
+  - the County Hall's dais and the Trial Tower's guardians' dais over its sand arena.
+- *New furnishings* (`tools/art/topdown/furnish.py`):
+  - `scroll_shelf`: a library's pigeonholes of scrolls and bound books;
+  - `apothecary`: an alchemist's chest of little drawers, jars on top;
+  - `screen`: a folding screen painted with a landscape;
+  - `desk`: a scholar's writing desk.
+
+  With the kit's lanterns, banners, mats, incense, stoves and potted plants, and the back walls' hangings
+  (`topdown_life.HANGINGS`: plaques, windows, scrolls, herbs), they furnish the halls.
+- *Stair cheeks.* Each hall's flight stands between two cheeks a level over its head: the scaffold's ladder at the
+  Quarry Rim too, whose flights are pinned.
+  - Why: auto-path's grid (`TopdownRoute.step_rise`) lets a body step off a flight's side where the floor beside it is
+    a step (8) from the flight's floor at the cell's middle.
+  - The motor tests its foot box's corners, a little higher or lower up the slope, and stops there.
+  - A two-row flight's last row is exactly a step off the floor at its foot and its head. Without cheeks, a body
+    walking off a flight sideways stalled: `rules_tests`' steering tour lost the recipe shelf and the upper gallery.
+  - The engine's own flights (`stairs="auto"`) still have open sides. A fix in the route's rule would fit every room;
+    it belongs to the route and its Python twin (`topdown_rooms.Grid`), not to a batch of rooms.
+- *A cave's low front.* A cave room's rock stands four levels high. Drawn in the 3/4 view, the rock south of the floor
+  hides the four rows behind it. The abodes and the collapsed tunnel lay a `front` feature of level-1 rock under their
+  caverns first, so the cave reads as an interior with a low sill and nothing on its floor is hidden.
+- *Biomes* (`biomes.py`):
+  - `sect_terraces`: the Cloud Herb Terraces' plum, pine and hedges over the cloud sea;
+  - `quarry`: cut rock, stumps and pines;
+  - `bamboo_clearing`: the Grove's bamboo round a mossy clearing.
+
+  Vistas for the terraces, the grove and the quarry are in `topdown_life.VISTAS`.
+
+**The places.** Three new rows in `tools/data/places.py`:
+- `ja_furnace`: the Alchemy Hall's furnace, alchemy, earned, for the Jade Sect;
+- `ja_abode_garden` and `cm_abode_garden`: each Cave Abode's two beds, the herb garden, earned.
+
+Each stands where auto-path reaches it from every way in.
+
+**The trials on the grid.** The Trial Tower's floors and the Grove's waves were written in the side view's coordinates
+(`world_tower.gd`, `data/beast_arena.json`).
+- `WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`: across the room as across the side view, a
+  cell in from the edges, onto the nearest floor.
+- The side view gets them unchanged.
+
+**Tested in** `tests/topdown_sect_halls.tscn`:
+- every room walked into through its ways, and out and back through each;
+- auto-path reaching every thing;
+- every page a thing opens;
+- the three places;
+- a tower floor and a guardian floor fought on the grid;
+- the Grove's trial begun with a spirit beast;
+- Stone and Sweat's copper and beetles at the Quarry Rim.
+
+**Still to do.** Several foes of these rooms have no top-down sheets yet, and the view draws stand-ins:
+- the quarry's: `stone_tortoise`, `ironclaw_mole`, `riverstone_ox`;
+- the Grove's waves: `mud_hound`, `tide_crab`;
+- most of the tower's 28 species.
+
+Some side-view props have no top-down counterpart:
+- the guardian lions;
+- the quarry's crane lift (a side-only mover).
+
+Some waves still spawn at the side view's points, read as world units on the grid:
+- the spatial rift's waves, in every room with a rift tear, at the side view's depth (y 860);
+- the set pieces' waves (R1's note above).
+
+The tower's and the Grove's mapping (`WorldRoomEvents.side_points`) is the model for them.
 
 ## The rooms left, and the pace
 
-135 side-view rooms remain, by zone (`region`):
+111 side-view rooms remain, by zone (`region`); the struck ones are done:
 
-- **Reed Marsh and its neighbours:**
-  - `reed_marsh`: `rm_grey_pools`, `rm_sunken_causeway`, `rm_hermit_stilt_house`;
-  - `greyreed_hamlet`: `gh_hamlet_square`;
-  - `bamboo_grove`: `bg_whispering_bamboo`, `bg_thicket_heart`;
-  - `crane_falls`: `cf_falls_pool`, `cf_behind_falls`;
-  - `cleansing_peak`: `cp_pilgrim_stairs`, `cp_cleansing_summit`. This is chapter 4's path, the next stretch of the
-    main story.
+- **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
+  - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
+  - `greyreed_hamlet`: ~~`gh_hamlet_square`~~;
+  - `bamboo_grove`: ~~`bg_whispering_bamboo`~~, ~~`bg_thicket_heart`~~;
+  - `crane_falls`: ~~`cf_falls_pool`~~, ~~`cf_behind_falls`~~;
+  - `cleansing_peak`: ~~`cp_pilgrim_stairs`~~, ~~`cp_cleansing_summit`~~. Chapter 4's path.
 - **Deepwater and the gorge:**
-  - `deepwater_bend`: `dw_serpents_shallows`;
-  - `drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
-    `ds_drowned_grotto`;
-  - `whitewater_gorge`: `wg_gorge_mouth`, `wg_rapids_terraces`, `wg_echo_cliffs`, `wg_waterfall_cave`.
+  - ~~`deepwater_bend`: `dw_serpents_shallows`~~ (R2);
+  - ~~`drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
+    `ds_drowned_grotto`~~ (R2);
+  - ~~`whitewater_gorge`: `wg_gorge_mouth`, `wg_rapids_terraces`, `wg_echo_cliffs`, `wg_waterfall_cave`~~ (R2).
 - **Stoneford and the sects' insides:**
   - `stoneford`: `sf_beast_grove`, `sf_county_hall`, `sf_trial_tower`;
   - `stonewall_quarry`: `sq_quarry_rim`, `sq_lower_pit`, `sq_collapsed_tunnel`;
   - `jade_sect`: `ja_alchemy_hall`, `ja_library`, `ja_retreat`, `ja_cave_abode`;
   - `cloud_sect`: `cm_cloud_library`, `cm_herb_terraces`, `cm_retreat`, `cm_cave_abode`.
+  - `deepwater_bend`: `dw_serpents_shallows`;
+  - `drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
+    `ds_drowned_grotto`;
+  - `whitewater_gorge`: `wg_gorge_mouth`, `wg_rapids_terraces`, `wg_echo_cliffs`, `wg_waterfall_cave`.
+- **Stoneford and the sects' insides** (R3, all done: "The third batch" above):
+  - `stoneford`: ~~`sf_beast_grove`~~, ~~`sf_county_hall`~~, ~~`sf_trial_tower`~~;
+  - `stonewall_quarry`: ~~`sq_quarry_rim`~~, ~~`sq_lower_pit`~~, ~~`sq_collapsed_tunnel`~~;
+  - `jade_sect`: ~~`ja_alchemy_hall`~~, ~~`ja_library`~~, ~~`ja_retreat`~~, ~~`ja_cave_abode`~~;
+  - `cloud_sect`: ~~`cm_cloud_library`~~, ~~`cm_herb_terraces`~~, ~~`cm_retreat`~~, ~~`cm_cave_abode`~~.
 - **The peaks:**
   - `crane_cliffs`: `cc_cliff_faces`, `cc_sky_ledges`;
   - `mist_peak`: `mp_misty_slopes`, `mp_forgotten_monastery`, `mp_ascension_gate`;

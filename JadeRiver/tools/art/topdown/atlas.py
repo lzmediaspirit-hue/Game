@@ -15,6 +15,7 @@ the shore overlays in four frames, the inner-corner foam, the pilings' ripples a
 """
 from __future__ import annotations
 
+import flood as fl
 import sand_snow as ss
 import terrain2 as t2
 import tiles as tl
@@ -263,6 +264,20 @@ def build() -> tuple[Img, dict, dict, dict]:
         v2["water"]["ripple"].append(name)
     place("face_ao", t2.overlay("face_ao"), x0 + 4, y0)
     v2["face_ao"] = "face_ao"
+    # R2: shallow water over a floor a body wades (flood.py), per corner case and place (as `over`), the whole case too.
+    v2["flood"] = {}
+    for corners in tl.CORNER_KEYS:
+        if corners == (0, 0, 0, 0):
+            continue
+        key = tl.corner_name(corners)
+        x0, y0 = pk.block(t2.M, t2.M)
+        names = []
+        for py in range(t2.M):
+            for px in range(t2.M):
+                name = "flood_%s_%d%d" % (key, px, py)
+                place(name, fl.flood_over(corners, (px, py)), x0 + px, y0 + py)
+                names.append(name)
+        v2["flood"][key] = names
 
     sheet = Img(COLS * T, pk.rows() * T)
     for img, cx, cy in placed:

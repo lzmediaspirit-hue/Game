@@ -26,7 +26,7 @@ func climb_tower(c, f: int) -> Dictionary:
 		if not moved.get("ok", false): return moved
 	var lv := int(row.level)
 	var foes: Array = row.get("foes", [])
-	var points := [[900, 860], [1300, 820], [1700, 860], [2100, 840]]
+	var points: Array = world.room_events.side_points([[900, 860], [1300, 820], [1700, 860], [2100, 840]])
 	var ev := {"id": "tower_floor", "floor": f, "clear_room": true, "duration": float(row.get("time_s", 60)),
 		"on_complete": [{"kind": "tower_clear", "floor": f}]}
 	match str(row.kind):
@@ -42,7 +42,7 @@ func climb_tower(c, f: int) -> Dictionary:
 				waves.append({"enemy": str(foes[i]), "first_s": 2.0 + i * 3.0, "every_s": 5.0, "max": 2, "level": lv, "points": points})
 			ev.waves = waves
 		_:
-			ev.fixed_spawns = [{"enemy": str(row.guardian), "at": [1600, 850], "level": int(row.get("guardian_level", lv + 4))},
+			ev.fixed_spawns = [{"enemy": str(row.guardian), "at": world.room_events.side_points([[1600, 850]])[0], "level": int(row.get("guardian_level", lv + 4))},
 				{"enemy": str(foes[0]), "at": points[0], "level": lv}, {"enemy": str(foes[foes.size() - 1]), "at": points[3], "level": lv}]
 			ev.win_on_kill = str(row.guardian)
 	world.start_room_event(c, ev)

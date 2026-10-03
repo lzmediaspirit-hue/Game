@@ -13,6 +13,9 @@ prologue_run
 tutorial_order
 topdown_tutorial
 topdown_chapter3
+topdown_sect_halls
+topdown_chapter4
+topdown_drowned_shrine
 tutorials
 story_scenes
 hollow_night

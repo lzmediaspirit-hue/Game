@@ -188,6 +188,12 @@ WORK = {
         "npc_watcher_bo": {"loop": "watch", "auto": 2},
         "npc_watcher_su": {"loop": "watch", "auto": 2},
     },
+    # R3: Mei Qing at her drawers, the librarians and the magistrate at their desks, the foreman over his crews.
+    "ja_alchemy_hall": {"npc_mei_qing_sect": {"loop": "cook", "auto": 1}},
+    "ja_library": {"npc_jade_librarian": {"loop": "write", "auto": 1}},
+    "cm_cloud_library": {"npc_cloud_librarian": {"loop": "write", "auto": 1}},
+    "sf_county_hall": {"npc_magistrate_qian": {"loop": "read", "auto": 1}},
+    "sq_quarry_rim": {"npc_dong_rim": {"loop": "watch", "auto": 2}},
 }
 
 # People at work with no part in the story. Outfits are parts of the figures' catalogue (parts.json names).
@@ -274,6 +280,20 @@ HANGINGS = {
     "ja_weapon_hall": [["plaque", 176, -28], ["window", 300, -22], ["scroll", 214, -22], ["ribbon_banner", 150, -26],
                        ["window", 40, -22]],
     "cm_weapon_hall": [["plaque", 176, -28], ["window", 300, -22], ["scroll", 214, -22], ["window", 40, -22]],
+    # R3: the sects' halls, Stoneford's County Hall and Trial Tower (their walls four or five levels high: the face
+    # runs from -48, or -64, to 16).
+    "ja_alchemy_hall": [["plaque", 196, -42], ["window", 180, -26], ["window", 216, -26], ["herbs", 278, -36],
+                        ["herbs", 310, -36], ["scroll", 372, -30]],
+    "ja_library": [["scroll", 276, -40], ["window", 304, -34], ["plaque", 348, -56], ["window", 392, -34]],
+    "ja_retreat": [["window", 56, -26], ["plaque", 212, -40], ["scroll", 196, -30], ["scroll", 236, -30],
+                   ["window", 304, -26], ["herbs", 78, -34]],
+    "cm_cloud_library": [["window", 36, -34], ["plaque", 78, -56], ["window", 120, -34], ["scroll", 264, -40]],
+    "cm_retreat": [["window", 116, -26], ["plaque", 212, -40], ["scroll", 196, -30], ["scroll", 236, -30],
+                   ["window", 360, -26], ["herbs", 382, -34]],
+    "sf_county_hall": [["window", 20, -26], ["plaque", 44, -40], ["window", 100, -26], ["plaque", 180, -42],
+                       ["scroll", 166, -30], ["scroll", 210, -30]],
+    "sf_trial_tower": [["window", 136, -26], ["window", 192, -26], ["plaque", 324, -42], ["ribbon_banner", 306, -30],
+                       ["ribbon_banner", 348, -30], ["window", 456, -26], ["window", 512, -26]],
 }
 
 # The land past a room's edge (TopdownVista): edge n/s/e/w, the kind drawn there, and how far past the edge (art px)
@@ -305,6 +325,27 @@ VISTAS = {
     "cr_caravan_road": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "dw_bend_shore": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "mh_stockade": [{"edge": "n", "kind": "hills", "pad": 40}],
+    # R3: the Cloud Sect's terraces over the cloud sea, the grove's hillside, the quarry's hills.
+    "cm_herb_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "sf_beast_grove": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "sq_quarry_rim": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "sq_lower_pit": [{"edge": "n", "kind": "hills", "pad": 40}],
+    # R1: the main story's path past chapter 3: the marsh's reeds and water, the grove's hills, the falls' and the
+    # peak's mountains over the cloud sea.
+    "rm_grey_pools": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "rm_sunken_causeway": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "rm_hermit_stilt_house": [{"edge": "n", "kind": "marsh", "pad": 40}],
+    "gh_hamlet_square": [{"edge": "n", "kind": "marsh", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "bg_whispering_bamboo": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "bg_thicket_heart": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "cf_falls_pool": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    "cp_pilgrim_stairs": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "cp_cleansing_summit": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # R2: the Serpent's Shallows' bank and river; Whitewater Gorge's peaks over its north wall and the river below it.
+    "dw_serpents_shallows": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "wg_gorge_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    "wg_rapids_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    "wg_echo_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

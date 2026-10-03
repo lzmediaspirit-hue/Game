@@ -183,6 +183,9 @@ class Build:
             while "%s_%d" % (name, k) in self.regions:
                 k += 1
             name = "%s_%d" % (name, k)
+        if opts.get("water") and opts.get("rapids"):
+            self._rapids(shape or [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)], opts["rapids"],
+                         len(self.regions))
         r = Region(name, x, y, w, h, opts, kind)
         r.shape = shape
         if r.level is None:
@@ -223,6 +226,29 @@ class Build:
         for _ in range(3):
             shape = {c for c in cells if sum((c[0] + dx, c[1] + dy) in shape for dx in (-1, 0, 1) for dy in (-1, 0, 1)) >= 5}
         return sorted(shape, key=lambda c: (c[1], c[0]))
+
+    def _rapids(self, cells, dens, salt):
+        """R2: a water band's rapids (`rapids`: the share of its cells that break the stream): rocks of a cell or two,
+        each standing in open water (two cells of water all round, so none joins the bank), three cells apart at least,
+        picked in the order of a hash of the room's seed and the cell; a boulder sits on each cell of it, the water's
+        shore foam round it makes the river white. Nothing stands on them: the rocks are no floor anyone reaches."""
+        water = {c for c in cells if 0 <= c[0] < self.w and 0 <= c[1] < self.h and self.lay.lv[c[1]][c[0]] == WATER}
+        want = int(round(len(water) * dens))
+        rocks = []
+        for c in sorted(water, key=lambda c: h01(c[0], c[1], self.seed + 23 * salt)):
+            if len(rocks) >= want:
+                break
+            if any(max(abs(c[0] - q[0]), abs(c[1] - q[1])) < 3 for q in rocks):
+                continue
+            two = h01(c[0], c[1], self.seed + 29 * salt) < 0.45
+            body = [c, (c[0] + 1, c[1])] if two else [c]
+            if all(q in water for b in body for q in [b] + _ring(b[0], b[1], 2, self.w, self.h)) and \
+                    all(0 < q[0] < self.w - 1 for q in body):
+                rocks.append(c)
+                for b in body:
+                    self.lay.rect(b[0], b[1], 1, 1, 0, "r")
+                    self.lay.prop("boulder", b[0], b[1])
+        self.notes.append("rapids: %d rocks" % len(rocks))
 
     def rubble(self):
         """A cave's walls stand in their own rubble (a biome's `rubble`): every floor cell of earth by a wall two levels
@@ -434,7 +460,8 @@ class Build:
             # reached here, and the checks hold the room to it once the flights are laid.
             for r in self.regions.values():
                 if not (r.wall or r.water or r.walk) and (r.level or 0) > 0:
-                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None}
+                    # Only its cells still at its level (R2: a cliff laid over a terrace's edge is no part of it).
+                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None and self.lay.lv[c[1]][c[0]] == r.level}
         lanes = self.lanes()
         taken = self._prop_cells()
         # The cells written out first (and the pinned ones), then each anchor in the spec's order.
@@ -619,6 +646,11 @@ class Build:
             if not on and not (r.kind == "band" and r.h >= 3):
                 continue
             wanted.append((r, on))
+        # R2: a flight stands off the walks (a road) where it can: the walk along it would cross the flight from its
+        # side, which auto-path's steering cannot (it stalls against the cheek); and its foot on its landing's own level
+        # where it can (a step lower shows the flight's front as a slot). Where no spot is so (a tower over a narrow
+        # yard), the nearest spot as before.
+        walks = {c for q in self.regions.values() if q.walk for c in q.cells()}
         for r, on in wanted:
             if r.name in self.climbed:
                 continue
@@ -626,32 +658,40 @@ class Build:
             xs = [c[0] for c in on] or [r.x + r.w // 2]
             want = sorted(xs)[len(xs) // 2]
             spots = sorted(range(r.x, r.x1 - width + 1), key=lambda x: (abs(x + width // 2 - want), x))
-            for x in spots:
-                # The flight's top row lies against the shape's south edge, the same row under every column of it.
-                bottoms = {r.bottom(xx) for xx in range(x, x + width)}
-                if len(bottoms) != 1 or None in bottoms:
-                    continue
-                top = bottoms.pop() + 1
-                if top >= self.h:
-                    continue
-                below = self.lay.lv[top][x]
-                if below == WATER or below >= r.level:
-                    continue
-                depth = 2 * (r.level - below)
-                cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
-                       or (xx, yy) in lanes for xx, yy in cells):
-                    continue
-                # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
-                foot = [(xx, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - 1 <= self.lay.lv[yy][xx] <= below
-                       or (xx, yy) in taken for xx, yy in foot):
-                    continue
-                self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
-                self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
-                break
+            flight = self._flight(r, spots, width, taken, lanes, walks, 0) or self._flight(r, spots, width, taken, lanes, walks) \
+                or self._flight(r, spots, width, taken, lanes, set())
+            if flight:
+                self.lay.stair(*flight, self.stair_paint)
+                self.notes.append("stair up onto %s at %d,%d" % (r.name, flight[0], flight[1]))
             else:
                 self.notes.append("no stair up onto %s (no room under it)" % r.name)
+
+    def _flight(self, r, spots, width, taken, lanes, walks, drop=1):
+        """The first spot (x, y, w, h, from, to) where a flight up onto `r` fits, its cells off `walks`, its foot at most
+        `drop` levels under its landing; None if none."""
+        for x in spots:
+            # The flight's top row lies against the shape's south edge, the same row under every column of it.
+            bottoms = {r.bottom(xx) for xx in range(x, x + width)}
+            if len(bottoms) != 1 or None in bottoms:
+                continue
+            top = bottoms.pop() + 1
+            if top >= self.h:
+                continue
+            below = self.lay.lv[top][x]
+            if below == WATER or below >= r.level:
+                continue
+            depth = 2 * (r.level - below)
+            cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
+                   or (xx, yy) in lanes or (xx, yy) in walks for xx, yy in cells):
+                continue
+            # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
+            foot = [(xx, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - drop <= self.lay.lv[yy][xx] <= below
+                   or (xx, yy) in taken for xx, yy in foot):
+                continue
+            return (x, top, width, depth, below, r.level)
+        return None
 
     # ================================================================ 6. the foes
     def foes(self):
@@ -795,7 +835,9 @@ class Build:
         placed = []
         n_before = len(self.lay.props)
         for r in sorted(self.regions.values(), key=lambda r: (r.y, r.x)):
-            pool = spec.get(r.name, pools.get(r.role()))
+            # A shape laid again under the same name (rubble, rubble_2, ...; R2) shares the pool its name is given.
+            pool = spec.get(r.name, spec.get(r.name.rstrip("0123456789").rstrip("_") if r.name[-1:].isdigit() else r.name,
+                                             pools.get(r.role())))
             dens = density
             if isinstance(pool, dict):          # {kinds, density}: a band's own pool and how thick it lies
                 dens = pool.get("density", density)
@@ -823,8 +865,10 @@ class Build:
                     rest = [kk for kk in kinds if kk not in TREES] or trees
                     for (x, y) in seg:
                         # Where trees grow (a meadow's back, the bank behind the water) six pieces in ten are trees, as
-                        # the hand set them, at a cliff's foot four; the rest bushes, rocks and grass.
-                        share = 0.4 if habitat == "foot" else 0.6
+                        # the hand set them, at a cliff's foot four; the rest bushes, rocks and grass. A biome's
+                        # `tree_share` sets the six (a grove's bamboo stands thicker), the foot two thirds of it.
+                        share = self.biome.get("tree_share", 0.6)
+                        share = (0.4 if share == 0.6 else share * 2.0 / 3.0) if habitat == "foot" else share
                         pick = trees if trees and h01(x, y, salt + 5) < share else rest
                         kind = pick[int(h01(x, y, salt + 3) * len(pick)) % len(pick)]
                         if not self._fits_flora(kind, x, y, clear, walks, lanes, spots, placed):
@@ -842,7 +886,8 @@ class Build:
         """Where a band's flora grows, as (habitat, cells, spacing along it): a meadow's or a terrace's `back` (trees
         among bushes) and its `lip` along the south edge (bushes, grass, rocks: nothing that hides what stands below
         it); a cliff's `foot`; a road's `verge` each side (no tree on a road's shoulder); the water's `bank_back`
-        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus)."""
+        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus); a
+        floor under shallow water (R2: `q`, `h`) is `shallow` all over."""
         W, H = self.w, self.h
         lv = self.lay.lv
 
@@ -859,6 +904,8 @@ class Build:
             land = lambda cs: [c for c in cs if 0 <= c[1] < H and lv[c[1]][c[0]] != WATER]
             return [("bank_back", land(r.beside(2)), 7), ("bank", land(r.beside(1)), 6),
                     ("shallow", shallow, 7), ("water", deep, 9)]
+        if r.opts.get("paint") in TR.FLOODED:
+            return [("shallow", [c for c in r.cells() if lv[c[1]][c[0]] != WATER], 7)]   # R2: a wading floor's reeds
         if r.walk:
             return [("verge", rows([r.y - 2, r.y - 1, r.y1, r.y1 + 1]), 7)]
         if r.wall:
@@ -875,9 +922,9 @@ class Build:
             return False          # a piece stands on one level: never astride an edge (it would float)
         taken = self._prop_cells()
         cls = _spacing_class(kind)
-        gap = SPACING[cls]
+        gap = self._gap(cls)
         for k, px, py in placed:
-            other = SPACING[_spacing_class(k)]
+            other = self._gap(_spacing_class(k))
             if max(abs(px - x), abs(py - y)) < max(gap, other) * (1.0 if cls == _spacing_class(k) else 0.6):
                 return False
         for yy in range(y, y + fh):
@@ -889,7 +936,7 @@ class Build:
                     if not water:
                         return False
                     continue
-                if kind in TR.WADING and water:
+                if kind in TR.WADING and (water or self.lay.pt[yy][xx] in TR.FLOODED):
                     continue
                 if water or any(s["x"] <= xx < s["x"] + s["w"] and s["y"] <= yy < s["y"] + s["h"] for s in self.lay.stairs):
                     return False
@@ -914,6 +961,10 @@ class Build:
                 if k < key and rr[0] < box[0] + box[2] and box[0] < rr[0] + rr[2] and rr[1] < box[1] + box[3] and box[1] < rr[1] + rr[3]:
                     return False
         return True
+
+    def _gap(self, cls):
+        """How far apart two scattered pieces of a class stand (SPACING; a biome's `tree_gap` for its trees)."""
+        return self.biome.get("tree_gap", SPACING["tree"]) if cls == "tree" else SPACING[cls]
 
     def _spots(self, d, g):
         """What a canopy may not hide (topdown_rooms.check_foliage's rule): every placed thing and every way's lane."""
