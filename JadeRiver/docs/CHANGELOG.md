@@ -44,7 +44,19 @@ and plays chapter 11 on the grid.
     the lake (the ferry, the Hollow, the shrine's mirror), and checks the Nine Peaks ferry's gate. Each room is built
     by the view and walked by auto-path.
   - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
-  - R6_RUN_TOTALS
+  - `rules_tests`' route tour walks the nineteen rooms. Its first run lost three legs to open-sided flights by the
+    walks (the Reedless Shore, Toad's Hollow, the Mirror Shallows). Every raised shape is now climbed by R4's
+    closed-cheek `flights`, and a scratch walk of all 784 legs in R6's rooms arrives on every one.
+  - The run after merging R4, S11, T1, M1, E3 and R5: every gate holds, with no script error.
+    - Grid parity holds on 107 layouts (323 starts), and `npc_engine` holds.
+    - `topdown_act2_start` is new, with 61 checks.
+    - `room_engine` has 325 checks, three for each room it lays out (57 for R6's nineteen).
+    - `rules_tests` 2,712, `contract_tests` 1,112, `room_sweep` 3,745, `visibility_suite` 6,764,
+      `data_validation` 50,403, `topdown_tutorial` 1,038, `topdown_traversal` 126 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passed run alone on a quiet machine (the Marsh Edge's fight at 16.3 ms). In the full
+      runs, with other suites on the four cores (a load of 5 to 7), one or two of its frame times missed their
+      budgets: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's fight at up to 19.4 ms against
+      16.6. None of them touches R6's rooms.
 
 ## The story's rooms and the Tidebreak Front on the grid (R5)
 

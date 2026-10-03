@@ -774,9 +774,9 @@ the nineteen rooms too.
 | `tp_herders_camp` | 19 | `storm_plains` | `10_herders_camp`, `rooms/tp_herders_camp` |
 | `tp_thunderhorn_flats` | 21 | `storm_plains` | `11_thunderhorn_flats_pool`, `rooms/tp_thunderhorn_flats` |
 | `tp_lightning_scar` | 24 | `storm_plains` | `12_lightning_scar`, `rooms/tp_lightning_scar` |
-| `rf_frostpine_climb` | 21 | `snowfield` | `14_frostpine_climb`, `15_frostpine_climb_high`, `rooms/rf_frostpine_climb` |
+| `rf_frostpine_climb` | 23 | `snowfield` | `14_frostpine_climb`, `15_frostpine_climb_high`, `rooms/rf_frostpine_climb` |
 | `rf_snow_ape_ledges` | 17 | `snowfield` | `16_snow_ape_ledges`, `rooms/rf_snow_ape_ledges` |
-| `rf_rimefrost_summit` | 18 | `snowfield` | `17_rimefrost_summit`, `18_rimefrost_summit_rim`, `rooms/rf_rimefrost_summit` |
+| `rf_rimefrost_summit` | 19 | `snowfield` | `17_rimefrost_summit`, `18_rimefrost_summit_rim`, `rooms/rf_rimefrost_summit` |
 | `rf_hermits_ice_cave` | 12 | `snowfield` | `19_hermits_ice_cave` |
 | `ml_reedless_shore` | 23 | `mirror_lake` | `20_reedless_shore_ferry`, `21_reedless_shore_mirror`, `rooms/ml_reedless_shore` |
 | `ml_mirror_shallows` | 24 | `mirror_lake` | `22_mirror_shallows`, `rooms/ml_mirror_shallows` |
@@ -848,9 +848,11 @@ flight stood on or beside a walk, and auto-path's steering sent the body along a
 - Frostpine Climb's hand-laid flights have their trails moved off their sides (`wavy="s"`) and boulders at their
   cheeks.
 - The lake's bluff stands two levels over its knolls, so no hop takes a body onto it.
+- The Snow Ape Ledges' trail wanders on its south edge only (`wavy="s"`). Its north edge had cut a row into the slope
+  under the west shelf's flight, leaving the flight's foot a step low over a dark slot.
 
-A scratch walk of every leg (from the spawn and each way in, to every thing and way: 521 legs over the nineteen rooms)
-found the same wedge on 16 of them. After the change it arrives on all 521.
+A scratch walk of every leg (from the spawn and each way in, to every thing and way) found the same wedge on 16 of
+them. After the change, the final walk of all 784 legs over the nineteen rooms arrives on every one.
 
 **Set pieces and the side view's mechanics on the grid.**
 - The plains' lightning strikes a body on the grid, and flight (T1) takes off over the port and the plains as anywhere.
