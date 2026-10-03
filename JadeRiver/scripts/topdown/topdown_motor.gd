@@ -261,8 +261,10 @@ func floor_at(p: Vector2) -> float:
 			var r := tr.raft_at(p)
 			if not r.is_empty():
 				var dz := tr.deck_z(r)
-				# A raft floats on the water; a lift's or a lantern's deck (T2) hangs over whatever floor is under it.
-				if h == TopdownRoom.WATER_Z or (str(r.kind) != "raft" and dz >= h - 0.5): return dz
+				# A raft floats on the water; a lift's or a lantern's deck (T2) hangs over whatever floor is under it. A body
+				# below a hanging lantern (more than the mantle's reach under its lid) passes under it.
+				var under_lantern := str(r.kind) == "lantern" and z < dz - mantle - 0.5
+				if h == TopdownRoom.WATER_Z or (str(r.kind) != "raft" and dz >= h - 0.5 and not under_lantern): return dz
 		if not tr.crumbles.is_empty():
 			var cb := tr.crumble_at(p)
 			if not cb.is_empty() and float(cb.z) > h: return float(cb.z)

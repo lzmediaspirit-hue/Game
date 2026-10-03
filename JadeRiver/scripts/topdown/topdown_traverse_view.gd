@@ -46,7 +46,9 @@ static func build(world) -> Array:
 	# T2 (topdown_mechanics.md): the hatches, the bounces, the ice and the wind.
 	for h in tr.hatches: out.append(HatchView.new(world, h))
 	for b in tr.bounces: out.append(BounceView.new(world, b))
-	for i in tr.ices: out.append(IceView.new(world, i))
+	for i in tr.ices:
+		var ir: Rect2 = i.rect
+		for cy in range(TopdownRoom.cell_of(ir.position).y, TopdownRoom.cell_of(ir.end - Vector2.ONE).y + 1): out.append(IceView.new(world, i, cy))
 	for wv in tr.winds: out.append(WindView.new(world, tr, wv))
 	return out
 
@@ -330,7 +332,8 @@ class BounceView extends TopdownWorld.Sorted:
 		var r: Rect2 = b.rect
 		var sz := TopdownTraverseView.src(sprite).size
 		at = TopdownWorld.to_screen(Vector2(r.get_center().x, r.end.y), float(b.z)).round() - Vector2(roundf(sz.x * 0.5), sz.y)
-		key(floorf(r.position.y / TopdownRoom.ART))
+		# On a raised floor just past its last row's strip (as BoardsView), under a body standing on it.
+		key(r.end.y / TopdownRoom.ART + 0.125 if float(b.z) > 0.5 else floorf(r.position.y / TopdownRoom.ART))
 		rects.append(Rect2(at, sz))
 	func _draw() -> void:
 		var r := TopdownTraverseView.src(sprite)
@@ -367,7 +370,7 @@ class LanternView extends TopdownWorld.Sorted:
 		if p == at and f == frame: return
 		at = p
 		frame = f
-		key(floorf(deck.position.y / TopdownRoom.ART))
+		key(deck.end.y / TopdownRoom.ART + 0.25)   # over the raised floor's strips of the rows it hangs in, as a body on them
 		rects[0] = Rect2(Vector2(minf(p.x, pivot.x), pivot.y), Vector2(absf(p.x - pivot.x) + 32.0, p.y - pivot.y + 52.0))
 		queue_redraw()
 	func _draw() -> void:
@@ -380,22 +383,26 @@ class LanternView extends TopdownWorld.Sorted:
 		var r := TopdownTraverseView.src("lantern", frame)
 		draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position, r.size), r)
 
-## Ice glazed over a volume's cells (TopdownTraverse.ices): the sheen on every floor cell at its own height, its glint
-## moving between the two frames on its own clock. Keyed at its north edge, flat on the floor.
+## Ice glazed over a volume's cells (TopdownTraverse.ices), a row a node: the sheen on every floor cell at its own
+## height, its glint moving between the two frames on its own clock. Flat on the floor: keyed at the row's north edge on
+## the ground, just past the row's own strip on a raised floor (as BoardsView), under a body standing on it.
 class IceView extends TopdownWorld.Sorted:
 	var cells: Array = []
 	var frame := -1
-	func _init(w, i: Dictionary) -> void:
+	func _init(w, i: Dictionary, cy: int) -> void:
 		super(w)
 		var r: Rect2 = i.rect
 		var room: TopdownRoom = w.room
 		var c0 := TopdownRoom.cell_of(r.position)
 		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
-		for cy in range(c0.y, c1.y + 1):
-			for cx in range(c0.x, c1.x + 1):
-				if not room.standable(Vector2i(cx, cy)) or not room.stair_at(cx, cy).is_empty(): continue
-				cells.append([TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, room.cell_floor(Vector2i(cx, cy))).round(), (cx * 7 + cy * 3) % 2])
-		key(floorf(r.position.y / TopdownRoom.ART))
+		var raised := false
+		for cx in range(c0.x, c1.x + 1):
+			if not room.standable(Vector2i(cx, cy)) or not room.stair_at(cx, cy).is_empty(): continue
+			var fz := room.cell_floor(Vector2i(cx, cy))
+			raised = raised or fz > 0.5
+			cells.append([TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, fz).round(), (cx * 7 + cy * 3) % 2])
+		var north := float(cy) * TopdownRoom.TILE / TopdownRoom.ART
+		key(north + TopdownRoom.TILE / TopdownRoom.ART + 0.125 if raised else north)
 		rects.clear()
 	func _ready() -> void:
 		set_process(true)
@@ -421,7 +428,7 @@ class WindView extends TopdownWorld.Sorted:
 		tr = t
 		wv = wind
 		var r: Rect2 = wind.rect
-		var n := int(clampf(r.size.x * r.size.y / (TopdownRoom.TILE * TopdownRoom.TILE * 14.0), 4.0, 48.0))
+		var n := int(clampf(r.size.x * r.size.y / (TopdownRoom.TILE * TopdownRoom.TILE * 6.0), 6.0, 200.0))
 		for i in n:
 			motes.append([r.position.x + fposmod(float(i) * 97.0, r.size.x), r.position.y + fposmod(float(i) * 61.0 + 13.0, r.size.y), float(i % 7) / 7.0])
 		key(r.end.y / TopdownRoom.ART)

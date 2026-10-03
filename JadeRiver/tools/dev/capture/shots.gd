@@ -744,7 +744,7 @@ static func sets() -> Dictionary:
 	# sealed hatches, the driftwood and the ferry, the drum, the bent bamboo and the lotus leaf, the trial's lift and the
 	# crane, the Cloud trial's planks giving way, the Tunnels' spike pit, the Flooded Gate's plank, the Hall of Lanterns,
 	# the Abbot's flood, the Echo Cliffs' shaft, the Frozen Shrine's ice and icicles, the monastery's rotten floor, the
-	# ridge's wind and Breath Control's swim.
+	# ridge's wind, Breath Control's swim and the shallows' wade.
 	var t2 := func(name: String, room: String, cell: Vector2, steps: Array) -> Dictionary:
 		return {"name": name, "room": room, "cell": cell, "wait": 60, "do": steps, "take": [["world", name]]}
 	s["traversal_t2"] = {"doc": "T2: the Act I rooms' traversal rows on the grid: hatches, driftwood, the ferry, bounces, lifts, crumbling planks, a spike pit, lanterns, a flood, the Wall-Step shaft, ice, wind and the swim",
@@ -771,9 +771,10 @@ static func sets() -> Dictionary:
 		t2.call("17_ice_frozen_shrine", "sr_frozen_shrine", Vector2(19, 8), [["move", Vector2.RIGHT], ["frames", 36], ["stop"], ["frames", 14]]),
 		t2.call("18_icicle_frozen_shrine", "sr_frozen_shrine", Vector2(17, 9), [["face", Vector2.LEFT], ["frames", 10]]),
 		t2.call("19_rotten_floor_monastery", "mp_forgotten_monastery", Vector2(21, 12), [["stand_cell", [21, 7]], ["frames", 62]]),
-		t2.call("20_wind_ridge", "sr_windswept_ridge", Vector2(40, 16), [["frames", 40]]),
-		t2.call("21_swim_hermit_pond", "rm_hermit_stilt_house", Vector2(11, 10), [["secret_art", "breath_control"], ["refresh"], ["move", Vector2.RIGHT],
-			["frames", 40], ["stop"], ["frames", 4]])]}
+		t2.call("20_wind_ridge", "sr_windswept_ridge", Vector2(40, 16), [["frames", 210]]),
+		t2.call("21_swim_drowned_grotto", "ds_drowned_grotto", Vector2(9, 12), [["set", "cultivator.secret_arts", ["breath_control"]], ["refresh"], ["move", Vector2.DOWN],
+			["frames", 16], ["stop"], ["frames", 16]]),
+		t2.call("22_wade_hermit_pond", "rm_hermit_stilt_house", Vector2(11, 10), [["move", Vector2.RIGHT], ["frames", 40], ["stop"], ["frames", 4]])]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

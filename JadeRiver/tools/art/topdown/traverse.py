@@ -37,7 +37,7 @@ T2 (the rows T1 left; topdown_mechanics.md):
   gap           a floor gone under rotten boards (16 x 16): the shadow of the floor below, broken board ends
   hole_water    a plank walk's cell gone into the pool (16 x 16): dark water, a ripple
   ice_0..1      ice glazed over a floor (16 x 16): a pale blue sheen, white streaks, a glint moving across
-  wind_0..2     a curl of wind-blown snow and grit (12 x 5)
+  wind_0..2     a gust's streak of blown snow and grit (20 x 6)
   ripple_0..1   the ring of water round a swimmer's chest (24 x 8)
   icicle_0..1   a shelf of ice a cell (16 x 20), the crumble's ice look: blue-white ice, icicles hanging off its south
                 face; cracked across in the second frame
@@ -604,16 +604,23 @@ def ice(s: Img, f: int = 0) -> None:
 
 
 def wind(s: Img, f: int = 0) -> None:
-    """A curl of wind-blown snow and grit (12 x 5), drawn trailing to the east (the view mirrors it for a wind the other
-    way): a line of white motes that curls up at its head, a blue-grey shadow under it so it reads on snow; its length
-    grows between the frames."""
-    n = 7 + f * 2
+    """A gust's streak of blown snow and grit (20 x 6), drawn trailing to the east (the view mirrors it for a wind the
+    other way): a long slate-blue line that curls up at its head over a paler trail, white motes riding it, fading
+    toward its tail, dark enough to read on snow as on rock; its length grows between the frames."""
+    n = 12 + f * 3
     for k in range(n):
-        x = 11 - k
-        y = 2 if k > 2 else 2 - (2 - k) // 2
-        if x >= 0:
-            s.put(x, y, alpha((255, 255, 255, 255), 240 - k * 14))
-            s.put(x, y + 1, alpha(SNOW2[2], 200 - k * 14))
+        x = 19 - k
+        y = 3 if k > 3 else 3 - (3 - k) // 2
+        if x < 0:
+            break
+        fade = max(70, 255 - k * 11)
+        s.put(x, y, alpha(SNOW2[2], fade))
+        if k > 2:
+            s.put(x, y + 1, alpha(SNOW2[3], fade * 2 // 3))
+        if k % 3 == 1:
+            s.put(x, y - 1, alpha((255, 255, 255, 255), fade))
+    s.put(19, 1, alpha(SNOW2[1], 235))
+    s.put(18, 0, alpha(SNOW2[2], 215))
 
 
 def icicle(s: Img, f: int = 0) -> None:
@@ -675,7 +682,7 @@ SPRITES = {
     "gap": (16, 16, 0, gap),
     "hole_water": (16, 16, 0, hole_water),
     "ice": (16, 16, 2, ice),
-    "wind": (12, 5, 3, wind),
+    "wind": (20, 6, 3, wind),
     "ripple": (24, 8, 2, ripple),
     "icicle": (16, 20, 2, icicle),
 }
