@@ -83,15 +83,15 @@ WN_GUARDIANS_CROWN = room(
               ("summit", (25, 3, 9, 5), dict(level=4, paint="r", shape="round", flights=[31])),
               ("ledge", (38, 4, 9, 5), dict(level=3, paint="r", shape="round", flights=[42])),
               ("cliff_e", (53, 0, 11, 4), dict(level=6, paint="r", wall=True)),   # the cliff the cave opens in
-              ("mouth", (55, 4, 6, 7), dict(level=1, paint="d"))],               # the cave mouth's floor
+              ("mouth", (56, 2, 4, 9), dict(level=1, paint="d"))],               # the cave mouth, a cleft in the cliff
     stairs="auto",
-    ways={"west": ("w", "path"), "cave": dict(at=(58, 4), dir="n", arrive=(58, 6), span=2)},
+    ways={"west": ("w", "path"), "cave": dict(at=(58, 2), dir="n", arrive=(58, 4), span=2)},
     spawn="west",
     anchors={"herb_1": "crown@22", "jar_3": "crown@34", "chest_8": "summit.front@26", "chest_cloud_mv": "summit.front@33",
              "crate_4": "ledge@41", "jar_5": "verge.s@33", "crate_6": "slope@44", "herb_2": "verge.n@48", "jar_7": "slope@57"},
     props=[("wyrm_nest", 27, 5), ("star_crystal", 23, 4), ("star_crystal", 35, 7), ("star_crystal", 15, 18),
            ("star_crystal", 43, 21), ("wyrm_skull", 50, 7), ("rock_spire", 11, 6), ("rock_spire", 52, 21),
-           ("wyrm_ribs", 6, 21), ("bone_pile", 54, 11), ("bone_pile", 61, 12), ("rock_spire", 54, 6), ("rock_spire", 61, 6)],
+           ("wyrm_ribs", 6, 21), ("bone_pile", 54, 11), ("bone_pile", 61, 12), ("rock_spire", 54, 6), ("rock_spire", 61, 6), ("boulder", 55, 4), ("boulder", 60, 4)],
     flora={"shoulder": dict(density=0.4), "slope": dict(density=0.34), "brink": dict(density=0.4),
            "crown": {"kinds": ["star_crystal", "bone_pile", "tall_grass", "rock_small"], "density": 0.35}},
     foes="auto")

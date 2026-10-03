@@ -18,6 +18,7 @@ topdown_chapter4
 topdown_drowned_shrine
 topdown_peaks
 topdown_story_rooms
+topdown_skysea
 topdown_traversal
 tutorials
 story_scenes

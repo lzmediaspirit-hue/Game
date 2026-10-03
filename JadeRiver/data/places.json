@@ -1366,6 +1366,536 @@
    "menu": "",
    "sect": "",
    "remote": {}
+  },
+  {
+   "id": "sw_pier_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sw_broken_pier",
+   "object": "shrine_sw_pier",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Broken Pier Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    11,
+    12
+   ],
+   "stand": [
+    11,
+    13
+   ],
+   "at": [
+    368.0,
+    400.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Broken Pier Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sw_launch_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "sw_starsea_launch",
+   "object": "shrine_sw_launch",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Starsea Launch Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    14,
+    11
+   ],
+   "stand": [
+    14,
+    12
+   ],
+   "at": [
+    464.0,
+    368.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Starsea Launch Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "sw_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "sw_starsea_launch",
+   "object": "stone_skyport",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Starsea Launch Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    36,
+    14
+   ],
+   "stand": [
+    36,
+    15
+   ],
+   "at": [
+    1168.0,
+    464.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Starsea Launch Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_quay_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "lh_arrival_quay",
+   "object": "shrine_lh_quay",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Arrival Quay Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    34,
+    3
+   ],
+   "stand": [
+    34,
+    4
+   ],
+   "at": [
+    1104.0,
+    112.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Arrival Quay Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "lh_harbor_market",
+   "object": "stone_lanternfall",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Harbor Market Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    36,
+    16
+   ],
+   "stand": [
+    36,
+    17
+   ],
+   "at": [
+    1168.0,
+    528.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Harbor Market Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_notice_board",
+   "system": "notice_board",
+   "page": "notice_board",
+   "page_args": {},
+   "room": "lh_harbor_market",
+   "object": "board_lh",
+   "kind": "notice_board",
+   "rule": "place",
+   "name": "the Harbor Notice Board",
+   "state": "papers",
+   "added": false,
+   "cell": [
+    6,
+    7
+   ],
+   "stand": [
+    6,
+    8
+   ],
+   "at": [
+    208.0,
+    240.0
+   ],
+   "verb": "sim.world.read",
+   "icon": "quest",
+   "kind_name": "Notice Board",
+   "pose": "",
+   "where": "At the Harbor Notice Board",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_storehouse",
+   "system": "storage",
+   "page": "storage",
+   "page_args": {},
+   "room": "lh_harbor_market",
+   "object": "storage_lh",
+   "kind": "storehouse",
+   "rule": "earned",
+   "name": "the Harbor Storehouse",
+   "state": "stock",
+   "added": false,
+   "cell": [
+    30,
+    7
+   ],
+   "stand": [
+    30,
+    6
+   ],
+   "at": [
+    976.0,
+    240.0
+   ],
+   "verb": "sim.world.open",
+   "icon": "storage",
+   "kind_name": "Storehouse",
+   "pose": "open",
+   "where": "At the Harbor Storehouse",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "unlock",
+       "system": "pouch_sewing"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Opens from anywhere once Tailor Xun has sewn you a pouch (A Pouch for the Road)."
+   }
+  },
+  {
+   "id": "lh_goods_stall",
+   "system": "shop",
+   "page": "shop",
+   "page_args": {},
+   "room": "lh_harbor_market",
+   "object": "npc_peddler_ning",
+   "kind": "stall",
+   "rule": "place",
+   "name": "Peddler Ning's Silk and Sundries",
+   "state": "wares",
+   "keeper": "peddler_ning",
+   "added": false,
+   "cell": [
+    20,
+    10
+   ],
+   "stand": [
+    20,
+    11
+   ],
+   "at": [
+    656.0,
+    336.0
+   ],
+   "verb": "sim.world.talk",
+   "icon": "shop",
+   "kind_name": "Shop",
+   "pose": "",
+   "where": "At Peddler Ning's Silk and Sundries",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_apothecary_stall",
+   "system": "shop",
+   "page": "shop",
+   "page_args": {},
+   "room": "lh_harbor_market",
+   "object": "npc_apothecary_sang",
+   "kind": "stall",
+   "rule": "place",
+   "name": "Apothecary Sang's Jars",
+   "state": "wares",
+   "keeper": "apothecary_sang",
+   "added": false,
+   "cell": [
+    41,
+    10
+   ],
+   "stand": [
+    41,
+    11
+   ],
+   "at": [
+    1328.0,
+    336.0
+   ],
+   "verb": "sim.world.talk",
+   "icon": "shop",
+   "kind_name": "Shop",
+   "pose": "",
+   "where": "At Apothecary Sang's Jars",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lh_furnace",
+   "system": "alchemy",
+   "page": "alchemy",
+   "page_args": {},
+   "room": "lh_star_chandlery",
+   "object": "furnace_lh",
+   "kind": "furnace",
+   "rule": "earned",
+   "name": "the Star Chandlery Furnace",
+   "state": "smoke",
+   "added": false,
+   "cell": [
+    18.5,
+    5
+   ],
+   "stand": [
+    19,
+    6
+   ],
+   "at": [
+    608.0,
+    176.0
+   ],
+   "verb": "sim.world.refine",
+   "icon": "alchemy",
+   "kind_name": "Furnace",
+   "pose": "tend",
+   "where": "At the Star Chandlery Furnace",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "realm_at_least",
+       "realm": "qi_unfurling_1"
+      }
+     ]
+    },
+    "first_use": true,
+    "scope": "queue",
+    "text": "Queue batches from anywhere from Qi Unfurling 1; refine by hand at a furnace."
+   }
+  },
+  {
+   "id": "dr_hulks_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "dr_moored_hulks",
+   "object": "shrine_dr_hulks",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Moored Hulks Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    11,
+    9
+   ],
+   "stand": [
+    11,
+    10
+   ],
+   "at": [
+    368.0,
+    304.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Moored Hulks Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "dr_garden",
+   "system": "herb_garden",
+   "page": "garden",
+   "page_args": {},
+   "room": "dr_moored_hulks",
+   "object": "bed_dr_0",
+   "kind": "garden_bed",
+   "rule": "earned",
+   "name": "Old Bo's Planters",
+   "state": "growth",
+   "beds": [
+    "bed_dr_0",
+    "bed_dr_1"
+   ],
+   "where": "At the Moored Hulks",
+   "added": false,
+   "cell": [
+    15,
+    3
+   ],
+   "stand": [
+    15,
+    4
+   ],
+   "at": [
+    496.0,
+    112.0
+   ],
+   "verb": "sim.world.tend",
+   "icon": "craft_foraging",
+   "kind_name": "Garden",
+   "pose": "tend",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "place_used:herb_garden"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Tend your beds from anywhere after your first harvest."
+   }
+  },
+  {
+   "id": "bm_docks_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "bm_blackmast_docks",
+   "object": "shrine_bm_docks",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Blackmast Docks Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    12,
+    6
+   ],
+   "stand": [
+    12,
+    7
+   ],
+   "at": [
+    400.0,
+    208.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Blackmast Docks Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "wn_cliffs_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "wn_nest_cliffs",
+   "object": "shrine_wn_cliffs",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Nest Cliffs Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    13,
+    13
+   ],
+   "stand": [
+    12,
+    13
+   ],
+   "at": [
+    432.0,
+    432.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Nest Cliffs Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
   }
  ],
  "kinds": {
