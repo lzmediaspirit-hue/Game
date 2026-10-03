@@ -664,6 +664,8 @@ R4's, the capture's x2 copies of the world alone are not kept.
   exactly symmetric (a round shape wears with the room's seed), and `stair_with_cheeks()`, R3's flight between cheeks.
 - R4's rule holds: a raised thing stands at least its level in rows from the north edge. Gu's strongbox is on the
   strongroom's dais at row 3, level 3.
+- The Breach's two outcrops are climbed by R4's `flights`, their cheeks closed by boulders. With R2's open-sided
+  flight, `rules_tests`' route tour stalled coming down from the north one's crate.
 
 **An engine rule.** A layout's `event` gives the cells of the room's own event (`TopdownRoom.merge_def`), or of a set
 piece begun in it (`TopdownRoom.grid_event`). The checks compared them with the room's own event only. The Greyfall
@@ -714,7 +716,10 @@ The ways to rooms with no layout are gated: the Alliance Gate, the Citadel's ski
   alliance banners (the sects' jade and cloud banners stand in), the paifang's roof.
 
 **The frontier now** (R5): Gu's Warehouse is on the grid. In Act I the gate stands only at the Ascension Gate's way
-up to the Azure Expanse (Act II). Past it, the Sect War's and the Presence Trial's ways back lead to the Nine Peaks'
+up to the Azure Expanse (Act II). From the Marsh Edge no way off the grid is in walking reach any more. So
+`topdown_tutorial`'s gate check now sets the walk down at the first such way in a room on the grid that is not an
+instance, by the layouts' names (the Ascension Gate's), and checks its gate there. While one is in reach it still
+walks to the nearest. Past it, the Sect War's and the Presence Trial's ways back lead to the Nine Peaks'
 rooms, the Bastion's skiff to the Citadel, and the Drone Hive's way east to the Nebula Deep. Those rooms have no
 layout, so the four ways are gated. The Tidebreak Front's own rooms join each other on the grid.
 

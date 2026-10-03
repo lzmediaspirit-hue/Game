@@ -37,6 +37,10 @@ in them on the grid.
     Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the grid) and Greyfall's stand. It walks
     the grey fields to the Drone Hive and back. Each room is built by the view and walked by auto-path.
   - The `room_engine` capture set has R5's views (`docs/architecture/room_engine/r5/`).
+  - One frontier check moved. No way off the grid is in walking reach from the Marsh Edge now, so `topdown_tutorial`
+    sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
+  - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
+    R4's closed-cheek `flights`.
 - **Still to do.** Most of these rooms' foes have no top-down sheet. The Reflection's heart demons still spawn at the
   side view's points (T1's wave work). The Front's light follows the clock, not the side view's night. Details are in
   the doc.
