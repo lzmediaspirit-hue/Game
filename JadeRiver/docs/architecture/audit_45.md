@@ -1096,6 +1096,33 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   sites marked.
 - Behaviour and every suite's check count are unchanged.
 
+### Status (phase 2, S9): the World authority in parts, done
+
+- **`world_authority.gd` had 2,321 lines and now has 433.** It keeps the state, the intents, the subscriptions, the
+  room's lifecycle (loading and entering a room, the character's memory of it), the tick and a forwarder for every
+  public method.
+- **Its part members are untyped.** Typed, they made a cycle at boot that left `ActorState`'s untyped members
+  unresolved for later scripts, so `rules_tests.gd` failed to parse (`authority_parts.md`, S9).
+- **The work is in 14 parts under `authority/world/`**, 2,133 lines in all, plus the 29-line base `WorldPart`. They
+  follow the pattern in `docs/architecture/authority_parts.md`, which lists them:
+  - ambushes, rare herbs, and portals with routes, teleports and Spirit Sense;
+  - the transfer arrays, room objects, and `interact` with the context button;
+  - beast cores and loot, the rooftop chases and timed routes, hazards, and the Starsea voyages;
+  - room events, the nests with the Beast Tide and the Grove, the Trial Tower, and idle rooms with auto-path and the
+    direction mark.
+- **Old private names.** Tests and `ObjectView` call 15 private helpers by name, so their forwarders keep the private
+  names. S11 renames them.
+- **BUG-05: two of its seven calls are public now.**
+  - Enemies calls `apply_loot_drop`.
+  - Quest calls `start_room_event`, which was already the same call.
+- **Dead code:** the `set_sail` intent, which nothing sent.
+- **The side view: 20 sites, down from 22.** Each asks `WorldAuthority.side_view(rt)` (13 sites) or finds `grid_for`
+  null (7), so S12 can find them.
+- **Checks:**
+  - Every suite keeps its check count, with no failures and no script errors.
+  - The exception is `perf_tests`' borderline budgets, which the base misses as well. Over three interleaved runs, the
+    base missed 1, 1 and 0 checks, and S9 missed 0, 1 and 2.
+  - The data build is unchanged apart from the contract's World `files` lists.
 
 ## 8. Rerunning the audit
 

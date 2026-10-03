@@ -46,6 +46,73 @@ describes it.
   - Every other suite keeps its count.
 - **The living world** (`topdown_life.py`): vistas for the three outdoor rooms, and no butterflies in a cave.
 
+## The World authority in parts (decision 45, S9)
+
+This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`world_authority.gd` had 2,321 lines in 16 sections. It now has 433, and the rest of its work is in 14 parts under
+`scripts/simulation/authority/world/`.
+
+The code moved as it was. The game plays the same, every caller still calls `Game.world.<method>` by the same name,
+and the save data is untouched.
+
+- **How the parts work.** They follow the shared pattern in `docs/architecture/authority_parts.md`, which also lists
+  them.
+  - The authority keeps its state, its intents, its subscriptions, the room's lifecycle (loading and entering a room,
+    the character's memory of it) and the tick. Its public methods are one-line forwarders to the part that does the
+    work.
+  - A part is a class over `WorldPart`, made by the authority. It has no state of its own, and it holds the authority
+    through a weak reference, `world`.
+    - The rare-herb clock, auto-hunt's check and the direction mark's cache stay on the authority, with the rest of the
+      state.
+    - The two private ones are now named `auto_check` and `guide_cache`.
+  - A part calls the authority's public methods as any caller would (`world.load_room`, `world.chases`). It calls a
+    helper that another part keeps to itself on that part (`world.loot.drop_loot`).
+  - The tests and `ObjectView` call 15 private helpers by name, such as `_start_event`, `_drop_loot` and `_verb`. Their
+    forwarders keep those names until S11 gives them public ones.
+  - Unlike the other split authorities, `WorldAuthority` keeps its part members untyped.
+    - Typed, they put the parts in a cycle with the authority while `Game` boots. Godot's analyzer then leaves
+      `ActorState`'s untyped members unresolved for every script it compiles later.
+    - `rules_tests.gd` failed to parse, and the suite hung.
+    - `authority_parts.md` has the details. The room events part is `room_events`, because `ActorState` already has
+      an `events` member.
+- **The parts** (`world_<part>.gd`), 2,133 lines in all, plus the 29-line base:
+  - ambushes;
+  - rare herbs and their guardians;
+  - portals, hidden ways, routes, teleports and Spirit Sense;
+  - the transfer arrays;
+  - room objects: what shows, what is open, their states, and blows on jars and training posts;
+  - `interact` and the context button;
+  - beast cores and loot;
+  - the rooftop chases and timed routes;
+  - hazards and hazard volumes;
+  - the Starsea voyages;
+  - room events;
+  - the Beast Kings' nests, the Beast Tide and the Beast Trial Grove;
+  - the Trial Tower;
+  - idle rooms, auto-hunt, auto-path and the direction mark.
+- **BUG-05: two of its seven private cross-calls are public now.**
+  - `EnemyAuthority._flee` calls the new `apply_loot_drop` instead of `_drop_loot`.
+  - `QuestAuthority.start_set_piece` calls `start_room_event` instead of `_start_event`. The two calls are the same.
+- **Dead code dropped:** the `set_sail` intent. It was registered but never sent: a dock goes through `interact`, and
+  auto-path goes through `auto_path_board`. `set_sail` itself stays.
+- **The side view.** There are now 20 sites, down from 22. Each one asks one helper, `WorldAuthority.side_view(rt)`
+  (13 sites), or finds `grid_for` null (7 sites). Retiring the side view (S12) means deleting those branches.
+  - The two copies of how long a won event's way on waits are now one helper, `_leave_after`.
+  - The side-view half of auto-path's place point is now `_side_place_point`.
+- **Checks.**
+  - The final run on the tree merged with S7 passed every suite with the base's check count and no script errors,
+    apart from one `perf_tests` budget. The base, run alongside, missed the same one: the sword swarm's frame, at
+    16.84 ms on S9 and 17.05 ms on the base.
+  - Three interleaved `perf_tests` runs at a load of about 3 compared the two:
+    - The base missed 1, 1 and 0 of its 18 checks, and S9 missed 0, 1 and 2. They were the same borderline budgets
+      flipping both ways: the sword swarm, the Marsh Edge's fight and the wood tree's drag.
+    - The medians are within the noise: the Marsh Edge's fight 15.68 ms a frame against 15.28, Lotus Ferry 10.98 against
+      10.80, and a room's load 26 ms against 25.
+  - A line-by-line comparison finds every code line of the old file in the split. The only differences are the
+    changes named above.
+  - In `data/event_contract.json`, only the `files` lists of the World events changed: S10's `with_parts()` now finds
+    the `world/` folder. Apart from that, the data build is unchanged.
+
 ## The shell: the debug flags in a script of their own, and the page registry (decision 45, S7)
 
 This is phase 2, slice S7 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7, BUG-07). `scripts/main.gd`
