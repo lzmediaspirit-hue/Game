@@ -124,7 +124,14 @@
    "climb_hold_s": 0.3,
    "fly_climb": 160,
    "fly_ceiling": 160,
-   "fly_speed": 1.2
+   "fly_speed": 1.2,
+   "side_scale": 0.755,
+   "swim_s": 30,
+   "swim_factor": 0.6,
+   "swim_out": 24,
+   "shallow_factor": 0.7,
+   "ice_traction": 287,
+   "wind_edge": 36
   }
  },
  "jump": {

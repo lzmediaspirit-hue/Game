@@ -148,5 +148,17 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "traverse": [
+  {
+   "kind": "hatch",
+   "id": "storeroom_ladder",
+   "rect": [
+    4,
+    3,
+    2,
+    2
+   ]
+  }
+ ]
 }

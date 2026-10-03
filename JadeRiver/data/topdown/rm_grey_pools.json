@@ -832,6 +832,17 @@
    "speed": 40,
    "wait_s": 2.5,
    "mode": "loop"
+  },
+  {
+   "kind": "bounce",
+   "id": "lily_bounce",
+   "rect": [
+    43,
+    8,
+    2,
+    2
+   ],
+   "look": "lily"
   }
  ],
  "vista": [

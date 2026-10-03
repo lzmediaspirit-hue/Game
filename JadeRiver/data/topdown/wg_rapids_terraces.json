@@ -756,6 +756,54 @@
    ]
   ]
  ],
+ "areas": [
+  {
+   "kind": "shallows",
+   "rect": [
+    11,
+    17,
+    31,
+    2
+   ],
+   "current": -45
+  },
+  {
+   "kind": "shallows",
+   "rect": [
+    58,
+    17,
+    3,
+    2
+   ],
+   "current": -45
+  },
+  {
+   "kind": "current",
+   "rect": [
+    42,
+    19,
+    16,
+    9
+   ],
+   "current": -75
+  }
+ ],
+ "traverse": [
+  {
+   "kind": "current",
+   "id": "rapids_current",
+   "rect": [
+    42,
+    19,
+    16,
+    9
+   ],
+   "push": [
+    -91,
+    0
+   ]
+  }
+ ],
  "vista": [
   {
    "edge": "n",

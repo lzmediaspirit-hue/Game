@@ -82,6 +82,12 @@ var _no_buffer := false
 ## T1 (docs/architecture/topdown_mechanics.md): this press of Jump already started a glide (a press starts one, as the
 ## side view's hold does).
 var _glide_spent := false
+## T2: the hatches' clock and the traversal they were last asked for, and whether the shut one pushed into has spoken.
+var _hatch_t := 0.0
+var _hatch_of: TopdownTraverse = null
+var _hatch_said := false
+## T2: a swimmer is drawn from the chest up, the figure sunk this far under the water's line.
+const SWIM_SINK := 22.0
 ## T1: the body's pose on a climbable face: the reviewed hang pose (AGENTS.md rule 4: no new body movement is drawn for
 ## it), reaching up the face.
 const CLIMB_POSE := "work_hang"
@@ -442,6 +448,10 @@ func physics_step(delta: float) -> Array:
 		# T1: the movement arts this character knows reach the motor, as the side view's _sync_arts reaches its solver.
 		motor.double_jump = Game.combat.knows_art(c, "double_jump")
 		motor.wall_step = Game.combat.knows_art(c, "wall_step") and not Game.pets.ground_mounted(c)   # no mount kicks off a wall
+		# T2: Breath Control swims open water; a Water Sphere's frozen ground wades the shallows at full pace.
+		motor.swim = Game.combat.knows_art(c, "breath_control")
+		motor.wade_free = bool(state.frozen_ground)
+		_hatches(c, move, delta)
 		_hold_jump(c)
 		_climb_hold(c, move, delta)
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
@@ -504,6 +514,28 @@ func _hold_jump(c) -> void:
 			motor.fly_input = 0.0
 		elif Game.combat.knows_art(c, "glide"): Game.submit({"type": "glide", "on": true})
 	motor.gliding = state.gliding
+
+## T2 · the sealed hatches over the room's stairs (a loft's, a library floor's): each shut while the World authority's
+## climbable_open refuses the side view's climbable it stands for (asked as the room is entered, then every half second),
+## and one walked into says why over the body, once a push.
+func _hatches(c, move: Vector2, delta: float) -> void:
+	var tr := motor.traverse()
+	if tr == null or tr.hatches.is_empty(): return
+	_hatch_t -= delta
+	if _hatch_t <= 0.0 or _hatch_of != tr:
+		_hatch_t = 0.5
+		_hatch_of = tr
+		for h in tr.hatches:
+			var open: Dictionary = Game.world.climbable_open(c, _side_climbable(str(h.id)))
+			h.shut = not open.get("ok", false)
+			h.text = str(open.get("text", ""))
+	var h: Dictionary = tr.hatch_at(motor.pos + move.normalized() * (motor.half.x + 6.0)) if move.length() > 0.5 else {}
+	if h.is_empty():
+		_hatch_said = false
+		return
+	if not _hatch_said and world.get("effects") != null:
+		world.effects.add("text", world.player_feet() + Vector2(0, -120), {"text": str(h.text), "color": UiKit.MIST, "size": 18, "dur": 1.8})
+	_hatch_said = true
 
 ## T1 · the stick held toward a climbable face (into it at its foot, over the edge at its top) for the side view's hold
 ## climbs on.
@@ -596,7 +628,7 @@ func sync(delta: float) -> void:
 		f = 4
 	# Decision 42: the stick past its tiptoe band sprints (the run the sheets draw), a light touch walks; a body on the
 	# move never sits in meditation's pose (moving ends the meditation, physics_step).
-	elif m.vel.length() > 12.0: next = "run" if m.running else "walk"
+	elif m.vel.length() > 12.0: next = "run" if m.running and not m.swimming else "walk"   # T2: a swimmer strokes at the walk's
 	elif meditating: next = "meditate"
 	# Decision 44: a place's pose while the body is at rest (seated at the mat even as it meditates); anything else, a
 	# step or a blow, ends it.
@@ -675,6 +707,11 @@ func _strike_pose(tl: Dictionary) -> String:
 
 ## Draw the current frame with its feet at `feet` on `canvas` (the silhouette overlay draws the same frame).
 func draw_body(canvas: CanvasItem, feet: Vector2, tint := Color.WHITE) -> void:
+	if motor.swimming:
+		# T2 · Breath Control's swim: the walk's and the idle's own frames, sunk under the water's line and cut at it (no new
+		# body movement is drawn for it, AGENTS.md rule 4).
+		figure.draw(canvas, feet + Vector2(0, SWIM_SINK), pose, motor.row, frame, tint, 1.0, Rect2(feet + Vector2(-48, -96), Vector2(96, 96)))
+		return
 	figure.draw(canvas, feet, pose, motor.row, frame, tint)
 
 func _draw() -> void:
@@ -686,3 +723,4 @@ func _draw() -> void:
 	# no new body pose; the body holds the jump's apex frame).
 	if motor.gliding: TopdownTraverseView.draw_glide(self, Vector2(0, screen.y - position.y))
 	if motor.flying: TopdownTraverseView.draw_cloud(self, Vector2(0, screen.y - position.y))
+	if motor.swimming: TopdownTraverseView.draw_ripple(self, Vector2(0, screen.y - position.y))

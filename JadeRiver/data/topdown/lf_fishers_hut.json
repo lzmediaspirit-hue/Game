@@ -148,5 +148,17 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "traverse": [
+  {
+   "kind": "hatch",
+   "id": "loft_ladder",
+   "rect": [
+    13,
+    3,
+    2,
+    2
+   ]
+  }
+ ]
 }

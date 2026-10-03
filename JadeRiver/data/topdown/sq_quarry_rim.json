@@ -479,6 +479,26 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "lift",
+   "id": "crane_lift",
+   "at": [
+    16,
+    9
+   ],
+   "path": [
+    [
+     0,
+     0,
+     2
+    ]
+   ],
+   "speed": 45,
+   "wait_s": 2.0,
+   "mode": "trigger"
+  }
+ ],
  "vista": [
   {
    "edge": "n",

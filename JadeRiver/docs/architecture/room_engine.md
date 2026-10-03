@@ -221,8 +221,9 @@ The six rooms past the Fairground on the main story's path, now on the grid. Cha
 Each picture also has an x2 copy under `world/`.
 
 **Still to do in these rooms.** Their foes have no top-down art yet: the bandits, hounds, archers, Lieutenant Kuai,
-Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. The side view's
-crumbling boards in the tunnels have no top-down counterpart.
+Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. ~~The side view's
+crumbling boards in the tunnels have no top-down counterpart.~~ T2: six rotten planks over two spike pits across the
+track (`docs/architecture/topdown_mechanics.md`).
 
 **The frontier then** (E1): Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine; the Marsh
 Edge's way east; the sects' halls and abodes; the Trial Tower; the Quarry Road; the Beast Grove; the County Hall; Gu's
@@ -390,8 +391,9 @@ one rule for all of them (`docs/architecture/topdown_mechanics.md`).)
   - the rising water of the Serpent's and the Abbot's floods;
   - the Drowned Grotto's swim (it is wading water here).
 
-  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows now, waiting in these rooms'
-  specs; the lanterns and the swim are still to do (`docs/architecture/topdown_mechanics.md`).
+  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows. T2 laid them in these rooms'
+  specs, hung the five lanterns (`lantern` rows) and swims the grotto's pools with Breath Control; its flagstones under
+  shallow water are waded at the side view's 0.7 of the pace (`docs/architecture/topdown_mechanics.md`).
 | Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
 |---|---|---|
 | `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
@@ -474,7 +476,7 @@ Each stands where auto-path reaches it from every way in.
 
 Some side-view props have no top-down counterpart:
 - the guardian lions;
-- the quarry's crane lift (a side-only mover; T1: a `lift` row with mode `trigger`, waiting in the spec).
+- ~~the quarry's crane lift~~ (T2: a `lift` row with mode `trigger`, in the spec; the Entry Trials' planks too).
 
 ~~Some waves still spawn at the side view's points, read as world units on the grid: the spatial rift's waves and the
 set pieces' waves.~~ T1: every room event's points are set on the grid by one rule (`TopdownRoom.grid_event`); a
@@ -579,8 +581,9 @@ byte for byte, and `test_engine` holds it.
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the cliff ape, Cloudpeak Roc, Cloudwing Crane,
   the Gate Guardian, Hollow Stag, Jade Sentinel, Mirror Wisp, Mist Wolf, the rogue treasure adept, Stormwing Hawk and
   Weeping Lantern.
-- Some of the side view has no top-down counterpart: the crumbling boards and icicles, the updrafts, the ridge's wind
-  and Wings of Cloud's flight.
+- ~~Some of the side view has no top-down counterpart: the crumbling boards and icicles, the updrafts, the ridge's
+  wind and Wings of Cloud's flight.~~ T1 and T2: flight and Wings of Cloud on the grid; the monastery's rotten floors,
+  the Frozen Shrine's icicle shelves and ice, the ridge's wind (`docs/architecture/topdown_mechanics.md`).
 - The sect's buildings are drawn as the side view's facades at half size once raised, as every thing is. Their slots
   line the Sect Grounds' two paved walks, and the big ones overlap when they stand side by side.
 

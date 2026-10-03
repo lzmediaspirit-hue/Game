@@ -210,6 +210,9 @@ CM_CLOUD_LIBRARY = room(
               ("cheek_4", (21, 10, 1, 4), dict(level=3, paint="w")),
               ("cliff_landing", (27, 7, 1, 2), dict(level=2, paint="w"))], # the cliff door's sill, off the gallery
     stairs=[(19, 4, 2, 2, 2, 3, "w"), (19, 10, 2, 4, 0, 2, "w")],
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's floor ladders, sealed by sect rank (an Outer Disciple
+    # for the first gallery, an Inner Disciple for the second), are sealed hatches over the two flights.
+    traverse=[("hatch", "floor_2_ladder", dict(rect=(19, 10, 2, 4))), ("hatch", "floor_3_ladder", dict(rect=(19, 4, 2, 2)))],
     ways={"exit": ("s", 12.5), "cliff_door": ("e", 7.5)},
     spawn="exit",
     anchors={"floor_3_shelves": (23, 2), "floor_2_shelves": (23, 5), "npc_cloud_librarian": (13, 6),

@@ -156,6 +156,9 @@ SF_FAIRGROUND = room(
         "fair_lantern_1": (16, 6),  # on the Jade hall's roof
         "fair_lantern_2": (35, 6),  # on the Cloud hall's roof, a tile's jump from the tower's
     },
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's festival drum, set on the paving by the Cloud hall's
+    # east corner: a landing on it bounces a body up onto the hall's roof.
+    traverse=[("bounce", "fair_drum_bounce", dict(rect=(36, 9, 2, 2), look="drum"))],
     pins={"props": [   # hand-placed, piece by piece
         # the Jade trial hall
         ("house", 13, 6, "trial_jade"),
@@ -191,7 +194,11 @@ SF_TRIAL_JADE = trial_yard(
         ("bell_tower", (25, 1, 4, 5), dict(level=4, paint="s")),   # the bell tower's top
     ],
     props=[("crates", 5, 9), ("weapon_rack", 31, 1), ("weapon_rack", 34, 1)],   # crates onto the first roof
-    bell=(26.5, 3))
+    bell=(26.5, 3),
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's two rising planks, lifts in the yard that carry a body
+    # up to the second roof's eaves and to the third roof's, rising and falling on their own.
+    traverse=[("lift", "plank_1", dict(at=(12, 9), path=[(0, 0, 2)], speed=30, wait_s=1.2, mode="pingpong")),
+              ("lift", "plank_2", dict(at=(19, 7), path=[(0, 0, 3)], speed=30, wait_s=1.2, mode="pingpong"))])
 
 
 # The Cloud Sect's Entry Trial: the climb runs up rock ledges out of the cliff behind the yard (the first ledge, the
@@ -207,7 +214,10 @@ SF_TRIAL_CLOUD = trial_yard(
         ("top_ledge", (18, 3, 7, 5), dict(level=3, paint="r")),
     ],
     props=[("lotus", 14, 8), ("boulder", 30, 4), ("boulder", 4, 13)],
-    bell=(22, 4))
+    bell=(22, 4),
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's crumbling ledge is the plank walk itself: a second on
+    # it and its planks give way into the cliff pool, back after five.
+    traverse=[("crumble", "trial_crumble", dict(rect=(13, 5, 5, 2), level=2, under="water", break_s=1.0, return_s=5.0))])
 
 
 ROOMS = [SF_GATE, SF_MARKET, SF_ARTISAN_ROW, SF_FAIRGROUND, SF_TRIAL_JADE, SF_TRIAL_CLOUD]

@@ -1,5 +1,58 @@
 # Changelog
 
+## The side view's mechanics in the Act I rooms (T2)
+
+T1 built the grid's traversal and listed what was left (`docs/architecture/topdown_mechanics.md`). T2 did its items
+1 to 13 for every Act I room on the grid. The grid now covers 39 of the side view's 43 mechanics.
+
+- **Wings of Cloud's leftover.** Cloud Lung's air distance counts the plane's speed on the grid, so flight north or
+  south counts (`CombatFlight._air_distance`).
+- **Sealed ladders.** Old Ma's storeroom, the Fisher's Hut's loft and both libraries' galleries keep their stairs but
+  lay a sealed hatch over each (`hatch` rows). It is shut while the side view's climbable is (`climbable_open`):
+  until The Runaway Kite for the lofts, and by sect rank for the galleries. A lattice gate with paper seals stands at
+  the flight's foot, and a push into it shows the ladder's own locked text.
+- **Rafts and lifts.** The Reed Shallows' three driftwood logs, Bend Shore's ferry, the Flooded Gate's three planks,
+  the Jade trial's two lifts and the quarry's crane (`raft` and `lift` rows; `look` draws the driftwood and the
+  planks).
+- **Bounces.** The Fairground's drum, the Whispering Bamboo's bent culm and the Grey Pools' lotus leaf, each drawn.
+- **Crumbling floors.** A crumble's `under` makes boards that are the floor itself: the grid's queries walk them, and
+  when they give way the motor drops the body a level or into a hole:
+  - the Tunnels' six planks over two spike pits;
+  - the Cloud trial's plank walk over its pool;
+  - the monastery's two rotten floors.
+
+  The Frozen Shrine's three icicle shelves are T1's boards over the terrace, drawn as ice. The spike pits are
+  `hazard` rows: the World authority strikes a body fallen into them with the side volume's own damage and bleed.
+- **The Drowned Shrine and the gorge.**
+  - The Hall of Lanterns hangs five lanterns (`lantern` rows): decks on the side view's own swing and circle that
+    board a body as they sweep in under it.
+  - The Flooded Gate runs its drain and its flood's pull, and the Rapids their white water (`current` rows). The
+    Rapids' current hazard has its `areas`.
+  - The Serpent's and the Abbot's floods rise a level on their bosses' phases. A falling rise row lowers the water;
+    the water is drawn only where it covers a floor; a flooded body goes to dry floor within a level.
+- **The Echo Cliffs' shaft.** Its walls stand a level higher, and the vultures' nest is at its head. Between Two
+  Walls' three Wall-Step kicks climb to it on the grid.
+- **The peaks.** The Frozen Shrine's ice (`ice` rows, the side view's traction) and the Windswept Ridge's wind
+  (`wind`, its cycle and its edge factor).
+- **Breath Control.** Open water is swum for 30 s at 0.6 of the pace, and the swimmer climbs out onto a bank; out of
+  breath, the body sinks to its safe spot. The swimmer is the walk's own frames, cut at the water's line, with a ring of
+  water (no new body animation).
+- **The shallows.** Wading floors are walked at 0.7 of the pace, full pace on a Water Sphere's frozen ground.
+- **Rooftop chases.** Both thieves are chased and caught over the roofs on the grid.
+- **Mounts' art** is written up in the to-do: a new body movement under AGENTS.md rule 4, and the mounts' sheets.
+  Act I needs no mount.
+- **Art.** Original pixel art in `tools/art/topdown/traverse.py`:
+  - the seal gate, driftwood, planks, the drum, the lotus leaf, the bent culm and the lantern;
+  - a pit, a gap, a hole of water, the icicle shelf, ice, wind and the swimmer's ripple.
+- **Tests and pictures.**
+  - `topdown_traversal` grows by twelve parts (13 to 24), each playing a room's rows on a live view.
+  - The capture set `traversal_t2` writes `docs/architecture/topdown_mechanics/t2/`.
+  - The doc keeps the inventory and the ordered to-do of what is left: the Cloudwing Cranes' sheets, the mounts' art,
+    the Lower Pit's cracked slab, Act II's items and presentation.
+- **Checks.** The full run (merged with R7, E5 and R6): all 32 suites pass, 76,031 checks with 0 failures and no
+  SCRIPT ERROR. Only `topdown_traversal` grows: 236 checks, its twelve new parts 110 of them (T1's set-piece part
+  walks R5's and R6's rooms too). Grid parity holds for 127 layouts and 383 starts.
+
 ## The quest engine: a side quest is one spec (decision 45, E5)
 
 A side quest used to be a `quest(...)` call in `story.py`, with its target room, the realm it opens at and its pay each

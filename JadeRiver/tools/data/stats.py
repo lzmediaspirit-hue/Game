@@ -645,10 +645,16 @@ def build():
             # it reads as the side view's), taken `climb_reach` from the face with the stick held toward it `climb_hold_s`;
             # flight's climb (units a second while Jump is held) up to `fly_ceiling` over the floor, its pace on the plane
             # `fly_speed` times the walk.
+            # T2: `side_scale` (400 / 530) scales a side-view volume's push and traction to the grid; Breath Control swims
+            # open water `swim_s` at `swim_factor` of the pace, hauling out onto a bank up to `swim_out` over the water;
+            # wading floors are walked at `shallow_factor`; ice gives or takes `ice_traction` of speed a second; wind
+            # pushes harder within `wind_edge` of a drop.
             "traverse": {"glide_fall": 90, "glide_drift": 1.1, "updraft_speed": 170, "updraft_ease": 3.0,
                          "double_jump_impulse": 325, "wall_kick_speed": 340, "wall_kicks": 3, "wall_reach": 12,
                          "wall_away": 60, "wall_away_s": 0.2, "bounce_speed": 528, "climb_speed": 80, "climb_reach": 22,
-                         "climb_hold_s": 0.3, "fly_climb": 160, "fly_ceiling": 160, "fly_speed": 1.2}},
+                         "climb_hold_s": 0.3, "fly_climb": 160, "fly_ceiling": 160, "fly_speed": 1.2,
+                         "side_scale": 0.755, "swim_s": 30, "swim_factor": 0.6, "swim_out": 24, "shallow_factor": 0.7,
+                         "ice_traction": 287, "wind_edge": 36}},
         "jump": {"impulse": 530, "gravity": 1150, "substep_s": 1 / 120, "apex": 122, "coyote_s": 0.10, "buffer_s": 0.12},
         "double_jump": {"impulse": 430, "apex_from_ground": 202},
         "wall_step": {"kick_speed": 450, "away": 90, "kicks": 3, "reach": 12, "shaft": [60, 160]},
