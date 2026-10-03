@@ -480,6 +480,19 @@ def _coat(B, c):
             return names, np.where(band & ~belly, np.where(core, -2, -1), 0).astype(np.int16)
         return bands
 
+    if co.kind == "saddle":
+        def saddle(q, n):
+            """M2, the mist wolf: pale blue-grey fur, a darker saddle over its back and the top of its neck, the throat,
+            chest and belly paler; its grain in fine streaks."""
+            loc = (q - hips) @ bm
+            nl = n @ bm
+            pale = ((nl[:, 2] < co.chest[0]) & (loc[:, 0] > co.chest[1])) | (nl[:, 2] < co.belly)
+            back = (nl[:, 2] > co.saddle) & (loc[:, 0] < co.reach) & ~pale
+            streak = ((loc[:, 0] * 1.1 + np.abs(loc[:, 1]) * 0.7) % 1.5 < 0.2) & ~pale
+            names = np.where(pale, m.pale, np.where(back, m.saddle, m.coat)).astype(object)
+            return names, np.where(streak, -1, 0).astype(np.int16)
+        return saddle
+
     if co.kind == "bib":
         seed = int(B.opts.get("seed", 0))
 
@@ -537,6 +550,16 @@ def _crest(P, B, c) -> None:
     a, f, at, bm = c.action, c.f, c.at, c.bm
     angry = B.style(a).get("angry", False)
     cr = B.parts.crest
+    if cr.get("kind") == "hackles":
+        # M2, the mist wolf: a ruff of fur down its nape and over its shoulders, lying flat, raised in anger (its tell).
+        up_ = 1.0 if angry else 0.0
+        for k in range(cr.n):
+            a0 = cr["from"] - k * cr.step
+            for s in ((0,) if k % 2 == 0 else (1, -1)):
+                base = at((a0, s * 0.8, _top_of(B, a0) - 0.35))
+                tip = base + bm @ v3(-1.4 + 0.9 * up_, s * 0.5, 0.5 + cr.length * up_ * (1.0 - 0.06 * k))
+                P.add(L(base, tip, cr.r, 0.15, B.mats.saddle, "hackle", line=False))
+        return
     if cr.get("kind") == "pebbles":
         # M2, the riverstone ox: smooth river pebbles grown into its back (pale and rounded, each its own stone), moss
         # in tufts between them and down its neck in a mane.
@@ -1133,7 +1156,14 @@ def _tail_brush(P, B, c) -> None:
     for k in range(n):
         u0, u1 = k / float(n), (k + 1) / float(n)
         mat = m.tip if u0 >= 1.0 - t.tip - 1e-6 else _skin(B)
-        P.add(L(pts[k], pts[k + 1], _brush_r(t, u0), _brush_r(t, u1), mat, "tail", caps=k == 0))
+        P.add(L(pts[k], pts[k + 1], _brush_r(t, u0), _brush_r(t, u1), mat, "tail", caps=k == 0, line=not t.get("mist") or k < n // 2))
+    if t.get("mist"):
+        # M2, the mist wolf: its tail frays into mist past its root, puffs drifting off it.
+        tip = pts[-1]
+        for k in range(9):
+            u = (k * 0.137 + f * 0.09) % 1.0
+            q = pts[max(1, n - 3)] + (tip - pts[max(1, n - 3)]) * (0.5 + u) + v3(-u * 2.0, 0.6 * math.sin(k * 2.1 + f), 0.4 * u + 0.3 * (k % 2))
+            P.fx.append((q, M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
     if t.get("flame"):
         flare = 1.0 + (0.4 + 0.25 * f if a == "windup" and f in st.get("flare", ()) else 0.0)
         tip = pts[-1]
@@ -1310,5 +1340,9 @@ def _finish(P, B, c) -> None:
     if a == "death" and B.opts.get("hollowed"):
         P.dissolve = B.pick("dissolve", a, f)
         P.dissolve_col = M.MOTE
+    elif a == "death" and B.opts.get("misty"):
+        # M2, the mist wolf: it comes apart into mist as it dies.
+        P.dissolve = B.pick("dissolve", a, f)
+        P.dissolve_col = M.MIST_PUFF
     if c.sa != 1.0 or c.sc != 1.0:
         P.squash(c.sa, 1.0 / math.sqrt(c.sa * c.sc), c.sc, (c.lunge, 0.0, 0.0))

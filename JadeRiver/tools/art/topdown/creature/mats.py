@@ -270,6 +270,23 @@ RAMPS = {
     "ape_face": _s("a2959c", "7a6f78", "544b56", "3a343f"),
     "boulder": _s("d8b27a", "a67c4c", "76583e", "4b3a31"),
     "boulder_moss": _s("b3cf6a", "7ea346", "5a7b37", "3b562b"),
+    # mist wolf: pale blue-grey fur, a darker saddle, dark paws, the mist its tail frays into (and its pale chest)
+    "wolf_fur": _s("f1f6f8", "bccbd6", "8a9db0", "5d6f86"),
+    "wolf_saddle": _s("aebfce", "8597ab", "617388", "44536a"),
+    "wolf_paw": _s("7d8a9c", "566276", "3e4758", "2a3140"),
+    "wolf_mist": _s("f6fafb", "d6e2ea", "aebfcd", "8597ab"),
+    # mirror wisp: mirror-bright shards (the far ones darker), its socket, the sclera, the violet iris and its pupil
+    "mirror_shard": _s("ffffff", "ddd3f6", "a58fd8", "5f4b98"),
+    "mirror_shard_back": _s("c9bdec", "9d88d0", "7560ae", "4a3a7c"),
+    "wisp_socket": _s("8e76cc", "5d489a", "3e2f6e", "281e4a"),
+    "wisp_sclera": _s("ffffff", "f1ecfb", "cfc3ec", "a592d4"),
+    "wisp_iris": _s("d9c6f5", "9b78d1", "6e4fa8", "452f78"),
+    "wisp_pupil": _s("3a2a5c", "1d1238", "140c28", "0a0614"),
+    # weeping lantern: violet-lit paper, a dark red cap, a red tassel, wax
+    "lantern_paper": _s("f1e4ff", "d3bdf0", "a283d2", "6c50a2"),
+    "lantern_cap": _s("8a4a46", "5c2e33", "3f1f27", "29141b"),
+    "lantern_tassel": _s("ff8a78", "d4474b", "9c2f3d", "661f30"),
+    "wax": _s("ffffff", "efe6f7", "cbbde0", "9c8cb8"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -358,6 +375,12 @@ PROPS = {
     "ape_fur": {"hi": True}, "ape_mane": {"hi": True, "weight": 1.2}, "ape_skin": {"hi": True, "weight": 1.3}, "boulder": {"hi": True},
     "ape_face": {"hi": True, "weight": 1.3},
     "boulder_moss": {"hi": True, "weight": 1.2},
+    "wolf_fur": {"hi": True}, "wolf_saddle": {"hi": True}, "wolf_paw": {"hi": True, "weight": 1.2}, "wolf_mist": {"hi": True, "weight": 1.2},
+    "mirror_shard": {"hi": True, "glossy": True, "thin": True, "weight": 1.3}, "mirror_shard_back": {"hi": True, "glossy": True, "thin": True},
+    "wisp_socket": {"hi": True, "weight": 1.3}, "wisp_sclera": {"hi": True, "glossy": True}, "wisp_iris": {"hi": True, "weight": 1.6},
+    "wisp_pupil": {"weight": 1.8},
+    "lantern_paper": {"hi": True}, "lantern_cap": {"hi": True, "weight": 1.3}, "lantern_tassel": {"hi": True, "weight": 1.4},
+    "wax": {"hi": True, "weight": 1.2},
 }
 
 # Single colours laid on as marks and points.
@@ -477,6 +500,16 @@ CLOUD_WISP_DIM = c("9DC0D8", 140)
 OX_EYE = c("FFD45A")
 STEAM = c("DFE8E8", 200)
 STEAM_DIM = c("B2C2C6", 150)
+# M2: the mist wolf's violet soul-glow eye.
+WOLF_EYE = c("8E64D8")
+# M2: the mirror wisp's glint and the cracks across its eye; the weeping lantern's tears and its soul flame.
+WISP_GLINT = c("FFFFFF")
+WISP_CRACK = c("1D1238")
+LANTERN_TEAR = c("8E6BD0")
+LANTERN_INK = c("2A1838")
+SOUL_FLAME_CORE = c("F3E8FF")
+SOUL_FLAME = c("B28CF0")
+SOUL_FLAME_DEEP = c("7D55C8")
 
 
 def palette(*names) -> dict:
