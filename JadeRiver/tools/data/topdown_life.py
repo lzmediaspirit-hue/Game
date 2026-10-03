@@ -368,6 +368,11 @@ VISTAS = {
     "gc_windbridge": [{"edge": "n", "kind": "peaks", "pad": 56}],
     # R7: Ironroot's mountain behind the Hold Gate (the Clan Hearth is a cavern under it).
     "ir_hold_gate": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R7: the Sunscar's far ranges past its north ridges.
+    "sd_glass_dunes": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_scorpion_flats": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_oasis_of_bones": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "sd_worm_sea": [{"edge": "n", "kind": "peaks", "pad": 56}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

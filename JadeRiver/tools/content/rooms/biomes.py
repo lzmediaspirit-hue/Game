@@ -192,6 +192,26 @@ BIOMES = {
                   "water": ["dry_scrub", "cattails", "tall_grass"]},
         "ground": {"sand": ["*"], "earth": ["lowest"]},
     },
+    # The Sunscar Desert: decision 44's sand over everything (laid after the scatter, so it runs under every piece of the
+    # arid kit), the caravan track trodden red earth; dunes and sandstone outcrops, cactus clumps, dry scrub, bleached
+    # bones, a dead tree now and then; palms, reeds and grass only where there is water.
+    "desert": {
+        "base": "g", "stair": "s", "density": 0.22, "cheek": "red_rock",
+        "flora": {"wall": ["red_rock", "dry_scrub", "cactus", "ribcage"],
+                  "ground": ["dry_scrub", "cactus", "red_rock", "dry_scrub", "ribcage", "dead_tree"],
+                  "walk": ["dry_scrub", "red_rock"],
+                  "water": ["palm", "tall_grass", "cattails", "dry_scrub"]},
+        "ground": {"sand": ["*"], "earth": ["walk"]},
+    },
+    # The Tomb of Sunscar: flagstone halls (`p`) inside walls of cut sandstone (a spec's walls of sand, whose faces are
+    # its layered banks), sand drifted in through the cracks (`g` drifts the sand covers after the scatter), bones and
+    # fallen stone in the drifts and nothing green; granite steps.
+    "tomb": {
+        "base": "p", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["ribcage", "red_rock"], "ground": ["ribcage", "red_rock"], "walk": ["red_rock"],
+                  "water": ["red_rock"]},
+        "ground": {"sand": ["*"]},
+    },
     # Ironroot Hold: the clan's mountain of grey rock, the iron-root trees' roots breaking out of it, pines on its
     # ledges, boulders and stumps where the clan cut timber; trampled earth in its yards (a spec's `d`), its cavern's
     # floor by the walls rock rubble (`rubble`). Lamp and forge lit inside.

@@ -1,0 +1,430 @@
+{
+ "schema_version": 1,
+ "id": "sd_oasis_of_bones",
+ "name": "Oasis of Bones",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  11
+ ],
+ "levels": [
+  "33333333333333333333333333333333333333333333333333333333",
+  "33333333333333333333333333333333333333333333333333333333",
+  "33333333300033333333333333333333333333333333333333333333",
+  "00001111100000000333333000003333333333000033333111111100",
+  "00111221111000000000000000000000000000000000011112211110",
+  "01112221111100000000000000000000000000000000111112211111",
+  "01111221111100000000000000000000000000000000111112211111",
+  "01111111111000000000000000000000000000000000011111111111",
+  "00111111110000000000000000000000000000000000001111111110",
+  "00001111000000000000000000000000000000000000000111111000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000~~0000~~000000000000000000000000",
+  "000000000000000000000~~~~~~~~~~~~~~000000000000000000000",
+  "00000000000000000000~~~~~~~~~~~~~~~~00000000000000000000",
+  "0000000000000000000~~~~~~~~~~~~~~~~~~0000000000000000000",
+  "0000111110000000000~~~~~~~~~~~~~~~~~~0000000000011111000",
+  "00011122111100000000~~~~~~~~~~~~~~~~00000000011112211110",
+  "001111221111100000000~~~~~~~~~~~~~~000000000111122211111",
+  "0111112211111000000000~~~~~~~~~~~~0000000000111112211111",
+  "01111111111110000000000~~~~~~~~~000000000000111111111111",
+  "00111111111100000000000000000000000000000000011111111110",
+  "00001111111000000000000000000000000000000000000011111000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "aaaaaaaaaaaaaaaaaaaaggggggggggggggggaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaagggggggggggggggggggggaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaagggggggg~~gggg~~gggggggaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaagggggg~~~~~~~~~~~~~~gggggaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaggggg~~~~~~~~~~~~~~~~gggggaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaagggg~~~~~~~~~~~~~~~~~~ggggaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaagggg~~~~~~~~~~~~~~~~~~gggggaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaggggg~~~~~~~~~~~~~~~~ggggggaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaagggggg~~~~~~~~~~~~~~ggggggaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaggggggg~~~~~~~~~~~~gggggggaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaggggggg~~~~~~~~~ggggggggaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaggggggggggggggggggggggaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaagggggggggggggggaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaagaaaaaaaggaaggaaaaaggaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "yurt",
+   "x": 4,
+   "y": 13
+  },
+  {
+   "kind": "stove",
+   "x": 8,
+   "y": 16
+  },
+  {
+   "kind": "water_jar",
+   "x": 10,
+   "y": 16
+  },
+  {
+   "kind": "ribcage",
+   "x": 6,
+   "y": 5
+  },
+  {
+   "kind": "ribcage",
+   "x": 46,
+   "y": 22
+  },
+  {
+   "kind": "palm",
+   "x": 17,
+   "y": 15
+  },
+  {
+   "kind": "palm",
+   "x": 38,
+   "y": 15
+  },
+  {
+   "kind": "palm",
+   "x": 15,
+   "y": 21
+  },
+  {
+   "kind": "palm",
+   "x": 40,
+   "y": 21
+  },
+  {
+   "kind": "palm",
+   "x": 22,
+   "y": 25
+  },
+  {
+   "kind": "palm",
+   "x": 34,
+   "y": 24
+  },
+  {
+   "kind": "mat",
+   "x": 41,
+   "y": 7
+  },
+  {
+   "kind": "incense",
+   "x": 44,
+   "y": 6
+  },
+  {
+   "kind": "ribcage",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "ribcage",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "red_rock",
+   "x": 26,
+   "y": 3
+  },
+  {
+   "kind": "red_rock",
+   "x": 32,
+   "y": 3
+  },
+  {
+   "kind": "cactus",
+   "x": 42,
+   "y": 4
+  },
+  {
+   "kind": "ribcage",
+   "x": 5,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 11,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 45,
+   "y": 7
+  },
+  {
+   "kind": "ribcage",
+   "x": 53,
+   "y": 6
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 48,
+   "y": 9
+  },
+  {
+   "kind": "dead_tree",
+   "x": 50,
+   "y": 9
+  },
+  {
+   "kind": "ribcage",
+   "x": 8,
+   "y": 5
+  },
+  {
+   "kind": "cactus",
+   "x": 50,
+   "y": 4
+  },
+  {
+   "kind": "red_rock",
+   "x": 8,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 19,
+   "y": 14
+  },
+  {
+   "kind": "red_rock",
+   "x": 40,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 45,
+   "y": 14
+  },
+  {
+   "kind": "bush",
+   "x": 18,
+   "y": 18
+  },
+  {
+   "kind": "palm",
+   "x": 34,
+   "y": 13
+  },
+  {
+   "kind": "bush",
+   "x": 18,
+   "y": 26
+  },
+  {
+   "kind": "palm",
+   "x": 33,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 37,
+   "y": 26
+  },
+  {
+   "kind": "palm",
+   "x": 20,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 29,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 36,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 24
+  },
+  {
+   "kind": "palm",
+   "x": 27,
+   "y": 15
+  },
+  {
+   "kind": "tall_grass",
+   "x": 31,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 34,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 20,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 24,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 29,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 36,
+   "y": 19
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 27,
+   "y": 19
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 31,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 2,
+   "y": 22
+  },
+  {
+   "kind": "red_rock",
+   "x": 11,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 4,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 9,
+   "y": 25
+  },
+  {
+   "kind": "red_rock",
+   "x": 47,
+   "y": 21
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 51,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 44,
+   "y": 24
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 55,
+   "y": 24
+  },
+  {
+   "kind": "cactus",
+   "x": 9,
+   "y": 20
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 50,
+   "y": 22
+  }
+ ],
+ "place": {
+  "npc_oasis_keeper_meng": [
+   10,
+   13
+  ],
+  "lost_oasis_mirage": [
+   16,
+   13
+  ],
+  "shrine_oasis": [
+   26,
+   9
+  ],
+  "spring_oasis": [
+   30,
+   14
+  ],
+  "page_sovereign_settling_pill_4": [
+   39,
+   13
+  ],
+  "npc_bone_reader_xiu": [
+   43,
+   9
+  ],
+  "stone_sunscar": [
+   47,
+   13
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    11
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    11
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    11
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    11
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
+ ]
+}

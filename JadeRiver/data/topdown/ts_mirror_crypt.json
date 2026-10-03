@@ -1,0 +1,346 @@
+{
+ "schema_version": 1,
+ "id": "ts_mirror_crypt",
+ "name": "Mirror Crypt",
+ "size": [
+  56,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444444444",
+  "40022222222222000000000000000000000000000000000000000004",
+  "40022222222222000000000000000000000000000000000000000004",
+  "40022222222222000000000000000000000000000000000000000004",
+  "40022222222222000000000000000000000000000000000000000004",
+  "40022222222222000000000111111111100000000000000000000004",
+  "40000000000000000000000111111111100000000000000000000004",
+  "40000000000000000000000111111111100000000000000000000004",
+  "40000000000000000000000111111111100000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "apppppppppppppppppppppppppppppppppppppppppppppaaaaaaappa",
+  "appppppppppppppppppppppppppppppppppppppppppppaaaaaaaaapa",
+  "apppppppppppppppppppppppppppppppppppppppppppaaaaaaaaaaaa",
+  "apppppppppppppppppppppppppppppppppppppppppppaaaaaaaaaaaa",
+  "appppppppppppppppppppppppppppppppppppppppppppaaaaaaaaapa",
+  "apppppppssspppppppppppppppppppppppppppppppppppaaaaaapppa",
+  "apppppppsssppppppppppppppppppppppppppppppppppppppppppppa",
+  "apppppppsssppppppppppppppppppppppppppppppppppppppppppppa",
+  "apppppppsssppppppppppppppppssspppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppssspppppppppppppppppppppppppa",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppppppppppaaaappppa",
+  "apppaaaapppppppppppppppppppppppppppppppppppppaaaaaaaaapa",
+  "appaaaaaaaapppppppppppppppppppppppppppppppppaaaaaaaaaaaa",
+  "apaaaaaaaaaapppppppppppppppppppppppppppppppaaaaaaaaaaaaa",
+  "apaaaaaaaaaapppppppppppppppppppppppppppppppaaaaaaaaaaaaa",
+  "apaaaaaaaaaappppppppppppppppppppppppppppppppaaaaaaaaaapa",
+  "apaaaaaaaaaappppppppppppppppppppppppppppppppaaaaaaaaappa",
+  "appaaaaaaaappppppppppppppppppppppppppppppppppaaaaaaapppa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 27,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 8,
+   "y": 6,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "sarcophagus",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "bronze_mirror",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "bronze_mirror",
+   "x": 35,
+   "y": 5
+  },
+  {
+   "kind": "bronze_mirror",
+   "x": 19,
+   "y": 15
+  },
+  {
+   "kind": "bronze_mirror",
+   "x": 36,
+   "y": 15
+  },
+  {
+   "kind": "brazier",
+   "x": 23,
+   "y": 4
+  },
+  {
+   "kind": "brazier",
+   "x": 32,
+   "y": 4
+  },
+  {
+   "kind": "brazier",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "brazier",
+   "x": 53,
+   "y": 9
+  },
+  {
+   "kind": "king_statue",
+   "x": 41,
+   "y": 1
+  },
+  {
+   "kind": "king_statue",
+   "x": 16,
+   "y": 1
+  },
+  {
+   "kind": "spike_plate",
+   "x": 8,
+   "y": 12
+  },
+  {
+   "kind": "spike_plate",
+   "x": 15,
+   "y": 13
+  },
+  {
+   "kind": "spike_plate",
+   "x": 41,
+   "y": 12
+  },
+  {
+   "kind": "spike_plate",
+   "x": 48,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 50,
+   "y": 1
+  },
+  {
+   "kind": "red_rock",
+   "x": 47,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 51,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 48,
+   "y": 20
+  },
+  {
+   "kind": "ribcage",
+   "x": 46,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 50,
+   "y": 23
+  },
+  {
+   "kind": "ribcage",
+   "x": 3,
+   "y": 19
+  },
+  {
+   "kind": "ribcage",
+   "x": 9,
+   "y": 18
+  },
+  {
+   "kind": "red_rock",
+   "x": 6,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 9,
+   "y": 22
+  }
+ ],
+ "place": {
+  "page_sovereign_settling_pill_1": [
+   12,
+   14
+  ],
+  "jar_1": [
+   6,
+   4
+  ],
+  "chest_ledge_mv_1": [
+   11,
+   5
+  ],
+  "lost_crypt_seal": [
+   23,
+   6
+  ],
+  "journal_tomb": [
+   28,
+   12
+  ],
+  "crate_2": [
+   29,
+   15
+  ],
+  "lost_throne_dust_veil": [
+   33,
+   5
+  ],
+  "jar_3": [
+   46,
+   10
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    12
+   ],
+   "span": 2
+  },
+  "east": {
+   "at": [
+    55,
+    12
+   ],
+   "dir": "e",
+   "arrive": [
+    53.5,
+    12
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    12,
+    10
+   ],
+   [
+    27,
+    16
+   ],
+   [
+    44,
+    15
+   ]
+  ]
+ ]
+}

@@ -11,7 +11,7 @@ ZONES += ["drowned_shrine", "whitewater_gorge"]
 # R4: the peaks.
 ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"]
 # R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar.
-ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold"]
+ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb_of_sunscar"]
 
 
 def all_specs():

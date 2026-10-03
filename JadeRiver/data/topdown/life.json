@@ -2361,6 +2361,42 @@
     }
    ]
   },
+  "sd_glass_dunes": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_oasis_of_bones": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_scorpion_flats": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_worm_sea": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "sf_artisan_row": {
    "animals": [
     [

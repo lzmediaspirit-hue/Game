@@ -1142,10 +1142,23 @@ class Build:
         for paint, rects in (ground if ground is not None else self.biome.get("ground", {})).items():
             rr = []
             for r in rects:
+                if isinstance(r, str) and r.startswith("-"):
+                    continue
                 if isinstance(r, str):
                     rr += self._ground_rects(r)
                 else:
                     rr.append(r)
+            minus = [r[1:] for r in rects if isinstance(r, str) and r.startswith("-")]
+            if minus:
+                # R7: "-name" keeps a band's or a feature's own cells out of the paint (the oasis's green ring out of
+                # the desert's sand), cell by cell.
+                keep = set()
+                for name in minus:
+                    if name not in self.regions:
+                        raise SpecError("%s: ground names no band or feature %r" % (self.id, name))
+                    keep.update(self.regions[name].cells())
+                rr = [(x, y, 1, 1) for x0, y0, w, h in rr for y in range(y0, y0 + h) for x in range(x0, x0 + w)
+                      if (x, y) not in keep]
             if paint == "sand":
                 self.lay.sand(*rr)
             elif paint == "snow":

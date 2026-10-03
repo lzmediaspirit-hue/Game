@@ -240,6 +240,39 @@ def ribcage(s: Img) -> None:
     s.outline()
 
 
+def yurt(s: Img) -> None:
+    """The oasis keeper's yurt, footprint 3 x 2: a round tent of white felt over a lattice, its domed roof belted with
+    rope and its crown ring open to the sky, a red door hung on its south side, its skirt dusty from the sand. 48 x 44;
+    corner (0, 42)."""
+    felt = [c("6E6458"), c("9A8E7C"), c("C2B6A0"), c("DCD2BC"), c("F0E8D6"), c("FBF6EA")]
+    s.ellipse(24, 38, 22, 5, felt[1])                          # the skirt's footing
+    for j in range(20, 39):                                     # the wall: a drum of felt, lit west, shaded east
+        for i in range(3, 45):
+            dx = (i - 24) / 21.0
+            k = 3 if dx < 0.4 else 2
+            if dx < -0.75:
+                k = 4
+            elif dx > 0.8:
+                k = 1
+            if j > 35:
+                k = max(0, k - 1)                               # sand-dusted at its foot
+            s.put(i, j, felt[k])
+    for i in range(3, 45, 4):                                   # the lattice showing through the felt
+        s.vline(i, 22, 13, felt[2] if i < 30 else felt[1])
+    s.ellipse(24, 19, 22, 11, felt[3], (felt[5], felt[1]))      # the domed roof
+    s.ellipse(24, 17, 15, 7, felt[4])
+    for j in range(9, 30):                                      # the rope belts over it
+        for x0 in (12, 36):
+            s.put(x0 + (j - 19) * (1 if x0 < 24 else -1) // 6, j, c("8A6A3E"))
+    s.ellipse(24, 12, 4, 2.2, c("4A3424"), (c("8A6A3E"), c("2A1C14")))   # the crown ring
+    s.rect(20, 26, 8, 12, RED[2])                               # the door hanging
+    s.vline(20, 26, 12, RED[4])
+    s.hline(20, 26, 8, GOLDR[2])
+    for j in range(28, 38, 3):
+        s.hline(21, j, 6, RED[1])
+    s.outline()
+
+
 # ============================================================================================================ the hold
 def anvil(s: Img) -> None:
     """A smith's anvil on an oak stump, footprint 1 x 1: the iron face lit along its north edge, the horn to the west,
@@ -472,6 +505,7 @@ PROPS = {
     "cactus": (cactus, 24, 38, 1, 1, [4, 36], True, [10, -2, 8, 3]),
     "dry_scrub": (dry_scrub, 20, 16, 1, 1, [2, 14], False, None),
     "ribcage": (ribcage, 32, 26, 2, 1, [0, 24], True, [18, -2, 15, 3]),
+    "yurt": (yurt, 48, 44, 3, 2, [0, 42], True, [26, -2, 22, 4]),
     "anvil": (anvil, 16, 22, 1, 1, [0, 20], True, [10, -2, 7, 3]),
     "brazier": (brazier, 16, 28, 1, 1, [0, 26], True, [10, -2, 7, 3]),
     "roots": (roots, 32, 24, 2, 1, [0, 22], True, [18, -2, 15, 3]),

@@ -1,0 +1,439 @@
+{
+ "schema_version": 1,
+ "id": "sd_scorpion_flats",
+ "name": "Scorpion Flats",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  15
+ ],
+ "levels": [
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333300000000003333333333333333333333333333333000000033333333333300000000",
+  "000111000000000000000000002222002233333333300000000000333333300000000000",
+  "001111110000000000000000222222222222200000000000000000000000000011111000",
+  "011111111000000000000002222222222222220000000000000000000000011122221100",
+  "011111111000000000000022222222222222220000000000000000000000111222222110",
+  "001111110000000000000022222222222222220000000000000000000000111222222111",
+  "000111100000000000000022222222222222220000000000000000000000111122221111",
+  "000000000000000000000002222222222222200000000000000000000000011111111110",
+  "000000000000000000000000222222222222000000000000000000000000001111111100",
+  "000000000000000000000000002222220000000000000000000000000000000111110000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000011111100000000000000000000000000001111111111110000000000000000",
+  "000000111122221111000000000000000000000000011111222211111000000000000000",
+  "000001111122221111100000000000000000000001111112222221111100000000000000",
+  "000001111122221111100000000000000000000011111111222211111110000000000000",
+  "000001111111111111100000000000000000000011111111111111111100000000000000",
+  "000000111111111111000000000000000000000001111111111111111000000000000000",
+  "000000001111111100000000000000000000000000001111111111000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaasssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaasssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddsssdddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddsssdddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 29,
+   "y": 12,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 3,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "ribcage",
+   "x": 48,
+   "y": 8
+  },
+  {
+   "kind": "ribcage",
+   "x": 14,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 28,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 28,
+   "y": 13
+  },
+  {
+   "kind": "red_rock",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "red_rock",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 6,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 2,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 6,
+   "y": 10
+  },
+  {
+   "kind": "cactus",
+   "x": 3,
+   "y": 4
+  },
+  {
+   "kind": "cactus",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "cactus",
+   "x": 26,
+   "y": 3
+  },
+  {
+   "kind": "cactus",
+   "x": 39,
+   "y": 3
+  },
+  {
+   "kind": "red_rock",
+   "x": 60,
+   "y": 4
+  },
+  {
+   "kind": "cactus",
+   "x": 63,
+   "y": 4
+  },
+  {
+   "kind": "ribcage",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 7,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 24,
+   "y": 6
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "cactus",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "ribcage",
+   "x": 35,
+   "y": 11
+  },
+  {
+   "kind": "dead_tree",
+   "x": 62,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 68,
+   "y": 9
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 60,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 65,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 65,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 65,
+   "y": 8
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 5,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 22,
+   "y": 13
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 49,
+   "y": 18
+  },
+  {
+   "kind": "red_rock",
+   "x": 63,
+   "y": 13
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 5,
+   "y": 20
+  },
+  {
+   "kind": "red_rock",
+   "x": 13,
+   "y": 23
+  },
+  {
+   "kind": "ribcage",
+   "x": 19,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 7,
+   "y": 25
+  },
+  {
+   "kind": "red_rock",
+   "x": 10,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "cactus",
+   "x": 41,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 47,
+   "y": 22
+  },
+  {
+   "kind": "cactus",
+   "x": 46,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 55,
+   "y": 25
+  },
+  {
+   "kind": "ribcage",
+   "x": 8,
+   "y": 22
+  },
+  {
+   "kind": "cactus",
+   "x": 52,
+   "y": 21
+  }
+ ],
+ "place": {
+  "jar_5": [
+   4,
+   7
+  ],
+  "earth_vent_sd": [
+   13,
+   17
+  ],
+  "herb_1": [
+   26,
+   11
+  ],
+  "jar_4": [
+   29,
+   5
+  ],
+  "chest_8": [
+   33,
+   10
+  ],
+  "swarm_ember_locust": [
+   32,
+   17
+  ],
+  "ore_2": [
+   41,
+   4
+  ],
+  "shrine_sd_flats": [
+   45,
+   13
+  ],
+  "jar_6": [
+   46,
+   17
+  ],
+  "trail_sand_fox": [
+   52,
+   17
+  ],
+  "ore_3": [
+   58,
+   4
+  ],
+  "jar_7": [
+   62,
+   17
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    15
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    15
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    15
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    15
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    11
+   ],
+   [
+    18,
+    19
+   ],
+   [
+    26,
+    19
+   ],
+   [
+    27,
+    13
+   ],
+   [
+    54,
+    17
+   ],
+   [
+    53,
+    13
+   ],
+   [
+    63,
+    11
+   ]
+  ],
+  [
+   [
+    48,
+    18
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
+ ]
+}
