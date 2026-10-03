@@ -1,0 +1,208 @@
+{
+ "schema_version": 1,
+ "id": "cm_cave_abode",
+ "name": "Cave Abode",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  19,
+  21
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444400000004400440004444444444444",
+  "4444444444000000000000000000004444444444",
+  "444444400000000000000000000~~~0044444444",
+  "44444440000000000000000000~~~~~004444444",
+  "44444400000000000000000000~~~~~000444444",
+  "444440000000000000000000000~~~0000044444",
+  "4444000000000000000000000000000000044444",
+  "4444000000000000000000000000000000004444",
+  "4444000000000000000000000000000000004444",
+  "4444000000000000000000000000000000004444",
+  "4444000000000000000000000000000000004444",
+  "4444000000000000000000000000000000004444",
+  "4444400000000000000000000000000000044444",
+  "4444440000000000000000000000000000444444",
+  "4444444000000000000000000000000044444444",
+  "4444444400000000000000000000000444444444",
+  "4444444444000000000000000000444444444444",
+  "4444444444444400400000444444444444444444",
+  "4444444444444444400004444444444444444444",
+  "4444444444444444400004444444444444444444",
+  "4444444444444444400004444444444444444444",
+  "4444444444444444400004444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrdddddrrrrrrrrdrrrrrrrrrrrrrr",
+  "rrrrrrrsssssssssssddddddddd~~~rrrrrrrrrr",
+  "rrrrrrrsssssssssssdddddddd~~~~~rrrrrrrrr",
+  "rrrrrrrsssssssssssdddddddd~~~~~drrrrrrrr",
+  "rrrrrrrsssssssssssddddddddd~~~dddrrrrrrr",
+  "rrrrrrdsssssssssssddddddddddddddddrrrrrr",
+  "rrrrrddsssssssssssddddddddddddddddrrrrrr",
+  "rrrrrddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrrdddddddddddddddddgggggggggddrrrrrr",
+  "rrrrrrrddddddddddddddddgggggggggdrrrrrrr",
+  "rrrrrrrrdddddddddddddddgggggggggrrrrrrrr",
+  "rrrrrrrrrddddddddddddddgggggggggrrrrrrrr",
+  "rrrrrrrrrrrddddddddddddddddrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "screen",
+   "x": 16,
+   "y": 4
+  },
+  {
+   "kind": "incense",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "lantern",
+   "x": 7,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 16,
+   "y": 19
+  },
+  {
+   "kind": "lantern",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "water_jar",
+   "x": 34,
+   "y": 7
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 31,
+   "y": 15
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 7,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 31,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 3
+  },
+  {
+   "kind": "cattails",
+   "x": 27,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 31,
+   "y": 13
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 16
+  }
+ ],
+ "place": {
+  "spring_cm_cave_abode": [
+   24,
+   6
+  ],
+  "bath_cm_cave_abode": [
+   33,
+   9
+  ],
+  "plot_cm_cave_abode": [
+   11,
+   14
+  ],
+  "mat_cm_cave_abode": [
+   12,
+   7
+  ],
+  "bed_cm_cave_abode": [
+   8,
+   5
+  ],
+  "bed_0_cm_cave_abode": [
+   25,
+   14
+  ],
+  "bed_1_cm_cave_abode": [
+   29,
+   14
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    19,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    19,
+    21
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}

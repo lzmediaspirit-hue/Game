@@ -1,0 +1,202 @@
+{
+ "schema_version": 1,
+ "id": "ja_library",
+ "name": "Library",
+ "size": [
+  28,
+  16
+ ],
+ "spawn": [
+  15,
+  14
+ ],
+ "levels": [
+  "5555555555555555555555555555",
+  "5444444444000000000000000005",
+  "5444444444000000000000000005",
+  "5444444444000000000000000005",
+  "5222222222000000000000000005",
+  "5222222222000000000000000005",
+  "5222222222000000000000000005",
+  "5222222222000000000000000005",
+  "5222222222000000000000000005",
+  "5222222222000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "1111111111111100111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "llllllllllllllwwllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 7,
+   "y": 4,
+   "w": 2,
+   "h": 4,
+   "from": 2,
+   "to": 4
+  },
+  {
+   "x": 7,
+   "y": 10,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 5,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 4
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 3,
+   "y": 4
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 11,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 13,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 15,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 13,
+   "y": 7
+  },
+  {
+   "kind": "desk",
+   "x": 12,
+   "y": 11
+  },
+  {
+   "kind": "desk",
+   "x": 16,
+   "y": 11
+  },
+  {
+   "kind": "screen",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "incense",
+   "x": 19,
+   "y": 3
+  },
+  {
+   "kind": "incense",
+   "x": 25,
+   "y": 3
+  },
+  {
+   "kind": "banner_jade",
+   "x": 18,
+   "y": 1
+  },
+  {
+   "kind": "banner_jade",
+   "x": 26,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 13
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 19,
+   "y": 8
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 26,
+   "y": 8
+  }
+ ],
+ "place": {
+  "floor_3_shelves": [
+   4,
+   2
+  ],
+  "floor_2_shelves": [
+   4,
+   5
+  ],
+  "npc_jade_librarian": [
+   14,
+   6
+  ],
+  "ancestral_altar": [
+   22,
+   3
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    14.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    14.5,
+    13.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

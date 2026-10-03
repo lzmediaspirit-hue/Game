@@ -1,0 +1,165 @@
+{
+ "schema_version": 1,
+ "id": "sf_county_hall",
+ "name": "County Hall",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  12,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000001111111100000004",
+  "400000001111111100000004",
+  "400000001111111100000004",
+  "400000001111111100000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111111111110011111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lllllllllllwwlllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 11,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "screen",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 14,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 11,
+   "y": 3
+  },
+  {
+   "kind": "lantern_red",
+   "x": 8,
+   "y": 4
+  },
+  {
+   "kind": "lantern_red",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "incense",
+   "x": 1,
+   "y": 3
+  },
+  {
+   "kind": "incense",
+   "x": 6,
+   "y": 3
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 17,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 19,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 19,
+   "y": 5
+  },
+  {
+   "kind": "lantern_red",
+   "x": 9,
+   "y": 11
+  },
+  {
+   "kind": "lantern_red",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 1,
+   "y": 8
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 22,
+   "y": 8
+  }
+ ],
+ "place": {
+  "npc_magistrate_qian": [
+   11.5,
+   2
+  ],
+  "county_board": [
+   6,
+   9
+  ],
+  "relief_box": [
+   17,
+   9
+  ],
+  "ancestral_altar": [
+   3,
+   3
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    11.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    11.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

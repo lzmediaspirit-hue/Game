@@ -1,0 +1,250 @@
+{
+ "schema_version": 1,
+ "id": "ja_cave_abode",
+ "name": "Cave Abode",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444400444400444444444444444444",
+  "4444444444440000000000000000004444444444",
+  "4444444400000000000000000000000044444444",
+  "4444444000000000000000000000000000444444",
+  "4444440000000000000000000000000000044444",
+  "4444400000000000000000000000000000004444",
+  "4444000000000000000000000000000000000444",
+  "4440000000000000000000000000000000000444",
+  "4440000000000000000000000000000000000444",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "4400000000000000000000000000000000000444",
+  "444000000~~~~000000000000000000000004444",
+  "44440000~~~~~~00000000000000000000004444",
+  "44444000~~~~~~00000000000000000000004444",
+  "444444400~~~~000000000000000000000004444",
+  "4444444400000000000000000000004444444444",
+  "4444444444000000000000000000444444444444",
+  "4444444444444444440000000004444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrddddddddsssssssssssrrrrrrrr",
+  "rrrrrrrrrddddddddddddsssssssssssrrrrrrrr",
+  "rrrrrrrrdddddddddddddsssssssssssdrrrrrrr",
+  "rrrrrrrddddddddddddddsssssssssssddrrrrrr",
+  "rrrrrrdddddddddddddddsssssssssssdddrrrrr",
+  "rrrrrddddddddddddddddsssssssssssddddrrrr",
+  "rrrrddddddddddddddddddddddddddddddddrrrr",
+  "dddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddd",
+  "rrrrdddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrdddd~~~~ddddddddddddddgggggggggrrrr",
+  "rrrrrrdd~~~~~~dddddddddddddgggggggggrrrr",
+  "rrrrrrrr~~~~~~dddddddddddddgggggggggrrrr",
+  "rrrrrrrrr~~~~ddddddddddddddgggggggggrrrr",
+  "rrrrrrrrrrrddddddddddddddddrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrdddddddrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "screen",
+   "x": 23,
+   "y": 4
+  },
+  {
+   "kind": "incense",
+   "x": 26,
+   "y": 5
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 31,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 6,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 6,
+   "y": 14
+  },
+  {
+   "kind": "lantern",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 37,
+   "y": 14
+  },
+  {
+   "kind": "water_jar",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 35,
+   "y": 17
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 32,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 2
+  },
+  {
+   "kind": "ferns",
+   "x": 24,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 31,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 15,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 11,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 8,
+   "y": 18
+  },
+  {
+   "kind": "cattails",
+   "x": 8,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 27,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 34,
+   "y": 18
+  }
+ ],
+ "place": {
+  "spring_ja_cave_abode": [
+   16,
+   16
+  ],
+  "bath_ja_cave_abode": [
+   20,
+   17
+  ],
+  "plot_ja_cave_abode": [
+   11,
+   7
+  ],
+  "mat_ja_cave_abode": [
+   26,
+   7
+  ],
+  "bed_ja_cave_abode": [
+   30,
+   5
+  ],
+  "bed_0_ja_cave_abode": [
+   29,
+   16
+  ],
+  "bed_1_ja_cave_abode": [
+   33,
+   16
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    12
+   ],
+   "span": 3
+  },
+  "terrace": {
+   "at": [
+    39,
+    12
+   ],
+   "dir": "e",
+   "arrive": [
+    37,
+    12
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}

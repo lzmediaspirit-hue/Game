@@ -1,0 +1,239 @@
+{
+ "schema_version": 1,
+ "id": "sq_collapsed_tunnel",
+ "name": "Collapsed Tunnel",
+ "size": [
+  40,
+  24
+ ],
+ "spawn": [
+  7,
+  21
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444440000000000000044444444444444",
+  "4444444444000002222222222220044444444444",
+  "4444444400000002222222222220000044444444",
+  "4444444000000002222222222220000000044444",
+  "4444400000000002222222222220000000004444",
+  "4444000000000000000000000000000000004444",
+  "4440000000000000000000000000000000000444",
+  "4440000000000000000000000000000000000444",
+  "4440000000000000000000000000000000000044",
+  "4444000000000000000000000000000000000044",
+  "4444000000000000000000000000000000000044",
+  "4444000000000000000000000000020000044444",
+  "4444400000000000000000000000220004444444",
+  "4444400000000000000000000000020044444444",
+  "4444400000000000000000000000444444444444",
+  "4444400004444444004400004444444444444444",
+  "4444400004444444444444444444444444444444",
+  "4444400004444444444444444444444444444444",
+  "4444400004444444444444444444444444444444",
+  "4444400004444444444444444444444444444444",
+  "4444400004444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrdddddrrrrrrrrrrrrrrdddrrrrrrrrr",
+  "rrrrrrrrddddddrrrrrrrrrrrrrrddddddrrrrrr",
+  "rrrrrrddddddddrrrrrrrsssrrrrdddddddrrrrr",
+  "rrrrrddddddddddddddddsssdddddddddddrrrrr",
+  "rrrrdddddddddddddddddsssddddddddddddrrrr",
+  "rrrrdddddddddddddddddsssddddddddddddddrr",
+  "rrrrddddddddddddddddddddddddddddddddddrr",
+  "rrrrddddddddddddddddddddddddddddddddddrr",
+  "rrrrrddddddddddddddddddddddrrrrdrrrrrrrr",
+  "rrrrrddddddddddddddddddddddrrrrrrrrrrrrr",
+  "rrrrrddddddddddddddddddddddrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrddrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 21,
+   "y": 8,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 4,
+   "y": 10
+  },
+  {
+   "kind": "lantern",
+   "x": 9,
+   "y": 14
+  },
+  {
+   "kind": "crates",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "barrel",
+   "x": 32,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 13
+  },
+  {
+   "kind": "ferns",
+   "x": 14,
+   "y": 5
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 4,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 14,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 30,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 16,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 4,
+   "y": 14
+  },
+  {
+   "kind": "ferns",
+   "x": 35,
+   "y": 15
+  }
+ ],
+ "place": {
+  "chest_7": [
+   18,
+   6
+  ],
+  "crate_4": [
+   22,
+   4
+  ],
+  "jar_3": [
+   25,
+   5
+  ],
+  "ore_1": [
+   12,
+   3
+  ],
+  "ore_2": [
+   31,
+   5
+  ],
+  "jar_5": [
+   25,
+   14
+  ],
+  "crate_6": [
+   32,
+   15
+  ],
+  "journal_tunnel": [
+   34,
+   10
+  ],
+  "cracked_wall": [
+   37,
+   12
+  ],
+  "ore_wall_seam": [
+   37,
+   12
+  ],
+  "lost_quarry_marks": [
+   19,
+   14
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    6.5,
+    23
+   ],
+   "dir": "s",
+   "arrive": [
+    6.5,
+    21
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    12,
+    14
+   ],
+   [
+    18,
+    9
+   ],
+   [
+    27,
+    15
+   ]
+  ],
+  [
+   [
+    26,
+    9
+   ]
+  ]
+ ]
+}

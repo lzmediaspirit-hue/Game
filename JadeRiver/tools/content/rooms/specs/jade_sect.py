@@ -271,3 +271,83 @@ JA_WEAPON_HALL = weapon_hall("ja_weapon_hall", "banner_jade", "npc_jade_weapon_m
 
 
 ROOMS = [JA_GATE_STREET, JA_WEAPON_HALL, JA_PAVILION_ROOFTOPS, JA_EAST_TERRACE, JA_HERB_TERRACES, JA_ELDER_HU_PEAK]
+
+
+# ==================================================================================================================== R3
+# The sect's insides (E1's batch R3): the Alchemy Hall and the Library off Gate Street, the Retreat Rooms off the East
+# Terrace (and down from the Heaven Pavilion's roof), the Cave Abode between the terrace and Elder Hu's peak.
+
+# The Alchemy Hall: a granite hall round the sect's bronze furnace on its dais (two lanterns at its back corners, the
+# sect's banners behind it), Mei Qing at her drawers of herbs, the recipe shelf up on the loft in the west.
+JA_ALCHEMY_HALL = room(
+    "ja_alchemy_hall", size=(26, 16), base="s", walls=dict(high=4),
+    features=[("loft", (1, 1, 7, 4), dict(level=2, paint="w")),            # the recipe loft
+              ("dais", (10, 4, 6, 4), dict(level=1, paint="p"))],          # the furnace's dais
+    stairs=[(5, 5, 2, 4, 0, 2, "w"), (12, 8, 2, 2, 0, 1, "s")],
+    ways={"exit": ("s", 12.5)},
+    spawn="exit",
+    anchors={"furnace_ja": (12.5, 5), "recipe_shelf": (3, 2), "npc_mei_qing_sect": (19, 7)},
+    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 4, 1), ("banner_jade", 10, 1), ("banner_jade", 15, 1),
+           ("apothecary", 17, 1), ("apothecary", 19, 1), ("cabinet", 22, 1), ("lantern", 10, 4), ("lantern", 15, 4),
+           ("drying_rack", 22, 5), ("mortar", 21, 8), ("herb_baskets", 24, 8), ("water_jar", 24, 3), ("sacks", 1, 9),
+           ("sacks", 1, 10), ("desk", 4, 11), ("lantern", 1, 13), ("lantern", 24, 13), ("pot_bonsai", 8, 1),
+           ("pot_orchid", 24, 11)])
+
+
+# The Library: shelves of the sect's manuals up two galleries in the west (the middle grade on the first, the deeper
+# arts on the second, under the roof), the librarian at her desk below them, reading desks, and the ancestral altar
+# before a painted screen in the east.
+JA_LIBRARY = room(
+    "ja_library", size=(28, 16), base="w", walls=dict(high=5),
+    features=[("gallery", (1, 1, 9, 9), dict(level=2, paint="w")),          # the first gallery
+              ("upper_gallery", (1, 1, 9, 3), dict(level=4, paint="w"))],  # the second, under the roof
+    stairs=[(7, 4, 2, 4, 2, 4, "w"), (7, 10, 2, 4, 0, 2, "w")],
+    ways={"exit": ("s", 14.5)},
+    spawn="exit",
+    anchors={"floor_3_shelves": (4, 2), "floor_2_shelves": (4, 5), "npc_jade_librarian": (14, 6),
+             "ancestral_altar": (22, 3)},
+    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 5, 1), ("scroll_shelf", 1, 4), ("scroll_shelf", 3, 4),
+           ("scroll_shelf", 11, 1), ("scroll_shelf", 13, 1), ("scroll_shelf", 15, 1), ("desk", 13, 7),
+           ("desk", 12, 11), ("desk", 16, 11), ("screen", 21, 1), ("incense", 19, 3), ("incense", 25, 3),
+           ("banner_jade", 18, 1), ("banner_jade", 26, 1), ("lantern", 10, 1), ("lantern", 1, 13), ("lantern", 26, 13),
+           ("pot_bonsai", 19, 8), ("pot_orchid", 26, 8)])
+
+# The Retreat Rooms: a hushed hall of grey stone, the meditation dais in the middle (the seclusion mat between two
+# cushions, painted screens at its back corners), the cedar bath in an alcove of screens in the west, a tea corner in
+# the east by the door up to the Heaven Pavilion's roof.
+JA_RETREAT = room(
+    "ja_retreat", size=(28, 14), base="s", walls=dict(high=4),
+    features=[("dais", (9, 1, 10, 6), dict(level=1, paint="w")),           # the meditation dais
+              ("bath_floor", (1, 1, 7, 5), dict(level=0, paint="w"))],     # the bath's boards
+    stairs=[(13, 7, 2, 2, 0, 1, "w")],
+    ways={"exit": ("s", 8.5), "roof": ("e", 7.5)},
+    spawn="exit",
+    anchors={"mat_ja_retreat": (13.5, 4), "bath_ja_retreat": (4, 3)},
+    props=[("screen", 9, 1), ("screen", 17, 1), ("banner_jade", 11, 1), ("banner_jade", 16, 1), ("incense", 13, 1),
+           ("mat", 10, 4), ("mat", 16, 4), ("lantern", 9, 6), ("lantern", 18, 6), ("stove", 1, 1), ("water_jar", 6, 1),
+           ("screen", 1, 6), ("screen", 5, 6), ("cabinet", 21, 1), ("scroll_shelf", 23, 1), ("tea_table", 22, 10),
+           ("mat", 22, 11), ("lantern", 1, 12), ("lantern", 26, 12), ("pot_bonsai", 26, 1), ("pot_orchid", 20, 6)])
+
+
+# The Cave Abode: a cavern in the mountain between the East Terrace and Elder Hu's peak, the passage through it from
+# one door to the other; the Qi spring by a seep pool, the cedar bath beside it, the treasure plot; the dressed floor
+# of the living cave (the seclusion mat on it, the stone bed in its alcove, shelves, a screen); garden beds of dark
+# earth in the east.
+JA_CAVE_ABODE = room(
+    "ja_cave_abode", size=(40, 24), biome="cave", level=4,
+    features=[("cavern", (2, 2, 36, 20), dict(level=0, paint="d", shape="round")),
+              ("passage", (0, 11, 40, 3), dict(level=0, paint="d", walk=True)),
+              ("hall_floor", (21, 4, 11, 6), dict(level=0, paint="s")),        # the living cave's dressed floor
+              ("garden", (27, 15, 9, 4), dict(level=0, paint="g")),            # the abode's garden earth
+              ("seep", (8, 15, 6, 4), dict(water=True, shape="round"))],
+    ways={"exit": ("w", 12), "terrace": ("e", 12)},
+    spawn="exit",
+    anchors={"spring_ja_cave_abode": (16, 16), "bath_ja_cave_abode": (20, 17), "plot_ja_cave_abode": (11, 7),
+             "mat_ja_cave_abode": (26, 7), "bed_ja_cave_abode": (30, 5), "bed_0_ja_cave_abode": (29, 16),
+             "bed_1_ja_cave_abode": (33, 16)},
+    props=[("scroll_shelf", 21, 4), ("screen", 23, 4), ("incense", 26, 5), ("lantern", 21, 9), ("lantern", 31, 9),
+           ("lantern", 6, 10), ("lantern", 6, 14), ("lantern", 37, 10), ("lantern", 37, 14), ("water_jar", 23, 17),
+           ("herb_baskets", 35, 17), ("pot_orchid", 32, 4)],
+    flora={"density": 0.18})
+
+ROOMS += [JA_ALCHEMY_HALL, JA_LIBRARY, JA_RETREAT, JA_CAVE_ABODE]   # R3

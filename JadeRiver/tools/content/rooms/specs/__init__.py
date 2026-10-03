@@ -3,6 +3,7 @@
 import importlib
 
 ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend"]
+ZONES += ["stonewall_quarry"]   # R3
 
 
 def all_specs():

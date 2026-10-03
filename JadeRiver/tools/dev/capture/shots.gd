@@ -25,7 +25,17 @@ const E1_VIEWS := [
 	["01_caravan_road_turnoff", "cr_caravan_road", Vector2(56, 13), true], ["02_caravan_road_west", "cr_caravan_road", Vector2(16, 14), false],
 	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
 	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
-	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true]]
+	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true],
+	# R3: the sects' insides, Stoneford's hall, tower and grove, the quarry (pictures under r3/)
+	["r3/09_alchemy_hall", "ja_alchemy_hall", Vector2(12.5, 11), true], ["r3/10_library", "ja_library", Vector2(14, 9), true],
+	["r3/11_retreat", "ja_retreat", Vector2(13, 9), true], ["r3/12_cave_abode", "ja_cave_abode", Vector2(20, 12), true],
+	["r3/13_cloud_library", "cm_cloud_library", Vector2(13, 9), true], ["r3/14_cloud_retreat", "cm_retreat", Vector2(14, 9), true],
+	["r3/15_cloud_herb_terraces", "cm_herb_terraces", Vector2(20, 18), true], ["r3/16_cloud_terraces_pond", "cm_herb_terraces", Vector2(44, 9), false],
+	["r3/17_cloud_cave_abode", "cm_cave_abode", Vector2(19, 12), true], ["r3/18_county_hall", "sf_county_hall", Vector2(11.5, 9), true],
+	["r3/19_trial_tower", "sf_trial_tower", Vector2(20, 14), true], ["r3/20_beast_grove", "sf_beast_grove", Vector2(20, 16), true],
+	["r3/21_quarry_rim", "sq_quarry_rim", Vector2(14, 18), true], ["r3/22_quarry_scaffold", "sq_quarry_rim", Vector2(34, 12), false],
+	["r3/23_lower_pit", "sq_lower_pit", Vector2(26, 18), true], ["r3/24_pit_tunnel_mouth", "sq_lower_pit", Vector2(50, 14), false],
+	["r3/25_collapsed_tunnel", "sq_collapsed_tunnel", Vector2(20, 12), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -579,8 +589,10 @@ static func sets() -> Dictionary:
 	# under the HUD at a spot that shows it, the world alone x2 there, and each room whole once.
 	var e1_rows := []
 	for v in E1_VIEWS:
-		var take := [["shot"], ["world", "world/" + str(v[0])]]
-		if v[3]: take.append(["whole_room", "rooms/" + str(v[1])])
+		# A picture in a folder of its own (a batch's, "r3/...") keeps its x2 copy and its room whole in that folder too.
+		var dir := str(v[0]).get_base_dir() + "/" if str(v[0]).contains("/") else ""
+		var take := [["shot"], ["world", dir + "world/" + str(v[0]).get_file()]]
+		if v[3]: take.append(["whole_room", dir + "rooms/" + str(v[1])])
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360]], "rows": e1_rows}

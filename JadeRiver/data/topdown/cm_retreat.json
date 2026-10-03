@@ -1,0 +1,187 @@
+{
+ "schema_version": 1,
+ "id": "cm_retreat",
+ "name": "Retreat Rooms",
+ "size": [
+  28,
+  14
+ ],
+ "spawn": [
+  6,
+  12
+ ],
+ "levels": [
+  "4444444444444444444444444444",
+  "4000000001111111111000000004",
+  "4000000001111111111000000004",
+  "4000000001111111111000000004",
+  "4000000001111111111000000004",
+  "4000000001111111111000000004",
+  "4000000001111111111000000004",
+  "4000000000000000000000000004",
+  "4000000000000000000000000004",
+  "4000000000000000000000000004",
+  "4000000000000000000000000004",
+  "4000000000000000000000000004",
+  "4000000000000000000000000004",
+  "1111100111111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllll",
+  "lsssssssswwwwwwwwwwswwwwwwwl",
+  "lsssssssswwwwwwwwwwswwwwwwwl",
+  "lsssssssswwwwwwwwwwswwwwwwwl",
+  "lsssssssswwwwwwwwwwswwwwwwwl",
+  "lsssssssswwwwwwwwwwswwwwwwwl",
+  "lsssssssswwwwwwwwwwssssssssl",
+  "lsssssssssssswwssssssssssssl",
+  "lsssssssssssswwssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssssl",
+  "lllllsslllllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 13,
+   "y": 7,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "screen",
+   "x": 9,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 17,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 11,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 16,
+   "y": 1
+  },
+  {
+   "kind": "incense",
+   "x": 13,
+   "y": 1
+  },
+  {
+   "kind": "mat",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "mat",
+   "x": 16,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 9,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 6
+  },
+  {
+   "kind": "stove",
+   "x": 25,
+   "y": 1
+  },
+  {
+   "kind": "water_jar",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 20,
+   "y": 6
+  },
+  {
+   "kind": "screen",
+   "x": 25,
+   "y": 6
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "tea_table",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "mat",
+   "x": 3,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 12
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 6,
+   "y": 1
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 7,
+   "y": 6
+  }
+ ],
+ "place": {
+  "mat_cm_retreat": [
+   13.5,
+   4
+  ],
+  "bath_cm_retreat": [
+   23,
+   3
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    5.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    5.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}
