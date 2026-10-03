@@ -7,7 +7,7 @@ same table the world views read (`docs/architecture/cues.md`). Callers use the H
 
 | File | Lines | What it holds |
 |---|---:|---|
-| `scripts/hud.gd` (`Hud`) | 552 | Every field (the state tests, captures and the parts read), the layout's constants, the signals, `_process` and `_draw` (which call the parts in order), `_input` with the keys, the locks (`set_blocked`, `set_moment_lock`, `set_scene_lock`), `add_log`, `toast`, `ring`, `glyph`, and a forwarder for every public method |
+| `scripts/hud.gd` (`Hud`) | 589 | Every field (the state tests, captures and the parts read), the layout's constants, the signals, `_process` and `_draw` (which call the parts in order), `_input` with the keys, the locks (`set_blocked`, `set_moment_lock`, `set_scene_lock`), `add_log`, `toast`, `ring`, `glyph`, and a forwarder for every public method |
 | `hud/hud_part.gd` (`HudPart`) | 17 | The base: a part's `hud` |
 | `hud/hud_layout.gd` (`HudLayout`) | 344 | Where the controls stand and which show: the cluster's rings, ring 2 as the moment fills it, the hit circles, the rects the world's names keep off, the points badges, rest and fight |
 | `hud/hud_tours.gd` (`HudTours`) | 44 | The tutorial coach's anchors by name (`tour_rect`, `tour_targets`) |

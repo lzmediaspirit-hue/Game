@@ -6,7 +6,7 @@ This is phase 2, slice S6 of the code audit (`docs/architecture/audit_45.md` §2
 view's branches and how to add a notice are in `docs/architecture/hud.md`; the table's format is in
 `docs/architecture/cues.md`. The HUD looks, answers and reads the same, apart from one fix.
 
-- **`hud.gd` is in parts.** It had 3,302 lines and 170 functions, and now has 552.
+- **`hud.gd` is in parts.** It had 3,302 lines and 170 functions, and now has 589.
   - It keeps the state, `_process` and `_draw` (which call the parts in the same order as before), `_input` with the
     keys, the locks, and a forwarder for every public method.
   - Ten parts under `scripts/hud/` do the work, 2,570 lines with their base `HudPart`: layout, tours, input, actions,

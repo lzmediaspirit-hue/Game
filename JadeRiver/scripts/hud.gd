@@ -47,6 +47,7 @@ var joystick_origin := Vector2.ZERO
 var joystick_pos := Vector2.ZERO
 var mouse_down := false
 var left_handed := false
+
 # The right-hand cluster (mockups 01 and 02): angles in degrees on screen (0 to the right, 90 down) round the attack
 # button, mirrored when left-handed.
 const RING1_R := 132.0
@@ -54,6 +55,7 @@ const RING2_R := 214.0
 const FAN_R := 150.0          # the open fan's toggles round the fan button
 const PAPER_R := 190.0        # the paper fan behind them
 const JUMP_DEG := 150.0
+
 ## Decision 43: the techniques are round buttons TILE px across (from decision 42's 56 px squares) in the thumb's arc
 ## round Attack, 28-30° apart and a little further out than ring 1 (SKILL_R) so the bigger circles keep a few pixels
 ## clear of each other, of Jump and of ring 2; the last comes in to stand clear under the context's label.
@@ -61,56 +63,69 @@ const SKILL_DEG := [184.0, 212.0, 240.0, 270.0]
 const SKILL_R := [146.0, 146.0, 144.0, 128.0]
 const DODGE_DEG := 300.0
 const FAN_DEG := 160.0
+
 ## Decision 42: Jump drawn at r 32 (64 px, from 52), the context's own button at r CTX_R. Decision 43: a technique a round
 ## button TILE px across (x1.21 of the old square), its picture PICTURE px across inside the ring (the card's miniature,
 ## TechniquePicture.draw_round), the ready flash READY_S long.
 const JUMP_R := 32.0
 const TILE := 68.0
+
 ## Test hook: rules_tests holds the round buttons' pictures to it.
 const PICTURE := 58
 const READY_S := 0.35
 const CTX_R := 30.0
+
 ## Ring 2 beside the fan. A pinned toggle, the quick slots, the first treasure, the context and the swap have their
 ## own places; the rest take the next free one.
 ## Decision 45: the fourth place at 244° (from 248°), so a circle there keeps clear of the context's label ("Talk · Lu",
 ## CTX_LABEL_W under the 270° button) as well as of the 240° technique.
 const RING2_DEG := [178.0, 204.0, 226.0, 244.0, 270.0, 292.0]
+
 ## Keep Post (at rest only) takes the first treasure's place (in a fight only); the context holds 270° at rest too.
 ## Decision 45: three quick slots ("quick:0" the healing slot where mockup 01 has it, then 226° and 244°, an arc over
 ## the techniques under the thumb); a quick slot drawn first keeps its home and a treasure takes the next free place.
 const RING2_HOME := {"pin": 178.0, "quick:0": 204.0, "quick:1": 226.0, "quick:2": 244.0, "treasure:0": 226.0, "post": 226.0,
 	"context": 270.0, "swap": 292.0}
+
 ## Decision 45: more than ring 2's six places hold (three quick slots, the Draught, two treasures, a pin, the context and
 ## the swap late in the game) go on an outer row R3 round Attack, clear of ring 2, the screen's edge, the purse and the
 ## clear zone; every place of both rows stays at least 62 px from every other.
 const RING3_R := 276.0
 const RING3_DEG := [216.0, 233.0, 250.0, 267.0]
+
 ## Decision 45: the quick slots' indexes (InventoryState.quick); their roles are "quick:0" to "quick:2", and a tour's
 ## anchor "quick" is all of them that show (tour_rect).
 const QUICK_SLOTS := [0, 1, 2]
+
 ## The fan's toggles in their order round it when open: only the revealed ones, packed from the first place.
 const FAN_DEG_OPEN := [180.0, 202.0, 224.0, 246.0, 268.0]
 const FAN_TOGGLES := ["cultivate", "presence", "sphere", "sense", "pet"]
 const FAN_ROLE := {"cultivate": "meditate", "presence": "presence", "sphere": "sphere", "sense": "sense", "pet": "pet"}
 const FIGHT_HOLD_S := 2.0     # the fight state holds this long after the last foe leaves, so the ring does not flicker
+
 ## The lower middle the mockups keep open for the fight: the player and the party stand here at the common camera
 ## positions (the player at x 640 give or take the camera's look-ahead, the feet at y 470 with the camera free and
 ## down to about 640 with it at its lowest). No HUD control or panel is drawn in it (the hud_suite checks).
 const CLEAR_ZONE := Rect2(380, 324, 520, 332)
+
 ## The top centre's stack (the room's name, an event, a fortune card, the toasts) starts under the party chips, or
 ## under the boss bar in a boss fight, and stops above the clear zone.
 const TOP_STACK := 96.0
 const TOP_STACK_BOSS := 184.0
+
 ## The log sits above the joystick's half, newest at the foot, and keeps left of the clear zone (mockup 01).
 const LOG_FOOT := 451.0
 const LOG_W := 356.0
+
 ## The party chips' face crop: this far above the feet on the idle frame, this big.
 const FACE_AT := Vector2(2, -80)
 const FACE_BOX := 30.0
+
 ## Decision 42: a top-down companion's face, its figure at x2 and its face's middle this far under the top of its bare
 ## body's idle frame (the head's crown).
 const FACE_TOP_K := 2
 const FACE_TOP_HEAD := 10.0
+
 ## Points to spend: one row a point system the player spends by hand. The HUD reads its count from its authority
 ## ([authority, getter], given the character), shows the badge `points_<id>` (tools/icons, its own colour, shape and
 ## symbol) at the top right of the player panel while the unlock is open and the count is above 0, and a tap asks the
@@ -129,6 +144,7 @@ var guard_center := Vector2(1231, 491)     # dodge on a tap, guard on a hold (ri
 var slots := [Vector2(1019, 595), Vector2(1041, 528), Vector2(1093, 480), Vector2(1165, 477)]
 var fan_center := Vector2(964, 678)
 var page_center := Vector2(1240, 672)      # the technique page tab, "1/2"
+
 # The fan's toggles where they stand while it is open (set with the fan each frame; the pet wheel opens round Pet).
 ## Test hook: rules_tests taps the presence toggle here.
 var presence_center := Vector2(825, 622)
@@ -139,6 +155,7 @@ var tracker_paths: Array = []            # S49: [{rect, target}] the tracker's a
 var tracker_rect := Rect2()              # the tracker's plate as last drawn (a tap on it opens Quests)
 var minimap_rect := Rect2(1032, 16, 232, 140)
 var icon_row := [["menu", Vector2(1064, 188)], ["bag", Vector2(1120, 188)], ["map", Vector2(1176, 188)], ["mail", Vector2(1232, 188)]]   # pitch 56 (P4 §2.1)
+
 # Rest and fight (P5a): the fan folds in a fight and opens again at rest as the player left it.
 var fight := true             # a foe is near (or was, within FIGHT_HOLD_S)
 var fight_left := 0.0
@@ -146,32 +163,38 @@ var fight_override = null     # tests and previews: true or false stands in for 
 var fan_open := false
 var fan_rest_open := true     # the player's choice at rest: open, as mockup 02 draws it, until they close it
 var _settled := false
+
 signal open_page(page: String, args: Dictionary)
 signal dialogue_requested(convo: Dictionary)
 signal fishing_requested(object_id: String)
+
 var log_lines: Array = []          # [{text, t, color}]
 var toasts: Array = []             # [{text, t, kind}]
 var toasts_fit := 3                # how many toasts the top stack had room for last frame (the rest wait)
 var objective_seen: Dictionary = {}   # quest -> progress last toasted, while the tracker is still hidden
 var banner := {"text": "", "sub": "", "t": 0.0}
 var vignette := {"title": "", "text": "", "t": 99.0}   # S49: a fortune encounter's card, read at the top of the screen
+
 # S40 captions: sound-only cues written out when the player turns captions on.
 const CAPTIONS := {"boss_phase": "boss_roar", "field_boss_spawned": "distant_roar", "bell_rung": "bell", "mail_received": "letter",
 	"qi_backlash": "backlash", "defence_warning": "war_drums", "attack_started": "wind_up", "enemy_aggro": "noticed"}
 var caption := {"text": "", "t": 9.0}
 var context: Dictionary = {}
 var channel := {"object": "", "t": 0.0, "dur": 0.0, "action": ""}
+
 ## S45 harvest tap: after the hold, a ring shrinks toward the Attack button; tap it inside the gold band.
 var tapping := {"object": "", "t": 0.0, "ring": 1.0, "target": 0.7, "window": 0.12}
 var cultivate_hold := 0.0
 var cultivate_pressed := false
 var guard_hold := 0.0
 var guard_pressed := false
+
 # v2 HUD: hold the Pet button for the command wheel (follow, stay, attack, passive, ride, the Pet Bag).
 var pet_pressed := false
 var pet_hold := 0.0
 var pet_wheel := false
 var pet_pick := -1
+
 # S47 v1.1 flute: hold Attack past the family's hold time to play the melody; release to stop.
 var attack_pressed := false
 var attack_hold := 0.0
@@ -185,54 +208,68 @@ var _points_primed := false        # the badges showing when the HUD was bound p
 var points_override: Dictionary = {}   # tests and previews: points badge id -> the count to show in place of its getter
 var _hollow_last := -1.0
 var _hollow_dir := 0.0
+
 ## The smallest HUD hit circle's radius (P4, docs/ui_style_guide.md §7): 48 px across, and never less than the drawn
 ## radius + 4.
 const HIT_MIN := 24.0
+
 ## The tracker's plate starts this far under the player panel (clear of the status row and the Hollowing meter's
 ## stops), and stops at the foot, above the log.
 const TRACKER_DROP := 52.0
 const TRACKER_FOOT := 320.0
+
 ## Decision 44: using a place plays its pose first (data/places.json `pose`: open a lid, a letter box or a door; tend a bed
 ## or a furnace; sit on the mat), for PLACE_POSE_S, then opens its page; a second tap on the context button opens it at
 ## once. The body keeps the pose while the page it opened is open (seated at the mat through the Cultivation page) and
 ## rises when it closes (set_blocked). Each pose raises its sound (`place_open`, `place_tend`, `place_sit`).
 const PLACE_POSE_S := 0.4
 var place_pending: Dictionary = {}   ## {page, args, t}: a page waiting for its place's pose
+
 ## The context button's words under it, as wide as the ring leaves them (HudLayout.context_label_rect). Audit 45 S6: 116
 ## (from 128), so the sixth place of ring 2 (292°, the weapon swap's) keeps clear of the label's end: at 128 its circle
 ## crossed the label's top corner by 3 px at 1280 × 720. Nothing moves; a label wider than 116 px ends in "…" sooner.
 const CTX_LABEL_W := 116.0
+
 ## The log's rows at most, and a wrapped row's indent (HudPanels.log_rows).
 const LOG_ROWS := 6
 const LOG_INDENT := 14.0
+
 ## How long a fortune card stays (HudTopStack's vignette), and a toast's second line's row.
 const VIGNETTE_S := 9.0
 const TOAST_ROW := 22.0
+
 ## Pages and dialogue block world input; held controls are released at once.
 var blocked := false
+
 ## A moment holds world input for a moment (P6, at most 1.5 s); kept apart from `blocked` so a page closing never ends it.
 var moment_lock := false
 var moments: Node = null   # the MomentView: a press during its lock goes to it (a tap skips a skippable moment)
+
 ## A staged scene's cut holds the controls (decision 39): every touch, click and key goes to the SceneDirector (a tap
 ## moves the talk on, a hold skips to the next hand-off).
 var scene_lock := false
 var scenes: Node = null
+
 ## Decision 43: the tutorial coach (TutorialCoach): while a tour dims the screen it keeps touches from the HUD but for its
 ## spotlight (and a guide's card buttons).
 var coach: Node = null
 var _from = null   # the payload of the event being handled (toast, drop_toasts_from)
+
 ## Decision 43: the arts seen cooling, and when each was ready again (the HUD's clock), for the ready flash.
 var _cooling := {}
 var _ready_at := {}
+
 ## The purse and the status row under the player panel as last drawn (none when they are not): the world's labels keep
 ## off them (the prototype's QA saw Artisan Row's way plate under the purse on the Fairground).
 var purse_rect := Rect2()
 var status_rect := Rect2()
+
 ## Decision 43: the places drawn on the minimap this frame ({id, at}), and their states, looked at twice a second.
 var minimap_places: Array = []
 var _place_states := {}
 var _place_look := 0.0
 var _place_room := ""
+
 ## Worked out once and kept (each its part's): the tours' targets and the points badges once a frame, the node plate's
 ## chance once a second, the techniques' look once a frame, a grid room's map once a room.
 var _tour_targets := FrameMemo.new()

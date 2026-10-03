@@ -1013,7 +1013,7 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 ### Status (phase 2, S6): the HUD in parts, its notices in the cue table, done
 
 `docs/architecture/hud.md` has the parts, the side view's branches and how to add a notice.
-- **`hud.gd`** had 3,302 lines and 170 functions, and now has 552. It keeps the state, `_process` and `_draw` (which
+- **`hud.gd`** had 3,302 lines and 170 functions, and now has 589. It keeps the state, `_process` and `_draw` (which
   call the parts in order), `_input` with the keys, the locks and a forwarder for every public method. Ten parts under
   `scripts/hud/` (2,570 lines with their base `HudPart`) do the work: layout, tours, input, actions, notices,
   controls, panels, minimap, the top stack and the side view's own answers.
