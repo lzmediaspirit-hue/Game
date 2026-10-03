@@ -372,6 +372,13 @@ VISTAS = {
     "rf_frostpine_climb": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "rf_snow_ape_ledges": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "rf_rimefrost_summit": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # Mirrorwater Lake's hills past its north bluff, its water going on past the south edge (all round the shrine's
+    # island).
+    "ml_reedless_shore": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "ml_mirror_shallows": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "ml_sentinel_causeway": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
+    "ml_lake_shrine": [{"edge": "all", "kind": "water", "pad": 32}],
+    "ml_toads_hollow": [{"edge": "n", "kind": "hills", "pad": 40}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

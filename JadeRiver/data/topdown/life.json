@@ -2180,6 +2180,66 @@
     }
    ]
   },
+  "ml_lake_shrine": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_mirror_shallows": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_reedless_shore": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_sentinel_causeway": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_toads_hollow": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
   "mp_ascension_gate": {
    "vista": [
     {

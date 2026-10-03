@@ -926,6 +926,78 @@ def lotus_lantern(s: Img, f: int = 0) -> None:
     s.put(8, 4 + b, c("FFF8E2"))
 
 
+# Mirrorwater Lake's reflections: what stands on its north shore seen upside down in the still water below it. Each is
+# the thing's own art (a tree's trunk and crown, a stone lantern) flipped about its foot, squashed to MIRROR_SQUASH of
+# its height (the water seen at the view's slant), every other pixel left out so the water's own ripple shows through,
+# and the rest darkened into the deep water's blue. `mirror_<kind>` starts at the thing's foot (it stands on the
+# water's edge); `mirror_<kind>_1` a cell further out, its first cell hidden under the bank (a tree a row back from
+# the water, as the flora sets them). The room engine lays them (a water band's `mirror`); they block nothing.
+MIRRORED = ("tree_willow", "tree_maple", "tree_pine", "tree_plum", "lantern")
+MIRROR_SQUASH = 0.55
+MIRROR_DEEP = c("0F2C44")
+
+
+def _upright(kind: str) -> tuple:
+    """A tree (its trunk and its crown) or a prop drawn upright on a canvas; the canvas and the footprint's south-west
+    corner on it."""
+    import foliage as FL
+    if kind in FL.CANOPY:
+        draw, w, h, fw, fh, origin, solid, shadow = FL.PROPS[kind]
+        cdraw, cw, ch, at = FL.CANOPY[kind]
+        top, sx = -at[1], -at[0] + 8
+        up = Img(cw + 16, top + 2)
+        trunk = Img(w, h)
+        draw(trunk, 0)
+        up.paste(trunk, sx - origin[0], top - origin[1])
+        crown = Img(cw, ch)
+        cdraw(crown, 0)
+        up.paste(crown, sx + at[0], top + at[1])
+        return up, sx, top
+    import props as PR                                        # drawn at build time, the kit's own table loaded by then
+    draw, w, h, fw, fh, origin, solid, shadow = PR.PROPS[kind]
+    up = Img(w + 16, origin[1] + 2)
+    one = Img(w, h)
+    draw(one)
+    up.paste(one, 8, 0)
+    return up, origin[0] + 8, origin[1]
+
+
+def mirror_size(kind: str, skip: int) -> tuple:
+    """A mirror sprite's width, height and the foot's column on it (from the tables alone: the kit is still loading)."""
+    import foliage as FL
+    if kind in FL.CANOPY:
+        cdraw, cw, ch, at = FL.CANOPY[kind]
+        w, top, sx = cw + 16, -at[1], -at[0] + 8
+    else:
+        w, top, sx = 32, 30, 8                                # the stone lantern: 16 wide, its foot 30 down
+    return w, max(4, int(top * MIRROR_SQUASH) - 16 * skip), sx
+
+
+def mirror(s: Img, kind: str, skip: int) -> None:
+    """`kind` mirrored in still water (see MIRRORED), the first `skip` cells of it under the bank."""
+    up, sx, top = _upright(kind)
+    for j in range(s.h):
+        src = top - 1 - int((j + 16 * skip) / MIRROR_SQUASH)
+        if src < 0:
+            continue
+        fade = min(0.6, 0.28 + 0.32 * j / max(1, s.h))      # deeper and fainter away from the foot
+        for x in range(s.w):
+            p = up.get(x, src)
+            if p[3] == 0 or (x + j) % 2:
+                continue
+            s.put(x, j, T2.mix(p, MIRROR_DEEP, fade))
+
+
+def _mirror_props() -> dict:
+    out = {}
+    for kind in MIRRORED:
+        for skip in (0, 1):
+            w, h, sx = mirror_size(kind, skip)
+            name = "mirror_%s%s" % (kind, "_1" if skip else "")
+            out[name] = ((lambda s, k=kind, sk=skip: mirror(s, k, sk)), w, h, 1, 1, [sx, 16], False, None)
+    return out
+
+
 PROPS.update({
     "sky_ship": (sky_ship, 176, 112, 10, 1, [8, 64], False, None),
     "market_stall": (market_stall, 48, 46, 3, 1, [0, 44], True, [26, -2, 22, 3]),
@@ -940,4 +1012,5 @@ PROPS.update({
     "ice_rock": (ice_rock, 32, 28, 2, 1, [0, 26], True, [18, -2, 14, 3]),
     "lotus_lantern": (lotus_lantern, 16, 14, 1, 1, [0, 14], False, None),
 })
+PROPS.update(_mirror_props())
 ANIM.update({"sky_ship": (4, 450), "cook_fire": (4, 160), "lotus_lantern": (4, 250)})

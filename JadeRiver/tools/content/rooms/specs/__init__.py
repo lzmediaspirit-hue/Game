@@ -11,7 +11,7 @@ ZONES += ["drowned_shrine", "whitewater_gorge"]
 # R4: the peaks.
 ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"]
 # R6: Act II's first zones (the Azure Expanse): Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights, Mirrorwater Lake.
-ZONES += ["cloudgate_port", "thunderhorn_plains", "rimefrost_heights"]
+ZONES += ["cloudgate_port", "thunderhorn_plains", "rimefrost_heights", "mirrorwater_lake"]
 
 
 def all_specs():
