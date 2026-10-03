@@ -44,6 +44,45 @@ BIOMES = {
                   "walk": ["rock_small", "ferns"],
                   "water": ["cattails", "ferns"]},
     },
+    # R4: the peaks (Crane Cliffs, Mist Peak, Summit Ridge, the Hidden Vale; Act II's Rimefrost Heights reuses them).
+    # The high mountains (the Crane Cliffs): bare rock shelves and thin alpine turf, wind-bent pines at the crags' feet,
+    # mossy boulders and ferns; no broadleaf tree grows this high.
+    "high_mountain": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "rock_small", "ferns"],
+                  "ground": ["tree_pine", "rock_mossy", "bush_wide", "ferns", "tall_grass", "rock_small"],
+                  "walk": ["rock_small", "tall_grass", "ferns"],
+                  "water": ["tall_grass", "cattails", "ferns"]},
+    },
+    # Mist Peak: the slopes in the soul-mist, pines and grey dead trees, ferns and wet turf (the mist lies over a
+    # spec's `m` hollows, TopdownAtmosphere), mossy stones along the trail.
+    "mist_peak": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "dead_tree", "rock_mossy", "ferns"],
+                  "ground": ["tree_pine", "dead_tree", "rock_mossy", "ferns", "tall_grass", "bush"],
+                  "walk": ["rock_small", "ferns", "tall_grass"],
+                  "water": ["tall_grass", "cattails", "ferns"]},
+    },
+    # The snow line (Summit Ridge): every floor under fresh snow and the walks trodden to packed snow (decision 44,
+    # its `ground` the default for a spec that names none: "*" the whole room, "walk" the walks and their cuts), pines
+    # and dead trees standing out of it, boulders and bare rocks.
+    "snowfield": {
+        "base": "r", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["tree_pine", "boulder", "rock_small"],
+                  "ground": ["tree_pine", "dead_tree", "boulder", "rock_small", "rock_mossy"],
+                  "walk": ["rock_small", "boulder"],
+                  "water": ["rock_small"]},
+        "ground": {"snow": ["*"], "snowpack": ["walk"]},
+    },
+    # The Hidden Vale: a sheltered sect valley among the peaks, plum and peach blossom, maples and bamboo, azaleas on
+    # the lawns, willows and lotus on its water.
+    "hidden_vale": {
+        "base": "g", "stair": "s", "density": 0.32,
+        "flora": {"wall": ["tree_pine", "bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["tree_plum", "tree_peach", "tree_maple", "bush_azalea", "bush", "ferns", "tall_grass"],
+                  "walk": ["bush_azalea", "rock_small", "ferns"],
+                  "water": ["tree_willow", "cattails", "lotus_pads", "tall_grass"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

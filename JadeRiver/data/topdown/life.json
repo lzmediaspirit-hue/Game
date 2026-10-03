@@ -604,6 +604,34 @@
   }
  },
  "rooms": {
+  "cc_cliff_faces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "cc_sky_ledges": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "cm_array_court": {
    "vista": [
     {
@@ -944,6 +972,38 @@
      "edge": "n",
      "kind": "hills",
      "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "hv_back_mountain": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "hv_sect_grounds": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "hv_vale_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     },
     {
      "edge": "s",
@@ -1766,6 +1826,48 @@
     }
    ]
   },
+  "mp_ascension_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "mp_forgotten_monastery": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "mp_misty_slopes": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "rm_marsh_edge": {
    "extras": [
     {
@@ -2200,6 +2302,34 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 64
+    }
+   ]
+  },
+  "sr_frozen_shrine": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "sr_windswept_ridge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
     }
    ]
   },

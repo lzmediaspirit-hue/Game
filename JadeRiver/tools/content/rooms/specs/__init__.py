@@ -3,6 +3,8 @@
 import importlib
 
 ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend"]
+# R4: the peaks.
+ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"]
 
 
 def all_specs():

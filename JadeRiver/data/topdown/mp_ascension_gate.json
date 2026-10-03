@@ -1,0 +1,321 @@
+{
+ "schema_version": 1,
+ "id": "mp_ascension_gate",
+ "name": "Ascension Gate",
+ "size": [
+  72,
+  30
+ ],
+ "spawn": [
+  69,
+  17
+ ],
+ "levels": [
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111333333333333333333111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111222111111111111111111111111111111222111111111111111111",
+  "111111111111111111222111111111111111111111111111111222111111111111111111",
+  "111111111111111111222111111111111111111111111111111222111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111112221111111111111111111111111111111122211111111111111111",
+  "111111111111111112221111111111111111111111111111111122211111111111111111",
+  "111111111111111112221111111111111111111111111111111122211111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnrnppppppppppppppppppnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnrnnnnnnnnnnnnnnnnnnnnnppppppppppppppppppnnnnnnrnnnnnrnnnnnnnnnnnnrn",
+  "nnnnnnnnnnnnnnnnrnnnnnnnnnnppppppppppppppppppnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnrnnnnnpppppppppppppppppppnnrnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnppppppppppppppppppppppnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnppppppppppppppppppppppppppppppppnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnpppppppppppppppssssppppppppppppppppnnnnnnnnnnnrrnnnnn",
+  "nnnnnnnnnnnnnnnnnpnnnpppppppppppppsssspppppppppppppnnnpnnnrnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnppnnnpppppppppppppsssspppppppppppppnnnpppnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnpppnnnpppppppppppppsssspppppppppppppnnnppppnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppnnnnnnrnnnnnn",
+  "nnnnnnnnnnnnnppppppppppppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnpppnnnppppppppppppppppppppppppppppppppnnnpppnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnppnnnppppppppppppppppppppppppppppppppnnnppnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnpnnnppppppppppppppppppppppppppppppppnnnpnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnnnnn",
+  "nnnrnnnnnnnnnnnrnnpppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnpppppppppppppppppppppppppppppnnpppnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnrnnnnnnnnnnnnpppppppppppppppppppppnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnrrnnnnnnnnnnnnnnnnnnnnnnnnppnnppppppnnppnnnnnnnnnnnnnnnnnrrnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+ ],
+ "stairs": [
+  {
+   "x": 34,
+   "y": 10,
+   "w": 4,
+   "h": 4,
+   "from": 1,
+   "to": 3
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 39,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 27,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 44,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 13,
+   "y": 17
+  },
+  {
+   "kind": "lantern",
+   "x": 58,
+   "y": 17
+  },
+  {
+   "kind": "tree_pine",
+   "x": 5,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 25,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 51,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 57,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 70,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 3,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
+   "x": 13,
+   "y": 6
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 6
+  },
+  {
+   "kind": "dead_tree",
+   "x": 25,
+   "y": 7
+  },
+  {
+   "kind": "dead_tree",
+   "x": 58,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 61,
+   "y": 12
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 65,
+   "y": 10
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 4,
+   "y": 28
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 29
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 29
+  },
+  {
+   "kind": "boulder",
+   "x": 33,
+   "y": 29
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 29
+  },
+  {
+   "kind": "boulder",
+   "x": 56,
+   "y": 29
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 61,
+   "y": 28
+  },
+  {
+   "kind": "boulder",
+   "x": 69,
+   "y": 29
+  },
+  {
+   "kind": "tree_pine",
+   "x": 15,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 21,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 48,
+   "y": 7
+  },
+  {
+   "kind": "tree_pine",
+   "x": 58,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 12,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 28
+  },
+  {
+   "kind": "dead_tree",
+   "x": 51,
+   "y": 28
+  },
+  {
+   "kind": "boulder",
+   "x": 62,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 65,
+   "y": 14
+  }
+ ],
+ "place": {},
+ "portals": {
+  "east": {
+   "at": [
+    71,
+    17
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    17
+   ],
+   "span": 3
+  },
+  "ascend": {
+   "at": [
+    36,
+    4
+   ],
+   "dir": "n",
+   "arrive": [
+    36,
+    6
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    36,
+    15
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

@@ -25,7 +25,17 @@ const E1_VIEWS := [
 	["01_caravan_road_turnoff", "cr_caravan_road", Vector2(56, 13), true], ["02_caravan_road_west", "cr_caravan_road", Vector2(16, 14), false],
 	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
 	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
-	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true]]
+	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true],
+	# R4: the peaks (a view named "r4/..." keeps its world picture and its room's whole one under r4/ too).
+	["r4/01_cliff_faces_crags", "cc_cliff_faces", Vector2(46, 12), true], ["r4/02_cliff_faces_brink", "cc_cliff_faces", Vector2(28, 24), false],
+	["r4/03_sky_ledges_climb", "cc_sky_ledges", Vector2(36, 15), true], ["r4/04_sky_ledges_summit", "cc_sky_ledges", Vector2(46, 9), false],
+	["r4/05_misty_slopes_mere", "mp_misty_slopes", Vector2(34, 20), true], ["r4/06_misty_slopes_knoll", "mp_misty_slopes", Vector2(24, 12), false],
+	["r4/07_monastery_hall", "mp_forgotten_monastery", Vector2(36, 11), true], ["r4/08_monastery_garden", "mp_forgotten_monastery", Vector2(50, 21), false],
+	["r4/09_ascension_gate", "mp_ascension_gate", Vector2(36, 14), true], ["r4/10_windswept_ridge", "sr_windswept_ridge", Vector2(28, 16), true],
+	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(28, 12), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
+	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
+	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
+]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -596,11 +606,12 @@ static func sets() -> Dictionary:
 	# under the HUD at a spot that shows it, the world alone x2 there, and each room whole once.
 	var e1_rows := []
 	for v in E1_VIEWS:
-		var take := [["shot"], ["world", "world/" + str(v[0])]]
-		if v[3]: take.append(["whole_room", "rooms/" + str(v[1])])
+		var dir := str(v[0]).get_base_dir() + "/" if str(v[0]).contains("/") else ""
+		var take := [["shot"], ["world", dir + "world/" + str(v[0]).get_file()]]
+		if v[3]: take.append(["whole_room", dir + "rooms/" + str(v[1])])
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
-		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360]], "rows": e1_rows}
+		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

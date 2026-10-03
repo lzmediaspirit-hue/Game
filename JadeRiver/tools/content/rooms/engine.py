@@ -163,9 +163,11 @@ class Build:
             self._lay(name, x, y, w, h, opts, "feature")
 
     def _lay(self, name, x, y, w, h, opts, kind):
+        if opts.get("shape") == "ruin":
+            return self._ruin(name, x, y, w, h, opts)
         shape = None
         if opts.get("wavy"):
-            shape = self._wavy(x, y, w, h, len(self.regions))
+            shape = self._wavy(x, y, w, h, len(self.regions), opts["wavy"])
         if opts.get("shape") == "round":
             shape = self._round(x, y, w, h, len(self.regions))
         if shape is not None:
@@ -190,10 +192,40 @@ class Build:
             r.level = self.lay.lv[c[1]][c[0]]
         self.regions[name] = r
 
-    def _wavy(self, x, y, w, h, salt):
+    def _ruin(self, name, x, y, w, h, opts):
+        """A ruined building (`shape="ruin"`, R4: the Forgotten Monastery): its rect's outline as broken walls of
+        `paint` (granite by default) standing up to `level`, a piece in five fallen to a stump a level lower and about one
+        in five gone (by a hash of the seed and the cell), a doorway of four cells left open in the middle of its `door`
+        side (south by default); the floor inside is the ground it was raised on. Its region is that floor: anchors
+        stand on it, it gets no flight of its own (the floor is reached as the ground round it is), and it grows what
+        the ground grows."""
+        salt = self.seed + 53 * len(self.regions)
+        door = opts.get("door", "s")
+        top, paint = opts["level"], opts.get("paint", "s")
+        mid_x, mid_y = x + w // 2, y + h // 2
+        inside = [(cx, cy) for cy in range(y + 1, y + h - 1) for cx in range(x + 1, x + w - 1)]
+        floor = self.lay.lv[mid_y][mid_x]
+        for cy in range(y, y + h):
+            for cx in range(x, x + w):
+                if (cx, cy) in inside or not (0 <= cx < self.w and 0 <= cy < self.h):
+                    continue
+                gap = {"s": cy == y + h - 1 and abs(cx - mid_x + 0.5) <= 2, "n": cy == y and abs(cx - mid_x + 0.5) <= 2,
+                       "e": cx == x + w - 1 and abs(cy - mid_y + 0.5) <= 2, "w": cx == x and abs(cy - mid_y + 0.5) <= 2}
+                if gap.get(door) or h01(cx, cy, salt) < 0.2:
+                    continue
+                lv = top - 1 if h01(cx, cy, salt + 1) < 0.2 else top
+                if lv > floor:
+                    self.lay.rect(cx, cy, 1, 1, lv, paint)
+        r = Region(name, x + 1, y + 1, w - 2, h - 2, {k: v for k, v in opts.items() if k not in ("level", "shape")}, "feature")
+        r.shape = inside
+        r.level = floor
+        self.regions[name] = r
+
+    def _wavy(self, x, y, w, h, salt, edges=True):
         """A band whose edges wander (`wavy`): each edge inside the room moves a row in or out along its length, by a
         smooth noise of the room's seed (a value every five columns, eased between), so a shore or a terrace's lip is
-        never a ruled line."""
+        never a ruled line. `wavy="s"` (or "n") wanders its south (north) edge only: a terrace's lip under a cliff
+        laid before it, whose foot would otherwise open a row of the ground under both."""
         def wander(xx, k):
             i, f = divmod(xx / 5.0, 1.0)
             a = h01(int(i), k, self.seed + 17 * salt)
@@ -202,8 +234,8 @@ class Build:
             return -1 if v < 0.33 else (1 if v > 0.67 else 0)
         out = []
         for xx in range(x, x + w):
-            top = y + (wander(xx, 1) if y > 0 else 0)
-            bot = y + h - 1 + (wander(xx, 2) if y + h < self.h else 0)
+            top = y + (wander(xx, 1) if y > 0 and edges in (True, "n") else 0)
+            bot = y + h - 1 + (wander(xx, 2) if y + h < self.h and edges in (True, "s") else 0)
             out += [(xx, yy) for yy in range(max(0, top), min(self.h, bot + 1))]
         return sorted(out, key=lambda c: (c[1], c[0]))
 
@@ -614,6 +646,9 @@ class Build:
         for r in self.regions.values():
             if r.wall or r.water or r.level is None or r.level <= 0:
                 continue
+            if (r.kind == "feature" and r.opts.get("level") is None) or r.walk:
+                continue          # paint over whatever lies under it (a patch of turf on a terrace), or a walk on the
+                                  # ground it crosses (a room's ground raised under it): never climbed onto
             mine = set(r.cells())
             on = [c for c in self.cells.values() if (int(c[0] + 0.5), int(c[1] + 0.5)) in mine]
             if not on and not (r.kind == "band" and r.h >= 3):
@@ -624,34 +659,66 @@ class Build:
                 continue
             width = 3 if r.w >= 8 else 2
             xs = [c[0] for c in on] or [r.x + r.w // 2]
-            want = sorted(xs)[len(xs) // 2]
-            spots = sorted(range(r.x, r.x1 - width + 1), key=lambda x: (abs(x + width // 2 - want), x))
-            for x in spots:
-                # The flight's top row lies against the shape's south edge, the same row under every column of it.
-                bottoms = {r.bottom(xx) for xx in range(x, x + width)}
-                if len(bottoms) != 1 or None in bottoms:
-                    continue
-                top = bottoms.pop() + 1
-                if top >= self.h:
-                    continue
-                below = self.lay.lv[top][x]
-                if below == WATER or below >= r.level:
-                    continue
-                depth = 2 * (r.level - below)
-                cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
-                       or (xx, yy) in lanes for xx, yy in cells):
-                    continue
-                # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
-                foot = [(xx, top + depth) for xx in range(x, x + width)]
-                if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - 1 <= self.lay.lv[yy][xx] <= below
-                       or (xx, yy) in taken for xx, yy in foot):
-                    continue
-                self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
-                self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
+            # `flights=[col, ...]` (R4): a long terrace climbed at each of these columns, not once at what stands on it.
+            for want in r.opts.get("flights") or [sorted(xs)[len(xs) // 2]]:
+                self._flight(r, want, width, taken, lanes, bool(r.opts.get("flights")))
+
+    def _flight(self, r, want, width, taken, lanes, keep_walk=False):
+        """One flight up onto `r`, at the column nearest `want` where it fits (auto_stairs' rules), clear of the flights
+        already laid. `keep_walk` (a band's `flights`): a column whose flight ends at the walk below first, then one
+        that comes down onto it, before one that runs across it (a stair laid over the road)."""
+        flights = {(xx, yy) for s in self.lay.stairs for yy in range(s["y"] - 1, s["y"] + s["h"] + 1)
+                   for xx in range(s["x"] - 1, s["x"] + s["w"] + 1)}
+        walk = {c for q in self.regions.values() if q.walk for c in q.cells()} if keep_walk else set()
+
+        def over_walk(x):
+            top = (r.bottom(x) if r.bottom(x) is not None else r.y1 - 1) + 1
+            rows = [y for y in range(top, top + 2 * max(1, r.level - (self.lay.lv[min(top, self.h - 1)][x] if self.lay.lv[min(top, self.h - 1)][x] != WATER else 0)))]
+            hits = sum((x, y) in walk for y in rows)
+            return 0 if not hits else (1 if hits <= 2 else 2)
+        def rank(x):
+            d = abs(x + width // 2 - want)
+            return ((over_walk(x) if d <= 8 else 3) if keep_walk else 0, d, x)
+        spots = sorted(range(r.x, r.x1 - width + 1), key=rank)
+        first = None
+        for x in spots:
+            # The flight's top row lies against the shape's south edge, the same row under every column of it.
+            bottoms = {r.bottom(xx) for xx in range(x, x + width)}
+            if len(bottoms) != 1 or None in bottoms:
+                continue
+            top = bottoms.pop() + 1
+            if top >= self.h:
+                continue
+            below = self.lay.lv[top][x]
+            if below == WATER or below >= r.level:
+                continue
+            depth = 2 * (r.level - below)
+            cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
+                   or (xx, yy) in lanes or (xx, yy) in flights for xx, yy in cells):
+                continue
+            # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
+            foot = [(xx, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - 1 <= self.lay.lv[yy][xx] <= below
+                   or (xx, yy) in taken for xx, yy in foot):
+                continue
+            flush = all(self.lay.lv[yy][xx] == below for xx, yy in foot)
+            if first is None:
+                first = (x, top, depth, below)
+                if flush:
+                    break
+            elif flush and abs(x + width // 2 - want) <= 10:
+                # A foot a step lower leaves the flight's last row over a drop (a dark lip under it): a column within
+                # ten whose foot is flush with the ground below comes first.
+                first = (x, top, depth, below)
                 break
-            else:
-                self.notes.append("no stair up onto %s (no room under it)" % r.name)
+        if first is None:
+            self.notes.append("no stair up onto %s (no room under it)" % r.name)
+            return False
+        x, top, depth, below = first
+        self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
+        self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
+        return True
 
     # ================================================================ 6. the foes
     def foes(self):
@@ -960,7 +1027,9 @@ class Build:
 
     # ================================================================ 8. sand and snow, the rest
     def ground(self):
-        for paint, rects in self.spec.get("ground", {}).items():
+        # The spec's ground, else its biome's (the snow line's: snow over all, packed snow on the walks).
+        ground = self.spec.get("ground")
+        for paint, rects in (ground if ground is not None else self.biome.get("ground", {})).items():
             rr = []
             for r in rects:
                 if isinstance(r, str):
@@ -977,7 +1046,19 @@ class Build:
                 raise SpecError("%s: ground %r is not sand, snow or snowpack" % (self.id, paint))
 
     def _ground_rects(self, name):
-        """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect."""
+        """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect;
+        `*` every cell of the room and `walk` every walk's and every cut's cells (R4, the snow line: the snow and its
+        trodden paths), neither on a flight of stairs, whose paint is its own."""
+        if name in ("*", "walk"):
+            stairs = {(x, y) for s in self.lay.stairs for y in range(s["y"], s["y"] + s["h"]) for x in range(s["x"], s["x"] + s["w"])}
+            if name == "*":
+                cells = [(x, y) for y in range(self.h) for x in range(self.w)]
+            else:
+                cells = [c for r in self.regions.values() if r.walk for c in r.cells()]
+                for d, x0, width, walk in self.cuts:
+                    rows = range(0, walk.y) if d == "n" else range(walk.y1, self.h)
+                    cells += [(x, y) for y in rows for x in range(x0, x0 + width)]
+            return [(x, y, 1, 1) for x, y in sorted(set(cells)) if (x, y) not in stairs]
         head, _, tail = name.partition(".")
         r = self.regions.get(head)
         if r is None:
