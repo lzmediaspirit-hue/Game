@@ -66,7 +66,7 @@ HV_BACK_MOUNTAIN = room(
            ("glade", 17, 13, dict(level=0))],
     features=[("ledge_100", (30, 4, 26, 8), dict(level=2, paint="r", shape="round")),
               ("ledge_200", (40, 4, 16, 6), dict(level=3, paint="r", shape="round")),
-              ("pool", (12, 19, 15, 8), dict(water=True, shape="round"))],
+              ("pool", (10, 19, 18, 9), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "path")},
     spawn="west",

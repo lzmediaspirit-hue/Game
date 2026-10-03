@@ -9,7 +9,7 @@ from content.rooms.spec import room
 # (the orchid on the first, the cloudsteel crate on the second, the chest on the highest); south of the trail an
 # alpine meadow of pines and mossy boulders ends at a rocky brink over the clouds.
 CC_CLIFF_FACES = room(
-    "cc_cliff_faces", size=(72, 30), biome="high_mountain", level=1,
+    "cc_cliff_faces", size=(72, 30), biome="mountain", level=1,
     bands=[("crown", 0, 4, dict(level=6, paint="r", wall=True)),
            ("ledges", 4, 9, dict(level=3, paint="r", wavy="s", flights=[14, 40])),
            ("path", 14, 3, dict(paint="d", walk=True)),
@@ -32,7 +32,7 @@ CC_CLIFF_FACES = room(
 # cloudsteel and the crate on the way, the chest on the summit over the clouds); the alpine meadow and its brink under
 # the trail, as on the Cliff Faces.
 CC_SKY_LEDGES = room(
-    "cc_sky_ledges", size=(56, 32), biome="high_mountain", level=1,
+    "cc_sky_ledges", size=(56, 32), biome="mountain", level=1,
     bands=[("crown", 0, 3, dict(level=8, paint="r", wall=True)),
            ("ledges", 3, 13, dict(level=2, wavy="s", flights=[9, 26])),
            ("path", 17, 3, dict(paint="d", walk=True)),

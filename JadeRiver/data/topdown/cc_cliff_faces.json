@@ -131,7 +131,7 @@
    "y": 4
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 6,
    "y": 5
   },
@@ -141,13 +141,8 @@
    "y": 5
   },
   {
-   "kind": "tree_pine",
-   "x": 18,
-   "y": 5
-  },
-  {
-   "kind": "ferns",
-   "x": 22,
+   "kind": "rock_mossy",
+   "x": 20,
    "y": 4
   },
   {
@@ -156,9 +151,9 @@
    "y": 4
   },
   {
-   "kind": "ferns",
-   "x": 39,
-   "y": 4
+   "kind": "rock_small",
+   "x": 32,
+   "y": 5
   },
   {
    "kind": "rock_mossy",
@@ -166,9 +161,9 @@
    "y": 5
   },
   {
-   "kind": "ferns",
-   "x": 46,
-   "y": 4
+   "kind": "rock_mossy",
+   "x": 49,
+   "y": 5
   },
   {
    "kind": "tree_pine",
@@ -186,62 +181,57 @@
    "y": 7
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 13,
    "y": 10
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_small",
    "x": 15,
    "y": 5
   },
   {
-   "kind": "ferns",
+   "kind": "bush",
    "x": 16,
    "y": 9
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_small",
    "x": 24,
    "y": 8
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_small",
    "x": 27,
    "y": 9
   },
   {
-   "kind": "tall_grass",
-   "x": 30,
-   "y": 7
+   "kind": "bush",
+   "x": 32,
+   "y": 9
   },
   {
    "kind": "rock_small",
-   "x": 33,
-   "y": 8
-  },
-  {
-   "kind": "ferns",
    "x": 35,
    "y": 6
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_mossy",
    "x": 40,
    "y": 8
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_mossy",
    "x": 44,
    "y": 10
   },
   {
-   "kind": "rock_mossy",
-   "x": 48,
-   "y": 4
+   "kind": "tree_pine",
+   "x": 46,
+   "y": 5
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 51,
    "y": 9
   },
@@ -251,7 +241,7 @@
    "y": 6
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 62,
    "y": 8
   },
@@ -261,17 +251,17 @@
    "y": 6
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 0,
    "y": 11
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 4,
    "y": 11
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 10,
    "y": 12
   },
@@ -281,12 +271,12 @@
    "y": 12
   },
   {
-   "kind": "bush_wide",
-   "x": 18,
+   "kind": "tall_grass",
+   "x": 19,
    "y": 11
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 22,
    "y": 11
   },
@@ -296,42 +286,32 @@
    "y": 12
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 30,
    "y": 12
   },
   {
    "kind": "rock_small",
-   "x": 33,
-   "y": 12
-  },
-  {
-   "kind": "ferns",
    "x": 37,
    "y": 12
   },
   {
-   "kind": "tall_grass",
-   "x": 39,
-   "y": 11
+   "kind": "rock_mossy",
+   "x": 41,
+   "y": 12
   },
   {
    "kind": "tall_grass",
-   "x": 46,
+   "x": 49,
    "y": 11
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 51,
    "y": 11
   },
   {
-   "kind": "rock_small",
-   "x": 54,
-   "y": 11
-  },
-  {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 60,
    "y": 12
   },
@@ -346,34 +326,29 @@
    "y": 11
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 70,
    "y": 11
   },
   {
-   "kind": "rock_small",
-   "x": 32,
+   "kind": "tree_pine",
+   "x": 38,
    "y": 5
   },
   {
-   "kind": "bush_wide",
-   "x": 37,
-   "y": 4
-  },
-  {
-   "kind": "ferns",
-   "x": 43,
+   "kind": "tall_grass",
+   "x": 30,
    "y": 7
   },
   {
-   "kind": "ferns",
+   "kind": "bush",
    "x": 53,
    "y": 7
   },
   {
-   "kind": "tall_grass",
+   "kind": "rock_small",
    "x": 5,
-   "y": 17
+   "y": 18
   },
   {
    "kind": "tall_grass",
@@ -381,18 +356,13 @@
    "y": 18
   },
   {
-   "kind": "ferns",
-   "x": 19,
-   "y": 18
-  },
-  {
    "kind": "rock_small",
-   "x": 30,
+   "x": 15,
    "y": 18
   },
   {
    "kind": "tall_grass",
-   "x": 40,
+   "x": 35,
    "y": 18
   },
   {
@@ -401,49 +371,44 @@
    "y": 18
   },
   {
-   "kind": "ferns",
-   "x": 55,
-   "y": 13
-  },
-  {
    "kind": "tall_grass",
-   "x": 58,
+   "x": 57,
    "y": 17
   },
   {
    "kind": "tall_grass",
+   "x": 59,
+   "y": 17
+  },
+  {
+   "kind": "rock_small",
    "x": 64,
    "y": 18
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 2,
    "y": 19
   },
   {
    "kind": "tree_pine",
-   "x": 16,
-   "y": 18
-  },
-  {
-   "kind": "bush_wide",
-   "x": 21,
-   "y": 18
+   "x": 19,
+   "y": 19
   },
   {
    "kind": "tree_pine",
-   "x": 27,
-   "y": 20
-  },
-  {
-   "kind": "bush_wide",
-   "x": 35,
+   "x": 28,
    "y": 20
   },
   {
    "kind": "rock_small",
-   "x": 39,
-   "y": 21
+   "x": 35,
+   "y": 20
+  },
+  {
+   "kind": "tree_pine",
+   "x": 38,
+   "y": 20
   },
   {
    "kind": "tree_pine",
@@ -451,7 +416,7 @@
    "y": 21
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_mossy",
    "x": 48,
    "y": 20
   },
@@ -461,17 +426,17 @@
    "y": 20
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 56,
    "y": 20
   },
   {
-   "kind": "tall_grass",
+   "kind": "rock_small",
    "x": 62,
-   "y": 19
+   "y": 21
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 70,
    "y": 20
   },
@@ -486,9 +451,9 @@
    "y": 23
   },
   {
-   "kind": "rock_small",
-   "x": 11,
-   "y": 22
+   "kind": "bush",
+   "x": 13,
+   "y": 23
   },
   {
    "kind": "rock_mossy",
@@ -496,7 +461,7 @@
    "y": 23
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 22,
    "y": 22
   },
@@ -506,28 +471,28 @@
    "y": 23
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 34,
    "y": 23
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 39,
    "y": 23
   },
   {
-   "kind": "tall_grass",
+   "kind": "rock_small",
    "x": 47,
-   "y": 22
+   "y": 23
   },
   {
-   "kind": "ferns",
+   "kind": "bush",
    "x": 52,
    "y": 23
   },
   {
    "kind": "rock_mossy",
-   "x": 57,
+   "x": 59,
    "y": 22
   },
   {
@@ -556,7 +521,7 @@
    "y": 25
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 21,
    "y": 25
   },
@@ -571,7 +536,7 @@
    "y": 26
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 36,
    "y": 27
   },
@@ -581,12 +546,12 @@
    "y": 27
   },
   {
-   "kind": "bush_wide",
+   "kind": "rock_small",
    "x": 48,
    "y": 27
   },
   {
-   "kind": "tall_grass",
+   "kind": "bush",
    "x": 54,
    "y": 26
   },
@@ -596,17 +561,17 @@
    "y": 25
   },
   {
-   "kind": "ferns",
-   "x": 2,
-   "y": 29
+   "kind": "tall_grass",
+   "x": 0,
+   "y": 28
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 10,
    "y": 29
   },
   {
-   "kind": "ferns",
+   "kind": "bush",
    "x": 17,
    "y": 29
   },
@@ -626,27 +591,27 @@
    "y": 29
   },
   {
-   "kind": "tall_grass",
-   "x": 35,
-   "y": 29
-  },
-  {
-   "kind": "ferns",
-   "x": 47,
+   "kind": "rock_mossy",
+   "x": 38,
    "y": 29
   },
   {
    "kind": "tall_grass",
-   "x": 50,
+   "x": 48,
    "y": 29
   },
   {
    "kind": "tall_grass",
-   "x": 55,
+   "x": 52,
    "y": 28
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
+   "x": 56,
+   "y": 29
+  },
+  {
+   "kind": "rock_small",
    "x": 60,
    "y": 29
   },
@@ -656,7 +621,7 @@
    "y": 28
   },
   {
-   "kind": "ferns",
+   "kind": "rock_small",
    "x": 71,
    "y": 28
   }

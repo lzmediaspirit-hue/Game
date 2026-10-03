@@ -30,15 +30,15 @@
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
-  "000000000000000~~~~~~~~~00000000000000000000000000000000",
-  "00000000000000~~~~~~~~~~~0000000000000000000000000000000",
+  "00000000000000~~~~~~~~~~00000000000000000000000000000000",
   "0000000000000~~~~~~~~~~~~~000000000000000000000000000000",
-  "000000000000~~~~~~~~~~~~~~000000000000000000000000000000",
-  "000000000000~~~~~~~~~~~~~~000000000000000000000000000000",
-  "0000000000000~~~~~~~~~~~~~000000000000000000000000000000",
-  "00000000000000~~~~~~~~~~~0000000000000000000000000000000",
-  "0000000000000000~~~~~~0000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
+  "000000000000~~~~~~~~~~~~~~~00000000000000000000000000000",
+  "00000000000~~~~~~~~~~~~~~~~00000000000000000000000000000",
+  "0000000000~~~~~~~~~~~~~~~~~00000000000000000000000000000",
+  "0000000000~~~~~~~~~~~~~~~~~00000000000000000000000000000",
+  "00000000000~~~~~~~~~~~~~~~000000000000000000000000000000",
+  "000000000000~~~~~~~~~~~~~0000000000000000000000000000000",
+  "000000000000000~~~~~~~0000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000"
  ],
@@ -62,15 +62,15 @@
   "ddddddddddddddddddddddddddddddddddddddddgggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggggggggg~~~~~~~~~gggggggggggggggggggggggggggggggg",
-  "gggggggggggggg~~~~~~~~~~~ggggggggggggggggggggggggggggggg",
+  "gggggggggggggg~~~~~~~~~~gggggggggggggggggggggggggggggggg",
   "ggggggggggggg~~~~~~~~~~~~~gggggggggggggggggggggggggggggg",
-  "gggggggggggg~~~~~~~~~~~~~~gggggggggggggggggggggggggggggg",
-  "gggggggggggg~~~~~~~~~~~~~~gggggggggggggggggggggggggggggg",
-  "ggggggggggggg~~~~~~~~~~~~~gggggggggggggggggggggggggggggg",
-  "gggggggggggggg~~~~~~~~~~~ggggggggggggggggggggggggggggggg",
-  "gggggggggggggggg~~~~~~gggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggg~~~~~~~~~~~~~~~ggggggggggggggggggggggggggggg",
+  "ggggggggggg~~~~~~~~~~~~~~~~ggggggggggggggggggggggggggggg",
+  "gggggggggg~~~~~~~~~~~~~~~~~ggggggggggggggggggggggggggggg",
+  "gggggggggg~~~~~~~~~~~~~~~~~ggggggggggggggggggggggggggggg",
+  "ggggggggggg~~~~~~~~~~~~~~~gggggggggggggggggggggggggggggg",
+  "gggggggggggg~~~~~~~~~~~~~ggggggggggggggggggggggggggggggg",
+  "ggggggggggggggg~~~~~~~gggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
  ],
@@ -375,14 +375,9 @@
    "y": 19
   },
   {
-   "kind": "tree_camphor",
-   "x": 13,
-   "y": 25
-  },
-  {
-   "kind": "tree_plum",
-   "x": 18,
-   "y": 27
+   "kind": "ferns",
+   "x": 12,
+   "y": 18
   },
   {
    "kind": "tree_plum",
@@ -436,7 +431,12 @@
   },
   {
    "kind": "tall_grass",
-   "x": 15,
+   "x": 18,
+   "y": 28
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
    "y": 28
   },
   {
@@ -466,13 +466,33 @@
   },
   {
    "kind": "tall_grass",
+   "x": 10,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 15,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
    "x": 22,
    "y": 17
   },
   {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 25
+  },
+  {
    "kind": "cattails",
-   "x": 25,
-   "y": 22
+   "x": 16,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 26,
+   "y": 23
   },
   {
    "kind": "lotus_pads",
@@ -483,7 +503,7 @@
  "place": {
   "herb_1": [
    14,
-   19
+   18
   ],
   "spring_hv": [
    24,

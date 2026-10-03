@@ -81,8 +81,8 @@ MP_ASCENSION_GATE = room(
     stairs=[(34, 10, 4, 4, 1, 3)],
     ways={"east": ("e", "approach"), "ascend": dict(at=(36, 4), dir="n", arrive=(36, 6), span=3)},
     spawn="east",
-    props=[("lantern", 33, 4), ("lantern", 39, 4), ("lantern", 27, 13), ("lantern", 44, 13), ("lantern", 13, 17),
-           ("lantern", 58, 17)],
+    props=[("lantern", 33, 4), ("lantern", 39, 4), ("banner_cloud", 30, 5), ("banner_cloud", 42, 5), ("lantern", 27, 13),
+           ("lantern", 44, 13), ("lantern", 13, 17), ("lantern", 58, 17)],
     foes="auto")
 
 ROOMS = [MP_MISTY_SLOPES, MP_FORGOTTEN_MONASTERY, MP_ASCENSION_GATE]

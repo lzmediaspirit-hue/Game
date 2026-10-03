@@ -89,16 +89,8 @@ BIOMES = {
                   "walk": ["rock_small", "tall_grass"],
                   "water": ["tall_grass", "cattails"]},
     },
-    # R4: the peaks (Crane Cliffs, Mist Peak, Summit Ridge, the Hidden Vale; Act II's Rimefrost Heights reuses them).
-    # The high mountains (the Crane Cliffs): bare rock shelves and thin alpine turf, wind-bent pines at the crags' feet,
-    # mossy boulders and ferns; no broadleaf tree grows this high.
-    "high_mountain": {
-        "base": "g", "stair": "s", "density": 0.3,
-        "flora": {"wall": ["tree_pine", "rock_mossy", "rock_small", "ferns"],
-                  "ground": ["tree_pine", "rock_mossy", "bush_wide", "ferns", "tall_grass", "rock_small"],
-                  "walk": ["rock_small", "tall_grass", "ferns"],
-                  "water": ["tall_grass", "cattails", "ferns"]},
-    },
+    # R4: the peaks (Mist Peak, Summit Ridge, the Hidden Vale; the Crane Cliffs take R1's `mountain`; Act II's
+    # Rimefrost Heights reuses them).
     # Mist Peak: the slopes in the soul-mist, pines and grey dead trees, ferns and wet turf (the mist lies over a
     # spec's `m` hollows, TopdownAtmosphere), mossy stones along the trail.
     "mist_peak": {

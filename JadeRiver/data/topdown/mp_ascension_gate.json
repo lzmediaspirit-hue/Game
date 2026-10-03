@@ -96,6 +96,16 @@
    "y": 4
   },
   {
+   "kind": "banner_cloud",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 42,
+   "y": 5
+  },
+  {
    "kind": "lantern",
    "x": 27,
    "y": 13
