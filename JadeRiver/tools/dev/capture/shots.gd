@@ -79,6 +79,8 @@ const E1_VIEWS := [
 	["r7/17_oasis_of_bones", "sd_oasis_of_bones", Vector2(28, 15), true], ["r7/18_worm_sea_tomb_door", "sd_worm_sea", Vector2(58, 13), true],
 	["r7/19_sealed_gate", "ts_sealed_gate", Vector2(40, 12), true], ["r7/20_hall_of_sand_kings", "ts_hall_of_sand_kings", Vector2(30, 13), true],
 	["r7/21_mirror_crypt", "ts_mirror_crypt", Vector2(28, 13), true], ["r7/22_throne_of_the_tomb_king", "ts_throne", Vector2(28, 12), true],
+	# R9: the star field's end, the Starsea's crossings to the Lantern Heart (their pictures under r9/).
+	["r9/01_starsea_crossing", "ss_starsea_crossing", Vector2(30, 12), true], ["r9/02_lantern_crossing", "ss_lantern_crossing", Vector2(30, 12), true],
 ]
 
 static func sets() -> Dictionary:

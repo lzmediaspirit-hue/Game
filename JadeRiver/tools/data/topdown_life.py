@@ -286,6 +286,10 @@ VISTAS = {
     "sd_scorpion_flats": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "sd_oasis_of_bones": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "sd_worm_sea": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R9: the star field's end. The crossings' decks have the Starsea all round them; the islands' brinks fall away to
+    # the cloud sea under them, as R5's Tidebreak Front's do.
+    "ss_starsea_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
+    "ss_lantern_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

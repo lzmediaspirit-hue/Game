@@ -14,6 +14,9 @@ ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"
 ZONES += ["story", "tidebreak_front"]
 # R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar.
 ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb_of_sunscar"]
+# R9: the star field's end, in the story's order: the Starsea's crossings, the Star Warden Citadel, the Orbit Ruins, the
+# Ashen Reach, the Nebula Deep and the Lantern Heart.
+ZONES += ["starsea", "lantern_crossing"]
 
 
 def all_specs():
