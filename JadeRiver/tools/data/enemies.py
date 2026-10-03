@@ -270,8 +270,7 @@ def build():
         spec_row("tide_crab"),
         spec_row("drowned_acolyte"),
         spec_row("paper_talisman_ghost"),
-        mob("rapids_lizard", (28, 31), "normal", "water", "gorge", [d("lizard_scale", 0.5), d("pearl", 0.1)],
-            [atk("tail_whip", 0.4, 60, 1.0, both_sides=True)], ai="melee", speed=130, width=26, height=22),
+        spec_row("rapids_lizard"),
         spec_row("gorge_bandit_adept"),
         # S47 rogue cultivators: elites whose visible weapon or treasure is a guaranteed drop, with a sealed pouch.
         spec_row("rogue_cultivator"),
@@ -488,9 +487,7 @@ def build():
             ai="duelist", art=human("ironroot_warden"), race="human", width=20, height=92, spar=True),
         # Bosses
         spec_row("big_toad_tan"),
-        mob("riverbed_serpent", 25, "field_boss", "water", "bend", [d("serpent_core", 1.0), d("serpent_scale", 1.0, (2, 4))],
-            [atk("bite", 0.6, 110, 1.3, depth=40), atk("tail_flood", 1.0, 260, 1.0, depth=80, both_sides=True)], ai="boss_serpent",
-            width=70, height=150, respawn_min=45, flying=True, phases=[{"below": 0.5, "action": "flood"}]),
+        spec_row("riverbed_serpent"),
         mob("thousand_eye_toad", 68, "field_boss", "water", "azure", [d("mirror_eye", 1.0), d("storm_shard", 1.0, (6, 10)),
                                                                     d("dragonet_scale", 1.0, (2, 3))],
             [atk("belly_slam", 0.8, 140, 1.4, depth=60, knockback=140, both_sides=True),

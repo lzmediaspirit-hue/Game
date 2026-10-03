@@ -29,7 +29,7 @@ import numpy as np
 
 from .. import mats as M
 from ..motion import h01, smooth, wave
-from ..sculpt import E, L, Pose, chain, rot, v3
+from ..sculpt import E, L, Pose, S, chain, rot, v3
 
 # ================================================================================================= the eel
 ELEV = math.radians(35.0)
@@ -150,6 +150,8 @@ def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: flo
         return _viper(B, action, f, view)
     if B.variant == "leech" or "rest" in B.parts:
         return _leech(B, action, f, view)
+    if "horns" in B.parts:
+        return _dragon(B, action, f, k)
     return _eel(B, action, f, k, awake)
 
 
@@ -363,6 +365,258 @@ def _eel(B, action: str, f: int, k: float, awake: bool) -> Pose:
                 return M.RIPPLE_DIM
         if d0 < base_r + 3.2 or dh < 4.2 or (along(a, b) < 3.3 and sink < 30):
             return M.POOL
+        return None
+
+    P.water_fx = water
+    return P
+
+
+# ================================================================================================= the dragon (M2)
+# The riverbed serpent: the eel's key poses (its side-view sheet's S is the same rising curve), a jade dragon-eel on
+# them. Its own styles name the eel's poses and what the dragon adds: `orb` (0..1, the water orb its tell gathers before
+# its jaws), `splash` (frames throwing spray), `whisk` (the whiskers' wave).
+DRAGON_STYLES = {
+    "coil_sway": dict(STYLES["sway"], motes=False, whisk=1.0),
+    "surge": dict(STYLES["glide"], motes=False, whisk=1.4),
+    "rear_orb": dict(STYLES["rear_back"], motes=False, orb=(0.3, 0.55, 0.8, 1.0), whisk=0.6),
+    "dragon_bite": dict(STYLES["lunge_snap"], splash=(1, 2), whisk=1.8),
+    "toss_back": dict(STYLES["snap_back"], splash=(0,), whisk=1.6),
+    "dive_under": dict(STYLES["sink"], mist=False, splash=(1, 2, 3, 4, 5), whisk=0.8),
+}
+STYLES.update(DRAGON_STYLES)
+DRAGON = dict(EEL, **{
+    "lift": 3.0,                      # it hovers a little (a flyer's bob, EnemyAuthority._hover): its water a step under
+    "s": (0.0, 2.2, -1.6, 2.0, -0.8, 0.3),
+    "profile": ((0.0, 4.7), (0.3, 4.3), (0.6, 3.8), (0.85, 3.3), (1.0, 3.1)),
+    "crest": (3.4, 1.3),              # the gold spines' length, the fin web's height between them
+    "skull": ((0.8, 0.0, 0.5), (3.9, 3.1, 2.8)), "snout": ((5.3, 0.0, 0.1), (3.6, 2.05, 1.6)),
+    "brow": ((2.2, 1.7, 1.95), (2.1, 1.05, 0.85)), "eye": (2.85, 2.15, 1.15),
+    "horns": ((-0.9, 1.45, 2.0), (-3.0, 2.2, 3.6), (-5.6, 2.6, 4.2), (-7.4, 2.5, 3.6)), "horn_r": (0.85, 0.6, 0.35, 0.12),
+    "whiskers": {"root": (7.4, 1.25, -0.5), "n": 8, "step": 1.45, "r": (0.34, 0.16)},
+    "frill": ((-0.4, 2.4, 0.2), 3.0, 3),
+    "orb": (11.2, 0.0, -2.2),
+})
+VARIANTS["dragon"] = {"parts": DRAGON, "mats": {"skin": "rs_scale", "belly": "rs_belly", "fin": "rs_fin", "mouth": "rs_mouth",
+                                                "horn": "rs_horn", "gold": "rs_gold", "orb": "rs_orb"},
+                      "motion": {"idle": "coil_sway", "walk": "surge", "windup": "rear_orb", "attack": "dragon_bite", "hurt": "toss_back",
+                                 "death": "dive_under"}}
+
+
+def _dragon(B, action: str, f: int, k: float) -> Pose:
+    """M2, the riverbed serpent: a jade dragon-eel rising out of clear water on the eel's S. Jade scales in arcs over its
+    back, gold belly scutes down its front, a crest of gold spines webbed in pale jade fin down its back and over the loop
+    behind it; a long dragon head (a heavy brow over a glowing gold eye, a long snout, swept-back ivory horns, a gill frill
+    of gold-spined fins, long gold whiskers trailing from its snout and waving); its jaw drops on white fangs and a red
+    maw. Its tell gathers the river into an orb before its open jaws (held); it lunges and bites in a splash; struck, it
+    tosses back; beaten, it dives under in spray. No Hollow in it: clear water, white foam, no strands."""
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    P = Pose()
+    P.water = -p.lift / math.cos(ELEV)
+    wz = P.water / k
+    ctrl, head_deg, gape, eye, sink = _key(B, action, f)
+    sway = st.sway[0] * wave(action, f, st.sway[1]) if "sway" in st else 0.0
+    ahead = st.get("ahead", p.ahead)
+    pts = [v3(x * ahead, p.s[i] + sway * (i / 5.0) ** 2, wz - (y + sink) * p.up) for i, (x, y) in enumerate(ctrl)]
+    spine = _spline(pts, p.n)
+    if "undulate" in st:
+        ph = f / 8.0 * math.tau
+        out = []
+        for i, q in enumerate(spine):
+            t = i / (len(spine) - 1)
+            nxt, prv = spine[min(i + 1, len(spine) - 1)], spine[max(i - 1, 0)]
+            ta, tc = nxt[0] - prv[0], nxt[2] - prv[2]
+            ln = math.hypot(ta, tc) or 1.0
+            s = st.undulate * math.sin(ph - t * 6.0) * min(1.0, t * 3.0) * (1.0 - t * 0.4)
+            out.append(v3(q[0] - tc / ln * s, q[1], q[2] + ta / ln * s))
+        spine = out
+    n = len(spine)
+    under = lambda q: q[:, 2] > wz
+    prof = p.profile
+
+    def radius(t):
+        for (t0, r0), (t1, r1) in zip(prof, prof[1:]):
+            if t <= t1:
+                return r0 + (r1 - r0) * (t - t0) / (t1 - t0)
+        return prof[-1][1]
+
+    def skin(q, nn):
+        """Jade scales in arcs over the back and flanks (a step dark at each arc's edge, a step lit inside the next); the
+        gold belly down its front in scutes, a dark line between each."""
+        belly = (nn[:, 0] > 0.6) | (nn[:, 2] < -0.6)
+        u = q[:, 2] * 0.8 + np.abs(q[:, 1]) * 0.55 + q[:, 0] * 0.25
+        arc = (u % 1.25) < 0.24
+        lit = ((u % 1.25) > 0.6) & ((u % 1.25) < 0.78) & (nn[:, 2] > 0.2)
+        scute = (q[:, 2] * 0.62) % 1.0 < 0.16
+        names = np.where(belly, m.belly, m.skin).astype(object)
+        bias = np.where(belly, np.where(scute, -1, 0), np.where(arc, -1, np.where(lit, 1, 0))).astype(np.int16)
+        return names, bias
+
+    def tangent(i):
+        a, b = spine[max(i - 3, 0)], spine[min(i + 3, n - 1)]
+        ta, tc = b[0] - a[0], b[2] - a[2]
+        ln = math.hypot(ta, tc) or 1.0
+        return ta / ln, tc / ln
+
+    for i in range(0, n - 1, 2):
+        r0, r1 = radius(i / (n - 1)), radius(min(n - 1, i + 2) / (n - 1))
+        P.add(L(spine[i], spine[min(n - 1, i + 2)], r0, r1, m.skin, "body", skin, under))
+    # The crest down its back: gold spines, the pale jade fin webbed between them, fluttering a little.
+    spine_h, web = p.crest
+    for j, i in enumerate(range(9, n - 7, 3)):
+        q = spine[i]
+        if q[2] < wz:
+            continue
+        ta, tc = tangent(i)
+        da, dc = -tc, ta
+        r = radius(i / (n - 1))
+        h = spine_h * (0.75 + 0.25 * math.sin(j * 1.9)) + 0.25 * math.sin(f * 1.7 + j)
+        mm = np.array(((ta, 0.0, da), (0.0, 1.0, 0.0), (tc, 0.0, dc)))
+        base = v3(q[0] + da * (r - 0.4), q[1], q[2] + dc * (r - 0.4))
+        P.add(E(base + v3(da, 0.0, dc) * (web * 0.5), (1.6, 0.35, web * 0.9), m.fin, "crest", mm, clip=under, line=False))
+        tip = base + v3(da - ta * 0.7, 0.0, dc - tc * 0.7) * h
+        P.add(L(base, tip, 0.55, 0.15, m.gold, "crest", clip=under, line=False))
+    # The loop of its back breaking the surface behind it, crested, and its tail fin fanning beyond.
+    roll = st.roll_amp * math.sin(f / 8.0 * math.tau) if "roll_amp" in st else 0.0
+    lift = (st.lift[0] * wave(action, f, st.lift[1]) if "lift" in st else 0.0) - sink * p.up
+    low = -2.6 - sink * p.up
+    lp = p.loop
+    loop = ((lp[0][0], lp[0][1], low), (lp[1][0], lp[1][1], lp[1][2] + lift), (lp[2][0], lp[2][1], lp[2][2] + lift),
+            (lp[3][0], lp[3][1], lp[3][2] + lift * 0.5), (lp[4][0], lp[4][1], low))
+    hump = _spline([v3(a + roll, b, wz + c_) for a, b, c_ in loop], 12)
+    for i in range(len(hump) - 1):
+        P.add(L(hump[i], hump[i + 1], 3.0 - 0.5 * i / 11.0, 3.0 - 0.5 * (i + 1) / 11.0, m.skin, "hump", skin, under))
+    for i in (3, 5, 7, 9):
+        q = hump[i]
+        P.add(E(v3(q[0], q[1], q[2] + 2.9), (0.9, 0.3, 0.8), m.fin, "hump_fin", rot("c", -42.0), clip=under, line=False))
+        P.add(L(v3(q[0], q[1], q[2] + 2.4), v3(q[0] - 0.6, q[1] + 0.5, q[2] + 2.4 + spine_h * 0.8), 0.35, 0.12, m.gold, "hump_fin",
+                clip=under, line=False))
+    tail = v3(-14.2 + roll, 10.2, wz + 0.2 + lift * 0.4)
+    tm_ = rot("c", -42.0) @ rot("b", -20.0)
+    P.add(E(tail, (2.2, 0.35, 1.9), m.fin, "tailfin", tm_, clip=under))
+    for t_ in (-35.0, 0.0, 35.0):
+        P.add(L(tail - tm_ @ v3(1.2, 0.0, 0.0), tail + tm_ @ v3(-math.cos(math.radians(t_)) * 0.4 - 1.0, 0.0, math.sin(math.radians(t_)) * 2.4 + 0.6),
+                0.3, 0.1, m.gold, "tailfin", clip=under, line=False))
+    # The head: skull and long snout along the neck's end, a heavy brow, the jaw dropping by the gape.
+    H = spine[-1]
+    ta, tc = tangent(n - 1)
+    pitch = math.degrees(math.atan2(tc, ta)) * 0.35 + head_deg * 0.8
+    hm = rot("b", pitch)
+    hp = lambda q: H + hm @ v3(q)
+    skull_c, skull_r = hp(p.skull[0]), p.skull[1]
+    P.add(E(skull_c, skull_r, m.skin, "head", hm, skin, under), E(hp(p.snout[0]), p.snout[1], m.skin, "head", hm, skin, under))
+    for s in (1, -1):
+        bc, br = p.brow
+        P.add(E(hp((bc[0], s * bc[1], bc[2])), br, m.skin, "brow", hm, skin, under, line=False))
+    jm = hm @ rot("b", -gape * 38.0)
+    hinge = hp((0.6, 0.0, -1.2))
+    if gape > 0.2:
+        P.add(E(hinge + hm @ rot("b", -gape * 19.0) @ v3(3.4, 0.0, -0.2), (3.0, 1.45, 0.8), m.mouth, "mouth", jm, clip=under, line=False))
+        for t in (3.0, 4.4, 5.8, 7.0):
+            for s in (1, -1):
+                P.mark(hp((t, s * 1.25, -1.35)), M.EEL_TOOTH)
+                P.mark(hinge + jm @ v3(t - 0.4, s * 1.05, 0.35), M.EEL_TOOTH)
+    P.add(E(hinge + jm @ v3(3.8, 0.0, -0.4), (3.6, 1.7, 0.85), m.belly, "jaw", jm, clip=under))
+    # Swept-back ivory horns from the back of its skull.
+    hr = p.horn_r
+    for s in (1, -1):
+        hpts = [hp((x, s * y, z)) for x, y, z in p.horns]
+        for i in range(len(hpts) - 1):
+            P.add(L(hpts[i], hpts[i + 1], hr[i], hr[i + 1], m.horn, "horn%d" % s, clip=under))
+    # The gill frill behind the jaw: gold-spined fins fanning back.
+    (fa, fb, fc), flen, fn = p.frill
+    for s in (1, -1):
+        root = hp((fa, s * fb, fc))
+        for j in range(fn):
+            ang = math.radians(-30.0 + 30.0 * j)
+            d = hm @ v3(-math.cos(ang), s * 0.55, math.sin(ang))
+            tip = root + d * flen
+            mm_ = np.stack([d / np.linalg.norm(d), hm @ v3(0.0, 1.0, 0.0), np.cross(d / np.linalg.norm(d), hm @ v3(0.0, 1.0, 0.0))], axis=1)
+            P.add(E((root + tip) * 0.5, (flen * 0.5, 0.25, 0.7), m.fin, "frill%d" % s, mm_, clip=under, line=False))
+            P.add(L(root, tip, 0.28, 0.1, m.gold, "frill%d" % s, clip=under, line=False))
+    # Its eyes: gold, glowing under the brow (flaring wide in the tell), screwed shut when struck, dull when it dies.
+    ea, eb, ec = p.eye
+    for s in (1, -1):
+        e_ = hp((ea, s * eb, ec))
+        if eye in ("open", "wide"):
+            P.eye(e_, M.RS_EYE_CORE)
+            P.mark(e_ + hm @ v3(-0.45, 0.0, 0.0), M.RS_EYE)
+            P.mark(e_ + hm @ v3(0.0, 0.0, -0.45), M.RS_EYE_RING)
+            if eye == "wide":
+                for dd in ((0.3, 0.0, 0.8), (-0.6, 0.0, 0.6), (0.6, 0.0, -0.2)):
+                    P.glow.append((e_ + hm @ v3(*dd) + hm @ v3(0.0, s * 0.4, 0.0), M.RS_EYE_GLOW))
+        elif eye == "dead":
+            P.mark(e_, M.RAMPS[m.skin][1])
+        else:
+            P.mark(e_, M.RAMPS[m.skin][0])
+        P.mark(hp((p.snout[0][0] + p.snout[1][0] - 0.3, s * 0.7, 0.6)), M.RAMPS[m.skin][0])     # its nostril
+    # Long gold whiskers from its snout, trailing back and down, waving.
+    w = p.whiskers
+    wk = st.get("whisk", 1.0)
+    for s in (1, -1):
+        wp = [hp((w.root[0], s * w.root[1], w.root[2]))]
+        for j in range(1, w.n + 1):
+            u = j / float(w.n)
+            wav = math.sin(f * 1.3 + j * 0.9 + (0.0 if s > 0 else 1.4)) * 0.7 * wk * u
+            wp.append(wp[0] + hm @ v3(-j * w.step * 0.8, s * (0.5 + j * 0.35), -j * w.step * 0.55 + wav) + v3(0.0, 0.0, -u * u * 1.6))
+        for i in range(len(wp) - 1):
+            r0 = w.r[0] + (w.r[1] - w.r[0]) * i / w.n
+            P.add(L(wp[i], wp[i + 1], r0, r0 - (w.r[0] - w.r[1]) / w.n, m.gold, "whisker%d" % s, clip=under, line=False))
+    # The tell: the river spirals up into an orb before its open jaws, swelling until the blow.
+    orb = B.pick("orb", action, f)
+    if orb > 0.0:
+        oc = hp(p.orb) + hm @ v3(orb * 0.8, 0.0, 0.0)
+        r = 0.8 + 1.7 * orb
+        P.add(S(oc, r, m.orb, "orb", line=False))
+        P.glow.append((oc + v3(0.0, 0.0, r * 0.55) + hm @ v3(-r * 0.3, 0.0, 0.0), M.RS_ORB_GLINT))
+        for j in range(14):
+            u = ((j * 0.071 + f * 0.13) % 1.0)
+            ang = u * 4.0 * math.tau + j
+            rr = r + 1.2 + 5.0 * (1.0 - u)
+            q = oc + v3(math.cos(ang) * rr * 0.7, math.sin(ang) * rr, -(1.0 - u) * 9.0 * orb)
+            P.fx.append((q, M.SPLASH if j % 3 else M.SPLASH_DIM))
+        for j in range(8):
+            ang = math.radians(j * 45.0 + f * 30.0)
+            P.glow.append((oc + v3(math.cos(ang) * (r + 0.6) * 0.6, math.sin(ang) * (r + 0.6), math.sin(ang * 2.0) * 0.5), M.RS_ORB_AURA))
+    # Spray: off its jaws as it bites, off its body as it tosses back or dives under.
+    if f in st.get("splash", ()):
+        at_ = hp((7.0, 0.0, -1.5)) if action == "attack" else v3(spine[n // 3][0], 0.0, wz + 0.5)
+        for j in range(18):
+            ang = math.radians(j * 20.0 + f * 17.0)
+            rr = 2.5 + (j % 3) * 1.6 + f * 1.0
+            q = at_ + v3(math.cos(ang) * rr * 0.6, math.sin(ang) * rr, 1.0 + (j % 4) * 1.1 + (2.0 if j % 2 else 0.0))
+            P.fx.append((q, M.SPLASH if j % 2 else M.SPLASH_DIM))
+    # The water round it: clear river, white foam where the body and the loop break the surface, rings spreading.
+    k0 = next((i for i, q in enumerate(spine) if q[2] >= wz), 0)
+    base_a, base_r = spine[k0][0], radius(k0 / (n - 1))
+    ring = st.ring[0] + f * st.ring[1] if "ring" in st else 8.4
+    breaks = [q for q in (hump[0], hump[-1]) if sink < 30]
+    wake = st.get("wake", False)
+    la, lb = (loop[0][0] + roll, loop[0][1]), (loop[-1][0] + roll, loop[-1][1])
+
+    def along(a, b):
+        da, db = lb[0] - la[0], lb[1] - la[1]
+        u = max(0.0, min(1.0, ((a - la[0]) * da + (b - la[1]) * db) / (da * da + db * db)))
+        return math.hypot(a - la[0] - da * u, b - la[1] - db * u)
+
+    def water(a, b):
+        d0 = math.hypot(a - base_a, b)
+        dh = min((math.hypot(a - q[0], b - q[1]) for q in breaks), default=99.0)
+        if d0 < base_r + 1.1 and sink < 60:
+            ang = int((math.degrees(math.atan2(b, a - base_a)) + 360.0) // 30.0)
+            return M.FOAM if h01(ang, f, 17) > 0.25 else M.RS_POOL_LIT
+        if dh < 2.6:
+            return M.FOAM
+        if abs(d0 - ring) < 0.5 and d0 > base_r + 3.0:
+            return M.RS_RIPPLE
+        if abs(d0 - ring + 3.8) < 0.45 and d0 > base_r + 3.0:
+            return M.RS_RIPPLE_DIM
+        if wake and -14.0 + roll > a > -19.5:
+            wd = (-14.0 + roll - a) * 0.5 + 0.8
+            if abs(abs(b - 10.0) - wd) < 0.45:
+                return M.RS_RIPPLE_DIM
+        if d0 < base_r + 3.2 or dh < 4.2 or (along(a, b) < 3.3 and sink < 30):
+            return M.RS_POOL
         return None
 
     P.water_fx = water

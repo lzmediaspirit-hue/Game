@@ -212,6 +212,20 @@ RAMPS = {
     "talisman_old": _s("e6d4a0", "cdb67c", "a28a58", "6e5a3a"),
     "cinnabar": _s("f08070", "cf3a3a", "962430", "5e1624"),
     "soul_void": _s("5a4290", "3a2a5c", "2a1a40", "1a0f2a"),
+    # M2. Each from its side-view sheet's materials (tools/art/creatures/), as M1's.
+    # riverbed serpent: jade scales, gold belly scutes and spines, a pale jade fin, ivory horns, a red maw; its water orb
+    "rs_scale": _s("96f0c8", "2fa982", "1b7466", "114a4c"),
+    "rs_belly": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "rs_fin": _s("d2fff2", "6fdcc2", "2c9e8f", "15514f"),
+    "rs_horn": _s("fff6d2", "e8d49c", "b09c6a", "6e6040"),
+    "rs_gold": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "rs_mouth": _s("e0707a", "a83a4c", "6e2034", "401222"),
+    "rs_orb": _s("f2fffc", "a8ecec", "5cc0cc", "2e7a8e"),
+    # rapids lizard: blue-green skin, a pale belly, a pale jade fin, a dark red maw
+    "rl_skin": _s("7fd8c6", "28868f", "1b5a74", "133a52"),
+    "rl_belly": _s("f2f6d6", "c8e2c0", "8fb4a0", "5a7c78"),
+    "rl_fin": _s("e2fff6", "8cf0d6", "45bcb2", "23808a"),
+    "rl_mouth": _s("c45a68", "8a2f40", "5e1c2c", "3a1020"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -281,6 +295,12 @@ PROPS = {
     "chick_beak": {"hi": True, "glossy": True, "weight": 1.5}, "chick_crown": {"hi": True, "weight": 1.6},
     "talisman": {"hi": True, "thin": True}, "talisman_old": {"hi": True, "thin": True}, "cinnabar": {"hi": True, "weight": 1.5},
     "soul_void": {"weight": 1.8},
+    # M2
+    "rs_scale": {"hi": True, "glossy": True}, "rs_belly": {"hi": True, "weight": 1.2}, "rs_fin": {"hi": True, "thin": True},
+    "rs_horn": {"hi": True, "glossy": True, "weight": 1.5}, "rs_gold": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "rs_mouth": {"weight": 1.4}, "rs_orb": {"hi": True, "glossy": True, "weight": 1.4},
+    "rl_skin": {"hi": True, "glossy": True}, "rl_belly": {"hi": True, "weight": 1.2}, "rl_fin": {"hi": True, "thin": True, "weight": 1.2},
+    "rl_mouth": {"weight": 1.4},
 }
 
 # Single colours laid on as marks and points.
@@ -367,6 +387,20 @@ GHOST_GLOW = c("B89CF0")
 GHOST_GLOW_HI = c("EFE6FF")
 GHOST_VOID = c("1A0F2A")
 GHOST_AURA = c("B89CF0", 140)
+# M2: the riverbed serpent's gold eye (its core, glow and ring), its orb's glint and aura, and its clear river (the pool
+# round it, lit at its foot, and the rings spreading).
+RS_EYE_CORE = c("FFFBE0")
+RS_EYE = c("FFD24A")
+RS_EYE_RING = c("E0801E")
+RS_EYE_GLOW = c("FFD24A", 140)
+RS_ORB_GLINT = c("FFFFFF", 230)
+RS_ORB_AURA = c("A8ECEC", 150)
+RS_POOL = c("2E7A8A", 140)
+RS_POOL_LIT = c("5CB4B4", 190)
+RS_RIPPLE = c("D2F4EE", 210)
+RS_RIPPLE_DIM = c("8CCFC0", 160)
+# M2: the rapids lizard's amber eye.
+LIZARD_EYE = c("F2B640")
 
 
 def palette(*names) -> dict:

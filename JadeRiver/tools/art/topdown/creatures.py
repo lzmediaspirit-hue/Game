@@ -69,7 +69,7 @@ class Spec:
 
     def __init__(self, pose=None, plan=None, body=None, size=1.0, palette=(), accents=(), elite=True, shadow=(10, 3),
                  cycle=10.0, sideways=False, glow=(), aura=False, sized=False, gold=(), view=False, extra=(), awakened=None,
-                 share=False):
+                 share=False, canvas=None):
         self.hand, self.plan, self.body, self._body = pose, plan, dict(body or {}), None
         self.size, self.palette = size, list(palette)
         self.accents, self.elite, self.shadow, self.cycle, self.sideways, self.glow = accents, elite, shadow, cycle, sideways, glow
@@ -80,6 +80,9 @@ class Spec:
         # sheet carries each picture once; foes.json points every frame at its cell as before. An elite's ring is lean
         # then: it flickers by its pose (sculpt.ring_seed), so its held poses share too, and its alphas come in steps.
         self.share = share
+        # M2: a creature taller than the working canvas allows (raster.W x raster.H, 84 px over the feet) is cast on a
+        # canvas of its own, (W, H), its feet at (W // 2, H - 40) on it (`foot_of`): a field or story boss of size.
+        self.canvas = tuple(canvas) if canvas else None
 
     def looks(self) -> list:
         """The looks it is drawn in: its own, its elite's, its awakened one's."""
@@ -148,7 +151,25 @@ def draw(species: str, action: str, f: int, facing: str, elite="base") -> np.nda
     if hasattr(P, "picture"):
         # M1: a person (plans/person.py) is cast by the character's own pipeline, dressed in its outfit, not sculpted.
         return P.picture(facing, elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
-    return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
+    if sp.canvas is None:
+        return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
+    from figure import raster
+    keep = (raster.W, raster.H, raster.AX, raster.AY, sculpt.FOOT)
+    w, h = sp.canvas
+    raster.W, raster.H = w, h
+    raster.AX, raster.AY = sculpt.FOOT = foot_of(species)
+    try:
+        return sculpt.picture(P, yaw, sp.look(variant), elite, f, "hollow" if variant == "awakened" else sp.aura, sp.share)
+    finally:
+        raster.W, raster.H, raster.AX, raster.AY, sculpt.FOOT = keep
+
+
+def foot_of(species: str) -> tuple:
+    """Where a species' feet are on the canvas it is drawn on: sculpt.FOOT, or (M2) on its own canvas's (Spec.canvas)."""
+    sp = REGISTRY[species]
+    if sp.canvas is None:
+        return sculpt.FOOT
+    return (sp.canvas[0] // 2, sp.canvas[1] - 40)
 
 
 def _enemies() -> dict:
@@ -242,14 +263,15 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             # foe's label (its HP bar and plate) on its head there.
             idle = frames[(sp, el, "s")][0][..., 3] > 0
             iy = np.nonzero(idle.any(axis=1))[0]
-            top = int(sculpt.FOOT[1] - iy.min()) if len(iy) else int(sculpt.FOOT[1] - y0)
+            fx, fy = foot_of(sp)
+            top = int(fy - iy.min()) if len(iy) else int(fy - y0)
             if str(REGISTRY[sp].plan or "").startswith("person."):
                 top += PERSON_LIFT
             k = ELITE if el == "elite" else (float(REGISTRY[sp].awakened.get("size", 1.0)) if el == "awakened" else 1.0)
             shadow = [int(round(REGISTRY[sp].shadow[0] * k)), int(round(REGISTRY[sp].shadow[1] * k))]
             path = "art/topdown/foes/%s%s.png" % (sp, "" if el == "base" else "_" + el)
             v = {"actions": acts, "shadow": shadow, "top": top, "atlas": "res://" + path, "cell": [cw, ch],
-                 "foot": [int(sculpt.FOOT[0] - x0), int(sculpt.FOOT[1] - y0)]}
+                 "foot": [int(fx - x0), int(fy - y0)]}
             sheets[path] = sheet
             if el != "base":
                 block[el] = v

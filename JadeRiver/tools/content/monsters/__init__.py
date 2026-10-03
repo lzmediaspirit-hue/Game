@@ -29,9 +29,10 @@ import zlib
 # names), the materials its elite keeps (`accents`) or turns gold (`gold`), whether it has an elite, its boss ring
 # (`aura`), its blob shadow, the walk cycle's length, the crab's `sideways`, the eel's `sized`, the beasts' `view`, the
 # actions past the catalogue (`extra`), a boss's awakened look, its glow materials, and (M1) whether a facing's identical
-# frames share one cell of its sheet (`share`).
+# frames share one cell of its sheet (`share`), and (M2) the canvas a creature too tall for the working canvas is cast
+# on (`canvas`: (W, H)).
 ART_KEYS = ("size", "palette", "accents", "gold", "glow", "elite", "aura", "shadow", "cycle", "sideways", "sized", "view",
-            "extra", "awakened", "share")
+            "extra", "awakened", "share", "canvas")
 # The voice families sound.py names (the creatures whose shell, slime or wood their race does not say).
 BODIES = ("shell", "slime", "wood")
 TELLS = ("water",)
