@@ -60,6 +60,10 @@ if ! python3 tools/content/monsters/build.py --check; then failed+=("monsters");
 # life.json hold (its work spots resolved on the layouts); the engine's own tests pass (tools/content/npcs).
 echo "== npc_engine"
 if ! python3 tools/content/npcs/engine.py --check; then failed+=("npc_engine"); fi
+# Audit 45 (E5): the quest engine: every side quest's and daily job's spec resolves, compiles the same twice and is what
+# quests.json and mission_templates.json hold (its pay the band table's at its tier); its own tests pass (tools/content/quests).
+echo "== quest_engine"
+if ! python3 tools/content/quests/engine.py --check; then failed+=("quest_engine"); fi
 # The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
 # load their own scenes, so only this catches a missing or broken main scene.
 echo "== boot"
