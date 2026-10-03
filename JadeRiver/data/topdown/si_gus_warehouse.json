@@ -1,0 +1,327 @@
+{
+ "schema_version": 1,
+ "id": "si_gus_warehouse",
+ "name": "Gu's Warehouse",
+ "size": [
+  44,
+  20
+ ],
+ "spawn": [
+  4,
+  18
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444",
+  "42222222222222222222222222222222222222333334",
+  "42222222222222222222222222222222222222333334",
+  "42222222222200000000000000000000002222242244",
+  "42222222222200000000000000000000002222242244",
+  "42222222222200000000000000000000002222222224",
+  "40003003000000000000000000000000002222222224",
+  "40003003000000000000000000000000003003000004",
+  "40003003000000000000000000000000003003000004",
+  "40003003000000000000000000000000003003000004",
+  "40000000000000000000000000000000003003000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000004",
+  "11100111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwppppppppppppppppppppppwwwwwwwwwl",
+  "lwwwwwwwwwwwppppppppppppppppppppppwwwwwwwwwl",
+  "lwwwwwwwwwwwppppppppppppppppppppppwwwwwwwwwl",
+  "lpppwwwwppppppppppppppppppppppppppwwwwwwwwwl",
+  "lpppwwwwppppppppppppppppppppppppppwwwwpppppl",
+  "lpppwwwwppppppppppppppppppppppppppwwwwpppppl",
+  "lpppwwwwppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lpppppppppppppppppppppppppppppppwwwwwwwwwwwl",
+  "lllpplllllllllllllllllllllllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 5,
+   "y": 6,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 35,
+   "y": 7,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 40,
+   "y": 3,
+   "w": 2,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  }
+ ],
+ "props": [
+  {
+   "kind": "crates",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "sacks",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "barrel",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "crates",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "sacks",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "crates",
+   "x": 14,
+   "y": 8
+  },
+  {
+   "kind": "crates",
+   "x": 16,
+   "y": 8
+  },
+  {
+   "kind": "crates",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "sacks",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "kind": "barrel",
+   "x": 17,
+   "y": 9
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "crates",
+   "x": 24,
+   "y": 12
+  },
+  {
+   "kind": "barrel",
+   "x": 22,
+   "y": 13
+  },
+  {
+   "kind": "sacks",
+   "x": 23,
+   "y": 13
+  },
+  {
+   "kind": "crates",
+   "x": 24,
+   "y": 13
+  },
+  {
+   "kind": "crates",
+   "x": 12,
+   "y": 15
+  },
+  {
+   "kind": "sacks",
+   "x": 14,
+   "y": 15
+  },
+  {
+   "kind": "barrel",
+   "x": 15,
+   "y": 15
+  },
+  {
+   "kind": "crates",
+   "x": 20,
+   "y": 7
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 7
+  },
+  {
+   "kind": "sacks",
+   "x": 24,
+   "y": 7
+  },
+  {
+   "kind": "crates",
+   "x": 27,
+   "y": 7
+  },
+  {
+   "kind": "barrel",
+   "x": 29,
+   "y": 7
+  },
+  {
+   "kind": "desk",
+   "x": 38,
+   "y": 11
+  },
+  {
+   "kind": "cabinet",
+   "x": 41,
+   "y": 8
+  },
+  {
+   "kind": "screen",
+   "x": 39,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 33,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 42,
+   "y": 13
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "lantern_red",
+   "x": 9,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 20,
+   "y": 4
+  },
+  {
+   "kind": "lantern_red",
+   "x": 30,
+   "y": 4
+  },
+  {
+   "kind": "sacks",
+   "x": 1,
+   "y": 12
+  },
+  {
+   "kind": "sacks",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 17
+  },
+  {
+   "kind": "crates",
+   "x": 8,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 42,
+   "y": 17
+  },
+  {
+   "kind": "crates",
+   "x": 29,
+   "y": 17
+  },
+  {
+   "kind": "sacks",
+   "x": 31,
+   "y": 17
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 33,
+   "y": 17
+  }
+ ],
+ "place": {
+  "gus_vault": [
+   40.5,
+   1
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    3.5,
+    19
+   ],
+   "dir": "s",
+   "arrive": [
+    3.5,
+    17.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    15,
+    12
+   ],
+   [
+    21,
+    11
+   ],
+   [
+    26,
+    11
+   ]
+  ],
+  [
+   [
+    37,
+    14
+   ]
+  ]
+ ]
+}

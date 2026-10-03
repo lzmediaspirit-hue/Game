@@ -8,6 +8,8 @@ ZONES += ["stonewall_quarry"]   # R3
 ZONES += ["greyreed_hamlet", "bamboo_grove", "crane_falls", "cleansing_peak"]
 # R2: the Drowned Shrine and Whitewater Gorge (the Serpent's Shallows is in deepwater_bend's module).
 ZONES += ["drowned_shrine", "whitewater_gorge"]
+# R5: the story's own rooms and the Tidebreak Front.
+ZONES += ["story", "tidebreak_front"]
 
 
 def all_specs():

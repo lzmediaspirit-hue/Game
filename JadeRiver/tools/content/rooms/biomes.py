@@ -146,6 +146,26 @@ BIOMES = {
                   "walk": ["ferns", "rock_small"],
                   "water": ["cattails", "ferns"]},
     },
+    # R5 ------------------------------------------------------------------------------------------------------------
+    # The Tidebreak Front's grey fields past the Bastion (the Greyfall Breach, the Hollow Wake, the Drone Hive): bare grey
+    # rock where the Tide has drunk the land, dead trees and grey reeds, stumps, fallen logs and broken stone, a little
+    # grass still green where it sheltered; the drone hives are placed by the rooms.
+    "tidebreak": {
+        "base": "r", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["dead_tree", "rock_small", "rock_mossy"],
+                  "ground": ["dead_tree", "grey_reeds", "rock_small", "stump", "log", "grey_reeds", "tall_grass"],
+                  "walk": ["grey_reeds", "rock_small", "stump"],
+                  "water": ["grey_reeds", "dead_tree", "cattails"]},
+    },
+    # A fortress of the Wardens (the Tidebreak Bastion): dressed granite and flagstones, little that grows, weeds in the
+    # joints and stones fallen from the walls.
+    "bastion": {
+        "base": "p", "stair": "s", "density": 0.14,
+        "flora": {"wall": ["rock_small", "tall_grass", "rock_mossy"],
+                  "ground": ["rock_small", "tall_grass", "bush"],
+                  "walk": ["rock_small"],
+                  "water": ["tall_grass", "cattails"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

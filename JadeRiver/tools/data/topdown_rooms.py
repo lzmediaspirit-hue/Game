@@ -309,6 +309,17 @@ def cell(p):
     return (int((p[0] + 0.5) // 1), int((p[1] + 0.5) // 1))
 
 
+def set_piece_event(s):
+    """R5: the room event of the set piece a thing in this room begins (a rite circle's `event`: the Greyfall Breach's
+    bell), whose spawn cells a layout's `event` gives when the room has no event of its own; {} if none."""
+    pieces = {r["id"]: r for r in common.rows("set_pieces")}
+    for o in s.get("objects", []):
+        sp = pieces.get(str(o.get("event", "")), {})
+        if sp.get("room_event"):
+            return sp["room_event"]
+    return {}
+
+
 def check(lay, d):
     """Every thing of the side-view room placed where a body can stand or reach, and reached from every way in."""
     s = side(lay.id)
@@ -324,6 +335,8 @@ def check(lay, d):
         errs.append("spawns: %d lists for %d side-view spawns" % (len(d["spawns"]), len(s.get("spawns", []))))
     ev = s.get("event", {})
     lay_ev = d.get("event", {})
+    if not ev and lay_ev:
+        ev = set_piece_event(s)   # R5: the cells are a set piece's begun here (TopdownRoom.grid_event: the Greyfall stand)
     if ev.get("wave") and len(lay_ev.get("wave", [])) == 0:
         errs.append("event wave not placed")
     # Every wave, fixed and timed spawn of the event has its cells, in the side view's order (TopdownRoom.merge_def).

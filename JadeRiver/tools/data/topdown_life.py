@@ -346,6 +346,16 @@ VISTAS = {
     "wg_gorge_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "wg_rapids_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
     "wg_echo_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "river", "pad": 32}],
+    # R5: the trials' and the Gate's peaks over the cloud sea, the siege's valley, the Tidebreak Front's islands over it.
+    "si_trial_of_reflections": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_presence_trial": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_sect_war": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "si_siege": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "tf_tidebreak_bastion": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "si_tide_battle": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "tf_greyfall_breach": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "tf_hollow_wake": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "tf_drone_hive": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]
