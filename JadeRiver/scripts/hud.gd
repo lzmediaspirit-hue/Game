@@ -196,8 +196,10 @@ const TRACKER_FOOT := 320.0
 ## rises when it closes (set_blocked). Each pose raises its sound (`place_open`, `place_tend`, `place_sit`).
 const PLACE_POSE_S := 0.4
 var place_pending: Dictionary = {}   ## {page, args, t}: a page waiting for its place's pose
-## The context button's words under it, as wide as the ring leaves them (HudLayout.context_label_rect).
-const CTX_LABEL_W := 128.0
+## The context button's words under it, as wide as the ring leaves them (HudLayout.context_label_rect). Audit 45 S6: 116
+## (from 128), so the sixth place of ring 2 (292°, the weapon swap's) keeps clear of the label's end: at 128 its circle
+## crossed the label's top corner by 3 px at 1280 × 720. Nothing moves; a label wider than 116 px ends in "…" sooner.
+const CTX_LABEL_W := 116.0
 ## The log's rows at most, and a wrapped row's indent (HudPanels.log_rows).
 const LOG_ROWS := 6
 const LOG_INDENT := 14.0
