@@ -939,6 +939,32 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 - **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),
   and so are the 51 `ui.*` string keys. The 11 `world_view.*` keys stay.
 
+### Status (phase 2, S10): Crafting and Progression in parts, done
+
+- **`crafting_authority.gd`** had 2,055 lines and now has 271. It keeps its state, intents, subscription and tick, and
+  a forwarder for every public method. The work is in nine parts under `authority/crafting/`, 1,999 lines in all, plus
+  the 29-line base `CraftingPart`:
+  - professions, gathering and the garden;
+  - recipes, the refine and the furnaces;
+  - the forge, research and the guilds.
+- **`progression_authority.gd`** had 1,858 lines and now has 274. It still runs the cultivator's clock. The work is in
+  eleven parts under `authority/progression/`, 1,890 lines in all, plus the 35-line base `ProgressionPart`:
+  - meditation, realms, the tribulation and fates;
+  - insight, attunement, the body and the cultivator's condition;
+  - vows, techniques and the trees.
+- **The pattern.**
+  - A part holds a weak reference to its authority, and the authority keeps all the state.
+  - A part calls the authority's public methods the way any caller does. It calls another part's own helpers on that
+    part.
+  - Tests and tools call some private helpers by name, so their forwarders keep the private names: 5 on Crafting and
+    12 on Progression. S11 renames them.
+- **The checks that name scripts.** Both changes work for any `authority/<name>/` folder, so S8 and S9 need no edits of
+  their own.
+  - `tools/data/contract.py` counts an authority's part folder in its system, and refuses two scripts with the same
+    file name.
+  - `data_validation` reads the part folders for `use_system` reports.
+- Behaviour, the balance figures and every suite's check count are unchanged.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:
