@@ -372,7 +372,7 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
   >     `generated_runtime`, `release_review`, `pixel_input`, `platform_contact_visual`, `movement_visual_v07` with
   >     `review_visual_v08`/`v09`, and `generated_visuals` with `visual_checks`;
   >   - `support_review_v08`, which reviewed the v0.9 generated regions and failed 2 of its 13,102 checks;
-  >   - `scenes/pixel_stage.tscn`, which only these scripts used.
+  >   - `scenes/pixel_stage.tscn`, wrongly: it is the main scene. It was restored, and a `boot` gate now guards it.
   > - **Kept**, each still working:
   >   - `gauntlet_review` (AGENTS.md rule 1's sheets, byte-identical);
   >   - `weapon_combo_visual`;
