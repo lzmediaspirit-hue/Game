@@ -10,7 +10,7 @@ Files, by the short names used below:
 | Short name | Path |
 |---|---|
 | `progression_rules.gd` | `scripts/simulation/rules/progression_rules.gd` (pure formulas) |
-| `progression_authority.gd` | `scripts/simulation/authority/progression_authority.gd` (owns the Realm track) |
+| `progression_authority.gd` | `scripts/simulation/authority/progression_authority.gd` (owns the Realm track). Since audit 45 S10 its code is in its parts under `scripts/simulation/authority/progression/`; the line numbers here are those of commit 4d0ab66 |
 | `cultivator_state.gd` | `scripts/simulation/state/cultivator_state.gd` |
 | `account_authority.gd`, `inventory_authority.gd`, `combat_authority.gd`, `quest_authority.gd`, `pet_authority.gd`, `companion_authority.gd`, `post_authority.gd`, `sect_authority.gd` | `scripts/simulation/authority/` |
 | `requirement_rules.gd`, `unlock_service.gd`, `content_db.gd` | `scripts/core/` |
