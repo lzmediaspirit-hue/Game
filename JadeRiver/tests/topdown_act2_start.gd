@@ -179,7 +179,7 @@ func _view(rid: String) -> void:
 		Game.active_id = was
 	else:
 		probe.room = Game.room_rt.topdown
-		probe._build_room()
+		probe.build_room()
 	var def: Dictionary = Game.room_rt.def
 	var npcs: Array = def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "npc")
 	var things: Array = def.get("objects", []).filter(func(o): return not str(o.get("type", "")) in ["npc", "decor"])

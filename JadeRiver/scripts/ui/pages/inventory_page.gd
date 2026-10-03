@@ -133,7 +133,7 @@ static func empty_space(pg: Page, r: Rect2) -> void:
 static func locked_space(pg: Page, r: Rect2) -> void:
 	pg.rounded(r, 6.0, Color(UiKit.INK, 0.45))
 	pg.draw_rect(r.grow(-1), Color(UiKit.HOLLOW, 0.2), false, 1.0)
-	pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
+	pg.lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
 
 ## The ink shadow a floating thing casts on the cloud below its space.
 static func float_shadow(pg: Page, r: Rect2) -> void:
@@ -276,7 +276,7 @@ func draw_page() -> void:
 		var x := FIELD.x
 		for k in KINDS:
 			var label := Tx.t("ui.inventory.kind_" + k)
-			var n := _kind_count(inv, k)
+			var n := kind_count(inv, k)
 			var r := Rect2(x, KIND_Y, ceilf(UiKit.text_width(label, 18) + UiKit.text_width(str(n), 16)) + 48, TAB_H)
 			token(self, r, label, str(n), kind == k, n == 0)
 			region(r, "kind", k)
@@ -319,7 +319,7 @@ func _next(ch) -> Array:
 	var nx := InventoryAuthority.next_gourd(ch)
 	return [nx, int(nx.gourd.bag) - (ch.inventory.capacity() - ch.inventory.bonus_slots) if not nx.is_empty() else 0]
 
-func _kind_count(inv: InventoryState, k: String) -> int:
+func kind_count(inv: InventoryState, k: String) -> int:
 	return inv.bag.filter(func(s): return s != null and (k == "all" or InventoryAuthority.bag_kind(str(s.id)) == k)).size()
 
 ## The grid, rising from the cloud as the page opens: the rows in view, and the next fading into the cloud below them
@@ -387,7 +387,7 @@ func _space_line(ch, y: float) -> void:
 	x += UiKit.text_width(used, 22) + 18
 	var line := _next_line(ch)
 	if line == "": return
-	_lock_icon(Vector2(x, y - 15))
+	lock_icon(Vector2(x, y - 15))
 	text(Vector2(x + 20, y), line, 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, FIELD.x + FIELD_W - x - 20)
 
 func _next_line(ch) -> String:
@@ -521,7 +521,7 @@ func _compare_rows(ch, s: Dictionary, slot: String, worn: bool) -> Array:
 			var d := (float(rw.before) - float(rw.after)) * (1.0 if worn else -1.0)
 			var y := p.y + 17 + i * 22
 			var v := CharacterPage.stat_text(str(rw.stat), float(rw.before if worn else rw.after))
-			text(Vector2(p.x, y), Tx.t(_stat_key(str(rw.stat))), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, CARD_IN - 98 - UiKit.text_width(v, 16))
+			text(Vector2(p.x, y), Tx.t(stat_key(str(rw.stat))), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, CARD_IN - 98 - UiKit.text_width(v, 16))
 			text(Vector2(p.x, y), v, 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, CARD_IN - 88)
 			if absf(d) >= 0.0005:
 				text(Vector2(p.x, y), ("▲ " if d > 0.0 else "▼ ") + CharacterPage.stat_text(str(rw.stat), absf(d)).trim_prefix("+"), 16,
@@ -530,10 +530,10 @@ func _compare_rows(ch, s: Dictionary, slot: String, worn: bool) -> Array:
 ## Of a StatRules.equip_change, the rows a card names: the three that change most among the stats it has words for, then
 ## Combat Power (the HUD's equip prompt names the first and the last).
 static func card_rows(change: Array) -> Array:
-	return change.filter(func(rw): return _stat_key(str(rw.stat)) != "" and str(rw.stat) != "combat_power").slice(0, 3) + [change[-1]]
+	return change.filter(func(rw): return stat_key(str(rw.stat)) != "" and str(rw.stat) != "combat_power").slice(0, 3) + [change[-1]]
 
 ## The words the card names a stat by: the Character register's own, the pools and Combat Power; "" for the rest.
-static func _stat_key(stat: String) -> String:
+static func stat_key(stat: String) -> String:
 	for row in CharacterPage.OFFENCE + CharacterPage.DEFENCE + POOLS:
 		if str(row[0]) == stat: return str(row[1])
 	return ""

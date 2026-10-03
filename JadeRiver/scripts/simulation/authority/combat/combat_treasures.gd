@@ -45,9 +45,9 @@ func use_treasure(c, slot: int) -> Dictionary:
 	match str(t.action):
 		"bell":
 			for e in combat._enemies_within(here, float(t.get("radius", 150))):
-				if not e.is_boss(): combat._apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.0)), "source": c.id})
+				if not e.is_boss(): combat.apply_status_to_enemy(e, {"id": "stun", "power": 1.0, "remaining": float(t.get("stun_s", 1.0)), "source": c.id})
 				if float(t.get("seal_s", 0)) > 0.0:
-					combat._apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.seal_s), "source": c.id})
+					combat.apply_status_to_enemy(e, {"id": "qi_seal", "power": 1.0, "remaining": float(t.seal_s), "source": c.id})
 				out.targets = int(out.targets) + 1
 		"pagoda":
 			# One foe, an elite first if one is in reach; bosses are too great for it.
@@ -59,7 +59,7 @@ func use_treasure(c, slot: int) -> Dictionary:
 				var near_boss := combat._nearest_enemy(here, float(t.get("range", 320)))
 				if near_boss != null and near_boss.is_boss(): return fail("immune", {"text": Tx.t("sim.combat.pagoda_boss")})
 				return fail("no_target", {"text": Tx.t("sim.combat.treasure_no_target")})
-			combat._apply_status_to_enemy(tgt, {"id": "stun", "power": 1.0, "remaining": float(t.get("imprison_s", 4.0)), "source": c.id})
+			combat.apply_status_to_enemy(tgt, {"id": "stun", "power": 1.0, "remaining": float(t.get("imprison_s", 4.0)), "source": c.id})
 			out.targets = 1
 			out.x = tgt.plane.x
 			out.y = tgt.plane.y
@@ -68,7 +68,7 @@ func use_treasure(c, slot: int) -> Dictionary:
 		"seal":
 			var atk := _treasure_attack(t, "treasure:" + id, str(t.get("damage_type", "qi")), "earth")
 			for e in combat._enemies_within(here, float(t.get("radius", 120))):
-				combat._player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+				combat.player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 				out.targets = int(out.targets) + 1
 		"cauldron":
 			var best: EnemyState = null
@@ -80,7 +80,7 @@ func use_treasure(c, slot: int) -> Dictionary:
 			combat.captured[str(best.uid)] = true
 			out.x = best.plane.x
 			out.y = best.plane.y
-			combat._damage_enemy(best, best.pools.hp + 1.0, c.id, "physical", "none", false, {"source": "treasure:" + id})
+			combat.damage_enemy(best, best.pools.hp + 1.0, c.id, "physical", "none", false, {"source": "treasure:" + id})
 			out.targets = 1
 		"banner":
 			fxs.wisps = {"left": float(t.get("duration", 10)), "tick": 1.0, "n": int(t.get("wisps", 3)), "mult": float(t.get("mult", 0.6)),
@@ -98,7 +98,7 @@ func use_treasure(c, slot: int) -> Dictionary:
 			var atk := {"damage_type": "qi", "element": "metal", "mult": [float(t.get("mult", 6.0)), float(t.get("mult", 6.0))], "range": [1.0, 1.0],
 				"knockback": 160.0, "source": "treasure:" + id}
 			for e in combat._enemies_in(pv, facing, {"x": [0, float(t.get("reach", 540))], "depth": float(t.get("depth", 70)), "alt": [-40, 160]}, false):
-				combat._player_hits_enemy(c, pv, e, atk, facing)
+				combat.player_hits_enemy(c, pv, e, atk, facing)
 				out.targets = int(out.targets) + 1
 			out.facing = facing
 			out.reach = float(t.get("reach", 540))
@@ -153,7 +153,7 @@ func tick_treasures(c, delta: float) -> void:
 			var atk := {"damage_type": "qi", "element": "none", "mult": [float(w.mult), float(w.mult)], "range": [1.0, 1.0], "source": "treasure:wisp_banner"}
 			for i in mini(int(w.n), targets.size()):
 				var e: EnemyState = targets[i]
-				combat._player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+				combat.player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 				emit("wisp_struck", {"actor": c.id, "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.height() * 0.6})
 		if float(w.left) <= 0.0: fxs.erase("wisps")
 
@@ -179,13 +179,13 @@ func burst(c, p: Dictionary, first: EnemyState) -> void:
 	var pv := combat.player_view(c)
 	for e in combat._enemies_within(at, float(p.burst)):
 		if e == first: continue
-		combat._player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
+		combat.player_hits_enemy(c, pv, e, p.attack, 1 if e.plane.x >= at.x else -1)
 	# A poison pill leaves a cloud (S44): its status on everything inside, the first foe too.
 	var cloud: Dictionary = p.get("cloud", {})
 	if not cloud.is_empty():
 		for e in combat._enemies_within(at, float(p.burst)):
 			if e.alive and not e.pools.steadfast.has(str(cloud.status)):
-				combat._apply_status_to_enemy(e, {"id": str(cloud.status), "power": float(cloud.get("power", 0.02)), "remaining": float(cloud.get("duration_s", 5.0)), "source": c.id})
+				combat.apply_status_to_enemy(e, {"id": str(cloud.status), "power": float(cloud.get("power", 0.02)), "remaining": float(cloud.get("duration_s", 5.0)), "source": c.id})
 	emit("projectile_burst", {"actor": c.id, "x": p.x, "y": p.y, "alt": p.alt, "radius": p.burst, "cloud": str(cloud.get("status", ""))})
 
 # ------------------------------------------------------------------ self-detonation (S47)
@@ -208,7 +208,7 @@ func self_detonate(c, index: int, confirm: bool) -> Dictionary:
 		for e in game.room_rt.living_enemies():
 			if e.team != "enemy" or e.hidden: continue
 			if e.plane.distance_to(Vector2(float(pv.x), float(pv.y))) > float(ContentDB.stat_const("detonation.radius", 180)): continue
-			combat._player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "none", "mult": [power, power], "range": [1.0, 1.0], "source": "detonation",
+			combat.player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "none", "mult": [power, power], "range": [1.0, 1.0], "source": "detonation",
 				"knockback": 140.0}, 1 if e.plane.x >= float(pv.x) else -1)
 			n += 1
 	game.inventory.apply_remove_index(c.id, index, 1, "self_detonate")

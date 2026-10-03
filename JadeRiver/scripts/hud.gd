@@ -309,12 +309,12 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	if Game and GameEvents:
-		GameEvents.event.connect(_on_event)
+		GameEvents.event.connect(on_event)
 		left_handed = bool(Game.account.settings.get("left_handed", false))
 	layout.place_cluster()
 
 func _exit_tree() -> void:
-	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
+	if GameEvents.event.is_connected(on_event): GameEvents.event.disconnect(on_event)
 	if bound(): WorldLabels.party_fight = false
 
 func bound() -> bool:
@@ -446,7 +446,7 @@ func toast(text: String, kind := "unlock", sub := "") -> void:
 func drop_toasts_from(p: Dictionary) -> void:
 	toasts = toasts.filter(func(tt): return not is_same(tt.get("from"), p))
 
-func _on_event(name: String, p: Dictionary) -> void:
+func on_event(name: String, p: Dictionary) -> void:
 	_from = p
 	notices.handle(name, p)
 	_from = null
@@ -501,25 +501,25 @@ func _draw():
 # ------------------------------------------------------------------ the facade
 
 # HudLayout (hud/hud_layout.gd)
-func _layout() -> void: layout.place_cluster()
-func _on(center: Vector2, r: float, deg: float, exact := false) -> Vector2: return layout.on_ring(center, r, deg, exact)
-func _tick_fight(delta: float) -> void: layout.tick_fight(delta)
+func place_cluster() -> void: layout.place_cluster()
+func on_ring(center: Vector2, r: float, deg: float, exact := false) -> Vector2: return layout.on_ring(center, r, deg, exact)
+func tick_fight(delta: float) -> void: layout.tick_fight(delta)
 func set_state(in_fight: bool, open := false) -> void: layout.set_state(in_fight, open)
-func _slot_filled(slot: int) -> bool: return layout.slot_filled(slot)
-func _fan_items() -> Array: return layout.fan_items()
+func slot_filled(slot: int) -> bool: return layout.slot_filled(slot)
+func fan_items() -> Array: return layout.fan_items()
 func toggle_on(c, id: String) -> bool: return layout.toggle_on(c, id)
-func _ring2(c) -> Array: return layout.ring2(c)
+func ring2(c) -> Array: return layout.ring2(c)
 func ring2_places(items: Array, taken: Array = []) -> Array: return layout.ring2_places(items, taken)
 func hit_targets(badges = null) -> Array: return layout.hit_targets(badges)
 func point_badges(c) -> Array: return layout.point_badges(c)
-func _frame_badges() -> Array: return layout.frame_badges()
-func _tick_points(badges = null) -> void: layout.tick_points(badges)
+func frame_badges() -> Array: return layout.frame_badges()
+func tick_points(badges = null) -> void: layout.tick_points(badges)
 func points_pop(id: String) -> float: return layout.points_pop(id)
 func obstacle_rects(badges = null) -> Array: return layout.obstacle_rects(badges)
 func log_rect() -> Rect2: return layout.log_rect()
 func panel_rect(c) -> Rect2: return layout.panel_rect(c)
 static func go_hit(drawn: Rect2) -> Rect2: return HudLayout.go_hit(drawn)
-func _context_shown() -> bool: return layout.context_shown()
+func context_shown() -> bool: return layout.context_shown()
 func context_label_rect() -> Rect2: return layout.context_label_rect()
 
 # HudTours (hud/hud_tours.gd)
@@ -534,7 +534,7 @@ func press(id: int, p: Vector2): input.press(id, p)
 func toggle_fan() -> void: input.toggle_fan()
 func drag(id: int, p: Vector2): input.drag(id, p)
 func release(id: int): input.release(id)
-func _tick_aims(delta: float) -> void: input.tick_aims(delta)
+func tick_aims(delta: float) -> void: input.tick_aims(delta)
 func armed(g: AimGesture) -> String: return input.armed(g)
 func primary() -> void: input.primary()
 func attack_first() -> bool: return input.attack_first()
@@ -546,11 +546,11 @@ func open_points(id: String) -> void: actions.open_points(id)
 func tap_cultivate() -> void: actions.tap_cultivate()
 func keep_post() -> void: actions.keep_post()
 func place_pose_of(object_id: String) -> String: return actions.place_pose_of(object_id)
-func _tick_place_pose(delta: float) -> void: actions.tick_place_pose(delta)
+func tick_place_pose(delta: float) -> void: actions.tick_place_pose(delta)
 func open_place_page() -> void: actions.open_place_page()
 func use_context() -> void: actions.use_context()
 func begin_harvest(object_id: String) -> void: actions.begin_harvest(object_id)
-func _after_interact(r: Dictionary, object_id: String) -> void: actions.after_interact(r, object_id)
+func after_interact(r: Dictionary, object_id: String) -> void: actions.after_interact(r, object_id)
 func swap_weapon() -> void: actions.swap_weapon()
 func use_treasure(slot: int) -> void: actions.use_treasure(slot)
 func drink_draught() -> void: actions.drink_draught()
@@ -560,14 +560,14 @@ func toggle_presence() -> void: actions.toggle_presence()
 
 # HudNotices (hud/hud_notices.gd)
 func world_news(room := "") -> bool: return notices.world_news(room)
-func _caption_worthy(name: String, p: Dictionary) -> bool: return notices.caption_worthy(name, p)
+func caption_worthy(name: String, p: Dictionary) -> bool: return notices.caption_worthy(name, p)
 static func spar_line(opponent: String, moment: String) -> String: return HudNotices.spar_line(opponent, moment)
 
 # HudControls (hud/hud_controls.gd)
 func skill_position(index: float) -> Vector2: return controls.skill_position(index)
 func draw_skill_slot(center: Vector2, slot: int, opacity: float) -> void: controls.draw_skill_slot(center, slot, opacity)
 func draw_skill_scroll() -> void: controls.draw_skill_scroll()
-func _context_glyph() -> String: return controls.context_glyph()
+func context_glyph() -> String: return controls.context_glyph()
 func attack_glyph(c) -> String: return controls.attack_glyph(c)
 func armed_glow() -> float: return controls.armed_glow()
 
@@ -581,9 +581,9 @@ func log_rows(lines: Array) -> Array: return panels.log_rows(lines)
 func place_marks(c, room_id: String, to_map: Callable, top := -INF) -> Array: return minimap.place_marks(c, room_id, to_map, top)
 func minimap_place_at(p: Vector2) -> Dictionary: return minimap.place_at(p)
 static func minimap_way(from: Vector2, to: Vector2) -> Vector2: return HudMinimap.way_toward(from, to)
-static func _edge_point(r: Rect2, center: Vector2, way: Vector2) -> Vector2: return HudMinimap.edge_point(r, center, way)
+static func edge_point(r: Rect2, center: Vector2, way: Vector2) -> Vector2: return HudMinimap.edge_point(r, center, way)
 
 # HudTopStack (hud/hud_top_stack.gd)
-func _band_on_top() -> bool: return top_stack.band_on_top()
+func band_on_top() -> bool: return top_stack.band_on_top()
 static func toast_sub_rows(sub: String) -> Array: return HudTopStack.toast_sub_rows(sub)
 func toast_rects(y: float) -> Array: return top_stack.toast_rects(y)

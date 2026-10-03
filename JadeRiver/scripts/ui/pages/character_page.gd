@@ -172,7 +172,7 @@ static func draw_worn(pg: Page, ch, at: Dictionary, id: String, name_col: Color,
 		else:
 			pg.draw_style_box(UiKit.style("slot", "disabled" if why != "" else "normal"), r)
 			if why != "":
-				pg._lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
+				pg.lock_icon(r.get_center() - Vector2(8.4, 11.0), 1.4)
 				col = UiKit.HOLLOW
 			elif wearable_in_bag(ch, slot) != "":
 				# A hint, not a selection: a jade edge and halo (the selection glow is gold).

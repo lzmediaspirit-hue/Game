@@ -215,15 +215,15 @@ func _sphere_tick(c, delta: float, at: Vector2) -> void:
 		if not theirs.is_empty() and d <= float(sd.radius) + float(theirs.radius):
 			if not _sphere_clash(c, e, sd, theirs): return
 		if d > float(sd.radius): continue
-		if float(fx.get("slow", 0.0)) > 0.0: game.combat._apply_status_to_enemy(e, {"id": "slow", "power": float(fx.slow), "remaining": last, "source": c.id})
-		if fx.get("vulnerable", false): game.combat._apply_status_to_enemy(e, {"id": "vulnerable", "power": 1.0, "remaining": last, "source": c.id})
-		if float(fx.get("root_s", 0.0)) > 0.0: game.combat._apply_status_to_enemy(e, {"id": "root", "power": 1.0, "remaining": float(fx.root_s), "source": c.id})
+		if float(fx.get("slow", 0.0)) > 0.0: game.combat.apply_status_to_enemy(e, {"id": "slow", "power": float(fx.slow), "remaining": last, "source": c.id})
+		if fx.get("vulnerable", false): game.combat.apply_status_to_enemy(e, {"id": "vulnerable", "power": 1.0, "remaining": last, "source": c.id})
+		if float(fx.get("root_s", 0.0)) > 0.0: game.combat.apply_status_to_enemy(e, {"id": "root", "power": 1.0, "remaining": float(fx.root_s), "source": c.id})
 		if float(fx.get("will_down", 0.0)) > 0.0: e.ai["will_down"] = float(fx.will_down)
 		if float(fx.get("burn_pct", 0.0)) > 0.0: game.combat.sphere_strike(c, e, str(sd.element), float(fx.burn_pct) * 20.0, "burn")
 		if float(fx.get("cut_pct", 0.0)) > 0.0: game.combat.sphere_strike(c, e, str(sd.element), float(fx.cut_pct), "cut")
 		if float(fx.get("shock_pct", 0.0)) > 0.0 and not shocked and int(sphere_pulses[c.id]) % maxi(1, int(fx.get("shock_every", 2))) == 0:
 			game.combat.sphere_strike(c, e, "thunder", float(fx.shock_pct), "shock")
-			game.combat._apply_status_to_enemy(e, {"id": "shock", "power": 1.0, "remaining": 0.4, "source": c.id})
+			game.combat.apply_status_to_enemy(e, {"id": "shock", "power": 1.0, "remaining": 0.4, "source": c.id})
 			shocked = true
 	emit("sphere_pulse", {"actor": c.id, "element": str(sd.element), "radius": float(sd.radius), "x": at.x, "y": at.y})
 

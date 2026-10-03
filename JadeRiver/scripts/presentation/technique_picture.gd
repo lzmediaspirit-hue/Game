@@ -335,7 +335,7 @@ static func _slot(s: int) -> Array:
 	for sh in _sheets:
 		if int(sh.used) < now and (old == null or int(sh.used) < int(old.used)): old = sh
 	if old == null: return []
-	_restart_sheet(old, s)
+	restart_sheet(old, s)
 	return [old, 0]
 
 static func _new_sheet(s: int) -> Dictionary:
@@ -356,7 +356,7 @@ static func _new_sheet(s: int) -> Dictionary:
 	return {"vp": vp, "tex": vp.get_texture(), "s": s, "side": side, "cols": cols, "slots": slots, "used": Engine.get_process_frames()}
 
 ## A sheet given up for pictures `s` px across: its cells forgotten (their canvas items gone), `generation` moved on.
-static func _restart_sheet(sh: Dictionary, s: int) -> void:
+static func restart_sheet(sh: Dictionary, s: int) -> void:
 	for key in sh.slots:
 		if str(key) == "": continue
 		var cell: Dictionary = _cells.get(key, {})
@@ -440,9 +440,9 @@ class Host extends Node:
 	## Leaving the tree (the game quits): the workers waited for and every kept picture, figure and ink let go, before
 	## the rendering server closes.
 	func _exit_tree() -> void:
-		TechniquePicture._release()
+		TechniquePicture.release_all()
 
-static func _release() -> void:
+static func release_all() -> void:
 	for key in _pending:
 		var cell: Dictionary = _cells.get(key, {})
 		if str(cell.get("state", "")) == "painting": WorkerThreadPool.wait_for_task_completion(int(cell.task))

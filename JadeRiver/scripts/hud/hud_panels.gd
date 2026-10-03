@@ -160,7 +160,7 @@ func draw_party(c) -> void:
 		if kind == "companion":
 			_draw_face(cen, str(pc.uid), down)
 		else:
-			var p: Dictionary = Game.pets._pet(c, str(pc.uid))
+			var p: Dictionary = Game.pets.pet_of(c, str(pc.uid))
 			var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
 			UiKit.draw_creature(hud, Rect2(cen - Vector2(18, 18), Vector2(36, 36)), art, "idle", hud.t)
 			if p.get("wounded", false): down = true   # a Grievous Wound: the ring runs red all round

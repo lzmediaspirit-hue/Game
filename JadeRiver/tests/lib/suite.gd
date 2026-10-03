@@ -151,7 +151,7 @@ func _tear_down() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	TechniquePreview.TopFoe.settle()
-	TechniquePicture._release()
+	TechniquePicture.release_all()
 	_remove_tree(run_root())
 
 # ------------------------------------------------------------------ the Max Tester guard

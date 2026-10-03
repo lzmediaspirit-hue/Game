@@ -99,12 +99,12 @@ func advance(delta: float, player: Vector2, focus: bool, calls: bool) -> void:
 	if paused > 0.0:
 		paused -= delta
 		if paused > 0.0: return
-		_resume()
+		resume()
 	if calls != homing:
 		homing = calls
 		if homing:
 			at = 0
-			_resume()
+			resume()
 	t += delta
 	if walking:
 		var goal: Vector2 = spots[at][0]
@@ -151,7 +151,7 @@ func _catch_up() -> void:
 		_next_hit += cycle(action)
 
 ## Take up the work where it stands: walk on to the spot if not there, else begin its steps.
-func _resume() -> void:
+func resume() -> void:
 	walking = pos.distance_to(spots[at][0]) > ARRIVE
 	hold = -1
 	if not walking: _begin(at)

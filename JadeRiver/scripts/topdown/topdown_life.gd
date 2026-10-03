@@ -400,7 +400,7 @@ func _process(delta: float) -> void:
 	clock += delta
 	gust = gust_at(clock)
 	wind_phase += delta * (CALM + GUSTY * gust) / (CALM + GUSTY * 0.5)
-	var view := _view()
+	var view := view_rect()
 	# A room just entered, or the camera jumped (a way taken, a spot placed): its view fills with life at once.
 	if _cam.distance_to(view.get_center()) > 160.0: _fresh = true
 	_cam = view.get_center()
@@ -469,7 +469,7 @@ func _redraw_layers(view: Rect2) -> void:
 		light_layer.queue_redraw()
 		_sig_light = 1
 
-func _view() -> Rect2:
+func view_rect() -> Rect2:
 	var vs := Vector2(world.viewport.size) if world.viewport != null else Vector2(640, 360)
 	var c: Vector2 = world.camera.position if world.camera != null else vs * 0.5
 	return Rect2(c - vs * 0.5, vs)
@@ -558,10 +558,10 @@ func _spawn_critters(delta: float, view: Rect2) -> void:
 			var have := critters.filter(func(c): return str(c.kind) == kind).size()
 			if kind == "sparrow": have = critters.filter(func(c): return str(c.kind) == kind and c.lead).size()
 			if have >= n or critters.size() >= MAX_CRITTERS: break
-			_add_wild(kind, view)
+			add_wild(kind, view)
 
 ## A new wild critter round the view (the first frame of a room fills its view at once); none past the cap.
-func _add_wild(kind: String, view: Rect2) -> void:
+func add_wild(kind: String, view: Rect2) -> void:
 	if critters.size() >= MAX_CRITTERS: return
 	match kind:
 		"sparrow":
@@ -572,7 +572,7 @@ func _add_wild(kind: String, view: Rect2) -> void:
 			for i in n:
 				if critters.size() >= MAX_CRITTERS: break
 				var g := room.nearest_standable(c + Vector2(rng.randf_range(-24, 24), rng.randf_range(-16, 16)))
-				var cr := _critter("sparrow", g)
+				var cr := add_critter("sparrow", g)
 				cr.lead = i == 0
 				if _fresh:
 					cr.state = "ground"
@@ -587,27 +587,27 @@ func _add_wild(kind: String, view: Rect2) -> void:
 		"butterfly":
 			var c := _pick(flower_cells, view.grow(-MARGIN))
 			if c.x == INF: return
-			var cr := _critter("butterfly", c)
+			var cr := add_critter("butterfly", c)
 			cr.anchor = c
 			cr.z = 6.0 + rng.randf() * 8.0
 			cr.variant = ["white", "gold", "blue", "coral"][rng.randi() % 4]
 		"dragonfly":
 			var c := _pick(shore_cells, view.grow(-MARGIN))
 			if c.x == INF: return
-			var cr := _critter("dragonfly", c)
+			var cr := add_critter("dragonfly", c)
 			cr.anchor = c
 			cr.z = 8.0 + rng.randf() * 6.0
 		"fish":
 			var c := _pick(water_cells, view.grow(-MARGIN))
 			if c.x == INF: return
-			var cr := _critter("fish", c + Vector2(rng.randf_range(-10, 10), rng.randf_range(-10, 10)))
+			var cr := add_critter("fish", c + Vector2(rng.randf_range(-10, 10), rng.randf_range(-10, 10)))
 			cr.anchor = c
 			cr.floor = TopdownRoom.WATER_Z
 			cr.v = Vector2.from_angle(rng.randf() * TAU) * SPEED.fish
 		"frog":
 			var c := _pick(frog_cells, view.grow(-MARGIN))
 			if c.x == INF or _body_near(c, FLEE.frog * 2.0): return
-			var cr := _critter("frog", c + Vector2(rng.randf_range(-8, 8), rng.randf_range(-6, 6)))
+			var cr := add_critter("frog", c + Vector2(rng.randf_range(-8, 8), rng.randf_range(-6, 6)))
 			cr.state = "sit"
 			# It faces the water it will leap into.
 			var cc := TopdownRoom.cell_of(c)
@@ -618,7 +618,7 @@ func _add_wild(kind: String, view: Rect2) -> void:
 func _add_animal(kind: String, home: Vector2, id: int) -> void:
 	if critters.size() >= MAX_CRITTERS: return
 	var base := kind.get_slice("_", 0)
-	var cr := _critter(base, home)
+	var cr := add_critter(base, home)
 	_awake[id] = true
 	cr.variant = kind
 	cr.home = home
@@ -627,7 +627,7 @@ func _add_animal(kind: String, home: Vector2, id: int) -> void:
 	cr.state = {"hen": "wander", "cat": "sleep", "dog": "lie"}.get(base, "wander")
 	cr.face = 1 if (id & 1) == 0 else -1
 
-func _critter(kind: String, g: Vector2) -> Critter:
+func add_critter(kind: String, g: Vector2) -> Critter:
 	var cr := Critter.new()
 	cr.kind = kind
 	cr.g = g
@@ -842,13 +842,13 @@ func _fish(cr: Critter, delta: float) -> bool:
 		var f := _flee_from(cr)
 		if f.x < INF:
 			_flee(cr, Vector2(f.y, f.z), "fish")
-			_ring(cr.g)
+			add_ring(cr.g)
 			return true
 		# Glide, turning slowly; rise now and then in a ring.
 		cr.v = cr.v.rotated(sin(cr.t * 0.7 + float(hash(str(cr.g.x)) % 5)) * 0.6 * delta)
 		if cr.st > 5.0 + fmod(cr.t * 1.7, 5.0):
 			cr.st = 0.0
-			_ring(cr.g)
+			add_ring(cr.g)
 	var to: Vector2 = cr.g + cr.v * delta
 	var c := TopdownRoom.cell_of(to)
 	if room.is_water(c.x, c.y): cr.g = to
@@ -872,7 +872,7 @@ func _frog(cr: Critter, delta: float) -> bool:
 			cr.g += cr.v * delta
 			cr.z = maxf(0.0, sin(clampf(cr.st / 0.45, 0.0, 1.0) * PI) * 9.0)
 			if cr.st >= 0.45:
-				_ring(cr.g)
+				add_ring(cr.g)
 				raise_cue("frog_plop", cr.g)
 				return false
 	return true
@@ -977,7 +977,7 @@ func _walk_home(cr: Critter, v: Vector2, delta: float) -> void:
 	cr.moving = v.length() > 1.0
 
 ## A ripple where something breaks the water.
-func _ring(g: Vector2) -> void:
+func add_ring(g: Vector2) -> void:
 	if puffs.size() >= MAX_PUFFS: return
 	puffs.append({"kind": "ring", "at": TopdownWorld.to_screen(g, TopdownRoom.WATER_Z).round(), "t": 0.0, "life": 0.8})
 
@@ -991,14 +991,14 @@ func _step_puffs(delta: float, view: Rect2) -> void:
 		match str(e.kind):
 			"smoke":
 				e.t = CHIMNEY_S * (1.0 if extras_on else 2.0)
-				_puff("smoke", e.at + Vector2(rng.randf_range(-1, 1), 0))
+				add_puff("smoke", e.at + Vector2(rng.randf_range(-1, 1), 0))
 			"steam", "cook":
 				e.t = 0.7
-				_puff("steam", e.at + Vector2(rng.randf_range(-3, 3), 0))
+				add_puff("steam", e.at + Vector2(rng.randf_range(-3, 3), 0))
 				if str(e.kind) == "cook" and rng.randf() < 0.6: _spark(e.at + Vector2(rng.randf_range(-3, 3), 6), Color("ffb060"))
 			"forge":
 				e.t = 0.45
-				_puff("smoke", e.at + Vector2(rng.randf_range(-2, 2), -2))
+				add_puff("smoke", e.at + Vector2(rng.randf_range(-2, 2), -2))
 				_spark(e.at + Vector2(rng.randf_range(-4, 4), 0), Color("ffc070"))
 			"incense": e.t = 999.0   # drawn as a thread, not puffs
 	for i in range(puffs.size() - 1, -1, -1):
@@ -1015,7 +1015,7 @@ func _step_puffs(delta: float, view: Rect2) -> void:
 		b.v = (b.v as Vector2) + Vector2(0, float(b.get("g", 140.0))) * delta
 		if float(b.t) >= float(b.life): bits.remove_at(i)
 
-func _puff(kind: String, at: Vector2) -> void:
+func add_puff(kind: String, at: Vector2) -> void:
 	if not extras_on and kind != "smoke": return
 	var cap := MAX_PUFFS if not UiKit.reduce_motion() else MAX_PUFFS / 2
 	if puffs.size() >= cap: return
@@ -1029,7 +1029,7 @@ func _spark(at: Vector2, col: Color, n := 1, up := 30.0) -> void:
 			"col": col, "g": 60.0, "glow": true})
 
 ## Cut blades, chips, drops: a few bits thrown from `at` along `dir`, falling back.
-func _bits(at: Vector2, dir: Vector2, cols: Array, n: int) -> void:
+func add_bits(at: Vector2, dir: Vector2, cols: Array, n: int) -> void:
 	if not extras_on: n = maxi(1, n / 2)
 	for i in n:
 		if bits.size() >= MAX_BITS: return
@@ -1053,7 +1053,7 @@ func _step_work(delta: float) -> void:
 			# before the feet, a block's height up), the hammer's face on the hot bar on the room's anvil (15 px before, 16 up).
 			match cue:
 				"chop":
-					_bits((fig.feet as Vector2) + dir * Vector2(18, 7) + Vector2(0, -6), dir, [Color("e2be88"), Color("ad7b46"), Color("cb9c63")], 5)
+					add_bits((fig.feet as Vector2) + dir * Vector2(18, 7) + Vector2(0, -6), dir, [Color("e2be88"), Color("ad7b46"), Color("cb9c63")], 5)
 					raise_cue("work_chop_hit", fig.plane)
 				"hammer":
 					_spark((fig.feet as Vector2) + dir * Vector2(15, 6) + Vector2(0, -16), Color("ffd070"), 5, 44.0)
@@ -1062,15 +1062,15 @@ func _step_work(delta: float) -> void:
 		var tick := fmod(w.t, 0.5) < delta
 		match cue:
 			"sweep":
-				if tick: _puff("dust", front + Vector2(rng.randf_range(-3, 3), 0))
+				if tick: add_puff("dust", front + Vector2(rng.randf_range(-3, 3), 0))
 			"scrub":
-				if tick: _bits(front + Vector2(4, -2), Vector2.UP, [Color("a9e6c9"), Color("e9fbf1")], 2)
+				if tick: add_bits(front + Vector2(4, -2), Vector2.UP, [Color("a9e6c9"), Color("e9fbf1")], 2)
 			"stir":
-				if tick: _puff("steam", front + Vector2(0, -10))
+				if tick: add_puff("steam", front + Vector2(0, -10))
 			"stoke":
 				if tick: _spark(front + Vector2(0, -10), Color("ffc070"), 2, 36.0)
 			"pick", "grind":
-				if fmod(w.t, 0.9) < delta: _bits(front, Vector2.UP, [Color("87c749"), Color("45a03a")], 2)
+				if fmod(w.t, 0.9) < delta: add_bits(front, Vector2.UP, [Color("87c749"), Color("45a03a")], 2)
 
 # ------------------------------------------------------------------ interiors: the sun's motes
 func _step_motes(delta: float) -> void:
@@ -1107,7 +1107,7 @@ func _on_event(ev: String, p: Dictionary) -> void:
 			for pv in plants:
 				if is_instance_valid(pv) and (pv.rects[0] as Rect2).has_point(TopdownWorld.to_screen(at, m.z)): grassy = true
 			if grassy and m.grounded:
-				_bits(TopdownWorld.to_screen(at, m.z) + Vector2(0, -3), aim.normalized(), [Color("87c749"), Color("45a03a"), Color("cbe86c")], 6)
+				add_bits(TopdownWorld.to_screen(at, m.z) + Vector2(0, -3), aim.normalized(), [Color("87c749"), Color("45a03a"), Color("cbe86c")], 6)
 
 ## A sound for a moment of life (a bird's wings, a frog's plop, a hammer on the anvil): the `cue_raised` signal, and
 ## the world sound "life_" + name where it happens (Audio.world_sound: positional, under the fight's sounds) while it
@@ -1119,7 +1119,7 @@ func raise_cue(cue_name: String, g: Vector2) -> void:
 	if now - float(_sounds.get(cue_name, -99.0)) < SOUND_GAP: return
 	_sounds[cue_name] = now
 	var id := "life_" + cue_name
-	if SoundBank.has_sound(id) and _view().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.world_sound(id, g)
+	if SoundBank.has_sound(id) and view_rect().grow(8.0).has_point(TopdownWorld.to_screen(g, 0.0)): Audio.world_sound(id, g)
 
 # ------------------------------------------------------------------ drawing
 ## A sprite of the sheet: frame `f` of `name`, its foot at `at`, mirrored when `flip`, tinted `col`.
@@ -1184,7 +1184,7 @@ func _draw_air(ci: CanvasItem) -> void:
 		var a := col.a * clampf(k * 6.0, 0.0, 1.0) * clampf((1.0 - k) * 1.8, 0.0, 1.0)
 		blit(ci, "puff_%d" % size, 0, (p.at as Vector2).round(), false, Color(col, a))
 	# Incense: a thin thread rising from each burner in view, bent by the wind.
-	var view := _view().grow(24.0)
+	var view := view_rect().grow(24.0)
 	for e in emitters:
 		if str(e.kind) != "incense" or not view.has_point(e.at): continue
 		var at: Vector2 = e.at

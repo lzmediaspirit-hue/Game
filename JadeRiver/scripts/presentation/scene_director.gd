@@ -92,7 +92,7 @@ func poll() -> void:
 ## One frame: a scene to start, the script's steps, the people and the camera, the skip held, and the mode.
 func advance(delta: float) -> void:
 	if run != null and (Game.active() == null or Game.active_id != str(run.actor)):
-		_finish(true, true)   # another character took the stage
+		finish(true, true)   # another character took the stage
 	if run != null and (Game.room_rt == null or Game.room_rt.room_id != str(run.row.room)):
 		_leave()   # the character walked out of the scene's room
 	# Decision 45: a cut that holds the fight (the first boss waking, the elders' rescue) is the fight's own moment: it
@@ -100,7 +100,7 @@ func advance(delta: float) -> void:
 	# never waiting its turn behind the villagers' runs.
 	if run != null and run.mode != "cut" and not run.row.get("hold_fight", false) and not _urgent().is_empty():
 		_forward(-1, false, true)
-		_finish(false)
+		finish(false)
 	if run == null:
 		_lb_carry_t -= delta
 		_eval_t -= delta
@@ -260,7 +260,7 @@ func _play(delta: float) -> void:
 	for guard in 64:
 		if run == null: return
 		if int(run.i) >= steps.size():
-			_finish(false)
+			finish(false)
 			return
 		var st: Dictionary = steps[run.i]
 		if not run.begun:
@@ -414,7 +414,7 @@ func tap() -> void:
 func skip() -> void:
 	if run == null or run.mode != "cut": return
 	_forward(-1, true, true)
-	if run != null and int(run.i) >= (run.row.steps as Array).size(): _finish(true)
+	if run != null and int(run.i) >= (run.row.steps as Array).size(): finish(true)
 	elif run != null: _play(0.0)   # the hand-off begins at once
 
 ## The script run on without a stage: to step `to` (-1: to the next hand-off, or the end), each step's lasting effect
@@ -482,9 +482,9 @@ func _forward(to: int, stop_at_hand: bool, ask: bool) -> void:
 func _leave() -> void:
 	var was_cut: bool = run.mode == "cut"
 	_forward(-1, false, true)
-	_finish(was_cut, true)
+	finish(was_cut, true)
 
-func _finish(skipped: bool, left := false) -> void:
+func finish(skipped: bool, left := false) -> void:
 	_lb_carry = float(run.lb) if run.mode == "cut" and run.letterbox else 0.0
 	_lb_carry_t = 0.3 if _lb_carry > 0.0 else -1.0
 	hitstop_t = 0.0
@@ -759,9 +759,9 @@ func _view_center() -> Vector2:
 # ------------------------------------------------------------------ the camera and the screen
 ## Pan to a target over `s` seconds (0: cut there); a moving target (a person walking, the player) is followed.
 func _aim(to, s: float) -> void:
-	run.cam = {"to": to, "from": _cam_now(), "t": 0.0, "s": s}
+	run.cam = {"to": to, "from": cam_now(), "t": 0.0, "s": s}
 
-func _cam_now() -> Vector2:
+func cam_now() -> Vector2:
 	var c: Dictionary = run.cam
 	if c.is_empty(): return run.view
 	var goal := where(c.to)
@@ -785,7 +785,7 @@ func _camera(delta: float) -> void:
 	run.lb = move_toward(float(run.lb), 1.0 if run.letterbox and run.mode == "cut" else 0.0, delta / maxf(0.01, k))
 	if not (world is TopdownWorld): return
 	if run.mode == "cut" and not run.cam.is_empty():
-		world.stage_cam = _cam_now()
+		world.stage_cam = cam_now()
 		world.stage_snap = float(run.cam.s) <= 0.0 and float(run.cam.t) <= delta + 0.0001
 	else:
 		world.stage_cam = null
