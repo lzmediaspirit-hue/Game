@@ -221,7 +221,7 @@ func _technique_said(r: Dictionary) -> void:
 
 ## The player aims on the plane (the top-down room, redesign Phase 2); the side view's facing is only left or right.
 func aims() -> bool:
-	return is_instance_valid(hud.player) and hud.player.has_method("aim_attack")
+	return is_instance_valid(hud.player) and hud.player.has_method("aim_attack")   # side view: no aiming
 
 ## The drawn technique slot of the page nearest `p` (its aim starts from that button's centre).
 func _nearest_slot_center(p: Vector2) -> Vector2:
@@ -297,7 +297,7 @@ func _release_aim(info: Dictionary) -> void:
 ## A tap of Dodge: the combat authority's dodge, or the top-down prototype's own dash (redesign Phase 1).
 func dodge() -> void:
 	if hud.player.has_method("dodge"): hud.player.dodge()
-	else: Game.submit({"type": "dodge", "direction": hud.player.last_axis, "facing": hud.player.facing})
+	else: hud.side_view.dodge()   # side view
 
 ## Where each choice of the pet command wheel sits around the Pet button.
 func wheel_pos(i: int) -> Vector2:

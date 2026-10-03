@@ -31,7 +31,9 @@ extends Control
 ##   - HudActions: what a control asks of the game (the context, a harvest, a place's pose, the quick slots...);
 ##   - HudNotices: the game's events as log lines, toasts and captions (rows of data/cues.json, and code for the rest);
 ##   - HudTours: the tutorial coach's anchors;
-##   - HudControls, HudPanels, HudMinimap, HudTopStack: the drawing, in that order of the screen's parts.
+##   - HudControls, HudPanels, HudMinimap, HudTopStack: the drawing, in that order of the screen's parts;
+##   - HudSideView: the side view's own answers (decision 41's frozen fallback), each called from one branch marked
+##     "side view", so retiring the side view deletes the file and those branches.
 
 var frame_style: StyleBox
 var player: Node2D
@@ -251,6 +253,7 @@ var controls: HudControls
 var panels: HudPanels
 var minimap: HudMinimap
 var top_stack: HudTopStack
+var side_view: HudSideView   # the side view's own answers (S12 deletes it with the side view)
 
 func _init() -> void:
 	layout = HudLayout.new(self)
@@ -262,6 +265,7 @@ func _init() -> void:
 	panels = HudPanels.new(self)
 	minimap = HudMinimap.new(self)
 	top_stack = HudTopStack.new(self)
+	side_view = HudSideView.new(self)
 
 func _ready() -> void:
 	frame_style = UiKit.style("minor_panel")
@@ -319,7 +323,7 @@ func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	blocked = value
 	# Decision 44: the page a place's pose opened has closed: the body rises (a pose still waiting for its page stays).
-	if not value and place_pending.is_empty() and is_instance_valid(player) and player.has_method("end_place_pose"): player.end_place_pose()
+	if not value and place_pending.is_empty() and is_instance_valid(player) and player.has_method("end_place_pose"): player.end_place_pose()   # side view: no place poses
 
 func set_moment_lock(value: bool) -> void:
 	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -350,7 +354,7 @@ func _input(event):
 		else: input.release(-1)
 	elif event is InputEventMouseMotion and mouse_down: input.drag(-1, event.position)
 	elif event is InputEventKey and not event.echo:
-		if not bound():
+		if not bound():   # the engine tests' bare side-view player (no character)
 			if event.pressed:
 				match event.physical_keycode:
 					KEY_SPACE: player.jump()
@@ -430,7 +434,7 @@ func glyph(id: String, center: Vector2, size := 32.0, color := Color.WHITE) -> v
 
 func _draw():
 	if not is_instance_valid(player): return
-	if not bound():
+	if not bound():   # the engine tests' bare side-view player (no character)
 		panels.draw_legacy()
 		return
 	var c = Game.active()
@@ -539,7 +543,7 @@ func log_rows(lines: Array) -> Array: return panels.log_rows(lines)
 # HudMinimap (hud/hud_minimap.gd)
 func place_marks(c, room_id: String, to_map: Callable, top := -INF) -> Array: return minimap.place_marks(c, room_id, to_map, top)
 func minimap_place_at(p: Vector2) -> Dictionary: return minimap.place_at(p)
-static func minimap_way(from: Vector2, to: Vector2) -> Vector2: return HudMinimap.way(from, to)
+static func minimap_way(from: Vector2, to: Vector2) -> Vector2: return HudMinimap.way_toward(from, to)
 static func _edge_point(r: Rect2, center: Vector2, way: Vector2) -> Vector2: return HudMinimap.edge_point(r, center, way)
 
 # HudTopStack (hud/hud_top_stack.gd)

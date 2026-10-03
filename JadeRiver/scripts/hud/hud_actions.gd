@@ -87,7 +87,7 @@ func place_pose_of(object_id: String) -> String:
 func _play_place_pose(pose: String, page: String, args: Dictionary) -> void:
 	hud.place_pending = {"page": page, "args": args, "t": Hud.PLACE_POSE_S}
 	var at = hud.player.get("plane") if is_instance_valid(hud.player) else null
-	if is_instance_valid(hud.player) and hud.player.has_method("play_place_pose"): hud.player.play_place_pose(pose)
+	if is_instance_valid(hud.player) and hud.player.has_method("play_place_pose"): hud.player.play_place_pose(pose)   # side view: no place poses
 	var p: Vector2 = at if at is Vector2 else Vector2.ZERO
 	# each id written out, so audio_tests finds it among the sounds
 	match pose:
@@ -107,7 +107,7 @@ func open_place_page() -> void:
 	var p := hud.place_pending
 	hud.place_pending = {}
 	hud.open_page.emit(str(p.page), p.args)
-	if not hud.blocked and is_instance_valid(hud.player) and hud.player.has_method("end_place_pose"): hud.player.end_place_pose()
+	if not hud.blocked and is_instance_valid(hud.player) and hud.player.has_method("end_place_pose"): hud.player.end_place_pose()   # side view: no place poses
 
 ## The context's button: what the world offers in reach (talk, gather, open, enter, climb); while a harvest it began
 ## shrinks its ring round the button, the tap that lands it.
@@ -119,14 +119,8 @@ func use_context() -> void:
 		finish_tap(float(hud.tapping.t) / maxf(0.01, float(hud.tapping.ring)))
 		return
 	if hud.channel.object != "": return
-	if str(hud.context.get("type", "")) == "climbable":
-		hud.player.climb_hold = 0.0
-		var near_c: Dictionary = hud.player.world.geometry.climbable_near(hud.player.plane, hud.player.altitude, 48.0)
-		var open: Dictionary = Game.world.climbable_open(Game.active(), near_c) if not near_c.is_empty() else {"ok": true}
-		if not open.get("ok", false):
-			hud.add_log(str(open.get("text", "")), UiKit.MIST)
-			return
-		hud.player.authority.climb(near_c)
+	if str(hud.context.get("type", "")) == "climbable":   # side view: only world.gd offers a ladder or a rope
+		hud.side_view.climb()
 		return
 	if hud.context.has("portal"):
 		hud.world.request_portal(str(hud.context.portal))

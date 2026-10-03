@@ -10,45 +10,19 @@ func draw(c) -> void:
 	var room := Game.room_rt.def if Game.room_rt else {}
 	UiKit.draw_text(hud, str(room.get("name", "")), r.position + Vector2(12, 19), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 24, true, true)
 	var inner := Rect2(r.position + Vector2(8, 26), r.size - Vector2(16, 34))
-	var b: Array = room.get("bounds", [0, 480, 1280, 480])
-	var bw := float(b[2])
-	var sx := inner.size.x / bw
-	# Screen-space projection: x along the room, y = plane y - altitude, fitted to the
-	# room's real extent (highest roof line down to the front of the ground strip).
-	var top := 600.0
-	var bottom := 700.0
-	if Game.room_rt:
-		for s0 in Game.room_rt.geometry.surfaces:
-			top = minf(top, s0.bounds.position.y - s0.base - 20.0)
-			bottom = maxf(bottom, s0.bounds.end.y)
-	var sy := inner.size.y / maxf(1.0, bottom - top)
-	var to_map := func(pos: Vector2, alt: float) -> Vector2:
-		return inner.position + Vector2(pos.x * sx, (pos.y - alt - top) * sy)
 	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
-	if grid != null:
+	var to_map := Callable()
+	if grid == null:   # side view: the room projected from its surfaces
+		to_map = hud.side_view.minimap_projection(inner, room)
+	else:
 		# Redesign Phase 4: a room on the height grid is drawn as its level map, the whole room fitted in the frame
 		# (the plane seen from above); the ways, marks, people and foes below take the same projection.
 		var k := minf(inner.size.x / (grid.w * TopdownRoom.TILE), inner.size.y / (grid.h * TopdownRoom.TILE))
 		var at0 := inner.position + (inner.size - Vector2(grid.w, grid.h) * TopdownRoom.TILE * k) * 0.5
 		to_map = func(pos: Vector2, _alt: float) -> Vector2: return at0 + pos * k
 		hud.draw_texture_rect(_grid_map(grid), Rect2(at0, Vector2(grid.w, grid.h) * TopdownRoom.TILE * k), false)
-	for s in Game.room_rt.geometry.surfaces if Game.room_rt and grid == null else []:
-		if s.disabled: continue
-		var y0: Vector2 = to_map.call(Vector2(s.bounds.position.x, s.bounds.position.y), s.base)
-		var y1: Vector2 = to_map.call(Vector2(s.bounds.end.x, s.bounds.position.y), s.base)
-		if s.is_block:
-			# S43: blocks as small squares, climbables as vertical lines, movers as dashed lines.
-			var mid := (y0 + y1) * 0.5
-			hud.draw_rect(Rect2(mid - Vector2(2.5, 2.5), Vector2(5, 5)), Color(UiKit.SURFACE.map_line, 0.8))
-		elif s.moving:
-			hud.draw_dashed_line(y0, y1, Color(UiKit.PALE_GOLD, 0.9), 2.0, 3.0)
-		else:
-			hud.draw_line(y0, y1, Color(UiKit.SURFACE.map_line, 0.55 if s.stratum == "ground" else 0.8), 2)
-	for cb in Game.room_rt.geometry.climbables if Game.room_rt else []:
-		var ca: Array = cb.at
-		var foot: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.bottom_alt))
-		var head: Vector2 = to_map.call(Vector2(float(ca[0]), float(ca[1])), float(cb.top_alt))
-		hud.draw_line(foot, head, Color(UiKit.GOLD, 0.9), 1.5)
+	if grid == null: hud.side_view.draw_minimap_surfaces(to_map)   # side view
+	hud.side_view.draw_minimap_ladders(to_map)   # side view: ladders and ropes (a room on the height grid has none)
 	for p in room.get("portals", []):
 		var at: Array = p.at
 		var st: Dictionary = WorldShared.portal_state(c, p)
@@ -65,11 +39,11 @@ func draw(c) -> void:
 		if dir == 0.0: dir = 1.0
 		var ex := r.end.x - 7.0 if dir > 0.0 else r.position.x + 7.0
 		var ey := clampf(gp.y, inner.position.y + 8.0, inner.end.y - 8.0)
-		var way := Vector2(dir, 0.0)
+		var way := Vector2(dir, 0.0)   # side view: along x (the height grid's below)
 		var tip := Vector2(ex, ey)
 		if grid != null and me != null:
 			# On the height grid the way may lie north or south too: the chevron sits on the frame's edge the way points.
-			way = way(to_map.call(me.plane, 0.0), gp)
+			way = way_toward(to_map.call(me.plane, 0.0), gp)
 			tip = edge_point(inner.grow(-8.0), inner.get_center(), way)
 		tip += way * sin(hud.t * 4.0) * 2.0
 		var side := Vector2(-way.y, way.x)
@@ -84,7 +58,7 @@ func draw(c) -> void:
 			var mk: String = WorldShared.npc_marker(c, str(o.npc))
 			hud.draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else UiKit.PALE_GOLD))
 			if QuestAuthority.marker_calls(mk): hud.draw_arc(mp, 6 + sin(hud.t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
-		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and (grid == null or PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty()):
+		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and (grid == null or PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty()):   # side view: every shrine
 			hud.draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
 		elif o.type == "treasure_birth":
 			# S45: a Spirit Fruit ripening here stands up as a pillar of light on the minimap.
@@ -126,7 +100,7 @@ func draw(c) -> void:
 			hud.draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(hud.player.plane, hud.player.altitude)
 	# The arrow points the way the body faces: along x in the side view, any of eight ways on the height grid.
-	var fv := Vector2(hud.player.facing, 0) if grid == null or hud.player.get("motor") == null else (hud.player.motor.dir as Vector2).normalized()
+	var fv := Vector2(hud.player.facing, 0) if grid == null or hud.player.get("motor") == null else (hud.player.motor.dir as Vector2).normalized()   # side view: along x
 	var fs := Vector2(-fv.y, fv.x)
 	hud.draw_colored_polygon(PackedVector2Array([pp + fv * 5.0, pp - fv * 3.0 - fs * 4.0, pp - fv * 3.0 + fs * 4.0]), Color.WHITE)
 
@@ -160,7 +134,7 @@ func place_at(p: Vector2) -> Dictionary:
 	return best
 
 ## Redesign Phase 4: the direction mark's way on a grid room's map, from the player's dot to the goal (east when on it).
-static func way(from: Vector2, to: Vector2) -> Vector2:
+static func way_toward(from: Vector2, to: Vector2) -> Vector2:
 	return (to - from).normalized() if from.distance_to(to) > 0.5 else Vector2.RIGHT
 
 ## Where a ray from `center` along `way` leaves `r` (the direction mark's place on the map's frame).

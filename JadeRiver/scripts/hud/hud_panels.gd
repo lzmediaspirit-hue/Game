@@ -113,7 +113,7 @@ func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 	if Figures.top_down():
 		var fig: TopdownFigure = hud._faces.get("top|" + cid)
 		if fig == null:
-			fig = TopdownFigure.wearing(_face_outfit(cid), true)
+			fig = TopdownFigure.wearing(face_outfit(cid), true)
 			hud._faces["top|" + cid] = fig
 		if not fig.loaded(): return
 		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
@@ -121,19 +121,10 @@ func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 		fig.draw(hud, (center - head * Hud.FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), Hud.FACE_TOP_K,
 			Rect2(center - box * 0.5, box), true)
 		return
-	if not hud._faces.has(cid):
-		var av = Figures.side_avatar(_face_outfit(cid))
-		av.refresh_entries()
-		hud._faces[cid] = av.entries.duplicate()
-		av.free()
-	for en in hud._faces[cid]:
-		var cell := int(en.cell)
-		var off := (cell - 256) * 0.5
-		var src := Rect2(Vector2(128.0 + off, cell + 190.0 + off) + Hud.FACE_AT - box * 0.5, box)
-		hud.draw_texture_rect_region(en.texture, Rect2(center - box * 0.5, box), src, Color(1, 1, 1, 0.45 if dim else 1.0))
+	hud.side_view.draw_face(center, cid, dim)   # side view
 
 ## A companion's look for their face: their outfit, its unset pieces a disciple's, no weapon.
-func _face_outfit(cid: String) -> Dictionary:
+func face_outfit(cid: String) -> Dictionary:
 	var o: Dictionary = ContentDB.entry("companions", cid).get("outfit", {}).duplicate()
 	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
 		if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")

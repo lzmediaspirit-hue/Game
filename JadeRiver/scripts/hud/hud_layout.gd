@@ -240,7 +240,7 @@ func obstacle_rects(badges = null) -> Array:
 	if hud.purse_rect.size.x > 0.0: out.append(hud.purse_rect)
 	if hud.status_rect.size.x > 0.0 and hud.shown("player_panel"): out.append(hud.status_rect)
 	if not hud.equip_prompt.current.is_empty(): out.append(EquipPrompt.RECT)
-	if hud.top_stack.boss() != null: out.append(Rect2(400, 92, 480, 84))
+	if hud.top_stack.room_boss() != null: out.append(Rect2(400, 92, 480, 84))
 	if context_shown(): out.append(context_label_rect())
 	var log_r := log_rect()
 	if log_r.size.x > 0.0: out.append(log_r)
@@ -278,7 +278,7 @@ func enemy_close() -> bool:
 
 ## A fight now: the P5a rest/fight state (a foe within the fight range, one engaged with you anywhere in the room, which
 ## is also one attacking you or struck a moment ago, and FIGHT_HOLD_S after).
-func in_fight() -> bool:
+func in_fight_now() -> bool:
 	return hud.fight or fight_now()
 
 ## A foe engaged with the player anywhere in the room: turned on them, striking, recovering, fleeing (EnemyState.in_fight).
@@ -294,7 +294,7 @@ func context_shown() -> bool:
 ## S50 Keeping Post: beside a node, out of a fight, the Keep Post button shows. One character is enough: the post works
 ## while the game is put away, or for an incense stick burnt at it.
 func post_chip() -> bool:
-	return hud.bound() and str(hud.context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not in_fight() \
+	return hud.bound() and str(hud.context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not in_fight_now() \
 		and Unlocks.is_unlocked(Game.active_id, "keeping_post")
 
 func has_draught() -> bool:

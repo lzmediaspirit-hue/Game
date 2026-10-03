@@ -34,7 +34,7 @@ func _draw_run_banner(c, y0: float) -> float:
 ## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
 ## the toasts (408 wide, 8 apart; a toast with no room waits), a caption.
 func draw(c) -> void:
-	var y := Hud.TOP_STACK_BOSS if boss() != null else Hud.TOP_STACK
+	var y := Hud.TOP_STACK_BOSS if room_boss() != null else Hud.TOP_STACK
 	y = _draw_run_banner(c, y)
 	if not band_on_top():   # a moment's band there says the same, and the two drawn together read as neither
 		y = _draw_banner(y)
@@ -131,7 +131,7 @@ func _draw_caption(y: float) -> void:
 	UiKit.draw_text(hud, "[" + str(hud.caption.text) + "]", Vector2(640 - w / 2.0, y + 21), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
 
 ## The boss in the room, if one lives (with two, the one furthest into the fight: the lowest share of its HP).
-func boss() -> EnemyState:
+func room_boss() -> EnemyState:
 	if Game.room_rt == null: return null
 	var boss: EnemyState = null
 	for e in Game.room_rt.enemies.values():
@@ -142,7 +142,7 @@ func boss() -> EnemyState:
 ## notch at each phase's share of HP (gold once passed, the next one lit) with what it brings under it, and the share
 ## left on the bar.
 func draw_boss() -> void:
-	var boss := boss()
+	var boss := room_boss()
 	if boss == null: return
 	var r := Rect2(400, 130, 480, 18)
 	var phases: Array = boss.def.get("phases", [])
