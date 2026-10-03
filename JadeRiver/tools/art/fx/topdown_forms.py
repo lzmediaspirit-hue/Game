@@ -557,24 +557,6 @@ def td_counter(pl, f, n, band, el, R=16.0):
 
 
 # ------------------------------------------------------------------------------------------ 16 ward
-def _dome(cv, gx, gy, r, fill_to: float = 1.0) -> tuple:
-    """The silhouette of a dome of radius r on the floor at (gx, gy), seen in the 3/4 view: the union of its rings
-    lifted up (a ring at height h has radius sqrt(r^2 - h^2)). Filled up to the share `fill_to` of its height. Returns
-    (the mask, its rim)."""
-    m = cv.mask_ellipse(gx, gy, 0.1, 0.1)
-    steps = 12
-    for i in range(steps + 1):
-        h = r * i / steps * fill_to
-        rr = math.sqrt(max(0.0, r * r - h * h))
-        m |= cv.mask_ellipse(gx, gy - h, rr, rr)
-    inner = m.copy()
-    inner[1:, :] &= m[:-1, :]
-    inner[:-1, :] &= m[1:, :]
-    inner[:, 1:] &= m[:, :-1]
-    inner[:, :-1] &= m[:, 1:]
-    return m, m & ~inner
-
-
 def td_ward(pl, f, n, band, el, R=24.0):
     """A bagua on the floor round the caster and a dome of qi closing over it from the ground up."""
     cv = pl.cv

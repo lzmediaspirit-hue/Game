@@ -4,7 +4,7 @@
  "name": "Height levels (review room)",
  "type": "review",
  "legend": {
-  "use": "the art bible's readability test (docs/redesign/art_bible.md §5): tools/dev/topdown_capture.tscn -- --phase3 draws it with a body on each level, in colour and by value alone",
+  "use": "the art bible's readability test (docs/redesign/art_bible.md §5): tools/dev/capture/capture.tscn -- phase3 draws it with a body on each level, in colour and by value alone",
   "levels": "a rock cliff at 4 and 3, a grass terrace at 2, a stone terrace at 1, the square at 0 with a house built on the grid (roof at 2) and a courtyard wall at 1, the promenade, the river and a pier"
  },
  "spawn": [11, 13],

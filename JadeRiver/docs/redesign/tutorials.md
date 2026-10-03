@@ -270,7 +270,7 @@ step of a system with places leads to a place that opens the page it teaches.
 finger. It shoots and checks each card and reports every miss as a "PLAY BUG". `--only=sweep` with `--from=<saves>`
 plays every lesson a kept game has queued, then each Menu page's first opening. See "Bugs fixed".
 
-`tools/dev/tutorial_capture.tscn` takes the screenshots in `feedback/tutorials/`; with `-- --late`, the late powers'
+`tools/dev/capture/capture.tscn -- tutorials` takes the screenshots in `feedback/tutorials/`; `-- tutorials_late`, the late powers'
 lessons in `feedback/tutorials/late_powers/` (each guide step and tour step, at the realm that opens each power).
 
 ## 7. Bugs fixed (decision 45)

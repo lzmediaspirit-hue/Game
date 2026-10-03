@@ -14,7 +14,6 @@ Usage: python3 tools/art/topdown/build_decor.py [--review] [--check]
 """
 from __future__ import annotations
 
-import hashlib
 import io
 import json
 import sys
@@ -27,6 +26,7 @@ sys.path.insert(0, str(HERE))
 from PIL import Image  # noqa: E402
 
 import decor  # noqa: E402
+import sheet as SH  # noqa: E402
 from canvas import Img  # noqa: E402
 
 SHEET = "art/topdown/decor.png"
@@ -36,15 +36,10 @@ SHEET_W = 128
 
 def build_all() -> dict:
     items = decor.sprites()
-    places, x, y, row_h = [], 0, 0, 0
-    for name, (spr, sway) in items.items():
-        if x + spr.w > SHEET_W:
-            x, y, row_h = 0, y + row_h, 0
-        places.append((name, spr, sway, x, y))
-        x, row_h = x + spr.w + 1, max(row_h, spr.h)
-    sheet = Img(SHEET_W, y + row_h)
+    at, height = SH.pack([(spr.w, spr.h) for spr, _ in items.values()], SHEET_W)
+    sheet = Img(SHEET_W, height)
     table = {}
-    for name, spr, sway, px, py in places:
+    for (name, (spr, sway)), (px, py) in zip(items.items(), at):
         sheet.paste(spr, px, py)
         table[name] = {"rect": [px, py, spr.w, spr.h], "foot": [spr.w // 2, spr.h - 1], "sway": sway}
     for s, names in decor.SETS.items():
@@ -52,9 +47,7 @@ def build_all() -> dict:
             assert n in table, (s, n)
     manifest = {"schema_version": 1, "sheet": "res://" + SHEET, "sprites": table, "sets": decor.SETS,
                 "biomes": decor.BIOMES, "litter": decor.LITTER, "clear": decor.CLEAR}
-    buf = io.BytesIO()
-    sheet.img.save(buf, format="PNG", optimize=False)
-    return {SHEET: buf.getvalue(), MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode()}
+    return {SHEET: SH.png_bytes(sheet.img), MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode()}
 
 
 def review(outputs: dict) -> None:
@@ -130,24 +123,7 @@ def review(outputs: dict) -> None:
 
 
 def main(argv: list) -> int:
-    outputs = build_all()
-    if "--check" in argv:
-        again = build_all()
-        bad = [p for p in outputs if outputs[p] != again[p]]
-        stale = [p for p in outputs if not (ROOT / p).exists() or (ROOT / p).read_bytes() != outputs[p]]
-        for p in bad:
-            print("NOT deterministic:", p)
-        for p in stale:
-            print("stale (run tools/art/topdown/build_decor.py):", p)
-        return 1 if bad or stale else 0
-    for path, data in outputs.items():
-        out = ROOT / path
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_bytes(data)
-        print("%-28s %8d bytes  sha1 %s" % (path, len(data), hashlib.sha1(data).hexdigest()[:12]))
-    if "--review" in argv:
-        review(outputs)
-    return 0
+    return SH.run(argv, build_all, "tools/art/topdown/build_decor.py", review)
 
 
 if __name__ == "__main__":

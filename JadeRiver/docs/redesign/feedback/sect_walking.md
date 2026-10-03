@@ -341,7 +341,7 @@ on it. The end-of-prototype gate stays shut and says why.
 
 ## The screens
 
-`tools/dev/sect_capture.tscn` plays both sects' stretches in the game from `topdown_tutorial`'s checkpoints after the
+`tools/dev/capture/capture.tscn -- sect` plays both sects' stretches in the game from `topdown_tutorial`'s checkpoints after the
 Weapon Hall (`-- --keep="The Weapon Hall,The Weapon Hall (Cloud)"`). It saves these shots into
 `docs/redesign/feedback/sect/`.
 

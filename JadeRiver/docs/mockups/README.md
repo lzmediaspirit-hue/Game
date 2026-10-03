@@ -143,8 +143,8 @@ along the top, the loadout dock along the foot and, under the tree, the element'
 currents). The Lost Arts tab is the explorer's album that `docs/page_identity.md` §9 chose, with a paper mount at each
 corner of a card.
 
-The pictures are drawn by `tools/icons/study/technique_cards.py` (`assets/techcard_*.png` at 72 px for the cards and
-`assets/techart_*.png` at 144 px for the reading): the element's disc colours from the emblem composer as the ground;
+The pictures (`assets/techcard_*.png` at 72 px for the cards and `assets/techart_*.png` at 144 px for the reading) were
+drawn by `tools/icons/study/technique_cards.py`, removed in decision 45's cleanup (git history keeps it): the element's disc colours from the emblem composer as the ground;
 Tester's own sprite layers in the pose the art's form borrows (`technique_plan.md` §3.2; the free hand's arts with the
 hand empty), toned to the element's duotone with the Style A light; and the form's verb from the emblem grammar (the
 Flurry's crescents, the Ward's shelter, the Burst's star, the Seal's square print, the Chorus's canopy, the Blink's
