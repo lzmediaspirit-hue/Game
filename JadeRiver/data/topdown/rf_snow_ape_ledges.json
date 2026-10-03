@@ -49,19 +49,19 @@
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnrnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnkkkknnnnnnnnrnkkkkkknnnnnnnnnnkkkkkknkkkkkkkkkkkknnnn",
-  "kkkkkkknnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnrnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnrnnnnnnnnnsssnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnrn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnsssnnnnnnnnnnnnrnnnnnnrnnnnnn",
+  "nnnnnnnnnnsssnnnnnnkkkknnnnnnnnrnkkkkkknnnnnnnnnnkkkkkknkkkkkkkkkkkknnnn",
+  "kkkkkkknnnsssnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnkkkkkkkkkkkkkkkkkkkkkknnn",
   "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "nnnkkkkkkkkkkknnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnkkkkkkkkkkkkk",
   "nnnnnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnknnnnnnnkkkknnnnnrnnnnnnnnnnnkkkknnnn",
-  "nnnnnnnnnnnnnrnnnnrnnnnnnnnnnnnrnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnn",
-  "nnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnrnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
@@ -299,11 +299,6 @@
   },
   {
    "kind": "rock_small",
-   "x": 13,
-   "y": 16
-  },
-  {
-   "kind": "rock_small",
    "x": 18,
    "y": 16
   },
@@ -313,13 +308,13 @@
    "y": 16
   },
   {
-   "kind": "rock_small",
-   "x": 31,
+   "kind": "boulder",
+   "x": 28,
    "y": 16
   },
   {
    "kind": "rock_small",
-   "x": 47,
+   "x": 41,
    "y": 16
   },
   {
@@ -343,9 +338,9 @@
    "y": 18
   },
   {
-   "kind": "tree_pine",
-   "x": 11,
-   "y": 20
+   "kind": "boulder",
+   "x": 12,
+   "y": 17
   },
   {
    "kind": "boulder",
@@ -370,7 +365,7 @@
   {
    "kind": "tree_pine",
    "x": 39,
-   "y": 17
+   "y": 19
   },
   {
    "kind": "dead_tree",

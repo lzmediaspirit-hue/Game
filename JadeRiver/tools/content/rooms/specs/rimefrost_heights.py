@@ -1,8 +1,8 @@
 """E1 room specs (R6): Rimefrost Heights, the snowline over the Thunderhorn Plains (docs/architecture/room_engine.md,
-"Act II's first zones (R6)"). Grey rock under fresh snow (decision 44's `snow`, laid over the whole room), the trails
-trodden to packed snow (`snowpack`), frost pines and dead trees standing out of it, boulders glazed with ice; the
-`rimefrost` biome. Chapter 12: the grey pilgrim caught on Frostpine Climb, the hermit's cave found on the summit (Frost
-and Silence)."""
+"Act II's first zones (R6)"). R4's `snowfield` biome: grey rock under fresh snow (decision 44's `snow`, over every
+cell), the trails trodden to packed snow (`snowpack`, every walk's own cells), frost pines and dead trees standing out
+of it; and boulders glazed with ice (R6's `ice_rock`). Chapter 12: the grey pilgrim caught on Frostpine Climb, the
+hermit's cave found on the summit (Frost and Silence)."""
 from content.rooms.spec import room
 
 CRAGS = dict(level=6, paint="r", wall=True, wavy=True)   # the heights' crags, snow on their crowns
@@ -12,17 +12,12 @@ SHELF = dict(level=2, paint="r", shape="round")           # a rock shelf the sno
 SLOPE = dict(kinds=["tree_pine", "tree_pine", "dead_tree", "boulder", "rock_small"], density=0.4)
 
 
-def snowed(w, h, *trails):
-    """The heights' ground: fresh snow over every floor, packed snow along the trails (their own wavy cells)."""
-    return {"snow": [(0, 0, w, h)], "snowpack": list(trails)}
-
-
 # Frostpine Climb: the trail up from the Lightning Scar climbs the mountain's flank in three tiers, a flight between
 # each: along the lowest tier (the signpost, the stoat's trail and the cricket swarm in the snow below the trees), up to
 # the middle tier and east along it under the frost pines (the herb and a jar on its west shoulder), and up again to the
 # high tier, where the grey pilgrim stands, and east along the crags' foot (the stormsteel vein) to the Snow Ape Ledges.
 RF_FROSTPINE_CLIMB = room(
-    "rf_frostpine_climb", size=(72, 28), biome="rimefrost",
+    "rf_frostpine_climb", size=(72, 28), biome="snowfield",
     bands=[("lower", 18, 10, dict(level=0, paint="r")),
            ("middle", 11, 8, dict(level=1, paint="r", wavy=True)),
            ("upper", 3, 9, dict(level=2, paint="r", wavy=True)),
@@ -41,7 +36,6 @@ RF_FROSTPINE_CLIMB = room(
              "jar_6": "middle@62"},
     props=[("ice_rock", 30, 24), ("ice_rock", 57, 22), ("ice_rock", 12, 14), ("ice_rock", 66, 15)],
     flora={"lower": dict(SLOPE, density=0.32), "middle": SLOPE, "upper": SLOPE, "landing_1": [], "landing_2": []},
-    ground=snowed(72, 28, "trail_low", "trail_mid", "trail_high"),
     foes="auto")
 
 # The Snow Ape Ledges: a snowfield under the crags where the trail crosses east. North of it the slope rises to the
@@ -49,7 +43,7 @@ RF_FROSTPINE_CLIMB = room(
 # rare ginseng and a jar; the stormsteel vein at the crags' foot between them. South of the trail the snowfield, frost
 # pines and ice-glazed boulders, the cricket swarm and the stoat's trail.
 RF_SNOW_APE_LEDGES = room(
-    "rf_snow_ape_ledges", size=(72, 28), biome="rimefrost",
+    "rf_snow_ape_ledges", size=(72, 28), biome="snowfield",
     bands=[("slope", 3, 9, dict(level=1, paint="r", wavy=True)),
            ("crags", 0, 4, CRAGS),
            ("trail", 12, 3, dict(level=0, paint="d", walk=True, wavy=True)),
@@ -64,7 +58,6 @@ RF_SNOW_APE_LEDGES = room(
     props=[("ice_rock", 8, 20), ("ice_rock", 33, 23), ("ice_rock", 58, 19), ("ice_rock", 66, 24)],
     flora={"slope": SLOPE, "field": dict(SLOPE, density=0.34), "shelf_w": dict(kinds=["boulder", "rock_small"], density=0.3),
            "shelf_e": dict(kinds=["boulder", "rock_small"], density=0.3)},
-    ground=snowed(72, 28, "trail"),
     foes="auto")
 
 
@@ -73,7 +66,7 @@ RF_SNOW_APE_LEDGES = room(
 # on the highest, the star-sighting stone at the south rim over the sea of cloud; in the crags' north face the cleft of
 # the hermit's ice cave, hidden till found.
 RF_RIMEFROST_SUMMIT = room(
-    "rf_rimefrost_summit", size=(56, 28), biome="rimefrost",
+    "rf_rimefrost_summit", size=(56, 28), biome="snowfield",
     bands=[("crags", 0, 4, CRAGS),
            ("trail", 13, 3, dict(level=0, paint="d", walk=True, wavy=True, w=24)),
            ("plateau", 16, 12, dict(level=0, paint="r"))],
@@ -89,7 +82,6 @@ RF_RIMEFROST_SUMMIT = room(
              "herb_2": "outcrop_e@41", "chest_6": "outcrop_e@44", "jar_5": "plateau@48"},
     props=[("ice_rock", 9, 22), ("ice_rock", 44, 20), ("ice_rock", 13, 8), ("lantern", 24, 22), ("lantern", 41, 22)],
     flora={"plateau": dict(SLOPE, density=0.34), "outcrop_w": SLOPE, "crown": [], "outcrop_e": SLOPE, "cleft": [], "rim": []},
-    ground=snowed(56, 28, "trail"),
     foes="auto")
 
 
@@ -97,7 +89,7 @@ RF_RIMEFROST_SUMMIT = room(
 # Its floor packed snow, the rock round it under fresh snow; the hermit Shuang sits at its heart on a mat by his
 # incense, the Qi spring welling under the ice in the west, icicled boulders round the walls.
 RF_HERMITS_ICE_CAVE = room(
-    "rf_hermits_ice_cave", size=(32, 18), biome="rimefrost", level=4,
+    "rf_hermits_ice_cave", size=(32, 18), biome="snowfield", level=4,
     features=[("front", (0, 12, 32, 6), dict(level=1, paint="r")),
               ("cavern", (2, 2, 28, 13), dict(level=0, paint="k", shape="round")),
               ("adit", (14, 12, 4, 6), dict(level=0, paint="k"))],
@@ -107,7 +99,6 @@ RF_HERMITS_ICE_CAVE = room(
     props=[("mat", 15, 7), ("incense", 18, 5), ("ice_rock", 5, 5), ("ice_rock", 23, 4), ("ice_rock", 26, 9),
            ("ice_rock", 5, 11), ("lantern", 12, 4), ("lantern", 20, 4), ("boulder", 9, 4), ("boulder", 27, 6),
            ("boulder", 22, 12), ("boulder", 7, 12)],
-    flora={"cavern": [], "front": [], "adit": []},
-    ground={"snow": [(0, 0, 32, 18)]})
+    flora={"cavern": [], "front": [], "adit": []})
 
 ROOMS = [RF_FROSTPINE_CLIMB, RF_SNOW_APE_LEDGES, RF_RIMEFROST_SUMMIT, RF_HERMITS_ICE_CAVE]

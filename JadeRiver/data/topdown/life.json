@@ -678,6 +678,34 @@
     }
    ]
   },
+  "cc_cliff_faces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "cc_sky_ledges": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "cf_falls_pool": {
    "vista": [
     {
@@ -1172,6 +1200,38 @@
      "edge": "n",
      "kind": "marsh",
      "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "hv_back_mountain": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "hv_sect_grounds": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "hv_vale_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     },
     {
      "edge": "s",
@@ -2120,6 +2180,48 @@
     }
    ]
   },
+  "mp_ascension_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "mp_forgotten_monastery": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "mp_misty_slopes": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "rf_frostpine_climb": {
    "vista": [
     {
@@ -2764,6 +2866,34 @@
      ]
     }
    }
+  },
+  "sr_frozen_shrine": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "sr_windswept_ridge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
   },
   "tp_herders_camp": {
    "vista": [
