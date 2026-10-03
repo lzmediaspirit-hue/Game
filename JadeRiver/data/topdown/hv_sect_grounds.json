@@ -145,6 +145,76 @@
    "y": 28
   },
   {
+   "kind": "boulder",
+   "x": 7,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 18
+  },
+  {
    "kind": "bamboo_grove",
    "x": 1,
    "y": 4
@@ -285,9 +355,9 @@
    "y": 13
   },
   {
-   "kind": "tree_maple",
-   "x": 48,
-   "y": 12
+   "kind": "tall_grass",
+   "x": 49,
+   "y": 14
   },
   {
    "kind": "ferns",

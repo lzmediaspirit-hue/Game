@@ -294,14 +294,15 @@ Hidden Grotto. Their high-mountain, mist and snow looks are the ones Act II's Ri
 - the Hidden Vale's teleport stone, a founded sect's raid on the Sect Grounds, the Back Mountain opened by the sect's
   level, and the Grotto's rope up to Behind the Falls.
 
-In each room it checks the walks and the view as `topdown_chapter3` does.
+In each room it checks the walks and the view as `topdown_chapter3` does. The route tour in `rules_tests`
+(`topdown_suite._route_rooms`) walks the eleven rooms too, every leg arriving.
 
 | Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r4/`) |
 |---|---|---|---|
 | `cc_cliff_faces` | 18 | `mountain` | `01_cliff_faces_crags`, `02_cliff_faces_brink`, `rooms/cc_cliff_faces` |
-| `cc_sky_ledges` | 19 | `mountain` | `03_sky_ledges_climb`, `04_sky_ledges_summit`, `rooms/cc_sky_ledges` |
+| `cc_sky_ledges` | 18 | `mountain` | `03_sky_ledges_climb`, `04_sky_ledges_summit`, `rooms/cc_sky_ledges` |
 | `mp_misty_slopes` | 23 | `mist_peak` | `05_misty_slopes_mere`, `06_misty_slopes_knoll`, `rooms/mp_misty_slopes` |
-| `mp_forgotten_monastery` | 28 | `mist_peak` | `07_monastery_hall`, `08_monastery_garden`, `rooms/mp_forgotten_monastery` |
+| `mp_forgotten_monastery` | 29 | `mist_peak` | `07_monastery_hall`, `08_monastery_garden`, `rooms/mp_forgotten_monastery` |
 | `mp_ascension_gate` | 15 | `snowfield` | `09_ascension_gate`, `rooms/mp_ascension_gate` |
 | `sr_windswept_ridge` | 19 | `snowfield` | `10_windswept_ridge`, `rooms/sr_windswept_ridge` |
 | `sr_frozen_shrine` | 18 | `snowfield` | `11_frozen_shrine_court`, `rooms/sr_frozen_shrine` |
@@ -331,8 +332,16 @@ R1's, the capture's x2 copies of the world alone are not kept. The specs: `specs
 **Engine rules.** None of them changes a room built before. Every older spec compiles to its file byte for byte, and
 `test_engine` holds it.
 - `wavy="s"` (or `"n"`) wanders one edge only, such as a terrace's lip under a cliff laid before it.
-- `flights=[col, ...]` on a band or a feature: stairs "auto" climbs it at each column. Near the column it prefers a
-  flight that ends at the walk below, then one that comes down onto it, before one that runs across it.
+- `flights=[col, ...]` on a band or a feature: stairs "auto" climbs it at each column, a feature too with nothing on
+  it. Such a flight:
+  - ends at the walk below rather than on it, near the column first, then anywhere on the terrace; one that comes down
+    onto the walk comes next, and one that runs across it last;
+  - has clear cheeks: the ground beside it is no higher than its foot, so it never climbs in a notch of the shape;
+  - has its cheeks closed by boulders (a biome's `cheek`) wherever the ground beside it is open at its foot's level, off
+    the walks, the lanes and the anchors. Auto-path's plan reads a step's middle and the motor the body's corners, so
+    a body sent along a flight's step from the side is left wedged against it (`rules_tests`' route tour found it).
+    Closed cheeks keep every way off the steps' sides. The monastery's and the Ascension Gate's grand stairs are such
+    flights too.
 - A flight prefers a column within ten whose foot is flush with the ground it leads to. A foot a step lower leaves a
   dark lip under the flight's last row. The Caravan Road's outcrop and R1's Grey Pools have no such column and keep
   theirs.
@@ -355,6 +364,8 @@ R1's, the capture's x2 copies of the world alone are not kept. The specs: `specs
   of the scatter.
 - **Places.** The Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the Frozen Shrine are rows
   of `places.py`. There are 30 places now.
+- **One frontier check.** `rules_tests`' prototype check teleported to the Hidden Vale's stone to show a stone past the
+  gate. The stone is on the grid now, so the check takes the first stone in a room with no layout.
 
 **How the side view's verticality came down.**
 - The cloud and rock ledges, at 100 to 900 units, are terraces stepping north, a flight up each.

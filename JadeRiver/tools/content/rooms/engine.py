@@ -654,7 +654,7 @@ class Build:
                                   # ground it crosses (a room's ground raised under it): never climbed onto
             mine = set(r.cells())
             on = [c for c in self.cells.values() if (int(c[0] + 0.5), int(c[1] + 0.5)) in mine]
-            if not on and not (r.kind == "band" and r.h >= 3):
+            if not on and not (r.kind == "band" and r.h >= 3) and not r.opts.get("flights"):
                 continue
             wanted.append((r, on))
         for r, on in wanted:
@@ -678,7 +678,7 @@ class Build:
             """0: a flight at this column ends at the walk; 1: it comes down onto it; 2: it runs across it."""
             b = r.bottom(x)
             top = (b if b is not None else r.y1 - 1) + 1
-            if top >= self.h:
+            if top >= self.h or not 0 <= x < self.w:
                 return 0
             below = self.lay.lv[top][x]
             depth = 2 * max(1, r.level - (below if below != WATER else 0))
@@ -686,8 +686,13 @@ class Build:
             return 0 if not hits else (1 if hits <= 2 else 2)
 
         def rank(x):
+            # A flight that ends at the walk or comes down onto it, near the column (within eight), then anywhere on the
+            # terrace, before one that runs across the walk (it would wall the road off).
             d = abs(x + width // 2 - want)
-            return ((over_walk(x) if d <= 8 else 3) if keep_walk else 0, d, x)
+            if not keep_walk:
+                return (0, 0, d, x)
+            tier = over_walk(x)
+            return (2 * tier + (0 if d <= 8 else 1), d, x)
         spots = sorted(range(r.x, r.x1 - width + 1), key=rank)
         first = None
         for x in spots:
@@ -705,6 +710,11 @@ class Build:
             cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
             if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
                    or (xx, yy) in lanes or (xx, yy) in flights for xx, yy in cells):
+                continue
+            # Its cheeks stand clear (R4, a flight up a band's `flights`): the ground beside it, along its whole length, is
+            # no higher than its foot, so it never climbs in a notch of the shape with a wall at its side.
+            if keep_walk and any(not (0 <= xx < self.w) or self.lay.lv[yy][xx] == WATER or self.lay.lv[yy][xx] > below
+                                 for yy in range(top, top + depth) for xx in (x - 1, x + width)):
                 continue
             # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
             foot = [(xx, top + depth) for xx in range(x, x + width)]
@@ -727,6 +737,19 @@ class Build:
         x, top, depth, below = first
         self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
         self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
+        if keep_walk:
+            # Its cheeks are closed by boulders where the ground beside it is open at its foot's level, so no way runs
+            # along a step of it from the side (auto-path's plan reads a step's middle, the body its corners, and a body
+            # stepping off a flight sideways is left wedged against it). Never on a walk, a lane, a stair or an anchor.
+            walk = {c for q in self.regions.values() if q.walk for c in q.cells()}
+            stairs = {(xx, yy) for st in self.lay.stairs for yy in range(st["y"], st["y"] + st["h"])
+                      for xx in range(st["x"], st["x"] + st["w"])}
+            held = self._prop_cells() | {(int(c[0] + 0.5), int(c[1] + 0.5)) for c in self.cells.values()}
+            for yy in range(top, top + depth):
+                for xx in (x - 1, x + width):
+                    if (0 <= xx < self.w and self.lay.lv[yy][xx] == below and (xx, yy) not in walk and (xx, yy) not in lanes
+                            and (xx, yy) not in stairs and (xx, yy) not in held):
+                        self.lay.prop(self.biome.get("cheek", "boulder"), xx, yy)
         return True
 
     # ================================================================ 6. the foes

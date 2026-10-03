@@ -53,10 +53,10 @@
   "nnnnnnnnnnnnnnnnnnnnnrnnnnnpppppppppppppppppppnnrnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnppppppppppppppppppppppnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnppppppppppppppppppppppppppppppppnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnpppppppppppppppssssppppppppppppppppnnnnnnnnnnnrrnnnnn",
-  "nnnnnnnnnnnnnnnnnpppppppppppppppppsssspppppppppppppppppnnnrnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnppppppppppppppppppsssspppppppppppppppppppnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnpppppppppppppppppppssssppppppppppppppppppppnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnppppppppppppppppsssppppppppppppppppnnnnnnnnnnnrrnnnnn",
+  "nnnnnnnnnnnnnnnnnppppppppppppppppppssspppppppppppppppppnnnrnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnpppppppppppppppppppssspppppppppppppppppppnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnppppppppppppppppppppsssppppppppppppppppppppnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnpppppppppppppppppppppppppppppppppppppppppppppnnnnnnrnnnnnn",
   "nnnnnnnnnnnnnppppppppppppppppppppppppppppppppppppppppppppppnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
@@ -76,9 +76,9 @@
  ],
  "stairs": [
   {
-   "x": 34,
+   "x": 35,
    "y": 10,
-   "w": 4,
+   "w": 3,
    "h": 4,
    "from": 1,
    "to": 3
@@ -124,6 +124,46 @@
    "kind": "lantern",
    "x": 58,
    "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 13
   },
   {
    "kind": "tree_pine",

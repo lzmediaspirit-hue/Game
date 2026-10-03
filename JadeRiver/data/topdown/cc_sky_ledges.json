@@ -14,20 +14,20 @@
   "88888888888888888888888888888888888888888888888888888888",
   "88888888888888888888888888888888888888888888888888888888",
   "88888888888888888888888888888888888888888888888888888888",
-  "22222222222222222222222222223333333333443344445555555522",
-  "22222222222222222222222223333333333344444445555555555552",
-  "22222222222222222222222333333333344444444455555555555555",
-  "22222222222222222222233333333333444444444455555555555555",
-  "22222222222222222222333333333334444444444445555555555555",
-  "22222222222222222222333333333334444444444444455555555554",
-  "22222222222222222222333333333334444444444444444444444444",
-  "22222222222222222222333333333333444444444444444444444444",
-  "22222222222222222222233333333333333444444444444444444443",
-  "22222222222222222222222222333333333333444444444433443332",
-  "22222222222222222222222222222222333333332233333333223322",
+  "22222222222222222222222222223333333333333334444444444422",
+  "22222222222222222222222233333333333333334444444444444442",
+  "22222222222222222222233333333333333333344444444444444444",
+  "22222222222222222222333333333333333333344444444444444444",
+  "22222222222222222222333333333333333333334444444444444444",
+  "22222222222222222222333333333333333333333344444444444443",
+  "22222222222222222222333333333333333333333333333333333333",
+  "22222222222222222222233322333333333333333333333333333332",
+  "22222222222222222222222222233333333333333333333333222222",
+  "22222222222222222222222222222222222222222222222222222222",
   "22222222222222222222222222222222222222222222222222222222",
   "12222222222222222222221111111112222222222222222222222222",
   "11112222222222222111111111111111122222211111111111112222",
+  "11111111111111111111111111111111111111111111111111111111",
   "11111111111111111111111111111111111111111111111111111111",
   "11111111111111111111111111111111111111111111111111111111",
   "11111111111111111111111111111111111111111111111111111111",
@@ -49,21 +49,21 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ggggggggggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrgg",
-  "gggggggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrg",
-  "gggggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrg",
   "gggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrsssrrrrrr",
-  "ggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrrrrrsssrrrrrr",
-  "gggggggggggggggggggggrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrr",
-  "ggggggggggggggggggggggggggrrrrrrsssrrrrrrrrrrrrrrrrrrrrg",
-  "ggggggggggggggggggggggggggggggggrrrrrrrrggrrrrrrrrggrrgg",
-  "ggggggggggggggggggggggggggggggggggggsssggggggggggggggggg",
-  "gggggggggggggggggggggggggsssggggggggsssggggggggggggggggg",
+  "gggggggggggggggggggggrrrggrrrrrrrrrrrrrrrrrrrrrsssrrrrrg",
+  "gggggggggggggggggggggggggggrrrrrrrrrrrrrrrrrrrrrrrgggggg",
+  "gggggggggggggggggggggggggggggggsssgggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggsssgggggggggggggggggggggg",
   "gggggggggggggggggggggggggsssgggggggggggggggggggggggggggg",
-  "ddddddddsssddddddddddddddddddddddddddddddddddddddddddddd",
-  "ddddddddsssddddddddddddddddddddddddddddddddddddddddddddd",
+  "ggggggggggggggggggsssggggsssgggggggggggggggggggggggggggg",
+  "ggggggggggggggggggsssggggggggggggggggggggggggggggggggggg",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
@@ -80,8 +80,8 @@
  ],
  "stairs": [
   {
-   "x": 8,
-   "y": 17,
+   "x": 18,
+   "y": 15,
    "w": 3,
    "h": 2,
    "from": 1,
@@ -89,7 +89,7 @@
   },
   {
    "x": 25,
-   "y": 15,
+   "y": 14,
    "w": 3,
    "h": 2,
    "from": 1,
@@ -104,31 +104,103 @@
    "to": 1
   },
   {
-   "x": 36,
-   "y": 14,
+   "x": 31,
+   "y": 12,
    "w": 3,
    "h": 2,
    "from": 2,
    "to": 3
   },
   {
-   "x": 32,
-   "y": 11,
-   "w": 3,
-   "h": 2,
-   "from": 3,
-   "to": 4
-  },
-  {
    "x": 47,
    "y": 9,
    "w": 3,
    "h": 2,
-   "from": 4,
-   "to": 5
+   "from": 3,
+   "to": 4
   }
  ],
  "props": [
+  {
+   "kind": "boulder",
+   "x": 17,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 21,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 17,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 21,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 50,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 50,
+   "y": 10
+  },
   {
    "kind": "rock_mossy",
    "x": 1,
@@ -211,18 +283,18 @@
   },
   {
    "kind": "tree_pine",
-   "x": 42,
-   "y": 12
-  },
-  {
-   "kind": "rock_small",
-   "x": 46,
-   "y": 13
+   "x": 41,
+   "y": 4
   },
   {
    "kind": "tall_grass",
-   "x": 50,
-   "y": 9
+   "x": 44,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 49,
+   "y": 7
   },
   {
    "kind": "tall_grass",
@@ -245,14 +317,14 @@
    "y": 14
   },
   {
-   "kind": "tall_grass",
-   "x": 13,
-   "y": 15
+   "kind": "rock_mossy",
+   "x": 14,
+   "y": 14
   },
   {
-   "kind": "bush",
-   "x": 18,
-   "y": 15
+   "kind": "rock_mossy",
+   "x": 17,
+   "y": 13
   },
   {
    "kind": "bush",
@@ -260,19 +332,24 @@
    "y": 14
   },
   {
-   "kind": "tall_grass",
-   "x": 40,
-   "y": 15
-  },
-  {
    "kind": "bush",
-   "x": 50,
-   "y": 14
+   "x": 36,
+   "y": 13
   },
   {
    "kind": "rock_mossy",
-   "x": 22,
-   "y": 11
+   "x": 42,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
+   "x": 46,
+   "y": 13
+  },
+  {
+   "kind": "tall_grass",
+   "x": 50,
+   "y": 13
   },
   {
    "kind": "tree_pine",
@@ -285,9 +362,9 @@
    "y": 6
   },
   {
-   "kind": "tree_pine",
-   "x": 37,
-   "y": 8
+   "kind": "rock_small",
+   "x": 36,
+   "y": 6
   },
   {
    "kind": "tall_grass",
@@ -305,49 +382,29 @@
    "y": 3
   },
   {
-   "kind": "tall_grass",
+   "kind": "rock_small",
    "x": 21,
-   "y": 13
-  },
-  {
-   "kind": "bush",
-   "x": 26,
-   "y": 13
-  },
-  {
-   "kind": "tall_grass",
-   "x": 35,
-   "y": 12
-  },
-  {
-   "kind": "bush",
-   "x": 55,
-   "y": 12
-  },
-  {
-   "kind": "rock_mossy",
-   "x": 31,
-   "y": 9
-  },
-  {
-   "kind": "bush",
-   "x": 43,
-   "y": 4
+   "y": 10
   },
   {
    "kind": "rock_small",
-   "x": 55,
-   "y": 9
+   "x": 24,
+   "y": 10
   },
   {
-   "kind": "bush",
-   "x": 47,
-   "y": 6
+   "kind": "rock_small",
+   "x": 32,
+   "y": 10
   },
   {
-   "kind": "bush",
-   "x": 51,
-   "y": 6
+   "kind": "tall_grass",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "rock_small",
+   "x": 54,
+   "y": 10
   },
   {
    "kind": "rock_small",
@@ -361,8 +418,8 @@
   },
   {
    "kind": "tall_grass",
-   "x": 9,
-   "y": 21
+   "x": 13,
+   "y": 16
   },
   {
    "kind": "tall_grass",
@@ -381,8 +438,8 @@
   },
   {
    "kind": "rock_small",
-   "x": 49,
-   "y": 21
+   "x": 50,
+   "y": 15
   },
   {
    "kind": "tall_grass",
@@ -390,14 +447,14 @@
    "y": 23
   },
   {
-   "kind": "tall_grass",
-   "x": 6,
-   "y": 23
+   "kind": "tree_pine",
+   "x": 8,
+   "y": 22
   },
   {
-   "kind": "tree_pine",
-   "x": 12,
-   "y": 24
+   "kind": "bush",
+   "x": 13,
+   "y": 21
   },
   {
    "kind": "tree_pine",
@@ -415,14 +472,14 @@
    "y": 24
   },
   {
-   "kind": "tree_pine",
-   "x": 49,
-   "y": 24
+   "kind": "bush",
+   "x": 51,
+   "y": 22
   },
   {
-   "kind": "rock_mossy",
-   "x": 52,
-   "y": 24
+   "kind": "tall_grass",
+   "x": 54,
+   "y": 23
   },
   {
    "kind": "rock_mossy",
@@ -435,9 +492,14 @@
    "y": 25
   },
   {
-   "kind": "tall_grass",
-   "x": 16,
-   "y": 25
+   "kind": "rock_small",
+   "x": 11,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 14,
+   "y": 26
   },
   {
    "kind": "bush",
@@ -455,9 +517,9 @@
    "y": 25
   },
   {
-   "kind": "tall_grass",
-   "x": 53,
-   "y": 26
+   "kind": "rock_small",
+   "x": 54,
+   "y": 25
   },
   {
    "kind": "tree_pine",
@@ -471,13 +533,13 @@
   },
   {
    "kind": "tall_grass",
-   "x": 14,
-   "y": 27
+   "x": 12,
+   "y": 29
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 16,
-   "y": 29
+   "y": 26
   },
   {
    "kind": "tree_pine",
@@ -500,8 +562,8 @@
    "y": 29
   },
   {
-   "kind": "bush",
-   "x": 43,
+   "kind": "tree_pine",
+   "x": 45,
    "y": 28
   },
   {
@@ -525,8 +587,8 @@
    "y": 31
   },
   {
-   "kind": "tall_grass",
-   "x": 12,
+   "kind": "rock_mossy",
+   "x": 16,
    "y": 31
   },
   {
@@ -559,19 +621,19 @@
    3
   ],
   "herb_1": [
-   35,
+   34,
    10
   ],
   "jar_4": [
    40,
-   4
+   8
   ],
   "ore_cloudsteel_high": [
-   44,
-   6
+   42,
+   8
   ],
   "crate_5": [
-   48,
+   46,
    8
   ],
   "chest_cloud_900": [
@@ -641,7 +703,7 @@
    ],
    [
     35,
-    22
+    16
    ],
    [
     46,
@@ -655,14 +717,14 @@
    ],
    [
     18,
-    16
+    22
    ],
    [
     27,
     21
    ],
    [
-    38,
+    36,
     22
    ],
    [

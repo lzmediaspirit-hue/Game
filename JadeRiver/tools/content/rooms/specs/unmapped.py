@@ -9,7 +9,7 @@ HG_HIDDEN_GROTTO = room(
     "hg_hidden_grotto", size=(40, 24), biome="cave", level=3,
     features=[("grotto", (2, 3, 36, 19), dict(level=0, paint="d", shape="round")),
               ("cleft", (2, 6, 6, 8), dict(level=0, paint="d")),
-              ("ledge", (26, 5, 10, 6), dict(level=1, paint="r", shape="round")),
+              ("ledge", (26, 5, 10, 6), dict(level=1, paint="r", shape="round", flights=[30])),
               ("pool", (8, 13, 13, 7), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"way_up": dict(at=(4, 6), dir="n", arrive=(4, 8), span=2)},

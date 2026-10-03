@@ -35,11 +35,11 @@ const E1_VIEWS := [
 	["r1/11_pilgrim_stairs_landing", "cp_pilgrim_stairs", Vector2(36, 18), false], ["r1/12_cleansing_summit", "cp_cleansing_summit", Vector2(17, 15), true],
 	# R4: the peaks (a view named "r4/..." keeps its world picture and its room's whole one under r4/ too).
 	["r4/01_cliff_faces_crags", "cc_cliff_faces", Vector2(46, 12), true], ["r4/02_cliff_faces_brink", "cc_cliff_faces", Vector2(28, 24), false],
-	["r4/03_sky_ledges_climb", "cc_sky_ledges", Vector2(36, 15), true], ["r4/04_sky_ledges_summit", "cc_sky_ledges", Vector2(46, 9), false],
+	["r4/03_sky_ledges_climb", "cc_sky_ledges", Vector2(36, 15), true], ["r4/04_sky_ledges_summit", "cc_sky_ledges", Vector2(50, 7), false],
 	["r4/05_misty_slopes_mere", "mp_misty_slopes", Vector2(34, 20), true], ["r4/06_misty_slopes_knoll", "mp_misty_slopes", Vector2(22, 12), false],
 	["r4/07_monastery_hall", "mp_forgotten_monastery", Vector2(36, 11), true], ["r4/08_monastery_garden", "mp_forgotten_monastery", Vector2(50, 21), false],
 	["r4/09_ascension_gate", "mp_ascension_gate", Vector2(36, 14), true], ["r4/10_windswept_ridge", "sr_windswept_ridge", Vector2(28, 16), true],
-	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(28, 12), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
+	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
 	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
 	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
 ]

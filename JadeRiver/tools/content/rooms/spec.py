@@ -18,7 +18,7 @@ is (x, y, w, h). Every key but `size` may be left out.
             `shape="ruin"` a ruined building's broken walls up to `level` round the floor it stands on (`door`: the
             open side, "s" by default); a feature with no `level` is paint over what lies under it
             (R4) a band or a feature may also take `wavy` (True, or "s" / "n": that edge alone wanders) and
-            `flights=[col, ...]` (stairs "auto" climbs it at each column, keeping off the walk below)
+            `flights=[col, ...]` (stairs "auto" climbs it at each column, ending at the walk below, its cheeks closed)
   stairs    [(x, y, w, h, from, to[, paint])] laid after the features, and/or "auto": a flight wherever a walk crosses a
             level edge, and up onto every raised shape something stands on
   ways      {portal id: way}, in the order the layout lists them:

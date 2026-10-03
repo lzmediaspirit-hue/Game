@@ -25,7 +25,8 @@ character plays the peaks' story on the grid.
   - The rooms' vistas (peaks behind, the cloud sea under the brinks) are in `topdown_life.VISTAS`.
 - **Engine rules.** Every room before them compiles byte for byte as it did.
   - `wavy="s"`: one edge of a band wanders.
-  - `flights=[...]`: a long terrace climbed at several columns, keeping off the walk.
+  - `flights=[...]`: a long terrace climbed at several columns, ending at the walk rather than on it, with clear cheeks
+    closed by boulders (a body sent along a flight's step from the side was left wedged against it).
   - `shape="ruin"`: broken walls round a floor.
   - A flight prefers a foot flush with the ground below.
   - Neither a paint-only feature nor a walk is climbed onto.
@@ -44,7 +45,8 @@ character plays the peaks' story on the grid.
     A Wider Sky, Beyond the Valley and The Ascension Gate's boss, and the monastery's hidden stair shown by Spirit Sense.
     In the Hidden Vale it plays the teleport stone, a founded sect's raid and the Back Mountain, then the Grotto's rope
     up to Behind the Falls. Each room is built by the view and walked by auto-path.
-  - The frontier's own checks needed no edit.
+  - One frontier check moved: `rules_tests`' teleport past the gate now takes the first stone in a room with no layout,
+    since the Hidden Vale's stone is on the grid.
   - The `room_engine` capture set has the peaks' views (pictures in `docs/architecture/room_engine/r4/`). A view named
     under a folder keeps its world picture and its whole room under that folder too.
 

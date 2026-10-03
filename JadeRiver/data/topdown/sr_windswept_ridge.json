@@ -62,10 +62,10 @@
   "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnrsssnrrnnnnnnrnnrnnnnnnrrnnrrnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnn",
-  "nnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrsssnnnnnnnnnnnnnnnn",
-  "nnnnnnnnrnsssnnrnnnnnrrnnnnnnrnnnnnrnnrnnnnnnnnnrnnnnsssnnrnnnnnnnnnnnnn",
+  "nnnnnnnnnsssnnrrnnnnnnrnnrnnnnnnrrnnrrnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnn",
+  "nnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnn",
+  "nnnnnnnrnsssnnnrnnnnnrrnnnnnnrnnnnnrnnrnnnnnnnnnrnnnnsssnnrnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnrrnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
@@ -84,7 +84,7 @@
    "to": 1
   },
   {
-   "x": 10,
+   "x": 9,
    "y": 19,
    "w": 3,
    "h": 4,
@@ -125,6 +125,116 @@
   }
  ],
  "props": [
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 56,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 56,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 56,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 56,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 18,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 14
+  },
   {
    "kind": "boulder",
    "x": 1,
@@ -371,9 +481,9 @@
    "y": 19
   },
   {
-   "kind": "rock_small",
-   "x": 9,
-   "y": 19
+   "kind": "boulder",
+   "x": 7,
+   "y": 13
   },
   {
    "kind": "rock_small",
@@ -407,7 +517,7 @@
   },
   {
    "kind": "tree_pine",
-   "x": 8,
+   "x": 7,
    "y": 22
   },
   {
@@ -444,11 +554,6 @@
    "kind": "tree_pine",
    "x": 48,
    "y": 22
-  },
-  {
-   "kind": "rock_small",
-   "x": 52,
-   "y": 21
   },
   {
    "kind": "tree_pine",
