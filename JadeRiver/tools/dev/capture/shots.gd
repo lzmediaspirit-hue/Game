@@ -58,6 +58,27 @@ const E1_VIEWS := [
 	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
 	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
 	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
+	# R5: the story's own rooms and the Tidebreak Front (their pictures under r5/)
+	["r5/01_gus_warehouse", "si_gus_warehouse", Vector2(22, 12), true], ["r5/02_warehouse_strongroom", "si_gus_warehouse", Vector2(36, 8), false],
+	["r5/03_trial_of_reflections", "si_trial_of_reflections", Vector2(18, 12), true], ["r5/04_presence_trial", "si_presence_trial", Vector2(20, 13), true],
+	["r5/05_siege_gate", "si_siege", Vector2(20, 15), true], ["r5/06_siege_field", "si_siege", Vector2(40, 7), false],
+	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
+	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
+	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true],
+	# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar (their pictures under r7/).
+	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
+	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],
+	["r7/05_presence_terrace", "np_presence_terrace", Vector2(26, 15), true], ["r7/06_trial_hall", "np_trial_hall", Vector2(13.5, 9), true],
+	["r7/07_canyon_mouth_toll", "gc_canyon_mouth", Vector2(14, 13), true], ["r7/08_canyon_mouth_mesa", "gc_canyon_mouth", Vector2(34, 12), false],
+	["r7/09_kite_winds", "gc_kite_winds", Vector2(30, 14), true], ["r7/10_harpy_roosts", "gc_harpy_roosts", Vector2(32, 12), true],
+	["r7/11_windbridge", "gc_windbridge", Vector2(36, 13), true],
+	["r7/12_hold_gate", "ir_hold_gate", Vector2(30, 15), true], ["r7/13_clan_hearth", "ir_clan_hearth", Vector2(28, 11), true],
+	["r7/14_ancestor_hall", "ir_ancestor_hall", Vector2(11.5, 8), true],
+	["r7/15_glass_dunes", "sd_glass_dunes", Vector2(30, 15), true], ["r7/16_scorpion_flats", "sd_scorpion_flats", Vector2(30, 12), true],
+	["r7/17_oasis_of_bones", "sd_oasis_of_bones", Vector2(28, 15), true], ["r7/18_worm_sea_tomb_door", "sd_worm_sea", Vector2(58, 13), true],
+	["r7/19_sealed_gate", "ts_sealed_gate", Vector2(40, 12), true], ["r7/20_hall_of_sand_kings", "ts_hall_of_sand_kings", Vector2(30, 13), true],
+	["r7/21_mirror_crypt", "ts_mirror_crypt", Vector2(28, 13), true], ["r7/22_throne_of_the_tomb_king", "ts_throne", Vector2(28, 12), true],
 ]
 
 static func sets() -> Dictionary:
@@ -689,6 +710,49 @@ static func sets() -> Dictionary:
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
+
+	# E3, the NPC engine (docs/architecture/npc_engine.md): its first new people, Greyreed Hamlet's three villagers come
+	# home once the well runs clean, each one spec placed and set to work by anchors.
+	s["npc_engine"] = {"doc": "E3, the NPC engine: Greyreed Hamlet's square before the well runs clean and after, its three villagers home and at work (each worker up close), a word with one, and the square whole",
+		"out": "architecture/npc_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": [
+		{"name": "01_hamlet_before", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120},
+		{"do": [["quests_done", ["grey_roofs", "cleansing_the_well"]]]},
+		{"name": "02_hamlet_home_again", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 240},
+		{"name": "03_washer_ying_wash", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "tend"]]},
+		{"name": "04_washer_ying_hang", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "work_hang"]]},
+		{"name": "05_fisher_gan_mend", "take": [["worker", "*", "gh_hamlet_square", "npc_fisher_gan", "work_mend"]]},
+		{"name": "06_old_jiu_sweep", "take": [["worker", "*", "gh_hamlet_square", "npc_old_jiu", "work_sweep"]]},
+		{"name": "07_talk_washer_ying", "room": "gh_hamlet_square", "cell": Vector2(11, 20), "wait": 60, "do": [["talk", "npc_washer_ying"], ["frames", 40], ["dialogue_end"], ["frames", 4]],
+			"then": [["close_pages"], ["frames", 10]]},
+		{"name": "08_hamlet_whole", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120, "take": [["whole_room", "rooms/gh_hamlet_square"]]}]}
+
+	# T1 (docs/architecture/topdown_mechanics.md): the side view's traversal on the grid, played in the rooms that need
+	# it: a raft carrying the body over the Grey Pools and the hermit's pond, the vine up to the Falls Pool's spray ledge,
+	# a glide from it over the falls' spray, the spray lifting a glider, the rope up the falls ledge.
+	var on_the_ledge := Vector2(-1, 1).normalized()
+	s["traversal"] = {"doc": "T1: the side view's traversal on the grid: rafts, the vine and the rope, the glide and the falls' updraft, flight",
+		"out": "architecture/topdown_mechanics/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
+			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"],
+			["secret_art", "falling_leaf_glide"]], "rows": [
+		{"name": "01_raft_grey_pools", "room": "rm_grey_pools", "cell": Vector2(19, 21), "wait": 60, "do": [["on_raft", "log_raft_a"], ["frames", 150]],
+			"take": [["shot"], ["world", "world/01_raft_grey_pools"]]},
+		{"name": "02_raft_hermit_pond", "room": "rm_hermit_stilt_house", "cell": Vector2(12, 7), "wait": 60, "do": [["on_raft", "pond_raft"], ["frames", 150]],
+			"take": [["world", "world/02_raft_hermit_pond"]]},
+		{"name": "03_vine_climb", "room": "cf_falls_pool", "cell": Vector2(34, 8), "wait": 60, "do": [["move", Vector2.UP], ["frames", 48], ["stop"], ["frames", 4]],
+			"take": [["world", "world/03_vine_climb"]], "then": [["move", Vector2.UP], ["frames", 90], ["stop"]]},
+		{"name": "04_glide_over_the_spray", "room": "cf_falls_pool", "cell": Vector2(30, 6), "wait": 60,
+			"do": [["qi_full"], ["face", on_the_ledge], ["move", on_the_ledge], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 34]],
+			"take": [["world", "world/04_glide_over_the_spray"]], "then": [["frames", 90], ["hold_jump", false], ["stop"], ["frames", 60]]},
+		{"name": "05_updraft_lifts", "room": "cf_falls_pool", "cell": Vector2(25, 11), "wait": 60,
+			"do": [["qi_full"], ["face", Vector2.RIGHT], ["move", Vector2(1, -0.4).normalized()], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 44]],
+			"take": [["world", "world/05_updraft_lifts"]], "then": [["hold_jump", false], ["stop"], ["frames", 90]]},
+		{"name": "06_rope_falls_ledge", "room": "cf_falls_pool", "cell": Vector2(14, 7), "wait": 60, "do": [["move", Vector2.LEFT], ["frames", 44], ["stop"], ["frames", 4]],
+			"take": [["world", "world/06_rope_falls_ledge"]], "then": [["move", Vector2.LEFT], ["frames", 90], ["stop"]]},
+		{"name": "07_falls_pool_whole", "room": "cf_falls_pool", "cell": Vector2(36, 8), "wait": 60, "take": [["whole_room", "rooms/cf_falls_pool"]]},
+		{"name": "08_flight_over_the_shore", "room": "cf_falls_pool", "cell": Vector2(45, 22), "wait": 60,
+			"do": [["set", "cultivator.realm_key", "cloud_stride_1"], ["unlock", ["flight"]], ["refresh"], ["qi_full"], ["face", Vector2.DOWN],
+				["jump"], ["hold_jump", true], ["frames", 60], ["hold_jump", false], ["frames", 2], ["move", Vector2.RIGHT], ["frames", 20], ["stop"], ["frames", 2]],
+			"take": [["world", "world/08_flight_over_the_shore"]], "then": [["submit", {"type": "stop_flight", "reason": "landed"}], ["frames", 90]]}]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

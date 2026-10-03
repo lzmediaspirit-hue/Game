@@ -1138,6 +1138,42 @@
     }
    ]
   },
+  "gc_canyon_mouth": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "gc_harpy_roosts": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "gc_kite_winds": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "gc_windbridge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "gh_hamlet_square": {
    "vista": [
     {
@@ -1150,7 +1186,61 @@
      "kind": "river",
      "pad": 32
     }
-   ]
+   ],
+   "work": {
+    "npc_fisher_gan": {
+     "loop": "mend",
+     "spots": [
+      [
+       11,
+       19,
+       "ne"
+      ],
+      [
+       12,
+       21,
+       "s"
+      ]
+     ]
+    },
+    "npc_old_jiu": {
+     "loop": "sweep",
+     "spots": [
+      [
+       22,
+       21,
+       "s"
+      ],
+      [
+       22,
+       19,
+       "n"
+      ],
+      [
+       20,
+       21,
+       "w"
+      ]
+     ]
+    },
+    "npc_washer_ying": {
+     "loop": "laundry",
+     "spots": [
+      [
+       9,
+       21,
+       "s",
+       "wash"
+      ],
+      [
+       9,
+       18,
+       "n",
+       "hang"
+      ]
+     ]
+    }
+   }
   },
   "hv_back_mountain": {
    "vista": [
@@ -1181,6 +1271,15 @@
      "edge": "s",
      "kind": "river",
      "pad": 32
+    }
+   ]
+  },
+  "ir_hold_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     }
    ]
   },
@@ -2166,6 +2265,43 @@
     }
    ]
   },
+  "np_alliance_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "np_hall_of_nine": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "np_presence_terrace": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
   "rm_grey_pools": {
    "vista": [
     {
@@ -2276,6 +2412,42 @@
      "edge": "s",
      "kind": "river",
      "pad": 32
+    }
+   ]
+  },
+  "sd_glass_dunes": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_oasis_of_bones": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_scorpion_flats": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "sd_worm_sea": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     }
    ]
   },
@@ -2739,6 +2911,66 @@
     ]
    ]
   },
+  "si_presence_trial": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "si_sect_war": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "si_siege": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "si_tide_battle": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "si_trial_of_reflections": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
   "sq_lower_pit": {
    "vista": [
     {
@@ -2804,6 +3036,57 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 80
+    }
+   ]
+  },
+  "tf_drone_hive": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_greyfall_breach": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_hollow_wake": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "tf_tidebreak_bastion": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
     }
    ]
   },

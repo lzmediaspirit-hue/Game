@@ -494,3 +494,120 @@ PROPS = {
 }
 # The washing lifts on the wind (the room view turns its frames faster in a gust, TopdownLife.WINDY).
 ANIM = {"laundry_line": (4, 420)}
+
+
+# ================================================================================================================== R5
+# The story's rooms and the Tidebreak Front (E1's batch R5): the Nine Peaks' trial seats round the Presence Trial's
+# circle, the bronze mirror of the Trial of Reflections, and the Hollow's drone hives on the grey fields past the
+# Tidebreak Bastion. Each drawn as the kit's props are: the §14 ramps, lit from the north-west, outlined, a floor shadow.
+from palette import HOLLOW  # noqa: E402
+
+VIOLET = [c("221A3C"), c("3D3166"), c("5E4E96"), c("8A7AC4"), c("C2B6EC")]   # the Nine Peaks' lilac, the hive's glow
+GLOW = c("F0E6FF")
+
+
+def trial_seat(s: Img) -> None:
+    """A seat of the Nine Peaks: a granite throne on a stepped dais, its tall back crowned in three points with a jade
+    stone in the middle one, nine peaks carved in its panel, a lilac cushion on the seat, the arms squared off. Footprint
+    2 x 1. 32 x 52; corner (0, 50)."""
+    _box(s, 0, 40, 32, 4, 6, STONE2, STONE2)                       # the dais
+    for i in range(6, 26):                                          # the back's crown: three points
+        d = min(abs(i - 15.5), abs(i - 7.5) + 3, abs(i - 23.5) + 3)
+        top = 2 + int(d * 0.9)
+        for j in range(top, 31):
+            col = STONE2[3]
+            if i == 6 or j == top:
+                col = STONE2[4]
+            elif i >= 24:
+                col = STONE2[2]
+            s.put(i, j, col)
+    s.rect(9, 11, 14, 17, STONE2[2])                                # the carved panel: peaks over a cloud
+    s.hline(9, 11, 14, STONE2[1])
+    for i in range(10, 22):
+        top = 13 + int(min(abs(i - 15.5) * 1.6, abs(i - 11.5) * 1.6 + 4, abs(i - 19.5) * 1.6 + 3))
+        for j in range(top, 24):
+            s.put(i, j, STONE2[4] if i < 15 or j == top else STONE2[3])
+    for i in range(10, 22):
+        s.put(i, 24 + (i % 3 == 0), STONE2[5])                      # the cloud under them
+        s.put(i, 25, STONE2[4])
+    s.rect(15, 5, 2, 3, JADE)                                       # the jade stone
+    s.put(15, 5, c("7FD8C6"))
+    for x0 in (2, 26):                                              # the arms
+        _box(s, x0, 24, 4, 3, 10, STONE2, STONE2)
+    _box(s, 5, 31, 22, 6, 4, STONE2, STONE2)                        # the seat
+    for j in range(32, 36):                                         # its cushion
+        for i in range(7, 25):
+            s.put(i, j, VIOLET[3] if j == 32 or i == 7 else VIOLET[1] if i >= 23 else VIOLET[2])
+    s.hline(7, 36, 18, VIOLET[0])
+    s.outline()
+
+
+def bronze_mirror(s: Img) -> None:
+    """The bronze mirror of the Trial of Reflections, as the side view has it: a great round mirror held in a curved frame
+    of dark wood on a pedestal, gold finials on its crown and sides, its face pale silver-gold with two glints across it
+    and a jade mist rising in its lower part. Footprint 2 x 1. 32 x 56; corner (0, 54)."""
+    _box(s, 4, 46, 24, 3, 5, WOOD2, DARKWOOD + [WOOD2[3]])           # the pedestal
+    s.rect(13, 38, 6, 8, DARKWOOD[2])                               # its stem
+    s.vline(13, 38, 8, DARKWOOD[3])
+    s.ellipse(16, 23, 14.5, 15.5, WOOD2[2], (WOOD2[4], DARKWOOD[1]))   # the frame
+    s.ellipse(16, 23, 12, 13, BRONZER[2])
+    for j in range(10, 37):                                         # the face
+        for i in range(4, 29):
+            dx, dy = (i + 0.5 - 16) / 11.0, (j + 0.5 - 23) / 12.0
+            if dx * dx + dy * dy > 1.0:
+                continue
+            col = PAPER if dx + dy < -0.7 else GOLDR[3] if dx + dy < -0.1 else PLASTER2[3] if dx + dy < 0.6 else PLASTER2[2]
+            if dy > 0.35:                                           # the jade mist in it
+                col = c("9CCFB9") if dy < 0.6 else c("5FAE98") if dy < 0.85 else JADE
+            if abs(dx - dy + 0.35) < 0.09 or abs(dx - dy - 0.15) < 0.05:   # two glints
+                col = c("FFFDF4")
+            s.put(i, j, col)
+    for x, y in ((16, 6), (1, 23), (31, 23)):                       # the finials
+        s.ellipse(x, y, 1.6, 1.6, GOLDR[2], (GOLDR[3], GOLDR[1]))
+    s.put(16, 4, GOLDR[3])
+    s.outline()
+
+
+def drone_hive(s: Img) -> None:
+    """A drone hive of the Hollow: a tall cone of grey papery stone laid in scalloped courses, cells glowing violet in
+    it where the drones sleep, a skirt of broken stone round its foot. Footprint 2 x 1. 32 x 54; corner (0, 52)."""
+    for j in range(2, 50):
+        half = 2 + (j - 2) * 13.5 / 47.0
+        course = (j - 2) % 6
+        for i in range(int(16 - half), int(16 + half) + 1):
+            u = (i + 0.5 - (16 - half)) / (2 * half + 1)
+            col = HOLLOW[3] if u < 0.3 else HOLLOW[2] if u < 0.72 else HOLLOW[1]
+            if course == 5:                                         # each course's shadowed lower edge, scalloped
+                col = HOLLOW[1] if (i + j // 6) % 4 else HOLLOW[0]
+            elif course == 0 and u < 0.5:
+                col = HOLLOW[4]
+            s.put(i, j, col)
+    for k, (x, y) in enumerate(((15, 9), (12, 20), (19, 16), (17, 27), (10, 33), (21, 36), (14, 42), (24, 44), (7, 45))):
+        for j in range(-2, 4):                                      # the glow round each cell on the stone
+            for i in range(-2, 5):
+                if (i - 1) ** 2 + (j - 0.5) ** 2 <= 7:
+                    s.blend(x + i, y + j, VIOLET[3], 90)
+        s.rect(x, y, 3, 2, VIOLET[1])                               # the cells, lit from within
+        s.put(x + 1, y, GLOW if k % 3 == 0 else VIOLET[4])
+        s.put(x, y + 1, VIOLET[3])
+        s.put(x + 1, y + 1, VIOLET[4])
+        s.put(x + 2, y + 1, VIOLET[3])
+    for k in range(7):                                              # the broken stone at its foot
+        x = 1 + k * 4 + int(h01(k, 1, 97) * 2)
+        s.ellipse(x + 1.5, 50, 2.5, 1.8, HOLLOW[2], (HOLLOW[4], HOLLOW[0]))
+    s.outline()
+
+
+PROPS.update({
+    "trial_seat": (trial_seat, 32, 52, 2, 1, [0, 50], True, [20, -2, 15, 3]),
+    "bronze_mirror": (bronze_mirror, 32, 58, 2, 1, [0, 56], True, [17, -2, 15, 3]),
+    "drone_hive": (drone_hive, 32, 54, 2, 1, [0, 52], True, [18, -2, 15, 4]),
+})
+
+# R7: the dry country east of Nine Peaks, the Ironroot hold and the Tomb of Sunscar (E1's rooms): the canyons' rock and
+# prayer flags, the desert's palms, cactus, scrub and bones, the hold's anvil and brazier, the tomb's sarcophagi,
+# statues, mirrors, traps and throne, the peaks' guardian lions (tools/art/topdown/arid.py), into the sheet with these.
+import arid as _ARID  # noqa: E402
+
+PROPS.update(_ARID.PROPS)
+ANIM.update(_ARID.ANIM)

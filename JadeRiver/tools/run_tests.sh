@@ -56,6 +56,10 @@ if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
 # loot, voice and sheets are what it makes (tools/content/monsters/build.py).
 echo "== monsters"
 if ! python3 tools/content/monsters/build.py --check; then failed+=("monsters"); fi
+# Audit 45 (E3): the NPC engine: every person's spec resolves, compiles the same twice, and is what npcs.json and
+# life.json hold (its work spots resolved on the layouts); the engine's own tests pass (tools/content/npcs).
+echo "== npc_engine"
+if ! python3 tools/content/npcs/engine.py --check; then failed+=("npc_engine"); fi
 # The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
 # load their own scenes, so only this catches a missing or broken main scene.
 echo "== boot"

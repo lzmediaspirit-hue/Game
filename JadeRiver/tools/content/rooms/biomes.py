@@ -177,6 +177,71 @@ BIOMES = {
                   "walk": ["bush_azalea", "rock_small", "ferns"],
                   "water": ["tree_willow", "cattails", "lotus_pads", "tall_grass"]},
     },
+    # R5 ------------------------------------------------------------------------------------------------------------
+    # The Tidebreak Front's grey fields past the Bastion (the Greyfall Breach, the Hollow Wake, the Drone Hive): bare grey
+    # rock where the Tide has drunk the land, dead trees and grey reeds, stumps, fallen logs and broken stone, a little
+    # grass still green where it sheltered; the drone hives are placed by the rooms.
+    "tidebreak": {
+        "base": "r", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["dead_tree", "rock_small", "rock_mossy"],
+                  "ground": ["dead_tree", "grey_reeds", "rock_small", "stump", "log", "grey_reeds", "tall_grass"],
+                  "walk": ["grey_reeds", "rock_small", "stump"],
+                  "water": ["grey_reeds", "dead_tree", "cattails"]},
+    },
+    # A fortress of the Wardens (the Tidebreak Bastion): dressed granite and flagstones, little that grows, weeds in the
+    # joints and stones fallen from the walls.
+    "bastion": {
+        "base": "p", "stair": "s", "density": 0.14,
+        "flora": {"wall": ["rock_small", "tall_grass", "rock_mossy"],
+                  "ground": ["rock_small", "tall_grass", "bush"],
+                  "walk": ["rock_small"],
+                  "water": ["tall_grass", "cattails"]},
+    },
+    # R7 ------------------------------------------------------------------------------------------------------------
+    # Act II's dry country east of Nine Peaks (the art: tools/art/topdown/arid.py, none of it of the foliage kit, so the
+    # ground laid after the scatter runs under every piece). Nine Peaks itself takes R3's `sect_terraces`.
+    # The Gale Canyons: the canyon's floor bare red earth (R7's `earth` over its `lowest` level), every ledge, mesa and
+    # wall above it sandstone (decision 44's sand, whose faces are its layered banks; the earth's would show a grass
+    # lip), the trail a sandy wash; banded sandstone boulders and wind-carved hoodoos, grey wind-killed trees, dry
+    # scrub; plank steps up the ledges, sandstone at their cheeks.
+    "canyon": {
+        "base": "g", "stair": "w", "density": 0.26, "cheek": "red_rock",
+        "flora": {"wall": ["red_rock", "dead_tree", "dry_scrub", "hoodoo"],
+                  "ground": ["red_rock", "dry_scrub", "dead_tree", "hoodoo", "dry_scrub"],
+                  "walk": ["dry_scrub", "red_rock"],
+                  "water": ["dry_scrub", "cattails", "tall_grass"]},
+        "ground": {"sand": ["*"], "earth": ["lowest"]},
+    },
+    # The Sunscar Desert: decision 44's sand over everything (laid after the scatter, so it runs under every piece of the
+    # arid kit), the caravan track trodden red earth; dunes and sandstone outcrops, cactus clumps, dry scrub, bleached
+    # bones, a dead tree now and then; palms, reeds and grass only where there is water.
+    "desert": {
+        "base": "g", "stair": "s", "density": 0.22, "cheek": "red_rock",
+        "flora": {"wall": ["red_rock", "dry_scrub", "cactus", "ribcage"],
+                  "ground": ["dry_scrub", "cactus", "red_rock", "dry_scrub", "ribcage", "dead_tree"],
+                  "walk": ["dry_scrub", "red_rock"],
+                  "water": ["palm", "tall_grass", "cattails", "dry_scrub"]},
+        "ground": {"sand": ["*"], "earth": ["walk"]},
+    },
+    # The Tomb of Sunscar: flagstone halls (`p`) inside walls of cut sandstone (a spec's walls of sand, whose faces are
+    # its layered banks), sand drifted in through the cracks (`g` drifts the sand covers after the scatter), bones and
+    # fallen stone in the drifts and nothing green; granite steps.
+    "tomb": {
+        "base": "p", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["ribcage", "red_rock"], "ground": ["ribcage", "red_rock"], "walk": ["red_rock"],
+                  "water": ["red_rock"]},
+        "ground": {"sand": ["*"]},
+    },
+    # Ironroot Hold: the clan's mountain of grey rock, the iron-root trees' roots breaking out of it, pines on its
+    # ledges, boulders and stumps where the clan cut timber; trampled earth in its yards (a spec's `d`), its cavern's
+    # floor by the walls rock rubble (`rubble`). Lamp and forge lit inside.
+    "iron_hold": {
+        "base": "r", "stair": "s", "density": 0.26, "rubble": True,
+        "flora": {"wall": ["roots", "tree_pine", "boulder", "rock_small"],
+                  "ground": ["tree_pine", "roots", "boulder", "rock_small", "stump", "rock_mossy"],
+                  "walk": ["rock_small", "stump"],
+                  "water": ["cattails", "ferns"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

@@ -39,7 +39,9 @@ try { & (Join-Path $PSScriptRoot 'Validate-Animations.ps1') } catch { Write-Host
 #   item_engine    audit 45 (E4): the data holds every item family as its spec writes it, each source a family names
 #                  is found, its pill icons are current, and the engine's own tests pass;
 #   pix            audit 45 (S5): the pixel library for new art draws each shape exactly as its source;
-#   monsters       audit 45 (E2): every species spec resolves and poses, its rows, loot, voice and sheets are what it makes.
+#   monsters       audit 45 (E2): every species spec resolves and poses, its rows, loot, voice and sheets are what it makes;
+#   npc_engine     audit 45 (E3): every person's spec resolves, compiles the same twice and is what npcs.json and
+#                  life.json hold (its work spots resolved on the layouts), and the engine's own tests pass.
 $gates = @(
     @{ Name = 'build_data'; Args = @('tools/data/build_data.py', '--check') },
     @{ Name = 'room_lint'; Args = @('tools/data/room_lint.py') },
@@ -51,7 +53,8 @@ $gates = @(
     @{ Name = 'cues'; Args = @('tools/data/cues.py', '--check') },
     @{ Name = 'item_engine'; Args = @('tools/content/items/engine.py', '--check') },
     @{ Name = 'pix'; Args = @('tools/lib/pix.py', '--check') },
-    @{ Name = 'monsters'; Args = @('tools/content/monsters/build.py', '--check') }
+    @{ Name = 'monsters'; Args = @('tools/content/monsters/build.py', '--check') },
+    @{ Name = 'npc_engine'; Args = @('tools/content/npcs/engine.py', '--check') }
 )
 foreach ($g in $gates) {
     Write-Host "== $($g.Name)"

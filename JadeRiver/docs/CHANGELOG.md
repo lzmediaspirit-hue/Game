@@ -1,5 +1,147 @@
 # Changelog
 
+## Nine Peaks to the Tomb of Sunscar on the grid (R7)
+
+The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The
+twenty side-view rooms of chapters 13 and 14 are specs now, and a top-down character plays both chapters and the Tomb
+King on the grid.
+
+- **Twenty rooms, 12 to 24 spec lines each, anchors included.**
+  - Nine Peaks: the Alliance Gate, the Hall of Nine, the Auction Pavilion, the Presence Terrace and the Trial Hall.
+  - The Gale Canyons: the Canyon Mouth, the Kite Winds, the Harpy Roosts and the Windbridge.
+  - Ironroot Hold: the Hold Gate, the Clan Hearth and the Ancestor Hall.
+  - The Sunscar Desert: the Glass Dunes, the Scorpion Flats, the Oasis of Bones and the Worm Sea.
+  - The Tomb of Sunscar: the Sealed Gate, the Hall of Sand Kings, the Mirror Crypt and the Throne of the Tomb King.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The canyons' ledges and pinnacles are
+  mesas with plank stairs, the Windbridge a trestle bridge over a chasm, the tomb's ledges galleries and alcoves.
+- **Looks.**
+  - Four biomes: `canyon` (sandstone over a red-earth floor, hoodoos, prayer flags), `desert` (sand over all, a red-earth
+    track, dunes with crests, an oasis), `iron_hold` (grey rock, iron-root roots, a cavern hall) and `tomb` (flagstone
+    halls in walls of cut sandstone, drifts, statues, braziers, spike plates). Nine Peaks takes R3's `sect_terraces`.
+  - Seventeen props for them (`tools/art/topdown/arid.py`, joined through `furnish.py`'s R7 block; the prop sheet
+    rebuilt with `build_tiles.py`): a sandstone boulder, a hoodoo, prayer flags, a date palm, cactus, dry scrub, a
+    ribcage, a yurt, an anvil, a brazier, iron-root roots, a sarcophagus, a sand king's statue, a bronze mirror, a spike
+    plate, the sun throne and a guardian lion.
+  - The rooms' vistas (the peaks past their north edges, the cloud sea under Nine Peaks' brinks) are in
+    `topdown_life.VISTAS`.
+- **Engine rules**, additive: every room before them compiles byte for byte as it did.
+  - `ground` takes `earth` (bare earth, `d`, over meadow or sand), the name `lowest` (the room's lowest floor off the
+    walks) and `-name` (a band's or a feature's cells kept out of a paint).
+- **Places.** Eight rows join `places.py` (41 in all): the Alliance Gate's teleport stone and shrine, the Canyon Shrine,
+  the Hold Gate's shrine, the Clan Forge's anvil, the Scorpion Flats' and the oasis's shrines and the Oasis of Bones'
+  teleport stone. They are the first places outside the valley. The world map opened on a place used to show the zone
+  you stand in, and now shows the place's own zone (`map_page.gd`'s setup).
+- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout (R6).
+  Every other way out of these rooms leads to a room on the grid.
+- **Tests.**
+  - A new suite, `topdown_sunscar` (in `tests/suites.txt` after `topdown_traversal`), 57 checks. It plays Nine Seats,
+    the Auction Pavilion and the Trial Hall, The Canyon Toll, Ironroot Blood, Glass and Bone, The Sealed Gate,
+    Sovereign and The Tomb King room by room on the grid, and checks every room's walks and view.
+  - `room_engine` holds the twenty new specs.
+  - `rules_tests`' route tour walks the twenty rooms with auto-path. For it, the Scorpion Flats' outcrop stair stops
+    short of the track, and the Windbridge's crag stands two levels tall with its stair the one way up.
+- **Still to do** (room_engine.md lists it): top-down sheets for the wind kite, canyon brigand, canyon harpy, sandstorm
+  scorpion, dune worm, terracotta warden and the Tomb King; a lamplit TopdownLight area for the cavern and the tomb; a
+  warm rock paint of the terrain kit's own for the canyons' and the tomb's walls.
+- **Checks.** The full run (merged with R5 and E3): all 28 suites pass, 74,339 checks with 0 failures and no
+  SCRIPT ERROR. `topdown_sunscar` is new at 57 checks. `room_engine` is at 328 checks. Grid parity holds for 108
+  layouts and 326 starts. `places` reaches 41 places, `npc_engine` holds, and boot reports 0 failing.
+
+## The story's rooms and the Tidebreak Front on the grid (R5)
+
+The room engine's fifth batch (`docs/architecture/room_engine.md`, "The story's rooms and the Tidebreak Front (R5)").
+The story's five instanced rooms and the Tidebreak Front's five are specs now. A top-down character plays every event
+in them on the grid.
+
+- **Ten rooms, 16 to 30 spec lines each.**
+  - The story's: Gu's Warehouse, the Trial of Reflections, the Presence Trial, the Siege of Two Sects and the Sect War
+    at the Alliance Gate.
+  - The Tidebreak Front's: the Tidebreak Bastion, the Tide battle on its wall, the Greyfall Breach, the Hollow Wake and
+    the Drone Hive.
+
+  Each is laid out for its event:
+  - the warehouse's aisles of climbable stacks under a catwalk loft, Gu's strongbox on the strongroom's dais;
+  - the Reflection's mirrored octagon about the bronze mirror;
+  - the Presence Trial's horseshoe of nine seats on plinths round the circle;
+  - the siege's wall with its gate and towers, the camp behind it and the grey valley before it;
+  - the Sect War's grounded junk and the Alliance's line across the pass;
+  - the Tide battle's lantern dais between two barricades;
+  - the Breach's broken outer wall, the road through it.
+
+  Every event spawns on the layout's own cells. Every object and way of each side-view room has its spot.
+- **Looks.**
+  - Two biomes: `tidebreak` (the grey fields) and `bastion` (the Wardens' granite and flagstones).
+  - Three props in `furnish.py`, the prop sheet rebuilt: `trial_seat`, `bronze_mirror` and `drone_hive`.
+  - Vistas in `topdown_life.VISTAS`.
+  - A wall that must read as one runs east and west: only a south face shows in the 3/4 view.
+- **An engine rule.** `topdown_rooms.check` holds a layout's `event` cells to the room event of a set piece begun in
+  the room when the room has none of its own (the Greyfall Breach's stand). Every older room is unchanged.
+- **The frontier.** Gu's Warehouse was the last way off the grid in Act I, and its door on Artisan Row is open. The
+  ways back from the Sect War and the Presence Trial, the Bastion's skiff and the Drone Hive's way east lead to rooms
+  with no layout and are gated.
+- **Tests.**
+  - A new suite, `topdown_story_rooms`, with 69 checks. It plays The Heart Trial (its heart demons too), Gu's
+    Warehouse, The Siege, The Gate Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the
+    grid) and Greyfall's stand. It walks the grey fields to the Drone Hive and back. Each room is built by the view and
+    walked by auto-path.
+  - The `room_engine` capture set has R5's views (`docs/architecture/room_engine/r5/`).
+  - One frontier check moved. No way off the grid is in walking reach from the Marsh Edge now, so `topdown_tutorial`
+    sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
+  - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
+    R4's closed-cheek `flights`.
+  - The run after merging R4, S11, M1 and T1: every gate holds (the grid's parity on 88 layouts), with no script
+    error.
+    - `topdown_story_rooms` is new, with 69 checks.
+    - `room_engine` has 268 checks, three for each room it lays out (30 for R5's ten).
+    - `contract_tests` 1,112, `rules_tests` 2,712 (its route tour over 89 rooms), `room_sweep` 3,736,
+      `visibility_suite` 6,758, `topdown_tutorial` 1,030, `topdown_traversal` 123 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes run alone. In the full run two of its frame times missed their budgets by 1 to
+      2 ms (the Marsh Edge's 16.7 ms against 16.6, the breakthrough crowd's 17.7) while the machine's four cores
+      carried a load of 6 to 10. Neither touches R5's rooms.
+- **Still to do.** Nine of these rooms' foes have no top-down sheet (M1 drew the Mudwater bandit and the gorge bandit
+  adept). The Front's light follows the clock, not the side view's night. Details are in the doc.
+## The NPC engine: a person is one spec (decision 45, E3)
+
+A person of the world used to be written in four places: a row in `story.py`, an object of the side-view room in
+`world.py`, an anchor in the room's spec, and a work entry in `topdown_life.py` with its spots chosen cell by cell. The
+NPC engine (`tools/content/npcs/`, `docs/architecture/npc_engine.md`) makes each person one `npc(...)` spec and writes
+them into every place the game reads them from. The game reads nothing new.
+
+- **The spec** names who they are and where they live: id, name and title; their look, from the character pipeline's
+  parts and dyes (`look("ponytail:2", "cardigan:white", "straight", "slippers")`); their lines, barks and lines to a
+  hidden realm; their services and dialogue tree; and their places, home first, each with its daily work loop.
+- **Work by anchors.** A work spot may name what it is beside instead of a cell: `"water_edge"`, `"by:wash_tub"`,
+  `"near:shrine_village"`, `"open"`, `"home"`, with a facing or the loop's steps (`"by:laundry_line:hang"`).
+  `topdown_life.py` resolves them on the built layout and checks them as it checks hand spots: on the person's floor,
+  within the leash, every leg walked clear. The choice is deterministic, and a building moved with its worker keeps the
+  worker's spots round it.
+- **Placements the engine makes.** A person new to a room names a room engine anchor (`place(room, anchor="commons@9",
+  facing=1, visible_if=...)`). The engine adds their object to the side-view room (`world.py`'s new
+  `npc_engine_pass`) and their anchor to the room engine's layout.
+- **Role templates.** The two sects' staff come from one template a post (steward, weapon master, deacon...): a sect's
+  steward is `staff("steward", JADE, "Steward Wei", at=[...])`.
+- **Pins.** A spot written as a cell, `row={key: value}` (`DROP` removes a key), an anchor's cell, a side-view point and
+  a spot's facing can all be pinned in the spec, never in the JSON.
+- **The round trip.** All 118 people with a home and the 5 extras are specs now, in six zone modules: Lotus Ferry,
+  Stoneford, the valley's roads, the sects (20 of them from 10 templates), Act II and Act III. `npcs.json` and
+  `life.json` came out byte for byte as before. `story.py`'s `npcs()` went from 474 lines to 63, and `topdown_life.py`
+  lost its 110 lines of hand work and extras. Nine one-offs stay plain rows in a labelled section of `story.py`: the
+  rooftop thief, Elder Gu's and Shen Lian's quest turns, and the four companions.
+- **Greyreed Hamlet comes home.** The engine's first new people: once Cleansing the Well is done, three villagers are
+  home in Greyreed's empty square, as Elder Gao hoped. Washer Ying scrubs at the water's edge and hangs the washing on the
+  line, Fisher Gan mends nets at the rack, and Old Jiu sweeps the square. Each is one spec of five lines, placed and set
+  to work by anchors. The capture set `npc_engine` (`docs/architecture/npc_engine/`) shows the square before and after,
+  each at work up close, and a word with the washer. Their anchors moved a few of the hamlet's scattered plants.
+- **The capture tool's `worker` take** keeps the player out of a worker's notice at every spot of its loop, not only its
+  home: a washer walking to the water's edge no longer stops to greet a player standing on the bank.
+- **Tests.** A new gate, `npc_engine` (`tools/content/npcs/engine.py --check`), in both runners. It checks that two
+  compiles are the same, that every spec resolves, that the built data holds every person as the engine writes them, and
+  runs the engine's 12 tests. The three villagers add three rows to `npcs.json`, three objects and three anchors to the
+  hamlet, and three work loops to `life.json`, and with them checks to three suites: `data_validation` 50,349 to
+  50,403, `room_sweep` 3,736 to 3,744 and `visibility_suite` 6,758 to 6,764. Every other count is unchanged. A side-view
+  point the engine picks keeps clear of every other thing's talk (`data_validation`'s M18).
+
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 
 The species a top-down player meets next, by chapter, drawn with the monster engine
@@ -73,6 +215,41 @@ R2 listed most of them as still to do.
     pictures.
   - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as the batch's
     `--update` builds.
+## The side view's mechanics on the grid (T1)
+
+Everything only the side view could do, listed with what the grid now does instead
+(`docs/architecture/topdown_mechanics.md`). The list holds 43 mechanics: traversal 18, hazards 10, room events and
+waves 10, other 5. The grid covers 31 of them, and the rest are an ordered to-do. The side view is unchanged.
+
+- **One rule for a room event's points.** R2's `grid_event`, R3's `side_points`/`from_side` and R4's raid mapping are
+  now one helper, `TopdownRoom.grid_event`, behind `WorldRoomEvents.start_event`. It takes, in order: the grid's own
+  points as they are; the layout's `stage` cells; the layout's event cells; else each side-view point mapped across
+  the room to the nearest open cell reached from the player. It covers the set pieces, Trial Tower floors, the
+  Grove, rifts, treasure births, heart demons, sect and mine events and the sect's raid. The pole trial's ground rule
+  holds on the grid too.
+- **Traversal in the room engine.** A spec's `traverse` rows (`raft`, `lift`, `updraft`, `bounce`, `crumble`,
+  `current`, `flood`, `vine`/`ladder`/`rope`/`chain`) and `stage` cells. `topdown_rooms.py` checks them against the
+  grid. Rows in use:
+  - the Grey Pools' two log rafts and the hermit's pond raft;
+  - the Falls Pool's spray updraft, vine and rope, and its spray ledge;
+  - the Cleansing Summit's stage.
+- **The motor and the player** (`TopdownTraverse`, `TopdownMotor`, `TopdownPlayer`), each art asked of Combat and
+  announced as the side view does:
+  - riding decks (rafts on the room's clock, lifts);
+  - updrafts, Falling Leaf Glide (a dash across a gap), Swallow Dart along the stick, the Cloud Ladder Step and
+    Wall-Step;
+  - climbing (the World authority's `climbable_open`), bounces, rotten boards, currents, floods (the boss-phase hook);
+  - flight (Jump held takes off and climbs, Evade held lands);
+  - a mount's pace.
+- **Art.** `art/topdown/traverse.png` (`tools/art/topdown/traverse.py`): a log raft, a lift's deck, vine, rope, ladder
+  and chain tiles, the spray, rotten boards, the glide's leaf and the flight's cloud. No new body animation: a climb
+  plays `work_hang`.
+- **Tests.** `topdown_traversal` (new, 120 checks) plays it all on a live view:
+  - the lessons: Leaf on the Wind, Skipping Stones, Swallow Dart, the Cloud Ladder, Wings of Cloud's take-off and the
+    Outer Trial's Plunge;
+  - the rafts, the rope, a lift, boards, a current, a flood and a mount;
+  - every set piece in a room on the grid, the tower, a rift and the raid.
+- **Pictures.** `capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`.
 
 ## Public surfaces: no private cross-calls (decision 45, S11)
 

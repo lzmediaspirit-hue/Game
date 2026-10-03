@@ -1,0 +1,419 @@
+{
+ "schema_version": 1,
+ "id": "si_sect_war",
+ "name": "Sect War: the Alliance Gate",
+ "size": [
+  60,
+  30
+ ],
+ "spawn": [
+  30,
+  27
+ ],
+ "levels": [
+  "000000003333222222222222222222222222222222222200000000000000",
+  "000000003333222222222222222222222222222222222222220000000000",
+  "000000003333222222222222222222222222222222222222222220000000",
+  "000000003333222222222222222222222222222222222222222222200000",
+  "000000003333222222222222222222222222222222222222222222200000",
+  "000000003333222222222222222222222222222222222222222222200000",
+  "000000003333222222222222222222222222222222222222222220000000",
+  "000000003333222222222222222222222222222222222222220000000000",
+  "000000000000222222222222222222222222222222222200000000000000",
+  "000000000000000000300030000000000000030003000000000000000000",
+  "000000000000000000300030000000000000030003000000000000000000",
+  "000000000000000000300030000000000000030003000000000000000000",
+  "000000000000000000300030000000000000030003000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000111111111111111111111100000000001111111111111111111111000",
+  "000111111111111111111111100000000001111111111111111111111000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000440000000044000000000000000000000000",
+  "000000000000000000000000440000000044000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrr",
+  "rrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrr",
+  "rrrrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrwwwwwrrrrpppppprrrrwwwwwrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrwwwwwrrrrpppppprrrrwwwwwrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrwwwwwrrrrpppppprrrrwwwwwrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrwwwwwrrrrpppppprrrrwwwwwrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrpppppppppppppppppppppppppprrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrpppppppppppppppppppppppppppppppppppppppprrrrrrrrrrrr",
+  "rrrrrrrpppppppppppppppppppppppppppppppppppppppppppprrrrrrrrr",
+  "rrrrrrrrppppppppppppppppppppppppppppppppppppppppppprrrrrrrrr",
+  "rrrrrrrrrrppppppppppppppppppppppppppppppppppppppppprrrrrrrrr",
+  "rrrrrrrrrrrrrrrrpprrpppppppppppppppppppppprrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrssssssssssssssssssssssrrpppppprrssssssssssssssssssssssrrr",
+  "rrrssssssssssssssssssssssrrpppppprrssssssssssssssssssssssrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrssrpppppprssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrssrpppppprssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrpppppprrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 9,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 38,
+   "y": 9,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "post",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "post",
+   "x": 30,
+   "y": 2
+  },
+  {
+   "kind": "post",
+   "x": 41,
+   "y": 3
+  },
+  {
+   "kind": "crates",
+   "x": 14,
+   "y": 5
+  },
+  {
+   "kind": "barrel",
+   "x": 16,
+   "y": 6
+  },
+  {
+   "kind": "crates",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "barrel",
+   "x": 44,
+   "y": 4
+  },
+  {
+   "kind": "crates",
+   "x": 24,
+   "y": 2
+  },
+  {
+   "kind": "lantern_red",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 45,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 26,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 33,
+   "y": 7
+  },
+  {
+   "kind": "barrel",
+   "x": 9,
+   "y": 3
+  },
+  {
+   "kind": "banner_jade",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 13,
+   "y": 20
+  },
+  {
+   "kind": "banner_jade",
+   "x": 20,
+   "y": 20
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 39,
+   "y": 20
+  },
+  {
+   "kind": "banner_jade",
+   "x": 46,
+   "y": 20
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 53,
+   "y": 20
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 9,
+   "y": 22
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 48,
+   "y": 22
+  },
+  {
+   "kind": "banner_jade",
+   "x": 23,
+   "y": 25
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 36,
+   "y": 25
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 27
+  },
+  {
+   "kind": "lantern",
+   "x": 33,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 4,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 8,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 15,
+   "y": 9
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 20,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 25,
+   "y": 10
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 10
+  },
+  {
+   "kind": "rock_small",
+   "x": 52,
+   "y": 1
+  },
+  {
+   "kind": "rock_small",
+   "x": 56,
+   "y": 12
+  },
+  {
+   "kind": "rock_small",
+   "x": 4,
+   "y": 28
+  },
+  {
+   "kind": "tall_grass",
+   "x": 9,
+   "y": 29
+  },
+  {
+   "kind": "bush",
+   "x": 16,
+   "y": 28
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 29
+  },
+  {
+   "kind": "rock_small",
+   "x": 41,
+   "y": 28
+  },
+  {
+   "kind": "tall_grass",
+   "x": 46,
+   "y": 29
+  },
+  {
+   "kind": "tall_grass",
+   "x": 54,
+   "y": 29
+  },
+  {
+   "kind": "tree_pine",
+   "x": 6,
+   "y": 13
+  },
+  {
+   "kind": "bush",
+   "x": 51,
+   "y": 13
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 17
+  },
+  {
+   "kind": "rock_small",
+   "x": 52,
+   "y": 17
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 35,
+   "y": 27
+  },
+  {
+   "kind": "tree_pine",
+   "x": 2,
+   "y": 6
+  },
+  {
+   "kind": "tree_pine",
+   "x": 5,
+   "y": 12
+  },
+  {
+   "kind": "tree_pine",
+   "x": 57,
+   "y": 11
+  },
+  {
+   "kind": "tree_pine",
+   "x": 55,
+   "y": 15
+  },
+  {
+   "kind": "tree_pine",
+   "x": 3,
+   "y": 26
+  },
+  {
+   "kind": "tree_pine",
+   "x": 56,
+   "y": 26
+  }
+ ],
+ "place": {},
+ "portals": {
+  "exit": {
+   "at": [
+    30,
+    29
+   ],
+   "dir": "s",
+   "arrive": [
+    30,
+    27
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "event": {
+  "waves": [
+   [
+    [
+     20,
+     12
+    ],
+    [
+     39,
+     12
+    ],
+    [
+     29,
+     10
+    ]
+   ],
+   [
+    [
+     13,
+     14
+    ],
+    [
+     46,
+     14
+    ]
+   ]
+  ],
+  "timed": [
+   [
+    30,
+    13
+   ]
+  ]
+ },
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 80
+  }
+ ]
+}

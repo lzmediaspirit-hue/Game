@@ -135,6 +135,8 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
 - `tests/topdown_chapter3.tscn`: chapter 3 played on the grid through the six new rooms (see below).
 - `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
 - `tests/topdown_drowned_shrine.tscn`: R2's ten rooms played on the grid (below).
+- `tests/topdown_story_rooms.tscn`: R5's ten rooms, the story's events in them played on the grid (below).
+- `tests/topdown_sunscar.tscn`: R7's twenty rooms, chapters 13 and 14 and the Tomb King played on the grid (below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
   alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`, `r2/`; a
   view under a folder keeps its x2 copy and its whole room in that folder's `world/` and `rooms/`). The set keeps the
@@ -171,8 +173,10 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
    what the engine decided. A spec error names the anchor or way that failed.
 3. `python3 tools/data/topdown_rooms.py` writes it and runs every check; `python3 tools/content/rooms/test_engine.py`
    walks it.
-4. A vista goes into `topdown_life.VISTAS` (until E3 owns the living world). A biome the zone needs goes into
-   `biomes.py`.
+4. A vista goes into `topdown_life.VISTAS`. A biome the zone needs goes into `biomes.py`. The room's people are specs of
+   the NPC engine (E3, `npc_engine.md`): a person's work there is `place(room, work=...)` in their spec, its spots by
+   anchors (`"by:stove"`, `"water_edge"`); a person new to the room is placed by the engine itself
+   (`place(room, anchor=...)`), its object and anchor added for you.
 5. Add its views to `E1_VIEWS`, then run
    `xvfb-run ... capture.tscn -- room_engine --out-root=<scratch>` and **look at every picture**:
    - paths that read;
@@ -267,12 +271,12 @@ lips wander (`wavy`), each laid over the one below it, with the stair landings f
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the bamboo monkey, the green viper, the
   thornback boar, the Stone Guardian, and the wild pets ember fox and jade crane chick. The greyfin, the hollowed
   boarlet and the marsh leech have theirs.
-- The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
-  top-down counterpart; Leaf on the Wind's glide is the side view's.
-- A set piece's waves are called to the side view's points, read as world units on the grid: the summit is 28 rows
-  deep and the Pilgrim Stairs 72 cells wide so that Heaven's Cleansing's and the Iron Body trial's points land on open
-  ground. Converting their points is the engine's work, not a room's. (R2: `TopdownRoom.grid_event` now gives a set
-  piece the room's own event cells, or else the nearest spot a body stands on; a point already on open ground stays.)
+- ~~The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
+  top-down counterpart; Leaf on the Wind's glide is the side view's.~~ T1: `traverse` rows, and the lesson played on
+  the grid (`docs/architecture/topdown_mechanics.md`).
+- ~~A set piece's waves are called to the side view's points, read as world units on the grid.~~ T1: one rule sets
+  every room event's points on the grid (`TopdownRoom.grid_event`, from `WorldRoomEvents.start_event`); the summit's
+  guardians come to its `stage` cells (`docs/architecture/topdown_mechanics.md`).
 
 **The frontier now** (R2 opened Bend Shore's three ways, below):
 - ~~the Echo Cliffs' way west (Crane Cliffs);~~
@@ -362,7 +366,8 @@ pool, the Waterfall Cave's cleft).
 
 **Set pieces on the grid.** A rite circle's set piece (the Riverbreath Trial at the Scripture Well) brings side-view
 spawn points. `TopdownRoom.grid_event` gives them the layout's own cells for the room's event (the spec's `event`), or
-else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it in a room on the grid.
+else the nearest spot a body stands on. (T1: `WorldRoomEvents.start_event` asks it for every room event on the grid,
+one rule for all of them (`docs/architecture/topdown_mechanics.md`).)
 
 **The suite** (`tests/topdown_drowned_shrine`, 44 checks):
 - each room is entered through its ways, built by the view, and walked by auto-path from every way in;
@@ -382,6 +387,9 @@ else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it
   - the currents' push;
   - the rising water of the Serpent's and the Abbot's floods;
   - the Drowned Grotto's swim (it is wading water here).
+
+  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows now, waiting in these rooms'
+  specs; the lanterns and the swim are still to do (`docs/architecture/topdown_mechanics.md`).
 | Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
 |---|---|---|
 | `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
@@ -443,8 +451,9 @@ Each stands where auto-path reaches it from every way in.
 
 **The trials on the grid.** The Trial Tower's floors and the Grove's waves were written in the side view's coordinates
 (`world_tower.gd`, `data/beast_arena.json`).
-- `WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`: across the room as across the side view, a
-  cell in from the edges, onto the nearest floor.
+- ~~`WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`~~ (T1: `TopdownRoom.grid_event`, one
+  rule for every room event): across the room as across the side view, a cell and a half in from the edges, onto the
+  nearest open floor.
 - The side view gets them unchanged.
 
 **Tested in** `tests/topdown_sect_halls.tscn`:
@@ -463,13 +472,11 @@ Each stands where auto-path reaches it from every way in.
 
 Some side-view props have no top-down counterpart:
 - the guardian lions;
-- the quarry's crane lift (a side-only mover).
+- the quarry's crane lift (a side-only mover; T1: a `lift` row with mode `trigger`, waiting in the spec).
 
-Some waves still spawn at the side view's points, read as world units on the grid:
-- the spatial rift's waves, in every room with a rift tear, at the side view's depth (y 860);
-- the set pieces' waves (R1's note above).
-
-The tower's and the Grove's mapping (`WorldRoomEvents.side_points`) is the model for them.
+~~Some waves still spawn at the side view's points, read as world units on the grid: the spatial rift's waves and the
+set pieces' waves.~~ T1: every room event's points are set on the grid by one rule (`TopdownRoom.grid_event`); a
+rift's foes come either side of the player on the grid's floors (`docs/architecture/topdown_mechanics.md`).
 
 ## The peaks (R4)
 
@@ -549,10 +556,10 @@ byte for byte, and `test_engine` holds it.
   top takes a lit tint (`LIT`) and its face a lighter sky tint (`FACE_LIT`). Over its cast shadow it reads as a lit
   stone, not a dark square sunk into the paving. This also fixes R1's Cleansing Summit pillars; their two pictures
   are retaken under `r1/`.
-- **The sect's raid on the grid** (`SectAuthority.start_defence`). The defence's points are the side view's, read as
-  world units, and one stands past the room's east edge. On the grid each comes in on the nearest floor inside the
-  room. The Sect Grounds keep the lawn open where the first two land: cells 9 and 46 of row 26, the latter pinned free
-  of the scatter.
+- **The sect's raid on the grid** (`SectAuthority.start_defence`). The defence's points are the side view's, and one
+  stands past the room's east edge. On the grid each comes in on the open floor inside the room. (T1: by the one rule
+  for every room event, `TopdownRoom.grid_event`: mapped across the room, they land at cells (7, 22), (32, 22) and
+  (54, 23) (`docs/architecture/topdown_mechanics.md`).)
 - **Places.** The Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the Frozen Shrine are rows
   of `places.py`. There are 30 places now.
 - **One frontier check.** `rules_tests`' prototype check teleported to the Hidden Vale's stone to show a stone past the
@@ -585,9 +592,269 @@ from the Falls Pool and by its teleport stone. `topdown_peaks` still sets its bo
 the peaks alone. Chapter 7's rooms are on the grid now, and Act I ends there at the Ascension Gate. Its first quest,
 Wings of Cloud, still asks for the side view's flight (above).
 
+## The story's rooms and the Tidebreak Front (R5)
+
+The ten rooms the story keeps for its own events, and the Tidebreak Front's, now on the grid: five instanced story
+rooms (`specs/story.py`) and the Front's five (`specs/tidebreak_front.py`, the Tide battle among them). Each is laid out
+for its event: an arena with clear fighting ground, a wall with its gate for the siege, the Gate's line for the war, the
+trials' own shapes. `tests/topdown_story_rooms` plays every event in them (below). Gu's Warehouse was the last way off
+the grid in Act I; its door on Artisan Row is open now.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r5/`) |
+|---|---|---|---|
+| `si_gus_warehouse` | 22 | (an interior) | `01_gus_warehouse`, `02_warehouse_strongroom`, `rooms/si_gus_warehouse` |
+| `si_trial_of_reflections` | 16 | `mountain` | `03_trial_of_reflections`, `rooms/si_trial_of_reflections` |
+| `si_presence_trial` | 16 | `mountain` | `04_presence_trial`, `rooms/si_presence_trial` |
+| `si_siege` | 30 | `valley_road` | `05_siege_gate`, `06_siege_field`, `rooms/si_siege` |
+| `si_sect_war` | 29 | `mountain` | `07_sect_war_gate`, `08_sect_war_junk`, `rooms/si_sect_war` |
+| `tf_tidebreak_bastion` | 28 | `bastion` | `09_tidebreak_bastion`, `rooms/tf_tidebreak_bastion` |
+| `si_tide_battle` | 17 | `bastion` | `10_tide_battle`, `rooms/si_tide_battle` |
+| `tf_greyfall_breach` | 27 | `tidebreak` | `11_greyfall_breach`, `rooms/tf_greyfall_breach` |
+| `tf_hollow_wake` | 21 | `tidebreak` | `12_hollow_wake`, `rooms/tf_hollow_wake` |
+| `tf_drone_hive` | 17 | `tidebreak` | `13_drone_hive`, `rooms/tf_drone_hive` |
+
+The line counts take in the props written out; the siege's camp and the Bastion's yard are the longest. As R1's and
+R4's, the capture's x2 copies of the world alone are not kept.
+
+**The rooms.**
+- *Gu's Warehouse*: a flagstone store under lamplight, the goods in stacks a body can climb (crates) between aisles
+  where the bandits keep watch. A loft of boards runs along the north wall from the west stair to the east one, the
+  catwalk between them the side view's stealth route under the roof. Gu's strongbox stands on the strongroom's dais
+  at the east loft's end, a level higher again. Gu holds his office in the east, on a floor of boards.
+- *The Trial of Reflections*: an octagon of granite on Elder Hu's peak, every line of it mirrored about the bronze
+  mirror on its dais: two granite ledges a step up, the same flight up each, the lanterns and censers in pairs. The
+  Reflection waits where the player's mirror image would stand, across from the way in.
+- *The Presence Trial*: the Nine Peaks' court above the Trial Hall. Nine seats look down on a circle of paving in a
+  horseshoe open to the south, each on a plinth too high to climb. The ninth, empty, is the highest, between its two
+  pressure pillars. The phantoms come from the court's west, east and south, and the ninth Presence rises before the
+  ninth seat.
+- *The Siege of Two Sects*: the wall across the valley with its gate on the road, a tower each side of the gate and
+  one at each end, flights up to the wall-walk from the camp. The sects' camp is south of it, the valley the Hollow
+  turned grey north of it. The boarlets come out of the grey, and the Behemoth stands on the road before the gate.
+- *The Sect War at the Alliance Gate*: the comet sails' junk run aground along the pass's north edge, its deck a long
+  hull two levels over the rock, gangways down from it. The forecourt lies between it and the Alliance's line, a
+  granite parapet a step high with its gap on the road. The Gate's two great pillars stand behind it, the way out
+  south. The pirates and the turncoats come down the gangways, and Comet Captain Rao drops from the rail between them.
+- *The Tidebreak Bastion*: the Wardens' yard of flagstones under the great wall and its towers, the granite road from
+  the skiff dock over the cloud sea to the east gate between two more towers. The lantern's cage stands on its dais,
+  star lanterns line the road, and the great bell hangs on its own dais.
+- *The Tide Breaks*: the wall's outer terrace. The great lantern burns on a dais against the wall in the middle. A
+  barricade of crates and barrels crosses the terrace each side of it, a gap where the road runs: the lines the
+  Wardens hold. The Tide comes from both ends, up over the rim.
+- *The Greyfall Breach*: the Bastion's outer wall across the grey, broken in the middle. The Wardens' road comes in
+  along the wall's south side, turns north through the breach and runs east through the grey. The wall steps down at
+  the breach's ragged edges. Shen Lian holds the gap, the warning bell beside it on the Wardens' side, and the stand's
+  waves come out of the grey north of the wall.
+- *The Hollow Wake*: the scar the Tide left, a trough of drained rock between two low rises, the track along its
+  floor, grey pools standing in it, three outcrops climbing from the rises. Lu's journal page lies on its rack by the
+  first pool.
+- *The Drone Hive*: the Hollow's hive mound in two tiers thick with hives, the chests on its crown. The track skirts it
+  to the south and runs east to where the dark thins into the nebula.
+
+**The looks.**
+- Two biomes (`biomes.py`, R5's block):
+  - `tidebreak`: the grey fields, bare rock the Tide has drunk, dead trees and grey reeds, stumps and logs;
+  - `bastion`: a Wardens' fortress of granite and flagstones, little growing but weeds and fallen stones.
+- Three props (`tools/art/topdown/furnish.py`, R5's block; the prop sheet rebuilt by `build_tiles.py`):
+  - `trial_seat`: a granite throne of the Nine Peaks, a jade stone in its crown and a lilac cushion;
+  - `bronze_mirror`: the side view's mirror in its curved frame on a pedestal, a jade mist in its face;
+  - `drone_hive`: a cone of grey papery stone in scalloped courses, its cells glowing violet.
+- Vistas (`topdown_life.VISTAS`): peaks behind the trials, the Gate, the siege and the grey fields, and the cloud sea
+  under the brinks of the peaks and the Tidebreak Front.
+- **A wall that must read as one runs east and west.** In the 3/4 view only a south face shows. A wall running north
+  and south is its top alone, a strip of stone on the ground (the first drafts of the siege and the Breach). So the
+  siege's wall, the Alliance's line and the Breach's outer wall cross their rooms east to west, and their events come
+  from the north. The Tide battle's lines must cross a terrace the Tide reaches from both ends, so they are built of
+  crates and barrels, which stand up from the ground.
+- The specs' helpers (`specs/story.py`): `octagon()`, a floor of rects laid one over another so a trial's arena stays
+  exactly symmetric (a round shape wears with the room's seed), and `stair_with_cheeks()`, R3's flight between cheeks.
+- R4's rule holds: a raised thing stands at least its level in rows from the north edge. Gu's strongbox is on the
+  strongroom's dais at row 3, level 3.
+- The Breach's two outcrops are climbed by R4's `flights`, their cheeks closed by boulders. With R2's open-sided
+  flight, `rules_tests`' route tour stalled coming down from the north one's crate.
+
+**An engine rule.** A layout's `event` gives the cells of the room's own event (`TopdownRoom.merge_def`), or of a set
+piece begun in it (`TopdownRoom.grid_event`). The checks compared them with the room's own event only. The Greyfall
+Breach has none: its stand is the set piece its bell begins. Now, for a room with no event of its own, `check` holds
+the layout's cells to that set piece's room event (`topdown_rooms.set_piece_event`). Every older room is unchanged.
+
+**The events on the grid.** Every event in these rooms spawns on the layout's own cells:
+- the Reflection, the Behemoth and the siege's boarlets;
+- the war's pirates, turncoats and captain;
+- the phantoms and the ninth Presence;
+- the Tide's drones and wyrmlings;
+- the Greyfall stand's waves.
+
+The tide battle's lantern drains within 180 units of the great lantern and relights within 120 of it. On the grid
+these are its place's plane distance, about six and four cells.
+
+**Tested in** `tests/topdown_story_rooms.tscn` (69 checks), by test shortcuts along the story:
+- every room is entered on the grid, built by the view and walked by auto-path from every way in;
+- The Heart Trial: the heart demons come with the Reflection on the arena's open ground, and the Reflection is
+  defeated;
+- Gu's Warehouse: the strongbox opened on the strongroom, Gu held off until he flees with his ledger dropped;
+- The Siege: the Behemoth and the boarlets come out of the grey north of the wall, at the room's cells;
+- The Gate Holds: the pirates, the turncoats and Rao come at their cells, and Rao falls;
+- The Presence Trial: the phantoms come, and the ninth Presence rises before its seat;
+- The Tide Breaks: the bell rung, the drones come at both ends, the lantern relit by a Warden beside it and drained by
+  a foe near it, then held;
+- the grey fields walked east to the Drone Hive and back:
+  - Lu's journal page taken in the Wake;
+  - the chest on the hive's crown;
+  - Greyfall's stand rung and held beside Shen Lian, its waves out of the grey at the room's cells.
+
+The ways to rooms with no layout are gated: the Alliance Gate, the Citadel's skiff and the Nebula Deep.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; E2's work): Elder Gu, the Hollow Behemoth, the starsea
+  pirate, the Nine Peaks disciple, the pirate captain, the presence phantom, the ninth Presence, the hollow drone and
+  the hollowed wyrmling. The Reflection and the heart demons draw the player's own figure, as the side view does. The
+  Mudwater bandit, the gorge bandit adept (Gu's hired blades) and the hollowed boarlet have their sheets (M1).
+- The Reflection's heart demons come at the side view's points, mapped across the arena onto open ground by T1's
+  `TopdownRoom.grid_points`. Every other event here keeps its own cells, the layout's `event` (T1's third rule); none
+  needs a `stage`.
+- Mechanics with no top-down counterpart yet:
+  - The side view's stealth route over the rafters is the catwalk loft here. Whether Concealment hides a body up there
+    from the floor's bandits is the side view's rule, not the grid's.
+  - The Tidebreak Front's backdrop is the side view's night sky, but the grid's light follows the clock there (no
+    area in `TopdownLight.AREAS` for `tidebreak_front` or `nine_peaks`). The siege's `valley_dusk` and the warehouse's
+    interior keep their hours.
+- Some side-view decor has no top-down counterpart: the star ballista, the sky ship's sails, the pirate and the
+  alliance banners (the sects' jade and cloud banners stand in), the paifang's roof.
+
+**The frontier now** (R5): Gu's Warehouse is on the grid. In Act I the gate stands only at the Ascension Gate's way
+up to the Azure Expanse (Act II). From the Marsh Edge no way off the grid is in walking reach any more. So
+`topdown_tutorial`'s gate check now sets the walk down at the first such way in a room on the grid that is not an
+instance, by the layouts' names (the Ascension Gate's), and checks its gate there. While one is in reach it still
+walks to the nearest. Past it, the Sect War's and the Presence Trial's ways back lead to the Nine Peaks'
+rooms, the Bastion's skiff to the Citadel, and the Drone Hive's way east to the Nebula Deep. Those rooms have no
+layout, so the four ways are gated. The Tidebreak Front's own rooms join each other on the grid.
+
+## Nine Peaks to the Tomb of Sunscar (R7)
+
+The twenty rooms of Act II's chapters 13 and 14, now on the grid: Nine Peaks, the Gale Canyons, Ironroot Hold, the
+Sunscar Desert and the Tomb of Sunscar. `topdown_sunscar` plays them by test shortcuts, a top-down character at Sage 2
+set down off the sky-ship at the Alliance Gate, then walked room by room through their ways:
+- Nine Seats: the envoy heard in the Hall of Nine, an Alliance seat taken, handed in to Elder Zhong; the Auction
+  Pavilion's door and its block (the auction's page); the Trial Hall off the Presence Terrace and back;
+- The Canyon Toll: the tollkeeper at the Canyon Mouth, six veiled brigands broken in the canyons, over the Windbridge to
+  the Hold Gate;
+- Ironroot Blood: the warden's spar won in the Hold Gate's yard, the Matriarch at the Clan Hearth's fire, the
+  iron-root tablets honoured in the Ancestor Hall behind the forge's door;
+- Glass and Bone (Sage 3): down the desert road over the Glass Dunes and the Scorpion Flats to the Oasis of Bones, six
+  sandstorm scorpions, the bone-reader, the oasis's teleport stone;
+- The Sealed Gate: dune worms fought on the Worm Sea for the sun seal's shards, down the portal into the Sealed Gate,
+  the bronze doors shut until the lock is fitted and read (Insight 80), then open;
+- Sovereign, and The Tomb King: through the Hall of Sand Kings to the Mirror Crypt (Lu's page), the Tomb King risen on
+  his throne hall's sand floor and defeated there, the sun seal taken up and kept from the Grey Pilgrim, the old stair
+  out to the Worm Sea, handed in at the oasis.
+
+In each room it checks the walks and the view as `topdown_peaks` does: 57 checks.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r7/`) |
+|---|---|---|---|
+| `np_alliance_gate` | 21 | `sect_terraces` | `01_alliance_gate_dock`, `02_alliance_gate_lions`, `rooms/np_alliance_gate` |
+| `np_hall_of_nine` | 24 | `sect_terraces` | `03_hall_of_nine`, `rooms/np_hall_of_nine` |
+| `np_auction_pavilion` | 13 | (interior) | `04_auction_pavilion`, `rooms/np_auction_pavilion` |
+| `np_presence_terrace` | 21 | `sect_terraces` | `05_presence_terrace`, `rooms/np_presence_terrace` |
+| `np_trial_hall` | 16 | (interior) | `06_trial_hall`, `rooms/np_trial_hall` |
+| `gc_canyon_mouth` | 18 | `canyon` | `07_canyon_mouth_toll`, `08_canyon_mouth_mesa`, `rooms/gc_canyon_mouth` |
+| `gc_kite_winds` | 19 | `canyon` | `09_kite_winds`, `rooms/gc_kite_winds` |
+| `gc_harpy_roosts` | 20 | `canyon` | `10_harpy_roosts`, `rooms/gc_harpy_roosts` |
+| `gc_windbridge` | 24 | `canyon` | `11_windbridge`, `rooms/gc_windbridge` |
+| `ir_hold_gate` | 23 | `iron_hold` | `12_hold_gate`, `rooms/ir_hold_gate` |
+| `ir_clan_hearth` | 15 | `iron_hold` | `13_clan_hearth`, `rooms/ir_clan_hearth` |
+| `ir_ancestor_hall` | 12 | (interior) | `14_ancestor_hall`, `rooms/ir_ancestor_hall` |
+| `sd_glass_dunes` | 16 | `desert` | `15_glass_dunes`, `rooms/sd_glass_dunes` |
+| `sd_scorpion_flats` | 17 | `desert` | `16_scorpion_flats`, `rooms/sd_scorpion_flats` |
+| `sd_oasis_of_bones` | 20 | `desert` | `17_oasis_of_bones`, `rooms/sd_oasis_of_bones` |
+| `sd_worm_sea` | 20 | `desert` | `18_worm_sea_tomb_door`, `rooms/sd_worm_sea` |
+| `ts_sealed_gate` | 17 | `tomb` | `19_sealed_gate`, `rooms/ts_sealed_gate` |
+| `ts_hall_of_sand_kings` | 21 | `tomb` | `20_hall_of_sand_kings`, `rooms/ts_hall_of_sand_kings` |
+| `ts_mirror_crypt` | 19 | `tomb` | `21_mirror_crypt`, `rooms/ts_mirror_crypt` |
+| `ts_throne` | 17 | `tomb` | `22_throne_of_the_tomb_king`, `rooms/ts_throne` |
+
+As R4's, the capture's x2 copies of the world alone are not kept. The specs: `specs/nine_peaks.py`, `gale_canyons.py`,
+`ironroot_hold.py`, `sunscar_desert.py`, `tomb_of_sunscar.py`.
+
+**The looks.**
+- **Nine Peaks** takes R3's `sect_terraces`: paved courts on granite terraces under the crags, pines, plum and maples,
+  the cloud sea under the brinks. The Hall of Nine stands on a granite platform with a grand stair; the Presence
+  Terrace's champions spar on a round terrace of dressed granite the road crosses; guardian lions and the Alliance's
+  banners at the gates. The sky-ship's dock is a pier out over a bay cut back in the brink, its way off the south edge,
+  where the cloud sea's vista draws the gangway down into the haze.
+- **`canyon`** (the Gale Canyons). The earth paint's face carries a grass lip, which no red canyon has, so every ledge,
+  mesa, pinnacle and wall is decision 44's sand: its faces are layered banks that read as sandstone. Only the room's
+  lowest floor is red earth (`earth` over `lowest`, below), the trail a sandy wash across it, or trodden red earth
+  where it runs on a shelf (`SHELF_GROUND`). Hoodoos, banded boulders, wind-killed grey trees and dry scrub; prayer
+  flags on the wind; plank steps with sandstone at their cheeks. The south rim is humps a level up that stop a row
+  short of the room's edge (a raised cell on the south edge leaves the void past the room under its lip).
+- **`desert`** (the Sunscar): sand over everything, the caravan track trodden red earth, dunes with a crest a level
+  higher toward the wind (`dunes()`), cactus, scrub, bleached ribs. The Oasis of Bones keeps a ring of grass round its
+  pool out of the sand (`-green`, below): palms, reeds, the keeper's yurt. The Worm Sea's portal is a block of dressed
+  stone set in a mound of sand, its door sunk a level into it, sand kings and braziers either side.
+- **`iron_hold`**: the clan's grey rock, the iron-root trees' roots breaking out of it, pines, rubble by the walls. The
+  Hold Gate is the gatehouse (a hall) at the cliff's foot, its door the way into the Clan Hearth: a cavern with the
+  longhouse, the forge's house (its door the Ancestor Hall), the anvil, forges and braziers round the hearth.
+- **`tomb`**: flagstone halls inside walls of cut sandstone (walls of sand paint), sand drifted in through the cracks,
+  pillars (some crumbled), sand kings, sarcophagi, bronze mirrors, braziers, and the spike traps' pressure plates in the
+  aisles (the side view's `spike_traps` strike near the body wherever it walks; the plates are their tell). The
+  throne hall's floor is sand round the Tomb King's sun throne. Raised floors are paving, whose faces are blue-grey
+  ashlar.
+- **The prop kit** (`tools/art/topdown/arid.py`, joined to the sheet in `furnish.py`'s R7 block, built with
+  `build_tiles.py`): a sandstone boulder, a hoodoo, prayer flags (four frames), a date palm, columnar cactus, dry scrub
+  (walk-through), a ribcage, a yurt, an anvil, an iron brazier (four frames), the iron-root roots, a sarcophagus, a sand
+  king's statue, a bronze mirror, a spike plate (flat, walk-through), the sun throne and a guardian lion. None is of
+  the foliage kit, so the sand laid after the scatter runs under each.
+
+**Engine rules** (`engine.py`, additive: every room before them compiles byte for byte, and `test_engine` holds it):
+- a `ground` paint `earth`: bare earth (`d`) over meadow, flowers, marsh or sand, never under a plant of the foliage kit
+  nor on paving, granite, rock or planks;
+- a `ground` name `lowest`: the room's lowest floor off the walks and their cuts;
+- a `ground` name `-name`: a band's or a feature's own cells kept out of that paint.
+
+**Places.** Eight new rows in `places.py`, 41 places in all: the Alliance Gate's teleport stone and shrine, the Canyon
+Shrine, the Hold Gate's shrine, the Clan Forge's anvil (smithing), the Scorpion Flats' and the oasis's shrines and the
+Oasis of Bones' teleport stone.
+
+**How the side view's verticality came down.** The canyons' rock ledges and cloud ledges are mesas, shelves and
+pinnacles with plank stairs; the Windbridge spans a chasm on timber trestles three levels over a river that falls in
+at the chasm's head; the Hold's decks are a timber watch tower; the tomb's ledges are galleries and alcoves a level or
+two up. Every rope, vine and ladder of these rooms reached a ledge or a branch route and none is sealed, so each is a
+flight of stairs or gone.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; M-batches): the wind kite, canyon brigand, canyon harpy,
+  sandstorm scorpion, dune worm, terracotta warden and the Tomb King; and the spar opponents, the alliance champion
+  and Warden Tie Shan.
+- Mechanics: none of the twenty rooms has a mover, a volume or a sealed climbable, so T1's rows have nothing to carry
+  here. Their hazards are the World authority's and play on the grid: the canyons' wind gusts, the sandstorm, the
+  scorching heat, the spike traps, and the quicksand, whose pull takes the Worm Sea's three `areas`.
+- Light: the rooms' backdrops (`nine_peaks`, `gale_canyon`, `quarry`, `sunscar`, `sunscar_tomb`) have no TopdownLight
+  area, so the cavern and the tomb follow the day's clock as the outdoors does. A lamplit area for them is game code,
+  outside a room batch.
+- Terrain: the kit has no red-rock or dressed-sandstone paint of its own. The canyons' walls and the tomb's are sand,
+  and its raised paving faces blue-grey. A paint with its own warm faces would suit both.
+- A capture spot must be open floor: a spot on a flight's cheek drew an empty world.
+- Auto-path's route tour (`rules_tests`' topdown suite) found two things the pictures did not. First, a flight run
+  down across the road holds the body at its cheek, so the Scorpion Flats' outcrop stops two rows short of the track.
+  Second, every drop off a ledge turns the body back on landing (the steering aims at the drop's cell from the air),
+  and more than two turns back on one leg fail. So the Windbridge's crag stands two levels over the shelf with its
+  stair the one way up, and the crate lies on the shelf's lip rather than down in the chasm. A scan of every R7 flight
+  against the walks (none crosses one now) and the tour over the twenty rooms (107 legs, none lost, none past one turn
+  back but the Alliance Gate's ferry-to-east leg at two) back it.
+- The world map: these are the first places outside the valley, and the map opened on a place showed the zone you
+  stand in, not the place's. `map_page.gd`'s setup now opens the named place's own zone (`places_tests`).
+
+**The frontier now** (R7): Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout
+(R6). The Alliance Gate's war gong and the Trial Hall's circle belong to chapters 15 and 16, whose events are R5's
+story rooms (`si_sect_war`, `si_presence_trial`). Every other way out of an R7 room leads to a room on the grid. With
+these rooms laid out, the Sect War's and the Presence Trial's ways back to the Alliance Gate (gated in R5's frontier
+above) open; `topdown_story_rooms` checks them against `has_layout`, so it follows.
+
 ## The rooms left, and the pace
 
-90 side-view rooms remain, by zone (`region`); the struck ones are done:
+80 side-view rooms remain, by zone (`region`); the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -611,16 +878,17 @@ Wings of Cloud, still asks for the side view's flight (above).
   - `summit_ridge`: ~~`sr_windswept_ridge`~~, ~~`sr_frozen_shrine`~~;
   - `hidden_vale`: ~~`hv_vale_gate`~~, ~~`hv_sect_grounds`~~, ~~`hv_back_mountain`~~;
   - `unmapped`: ~~`hg_hidden_grotto`~~.
-- **The story's own rooms:**
-  - `story`: `si_gus_warehouse`, `si_presence_trial`, `si_sect_war`, `si_siege`, `si_trial_of_reflections`;
-  - `tidebreak_front`: `si_tide_battle`, `tf_drone_hive`, `tf_greyfall_breach`, `tf_hollow_wake`,
-    `tf_tidebreak_bastion`.
+- **The story's own rooms** (R5, all done: "The story's rooms and the Tidebreak Front (R5)" above):
+  - `story`: ~~`si_gus_warehouse`~~, ~~`si_presence_trial`~~, ~~`si_sect_war`~~, ~~`si_siege`~~,
+    ~~`si_trial_of_reflections`~~;
+  - `tidebreak_front`: ~~`si_tide_battle`~~, ~~`tf_drone_hive`~~, ~~`tf_greyfall_breach`~~, ~~`tf_hollow_wake`~~,
+    ~~`tf_tidebreak_bastion`~~.
 - **Act II and after:**
   - `cloudgate_port` (6);
   - `thunderhorn_plains`, `rimefrost_heights`, `mirrorwater_lake` (4, 4, 5);
-  - `nine_peaks` (5);
-  - `gale_canyons`, `ironroot_hold` (4, 3);
-  - `sunscar_desert`, `tomb_of_sunscar` (4, 4);
+  - ~~`nine_peaks` (5)~~ (R7);
+  - ~~`gale_canyons`, `ironroot_hold` (4, 3)~~ (R7);
+  - ~~`sunscar_desert`, `tomb_of_sunscar` (4, 4)~~ (R7);
   - `skyport_wreck` (4);
   - `lanternfall_harbor`, `drifting_shoals`, `blackmast_haven` (4, 4, 4);
   - `wyrmnest_isles` (4);
