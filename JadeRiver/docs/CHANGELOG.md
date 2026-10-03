@@ -60,6 +60,66 @@ derives where a quest leads, when it opens and what it pays, and writes the rows
   - `balance_sim` went from 183 to 185, for the side quests' pay an hour.
 
   Every other count is as it was; `rules_tests` at 2,722, `room_engine` at 328 and `topdown_sunscar` at 57 are R7's.
+## Act II's first zones on the grid (R6)
+
+The room engine's batch for Act II's start (`docs/architecture/room_engine.md`, "Act II's first zones (R6)"). The
+nineteen side-view rooms of Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights and Mirrorwater Lake are specs
+now. The Ascension Gate's way up opens onto the Arrival Terrace, so a top-down character walks from Act I into Act II
+and plays chapter 11 on the grid.
+
+- **Nineteen rooms, 9 to 29 spec lines each, anchors included.**
+  - Cloudgate Port: the Arrival Terrace, the Port Market, the Wayfarers' Inn, the Skydock, the Condensing Hall and the
+    Shipwrights' Yard.
+  - The Thunderhorn Plains: the Stormgrass Verge, the Herders' Camp, the Thunderhorn Flats and the Lightning Scar.
+  - Rimefrost Heights: Frostpine Climb, the Snow Ape Ledges, Rimefrost Summit and the Hermit's Ice Cave.
+  - Mirrorwater Lake: the Reedless Shore, the Mirror Shallows, the Sentinel Causeway, the Lake Shrine and Toad's Hollow.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The side view's ledges and cloud platforms
+  are outcrops and tiers a flight up. The sky-ship ferries are gangways at the ends of piers. The hermit's hidden cave
+  is a cleft in the summit's crags.
+- **Looks.** Later zones reuse them.
+  - A sky port (`sky_port`): a paved town on a floating island. Its south rim falls into the cloud sea, where the
+    airships berth.
+  - Open plains (`storm_plains`): wide grass, few trees, storm-split menhirs and boulders, the herds' trails braided
+    across it in trampled earth.
+  - The snowy heights take R4's `snowfield`, with ice-glazed boulders.
+  - A mirror lake (`mirror_lake`): wide still water mirroring its shore, islets, pale strands, lotus lanterns afloat.
+- **New props** (`furnish.py`, the sheet rebuilt):
+  - the airship, hanging past the room's edge over the clouds;
+  - a market stall, a memorial archway, an inn's counter, guardian lions, an armillary sphere;
+  - yurts, haystacks, a cook fire, storm menhirs;
+  - ice-glazed rocks, floating lotus lanterns;
+  - and the reflections of trees and stone lanterns in still water.
+- **Engine rules.** Every room before them compiles byte for byte as it did.
+  - `mirror` on a water band or feature: the engine lays the reflection of each tree or stone lantern on its north
+    shore on the water below it, where the water runs under the whole of it.
+  - A wavy or round region named in `ground` gives its own cells, not its rect.
+- **The frontier.** The Ascension Gate's way up is open. With Gu's Warehouse (R5), Act I has no way off the grid left.
+  With Nine Peaks laid out (R7), the Skydock's ferry to the Alliance Gate and the sky-ship back are open, and
+  `topdown_act2_start` rides them. Every way out of R6's rooms leads to a room on the grid, and the story walks on foot
+  from the valley to the Tomb of Sunscar.
+- **R7's yurt.** R7's `arid.py` has a `yurt` of its own, the desert keeper's. R6's felt yurt is `herders_yurt`, so
+  neither replaces the other in the sheet.
+- **Tests.**
+  - A new suite, `topdown_act2_start`, with 63 checks. It crosses the Ascension Gate both ways on the grid and plays
+    chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
+    jades, the weasels), Horns for the Furnace and Sage. It walks on through Rimefrost (the hidden ice cave found) and
+    the lake (the ferry, the Hollow, the shrine's mirror), and rides the Nine Peaks ferry over and back (gated while
+    Nine Peaks had no layout). Each room is built by the view and walked by auto-path.
+  - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
+  - `rules_tests`' route tour walks the nineteen rooms. Its first run lost three legs to open-sided flights by the
+    walks (the Reedless Shore, Toad's Hollow, the Mirror Shallows). Every raised shape is now climbed by R4's
+    closed-cheek `flights`, and a scratch walk of all 784 legs in R6's rooms arrives on every one.
+  - The run after merging R4, S11, T1, M1, E3, R5 and R7: every gate and every suite passes, with no script error.
+    - All 30 counted runs and the engine tests: 75,847 checks, 0 failures.
+    - Grid parity holds on 127 layouts (383 starts). `places` reaches 41 places, and `npc_engine` holds.
+    - `topdown_act2_start` is new, with 63 checks.
+    - `room_engine` has 385 checks, three for each room it lays out (57 for R6's nineteen).
+    - `rules_tests` 2,712, `contract_tests` 1,112, `room_sweep` 3,745, `visibility_suite` 6,764,
+      `data_validation` 50,403, `topdown_tutorial` 1,049, `topdown_sunscar` 57 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes in this run. In earlier runs, with other agents' suites on the four cores, one
+      frame time at a time missed its budget: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's
+      fight at up to 19.4 ms against 16.6. Neither touches R6's rooms.
 
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
@@ -93,7 +153,8 @@ King on the grid.
   the Hold Gate's shrine, the Clan Forge's anvil, the Scorpion Flats' and the oasis's shrines and the Oasis of Bones'
   teleport stone. They are the first places outside the valley. The world map opened on a place used to show the zone
   you stand in, and now shows the place's own zone (`map_page.gd`'s setup).
-- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout (R6).
+- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port was gated while the Skydock had no layout (R6); it
+  is open now.
   Every other way out of these rooms leads to a room on the grid.
 - **Tests.**
   - A new suite, `topdown_sunscar` (in `tests/suites.txt` after `topdown_traversal`), 57 checks. It plays Nine Seats,

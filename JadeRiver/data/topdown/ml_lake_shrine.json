@@ -1,0 +1,320 @@
+{
+ "schema_version": 1,
+ "id": "ml_lake_shrine",
+ "name": "Lake Shrine",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~000000~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~000000000000000000~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~000000000000000000000~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~00000000000000000000000000~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~000000000000000000000000000000~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~0000000000000000000000000000000000~~~~~",
+  "~~~~~~~~~~~~~~~~000000000000000000000000000000000000~~~~",
+  "~~~~~~~~~~~~~~~0000000000000000000000000000000000000~~~~",
+  "~~~~~~~~~~~~~~000000000000000000000000000000000000000~~~",
+  "~~~~~~~~~~~~~0000000000000000000000000000000000000000~~~",
+  "~~0000000~~~000000000000000000000000000000000000000000~~",
+  "~~0000000~~~000000000000000000000000000000000000000000~~",
+  "000000000000000000000000000000000000000000000000000000~~",
+  "000000000000000000000000000000000000000000000000000000~~",
+  "00000000000000000000000000000000000000000000000000000~~~",
+  "~~0000000~~00000000000000000000000000000000000000000~~~~",
+  "~~0000000~~~0000000000000000000000000000000000000000~~~~",
+  "~~~~~~~~~~~~~~00000000000000000000000000000000000000~~~~",
+  "~~~~~~~~~~~~~~~00000000000000000000000000000000000000~~~",
+  "~~~~~~~~~~~~~~~~000000000000000000000000000000000000~~~~",
+  "~~~~~~~~~~~~~~~~~~0000000000000000000000000000000~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~00000000000000000000000000000~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~0000000000000000000000000000~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~000000000000000000000000000~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~00~~00000000000000000~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~00000000000~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~gggggg~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~gggggggggggggggggg~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~ggggggggggggggggggggg~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~ggggggssssssssssssssgggggg~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~gggggggsssssssssssssssssgggggg~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~gggggggssssssssssssssssssssggggggg~~~~~",
+  "~~~~~~~~~~~~~~~~gggggggssssssssssssssssssssssggggggg~~~~",
+  "~~~~~~~~~~~~~~~gggggssssssssssssssssssssssssssgggggg~~~~",
+  "~~~~~~~~~~~~~~gggggsssssssssssssssssssssssssssggggggg~~~",
+  "~~~~~~~~~~~~~gggggsssssssssssssssssssssssssssssgggggg~~~",
+  "~~sssssss~~~ggggggsssssssssssssssssssssssssssssggggggg~~",
+  "~~sssssss~~~ggggggssssssssssssssssssssssssssssgggggggg~~",
+  "ssssssssssssssgggsssssssssssssssssssssssssssssgggggggg~~",
+  "ssssssssssssssgggssssssssssssssssssssssssssssssggggggg~~",
+  "ssssssssssssssggggsssssssssssssssssssssssssssssgggggg~~~",
+  "~~sssssss~~ggggggggssssssssssssssssssssssssssssggggg~~~~",
+  "~~sssssss~~~ggggggggssssssssssssssssssssssssssgggggg~~~~",
+  "~~~~~~~~~~~~~~ggggggssssssssssssssssssssssssssgggggg~~~~",
+  "~~~~~~~~~~~~~~~ggggggssssssssssssssssssssssssgggggggg~~~",
+  "~~~~~~~~~~~~~~~~ggggggsssssssssssssssssssssggggggggg~~~~",
+  "~~~~~~~~~~~~~~~~~~gggggsssssssssssssssssssggggggg~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~ggggggsssggssggggssssgggggggg~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~gggggggggggggggggggggggggggg~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~ggggggggggggggggggggggggggg~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~gg~~ggggggggggggggggg~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ggggggggggg~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 28,
+   "y": 4,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "paifang",
+   "x": 30,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 38,
+   "y": 6
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 43,
+   "y": 17
+  },
+  {
+   "kind": "incense",
+   "x": 31,
+   "y": 11
+  },
+  {
+   "kind": "incense",
+   "x": 34,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 2,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 8,
+   "y": 11
+  },
+  {
+   "kind": "lotus_lantern",
+   "x": 3,
+   "y": 5
+  },
+  {
+   "kind": "lotus_lantern",
+   "x": 6,
+   "y": 22
+  },
+  {
+   "kind": "lotus_lantern",
+   "x": 13,
+   "y": 25
+  },
+  {
+   "kind": "lotus_lantern",
+   "x": 52,
+   "y": 2
+  },
+  {
+   "kind": "lotus_lantern",
+   "x": 54,
+   "y": 22
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 8,
+   "y": 2
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 2,
+   "y": 24
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 1,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 14,
+   "y": 25
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 44,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 50,
+   "y": 0
+  },
+  {
+   "kind": "bush",
+   "x": 15,
+   "y": 8
+  },
+  {
+   "kind": "tree_willow",
+   "x": 21,
+   "y": 6
+  },
+  {
+   "kind": "tree_maple",
+   "x": 23,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "tree_willow",
+   "x": 30,
+   "y": 23
+  },
+  {
+   "kind": "tree_maple",
+   "x": 34,
+   "y": 3
+  },
+  {
+   "kind": "tree_willow",
+   "x": 35,
+   "y": 24
+  },
+  {
+   "kind": "tree_willow",
+   "x": 40,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 45,
+   "y": 22
+  },
+  {
+   "kind": "tree_maple",
+   "x": 47,
+   "y": 7
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 20,
+   "y": 25
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 30,
+   "y": 26
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 38,
+   "y": 26
+  },
+  {
+   "kind": "tree_willow",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "tree_willow",
+   "x": 16,
+   "y": 20
+  },
+  {
+   "kind": "tree_maple",
+   "x": 50,
+   "y": 20
+  },
+  {
+   "kind": "mirror_tree_willow",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "mirror_tree_willow",
+   "x": 16,
+   "y": 21
+  },
+  {
+   "kind": "mirror_tree_maple",
+   "x": 50,
+   "y": 21
+  }
+ ],
+ "place": {
+  "shrine_ml": [
+   5,
+   12
+  ],
+  "mirror_altar": [
+   32,
+   14
+  ],
+  "insight_mirror": [
+   43,
+   19
+  ],
+  "journal_lake": [
+   33,
+   26
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "all",
+   "kind": "water",
+   "pad": 32
+  }
+ ]
+}

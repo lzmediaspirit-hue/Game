@@ -1,0 +1,158 @@
+{
+ "schema_version": 1,
+ "id": "ae_wayfarers_inn",
+ "name": "Wayfarers' Inn",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  5,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111100111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "llllwwllllllllllllllllll"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "counter",
+   "x": 8,
+   "y": 3
+  },
+  {
+   "kind": "water_jar",
+   "x": 6,
+   "y": 1
+  },
+  {
+   "kind": "water_jar",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 11,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 15,
+   "y": 1
+  },
+  {
+   "kind": "lantern_red",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "lantern_red",
+   "x": 22,
+   "y": 1
+  },
+  {
+   "kind": "tea_table",
+   "x": 4,
+   "y": 7
+  },
+  {
+   "kind": "mat",
+   "x": 4,
+   "y": 8
+  },
+  {
+   "kind": "tea_table",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "mat",
+   "x": 12,
+   "y": 8
+  },
+  {
+   "kind": "tea_table",
+   "x": 18,
+   "y": 7
+  },
+  {
+   "kind": "mat",
+   "x": 18,
+   "y": 8
+  },
+  {
+   "kind": "water_jar",
+   "x": 1,
+   "y": 11
+  },
+  {
+   "kind": "sacks",
+   "x": 22,
+   "y": 11
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 22,
+   "y": 5
+  },
+  {
+   "kind": "lantern_red",
+   "x": 1,
+   "y": 6
+  }
+ ],
+ "place": {
+  "npc_innkeeper_tang": [
+   9.5,
+   2
+  ],
+  "npc_broker_mu": [
+   19,
+   9
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    4.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

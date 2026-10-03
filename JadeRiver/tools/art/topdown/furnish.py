@@ -611,3 +611,525 @@ import arid as _ARID  # noqa: E402
 
 PROPS.update(_ARID.PROPS)
 ANIM.update(_ARID.ANIM)
+
+
+
+# ============================================================================================================ R6
+# R6: Act II's first zones, the Azure Expanse (docs/architecture/room_engine.md, "Act II's first zones (R6)"):
+# Cloudgate Port's airships, stalls, gate and lions, the inn's counter; the Thunderhorn Plains' yurts, haystacks, cook
+# fires and storm-split menhirs; Rimefrost's ice-glazed rocks; Mirrorwater Lake's floating lotus lanterns. Later zones
+# (Nine Peaks, the Skyport Wreck, the Starsea) reuse them.
+from palette import ROCK, SNOW2, STONE, alpha  # noqa: E402
+import math  # noqa: E402
+import terrain2 as T2  # noqa: E402
+
+SAIL = [c("4A3A2E"), c("7A6248"), c("B39A72"), c("D8C49A"), c("EFE2C0")]   # sun-bleached sailcloth, shade -> lit
+FELT = [c("4E4038"), c("7C6A5A"), c("A8957E"), c("CDBEA4"), c("E8DCC4")]   # a yurt's felt
+ICE = [c("2E4A78"), c("4C77A6"), c("7FAAD0"), c("B4D6EC"), c("E6F4FA")]    # glacier ice, deep -> glint
+STRAW = [c("4E3A1A"), c("7E6028"), c("A88438"), c("CCA850"), c("E6CC7A"), c("F4E2A6")]   # sun-dried grass
+
+
+def _hull(x: float, x0: int, x1: int) -> tuple:
+    """An airship's hull at column x: the deck's half-depth and the hull side's depth under it (0, 0 off the hull). The
+    stern (west) is broad and square, the bow (east) sharp."""
+    if not x0 <= x < x1:
+        return 0.0, 0.0
+    v = (x + 0.5 - (x0 + x1) / 2.0) / ((x1 - x0) / 2.0)
+    k = max(0.0, 1.0 - (-v) ** 6) if v < 0 else max(0.0, 1.0 - v ** 2.2)
+    return 8.0 * k ** 0.5, 16.0 * k ** 0.7
+
+
+def sky_ship(s: Img, f: int = 0) -> None:
+    """A Cloudgate airship moored at the island's rim (the Skydock's berths, the lake ferry's): a long junk-built hull
+    of tarred planks with a red lacquer wale and a row of bronze-rimmed ports, its deck of pale boards seen from above,
+    a stern castle under a dark tiled roof with a lantern each side, two battened sails half reefed on their masts, the
+    Alliance's white-and-sky pennants streaming east (still: four frames of a ship this wide outgrow the sheet), a gilt
+    cloud scroll at the bow, and the gangway in the middle of its north rail. The footprint is the rim's last row (10 x
+    1, walked through); the ship hangs past the room's south edge over the sea of cloud, wisps of it about the keel.
+    176 x 112; corner (8, 64)."""
+    x0, x1 = 12, 168
+    yc = 78                                                   # the deck's middle row
+    for x in range(x0, x1):                                   # the hull's side: tarred planks, the wale, the ports
+        hd, sd = _hull(x, x0, x1)
+        if hd <= 0:
+            continue
+        top = int(round(yc + hd))
+        bot = int(round(yc + hd + sd))
+        for y in range(top, bot + 1):
+            j = y - top
+            col = DARKWOOD[2] if (j // 3) % 2 == 0 else DARKWOOD[1]
+            if j in (2, 3):
+                col = RED[2] if j == 2 else RED[1]          # the red lacquer wale
+            elif x < x0 + 3:
+                col = DARKWOOD[3]                            # the lit stern quarter
+            if y >= bot - 1:
+                col = DARKWOOD[0]
+            s.put(x, y, col)
+        if (x - x0) % 14 == 9 and x0 + 20 < x < x1 - 22:    # a port: a bronze ring round a dark hole
+            py = top + 7
+            s.rect(x, py, 3, 3, BRONZER[3])
+            s.put(x + 1, py + 1, c("1A1210"))
+            s.put(x, py, BRONZER[5])
+    for x in range(x0, x1):                                   # the deck: pale boards fore and aft, the bulwark round it
+        hd, _ = _hull(x, x0, x1)
+        if hd <= 0:
+            continue
+        t, b = int(round(yc - hd)), int(round(yc + hd))
+        for y in range(t, b + 1):
+            col = WOOD2[5] if (y - t) % 3 else WOOD2[4]
+            if h01(x // 9, y, 31) < 0.12:
+                col = WOOD2[4]                               # a board's butt joint
+            if y == t:
+                col = WOOD2[6]                               # the bulwark's lit top
+            elif y in (t + 1, b):
+                col = DARKWOOD[3]
+            s.put(x, y, col)
+    cx0, cx1 = x0 + 4, x0 + 34                                # the stern castle: a cabin on the deck's west end
+    for x in range(cx0, cx1):
+        for y in range(62, 80):
+            col = PLASTER2[4] if y < 76 else WOOD2[2]
+            if x in (cx0, cx0 + 1) or (x - cx0) % 10 == 0:
+                col = DARKWOOD[2]
+            if 66 <= y <= 71 and (x - cx0) % 10 in (3, 4, 5, 6):
+                col = LANTERN[3] if y > 67 else LANTERN[4]  # a lit window
+            s.put(x, y, col)
+    for x in range(cx0 - 3, cx1 + 3):                         # its roof: dark glazed tile, the ends swept up
+        lift = int(2.5 * (abs(x + 0.5 - (cx0 + cx1) / 2.0) / ((cx1 - cx0) / 2.0 + 3)) ** 3)
+        for y in range(52 - lift, 63 - lift):
+            k = 4 if (x % 4) < 3 else 2
+            if y == 52 - lift:
+                k = 6
+            elif y >= 61 - lift:
+                k = 1
+            s.put(x, y, T2.ROOF2[k])
+    for lx in (cx0 - 2, cx1 + 1):                             # red paper lanterns under the eaves
+        s.vline(lx, 62, 2, DARKWOOD[1])
+        s.ellipse(lx + 0.5, 66, 2.2, 2.8, LANTERN[2], (LANTERN[4], LANTERN[0]))
+    for bx, by in ((cx1 + 6, 71), (cx1 + 13, 73)):            # cargo on the deck: crates, a barrel, a coil of rope
+        _box(s, bx, by, 6, 3, 4, WOOD, DARKWOOD + [WOOD[3]])
+    s.ellipse(x1 - 34, 76, 2.5, 2, DARKWOOD[3], (WOOD[4], DARKWOOD[1]))
+    s.ellipse(x1 - 26, 75, 3, 1.6, SACK[2], (SACK[4], SACK[1]))
+    s.put(x1 - 26, 75, SACK[0])
+    gx = 88                                                   # the gangway: planks from the north rail up to the berth
+    for y in range(58, 72):
+        for x in range(gx, gx + 16):
+            col = WOOD2[5] if y % 2 else WOOD2[4]
+            if x in (gx, gx + 15):
+                col = SACK[2]                                # its rope rails
+            s.put(x, y, col)
+    for mx, top in ((58, 2), (126, 10)):                      # the masts, their sails half reefed, the pennants
+        s.rect(mx, top, 3, 80 - top, DARKWOOD[2])
+        s.vline(mx, top, 80 - top, WOOD[4])
+        s.vline(mx + 2, top, 80 - top, DARKWOOD[1])
+        st, sb = top + 14, 60
+        for y in range(st, sb):
+            u = (y - st) / float(sb - st)
+            lft = mx - 5 + int(2 * u)
+            rgt = mx + 26 + int(5 * (1 - (2 * u - 1) ** 2))
+            for x in range(lft, rgt):
+                if mx <= x <= mx + 2:
+                    continue
+                col = SAIL[3]
+                if (y - st) % 7 == 0:
+                    col = DARKWOOD[2]                        # a batten
+                elif (y - st) % 7 in (5, 6):
+                    col = SAIL[2]                            # the cloth bellying under it
+                elif x < lft + 2:
+                    col = SAIL[4]
+                elif x > rgt - 3:
+                    col = SAIL[1]
+                s.put(x, y, col)
+        for k in range(18):                                   # a white swallowtail with a sky band, on the wind
+            wave = 1 if (k + f * 2) % 8 in (2, 3, 4) else 0
+            for j in range(4 - k // 6):
+                col = CLOUD[4] if j < 2 else CLOUD[2]
+                if 6 <= k <= 9:
+                    col = CLOUD[1]
+                if k > 14 and j == 1:
+                    continue                                 # the swallowtail's notch
+                s.put(mx + 3 + k, top + j + wave, col)
+    for k, (dx, dy) in enumerate(((0, 0), (1, -1), (2, -1), (3, 0), (3, 1), (2, 2), (4, -2), (5, -3))):
+        s.put(x1 - 2 + dx, yc - 2 + dy, GOLDR[2] if k < 6 else GOLDR[3])   # a gilt cloud scroll at the bow
+    s.outline()
+    for wx, wy, rx, ry in ((24, 104, 14, 5), (52, 107, 18, 4), (98, 106, 20, 5), (140, 103, 16, 5), (164, 107, 10, 3),
+                           (8, 108, 9, 3)):                   # wisps of the cloud sea about the keel (the sea's: no line)
+        s.ellipse(wx, wy, rx, ry, CLOUD[4])
+        for i in range(int(wx - rx) + 2, int(wx + rx) - 2):
+            s.put(i, int(wy + ry * 0.6), CLOUD[3])
+
+
+def market_stall(s: Img) -> None:
+    """A port market's stall: a counter of pale boards under an awning striped in the Alliance's white and sky blue
+    (its scalloped valance lit along the front), on four posts, the goods laid out on the counter (a basket of
+    persimmons, bolts of cloth, glazed jars) and a paper lantern hung at its west corner. Footprint 3 x 1. 48 x 46;
+    corner (0, 44)."""
+    for x in (2, 44):                                         # the back posts, then the front ones
+        s.rect(x, 10, 2, 22, DARKWOOD[1])
+    _box(s, 1, 26, 46, 8, 10, WOOD2, DARKWOOD + [WOOD2[3]])
+    for x in range(4, 44, 6):                                 # the counter front's boards
+        s.vline(x, 35, 9, DARKWOOD[2])
+    s.ellipse(9, 28, 4.5, 2.5, c("8A5A2E"), (c("B07A40"), c("5A3A1E")))   # a basket of persimmons
+    for i, (dx, dy) in enumerate(((-2, -1), (0, -2), (2, -1), (-1, 0), (1, 0))):
+        s.put(9 + dx, 27 + dy, c("F08A3A") if i % 2 else c("E0602A"))
+    for k, col in enumerate((INDIGO[3], RED[3], c("6A9A5A"))):   # bolts of cloth
+        s.rect(18 + k * 5, 26, 4, 5, col)
+        s.hline(18 + k * 5, 26, 4, PAPER)
+    for x, col in ((36, JADE), (41, c("8A5A3A"))):            # glazed jars
+        s.ellipse(x, 28, 2.5, 3, col, (c("7FD8C6") if col == JADE else c("B07A50"), c("2A1A12")))
+    for x in (0, 46):
+        s.rect(x, 8, 2, 36, DARKWOOD[2])
+        s.vline(x, 8, 36, WOOD[4])
+    for y in range(0, 14):                                    # the awning, sloping down to the front
+        for x in range(-1, 49):
+            stripe = ((x + 1) // 6) % 2
+            col = CLOUD[4] if stripe else CLOUD[2]
+            if y < 3:
+                col = CLOUD[4] if stripe else CLOUD[3]       # its far edge in the sun
+            elif y > 10:
+                col = CLOUD[3] if stripe else CLOUD[1]       # the near edge turning down
+            s.put(x, y, col)
+    for x in range(-1, 49):                                   # the scalloped valance
+        drop = 2 if (x % 6) in (2, 3) else 1
+        for k in range(drop):
+            s.put(x, 14 + k, CLOUD[1] if ((x + 1) // 6) % 2 == 0 else CLOUD[3])
+    s.vline(3, 16, 3, DARKWOOD[1])                            # a paper lantern under the west corner
+    s.ellipse(3.5, 21, 2.4, 3, LANTERN[2], (LANTERN[4], LANTERN[0]))
+    s.outline()
+
+
+def paifang(s: Img) -> None:
+    """A memorial archway (paifang) of red lacquer on dressed granite: two pillars on stone drums, a gilt-edged lintel
+    and a dark name board between them, under a roof of dark glazed tile with swept, gold-tipped ends. Walked through
+    (its footprint, 5 x 1, blocks nothing: a way's lane runs under it). 88 x 80; corner (4, 78)."""
+    for px in (6, 74):                                        # the pillars on their drums
+        s.rect(px - 1, 68, 10, 10, STONE[3])
+        s.hline(px - 1, 68, 10, STONE[5])
+        s.vline(px - 1, 68, 10, STONE[4])
+        s.hline(px - 1, 77, 10, STONE[1])
+        s.rect(px, 26, 8, 42, RED[2])
+        s.vline(px, 26, 42, RED[4])
+        s.vline(px + 1, 26, 42, RED[3])
+        s.vline(px + 7, 26, 42, RED[1])
+        s.rect(px - 1, 64, 10, 4, GOLDR[1])                   # a bronze collar over the drum
+        s.hline(px - 1, 64, 10, GOLDR[2])
+    s.rect(4, 24, 80, 6, RED[2])                              # the lintel
+    s.hline(4, 24, 80, GOLDR[2])
+    s.hline(4, 29, 80, RED[0])
+    s.rect(30, 30, 28, 10, GOLDR[1])                          # the name board
+    s.rect(31, 31, 26, 8, c("1C1A28"))
+    for x in (36, 42, 48):
+        s.rect(x, 33, 3, 4, GOLDR[2])
+    for x in range(0, 88):                                    # the roof
+        u = abs(x + 0.5 - 44.0) / 44.0
+        lift = int(u ** 3 * 5)
+        for y in range(8 - lift, 24 - lift):
+            k = 4 if x % 4 < 3 else 2
+            if y == 8 - lift:
+                k = 6
+            elif y >= 21 - lift:
+                k = 1
+            s.put(x, y, T2.ROOF2[k])
+        if 2 <= x < 86:
+            s.put(x, 6 - lift, T2.ROOF2[5])
+            s.put(x, 7 - lift, T2.ROOF2[3])
+    for x, d in ((1, -1), (86, 1)):
+        s.put(x, 2, GOLDR[2])
+        s.put(x - d, 3, T2.ROOF2[2])
+    s.outline()
+
+
+def counter(s: Img) -> None:
+    """An inn's or a shop's counter of dark polished wood, lattice panels in its front, and on its top two wine jars
+    under red paper seals, an abacus, a lacquered cash box and a little oil lamp. Footprint 3 x 1, 12 px high. 48 x 30;
+    corner (0, 28)."""
+    _box(s, 0, 6, 48, 10, 12, WOOD2, DARKWOOD + [WOOD2[3]])
+    for x0 in (4, 18, 32):                                    # lattice panels in the front
+        s.rect(x0, 18, 12, 8, DARKWOOD[1])
+        for i in range(x0 + 1, x0 + 12, 3):
+            s.vline(i, 18, 8, WOOD2[2])
+        s.hline(x0, 21, 12, WOOD2[2])
+    for x in (5, 11):                                         # wine jars
+        s.ellipse(x, 6, 3, 4, c("5B3A2A"), (c("8A5A3A"), c("2A1A12")))
+        s.rect(x - 2, 1, 4, 2, RED[3])
+    s.rect(18, 6, 12, 6, DARKWOOD[1])                          # the abacus
+    for j in (7, 9):
+        s.hline(19, j, 10, BRONZER[3])
+        for i in range(19, 29, 2):
+            s.put(i, j, RED[3] if i < 23 else c("1C1418"))
+    s.rect(33, 6, 7, 5, RED[2])                               # the cash box
+    s.hline(33, 6, 7, RED[4])
+    s.put(36, 8, GOLDR[2])
+    s.rect(43, 7, 3, 3, BRONZER[3])                           # the oil lamp
+    s.put(44, 5, LANTERN[4])
+    s.put(44, 6, LANTERN[3])
+    s.outline()
+
+
+def stone_lion(s: Img) -> None:
+    """A guardian lion of grey granite sitting on its plinth, facing out: a mane of tight curls, round eyes, a ball
+    under its forepaw. Footprint 1 x 1. 20 x 34; corner (2, 32)."""
+    _box(s, 1, 22, 18, 4, 7, STONE, STONE)                    # the plinth
+    s.hline(1, 32, 18, STONE[1])
+    for y in range(8, 23):                                    # the body, haunches behind
+        half = 6 if y > 14 else 5
+        for x in range(10 - half, 10 + half):
+            col = STONE[4] if x < 8 else STONE[3]
+            if x >= 10 + half - 2:
+                col = STONE[2]
+            s.put(x, y, col)
+    s.ellipse(10, 7, 6, 5.5, STONE[4], (STONE[5], STONE[2]))    # the head and its mane
+    for dx, dy in ((-5, -2), (-4, 2), (4, -2), (5, 2), (0, -5), (-3, -4), (3, -4)):
+        s.ellipse(10 + dx, 7 + dy, 1.6, 1.6, STONE[3], (STONE[5], STONE[1]))
+    s.rect(7, 6, 6, 4, STONE[4])                               # the face
+    s.put(8, 7, c("1C2226"))
+    s.put(11, 7, c("1C2226"))
+    s.hline(8, 9, 4, STONE[1])
+    s.ellipse(14, 19, 2.6, 2.4, STONE[4], (STONE[5], STONE[2]))  # the ball under its paw
+    s.rect(5, 18, 3, 4, STONE[5])                              # a forepaw
+    s.outline()
+
+
+def armillary(s: Img) -> None:
+    """A navigator's armillary sphere: bronze rings on a dragon-coiled stand over a stone base. Footprint 1 x 1.
+    24 x 36; corner (4, 34)."""
+    _box(s, 4, 26, 16, 3, 5, STONE, STONE)
+    s.rect(11, 15, 3, 11, BRONZER[2])
+    s.vline(11, 15, 11, BRONZER[4])
+    for (rx, ry, col) in ((10, 9, BRONZER[3]), (10, 3, BRONZER[4]), (4, 9, BRONZER[2])):
+        for k in range(64):
+            a = k / 64.0 * 6.2832
+            s.put(int(round(12 + rx * math.cos(a))), int(round(9 + ry * math.sin(a))), col)
+    s.put(12, 9, GOLDR[3])
+    s.put(12, 0, BRONZER[5])
+    s.outline()
+
+
+def herders_yurt(s: Img) -> None:
+    """A herders' yurt of pale felt: the round wall lit on the west and shaded east, a band of red and indigo felt
+    under the eave, the domed roof bound by ropes running down from the crown ring (its smoke hole open), and a painted
+    door of orange lacquer facing south. Footprint 4 x 2. 64 x 58; corner (0, 56)."""
+    cx = 32.0
+    for x in range(1, 63):                                    # the wall
+        u = (x + 0.5 - cx) / 31.0
+        bot = 54 + int(2 * (1 - u * u) ** 0.5)
+        k = 4 if u < -0.55 else 3 if u < 0.1 else 2 if u < 0.6 else 1
+        for y in range(30, bot):
+            col = FELT[k]
+            if y in (31, 32):
+                col = RED[2] if (x // 4) % 2 else INDIGO[2]  # the felt band under the eave
+            elif (y - 30) % 9 == 0:
+                col = FELT[max(0, k - 1)]                    # the girth ropes
+            s.put(x, y, col)
+    for y in range(4, 33):                                    # the dome
+        for x in range(0, 64):
+            u, v = (x + 0.5 - cx) / 32.0, (y + 0.5 - 30.0) / 26.0
+            if u * u + v * v > 1.0 or y > 31:
+                continue
+            k = 4 if u + v * 0.6 < -0.45 else 3 if u < 0.25 else 2
+            if abs((x - cx) - (y - 13) * 1.4 * ((x > cx) - (x < cx))) < 0.8 and y > 14:
+                k = 1                                        # a binding rope down the dome
+            s.put(x, y, FELT[k])
+    for dx in (-22, -11, 0, 11, 22):                          # the ropes from the crown to the eave
+        for y in range(16, 31):
+            x = int(round(cx + dx * (y - 12) / 18.0))
+            s.put(x, y, FELT[1])
+    s.ellipse(cx, 12, 6, 3, DARKWOOD[2], (WOOD[4], DARKWOOD[0]))   # the crown ring and its smoke hole
+    s.ellipse(cx, 12, 3, 1.4, c("1A1210"))
+    s.rect(25, 38, 14, 17, c("C2602A"))                        # the door, painted
+    s.rect(26, 39, 12, 15, c("E0843A"))
+    s.vline(32, 39, 15, c("8A3A1A"))
+    for y in (42, 48):
+        s.hline(27, y, 4, GOLDR[2])
+        s.hline(34, y, 3, GOLDR[2])
+    s.hline(24, 37, 16, DARKWOOD[2])
+    s.outline()
+
+
+def haystack(s: Img) -> None:
+    """A herders' haystack: a cone of sun-dried grass round a pole, its thatch combed downward, darker where it has
+    weathered, a rope round its waist. Footprint 2 x 1. 32 x 32; corner (0, 30)."""
+    for y in range(4, 30):
+        half = 3 + (y - 4) * 0.55 if y < 22 else 13 + (y - 22) * 0.2
+        for x in range(int(16 - half), int(16 + half) + 1):
+            u = (x + 0.5 - 16) / max(1.0, half)
+            k = 4 if u < -0.4 else 3 if u < 0.35 else 2
+            if (x * 3 + y) % 5 == 0:
+                k = max(1, k - 1)                            # combed strands
+            if y > 26:
+                k = 1
+            s.put(x, y, STRAW[k])
+    s.vline(16, 0, 6, DARKWOOD[2])
+    for x in range(5, 28):
+        s.put(x, 21 + (1 if abs(x - 16) > 8 else 0), SACK[1])
+    s.outline()
+
+
+def cook_fire(s: Img, f: int = 0) -> None:
+    """A camp's cook fire: a ring of fire-blackened stones, a bronze cauldron on an iron tripod over flames that lick
+    and flicker (four frames), a wisp of steam. Footprint 2 x 1. 32 x 34; corner (0, 32)."""
+    for k in range(9):                                        # the ring of stones
+        a = k / 9.0 * 6.2832
+        x, y = 16 + 12 * math.cos(a), 26 + 5 * math.sin(a)
+        s.ellipse(x, y, 2.6, 2, ROCK[3] if y < 26 else ROCK[2], (ROCK[5], ROCK[1]))
+    for i, (dx, h) in enumerate(((-4, 7), (-1, 10), (2, 8), (5, 6))):   # the flames
+        h2 = h + ((f + i) % 4 in (1, 2)) * 2 - (f + i) % 2
+        for j in range(h2):
+            w = max(1, 2 - j // 4)
+            for x in range(16 + dx - w // 2, 16 + dx + w - w // 2):
+                s.put(x, 27 - j, LANTERN[4] if j < 2 else LANTERN[3] if j < h2 // 2 else LANTERN[1])
+    for x0, x1 in ((6, 14), (26, 18)):                        # the tripod's legs
+        for k in range(20):
+            s.put(int(x0 + (x1 - x0) * k / 19.0), 28 - k, DARKWOOD[0])
+    s.vline(16, 6, 4, DARKWOOD[0])
+    s.ellipse(16, 15, 7, 5, BRONZER[2], (BRONZER[4], BRONZER[0]))   # the cauldron
+    s.ellipse(16, 11, 6, 1.6, c("3A2418"))
+    s.hline(10, 11, 13, BRONZER[4])
+    s.outline()
+    for k in range(5):                                        # steam (no line)
+        s.put(15 + (k + f) % 3 - 1, 9 - k, alpha(PAPER, 150))
+
+
+def menhir(s: Img) -> None:
+    """A storm menhir of the Thunderhorn Plains: a tall grey standing stone, weathered and lichened, split down its
+    face by lightning, the crack still glowing a thin storm-blue and the grass scorched at its foot. Footprint 1 x 1.
+    20 x 46; corner (2, 44)."""
+    for y in range(2, 44):
+        half = 5.5 - 1.5 * ((44 - y) / 42.0) ** 2 + (0.5 if y > 36 else 0)
+        for x in range(int(10 - half), int(10 + half) + 1):
+            u = (x + 0.5 - 10) / half
+            k = 5 if u < -0.5 else 4 if u < 0.1 else 3 if u < 0.6 else 2
+            if h01(x, y // 3, 71) < 0.08:
+                k -= 1
+            s.put(x, y, ROCK[k])
+        if h01(y, 3, 72) < 0.18:
+            s.put(int(10 - half) + 2, y, c("8AA060"))       # lichen
+    for y in range(3, 40):                                    # the lightning crack, zigzagging down
+        x = 10 + (1 if (y // 5) % 2 else -1) + (y // 13)
+        s.put(x, y, c("1A2A3A"))
+        s.put(x + 1, y, c("7FE0FF") if y % 3 else c("D6F8FF"))
+    for x in range(1, 19):                                    # the scorch at its foot
+        s.put(x, 44, c("2A2420"))
+        if 3 < x < 16:
+            s.put(x, 43, c("3A302A"))
+    s.rect(9, 0, 3, 3, ROCK[1])                                # the shattered top
+    s.outline()
+
+
+def ice_rock(s: Img) -> None:
+    """A boulder of the Rimefrost snowline under a glaze of clear blue ice: snow heaped on its crown, the ice running
+    down its north and west flanks and hanging from its south face in icicles. Footprint 2 x 1. 32 x 28; corner
+    (0, 26)."""
+    s.ellipse(16, 15, 15, 11, ROCK[3], (ROCK[5], ROCK[1]))
+    for y in range(6, 24):                                    # the glaze over its lit flank
+        for x in range(2, 30):
+            if s.get(x, y)[3] and (x + y * 0.8) < 17 + h01(x, y, 5) * 4:
+                s.put(x, y, ICE[3] if (x + y) % 5 else ICE[4])
+    s.ellipse(15, 7, 10, 4, SNOW2[5], (SNOW2[6], SNOW2[4]))   # the snow on its crown
+    for x in (8, 12, 17, 21, 25):                             # icicles from the south face
+        for k in range(3 + (x % 3)):
+            s.put(x, 23 + k, ICE[3] if k < 2 else ICE[4])
+    s.rect(3, 24, 26, 2, ROCK[1])
+    s.outline()
+
+
+def lotus_lantern(s: Img, f: int = 0) -> None:
+    """A floating lantern of Mirrorwater Lake: a paper lotus of pale pink petals round a candle's glow, a ring of
+    light on the water about it; it bobs a pixel on the water's clock. Walked over: it floats. 16 x 14; corner
+    (0, 14), on the water's surface."""
+    b = 1 if f in (1, 2) else 0
+    s.ellipse(8, 11, 7, 2.5, alpha(LANTERN[5], 70))           # the glow on the water
+    for k, (dx, dy) in enumerate(((-5, 0), (5, 0), (-3, -2), (3, -2), (0, -3), (-4, 1), (4, 1))):
+        s.ellipse(8 + dx * 0.9, 9 + dy + b, 2.2, 1.8, c("E7A0BE") if k % 2 else c("F8D2E0"), (c("FFF1F6"), c("B0628A")))
+    s.ellipse(8, 7 + b, 1.6, 2, LANTERN[4])
+    s.put(8, 5 + b, LANTERN[5])
+    s.put(8, 4 + b, c("FFF8E2"))
+
+
+# Mirrorwater Lake's reflections: what stands on its north shore seen upside down in the still water below it. Each is
+# the thing's own art (a tree's trunk and crown, a stone lantern) flipped about its foot, squashed to MIRROR_SQUASH of
+# its height (the water seen at the view's slant), every other pixel left out so the water's own ripple shows through,
+# and the rest darkened into the deep water's blue. `mirror_<kind>` starts at the thing's foot (it stands on the
+# water's edge); `mirror_<kind>_1` a cell further out, its first cell hidden under the bank (a tree a row back from
+# the water, as the flora sets them). The room engine lays them (a water band's `mirror`); they block nothing.
+MIRRORED = ("tree_willow", "tree_maple", "tree_pine", "tree_plum", "lantern")
+MIRROR_SQUASH = 0.55
+MIRROR_DEEP = c("0F2C44")
+
+
+def _upright(kind: str) -> tuple:
+    """A tree (its trunk and its crown) or a prop drawn upright on a canvas; the canvas and the footprint's south-west
+    corner on it."""
+    import foliage as FL
+    if kind in FL.CANOPY:
+        draw, w, h, fw, fh, origin, solid, shadow = FL.PROPS[kind]
+        cdraw, cw, ch, at = FL.CANOPY[kind]
+        top, sx = -at[1], -at[0] + 8
+        up = Img(cw + 16, top + 2)
+        trunk = Img(w, h)
+        draw(trunk, 0)
+        up.paste(trunk, sx - origin[0], top - origin[1])
+        crown = Img(cw, ch)
+        cdraw(crown, 0)
+        up.paste(crown, sx + at[0], top + at[1])
+        return up, sx, top
+    import props as PR                                        # drawn at build time, the kit's own table loaded by then
+    draw, w, h, fw, fh, origin, solid, shadow = PR.PROPS[kind]
+    up = Img(w + 16, origin[1] + 2)
+    one = Img(w, h)
+    draw(one)
+    up.paste(one, 8, 0)
+    return up, origin[0] + 8, origin[1]
+
+
+def mirror_size(kind: str, skip: int) -> tuple:
+    """A mirror sprite's width, height and the foot's column on it (from the tables alone: the kit is still loading)."""
+    import foliage as FL
+    if kind in FL.CANOPY:
+        cdraw, cw, ch, at = FL.CANOPY[kind]
+        w, top, sx = cw + 16, -at[1], -at[0] + 8
+    else:
+        w, top, sx = 32, 30, 8                                # the stone lantern: 16 wide, its foot 30 down
+    return w, max(4, int(top * MIRROR_SQUASH) - 16 * skip), sx
+
+
+def mirror(s: Img, kind: str, skip: int) -> None:
+    """`kind` mirrored in still water (see MIRRORED), the first `skip` cells of it under the bank."""
+    up, sx, top = _upright(kind)
+    for j in range(s.h):
+        src = top - 1 - int((j + 16 * skip) / MIRROR_SQUASH)
+        if src < 0:
+            continue
+        fade = min(0.6, 0.28 + 0.32 * j / max(1, s.h))      # deeper and fainter away from the foot
+        for x in range(s.w):
+            p = up.get(x, src)
+            if p[3] == 0 or (x + j) % 2:
+                continue
+            s.put(x, j, T2.mix(p, MIRROR_DEEP, fade))
+
+
+def _mirror_props() -> dict:
+    out = {}
+    for kind in MIRRORED:
+        for skip in (0, 1):
+            w, h, sx = mirror_size(kind, skip)
+            name = "mirror_%s%s" % (kind, "_1" if skip else "")
+            out[name] = ((lambda s, k=kind, sk=skip: mirror(s, k, sk)), w, h, 1, 1, [sx, 16], False, None)
+    return out
+
+
+PROPS.update({
+    "sky_ship": (sky_ship, 176, 112, 10, 1, [8, 64], False, None),
+    "market_stall": (market_stall, 48, 46, 3, 1, [0, 44], True, [26, -2, 22, 3]),
+    "paifang": (paifang, 88, 80, 5, 1, [4, 78], False, [44, -2, 40, 3]),
+    "counter": (counter, 48, 30, 3, 1, [0, 28], True, [26, -2, 22, 3]),
+    "stone_lion": (stone_lion, 20, 34, 1, 1, [2, 32], True, [10, -2, 8, 3]),
+    "armillary": (armillary, 24, 36, 1, 1, [4, 34], True, [10, -2, 8, 3]),
+    "herders_yurt": (herders_yurt, 64, 58, 4, 2, [0, 56], True, [34, -4, 30, 5]),
+    "haystack": (haystack, 32, 32, 2, 1, [0, 30], True, [18, -2, 14, 3]),
+    "cook_fire": (cook_fire, 32, 34, 2, 1, [0, 32], True, None),
+    "menhir": (menhir, 20, 46, 1, 1, [2, 44], True, [10, -2, 8, 3]),
+    "ice_rock": (ice_rock, 32, 28, 2, 1, [0, 26], True, [18, -2, 14, 3]),
+    "lotus_lantern": (lotus_lantern, 16, 14, 1, 1, [0, 14], False, None),
+})
+PROPS.update(_mirror_props())
+ANIM.update({"cook_fire": (4, 160), "lotus_lantern": (4, 250)})
