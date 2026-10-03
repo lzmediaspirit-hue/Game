@@ -51,10 +51,6 @@ def palette(element: str):
     return lut
 
 
-def base_hex(element: str) -> str:
-    return _P[element]["base"]
-
-
 # ------------------------------------------------------------------------------------------------ particles
 def particle(cv: Canvas, el: str, x: float, y: float, vx: float, vy: float, age: float, seed: int, big: bool = False) -> None:
     """One flourish of the element at (x, y), moving (vx, vy) (art px a frame), `age` 0..1 over its life."""

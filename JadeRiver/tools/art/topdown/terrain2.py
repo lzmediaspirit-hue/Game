@@ -57,11 +57,6 @@ def pn(x: float, y: float, seed: int, cell: int, px: int = P, py: int = P) -> fl
     return top * (1 - ty) + bot * ty
 
 
-def pnxy(x: float, y: float, seed: int, cx: int, cy: int, px: int = P, py: int = P) -> float:
-    """Value noise on a cx x cy lattice (stretched), periodic in px x py."""
-    return pn(x * cy / cx, y, seed, cy, px * cy // cx, py)
-
-
 def fbm(x: float, y: float, seed: int, cells=(16, 8, 4), weights=(0.55, 0.3, 0.15), px: int = P, py: int = P) -> float:
     return sum(w * pn(x, y, seed + 17 * k, c, px, py) for k, (c, w) in enumerate(zip(cells, weights)))
 
@@ -107,10 +102,6 @@ def cut(img: Img, w: int = M, h: int = M) -> list:
             t.img.alpha_composite(img.img.crop((tx * T, ty * T, tx * T + T, ty * T + T)))
             out.append(t)
     return out
-
-
-def _q(v: float, cuts: tuple, base: int) -> int:
-    return base + sum(1 for c in cuts if v > c)
 
 
 def _clamp(k: int, lo: int, hi: int) -> int:

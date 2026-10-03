@@ -12,7 +12,7 @@ Writes (1 art px = 1 px of the 640x360 world viewport, nearest neighbour, no met
 With --review it also renders into docs/redesign/phase3/ the tile sheet and the prop kit at x4, and into docs/redesign/terrain_v2/ the Terrain v2 tile sheet at x4 (art bible §14).
 With --review-sand-snow it renders decision 44's sand and snow sheet at x4 into docs/redesign/feedback/sand_snow/ (art
 bible "Sand and snow").
-The room itself is reviewed in the game: tools/dev/topdown_capture.tscn -- --phase3.
+The room itself is reviewed in the game: tools/dev/capture/capture.tscn -- phase3.
 
 Usage: python3 tools/art/topdown/build_tiles.py [--review] [--check]
   --check  builds twice in memory and fails unless both builds are byte-identical
@@ -34,6 +34,7 @@ from PIL import Image  # noqa: E402
 
 import atlas  # noqa: E402
 import props  # noqa: E402
+import sheet as SH  # noqa: E402
 from canvas import T  # noqa: E402
 
 TILES_PNG = "art/topdown/proto_tiles.png"
@@ -90,12 +91,6 @@ PAINT = {
 GROUND_TERRAINS = ["grass", "dirt", "paving"]
 
 
-def png_bytes(img: Image.Image) -> bytes:
-    buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=False)
-    return buf.getvalue()
-
-
 def build_all() -> dict:
     """Every output as bytes, keyed by its path under the project root."""
     sheet, at, auto, v2 = atlas.build()
@@ -127,8 +122,8 @@ def build_all() -> dict:
                      "cheek_e": "the east cheek of a flight of stairs", "face_ao": "the foot of a face that meets a floor"},
     }
     return {
-        TILES_PNG: png_bytes(sheet.img),
-        PROPS_PNG: png_bytes(psheet.img),
+        TILES_PNG: SH.png_bytes(sheet.img),
+        PROPS_PNG: SH.png_bytes(psheet.img),
         TRES: tileset_tres(at, auto).encode(),
         MANIFEST: (json.dumps(manifest, indent=1, sort_keys=True) + "\n").encode(),
     }
@@ -257,7 +252,6 @@ def review_v2(sheet, man: dict, font, head) -> None:
     view lays them (the path's pattern under the positional overlay), the tint masks in their colours over the meadow,
     the decals on their ground, and the water: its four frames, a shore case in its four frames, the corner foam and
     the pilings' ripples."""
-    from PIL import ImageDraw
     v2, tiles = man["v2"], man["tiles"]
     z = 4
 
@@ -312,37 +306,9 @@ def review_v2(sheet, man: dict, font, head) -> None:
                      + [grid(v2["water"]["shore"][s], 4, [w0[5]] * 4) for s in ("09", "04", "02")]
                      + [grid([v2["water"]["corner"][c][0] for c in ("nw", "ne", "sw", "se")], 4, [w0[6]] * 4),
                         grid(v2["water"]["ripple"], 4, [w0[1]] * 4)]))
-    width, pad = 1800, 12
-    rows = []
-    for title, imgs in sections:
-        line, x, lh = [], pad, 0
-        placed = []
-        for im in imgs:
-            w, h = im.width * z, im.height * z
-            if x + w > width - pad and line:
-                placed.append((line, lh))
-                line, x, lh = [], pad, 0
-            line.append((im, x))
-            x += w + pad
-            lh = max(lh, h)
-        placed.append((line, lh))
-        rows.append((title, placed))
-    height = pad + sum(26 + sum(lh + pad for _, lh in placed) for _, placed in rows)
-    out = Image.new("RGBA", (width, height), (22, 30, 34, 255))
-    d = ImageDraw.Draw(out)
-    y = pad
-    for title, placed in rows:
-        d.text((pad, y), title, font=font, fill=(232, 225, 207, 255))
-        y += 26
-        for line, lh in placed:
-            for im, x in line:
-                bg = Image.new("RGBA", im.size, (128, 128, 128, 255))
-                bg.alpha_composite(im)
-                out.alpha_composite(bg.resize((im.width * z, im.height * z), Image.NEAREST), (x, y))
-            y += lh + pad
     path = ROOT / "docs/redesign/terrain_v2"
     path.mkdir(parents=True, exist_ok=True)
-    out.save(path / "10_tile_sheet_x4.png")
+    _section_sheet(sections, z, font).save(path / "10_tile_sheet_x4.png")
 
 
 def review_sand_snow(outputs: dict) -> None:
@@ -351,7 +317,7 @@ def review_sand_snow(outputs: dict) -> None:
     path and paving, grass over sand, snow over the meadow, granite, paving, rock and packed snow, and packed snow over
     the meadow and rock, in a few corner cases as the room view lays them (the ground's own pattern under the positional overlay); the damp tint on
     the sand by the water; the sandy shore in its four frames beside the river's own."""
-    from PIL import ImageDraw, ImageFont
+    from PIL import ImageFont
     sheet = Image.open(io.BytesIO(outputs[TILES_PNG])).convert("RGBA")
     man = json.loads(outputs[MANIFEST])
     v2, tiles = man["v2"], man["tiles"]
@@ -411,6 +377,15 @@ def review_sand_snow(outputs: dict) -> None:
     sections.append(("The shore by sand in its four frames (land to the north, the west, the south) beside the river's own (north)",
                      [grid([[[w0[f][5]], [v2["water"]["beach"][s][f]]] for f in range(4)], 4) for s in ("01", "08", "04")]
                      + [grid([[[w0[f][5]], [v2["water"]["shore"]["01"][f]]] for f in range(4)], 4)]))
+    path = ROOT / "docs/redesign/feedback/sand_snow"
+    path.mkdir(parents=True, exist_ok=True)
+    _section_sheet(sections, z, font).save(path / "11_tile_sheet_x4.png")
+    print("sand and snow sheet in", (path / "11_tile_sheet_x4.png").relative_to(ROOT))
+
+
+def _section_sheet(sections: list, z: int, font) -> Image.Image:
+    """A review sheet: each section's title over its images at x`z` (each on grey), laid in rows 1800 px wide."""
+    from PIL import ImageDraw
     width, pad = 1800, 12
     rows = []
     for title, imgs in sections:
@@ -438,10 +413,7 @@ def review_sand_snow(outputs: dict) -> None:
                 bg.alpha_composite(im)
                 out.alpha_composite(bg.resize((im.width * z, im.height * z), Image.NEAREST), (x, y))
             y += lh + pad
-    path = ROOT / "docs/redesign/feedback/sand_snow"
-    path.mkdir(parents=True, exist_ok=True)
-    out.save(path / "11_tile_sheet_x4.png")
-    print("sand and snow sheet in", (path / "11_tile_sheet_x4.png").relative_to(ROOT))
+    return out
 
 
 def main(argv: list[str]) -> int:

@@ -7364,7 +7364,7 @@
     "tools/dev/topdown_capture.gd (the boss job adds shots)"
    ],
    "id": "S3",
-   "notes": "",
+   "notes": "done: the capture registry tools/dev/capture/ (32 sets, 375 rows; the seven captures and fix_infer.py deleted; 245 of 531 pictures byte-identical to the old scripts under a pinned clock, the rest differ only in wall-clock water and sway); study_quality, technique_cards.py, build_topdown_proto.py and five unreferenced helpers deleted; tools/art/topdown/sheet.py (DUP-12). Not moved: the side-view pipeline, combo_rig and equipment_rig, which are deleted with the side view (S12). Kept: stat_probe and combat_trace (numeric probes), prototype_qa (the QA walk).",
    "owns": [
     "tools/dev/*capture*",
     "tools/dev/prototype_qa.gd",
