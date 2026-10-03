@@ -20,3 +20,4 @@ valley_run
 places_tests
 shared_runtime_tests
 cue_tests
+hud_tests
