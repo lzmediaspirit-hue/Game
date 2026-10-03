@@ -77,6 +77,79 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
   - `topdown_tutorial`'s `reach()` takes the step and the jump from `data/movement.json`, as the Grid does.
 - **Tests:** TOTALS.
 
+## CombatAuthority in parts (decision 45, S8)
+
+This is phase 2, wave 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
+`combat_authority.gd` was one file of 2,912 lines in 18 sections. The attack, tick and resolution flow stays in it,
+and the systems around the fight are now its parts in `scripts/simulation/authority/combat/`. The parts follow the
+same pattern as S10's. `docs/architecture/authority_parts.md` describes it for every authority. The game plays the
+same: the slice moves code and removes one dead local. Every caller still calls `Game.combat.<method>`, and the save
+data is untouched.
+
+- **The parts.** `combat_authority.gd` is 1,807 lines: 1,721 of core flow, and 86 of forwarders. The parts hold
+  1,308 lines:
+  - `combat_flight.gd` (143): flight, and the movement arts Plunge and Falling Leaf Glide;
+  - `combat_phantom.gd` (42): Phantom Double;
+  - `combat_sword.gd` (132): natal overcharge, Sword Release, Sword Intent and Killing Intent;
+  - `combat_swarm.gd` (83): the sword swarm;
+  - `combat_flute.gd` (88): the flute's melody;
+  - `combat_heals.gd` (97): heals over time on you and on allies, the healing song, the sect roles' support;
+  - `combat_blood_path.gd` (52): the Blood path;
+  - `combat_plates.gd` (61): Array Plates;
+  - `combat_talismans.gd` (51): talismans from the bag;
+  - `combat_projectiles.gd` (136): every shot in flight;
+  - `combat_treasures.gd` (217): treasures, throwables, self-detonation;
+  - `combat_revival.gd` (68): grave wounds and revival;
+  - `combat_riders.gd` (110): what a landed blow carries after its damage (weapon riders, the Soul line's marks, the
+    Poison Body, oils, the Artifact Spirit's and the awakened weapon's skills);
+  - `combat_part.gd` (28): their base, `CombatPart`.
+- **How the parts work** (the same as S10's).
+  - A part is a `RefCounted` with no state of its own. It holds a weak reference to the authority behind a typed
+    `combat` getter, because the authority holds its parts and `Game` builds new authorities on every boot. A probe
+    that rebuilds them finds the old authority and its parts freed.
+  - The state stays on the authority, so the save and every reader of `Game.combat.<var>` are unchanged.
+  - The authority makes its parts in `_init`, and its tick calls them in the old order. `handle` is unchanged.
+  - Every moved public method keeps a one-line forwarder on the authority, with the same arguments and results. So do
+    17 private names that tests and tools call, such as `_tick_projectiles` and `_cast_illusion`, until S11 renames
+    them. The 59 forwarders are the file's last section, "the parts' faces".
+  - The parts are named after the authority (`combat_*.gd`). S10's `with_parts()` lists them in the event contract,
+    and in `data/event_contract.json` only the `files` lists of the Combat events changed.
+- **Tidied while moving.**
+  - Sections that sat in the wrong place went to their homes:
+    - Killing Intent, the boss's self-detonation, the tribulation's bolt, `technique_element` and `body_hp_cost` sat
+      in the flight section;
+    - the heals over time sat in Phantom Double's and the Blood path's sections;
+    - `_enemies_within` and `_nearest_enemy` sat in the treasures' section;
+    - `raise_shield` sat among the treasures.
+  - The core's own sections are now views, the player's attacks, the tick, resolution, a foe's end, foes' blows and
+    harm to the player, and the `apply_*` commands.
+- **Dead code.** One local was removed: `_resolve_plunge` counted the foes it struck in `struck` and never read it.
+  Every function of the file is still called, by grep over `scripts/`, `tests/` and `tools/`.
+- **Checks.**
+  - The base, origin with S10, and S8 each ran the whole of `tools/run_tests.sh` side by side, on a shared 4-core
+    machine at a load of about 14. Every suite has the same check count on both, and neither has a script error.
+  - The guard suites pass on S8:
+    - `rules_tests`, 2,712 checks;
+    - `balance_sim`, 177;
+    - `hollow_night`, 76;
+    - `valley_run`, 3,000;
+    - `contract_tests`, 1,087.
+  - The technique pictures' main-thread time budget in `rules_tests` missed once in the full run, at 4.2 ms against 4.
+    It missed on the base in an earlier run too. Run alone, `rules_tests` passes all 2,712 checks.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike at that load: 8 and 6 of its 18 checks in
+    the side-by-side runs.
+    - Over three interleaved rounds, the least of the fight frames does not lean either way. Fifteen monsters took
+      12.08 ms on the base and 10.92 ms on S8, the top-down fight 11.69 and 11.43 ms, and the sword swarm 15.44 and
+      16.30 ms.
+    - A part reads the authority through a weak reference. A part's method with its getter costs about 0.5 µs more
+      than reading the state directly.
+  - A comparison of each moved function with the base finds them all the same, apart from three changes. The
+    `combat.` prefixes and part calls are expected. The dead local is gone. And four ticks keep a local alias of the
+    authority's dictionary that they walk.
+  - The data build is unchanged apart from the event contract's Combat `files` lists.
+  - S3 and then E6 were merged in, with a full run after each. Both passed every suite, apart from `perf_tests`' time
+    budgets, which passed 18 of 18 in the first run and missed 5 in the second.
+
 ## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
 
 The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7). No game code changed.
@@ -152,6 +225,7 @@ to add a cue are in `docs/architecture/cues.md`. The game plays, draws and sound
 - **Checked the same:** every arm's sample payloads, played before and after on a stub host with the random seed fixed,
   make the same effects, sounds, shakes and random draws.
 
+
 ## Crafting and Progression in parts (decision 45, S10)
 
 This is phase 2, wave 2, slice S10 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7). The two
@@ -216,6 +290,7 @@ The code moved as it was. The game plays the same, every caller still calls `Gam
   - The data build is unchanged apart from the contract's `files` lists.
   - `perf_tests` misses its millisecond budgets on the base and on S10 alike, at a load of about 14 on 4 cores. Over
     two interleaved rounds, the base failed 9 and then 5 of its 18 checks, and S10 failed 6 and then 2.
+
 
 ## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
 
