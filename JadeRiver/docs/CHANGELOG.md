@@ -75,6 +75,107 @@ it so. Only names changed: the game plays the same, and the save data is untouch
   - `build_data.py` writes nothing. `data/` is unchanged, `event_contract.json` included, because no emit moved
     between files.
 
+## The Drowned Shrine and Whitewater Gorge on the grid (decision 45, R2)
+
+The ten side-view rooms south and west of Bend Shore are now on the height grid, each a room engine spec of 16 to 22
+lines: `docs/architecture/room_engine.md`, "The Drowned Shrine and Whitewater Gorge (R2)".
+
+- **The rooms.**
+  - Deepwater Bend: the Serpent's Shallows.
+  - The Drowned Shrine: the Flooded Gate, the Hall of Lanterns, the Scripture Well, the Abbot's Sanctum and the Drowned
+    Grotto.
+  - Whitewater Gorge: the Gorge Mouth, the Rapids Terraces, the Echo Cliffs and the Waterfall Cave.
+
+  Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine now lead onto them. The prototype's gate
+  stands at the Echo Cliffs' way west (Crane Cliffs). Their pictures are in `docs/architecture/room_engine/r2/`.
+- **New looks.**
+  - Three biomes: `drowned_shrine` (granite halls, pillars, rubble, silt, lanterns), `gorge` (rock walls, pines, white
+    water) and `grotto`.
+  - Floors under shallow water that a body wades: `q` flagstones and `h` a river's pebbled bed. Each draws its own floor
+    with the water's overlay over it (`tools/art/topdown/flood.py`, `TopdownTerrain`), and its steps wade.
+  - An animated `waterfall` prop (`tools/art/topdown/falls.py`).
+- **Engine rules** (`tools/content/rooms/engine.py`). Every older room compiles to its file as before.
+  - A water band's `rapids` breaks the stream with boulders.
+  - A flight stands off the walks, its foot level with its landing, where it can.
+  - A raised shape counts as reached only where it is still at its level.
+  - Repeated shapes share their name's flora.
+  - Reeds grow in a floor under shallow water.
+- **Set pieces on the grid.** A rite circle's set piece used to spawn its foes at the side view's points, off the grid.
+  They now spawn on the layout's own cells (`TopdownRoom.grid_event`, from `QuestAuthority.start_set_piece`). The
+  Riverbreath Trial's drowned rise by the Scripture Well's ring.
+- **The living world:** vistas for the four outdoor rooms.
+- **Checks.**
+  - A new suite, `topdown_drowned_shrine` (44 checks), plays the ten rooms on the grid:
+    - each room is built by the view and walked by auto-path;
+    - the Riverbed Serpent;
+    - chapter 5's shrine: The Shrine Surfaces, Lu's Handwriting, The Riverbreath Trial and The Drowned Abbot;
+    - the gorge to the Echo Cliffs' gate.
+  - The frontier tests (`topdown_chapter3`, `topdown_chapter4`, `topdown_tutorial`, `rules_tests`; data-driven since
+    R1) pass unchanged: Bend Shore's three ways lead onto the grid, and the Echo Cliffs' way west stays gated.
+  - `rules_tests`' route tour now covers the ten rooms too. Its 2,712 checks, `topdown_chapter3`'s 41 and
+    `topdown_chapter4`'s 47 are unchanged.
+  - `topdown_tutorial` has 1,027 (R1's run had 1,011). Its walk to the nearest gated way counts the rooms it enters on
+    the way, and that gate moved with R2.
+  - The full run after merging R1: every gate, `boot` and every suite passed with no SCRIPT ERROR, except
+    `perf_tests`' frame budgets on the shared machine (seven agents on four CPUs; 146 s of the run waiting for a CPU).
+    Its misses were the crowd scene in `wp_west`, a page drag and the Marsh Edge's fight, none in these rooms. Run
+    alone, it passed all 18 checks.
+- **Still to do.** Nine foe species of these rooms have no top-down sheets (E2's work), and the side view's moving parts
+  here (rafts, currents, rising floods, the grotto's swim) have no top-down counterpart.
+## The room engine's third batch: Stoneford's insides, the quarry and the sects' halls on the grid (E1, R3)
+
+Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (`docs/architecture/room_engine.md`,
+"The third batch"). The prototype's gate has moved past them.
+
+- **The rooms:**
+  - the Jade Sect's Alchemy Hall, Library, Retreat Rooms and Cave Abode;
+  - the Cloud Sect's Cloud Library, Retreat Rooms, Herb Terraces and Cave Abode;
+  - Stoneford's County Hall, Trial Tower and Beast Trial Grove;
+  - Stonewall Quarry's rim, lower pit and collapsed tunnel (a new zone module, `specs/stonewall_quarry.py`).
+- **The halls' look.**
+  - Halls with taller walls, and raised floors for what each is for: the furnace's dais, the libraries' two galleries,
+    the retreats' meditation dais, the magistrate's dais, the tower's arena under the guardians' dais.
+  - Four new furnishings, original pixel art in the prop kit (`tools/art/topdown/furnish.py`): a library's
+    `scroll_shelf`, an alchemist's `apothecary` chest of drawers, a painted folding `screen` and a writing `desk`.
+  - Hangings on the halls' back walls.
+- **The caves.** The abodes and the tunnel keep a low rock front, so nothing on a cave's floor hides behind its south
+  wall in the 3/4 view.
+- **Stair cheeks.** The halls' flights and the quarry scaffold's ladder stand between cheeks a level over their heads.
+  Auto-path's grid let a body step off a flight's side that its motor's foot box would not cross, and the body
+  stalled. The route's rule itself is left for a fix of its own (room_engine.md, "The third batch").
+- **The biomes.** Three new ones: `sect_terraces`, `quarry` and `bamboo_clearing`. The vistas of the terraces, the
+  grove and the quarry, and Mei Qing's, the librarians', the magistrate's and the foreman's work loops are in
+  `topdown_life.py`.
+- **The places.** Three new rows in `places.py`: the Alchemy Hall's furnace (`ja_furnace`) and both Cave Abodes' beds
+  (`ja_abode_garden`, `cm_abode_garden`).
+- **The trials on the grid.** A Trial Tower floor's foes and the Grove's waves, written in the side view's coordinates,
+  now stand on the room's floor on the grid: `WorldRoomEvents.side_points`, through `TopdownRoom.from_side`.
+- **The checks.**
+  - `room_engine` compiles and walks the fourteen rooms.
+  - A new suite, `topdown_sect_halls`, plays them top-down:
+    - each room walked into, and out and back through each of its ways;
+    - auto-path reaching every thing;
+    - every page a thing opens;
+    - the three places;
+    - a tower floor and a guardian floor fought;
+    - the Grove's trial begun;
+    - Stone and Sweat's copper and beetles mined and fought at the Quarry Rim.
+  - The capture set `room_engine` takes their pictures into `docs/architecture/room_engine/r3/`.
+  - `rules_tests`, the smallest edits on R1's data-driven frontier checks. Four checks still named R3's rooms, and now
+    hold either way:
+    - the tower climb is tried only while the tower has no layout;
+    - the lesson past the gate is the quest the check above finds past it, no longer Stone and Sweat;
+    - the side view's hunting grounds may all be on the grid now;
+    - the transfer array's node past the gate lies in any room off the grid, now every Jade Sect room is on it.
+  - The final run, merged with R1: 74,568 checks.
+    - Every gate passes, every suite passes, and there is no SCRIPT ERROR.
+    - `perf_tests`' frame-time checks missed their budget in the full runs while the machine was loaded (6 to 7 runs on
+      4 cores), a different check each time, none about these rooms. Run again on a quieter machine, all 18 passed.
+    - `topdown_sect_halls` is new, with 51 checks.
+    - The counts that grow with the rooms:
+      - `room_engine`: 175 checks, three for each room it lays out (42 for R3's fourteen);
+      - `rules_tests`' steering tour: 58 rooms.
+
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
 The room engine's first batch past chapter 3 (`docs/architecture/room_engine.md`, "The road east: chapter 4"). The

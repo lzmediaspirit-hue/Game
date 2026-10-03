@@ -431,8 +431,8 @@ func prototype_suite() -> void:
 	var tp := Game.submit({"type": "teleport", "stone": "hidden_vale"})
 	var ap := Game.submit({"type": "auto_path", "target": gate_to})
 	Game.world.load_room(td, "sf_fairground", "")
-	var tw := Game.world.climb_tower(td, 1)
 	var tower_off := not TopdownRoom.has_layout("sf_trial_tower")
+	var tw: Dictionary = Game.world.climb_tower(td, 1) if tower_off else {}   # on the grid (R3), the climb is no gate's
 	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
 		and (not tower_off or (not tw.get("ok", false) and str(tw.get("text", "")) == road)),
 		"prototype: no teleport (a stone another character found), auto-path (to %s) or tower climb goes past the gate (%s; %s; %s)" % [gate_to, str(tp), str(ap), str(tw)])
@@ -584,13 +584,14 @@ func prototype_suite() -> void:
 		"prototype: a side-view character at the same point is led on as before (%s)" % str(side_next.get("name", "")))
 	var fields: Array = Game.quest.hunt_rooms(td)
 	var side_fields: Array = Game.quest.hunt_rooms(sv)
-	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0]))) and side_fields.any(func(f): return not TopdownRoom.has_layout(str(f[0]))),
+	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0])))
+		and (side_fields.any(func(f): return not TopdownRoom.has_layout(str(f[0]))) or side_fields.map(func(f): return f[0]) == fields.map(func(f): return f[0])),
 		"prototype: a top-down character's hunting grounds are rooms on the grid (%s; the side view's %s)" % [str(fields), str(side_fields.map(func(f): return f[0]))])
 	# A lesson inside the prototype still comes first; one past the gate never does.
 	td.quests.done.erase("eyes_for_qi")
 	td.quests.offered["eyes_for_qi"] = true
-	td.quests.done.erase("stone_and_sweat")
-	td.quests.offered["stone_and_sweat"] = true
+	td.quests.done.erase(off_q)   # the quest past the gate above (Stone and Sweat while the quarry was off the grid)
+	td.quests.offered[off_q] = true
 	Game.quest._story_cache = {}
 	var lesson := Game.quest.story_next(td)
 	check(str(lesson.get("quest", "")) == "eyes_for_qi" and not lesson.get("gate", false), "prototype: a lesson on offer inside the prototype comes before its end, one past the gate never (%s)" % str(lesson.get("name", "")))
@@ -639,6 +640,8 @@ func _array_picker_checks(td, st: ActorState, road: String) -> void:
 	var shut := ""   # a room off the grid: a node of the sect's network there would lie past the gate
 	for rid in ContentDB.rooms:
 		if shut == "" and not TopdownRoom.has_layout(str(rid)) and str(ContentDB.room(str(rid)).get("region", "")) == "jade_sect": shut = str(rid)
+	for rid in ContentDB.rooms:   # every Jade Sect room on the grid (R3): any room off it
+		if shut == "" and not TopdownRoom.has_layout(str(rid)): shut = str(rid)
 	nodes["array_test_past_gate"] = {"id": "array_test_past_gate", "room": shut, "network": "jade_sect", "at": [0, 0]}
 	Game.quest.apply_flag(td.id, "array_array_test_past_gate")
 	var view: Dictionary = Game.world.array_view(td, "array_ja_gate")

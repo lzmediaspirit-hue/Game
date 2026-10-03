@@ -1,0 +1,385 @@
+{
+ "schema_version": 1,
+ "id": "sf_beast_grove",
+ "name": "Beast Trial Grove",
+ "size": [
+  40,
+  26
+ ],
+ "spawn": [
+  20,
+  23
+ ],
+ "levels": [
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "1111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000001111000000",
+  "0000000000000000000000000000011111100000",
+  "00000~~~~~~00000000000000000011111100000",
+  "0000~~~~~~~~0000000000000000001111000000",
+  "000~~~~~~~~~~000000000000000000000000000",
+  "000~~~~~~~~~~000000000000000000000000000",
+  "0000~~~~~~~~0000000000000000000000000000",
+  "000000~~~~000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggrrrrgggggg",
+  "gggggggggggggggggggggggggggggrrrrrrggggg",
+  "ggggg~~~~~~ggggggggggggggggggrrrrrrggggg",
+  "gggg~~~~~~~~ggggggggggggggggggrrrrgggggg",
+  "ggg~~~~~~~~~~ggggggggggggggggggggggggggg",
+  "ggg~~~~~~~~~~ggggggggggggggggggggggggggg",
+  "gggg~~~~~~~~gggggggggggggggggggggggggggg",
+  "gggggg~~~~gggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg",
+  "gggggggggggggggggggdddgggggggggggggggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "lantern",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "lantern",
+   "x": 28,
+   "y": 15
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 2,
+   "y": 3
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 7,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 12,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 15,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 22,
+   "y": 3
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 26,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 31,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 36,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 7,
+   "y": 6
+  },
+  {
+   "kind": "tree_maple",
+   "x": 15,
+   "y": 6
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 31,
+   "y": 6
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 38,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 1,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 3,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 7,
+   "y": 8
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 8
+  },
+  {
+   "kind": "bush",
+   "x": 19,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 8
+  },
+  {
+   "kind": "ferns",
+   "x": 36,
+   "y": 8
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 0,
+   "y": 15
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 17
+  },
+  {
+   "kind": "bamboo_grove",
+   "x": 33,
+   "y": 12
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 10,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 34,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 12
+  },
+  {
+   "kind": "tall_grass",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 11
+  },
+  {
+   "kind": "cattails",
+   "x": 5,
+   "y": 16
+  },
+  {
+   "kind": "cattails",
+   "x": 10,
+   "y": 16
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 8,
+   "y": 14
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 1,
+   "y": 21
+  },
+  {
+   "kind": "tree_maple",
+   "x": 4,
+   "y": 20
+  },
+  {
+   "kind": "tree_maple",
+   "x": 12,
+   "y": 23
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 13,
+   "y": 20
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 17,
+   "y": 20
+  },
+  {
+   "kind": "tree_maple",
+   "x": 24,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 27,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 29,
+   "y": 23
+  },
+  {
+   "kind": "tree_maple",
+   "x": 34,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 37,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 1,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 4,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 9,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 16,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 32,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 34,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 37,
+   "y": 25
+  }
+ ],
+ "place": {
+  "grove_stone": [
+   20,
+   13
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    20,
+    25
+   ],
+   "dir": "s",
+   "arrive": [
+    20,
+    23
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  }
+ ]
+}
