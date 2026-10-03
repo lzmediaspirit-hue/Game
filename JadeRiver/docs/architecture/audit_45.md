@@ -737,7 +737,7 @@ One spec writes all of these:
 - **Migration:** all twelve drawn species are byte-identical, in sheets, `foes.json` and data, so no frame needed a
   reviewed diff and none kept the escape hatch.
   - The eleven hand pose modules (1,879 lines) are deleted.
-  - The plans, with the three new bodies, are 3,072 lines. Extracting byte for byte kept every species' own code path
+  - The plans, with the three new bodies, are 3,085 lines. Extracting byte for byte kept every species' own code path
     as a part kind. The saving is in the species to come.
 - **New species:** the rock beetle, the pebble imp and the greyfin. They are the first foes past the top-down rooms:
   Stonewall Quarry off Stoneford's quarry road, and the Grey Pools east of the Marsh Edge.
