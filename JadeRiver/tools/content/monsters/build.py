@@ -85,8 +85,14 @@ def check_specs(C: Checks) -> None:
                 ok = False
             C.check(ok, "%s: its hand module %s loads" % (sid, sp.pose))
         pal = list(spec.palette)
-        C.check(bool(pal) and all(n in M.RAMPS for n in pal), "%s: every palette material is a ramp (%s)" % (
+        # A person (plans/person.py) is coloured by its outfit's own palettes, so it names no ramps of its own.
+        person = str(sp.plan or "").startswith("person.")
+        C.check((bool(pal) or person) and all(n in M.RAMPS for n in pal), "%s: every palette material is a ramp (%s)" % (
             sid, [n for n in pal if n not in M.RAMPS]))
+        if person:
+            av = sp.data.get("art", {}).get("avatar", {})
+            C.check(isinstance(av, dict) and av.get("body") == "light" and bool(av.get("name")),
+                    "%s: a person's row has its outfit (art.avatar, content.monsters.person)" % sid)
         C.check(set(spec.accents) <= set(pal) and set(spec.gold) <= set(pal), "%s: its accents and gold are in its palette" % sid)
         if spec.awakened:
             C.check(all(r in M.RAMPS for r in spec.awakened.get("ramps", {}).values()), "%s: its awakened ramps exist" % sid)

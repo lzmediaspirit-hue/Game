@@ -17,9 +17,25 @@ facing is (x, head-on, tail-on): motion.headon's `fr` (facing the camera) and `b
         tassel    a short drooping tail with a dark tassel (the boarlets)
   coat  streak (the rat), pale_chest (the otter), youth (the boarlets' stripes and tufts)
 
+M1 adds the dogs and cats (`canine`, from the ember fox; the mud hound, and the wolves and lynxes after, lay their parts
+over it):
+  head  canine    a skull on a neck, a tapering muzzle to a nose pad, a jaw that drops on its fangs and tongue, tall ears
+                  (pricked, laid back in anger, one torn), eyes with a glint, the pale of the muzzle and cheeks (`mask`);
+                  a short muzzle and wide ears make a cat of it; a collar round the neck (`collar`)
+  legs  digit     two-bone legs on the toes, the elbow and the hock, socks, small paws; the pounce's reach, the bark's
+                  brace, tucked when it curls
+  tail  brush     a bushy tail swelling and tapering, its tip in its own colour, carried up or low, swept aside head-on;
+                  a flame at its tip (`flame`, the ember fox: flaring in the tell)
+  coat  bib       a pale throat, chest and belly; dried mud in blotches on its flanks and legs (`mud`)
+
+M1's thornback boar is the suid overgrown: `coat` "vines" (green vines winding over its back and flanks, leaves on
+them), `crest` "thorns" (pale woody thorns along its spine, bristling up in anger), and the head's `eyes.colour` (its
+small fierce red eye) and `tusk` (a longer, upcurved tusk).
+
 The motion styles (STYLES) are the hand modules' key-frame tables, named: idle `sniff`, `groom`, `browse`; walk
 `bound`, `lope`, `trot`; windup `rear`, `sit_up`, `paw_ground`; attack `lunge_bite`, `lunge_shake`, `charge_toss`;
-hurt `knock_squash`, `flinch`, `stumble`; death `topple_side`, `curl_side`, `buckle_roll`.
+hurt `knock_squash`, `flinch`, `stumble`; death `topple_side`, `curl_side`, `buckle_roll`. M1's: idle `alert`, `pant`;
+windup `crouch` (low, the tail raised), `bark` (the head up, barking); attack `pounce_bite` (the forepaws reaching).
 """
 from __future__ import annotations
 
@@ -30,7 +46,7 @@ import numpy as np
 from figure.geom import ik2
 
 from .. import mats as M
-from ..motion import gait, headon, wave
+from ..motion import gait, h01v, headon, wave
 from ..sculpt import E, L, Pose, S, chain, on, rot, v3
 from .kit import colour, lin, shut, topple
 
@@ -87,6 +103,22 @@ STYLES = {
     "curl_side": {"lunge": (-0.6, -0.8, -0.8, -0.8, -0.8, -0.8, -0.8, -0.8), "pitch": (24.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
                   "head": (20.0, 6.0, -6.0, -14.0, -18.0, -20.0, -20.0, -20.0),
                   "roll": (0.0, 0.0, 28.0, 60.0, 84.0, 90.0, 88.0, 90.0), "curl": (0.0, 0.0, 0.2, 0.4, 0.6, 0.8, 0.9, 1.0)},
+    # M1, the canines
+    "alert": {"head": (0.0, 3.0, 6.0, 4.0, 0.0, -2.0), "yaw": (0.0, 8.0, 16.0, 12.0, -8.0, -4.0), "bob_amp": 0.12,
+              "ears": (0.0, 0.0, 0.0, 1.0, 0.0, 0.0)},
+    "pant": {"head": (0.0, 2.0, 0.0, 2.0, 0.0, 2.0), "yaw": (0.0, 0.0, 10.0, 10.0, -8.0, 0.0), "bob_amp": 0.18,
+             "gape": (0.35, 0.5, 0.35, 0.5, 0.35, 0.5), "tongue": True},
+    "crouch": {"lunge": (-0.4, -0.9, -1.3, -1.5), "bob": (-0.4, -1.0, -1.5, -1.7), "pitch": (-2.0, -4.0, -5.0, -5.0),
+               "head": (-6.0, -12.0, -16.0, -18.0), "gape": (0.0, 0.0, 0.15, 0.25), "tail": (0.4, 0.8, 1.0, 1.1),
+               "squash": ((1.0, 0.98), (1.02, 0.96), (1.03, 0.94), (1.04, 0.93)), "angry": True, "flare": (0, 1, 2, 3)},
+    "bark": {"lunge": (-0.3, -0.6, -0.8, -0.9), "pitch": (4.0, 8.0, 10.0, 10.0), "head": (8.0, 18.0, 22.0, 20.0),
+             "gape": (0.3, 1.0, 0.35, 1.0), "tail": (0.3, 0.5, 0.6, 0.6), "brace": 0.6, "angry": True, "barks": (1, 3)},
+    "pounce_bite": {"lunge": (3.0, 5.4, 5.4, 4.4, 2.4, 0.8), "bob": (2.2, 0.5, 0.0, 0.0, 0.0, 0.0),
+                    "pitch": (8.0, -6.0, -2.0, 0.0, 0.0, 0.0), "head": (-4.0, -22.0, -16.0, -10.0, -4.0, 0.0),
+                    "yaw": (0.0, 0.0, 12.0, -12.0, 5.0, 0.0), "gape": (1.0, 0.1, 0.0, 0.0, 0.2, 0.0),
+                    "squash": ((1.15, 0.9), (0.92, 1.06), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0)),
+                    "tail": (0.6, 0.2, 0.2, 0.3, 0.4, 0.4), "angry": True,
+                    "reach": (((2.6, 0.0, 1.6), (-1.6, 0.0, 0.4)), ((1.6, 0.0, 0.0), (-0.6, 0.0, 0.0)), ((0.8, 0.0, 0.0), (-0.3, 0.0, 0.0)))},
     "buckle_roll": {"lunge": (-1.2, -1.6, -1.6, -1.4, -1.2, -1.0, -1.0, -1.0), "bob": (0.4, -0.6, -1.6, -1.8, -1.9, -2.0, -2.0, -2.0),
                     "pitch": (6.0, -8.0, -12.0, -8.0, -4.0, 0.0, 0.0, 0.0), "head": (20.0, 8.0, -10.0, -14.0, -16.0, -18.0, -18.0, -18.0),
                     "squash": ((1.0, 1.0),) * 5 + ((1.02, 0.95), (1.0, 1.0), (1.0, 1.0)),
@@ -150,7 +182,34 @@ SUID = {
     "tail": {"kind": "tassel"},
     "dust": True,
 }
+# M1: the ember fox (its side-view sheet: ~22 px to the ear tips, ~30 long with the tail): a slim body low on long legs,
+# a fine muzzle, tall ears, a white bib, dark socks, a bushy tail.
+CANINE = {
+    "Z": 6.2, "hips": (-3.2, 0.3), "pivot": (-3.2, 0.0, 0.3), "side": 2.7, "curl_yaw": 32.0, "arch": 0.0,
+    "body": [{"at": ((2.8, 0.3), 0.7), "r": ((3.0, 0.0, 0.0), (2.4, 0.5, 0.0), (2.7, 0.0, 0.0))},
+             {"at": ((-0.4, 1.2), 0.3), "r": ((4.0, -2.0, 0.0), (2.2, 0.3, 0.2), (2.3, -0.3, 0.0))},
+             {"at": ((-3.6, 2.6), (0.5, -0.6, 0.0)), "r": ((2.6, -0.6, 0.0), (2.4, 0.0, 0.5), (2.5, -0.4, 0.3))}],
+    "coat": {"kind": "bib", "chest": (-0.1, 1.2), "belly": -0.55, "mud": None},
+    "head": {"kind": "canine", "at": ((6.0, 1.0), (2.7, 3.2, 0.6)), "pitch": (-6.0, 24.0), "skull": (2.4, 2.25, 2.0),
+             "neck": ((3.6, 0.0, 1.0), 1.7, 1.3),
+             "muzzle": ((1.2, 0.0, -0.5), (4.6, 0.0, -1.0), 1.15, 0.45), "nose": ((4.8, 0.0, -0.85), 0.55),
+             "jaw": {"at": (1.0, 0.0, -1.2), "to": (3.0, 0.0, -0.3), "r": (0.85, 0.45), "turn": 34.0, "teeth": (3.6, 0.45, -1.4),
+                     "tongue": ((2.4, 0.0, -0.2), (1.4, 0.7, 0.35))},
+             "ears": {"base": (-0.5, 1.2, 1.35), "tip": (-0.9, 1.8, 4.8), "r": (1.2, 0.12), "spread": (0.7, 1.3), "back": 2.2,
+                      "torn": 0, "tip_dark": True},
+             "eyes": {"at": (1.55, 1.15, 0.45), "colour": "FOX_EYE", "shut": {"hurt": 0, "death": 5}},
+             "mask": (-0.35, 0.6)},
+    "legs": {"kind": "digit", "fore": (2.9, (1.4, 0.8, 0.3)), "hind": (-3.7, (1.5, 0.4, 0.9)), "top": (-1.4, -1.0),
+             "bones": ((2.9, 2.8), (3.1, 3.0)), "r": ((1.05, 0.62), (1.35, 0.62)), "paw": (0.8, 0.62, 0.48),
+             "lift": (1.5, 0.6), "stride": 2.0},
+    "tail": {"kind": "brush", "root": (-5.6, 1.3), "n": 8, "length": 7.6, "r": (0.8, 1.9, 0.5), "rest": 12.0, "droop": -26.0,
+             "tip": 0.3, "flame": False},
+}
 VARIANTS = {
+    "canine": {"parts": CANINE, "mats": {"coat": "fox_fur", "pale": "fox_white", "sock": "fox_sock", "ear_in": "fox_ear_in",
+                                         "tip": "fox_white", "nose": "hound_nose", "tongue": "tongue"},
+               "motion": {"idle": "alert", "walk": "trot", "windup": "crouch", "attack": "pounce_bite", "hurt": "knock_squash",
+                          "death": "curl_side"}},
     "rodent": {"parts": RODENT, "mats": {"coat": "fur", "pale": "fur_light", "pink": "pink", "tail": ("tail_a", "tail_b")},
                "motion": {"idle": "sniff", "walk": "bound", "windup": "rear", "attack": "lunge_bite", "hurt": "knock_squash",
                           "death": "topple_side"}},
@@ -184,9 +243,9 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     _body(P, B, c)
     if "crest" in p:
         _crest(P, B, c)
-    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid}[p.head.kind](P, B, c)
-    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof}[p.legs.kind](P, B, c)
-    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel}[p.tail.kind](P, B, c)
+    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine}[p.head.kind](P, B, c)
+    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit}[p.legs.kind](P, B, c)
+    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush}[p.tail.kind](P, B, c)
     if B.opts.get("hollowed") and action != "death":
         _strands(P, B, c)
     if p.get("dust"):
@@ -263,6 +322,42 @@ def _coat(B, c):
             return np.where(pale, m.pale, m.coat).astype(object), np.where(streak & ~pale, -1, 0).astype(np.int16)
         return coat
 
+    if co.kind == "vines":
+        seed = int(B.opts.get("seed", 0))
+
+        def vines(q, n):
+            """M1, the thornback boar: a dark hide with green vines winding over its back and down its flanks (two
+            twisting bands), their leaves a step lit, the bristles' grain a step dark."""
+            loc = (q - hips) @ bm
+            nz = (n @ bm)[:, 2]
+            a, b, c3 = loc[:, 0], loc[:, 1], loc[:, 2]
+            u = a * co.twist + np.arctan2(b, c3) * 1.6
+            band = (np.abs(np.sin(u)) < co.width) & (nz > -0.3)
+            leaf = band & (h01v(np.floor(a * 1.6 + 40), np.floor(b * 1.6 + 40), seed % 97 + 3) > 0.8)
+            grain = ((a * 0.62 + 0.45 * np.sin(c3 * 0.9 + np.abs(b) * 1.7)) % 1.0 < 0.14) & ~band
+            names = np.where(leaf, m.leaf, np.where(band, m.vine, m.hide)).astype(object)
+            return names, np.where(grain, -1, np.where(leaf, 1, 0)).astype(np.int16)
+        return vines
+
+    if co.kind == "bib":
+        seed = int(B.opts.get("seed", 0))
+
+        def coat(q, n):
+            """M1, the canines: the pale throat and chest under the forebody and the pale belly; dried mud in blotches on the
+            flanks and haunches (`mud`: the share of them left clean), a step darker at their edges."""
+            loc = (q - hips) @ bm
+            nl = n @ bm
+            pale = ((nl[:, 2] < co.chest[0]) & (loc[:, 0] > co.chest[1])) | (nl[:, 2] < co.belly)
+            names = np.where(pale, m.pale, m.coat).astype(object)
+            bias = np.zeros(len(q), dtype=np.int16)
+            if co.get("mud") is not None:
+                h = h01v(np.floor(loc[:, 0] * 0.9 + 40), np.floor(loc[:, 2] * 0.9 + np.abs(loc[:, 1]) * 0.6 + 40), seed % 97 + 1)
+                mud = (h > co.mud) & (nl[:, 2] < 0.55) & ~pale
+                names = np.where(mud, m.mud, names).astype(object)
+                bias = np.where(mud & (h < co.mud + 0.04), -1, 0).astype(np.int16)
+            return names, bias
+        return coat
+
     def hide(q, n):
         """The pale stripes of its youth along the back and flanks, and short tufts of fur (a groove a step down)."""
         loc = (q - hips) @ bm
@@ -292,13 +387,26 @@ def _body(P, B, c) -> None:
         (a, kf), h = piece.at
         r = tuple(lin(x, fr, bk) for x in piece.r)
         m = bm @ rot("b", -c.arch * piece.arch) if "arch" in piece else bm
-        P.add(E(at((a + kf * fr, 0.0, h)), r, _skin(B), "body", m, c.paint))
+        P.add(E(at((a + kf * fr, 0.0, lin(h, fr, bk))), r, _skin(B), "body", m, c.paint))
 
 
 def _crest(P, B, c) -> None:
-    """The bristle crest from the nape down the spine, stirring; raised in anger."""
+    """The bristle crest from the nape down the spine, stirring; raised in anger. M1: `kind` "thorns", pale woody thorns
+    along the spine, longer and bristling up further in anger."""
     a, f, at, bm = c.action, c.f, c.at, c.bm
     angry = B.style(a).get("angry", False)
+    cr = B.parts.crest
+    if cr.get("kind") == "thorns":
+        for k in range(cr.n):
+            a0 = cr.at[0] - k * cr.step
+            u = k / max(1.0, cr.n - 1.0)
+            top = cr.at[1] - cr.sag * u * u
+            for s in ((0,) if k % 2 == 0 else (1, -1)):
+                base = at((a0, s * cr.side, top - 0.6))
+                tall = cr.length * (0.75 + 0.35 * math.sin(k * 2.1 + 1.0)) * (1.35 if angry else 1.0)
+                tip = base + bm @ v3(-0.9 - (0.0 if angry else 0.5), s * 0.7, tall)
+                P.add(L(base, tip, cr.r, 0.12, B.mats.thorn, "thorn", line=False))
+        return
     stir = {"idle": 0.3 * wave(a, f), "walk": 0.4 * wave(a, f, 0.25)}.get(a, 0.0)
     if angry:
         stir = -0.5
@@ -387,12 +495,25 @@ def _head_suid(P, B, c) -> None:
           L(hp((2.0, 0.0, -0.6)), hp((6.0, 0.0, -1.4)), 2.3, 1.7, m.head, "head"))
     P.add(E(hp((6.6, 0.0, -1.5)), (0.8, 1.8, 1.6), m.snout, "snout", hm))
     angry = B.style(a).get("angry", False)
+    tk = h.get("tusk", 1.0)
     for s in (1, -1):
         P.mark(hp((7.45, s * 0.6, -1.3)), M.RAMPS[m.snout][0])
-        P.add(L(hp((4.6, s * 1.7, -2.3)), hp((5.8 - 0.4 * fr, s * (2.3 + 0.9 * fr), -0.8 + 0.2 * fr)), 0.45, 0.28, m.tusk, "tusk%d" % s))
+        if tk == 1.0:
+            P.add(L(hp((4.6, s * 1.7, -2.3)), hp((5.8 - 0.4 * fr, s * (2.3 + 0.9 * fr), -0.8 + 0.2 * fr)), 0.45, 0.28, m.tusk, "tusk%d" % s))
+        else:
+            # M1, the thornback's: a long tusk curving up and back from the lower jaw (two segments).
+            t0 = hp((4.6, s * 1.7, -2.3))
+            t1 = hp((5.4 + 0.5 * tk - 0.4 * fr, s * (2.4 + 0.9 * fr), -1.4 + 0.6 * tk))
+            t2 = hp((5.0 + 0.4 * tk - 0.5 * fr, s * (2.6 + 1.0 * fr), -0.2 + 1.3 * tk))
+            P.add(L(t0, t1, 0.55, 0.42, m.tusk, "tusk%d" % s), L(t1, t2, 0.42, 0.2, m.tusk, "tusk%d" % s))
         closed = shut(h.eyes, a, f)
         eye, eye2 = on(hc, skull, hm, s * 50.0, 16.0), on(hc, skull, hm, s * 46.0, 26.0)
-        if hollow and not closed:
+        if h.eyes.get("colour") and not closed:
+            # M1: a small fierce coloured eye under a heavy brow (the thornback's red), its dark rim.
+            P.eye(eye, colour(h.eyes.colour))
+            P.mark(eye2, colour(h.eyes.get("rim", "INKY")))
+            P.mark(on(hc, skull, hm, s * 52.0, 34.0), M.RAMPS[m.head][0])
+        elif hollow and not closed:
             P.eye(eye, M.HOLLOW_EYE)
             P.eye(eye2, M.HOLLOW_EYE)
             P.mark(on(hc, skull, hm, s * 50.0, 38.0), M.EYE_HALO)
@@ -410,6 +531,92 @@ def _head_suid(P, B, c) -> None:
         ear_r = (1.3 * (1.0 + 0.15 * fr), 1.0, 2.8 * (1.0 + 0.15 * fr + 0.1 * bk))
         P.add(E(ear_c, ear_r, m.head, "ear%d" % s, em))
         P.mark(on(ear_c, ear_r, em, 0.0, 20.0), colour(m.ear))
+
+
+def _head_canine(P, B, c) -> None:
+    """M1, the dogs and cats (the ember fox, the mud hound): a skull on a neck from the chest, a tapering muzzle to a
+    nose pad, the pale of the muzzle and cheeks (`mask`: below its height, ahead of its reach, in the head's frame), a
+    jaw that drops on its fangs (its tongue out while it pants or bites), tall ears (spread head-on, laid back in anger,
+    flicking, the inner ear pale, a dark tip; `torn` shortens one), eyes with a glint (shut when struck or beaten), and
+    a collar round the neck with a ring hanging from it (`collar`: how far up the neck)."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.6 * fr)
+    hm = bm @ rot("c", yaw) @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), hz = h.at
+    hc = at((ha + hf * fr, 0.0, lin(hz, fr, bk)))
+    hp = lambda q: hc + hm @ v3(q)
+    mz, mr = h.mask
+
+    def face(q, n):
+        loc = (q - hc) @ hm
+        pale = (loc[:, 2] < mz) & (loc[:, 0] > mr)
+        return np.where(pale, m.pale, m.coat).astype(object), np.zeros(len(q), dtype=np.int16)
+
+    n0, r0, r1 = h.neck
+    neck_root = at(n0)
+    P.add(L(neck_root, hc + hm @ v3(-0.9, 0.0, -0.5), r0, r1, m.coat, "neck", c.paint))
+    if h.get("collar"):
+        cn = neck_root + (hc - neck_root) * h.collar
+        ax = (hc - neck_root) / max(1e-6, float(np.linalg.norm(hc - neck_root)))
+        side = np.cross(ax, v3(0.0, 0.0, 1.0))
+        side = side / max(1e-6, float(np.linalg.norm(side)))
+        up = np.cross(side, ax)
+        rad = r0 + (r1 - r0) * h.collar + 0.1
+        for k in range(10):
+            t = math.radians(k * 36.0)
+            P.add(S(cn + (side * math.cos(t) + up * math.sin(t)) * rad, 0.55, m.collar, "collar", line=False))
+        P.add(S(cn - up * (rad + 0.7) + ax * 0.3, 0.6, m.ring, "collar"))
+    P.add(E(hc, h.skull, m.coat, "head", hm, face))
+    q0, q1, mr0, mr1 = h.muzzle
+    P.add(L(hp(q0), hp(q1), mr0, mr1, m.coat, "head", face))
+    P.add(S(hp(h.nose[0]), h.nose[1], m.nose, "nose"))
+    gape = B.pick("gape", a, f)
+    j = h.jaw
+    if gape > 0.05:
+        jm = hm @ rot("b", -gape * j.turn)
+        hinge = hp(j.at)
+        P.add(L(hinge, hinge + jm @ v3(j.to), j.r[0], j.r[1], m.pale, "jaw"))
+        if gape > 0.3 or st.get("tongue"):
+            P.add(E(hinge + jm @ v3(j.tongue[0]), j.tongue[1], m.tongue, "tongue", jm, line=False))
+        ta, tb, tc = j.teeth
+        for s in (1, -1):
+            P.mark(hp((ta, s * tb, tc)), M.FANG)
+    e = h.ears
+    angry = st.get("angry", False)
+    flick = B.pick("ears", a, f)
+    for s in (1, -1):
+        torn = e.torn == s
+        lay = e.back if angry else 0.0
+        base = hp((e.base[0], s * e.base[1] * (1.0 + e.spread[0] * fr), e.base[2]))
+        tip = hp((e.tip[0] - lay - 0.6 * bk - 1.2 * fr, s * (e.tip[1] * (1.0 + e.spread[1] * fr) + 0.5 * lay + (0.4 * flick if s > 0 else 0.0)),
+                  e.tip[2] + 0.6 * fr - 0.55 * lay - (0.5 * flick if s > 0 else 0.0)))
+        if torn:
+            tip = base + (tip - base) * 0.7
+        P.add(L(base, tip, e.r[0], e.r[1], m.coat, "ear%d" % s, caps=False))
+        # The inner ear, pale, on its face toward the camera's side; the dark tip.
+        P.mark(base + (tip - base) * 0.38 + hm @ v3(0.45, 0.0, 0.0), M.RAMPS[m.ear_in][2])
+        P.mark(base + (tip - base) * 0.6 + hm @ v3(0.3, 0.0, 0.0), M.RAMPS[m.ear_in][1])
+        if e.tip_dark and not torn:
+            P.mark(tip, M.RAMPS[m.sock][1])
+        if torn:
+            P.mark(tip, M.RAMPS[m.coat][0])
+        ey = h.eyes
+        closed = shut(ey, a, f)
+        eye = hp((ey.at[0], s * ey.at[1], ey.at[2]))
+        if closed:
+            P.mark(eye, M.RAMPS[m.coat][0])
+        else:
+            P.eye(eye, colour(ey.colour))
+            P.mark(hp((ey.at[0] - 0.35, s * (ey.at[1] + 0.05), ey.at[2] + 0.25)), M.INKY if angry else M.RAMPS[m.coat][0])
+    if a == "windup" and f in st.get("barks", ()):
+        # The bark: short lines thrown off its open jaws.
+        tip = hp(h.nose[0])
+        for k in range(3):
+            d = hm @ v3(1.0, (k - 1) * 0.9, 0.6 + (k - 1) * 0.4)
+            for t in (1.2, 1.9):
+                P.fx.append((tip + d * t, M.DUST if t < 1.5 else M.DUST_DIM))
 
 
 # ------------------------------------------------------------------------------------------------ legs
@@ -487,7 +694,89 @@ def _legs_hoof(P, B, c) -> None:
         P.add(E(end + v3(0.3, 0.0, -0.25), (1.15, 1.0, 0.8), m.hoof, "leg_" + name))
 
 
+def _legs_digit(P, B, c) -> None:
+    """M1, the canines: legs of two bones on the toes (the foreleg's elbow and wrist, the hind leg's hock bent back),
+    socks on the lower bones, small paws; a trot in diagonal pairs; the pounce reaches with the forepaws and drives off
+    the hind; the bark braces the hind legs; curled in the fall they draw in under it."""
+    g, m = B.parts.legs, B.mats
+    a, f, fr, bk, at, bm, lunge = c.action, c.f, c.fr, c.bk, c.at, c.bm, c.lunge
+    st = B.style(a)
+    fb, hb = lin(g.fore[1], fr, bk), lin(g.hind[1], fr, bk)
+    sock = m.get("sock") or _skin(B)
+    for name, a0, b0, off in (("fl", g.fore[0], fb, 0.0), ("fr", g.fore[0], -fb, 0.5), ("hl", g.hind[0], hb, 0.5), ("hr", g.hind[0], -hb, 0.0)):
+        front = name[0] == "f"
+        lift, stride = gait(a, f, off, g.lift[0] + g.lift[1] * (fr + bk), g.stride)
+        top = at((a0 + (0.4 if front else 0.6), b0 * (0.85 - 0.1 * (fr + bk)), g.top[0] if front else g.top[1]))
+        foot = v3(lunge + a0 + stride + (0.6 * fr if front else 0.0), b0, 0.55 + lift)
+        if "reach" in st:
+            foot = foot + v3(*dict(enumerate(st.reach)).get(f, ((0, 0, 0), (0, 0, 0)))[0 if front else 1])
+        if "brace" in st and not front:
+            foot = foot + v3(-st.brace * min(f + 1, 3) / 3.0, 0.0, 0.0)
+        if c.curl > 0.05:
+            tuck = top + bm @ v3(1.8 if front else 2.4, 0.0, -1.2)
+            foot = foot + (tuck - foot) * c.curl
+        l1, l2 = g.bones[0] if front else g.bones[1]
+        knee, end = ik2(top, foot, l1, l2, v3(1.0 if front else -1.0, 0.0, 0.0))
+        r = g.r[0] if front else g.r[1]
+        mid = (r[0] + r[1]) * 0.5
+        P.add(L(top, knee, r[0], mid, _skin(B), "leg_" + name, c.paint),
+              L(knee, end, mid * 0.85, r[1], sock, "leg_" + name))
+        P.add(E(end + v3(0.35, 0.0, -0.15), g.paw, sock, "leg_" + name))
+
+
 # ------------------------------------------------------------------------------------------------ tails
+def _brush_r(t, u: float) -> float:
+    """The bushy tail's radius along it (0 at the root, 1 at the tip): swelling to its widest past the middle, tapering
+    to its tip."""
+    r0, r1, r2 = t.r
+    if u < 0.55:
+        return r0 + (r1 - r0) * math.sin(u / 0.55 * math.pi * 0.5)
+    return r1 + (r2 - r1) * ((u - 0.55) / 0.45) ** 1.5
+
+
+def _tail_brush(P, B, c) -> None:
+    """M1, the canines: a bushy tail from the top of the rump, swelling and tapering, its tip in its own colour, carried
+    a little up (raised in the tell), swaying as it trots; head-on swept out to one side so it shows beside the body,
+    tail-on held aside; curled round toward the head in the fall. The ember fox's tip burns (`flame`): a flicker of
+    flame over it every frame, flaring in its tell."""
+    t, m = B.parts.tail, B.mats
+    a, f, fr, bk, at = c.action, c.f, c.fr, c.bk, c.at
+    st = B.style(a)
+    sway = 1.4 * wave(a, f) if a in ("idle", "walk") else 0.4
+    up = B.pick("tail", a, f)
+    ra, rc = t.root
+    root = at((ra + 1.0 * fr, 0.0, rc))
+    curl = c.curl
+    pts = [root]
+    n = t.n
+    step = t.length / n
+    for k in range(1, n + 1):
+        u = k / float(n)
+        ang = math.radians(t.rest + 30.0 * up - 30.0 * fr + t.droop * u * (1.0 - 0.6 * min(1.0, up)))
+        side = (sway * 0.25 + 2.8 * fr + 0.9 * bk) * (0.4 + u)
+        d = v3(-math.cos(ang), side, math.sin(ang))
+        d = d / float(np.linalg.norm(d))
+        q = pts[-1] + d * step
+        if curl > 0.0:      # round toward the belly, as the otter's (on its side, along the ground to its nose)
+            q = q + v3(curl * 4.0 * u * u, 0.0, -curl * 5.0 * u * u)
+        q[2] = max(q[2], 0.9 - curl * 9.0)
+        pts.append(q)
+    for k in range(n):
+        u0, u1 = k / float(n), (k + 1) / float(n)
+        mat = m.tip if u0 >= 1.0 - t.tip - 1e-6 else _skin(B)
+        P.add(L(pts[k], pts[k + 1], _brush_r(t, u0), _brush_r(t, u1), mat, "tail", caps=k == 0))
+    if t.get("flame"):
+        flare = 1.0 + (0.4 + 0.25 * f if a == "windup" and f in st.get("flare", ()) else 0.0)
+        tip = pts[-1]
+        for k in range(10):
+            ph = (k * 1.7 + f * 2.3) % 6.28
+            hgt = (0.9 + 0.5 * math.sin(ph) + 0.4 * (k % 2)) * flare
+            q = tip + v3(-0.3 + 0.6 * math.cos(ph), 0.7 * math.sin(ph * 1.3), 0.4 + hgt * (0.5 + 0.16 * k))
+            P.glow.append((q, M.FLAME_CORE if k < 3 else (M.FLAME if k < 7 else M.FLAME_DEEP)))
+        for k in range(4):
+            P.glow.append((tip + v3(0.2 * k - 0.3, 0.3 * (k - 1.5), 2.0 * flare + k * 0.7 + (f % 2) * 0.5), M.FLAME_GLOW))
+
+
 def _tail_reed(P, B, c) -> None:
     """A long tail in alternating segments curving back along the ground, the tip lifting and swaying, lashed high in a
     rearing tell. Facing the camera it lies on the ground swept out to one side behind it with a wave in it, so it

@@ -19,3 +19,15 @@ species("pebble_imp", plan="humanoid.imp", size=1.5,
                   attacks=[("pebble_throw", 0.4, 300, 0.9, dict(projectile={"speed": 380, "art": "pebble"}))], ai="ranged", speed=70,
                   width=16, height=32, keep_distance=180),
         sound=dict(body="shell"))
+
+# M1. Deeper in the quarry (the Lower Pit): a huge, slow tortoise whose shell is a small stone mountain, pale granite
+# crags in strata, moss on the ledges, a little wind-bent pine on the saddle; an old beaked head. It rears onto its hind
+# legs (the tell) and stamps down in a ring of dust that strikes on both sides of it; beaten, it draws in and the
+# mountain cracks.
+species("stone_tortoise", plan="shell.tortoise", share=True, size=1.5,
+        palette=["mtn_rock", "mtn_rim", "mtn_moss", "mtn_pine", "mtn_bark", "tort_skin", "tort_belly", "tort_beak", "snap_eye", "maw"],
+        accents=("snap_eye",), shadow=(19, 5), cycle=9.0,
+        data=dict(level=(5, 7), role="normal", element="earth", page="quarry", drops=[("tortoise_plate", 0.5), ("jadeiron", 0.15)],
+                  attacks=[("slam", 0.6, 80, 1.2, dict(depth=40, both_sides=True, knockback=60))], ai="slow_melee", speed=35, width=36,
+                  height=40, hp_mult=1.4),
+        sound=dict(body="shell"))

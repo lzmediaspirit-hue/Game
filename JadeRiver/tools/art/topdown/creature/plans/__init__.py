@@ -8,6 +8,8 @@ species first drawn by hand with it, parameterised by part sizes and motion styl
   fish       minnow, greyfin           the hollow minnow; the greyfin (E2's first new species)
   shell      snapper, beetle           Old Snapper; the rock beetle (new)
   humanoid   puppet, imp               the Trial Puppet; the pebble imp (new)
+  person     fighter, archer, brute    M1: the human foes, the shared character body dressed in their outfit and cast by
+                                       the character's own pipeline (figure/), not sculpted
 
 A species names its plan and variant ("quadruped.rodent"), and may lay its own parts, materials and motion over the
 variant's (`resolve`); its sheet is then drawn by the plan's `pose(body, action, frame, **facing)`, cast and coloured by
@@ -19,7 +21,7 @@ import importlib
 
 from .kit import Body, merge
 
-PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid")
+PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid", "person")
 
 
 def module(plan: str):
