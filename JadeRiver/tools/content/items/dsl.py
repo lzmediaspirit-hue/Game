@@ -13,6 +13,7 @@ lists its families in `FAMILIES`; nothing here reads data/ or writes a file.
 import copy
 
 DROP = object()   # a `row` pin that removes the key
+_MISSING = object()
 
 
 class Curve:
@@ -24,9 +25,10 @@ class Curve:
 
 
 class Per:
-    """A value that differs by member: keyed by tier (grade, or a herb's age) or by the member's id."""
-    def __init__(self, table):
+    """A value that differs by member: keyed by tier (grade, or a herb's age) or by the member's id, else `default`."""
+    def __init__(self, table, default=_MISSING):
         self.table = dict(table)
+        self.default = default
 
     def __repr__(self):
         return "per(%r)" % (self.table,)
@@ -36,8 +38,8 @@ def curve(name, key=None):
     return Curve(name, key)
 
 
-def per(table=None, **kw):
-    return Per(dict(table or {}, **kw))
+def per(table=None, default=_MISSING, **kw):
+    return Per(dict(table or {}, **kw), default)
 
 
 def effect(kind, **f):
@@ -107,6 +109,8 @@ def resolve(value, ctx):
         for k in (ctx["id"], ctx["tier"], ctx["grade"]):
             if k in value.table:
                 return resolve(value.table[k], ctx)
+        if value.default is not _MISSING:
+            return resolve(value.default, ctx)
         raise KeyError("per(): no value for %s (tier %s)" % (ctx["id"], ctx["tier"]))
     if isinstance(value, dict):
         return {k: resolve(v, ctx) for k, v in value.items()}

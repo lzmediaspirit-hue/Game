@@ -15,15 +15,13 @@ import posts
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
 from content.items import engine as E  # noqa: E402
 from content.items.curves import MID_ILV  # noqa: E402
-from content.items.kinds import item  # noqa: E402  (every module's row constructor)
+from content.items.kinds import artifact, item  # noqa: E402  (every module's row constructors)
 
 # P5 (the Bag, decision 24): the kinds its filters show, by item type. Gear is every equipment piece (artifacts.json);
 # a type not listed here is "other".
 BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", "ore", "hollow", "herb", "fish", "insect", "critter", "jade",
                                               "wisp", "oil", "legend_piece"]}
 
-# Decision 45: the spaces of the bag with no gourd worn, and of the Starter Spirit Gourd (stats.json bag.base).
-BAG_BASE = 50
 
 
 PET_BOOKS = [
@@ -556,117 +554,22 @@ def build_items():
     return rows
 
 
-FAMILY_APPEARANCE = {"gauntlets": "gauntlets", "jian": "sword", "spear": "spear", "short_blade": "dagger", "staff": "staff", "bow": "bow",
-                     # S47 v1.1 families
-                     "heavy_sabre": "sabre", "fan": "fan", "flute": "flute",
-                     # P7b (item_plan §2.9): the brush and the bell at every grade, so the formation master and the bell musician
-                     # hold a weapon of their own from Level 1 (G4)
-                     "brush": "brush", "bell": "bell"}
-# The attribute a family asks for at each grade (the bow Agility, the staff and heavy sabre Body, the flute and brush
-# Insight, the bell Essence).
-FAMILY_ATTRIBUTE = {"bow": "agility", "staff": "body", "heavy_sabre": "body", "flute": "insight", "brush": "insight", "bell": "essence"}
-ATTRIBUTE_REQ = {"plain": 8, "common": 18, "earth": 30, "heaven": 50, "mystic": 65, "spirit": 80, "sage": 92, "sovereign": 100, "will": 110}
-# Garment dyes (data/parts.json "_dyes"): plain hemp is undyed brown, better cloth takes richer colour.
-GRADE_DYE = {"plain": {"robe": "earth", "trousers": "earth"}, "common": {"robe": "grey", "trousers": "ink"},
-             "earth": {"robe": "indigo", "trousers": "ink"}, "heaven": {"robe": "cloud", "trousers": "grey"},
-             "mystic": {"robe": "white", "trousers": "jade"}, "spirit": {"robe": "indigo", "trousers": "cloud"},
-             "sage": {"robe": "ochre", "trousers": "crimson"}, "sovereign": {"robe": "rose", "trousers": "indigo"},
-             "will": {"robe": "white", "trousers": "ink"}}
-# P7b (item_plan §2.9, G1): Sovereign and Will, the Lantern Star Field's grades: driftsteel weapons and starsilk armour,
-# lanternsteel and lanternsilk.
-GRADE_WORD = {"plain": "training", "common": "iron", "earth": "jadeiron", "heaven": "cloudsteel", "mystic": "mistjade", "spirit": "stormsteel",
-              "sage": "sunsteel", "sovereign": "driftsteel", "will": "lanternsteel"}
-ARMOUR = {
-    "plain": {"hat": ("plain_straw_hat", "Plain Straw Hat", "straw"), "robe": ("hemp_robe", "Hemp Robe", "sleeveless"),
-              "trousers": ("hemp_trousers", "Hemp Trousers", "loose"), "boots": ("straw_sandals", "Straw Sandals", "slippers")},
-    "common": {"hat": ("bamboo_hat", "Bamboo Hat", "straw"), "robe": ("cotton_robe", "Cotton Robe", "disciple"),
-               "trousers": ("cotton_trousers", "Cotton Trousers", "straight"), "boots": ("cloth_boots", "Cloth Boots", "boots")},
-    "earth": {"hat": ("jadeiron_hat", "Jadeiron Circlet", "headband"), "robe": ("jadeiron_robe", "Jadeiron-Trimmed Robe", "cardigan"),
-              "trousers": ("jadeiron_trousers", "Jadeiron-Trimmed Trousers", "martial"), "boots": ("jadeiron_boots", "Jadeiron Greaves", "folded")},
-    "heaven": {"hat": ("cloudsilk_hat", "Cloudsilk Band", "tied"), "robe": ("cloudsilk_robe", "Cloudsilk Robe", "vneck"),
-               "trousers": ("cloudsilk_trousers", "Cloudsilk Trousers", "cuffed"), "boots": ("cloudsilk_boots", "Cloudsilk Boots", "boots")},
-    "mystic": {"hat": ("mistjade_hat", "Mistjade Circlet", "headband"), "robe": ("mistjade_robe", "Mistjade Robe", "scholar"),
-               "trousers": ("mistjade_trousers", "Mistjade Trousers", "scholar"), "boots": ("mistjade_boots", "Mistjade Boots", "folded")},
-    # Spirit grade (Azure Expanse, Sage realm)
-    "spirit": {"hat": ("stormsilk_hat", "Stormsilk Crown", "guan"), "robe": ("stormsilk_robe", "Stormsilk Robe", "vneck"),
-               "trousers": ("stormsilk_trousers", "Stormsilk Trousers", "martial"), "boots": ("stormsilk_boots", "Stormsilk Boots", "boots")},
-    # Sage grade (Sunscar, Sage Sovereign realm): sunsilk worked with desert glass; the veiled hat keeps the sun off.
-    "sage": {"hat": ("sunsilk_hat", "Sunsilk Veil", "weimao"), "robe": ("sunsilk_robe", "Sunsilk Robe", "scholar"),
-             "trousers": ("sunsilk_trousers", "Sunsilk Trousers", "cuffed"), "boots": ("sunsilk_boots", "Sunsilk Boots", "folded")},
-    # Sovereign grade (the Drifting Shoals to the Orbit Ruins): starsilk, woven from star jellies' silk.
-    "sovereign": {"hat": ("starsilk_hat", "Starsilk Band", "tied"), "robe": ("starsilk_robe", "Starsilk Robe", "disciple"),
-                  "trousers": ("starsilk_trousers", "Starsilk Trousers", "straight"), "boots": ("starsilk_boots", "Starsilk Slippers", "slippers")},
-    # Will grade (the Ashen Reach to the Lantern Heart): lanternsilk, cut for the Wardens' watch.
-    "will": {"hat": ("lanternsilk_hat", "Lanternsilk Crown", "guan"), "robe": ("lanternsilk_robe", "Lanternsilk Robe", "cardigan"),
-             "trousers": ("lanternsilk_trousers", "Lanternsilk Trousers", "martial"), "boots": ("lanternsilk_boots", "Lanternsilk Boots", "boots")},
-}
-# P7b (item_plan §2.9, G5, G6): banded ladders of pet gear and furnaces, forged at the forge. A pet piece gains 1% of its
-# stat a grade (defence half that) from the first piece of its kind; a furnace's heat, batch, filter and yield by grade.
-PET_LADDER = {"pet_collar": ("Collar", "common", {"hp": 0.10}, "earth", "+{hp}% HP for the animal that wears it."),
-              "pet_talisman": ("Beast Talisman", "earth", {"attack": 0.10, "defence": 0.05}, "common",
-                               "+{attack}% attack and +{defence}% defence for the animal that wears it."),
-              "pet_saddle": ("Saddle", "common", {"mount_speed": 0.10}, "earth", "A mount wearing it carries you {mount_speed}% faster.")}
-PET_STEP = {"hp": 0.01, "attack": 0.01, "defence": 0.005, "mount_speed": 0.01}
-BANDED_FURNACES = [
-    ("stormsteel_furnace", "spirit", "Stormsteel Furnace", "Blue-black stormsteel that drinks the lightning's heat. Ten pills to a batch.",
-     {"band": 0.11, "batch": 10, "filter": 0.33, "yield": 0.16}),
-    ("sunsteel_furnace", "sage", "Sunsteel Furnace", "Sunsteel set with desert glass that holds the fire's glow. Eleven pills to a batch.",
-     {"band": 0.12, "batch": 11, "filter": 0.36, "yield": 0.17}),
-    ("driftsteel_furnace", "sovereign", "Driftsteel Furnace", "Driftsteel walls lined with ground driftglass. Eleven pills to a batch, and little ash gets through.",
-     {"band": 0.13, "batch": 11, "filter": 0.39, "yield": 0.18}),
-    ("lanternsteel_furnace", "will", "Lanternsteel Furnace", "Cast from a lantern cage's metal; the fire in it never quite goes out. Twelve pills to a batch.",
-     {"band": 0.14, "batch": 12, "filter": 0.42, "yield": 0.20}),
-]
-
-
-def artifact(id, slot, grade, name, appearance, family=None, ilv=None, icon=None, **extra):
-    row = {"id": id, "name": name, "slot": slot, "grade": grade, "ilv": ilv or MID_ILV[grade], "appearance": appearance,
-           "energy_type": {"plain": "none", "common": "primal_qi", "earth": "primal_qi", "heaven": "true_qi", "mystic": "true_qi", "spirit": "sage_qi",
-                           "sage": "sage_qi", "sovereign": "sage_qi", "will": "sage_qi"}[grade],
-           "sockets": {"plain": 0, "common": 0, "earth": 1, "heaven": 1, "mystic": 2, "spirit": 2, "sage": 3, "sovereign": 3, "will": 3}[grade], "icon": icon or id, "type": "equipment",
-           "stack": 1}
-    if family:
-        row["family"] = family
-    row.update(extra)
-    return row
+# Gear by family × grade (specs/gear.py): the grade words, the weapon families' looks and the armour ladder, as the
+# named pieces below and economy.py read them.
+GEAR = E.spec("gear")
+GRADE_WORD, FAMILY_APPEARANCE, ARMOUR, BAG_BASE = GEAR.GRADE_WORD, GEAR.FAMILY_APPEARANCE, GEAR.ARMOUR, GEAR.BAG_BASE
 
 
 def build_artifacts():
-    rows = []
-    for grade, word in GRADE_WORD.items():
-        for fam, look in FAMILY_APPEARANCE.items():
-            id = "%s_%s" % (word, fam)
-            name = "%s %s" % (word.capitalize(), {"short_blade": "Short Blade", "jian": "Jian", "heavy_sabre": "Heavy Sabre"}.get(fam, titled(fam)))
-            extra = {}
-            if grade == "plain":
-                # The weapon slot is open from the start, and a training weapon asks nothing of its wearer: a first-hour
-                # foe may drop one (grades.json drop.starter), and the Weapon Hall hands out three.
-                extra["ilv"] = 5
-                extra["source"] = ["weapon_hall"]
-            if fam in FAMILY_ATTRIBUTE:
-                extra["attribute_req"] = {FAMILY_ATTRIBUTE[fam]: ATTRIBUTE_REQ[grade]}
-            rows.append(artifact(id, "weapon", grade, name, look, fam, **extra))
-    for grade, slots in ARMOUR.items():
-        for slot, (id, name, look) in slots.items():
-            extra = {"dye": GRADE_DYE[grade][slot]} if slot in ("robe", "trousers") else {}
-            rows.append(artifact(id, slot, grade, name, look, ilv=(1 if id == "plain_straw_hat" else None), **extra))
-    # Decision 45: the bag starts at 50 (stats.json bag.base); each gourd up the ladder adds its 5 on top of that, as it
-    # added them on top of 25 before (the Starter Spirit Gourd 50, from 25; the Lantern Gourd 90, from 65).
-    gourds = [("starter_gourd", "plain", "Starter Spirit Gourd", 0, 5), ("bamboo_gourd", "common", "Bamboo Gourd", 5, 8),
-              ("jadeiron_gourd", "earth", "Jadeiron Gourd", 10, 10), ("cloud_gourd", "heaven", "Cloud Gourd", 15, 12),
-              ("mistjade_gourd", "mystic", "Mistjade Gourd", 20, 15), ("stormsteel_gourd", "spirit", "Stormsteel Gourd", 25, 16),
-              ("sunsteel_gourd", "sage", "Sunsteel Gourd", 30, 18), ("driftglass_gourd", "sovereign", "Driftglass Gourd", 35, 19),
-              ("lantern_gourd", "will", "Lantern Gourd", 40, 20)]
-    for id, grade, name, extra_slots, quick in gourds:
-        rows.append(artifact(id, "gourd", grade, name, "none", gourd={"bag": BAG_BASE + extra_slots, "quick": quick}, ilv=(1 if grade == "plain" else None),
-                             **({"source": ["story"]} if id == "starter_gourd" else {})))   # the starting kit (AccountAuthority)
+    E.begin("artifacts")
+    # The banded bases (specs/gear.py): every weapon family and armour slot grade by grade, then the gourds.
+    rows = E.items("weapons") + E.items("armour") + E.items("gourds")
     rows.append(artifact("mistjade_cape", "cape", "mystic", "Mistjade Cape", "solid", resist=["water", "wind"], named=tag("general", "valley")))
     for fid, grade, name, icon, desc, stats in FURNACES:
         extra = {"sell": False} if stats.get("named") else {}
         rows.append(artifact(fid, "tool_furnace", grade, name, "none", icon=icon, desc=desc, furnace=stats, sockets=0,
                              energy_type="none", ilv=(1 if grade == "plain" else None), named=tag("alchemist", "valley"), **extra))
-    for fid, grade, name, desc, stats in BANDED_FURNACES:
-        rows.append(artifact(fid, "tool_furnace", grade, name, "none", desc=desc, furnace=stats, sockets=0, energy_type="none"))
+    rows.extend(E.items("furnaces"))   # specs/gear.py: the furnace ladder of the far zones
     rows.append(artifact("cloud_talisman", "talisman", "heaven", "Cloud Talisman", "none", named=tag("general", "valley")))
     # S46 pet gear: a Collar, a Talisman and (for mounts) a Saddle, forged from beast materials and enhanced at the
     # forge (+10% of the base a level). Worn by a spirit animal, never by you.
@@ -676,14 +579,7 @@ def build_artifacts():
             ("reed_saddle", "pet_saddle", "common", "Reed Saddle", {"mount_speed": 0.10}, "Woven reed on boar hide. A mount wearing it carries you 10% faster.")]:
         rows.append(artifact(gid, gslot, grade, gname, "none", desc=desc, pet_gear=stats, sockets=0, energy_type="none", ilv=MID_ILV[grade],
                              named=tag("beast", "valley")))
-    grades = list(MID_ILV)
-    for gslot, (word, base_grade, base, first, text) in PET_LADDER.items():
-        for grade in grades[grades.index(first):grades.index("will") + 1]:
-            if grade == base_grade:
-                continue
-            stats = {k: round(v + PET_STEP[k] * (grades.index(grade) - grades.index(base_grade)), 3) for k, v in base.items()}
-            rows.append(artifact("%s_%s" % (GRADE_WORD[grade], word.lower().replace(" ", "_")), gslot, grade, "%s %s" % (GRADE_WORD[grade].capitalize(), word),
-                                 "none", sockets=0, energy_type="none", pet_gear=stats, desc=text.format(**{k: "%g" % (v * 100) for k, v in stats.items()})))
+    rows.extend(E.items("pet_gear"))   # specs/gear.py: P7b's pet gear ladders
     # Set pieces reuse appearances and grade icons.
     for sect, look in [("jade_current", ("headband", "cardigan", "martial", "folded")), ("cloudpiercing", ("tied", "vneck", "cuffed", "boots"))]:
         for slot, app in zip(["hat", "robe", "trousers", "boots"], look):
@@ -759,6 +655,7 @@ def build_artifacts():
         rows.append(artifact(iid, "weapon", "heaven", name, "sword", "jian", icon="cloudsteel_jian", ilv=48,
                              imitation={"of": of, "share": 0.6, "effect": fx}, named=tag("sword", "valley"),
                              desc="A forge copy of %s. It keeps six parts in ten of the original's gift, and no spirit." % ("the Moonlit Blade" if of == "moonlit_blade" else "the Sleeping Blade")))
+    E.end("artifacts")
     entries("artifacts.json", rows)
     return rows
 

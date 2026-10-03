@@ -106,7 +106,7 @@ def _compile():
         for k, ids in getattr(mod, "ORDER", {}).items():
             if k in st.order:
                 st.errors.append("specs/%s.py: ORDER pins %s twice" % (name, k))
-            st.order[k] = list(ids)
+            st.order[k] = ids if isinstance(ids, str) else list(ids)
     fids = set()
     for fam in st.families:
         if fam.fid in fids:
@@ -178,6 +178,13 @@ def _member(fam, raw, index):
     sources = dict(fam.sources)
     sources.update(raw.get("sources") or {})
     sources = {k: resolve(v, dict(ctx, id=mid)) for k, v in sources.items() if v is not False and v is not None}
+    for k, v in list(sources.items()):
+        # An outside source given as a list names the tiers (or ids) it hands out; a part's `drop` list names creatures.
+        if k not in ("shop", "drop", "mark") and isinstance(v, (list, tuple)):
+            if m.get("tier") in v or m.get("grade") in v or mid in v:
+                sources[k] = True
+            else:
+                del sources[k]
     m["_sources"] = sources
     if sources.get("mark"):
         if sources["mark"] not in MARKS:
@@ -521,7 +528,8 @@ def check_sources(errs):
             if ch not in have:
                 errs.append("%s names %s (%s), but the built data hands it out by %s" % (m["id"], key, ch, ", ".join(sorted(have)) or "nothing"))
         for i in ids:
-            if not found.get(i) and not (m["row"].get("source") in MARKS):
+            mark = m["row"].get("source")
+            if not found.get(i) and not (mark in MARKS or (isinstance(mark, list) and mark and mark[0] in MARKS)):
                 errs.append("%s: no source in the built data (wiki.py --gaps)" % i)
     return errs
 

@@ -43,11 +43,12 @@ def _base(m):
     return kw
 
 
-def _mark(m, extra):
-    """A source mark (wiki.py MARKS: story, system, later) is the row's `source`, after the kind's own keys."""
+def _mark(m, extra, listed=False):
+    """A source mark (wiki.py MARKS: story, system, later) is the row's `source`, after the kind's own keys (in a list
+    on equipment, as its authored source hints are)."""
     mark = m.get("_mark")
     if mark:
-        extra["source"] = mark
+        extra["source"] = [mark] if listed else mark
 
 
 # ------------------------------------------------------------------------------------------------------------- pills
@@ -169,12 +170,26 @@ def gourd(m):
     if _given(m, "ilv"):
         extra["ilv"] = m["ilv"]
     extra.update(m.get("extra") or {})
+    _mark(m, extra, listed=True)
     return artifact(m["id"], "gourd", m["grade"], m["name"], "none", icon=m.get("_icon"), **extra)
 
 
-KINDS = {"pill": pill, "herb": herb, "ore": ore, "part": part, "weapon": weapon, "armour": armour, "gourd": gourd}
+def pet_gear(m):
+    """A spirit animal's piece on the P7b ladder (item_plan §2.9, G5): its stats and the text they fill."""
+    return artifact(m["id"], m["slot"], m["grade"], m["name"], "none", icon=m.get("_icon"), sockets=0, energy_type="none", pet_gear=m["stats"],
+                    desc=m["desc"])
+
+
+def furnace(m):
+    """A furnace on the P7b ladder (G6): heat stability, batch, filter and yield by grade."""
+    return artifact(m["id"], "tool_furnace", m["grade"], m["name"], "none", icon=m.get("_icon"), desc=m["desc"], furnace=m["stats"], sockets=0,
+                    energy_type="none")
+
+
+KINDS = {"pill": pill, "herb": herb, "ore": ore, "part": part, "weapon": weapon, "armour": armour, "gourd": gourd, "pet_gear": pet_gear,
+         "furnace": furnace}
 # The table a kind's rows go to, and its default section (the block of that table a host places).
 TABLE = {"pill": "items", "herb": "items", "ore": "items", "part": "items", "weapon": "artifacts", "armour": "artifacts",
-         "gourd": "artifacts"}
+         "gourd": "artifacts", "pet_gear": "artifacts", "furnace": "artifacts"}
 SECTION = {"pill": "pills", "herb": "herbs", "ore": "ores", "part": "parts.valley", "weapon": "weapons", "armour": "armour",
-           "gourd": "gourds"}
+           "gourd": "gourds", "pet_gear": "pet_gear", "furnace": "furnaces"}

@@ -15,18 +15,16 @@ from techniques import SOURCES as TECH_SOURCES
 import posts
 
 
-def grade_set(grade):
-    """A grade's banded weapons in every family, its four armour pieces and its gourd (for a shop's stock)."""
-    word = items.GRADE_WORD[grade]
-    return (["%s_%s" % (word, f) for f in items.FAMILY_APPEARANCE] + [items.ARMOUR[grade][slot][0] for slot in ("hat", "robe", "trousers", "boots")]
-            + {"sovereign": ["driftglass_gourd"], "will": ["lantern_gourd"]}.get(grade, []))
-
-
 def shops():
     # Decision 45 (the item engine): a family's item sells where its spec says (tools/content/items/specs), with its
     # price and requirement there. A list here names it only to place it among the shop's own lines: F(item) for the
     # item, L(recipe) for the scroll that teaches its recipe. A family line no list places follows the shop's own lines.
     F, L = E.F, E.L
+
+    def fs(words, fams):
+        # A smith's rack: each family's piece of each grade word, in the order the rack shows them.
+        return [F("%s_%s" % (w, f)) for w in words for f in fams]
+    old_six, v11, p7b = ("jian", "spear", "gauntlets", "short_blade", "staff", "bow"), ("heavy_sabre", "fan", "flute"), ("brush", "bell")
 
     def s(i, **kw):
         d = {"item": i}
@@ -78,7 +76,7 @@ def shops():
         {"id": "stoneford_general", "name": "Stoneford General Store", "currency": "silver_tael",
          "stock": [s("cinnabar", price=8), s("herbal_tea"), s("lotus_root_tea"), s("rice_ball"), s("rice"), s("return_charm"), s("herb_sickle", requires=all_of(realm("bone_forging_4"))),
                    s("spirit_spade", price=900, requires=all_of(realm("cloud_stride_1"))), s("rice_wine", price=12),
-                   s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), s("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
+                   s("iron_pickaxe", requires=all_of(realm("bone_forging_5"))), F("bamboo_gourd"), s("escape_talisman"), s("fish_bait"),
                    s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
                    # Decision 45: incense for cultivation speed, the village's stick and the stronger Deep Current.
                    s("qi_gathering_incense", price=12), s("deep_current_incense", price=45, requires=all_of(realm("qi_kindling_1"))),
@@ -115,31 +113,23 @@ def shops():
                    s("killing_array_plate", price=260, requires=all_of(flag("guild_formations_expert"))),
                    s("binding_array_plate", price=260, requires=all_of(flag("guild_formations_expert")))]},
         {"id": "stoneford_smith", "name": "Stoneford Smith", "currency": "silver_tael",
-         "stock": [s("training_jian"), s("training_spear"), s("training_gauntlets"), s("training_short_blade"), s("training_staff"), s("training_bow"),
-                   s("iron_jian", requires=all_of(realm("qi_kindling_1"))), s("iron_spear", requires=all_of(realm("qi_kindling_1"))),
-                   s("iron_gauntlets", requires=all_of(realm("qi_kindling_1"))), s("iron_short_blade", requires=all_of(realm("qi_kindling_1"))),
-                   s("iron_staff", requires=all_of(realm("qi_kindling_1"))), s("iron_bow", requires=all_of(realm("qi_kindling_1"))),
-                   # S47 v1.1 families: the heavy sabre, the fan and the flute.
-                   s("training_heavy_sabre"), s("training_fan"), s("training_flute"),
-                   s("iron_heavy_sabre", requires=all_of(realm("qi_kindling_1"))), s("iron_fan", requires=all_of(realm("qi_kindling_1"))),
-                   s("iron_flute", requires=all_of(realm("qi_kindling_1"))),
-                   # P7b: the brush and the bell (item_plan §2.9, G4).
-                   s("training_brush"), s("training_bell"),
-                   s("iron_brush", requires=all_of(realm("qi_kindling_1"))), s("iron_bell", requires=all_of(realm("qi_kindling_1"))),
+         # Training and iron weapons: the first six families, S47 v1.1's heavy sabre, fan and flute, P7b's brush and bell
+         # (item_plan §2.9, G4).
+         "stock": fs(("training", "iron"), old_six) + fs(("training", "iron"), v11) + fs(("training", "iron"), p7b) + [
                    # S47 imitation relics: the smith copies a relic only once it has been seen whole.
                    s("recipe_scroll", learn="moonshadow_jian", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:moonlit_blade"})),
                    s("recipe_scroll", learn="drowsing_edge", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:sleeping_blade"})),
-                   s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), F("copper_ore"), F("riverstone"),
-                   s("cloud_gourd", requires=all_of(realm("cloud_stride_1"))), s("mistjade_gourd", requires=all_of(realm("heaven_glimpse_1")))],
-         "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd"),
-                                           s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute"), s("jadeiron_brush"), s("jadeiron_bell")]}},
+                   F("bamboo_hat"), F("cotton_robe"), F("cotton_trousers"), F("cloth_boots"), F("copper_ore"), F("riverstone"),
+                   F("cloud_gourd"), F("mistjade_gourd")],
+         "rotation": {"count": 1, "pool": [F("jadeiron_jian"), F("jadeiron_spear"), F("jadeiron_robe"), F("jadeiron_gourd")]
+                      + fs(("jadeiron",), v11 + p7b)}},
         {"id": "tinkerer", "name": "Tinkerer's Workshop", "currency": "silver_tael",
          "stock": [s("iron_pickaxe"), s("herb_sickle"), s("bamboo_rod"), s("clay_pot"), s("drying_rack", requires=all_of(realm("qi_kindling_8"))),
                    s("spirit_wood", price=30, requires=all_of(realm("cloud_stride_5"))), s("puppet_core", price=300, requires=all_of(realm("cloud_stride_5")))]},
         {"id": "gu_trade_house", "name": "Trade House", "currency": "silver_tael",
          "stock": [s("appraisers_loupe", requires=all_of(realm("qi_kindling_6"))), s("dusty_curio", price=20, requires=all_of(realm("qi_kindling_6"))),
                    F("spirit_stone_shard"), s("manual_page", price=400), s("blank_plate", price=60, requires=all_of(realm("heart_tempering_5")))],
-         "rotation": {"count": 1, "pool": [s("jadeiron_hat"), s("cloudsilk_robe"), s("jadeiron_gourd")]}},
+         "rotation": {"count": 1, "pool": [F("jadeiron_hat"), F("cloudsilk_robe"), F("jadeiron_gourd")]}},
         {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
          "stock": [   # P13a: the manual of Rain of Reeds is a lost art now, found in the Drowned Shrine
@@ -192,24 +182,16 @@ def shops():
                    s("beast_bag_mist", price=6000, requires=all_of(realm("heaven_glimpse_1")))]},
         # Act II · Cloudgate Port and the Thunderhorn Plains. Spirit Stone prices come from tael prices at the exchange rate.
         {"id": "alliance_factor", "name": "Alliance Factor's Hall", "currency": "spirit_stone", "discount": {"flag": "path_alliance", "pct": 0.1},
-         "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_short_blade"), s("stormsteel_staff"),
-                   s("stormsteel_bow"), s("stormsilk_hat"), s("stormsilk_robe"), s("stormsilk_trousers"), s("stormsilk_boots"),
-                   s("stormsteel_gourd", requires=all_of(realm("sage_1")))],
+         "stock": fs(("stormsteel",), old_six) + fs(("stormsilk",), ("hat", "robe", "trousers", "boots")) + [F("stormsteel_gourd")],
          "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
         {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone",
          "stock": [F("healing_pill"), F("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
                    s("thunderhead_tea", price=3),
-                   s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("mistjade_gourd")],
+                   s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), F("mistjade_gourd")],
          "rotation": {"count": 2, "pool": [F("clear_mind_pill"), F("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone",
          "stock": [F("stormsteel_ore"), F("mystic_ore"),
-                   s("recipe_scroll", learn="stormsteel_jian", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="stormsteel_spear", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="stormsteel_gauntlets", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="stormsteel_short_blade", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="stormsteel_staff", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="stormsteel_bow", price=40, requires=all_of(realm("sage_1"))),
-                   s("recipe_scroll", learn="bp_stormsilk_robe", price=40, requires=all_of(realm("sage_1")))]},
+                  ] + [L("stormsteel_" + f) for f in old_six] + [L("bp_stormsilk_robe")]},
         {"id": "port_apothecary", "name": "Apothecary Wu's Cabinet", "currency": "spirit_stone",
          "stock": [F("soulbell_flower"), F("cloudtop_orchid"), F("mist_lotus"), F("healing_pill"), F("qi_restoration_pill"),
                    L("storm_blood_pill")],
@@ -240,8 +222,8 @@ def shops():
                    s("technique_manual", learn="cursive_storm", price=120, requires=all_of(realm("sphere_lord_2"))),
                    s("technique_manual", learn="wardens_call", price=120, requires=all_of(realm("sphere_lord_2"))),
                    s("lantern_incense", price=4), F("driftglass")]
-                  # P7b (item_plan §2.9, G1): Sovereign grade, driftsteel and starsilk.
-                  + [s(x, requires=all_of(realm("will_manifest_1"))) for x in grade_set("sovereign")]},
+                  # P7b (item_plan §2.9, G1): then the Sovereign grade of every gear family, driftsteel and starsilk (specs/gear.py).
+                  },
         # v1.2 Phase C · Stargazer Ming cuts another Sphere Comprehension Stone for one who has seen their Sphere and
         # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
         {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
@@ -256,8 +238,9 @@ def shops():
                      requires=all_of(realm("will_manifest_3"), {"kind": "unlock", "system": "confucian_path"})),
                    s("technique_manual", learn="rite_seal_script", price=90,
                      requires=all_of(realm("sphere_lord_1"), {"kind": "unlock", "system": "confucian_path"}))]
-                  # P7b (item_plan §2.9, G1): Will grade, lanternsteel and lanternsilk, cast from lantern cages.
-                  + [s(x, requires=all_of(realm("sphere_lord_2"))) for x in grade_set("will")]},
+                  # P7b (item_plan §2.9, G1): then the Will grade of every gear family, lanternsteel and lanternsilk, cast from
+                  # lantern cages (specs/gear.py).
+                  },
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
          "stock": [s("sky_ink", price=30), F("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
@@ -293,20 +276,15 @@ def shops():
                    s("technique_manual", learn="sanguine_lotus", price=3200, requires=all_of(realm("cloud_stride_1"), {"kind": "alignment_at_most", "value": -20}))]},
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone",
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
-         "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
-                   s("stormsilk_boots"), F("stormsteel_ore"), F("bone_strengthening_pill"),
+         "stock": [F("stormsteel_jian"), F("stormsteel_spear"), F("stormsteel_gauntlets"), F("stormsteel_staff"), F("stormsilk_robe"),
+                   F("stormsilk_boots"), F("stormsteel_ore"), F("bone_strengthening_pill"),
                    s("recipe_scroll", learn="nine_sword_array", price=60),
                    # S47 weapon awakening: more Weapon Soul Crystals, once Smith Hong has shown you the first.
                    s("weapon_soul_crystal", price=900, requires=all_of({"kind": "quest_done", "quest": "a_blade_that_answers"})),
                    s("thunderhorn_stew", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"})),
                    # Sage grade for kin who have become Sovereigns: sunsteel and sunsilk, worked with Sunscar glass.
-                   s("sunsteel_jian", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsteel_spear", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsteel_gauntlets", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsteel_staff", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsilk_robe", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
-                   s("sunsteel_gourd", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
+                   F("sunsteel_jian"), F("sunsteel_spear"), F("sunsteel_gauntlets"), F("sunsteel_staff"), F("sunsilk_robe"), F("sunsilk_boots"),
+                   F("sunsteel_gourd")]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone",
          "stock": [F("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), F("storm_blood_pill"),
                    s("beast_bag_star", price=160, requires=all_of(realm("sage_1")))]},
@@ -361,30 +339,9 @@ def recipes():
          ("cactus_water", [("ember_cactus", 1)], False)]
     for cid, inputs, default in C:
         r(cid, "cooking", inputs, [(cid, 1)], "plain", default=default, pet_food=cid in ("roast_fish", "ember_pepper_broth"))
-    # Forge blueprints (weapons per family and armour per slot, per grade)
-    bands = {"common": ("iron", "copper_ore", "riverstone", "boar_hide"), "earth": ("jadeiron", "jadeiron", "riverstone", "jade_scale"),
-             "heaven": ("cloudsteel", "cloudsteel_ore", "jadeiron", "cloud_feather"), "mystic": ("mistjade", "mystic_ore", "cloudsteel_ore", "roc_feather"),
-             "spirit": ("stormsteel", "stormsteel_ore", "mystic_ore", "spark_pelt"),
-             "sage": ("sunsteel", "sunglass_ore", "stormsteel_ore", "scorpion_stinger"),
-             # P7b (item_plan §2.9): driftsteel from the Driftglass Bank, lanternsteel from the lantern cages' metal; a Master
-             # smith knows both, as the Mistjade Furnace.
-             "sovereign": ("driftsteel", "driftglass", "sunglass_ore", "jelly_silk"),
-             "will": ("lanternsteel", "drone_shell", "driftglass", "cinder_ash")}
-    master = {"requires_ranks": {"smithing": "master"}, "default": True}
-    for grade, (prefix, metal, second, binder) in bands.items():
-        for fam in items.FAMILY_APPEARANCE:
-            r("%s_%s" % (prefix, fam), "smithing", [(metal, 6), (second, 3 if grade == "common" else 4), (binder, 2)], [("%s_%s" % (prefix, fam), 1)], grade,
-              **(master if grade in ("sovereign", "will") else {}))
-    armour = {"common": ("cotton", "cloth_boots"), "earth": ("jadeiron", None), "heaven": ("cloudsilk", None), "mystic": ("mistjade", None),
-              "spirit": ("stormsilk", None), "sage": ("sunsilk", None), "sovereign": ("starsilk", None), "will": ("lanternsilk", None)}
-    for grade, (prefix, boots) in armour.items():
-        metal = bands[grade][1]
-        binder = bands[grade][3]
-        for slot in ["hat", "robe", "trousers", "boots"]:
-            out = "%s_%s" % (prefix, slot)
-            if grade == "common":
-                out = {"hat": "bamboo_hat", "robe": "cotton_robe", "trousers": "cotton_trousers", "boots": "cloth_boots"}[slot]
-            r("bp_" + out, "smithing", [(metal, 3), (binder, 4)], [(out, 1)], grade, **(master if grade in ("sovereign", "will") else {}))
+    # Forge blueprints: every weapon family and armour slot, grade by grade (specs/gear.py BANDS).
+    R.extend(E.recipes("smithing.weapons"))
+    R.extend(E.recipes("smithing.armour"))
     # Qi jades, fuel crystals, blank plate, revival talisman
     for jade, extra in [("body_jade", ("tortoise_plate", 1)), ("swift_jade", ("frog_leg", 2)), ("essence_jade", ("leech_oil", 2)),
                         ("spirit_jade", ("mirror_dust", 1)), ("insight_jade", ("talisman_paper", 2))]:
@@ -413,12 +370,8 @@ def recipes():
       "heaven", default=True, requires_ranks={"smithing": "expert"})
     r("mistjade_furnace", "smithing", [("mystic_ore", 6), ("roc_feather", 4), ("vulture_plume", 4)], [("mistjade_furnace", 1)], "mystic",
       default=True, requires_ranks={"smithing": "master"})
-    # P7b (item_plan §2.9, G6): the furnace ladder on through Acts II and III.
-    for fid, grade, inputs in [("stormsteel_furnace", "spirit", [("stormsteel_ore", 8), ("thunder_horn", 4), ("snow_ape_hide", 4)]),
-                               ("sunsteel_furnace", "sage", [("sunglass_ore", 8), ("scorpion_stinger", 4), ("worm_glass_tooth", 2)]),
-                               ("driftsteel_furnace", "sovereign", [("driftglass", 8), ("guardian_scale", 4), ("star_powder", 4)]),
-                               ("lanternsteel_furnace", "will", [("drone_shell", 8), ("pyre_ember", 2), ("cinder_ash", 4)])]:
-        r(fid, "smithing", inputs, [(fid, 1)], grade, default=True, requires_ranks={"smithing": "master"})
+    # P7b (item_plan §2.9, G6): the furnace ladder on through Acts II and III (specs/gear.py).
+    R.extend(E.recipes("smithing.furnaces"))
     r("array_plate", "formations", [("blank_plate", 1), ("formation_stone", 1)], [("array_plate", 1)], "earth")
     # S47 legendary chains: an Expert smith makes a legend whole from its three pieces (the chain's quest teaches it).
     for ch in LEGENDS:
@@ -464,15 +417,8 @@ def recipes():
     r("bone_collar", "smithing", [("boar_hide", 2), ("mole_claw", 2)], [("bone_collar", 1)], "common", default=True)
     r("scale_talisman", "smithing", [("serpent_scale", 2), ("jade_scale", 2)], [("scale_talisman", 1)], "earth", default=True)
     r("reed_saddle", "smithing", [("cloth", 3), ("boar_hide", 2)], [("reed_saddle", 1)], "common", default=True)
-    # P7b (item_plan §2.9, G5): the pet gear ladder, forged from each zone's metal and beast parts; the forge's grade cap
-    # gates it by realm.
-    pet_inputs = {"common": [("copper_ore", 2), ("hound_fang", 2)], "earth": [("jadeiron", 2), ("serpent_scale", 2)],
-                  "heaven": [("cloudsteel_ore", 2), ("ape_fur", 2)], "mystic": [("mystic_ore", 2), ("roc_feather", 2)],
-                  "spirit": [("stormsteel_ore", 2), ("snow_ape_hide", 2)], "sage": [("sunglass_ore", 2), ("harpy_plume", 2)],
-                  "sovereign": [("driftglass", 2), ("guardian_scale", 2)], "will": [("drone_shell", 2), ("wyrm_ash", 2)]}
-    for a in json.load(open(os.path.join(DATA, "artifacts.json")))["entries"]:
-        if a.get("pet_gear") and not a.get("named"):
-            r(a["id"], "smithing", pet_inputs[a["grade"]], [(a["id"], 1)], a["grade"], default=True)
+    # P7b (item_plan §2.9, G5): the pet gear ladder, forged from each zone's metal and beast parts (specs/gear.py).
+    R.extend(E.recipes("smithing.pet_gear"))
     r("beast_marrow_washing_pill", "alchemy", [("riverreed_ginseng_100", 1), ("tough_meat", 3), ("mist_lotus", 1)], [("beast_marrow_washing_pill", 1)], "earth")
     r("marrow_washing_bath", "alchemy", [("riverreed_ginseng_100", 1), ("hound_fang", 3), ("ape_fur", 2), ("mist_lotus", 1)], [("marrow_washing_bath", 1)], "earth")
     # S48 body ladder: each body tier teaches the next tier's bath (Iron → Jade, Jade → Gold).
