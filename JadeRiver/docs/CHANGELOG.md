@@ -44,7 +44,9 @@ King on the grid.
 - **Still to do** (room_engine.md lists it): top-down sheets for the wind kite, canyon brigand, canyon harpy, sandstorm
   scorpion, dune worm, terracotta warden and the Tomb King; a lamplit TopdownLight area for the cavern and the tomb; a
   warm rock paint of the terrain kit's own for the canyons' and the tomb's walls.
-- **Checks.** RUN_RESULTS
+- **Checks.** The full run (merged with R5 and E3): all 28 suites pass, 74,339 checks with 0 failures and no
+  SCRIPT ERROR. `topdown_sunscar` is new at 57 checks. `room_engine` is at 328 checks. Grid parity holds for 108
+  layouts and 326 starts. `places` reaches 41 places, `npc_engine` holds, and boot reports 0 failing.
 
 ## The story's rooms and the Tidebreak Front on the grid (R5)
 
