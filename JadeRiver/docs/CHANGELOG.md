@@ -56,6 +56,24 @@ The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7)
     sheets are byte-identical too.
 - **Found, not fixed:** `build_tiles.py --review` stops with a KeyError on the `sand` decals, in the Terrain v2
   sheet's ground table. This predates the slice. `--review-sand-snow` runs.
+## The cue table: the world's answers to events as rows (decision 45, E6 world half)
+
+This is phase 2, slice E6 of the code audit, its world half (`docs/architecture/audit_45.md` §6.6). The format and how
+to add a cue are in `docs/architecture/cues.md`. The game plays, draws and sounds the same.
+
+- **`data/cues.json`, built by `tools/data/cues.py`, holds the effects, sounds and shakes the world views play for
+  the game's events.** It has 60 rows for 41 events. A row names its event, when it holds, and its steps in order: an
+  effect of the effects layer at an anchor, a sound of the sound bank by its id, a shake, a thing's hit flash, or a
+  named handler. `build_data.py` runs the module, and `--check` works as for the other generators.
+- **`WorldShared.play` reads the table** through `Cues` (`scripts/presentation/cues.gd`). It plays the first of an
+  event's rows whose condition holds, as the `match` arm did.
+  - The arms are gone. What stays code is five handlers the rows call: a blow's hit and words, a drop's loot views,
+    what a use did, and the flute's scattered notes.
+  - The top-down room's artifact spirit line is now a row too. Its other answers draw with its own pieces and stay.
+- **A new suite, `cue_tests`,** checks every row against the game: its event is emitted, its sounds exist, its effects
+  are FxLayer's, its anchors, handlers, colours and string keys are known. It also plays every row once.
+- **Checked the same:** every arm's sample payloads, played before and after on a stub host with the random seed fixed,
+  make the same effects, sounds, shakes and random draws.
 
 ## Crafting and Progression in parts (decision 45, S10)
 
