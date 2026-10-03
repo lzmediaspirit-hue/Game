@@ -35,8 +35,16 @@ lines: `docs/architecture/room_engine.md`, "The Drowned Shrine and Whitewater Go
     - the Riverbed Serpent;
     - chapter 5's shrine: The Shrine Surfaces, Lu's Handwriting, The Riverbreath Trial and The Drowned Abbot;
     - the gorge to the Echo Cliffs' gate.
-  - `topdown_chapter3`'s last check moved with the frontier: Bend Shore's three ways are no longer gated.
-  - `rules_tests`' route tour covers the ten rooms. Its 2,712 checks and `topdown_tutorial`'s 962 are unchanged.
+  - The frontier tests (`topdown_chapter3`, `topdown_chapter4`, `topdown_tutorial`, `rules_tests`; data-driven since
+    R1) pass unchanged: Bend Shore's three ways lead onto the grid, and the Echo Cliffs' way west stays gated.
+  - `rules_tests`' route tour now covers the ten rooms too. Its 2,712 checks, `topdown_chapter3`'s 41 and
+    `topdown_chapter4`'s 47 are unchanged.
+  - `topdown_tutorial` has 1,027 (R1's run had 1,011). Its walk to the nearest gated way counts the rooms it enters on
+    the way, and that gate moved with R2.
+  - The full run after merging R1: every gate, `boot` and every suite passed with no SCRIPT ERROR, except
+    `perf_tests`' frame budgets on the shared machine (seven agents on four CPUs; 146 s of the run waiting for a CPU).
+    Its misses were the crowd scene in `wp_west`, a page drag and the Marsh Edge's fight, none in these rooms. Run
+    alone, it passed all 18 checks.
 - **Still to do.** Nine foe species of these rooms have no top-down sheets (E2's work), and the side view's moving parts
   here (rafts, currents, rising floods, the grotto's swim) have no top-down counterpart.
 
