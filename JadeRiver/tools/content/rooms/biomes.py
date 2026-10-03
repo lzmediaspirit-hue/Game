@@ -177,6 +177,21 @@ BIOMES = {
                   "walk": ["bush_azalea", "rock_small", "ferns"],
                   "water": ["tree_willow", "cattails", "lotus_pads", "tall_grass"]},
     },
+    # R7 ------------------------------------------------------------------------------------------------------------
+    # Act II's dry country east of Nine Peaks (the art: tools/art/topdown/arid.py, none of it of the foliage kit, so the
+    # ground laid after the scatter runs under every piece). Nine Peaks itself takes R3's `sect_terraces`.
+    # The Gale Canyons: the canyon's floor bare red earth (R7's `earth` over its `lowest` level), every ledge, mesa and
+    # wall above it sandstone (decision 44's sand, whose faces are its layered banks; the earth's would show a grass
+    # lip), the trail a sandy wash; banded sandstone boulders and wind-carved hoodoos, grey wind-killed trees, dry
+    # scrub; plank steps up the ledges, sandstone at their cheeks.
+    "canyon": {
+        "base": "g", "stair": "w", "density": 0.26, "cheek": "red_rock",
+        "flora": {"wall": ["red_rock", "dead_tree", "dry_scrub", "hoodoo"],
+                  "ground": ["red_rock", "dry_scrub", "dead_tree", "hoodoo", "dry_scrub"],
+                  "walk": ["dry_scrub", "red_rock"],
+                  "water": ["dry_scrub", "cattails", "tall_grass"]},
+        "ground": {"sand": ["*"], "earth": ["lowest"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

@@ -1138,6 +1138,15 @@
     }
    ]
   },
+  "gc_canyon_mouth": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "gh_hamlet_square": {
    "vista": [
     {

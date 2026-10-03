@@ -62,6 +62,7 @@ const E1_VIEWS := [
 	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
 	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],
 	["r7/05_presence_terrace", "np_presence_terrace", Vector2(26, 15), true], ["r7/06_trial_hall", "np_trial_hall", Vector2(13.5, 9), true],
+	["r7/07_canyon_mouth_toll", "gc_canyon_mouth", Vector2(14, 13), true], ["r7/08_canyon_mouth_mesa", "gc_canyon_mouth", Vector2(34, 12), false],
 ]
 
 static func sets() -> Dictionary:

@@ -1152,17 +1152,31 @@ class Build:
                 self.lay.snow(*rr)
             elif paint == "snowpack":
                 self.lay.snow(*rr, paint="k")
+            elif paint == "earth":
+                # R7: the canyons' bare red earth (paint `d`) over the meadow the scatter grew on or the sand laid before
+                # it: never under a plant of the foliage kit, never on paving, granite, rock or planks.
+                self.lay._repaint(rr, "d", "gfma")
             else:
-                raise SpecError("%s: ground %r is not sand, snow or snowpack" % (self.id, paint))
+                raise SpecError("%s: ground %r is not sand, snow, snowpack or earth" % (self.id, paint))
 
     def _ground_rects(self, name):
         """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect;
         `*` every cell of the room and `walk` every walk's and every cut's cells (R4, the snow line: the snow and its
-        trodden paths), neither on a flight of stairs, whose paint is its own."""
-        if name in ("*", "walk"):
+        trodden paths), `lowest` the room's lowest floor off the walks (R7, the canyons' red earth under their sandstone),
+        none on a flight of stairs, whose paint is its own."""
+        if name in ("*", "walk", "lowest"):
             stairs = {(x, y) for s in self.lay.stairs for y in range(s["y"], s["y"] + s["h"]) for x in range(s["x"], s["x"] + s["w"])}
             if name == "*":
                 cells = [(x, y) for y in range(self.h) for x in range(self.w)]
+            elif name == "lowest":
+                # R7: the room's lowest floor off the walks and their cuts (the canyons' floor under its sandstone):
+                # nothing faces down from it, so its paint never shows a face of its own.
+                low = min([v for row in self.lay.lv for v in row if v != WATER] or [0])
+                walk = set(c for r in self.regions.values() if r.walk for c in r.cells())
+                for d, x0, width, w in self.cuts:
+                    rows = range(0, w.y) if d == "n" else range(w.y1, self.h)
+                    walk.update((x, y) for y in rows for x in range(x0, x0 + width))
+                cells = [(x, y) for y in range(self.h) for x in range(self.w) if self.lay.lv[y][x] == low and (x, y) not in walk]
             else:
                 cells = [c for r in self.regions.values() if r.walk for c in r.cells()]
                 for d, x0, width, walk in self.cuts:

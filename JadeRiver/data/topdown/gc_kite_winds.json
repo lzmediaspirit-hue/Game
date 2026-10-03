@@ -1,0 +1,786 @@
+{
+ "schema_version": 1,
+ "id": "gc_kite_winds",
+ "name": "Kite Winds",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  15
+ ],
+ "levels": [
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "777777777777777777777777777777777777777777777777777777777777777777777777",
+  "337777777333374444333337777777777735557777773333777773333337777777777777",
+  "333377733333344444443333777777773355555577333333333333333333333333333337",
+  "333333333333344444444333333333333555555553333333333333333333333333333333",
+  "333333333333344444444333333333333555555553333333333333333333333333333333",
+  "333333333333344444443333333333333355555553333333333333333333333333333333",
+  "333333333333334444433333333333333335555533333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333322233333333333332233333322223333333222233333222223333333333322233333",
+  "333222222333333333222222222222222233322222222222222222222233332222222233",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222000022222220000222222222220002222220000222222200000000022222222222222",
+  "220000000222000000000002220000000000000000002222000000000000222222222222",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000011111000000000000000",
+  "000000000000000000000000000000000000000000000000111111111100000000000000",
+  "000000000000000000000000000000000000000000000001111111111110000000000000",
+  "000000111110000000000000000000000000000000000011111111111111000111111100",
+  "000001111111000000000000000111110000000000000011111111111111001111111100",
+  "000001111110000000000000000111110000000000000001111111111110000111111100"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaddddaaaaaaaddddaaaaaaaaaaadddaaaaaaddddaaaaaaadddddddddaaaaaaaaaaaaaa",
+  "aadddddddaaadddddddddddaaaddddddddddddddddddaaaaddddddddddddaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwwwdddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwwwdddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddddddaaaaaddddddwwwdddddd",
+  "ddddddddddddddddddddddddddddddddddddddddddddddddaaaaaaaaaadddddwwwdddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddaaaaaaaaaaaaddddddddddddd",
+  "ddddddaaaaadddddddddddddddddddddddddddddddddddaaaaaaaaaaaaaadddaaaaaaadd",
+  "dddddaaaaaaadddddddddddddddaaaaaddddddddddddddaaaaaaaaaaaaaaddaaaaaaaadd",
+  "dddddaaaaaaddddddddddddddddaaaaadddddddddddddddaaaaaaaaaaaaddddaaaaaaadd"
+ ],
+ "stairs": [
+  {
+   "x": 63,
+   "y": 20,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 49,
+   "y": 12,
+   "w": 3,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  },
+  {
+   "x": 15,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 3,
+   "to": 4
+  },
+  {
+   "x": 36,
+   "y": 9,
+   "w": 3,
+   "h": 4,
+   "from": 3,
+   "to": 5
+  }
+ ],
+ "props": [
+  {
+   "kind": "prayer_flags",
+   "x": 6,
+   "y": 17
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 47,
+   "y": 17
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 62,
+   "y": 16
+  },
+  {
+   "kind": "red_rock",
+   "x": 48,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 52,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 48,
+   "y": 13
+  },
+  {
+   "kind": "red_rock",
+   "x": 52,
+   "y": 13
+  },
+  {
+   "kind": "red_rock",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 14,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 35,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 39,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 35,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 39,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 35,
+   "y": 11
+  },
+  {
+   "kind": "red_rock",
+   "x": 39,
+   "y": 11
+  },
+  {
+   "kind": "red_rock",
+   "x": 35,
+   "y": 12
+  },
+  {
+   "kind": "hoodoo",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "hoodoo",
+   "x": 13,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 22,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 27,
+   "y": 5
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 44,
+   "y": 5
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 46,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 55,
+   "y": 4
+  },
+  {
+   "kind": "red_rock",
+   "x": 62,
+   "y": 4
+  },
+  {
+   "kind": "hoodoo",
+   "x": 68,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 0,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 8,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 10,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 27,
+   "y": 8
+  },
+  {
+   "kind": "dead_tree",
+   "x": 31,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 34,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 46,
+   "y": 8
+  },
+  {
+   "kind": "hoodoo",
+   "x": 48,
+   "y": 8
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 54,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 58,
+   "y": 9
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 66,
+   "y": 8
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 0,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 9,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 16,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 28,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 30,
+   "y": 11
+  },
+  {
+   "kind": "dead_tree",
+   "x": 34,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 45,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 47,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 56,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 58,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 68,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 20,
+   "y": 7
+  },
+  {
+   "kind": "hoodoo",
+   "x": 32,
+   "y": 3
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 34,
+   "y": 8
+  },
+  {
+   "kind": "dead_tree",
+   "x": 5,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 11,
+   "y": 14
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 13,
+   "y": 13
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 21,
+   "y": 15
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "dead_tree",
+   "x": 31,
+   "y": 15
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 40,
+   "y": 10
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 45,
+   "y": 14
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 50,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 57,
+   "y": 15
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 61,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 6,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 9,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 15,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 29,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 31,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 40,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 45,
+   "y": 18
+  },
+  {
+   "kind": "dead_tree",
+   "x": 51,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 59,
+   "y": 18
+  },
+  {
+   "kind": "dead_tree",
+   "x": 66,
+   "y": 17
+  },
+  {
+   "kind": "red_rock",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 19,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 24,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 36,
+   "y": 17
+  },
+  {
+   "kind": "red_rock",
+   "x": 42,
+   "y": 17
+  },
+  {
+   "kind": "red_rock",
+   "x": 53,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 60,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 62,
+   "y": 12
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 6,
+   "y": 20
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 12,
+   "y": 21
+  },
+  {
+   "kind": "red_rock",
+   "x": 14,
+   "y": 25
+  },
+  {
+   "kind": "red_rock",
+   "x": 24,
+   "y": 22
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 28,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 36,
+   "y": 21
+  },
+  {
+   "kind": "red_rock",
+   "x": 38,
+   "y": 19
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 40,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 47,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 53,
+   "y": 25
+  },
+  {
+   "kind": "hoodoo",
+   "x": 58,
+   "y": 21
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 60,
+   "y": 25
+  },
+  {
+   "kind": "hoodoo",
+   "x": 71,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 10,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 19,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 24,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 29,
+   "y": 27
+  },
+  {
+   "kind": "hoodoo",
+   "x": 36,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 48,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 55,
+   "y": 26
+  },
+  {
+   "kind": "hoodoo",
+   "x": 57,
+   "y": 27
+  },
+  {
+   "kind": "red_rock",
+   "x": 71,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 52,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 2,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 13,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 68,
+   "y": 27
+  },
+  {
+   "kind": "red_rock",
+   "x": 26,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 33,
+   "y": 27
+  }
+ ],
+ "place": {
+  "jar_1": [
+   16,
+   3
+  ],
+  "crate_2": [
+   37,
+   5
+  ],
+  "journal_kites": [
+   34,
+   17
+  ],
+  "jar_3": [
+   44,
+   8
+  ],
+  "crate_4": [
+   64,
+   13
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    15
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    15
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    15
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    15
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    13
+   ],
+   [
+    21,
+    18
+   ],
+   [
+    30,
+    13
+   ],
+   [
+    41,
+    17
+   ],
+   [
+    52,
+    18
+   ],
+   [
+    63,
+    17
+   ]
+  ],
+  [
+   [
+    21,
+    13
+   ],
+   [
+    53,
+    11
+   ]
+  ],
+  [
+   [
+    40,
+    12
+   ]
+  ]
+ ]
+}

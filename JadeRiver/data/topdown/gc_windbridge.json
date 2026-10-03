@@ -1,0 +1,707 @@
+{
+ "schema_version": 1,
+ "id": "gc_windbridge",
+ "name": "Windbridge",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "77777777777777777777777770000000~~~~000000077777777777777777777777777777",
+  "7777777777777777777777770000000~~~~~~00000007777777777777777777777777777",
+  "7777777777777777777777770000000~~~~~~00000007777777777777777777777777777",
+  "7777777777777777444443370000000~~~~~~00000000777777777777777777733377777",
+  "7777777333333334444444330000000~~~~~~00000000773333333333333333333333777",
+  "3333333333333334444444330000000~~~~~~00000000333333333333333333333333333",
+  "33333333333333344444443300000000~~~~~~0000000333333333333333333333333333",
+  "33333333333333334444433300000000~~~~~~0000000333333333333333333333333333",
+  "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
+  "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
+  "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
+  "33333333333333333333333330000000~~~~~~0000003333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "333333333333333333333333333333333333333333333333333333333333333333333333",
+  "33333333333333333333333333333000000~~~~~00000003333333333333333333333333",
+  "3333333333333333333333333333000000~~~~~~00000003333333333333333333333333",
+  "3333333333333333333333333333000000~~~~~~00000003333333333333333333333333",
+  "3333333333333333333333333330000000~~~~~~00000003333333333333333333333333",
+  "3333300000000333330000000000000000~~~~~~00000003333333333333333333330000",
+  "0000000000000000000000000000000000~~~~~~00000000000000000000000000000000",
+  "0000000000000000000000000000000000~~~~~000000000000000000000000000000000",
+  "0000000000000000000000000000000000~~~~0000000000000000000000000000000000",
+  "000000000000000000000000000000000~~~~~~000000000000000000000000000000000",
+  "000000011100110000000000000000000~~~~~~000000000000000000000000000000000",
+  "000111111111111000000000000000000~~~~~~000000000000000000000111100000000",
+  "001111111111111000000000000000000~~~~~~000000000000000000111111111110000",
+  "0001111111111110000000000000000000~~~~0000000000000000000111111111110000"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaadddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaadddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaawwwaaaadddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaawwwaaaadddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaadddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaddddddddaaaaadwwwdddddddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaadddd",
+  "dddddddddddddddddddwwwdddddddddddd~~~~~~dddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddwwwdddddddddddd~~~~~ddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddwwwdddddddddddd~~~~dddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddwwwddddddddddd~~~~~~ddddddddddddddddddddddddddddddddd",
+  "dddddddaaaddaadddddwwwddddddddddd~~~~~~ddddddddddddddddddddddddddddddddd",
+  "dddaaaaaaaaaaaadddddddddddddddddd~~~~~~dddddddddddddddddddddaaaadddddddd",
+  "ddaaaaaaaaaaaaadddddddddddddddddd~~~~~~ddddddddddddddddddaaaaaaaaaaadddd",
+  "dddaaaaaaaaaaaaddddddddddddddddddd~~~~dddddddddddddddddddaaaaaaaaaaadddd"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 19,
+   "w": 3,
+   "h": 6,
+   "from": 0,
+   "to": 3
+  },
+  {
+   "x": 17,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 3,
+   "to": 4
+  }
+ ],
+ "props": [
+  {
+   "kind": "prayer_flags",
+   "x": 20,
+   "y": 11
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 49,
+   "y": 11
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 20,
+   "y": 15
+  },
+  {
+   "kind": "prayer_flags",
+   "x": 49,
+   "y": 15
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 20
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 20
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 21
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 21
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 22
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 18,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 22,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 16,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 20,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 20,
+   "y": 9
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 27,
+   "y": 0
+  },
+  {
+   "kind": "red_rock",
+   "x": 37,
+   "y": 2
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 43,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 29,
+   "y": 15
+  },
+  {
+   "kind": "red_rock",
+   "x": 42,
+   "y": 16
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 31,
+   "y": 0
+  },
+  {
+   "kind": "cattails",
+   "x": 36,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 10,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 14,
+   "y": 5
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 27,
+   "y": 4
+  },
+  {
+   "kind": "red_rock",
+   "x": 29,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 40,
+   "y": 4
+  },
+  {
+   "kind": "hoodoo",
+   "x": 45,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 50,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 56,
+   "y": 4
+  },
+  {
+   "kind": "hoodoo",
+   "x": 61,
+   "y": 4
+  },
+  {
+   "kind": "red_rock",
+   "x": 68,
+   "y": 5
+  },
+  {
+   "kind": "hoodoo",
+   "x": 4,
+   "y": 3
+  },
+  {
+   "kind": "dead_tree",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 11,
+   "y": 14
+  },
+  {
+   "kind": "hoodoo",
+   "x": 25,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "dead_tree",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 41,
+   "y": 9
+  },
+  {
+   "kind": "hoodoo",
+   "x": 48,
+   "y": 17
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 51,
+   "y": 12
+  },
+  {
+   "kind": "red_rock",
+   "x": 57,
+   "y": 15
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 64,
+   "y": 8
+  },
+  {
+   "kind": "hoodoo",
+   "x": 71,
+   "y": 9
+  },
+  {
+   "kind": "red_rock",
+   "x": 3,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 16,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 27,
+   "y": 18
+  },
+  {
+   "kind": "red_rock",
+   "x": 32,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 40,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 46,
+   "y": 18
+  },
+  {
+   "kind": "hoodoo",
+   "x": 52,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 56,
+   "y": 19
+  },
+  {
+   "kind": "hoodoo",
+   "x": 64,
+   "y": 18
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 70,
+   "y": 18
+  },
+  {
+   "kind": "dead_tree",
+   "x": 22,
+   "y": 3
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 32,
+   "y": 15
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 11
+  },
+  {
+   "kind": "red_rock",
+   "x": 27,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 43,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 8,
+   "y": 11
+  },
+  {
+   "kind": "red_rock",
+   "x": 13,
+   "y": 15
+  },
+  {
+   "kind": "red_rock",
+   "x": 16,
+   "y": 16
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 44,
+   "y": 15
+  },
+  {
+   "kind": "red_rock",
+   "x": 53,
+   "y": 11
+  },
+  {
+   "kind": "red_rock",
+   "x": 59,
+   "y": 10
+  },
+  {
+   "kind": "red_rock",
+   "x": 65,
+   "y": 11
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 39,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 34,
+   "y": 19
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 1,
+   "y": 22
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 11,
+   "y": 20
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 14,
+   "y": 20
+  },
+  {
+   "kind": "dead_tree",
+   "x": 25,
+   "y": 22
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 30,
+   "y": 20
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 41,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 44,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
+   "x": 49,
+   "y": 21
+  },
+  {
+   "kind": "hoodoo",
+   "x": 55,
+   "y": 21
+  },
+  {
+   "kind": "hoodoo",
+   "x": 60,
+   "y": 22
+  },
+  {
+   "kind": "red_rock",
+   "x": 69,
+   "y": 21
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 2,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 14,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 20,
+   "y": 26
+  },
+  {
+   "kind": "red_rock",
+   "x": 30,
+   "y": 27
+  },
+  {
+   "kind": "red_rock",
+   "x": 33,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 39,
+   "y": 27
+  },
+  {
+   "kind": "red_rock",
+   "x": 42,
+   "y": 27
+  },
+  {
+   "kind": "red_rock",
+   "x": 46,
+   "y": 26
+  },
+  {
+   "kind": "hoodoo",
+   "x": 57,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 61,
+   "y": 27
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 71,
+   "y": 27
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 24
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 0,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 17,
+   "y": 25
+  },
+  {
+   "kind": "hoodoo",
+   "x": 52,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
+   "x": 65,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 67,
+   "y": 27
+  }
+ ],
+ "place": {
+  "jar_1": [
+   5,
+   11
+  ],
+  "chest_ledge_mv_1": [
+   18,
+   6
+  ],
+  "crate_2": [
+   29,
+   24
+  ],
+  "jar_3": [
+   60,
+   15
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    14,
+    10
+   ],
+   [
+    34,
+    15
+   ],
+   [
+    56,
+    11
+   ]
+  ],
+  [
+   [
+    17,
+    17
+   ],
+   [
+    38,
+    11
+   ],
+   [
+    56,
+    17
+   ]
+  ],
+  [
+   [
+    17,
+    11
+   ],
+   [
+    31,
+    11
+   ],
+   [
+    53,
+    9
+   ]
+  ],
+  [
+   [
+    40,
+    15
+   ]
+  ]
+ ]
+}

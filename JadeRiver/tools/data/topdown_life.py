@@ -361,6 +361,8 @@ VISTAS = {
     "np_alliance_gate": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 80}],
     "np_hall_of_nine": [{"edge": "n", "kind": "peaks", "pad": 56}],
     "np_presence_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # R7: the Gale Canyons' far ranges over their north walls.
+    "gc_canyon_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]
