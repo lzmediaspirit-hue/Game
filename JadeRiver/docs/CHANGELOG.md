@@ -39,6 +39,12 @@ Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (
     - the Grove's trial begun;
     - Stone and Sweat's copper and beetles mined and fought at the Quarry Rim.
   - The capture set `room_engine` takes their pictures into `docs/architecture/room_engine/r3/`.
+  - `rules_tests`, the smallest edits on R1's data-driven frontier checks. Four checks still named R3's rooms, and now
+    hold either way:
+    - the tower climb is tried only while the tower has no layout;
+    - the lesson past the gate is the quest the check above finds past it, no longer Stone and Sweat;
+    - the side view's hunting grounds may all be on the grid now;
+    - the transfer array's node past the gate lies in any room off the grid, now every Jade Sect room is on it.
 
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
