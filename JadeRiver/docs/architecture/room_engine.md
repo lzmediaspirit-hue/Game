@@ -622,7 +622,7 @@ the nineteen rooms too.
 | `ae_landing` | 21 | `sky_port` | `01_arrival_terrace_gate`, `02_arrival_terrace_rim`, `rooms/ae_landing` |
 | `ae_port_market` | 29 | `sky_port` | `03_port_market_street`, `04_port_market_gate`, `rooms/ae_port_market` |
 | `ae_wayfarers_inn` | 9 | (an interior) | `05_wayfarers_inn` |
-| `ae_skydock` | 21 | `sky_port` | `06_skydock_berths`, `rooms/ae_skydock` |
+| `ae_skydock` | 22 | `sky_port` | `06_skydock_berths`, `rooms/ae_skydock` |
 | `ae_condensing_hall` | 13 | (an interior) | `07_condensing_hall` |
 | `ae_shipyard` | 18 | `sky_port` | `08_shipyard_slip`, `rooms/ae_shipyard` |
 | `tp_stormgrass_verge` | 20 | `storm_plains` | `09_stormgrass_verge`, `rooms/tp_stormgrass_verge` |
@@ -633,11 +633,11 @@ the nineteen rooms too.
 | `rf_snow_ape_ledges` | 17 | `snowfield` | `16_snow_ape_ledges`, `rooms/rf_snow_ape_ledges` |
 | `rf_rimefrost_summit` | 18 | `snowfield` | `17_rimefrost_summit`, `18_rimefrost_summit_rim`, `rooms/rf_rimefrost_summit` |
 | `rf_hermits_ice_cave` | 12 | `snowfield` | `19_hermits_ice_cave` |
-| `ml_reedless_shore` | 22 | `mirror_lake` | `20_reedless_shore_ferry`, `21_reedless_shore_mirror`, `rooms/ml_reedless_shore` |
+| `ml_reedless_shore` | 23 | `mirror_lake` | `20_reedless_shore_ferry`, `21_reedless_shore_mirror`, `rooms/ml_reedless_shore` |
 | `ml_mirror_shallows` | 24 | `mirror_lake` | `22_mirror_shallows`, `rooms/ml_mirror_shallows` |
 | `ml_sentinel_causeway` | 28 | `mirror_lake` | `23_sentinel_causeway`, `rooms/ml_sentinel_causeway` |
 | `ml_lake_shrine` | 17 | `mirror_lake` | `24_lake_shrine`, `rooms/ml_lake_shrine` |
-| `ml_toads_hollow` | 17 | `mirror_lake` | `25_toads_hollow`, `rooms/ml_toads_hollow` |
+| `ml_toads_hollow` | 18 | `mirror_lake` | `25_toads_hollow`, `rooms/ml_toads_hollow` |
 
 The specs: `specs/cloudgate_port.py`, `thunderhorn_plains.py`, `rimefrost_heights.py`, `mirrorwater_lake.py`. As R4's,
 the x2 copies of the world alone are not kept, and an interior's whole room is its view.
