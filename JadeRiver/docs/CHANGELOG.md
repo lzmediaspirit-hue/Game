@@ -48,9 +48,11 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
 
   Samples are left out, never scaled, and the budgets and the 18 checks are unchanged.
 
-  Pass rates, before against after, with 13 to 16 threads already busy on the 4 CPUs:
-  - alone: 0 of 5 against 5 of 5;
-  - with four more busy loops: RATES.
+  Pass rates, before against after, with the runs interleaved:
+  - alone: 0 of 5 (3 to 10 failures, at a load of 10 to 16 from the other agents) against 5 of 5;
+  - with four more busy loops beside it: 0 of 3 (15, 14 and 8 failures) against 3 of 3.
+
+  Two earlier batches of after-runs also passed 5 of 5 each, alone at a load of 6 to 16.
 - **Other timings.**
   - `rules_tests` asks for its share of the CPUs. It times the technique preview and the living world on the game's own
     clock, and takes the technique pictures' 4 ms main-thread budget as the least of up to three rounds of the same
