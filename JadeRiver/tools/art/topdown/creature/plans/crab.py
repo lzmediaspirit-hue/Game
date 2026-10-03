@@ -7,7 +7,9 @@ own frame, and the lunge, the stride and the struck side's claw follow it.
 
   shell  the carapace's size and pattern (pale blotches, grooves, the pale underside it shows on its back)
   legs   `n` a side along the shell, their reach and the scuttle's lift and stride
-  claws  the rest pose (ahead, out, up, yaw in, pitch, open) and the materials of the arm and the tips
+  claws  the rest pose (ahead, out, up, yaw in, pitch, open) and the materials of the arm and the tips; M1: `scale`, each
+         claw's size (its left's, its right's: the tide crab's great shield claw)
+  shell  M1: `pearls`, pearls grown on the carapace (along, across)
 
 The motion styles (STYLES): idle `snap`, walk `scuttle`, windup `claws_high`, attack `slam_drag`, hurt `flung`,
 death `flip_curl`. A claw's channel `claw` is (ahead, out, up, yaw in, pitch up, open) a frame.
@@ -108,6 +110,12 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0)) -> Pose:
     P.add(E(shell_c, shell_r, m.shell, "body", bm, shell),
           E(at(sh.rim[0]), sh.rim[1], m.rim, "body", bm, rim),
           E(at(sh.brow[0]), sh.brow[1], m.shell, "body", bm, shell))       # the brow over the eyes
+    # M1: pearls grown on the carapace (the tide crab's), each with its glint.
+    for pa, pb, pr in sh.get("pearls", ()):
+        u = min(0.95, (pa / shell_r[0]) ** 2 + (pb / shell_r[1]) ** 2)
+        q = at((pa, pb, shell_r[2] * math.sqrt(1.0 - u) + pr * 0.2))
+        P.add(S(q, pr, m.pearl, "pearl", line=False))
+        P.mark(q + v3(-0.2, 0.2, pr * 0.9), M.GLINT)
     # Mouth parts under the brow.
     (ma, mb, mc), mid = p.mouth
     for s in (1, -1):
@@ -144,6 +152,7 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0)) -> Pose:
     # guard); raised high and wide open in the tell; slammed shut before it on the strike, the struck side furthest.
     cl = p.claws
     for s in (1, -1):
+        k = cl.get("scale", (1.0, 1.0))[0 if s > 0 else 1]
         pa, pb, pc, yaw_in, pitch_c, open_ = B.pick("claw", action, f, cl.rest)
         if action == "idle" and st.get("snap"):
             open_ = 0.2 + 0.55 * max(0.0, math.sin((f / 6.0 + (0.0 if s > 0 else 0.5)) * math.tau))
@@ -155,21 +164,27 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0)) -> Pose:
             w = s * db + 0.4 * da                  # the claw on the struck side reaches furthest
             pa += 1.2 * w
             pb -= 0.8 * max(0.0, w) * s * 0
+        if k != 1.0:
+            # A great claw is held further forward, in toward the middle and a little higher: before the face.
+            pa, pb, pc = pa + 2.4 * (k - 1.0), pb - 2.0 * (k - 1.0), pc + 1.2 * (k - 1.0)
         palm = at((pa, s * pb, pc))
         elbow = at((pa * 0.55 + 1.6, s * (pb + 2.8), pc * 0.5 + 0.4))
         cm = bm @ rot("c", s * yaw_in) @ rot("b", pitch_c)
-        P.add(L(at((cl.root[0], s * cl.root[1], cl.root[2])), elbow, 1.35, 1.25, m.claw, "arm%d" % s),
-              L(elbow, palm, 1.25, 1.4, m.claw, "arm%d" % s))
-        P.add(E(palm, (2.8, 1.6, 2.3), m.claw, "claw%d" % s, cm),
-              E(palm + cm @ v3(2.9, 0.0, -0.7), (1.9, 1.0, 1.0), m.claw, "claw%d" % s, cm),
-              E(palm + cm @ v3(4.6, 0.0, -0.6), (1.2, 0.8, 0.75), m.tip, "claw%d" % s, cm))
+        P.add(L(at((cl.root[0], s * cl.root[1], cl.root[2])), elbow, 1.35 * min(k, 1.25), 1.25 * min(k, 1.25), m.claw, "arm%d" % s),
+              L(elbow, palm, 1.25 * min(k, 1.25), 1.4 * k, m.claw, "arm%d" % s))
+        P.add(E(palm, (2.8 * k, 1.6 * k, 2.3 * k), m.claw, "claw%d" % s, cm),
+              E(palm + cm @ v3(2.9 * k, 0.0, -0.7 * k), (1.9 * k, 1.0 * k, 1.0 * k), m.claw, "claw%d" % s, cm),
+              E(palm + cm @ v3(4.6 * k, 0.0, -0.6 * k), (1.2 * k, 0.8 * k, 0.75 * k), m.tip, "claw%d" % s, cm))
         dm = cm @ rot("b", 12.0 + open_ * 42.0)
-        hinge = palm + cm @ v3(1.3, 0.0, 1.1)
-        P.add(E(hinge + dm @ v3(2.0, 0.0, 0.2), (1.9, 0.95, 0.85), m.claw, "dactyl%d" % s, dm),
-              E(hinge + dm @ v3(3.6, 0.0, 0.1), (1.1, 0.75, 0.7), m.tip, "dactyl%d" % s, dm))
-        P.mark(palm + cm @ v3(1.0, 0.0, 2.3), M.RAMPS[m.claw][4])
+        hinge = palm + cm @ v3(1.3 * k, 0.0, 1.1 * k)
+        P.add(E(hinge + dm @ v3(2.0 * k, 0.0, 0.2 * k), (1.9 * k, 0.95 * k, 0.85 * k), m.claw, "dactyl%d" % s, dm),
+              E(hinge + dm @ v3(3.6 * k, 0.0, 0.1 * k), (1.1 * k, 0.75 * k, 0.7 * k), m.tip, "dactyl%d" % s, dm))
+        P.mark(palm + cm @ v3(1.0 * k, 0.0, 2.3 * k), M.RAMPS[m.claw][4])
+        if k > 1.0 and m.get("pearl"):
+            for t in (-0.5, 0.4):        # the shield claw's crusted rim, a pearl in it
+                P.mark(palm + cm @ v3(t * 2.2 * k, -0.9 * k, 1.9 * k), M.RAMPS[m.pearl][3])
         if action == "attack" and f in st.get("dust", ()):
-            tipp = palm + cm @ v3(4.6, 0.0, -0.8)
+            tipp = palm + cm @ v3(4.6 * k, 0.0, -0.8 * k)
             for k in range(5):
                 ang = math.radians(k * 72.0 + f * 30.0)
                 P.fx.append((v3(tipp[0] + math.cos(ang) * (1.6 + f), tipp[1] + math.sin(ang) * (1.6 + f), 0.3 + (k % 2) * 0.6),

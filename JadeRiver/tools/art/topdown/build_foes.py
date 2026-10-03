@@ -12,9 +12,11 @@ With --review it also renders into docs/redesign/feedback/monsters/sheets/ each 
 labelled (and its elite's), each species facing SE playing its whole catalogue at the game's rates as a
 GIF at x4 (its elite beside it), and every species' tell side by side (tells_x4.png).
 
-Usage: python3 tools/art/topdown/build_foes.py [--jobs N] [--review] [--check] [--only sp1,sp2]
+Usage: python3 tools/art/topdown/build_foes.py [--jobs N] [--review] [--check] [--only sp1,sp2] [--update sp1,sp2]
   --check  builds twice in memory and fails unless both builds are byte-identical
   --only   builds and reviews only those species and writes nothing but their review images (for iterating)
+  --update builds only those species and writes their sheets and their blocks of the manifest, the others' left as they
+           are (M1: each species' sheets and block depend on its spec alone, so this writes what a full build would)
 """
 from __future__ import annotations
 
@@ -135,6 +137,42 @@ def anims(sheets: dict, man: dict, every: bool = True) -> None:
     strip.resize((w * z, h * z), Image.NEAREST).save(REVIEW / "tells_x4.png")
 
 
+def _update(jobs: int, names: set, with_review: bool) -> int:
+    """Build the named species and write their sheets and manifest blocks into the manifest on disk (a species no longer
+    drawn: its block and sheets go)."""
+    bad = sorted(n for n in names if n not in creatures.REGISTRY)
+    sheets, man = creatures.build(jobs, names - set(bad))
+    path = ROOT / MANIFEST
+    full = json.loads(path.read_text())
+    for n in bad:
+        full["species"].pop(n, None)
+        for old in (ROOT / FOES_DIR).glob(n + "*.png"):
+            if old.stem in (n, n + "_elite", n + "_awakened"):
+                old.unlink()
+                imp = old.with_suffix(".png.import")
+                if imp.exists():
+                    imp.unlink()
+    for n, block in man["species"].items():
+        full["species"][n] = block
+        for look in ("elite", "awakened"):
+            if look not in block:
+                stale = ROOT / FOES_DIR / ("%s_%s.png" % (n, look))
+                if stale.exists():
+                    stale.unlink()
+                    imp = stale.with_suffix(".png.import")
+                    if imp.exists():
+                        imp.unlink()
+    for p, im in sheets.items():
+        data = SH.png_bytes(im)
+        (ROOT / p).write_bytes(data)
+        print("%-40s %9s %8d bytes  sha1 %s" % (p, "%dx%d" % im.size, len(data), hashlib.sha1(data).hexdigest()[:12]))
+    path.write_bytes((json.dumps(full, indent=1, sort_keys=True) + "\n").encode())
+    print("%s updated: %s" % (MANIFEST, ", ".join(sorted(man["species"]))))
+    if with_review:
+        review(sheets, man, every=False)
+    return 0
+
+
 def main(argv: list[str]) -> int:
     jobs = 1
     only = None
@@ -143,6 +181,12 @@ def main(argv: list[str]) -> int:
             jobs = int(argv[i + 1])
         if a == "--only":
             only = set(argv[i + 1].split(","))
+    update = None
+    for i, a in enumerate(argv):
+        if a == "--update":
+            update = set(argv[i + 1].split(","))
+    if update is not None:
+        return _update(jobs, update, "--review" in argv)
     outputs, sheets = build_all(jobs, only)
     man = json.loads(outputs[MANIFEST])
     if only is not None:

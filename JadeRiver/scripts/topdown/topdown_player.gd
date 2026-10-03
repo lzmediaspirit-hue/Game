@@ -79,6 +79,12 @@ var place_pose := ""
 ## `weave.buffer_s`) and goes at the cut: {kind: "attack" | "technique", dir, aimed, finisher, slot, k, left}.
 var weave := {}
 var _no_buffer := false
+## T1 (docs/architecture/topdown_mechanics.md): this press of Jump already started a glide (a press starts one, as the
+## side view's hold does).
+var _glide_spent := false
+## T1: the body's pose on a climbable face: the reviewed hang pose (AGENTS.md rule 4: no new body movement is drawn for
+## it), reaching up the face.
+const CLIMB_POSE := "work_hang"
 ## Decision 43, the chain's flow (CombatFeel.flow): the last step Combat began that the body has turned to and lunged
 ## for (a tapped step does both as it is sent; a queued one, or a finisher asked for mid-chain, as it begins).
 var _step_seen := -1
@@ -125,7 +131,9 @@ func dodge() -> void:
 	if not bound():
 		_dash = true
 		return
-	if not motor.can_dash(): return
+	if not motor.can_dash():
+		_air_dodge()
+		return
 	var r := Game.submit({"type": "dodge", "direction": last_axis, "facing": facing, "moves": false})
 	if r.get("ok", false):
 		motor.dash_cd = 0.0   # Combat keeps the cooldown
@@ -138,6 +146,46 @@ func dodge() -> void:
 		var tl: Dictionary = Game.combat.timeline(actor_id)
 		var until := float(CombatFeel.timeline_phases(tl, Game.character(actor_id)).get("cancel_from", 0.0)) - float(tl.t) + 3.0 / 60.0
 		dodge_buffer = clampf(until, float(CombatFeel.cfg().get("dodge_buffer_s", 0.2)), float(CombatFeel.flow().get("dodge_hold_s", 0.6)))
+
+## T1 · a tap of Dodge in the air: Combat's Swallow Dart (it darts along the stick, holding the height; once an
+## airtime, on the dodge's cooldown) or its Wind Blink, carried by the motor: Combat's forced motion pushes it and the
+## motor holds the height while the dart lasts.
+func _air_dodge() -> void:
+	if motor.grounded or not motor.climbing.is_empty() or motor.plunging or motor.sink_t >= 0.0: return
+	var r := Game.submit({"type": "dodge", "direction": last_axis if last_axis.length() > 0.2 else motor.dir, "facing": facing, "moves": true})
+	if r.get("air_dash", false): motor.air_hold(state.dash_hold)
+	elif r.get("blink", false): motor.vz = maxf(motor.vz, float(TopdownMotor.conf("traverse.double_jump_impulse", 325.0)) * 0.4)
+
+## T1 · a climbable face in reach (TopdownTraverse.climb_near): {climb, end} or {}.
+func climb_near() -> Dictionary:
+	var tr := motor.traverse()
+	if tr == null or tr.climbs.is_empty() or not motor.grounded or motor.sink_t >= 0.0: return {}
+	return tr.climb_near(motor.pos, motor.z)
+
+## T1 · climb on (the context's Climb, or the stick held toward the face): the World authority says whether this one is
+## open (a sealed loft, a library floor: its side-view row's `requires`), and a shut one says why over the body.
+func climb() -> bool:
+	var near := climb_near()
+	if near.is_empty() or not bound(): return false
+	climb_hold = 0.0
+	var cl: Dictionary = near.climb
+	var open: Dictionary = Game.world.climbable_open(Game.character(actor_id), _side_climbable(str(cl.id)))
+	if not open.get("ok", false):
+		climb_hold = -1.0   # said once a hold
+		if world.get("effects") != null: world.effects.add("text", world.player_feet() + Vector2(0, -120), {"text": str(open.get("text", "")), "color": UiKit.MIST, "size": 18, "dur": 1.8})
+		return false
+	var c = Game.character(actor_id)
+	motor.climb_speed = float(TopdownMotor.conf("traverse.climb_speed", 80.0)) * (1.0 + clampf(c.stats.value("climb_speed"), 0.0, 0.5))
+	if motor.start_climb(cl, str(near.end) == "top"):
+		if c.cultivator.meditating: Game.submit({"type": "stop_meditation", "reason": "moved"})
+		return true
+	return false
+
+## The side view's own row of a climbable (its `requires` and `locked_text`), by its id.
+func _side_climbable(id: String) -> Dictionary:
+	for cl in ContentDB.room(Game.room_rt.room_id).get("climbables", []):
+		if str(cl.get("id", "")) == id: return cl
+	return {"id": id}
 
 ## A tap of Attack: the soft lock (the nearest foe in the cone round the stick, else the facing).
 func attack() -> void:
@@ -384,13 +432,21 @@ func physics_step(delta: float) -> Array:
 		if move.length() > motor.tiptoe_axis and Game.combat.is_busy(actor_id) and weave.is_empty() and dodge_buffer <= 0.0 \
 				and CombatFeel.phase_of(tl, c) == "recovery" and CombatFeel.dodge_cancel(tl, c) == "cancel":
 			Game.submit({"type": "move_cancel"})
-		motor.speed_k = Game.combat.move_factor(actor_id) if not Game.combat.is_wounded(actor_id) else 0.0
+		# T1: a mount carries the rider at its pace (PetAuthority.mount_speed), as the side view's walk.
+		motor.speed_k = Game.combat.move_factor(actor_id) * Game.pets.mount_speed(c) if not Game.combat.is_wounded(actor_id) else 0.0
 		# Decision 43: the feet are planted through a blow's anticipation and active frames on the ground (its lunge
 		# carries it; the recovery keeps the attack's walk).
 		if motor.grounded and CombatFeel.phase_of(tl, c) in ["anticipation", "active"]: motor.speed_k *= float(CombatFeel.flow().get("plant", 0.0))
 		motor.lock_face = Game.combat.is_busy(actor_id)
 		motor.water_walk = Game.combat.knows_art(c, "water_skimming")
+		# T1: the movement arts this character knows reach the motor, as the side view's _sync_arts reaches its solver.
+		motor.double_jump = Game.combat.knows_art(c, "double_jump")
+		motor.wall_step = Game.combat.knows_art(c, "wall_step") and not Game.pets.ground_mounted(c)   # no mount kicks off a wall
+		_hold_jump(c)
+		_climb_hold(c, move, delta)
 		var forced: Dictionary = Game.combat.forced_motion(actor_id)
+		# T1: a blow knocks the body off a climbable face (the side view's knock_off_climb).
+		if not motor.climbing.is_empty() and (float(Game.combat.timeline(actor_id).flinch) > 0.0 or Game.combat.is_wounded(actor_id)): motor.release_climb(false)
 		if not forced.is_empty():
 			if float(Game.combat.timeline(actor_id).flinch) > 0.0 and knock_t <= 0.0:
 				knock_t = float(forced.time)   # decision 38: struck and knocked back, the body hops
@@ -420,8 +476,70 @@ func physics_step(delta: float) -> Array:
 				impact_t = IMPACT_S
 	if state.plunging and not motor.plunging and motor.grounded: state.plunging = false
 	_mirror()
+	if bound(): _announce(events)
 	if bound(): Game.combat.face_on_plane(actor_id, motor.dir)
 	return events
+
+## T1 · Jump held in the air as the body comes down: Combat's Falling Leaf Glide (its QI, its art_used), once a press,
+## as the side view's hold glides; let go, landed, or on a face, it ends. The motor glides while Combat's body does.
+func _hold_jump(c) -> void:
+	var held := jump_held or Input.is_physical_key_pressed(KEY_SPACE)
+	if not held: _glide_spent = false
+	var air := not motor.grounded and motor.climbing.is_empty() and not motor.plunging and motor.sink_t < 0.0
+	# T1 · flight (Cloud Stride): Combat holds it and pays its QI; the motor flies while it does. Jump held climbs, Evade
+	# held descends; a landing (or Combat letting go: no QI, a room that refuses flight) ends it.
+	if motor.flying and not Game.combat.is_flying(actor_id): motor.fly(false)
+	if not motor.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
+	if motor.flying:
+		motor.fly_input = float(held or fly_up) - float(fly_down or Input.is_physical_key_pressed(KEY_K))
+		return
+	if state.gliding and (not held or not air): Game.submit({"type": "glide", "on": false})
+	elif held and air and motor.vz <= 0.0 and not state.gliding and not _glide_spent:
+		# As the side view's hold: from Cloud Stride 1, where flight is allowed and QI holds, the body takes to the air;
+		# otherwise Falling Leaf Glide slows the fall.
+		_glide_spent = true
+		state.surface = null
+		if Unlocks.is_unlocked(actor_id, "flight") and Game.combat.flight_allowed(actor_id) and Game.submit({"type": "start_flight"}).get("ok", false):
+			motor.fly(true)
+			motor.fly_input = 0.0
+		elif Game.combat.knows_art(c, "glide"): Game.submit({"type": "glide", "on": true})
+	motor.gliding = state.gliding
+
+## T1 · the stick held toward a climbable face (into it at its foot, over the edge at its top) for the side view's hold
+## climbs on.
+func _climb_hold(c, move: Vector2, delta: float) -> void:
+	if not motor.climbing.is_empty() or Game.combat.is_busy(actor_id) or c.pools.blocked("move"):
+		climb_hold = 0.0
+		return
+	var near := climb_near()
+	var toward := false
+	if not near.is_empty() and move.length() > 0.7:
+		var d: Vector2 = near.climb.dir if str(near.end) == "foot" else -(near.climb.dir as Vector2)
+		toward = move.normalized().dot(d) > 0.8
+	if not toward:
+		climb_hold = 0.0
+		return
+	if climb_hold < 0.0: return   # a shut one said why: once a hold
+	climb_hold += delta
+	# Over the top's edge it climbs down at once (a moment's hold would walk the body off the edge); into the face at the
+	# foot it waits the side view's hold, so a push against a wall is not a climb.
+	if str(near.end) == "top" or climb_hold >= float(TopdownMotor.conf("traverse.climb_hold_s", 0.3)): climb()
+
+## T1 · what the motor did that the side view's movement authority announces (LocalAuthority.announce: art_used for the
+## arts the quests and lessons count, mover_boarded, the climb's start and end, a wall kick), on the body's state.
+func _announce(events: Array) -> void:
+	for e in events:
+		match str(e.type):
+			"boarded": state.events.append({"name": "mover_boarded", "mover": str(e.raft)})
+			"double_jumped": state.events.append({"name": "art_used", "art": "double_jump"})
+			"wall_kicked":
+				state.events.append({"name": "wall_kicked", "side": int(signf((e.side as Vector2).x + (e.side as Vector2).y)), "kicks": int(e.kicks)})
+				state.events.append({"name": "art_used", "art": "wall_step"})
+			"skimmed": state.events.append({"name": "art_used", "art": "water_skimming"})
+			"bounced": state.events.append({"name": "art_used", "art": "bounce"})
+			"climb_started": state.events.append({"name": "climb_started", "climbable": str(e.climbable)})
+			"climb_finished": state.events.append({"name": "climb_finished", "climbable": str(e.climbable), "end": str(e.end)})
+	if not state.events.is_empty(): LocalAuthority.announce(state, actor_id)
 
 ## The authorities' view of the body: where it is, how high, and whether it stands on the grid.
 func _mirror() -> void:
@@ -430,6 +548,10 @@ func _mirror() -> void:
 	state.velocity = motor.vel
 	state.surface = ground if motor.grounded and motor.sink_t < 0.0 else null
 	state.zone_id = world.room.id
+	# T1: on a climbable face (Combat refuses blows and arts there), and a dart's once an airtime ends with the airtime.
+	state.climbing = {"id": str(motor.climbing.id), "kind": str(motor.climbing.kind)} if not motor.climbing.is_empty() else {}
+	state.flying = motor.flying
+	if motor.grounded: state.air_dash_used = false
 
 ## Pick the action and frame from the motor and Combat's timeline, then place the node: x on whole art px, y at the
 ## sort key, the body drawn back down to its whole-pixel screen row (TopdownWorld keeps every key a multiple of 1/64,
@@ -463,6 +585,7 @@ func sync(delta: float) -> void:
 	elif bound() and Game.combat.is_playing(actor_id) and m.vel.length() <= 12.0: next = "melody"
 	elif bound() and float(tl.get("flinch", 0.0)) > 0.0: next = "hurt"
 	elif m.dash_t > 0.0: next = "dodge" if m.dash_dir.dot(m.dir) < -0.3 else "dash"
+	elif not m.climbing.is_empty(): next = "climb"   # T1: on a climbable face, reaching up it (the reviewed hang pose)
 	elif not m.grounded:
 		next = "jump"
 		f = 0 if m.vz > 340.0 else (1 if m.vz > 140.0 else (2 if m.vz > -140.0 else 3))
@@ -499,6 +622,11 @@ func sync(delta: float) -> void:
 			pose = "plunge"
 			f = TopdownFigure.hit_frame(pose)
 		"parry", "charge": pose = TopdownFigure.resolve("", _family(), anim)
+		# T1: a climb plays the hang pose (its every layer and facing reviewed, the weapon stowed) facing the face: its
+		# reaching frames hand over hand while the stick moves the body along the face, one reach held while it rests.
+		"climb":
+			pose = CLIMB_POSE
+			f = (1 + int(anim_t * float(TopdownFigure.spec(pose).fps)) % 4) if m.climb_moving else 2
 		# The held melody: the flute at the lips, its note frames looping (combat_feel.json `melody_loop`).
 		"melody":
 			pose = TopdownFigure.resolve("", _family(), anim)
@@ -514,6 +642,8 @@ func sync(delta: float) -> void:
 		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
+	# T1: a body on a climbable face draws in front of it, and of the raised floor's whole side it hangs on.
+	if not m.climbing.is_empty(): position.y = maxf(position.y, float(m.climbing.get("front_key", 0.0)) + 0.25)
 	# A cut holds the body's clocks still (Game.paused): no flinch's red or dodge's blink is held through it (decision 45).
 	var inv: bool = not Game.paused and (motor.invuln > 0.0 or (bound() and float(Game.combat.timeline(actor_id).dodge_t) > 0.0))
 	var hurt := bound() and float(Game.combat.timeline(actor_id).flinch) > 0.0 and not Game.paused
@@ -552,3 +682,7 @@ func _draw() -> void:
 	# A cut holds the simulation (and this body's clock) still: no blow's white is held through it either.
 	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) and not Game.paused else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)
+	# T1: Falling Leaf Glide's leaf of qi spread over the body while it glides, flight's cloud under the feet (effects:
+	# no new body pose; the body holds the jump's apex frame).
+	if motor.gliding: TopdownTraverseView.draw_glide(self, Vector2(0, screen.y - position.y))
+	if motor.flying: TopdownTraverseView.draw_cloud(self, Vector2(0, screen.y - position.y))

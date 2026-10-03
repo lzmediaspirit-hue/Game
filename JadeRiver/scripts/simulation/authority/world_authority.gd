@@ -114,6 +114,8 @@ func _on_bottleneck(p: Dictionary) -> void:
 ## S43 rising water: the room's geometry answers a boss phase or a boss's fall.
 func _on_room_script(p: Dictionary, ev: String) -> void:
 	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
+	# T1: on the grid the same script raises the layout's floods (TopdownTraverse).
+	if game.room_rt != null and game.room_rt.topdown != null and game.room_rt.topdown.traverse != null: game.room_rt.topdown.traverse.on_event(ev, p)
 
 # ------------------------------------------------------------------ rooms
 static func compile_geometry(def: Dictionary) -> Dictionary:
@@ -271,6 +273,8 @@ func tick(delta: float) -> void:
 	herbs.tick_rare_herbs(c, rt, delta)
 	# S43: the room clock moves movers, drops crumbled floors and raises water.
 	rt.geometry.advance(delta)
+	# T1: on the grid the rafts ride the same clock (TopdownTraverse.time; docs/architecture/topdown_mechanics.md).
+	if rt.topdown != null and rt.topdown.traverse != null: rt.topdown.traverse.time = rt.geometry.time
 	var st: ActorState = game.actor_state(c.id)
 	if st != null: hazards.tick_hazard_volumes(c, rt, st, delta)
 	# The spot a save resumes at: on the grid too (Phase 4), never in the prototype room, which is not a place.

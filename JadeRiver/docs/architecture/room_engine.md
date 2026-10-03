@@ -269,12 +269,12 @@ lips wander (`wavy`), each laid over the one below it, with the stair landings f
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the bamboo monkey, the green viper, the
   thornback boar, the Stone Guardian, and the wild pets ember fox and jade crane chick. The greyfin, the hollowed
   boarlet and the marsh leech have theirs.
-- The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
-  top-down counterpart; Leaf on the Wind's glide is the side view's.
-- A set piece's waves are called to the side view's points, read as world units on the grid: the summit is 28 rows
-  deep and the Pilgrim Stairs 72 cells wide so that Heaven's Cleansing's and the Iron Body trial's points land on open
-  ground. Converting their points is the engine's work, not a room's. (R2: `TopdownRoom.grid_event` now gives a set
-  piece the room's own event cells, or else the nearest spot a body stands on; a point already on open ground stays.)
+- ~~The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
+  top-down counterpart; Leaf on the Wind's glide is the side view's.~~ T1: `traverse` rows, and the lesson played on
+  the grid (`docs/architecture/topdown_mechanics.md`).
+- ~~A set piece's waves are called to the side view's points, read as world units on the grid.~~ T1: one rule sets
+  every room event's points on the grid (`TopdownRoom.grid_event`, from `WorldRoomEvents.start_event`); the summit's
+  guardians come to its `stage` cells (`docs/architecture/topdown_mechanics.md`).
 
 **The frontier now** (R2 opened Bend Shore's three ways, below):
 - ~~the Echo Cliffs' way west (Crane Cliffs);~~
@@ -364,7 +364,8 @@ pool, the Waterfall Cave's cleft).
 
 **Set pieces on the grid.** A rite circle's set piece (the Riverbreath Trial at the Scripture Well) brings side-view
 spawn points. `TopdownRoom.grid_event` gives them the layout's own cells for the room's event (the spec's `event`), or
-else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it in a room on the grid.
+else the nearest spot a body stands on. (T1: `WorldRoomEvents.start_event` asks it for every room event on the grid,
+one rule for all of them (`docs/architecture/topdown_mechanics.md`).)
 
 **The suite** (`tests/topdown_drowned_shrine`, 44 checks):
 - each room is entered through its ways, built by the view, and walked by auto-path from every way in;
@@ -384,6 +385,9 @@ else the nearest spot a body stands on. `QuestAuthority.start_set_piece` asks it
   - the currents' push;
   - the rising water of the Serpent's and the Abbot's floods;
   - the Drowned Grotto's swim (it is wading water here).
+
+  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows now, waiting in these rooms'
+  specs; the lanterns and the swim are still to do (`docs/architecture/topdown_mechanics.md`).
 | Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
 |---|---|---|
 | `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
@@ -445,8 +449,9 @@ Each stands where auto-path reaches it from every way in.
 
 **The trials on the grid.** The Trial Tower's floors and the Grove's waves were written in the side view's coordinates
 (`world_tower.gd`, `data/beast_arena.json`).
-- `WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`: across the room as across the side view, a
-  cell in from the edges, onto the nearest floor.
+- ~~`WorldRoomEvents.side_points` maps them through `TopdownRoom.from_side`~~ (T1: `TopdownRoom.grid_event`, one
+  rule for every room event): across the room as across the side view, a cell and a half in from the edges, onto the
+  nearest open floor.
 - The side view gets them unchanged.
 
 **Tested in** `tests/topdown_sect_halls.tscn`:
@@ -465,13 +470,11 @@ Each stands where auto-path reaches it from every way in.
 
 Some side-view props have no top-down counterpart:
 - the guardian lions;
-- the quarry's crane lift (a side-only mover).
+- the quarry's crane lift (a side-only mover; T1: a `lift` row with mode `trigger`, waiting in the spec).
 
-Some waves still spawn at the side view's points, read as world units on the grid:
-- the spatial rift's waves, in every room with a rift tear, at the side view's depth (y 860);
-- the set pieces' waves (R1's note above).
-
-The tower's and the Grove's mapping (`WorldRoomEvents.side_points`) is the model for them.
+~~Some waves still spawn at the side view's points, read as world units on the grid: the spatial rift's waves and the
+set pieces' waves.~~ T1: every room event's points are set on the grid by one rule (`TopdownRoom.grid_event`); a
+rift's foes come either side of the player on the grid's floors (`docs/architecture/topdown_mechanics.md`).
 
 ## The peaks (R4)
 
@@ -551,10 +554,10 @@ byte for byte, and `test_engine` holds it.
   top takes a lit tint (`LIT`) and its face a lighter sky tint (`FACE_LIT`). Over its cast shadow it reads as a lit
   stone, not a dark square sunk into the paving. This also fixes R1's Cleansing Summit pillars; their two pictures
   are retaken under `r1/`.
-- **The sect's raid on the grid** (`SectAuthority.start_defence`). The defence's points are the side view's, read as
-  world units, and one stands past the room's east edge. On the grid each comes in on the nearest floor inside the
-  room. The Sect Grounds keep the lawn open where the first two land: cells 9 and 46 of row 26, the latter pinned free
-  of the scatter.
+- **The sect's raid on the grid** (`SectAuthority.start_defence`). The defence's points are the side view's, and one
+  stands past the room's east edge. On the grid each comes in on the open floor inside the room. (T1: by the one rule
+  for every room event, `TopdownRoom.grid_event`: mapped across the room, they land at cells (7, 22), (32, 22) and
+  (54, 23) (`docs/architecture/topdown_mechanics.md`).)
 - **Places.** The Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the Frozen Shrine are rows
   of `places.py`. There are 30 places now.
 - **One frontier check.** `rules_tests`' prototype check teleported to the Hidden Vale's stone to show a stone past the

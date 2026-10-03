@@ -16,6 +16,19 @@ The motion styles (STYLES): idle `guard_sway`, walk `march`, windup `draw_palm`,
 brow, glowing eyes, a nub nose, a toothy grin, shard ears), pebble studs and an ember crack, a stone held in the right
 hand (`held`, released on the blow), and `crumble` (kit.collapse: it comes apart into a heap). Its styles: idle `toss`,
 walk `waddle`, windup `wind_throw`, attack `throw`, hurt `knock`, death `crumble`.
+
+`monkey` (M1, the bamboo monkey): a hunched body (`hunch`, a lean every frame carries), `fur` paint (gold fur, an olive
+mantle over the back and shoulders, a pale belly), a `monkey` face (a pale heart-shaped face and muzzle, big amber eyes,
+round ears, a leaf tuft on the crown), long arms, a curling tail (`tail`), and a bamboo shoot in its right hand (`held`
+kind "shoot", thrown on the blow). Its styles: idle `perch`, walk `lope`, windup `wind_shoot`, attack `hurl`, hurt
+`knock`, death `tumble`.
+
+`guardian` (M1, the stone guardian): a squat temple lion-dog of carved stone on two legs: `temple` paint (warm temple
+stone in pits and flecks, moss on its shoulders and crown), the imp's `grin` face in jade (`glow` "jade": bulging glowing
+jade eyes), a mane of spiral curls round its head (`mane`), a carved collar with a stone bell (`collar`), a flame-curl
+tail, cracks that light up jade in its tell and its slam (`cracks`, the channel `glow`). It hauls both fists up over its
+head (the tell, held) and slams them down before it in dust (the blow); beaten, it comes apart into a heap of blocks.
+Its styles: idle `stand`, walk `stomp`, windup `fists_up`, attack `double_slam`, hurt `knock`, death `crumble`.
 """
 from __future__ import annotations
 
@@ -86,6 +99,40 @@ IMP_STYLES = {
                 "limp": True, "dark_from": 3},
 }
 STYLES.update(IMP_STYLES)
+MONKEY_STYLES = {
+    "perch": {"sway_amp": 0.25, "guard": 0.0,
+              "right": ((3.2, -3.0, -3.6), (3.3, -2.9, -3.2), (3.4, -2.8, -2.9), (3.3, -2.9, -3.2), (3.2, -3.0, -3.6), (3.1, -3.1, -3.8)),
+              "left": ((3.8, 2.8, -8.2),) * 6, "tail_wave": True},
+    "lope": {"kind": "march", "bounce": 1.1, "twist_amp": 6.0, "stride": 2.4, "lift": 1.8, "swing": 2.4, "tail_wave": True},
+    "wind_shoot": {"lean": (-10.0, -20.0, -26.0, -28.0), "twist": (-12.0, -24.0, -32.0, -34.0), "step": (-0.3, -0.6, -0.8, -0.9),
+                   "sink": (0.2, 0.5, 0.7, 0.8), "plant": True, "chatter": (0.4, 1.0, 0.6, 1.0),
+                   "right": ((0.4, -4.0, 0.6), (-1.0, -4.2, 3.0), (-2.0, -4.2, 4.6), (-2.4, -4.2, 5.2)),
+                   "left": ((3.8, 3.4, -5.4), (4.2, 3.4, -3.8), (4.4, 3.2, -2.8), (4.4, 3.2, -2.6))},
+    "hurl": {"lean": (-6.0, 10.0, 16.0, 12.0, 6.0, 2.0), "twist": (14.0, 36.0, 42.0, 34.0, 16.0, 4.0), "step": (0.8, 2.0, 2.4, 2.2, 1.2, 0.4),
+             "sink": (0.6, 1.0, 0.9, 0.6, 0.3, 0.1), "plant": True, "release": 1, "chatter": (1.0, 0.7, 0.3, 0.1, 0.0, 0.0),
+             "squash": {1: (1.04, 1.0, 0.97)},
+             "right": ((-0.6, -2.6, 5.6), (5.0, -1.2, 2.0), (5.8, -0.6, -1.6), (4.6, -1.0, -3.6), (3.6, -2.0, -4.0), (3.2, -2.8, -3.8)),
+             "left": ((3.6, 3.2, -1.4), (1.0, 4.0, -3.6), (2.6, 3.4, -6.6), (3.4, 3.0, -7.6), (3.8, 2.8, -8.0), (3.8, 2.8, -8.2))},
+    "tumble": {"lean": (-14.0, -24.0, -30.0, -30.0, -30.0, -30.0, -30.0, -30.0), "sink": (0.0, 0.8, 2.0, 3.0, 3.4, 3.6, 3.6, 3.6),
+               "droop": (-10.0, -18.0, -24.0, -26.0, -26.0, -26.0, -26.0, -26.0),
+               "roll": (0.0, 0.0, 10.0, 34.0, 62.0, 84.0, 90.0, 88.0), "limp": True, "dark_from": 4, "fall": (5.0, 2.6),
+               "chatter": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3)},
+}
+STYLES.update(MONKEY_STYLES)
+GUARDIAN_STYLES = {
+    "stand": {"sway_amp": 0.2, "guard": 0.25},
+    "stomp": {"kind": "march", "bounce": 0.45, "twist_amp": 5.0, "stride": 2.4, "lift": 1.6, "swing": 1.2},
+    "fists_up": {"lean": (-2.0, -6.0, -8.0, -8.0), "step": (-0.2, -0.5, -0.7, -0.8), "sink": (0.4, 0.2, 0.0, 0.0), "plant": True,
+                 "glare": True, "glow": (0.4, 0.8, 1.0, 1.0),
+                 "right": ((1.6, -4.4, 3.0), (-0.4, -3.4, 7.6), (-1.2, -3.0, 9.0), (-1.4, -3.0, 9.2)),
+                 "left": ((1.6, 4.4, 3.0), (-0.4, 3.4, 7.6), (-1.2, 3.0, 9.0), (-1.4, 3.0, 9.2))},
+    "double_slam": {"lean": (4.0, 24.0, 24.0, 12.0, 4.0, 0.0), "step": (0.2, 1.4, 1.4, 0.7, 0.2, 0.0), "sink": (0.0, 2.2, 2.2, 0.9, 0.2, 0.0),
+                    "plant": True, "glare": True, "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "dust": (1, 2, 3),
+                    "squash": {1: (1.04, 1.04, 0.94)},
+                    "right": ((2.6, -2.8, 8.4), (8.0, -2.4, -7.0), (8.0, -2.4, -7.0), (6.0, -3.2, -4.6), (4.4, -4.0, -3.4), (3.6, -4.6, -4.2)),
+                    "left": ((2.6, 2.8, 8.4), (8.0, 2.4, -7.0), (8.0, 2.4, -7.0), (6.0, 3.2, -4.6), (4.4, 4.0, -3.4), (3.6, 4.6, -4.2))},
+}
+STYLES.update(GUARDIAN_STYLES)
 
 IMP = {
     "hip": 5.4,
@@ -108,7 +155,54 @@ IMP = {
     "crack": ((-16.0, 34.0), (-6.0, 22.0), (-13.0, 10.0), (-3.0, -2.0), (-10.0, -14.0)),
     "held": {"r": 1.0, "mat": "slate"},
 }
+MONKEY = {
+    "hip": 5.6, "hunch": 22.0,
+    "legs": {"top": (1.7, -0.3), "foot": (2.0, 0.9, 0.9), "bones": (3.2, 3.2), "thigh": (1.5, 1.2), "shin": (1.05, 0.85),
+             "knee": None, "boot": ((0.8, 0.0, -0.3), (1.6, 0.95, 0.55)), "plant": (0.8, -0.9)},
+    "trunk": [{"at": (0.0, 0.0, 0.8), "r": (2.1, 2.5, 1.9), "paint": True}, {"at": (0.4, 0.0, 3.0), "r": (2.2, 2.6, 2.3), "paint": True},
+              {"at": (0.5, 0.0, 5.0), "r": (1.9, 2.8, 1.9), "paint": True}],
+    "neck": ((0.7, 0.0, 6.3), 0.9),
+    "head": {"at": ((1.0, 0.0, 6.4), 2.7), "r": (2.6, 2.75, 2.6)},
+    "face": {"kind": "monkey", "disc": ((1.55, 0.0, -0.3), (1.35, 2.15, 1.95)), "muzzle": ((2.55, 0.0, -1.05), (0.95, 1.2, 0.85)),
+             "eyes": (2.55, 0.85, 0.35), "nose": (3.45, 0.0, -0.85), "mouth": (3.2, 0.0, -1.55), "ears": ((-0.1, 2.7, 0.3), 1.05),
+             "tuft": ((-0.3, 0.0, 2.4), ((0.6, 0.0, 1.8), (-0.6, 0.5, 1.6), (0.0, -0.6, 1.9)), (0.55, 0.38, 1.4))},
+    "arms": {"shoulder": (2.7, 5.2), "bones": (4.2, 4.2), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (0.95, 0.85), "elbow": None,
+             "lower": (0.85, 0.75), "wrap": None, "fist": (0.95, 0.85, 0.8), "guard": (3.6, 3.0, -7.6), "limp": (0.6, 4.6, -4.6, 0.3)},
+    "paint": {"kind": "fur"},
+    "tail": {"root": (-2.0, 0.0, 1.2), "segs": (2.2, 2.2, 2.0, 1.8, 1.6, 1.4, 1.2, 1.0), "r": (0.75, 0.42)},
+    "held": {"kind": "shoot", "r": 0.42, "mat": "cane", "length": 4.2},
+}
+GUARDIAN = {
+    "hip": 8.2,
+    "legs": {"top": (2.6, -0.8), "foot": (3.0, 1.3, 0.9), "bones": (4.3, 4.1), "thigh": (2.4, 2.1), "shin": (2.1, 1.9), "knee": None,
+             "boot": ((1.0, 0.0, -0.4), (2.9, 1.9, 1.3)), "plant": (1.0, -1.2)},
+    "trunk": [{"at": (0.0, 0.0, 1.0), "r": (3.0, 4.0, 2.4), "paint": True}, {"at": (0.3, 0.0, 4.0), "r": (3.4, 4.4, 3.0), "paint": True},
+              {"at": (0.5, 0.0, 7.0), "r": (3.6, 5.0, 3.4), "paint": True}],
+    "neck": ((0.8, 0.0, 9.6), 1.9),
+    "head": {"at": ((1.5, 0.0, 9.8), 3.5), "r": (3.7, 4.0, 3.5)},
+    "face": {"kind": "grin", "glow": "jade", "brow": ((2.9, 0.0, 1.3), (1.4, 3.6, 1.0)), "eyes": (3.45, 1.6, 0.45),
+             "nose": ((4.0, 0.0, -0.4), 0.95), "grin": ((3.1, 0.0, -1.9), (1.1, 3.0, 0.7)), "teeth": (3.85, 2.2, -1.75, 0.7),
+             "ears": ((0.0, 3.6, 1.5), (-1.0, 5.2, 3.2), (1.25, 0.3))},
+    "mane": ((150.0, 20.0, 1.5), (180.0, 30.0, 1.5), (-150.0, 20.0, 1.5), (120.0, 45.0, 1.4), (-120.0, 45.0, 1.4), (180.0, 65.0, 1.4),
+             (90.0, 30.0, 1.3), (-90.0, 30.0, 1.3), (140.0, -15.0, 1.4), (-140.0, -15.0, 1.4), (100.0, -25.0, 1.3), (-100.0, -25.0, 1.3)),
+    "collar": {"at": 0.35, "bell": 1.15},
+    "arms": {"shoulder": (4.8, 8.4), "bones": (5.0, 4.8), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (2.0, 1.8), "elbow": None,
+             "lower": (1.8, 1.7), "wrap": None, "fist": (2.4, 2.2, 2.1), "guard": (3.4, 4.8, -4.6), "limp": (0.8, 6.4, -6.0, 0.4)},
+    "paint": {"kind": "temple"},
+    "tail": {"root": (-2.6, 0.0, 2.4), "segs": (2.4, 2.2, 2.0, 1.8, 1.4, 1.2), "r": (1.2, 0.7)},
+    "cracks": ((2, ((-40.0, 40.0), (-20.0, 20.0), (-35.0, 0.0), (-15.0, -20.0))), (1, ((30.0, 30.0), (15.0, 5.0), (30.0, -20.0))),
+               (3, ((60.0, 40.0), (45.0, 20.0), (60.0, 5.0)))),
+}
 VARIANTS = {
+    "guardian": {"parts": GUARDIAN, "mats": {"body": "sg_stone", "limb": "sg_stone", "dark": "sg_stone_dark", "joint": "sg_stone",
+                                             "neck": "sg_stone", "maw": "sg_mouth", "moss": "sg_moss", "mantle": "sg_stone_dark",
+                                             "bell": "sg_stone_dark"},
+                 "motion": {"idle": "stand", "walk": "stomp", "windup": "fists_up", "attack": "double_slam", "hurt": "knock",
+                            "death": "crumble"}},
+    "monkey": {"parts": MONKEY, "mats": {"body": "monkey_fur", "limb": "monkey_fur", "dark": "monkey_skin", "joint": "monkey_fur",
+                                         "neck": "monkey_fur", "pale": "monkey_skin", "mantle": "monkey_mantle", "leaf": "bamboo_leaf",
+                                         "cane": "bamboo_cane", "node": "bamboo_node", "maw": "maw"},
+               "motion": {"idle": "perch", "walk": "lope", "windup": "wind_shoot", "attack": "hurl", "hurt": "knock", "death": "tumble"}},
     "imp": {"parts": IMP, "mats": {"body": "imp_stone", "limb": "imp_limb", "dark": "imp_limb", "joint": "imp_limb", "neck": "imp_limb",
                                    "maw": "maw", "ochre": "peb_ochre", "slate": "peb_slate", "rust": "peb_rust"},
             "motion": {"idle": "toss", "walk": "waddle", "windup": "wind_throw", "attack": "throw", "hurt": "knock", "death": "crumble"}},
@@ -123,7 +217,7 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
-    lean = B.pick("lean", action, f)
+    lean = B.pick("lean", action, f) + p.get("hunch", 0.0)
     twist = B.pick("twist", action, f)
     step = B.pick("step", action, f)
     sink = B.pick("sink", action, f)
@@ -151,6 +245,10 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     limb = grain
     if p.paint.kind == "stone":
         grain, limb = _stone(m, hip, tm, int(B.opts.get("seed", 0))), None
+    elif p.paint.kind == "temple":
+        grain = limb = _temple(m, hip, tm, int(B.opts.get("seed", 0)))
+    elif p.paint.kind == "fur":
+        grain, limb = _fur(m, hip, tm), None
 
     # Legs: a stride in the march, planted apart otherwise; knees folding as it sinks.
     g = p.legs
@@ -170,16 +268,26 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     P.add(S(up(p.neck[0]), p.neck[1], m.get("neck", m.joint), "neck"))
     droop = B.pick("droop", action, f)
     hm = tm @ rot("b", -droop)
+    if p.get("hunch"):
+        hm = hm @ rot("b", p.hunch * 0.85)          # a hunched body holds its head up, its face to the front
     hc = up(p.head.at[0]) + hm @ v3(0.0, 0.0, p.head.at[1])
-    P.add(E(hc, p.head.r, m.body, "head", hm, grain))
+    P.add(E(hc, p.head.r, m.body, "head", hm, None if p.paint.kind == "fur" else grain))
     fc = p.face
     if fc.kind == "grin":
         _grin(P, B, action, f, hc, hm, grain, math.sin(math.radians(view)) > -0.5)
+    elif fc.kind == "monkey":
+        _monkey_face(P, B, action, f, hc, hm)
     else:
         _slits(P, B, action, f, hc, hm)
+    if p.get("tail"):
+        _tail(P, B, action, f, up)
+    if p.get("mane"):
+        _mane(P, B, action, f, hc, hm, up, tm, grain)
     _arms(P, B, action, f, up, tm, limb, march)
     if p.get("studs"):
         _studs(P, B, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
+    if p.get("cracks"):
+        _cracks(P, B, action, f, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
     _finish(P, B, action, f, step)
     return P
 
@@ -305,20 +413,25 @@ def _grin(P, B, action: str, f: int, hc, hm, paint, facing: bool = True) -> None
         P.add(L(hc + hm @ v3(e0[0], s * e0[1], e0[2]), hc + hm @ v3(e1[0], s * e1[1], e1[2]), r0, r1, m.body, "ear%d" % s, paint))
     dark = action == "death" and f >= st.get("dark_from", 99)
     ea, eb, ec = fc.eyes
+    core, main, dim, glow = GLOWS[fc.get("glow", "ember")]
     for s in (1, -1):
         eye = hc + hm @ v3(ea, s * eb, ec)
         if dark:
             P.mark(eye, M.RAMPS[m.body][0])
             continue
         if st.get("squint"):
-            P.mark(eye, M.EMBER_DIM)
+            P.mark(eye, dim)
             continue
-        P.eye(eye, M.EMBER_CORE)
+        P.eye(eye, core)
         for d in ((0.0, 0.35, 0.0), (0.0, -0.35, 0.0), (0.0, 0.0, 0.35)):
-            P.mark(eye + hm @ v3(*d), M.EMBER)
+            P.mark(eye + hm @ v3(*d), main)
         if st.get("glare") and facing:
             for d in ((0.3, 0.0, 0.8), (0.3, 0.7, 0.4), (0.3, -0.7, 0.4), (0.3, 0.0, -0.7)):
-                P.glow.append((eye + hm @ v3(*d), M.EMBER_GLOW))
+                P.glow.append((eye + hm @ v3(*d), glow))
+
+
+# A grin face's glowing eyes: (core, main, squinting, glow) for the imp's ember and the guardian's jade (M1).
+GLOWS = {"ember": (M.EMBER_CORE, M.EMBER, M.EMBER_DIM, M.EMBER_GLOW), "jade": (M.QI_BRIGHT, M.QI, M.QI_DIM, M.QI_GLOW)}
 
 
 def _studs(P, B, up, tm, hc, hm, facing: bool = True) -> None:
@@ -342,6 +455,9 @@ def _held(P, B, action: str, f: int, end, tm) -> None:
     """What it throws, held in its right hand (tossed up and caught while idle) until the blow, and on the release frame
     leaving the hand (the room view draws it in flight)."""
     h, m, st = B.parts.held, B.mats, B.style(action)
+    if h.get("kind") == "shoot":
+        _shoot(P, B, end, tm, action, f)
+        return
     rel = st.get("release")
     if action == "death" or rel is not None and f > rel:
         return
@@ -353,3 +469,155 @@ def _held(P, B, action: str, f: int, end, tm) -> None:
         return
     toss = B.pick("toss", action, f)
     P.add(S(end + tm @ v3(0.9, 0.0, 0.7 + toss), h.r, m[h.mat], "pebble"))
+
+
+# ================================================================================================= the stone guardian (M1)
+def _temple(m, hip, tm, seed: int):
+    """Warm temple stone: its grain a step dark in pits, a step lit in flecks (by the species' seed), moss over the
+    tops of its shoulders and crown where the stone turns to the sky."""
+    def temple(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        pit = h01v(np.floor(loc[:, 0] * 1.3 + 40), np.floor(loc[:, 2] * 1.3 + 40) + np.floor(loc[:, 1] * 1.3), seed % 97 + 1) > 0.86
+        fleck = h01v(np.floor(loc[:, 1] * 2.0 + 60), np.floor(loc[:, 2] * 2.0 + 60), seed % 89 + 2) > 0.93
+        moss = (nl[:, 2] > 0.72) & (loc[:, 2] > 6.0) & (loc[:, 2] < 9.2) & (h01v(np.floor(loc[:, 0] * 0.8 + 70), np.floor(loc[:, 1] * 0.8 + 70), seed % 83 + 3) > 0.35)
+        names = np.where(moss, m.moss, m.body).astype(object)
+        return names, np.where(pit & ~moss, -1, np.where(fleck & ~moss, 1, 0)).astype(np.int16)
+    return temple
+
+
+def _mane(P, B, action: str, f: int, hc, hm, up, tm, paint) -> None:
+    """The lion-dog's mane: spiral curls of darker stone round the back, the sides and the crown of its head; and its
+    carved collar round the neck with a stone bell hanging at its throat."""
+    p, m = B.parts, B.mats
+    r = p.head.r
+    for u, v, cr in p.mane:
+        P.add(S(on(hc, r, hm, u, v, -cr * 0.25), cr, m.dark, "mane", paint))
+    co = p.get("collar")
+    if co:
+        n0 = up(p.neck[0])
+        for k in range(12):
+            t = math.radians(k * 30.0)
+            P.add(S(n0 + tm @ v3(math.cos(t) * 2.6, math.sin(t) * 3.0, -0.4), 0.85, m.dark, "collar", line=False))
+        bell = n0 + tm @ v3(2.9, 0.0, -1.6)
+        P.add(S(bell, co.bell, m.bell, "bell"))
+        P.mark(bell + tm @ v3(co.bell * 0.9, 0.0, -co.bell * 0.4), M.RAMPS[m.dark][0])
+
+
+def _cracks(P, B, action: str, f: int, up, tm, hc, hm, facing: bool = True) -> None:
+    """Cracks over the stone (on the trunk's pieces and the head: (piece, points round and up it)), dark; alight with jade
+    in its tell and its slam (the channel `glow`), and flaring as it breaks."""
+    p, m = B.parts, B.mats
+    g = B.pick("glow", action, f)
+    if action == "death" and f < 2:
+        g = 1.0
+    pieces = [(up(t.at), t.r, tm) for t in p.trunk] + [(hc, p.head.r, hm)]
+    for i, path in p.cracks:
+        c, rad, mm = pieces[i]
+        pts = [on(c, rad, mm, u, v, 0.15) for u, v in path]
+        for a, b in zip(pts, pts[1:]):
+            for k in range(4):
+                q = a + (b - a) * (k / 4.0)
+                if g > 0.5:
+                    P.mark(q, M.QI_BRIGHT if k % 2 else M.QI)
+                    if facing:
+                        P.glow.append((q + mm @ v3(0.4, 0.0, 0.0), M.QI_GLOW))
+                else:
+                    P.mark(q, M.RAMPS[m.dark][0] if g <= 0.0 else M.QI_DIM)
+    if f in B.style(action).get("dust", ()):
+        for k in range(10):
+            ang = math.radians(k * 36.0 + f * 20.0)
+            rr = 3.0 + f * 1.4 + (k % 3) * 0.6
+            P.fx.append((v3(8.6 + math.cos(ang) * rr, math.sin(ang) * rr, 0.3 + (k % 3) * 0.6), M.DUST if k % 2 else M.DUST_DIM))
+
+
+# ================================================================================================= the bamboo monkey (M1)
+def _fur(m, hip, tm):
+    """Gold fur; an olive mantle over the back, the shoulders and the crown; the pale belly; its grain in fine streaks."""
+    def fur(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        mantle = ((nl[:, 0] < -0.15) | (nl[:, 2] > 0.55)) & (loc[:, 2] > 2.4)
+        belly = (nl[:, 0] > 0.45) & (loc[:, 2] < 4.4) & (np.abs(loc[:, 1]) < 1.8)
+        streak = ((loc[:, 2] * 1.4 + loc[:, 1] * 0.5) % 1.3 < 0.22) & ~belly
+        names = np.where(belly, m.pale, np.where(mantle, m.mantle, m.body)).astype(object)
+        return names, np.where(streak, -1, 0).astype(np.int16)
+    return fur
+
+
+def _monkey_face(P, B, action: str, f: int, hc, hm) -> None:
+    """The monkey's face: a pale heart-shaped face and muzzle on the front of its head, big amber eyes with a dark pupil
+    (glaring in the tell, squeezed shut when struck, dark when beaten), a nose and a mouth that chatters open, round ears
+    on the sides, a tuft of bamboo leaves on its crown."""
+    m, st, fc = B.mats, B.style(action), B.parts.face
+    P.add(E(hc + hm @ v3(fc.disc[0]), fc.disc[1], m.pale, "face", hm, line=False))
+    P.add(E(hc + hm @ v3(fc.muzzle[0]), fc.muzzle[1], m.pale, "face", hm))
+    (ea, eb, ec) = fc.eyes
+    dark = action == "death" and f >= st.get("dark_from", 99)
+    for s in (1, -1):
+        eye = hc + hm @ v3(ea, s * eb, ec)
+        if dark or st.get("squint"):
+            P.mark(eye, M.RAMPS[m.pale][0])
+        else:
+            P.eye(eye, M.MONKEY_EYE)
+            P.mark(eye + hm @ v3(0.05, s * 0.35, 0.0), M.INKY)
+            P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.RAMPS[m.mantle][0] if st.get("chatter") else M.RAMPS[m.pale][1])
+        (ra, rb, rc), rr = fc.ears
+        ear = hc + hm @ v3(ra, s * rb, rc)
+        P.add(S(ear, rr, m.body, "ear%d" % s))
+        P.mark(ear + hm @ v3(0.5, s * 0.1, 0.0), M.RAMPS[m.pale][1])
+    P.mark(hc + hm @ v3(fc.nose), M.RAMPS[m.pale][0])
+    open_ = B.pick("chatter", action, f)
+    mouth = hc + hm @ v3(fc.mouth)
+    if open_ > 0.3:
+        P.add(E(mouth, (0.4, 0.75 * open_ + 0.3, 0.35 + 0.4 * open_), m.maw, "mouth", hm, line=False))
+        P.mark(mouth + hm @ v3(0.3, 0.3, 0.3), M.IMP_TOOTH)
+        P.mark(mouth + hm @ v3(0.3, -0.3, 0.3), M.IMP_TOOTH)
+    else:
+        P.mark(mouth, M.RAMPS[m.pale][0])
+    t0, leaves, (lr0, lr1, lh) = fc.tuft
+    base = hc + hm @ v3(t0)
+    for k, d in enumerate(leaves):
+        tip = base + hm @ v3(d)
+        P.add(L(base, tip, lr0, lr1, m.leaf, "tuft", line=False))
+
+
+def _tail(P, B, action: str, f: int, up) -> None:
+    """A long tail from the base of the back, sweeping back and down, then curling up into a loose spiral, swaying."""
+    t, m, st = B.parts.tail, B.mats, B.style(action)
+    phase = f / 8.0 * math.tau if st.get("tail_wave") else 0.6
+    root = up(t.root)
+    pts = [root]
+    ang = math.radians(200.0 + 6.0 * math.sin(phase))
+    q = np.array(root, float)
+    for k, ln in enumerate(t.segs):
+        ang -= math.radians(4.0 if k < 2 else 30.0 + 4.0 * math.sin(phase * 1.6 + k))
+        q = q + v3(math.cos(ang) * ln * 0.8, 0.35 * ln * math.sin(phase + k * 0.7), -math.sin(ang) * ln * 0.8)
+        q[2] = max(q[2], 0.6)
+        pts.append(q.copy())
+    n = len(pts) - 1
+    for i in range(n):
+        r0 = t.r[0] + (t.r[1] - t.r[0]) * i / n
+        r1 = t.r[0] + (t.r[1] - t.r[0]) * (i + 1) / n
+        P.add(L(pts[i], pts[i + 1], r0, r1, m.mantle if i < n - 3 else m.body, "tail", caps=i == 0))
+
+
+def _shoot(P, B, end, tm, action: str, f: int) -> None:
+    """The bamboo shoot in its right hand: a short green cane with pale nodes and a sprig of leaf at its top, held up at
+    the ready, drawn back over the shoulder in the tell, gone on the blow (the room view throws it)."""
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    rel = st.get("release")
+    if action == "death" or rel is not None and f >= rel:
+        if rel is not None and f == rel:
+            for k in range(3):
+                P.fx.append((end + tm @ v3(1.6 + k * 0.9, 0.0, 0.4 + 0.2 * k), M.DUST if k else M.DUST_DIM))
+        return
+    back = action == "windup" or (action == "attack" and f == 0)
+    d = tm @ (v3(-0.55, 0.0, 0.85) if back else v3(0.45, 0.0, 0.9))
+    d = d / float(np.linalg.norm(d))
+    a = end - d * h.length * 0.3
+    b = end + d * h.length * 0.7
+    P.add(L(a, b, h.r, h.r * 0.85, m.cane, "shoot"))
+    for t in (0.25, 0.6):
+        P.mark(a + (b - a) * t, M.RAMPS[m.node][3])
+    P.add(L(b, b + d * 1.0 + tm @ v3(0.4, 0.3, 0.2), 0.35, 0.1, m.leaf, "shoot", line=False))

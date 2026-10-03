@@ -181,6 +181,23 @@ func s_dodge() -> void:
 func s_plunge() -> void:
 	p.plunge()
 
+## T1 (docs/architecture/topdown_mechanics.md): Jump held (true) or let go, as a thumb on the button holds it: held in the
+## air as the body comes down, it glides.
+func s_hold_jump(on: bool) -> void:
+	p.jump_held = on
+
+## T1: stand on a raft's deck where the room's clock has it now (its middle), facing the camera; it carries the body.
+func s_on_raft(id: String) -> void:
+	_bind()
+	var tr := TopdownTraverse.of(w.room)
+	var r: Dictionary = tr.raft(id) if tr != null else {}
+	if r.is_empty():
+		push_error("capture: no raft %s" % id)
+		return
+	m.place(tr.raft_rect(r).get_center())
+	m.dir = Vector2.DOWN
+	w.settle_camera()
+
 ## The HUD's thumb: pressed, dragged (from an anchor, by `off`) and let go.
 func _anchor(name: String) -> Vector2:
 	if name.begins_with("slot"): return main.hud.slots[int(name.substr(4))]
