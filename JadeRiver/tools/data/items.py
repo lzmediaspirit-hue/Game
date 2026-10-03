@@ -1,24 +1,29 @@
-"""S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases)."""
+"""S14/S15/Part 8: items.json (non-equipment) and artifacts.json (equipment bases).
+
+Decision 45 (audit 45 §6.4): the item engine writes the rows of its families (tools/content/items/specs: pills, herbs,
+ores, creature parts, gear); this module places each family section among the rows written here, which are the
+one-offs (quest items, keys, unique treasures and the like) and the groups not yet in a family.
+"""
+import os
+import sys
+
 from common import entries, titled, run_cli
 from legends import CHAINS as LEGENDS, piece_rows
 from gear import ARCHETYPES, tag
 import posts
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content.items import engine as E  # noqa: E402
+from content.items.curves import MID_ILV  # noqa: E402
+from content.items.kinds import item  # noqa: E402  (every module's row constructor)
 
 # P5 (the Bag, decision 24): the kinds its filters show, by item type. Gear is every equipment piece (artifacts.json);
 # a type not listed here is "other".
 BAG_KINDS = {"pills": ["pill"], "materials": ["material", "beast_part", "core", "ore", "hollow", "herb", "fish", "insect", "critter", "jade",
                                               "wisp", "oil", "legend_piece"]}
 
-MID_ILV = {"plain": 5, "common": 14, "earth": 27, "heaven": 45, "mystic": 59, "spirit": 68, "sage": 77, "sovereign": 86, "will": 95, "sphere": 104}
 # Decision 45: the spaces of the bag with no gourd worn, and of the Starter Spirit Gourd (stats.json bag.base).
 BAG_BASE = 50
-
-
-def item(id, type, grade="plain", stack=99, desc="", name=None, icon=None, **extra):
-    row = {"id": id, "name": name or titled(id), "type": type, "grade": grade, "ilv": extra.pop("ilv", MID_ILV.get(grade, 5)),
-           "stack": stack, "icon": icon or id, "desc": desc}
-    row.update(extra)
-    return row
 
 
 PET_BOOKS = [
@@ -291,78 +296,6 @@ def cult_text(n):
     return "+{:,} cultivation".format(n)
 
 
-# S44 · Pill families for lifetime resistance (Part 8). Pills not listed are exempt.
-PILL_FAMILIES = {"qi_gathering_pill": "accumulation", "qi_flow_pill": "accumulation", "bone_strengthening_pill": "body",
-                 "clear_mind_pill": "insight", "soul_soothing_pill": "soul", "foundation_guard_pill": "support", "cleansing_pill": "support"}
-# The unique effect a Pill Soul of each recipe carries (S44 soul_effect; the effects live in grades.json pill.soul).
-SOUL_BY_GROUP = {"healing": "mend_meridians", "restoration": "mend_meridians", "buff": "iron_skin", "utility": "steady_heart"}
-SOUL_EFFECT = {"clear_mind_pill": "clear_mind", "soul_soothing_pill": "clear_mind", "mind_lake_opening_pill": "clear_mind",
-               "method_conversion_pill": "clear_mind", "bone_strengthening_pill": "iron_skin", "tiger_blood_pill": "iron_skin"}
-
-
-def pills():
-    P = []
-
-    def pill(id, grade, mark, desc, toxicity, effects, cause=None, group="restoration", **extra):
-        fam = PILL_FAMILIES.get(id)
-        if fam:
-            extra["family"] = fam
-        P.append(item(id, "pill", grade, 99, desc, pill={"mark": mark, "toxicity": toxicity, "cause": cause, "group": group},
-                      use=effects, soul_effect=SOUL_EFFECT.get(id, SOUL_BY_GROUP.get(group, "steady_heart")), **extra))
-    pill("healing_pill", "common", "heart", "Cures a minor body injury and restores 30% HP over 5 s.", 5,
-         [effect("cure_injury", injury="body", max_severity=1), effect("heal", pct=0.3, over_s=5)], cause="structure", group="healing")
-    pill("qi_restoration_pill", "common", "spiral", "Restores 40% QI and cures a minor meridian injury.", 5,
-         [effect("restore_resource", pool="qi", pct=0.4), effect("cure_injury", injury="meridian", max_severity=1)], cause="energy")
-    pill("qi_gathering_pill", "common", "spiral_up", cult_text(cultivation(0.08, "common")) + ".", 10,
-         [progress(0.08, "common")], cause="energy", group="utility")
-    pill("bone_strengthening_pill", "common", "bone", "Adds 150 body XP.", 8, [effect("add_body_xp", amount=150)], cause="structure", group="utility")
-    pill("purging_pill", "common", "leaf", "Purges 30 toxicity.", 0, [effect("add_toxicity", amount=-30)], group="utility")
-    pill("viper_antidote", "common", "leaf", "Cures poison.", 0, [effect("cure_status", status="poison")], group="utility")
-    pill("tiger_blood_pill", "common", "flame", "+20% attack for 60 s, then exhaustion (-20% for 60 s).", 12,
-         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.2, duration=60, source="tiger_blood"),
-          effect("apply_status", status="exhausted", delay=60, duration=60)], group="buff", burst=True)
-    pill("cleansing_pill", "common", "gate", "Support item: lowers the risk of Heaven's Cleansing by one step.", 10,
-         [], cause="environment", group="utility", support={"risk": -1, "event": "heavens_cleansing"})
-    pill("foundation_guard_pill", "earth", "gate", "Breakthrough support: lowers risk by one step.", 12, [],
-         cause="structure", group="utility", support={"risk": -1})
-    pill("clear_mind_pill", "earth", "lamp", "+50% insight rate for 30 minutes.", 8,
-         [effect("add_modifier", stat="insight_rate", op="flat", value=0.5, duration=1800, source="clear_mind")], cause="understanding", group="buff")
-    pill("meridian_reversal_pill", "earth", "arrows_loop", "Resets all meridian points.", 10, [effect("reset_meridians")], group="utility")
-    pill("method_conversion_pill", "earth", "arrows", "Halves the cost of switching cultivation methods.", 10, [], group="utility", method_conversion=True)
-    pill("qi_refining_pill", "earth", "spiral", "Required to break through from Heart Tempering 9 to Cloud Stride 1.", 15, [], cause="material", group="utility")
-    # S48 Core Forging: refined only over a Heavenly Flame; taken within the hour before the core forms, it is one preparation point.
-    pill("heavenly_flame_pill", "earth", "flame", "Refined over a Heavenly Flame. Taken within the hour before Heart Tempering 9 → Cloud Stride 1, "
-         "it is one Core Forging preparation point. Composure +20.", 6, [effect("add_composure", amount=20)], cause="energy", group="utility")
-    pill("soul_soothing_pill", "heaven", "eye", "Cures a soul injury; +20% Soul for 10 minutes.", 8,
-         [effect("cure_injury", injury="soul", max_severity=3), effect("add_modifier", stat="max_soul", op="pct_add", value=0.2, duration=600, source="soul_soothing"),
-          effect("add_soul", amount=50)], cause="soul")
-    pill("mind_lake_opening_pill", "heaven", "eye_gate", "Required to break through from Cloud Stride 9 to Spirit Awakening 1.", 15, [], cause="material", group="utility")
-    pill("sage_condensing_pill", "mystic", "knot", "Required to break through from Heaven Glimpse 3 to Sage 1.", 20, [], cause="material", group="utility")
-    pill("sovereign_settling_pill", "sage", "knot", "Settles a new Sage Sovereign stage at once: its consolidation ends.", 15,
-         [effect("settle_consolidation")], cause="structure", group="utility")
-    pill("will_tempering_pill", "sage", "eye", "+40 Will for 30 minutes: another's Presence weighs less on you.", 12,
-         [effect("add_modifier", stat="will", op="flat", value=40, duration=1800, source="will_tempering")], cause="soul", group="buff")
-    # v1.2 (S28): the Hollow Tide's cleansing: 40 points of Hollowing drawn out at once.
-    pill("tide_cleansing_pill", "sovereign", "knot", "Draws 40 points of Hollowing out of you at once.", 12,
-         [effect("cleanse_hollowing", amount=40)], cause="soul", group="restoration")
-    pill("storm_blood_pill", "mystic", "bolt", "+4 attunement in the zone you stand in for 30 minutes.", 10,
-         [effect("add_modifier", stat="attunement_bonus", op="flat", value=4, duration=1800, source="storm_blood")], group="buff")
-    # S44 / Part 8 new forms. The Qi Flow Pill's debt comes due when its hour is up (`then`, applied on buff_expired).
-    pill("qi_flow_pill", "earth", "spiral_up", "+20% accumulation for 60 minutes. When it wears off, the toxicity it held back comes due: +15.", 5,
-         [effect("add_modifier", stat="accumulation_rate", op="flat", value=0.2, duration=3600, source="qi_flow_pill")],
-         cause="energy", group="buff", then=[effect("add_toxicity", amount=15)])
-    # S44 hidden recipes, found only by experiment.
-    pill("sunfire_pill", "common", "flame", "Found by experiment: ginseng and Ember Pepper. +12% attack for 10 minutes.", 8,
-         [effect("add_modifier", stat="physical_attack", op="pct_add", value=0.12, duration=600, source="sunfire_pill")], group="buff", burst=True)
-    pill("stillwater_pill", "earth", "drop_leaf", "Found by experiment: Mist Lotus, Soulbell and willow moss. Composure +40, heart demon -5.", 6,
-         [effect("add_composure", amount=40), effect("add_heart_demon", amount=-5)], cause="soul", group="utility")
-    pill("cloudstep_pill", "heaven", "arrows", "Found by experiment: Cloudtop Orchid and willow moss. +10% move speed for 20 minutes.", 8,
-         [effect("add_modifier", stat="move_speed", op="pct_add", value=0.10, duration=1200, source="cloudstep_pill")], group="buff")
-    pill("murky_pill", "plain", "drop_leaf", "What a failed experiment leaves: grey, gritty, and good for nothing but a stomach ache. A trader gives a tael for it.", 8,
-         [], group="utility", value_override=1, source="system")
-    return P
-
-
 def foods():
     F = []
 
@@ -429,6 +362,7 @@ def raw_family(effects):
 
 
 def build_items():
+    E.begin("items")
     rows = []
     TREASURE_DEFS.clear()
     for h in HERBS:
@@ -799,17 +733,15 @@ def build_items():
                      use=[{"kind": "deploy_array", "array": "killing", "radius": 160, "duration": 10, "mult": 0.5}]))
     rows.append(item("binding_array_plate", "formation", "earth", 20, "A binding array for 10 s: every foe inside its ring is slowed by 40%.",
                      use=[{"kind": "deploy_array", "array": "binding", "radius": 160, "duration": 10, "slow": 0.4}]))
-    rows.extend(pills())
+    rows.extend(E.items("pills"))   # specs/pills.py
     rows.extend(foods())
     # v1.2 Phase D · the Copperjaw Beetle swarm: a box of beetles that grows on ore, online or off.
     rows.append(item("copperjaw_box", "other", "will", 1, "A lacquered box of Copperjaw beetles. Feed it ore and the swarm grows, an hour at a time, "
                      "even while you are away. Open it and for 8 s the swarm chews every foe near you, the bigger it is the harder "
                      "(Wood foes shrug off half). It comes home after, and rests 30 s.", use=[], use_action="swarm", sell=False, ilv=92))
     rows.append(item("sphere_comprehension_stone", "treasure", "will", 1, "A stone that holds a folded world. The Observatory's keeper gives it to those who have seen their own Sphere in the stars; a Will Manifest 3 needs it to become a Sphere Lord.", sell=False, ilv=95))
-    rows.append(item("law_condensing_pill", "pill", "law", 99, "Converts Sage Qi toward Law Qi. (Later zones.)", ilv=105, pill={"mark": "arrows", "toxicity": 20, "group": "utility"}, use=[]))
-    rows.append(item("law_touching_pill", "pill", "law", 99, "Supports the attempt to touch a World Law. (Later zones.)", ilv=106, pill={"mark": "gate", "toxicity": 20, "group": "utility"}, use=[]))
-    rows.append(item("monarch_condensing_pill", "pill", "monarch", 99, "Helps the Monarch conversion. (Later zones.)", ilv=115, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
-    rows.append(item("sigil_anchor_pill", "pill", "monarch", 99, "Anchors the Dao Sigil. (Later zones.)", ilv=120, pill={"mark": "knot", "toxicity": 25, "group": "utility"}, use=[], source="later"))
+    rows.extend(E.items("pills.later"))   # the Law and Monarch pills
+    E.end("items")
     entries("items.json", rows, bag_kinds=BAG_KINDS)
     entries("treasures.json", TREASURE_DEFS)   # S47: what each treasure does, keyed by its item id
     return rows

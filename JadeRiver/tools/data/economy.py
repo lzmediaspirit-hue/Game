@@ -10,6 +10,7 @@ import os
 from common import DATA, write, entries, realm, unlocked, flag, all_of, run_cli
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 import items
+from items import E   # the item engine (tools/content/items): its families' shop lines and recipes
 from techniques import SOURCES as TECH_SOURCES
 import posts
 
@@ -22,6 +23,11 @@ def grade_set(grade):
 
 
 def shops():
+    # Decision 45 (the item engine): a family's item sells where its spec says (tools/content/items/specs), with its
+    # price and requirement there. A list here names it only to place it among the shop's own lines: F(item) for the
+    # item, L(recipe) for the scroll that teaches its recipe. A family line no list places follows the shop's own lines.
+    F, L = E.F, E.L
+
     def s(i, **kw):
         d = {"item": i}
         d.update(kw)
@@ -65,7 +71,7 @@ def shops():
         {"id": "granny_liu", "name": "Granny Liu's Herb Hut", "currency": "silver_tael",
          # Decision 45: Qi-Gathering Incense, the village's own cultivation speed (+30% for 10 minutes), from Bone Forging 1.
          "stock": [s("herbal_tea"), s("willow_salve"), s("revival_talisman"), s("qi_gathering_incense", price=12, requires=all_of(realm("bone_forging_1"))),
-                   s("purging_pill", requires=all_of(realm("qi_kindling_2"))),
+                   F("purging_pill"),
                    s("calm_incense", requires=all_of(realm("qi_unfurling_9"))),
                    # S45 seeds (Part 8): the common three, for the garden beds.
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
@@ -82,26 +88,20 @@ def shops():
          "stock": [s("lotus_root_tea"), s("jade_carp_congee"), s("rice_ball"), s("jasmine_dew_tea", price=30), s("guqin", price=450)],
          "rotation": {"count": 1, "pool": [s("ember_pepper_stew"), s("toad_oil_dumplings"), s("riverfish_soup")]}},
         {"id": "mei_qing", "name": "Mei Qing's Stall", "currency": "silver_tael",
-         "stock": [s("willow_moss"), s("riverreed_ginseng_10"), s("healing_pill"), s("qi_restoration_pill"), s("qi_gathering_pill"),
-                   s("recipe_scroll", learn="healing_pill"), s("pearl", price=40, requires=all_of(realm("heart_tempering_5"))),
+         "stock": [s("willow_moss"), s("riverreed_ginseng_10"), F("healing_pill"), F("qi_restoration_pill"), F("qi_gathering_pill"),
+                   L("healing_pill"), s("pearl", price=40, requires=all_of(realm("heart_tempering_5"))),
                    s("mist_lotus", price=35, requires=all_of(realm("heart_tempering_5"))),
                    s("cloudtop_orchid", price=120, requires=all_of(realm("cloud_stride_5")))],
-         "rotation": {"count": 1, "pool": [s("clear_mind_pill"), s("foundation_guard_pill"), s("bone_strengthening_pill")]}},
-        {"id": "mei_qing_recipes", "name": "Mei Qing's Recipe Box", "currency": "silver_tael",
-         "stock": [s("recipe_scroll", learn="qi_gathering_pill", price=120, requires=all_of(realm("qi_kindling_3"))),
-                   s("recipe_scroll", learn="bone_strengthening_pill", price=120, requires=all_of(realm("qi_kindling_3"))),
-                   s("recipe_scroll", learn="viper_antidote", price=80, requires=all_of(realm("qi_kindling_3"))),
-                   s("recipe_scroll", learn="tiger_blood_pill", price=150, requires=all_of(realm("qi_kindling_5"))),
-                   s("recipe_scroll", learn="qi_refining_pill", price=800, requires=all_of(realm("heart_tempering_5")))]},
+         "rotation": {"count": 1, "pool": [F("clear_mind_pill"), F("foundation_guard_pill"), F("bone_strengthening_pill")]}},
+        # The recipes the pill families sell here (specs/pills.py, recipe learn=).
+        {"id": "mei_qing_recipes", "name": "Mei Qing's Recipe Box", "currency": "silver_tael", "stock": []},
         # S44 / Part 8: the Alchemist Guild's shop opens to a Guild Adept: Earth recipes and the Jadeiron Furnace blueprint.
         {"id": "alchemist_guild", "name": "Alchemist Guild", "currency": "silver_tael",
-         "stock": [s("recipe_scroll", learn="foundation_guard_pill", price=600, requires=all_of(flag("guild_alchemy_adept"))),
-                   s("recipe_scroll", learn="clear_mind_pill", price=500, requires=all_of(flag("guild_alchemy_adept"))),
-                   s("recipe_scroll", learn="meridian_reversal_pill", price=700, requires=all_of(flag("guild_alchemy_adept"))),
+         "stock": [L("foundation_guard_pill"), L("clear_mind_pill"), L("meridian_reversal_pill"),
                    s("recipe_scroll", learn="jadeiron_furnace", price=900, requires=all_of(flag("guild_alchemy_adept"))),
                    s("mist_lotus", price=35, requires=all_of(flag("guild_alchemy_adept"))),
                    s("jade_scale", price=30, requires=all_of(flag("guild_alchemy_adept"))),
-                   s("recipe_scroll", learn="storm_blood_pill", price=2400, requires=all_of(flag("guild_alchemy_expert"), realm("heaven_glimpse_1"))),
+                   L("storm_blood_pill"),
                    s("soulbell_flower", price=180, requires=all_of(flag("guild_alchemy_master"))),
                    s("frost_lotus", price=320, requires=all_of(flag("guild_alchemy_master")))]},
         # S49: the Forge Guild's counter at Smith Bao's: ores for members, finer ores as the badge rises.
@@ -150,8 +150,8 @@ def shops():
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
          "stock": [   # P13a: the manual of Rain of Reeds is a lost art now, found in the Drowned Shrine
                    s("clear_heart_incense", price=200),   # P13a: a tree let go once the realm's free reset is spent
-                   s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
-                   s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
+                   F("healing_pill"), F("qi_restoration_pill"), F("cleansing_pill"), F("foundation_guard_pill"), F("clear_mind_pill"),
+                   s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
                                       s("jade_gourd_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
                    s("jade_current_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"}))] + sect_set("jade_current") + [
@@ -165,8 +165,8 @@ def shops():
          "requires": {"all": [{"kind": "training_sect", "sect": "cloud_sect"}]},
          "stock": [   # P13a: Ember Burst is a lost art now, carried by the gorge bandits
                    s("clear_heart_incense", price=200),
-                   s("healing_pill"), s("qi_restoration_pill"), s("cleansing_pill", requires=all_of(realm("qi_kindling_9"))),
-                   s("foundation_guard_pill", requires=all_of(realm("qi_unfurling_1"))), s("clear_mind_pill"), s("revival_talisman"),
+                   F("healing_pill"), F("qi_restoration_pill"), F("cleansing_pill"), F("foundation_guard_pill"), F("clear_mind_pill"),
+                   s("revival_talisman"),
                    s("bonding_offering_earth", requires=all_of(realm("qi_unfurling_5"))), s("fuel_crystal_low", requires=all_of(realm("heart_tempering_1"))),
                                       s("cloud_puff_vessel", price=180, requires=all_of(realm("cloud_stride_1"))),
                    s("cloudpiercing_robe", requires=all_of({"kind": "sect_rank_at_least", "rank": "inner_disciple"}))] + sect_set("cloudpiercing") + [
@@ -180,9 +180,9 @@ def shops():
          "rotation": {"count": 1, "pool": [s("manual_page")]}},
         {"id": "old_pan", "name": "Old Pan's Wares", "currency": "spirit_stone",
          "stock": [s("dusty_curio", price=1)], "rotation": {"count": 3, "pool": [s("torn_manual", price=5, requires=all_of(realm("spirit_awakening_6"))), s("riverreed_ginseng_100", price=4, sealed=True), s("manual_page", price=6), s("spirit_egg", price=12,
-                   requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), s("clear_mind_pill", price=3), s("spirit_jade", price=8)]}},
+                   requires=all_of(realm("heart_tempering_5"))), s("mist_lotus", price=3), F("clear_mind_pill"), s("spirit_jade", price=8)]}},
         {"id": "greyreed", "name": "Greyreed Trade Post", "currency": "silver_tael",
-         "stock": [s("rice"), s("rice_ball"), s("marsh_mist_tea", price=30), s("cleansing_pill"), s("purging_pill"), s("grey_hide"),
+         "stock": [s("rice"), s("rice_ball"), s("marsh_mist_tea", price=30), F("cleansing_pill"), F("purging_pill"), s("grey_hide"),
                    s("willow_moss_seed", price=6), s("ember_pepper_seed", price=14), s("riverreed_ginseng_seed", price=20)]},
         {"id": "hermit", "name": "Hermit Yao's Beast Hall", "currency": "silver_tael",
          "stock": [s("taming_cauldron", price=200, requires=all_of(realm("heart_tempering_1"))), s("bonding_offering_common"), s("roast_fish"), s("fish_bait"), s("maple_leaf_vessel", price=600, requires=all_of(realm("cloud_stride_1"))),
@@ -203,10 +203,10 @@ def shops():
                    s("stormsteel_gourd", requires=all_of(realm("sage_1")))],
          "rotation": {"count": 1, "pool": [s("storm_shard", price=4), s("spirit_stone_mid", price=12)]}},
         {"id": "port_peddler", "name": "Peddler Gou's Packs", "currency": "spirit_stone",
-         "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
+         "stock": [F("healing_pill"), F("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("rice_ball"), s("revival_talisman"),
                    s("thunderhead_tea", price=3),
                    s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("mistjade_gourd")],
-         "rotation": {"count": 2, "pool": [s("clear_mind_pill"), s("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
+         "rotation": {"count": 2, "pool": [F("clear_mind_pill"), F("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone",
          "stock": [s("stormsteel_ore"), s("mystic_ore"),
                    s("recipe_scroll", learn="stormsteel_jian", price=40, requires=all_of(realm("sage_1"))),
@@ -217,25 +217,24 @@ def shops():
                    s("recipe_scroll", learn="stormsteel_bow", price=40, requires=all_of(realm("sage_1"))),
                    s("recipe_scroll", learn="bp_stormsilk_robe", price=40, requires=all_of(realm("sage_1")))]},
         {"id": "port_apothecary", "name": "Apothecary Wu's Cabinet", "currency": "spirit_stone",
-         "stock": [s("soulbell_flower"), s("cloudtop_orchid"), s("mist_lotus"), s("healing_pill"), s("qi_restoration_pill"),
-                   s("recipe_scroll", learn="storm_blood_pill", price=30)],
+         "stock": [s("soulbell_flower"), s("cloudtop_orchid"), s("mist_lotus"), F("healing_pill"), F("qi_restoration_pill"),
+                   L("storm_blood_pill")],
          "rotation": {"count": 1, "pool": [s("jade_core", price=20), s("roc_feather", price=12)]}},
         {"id": "wayfarers_inn", "name": "Wayfarers' Inn Kitchen", "currency": "spirit_stone",
          "stock": [s("rice_ball"), s("herbal_tea"), s("jade_carp_congee"), s("cloudtop_orchid_broth"), s("thunderhorn_stew")]},
         {"id": "condensing_hall", "name": "Condensing Hall Stores", "currency": "spirit_stone",
-         "stock": [s("clear_mind_pill"), s("soul_soothing_pill"), s("calm_incense"), s("sage_condensing_pill", price=90, requires=all_of(realm("heaven_glimpse_3"))),
-                   s("sovereign_settling_pill", price=120, requires=all_of(realm("sage_sovereign_1")))]},
+         "stock": [F("clear_mind_pill"), F("soul_soothing_pill"), s("calm_incense"), F("sage_condensing_pill"), F("sovereign_settling_pill")]},
         # Act III · Lanternfall Harbor (v1.2). Sage Crystal prices come from tael prices at the crystal's tael value.
         {"id": "lanternfall_goods", "name": "Peddler Ning's Silk and Sundries", "currency": "sage_crystal",
-         "stock": [s("healing_pill"), s("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("revival_talisman"),
-                   s("rice_ball"), s("will_tempering_pill", price=6)]
+         "stock": [F("healing_pill"), F("qi_restoration_pill"), s("return_charm"), s("escape_talisman"), s("revival_talisman"),
+                   s("rice_ball"), F("will_tempering_pill")]
                   # P7b (item_plan §2.10): star and space cores for star-tier animals hatched young, two a day each.
                   + [s("%s_core_%s" % (el, tier), price=p, daily=2, requires=all_of(realm("will_manifest_1")))
                      for el in ("star", "space") for tier, p in (("low", 1), ("mid", 3), ("high", 8))],
          "rotation": {"count": 2, "pool": [s("star_shard", price=1), s("manual_page", price=2), s("spirit_egg", price=4), s("jelly_silk", price=2)]}},
         {"id": "lanternfall_apothecary", "name": "Apothecary Sang's Jars", "currency": "sage_crystal",
-         "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), s("clear_mind_pill"), s("soul_soothing_pill"),
-                   s("calm_incense"), s("lantern_incense", price=4), s("recipe_scroll", learn="tide_cleansing_pill", price=40)]},
+         "stock": [s("star_lotus", price=5), s("ember_cactus", price=3), s("frost_lotus", price=3), F("clear_mind_pill"), F("soul_soothing_pill"),
+                   s("calm_incense"), s("lantern_incense", price=4), L("tide_cleansing_pill")]},
         # v1.2 Phase D · the Tidebreak Bastion's armoury: the brush and the bell, their manuals, and the Copperjaw Box.
         {"id": "bastion_armoury", "name": "Tidebreak Armoury", "currency": "sage_crystal",
          "stock": [s("ink_warden_brush", price=120), s("wardens_handbell", price=120),
@@ -253,13 +252,12 @@ def shops():
         # broke it on a failed breakthrough (a failed major breakthrough consumes its materials).
         {"id": "observatory", "name": "Stargazer Ming's Star-stones", "currency": "sage_crystal",
          "stock": [s("sphere_comprehension_stone", price=80, requires=all_of({"kind": "quest_done", "quest": "the_observatory"})),
-                   s("clear_mind_pill"), s("will_tempering_pill", price=6),
+                   F("clear_mind_pill"), F("will_tempering_pill"),
                    # v1.2 Phase E: the Law pills' recipes, for a Sphere Lord 3 who looks past the Field.
-                   s("recipe_scroll", learn="law_condensing_pill", price=150, requires=all_of(realm("sphere_lord_3"))),
-                   s("recipe_scroll", learn="law_touching_pill", price=200, requires=all_of(realm("sphere_lord_3")))]},
+                   L("law_condensing_pill"), L("law_touching_pill")]},
         # v1.2 Phase C · Lanternwright Han keeps the first Wardens' glyphs for those who walk the written word.
         {"id": "lanternwright", "name": "Lanternwright Han's Shelf", "currency": "sage_crystal",
-         "stock": [s("lantern_incense", price=4), s("clear_mind_pill"), s("will_tempering_pill", price=6),
+         "stock": [s("lantern_incense", price=4), F("clear_mind_pill"), F("will_tempering_pill"),
                    s("technique_manual", learn="benevolent_script", price=60,
                      requires=all_of(realm("will_manifest_3"), {"kind": "unlock", "system": "confucian_path"})),
                    s("technique_manual", learn="rite_seal_script", price=90,
@@ -268,24 +266,24 @@ def shops():
                   + [s(x, requires=all_of(realm("sphere_lord_2"))) for x in grade_set("will")]},
         # Phase E · the Shipwrights' Yard: sky ink for charts; timber, plates and plumes for hulls.
         {"id": "navigator", "name": "Navigator Sun's Charts", "currency": "spirit_stone",
-         "stock": [s("sky_ink", price=30), s("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
+         "stock": [s("sky_ink", price=30), F("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
                                                                    requires=all_of(realm("sage_sovereign_3")))]},
         {"id": "shipwright", "name": "Lao's Slipway Stores", "currency": "spirit_stone",
          "stock": [s("spirit_wood", price=40), s("formation_stone"), s("stormsteel_ore")]},
         {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone",
-         "stock": [s("herbal_tea"), s("rice_ball"), s("viper_antidote"), s("qi_restoration_pill"), s("storm_blood_pill"), s("cactus_water", price=12),
+         "stock": [s("herbal_tea"), s("rice_ball"), F("viper_antidote"), F("qi_restoration_pill"), F("storm_blood_pill"), s("cactus_water", price=12),
                    s("tough_meat")]},
         # A back-room market (gap report G1 karma): every purchase is a small sin.
         {"id": "free_market", "name": "Broker Mu's Back Room", "currency": "spirit_stone", "black_market": True,
          "requires": {"all": [{"kind": "flag_set", "flag": "path_independent"}]},
-         "stock": [s("manual_page", price=5), s("torn_manual", price=24), s("storm_blood_pill"), s("spirit_egg", price=36),
+         "stock": [s("manual_page", price=5), s("torn_manual", price=24), F("storm_blood_pill"), s("spirit_egg", price=36),
                    # S49 alignment: what Broker Mu keeps under the counter for the shadowed.
                    # The low soul core's only beast was the Hollow Night's eel at Level 10; at the story's Level 2 it
                    # carries none (rank 1), so it is sold here beside the mid one.
                    s("soul_core_low", price=20, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("soul_core_mid", price=45, requires=all_of({"kind": "alignment_at_most", "value": -20})),
                    s("beast_essence_blood", price=25, requires=all_of({"kind": "alignment_at_most", "value": -20}))],
-         "rotation": {"count": 2, "pool": [s("sage_condensing_pill", price=80), s("mirror_eye", price=70), s("jade_core", price=18),
+         "rotation": {"count": 2, "pool": [F("sage_condensing_pill"), s("mirror_eye", price=70), s("jade_core", price=18),
                                            s("sentinel_core", price=30), s("frost_lotus", price=9)]}},
         # Part 8 (S49 karma): the Caravan Road's night peddler. +5 sin a purchase (karma.json "night_peddler").
         {"id": "night_peddler", "name": "Peddler Shao's Mat", "currency": "silver_tael", "black_market": True,
@@ -302,7 +300,7 @@ def shops():
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone",
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
-                   s("stormsilk_boots"), s("stormsteel_ore"), s("bone_strengthening_pill"),
+                   s("stormsilk_boots"), s("stormsteel_ore"), F("bone_strengthening_pill"),
                    s("recipe_scroll", learn="nine_sword_array", price=60),
                    # S47 weapon awakening: more Weapon Soul Crystals, once Smith Hong has shown you the first.
                    s("weapon_soul_crystal", price=900, requires=all_of({"kind": "quest_done", "quest": "a_blade_that_answers"})),
@@ -316,10 +314,10 @@ def shops():
                    s("sunsilk_boots", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1"))),
                    s("sunsteel_gourd", requires=all_of({"kind": "flag_set", "flag": "clan_ironroot"}, realm("sage_sovereign_1")))]},
         {"id": "herders_camp", "name": "Herders' Camp", "currency": "spirit_stone",
-         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), s("storm_blood_pill"),
+         "stock": [s("tough_meat"), s("thunderhorn_stew"), s("bonding_offering_heaven"), F("storm_blood_pill"),
                    s("beast_bag_star", price=160, requires=all_of(realm("sage_1")))]},
     ]
-    entries("shops", rows)
+    entries("shops", E.shelves(rows))
 
 
 def currencies():
@@ -354,31 +352,9 @@ def recipes():
              "outputs": [{"item": i, "count": n} for i, n in outputs]}
         d.update(kw)
         R.append(d)
-    # Alchemy (Part 8)
-    A = [("healing_pill", "common", [("riverreed_ginseng_10", 1), ("willow_moss", 2)], 120),
-         ("qi_restoration_pill", "common", [("willow_moss", 2), ("leech_oil", 1)], 120),
-         ("qi_gathering_pill", "common", [("riverreed_ginseng_10", 2), ("moss", 2)], 180),
-         ("bone_strengthening_pill", "common", [("tortoise_plate", 1), ("boar_hide", 1), ("riverreed_ginseng_10", 1)], 180),
-         ("purging_pill", "common", [("willow_moss", 3), ("river_mud", 1)], 120),
-         ("viper_antidote", "common", [("venom_sac", 1), ("willow_moss", 1)], 90),
-         ("tiger_blood_pill", "common", [("thorn_hide", 1), ("ember_pepper", 2)], 180),
-         ("cleansing_pill", "common", [("mist_lotus", 1), ("jade_scale", 2), ("riverreed_ginseng_100", 1)], 300),
-         ("foundation_guard_pill", "earth", [("serpent_core", 1), ("riverreed_ginseng_100", 2), ("guardian_stone", 1)], 600),
-         ("clear_mind_pill", "earth", [("mist_lotus", 1), ("jade_scale", 1), ("willow_moss", 2)], 300),
-         ("meridian_reversal_pill", "earth", [("prayer_beads", 2), ("mist_lotus", 1)], 300),
-         ("method_conversion_pill", "earth", [("manual_page", 1), ("jade_scale", 2), ("mist_lotus", 1)], 300),
-         ("qi_refining_pill", "earth", [("pearl", 2), ("mist_lotus", 2), ("serpent_core", 1)], 600),
-         ("soul_soothing_pill", "heaven", [("mirror_dust", 2), ("soul_wax", 1), ("mist_lotus", 1)], 600),
-         ("mind_lake_opening_pill", "heaven", [("cloud_feather", 3), ("mist_lotus", 2), ("cloudtop_orchid", 1)], 900),
-         ("sage_condensing_pill", "mystic", [("roc_feather", 2), ("jade_core", 1), ("soulbell_flower", 2)], 1200),
-         ("storm_blood_pill", "mystic", [("spark_pelt", 1), ("storm_shard", 2), ("soulbell_flower", 1)], 900),
-         ("sovereign_settling_pill", "sage", [("ember_cactus", 2), ("worm_glass_tooth", 1), ("frost_lotus", 1)], 1500),
-         ("tide_cleansing_pill", "sovereign", [("star_lotus", 2), ("wyrm_ash", 1), ("jelly_silk", 1)], 1200),
-         # v1.2 Phase E: the Law pills, for the step past the Lantern Star Field's ceiling (Sphere Lord 3 -> Law Touching).
-         ("law_condensing_pill", "will", [("star_lotus", 2), ("void_carapace", 1), ("eel_essence", 1)], 1800),
-         ("law_touching_pill", "will", [("star_lotus", 1), ("leviathan_scale", 1), ("eel_essence", 2)], 2400)]
-    for pid, grade, inputs, t in A:
-        r(pid, "alchemy", inputs, [(pid, 1)], grade, time_s=t)
+    E.begin("recipes")
+    # Alchemy (Part 8): the pills' own recipes (specs/pills.py).
+    R.extend(E.recipes("alchemy"))
     # Cooking (Part 8) incl. pet foods and bonding offerings
     C = [("herbal_tea", [("willow_moss", 1)], True), ("rice_ball", [("rice", 1)], True), ("riverfish_soup", [("river_minnow", 2)], False),
          ("boar_bone_broth", [("tough_meat", 2)], False), ("ember_pepper_stew", [("ember_pepper", 2), ("tough_meat", 1)], False),
@@ -483,7 +459,7 @@ def recipes():
       "sage", xp=90, requires_ranks={"smithing": "adept", "formations": "adept"})
     # S44 / Part 8 new forms. Oils, the poison pill, the draught and the incense are Mei Qing's common knowledge; the baths
     # come with the Bath station (Qi Unfurling 1); the Qi Flow Pill is the Alchemist Guild's Expert reward.
-    r("qi_flow_pill", "alchemy", [("riverreed_ginseng_100", 1), ("jade_scale", 2), ("leech_oil", 1)], [("qi_flow_pill", 1)], "earth")
+    R.extend(E.recipes("qi_flow"))
     r("viper_smoke_pill", "alchemy", [("venom_sac", 2), ("viper_fang", 1), ("river_mud", 1)], [("viper_smoke_pill", 1)], "common", default=True)
     r("viper_oil", "alchemy", [("venom_sac", 1), ("toad_oil", 1)], [("viper_oil", 1)], "common", default=True)
     r("ember_oil", "alchemy", [("ember_pepper", 2), ("toad_oil", 1)], [("ember_oil", 1)], "common", default=True)
@@ -509,32 +485,24 @@ def recipes():
     r("jade_marrow_bath", "alchemy", [("cloudtop_orchid", 1), ("jade_scale", 3), ("guardian_stone", 2), ("mist_lotus", 2)], [("jade_marrow_bath", 1)], "heaven")
     r("golden_body_bath", "alchemy", [("frost_lotus", 1), ("thunder_horn", 2), ("snow_ape_hide", 2), ("cloudtop_orchid", 2)], [("golden_body_bath", 1)], "mystic")
     # S48 Core Forging: this pill needs a Heavenly Flame under the furnace; Elder Hu and Elder Sung teach it at Heart Tempering 9.
-    r("heavenly_flame_pill", "alchemy", [("ember_pepper", 3), ("riverreed_ginseng_100", 1), ("serpent_core", 1)], [("heavenly_flame_pill", 1)], "earth",
-      fire="heavenly_flame")
+    R.extend(E.recipes("heavenly_flame"))
     r("calm_heart_incense", "alchemy", [("prayer_beads", 1), ("lantern_wick", 2), ("mist_lotus", 1)], [("calm_heart_incense", 1)], "earth", default=True)
     # S44 experimentation: hidden recipes of herbs alone, found by putting the right herbs in together.
-    r("sunfire_pill", "alchemy", [("riverreed_ginseng_10", 1), ("ember_pepper", 1)], [("sunfire_pill", 1)], "common", hidden=True)
-    r("stillwater_pill", "alchemy", [("mist_lotus", 1), ("soulbell_flower", 1), ("willow_moss", 1)], [("stillwater_pill", 1)], "earth", hidden=True)
-    r("cloudstep_pill", "alchemy", [("cloudtop_orchid", 1), ("willow_moss", 2)], [("cloudstep_pill", 1)], "heaven", hidden=True)
-    # S44 element affinity: a furnace of a pill's element adds 5% to its quality roll (the Nine-Dragon Cauldron is Water).
-    PILL_ELEMENT = {"healing_pill": "wood", "qi_restoration_pill": "water", "qi_gathering_pill": "earth", "bone_strengthening_pill": "earth",
-                    "purging_pill": "water", "viper_antidote": "wood", "tiger_blood_pill": "fire", "cleansing_pill": "water",
-                    "foundation_guard_pill": "earth", "clear_mind_pill": "water", "meridian_reversal_pill": "metal",
-                    "method_conversion_pill": "metal", "qi_refining_pill": "water", "soul_soothing_pill": "water",
-                    "mind_lake_opening_pill": "water", "sage_condensing_pill": "metal", "storm_blood_pill": "wood",
-                    "sovereign_settling_pill": "fire", "qi_flow_pill": "earth", "viper_smoke_pill": "wood", "viper_oil": "wood",
-                    "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth", "marrow_washing_bath": "water",
-                    "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal", "heavenly_flame_pill": "fire", "sunfire_pill": "fire", "stillwater_pill": "water", "cloudstep_pill": "wood", "tide_cleansing_pill": "water", "law_condensing_pill": "metal", "law_touching_pill": "water"}
-    # S44 ancient recipes: split into pages across dungeons and secret realms (the pages are placed in world.py).
-    ANCIENT = {"method_conversion_pill": 3, "sovereign_settling_pill": 4}
+    R.extend(E.recipes("hidden"))
+    # S44 element affinity: a furnace of a recipe's element adds 5% to its quality roll (the Nine-Dragon Cauldron is
+    # Water). A family's recipe names its own (and an S44 ancient recipe its pages, placed in world.py); these are the rest.
+    ELEMENT = {"viper_smoke_pill": "wood", "viper_oil": "wood", "ember_oil": "fire", "riverreed_draught": "water", "copper_body_bath": "earth",
+               "marrow_washing_bath": "water", "calm_heart_incense": "wood", "jade_marrow_bath": "water", "golden_body_bath": "metal"}
     ROLES = ["principal", "minister", "assistant", "envoy"]
     for x in R:
         if x["craft"] == "alchemy":
-            x["element"] = PILL_ELEMENT.get(x["id"], "earth")
+            element, fragments = E.recipe_meta(x["id"]) or (ELEMENT.get(x["id"]), None)
+            x["element"] = element or "earth"
             # S44 recipe roles follow the recipe's order: Principal, Minister, Assistant, Envoy.
             x["roles"] = ROLES[:len(x["inputs"])]
-            if x["id"] in ANCIENT:
-                x["fragments"] = ANCIENT[x["id"]]
+            if fragments:
+                x["fragments"] = fragments
+    E.end("recipes")
     entries("recipes", R)
     herb_conflicts()
     guilds()
