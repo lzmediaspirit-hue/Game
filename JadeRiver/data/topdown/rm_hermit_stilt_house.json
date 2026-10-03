@@ -253,16 +253,6 @@
    "y": 7
   },
   {
-   "kind": "cattails",
-   "x": 17,
-   "y": 7
-  },
-  {
-   "kind": "cattails",
-   "x": 22,
-   "y": 7
-  },
-  {
    "kind": "lotus_pads",
    "x": 15,
    "y": 12
@@ -358,6 +348,25 @@
   }
  },
  "spawns": [],
+ "traverse": [
+  {
+   "kind": "raft",
+   "id": "pond_raft",
+   "at": [
+    13,
+    7
+   ],
+   "path": [
+    [
+     11,
+     0
+    ]
+   ],
+   "speed": 45,
+   "wait_s": 2.5,
+   "mode": "pingpong"
+  }
+ ],
  "vista": [
   {
    "edge": "n",

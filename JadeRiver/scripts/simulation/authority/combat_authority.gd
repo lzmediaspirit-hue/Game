@@ -645,7 +645,8 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 		if MovementSolver.air_dash(st):
 			var ax := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
 			var dash_s := float(ContentDB.movement("air_dash.hold_s", 0.25))
-			tl.forced = Vector2(ax, 0) * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
+			var dart := dir if grid() != null else Vector2(ax, 0)   # T1: on the grid it darts along the stick, on the plane
+			tl.forced = dart * float(ContentDB.movement("air_dash.distance", 140.0)) / dash_s
 			tl.forced_t = dash_s
 			c.pools.cooldowns["dodge"] = _dodge_cooldown(c)
 			LocalAuthority.announce(st, c.id)
@@ -653,7 +654,7 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	if moves and st != null and st.surface == null and not st.flying and "wind_blink" in c.cultivator.secret_arts and c.pools.cooldown("wind_blink") <= 0.0:
 		var bx := signf(dir.x) if absf(dir.x) > 0.2 else (1.0 if facing >= 0 else -1.0)
 		var blink := float(ContentDB.stat_const("combat.wind_blink_distance", 120))
-		tl.forced = Vector2(bx, 0) * blink / 0.1
+		tl.forced = (dir if grid() != null else Vector2(bx, 0)) * blink / 0.1   # T1: on the grid along the stick
 		tl.forced_t = 0.1
 		tl.dodge_t = 0.15
 		st.vertical_speed = maxf(st.vertical_speed, 140.0)

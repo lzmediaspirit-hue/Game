@@ -32,6 +32,9 @@ var props: Array = []                ## {kind, cell: Vector2i, size: Vector2i, l
 var spawn := Vector2.ZERO            ## world units
 var tileset: Dictionary = {}
 var def: Dictionary = {}             ## the room's own file, for its spawns and kind
+## T1: the side view's rafts, updrafts and climbable faces on this grid (a TopdownTraverse, made by TopdownTraverse.of
+## from the layout's `traverse`; untyped, so this class never names it and none of its queries count it).
+var traverse = null
 
 ## A room's layout from `dir` (data/topdown/; a review room the tools draw sits outside data/, which ships).
 static func load_room(room_id: String, dir := DIR) -> TopdownRoom:

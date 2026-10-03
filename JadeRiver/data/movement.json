@@ -106,6 +106,22 @@
    "replan_s": 0.4,
    "impulse": 400,
    "radius": 8
+  },
+  "traverse": {
+   "glide_fall": 90,
+   "glide_drift": 1.1,
+   "updraft_speed": 170,
+   "updraft_ease": 3.0,
+   "double_jump_impulse": 325,
+   "wall_kick_speed": 340,
+   "wall_kicks": 3,
+   "wall_reach": 12,
+   "wall_away": 60,
+   "wall_away_s": 0.2,
+   "bounce_speed": 528,
+   "climb_speed": 80,
+   "climb_reach": 22,
+   "climb_hold_s": 0.3
   }
  },
  "jump": {

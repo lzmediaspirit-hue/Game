@@ -529,11 +529,6 @@
    "y": 21
   },
   {
-   "kind": "lotus_pads",
-   "x": 44,
-   "y": 21
-  },
-  {
    "kind": "grey_reeds",
    "x": 1,
    "y": 23
@@ -794,6 +789,54 @@
     3,
     2
    ]
+  }
+ ],
+ "traverse": [
+  {
+   "kind": "raft",
+   "id": "log_raft_a",
+   "at": [
+    17,
+    19
+   ],
+   "path": [
+    [
+     -8,
+     0
+    ]
+   ],
+   "speed": 40,
+   "wait_s": 2.5,
+   "mode": "pingpong"
+  },
+  {
+   "kind": "raft",
+   "id": "log_raft_loop",
+   "at": [
+    45,
+    18
+   ],
+   "path": [
+    [
+     2,
+     2
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     -3,
+     4
+    ],
+    [
+     -2,
+     2
+    ]
+   ],
+   "speed": 40,
+   "wait_s": 2.5,
+   "mode": "loop"
   }
  ],
  "vista": [

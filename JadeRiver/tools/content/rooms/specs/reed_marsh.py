@@ -107,6 +107,13 @@ RM_GREY_POOLS = room(
     flora={"reedbank": dict(density=0.4)},
     areas=[{"kind": "hollow_puddle", "rect": r} for r in ([9, 11, 3, 2], [20, 11, 3, 2], [28, 16, 3, 2], [36, 11, 3, 2],
                                                            [50, 11, 3, 2])],
+    # T1 (docs/architecture/topdown_mechanics.md): the side view's two log rafts. One ferries from the jetty across the
+    # grey pool to its west bank and back; the other goes round the east pool from its north shore (the lotus pads in
+    # its way are left out).
+    traverse=[("raft", "log_raft_a", dict(at=(17, 19), path=[(-8, 0)], speed=40, wait_s=2.5, mode="pingpong")),
+              ("raft", "log_raft_loop", dict(at=(45, 18), path=[(2, 2), (2, 4), (-3, 4), (-2, 2)], speed=40, wait_s=2.5,
+                                             mode="loop"))],
+    pins={"drop": [(44, 21)]},
     foes=["auto:flats", "auto", "auto:flats"])
 
 # The Sunken Causeway: the old paved causeway across the open marsh, sunk in two places and laid over with planks, reed
@@ -152,6 +159,10 @@ RM_HERMIT_STILT_HOUSE = room(
     anchors={"hermit_mat": "deck.front@20", "hermit_tea": "deck.front@25", "npc_hermit_yao": (10, 11),
              "pond_lotus": "rock@20", "spring_hermit": "spring.n@4", "shrine_hermit": "meadow@34", "herb_1": "meadow@37"},
     props=[("house", 15, 1), ("lantern", 10, 4), ("lantern", 28, 4), ("drying_rack", 22, 2), ("fish_basket", 9, 1)],
-    flora={"meadow": dict(density=0.4)})
+    flora={"meadow": dict(density=0.4)},
+    # T1 (docs/architecture/topdown_mechanics.md): the hermit's raft, poled across the pond under his deck from the west
+    # shore by the stairs to the east bank and back; the cattails in its way are left out.
+    traverse=[("raft", "pond_raft", dict(at=(13, 7), path=[(11, 0)], speed=45, wait_s=2.5, mode="pingpong"))],
+    pins={"drop": [(17, 7), (22, 7)]})
 
 ROOMS = [RM_MARSH_EDGE, RM_GREY_POOLS, RM_SUNKEN_CAUSEWAY, RM_HERMIT_STILT_HOUSE]

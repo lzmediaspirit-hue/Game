@@ -63,6 +63,22 @@ var row_t := 0.0
 var magnet_on := false   ## the landing assist braked this substep (tests and traces)
 var magnet_used := false ## the landing assist braked in this airtime
 var land_hold := 0.0     ## after an assisted landing: seconds the top's edge still holds a body the stick pushes on
+## T1 (docs/architecture/topdown_mechanics.md): the side view's movement arts and traversal on the grid. The arts this
+## body knows (the player sets them from Combat, as `water_walk`), and the state of each.
+var gliding := false       ## Falling Leaf Glide, held (Combat's glide: its QI and its art_used): the fall capped, a carry
+var double_jump := false   ## Cloud Ladder Step known: a second jump in the air
+var wall_step := false     ## Wall-Step known: a kick off a wall face pushed into, in the air
+var jumps := 0             ## jumps this airtime (the second is the Cloud Ladder Step's)
+var wall_kicks := 0        ## Wall-Step kicks this airtime
+var hold_t := 0.0          ## Swallow Dart: seconds the height is held while the dart carries the body
+var ride := ""             ## the raft the body stands on ("" when none)
+var ride_off := Vector2.ZERO
+var skimming := false      ## on the water's surface with Water Skimming (the entry is announced once)
+var climbing: Dictionary = {}   ## the climbable face the body is on (TopdownTraverse.climbs), {} when none
+var climb_k := 0.0         ## 0 at the climbable's foot, 1 at its top
+var climb_moving := false  ## the stick moves it along the face this frame (the climb's pose cycles)
+var _trav_room = null
+var _trav: TopdownTraverse = null
 
 var walk: float
 var tiptoe_axis: float
@@ -98,6 +114,10 @@ var half := Vector2(8, 5)
 var nudge: float
 var squash_s: float
 var reset_s: float
+var glide_fall: float
+var glide_drift: float
+var updraft_ease: float
+var climb_speed: float
 
 static func conf(key: String, fallback = 0.0):
 	return ContentDB.movement("topdown." + key, fallback)
@@ -136,6 +156,10 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 	nudge = conf("corner_nudge", 10.0)
 	squash_s = conf("land_squash_s", 0.1)
 	reset_s = conf("water_reset_s", 0.5)
+	glide_fall = conf("traverse.glide_fall", 90.0)
+	glide_drift = conf("traverse.glide_drift", 1.1)
+	updraft_ease = conf("traverse.updraft_ease", 3.0)
+	climb_speed = conf("traverse.climb_speed", 80.0)
 	place(room.spawn if at == Vector2.INF else at)
 
 ## Stand on the floor at a ground point.
@@ -149,6 +173,10 @@ func place(p: Vector2) -> void:
 	sink_t = -1.0
 	safe = p
 	safe_z = z
+	climbing = {}
+	gliding = false
+	hold_t = 0.0
+	ride = ""
 	_took_off()
 
 ## The jump's apex over its take-off, and its airtime back to the same height (movement numbers, §As built).
@@ -158,18 +186,86 @@ func airtime() -> float: return 2.0 * impulse / gravity
 
 ## One frame of input. `jump` and `dash` are presses (edges) this frame; the frame runs as 120 Hz substeps.
 func step(dt: float, axis: Vector2, jump := false, dash := false) -> void:
+	if not climbing.is_empty():
+		# T1: on a climbable face Jump lets go (a hop back off it); the dash waits for the ground.
+		if jump: release_climb(true)
+		else:
+			var lc := dt
+			while lc > 0.00001 and not climbing.is_empty():
+				var hc := minf(STEP, lc)
+				_climb_step(hc, axis)
+				lc -= hc
+			return
+	# T1: a press in the air past the coyote time kicks off a wall pushed into (Wall-Step), else is the Cloud Ladder
+	# Step's second jump; otherwise it waits for the ground (the buffer), as the side view's jump does.
+	if jump and not grounded and coyote <= 0.0 and sink_t < 0.0 and not plunging and (_wall_kick(axis) or _double_jump()): jump = false
 	if jump: buffer = buffer_s
 	if dash: _start_dash(axis)
+	_ride()
 	var left := dt
 	while left > 0.00001:
 		var h := minf(STEP, left)
 		_substep(h, axis)
 		left -= h
 
-## The floor under a ground point, the water's surface included for a body that walks on it.
+## T1: the room's traversal (TopdownTraverse.of), null when its layout has none (the common case costs one compare).
+func traverse() -> TopdownTraverse:
+	if _trav_room != room:
+		_trav_room = room
+		var t := TopdownTraverse.of(room)
+		_trav = t if t != null and not t.is_empty() else null
+	return _trav
+
+## The floor under a ground point, the water's surface included for a body that walks on it, and a raft's deck where
+## one floats there now (T1).
 func floor_at(p: Vector2) -> float:
 	var h := room.height_at(p)
+	if h == TopdownRoom.WATER_Z:
+		var r := _raft_under(p)
+		if not r.is_empty(): return float(r.z)
 	return 0.0 if water_walk and h == TopdownRoom.WATER_Z else h
+
+## The raft whose deck is at a ground point now ({} when none, or the room has none).
+func _raft_under(p: Vector2) -> Dictionary:
+	var tr := traverse()
+	return {} if tr == null or tr.rafts.is_empty() else tr.raft_at(p)
+
+## The cell under a point is open water a walking body stops at (a raft's deck over it is a floor).
+func _water_at(c: Vector2) -> bool:
+	var cp := TopdownRoom.cell_of(c)
+	return room.is_water(cp.x, cp.y) and _raft_under(c).is_empty()
+
+## T1 · a raft carries its rider: the deck's move since the last frame (the room's clock, the side view's mover rule),
+## before the body's own step. Boarding it is announced (the side view's mover_boarded) and sets a trigger raft off.
+func _ride() -> void:
+	var tr := traverse()
+	if tr == null or tr.rafts.is_empty():
+		ride = ""
+		return
+	var r := {}
+	if grounded and sink_t < 0.0 and room.height_at(pos) == TopdownRoom.WATER_Z:
+		# Still on the deck where it stood at the last frame (the clock has moved it since), else on the one under it now.
+		var was := tr.raft(ride) if ride != "" else {}
+		if not was.is_empty() and Rect2((was.rest as Rect2).position + ride_off, (was.rest as Rect2).size).has_point(pos): r = was
+		else: r = tr.raft_at(pos)
+	if r.is_empty():
+		ride = ""
+		return
+	var off := tr.raft_offset(r)
+	if ride != str(r.id):
+		ride = str(r.id)
+		ride_off = off
+		tr.trigger(ride)
+		events.append({"type": "boarded", "raft": ride})
+		return
+	var d := off - ride_off
+	ride_off = off
+	if d.length() < 0.0001: return
+	# The deck moved under the feet: the body goes with it, along each axis a wall does not stop.
+	if not blocked_at(pos + d): pos += d
+	else:
+		if not blocked_at(pos + Vector2(d.x, 0.0)): pos.x += d.x
+		if not blocked_at(pos + Vector2(0.0, d.y)): pos.y += d.y
 
 ## Can a dash start now (on the ground or within coyote time, not sinking)? The combat dodge asks before it spends its
 ## cooldown.
@@ -243,6 +339,14 @@ func _substep(h: float, axis: Vector2) -> void:
 		if mag > 0.05 and grounded: running = mag > tiptoe_axis
 		var target := axis.normalized() * (sprint if mag > tiptoe_axis else walk * tiptoe) * speed_k if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
+		elif gliding:
+			# T1 · Falling Leaf Glide: the body sails on at the drift (the side view's x1.1 of the walk), steered by the
+			# stick at the air's pick-up, along the way it was going when the stick is let go: a glide is a dash across a
+			# gap. The landing assist still brakes it onto a top it would overshoot.
+			if not _magnet(h, axis):
+				var gd := walk * glide_drift
+				var way := axis.normalized() if mag > 0.05 else (vel.normalized() if vel.length() > 1.0 else dir)
+				vel = vel.move_toward(way * gd, accel * air_control * h)
 		else:
 			var against := target != Vector2.ZERO and vel.length() > 1.0 and target.normalized().dot(vel.normalized()) < -0.2
 			if _magnet(h, axis): pass   # the landing assist brakes; the stick does not push on along the jump meanwhile
@@ -267,6 +371,7 @@ func _jump() -> void:
 	grounded = false
 	coyote = 0.0
 	buffer = 0.0
+	jumps = 1
 	if carried and dash_dir != Vector2.ZERO:
 		long_jump = true
 		vel = dash_dir * long_speed
@@ -281,6 +386,127 @@ func _took_off() -> void:
 	crossed_low = false
 	magnet_used = false
 	land_hold = 0.0
+	jumps = 1
+	wall_kicks = 0
+
+## T1 · Cloud Ladder Step (the side view's double jump): once an airtime, a second jump at its own impulse, from
+## wherever the body is in the air (not out of a Plunge or a Swallow Dart's hold).
+func _double_jump() -> bool:
+	if not double_jump or jumps >= 2 or hold_t > 0.0: return false
+	jumps = 2
+	vz = float(conf("traverse.double_jump_impulse", 325.0))
+	peak = maxf(peak, z)
+	gliding = false
+	long_jump = false
+	events.append({"type": "double_jumped", "z": z})
+	return true
+
+## T1 · Wall-Step: in the air, the stick pushing into a wall face (a floor above the mantle's reach, a prop, the room's
+## edge) within `wall_reach`: a kick up at its own speed and off the wall, three an airtime. True when it kicked.
+func _wall_kick(axis: Vector2) -> bool:
+	if not wall_step or wall_kicks >= int(conf("traverse.wall_kicks", 3)) or axis.length() < 0.5 or hold_t > 0.0: return false
+	var into := axis.normalized()
+	# The wall straight along the push: east, west, north or south (the face a body can push against on the grid).
+	var side := Vector2(signf(into.x), 0.0) if absf(into.x) >= absf(into.y) else Vector2(0.0, signf(into.y))
+	var reach := float(conf("traverse.wall_reach", 12.0)) + (half.x if side.x != 0.0 else half.y)
+	var probe := pos + side * reach
+	var cp := TopdownRoom.cell_of(probe)
+	if not (room.level(cp.x, cp.y) == TopdownRoom.SOLID or floor_at(probe) > z + mantle): return false
+	wall_kicks += 1
+	vz = float(conf("traverse.wall_kick_speed", 340.0))
+	peak = maxf(peak, z)
+	gliding = false
+	long_jump = false
+	var away_s := float(conf("traverse.wall_away_s", 0.2))
+	push(-side * float(conf("traverse.wall_away", 60.0)) / away_s, away_s)
+	face(-side)
+	events.append({"type": "wall_kicked", "side": side, "kicks": wall_kicks})
+	return true
+
+## T1 · Swallow Dart: the height held for `secs` while Combat's dart carries the body (its forced motion, a push).
+func air_hold(secs: float) -> void:
+	if grounded or secs <= 0.0: return
+	hold_t = secs
+	vz = 0.0
+	gliding = false
+
+# ------------------------------------------------------------------ T1: climbable faces
+## Climb on at the foot (or, `from_top`, over the top's edge): the body against the face, Combat's arts and the dash
+## put away until it steps off. False when it cannot (in the air, sinking, already on one).
+func start_climb(c: Dictionary, from_top: bool) -> bool:
+	if c.is_empty() or not climbing.is_empty() or not grounded or sink_t >= 0.0 or plunging: return false
+	climbing = c
+	climb_k = 1.0 if from_top else 0.0
+	climb_moving = false
+	vel = Vector2.ZERO
+	vz = 0.0
+	dash_t = 0.0
+	push_t = 0.0
+	long_jump = false
+	gliding = false
+	grounded = false
+	ride = ""
+	_climb_place()
+	face(c.dir)
+	events.append({"type": "climb_started", "climbable": str(c.id)})
+	return true
+
+## Where a body on the face stands: against it on the foot's side, at the height the climb has reached.
+func _climb_place() -> void:
+	var c := climbing
+	var d: Vector2 = c.dir
+	var back := (half.y if absf(d.y) > 0.5 else half.x) + 1.0
+	pos = (c.face as Vector2) - d * back
+	z = lerpf(float(c.foot_z), float(c.top_z), climb_k)
+	peak = z
+
+## One substep on the face: the stick toward the top climbs, away from it climbs down, at the climb's speed; at either
+## end the body steps off onto that floor.
+func _climb_step(h: float, axis: Vector2) -> void:
+	var c := climbing
+	var along := axis.dot(c.dir) if axis.length() > 0.2 else 0.0
+	if absf(along) < 0.3: along = 0.0
+	climb_moving = along != 0.0
+	var height := maxf(1.0, float(c.top_z) - float(c.foot_z))
+	climb_k = clampf(climb_k + signf(along) * climb_speed * h / height, 0.0, 1.0)
+	_climb_place()
+	if climb_k >= 1.0 and along > 0.0: _leave_climb("top")
+	elif climb_k <= 0.0 and along < 0.0: _leave_climb("foot")
+
+func _leave_climb(end: String) -> void:
+	var c := climbing
+	var d: Vector2 = c.dir
+	climbing = {}
+	climb_moving = false
+	if end == "top":
+		pos = (c.face as Vector2) + d * ((half.y if absf(d.y) > 0.5 else half.x) + 2.0)
+		z = float(c.top_z)
+	else:
+		z = float(c.foot_z)
+	vz = 0.0
+	vel = Vector2.ZERO
+	grounded = true
+	coyote = 0.0
+	buffer = 0.0
+	_took_off()
+	jumps = 0
+	events.append({"type": "climb_finished", "climbable": str(c.id), "end": end})
+
+## Let go of the face: a hop back off it (`jumped`, Jump pressed on it) or knocked off by a blow; either way the body
+## falls to the floor at its foot.
+func release_climb(jumped: bool) -> void:
+	if climbing.is_empty(): return
+	var c := climbing
+	var d: Vector2 = c.dir
+	climbing = {}
+	climb_moving = false
+	grounded = false
+	_took_off()
+	takeoff_z = float(c.foot_z)
+	peak = z
+	vz = impulse * 0.5 if jumped else 0.0
+	vel = -d * walk * (0.6 if jumped else 0.3)
+	events.append({"type": "climb_finished", "climbable": str(c.id), "end": "jump" if jumped else "knocked"})
 
 ## Decision 43 · the landing assist. In the air over a flat top (a box, a roof, a ledge; not a stair or the water) that
 ## is not the floor the body left (unless it crossed a gap to it), with the body above it and the stick along the jump:
@@ -335,21 +561,43 @@ func _vertical(h: float) -> void:
 			events.append({"type": "fell", "z": z})
 		else:
 			z = ground   # stairs and small steps follow the floor
-			if _clear_ground():
+			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1).
+			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z:
 				safe = pos
 				safe_z = z
+			# T1 · Water Skimming: stepping out onto the water's surface is the art's use, announced once an outing.
+			var on_water := water_walk and room.height_at(pos) == TopdownRoom.WATER_Z and ride == ""
+			if on_water and not skimming: events.append({"type": "skimmed"})
+			skimming = on_water
 		return
 	coyote = maxf(0.0, coyote - h)
+	var up := _updraft()
 	if plunging: z += vz * h   # the Plunge holds its speed
+	elif hold_t > 0.0:
+		hold_t = maxf(0.0, hold_t - h)   # T1 · Swallow Dart holds the height while it carries the body
+		vz = 0.0
+	elif not up.is_empty() and vz < float(up.speed):
+		# T1 · an updraft eases the fall into a rise toward its speed while falling or gliding (the side view's rule).
+		z += vz * h
+		vz += (float(up.speed) - vz) * minf(1.0, updraft_ease * h)
+	elif gliding and vz <= -glide_fall:
+		vz = -glide_fall   # T1 · Falling Leaf Glide caps the fall
+		z += vz * h
 	else:
 		z += vz * h - 0.5 * gravity * h * h   # exact within the step, so the apex and airtime match the numbers
 		vz -= gravity * h
+		if gliding: vz = maxf(vz, -glide_fall)
 	peak = maxf(peak, z)
 	_push_out()
 	ground = floor_at(pos)
 	if z <= ground:
 		z = ground
 		if vz <= 0.0: _land()
+
+## T1: the updraft the body is in, in the air ({} when none, or the room has none, or it plunges).
+func _updraft() -> Dictionary:
+	var tr := traverse()
+	return {} if tr == null or tr.updrafts.is_empty() or plunging else tr.updraft_at(pos, z)
 
 func _land() -> void:
 	var fall := peak - z
@@ -358,9 +606,11 @@ func _land() -> void:
 	vz = 0.0
 	long_jump = false
 	plunging = false
+	gliding = false
+	hold_t = 0.0
+	jumps = 0
 	if plunged: buffer = 0.0   # a Jump pressed on the way down does not bounce out of the impact
-	var cp := TopdownRoom.cell_of(pos)
-	if room.is_water(cp.x, cp.y) and not water_walk:
+	if _water_at(pos) and not water_walk:
 		sink_t = 0.0
 		vel = Vector2.ZERO
 		events.append({"type": "splashed", "fall": fall, "plunge": plunged})
@@ -372,6 +622,16 @@ func _land() -> void:
 	if assisted or z >= takeoff_z + step_up or (crossed_low and z >= takeoff_z - 0.5): land_hold = magnet_hold_s
 	magnet_used = false
 	events.append({"type": "landed", "fall": fall, "plunge": plunged, "assisted": assisted})
+	# T1 · a bounce (the Fairground's drum, a lily pad, the bent bamboo) launches the body straight back up.
+	var tr := traverse()
+	var b: Dictionary = tr.bounce_at(pos, z) if tr != null and not tr.bounces.is_empty() and not plunged else {}
+	if not b.is_empty():
+		_took_off()
+		grounded = false
+		vz = float(b.speed)
+		peak = z
+		events.append({"type": "bounced", "bounce": str(b.id)})
+		return
 	if buffer > 0.0 and not plunged: _jump()
 
 ## A point is clear of the edges when every corner of the foot box is on the same floor as its centre.
@@ -388,7 +648,7 @@ func _corners(p: Vector2) -> Array:
 func _corner_blocks(c: Vector2) -> bool:
 	var cp := TopdownRoom.cell_of(c)
 	if room.level(cp.x, cp.y) == TopdownRoom.SOLID: return true
-	if grounded and room.is_water(cp.x, cp.y) and not water_walk: return true
+	if grounded and not water_walk and room.is_water(cp.x, cp.y) and _raft_under(c).is_empty(): return true   # T1: a raft's deck is a floor
 	return floor_at(c) > z + (step_up if grounded else mantle)
 
 func blocked_at(p: Vector2) -> bool:

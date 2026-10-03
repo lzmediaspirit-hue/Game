@@ -21,7 +21,10 @@ CF_FALLS_POOL = room(
               ("rocks_e", (29, 14, 3, 2), dict(level=1, paint="s")), ("rocks_far", (32, 15, 3, 2), dict(level=1, paint="s")),
               ("rocks_ee", (35, 16, 5, 2), dict(level=1, paint="s")),
               ("outflow", (29, 18, 6, 11), dict(water=True, shape="round")),
-              ("bridge", (28, 21, 8, 3), dict(level=0, paint="s"))],
+              ("bridge", (28, 21, 8, 3), dict(level=0, paint="s")),
+              # T1 (docs/architecture/topdown_mechanics.md): the spray ledge beside the falls, up its vine; Leaf on the
+              # Wind's glide starts from it, over the falls' spray to the lotus rock.
+              ("spray_ledge", (30, 6, 5, 2), dict(level=3, paint="r"))],
     stairs="auto",
     ways={"west": ("w", "road"), "east": ("e", "road"),
           "behind": dict(at=(25, 6), dir="n", arrive=(24, 7), span=2), "vale": ("n", 50, dict(cut=3))},
@@ -30,6 +33,11 @@ CF_FALLS_POOL = room(
              "spring_falls": "meadow@12", "herb_1": "lotus_rock@23", "fish_falls": "water@38", "shrine_falls": "shore@45"},
     flora={"shore": dict(density=0.45), "meadow": dict(density=0.4)},
     ground={"sand": ["stream.bank"]},
+    # T1: the falls' spray rises over the pool at the falls' foot (it lifts a body in the air to the spray ledge's
+    # height), the vine climbs to the spray ledge, and the rope to the falls ledge's east end.
+    traverse=[("updraft", "falls_spray", dict(rect=(26, 7, 4, 5), top=3.5)),
+              ("vine", "falls_vine", dict(foot=(34, 8), top=(34, 7))),
+              ("rope", "falls_step_rope", dict(foot=(14, 7), top=(13, 7)))],
     foes="auto")
 
 # Behind the Falls: the grotto behind the curtain of Crane Falls, its floor worn round by the spray, a still spring in

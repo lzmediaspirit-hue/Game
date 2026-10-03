@@ -271,6 +271,8 @@ func tick(delta: float) -> void:
 	herbs.tick_rare_herbs(c, rt, delta)
 	# S43: the room clock moves movers, drops crumbled floors and raises water.
 	rt.geometry.advance(delta)
+	# T1: on the grid the rafts ride the same clock (TopdownTraverse.time; docs/architecture/topdown_mechanics.md).
+	if rt.topdown != null and rt.topdown.traverse != null: rt.topdown.traverse.time = rt.geometry.time
 	var st: ActorState = game.actor_state(c.id)
 	if st != null: hazards.tick_hazard_volumes(c, rt, st, delta)
 	# The spot a save resumes at: on the grid too (Phase 4), never in the prototype room, which is not a place.
