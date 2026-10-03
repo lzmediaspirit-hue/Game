@@ -34,8 +34,9 @@ and plays chapter 11 on the grid.
   - `mirror` on a water band or feature: the engine lays the reflection of each tree or stone lantern on its north
     shore on the water below it, where the water runs under the whole of it.
   - A wavy or round region named in `ground` gives its own cells, not its rect.
-- **The frontier.** The Ascension Gate's way up is open. The gate stands only at Gu's Warehouse and at the Skydock's
-  ferry to Nine Peaks. The story's next quest past it is chapter 13's Nine Seats.
+- **The frontier.** The Ascension Gate's way up is open. With Gu's Warehouse (R5), Act I has no way off the grid left.
+  In Act II the gate stands at the Skydock's ferry to Nine Peaks, and at R5's ways to Nine Peaks, the Citadel and the
+  Nebula Deep. The story's next quest past the lake is chapter 13's Nine Seats.
 - **Tests.**
   - A new suite, `topdown_act2_start`, with 61 checks. It crosses the Ascension Gate both ways on the grid and plays
     chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
@@ -44,6 +45,100 @@ and plays chapter 11 on the grid.
     by the view and walked by auto-path.
   - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
   - R6_RUN_TOTALS
+
+## The story's rooms and the Tidebreak Front on the grid (R5)
+
+The room engine's fifth batch (`docs/architecture/room_engine.md`, "The story's rooms and the Tidebreak Front (R5)").
+The story's five instanced rooms and the Tidebreak Front's five are specs now. A top-down character plays every event
+in them on the grid.
+
+- **Ten rooms, 16 to 30 spec lines each.**
+  - The story's: Gu's Warehouse, the Trial of Reflections, the Presence Trial, the Siege of Two Sects and the Sect War
+    at the Alliance Gate.
+  - The Tidebreak Front's: the Tidebreak Bastion, the Tide battle on its wall, the Greyfall Breach, the Hollow Wake and
+    the Drone Hive.
+
+  Each is laid out for its event:
+  - the warehouse's aisles of climbable stacks under a catwalk loft, Gu's strongbox on the strongroom's dais;
+  - the Reflection's mirrored octagon about the bronze mirror;
+  - the Presence Trial's horseshoe of nine seats on plinths round the circle;
+  - the siege's wall with its gate and towers, the camp behind it and the grey valley before it;
+  - the Sect War's grounded junk and the Alliance's line across the pass;
+  - the Tide battle's lantern dais between two barricades;
+  - the Breach's broken outer wall, the road through it.
+
+  Every event spawns on the layout's own cells. Every object and way of each side-view room has its spot.
+- **Looks.**
+  - Two biomes: `tidebreak` (the grey fields) and `bastion` (the Wardens' granite and flagstones).
+  - Three props in `furnish.py`, the prop sheet rebuilt: `trial_seat`, `bronze_mirror` and `drone_hive`.
+  - Vistas in `topdown_life.VISTAS`.
+  - A wall that must read as one runs east and west: only a south face shows in the 3/4 view.
+- **An engine rule.** `topdown_rooms.check` holds a layout's `event` cells to the room event of a set piece begun in
+  the room when the room has none of its own (the Greyfall Breach's stand). Every older room is unchanged.
+- **The frontier.** Gu's Warehouse was the last way off the grid in Act I, and its door on Artisan Row is open. The
+  ways back from the Sect War and the Presence Trial, the Bastion's skiff and the Drone Hive's way east lead to rooms
+  with no layout and are gated.
+- **Tests.**
+  - A new suite, `topdown_story_rooms`, with 69 checks. It plays The Heart Trial (its heart demons too), Gu's
+    Warehouse, The Siege, The Gate Holds, The Presence Trial, The Tide Breaks (the lantern relit and drained on the
+    grid) and Greyfall's stand. It walks the grey fields to the Drone Hive and back. Each room is built by the view and
+    walked by auto-path.
+  - The `room_engine` capture set has R5's views (`docs/architecture/room_engine/r5/`).
+  - One frontier check moved. No way off the grid is in walking reach from the Marsh Edge now, so `topdown_tutorial`
+    sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
+  - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
+    R4's closed-cheek `flights`.
+  - The run after merging R4, S11, M1 and T1: every gate holds (the grid's parity on 88 layouts), with no script
+    error.
+    - `topdown_story_rooms` is new, with 69 checks.
+    - `room_engine` has 268 checks, three for each room it lays out (30 for R5's ten).
+    - `contract_tests` 1,112, `rules_tests` 2,712 (its route tour over 89 rooms), `room_sweep` 3,736,
+      `visibility_suite` 6,758, `topdown_tutorial` 1,030, `topdown_traversal` 123 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes run alone. In the full run two of its frame times missed their budgets by 1 to
+      2 ms (the Marsh Edge's 16.7 ms against 16.6, the breakthrough crowd's 17.7) while the machine's four cores
+      carried a load of 6 to 10. Neither touches R5's rooms.
+- **Still to do.** Nine of these rooms' foes have no top-down sheet (M1 drew the Mudwater bandit and the gorge bandit
+  adept). The Front's light follows the clock, not the side view's night. Details are in the doc.
+## The NPC engine: a person is one spec (decision 45, E3)
+
+A person of the world used to be written in four places: a row in `story.py`, an object of the side-view room in
+`world.py`, an anchor in the room's spec, and a work entry in `topdown_life.py` with its spots chosen cell by cell. The
+NPC engine (`tools/content/npcs/`, `docs/architecture/npc_engine.md`) makes each person one `npc(...)` spec and writes
+them into every place the game reads them from. The game reads nothing new.
+
+- **The spec** names who they are and where they live: id, name and title; their look, from the character pipeline's
+  parts and dyes (`look("ponytail:2", "cardigan:white", "straight", "slippers")`); their lines, barks and lines to a
+  hidden realm; their services and dialogue tree; and their places, home first, each with its daily work loop.
+- **Work by anchors.** A work spot may name what it is beside instead of a cell: `"water_edge"`, `"by:wash_tub"`,
+  `"near:shrine_village"`, `"open"`, `"home"`, with a facing or the loop's steps (`"by:laundry_line:hang"`).
+  `topdown_life.py` resolves them on the built layout and checks them as it checks hand spots: on the person's floor,
+  within the leash, every leg walked clear. The choice is deterministic, and a building moved with its worker keeps the
+  worker's spots round it.
+- **Placements the engine makes.** A person new to a room names a room engine anchor (`place(room, anchor="commons@9",
+  facing=1, visible_if=...)`). The engine adds their object to the side-view room (`world.py`'s new
+  `npc_engine_pass`) and their anchor to the room engine's layout.
+- **Role templates.** The two sects' staff come from one template a post (steward, weapon master, deacon...): a sect's
+  steward is `staff("steward", JADE, "Steward Wei", at=[...])`.
+- **Pins.** A spot written as a cell, `row={key: value}` (`DROP` removes a key), an anchor's cell, a side-view point and
+  a spot's facing can all be pinned in the spec, never in the JSON.
+- **The round trip.** All 118 people with a home and the 5 extras are specs now, in six zone modules: Lotus Ferry,
+  Stoneford, the valley's roads, the sects (20 of them from 10 templates), Act II and Act III. `npcs.json` and
+  `life.json` came out byte for byte as before. `story.py`'s `npcs()` went from 474 lines to 63, and `topdown_life.py`
+  lost its 110 lines of hand work and extras. Nine one-offs stay plain rows in a labelled section of `story.py`: the
+  rooftop thief, Elder Gu's and Shen Lian's quest turns, and the four companions.
+- **Greyreed Hamlet comes home.** The engine's first new people: once Cleansing the Well is done, three villagers are
+  home in Greyreed's empty square, as Elder Gao hoped. Washer Ying scrubs at the water's edge and hangs the washing on the
+  line, Fisher Gan mends nets at the rack, and Old Jiu sweeps the square. Each is one spec of five lines, placed and set
+  to work by anchors. The capture set `npc_engine` (`docs/architecture/npc_engine/`) shows the square before and after,
+  each at work up close, and a word with the washer. Their anchors moved a few of the hamlet's scattered plants.
+- **The capture tool's `worker` take** keeps the player out of a worker's notice at every spot of its loop, not only its
+  home: a washer walking to the water's edge no longer stops to greet a player standing on the bank.
+- **Tests.** A new gate, `npc_engine` (`tools/content/npcs/engine.py --check`), in both runners. It checks that two
+  compiles are the same, that every spec resolves, that the built data holds every person as the engine writes them, and
+  runs the engine's 12 tests. The three villagers add three rows to `npcs.json`, three objects and three anchors to the
+  hamlet, and three work loops to `life.json`, and with them checks to three suites: `data_validation` 50,349 to
+  50,403, `room_sweep` 3,736 to 3,744 and `visibility_suite` 6,758 to 6,764. Every other count is unchanged. A side-view
+  point the engine picks keeps clear of every other thing's talk (`data_validation`'s M18).
 
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 

@@ -6,14 +6,19 @@ the world (a river valley, sects, a slow climb through realms).
 """
 import json
 import os
+import sys
 
 from common import DATA, write, entries, clear, realm, qdone, qactive, qaccepted, flag, noflag, unlocked, sect, all_of, any_of, run_cli
 from legends import CHAINS as LEGENDS
 import technique_hand as LOST_HAND
 from realms import level_of
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
+from content.npcs import engine as NPCS  # noqa: E402
 
 # ---------------------------------------------------------------------------------------------
-# NPCs. Outfits use the player's layered avatar engine (parts.json) plus garment dyes.
+# NPCs. Every person who lives somewhere is a spec of the NPC engine (decision 45, E3: tools/content/npcs,
+# docs/architecture/npc_engine.md); the one-off rows below use outfit(): the player's layered avatar engine
+# (parts.json) plus garment dyes.
 def outfit(hair="short_knot", color=0, shirt="disciple", pants="loose", shoes="slippers", hat="none", cape="none",
            weapon="none", body="light", **dyes):
     o = {"body": body, "hair": hair, "hair_color": color, "shirt": shirt, "pants": pants, "shoes": shoes, "hat": hat,
@@ -41,425 +46,43 @@ PHYSICIANS = ["jade_physician", "cloud_physician"]
 
 
 def npcs():
-    N = []
+    """npcs.json (decision 45, E3): the NPC engine's rows (tools/content/npcs, docs/architecture/npc_engine.md), every
+    person's look, voice, services and keys in its specs' order, with the one-off rows below placed among them; then
+    what other tables keep about a person: their hearts and gifts (relations.py), a lost art's master's tree."""
+    hand = []
 
-    def npc(nid, name, title, o, lines, barks=(), services=(), **kw):
+    def npc(nid, name, title, o, lines, barks=(), services=(), after=None, **kw):
         d = {"id": nid, "name": name, "title": title, "outfit": o, "lines": list(lines), "barks": list(barks), "services": list(services)}
         d.update(kw)
-        N.append(d)
+        hand.append((d, after))
 
-    # Lotus Ferry — the seven villagers and two neighbours
-    npc("aunt_ping", "Aunt Ping", "Your aunt", outfit("long_tied", 1, "cardigan", "straight", "folded", shirt_dye="rose", pants_dye="earth"),
-        ["Eat something before you run off.", "Your mother had the same stubborn chin.", "The river gives, the river takes. Mostly it gives fish."],
-        ["Mind the steps!", "Who left the net out again?"], tree="aunt_ping")
-    npc("lu_boatman", "Lu", "Ferryman", outfit("topknot", 1, "scholar", "scholar", "folded", hat="straw", shirt_dye="grey", pants_dye="ink"),
-        ["The river has been restless.", "Breathe in when the water rises. Out when it falls.", "Every current started as a trickle."],
-        ["Hm.", "Tide's turning."], tree="lu")
-    npc("little_dou", "Little Dou", "Neighbour's boy", outfit("short_knot", 0, "sleeveless", "cuffed", "slippers", shirt_dye="ochre"),
-        ["When I grow up I'll punch a crab so hard it flies to Stoneford!", "Did you see my kite? It's the best kite."],
-        ["Kite! Kiiite!", "Hi-yah!"], scale=0.8, tree="little_dou")
-    npc("old_ma", "Old Ma", "Shopkeeper", outfit("short_knot", 5, "vneck", "loose", "slippers", shirt_dye="earth"),
-        ["Silver or barter, I'm not fussy.", "Rice balls! Fresh this morning. Well. This week."],
-        ["Fresh rice balls!", "Everything must go. Eventually."], services=["shop:old_ma"], tree="old_ma")
-    npc("granny_liu", "Granny Liu", "Herbalist", outfit("long_tied", 1, "cardigan", "scholar", "folded", shirt_dye="jade", pants_dye="grey"),
-        ["Bitter tea, sweet health.", "A herb picked at dawn is worth two at noon."],
-        ["Where did I put my pestle?", "Hmph. Young people."], services=["shop:granny_liu"], tree="granny_liu")
-    npc("shen_lian_npc", "Shen Lian", "Fisher's son", outfit("high_pony", 0, "sleeveless", "martial", "boots", shirt_dye="indigo"),
-        ["Race you to the tower. Loser guts the fish.", "One day I'll join a sect. A real one."],
-        ["Faster!", "Bet you can't catch me."], tree="shen_lian")
-    npc("uncle_guo", "Uncle Guo", "Retired brawler", outfit("topknot", 5, "sleeveless", "martial", "boots", shirt_dye="crimson"),
-        ["Fists first. Everything else is decoration.", "I kindled Qi once. For a day. Long story."],
-        ["Hah! Hup!", "Keep your elbow in."], tree="uncle_guo")
-    npc("fisher_wen", "Fisher Wen", "Fisherman", outfit("short_knot", 5, "vneck", "cuffed", "folded", hat="straw", shirt_dye="indigo"),
-        ["The carp aren't biting. Something scared them.", "Grey water near the reeds last week. Never seen that."], ["Nothing. Again."])
-    npc("washer_mei", "Washer Mei", "Villager", outfit("ponytail", 2, "cardigan", "straight", "slippers", shirt_dye="white"),
-        ["Aunt Ping says you're finally awake before noon.", "The river's cold as winter this morning."], ["Scrub, scrub."])
-
-    # Stoneford (about 20 people)
-    # S49 the mortal kingdom: the county magistrate keeps the hall behind the gatehouse.
-    npc("magistrate_qian", "Magistrate Qian", "County magistrate", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="indigo"),
-        ["The county has more trouble than hands. You have hands.", "Cultivators pass through Stoneford like weather. The ones who stop to help are remembered.",
-         "Keep your techniques sheathed in the villages. Ordinary people have long memories and short tempers."],
-        ["Next petition!", "The county thanks you."], services=["page:county"], service_labels={"page:county": "County business"})
-    npc("guard_hou", "Captain Hou", "Gate guard", outfit("topknot", 0, "disciple", "martial", "boots", weapon="spear", shirt_dye="earth"),
-        ["Stoneford gate. Keep your blades sheathed.", "Recruitment Fair's on the Fairground. West, past Artisan Row."], ["Next!", "Move along."])
-    npc("foreman_dong", "Foreman Dong", "Quarry foreman", outfit("short_knot", 5, "sleeveless", "loose", "boots", shirt_dye="earth"),
-        ["Stonewall Quarry needs strong backs.", "Rock beetles again. Curl up, roll, bite. Watch the curl."], ["Put your back into it!"])
-    npc("adventurer_kai", "Kai", "Wandering swordsman", outfit("flowing", 0, "vneck", "straight", "boots", weapon="sword", cape="tattered", shirt_dye="ink"),
-        ["The Caravan Road's gone bad. Bandits call themselves the Mudwater.", "I came for the tournament. I stayed for the tea."], ["Anyone up for a spar?"])
-    npc("storekeeper_fang", "Proprietor Fang", "General store", outfit("short_knot", 0, "scholar", "scholar", "folded", shirt_dye="ochre"),
-        ["Teas, rice, charms. If Stoneford needs it, Fang sells it.", "Return charms! Never walk home again!"], ["Bargains!"], services=["shop:stoneford_general"])
-    npc("auntie_rong", "Auntie Rong", "Tea house", outfit("long_tied", 3, "cardigan", "straight", "slippers", shirt_dye="rose"),
-        ["Lotus root tea calms the belly and the Qi.", "Sit. Everyone who sits in my tea house leaves stronger."], ["Tea! Hot tea!"], services=["shop:stoneford_tea"])
-    npc("keeper_shi", "Keeper Shi", "Stone keeper", outfit("topknot", 1, "scholar", "scholar", "folded", shirt_dye="jade"),
-        ["Teleport stones remember those who touch them.", "A shard of Spirit Stone pays the ferryman of the stones."], ["The stones hum today."])
-    npc("tailor_xun", "Tailor Xun", "Pouch sewer", outfit("short_knot", 2, "cardigan", "straight", "folded", shirt_dye="indigo", pants_dye="grey"),
-        ["A Qiankun pouch is only as big as the stitches that fold it. I fold them small.",
-         "Four compartments to a pouch. Ore in one, herbs in another. Never mix fish with anything."],
-        ["Mind the needles.", "Measure twice, fold once."], services=["page:pouches"],
-        service_labels={"page:pouches": "Sew a pouch"}, service_unlocks={"page:pouches": "pouch_sewing"})
-    npc("courier_lin", "Courier Lin", "Courier", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="indigo"),
-        ["Letters to every sect, parcels to every village.", "The mail finds you. Somehow. Always."], ["Coming through!"])
-    npc("adventurer_su", "Su Qing", "Herb hunter", outfit("high_pony", 4, "cardigan", "cuffed", "boots", shirt_dye="jade"),
-        ["The bamboo grove east of the marsh has ember peppers. And vipers.", "Never eat a mushroom that smiles at you."], ["Hm, willow moss..."])
-    npc("old_pan", "Old Pan", "Wandering merchant", outfit("topknot", 1, "vneck", "loose", "folded", hat="straw", cape="tattered", shirt_dye="ochre"),
-        ["Rare wares for rare coin. Spirit Stones only.", "I'm here today. Tomorrow? Who knows."], ["Rare wares!"], services=["shop:old_pan"])
-    npc("smith_bao", "Smith Bao", "Blacksmith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="ink"),
-        ["Iron remembers every hammer blow.", "Bring me Jadeiron and I'll make you something that sings."], ["*clang*"],
-        services=["shop:stoneford_smith", "page:guild", "shop:forge_guild"], service_labels={"page:guild": "Forge Guild"},
-        service_unlocks={"page:guild": "forge_guild", "shop:forge_guild": "forge_guild"})
-    npc("array_master_ren", "Array Master Ren", "Formation Guild", outfit("long_tied", 2, "scholar", "scholar", "slippers", hat="guan", shirt_dye="cloud", pants_dye="ink"),
-        ["A plate is a formation you can carry. Etch it true and it will hold a wall.", "The guild asks for speed, not luck. Stone does not roll dice."],
-        ["Line, line, circle.", "Mind the stone dust."], services=["page:guild", "shop:formation_guild"], service_labels={"page:guild": "Formation Guild"},
-        service_unlocks={"page:guild": "formation_guild", "shop:formation_guild": "formation_guild"})
+    # One-off scripted figures: plain rows the story stages, each placed after the row `after` names. A person who lives
+    # somewhere and works there is a spec of the NPC engine instead.
     # S43 rule 15: the daily rooftop thief of Market Street and Gate Street (speak to him and he bolts over the roofs).
     npc("rooftop_thief", "Quick-Fingered Hou", "Rooftop thief", outfit("ponytail", 0, "sleeveless", "cuffed", "folded", hat="headband", weapon="dagger",
-        shirt_dye="ink", pants_dye="ink"), ["Nothing to see here."], ["Too slow, cultivator!", "Catch me if you can!", "Whose purse? Mine now."])
-    npc("tinkerer_yu", "Tinkerer Yu", "Tinkerer", outfit("ponytail", 3, "scholar", "cuffed", "folded", shirt_dye="grey"),
-        ["Tools are just patience you can hold.", "A better pickaxe means more ore and fewer blisters."], ["Where's my small spanner?"], services=["shop:tinkerer", "page:workshop"],
-        service_labels={"page:workshop": "Puppet bench"}, service_unlocks={"page:workshop": "puppetry"})
-    npc("guildmaster_tang", "Guildmaster Tang", "Alchemist Guild", outfit("topknot", 4, "scholar", "scholar", "slippers", hat="guan", shirt_dye="jade", pants_dye="ink"),
-        ["The guild does not care who taught you. It cares what comes out of your furnace.",
-         "An exam is a batch of pills against a candle. Nothing more mysterious than that.",
-         "Commissions come in every morning. Pay is fair; the guild takes nothing but your good name."],
-        ["Mind the candle.", "Another order for Healing Pills. Always Healing Pills."], services=["page:guild", "shop:alchemist_guild"])
-    npc("old_scribe_bai", "Old Scribe Bai", "Talisman master", outfit("topknot", 5, "scholar", "scholar", "slippers", hat="guan", shirt_dye="ink"),
-        ["A talisman is a sentence the world has to finish.", "Steady wrist, one breath, no lifting the brush."], ["Mind the ink."],
-        services=["page:talisman"], service_labels={"page:talisman": "Write talismans"}, service_unlocks={"page:talisman": "talisman"})
-    npc("elder_gu", "Elder Gu", "Trade house master", outfit("long_tied", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="crimson"),
-        ["Everything has a price. Most things have two.", "Bring me curiosities and I'll tell you what they're worth."], ["Hmm, interesting."], services=["shop:gu_trade_house", "page:workshop"],
-        service_labels={"page:workshop": "Appraise"}, service_unlocks={"page:workshop": "appraisal"})
-    npc("madam_hua", "Madam Hua", "Trade house master", outfit("flowing", 2, "cardigan", "straight", "slippers", cape="solid", shirt_dye="jade"),
-        ["The trade house deals fairly now. I promise you that.", "Gu's ledgers made interesting reading."], ["Fair prices!"], services=["shop:gu_trade_house"])
-    npc("mei_qing", "Mei Qing", "Alchemist", outfit("flowing", 3, "cardigan", "scholar", "slippers", shirt_dye="indigo"),
-        ["A pill is a promise. Keep it simple and it keeps you alive.", "Willow moss, riverreed ginseng, and patience."], ["Too hot... too hot!"], services=["shop:mei_qing", "shop:mei_qing_recipes"])
-    npc("mei_qing_sect", "Mei Qing", "Visiting alchemist", outfit("flowing", 3, "cardigan", "scholar", "slippers", shirt_dye="indigo"),
-        ["I teach at both sects. The furnace doesn't care about robes."], ["Mind the fumes."])
-    npc("apprentice_tao", "Apprentice Tao", "Smith's apprentice", outfit("short_knot", 0, "sleeveless", "cuffed", "slippers", shirt_dye="earth"),
-        ["Master Bao says I'll hold a hammer next year.", "Did you know iron can taste angry?"], ["Hot, hot!"], scale=0.9)
-    npc("recruiter_qing_lan", "Qing Lan", "Jade Sect recruiter", outfit("high_pony", 0, "disciple", "martial", "boots", weapon="sword", shirt_dye="jade", pants_dye="jade"),
-        ["The Jade Sect teaches the water's patience and the sword's clarity.", "Our academy sits by the river. You'll feel at home."], ["Join the Jade Sect!"], tree="recruiter_jade",
-        on_talk=[{"kind": "set_flag", "flag": "met_recruiter_jade"}])
-    npc("recruiter_mo_yun", "Mo Yun", "Cloud Sect recruiter", outfit("topknot", 0, "disciple", "martial", "boots", weapon="staff", shirt_dye="cloud", pants_dye="cloud"),
-        ["The Cloud Sect climbs. Our monastery touches the clouds.", "Wind cannot be held. Neither can a Cloud disciple."], ["The Cloud Sect awaits!"], tree="recruiter_cloud",
-        on_talk=[{"kind": "set_flag", "flag": "met_recruiter_cloud"}])
-    npc("shen_lian", "Shen Lian", "Cloud Sect disciple", outfit("high_pony", 0, "disciple", "martial", "boots", shirt_dye="cloud", pants_dye="cloud"),
-        ["We picked different sects. Doesn't mean I'll go easy on you.", "Spar me at the practice yard. I'm faster now."], ["Still slow?"], services=["spar:shen_lian"],
-        service_labels={"spar:shen_lian": "Spar"})
-    npc("wen_zhao", "Wen Zhao", "Rival", outfit("flowing", 0, "disciple", "martial", "boots", weapon="sword", cape="solid", shirt_dye="ink", pants_dye="ink"),
-        ["The tournament finals. You and me. Don't disappoint.", "Talent is a door. You still have to walk through it."], ["Hmph."],
-        services=["spar:wen_zhao"], service_labels={"spar:wen_zhao": "Spar"})
-    npc("fair_vendor_he", "Vendor He", "Fair vendor", outfit("short_knot", 5, "vneck", "loose", "slippers", shirt_dye="rose"),
-        ["Candied hawthorn! Sect badges! Lucky charms!", "Buy a lucky charm. Can't hurt."], ["Hawthorn! Sweet hawthorn!"])
-    npc("adventurer_rui", "Rui", "Retired disciple", outfit("topknot", 5, "scholar", "straight", "folded", shirt_dye="grey"),
-        ["I washed out at Heart Tempering. The Heart Trial shows you things.", "Pick the sect whose method suits your breath, not your pride."], ["Ah, youth."])
-    npc("hamlet_elder_gao", "Elder Gao", "Greyreed Hamlet", outfit("long_tied", 1, "vneck", "loose", "folded", shirt_dye="grey"),
-        ["The grey came up from the pools. It took the colour, then the people.", "If the well runs clean again, we might come home."], ["..."])
-    npc("hamlet_trader_min", "Trader Min", "Greyreed trade post", outfit("ponytail", 0, "vneck", "cuffed", "boots", shirt_dye="jade"),
-        ["Greyreed trades again! Thanks to you."], ["Market day!"], services=["shop:greyreed"])
-    # Part 8 (S49 karma): the night peddler of the Caravan Road. Everything on his mat is a small sin.
-    npc("peddler_shao", "Peddler Shao", "Sells after dark", outfit("long_tied", 4, "cardigan", "loose", "folded", hat="weimao", shirt_dye="ink", pants_dye="ink"),
-        ["Don't ask where it came from. Ask what it costs.", "The road's quiet at night. Good for business. Bad for questions."], ["Psst."],
-        services=["shop:night_peddler"])
-    npc("hermit_yao", "Hermit Yao", "Marsh hermit", outfit("flowing", 1, "scholar", "loose", "folded", hat="straw", cape="tattered", shirt_dye="earth"),
-        ["The otters trust me. Maybe one day they'll trust you.", "Spirit beasts are not tools. They are friends who bite."], ["Shh. Listen to the reeds."], services=["shop:hermit", "page:core_exchange"], tree="hermit_yao",
-        service_labels={"page:core_exchange": "Core Exchange"}, service_unlocks={"page:core_exchange": "spirit_animals"})
-
-    # Sects: mirrored roles (Jade / Cloud)
-    first_sect_npc = len(N)
-    for s, sname, dye, weapon in [("jade", "Jade", "jade", "sword"), ("cloud", "Cloud", "cloud", "staff")]:
-        npc(s + "_steward", {"jade": "Steward Wei", "cloud": "Steward Ruo"}[s], sname + " Sect steward",
-            outfit("topknot", 5, "scholar", "scholar", "folded", shirt_dye=dye, pants_dye="grey"),
-            ["Service disciples sweep, carry and learn. In that order.", "Your bunk is in the dorm. Keep it tidy."], ["Brooms don't sweep themselves."])
-        npc(s + "_weapon_master", {"jade": "Master Kong", "cloud": "Master Fei"}[s], "Weapon master",
-            outfit("short_knot", 0, "sleeveless", "martial", "boots", weapon=weapon, shirt_dye=dye),
-            ["Try each weapon. Your hands will choose before your head does.", "A weapon is only your arm, longer."], ["Again!"])
-        npc(s + "_deacon", {"jade": "Deacon Rui", "cloud": "Deacon Heng"}[s], "Mission deacon",
-            outfit("topknot", 0, "disciple", "scholar", "folded", shirt_dye=dye, pants_dye=dye),
-            ["Missions earn contribution. Contribution earns everything else.", "Five missions a day. The board refreshes at dawn."], ["Missions posted!"],
-            services=["missions", "shop:" + s + "_sect"])
-        npc(s + "_hall_master", {"jade": "Master Lin", "cloud": "Master Qiao"}[s], "Training hall master",
-            outfit("high_pony", 0, "disciple", "martial", "boots", shirt_dye=dye, pants_dye="ink"),
-            ["A technique is a question your meridians learn to answer.", "Practice twenty times. Then twenty more."], ["Form! Form!"])
-        npc(s + "_librarian", {"jade": "Librarian Zhu", "cloud": "Librarian Pei"}[s], "Librarian",
-            outfit("long_tied", 1, "scholar", "scholar", "folded", shirt_dye="grey", pants_dye=dye),
-            ["Methods by rank. Manuals by contribution. Silence by law.", "Torn pages can be restored. Torn students less so."], ["Shh."],
-            services=["page:library", "page:workshop"], service_labels={"page:library": "Browse", "page:workshop": "Restore manuals"},
-            service_unlocks={"page:workshop": "research"})
-        npc(s + "_smith", {"jade": "Smith Ouyang", "cloud": "Smith Tan"}[s], "Sect smith",
-            outfit("short_knot", 5, "sleeveless", "martial", "boots", shirt_dye="ink"),
-            ["The sect forge answers to disciples with Qi in their hands.", "Common first. Earth when you've earned it."], ["*clang*"])
-        npc(s + "_formation_elder", {"jade": "Elder Bian", "cloud": "Elder Lou"}[s], "Formation elder",
-            outfit("flowing", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye=dye),
-            ["Lines on the floor, fuel in the nodes, intent in the centre.", "A good formation outlives its maker."], ["Mind the lines."],
-            services=["page:workshop", "page:arrays"], service_labels={"page:workshop": "Formations", "page:arrays": "Etch plates"},
-            service_unlocks={"page:workshop": "formations", "page:arrays": "array_plates"})
-        npc(s + "_physician", {"jade": "Physician Nan", "cloud": "Physician Qu"}[s], "Sect physician",
-            outfit("ponytail", 3, "cardigan", "scholar", "slippers", shirt_dye="white"),
-            ["Injured disciples, bitter medicine.", "A needle in the right place is worth a hundred pills."], ["Next patient."],
-            services=["page:workshop"], service_labels={"page:workshop": "Infirmary"}, service_unlocks={"page:workshop": "healing"})
-        npc(s + "_gardener" if s == "jade" else "cloud_gardener", "Gardener Ji" if s == "jade" else "Gardener Ren", "Sect gardener",
-            outfit("short_knot", 5, "vneck", "cuffed", "slippers", hat="straw", shirt_dye="earth"),
-            ["Plant, water, wait. Harvest.", "Willow moss likes shade and gossip."], ["Grow, little ones."])
-        npc(s + "_disciple_a", {"jade": "Disciple Hao", "cloud": "Disciple Ling"}[s], "Outer disciple",
-            outfit("ponytail", 0, "disciple", "martial", "boots", shirt_dye=dye, pants_dye=dye),
-            ["The Heart Trial? Don't talk about the Heart Trial.", "I heard the elders fought a Hollow thing last winter."], ["Morning, junior."])
-    for d in N[first_sect_npc:]:
-        d["sect"] = "jade_sect" if d["id"].startswith("jade_") else "cloud_sect"
-    npc("jade_disciple_b", "Disciple Yue", "Inner disciple", outfit("flowing", 4, "disciple", "martial", "boots", weapon="sword", shirt_dye="jade", pants_dye="jade"),
-        ["Inner disciples get the good retreat rooms.", "Qi Unfurling feels like breathing with your whole skin."], ["Focus."])
-    npc("elder_hu", "Elder Hu", "Jade Sect elder", outfit("long_tied", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="jade", pants_dye="ink"),
-        ["The river does not hurry, yet it carves the valley.", "Come to me when you hit a wall. Walls are my speciality."], ["Hmm."], tree="mentor", sect="jade_sect")
-    npc("elder_sung", "Elder Sung", "Cloud Sect elder", outfit("topknot", 1, "scholar", "scholar", "folded", cape="solid", shirt_dye="cloud", pants_dye="ink"),
-        ["The wind does not fight the mountain. It goes over.", "Bring me your walls. I'll show you the sky above them."], ["Hm-hm."], tree="mentor", sect="cloud_sect")
-    # Decision 42: the watch post both sects keep at the Marsh Edge, by its transfer array; the grey has touched its two
-    # watchers, and Mei Qing tends them there (Mei Qing's Errand).
-    npc("watcher_bo", "Watcher Bo", "Jade Sect watcher", outfit("short_knot", 2, "disciple", "martial", "boots", shirt_dye="jade", pants_dye="ink"),
-        ["It came up out of the reeds like smoke. Then my arm went grey to the elbow.", "Mei Qing says it'll close. It had better. I'm left-handed."],
-        ["Ow."])
-    npc("watcher_su", "Watcher Su", "Cloud Sect watcher", outfit("ponytail", 4, "disciple", "martial", "boots", shirt_dye="cloud", pants_dye="ink"),
-        ["Our elders and yours keep this post together now. The grey doesn't care whose robe it eats.",
-         "The array at our feet goes home to either sect. Stand in it and see."], ["Watch the reeds."])
-    npc("arena_master", "Arena Master Quan", "Arena", outfit("short_knot", 0, "sleeveless", "martial", "boots", cape="solid", shirt_dye="crimson"),
-        ["Three wins for the qualifier. No excuses.", "The Valley Tournament crowns one champion a year."], ["Next bout!"], services=["spar:sparring_disciple"],
-        service_labels={"spar:sparring_disciple": "Arena match"})
-
-    # Act II · Cloudgate Port and the Thunderhorn Plains (Azure Expanse, v1.1)
-    npc("warden_cao", "Warden Cao", "Nine Peaks toll warden", outfit("topknot", 0, "disciple", "martial", "boots", hat="guan", weapon="spear",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["Every sky road in the Expanse belongs to the Nine Peaks Alliance.", "Toll first, questions after. The Factor's hall is in the market."],
-        ["Toll tokens, please.", "Next!"], tree="warden_cao")
-    npc("alliance_guard", "Alliance Guard", "Nine Peaks patrol", outfit("short_knot", 0, "disciple", "martial", "boots", weapon="spear",
-        shirt_dye="indigo", pants_dye="indigo"),
-        ["Keep your Qi to yourself inside the port.", "Nine peaks, one law. The Alliance's."], ["Move along."])
-    npc("wanderer_jiang", "Jiang", "Independent cultivator", outfit("flowing", 0, "vneck", "straight", "boots", weapon="sword", cape="tattered",
-        shirt_dye="grey", pants_dye="ink"),
-        ["The Alliance calls us 'unaffiliated'. We call ourselves free.", "Valley folk come through that gate every few years. Most go home."],
-        ["Hm. Fresh from the valley."])
-    npc("factor_ruan", "Factor Ruan", "Alliance factor", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", cape="solid",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["Stormsteel, stormsilk, fair Alliance prices.", "Spirit Stones only. Taels are for the valley."],
-        ["Alliance-grade goods!"], services=["shop:alliance_factor"])
-    npc("peddler_gou", "Peddler Gou", "Sky road peddler", outfit("short_knot", 5, "vneck", "loose", "folded", hat="straw", shirt_dye="ochre"),
-        ["Pills, charms, rice balls. Everything a traveller forgets.", "I've walked every sky road twice. Once to go, once to come back for my hat."],
-        ["Traveller's goods!"], services=["shop:port_peddler"])
-    npc("smith_hong", "Smith Hong", "Stormsteel smith", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="crimson"),
-        ["Stormsteel wants a Sage's hands. Before that, it bites.", "Lightning Scar ore, spark pelt for the grip. That's the recipe."],
-        ["*crackle* *clang*"], services=["shop:stormsteel_smith", "page:guild"], service_labels={"page:guild": "Guild Master exams"})
-    npc("apothecary_wu", "Apothecary Wu", "Port apothecary", outfit("ponytail", 3, "cardigan", "scholar", "slippers", shirt_dye="jade"),
-        ["Storm blood is real. Newcomers bleed Qi into the wind until they attune.", "A Storm Blood Pill buys you half an hour of patience."],
-        ["Remedies!"], services=["shop:port_apothecary", "page:guild"], service_labels={"page:guild": "Guild Master exams"})
-    npc("sky_sailor_pei", "Sailor Pei", "Sky-ship hand", outfit("short_knot", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="cloud"),
-        ["Never look down from a sky-ship. Look at the sails.", "The Alliance ships run to Nine Peaks. When they feel like it."], ["Heave!"])
-    npc("sky_sailor_ning", "Sailor Ning", "Sky-ship hand", outfit("ponytail", 0, "vneck", "cuffed", "boots", hat="headband", shirt_dye="indigo"),
-        ["The Qi cushion under the keel? Twelve stones a day to keep it fed.", "Storms on the plains sink ships. We go round."], ["Mind the ropes!"])
-    npc("dockmaster_fu", "Dockmaster Fu", "Skydock master", outfit("topknot", 5, "scholar", "scholar", "folded", hat="tied", shirt_dye="ochre", pants_dye="grey"),
-        ["No berths for private ships without Alliance papers.", "The Condensing Hall? Behind me. Mind the alchemist; she bites harder than the smith."],
-        ["Berths full!"])
-    npc("innkeeper_tang", "Innkeeper Tang", "Wayfarers' Inn", outfit("long_tied", 3, "cardigan", "straight", "slippers", shirt_dye="rose"),
-        ["Rooms by the night, soup by the bowl, gossip for free.", "The broker in the corner? Pays her bill. That's all I ask."],
-        ["Soup's on!"], services=["shop:wayfarers_inn"])
-    npc("broker_mu", "Broker Mu", "Free broker", outfit("flowing", 1, "cardigan", "straight", "boots", hat="weimao", cape="solid", shirt_dye="ink", pants_dye="ink"),
-        ["I sell what the Alliance doesn't want sold. Mostly, the truth.", "Your blood is still valley-soft. The storms here will drink it."],
-        ["Information, fairly priced."], tree="broker_mu", services=["shop:free_market"])
-    npc("alchemist_fen", "Alchemist Fen", "Condensing Hall", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="white", pants_dye="grey"),
-        ["Sage Qi is True Qi pressed until it remembers it was once light.", "Bring me thunder and I'll condense it into something you can swallow."],
-        ["Don't touch the furnace."], services=["shop:condensing_hall"])
-    npc("herder_suo", "Old Suo", "Thunderhorn herder", outfit("short_knot", 5, "vneck", "loose", "boots", hat="tied", cape="tattered", shirt_dye="earth"),
-        ["The thunderhorns aren't cruel. They're just very sure of where they're going.", "Stew's hot. Stones, not taels, I'm afraid."],
-        ["Easy, easy..."], services=["shop:herders_camp"])
-    npc("herder_a_lan", "A-Lan", "Herder's daughter", outfit("ponytail", 0, "cardigan", "cuffed", "boots", shirt_dye="crimson"),
-        ["Spark weasels steal the lightning out of the grass. Then they spit it at you!", "Grandpa Suo says the storms remember everyone who crosses."],
-        ["Hup! Hup!"], scale=0.9)
-
-    npc("hermit_shuang", "Hermit Shuang", "Rimefrost hermit", outfit("flowing", 5, "scholar", "scholar", "folded", cape="tattered",
-        shirt_dye="white", pants_dye="grey"),
-        ["...", "Snow keeps every footprint until the wind decides otherwise.", "Silence is not empty. Listen."],
-        ["...", "Hm."])
-    npc("grey_pilgrim", "The Grey Pilgrim", "A stranger", outfit("long_tied", 5, "scholar", "scholar", "folded", hat="weimao", cape="solid",
-        shirt_dye="grey", pants_dye="grey"),
-        ["You carry the valley's river on you. How quaint.", "Every shard finds its way home in the end. I only help them along."],
-        ["..."], tint="#dfe2ea", tree="grey_pilgrim")
-
-    # Act II · Nine Peaks, the Gale Canyons and Ironroot Hold (Phase C)
-    npc("envoy_lanshi", "Envoy Lanshi", "Alliance envoy", outfit("long_tied", 0, "scholar", "scholar", "folded", hat="guan", cape="solid",
-        shirt_dye="indigo", pants_dye="indigo"),
-        ["Nine peaks, nine seats, one voice. Mine, today.", "The Alliance keeps the sky roads open. Someone has to."],
-        ["The Hall is in session."], tree="envoy_lanshi")
-    npc("elder_zhong", "Elder Zhong", "First Peak elder", outfit("flowing", 5, "scholar", "scholar", "folded", hat="guan", cape="solid",
-        shirt_dye="white", pants_dye="grey"),
-        ["The First Peak remembers when there was no Alliance. There were more graves then.",
-         "A Hollow shard in the wrong hands is a war waiting for a reason."], ["Hm."], tree="elder_zhong")
-    npc("auctioneer_tong", "Auctioneer Tong", "Auction Pavilion", outfit("topknot", 1, "scholar", "scholar", "folded", hat="guan",
-        shirt_dye="crimson", pants_dye="ink"),
-        ["Lots at dawn, hammers at dusk. Bid with your head, pay with your stones.",
-         "The limit is in the other bidder's heart. Find it."], ["Going once!"], services=["page:auction"],
-        service_labels={"page:auction": "Today's lots"}, service_unlocks={"page:auction": "auction_house"})
-    npc("champion_qiao", "Champion Qiao", "Presence Terrace", outfit("topknot", 0, "disciple", "martial", "boots", hat="guan", weapon="spear",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["Presence is the weight a cultivator puts on the air. Show me yours.", "Nine peaks, nine styles. I've learned eight."],
-        ["Again."], services=["spar:alliance_champion"], service_labels={"spar:alliance_champion": "Spar"})
-    npc("tollkeeper_bai", "Tollkeeper Bai", "Canyon Mouth toll", outfit("short_knot", 5, "vneck", "loose", "boots", hat="straw", weapon="spear",
-        shirt_dye="indigo", pants_dye="earth"),
-        ["Ten stones a crossing. Alliance tokens pass free.", "Brigands in the canyon wear veils. Honest folk don't."],
-        ["Toll!"])
-    npc("ironroot_warden", "Warden Tie Shan", "Ironroot gatekeeper", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband",
-        weapon="staff", shirt_dye="earth", pants_dye="earth"),
-        ["The Ironroot don't bend. We grow around things.", "Outsiders come to the Hold for iron. Few come for kin."],
-        ["Halt."], services=["spar:ironroot_warden"], service_labels={"spar:ironroot_warden": "Test your root"})
-    npc("matriarch_tie", "Matriarch Tie Yun", "Ironroot matriarch", outfit("long_tied", 5, "cardigan", "straight", "boots", hat="headband",
-        cape="solid", shirt_dye="earth", pants_dye="ink"),
-        ["Blood is who you were born to. Roots are who you choose to hold.", "Our ancestors sit in the Hall. They're picky about company."],
-        ["The Hold is well."], tree="matriarch_tie")
-    npc("clan_smith_gang", "Smith Gang", "Ironroot forge", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="earth"),
-        ["Iron from the roots, fire from the canyon wind. Best forge in the Expanse.", "Kin get the good steel. Guests get the rest."],
-        ["*CLANG*"], services=["shop:ironroot_clan"])
-    # Act II · Phase D: the Oasis of Bones.
-    npc("oasis_keeper_meng", "Keeper Meng", "Oasis of Bones", outfit("long_tied", 3, "vneck", "loose", "boots", hat="weimao",
-        shirt_dye="ochre", pants_dye="earth"),
-        ["Water is free. Shade is free. Everything else costs stones, because the caravans stopped coming.",
-         "Drink before the heat asks you to. By then it's late."], ["Water here."], services=["shop:oasis_keeper"])
-    npc("bone_reader_xiu", "Bone-Reader Xiu", "Diviner of the oasis", outfit("flowing", 5, "scholar", "scholar", "folded", cape="solid",
-        shirt_dye="ink", pants_dye="ochre"),
-        ["The bones remember the sand kings. I only read them aloud.", "Every crack in a shoulder blade is a road. Most end in the tomb."],
-        ["The bones are warm today."], tree="bone_reader_xiu")
-
-    # Act II · Phase E: the Shipwrights' Yard, the Skyport Wreck, the Trial Hall.
-    npc("navigator_sun", "Navigator Sun", "Star navigator", outfit("flowing", 1, "scholar", "scholar", "folded", hat="straw", cape="solid",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["The Starsea has no roads. Only stars, and the lines we draw between them.",
-         "A chart is four readings and the patience to trust them. Most sailors have the readings."],
-        ["Mind the table."], services=["shop:navigator"])
-    npc("shipwright_lao", "Shipwright Lao", "Skydock shipwright", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband",
-        shirt_dye="ochre", pants_dye="earth"),
-        ["A hull is a formation you can stand on. Get one line wrong and the Starsea finds it.",
-         "Spirit wood for the ribs, stormsteel for the keel, harpy plumes for the sail. The plumes are the hard part."],
-        ["*tok tok tok*"], services=["shop:shipwright"])
+        shirt_dye="ink", pants_dye="ink"), ["Nothing to see here."], ["Too slow, cultivator!", "Catch me if you can!", "Whose purse? Mine now."],
+        after="array_master_ren")
+    # Elder Gu as two of Act II's and Act III's quests find him, and Shen Lian at the Presence Court and the Breach.
     npc("gu_in_chains", "Elder Gu", "A prisoner of the comet sails", outfit("long_tied", 1, "scholar", "scholar", "folded",
         shirt_dye="grey", pants_dye="grey"),
-        ["...", "Water. Or the key. Either."], ["..."], tree="gu_in_chains")
-    npc("launch_warden_he", "Warden He", "Starsea Launch", outfit("topknot", 5, "vneck", "straight", "boots", hat="straw",
-        shirt_dye="white", pants_dye="indigo"),
-        ["The ring was built to throw ships at the stars. It has not thrown one in two hundred years.",
-         "On clear nights you can see lanterns out there. Nobody hangs them. They are just there."],
-        ["The ring is quiet."])
-    npc("trial_master_wen", "Trial Master Wen", "Trial Hall", outfit("flowing", 0, "scholar", "scholar", "folded", hat="guan", cape="solid",
-        shirt_dye="white", pants_dye="indigo"),
-        ["Eight seats, eight Presences. The ninth seat waits for whoever can sit under the other eight and stay themselves.",
-         "Will is not stubbornness. Stubbornness breaks. Will bends and comes back."],
-        ["Sit up straight."])
-
-    # Act III · the Lantern Star Field (v1.2, docs/act3_design.md) · Phase A: Lanternfall Harbor and the Drifting Shoals.
-    npc("harbormaster_lin", "Harbormaster Lin", "Lanternfall Harbor", outfit("short_knot", 5, "vneck", "cuffed", "boots", hat="straw",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["Skiffs from the Expanse come in once a generation. You are early.",
-         "Every island out there has a lantern over it. When one goes dark, we stop sending boats."],
-        ["Mind the lines!", "Tide's high on the stars tonight."], tree="harbormaster_lin")
-    npc("warden_xiao", "Warden Xiao Ning", "Star Warden of the harbour", outfit("high_pony", 0, "disciple", "martial", "boots", hat="guan",
-        cape="solid", weapon="spear", shirt_dye="white", pants_dye="indigo"),
-        ["The Wardens keep the lanterns lit. Everything else out here is somebody else's problem, until it isn't.",
-         "Your Will is loud. Out here that is a compliment."],
-        ["Eyes on the dark.", "Keep your Presence in, visitor."], tree="warden_xiao")
-    npc("clerk_yu", "Clerk Yu", "Harbour exchange", outfit("topknot", 1, "scholar", "scholar", "folded", hat="guan", shirt_dye="cloud", pants_dye="grey"),
-        ["A hundred Spirit Stones to the crystal, less the Wardens' fifth. The rate has not moved in four hundred years.",
-         "Star Jade is for savings. Nobody spends Star Jade."], ["Next."])
-    npc("peddler_ning", "Peddler Ning", "Harbour peddler", outfit("ponytail", 3, "cardigan", "straight", "slippers", hat="weimao", shirt_dye="ochre"),
-        ["Jelly silk wraps, fresh from the Shoals! They only sting a little."], ["Silk! Glowing silk!"], services=["shop:lanternfall_goods"])
-    npc("apothecary_sang", "Apothecary Sang", "Harbour apothecary", outfit("long_tied", 4, "cardigan", "scholar", "folded", shirt_dye="jade", pants_dye="grey"),
-        ["Star Lotus clears the soul like cold water clears a cup. Too much and you forget your own name."],
-        ["Mind the jars."], services=["shop:lanternfall_apothecary"])
-    npc("smith_ou", "Smith Ou", "Harbour forge", outfit("short_knot", 4, "sleeveless", "martial", "boots", hat="headband", shirt_dye="earth", pants_dye="earth"),
-        ["Driftglass lenses, star iron, lantern bronze. I work what the Field gives me."], ["*clang*"])
-    npc("chandler_shu", "Chandler Shu", "Lantern-maker and scholar", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan", cape="solid",
-        shirt_dye="white", pants_dye="ink"),
-        ["A lantern is a sentence with one word in it: stay. Every cage out there says it to a star.",
-         "Read before you fight. It is cheaper."], ["Hm. Mind the wicks."], tree="chandler_shu")
-    npc("innkeeper_fei", "Innkeeper Fei", "Tidelight Inn", outfit("long_tied", 2, "cardigan", "straight", "slippers", shirt_dye="rose"),
-        ["Rooms face the lanterns. The ones facing the dark are cheaper."], ["Tea's hot."])
-    npc("hulk_keeper_bo", "Old Bo", "Keeper of the Moored Hulks", outfit("short_knot", 5, "vneck", "cuffed", "folded", hat="straw", shirt_dye="grey"),
-        ["These hulls sailed here before your grandfather's grandfather. Now they hold my beans."],
-        ["Hm.", "Sit, if you like. The deck doesn't mind."], tree="hulk_keeper_bo")
-
-    # Act III · Phase B: Blackmast Haven and the Wyrmnest Isles.
-    npc("deckhand_mo", "Deckhand Mo", "Escaped from the Blackmast", outfit("short_knot", 3, "sleeveless", "cuffed", "boots", hat="headband",
-        shirt_dye="grey", pants_dye="ink"),
-        ["Three years I swabbed that flagship. The Admiral keeps a purser now: old, clever, scared of everything but money.",
-         "Spike the cannons and the gangway comes down. They only raise it when the battery can cover the deck."],
-        ["Keep your head down."], tree="deckhand_mo")
+        ["...", "Water. Or the key. Either."], ["..."], tree="gu_in_chains", after="shipwright_lao")
     npc("gu_the_purser", "Elder Gu", "Purser of the Blackmast", outfit("long_tied", 1, "scholar", "scholar", "folded", hat="weimao",
         shirt_dye="grey", pants_dye="ink"),
         ["You. Of course it is you. The river sends the same fish after me every time.",
          "The Admiral buys ledgers. I sell them. Nobody gets hurt who wasn't going to be hurt anyway."],
-        ["Not now."], tree="gu_the_purser")
-    # v1.2 · Phase C: the Star Warden Citadel, the Orbit Ruins, and the Star Chandlery's lanternwright.
-    npc("warden_commander_yao", "Warden-Commander Yao", "Commander of the Star Wardens", outfit("long_tied", 4, "disciple", "martial", "boots", hat="guan",
-        cape="solid", weapon="spear", shirt_dye="white", pants_dye="indigo"),
-        ["Forty lanterns when I took this command. Twenty-eight tonight. Every one that goes dark, the Tide walks in behind.",
-         "A Warden is a Will that has agreed to be a wall. Most people only agree for a while."],
-        ["Hold the line.", "Report."])
-    npc("stargazer_ming", "Stargazer Ming", "Keeper of the Observatory", outfit("flowing", 3, "scholar", "scholar", "folded", hat="guan",
-        shirt_dye="ink", pants_dye="white"),
-        ["Every Sphere Lord's world is up there somewhere. Small. Turning. Waiting to be recognised.",
-         "Presence asks who is stronger. A Sphere answers: here, the rules are mine."],
-        ["Mind the lenses.", "Clear skies tonight."], services=["shop:observatory"], service_labels={"shop:observatory": "Star-stones"})
+        ["Not now."], tree="gu_the_purser", after="deckhand_mo")
     npc("shen_lian_warden", "Shen Lian", "Star Warden aspirant", outfit("high_pony", 0, "vneck", "martial", "boots", cape="solid", weapon="sword",
         shirt_dye="indigo", pants_dye="ink"),
         ["Lotus Ferry's two fisher boys, both out here at the edge of the sky. The Wardens will only take one of us.",
          "I have a Sword Domain now. You will want to hold your Presence."],
-        ["Again.", "Don't hold back."], services=["spar:shen_lian_aspirant"], service_labels={"spar:shen_lian_aspirant": "Spar with Shen Lian"})
-    npc("presence_master_ruo", "Presence-Master Ruo", "Warden of the Presence Court", outfit("topknot", 5, "sleeveless", "martial", "boots",
-        cape="solid", shirt_dye="white", pants_dye="indigo"),
-        ["Hold it. Don't push. Hold. A Presence that pushes is a Presence that tires.",
-         "When two Spheres touch, one of them breaks. Make sure you know which before you let them touch."],
-        ["Breathe.", "Again, softer."])
-    npc("orbit_hermit", "The Orbit Hermit", "Hermit of the Orbit Ruins", outfit("long_tied", 3, "scholar", "loose", "slippers", cape="solid",
-        shirt_dye="cloud", pants_dye="ink"),
-        ["The first Wardens built a temple to watch the stars turn. Then the island began to turn with them. I stayed.",
-         "Space is not empty. It is folded. Learn where the folds are and a step is as long as you like."],
-        ["Mind the floor. It moves.", "Hm? Oh. Hello."])
-    # v1.2 · Phase D: the Ashen Reach and the Tidebreak Front (chapter 21).
-    npc("warden_hu_jin", "Warden Hu Jin", "Warden scout of the Ashen Reach", outfit("ponytail", 1, "vneck", "martial", "boots", hat="headband",
-        shirt_dye="indigo", pants_dye="ink"),
-        ["The Ashborn do not raid for gold. They raid for fire. Their dead are burned in lantern flame or they do not rest.",
-         "Kharn is no bandit. He is a general with a queen and a people behind him, and not enough fire for either."],
-        ["Keep low. The cinders carry.", "Eyes east."])
-    npc("ashborn_envoy_veyla", "Envoy Veyla", "Ashborn envoy", outfit("long_tied", 0, "scholar", "martial", "folded", hat="guan", cape="tattered",
-        shirt_dye="ochre", pants_dye="ink"),
-        ["I came to speak for the General. No one on your side has wanted to listen yet.",
-         "We burn our dead so they are not taken by the grey. Without lantern fire our dead walk. Would you not raid, for that?"],
-        ["Ash to ash.", "I will wait."])
-    npc("warden_captain_duan", "Captain Duan", "Warden-Captain of the Tidebreak Bastion", outfit("topknot", 0, "cardigan", "martial", "boots",
-        cape="solid", weapon="spear", shirt_dye="indigo", pants_dye="ink"),
-        ["Every lantern on this wall is a Warden who did not go home. We keep them lit.",
-         "When the bell rings, the Tide comes. It always comes to the great lantern first."],
-        ["Hold.", "The wall stands."])
-    npc("quartermaster_bai", "Quartermaster Bai", "Keeper of the Bastion's armoury", outfit("short_knot", 4, "disciple", "loose", "boots",
-        shirt_dye="grey", pants_dye="ink"),
-        ["Brushes and bells. A Warden scribe writes seals on the Hollow; a bellringer stills it. Swords are for the young.",
-         "Pay in crystals. The Tide does not take IOUs."],
-        ["Mind the stock.", "Next."], services=["shop:bastion_armoury"], service_labels={"shop:bastion_armoury": "The armoury"})
-    npc("tinker_mei", "Tinker Mei", "Keeper of the Copperjaw beetles", outfit("ponytail", 2, "sleeveless", "cuffed", "boots", hat="straw",
-        shirt_dye="earth", pants_dye="ink"),
-        ["My beetles eat metal. The drones are metal that forgot it was metal. You see where this is going.",
-         "Feed them ore and they multiply while you sleep. Open the box and they will chew anything near you."],
-        ["Click, click.", "Don't shake the box."])
+        ["Again.", "Don't hold back."], services=["spar:shen_lian_aspirant"], service_labels={"spar:shen_lian_aspirant": "Spar with Shen Lian"},
+        after="stargazer_ming")
     npc("shen_lian_breach", "Shen Lian", "Warden of the Greyfall Breach", outfit("high_pony", 0, "vneck", "martial", "boots", cape="solid", weapon="sword",
         shirt_dye="indigo", pants_dye="ink"),
         ["Someone has to hold the Breach while the Wardens relight the line. I asked for it. Don't look at me like that.",
          "Two fisher boys from Lotus Ferry. One of us gets the title, the other gets the wall. It's fair."],
-        ["Go on. I've got this.", "Tell Aunt Ping I ate properly."])
-    npc("lanternwright_han", "Lanternwright Han", "Scholar-lanternwright", outfit("flowing", 1, "scholar", "scholar", "folded", hat="guan",
-        shirt_dye="white", pants_dye="indigo"),
-        ["The first Wardens wrote 'stay' on every cage and the stars stayed. Words are not weak. They are only rarely meant.",
-         "An upright heart writes a stronger glyph. A heart that is not upright should not write at all."],
-        ["Straight lines.", "Ink, brush, breath."], services=["shop:lanternwright"], service_labels={"shop:lanternwright": "Glyph-scrolls"})
-    npc("tamer_qiu", "Tamer Qiu", "Keeper of the Wyrmnest", outfit("ponytail", 2, "vneck", "martial", "boots", hat="straw",
-        shirt_dye="earth", pants_dye="ochre"),
-        ["The star-wyrms nested here before the Wardens came. Now there is one egg left, and the grey is in the brood.",
-         "A beast that was born under a lantern star listens only to a Will that can hold its own shape."],
-        ["Hush. They're sleeping."], tree="tamer_qiu")
-
-    # Companions (S26)
+        ["Go on. I've got this.", "Tell Aunt Ping I ate properly."], after="tinker_mei")
+    # Companions (S26): the party's, at the end.
     npc("lan_yue", "Lan Yue", "Healer", outfit("flowing", 4, "cardigan", "scholar", "slippers", weapon="staff", shirt_dye="indigo"),
         ["Stay close. I can't heal what I can't reach."], ["Careful!"], companion="lan_yue")
     npc("tie_niu", "Tie Niu", "Brawler", outfit("short_knot", 0, "sleeveless", "martial", "boots", shirt_dye="earth"),
@@ -468,35 +91,7 @@ def npcs():
         ["I mark them. You hit them. Simple."], ["Mark!"], companion="qiu_feng")
     npc("bai_ling", "Bai Ling", "Formation student", outfit("ponytail", 2, "disciple", "straight", "slippers", weapon="sword", shirt_dye="cloud"),
         ["Three nodes and a centre. Watch."], ["Lines drawn!"], companion="bai_ling")
-    # S48 hidden cultivation: with a false realm showing (Concealment), common folk take you for the weaker cultivator
-    # you pretend to be. The old and the strong see through it.
-    concealed = {
-        "guard_hou": ["Kindling, are you? Keep to the road. The Mudwater never went away, not really."],
-        "adventurer_kai": ["You look green. The Caravan Road eats green travellers. Go in daylight, and not alone."],
-        "storekeeper_fang": ["First time in town? The starter charms are on the low shelf. The good ones would cost you a year."],
-        "old_pan": ["Spirit Stones only, little one. Come back when your Qi is worth a second look."],
-        "smith_bao": ["Soft hands for a blade like that. I'll sharpen it anyway. Maybe it will teach you."],
-        "elder_gu": ["A small cultivator with a heavy purse. Mind who sees you open it."],
-        "innkeeper_tang": ["The cheap room's in the attic. Draughty, but honest, like the price."],
-        "warden_cao": ["A low realm on the sky roads? Pay your toll and stay out of the Alliance's way."],
-        "alliance_guard": ["Weak Qi and loud boots. Walk softly in the port, junior."],
-        "peddler_gou": ["Newcomer? Everyone below Sage buys the storm charm. Everyone. Trust me."],
-        "factor_ruan": ["Stormsteel is for Sages. Are you buying for your master?"],
-        "tollkeeper_bai": ["Ten stones. For someone at your realm the canyon costs more than stones. Think on it."],
-        "oasis_keeper_meng": ["Water is free, even for the weak. The sand is not so generous."],
-        "navigator_sun": ["The Starsea eats small realms whole. Are you sure you want a chart?"],
-        "elder_hu": ["You can hide your realm from bandits, child. Not from the one who taught you to breathe."],
-        "elder_sung": ["A cloud can look like a small thing from below. I am not below you. Put the mask away when we talk."],
-        "grey_pilgrim": ["A mask over a mask. How quaint. I see the river under both."],
-        "elder_zhong": ["Hiding your realm on the First Peak? The Alliance notices those who make themselves small."],
-        "champion_qiao": ["Hiding your weight? The Terrace will find it. Presence does not lie, even when you do."],
-        "wanderer_jiang": ["Smart. Look weak, and the Alliance ignores you. The bandits won't, mind."],
-    }
-    for n in N:
-        if n["id"] in concealed:
-            n["concealed_lines"] = concealed[n["id"]]
-    missing = set(concealed) - {n["id"] for n in N}
-    assert not missing, missing
+    N = NPCS.rows(hand)
     # S49 affinity: favourite gifts, the id hearts are kept under, and what each heart pays once.
     from relations import AFFINITY, AFFINITY_ALIAS
     for n in N:

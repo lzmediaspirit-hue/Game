@@ -1,0 +1,309 @@
+{
+ "schema_version": 1,
+ "id": "si_presence_trial",
+ "name": "The Presence Trial",
+ "size": [
+  40,
+  26
+ ],
+ "spawn": [
+  20,
+  15
+ ],
+ "levels": [
+  "3333333333333333333333333333333333333333",
+  "3333333333333333333333333333333333333333",
+  "0033333333333333333000333333333333333330",
+  "0000333333333300000000000000000033333300",
+  "0000000000000000040330400000000000000000",
+  "0000000000000220000330000220000000000000",
+  "0000000000000220000000000220000000000000",
+  "0000000002200000000000000000022000000000",
+  "0000000002200000000000000000022000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000220000000000000000000000220000000",
+  "0000000220000000000000000000000220000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000002200000000000000000000000022000000",
+  "0000002200000000000000000000000022000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrssssssssssssssssssssssssssrrrrrrr",
+  "rrrrrrssssssssssssssssssssssssssssrrrrrr",
+  "rrrrrssssssssssssssssssssssssssssssrrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrsssssssssssssppppppsssssssssssssrrrr",
+  "rrrrssssssssssssppppppppssssssssssssrrrr",
+  "rrrrsssssssssssppppppppppsssssssssssrrrr",
+  "sssssssssssssssppppppppppsssssssssssrrrr",
+  "sssssssssssssssppppppppppsssssssssssrrrr",
+  "sssssssssssssssppppppppppsssssssssssrrrr",
+  "rrrrssssssssssssppppppppssssssssssssrrrr",
+  "rrrrsssssssssssssppppppsssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrssssssssssssssssssssssssssssssssrrrr",
+  "rrrrrssssssssssssssssssssssssssssssrrrrr",
+  "rrrrrrssssssssssssssssssssssssssssrrrrrr",
+  "rrrrrrrssssssssssssssssssssssssssrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "trial_seat",
+   "x": 19,
+   "y": 4
+  },
+  {
+   "kind": "trial_seat",
+   "x": 13,
+   "y": 5
+  },
+  {
+   "kind": "trial_seat",
+   "x": 25,
+   "y": 5
+  },
+  {
+   "kind": "trial_seat",
+   "x": 9,
+   "y": 7
+  },
+  {
+   "kind": "trial_seat",
+   "x": 29,
+   "y": 7
+  },
+  {
+   "kind": "trial_seat",
+   "x": 7,
+   "y": 10
+  },
+  {
+   "kind": "trial_seat",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "trial_seat",
+   "x": 6,
+   "y": 14
+  },
+  {
+   "kind": "trial_seat",
+   "x": 32,
+   "y": 14
+  },
+  {
+   "kind": "mat",
+   "x": 19,
+   "y": 13
+  },
+  {
+   "kind": "incense",
+   "x": 16,
+   "y": 11
+  },
+  {
+   "kind": "incense",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "incense",
+   "x": 16,
+   "y": 16
+  },
+  {
+   "kind": "incense",
+   "x": 23,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 8,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 31,
+   "y": 20
+  },
+  {
+   "kind": "lantern",
+   "x": 12,
+   "y": 23
+  },
+  {
+   "kind": "lantern",
+   "x": 27,
+   "y": 23
+  },
+  {
+   "kind": "bush",
+   "x": 0,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 1
+  },
+  {
+   "kind": "tree_pine",
+   "x": 15,
+   "y": 2
+  },
+  {
+   "kind": "tall_grass",
+   "x": 20,
+   "y": 0
+  },
+  {
+   "kind": "tree_pine",
+   "x": 25,
+   "y": 0
+  },
+  {
+   "kind": "tree_pine",
+   "x": 38,
+   "y": 0
+  },
+  {
+   "kind": "tall_grass",
+   "x": 3,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 6,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 10,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 16,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 22,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 25,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 29,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 36,
+   "y": 24
+  },
+  {
+   "kind": "tree_pine",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 4,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 33,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 38,
+   "y": 4
+  }
+ ],
+ "place": {},
+ "portals": {
+  "exit": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "event": {
+  "waves": [
+   [
+    [
+     8,
+     18
+    ],
+    [
+     31,
+     18
+    ],
+    [
+     20,
+     21
+    ]
+   ]
+  ],
+  "timed": [
+   [
+    20,
+    8
+   ]
+  ]
+ },
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

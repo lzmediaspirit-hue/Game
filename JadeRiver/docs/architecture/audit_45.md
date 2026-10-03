@@ -827,6 +827,32 @@ loops exist, then the two sects' staff.
 - `story.validate`;
 - `tutorial_order` and `topdown_tutorial`.
 
+#### Status (phase 3, E3): the NPC engine, done
+
+- **The engine** is in `tools/content/npcs/`: `spec.py` (the spec language, 181 lines), `spots.py` (work spots by
+  anchors, 204), `engine.py` (the compile, the hosts' channels, the checks, 432) and `tests.py` (12 tests, 211).
+  `docs/architecture/npc_engine.md` describes it.
+  - One `npc(...)` spec names the person's id, name and title, their look (the character pipeline's parts and dyes),
+    their voice, services and dialogue tree, and their places with each place's work loop.
+  - It writes their `npcs.json` row through `story.py`, their work and the extras in `life.json` through
+    `topdown_life.py`, and for a placement it makes itself, the side-view room's object (`world.py`'s
+    `npc_engine_pass`) and the top-down room's anchor (the room engine).
+  - Work spots may be anchors resolved on the built layout (`"water_edge"`, `"by:<prop kind>"`, `"near:<thing>"`,
+    `"open"`, `"home"`). It is deterministic, and every value can be pinned. The sects' staff come from ten role
+    templates.
+- **The round trip: byte for byte.** All 118 people with a home and the 5 extras are specs, in six zone modules (Lotus
+  Ferry first, then Stoneford, the roads east, the sects, Act II, Act III).
+  - `npcs.json` and `life.json` came out unchanged.
+  - `story.py`'s `npcs()` went from 474 lines to 63, and `topdown_life.py` lost its 110 lines of hand `WORK` and `EXTRAS`.
+    The two tables stay, empty, for a room batch's `# R<n>` block.
+  - The rooms' own placements (with the story's conditions in `world.py`, cells among the room specs' anchors) stay
+    theirs; a spec names them by room and object, and the gate checks they are there.
+  - Nine one-offs stay plain rows in a labelled section of `story.py`: the rooftop thief, Elder Gu's and Shen Lian's
+    quest turns, the four companions.
+- **The first new people:** Greyreed Hamlet's three villagers, home once Cleansing the Well is done, each one spec of
+  five lines, placed and set to work by anchors (the capture set `npc_engine`, `docs/architecture/npc_engine/`).
+- **The runners** have a new gate, `npc_engine` (`tools/content/npcs/engine.py --check`).
+
 ### 6.4 Item engine (E4)
 
 **What exists to build on:**
