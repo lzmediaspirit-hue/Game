@@ -110,10 +110,10 @@ RM_GREY_POOLS = room(
     # T1 (docs/architecture/topdown_mechanics.md): the side view's two log rafts. One ferries from the jetty across the
     # grey pool to its west bank and back; the other goes round the east pool from its north shore (the lotus pads in
     # its way are left out).
-    traverse=[("raft", "log_raft_a", dict(at=(17, 19), path=[(-8, 0)], speed=40, wait_s=2.5, mode="pingpong")),
+    traverse=[("raft", "log_raft_a", dict(at=(17, 21), path=[(-9, 0)], speed=40, wait_s=2.5, mode="pingpong")),
               ("raft", "log_raft_loop", dict(at=(45, 18), path=[(2, 2), (2, 4), (-3, 4), (-2, 2)], speed=40, wait_s=2.5,
                                              mode="loop"))],
-    pins={"drop": [(44, 21)]},
+    pins={"drop": [(44, 21), (15, 22)]},
     foes=["auto:flats", "auto", "auto:flats"])
 
 # The Sunken Causeway: the old paved causeway across the open marsh, sunk in two places and laid over with planks, reed

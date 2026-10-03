@@ -254,6 +254,69 @@ func place_near(p: Vector2, z: float, rings := 4) -> Vector2:
 		if best != Vector2.INF: return best
 	return nearest_standable(p)
 
+# ------------------------------------------------------------------ T1: a room event's points on the grid
+## docs/architecture/topdown_mechanics.md. A room event the side view calls to its own points (a set piece's waves, a
+## Temper trial, the sect's defence, a rift, the heart demons) sets its foes on this grid by the layout: the cells its
+## `stage` names for the event, point for point; else the side view's point mapped across the room (its column across
+## the side-view room's width, its depth across its depth) and moved to the nearest open cell (WorldRoomEvents).
+
+## The layout's stage for an event, as ground points ([] when it names none).
+func stage_points(event_id: String) -> Array:
+	return cell_points(def.get("stage", {}).get(event_id, []))
+
+## A side-view point mapped onto this grid: as far across and as deep as it stands in the side-view room's `bounds`.
+func side_point(p: Vector2, bounds: Rect2) -> Vector2:
+	var kx := clampf((p.x - bounds.position.x) / maxf(1.0, bounds.size.x), 0.0, 1.0)
+	var ky := clampf((p.y - bounds.position.y) / maxf(1.0, bounds.size.y), 0.0, 1.0)
+	return Vector2(kx * float(w), ky * float(h)) * TILE
+
+## Every cell a body walks to from `from` (walking, stairs, drops and a hop a level up, as find_path and auto-path go):
+## a set of Vector2i.
+func reached_from(from: Vector2i) -> Dictionary:
+	var seen := {}
+	if cell_floor(from) == INF: return seen
+	seen[from] = true
+	var queue: Array = [from]
+	var head := 0
+	while head < queue.size():
+		var c: Vector2i = queue[head]
+		head += 1
+		var h0 := cell_floor(c)
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = c + d
+			if seen.has(n): continue
+			var h1 := cell_floor(n)
+			if h1 == INF or h1 - h0 > LEVEL + 0.5: continue
+			seen[n] = true
+			queue.append(n)
+	return seen
+
+## The open cell nearest a ground point where a room event sets a foe: a floor (no wall, prop or water), not a stair, at
+## least three cells from every way in or out, in `reach` (the cells the player walks to; empty: anywhere) and not in
+## `taken` (the event's other points, kept a cell apart). Its centre, or the nearest standable point when none is open.
+func open_cell_near(p: Vector2, reach: Dictionary, taken: Dictionary) -> Vector2:
+	var c0 := cell_of(p.clamp(Vector2.ZERO, Vector2(w - 1, h - 1) * TILE + Vector2.ONE * (TILE - 1.0)))
+	var ways: Array = []
+	for pid in def.get("portals", {}):
+		var at: Array = def.portals[pid].get("at", [0, 0])
+		ways.append(Vector2(float(at[0]), float(at[1])))
+	for r in maxi(w, h):
+		var best := Vector2i(-1, -1)
+		var best_d := INF
+		for dy in range(-r, r + 1):
+			for dx in range(-r, r + 1):
+				if maxi(absi(dx), absi(dy)) != r: continue
+				var c := c0 + Vector2i(dx, dy)
+				if not standable(c) or not stair_at(c.x, c.y).is_empty() or taken.has(c): continue
+				if not reach.is_empty() and not reach.has(c): continue
+				if ways.any(func(a): return maxf(absf(a.x - float(c.x)), absf(a.y - float(c.y))) < 3.0): continue
+				var d := (Vector2(c) + Vector2(0.5, 0.5)).distance_to(p / TILE)
+				if d < best_d:
+					best_d = d
+					best = c
+		if best.x >= 0: return (Vector2(best) + Vector2(0.5, 0.5)) * TILE
+	return nearest_standable(p)
+
 # ------------------------------------------------------------------ Phase 2: foes on the grid
 ## The room as the simulation's RoomRuntime def (WorldAuthority.enter_grid_room): its id, name and kind, and its spawns
 ## with their points moved from tiles to world units (cell centres).
@@ -462,6 +525,8 @@ func merge_def(side: Dictionary) -> Dictionary:
 	var out := side.duplicate(true)
 	for k in SIDE_ONLY: out.erase(k)
 	out.view = "topdown"
+	# T1: the side-view room's own bounds, which a room event's side-view points are mapped across (stage_point).
+	out.side_bounds = side.get("bounds", [0, 480, 1280, 480])
 	out.bounds = [0, 0, w * TILE, h * TILE]
 	out.spawn_point = [spawn.x, spawn.y]
 	var place: Dictionary = def.get("place", {})
@@ -519,6 +584,7 @@ func merge_def(side: Dictionary) -> Dictionary:
 	var ev: Dictionary = out.get("event", {})
 	var lay_ev: Dictionary = def.get("event", {})
 	if not ev.is_empty() and not lay_ev.is_empty():
+		ev.on_grid = true   # T1: its points are the layout's own cells (WorldRoomEvents sets them as they are)
 		if ev.has("wave") and lay_ev.has("wave"): ev.wave.points = cell_points(lay_ev.wave)
 		var fixed: Array = lay_ev.get("fixed", [])
 		for i in mini((ev.get("fixed_spawns", []) as Array).size(), fixed.size()):

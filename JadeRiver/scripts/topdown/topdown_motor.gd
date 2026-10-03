@@ -571,7 +571,7 @@ func _vertical(h: float) -> void:
 			skimming = on_water
 		return
 	coyote = maxf(0.0, coyote - h)
-	var up := _updraft()
+	var up := updraft_here()
 	if plunging: z += vz * h   # the Plunge holds its speed
 	elif hold_t > 0.0:
 		hold_t = maxf(0.0, hold_t - h)   # T1 · Swallow Dart holds the height while it carries the body
@@ -595,7 +595,7 @@ func _vertical(h: float) -> void:
 		if vz <= 0.0: _land()
 
 ## T1: the updraft the body is in, in the air ({} when none, or the room has none, or it plunges).
-func _updraft() -> Dictionary:
+func updraft_here() -> Dictionary:
 	var tr := traverse()
 	return {} if tr == null or tr.updrafts.is_empty() or plunging else tr.updraft_at(pos, z)
 

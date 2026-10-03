@@ -508,7 +508,9 @@ func _climb_hold(c, move: Vector2, delta: float) -> void:
 		return
 	if climb_hold < 0.0: return   # a shut one said why: once a hold
 	climb_hold += delta
-	if climb_hold >= float(TopdownMotor.conf("traverse.climb_hold_s", 0.3)): climb()
+	# Over the top's edge it climbs down at once (a moment's hold would walk the body off the edge); into the face at the
+	# foot it waits the side view's hold, so a push against a wall is not a climb.
+	if str(near.end) == "top" or climb_hold >= float(TopdownMotor.conf("traverse.climb_hold_s", 0.3)): climb()
 
 ## T1 · what the motor did that the side view's movement authority announces (LocalAuthority.announce: art_used for the
 ## arts the quests and lessons count, mover_boarded, the climb's start and end, a wall kick), on the body's state.
