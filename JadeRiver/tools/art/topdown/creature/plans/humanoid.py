@@ -133,6 +133,27 @@ GUARDIAN_STYLES = {
                     "left": ((2.6, 2.8, 8.4), (8.0, 2.4, -7.0), (8.0, 2.4, -7.0), (6.0, 3.2, -4.6), (4.4, 4.0, -3.4), (3.6, 4.6, -4.2))},
 }
 STYLES.update(GUARDIAN_STYLES)
+# M2, the cliff ape: idle `knuckle` (hunched on its knuckles, breathing), walk `knuckle_lope`, windup `hoist` (it stands up
+# roaring and hoists a boulder over its head, held), attack `boulder_smash` (it smashes the boulder down before it, the
+# stone shattering in chips: the blow on frame 1; its throw has the same tell), death `topple_back`.
+APE_STYLES = {
+    "knuckle": {"sway_amp": 0.25, "guard": 0.0},
+    "knuckle_lope": {"kind": "march", "bounce": 0.9, "twist_amp": 7.0, "stride": 2.6, "lift": 1.6, "swing": 2.6},
+    "hoist": {"lean": (-8.0, -18.0, -26.0, -28.0), "step": (-0.2, -0.5, -0.7, -0.8), "sink": (0.6, 0.2, -0.6, -0.9), "plant": True,
+              "chatter": (0.3, 1.0, 0.7, 1.0), "boulder": (0.3, 0.7, 1.0, 1.0),
+              "right": ((4.6, -2.6, -9.0), (3.2, -2.4, -3.0), (0.6, -2.4, 4.4), (0.0, -2.4, 5.6)),
+              "left": ((4.6, 2.6, -9.0), (3.2, 2.4, -3.0), (0.6, 2.4, 4.4), (0.0, 2.4, 5.6))},
+    "boulder_smash": {"lean": (-26.0, 10.0, 12.0, 4.0, 0.0, 0.0), "step": (0.4, 1.8, 1.8, 1.0, 0.4, 0.0), "sink": (-0.8, 1.4, 1.4, 0.7, 0.2, 0.0),
+                      "plant": True, "chatter": (1.0, 0.8, 0.5, 0.2, 0.0, 0.0), "boulder": (1.0, 1.0, 0.0, 0.0, 0.0, 0.0), "smash_at": 1,
+                      "chips": (1, 2, 3), "dust": (1, 2, 3), "squash": {1: (1.04, 1.04, 0.95)},
+                      "right": ((0.4, -2.4, 6.0), (8.0, -2.2, -9.0), (8.0, -2.4, -9.4), (6.6, -3.2, -9.6), (5.4, -3.8, -9.8), (4.8, -4.2, -10.0)),
+                      "left": ((0.4, 2.4, 6.0), (8.0, 2.2, -9.0), (8.0, 2.4, -9.4), (6.6, 3.2, -9.6), (5.4, 3.8, -9.8), (4.8, 4.2, -10.0))},
+    "topple_back": {"lean": (-16.0, -28.0, -40.0, -48.0, -52.0, -52.0, -52.0, -52.0), "sink": (0.0, 0.8, 2.0, 3.4, 4.2, 4.6, 4.6, 4.6),
+                    "droop": (-10.0, -18.0, -24.0, -26.0, -26.0, -26.0, -26.0, -26.0),
+                    "roll": (0.0, 0.0, 6.0, 26.0, 56.0, 80.0, 88.0, 86.0), "limp": True, "dark_from": 4, "fall": (7.0, 3.6),
+                    "chatter": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3)},
+}
+STYLES.update(APE_STYLES)
 
 IMP = {
     "hip": 5.4,
@@ -193,7 +214,31 @@ GUARDIAN = {
     "cracks": ((2, ((-40.0, 40.0), (-20.0, 20.0), (-35.0, 0.0), (-15.0, -20.0))), (1, ((30.0, 30.0), (15.0, 5.0), (30.0, -20.0))),
                (3, ((60.0, 40.0), (45.0, 20.0), (60.0, 5.0)))),
 }
+# M2: the cliff ape (its side-view sheet: ~50 px tall on its knuckles): the monkey grown huge and heavy, no tail, a
+# shaggy white mane over its shoulders, back and crown, a dark leathery face and chest under a heavy brow, long thick arms.
+APE = {
+    "hip": 7.2, "hunch": 30.0,
+    "legs": {"top": (2.2, -0.3), "foot": (2.8, 0.9, 1.1), "bones": (3.8, 3.8), "thigh": (2.2, 1.8), "shin": (1.7, 1.35),
+             "knee": None, "boot": ((0.9, 0.0, -0.3), (2.0, 1.3, 0.75)), "plant": (1.0, -1.0)},
+    "trunk": [{"at": (0.0, 0.0, 1.0), "r": (2.9, 3.3, 2.5), "paint": True}, {"at": (0.6, 0.0, 3.9), "r": (3.3, 3.9, 3.3), "paint": True},
+              {"at": (0.8, 0.0, 6.8), "r": (3.1, 4.8, 3.0), "paint": True}],
+    "neck": ((1.3, 0.0, 8.6), 1.4),
+    "head": {"at": ((1.7, 0.0, 8.8), 3.0), "r": (2.8, 2.9, 2.8)},
+    "face": {"kind": "monkey", "disc": ((1.7, 0.0, -0.4), (1.5, 2.2, 2.0)), "muzzle": ((2.8, 0.0, -1.2), (1.2, 1.6, 1.0)),
+             "eyes": (2.75, 0.95, 0.3), "nose": (3.9, 0.0, -0.95), "mouth": (3.65, 0.0, -1.8), "ears": ((-0.1, 2.9, 0.2), 1.0),
+             "tuft": ((-0.3, 0.0, 2.6), (), (0.5, 0.3, 1.0)), "brow": ((2.1, 0.0, 1.05), (0.9, 2.3, 0.5))},
+    "arms": {"shoulder": (4.2, 7.0), "bones": (5.8, 5.8), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (1.9, 1.7), "elbow": None,
+             "lower": (1.7, 1.45), "wrap": None, "fist": (1.6, 1.5, 1.35), "guard": (4.8, 4.2, -11.0), "limp": (0.8, 6.0, -6.0, 0.4)},
+    "paint": {"kind": "fur"},
+    "tail": None,
+    "held": {"kind": "boulder", "r": 3.0, "mat": "boulder"},
+}
 VARIANTS = {
+    "ape": {"parts": APE, "mats": {"body": "ape_fur", "limb": "ape_fur", "dark": "ape_skin", "joint": "ape_fur", "neck": "ape_fur",
+                                   "pale": "ape_face", "mantle": "ape_mane", "maw": "maw", "boulder": "boulder", "moss": "boulder_moss",
+                                   "leaf": "boulder_moss"},
+            "motion": {"idle": "knuckle", "walk": "knuckle_lope", "windup": "hoist", "attack": "boulder_smash", "hurt": "knock",
+                       "death": "topple_back"}},
     "guardian": {"parts": GUARDIAN, "mats": {"body": "sg_stone", "limb": "sg_stone", "dark": "sg_stone_dark", "joint": "sg_stone",
                                              "neck": "sg_stone", "maw": "sg_mouth", "moss": "sg_moss", "mantle": "sg_stone_dark",
                                              "bell": "sg_stone_dark"},
@@ -317,6 +362,7 @@ def _arms(P, B, action: str, f: int, up, tm, grain, march: bool) -> None:
     a_ = p.arms
     sw = st.swing * math.sin(f / 8.0 * math.tau) if march else 0.0
     guard = st.guard * wave(action, f, 0.25) if "guard" in st else 0.0
+    ends = {}
     for s in (1, -1):
         sh = up((0.0, s * a_.shoulder[0], a_.shoulder[1]))
         if s < 0 and B.has("right", action):
@@ -337,8 +383,11 @@ def _arms(P, B, action: str, f: int, up, tm, grain, march: bool) -> None:
               E(end, a_.fist, m.dark, "arm%d" % s, tm))
         if p.get("qi") and s < 0:
             _qi(P, B, action, f, end, tm)
-        if p.get("held") and s < 0:
+        if p.get("held") and s < 0 and p.held.get("kind") != "boulder":
             _held(P, B, action, f, end, tm)
+        ends[s] = end
+    if p.get("held") and p.held.get("kind") == "boulder":
+        _boulder(P, B, action, f, ends, tm)
 
 
 def _finish(P, B, action: str, f: int, step: float) -> None:
@@ -575,6 +624,9 @@ def _monkey_face(P, B, action: str, f: int, hc, hm) -> None:
         P.mark(mouth + hm @ v3(0.3, -0.3, 0.3), M.IMP_TOOTH)
     else:
         P.mark(mouth, M.RAMPS[m.pale][0])
+    if fc.get("brow"):
+        # M2, the cliff ape: a heavy brow ridge over its eyes.
+        P.add(E(hc + hm @ v3(fc.brow[0]), fc.brow[1], m.pale, "brow", hm, line=False))
     t0, leaves, (lr0, lr1, lh) = fc.tuft
     base = hc + hm @ v3(t0)
     for k, d in enumerate(leaves):
@@ -600,6 +652,41 @@ def _tail(P, B, action: str, f: int, up) -> None:
         r0 = t.r[0] + (t.r[1] - t.r[0]) * i / n
         r1 = t.r[0] + (t.r[1] - t.r[0]) * (i + 1) / n
         P.add(L(pts[i], pts[i + 1], r0, r1, m.mantle if i < n - 3 else m.body, "tail", caps=i == 0))
+
+
+def _boulder(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """M2, the cliff ape: the boulder it hoists over its head in both hands in its tell (a rock of ochre stone, moss on its
+    top), held until it smashes it down before it on the blow, where it shatters into chips and dust."""
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    lift = B.pick("boulder", action, f)
+    mid = (ends[1] + ends[-1]) * 0.5
+    seed = int(B.opts.get("seed", 0))
+    if lift > 0.0:
+        r = h.r * (0.75 + 0.25 * lift)
+        c = mid + tm @ v3(0.0, 0.0, r * 0.75)
+
+        def stone(q, n):
+            top = (n[:, 2] > 0.7) & (h01v(np.floor(q[:, 0] * 0.9 + 30), np.floor(q[:, 1] * 0.9 + 30), seed % 83 + 3) > 0.6)
+            pit = h01v(np.floor(q[:, 0] * 1.4 + 50), np.floor(q[:, 2] * 1.4 + 50) + np.floor(q[:, 1] * 1.4), seed % 97 + 9) > 0.82
+            return np.where(top, m.moss, m.boulder).astype(object), np.where(pit & ~top, -1, 0).astype(np.int16)
+        P.add(E(c, (r * 1.1, r, r * 0.9), m.boulder, "boulder", tm @ rot("c", 20.0), stone))
+    if action == "attack" and f in st.get("chips", ()):
+        at_ = mid + tm @ v3(1.0, 0.0, 0.0)
+        at_ = v3(at_[0], at_[1], 0.4)
+        k0 = f - st.get("smash_at", 1)
+        for k in range(12):
+            ang = math.radians(k * 30.0 + f * 13.0)
+            rr = 2.0 + k0 * 2.2 + (k % 3) * 0.8
+            q = at_ + v3(math.cos(ang) * rr * 0.7, math.sin(ang) * rr, 0.4 + (k % 4) * 0.6 * (2 - k0) * 0.5)
+            P.fx.append((q, M.RAMPS[m.boulder][2 + (k % 2)] if k % 3 else M.DUST))
+        if k0 == 0:
+            for k in range(5):
+                P.add(S(at_ + v3((k - 2) * 1.3, ((k * 7) % 5 - 2) * 0.9, 0.6), 0.9 + 0.3 * (k % 2), m.boulder, "chip", line=False))
+    if f in st.get("dust", ()) and action == "attack":
+        for k in range(10):
+            ang = math.radians(k * 36.0 + f * 20.0)
+            rr = 3.0 + f * 1.4 + (k % 3) * 0.6
+            P.fx.append((v3(mid[0] + math.cos(ang) * rr, mid[1] + math.sin(ang) * rr, 0.3 + (k % 3) * 0.6), M.DUST if k % 2 else M.DUST_DIM))
 
 
 def _shoot(P, B, end, tm, action: str, f: int) -> None:

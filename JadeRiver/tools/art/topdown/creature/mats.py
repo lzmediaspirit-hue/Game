@@ -247,6 +247,29 @@ RAMPS = {
     "ro_horn": _s("f4ecd8", "cfc2a0", "9a8c6c", "665a44"),
     "ro_muzzle": _s("c8b8a8", "a08e7e", "76665a", "50443c"),
     "ro_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
+    # cloudwing crane: white plumes, pale flight feathers, cloud-blue tips, a slate face and legs, a gold beak, a red crown
+    "crane_plume": _s("ffffff", "e8f0f2", "b3c6d2", "7b92a6"),
+    "crane_flight": _s("eef5f8", "cbd9e2", "97aec0", "687f95"),
+    "cloud_tip": _s("d6ecf7", "9dc0d8", "7497b6", "56769a"),
+    "crane_slate": _s("6f7f8c", "4c5a66", "36424d", "252e37"),
+    "crane_beak": _s("fff3b8", "e3cf7a", "b39e54", "78693a"),
+    "crane_crown": _s("ff8f80", "e45858", "b3384a", "7a2234"),
+    # stormwing hawk: a storm-blue body, coverts and flight feathers, a pale barred breast, lightning gold, a dark beak, a
+    # yellow cere and feet
+    "hawk_body": _s("86a6f4", "4466c2", "2c4386", "1b2757"),
+    "hawk_covert": _s("8eacf4", "5070c8", "34498e", "202d61"),
+    "hawk_flight": _s("6682d0", "3a52a4", "283b7a", "1a2552"),
+    "hawk_breast": _s("e6ecf6", "b9c7e0", "8397bd", "56688f"),
+    "hawk_bolt": _s("fff6b0", "ffd84a", "d9a82a", "9c7418"),
+    "hawk_beak": _s("5a6378", "343b4d", "232836", "161a24"),
+    "hawk_cere": _s("fff0a0", "f2c63a", "c49522", "8a6618"),
+    # cliff ape: grey-brown fur, a shaggy white mane, a dark leathery face, chest, hands and feet; its ochre boulder, moss
+    "ape_fur": _s("a8977f", "7b6a5a", "554a4b", "373138"),
+    "ape_mane": _s("fbf8ee", "dcd8cb", "a9aaa6", "77797e"),
+    "ape_skin": _s("7a6f78", "544b56", "3a343f", "26222b"),
+    "ape_face": _s("a2959c", "7a6f78", "544b56", "3a343f"),
+    "boulder": _s("d8b27a", "a67c4c", "76583e", "4b3a31"),
+    "boulder_moss": _s("b3cf6a", "7ea346", "5a7b37", "3b562b"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -328,6 +351,13 @@ PROPS = {
     "mv_skin": {"hi": True, "weight": 1.3}, "mv_beak": {"hi": True, "glossy": True, "weight": 1.4}, "mv_leg": {"hi": True, "weight": 1.3},
     "ro_hide": {"hi": True}, "ro_moss": {"hi": True, "weight": 1.2}, "ro_pebble": {"hi": True, "glossy": True, "weight": 1.3},
     "ro_horn": {"hi": True, "glossy": True, "weight": 1.5}, "ro_muzzle": {"hi": True, "weight": 1.2}, "ro_hoof": {"hi": True, "weight": 1.3},
+    "crane_plume": {"hi": True}, "crane_flight": {"hi": True}, "cloud_tip": {"hi": True, "weight": 1.2}, "crane_slate": {"hi": True, "weight": 1.3},
+    "crane_beak": {"hi": True, "glossy": True, "weight": 1.5}, "crane_crown": {"hi": True, "weight": 1.6},
+    "hawk_body": {"hi": True}, "hawk_covert": {"hi": True}, "hawk_flight": {"hi": True}, "hawk_breast": {"hi": True, "weight": 1.2},
+    "hawk_bolt": {"hi": True, "weight": 1.6}, "hawk_beak": {"hi": True, "glossy": True, "weight": 1.5}, "hawk_cere": {"hi": True, "weight": 1.5},
+    "ape_fur": {"hi": True}, "ape_mane": {"hi": True, "weight": 1.2}, "ape_skin": {"hi": True, "weight": 1.3}, "boulder": {"hi": True},
+    "ape_face": {"hi": True, "weight": 1.3},
+    "boulder_moss": {"hi": True, "weight": 1.2},
 }
 
 # Single colours laid on as marks and points.

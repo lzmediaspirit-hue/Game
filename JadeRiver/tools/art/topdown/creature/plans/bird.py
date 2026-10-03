@@ -260,7 +260,7 @@ CRANE = _bird(FLYER, Z=12.0, body={"r": (3.2, 2.0, 1.9), "breast": -2.0},
 HAWK = _bird(FLYER, Z=10.0, body={"r": (2.6, 1.8, 1.6), "breast": -0.2, "bars": True},
              neck={"kind": "short", "base": (2.0, 0.0, 0.5), "head": (3.3, 0.0, 1.2), "r": (1.15, 1.0), "ruff": None},
              head={"r": (1.35, 1.15, 1.15), "eye": (0.6, 0.85, 0.35), "beak": (1.0, 1.2, 0.5, 0.55), "hook": 0.8, "cere": True, "brow": True},
-             wings={"seg": (2.5, 3.0, 3.6), "chord": (3.2, 3.0, 2.3), "fingers": 4, "finger": 1.8, "bolt": True},
+             wings={"seg": (2.5, 3.0, 3.6), "chord": (3.7, 3.4, 2.6), "fingers": 4, "finger": 1.9, "bolt": True},
              tail={"length": 3.0, "spread": 1.6, "bands": 3},
              fx="storm", iris="HAWK_EYE")
 ROC = _bird(FLYER, Z=13.0, body={"r": (3.6, 2.6, 2.3), "breast": -0.3},
