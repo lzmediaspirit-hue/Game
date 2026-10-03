@@ -792,6 +792,18 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "wind",
+   "id": "ridge_wind",
+   "rect": [
+    11,
+    3,
+    53,
+    22
+   ]
+  }
+ ],
  "vista": [
   {
    "edge": "n",

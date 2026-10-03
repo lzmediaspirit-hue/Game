@@ -188,6 +188,22 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "crumble",
+   "id": "trial_crumble",
+   "rect": [
+    13,
+    5,
+    5,
+    2
+   ],
+   "level": 2,
+   "break_s": 1.0,
+   "return_s": 5.0,
+   "under": "water"
+  }
+ ],
  "vista": [
   {
    "edge": "s",

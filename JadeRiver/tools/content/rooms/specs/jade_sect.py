@@ -310,6 +310,9 @@ JA_LIBRARY = room(
               ("cheek_3", (6, 10, 1, 4), dict(level=3, paint="w")),
               ("cheek_4", (9, 10, 1, 4), dict(level=3, paint="w"))],
     stairs=[(7, 4, 2, 2, 2, 3, "w"), (7, 10, 2, 4, 0, 2, "w")],
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's floor ladders, sealed by sect rank (an Outer Disciple
+    # for the first gallery, an Inner Disciple for the second), are sealed hatches over the two flights.
+    traverse=[("hatch", "floor_2_ladder", dict(rect=(7, 10, 2, 4))), ("hatch", "floor_3_ladder", dict(rect=(7, 4, 2, 2)))],
     ways={"exit": ("s", 14.5)},
     spawn="exit",
     anchors={"floor_3_shelves": (4, 2), "floor_2_shelves": (4, 5), "npc_jade_librarian": (14, 6),

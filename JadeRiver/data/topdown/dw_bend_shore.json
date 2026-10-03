@@ -752,6 +752,28 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "raft",
+   "id": "ferry_boat",
+   "at": [
+    33,
+    25
+   ],
+   "size": [
+    2,
+    2
+   ],
+   "path": [
+    [
+     17,
+     0
+    ]
+   ],
+   "speed": 38,
+   "wait_s": 2.5
+  }
+ ],
  "vista": [
   {
    "edge": "n",

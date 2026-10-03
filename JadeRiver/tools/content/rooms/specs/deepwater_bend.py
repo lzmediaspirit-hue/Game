@@ -27,6 +27,9 @@ DW_BEND_SHORE = room(
     props=[("boat", 19, 20), ("lantern", 51, 21), ("lantern", 55, 21)],
     flora={"woods": dict(density=0.5)},
     ground={"sand": ["river.bank", "bay.bank"]},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's ferry plies the bend between the ford's causeway and
+    # the shrine's steps.
+    traverse=[("raft", "ferry_boat", dict(at=(33, 25), size=(2, 2), path=[(17, 0)], speed=38, wait_s=2.5))],
     foes=["auto:bank", "auto:shore", "auto:bank", "auto:shore", "auto:shore"])
 
 # R2 --------------------------------------------------------------------------------------------------------------
@@ -51,6 +54,9 @@ DW_SERPENTS_SHALLOWS = room(
     anchors={"serpent_nest": "rock_e@49", "rare_ginseng_ss": "rock_mid@33"},
     flora={"bank": dict(density=0.45), "shallows": dict(kinds=["cattails"], density=0.25)},
     ground={"sand": ["river.bank"]},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's flood: on the Riverbed Serpent's phase the river rises
+    # a level over the shallows (the three rocks stay dry), and falls back when it is beaten.
+    traverse=[("flood", "serpent_flood", dict(rect=(0, 8, 72, 13), top=1))],
     foes="auto")
 
 ROOMS = [DW_BEND_SHORE, DW_SERPENTS_SHALLOWS]

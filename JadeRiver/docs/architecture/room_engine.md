@@ -136,6 +136,8 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
 - `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
 - `tests/topdown_drowned_shrine.tscn`: R2's ten rooms played on the grid (below).
 - `tests/topdown_story_rooms.tscn`: R5's ten rooms, the story's events in them played on the grid (below).
+- `tests/topdown_act2_start.tscn`: Act I crossed into Act II and chapter 11 played on the grid, then on through R6's
+  nineteen rooms (below).
 - `tests/topdown_sunscar.tscn`: R7's twenty rooms, chapters 13 and 14 and the Tomb King played on the grid (below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
   alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`, `r2/`; a
@@ -219,8 +221,9 @@ The six rooms past the Fairground on the main story's path, now on the grid. Cha
 Each picture also has an x2 copy under `world/`.
 
 **Still to do in these rooms.** Their foes have no top-down art yet: the bandits, hounds, archers, Lieutenant Kuai,
-Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. The side view's
-crumbling boards in the tunnels have no top-down counterpart.
+Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. ~~The side view's
+crumbling boards in the tunnels have no top-down counterpart.~~ T2: six rotten planks over two spike pits across the
+track (`docs/architecture/topdown_mechanics.md`).
 
 **The frontier then** (E1): Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine; the Marsh
 Edge's way east; the sects' halls and abodes; the Trial Tower; the Quarry Road; the Beast Grove; the County Hall; Gu's
@@ -388,8 +391,9 @@ one rule for all of them (`docs/architecture/topdown_mechanics.md`).)
   - the rising water of the Serpent's and the Abbot's floods;
   - the Drowned Grotto's swim (it is wading water here).
 
-  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows now, waiting in these rooms'
-  specs; the lanterns and the swim are still to do (`docs/architecture/topdown_mechanics.md`).
+  T1: the planks, the currents and the floods are `raft`, `current` and `flood` rows. T2 laid them in these rooms'
+  specs, hung the five lanterns (`lantern` rows) and swims the grotto's pools with Breath Control; its flagstones under
+  shallow water are waded at the side view's 0.7 of the pace (`docs/architecture/topdown_mechanics.md`).
 | Room | Spec lines | Pictures (`docs/architecture/room_engine/r3/`) |
 |---|---|---|
 | `ja_alchemy_hall` | 13 | `09_alchemy_hall`, `rooms/ja_alchemy_hall` |
@@ -472,7 +476,7 @@ Each stands where auto-path reaches it from every way in.
 
 Some side-view props have no top-down counterpart:
 - the guardian lions;
-- the quarry's crane lift (a side-only mover; T1: a `lift` row with mode `trigger`, waiting in the spec).
+- ~~the quarry's crane lift~~ (T2: a `lift` row with mode `trigger`, in the spec; the Entry Trials' planks too).
 
 ~~Some waves still spawn at the side view's points, read as world units on the grid: the spatial rift's waves and the
 set pieces' waves.~~ T1: every room event's points are set on the grid by one rule (`TopdownRoom.grid_event`); a
@@ -577,8 +581,9 @@ byte for byte, and `test_engine` holds it.
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the cliff ape, Cloudpeak Roc, Cloudwing Crane,
   the Gate Guardian, Hollow Stag, Jade Sentinel, Mirror Wisp, Mist Wolf, the rogue treasure adept, Stormwing Hawk and
   Weeping Lantern.
-- Some of the side view has no top-down counterpart: the crumbling boards and icicles, the updrafts, the ridge's wind
-  and Wings of Cloud's flight.
+- ~~Some of the side view has no top-down counterpart: the crumbling boards and icicles, the updrafts, the ridge's
+  wind and Wings of Cloud's flight.~~ T1 and T2: flight and Wings of Cloud on the grid; the monastery's rotten floors,
+  the Frozen Shrine's icicle shelves and ice, the ridge's wind (`docs/architecture/topdown_mechanics.md`).
 - The sect's buildings are drawn as the side view's facades at half size once raised, as every thing is. Their slots
   line the Sect Grounds' two paved walks, and the big ones overlap when they stand side by side.
 
@@ -591,6 +596,8 @@ Whitewater Gorge to the Echo Cliffs, west onto the Cliff Faces and up to the Asc
 from the Falls Pool and by its teleport stone. `topdown_peaks` still sets its body down on the Cliff Faces, so it plays
 the peaks alone. Chapter 7's rooms are on the grid now, and Act I ends there at the Ascension Gate. Its first quest,
 Wings of Cloud, still asks for the side view's flight (above).
+
+R6 opened the Ascension Gate's way up (below).
 
 ## The story's rooms and the Tidebreak Front (R5)
 
@@ -730,6 +737,150 @@ walks to the nearest. Past it, the Sect War's and the Presence Trial's ways back
 rooms, the Bastion's skiff to the Citadel, and the Drone Hive's way east to the Nebula Deep. Those rooms have no
 layout, so the four ways are gated. The Tidebreak Front's own rooms join each other on the grid.
 
+## Act II's first zones (R6): Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights, Mirrorwater Lake
+
+The nineteen rooms of Act II's first two chapters, now on the grid: Cloudgate Port (6), the Thunderhorn Plains (4),
+Rimefrost Heights (4) and Mirrorwater Lake (5). The Ascension Gate's way up opens onto the Arrival Terrace, so Act I and
+Act II join on foot.
+
+`tests/topdown_act2_start` plays them, a top-down character carried by test shortcuts to the Ascension Gate with Act I
+done (Heaven Glimpse 3, a sturdy body):
+- **the crossing:** up through the gate onto the Arrival Terrace's dais, back down to the summit, and up again, on the
+  grid both ways;
+- **chapter 11, played through:**
+  - Through the Gate: the toll warden at the gate's foot;
+  - A Sky Full of Toll Roads: the Factor in the market, the broker in the inn;
+  - Storm in the Blood: the town gate east is sealed till the quest is under way, then four jades attuned, six Spark
+    Weasels on the Verge (the plains' lightning strikes on the grid) and the shards;
+  - Horns for the Furnace: three thunderhorns hunted on the Flats, past the Herders' Camp, the horns taken to the
+    alchemist in the Condensing Hall off the Skydock;
+  - Sage;
+- **on through chapter 12's rooms:**
+  - the Lightning Scar's way east opens to a Sage, up the three rooms of Rimefrost to the summit and into the hermit's
+    ice cave (its hidden way found);
+  - the Skydock's lake ferry to the Reedless Shore, along the lake through the Mirror Shallows (Toad's Hollow off
+    them) and the Sentinel Causeway to the Lake Shrine, its bronze mirror looked into;
+- **the frontier:** the Nine Peaks ferry is the prototype's gate exactly while Nine Peaks has no layout. With R7's
+  rooms it is open, and the test rides it to the Alliance Gate and back.
+
+In every room it checks the walks and the view as `topdown_chapter3` does: 63 checks. `rules_tests`' route tour walks
+the nineteen rooms too.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r6/`) |
+|---|---|---|---|
+| `ae_landing` | 21 | `sky_port` | `01_arrival_terrace_gate`, `02_arrival_terrace_rim`, `rooms/ae_landing` |
+| `ae_port_market` | 29 | `sky_port` | `03_port_market_street`, `04_port_market_gate`, `rooms/ae_port_market` |
+| `ae_wayfarers_inn` | 9 | (an interior) | `05_wayfarers_inn` |
+| `ae_skydock` | 22 | `sky_port` | `06_skydock_berths`, `rooms/ae_skydock` |
+| `ae_condensing_hall` | 13 | (an interior) | `07_condensing_hall` |
+| `ae_shipyard` | 18 | `sky_port` | `08_shipyard_slip`, `rooms/ae_shipyard` |
+| `tp_stormgrass_verge` | 20 | `storm_plains` | `09_stormgrass_verge`, `rooms/tp_stormgrass_verge` |
+| `tp_herders_camp` | 19 | `storm_plains` | `10_herders_camp`, `rooms/tp_herders_camp` |
+| `tp_thunderhorn_flats` | 21 | `storm_plains` | `11_thunderhorn_flats_pool`, `rooms/tp_thunderhorn_flats` |
+| `tp_lightning_scar` | 24 | `storm_plains` | `12_lightning_scar`, `rooms/tp_lightning_scar` |
+| `rf_frostpine_climb` | 23 | `snowfield` | `14_frostpine_climb`, `15_frostpine_climb_high`, `rooms/rf_frostpine_climb` |
+| `rf_snow_ape_ledges` | 17 | `snowfield` | `16_snow_ape_ledges`, `rooms/rf_snow_ape_ledges` |
+| `rf_rimefrost_summit` | 19 | `snowfield` | `17_rimefrost_summit`, `18_rimefrost_summit_rim`, `rooms/rf_rimefrost_summit` |
+| `rf_hermits_ice_cave` | 12 | `snowfield` | `19_hermits_ice_cave` |
+| `ml_reedless_shore` | 23 | `mirror_lake` | `20_reedless_shore_ferry`, `21_reedless_shore_mirror`, `rooms/ml_reedless_shore` |
+| `ml_mirror_shallows` | 24 | `mirror_lake` | `22_mirror_shallows`, `rooms/ml_mirror_shallows` |
+| `ml_sentinel_causeway` | 28 | `mirror_lake` | `23_sentinel_causeway`, `rooms/ml_sentinel_causeway` |
+| `ml_lake_shrine` | 17 | `mirror_lake` | `24_lake_shrine`, `rooms/ml_lake_shrine` |
+| `ml_toads_hollow` | 18 | `mirror_lake` | `25_toads_hollow`, `rooms/ml_toads_hollow` |
+
+The specs: `specs/cloudgate_port.py`, `thunderhorn_plains.py`, `rimefrost_heights.py`, `mirrorwater_lake.py`. As R4's,
+the x2 copies of the world alone are not kept, and an interior's whole room is its view.
+
+**The looks.** Later zones reuse them: Nine Peaks and the Skyport Wreck the port's, the Gale Canyons the plains', the
+Starsea the airships.
+- **A sky port** (`sky_port`): a town of paving and dressed granite on a floating island, under its crags.
+  - The island's south rim falls away into the `cloud_sea` vista. The airships berth there, hanging past the room's
+    edge over the clouds, each gangway at the end of a pier and the way aboard.
+  - Paved terraces and streets, lawns of azaleas and hedges in them with no tree (a canopy would hang over the walk),
+    pines and plum on the rim.
+  - Warehouses and houses (the kit's), the hawkers' stalls under the Alliance's white and sky awnings, the gate's
+    archway on its dais between two stone lions, banners and lanterns.
+  - The town gate east is two gatehouses of plastered wall over the street.
+- **Open plains** (`storm_plains`): wide grass under a low rocky ridge, few trees (a biome's `tree_share` 0.3), dead
+  trees the lightning killed, boulders and storm-split menhirs.
+  - The herders' trail runs east to west.
+  - The herds' trails are wavy strips of trampled earth braided across the grass (three rows deep, so a wander never
+    breaks one).
+  - Outcrops a level over the rise carry the side view's ledge chests.
+  - The herders' camp: yurts, a cook fire, haystacks, the fenced plots.
+  - The Lightning Scar: a burnt swathe with a floor of fused rock at its heart.
+- **Snowy heights:** R4's `snowfield`, fresh snow over every cell and the walks packed.
+  - Frostpine Climb's trail climbs three tiers, a flight between each, its landings fixed as features. Flights rise
+    north, so a climb eastward zigzags up them.
+  - Ice-glazed boulders (`ice_rock`) stand along the trails.
+  - The summit stands over the `cloud_sea`, the hermit's cave in a cleft of its crags.
+  - The ice cave is a cave room with a low front, its floor packed snow and its rock snowed.
+- **A mirror lake** (`mirror_lake`): wide still water, the north shore's willows and maples on its bank, and lotus pads
+  and floating lotus lanterns on it. The Reedless Shore has no reeds or cattails.
+  - **Reflections:** the water mirrors what stands on its north shore (engine rule, below).
+  - A pale strand where it meets the land (`lake.bank`'s sand), willow islets.
+  - The Mirror Shallows are R2's wading floor (`h`).
+  - The Sentinel Causeway is a granite causeway across open water: bastions with stone lanterns, plank bridges out to
+    the islets.
+  - The Lake Shrine is a round island, a hall on its granite plaza, the archway before the mirror's altar.
+  - Toad's Hollow is a sunken basin walled in rock and willows round the toad's pool.
+
+**New props** (`tools/art/topdown/furnish.py`, R6's block; the sheet rebuilt with `build_tiles.py`):
+- `sky_ship`: a junk-built airship, its sprite hanging 48 px under its footprint (the room's last row) over the clouds;
+  a still sprite, as four frames of it would outgrow the 512 px sheet;
+- `market_stall`, `paifang` (an archway walked under: its footprint blocks nothing), `counter`, `stone_lion`,
+  `armillary`;
+- `herders_yurt` (the herders' felt yurt; R7's `yurt` is the desert keeper's), `haystack`, `cook_fire` (its flames
+  flicker), `menhir`;
+- `ice_rock`;
+- `lotus_lantern` (it floats and bobs);
+- `mirror_<kind>` and `mirror_<kind>_1`: the reflections of `tree_willow`, `tree_maple`, `tree_pine`, `tree_plum` and
+  `lantern`. Each is drawn from the thing's own art, flipped about its foot and squashed to 0.55. Every other pixel is
+  left out so the water's ripple shows through, and the rest is darkened toward the deep water.
+
+**Engine rules.** None of them changes a room built before; every older spec compiles to its file byte for byte.
+- **Mirror** (`mirror=True` on a water band or feature). Each tree or stone lantern on the water's edge, or one row
+  back, gets its reflection laid on the water below its foot: `mirror_<kind>`, or `mirror_<kind>_1` a cell out with
+  its first cell under the bank. It is laid only where the water runs on under the whole of it (the trunk's three
+  columns at the foot, the crown's five further out) and nothing else stands at its foot. It blocks nothing. A
+  lake's waterside trees are pinned (`pins["add"]`) where the composition wants a reflection.
+- **A shaped region as ground:** a wavy or round band or feature named in `ground` gives its own cells, not its rect.
+
+**Flights and the route tour.** The first full run's route tour (`rules_tests`) lost three legs. In each, an open-sided
+flight stood on or beside a walk, and auto-path's steering sent the body along a step from its side, where it wedged.
+- Every raised shape in R6's rooms is now climbed by R4's `flights=[col]`: the flight ends at the ground below, and its
+  cheeks are closed by boulders.
+- Frostpine Climb's hand-laid flights have their trails moved off their sides (`wavy="s"`) and boulders at their
+  cheeks.
+- The lake's bluff stands two levels over its knolls, so no hop takes a body onto it.
+- The Snow Ape Ledges' trail wanders on its south edge only (`wavy="s"`). Its north edge had cut a row into the slope
+  under the west shelf's flight, leaving the flight's foot a step low over a dark slot.
+
+A scratch walk of every leg (from the spawn and each way in, to every thing and way) found the same wedge on 16 of
+them. After the change, the final walk of all 784 legs over the nineteen rooms arrives on every one.
+
+**Set pieces and the side view's mechanics on the grid.**
+- The plains' lightning strikes a body on the grid, and flight (T1) takes off over the port and the plains as anywhere.
+- The side view's ropes, vines, ladders and rope bridges up to its ledges and cloud platforms are flights and raised
+  outcrops here. T1's `traverse` rows (`docs/architecture/topdown_mechanics.md`) were not needed.
+- The Thousand-Eye Toad's arena has no special terrain; it is fought on the hollow's open turf.
+- Still with no top-down counterpart (`topdown_mechanics.md` lists them as still to do):
+  - the slippery ice of Frostpine Climb and Rimefrost Summit (`volumes` of kind `ice`, their traction);
+  - the Shipwrights' Yard's Starsea dock and its timed route (the skiff is the dock's object, sailed by its page);
+  - the sky-ships' crossings: the ferries are ways at their gangways, as the side view's doors were.
+
+**Still to do in these rooms.**
+- Foes with no top-down art yet (the view draws stand-ins; E2's work): the Spark Weasel, the Stormgrass Stag, the
+  Thunderhorn Rhino, the Frost Lynx, the Snow Ape, the Azure Carp Dragonet, the River Sentinel and the Thousand-Eye
+  Toad.
+- The water's reflections are props, and they do not move with the ripple. A mirror the water draws would be the
+  terrain's (TopdownTerrain).
+
+**The frontier now** (R6, with R5 and R7): Act I has no way off the grid left. Gu's Warehouse (R5) and the Ascension
+Gate's way up (R6) are both open. With Nine Peaks laid out (R7), the Skydock's ferry to the Alliance Gate is open too,
+and `topdown_act2_start` rides it over and back. Every way out of R6's rooms now leads to a room on the grid. The story
+walks on foot from the valley through the Lake Shrine, and on by the ferry to Nine Peaks and the Tomb of Sunscar.
+
 ## Nine Peaks to the Tomb of Sunscar (R7)
 
 The twenty rooms of Act II's chapters 13 and 14, now on the grid: Nine Peaks, the Gale Canyons, Ironroot Hold, the
@@ -846,8 +997,8 @@ flight of stairs or gone.
 - The world map: these are the first places outside the valley, and the map opened on a place showed the zone you
   stand in, not the place's. `map_page.gd`'s setup now opens the named place's own zone (`places_tests`).
 
-**The frontier now** (R7): Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout
-(R6). The Alliance Gate's war gong and the Trial Hall's circle belong to chapters 15 and 16, whose events are R5's
+**The frontier now** (R7): Nine Peaks' sky-ship back to Cloudgate Port was gated while the Skydock had no layout;
+with R6's rooms it is open. The Alliance Gate's war gong and the Trial Hall's circle belong to chapters 15 and 16, whose events are R5's
 story rooms (`si_sect_war`, `si_presence_trial`). Every other way out of an R7 room leads to a room on the grid. With
 these rooms laid out, the Sect War's and the Presence Trial's ways back to the Alliance Gate (gated in R5's frontier
 above) open; `topdown_story_rooms` checks them against `has_layout`, so it follows.
@@ -915,8 +1066,8 @@ the story's order.
 Front's cloud sea under its islands' brinks lies under the Citadel's, the Ruins' and the Reach's); R7's tomb walls of
 sand for the Lantern Heart's golden sandstone, R7's `earth` ground rule for the burnt plain, R7's brazier and its
 `ground` `-name`; R5's `stair_with_cheeks()` for the halls' daises, R4's `flights` for every raised shape, R4's
-`shape="round"` and R2's water. R6's and R8's looks were not on the branch while R9 was laid out (R6's `armillary` was on
-its own branch: the Observatory's armillary is named `star_globe` so the two never clash).
+`shape="round"` and R2's water. R6's and R8's looks were not on the branch while R9 was laid out; R6 was merged in at
+the end, and its `armillary` (Cloudgate's) and the Observatory's `star_globe` are two pieces under two names.
 - **The Citadel** (`citadel`): the Wardens' white granite and flagstones, the great wall along the north edge between
   its towers, gardens kept in beds (pines, plum, hedges, azaleas); a flight's cheeks lined with star lanterns. The
   Citadel Gate's court holds the Wardens' Hall (a `hall`, its door down a granite walk to the road), a fallen star in
@@ -1011,13 +1162,13 @@ Tumbling Stair, the Wardens' landing on the Cinder Fields, the War Camp, the Neb
 **The frontier now** (R9): the Citadel Gate's skiff to Lanternfall's Arrival Quay and the Wick Gate's stair down to the
 Harbor Market are gated exactly while Lanternfall Harbor has no layout (R8). The Tidebreak Bastion's skiff to the
 Citadel and the Drone Hive's way east into the Nebula Deep (gated in R5's frontier) are open; `topdown_story_rooms`
-checks them against `has_layout`, so it follows. Every other way out of an R9 room leads to a room on the grid. The
-crossings' docks are R6's (the Shipwrights' Yard) and R8's (the Starsea Launch, the Arrival Quay). 39 side-view rooms
-remain without a layout, all of them R6's (19) and R8's (20).
+checks them against `has_layout`, so it follows. Every other way out of an R9 room leads to a room on the grid. Of the
+crossings' docks the Shipwrights' Yard is on the grid (R6); the Starsea Launch, the Broken Pier and the Arrival Quay
+are R8's. With R6 merged, 20 side-view rooms remain without a layout, all of them R8's.
 
 ## The rooms left, and the pace
 
-80 side-view rooms remain, by zone (`region`); the struck ones are done:
+20 side-view rooms remain, by zone (`region`), all of them R8's; the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -1046,9 +1197,16 @@ remain without a layout, all of them R6's (19) and R8's (20).
     ~~`si_trial_of_reflections`~~;
   - `tidebreak_front`: ~~`si_tide_battle`~~, ~~`tf_drone_hive`~~, ~~`tf_greyfall_breach`~~, ~~`tf_hollow_wake`~~,
     ~~`tf_tidebreak_bastion`~~.
-- **Act II and after:**
-  - `cloudgate_port` (6);
-  - `thunderhorn_plains`, `rimefrost_heights`, `mirrorwater_lake` (4, 4, 5);
+- **Act II and after** (R6 the first four: "Act II's first zones (R6)" above; R7 the next five: "Nine Peaks to the
+  Tomb of Sunscar (R7)" above; R9 the last seven: "The star field's end (R9)" above):
+  - `cloudgate_port`: ~~`ae_landing`~~, ~~`ae_port_market`~~, ~~`ae_wayfarers_inn`~~, ~~`ae_skydock`~~,
+    ~~`ae_condensing_hall`~~, ~~`ae_shipyard`~~;
+  - `thunderhorn_plains`: ~~`tp_stormgrass_verge`~~, ~~`tp_herders_camp`~~, ~~`tp_thunderhorn_flats`~~,
+    ~~`tp_lightning_scar`~~;
+  - `rimefrost_heights`: ~~`rf_frostpine_climb`~~, ~~`rf_snow_ape_ledges`~~, ~~`rf_rimefrost_summit`~~,
+    ~~`rf_hermits_ice_cave`~~;
+  - `mirrorwater_lake`: ~~`ml_reedless_shore`~~, ~~`ml_mirror_shallows`~~, ~~`ml_sentinel_causeway`~~,
+    ~~`ml_lake_shrine`~~, ~~`ml_toads_hollow`~~;
   - ~~`nine_peaks` (5)~~ (R7);
   - ~~`gale_canyons`, `ironroot_hold` (4, 3)~~ (R7);
   - ~~`sunscar_desert`, `tomb_of_sunscar` (4, 4)~~ (R7);

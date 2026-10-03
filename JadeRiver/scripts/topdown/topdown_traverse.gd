@@ -25,6 +25,13 @@ var bounces: Array = []    ## {id, kind, rect: Rect2, z, speed}: a landing on it
 var crumbles: Array = []   ## {id, kind, rect: Rect2, z, break_s, return_s, start}: rotten boards over a pit
 var currents: Array = []   ## {id, kind, rect: Rect2, push: Vector2}: water pushing a body standing in it
 var floods: Array = []     ## {id, kind, rect: Rect2, top, rises, goal, level}: rising water on an event's script
+## T2 (topdown_mechanics.md): a sealed hatch over a flight of stairs, shut while the World authority's climbable_open
+## refuses the side view's climbable it stands for (the player sets `shut`; a motor with no character behind it finds it
+## open); a side-view hazard volume's cells (a spike pit); ice and wind volumes' cells, their numbers the side view's.
+var hatches: Array = []    ## {id, kind, rect: Rect2, shut, text}
+var hazards: Array = []    ## {id, kind, rect: Rect2}
+var ices: Array = []       ## {id, kind, rect: Rect2, traction}
+var winds: Array = []      ## {id, kind, rect: Rect2, push: Vector2, cycle, strong_s, calm, phase, edge_factor}
 static var _geo: ZoneGeometry = null
 
 ## The room's traversal, read from its layout once and kept on the room (TopdownRoom.traverse, untyped so the grid's
@@ -38,6 +45,8 @@ static func of(room: TopdownRoom) -> TopdownTraverse:
 static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 	var t := TopdownTraverse.new()
 	var T := TopdownRoom.TILE
+	var side: Dictionary = {}   # the side-view room's volumes by id (a flood's script, an ice's traction, a wind's push)
+	for v in ContentDB.room(room.id).get("volumes", []): side[str(v.get("id", ""))] = v
 	for r in rows:
 		var kind := str(r.get("kind", ""))
 		var id := str(r.get("id", ""))
@@ -49,15 +58,51 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			var path: Array = []
 			for q in r.get("path", []): path.append([float(q[0]) * T, float(q[1]) * T, float(q[2]) * TopdownRoom.LEVEL if (q as Array).size() > 2 else 0.0])
 			t.rafts.append({"id": id, "kind": kind, "rest": Rect2(float(at[0]) * T, float(at[1]) * T, float(size[0]) * T, float(size[1]) * T),
-				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL,
+				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL, "look": str(r.get("look", "lift" if kind == "lift" else "raft")),
 				"mover": {"surface": id, "path": path, "speed": float(r.get("speed", 40.0)), "wait_s": float(r.get("wait_s", 2.0)),
 					"mode": str(r.get("mode", "pingpong")), "trigger_t": -1.0}})
+		elif kind == "lantern":
+			# T2 · a lantern hung from the vault (the Hall of Lanterns): a deck at `level` over the floor that swings east and
+			# west along its arc (`length` cells of chain) or goes round (`radius` cells), the side view's own mover rule
+			# (ZoneGeometry.mover_offset) on the room's clock, laid on the plane.
+			var la: Array = r.get("at", [0, 0])
+			var ls: Array = r.get("size", [2, 2])
+			t.rafts.append({"id": id, "kind": kind, "rest": Rect2(float(la[0]) * T, float(la[1]) * T, float(ls[0]) * T, float(ls[1]) * T),
+				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL, "look": "lantern",
+				"mover": {"surface": id, "path": [], "mode": str(r.get("mode", "swing")), "length": float(r.get("length", 3.0)) * T,
+					"amp_deg": float(r.get("amp_deg", 25.0)), "period_s": float(r.get("period_s", 3.2)), "phase_deg": float(r.get("phase_deg", 0.0)),
+					"radius": float(r.get("radius", 1.5)) * T, "trigger_t": -1.0}})
 		elif kind == "crumble":
 			# Rotten boards over a pit: a floor at `level` until a foot has stood on them `break_s`, gone for `return_s`.
+			# T2 · `under`: boards that are the grid's own floor at `level` (the grid's queries walk them): gone, the floor
+			# drops to the `under` level, or opens on water or a pit a body falls into (the motor's `hole`).
 			var cc: Array = r.get("rect", [0, 0, 1, 1])
+			var under = r.get("under", null)
+			var hole := str(under) if under is String else ""
 			t.crumbles.append({"id": id, "kind": kind, "rect": Rect2(float(cc[0]) * T, float(cc[1]) * T, float(cc[2]) * T, float(cc[3]) * T),
 				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL, "break_s": float(r.get("break_s", 0.8)), "return_s": float(r.get("return_s", 5.0)),
-				"start": -1.0})
+				"start": -1.0, "flush": under != null, "hole": hole, "look": str(r.get("look", "boards")),
+				"under": TopdownRoom.WATER_Z if hole != "" else (float(under) * TopdownRoom.LEVEL if under != null else -INF)})
+		elif kind == "hatch":
+			var hc: Array = r.get("rect", [0, 0, 1, 1])
+			t.hatches.append({"id": id, "kind": kind, "rect": Rect2(float(hc[0]) * T, float(hc[1]) * T, float(hc[2]) * T, float(hc[3]) * T),
+				"shut": false, "text": ""})
+		elif kind == "hazard":
+			var zc: Array = r.get("rect", [0, 0, 1, 1])
+			t.hazards.append({"id": id, "kind": kind, "rect": Rect2(float(zc[0]) * T, float(zc[1]) * T, float(zc[2]) * T, float(zc[3]) * T),
+				"hazard": str(side.get(id, {}).get("hazard", id))})
+		elif kind == "ice":
+			var ic: Array = r.get("rect", [0, 0, 1, 1])
+			t.ices.append({"id": id, "kind": kind, "rect": Rect2(float(ic[0]) * T, float(ic[1]) * T, float(ic[2]) * T, float(ic[3]) * T),
+				"traction": float(side.get(id, {}).get("traction", 380.0)) * float(conf("side_scale", 0.755))})
+		elif kind == "wind":
+			var wc: Array = r.get("rect", [0, 0, 1, 1])
+			var wv: Dictionary = side.get(id, {})
+			var wp: Array = wv.get("push", [0, 0])
+			t.winds.append({"id": id, "kind": kind, "rect": Rect2(float(wc[0]) * T, float(wc[1]) * T, float(wc[2]) * T, float(wc[3]) * T),
+				"push": Vector2(float(wp[0]), float(wp[1])) * float(conf("side_scale", 0.755)), "cycle": float(wv.get("cycle", 4.0)),
+				"strong_s": float(wv.get("strong_s", 1.5)), "calm": float(wv.get("calm", 0.3)), "phase": float(wv.get("phase", 0.0)),
+				"edge_factor": float(wv.get("edge_factor", 1.5))})
 		elif kind == "current":
 			var qc: Array = r.get("rect", [0, 0, 1, 1])
 			var push: Array = r.get("push", [0, 0])
@@ -67,11 +112,10 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			# Rising water: over its cells the water's top follows the side-view volume's script (`rise`: the event that
 			# starts it, how fast, how long it holds, back), up to `top` levels; under it a floor is water.
 			var fc: Array = r.get("rect", [0, 0, 1, 1])
-			var rises: Array = []
-			for v in ContentDB.room(room.id).get("volumes", []):
-				if str(v.get("id", "")) == id: rises = v.get("rise", [])
+			var rises: Array = side.get(id, {}).get("rise", [])
+			var alt: Array = side.get(id, {}).get("alt", [-100, -20])
 			t.floods.append({"id": id, "kind": kind, "rect": Rect2(float(fc[0]) * T, float(fc[1]) * T, float(fc[2]) * T, float(fc[3]) * T),
-				"top": float(r.get("top", 1.0)) * TopdownRoom.LEVEL, "rises": rises, "goal": {}, "level": -INF})
+				"top": float(r.get("top", 1.0)) * TopdownRoom.LEVEL, "rises": rises, "goal": {}, "level": -INF, "rest": float(alt[1])})
 		elif kind == "updraft":
 			var rc: Array = r.get("rect", [0, 0, 1, 1])
 			t.updrafts.append({"id": id, "kind": kind, "rect": Rect2(float(rc[0]) * T, float(rc[1]) * T, float(rc[2]) * T, float(rc[3]) * T),
@@ -81,7 +125,7 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			var bc: Array = r.get("rect", [0, 0, 1, 1])
 			var brect := Rect2(float(bc[0]) * T, float(bc[1]) * T, float(bc[2]) * T, float(bc[3]) * T)
 			t.bounces.append({"id": id, "kind": kind, "rect": brect, "z": room.floor_at(brect.get_center()),
-				"speed": float(r.get("speed", conf("bounce_speed", 528.0)))})
+				"speed": float(r.get("speed", conf("bounce_speed", 528.0))), "look": str(r.get("look", "drum"))})
 		elif kind in CLIMBABLES:
 			var foot := TopdownRoom.cell_point(r.get("foot", [0, 0]))
 			var top := TopdownRoom.cell_point(r.get("top", [0, 0]))
@@ -104,7 +148,35 @@ static func conf(key: String, fallback = 0.0):
 
 func is_empty() -> bool:
 	return rafts.is_empty() and updrafts.is_empty() and climbs.is_empty() and bounces.is_empty() and crumbles.is_empty() \
-		and currents.is_empty() and floods.is_empty()
+		and currents.is_empty() and floods.is_empty() and hatches.is_empty() and hazards.is_empty() and ices.is_empty() and winds.is_empty()
+
+# ------------------------------------------------------------------ T2: hatches, hazards, ice, wind
+## The shut hatch over a ground point ({} when none, or it is open).
+func hatch_at(p: Vector2) -> Dictionary:
+	for h in hatches:
+		if bool(h.shut) and (h.rect as Rect2).has_point(p): return h
+	return {}
+
+## The side-view hazard volumes whose cells hold a ground point (a spike pit's).
+func hazards_at(p: Vector2) -> Array:
+	return hazards.filter(func(z): return (z.rect as Rect2).has_point(p))
+
+## The ice under a ground point ({} when none).
+func ice_at(p: Vector2) -> Dictionary:
+	for i in ices:
+		if (i.rect as Rect2).has_point(p): return i
+	return {}
+
+## The wind's push on a body standing at `p` now, units a second, before its edge factor (the side view's wind
+## volume: strong for `strong_s` of each `cycle`, a breeze of `calm` the rest, on the room's clock).
+func wind_at(p: Vector2) -> Dictionary:
+	for wv in winds:
+		if (wv.rect as Rect2).has_point(p): return wv
+	return {}
+
+func wind_strength(wv: Dictionary) -> float:
+	var ph := fposmod(time + float(wv.phase), maxf(0.1, float(wv.cycle)))
+	return 1.0 if ph < float(wv.strong_s) else float(wv.calm)
 
 # ------------------------------------------------------------------ crumbling boards
 ## The boards at a ground point that are a floor now ({} when none, or they have given way).
@@ -128,6 +200,12 @@ func crumble_state(c: Dictionary) -> String:
 func touch(c: Dictionary) -> void:
 	if float(c.start) < 0.0: c.start = time
 
+## T2 · boards that were the floor itself (`under`) and are gone now, at a ground point ({} when none).
+func crumble_gone_at(p: Vector2) -> Dictionary:
+	for c in crumbles:
+		if bool(c.get("flush", false)) and (c.rect as Rect2).has_point(p) and crumble_state(c) == "broken": return c
+	return {}
+
 # ------------------------------------------------------------------ currents
 ## The push of the water on a body standing at `p` (units a second; the side view's current volume).
 func current_at(p: Vector2) -> Vector2:
@@ -145,7 +223,13 @@ func on_event(event_name: String, payload: Dictionary) -> void:
 			var fits := true
 			for k in r.get("match", {}):
 				if str(payload.get(k, "")) != str(r.match[k]): fits = false
-			if fits: f.goal = {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "hold": float(r.get("hold_s", -1.0)), "back": r.has("back_to")}
+			if not fits: continue
+			# T2: a row that takes the water back down to its rest (the Serpent's when it is beaten: its `to` no higher than
+			# the volume's resting top) lowers a risen flood from where it stands now; any other raises it.
+			if f.has("rest") and float(r.get("to", 1.0)) <= float(f.rest) + 0.5:
+				var now := flood_k(f)
+				f.goal = {} if now <= 0.0 else {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "fall": now}
+			else: f.goal = {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "hold": float(r.get("hold_s", -1.0)), "back": r.has("back_to")}
 
 ## How far up its top a flood's water stands now (0 at rest, 1 risen), on the room's clock: up over `over_s`, held
 ## `hold_s`, back down over the same (or held for good without a way back).
@@ -153,6 +237,11 @@ func flood_k(f: Dictionary) -> float:
 	var g: Dictionary = f.goal
 	if g.is_empty(): return 0.0
 	var e := time - float(g.t0)
+	if g.has("fall"):
+		if e >= float(g.over):
+			f.goal = {}
+			return 0.0
+		return float(g.fall) * (1.0 - e / float(g.over))
 	var over := float(g.over)
 	if e < over: return e / over
 	if not bool(g.back) or float(g.hold) < 0.0: return 1.0
@@ -181,6 +270,11 @@ func bounce_at(p: Vector2, z: float) -> Dictionary:
 func raft_offset(r: Dictionary, t := -1.0) -> Vector2:
 	if _geo == null: _geo = ZoneGeometry.new()
 	var o: Vector3 = _geo.mover_offset(r.mover, time if t < 0.0 else t)
+	# T2: a lantern's swing is laid east-west along the plane (its small rise at the arc's ends left out: the deck keeps
+	# its level), and its circle on the plane round from its rest.
+	match str(r.mover.mode):
+		"swing": return Vector2(o.x, 0.0)
+		"circle": return Vector2(o.x, o.z)
 	return Vector2(o.x, o.y)
 
 ## A deck's height now: a raft's is its own; a lift's rises and falls along its path.

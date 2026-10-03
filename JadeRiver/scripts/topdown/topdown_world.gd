@@ -430,9 +430,13 @@ func feedback(e: Dictionary) -> void:
 				Audio.play("rumble")
 				feel("heavy", Vector2.DOWN)
 			else: sound.landed(float(e.fall))   # decision 43: by its height and the surface under the feet
-		"splashed":
+		"splashed", "swam":
 			fx.splash(m.pos)
 			sound.splashed(float(e.get("fall", 0.0)))
+		"pitfall":
+			# T2: a fall into a pit where rotten boards gave way (the Tunnels' spike pits): dust and a thud, no splash.
+			tfx.dust("land", m.pos, 0.0)
+			sound.landed(float(e.get("fall", 0.0)) + 32.0)
 
 # ------------------------------------------------------------------ Phase 4: ways, context and the shared host
 ## A way out walked into: at the way (the World authority's reach round it) with the stick pushing out through it (an
@@ -561,7 +565,7 @@ func add_foe(e: EnemyState) -> void:
 
 ## A villager standing at `at` (world units, on the floor there) facing `row`, in the NPC's own outfit, sorted with the
 ## room: the rooms of the world place theirs (TopdownPlaces); this stands one anywhere, for the prototype and reviews.
-## Test hook: the top-down suite and topdown_capture.
+## Test hook: the top-down suites and the capture registry (tools/dev/capture).
 func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 	var g: float = room.height_at(at)
 	var o := {"type": "npc", "npc": npc_id, "at": [at.x, at.y], "alt": g if g < INF else 0.0, "row": row}

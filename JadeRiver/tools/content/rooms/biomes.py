@@ -242,6 +242,36 @@ BIOMES = {
                   "walk": ["rock_small", "stump"],
                   "water": ["cattails", "ferns"]},
     },
+    # R6: Act II's first zones, the Azure Expanse. Later zones reuse them (Nine Peaks the port's, the Gale Canyons the
+    # plains', the Skyport Wreck the port's and the heights').
+    # Cloudgate Port: a sky harbour's town on a floating island: paved streets and plank wharves, its lawns and the
+    # island's rim planted with pines, plum and azaleas, hedges along the walks, rocks where the island's stone shows;
+    # the sea of cloud past its south rim (topdown_life.VISTAS).
+    "sky_port": {
+        "base": "p", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "bush"],
+                  "ground": ["tree_pine", "tree_plum", "bush_azalea", "bush", "hedge_2", "rock_small"],
+                  "walk": ["bush", "bush_azalea", "rock_small"],
+                  "water": ["tall_grass", "cattails", "lotus_pads"]},
+    },
+    # The Thunderhorn Plains: open storm grass to the horizon, few trees (wind-bent pines and lightning-killed dead
+    # ones), boulders and mossy rocks the storms split, tall grass along the herds' trails.
+    "storm_plains": {
+        "base": "g", "stair": "s", "density": 0.26, "tree_share": 0.3, "tree_gap": 7,
+        "flora": {"wall": ["tree_pine", "boulder", "rock_mossy", "tall_grass"],
+                  "ground": ["tall_grass", "tree_pine", "dead_tree", "boulder", "rock_small", "bush", "tall_grass"],
+                  "walk": ["tall_grass", "rock_small", "tall_grass"],
+                  "water": ["tall_grass", "cattails"]},
+    },
+    # Mirrorwater Lake: wide still water under the sky, willows and maples on its shores and islands, mossy rocks, lotus
+    # out on the water; the Reedless Shore earns its name (no reeds, no cattails).
+    "mirror_lake": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_willow", "rock_mossy", "bush_wide"],
+                  "ground": ["tree_willow", "tree_maple", "bush", "tall_grass", "rock_mossy", "ferns"],
+                  "walk": ["tall_grass", "rock_small", "bush"],
+                  "water": ["tree_willow", "tall_grass", "lotus_pads"]},
+    },
     # R9 ------------------------------------------------------------------------------------------------------------
     # The star field's end (the art: tools/art/topdown/starfield.py, none of it of the foliage kit). R5's `bastion` (the
     # Wardens' Tidebreak fortress) is the Citadel's stone, and R5's cloud sea lies under every island's brink.

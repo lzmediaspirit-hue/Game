@@ -74,7 +74,68 @@ func _main() -> void:
 	_technique_checks(c, cfg)
 	_codex_seals(c)
 	_speed_items(c, cfg)
+	_side_quest_pay(c, cfg)
 	end_suite()
+
+# ------------------------------------------------------------------ side quests' pay an hour (decision 45, E5)
+## The quest engine's band table (tools/content/quests/bands.py; docs/architecture/quest_engine.md) pays a side quest a
+## fixed cultivation and sum of money by its tier. The pacing above counts each one `quest_minutes.side` minutes of
+## detour; this is what it pays an hour of that detour, a band (a great realm) at a time, against what an hour of the
+## session's mix gathers at the quest's tier (`_income`) and earns there (`_taels_per_hour`). In Act I, the act the
+## pacing is tuned for, each band's side quests pay between SIDE_RATE's two times the session's hour in cultivation, and
+## those that pay taels between SIDE_TAELS' in taels: worth the detour, never the way to climb. Act II and III are shown:
+## their side quests pay Act II's share of stages many times longer (cultivation_loop.md §16.3), by design.
+const SIDE_RATE := [0.1, 5.0]
+const SIDE_TAELS := [0.2, 2.5]
+func _side_quest_pay(c, cfg: Dictionary) -> void:
+	var hours := float(cfg.get("quest_minutes", {}).get("side", 10.0)) / 60.0
+	var end_lv := int(ContentDB.realm(str(cfg.get("sim_end", "sphere_lord_3"))).get("level", 0))
+	var act_lv := int(ContentDB.realm(str(cfg.get("act_end", "heaven_glimpse_3"))).get("level", 0))
+	var bands := {}    # great realm -> {n, first, culti (sum of ratios), taels (sum of ratios), tn (quests paying taels)}
+	var order: Array = []
+	var taels_h := {}  # Level -> the session's taels an hour there
+	for q in ContentDB.all("quests"):
+		if str(q.get("kind", "")) != "side": continue
+		var key := str(q.get("tier", "mortal"))
+		var lv := int(ContentDB.realm(key).get("level", 0))
+		if lv < 1 or lv > end_lv: continue
+		var major := str(ContentDB.realm(key).get("realm", key))
+		if not bands.has(major):
+			bands[major] = {"n": 0, "first": lv, "culti": 0.0, "taels": 0.0, "tn": 0, "lo": 1e9, "hi": 0.0}
+			order.append(major)
+		var b: Dictionary = bands[major]
+		var per_h := 60.0 * _income(c, cfg, key, lv)
+		var r := float(q.get("cultivation", 0)) / hours / maxf(1.0, per_h)
+		b.n += 1
+		b.first = mini(int(b.first), lv)
+		b.culti += r
+		b.lo = minf(float(b.lo), r)
+		b.hi = maxf(float(b.hi), r)
+		var pay := 0.0
+		for e in q.get("rewards", []):
+			if str(e.get("kind", "")) == "grant_currency" and str(e.get("currency", "")) == "silver_tael": pay += float(e.get("amount", 0))
+		if pay > 0.0:
+			if not taels_h.has(lv): taels_h[lv] = _taels_per_hour(cfg, lv)
+			b.taels += pay / hours / maxf(1.0, float(taels_h[lv]))
+			b.tn += 1
+	print("side quests' pay an hour of detour (%d min each), against the session's hour at their tiers" % int(hours * 60.0))
+	print("band                 quests  from Lv  cultivation x (range)        taels x")
+	var off_c: Array = []
+	var off_t: Array = []
+	order.sort_custom(func(x, y): return int(bands[x].first) < int(bands[y].first))
+	for major in order:
+		var b: Dictionary = bands[major]
+		var cm := float(b.culti) / float(b.n)
+		var tm := float(b.taels) / float(maxi(1, int(b.tn)))
+		print("%-20s %6d  %7d  %5.2f (%4.2f-%4.2f)          %s" % [major, int(b.n), int(b.first), cm, float(b.lo), float(b.hi),
+			"%5.2f" % tm if int(b.tn) > 0 else "    -"])
+		if int(b.first) > act_lv: continue
+		if cm < float(SIDE_RATE[0]) or cm > float(SIDE_RATE[1]): off_c.append("%s %.2f" % [major, cm])
+		if int(b.tn) > 0 and (tm < float(SIDE_TAELS[0]) or tm > float(SIDE_TAELS[1])): off_t.append("%s %.2f" % [major, tm])
+	check(order.size() >= 8 and off_c.is_empty(), "every Act I band's side quests pay %.1f to %.1f times the session's hour of cultivation an hour of their detour (%d bands; off %s)" % [
+		float(SIDE_RATE[0]), float(SIDE_RATE[1]), order.size(), str(off_c)])
+	check(off_t.is_empty(), "every Act I band's side quests that pay taels pay %.1f to %.1f times the session's hour of taels an hour of their detour (off %s)" % [
+		float(SIDE_TAELS[0]), float(SIDE_TAELS[1]), str(off_t)])
 
 # ------------------------------------------------------------------ cultivation speed from items (decision 45)
 ## The rungs of the cultivation-speed ladder, a grade each (tools/content/items/curves.py SPEED): the two incense sticks,

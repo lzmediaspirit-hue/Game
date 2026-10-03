@@ -14,6 +14,8 @@ ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"
 ZONES += ["story", "tidebreak_front"]
 # R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar.
 ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb_of_sunscar"]
+# R6: Act II's first zones (the Azure Expanse): Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights, Mirrorwater Lake.
+ZONES += ["cloudgate_port", "thunderhorn_plains", "rimefrost_heights", "mirrorwater_lake"]
 # R9: the star field's end, in the story's order: the Starsea's crossings, the Star Warden Citadel, the Orbit Ruins, the
 # Ashen Reach, the Nebula Deep and the Lantern Heart.
 ZONES += ["starsea", "lantern_crossing", "warden_citadel", "orbit_ruins", "ashen_reach", "nebula_deep", "lantern_heart"]

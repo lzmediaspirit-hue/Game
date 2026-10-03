@@ -10,6 +10,7 @@ import os
 from common import DATA, write, entries, realm, unlocked, flag, all_of, run_cli
 from legends import CHAINS as LEGENDS, RESTORE as LEGEND_RESTORE
 from items import E   # the item engine (tools/content/items): its families' shop lines and recipes
+from content.quests import engine as QE   # the quest engine (tools/content/quests): the daily mission board
 from techniques import SOURCES as TECH_SOURCES
 import posts
 
@@ -1049,36 +1050,9 @@ def achievements():
 
 
 def missions():
-    def opt(name, obj, lo=0, hi=999):
-        return {"name": name, "objective": obj, "min_level": lo, "max_level": hi}
-    rows = [
-        {"id": "hunt", "name": "Hunt", "options": [
-            opt("Thin the boarlets", {"kind": "kill", "enemy": "wild_boarlet", "count": 8, "text": "Defeat Wild Boarlets"}, 0, 5),
-            opt("Quarry pests", {"kind": "kill", "enemy": "rock_beetle", "count": 8, "text": "Defeat Rock Beetles"}, 3, 9),
-            opt("Marsh leeches", {"kind": "kill", "enemy": "marsh_leech", "count": 8, "text": "Defeat Marsh Leeches"}, 4, 11),
-            opt("Grey beasts", {"kind": "kill", "enemy": "hollowed_boarlet", "count": 8, "text": "Defeat Hollowed Boarlets"}, 7, 14),
-            opt("Monkey business", {"kind": "kill", "enemy": "bamboo_monkey", "count": 8, "text": "Defeat Bamboo Monkeys"}, 10, 17),
-            opt("Bandit patrol", {"kind": "kill", "enemy": "mudwater_bandit", "count": 8, "text": "Defeat Mudwater Bandits"}, 14, 22),
-            opt("Shore crabs", {"kind": "kill", "enemy": "tide_crab", "count": 8, "text": "Defeat Tide Crabs"}, 19, 27),
-            opt("Rapids watch", {"kind": "kill", "enemy": "rapids_lizard", "count": 8, "text": "Defeat Rapids Lizards"}, 27, 37),
-            opt("Cliff hawks", {"kind": "kill", "enemy": "stormwing_hawk", "count": 6, "text": "Defeat Stormwing Hawks"}, 37, 47),
-            opt("Wolves in the mist", {"kind": "kill", "enemy": "mist_wolf", "count": 6, "text": "Defeat Mist Wolves"}, 45, 70)]},
-        {"id": "gather", "name": "Gather", "requires": all_of(unlocked("herb_gathering")), "options": [
-            opt("Willow Moss", {"kind": "gather_node", "item": "willow_moss", "count": 5, "text": "Gather Willow Moss"}, 0, 20),
-            opt("Ember Peppers", {"kind": "gather_node", "item": "ember_pepper", "count": 5, "text": "Gather Ember Peppers"}, 10, 30),
-            opt("Mist Lotus", {"kind": "gather_node", "item": "mist_lotus", "count": 3, "text": "Gather Mist Lotus"}, 19, 70)]},
-        {"id": "mine", "name": "Mine", "requires": all_of(unlocked("mining")), "options": [
-            opt("Copper for the forge", {"kind": "gather_node", "item": "copper_ore", "count": 6, "text": "Mine Copper"}, 0, 20),
-            opt("Jadeiron", {"kind": "gather_node", "item": "jadeiron", "count": 4, "text": "Mine Jadeiron"}, 12, 70)]},
-        {"id": "deliver", "name": "Deliver", "options": [
-            opt("Rice for the kitchen", {"kind": "deliver", "item": "rice_ball", "count": 3, "text": "Deliver Rice Balls", "consume": True}, 0, 70),
-            opt("Teas for the infirmary", {"kind": "deliver", "item": "herbal_tea", "count": 3, "text": "Deliver Herbal Teas", "consume": True}, 0, 70)]},
-        {"id": "craft", "name": "Craft", "requires": all_of(unlocked("cooking")), "options": [
-            opt("Kitchen duty", {"kind": "craft", "craft": "cooking", "count": 3, "text": "Cook three dishes"}, 0, 70)]},
-        {"id": "spar", "name": "Spar", "options": [
-            opt("Sparring practice", {"kind": "win_spar", "count": 1, "text": "Win a spar"}, 0, 70)]},
-    ]
-    entries("mission_templates", rows)
+    # The daily mission board: the quest engine's (decision 45, E5: tools/content/quests/specs/dailies.py), each job's Levels
+    # from the band of the foe or node it names unless its spec writes them.
+    entries("mission_templates", QE.missions())
     # S20 weekly mission (Part 8): finish 20 daily missions or defeat a field boss; 150 contribution.
     write("weekly_mission.json", {"schema_version": 1, "name": "Sect Service", "dailies": 20, "role": "field_boss",
                                   "contribution": 150, "taels_base": 100, "taels_per_level": 10})
