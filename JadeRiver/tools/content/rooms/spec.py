@@ -74,6 +74,21 @@ is (x, y, w, h). Every key but `size` may be left out.
                                                                    volume's script (a boss's phase)
               ("vine" | "ladder" | "rope" | "chain", id, {foot, top})  a climbable face: the cell at its foot and the
                                                                    cell beside it at its top, a level or more higher
+            T2 (topdown_mechanics.md):
+              raft {look: "driftwood" | "plank"}                  how a raft is drawn (a log raft when unset)
+              bounce {look: "drum" | "lily" | "bamboo"}           how a bounce is drawn
+              crumble {under: level | "water" | "pit"}            boards that are the floor itself (the grid's own floor
+                                                                   at `level`): gone, the cells drop to `under`, or open
+                                                                   into the water or a pit the body falls into
+              crumble {look: "boards" | "ice"}                    rotten boards (unset) or a shelf of ice
+              ("hatch", id, {rect})                               a sealed hatch over a flight of stairs, named by the side
+                                                                   view's climbable: shut while climbable_open refuses it
+              ("lantern", id, {at, size, level, mode, length, amp_deg, period_s, phase_deg, radius})  a deck hanging at
+                                                                   `level` that swings east-west (`length` cells) or goes
+                                                                   round (`radius` cells), its mover's surface id
+              ("hazard", id, {rect})                              a side-view hazard volume's cells (a spike pit): it
+                                                                   strikes a body down in them
+              ("ice", id, {rect}), ("wind", id, {rect})           an ice or wind volume's cells (its numbers the side's)
   stage     {event id: [(x, y), ...]}: where a room event the side view calls to its own points (a set piece, a trial)
             sets its foes on the grid, point for point (WorldRoomEvents; without one, the point's mapped cell)
   pins      the hand's last word, never the JSON's: {object id: (x, y)}, "spawn", "stairs", "foes", "props" (the whole

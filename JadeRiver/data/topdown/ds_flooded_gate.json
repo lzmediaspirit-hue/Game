@@ -294,5 +294,98 @@
     13
    ]
   ]
+ ],
+ "traverse": [
+  {
+   "kind": "raft",
+   "id": "float_plank_0",
+   "at": [
+    16,
+    19
+   ],
+   "size": [
+    2,
+    1
+   ],
+   "path": [
+    [
+     15,
+     0
+    ]
+   ],
+   "speed": 29,
+   "wait_s": 1.5,
+   "look": "plank"
+  },
+  {
+   "kind": "raft",
+   "id": "float_plank_1",
+   "at": [
+    31,
+    20
+   ],
+   "size": [
+    2,
+    1
+   ],
+   "path": [
+    [
+     -15,
+     0
+    ]
+   ],
+   "speed": 26,
+   "wait_s": 1.2,
+   "look": "plank"
+  },
+  {
+   "kind": "raft",
+   "id": "float_plank_2",
+   "at": [
+    16,
+    21
+   ],
+   "size": [
+    2,
+    1
+   ],
+   "path": [
+    [
+     15,
+     0
+    ]
+   ],
+   "speed": 32,
+   "wait_s": 1.8,
+   "look": "plank"
+  },
+  {
+   "kind": "current",
+   "id": "gate_drain",
+   "rect": [
+    1,
+    22,
+    54,
+    3
+   ],
+   "push": [
+    -60,
+    0
+   ]
+  },
+  {
+   "kind": "current",
+   "id": "flood_current",
+   "rect": [
+    16,
+    16,
+    17,
+    7
+   ],
+   "push": [
+    -83,
+    0
+   ]
+  }
  ]
 }

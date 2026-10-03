@@ -26,6 +26,9 @@ SR_WINDSWEPT_RIDGE = room(
              "jar_4": "tor_e@40", "jar_5": "verge.s@44", "jar_6": "north_field@62", "rift_tear": "flank@40",
              "spirit_fruit_tree": "flank@24"},
     flora={"crest": dict(density=0.34), "flank": dict(density=0.34)},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's wind over the ridge, blowing west: strong for a beat of
+    # its cycle, a breeze the rest, harder at a drop's edge.
+    traverse=[("wind", "ridge_wind", dict(rect=(11, 3, 53, 22)))],
     foes="auto")
 
 # The Frozen Shrine: an old shrine court on the summit's shoulder, paved stone the snow never settles on. The frost
@@ -49,6 +52,13 @@ SR_FROZEN_SHRINE = room(
              "journal_frozen": "verge.s@38", "rift_tear": "flank@31", "spirit_fruit_tree": "flank@20"},
     props=[("lantern", 16, 5), ("lantern", 38, 5), ("lantern", 16, 10), ("lantern", 38, 10), ("incense", 29, 5)],
     flora={"terrace": dict(density=0.34), "flank": dict(density=0.34)},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's ice sheets glaze the court and a stretch of the east
+    # terrace (a body slides on them), and its three icicle shelves jut from the court's sides over the terrace a level
+    # below: they crack under a foot and drop it onto the terrace.
+    traverse=[("ice", "shrine_ice", dict(rect=(15, 5, 25, 7))), ("ice", "shrine_ice_2", dict(rect=(42, 5, 6, 5))),
+              ("crumble", "icicle_0_crumble", dict(rect=(13, 6, 2, 2), level=3, look="ice")),
+              ("crumble", "icicle_1_crumble", dict(rect=(13, 9, 2, 2), level=3, look="ice")),
+              ("crumble", "icicle_2_crumble", dict(rect=(40, 7, 2, 2), level=3, look="ice"))],
     foes="auto")
 
 ROOMS = [SR_WINDSWEPT_RIDGE, SR_FROZEN_SHRINE]

@@ -20,7 +20,9 @@ topdown_peaks
 topdown_story_rooms
 topdown_skysea
 topdown_traversal
+topdown_act2_start
 topdown_sunscar
+topdown_side_quests
 tutorials
 story_scenes
 hollow_night

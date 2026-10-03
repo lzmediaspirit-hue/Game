@@ -14,7 +14,7 @@ from content.rooms.specs.story import octagon
 # end. South of the road the rock falls a level to the brink over the clouds. The deserters of the Nine Peaks and the
 # pirates prowl the road.
 SW_BROKEN_PIER = room(
-    "sw_broken_pier", size=(64, 28), biome="skyport", level=1,
+    "sw_broken_pier", size=(64, 28), biome="sky_wreck", level=1,
     bands=[("crown", 0, 3, dict(level=5, paint="r", wall=True, wavy="s")),
            ("quay", 3, 10, dict(level=2, paint="p", flights=[18, 49])),        # the old port's quay wall runs straight
            ("apron", 13, 2, dict(paint="p")),
@@ -51,7 +51,7 @@ SW_BROKEN_PIER = room(
 # Gu sits chained by the bow mast while The Skyport Wreck is under way. South of the road the rock falls a level to the
 # brink over the clouds, an old anchor and a hull's ribs left on it.
 SW_PIRATE_DECK = room(
-    "sw_pirate_deck", size=(64, 28), biome="skyport", level=1,
+    "sw_pirate_deck", size=(64, 28), biome="sky_wreck", level=1,
     bands=[("crown", 0, 2, dict(level=5, paint="r", wall=True)),
            ("road", 16, 3, dict(paint="p", walk=True)),
            ("lower", 19, 9, dict(level=0, wavy="n"))],
@@ -78,7 +78,7 @@ SW_PIRATE_DECK = room(
 # it the slope falls toward the brink, split by the gully that gives the peak its name, Lu's last page on the knoll east
 # of it where the stars are clearest, the third stone by the way east. Rock spires and dead trees stand in the wind.
 SW_RIVEN_PEAK = room(
-    "sw_riven_peak", size=(64, 30), biome="skyport", level=2,
+    "sw_riven_peak", size=(64, 30), biome="sky_wreck", level=2,
     bands=[("crown", 0, 3, dict(level=7, paint="r", wall=True, wavy="s")),
            ("crags", 3, 10, dict(level=3, paint="r", wavy="s", flights=[8])),
            ("trail", 14, 3, dict(paint="d", walk=True)),
@@ -105,7 +105,7 @@ SW_RIVEN_PEAK = room(
 # of stars; Warden He keeps it; the shrine, a little garden and the armillary west of it, the teleport stone east; a
 # timber pier runs out to the brink at the east end, the skiff moored at its tip.
 SW_STARSEA_LAUNCH = room(
-    "sw_starsea_launch", size=(48, 26), biome="skyport", level=1,
+    "sw_starsea_launch", size=(48, 26), biome="sky_wreck", level=1,
     bands=[("crown", 0, 3, dict(level=5, paint="r", wall=True, wavy="s")),
            ("terrace", 3, 17, dict(level=1, paint="p")),
            ("road", 15, 3, dict(paint="p", walk=True)),

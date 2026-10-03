@@ -60,7 +60,7 @@ LH_HARBOR_MARKET = room(
              "exchange_lh": "street.n2@34", "npc_clerk_yu": "street.n@32", "npc_apothecary_sang": "street.n@41",
              "npc_smith_ou": "street.n@49", "stone_lanternfall": "front@36", "sign_lh_market": "front@61"},
     props=[("house", 9, 5, "chandlery"), ("hall", 21, 5, "inn"), ("storehouse", 52, 5),
-           ("market_stall", 15, 9), ("market_stall", 37, 9), ("forge", 45, 9), ("weapon_rack", 50, 9),
+           ("lantern_stall", 15, 9), ("lantern_stall", 37, 9), ("forge", 45, 9), ("weapon_rack", 50, 9),
            ("lantern_red", 8, 10), ("lantern_red", 19, 10), ("lantern_red", 30, 10), ("lantern_red", 44, 10),
            ("lantern_red", 56, 10), ("star_lantern", 4, 18), ("star_lantern", 14, 18), ("star_lantern", 33, 18),
            ("star_lantern", 40, 18), ("star_lantern", 55, 18), ("barrel", 56, 8), ("barrel", 57, 9), ("crates", 47, 6),

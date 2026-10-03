@@ -943,6 +943,41 @@ templates.
 - `balance_sim` (reward per hour);
 - `tutorial_order`.
 
+**Status (phase 3, E5): built** (`docs/architecture/quest_engine.md`).
+- **The engine** is in `tools/content/quests/`: the spec language (`spec.py`, 212 lines), the band table (`bands.py`,
+  87), the compile, checks and command line (`engine.py`, 637) and 9 tests of its own (`tests.py`, 204).
+  - A side quest is one `side(...)` spec: its giver (an NPC engine id), its steps from seven templates (`clear`,
+    `fetch`, `deliver`, `gather`, `talk`, `spar`, `escort`, with `reach` and `step` for the rest), and its words.
+  - The engine derives:
+    - `target_room` from where the target is: the room where a foe spawns most, where what it drops or a node yields
+      is (the built rooms and the monster engine's loot), or where a person lives;
+    - the realm in `requires` from the middle of that room's band of Levels;
+    - the pay from the band table at the tier `quest_tiers` finds.
+  - The band table holds the cultivation (phase 1's rule, the same number `quest_tiers` pays) and the taels, spirit
+    stones or sage crystals of each band. It is set from the hand quests' middle values.
+  - It writes the same `quests.json` rows (`story.py` places each section and settles the pay after the tiers) and
+    the daily board (`economy.py`'s `missions()`); the strings follow through `economy.py`'s `strings()`.
+  - Every derived value can be pinned in the spec.
+- **The round trip: byte for byte.**
+  - Converted:
+    - the 53 side quests of the side sections: `side_quests()` (the valley's 21, the companions' 12 favours from one
+      template, the Hidden Vale's 3), Act II's 8 and the Starsea's 6;
+    - Act III's 3, each placed in its chapter;
+    - the daily board's 6 templates and 19 jobs.
+  - `story.py` lost 281 lines and gained 20, `economy.py` lost 30 and gained 4. The row layout and its parts (`o`,
+    `item`, `fx`, the currencies) have their one home in the engine.
+  - To come out the same, 35 quests pin their sum and 7 pay no money; the doc's table lists where the hand quests pay
+    otherwise than their band. Its `--diffs` also lists 14 quests pitched far from their room's Levels: these are worth
+    a balance look later, and none was changed.
+  - The prologue, the main story and the guided lessons (29 of them of kind `side`) stay hand-written.
+- **The first new quests:** four converted Act I rooms that had no side quest: the Lower Pit, Whispering Bamboo,
+  Bend Shore and the Rapids Terraces. Each quest is given by a person of the NPC engine who had none (Apprentice Tao,
+  Rui, Vendor He, Fisher Gan), in five to seven spec lines, with no room, realm or sum written.
+  - `balance_sim` shows each band's side quests' pay an hour of detour against the session's hour, and checks it for
+    Act I. Every pacing row stays within ±15%.
+  - The new suite `topdown_side_quests` plays Claws for the Grindstone on the grid.
+- **The runners** have a new gate, `quest_engine` (`tools/content/quests/engine.py --check`).
+
 ### 6.6 Cue and notice engine (E6)
 
 **What exists to build on:**

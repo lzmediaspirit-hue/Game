@@ -109,12 +109,12 @@
    ]
   },
   {
-   "kind": "market_stall",
+   "kind": "lantern_stall",
    "x": 15,
    "y": 9
   },
   {
-   "kind": "market_stall",
+   "kind": "lantern_stall",
    "x": 37,
    "y": 9
   },

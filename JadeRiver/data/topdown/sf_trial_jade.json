@@ -188,6 +188,44 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "lift",
+   "id": "plank_1",
+   "at": [
+    12,
+    9
+   ],
+   "path": [
+    [
+     0,
+     0,
+     2
+    ]
+   ],
+   "speed": 30,
+   "wait_s": 1.2,
+   "mode": "pingpong"
+  },
+  {
+   "kind": "lift",
+   "id": "plank_2",
+   "at": [
+    19,
+    7
+   ],
+   "path": [
+    [
+     0,
+     0,
+     3
+    ]
+   ],
+   "speed": 30,
+   "wait_s": 1.2,
+   "mode": "pingpong"
+  }
+ ],
  "vista": [
   {
    "edge": "s",

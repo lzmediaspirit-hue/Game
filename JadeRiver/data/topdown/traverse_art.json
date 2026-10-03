@@ -2,6 +2,15 @@
  "schema_version": 1,
  "sheet": "res://art/topdown/traverse.png",
  "sprites": {
+  "bamboo": {
+   "frames": 1,
+   "rect": [
+    33,
+    203,
+    32,
+    28
+   ]
+  },
   "boards": {
    "frames": 2,
    "rect": [
@@ -47,6 +56,33 @@
     10
    ]
   },
+  "driftwood": {
+   "frames": 2,
+   "rect": [
+    0,
+    149,
+    48,
+    22
+   ]
+  },
+  "drum": {
+   "frames": 1,
+   "rect": [
+    65,
+    171,
+    32,
+    32
+   ]
+  },
+  "gap": {
+   "frames": 1,
+   "rect": [
+    82,
+    231,
+    16,
+    16
+   ]
+  },
   "glide": {
    "frames": 2,
    "rect": [
@@ -54,6 +90,33 @@
     102,
     26,
     10
+   ]
+  },
+  "hole_water": {
+   "frames": 1,
+   "rect": [
+    99,
+    231,
+    16,
+    16
+   ]
+  },
+  "ice": {
+   "frames": 2,
+   "rect": [
+    0,
+    283,
+    16,
+    16
+   ]
+  },
+  "icicle": {
+   "frames": 2,
+   "rect": [
+    49,
+    299,
+    16,
+    20
    ]
   },
   "ladder_foot": {
@@ -83,6 +146,15 @@
     16
    ]
   },
+  "lantern": {
+   "frames": 2,
+   "rect": [
+    0,
+    231,
+    32,
+    52
+   ]
+  },
   "lift_2x2": {
    "frames": 1,
    "rect": [
@@ -92,6 +164,33 @@
     37
    ]
   },
+  "lily": {
+   "frames": 1,
+   "rect": [
+    0,
+    203,
+    32,
+    24
+   ]
+  },
+  "pit": {
+   "frames": 1,
+   "rect": [
+    65,
+    231,
+    16,
+    16
+   ]
+  },
+  "plank": {
+   "frames": 2,
+   "rect": [
+    0,
+    171,
+    32,
+    20
+   ]
+  },
   "raft_2x2": {
    "frames": 2,
    "rect": [
@@ -99,6 +198,15 @@
     0,
     32,
     38
+   ]
+  },
+  "ripple": {
+   "frames": 2,
+   "rect": [
+    0,
+    299,
+    24,
+    8
    ]
   },
   "rope_foot": {
@@ -126,6 +234,15 @@
     38,
     16,
     16
+   ]
+  },
+  "seal_gate": {
+   "frames": 1,
+   "rect": [
+    66,
+    112,
+    32,
+    26
    ]
   },
   "spray": {
@@ -162,6 +279,15 @@
     0,
     16,
     16
+   ]
+  },
+  "wind": {
+   "frames": 3,
+   "rect": [
+    33,
+    283,
+    20,
+    6
    ]
   }
  }

@@ -4357,6 +4357,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Sources**:
   - Crafting: Recipe `toad_oil_dumplings` (Cooking, Plain): Toad Oil ×1, Rice ×1
   - Shop: Stoneford Tea House (Auntie Rong in Market Street (Stoneford)) · daily rotation (1 of 3)
+  - Reward: Quest Pelted at the Fair (side, from Rui), reward ×2
 
 <a id="item-ember_pepper_broth"></a>
 
@@ -8023,6 +8024,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
   - Shop: Peddler Gou's Packs (Peddler Gou in Port Market (Cloudgate Port)) · at list price in Spirit Stones
   - Shop: Peddler Ning's Silk and Sundries (Peddler Ning in Harbor Market (Lanternfall Harbor)) · at list price in Sage Crystals
   - Shop: Stoneford General Store (Proprietor Fang in Market Street (Stoneford)) · at list price in Silver Taels
+  - Reward: Quest Scales for the Lanterns (side, from Vendor He), reward
 
 <a id="item-willow_salve"></a>
 
@@ -8432,6 +8434,7 @@ Rates are per kill, per open or per catch at the base Drop Rate (Drop Rate raise
 - **Requires**: Netting level 4
 - **Sources**:
   - Crafting: Recipe `hemp_net` (Smithing, Common): Copper ×2, Cloth ×3, Spirit Wood ×1; known by default
+  - Reward: Quest The Weir at the Rapids (side, from Fisher Gan), reward
 
 <a id="item-hemp_snare_kit"></a>
 

@@ -950,6 +950,40 @@ class Build:
                 if not hit or p.get("fixed"):
                     keep.append(p)
             self.lay.props = keep
+        self._mirrors()
+
+    def _mirrors(self):
+        """R6: still water mirrors its north shore (a water band's or feature's `mirror`, Mirrorwater Lake). Each tree or
+        stone lantern standing on the water's edge, or a row back from it, gets its reflection laid on the water below
+        its foot (the prop `mirror_<kind>`, or `mirror_<kind>_1` a cell out, its first cell under the bank: furnish.py),
+        where the water runs on under the whole of it (five columns of a tree's crown, the reflection's depth) and no
+        other piece stands at its foot. A reflection blocks nothing; the rooms without `mirror` are unchanged."""
+        water = {c for r in self.regions.values() if r.water and r.opts.get("mirror") for c in r.cells()}
+        if not water:
+            return
+        lv = self.lay.lv
+        wet = lambda x, y: 0 <= x < self.w and 0 <= y < self.h and lv[y][x] == WATER and (x, y) in water
+        taken = self._prop_cells()
+        added = 0
+        for p in list(self.lay.props):
+            kind, x, y = p["kind"], p["x"], p["y"]
+            if "mirror_" + kind not in TR.TILESET["props"]:
+                continue
+            skip = 0 if wet(x, y + 1) else 1 if wet(x, y + 2) else None
+            if skip is None:
+                continue
+            name = "mirror_%s%s" % (kind, "_1" if skip else "")
+            depth = -(-TR.TILESET["props"][name]["rect"][3] // 16)
+            half = 2 if kind in TREES else 0
+            at = (x, y + 1 + skip)
+            # The water under it all: by the foot the trunk's three columns, further out the crown's five.
+            span = lambda yy: half if yy > at[1] else min(half, 1)
+            if at in taken or not all(wet(xx, yy) for yy in range(at[1], at[1] + depth)
+                                      for xx in range(x - span(yy), x + span(yy) + 1)):
+                continue
+            self._prop(name, at[0], at[1])
+            added += 1
+        self.notes.append("mirrors: %d" % added)
 
     def _scatter(self):
         """The flora: for each band (its pool in the spec, else the biome's for its role) the strips along its edges
@@ -1184,7 +1218,7 @@ class Build:
         """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect;
         `*` every cell of the room and `walk` every walk's and every cut's cells (R4, the snow line: the snow and its
         trodden paths), `lowest` the room's lowest floor off the walks (R7, the canyons' red earth under their sandstone),
-        none on a flight of stairs, whose paint is its own."""
+        none on a flight of stairs, whose paint is its own; (R6) a wavy or round shape's own cells."""
         if name in ("*", "walk", "lowest"):
             stairs = {(x, y) for s in self.lay.stairs for y in range(s["y"], s["y"] + s["h"]) for x in range(s["x"], s["x"] + s["w"])}
             if name == "*":
@@ -1210,6 +1244,8 @@ class Build:
             raise SpecError("%s: ground names no band %r" % (self.id, name))
         if tail == "bank":
             return [(x, y, 1, 1) for x, y in r.beside(1)]
+        if r.shape is not None:
+            return [(x, y, 1, 1) for x, y in r.cells()]   # R6: a wavy or round shape's own cells (a trail's packed snow)
         return [(r.x, r.y, r.w, r.h)]
 
     def _spawn_cell(self):
@@ -1243,10 +1279,14 @@ class Build:
     # ================================================================ T1: the side view's traversal and set pieces
     # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event
     # the side view calls to its own points sets its foes. topdown_rooms.check_traverse holds each to the grid.
-    TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level"), "updraft": ("rect", "top", "speed"),
-                     "bounce": ("rect", "speed"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
-                     "crumble": ("rect", "level", "break_s", "return_s"), "current": ("rect", "push"), "flood": ("rect", "top"),
-                     "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top")}
+    # T2: a raft's and a bounce's `look`, a crumble's `under` (boards that are the floor itself), and the hatch, lantern,
+    # hazard, ice and wind rows.
+    TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level", "look"), "updraft": ("rect", "top", "speed"),
+                     "bounce": ("rect", "speed", "look"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
+                     "crumble": ("rect", "level", "break_s", "return_s", "under", "look"), "current": ("rect", "push"), "flood": ("rect", "top"),
+                     "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top"),
+                     "hatch": ("rect",), "lantern": ("at", "size", "level", "mode", "length", "amp_deg", "period_s", "phase_deg", "radius"),
+                     "hazard": ("rect",), "ice": ("rect",), "wind": ("rect",)}
 
     def traverse_rows(self):
         out = []

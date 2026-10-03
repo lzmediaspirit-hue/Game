@@ -18,8 +18,20 @@ func init_hazards(c, rt: RoomRuntime) -> void:
 
 ## S43 hazard volumes (lava, spores, poison vents): status and damage each pulse while inside their rect and altitude.
 func tick_hazard_volumes(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
-	if rt.geometry.volumes.is_empty() or game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection"): return
-	for v in rt.geometry.volumes_at(st.plane, st.altitude):
+	if game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection") or st == null: return
+	var vols: Array = []
+	if rt.topdown != null:
+		# T2 (topdown_mechanics.md): on the height grid a side-view hazard volume stands on its layout's cells (a traverse
+		# `hazard` row: the Tunnels' spike pits), and strikes a body down in them, under their floor (fallen into the pit
+		# where the boards gave way); its numbers are the side view's own volume's.
+		var tr := TopdownTraverse.of(rt.topdown)
+		if tr == null or tr.hazards.is_empty(): return
+		var rows := tr.hazards_at(st.plane)
+		if rows.is_empty() or st.altitude >= rt.topdown.height_at(st.plane) - 4.0: return
+		for v in ContentDB.room(rt.room_id).get("volumes", []):
+			if rows.any(func(z): return str(z.id) == str(v.get("id", ""))): vols.append(v)
+	elif not rt.geometry.volumes.is_empty(): vols = rt.geometry.volumes_at(st.plane, st.altitude)
+	for v in vols:
 		if str(v.kind) != "hazard": continue
 		var key := "hazard_vol:" + str(v.id)
 		var left := float(rt.hazard_pulse.get(key, 0.0)) - delta
