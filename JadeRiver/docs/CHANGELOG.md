@@ -29,7 +29,7 @@ Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (
 - **The trials on the grid.** A Trial Tower floor's foes and the Grove's waves, written in the side view's coordinates,
   now stand on the room's floor on the grid: `WorldRoomEvents.side_points`, through `TopdownRoom.from_side`.
 - **The checks.**
-  - `room_engine` walks the fourteen rooms: 145 checks.
+  - `room_engine` compiles and walks the fourteen rooms.
   - A new suite, `topdown_sect_halls`, plays them top-down:
     - each room walked into, and out and back through each of its ways;
     - auto-path reaching every thing;
@@ -45,6 +45,14 @@ Fourteen side-view rooms are now specs of the room engine, 11 to 22 lines each (
     - the lesson past the gate is the quest the check above finds past it, no longer Stone and Sweat;
     - the side view's hunting grounds may all be on the grid now;
     - the transfer array's node past the gate lies in any room off the grid, now every Jade Sect room is on it.
+  - The final run, merged with R1: 74,568 checks.
+    - Every gate passes, every suite passes, and there is no SCRIPT ERROR.
+    - `perf_tests`' frame-time checks missed their budget in the full runs while the machine was loaded (6 to 7 runs on
+      4 cores), a different check each time, none about these rooms. Run again on a quieter machine, all 18 passed.
+    - `topdown_sect_halls` is new, with 51 checks.
+    - The counts that grow with the rooms:
+      - `room_engine`: 175 checks, three for each room it lays out (42 for R3's fourteen);
+      - `rules_tests`' steering tour: 58 rooms.
 
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
