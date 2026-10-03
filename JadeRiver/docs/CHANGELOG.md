@@ -41,6 +41,14 @@ in them on the grid.
     sets its walk down at the first one there is (the Ascension Gate's way up) and checks its gate there.
   - `rules_tests`' route tour walks the ten rooms. It found a stall on the Breach's outcrop flight, now climbed by
     R4's closed-cheek `flights`.
+  - The run after merging R4 and S11: every gate holds (the grid's parity on 88 layouts), with no script error.
+    - `topdown_story_rooms` is new, with 68 checks.
+    - `room_engine` has 268 checks, three for each room it lays out (30 for R5's ten).
+    - `contract_tests` 1,112, `rules_tests` 2,712 (its route tour over 89 rooms), `room_sweep` 3,736,
+      `visibility_suite` 6,758, `topdown_tutorial` 1,030 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes run alone. In the full run its frame times missed their budgets by 1 to 2 ms
+      (the Marsh Edge's 18.0 ms against 16.6, the Techniques page's preview) while the machine's four cores carried
+      a load of 7 to 10. It passed in the full run before the merge too.
 - **Still to do.** Most of these rooms' foes have no top-down sheet. The Reflection's heart demons still spawn at the
   side view's points (T1's wave work). The Front's light follows the clock, not the side view's night. Details are in
   the doc.
