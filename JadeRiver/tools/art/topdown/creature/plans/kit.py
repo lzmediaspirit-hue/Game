@@ -19,9 +19,6 @@ from .. import mats as M
 from ..motion import pick as _pick
 from ..sculpt import rot, v3
 
-ACTIONS = ("idle", "walk", "windup", "attack", "hurt", "death", "swim")
-
-
 class D(dict):
     """A dict read by attribute (a part's parameters)."""
 

@@ -1,4 +1,5 @@
-"""The fish plan (audit 45 §6.2), from the hollow minnow (`minnow`).
+"""The fish plan (audit 45 §6.2), from the hollow minnow (`minnow`); the greyfin (`greyfin`, E2's first new species) is
+its pool-dwelling kind.
 
 A body of two ellipsoids (the trunk and the head) bent against its tail (`swish`: the tail's swing, the head turning
 against it), a tail segment and a forked tail of two lobes, a ragged dorsal fin of plates, pectoral fins that flap, an
@@ -13,6 +14,11 @@ trailing as its wake.
 The motion styles (STYLES): idle `hang`, walk `swish`, windup `curl_c`, attack `dart`, hurt `jerk_roll`, death
 `belly_up_mist`. The channels: `dart` (along the way it goes), `bob` (up), `swish` (the tail's swing, degrees),
 `nose` (pitch), `gape`, `stretch` (along its length), `roll` and `mist` (the death's coming apart).
+
+  pool   (the greyfin) a puddle of its own drawn flat round its feet, the fish under its surface but for its back and
+         its tall torn fin, its dark shape showing through; ripples, a cruising wake, the water thrown up
+Its styles: idle `circle`, walk `cruise`, windup `sink_rise`, attack `leap_bite`, hurt `thrash`, death `flop_mist`;
+channels `depth` (under the surface, + up), `dart`, `side`, `nose`, `swish`, `gape`, `roll`, `splash`, `rings`, `mist`.
 """
 from __future__ import annotations
 

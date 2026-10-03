@@ -1,5 +1,63 @@
 # Changelog
 
+## The monster engine: a species is one spec (decision 45, E2)
+
+Roadmap decision 45, phase 3, the monster engine (`docs/architecture/audit_45.md` §6.2). How it works and how to add a
+species: `docs/architecture/monster_engine.md`.
+
+- **Body plans** (`tools/art/topdown/creature/plans/`), extracted from the twelve species drawn by hand. Each is a pose
+  function over part kinds and sizes, and the hand modules' key-frame tables (`LUNGE`, `PITCH`, `HEAD`, ...) became
+  named motion styles:
+  - `quadruped`: rodent, mustelid and suid;
+  - `amphibian`: frog and toad;
+  - `crab`: mud;
+  - `serpent`: eel and leech;
+  - `fish`: minnow, and the new greyfin;
+  - `shell`: snapper, and the new beetle;
+  - `humanoid`: puppet, and the new imp.
+- **The engine** (`tools/content/monsters/`). One `species(...)` spec in `specs/<region>.py` makes:
+  - the `enemies.json` row, through `mob()`, `atk()` and `d()`;
+  - its loot extras: the starter mark, early finds and quest drops;
+  - its `foes.json` block and sheets, through `creatures.Spec` and the plan;
+  - its voice in `sound.json`;
+  - its codex page (the row's `page`). The wiki follows from the data.
+
+  A new species needs no edit to `enemies.py`, `creatures.py` or `sound.py`. The engine is deterministic: the seed
+  is the id. `pose="module:fn"` keeps a hand-written pose module (the escape hatch).
+- **The twelve drawn species moved onto specs byte for byte.** Their sheets, `foes.json`, `enemies.json`,
+  `loot_tables.json` and `sound.json` are unchanged. The eleven hand pose modules (1,879 lines) are deleted.
+- **Three new top-down species**, the first foes past the top-down rooms. Until now they stood in with their side-view
+  sheets.
+  - **The rock beetle** (Stonewall Quarry): a carapace of rocky plates with ochre lichen and pale flecks, a curved
+    ochre horn, clubbed antennae, six legs walking in tripods.
+    - Tell: it curls into a stone ball.
+    - It rolls at you, the plates and its tucked belly turning with the roll.
+    - Struck, it rears; beaten, it flips onto its back, its legs pawing the air.
+  - **The pebble imp** (Stonewall Quarry): a grinning stone spirit with shard ears, glowing amber eyes, a crack of
+    ember in its pot belly, pebbles studding it. It tosses a stone in its hand.
+    - Tell: it twists back and raises the stone, its eyes flaring.
+    - It throws on the blow's frame, the stone leaving its hand.
+    - Beaten, it crumbles into a heap of stones.
+  - **The greyfin** (the Grey Pools): a Hollow fish in a grey puddle of its own. Its torn fin cuts the surface and its
+    dark shape shows through.
+    - Tell: it sinks, then its head breaks the surface, jaws gaping.
+    - It leaps out to bite and falls back in, the water thrown up.
+    - Beaten, it flops out and comes apart into the Hollow's mist.
+
+  The beetle and the greyfin have elite sheets, since their rooms make elites. The imp has none, since no room makes
+  one an elite.
+  - New sheets: 488 KB of PNG, about 250 KB in the APK.
+  - Their rows moved into their specs unchanged.
+  - Review: `docs/redesign/feedback/monsters/sheets/` and the capture set `monsters_e2`
+    (`docs/redesign/feedback/monsters/e2/after/`).
+- **A new gate, `monsters`, in both runners** (`tools/content/monsters/build.py --check`). It proves:
+  - every spec resolves and poses every action and frame in its facings and looks;
+  - its row, loot and voice are what it makes;
+  - `foes.json` and the sheets on disk equal sampled frames drawn twice;
+  - the elite ring;
+  - the escape hatch.
+- `build_foes.py --only` no longer overwrites the strip of every species' tell with only the species it drew.
+
 ## Tests: one suite base, the broken scripts gone, a steady performance gate (decision 45, S2)
 
 Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/audit_45.md` §7): tests hygiene.

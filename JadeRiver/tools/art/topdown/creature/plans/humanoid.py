@@ -11,6 +11,11 @@ waist and chest twisting and leaning over them, a head on a neck joint, and arms
 
 The motion styles (STYLES): idle `guard_sway`, walk `march`, windup `draw_palm`, attack `palm_strike`, hurt
 `rock_back`, death `joints_give`. Channels: lean, twist, step, sink, droop (the head), roll, right, left, qi.
+
+`imp` (the pebble imp, E2): no joints, `stone` paint (pits and flecks by the species' seed), a `grin` face (a heavy
+brow, glowing eyes, a nub nose, a toothy grin, shard ears), pebble studs and an ember crack, a stone held in the right
+hand (`held`, released on the blow), and `crumble` (kit.collapse: it comes apart into a heap). Its styles: idle `toss`,
+walk `waddle`, windup `wind_throw`, attack `throw`, hurt `knock`, death `crumble`.
 """
 from __future__ import annotations
 

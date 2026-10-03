@@ -5,9 +5,9 @@ species first drawn by hand with it, parameterised by part sizes and motion styl
   amphibian  frog, toad                the reed frog, the mossback toad
   crab       mud                       the mud crab
   serpent    eel, leech                the hollowed eel, the marsh leech
-  fish       minnow, ...               the hollow minnow
-  shell      snapper, ...              Old Snapper
-  humanoid   puppet, ...               the Trial Puppet
+  fish       minnow, greyfin           the hollow minnow; the greyfin (E2's first new species)
+  shell      snapper, beetle           Old Snapper; the rock beetle (new)
+  humanoid   puppet, imp               the Trial Puppet; the pebble imp (new)
 
 A species names its plan and variant ("quadruped.rodent"), and may lay its own parts, materials and motion over the
 variant's (`resolve`); its sheet is then drawn by the plan's `pose(body, action, frame, **facing)`, cast and coloured by

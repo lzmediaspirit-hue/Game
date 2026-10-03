@@ -12,6 +12,11 @@ reaches out of it, legs splayed from under it, and what a species carries beside
 The motion styles (STYLES): idle `breathe_snap`, walk `lumber`, windup `rear_crusher`, attack `slam_crusher`, hurt
 `pull_in`, death `roll_plastron`. Channels: lunge, rear (the shell's pitch), sink, neck (how far the head is out),
 hpitch, gape, crusher (elbow, palm, pitch, yaw, open), roll, curl (legs), tuck (legs), splash.
+
+`beetle` (the rock beetle, E2): elytra, a pronotum and a chitin underside (shell `kind` "beetle": rocky plates, lichen
+and flecks by the species' seed, lumps breaking the line), a horned head with clubbed antennae, six jointed legs in
+tripods; `ball` curls it into a stone ball and `spin` rolls it. Its styles: idle `twitch`, walk `tripod`, windup
+`curl_up`, attack `roll_charge`, hurt `jolt`, death `flip_legs`.
 """
 from __future__ import annotations
 
