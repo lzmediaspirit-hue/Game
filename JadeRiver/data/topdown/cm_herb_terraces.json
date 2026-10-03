@@ -14,15 +14,15 @@
   "55555555555555555555555555555555555555555555555555555555",
   "55555555555555555555555555555555555555555555555555555555",
   "55555555555555555555555555555555555555555555555555555555",
-  "3333333333333333333333333333333333333333333~~~~~33333333",
-  "333333333333333333333333333333333333333333~~~~~~~3333333",
-  "333333333333333333333333333333333333333333~~~~~~~3333333",
-  "3333333333333333333333333333333333333333333~~~~~33333333",
-  "33333333333333333333333333333333333333333333333333333333",
-  "22222222222222222222222222222222222222222222222222222222",
-  "22222222222222222222222222222222222222222222222222222222",
-  "22222222222222222222222222222222222222222222222222222222",
-  "22222222222222222222222222222222222222222222222222222222",
+  "55555533333333333333333333333333333333333333333333355555",
+  "55555533333333333333333333333333333333333333333333355555",
+  "55555533333333333333333333333333333333333333333333355555",
+  "55555533333333333333333333333333333333333333333333355555",
+  "55555533333333333333333333333333333333333333333333355555",
+  "55555522222222222222222222222222222222222222222222222222",
+  "55555522222222222222222222222222222222222222222222222222",
+  "55555522222222222222222222222222222222222222222222222222",
+  "55555522222222222222222222222222222222222222222222222222",
   "22222222222222222222222222222222222222222222222222222222",
   "11111111111111111111111111111111111111111111111111111111",
   "11111111111111111111111111111111111111111111111111111111",
@@ -32,27 +32,27 @@
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000~~~~~000000000",
+  "00000000000000000000000000000000000000000~~~~~~~00000000",
+  "0000000000000000000000000000000000000000~~~~~~~~00000000",
+  "0000000000000000000000000000000000000000~~~~~~~~00000000",
+  "00000000000000000000000000000000000000000~~~~~~000000000",
   "00000000000000000000000000000000000000000000000000000000",
   "00000000000000000000000000000000000000000000000000000000"
  ],
  "paint": [
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrrnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "ggggggggggggggggggggggggggggggggggggggggggg~~~~~gggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggg~~~~~~~ggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggg~~~~~~~ggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggg~~~~~gggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggsssgggggggg",
-  "ggggggbbbbbbbbbbbbgggggggggggggggggggggggggggsssgggggggg",
-  "ggggggbbbbbbbbbbbbgggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggrrrrr",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggrrrrr",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggrrrrr",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggrrrrr",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggrrrrr",
+  "rrrrrrggggggggggggggggggggggggggsssggggggggggggggggggggg",
+  "rrrrrrbbbbbbbbbbbbggggggggggggggsssggggggggggggggggggggg",
+  "rrrrrrbbbbbbbbbbbbgggggggggggggggggggggggggggggggggggggg",
+  "rrrrrrgggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggsssgggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggsssggbbbbbbbbbbbbbbgggggggggggggg",
@@ -62,17 +62,17 @@
   "ddddddddsssddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggg~~~~~ggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggg~~~~~~~gggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg~~~~~~~~gggggggg",
+  "gggggggggggggggggggggggggggggggggggggggg~~~~~~~~gggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggg~~~~~~ggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
  ],
  "stairs": [
   {
-   "x": 45,
+   "x": 32,
    "y": 8,
    "w": 3,
    "h": 2,
@@ -153,19 +153,19 @@
    "y": 3
   },
   {
-   "kind": "tree_pine",
-   "x": 41,
-   "y": 3
-  },
-  {
    "kind": "bush",
-   "x": 49,
+   "x": 44,
    "y": 4
   },
   {
    "kind": "tree_pine",
-   "x": 52,
-   "y": 3
+   "x": 48,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 53,
+   "y": 4
   },
   {
    "kind": "tree_plum",
@@ -183,6 +183,11 @@
    "y": 4
   },
   {
+   "kind": "tree_maple",
+   "x": 41,
+   "y": 4
+  },
+  {
    "kind": "bush",
    "x": 5,
    "y": 7
@@ -193,18 +198,18 @@
    "y": 7
   },
   {
-   "kind": "bush",
-   "x": 34,
+   "kind": "bush_azalea",
+   "x": 36,
    "y": 7
   },
   {
    "kind": "bush_azalea",
-   "x": 42,
-   "y": 6
+   "x": 39,
+   "y": 7
   },
   {
-   "kind": "ferns",
-   "x": 49,
+   "kind": "bush",
+   "x": 46,
    "y": 7
   },
   {
@@ -213,19 +218,14 @@
    "y": 7
   },
   {
-   "kind": "tall_grass",
-   "x": 47,
-   "y": 1
+   "kind": "tree_pine",
+   "x": 0,
+   "y": 12
   },
   {
-   "kind": "tall_grass",
-   "x": 44,
-   "y": 2
-  },
-  {
-   "kind": "cattails",
-   "x": 47,
-   "y": 5
+   "kind": "rock_mossy",
+   "x": 51,
+   "y": 8
   },
   {
    "kind": "hedge_3",
@@ -248,9 +248,9 @@
    "y": 10
   },
   {
-   "kind": "ferns",
-   "x": 34,
-   "y": 9
+   "kind": "tree_pine",
+   "x": 36,
+   "y": 10
   },
   {
    "kind": "tree_pine",
@@ -258,14 +258,14 @@
    "y": 10
   },
   {
-   "kind": "tree_pine",
-   "x": 49,
+   "kind": "bush",
+   "x": 46,
    "y": 10
   },
   {
-   "kind": "ferns",
-   "x": 52,
-   "y": 9
+   "kind": "bush",
+   "x": 55,
+   "y": 10
   },
   {
    "kind": "hedge_3",
@@ -284,12 +284,7 @@
   },
   {
    "kind": "ferns",
-   "x": 37,
-   "y": 12
-  },
-  {
-   "kind": "bush_azalea",
-   "x": 44,
+   "x": 49,
    "y": 11
   },
   {
@@ -308,14 +303,14 @@
    "y": 9
   },
   {
-   "kind": "tree_maple",
-   "x": 1,
-   "y": 14
+   "kind": "hedge_3",
+   "x": 4,
+   "y": 13
   },
   {
-   "kind": "tree_maple",
-   "x": 6,
-   "y": 14
+   "kind": "ferns",
+   "x": 7,
+   "y": 13
   },
   {
    "kind": "tree_plum",
@@ -346,6 +341,11 @@
    "kind": "bush",
    "x": 54,
    "y": 13
+  },
+  {
+   "kind": "bush",
+   "x": 7,
+   "y": 15
   },
   {
    "kind": "ferns",
@@ -413,11 +413,6 @@
    "y": 20
   },
   {
-   "kind": "bush",
-   "x": 43,
-   "y": 21
-  },
-  {
    "kind": "tall_grass",
    "x": 48,
    "y": 15
@@ -464,13 +459,8 @@
   },
   {
    "kind": "tree_pine",
-   "x": 43,
-   "y": 25
-  },
-  {
-   "kind": "bush_azalea",
-   "x": 46,
-   "y": 22
+   "x": 49,
+   "y": 21
   },
   {
    "kind": "ferns",
@@ -503,6 +493,11 @@
    "y": 27
   },
   {
+   "kind": "ferns",
+   "x": 42,
+   "y": 27
+  },
+  {
    "kind": "bush",
    "x": 48,
    "y": 26
@@ -511,6 +506,26 @@
    "kind": "ferns",
    "x": 53,
    "y": 27
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 44,
+   "y": 26
+  },
+  {
+   "kind": "cattails",
+   "x": 46,
+   "y": 24
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 44,
+   "y": 23
   }
  ],
  "place": {
@@ -527,8 +542,8 @@
    5
   ],
   "herb_4": [
-   46,
-   7
+   44,
+   20
   ]
  },
  "portals": {

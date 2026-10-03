@@ -261,7 +261,7 @@ SF_BEAST_GROVE = room(
            ("bamboo", 20, 6, dict(level=0))],
     features=[("path", (19, 18, 3, 8), dict(paint="d", walk=True)),
               ("outcrop", (29, 10, 6, 4), dict(level=1, paint="r", shape="round")),
-              ("pond", (5, 13, 7, 4), dict(water=True, shape="round"))],
+              ("pond", (3, 12, 10, 6), dict(water=True, shape="round"))],
     ways={"entry": ("s", 20)},
     spawn="entry",
     anchors={"grove_stone": (20, 13)},

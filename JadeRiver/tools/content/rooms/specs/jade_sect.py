@@ -286,8 +286,8 @@ JA_ALCHEMY_HALL = room(
     stairs=[(5, 5, 2, 4, 0, 2, "w"), (12, 8, 2, 2, 0, 1, "s")],
     ways={"exit": ("s", 12.5)},
     spawn="exit",
-    anchors={"furnace_ja": (12.5, 5), "recipe_shelf": (3, 2), "npc_mei_qing_sect": (19, 7)},
-    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 4, 1), ("banner_jade", 10, 1), ("banner_jade", 15, 1),
+    anchors={"furnace_ja": (12.5, 5), "recipe_shelf": (3.5, 1), "npc_mei_qing_sect": (19, 7)},
+    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 5, 1), ("banner_jade", 10, 1), ("banner_jade", 15, 1),
            ("apothecary", 17, 1), ("apothecary", 19, 1), ("cabinet", 22, 1), ("lantern", 10, 4), ("lantern", 15, 4),
            ("drying_rack", 22, 5), ("mortar", 21, 8), ("herb_baskets", 24, 8), ("water_jar", 24, 3), ("sacks", 1, 9),
            ("sacks", 1, 10), ("desk", 4, 11), ("lantern", 1, 13), ("lantern", 24, 13), ("pot_bonsai", 8, 1),
@@ -296,21 +296,22 @@ JA_ALCHEMY_HALL = room(
 
 # The Library: shelves of the sect's manuals up two galleries in the west (the middle grade on the first, the deeper
 # arts on the second, under the roof), the librarian at her desk below them, reading desks, and the ancestral altar
-# before a painted screen in the east.
+# before a painted screen in the east, and the shelves of the lower grade in aisles beside it.
 JA_LIBRARY = room(
-    "ja_library", size=(28, 16), base="w", walls=dict(high=5),
+    "ja_library", size=(28, 16), base="s", walls=dict(high=6),
     features=[("gallery", (1, 1, 9, 9), dict(level=2, paint="w")),          # the first gallery
-              ("upper_gallery", (1, 1, 9, 3), dict(level=4, paint="w"))],  # the second, under the roof
-    stairs=[(7, 4, 2, 4, 2, 4, "w"), (7, 10, 2, 4, 0, 2, "w")],
+              ("upper_gallery", (1, 1, 9, 3), dict(level=3, paint="w"))],  # the second, under the roof
+    stairs=[(7, 4, 2, 2, 2, 3, "w"), (7, 10, 2, 4, 0, 2, "w")],
     ways={"exit": ("s", 14.5)},
     spawn="exit",
     anchors={"floor_3_shelves": (4, 2), "floor_2_shelves": (4, 5), "npc_jade_librarian": (14, 6),
              "ancestral_altar": (22, 3)},
-    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 5, 1), ("scroll_shelf", 1, 4), ("scroll_shelf", 3, 4),
-           ("scroll_shelf", 11, 1), ("scroll_shelf", 13, 1), ("scroll_shelf", 15, 1), ("desk", 13, 7),
-           ("desk", 12, 11), ("desk", 16, 11), ("screen", 21, 1), ("incense", 19, 3), ("incense", 25, 3),
-           ("banner_jade", 18, 1), ("banner_jade", 26, 1), ("lantern", 10, 1), ("lantern", 1, 13), ("lantern", 26, 13),
-           ("pot_bonsai", 19, 8), ("pot_orchid", 26, 8)])
+    props=[("scroll_shelf", 1, 1), ("scroll_shelf", 3, 1), ("scroll_shelf", 5, 1), ("scroll_shelf", 1, 4),
+           ("scroll_shelf", 3, 4), ("scroll_shelf", 11, 1), ("scroll_shelf", 13, 1), ("scroll_shelf", 15, 1),
+           ("desk", 13, 7), ("desk", 12, 11), ("desk", 16, 11), ("screen", 21, 1), ("incense", 19, 3),
+           ("incense", 25, 3), ("banner_jade", 18, 1), ("banner_jade", 26, 1), ("scroll_shelf", 20, 8),
+           ("scroll_shelf", 24, 8), ("lantern", 10, 1), ("lantern", 1, 13), ("lantern", 26, 13), ("pot_bonsai", 22, 8),
+           ("pot_orchid", 26, 6)])
 
 # The Retreat Rooms: a hushed hall of grey stone, the meditation dais in the middle (the seclusion mat between two
 # cushions, painted screens at its back corners), the cedar bath in an alcove of screens in the west, a tea corner in
@@ -335,11 +336,12 @@ JA_RETREAT = room(
 # earth in the east.
 JA_CAVE_ABODE = room(
     "ja_cave_abode", size=(40, 24), biome="cave", level=4,
-    features=[("cavern", (2, 2, 36, 20), dict(level=0, paint="d", shape="round")),
+    features=[("front", (0, 14, 40, 10), dict(level=1, paint="r")),          # the cave's low front, nothing hidden behind it
+              ("cavern", (2, 2, 36, 20), dict(level=0, paint="d", shape="round")),
               ("passage", (0, 11, 40, 3), dict(level=0, paint="d", walk=True)),
               ("hall_floor", (21, 4, 11, 6), dict(level=0, paint="s")),        # the living cave's dressed floor
               ("garden", (27, 15, 9, 4), dict(level=0, paint="g")),            # the abode's garden earth
-              ("seep", (8, 15, 6, 4), dict(water=True, shape="round"))],
+              ("seep", (7, 14, 8, 5), dict(water=True, shape="round"))],
     ways={"exit": ("w", 12), "terrace": ("e", 12)},
     spawn="exit",
     anchors={"spring_ja_cave_abode": (16, 16), "bath_ja_cave_abode": (20, 17), "plot_ja_cave_abode": (11, 7),

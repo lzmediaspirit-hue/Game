@@ -14,47 +14,47 @@
   "4444444444444444444444444444444444444444",
   "4444444444444444444444444444444444444444",
   "4444444444444444444444444444444444444444",
-  "4444444444440000000000000044444444444444",
-  "4444444444000002222222222220044444444444",
-  "4444444400000002222222222220000044444444",
-  "4444444000000002222222222220000000044444",
-  "4444400000000002222222222220000000004444",
-  "4444000000000000000000000000000000004444",
-  "4440000000000000000000000000000000000444",
-  "4440000000000000000000000000000000000444",
-  "4440000000000000000000000000000000000044",
-  "4444000000000000000000000000000000000044",
-  "4444000000000000000000000000000000000044",
-  "4444000000000000000000000000020000044444",
-  "4444400000000000000000000000220004444444",
-  "4444400000000000000000000000020044444444",
-  "4444400000000000000000000000444444444444",
-  "4444400004444444004400004444444444444444",
-  "4444400004444444444444444444444444444444",
-  "4444400004444444444444444444444444444444",
-  "4444400004444444444444444444444444444444",
-  "4444400004444444444444444444444444444444",
-  "4444400004444444444444444444444444444444"
+  "4444444444444400000000000044444444444444",
+  "4444444444000002222222222220000044444444",
+  "4444440111000002222222222220000000044444",
+  "4444001111100002222222222220002222004444",
+  "4440011111100002222222222220022222200444",
+  "4400011111100000000000000000022222200444",
+  "4400001111000000000000000000002222000044",
+  "4400000000000000000000000000000000000044",
+  "4400000000000000000000000000000000000044",
+  "4400000000000000000000000000000000000044",
+  "1110000000000000000000000000000000000011",
+  "1111100000000000000000000000000000011111",
+  "1111100000000000000000000000000000111111",
+  "1111100000000000000000000000111111111111",
+  "1111100001111100001100000011111111111111",
+  "1111100001111111111111111111111111111111",
+  "1111100001111111111111111111111111111111",
+  "1111100001111111111111111111111111111111",
+  "1111100001111111111111111111111111111111",
+  "1111100001111111111111111111111111111111",
+  "1111100001111111111111111111111111111111"
  ],
  "paint": [
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrdrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrdddrrrrrrrrrrrrrrdrrrrrrrrrrr",
   "rrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrdddddrrrrrrrrrrrrrrdddrrrrrrrrr",
-  "rrrrrrrrddddddrrrrrrrrrrrrrrddddddrrrrrr",
-  "rrrrrrddddddddrrrrrrrsssrrrrdddddddrrrrr",
-  "rrrrrddddddddddddddddsssdddddddddddrrrrr",
-  "rrrrdddddddddddddddddsssddddddddddddrrrr",
-  "rrrrdddddddddddddddddsssddddddddddddddrr",
-  "rrrrddddddddddddddddddddddddddddddddddrr",
-  "rrrrddddddddddddddddddddddddddddddddddrr",
-  "rrrrrddddddddddddddddddddddrrrrdrrrrrrrr",
-  "rrrrrddddddddddddddddddddddrrrrrrrrrrrrr",
-  "rrrrrddddddddddddddddddddddrrrrrrrrrrrrr",
-  "rrrrrddddrrrrrrrrrrrrddrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrdrrrrrrdddrrrrrrrsssrrrrrrrrrrrrrrrr",
+  "rrrdddrrrrdddddddddddsssddddrrrrrrrrrrrr",
+  "rrrddddddddddddddddddsssdddddrrrrrrddrrr",
+  "rrrddddddddddddddddddsssddddddddddddddrr",
+  "rrrdddddddddddddddddddddddddddddddddddrr",
+  "rrrdddddddddddddddddddddddddddddddddddrr",
+  "rrrrrddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrdddddddddddddddddddddddddddddrrrrrr",
+  "rrrrrdddddddddddddddddddddddrrrrrrrrrrrr",
+  "rrrrrddddrrrrrddddrrddddddrrrrrrrrrrrrrr",
   "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
@@ -80,33 +80,33 @@
   },
   {
    "kind": "lantern",
-   "x": 9,
-   "y": 14
-  },
-  {
-   "kind": "crates",
-   "x": 30,
-   "y": 9
-  },
-  {
-   "kind": "barrel",
-   "x": 32,
-   "y": 9
-  },
-  {
-   "kind": "lantern",
-   "x": 28,
+   "x": 14,
    "y": 10
   },
   {
-   "kind": "ferns",
-   "x": 2,
-   "y": 13
+   "kind": "lantern",
+   "x": 27,
+   "y": 10
   },
   {
-   "kind": "ferns",
-   "x": 14,
-   "y": 5
+   "kind": "crates",
+   "x": 9,
+   "y": 15
+  },
+  {
+   "kind": "barrel",
+   "x": 11,
+   "y": 15
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 8
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 15,
+   "y": 6
   },
   {
    "kind": "ferns",
@@ -120,18 +120,18 @@
   },
   {
    "kind": "rock_small",
-   "x": 4,
+   "x": 2,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
    "y": 17
   },
   {
-   "kind": "ferns",
-   "x": 14,
-   "y": 18
-  },
-  {
-   "kind": "ferns",
-   "x": 30,
-   "y": 18
+   "kind": "rock_small",
+   "x": 26,
+   "y": 17
   },
   {
    "kind": "ferns",
@@ -152,6 +152,51 @@
    "kind": "ferns",
    "x": 35,
    "y": 15
+  },
+  {
+   "kind": "ferns",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 11,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 1,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 23,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 26,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 34,
+   "y": 23
   }
  ],
  "place": {
@@ -168,23 +213,23 @@
    5
   ],
   "ore_1": [
-   12,
-   3
+   13,
+   4
   ],
   "ore_2": [
-   31,
-   5
+   27,
+   4
   ],
   "jar_5": [
-   25,
+   19,
    14
   ],
   "crate_6": [
-   32,
-   15
+   33,
+   14
   ],
   "journal_tunnel": [
-   34,
+   35,
    10
   ],
   "cracked_wall": [
@@ -196,8 +241,8 @@
    12
   ],
   "lost_quarry_marks": [
-   19,
-   14
+   28,
+   15
   ]
  },
  "portals": {
@@ -226,13 +271,13 @@
    ],
    [
     27,
-    15
+    8
    ]
   ],
   [
    [
     26,
-    9
+    15
    ]
   ]
  ]

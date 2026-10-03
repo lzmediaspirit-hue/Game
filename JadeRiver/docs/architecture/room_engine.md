@@ -232,11 +232,11 @@ The story's next quest past it, Toward Cleansing Peak (the Pilgrim Stairs), is p
   - `drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
     `ds_drowned_grotto`;
   - `whitewater_gorge`: `wg_gorge_mouth`, `wg_rapids_terraces`, `wg_echo_cliffs`, `wg_waterfall_cave`.
-- **Stoneford and the sects' insides:**
-  - `stoneford`: `sf_beast_grove`, `sf_county_hall`, `sf_trial_tower`;
-  - `stonewall_quarry`: `sq_quarry_rim`, `sq_lower_pit`, `sq_collapsed_tunnel`;
-  - `jade_sect`: `ja_alchemy_hall`, `ja_library`, `ja_retreat`, `ja_cave_abode`;
-  - `cloud_sect`: `cm_cloud_library`, `cm_herb_terraces`, `cm_retreat`, `cm_cave_abode`.
+- **Stoneford and the sects' insides** (done: R3, below):
+  - `stoneford`: ~~`sf_beast_grove`, `sf_county_hall`, `sf_trial_tower`~~;
+  - `stonewall_quarry`: ~~`sq_quarry_rim`, `sq_lower_pit`, `sq_collapsed_tunnel`~~;
+  - `jade_sect`: ~~`ja_alchemy_hall`, `ja_library`, `ja_retreat`, `ja_cave_abode`~~;
+  - `cloud_sect`: ~~`cm_cloud_library`, `cm_herb_terraces`, `cm_retreat`, `cm_cave_abode`~~.
 - **The peaks:**
   - `crane_cliffs`: `cc_cliff_faces`, `cc_sky_ledges`;
   - `mist_peak`: `mp_misty_slopes`, `mp_forgotten_monastery`, `mp_ascension_gate`;

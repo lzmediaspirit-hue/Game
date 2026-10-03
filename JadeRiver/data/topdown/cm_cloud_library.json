@@ -11,49 +11,49 @@
   14
  ],
  "levels": [
-  "5555555555555555555555555555",
-  "5000000000000000004444444445",
-  "5000000000000000004444444445",
-  "5000000000000000004444444445",
-  "5000000000000000002222222225",
-  "5000000000000000002222222225",
-  "5000000000000000002222222225",
-  "5000000000000000002222222222",
-  "5000000000000000002222222222",
-  "5000000000000000002222222225",
-  "5000000000000000000000000005",
-  "5000000000000000000000000005",
-  "5000000000000000000000000005",
-  "5000000000000000000000000005",
-  "5000000000000000000000000005",
+  "6666666666666666666666666666",
+  "6000000000000000003333333336",
+  "6000000000000000003333333336",
+  "6000000000000000003333333336",
+  "6000000000000000002222222226",
+  "6000000000000000002222222226",
+  "6000000000000000002222222226",
+  "6000000000000000002222222222",
+  "6000000000000000002222222222",
+  "6000000000000000002222222226",
+  "6000000000000000000000000006",
+  "6000000000000000000000000006",
+  "6000000000000000000000000006",
+  "6000000000000000000000000006",
+  "6000000000000000000000000006",
   "1111111111110011111111111111"
  ],
  "paint": [
   "llllllllllllllllllllllllllll",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwww",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwww",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "lwwwwwwwwwwwwwwwwwwwwwwwwwwl",
-  "llllllllllllwwllllllllllllll"
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwww",
+  "lssssssssssssssssswwwwwwwwww",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lsssssssssssssssssswwssssssl",
+  "lsssssssssssssssssswwssssssl",
+  "lsssssssssssssssssswwssssssl",
+  "lsssssssssssssssssswwssssssl",
+  "lssssssssssssssssssssssssssl",
+  "llllllllllllssllllllllllllll"
  ],
  "stairs": [
   {
    "x": 19,
    "y": 4,
    "w": 2,
-   "h": 4,
+   "h": 2,
    "from": 2,
-   "to": 4
+   "to": 3
   },
   {
    "x": 19,
@@ -72,7 +72,12 @@
   },
   {
    "kind": "scroll_shelf",
-   "x": 22,
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 23,
    "y": 1
   },
   {
@@ -146,6 +151,16 @@
    "y": 1
   },
   {
+   "kind": "scroll_shelf",
+   "x": 2,
+   "y": 8
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 6,
+   "y": 8
+  },
+  {
    "kind": "lantern",
    "x": 17,
    "y": 1
@@ -162,13 +177,13 @@
   },
   {
    "kind": "pot_bonsai",
-   "x": 1,
+   "x": 4,
    "y": 8
   },
   {
    "kind": "pot_orchid",
-   "x": 8,
-   "y": 8
+   "x": 1,
+   "y": 6
   }
  ],
  "place": {

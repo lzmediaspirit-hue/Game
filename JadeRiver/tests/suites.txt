@@ -13,6 +13,7 @@ prologue_run
 tutorial_order
 topdown_tutorial
 topdown_chapter3
+topdown_sect_halls
 tutorials
 story_scenes
 hollow_night

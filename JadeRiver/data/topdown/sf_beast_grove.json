@@ -23,12 +23,12 @@
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000001111000000",
   "0000000000000000000000000000011111100000",
-  "0000000000000000000000000000011111100000",
-  "0000000~~~000000000000000000001111000000",
-  "000000~~~~~00000000000000000000000000000",
-  "000000~~~~~00000000000000000000000000000",
-  "0000000~~~000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
+  "00000~~~~~~00000000000000000011111100000",
+  "0000~~~~~~~~0000000000000000001111000000",
+  "000~~~~~~~~~~000000000000000000000000000",
+  "000~~~~~~~~~~000000000000000000000000000",
+  "0000~~~~~~~~0000000000000000000000000000",
+  "000000~~~~000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
@@ -51,12 +51,12 @@
   "gggggggggggggggggggggggggggggggggggggggg",
   "ggggggggggggggggggggggggggggggrrrrgggggg",
   "gggggggggggggggggggggggggggggrrrrrrggggg",
-  "gggggggggggggggggggggggggggggrrrrrrggggg",
-  "ggggggg~~~ggggggggggggggggggggrrrrgggggg",
-  "gggggg~~~~~ggggggggggggggggggggggggggggg",
-  "gggggg~~~~~ggggggggggggggggggggggggggggg",
-  "ggggggg~~~gggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
+  "ggggg~~~~~~ggggggggggggggggggrrrrrrggggg",
+  "gggg~~~~~~~~ggggggggggggggggggrrrrgggggg",
+  "ggg~~~~~~~~~~ggggggggggggggggggggggggggg",
+  "ggg~~~~~~~~~~ggggggggggggggggggggggggggg",
+  "gggg~~~~~~~~gggggggggggggggggggggggggggg",
+  "gggggg~~~~gggggggggggggggggggggggggggggg",
   "gggggggggggggggggggdddgggggggggggggggggg",
   "gggggggggggggggggggdddgggggggggggggggggg",
   "gggggggggggggggggggdddgggggggggggggggggg",
@@ -230,17 +230,32 @@
   },
   {
    "kind": "tall_grass",
-   "x": 6,
-   "y": 12
+   "x": 7,
+   "y": 19
   },
   {
    "kind": "tall_grass",
-   "x": 9,
-   "y": 12
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 5,
+   "y": 11
   },
   {
    "kind": "cattails",
-   "x": 7,
+   "x": 5,
+   "y": 16
+  },
+  {
+   "kind": "cattails",
+   "x": 10,
+   "y": 16
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 8,
    "y": 14
   },
   {

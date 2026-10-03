@@ -40,7 +40,7 @@ SQ_LOWER_PIT = room(
            ("floor", 11, 6, dict(level=0, paint="d")),
            ("road", 17, 3, dict(paint="d", walk=True)),
            ("floor_s", 20, 5, dict(level=0, paint="r")),
-           ("south_face", 25, 3, dict(level=3, paint="r", wall=True))],
+           ("south_lip", 25, 3, dict(level=1, paint="r"))],                  # the pit's low south lip
     features=[("pool", (33, 20, 10, 4), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "road"), "tunnel": ("n", 52, dict(cut=3))},
@@ -50,6 +50,7 @@ SQ_LOWER_PIT = room(
              "jar_7": "verge.n@22", "crate_8": "verge.s@31", "jar_9": "verge.s@46", "crate_10": "bench_1@49",
              "pit_shard": "floor_s@40", "rift_tear": "floor@35", "spirit_fruit_tree": "floor_s@19"},
     props=[("crates", 6, 13), ("barrel", 8, 13), ("woodpile", 28, 21), ("crates", 47, 12), ("sacks", 49, 12),
+           ("post", 50, 3), ("post", 54, 3), ("boulder", 49, 4), ("boulder", 55, 5),   # the old adit's timbers
            ("lantern", 50, 16), ("lantern", 54, 16)],
     flora={"floor_s": dict(density=0.3)},
     foes="auto")
@@ -60,20 +61,21 @@ SQ_LOWER_PIT = room(
 # the old marks cut in a boulder, and Lu's journal page among the props.
 SQ_COLLAPSED_TUNNEL = room(
     "sq_collapsed_tunnel", size=(40, 24), biome="cave", level=4,
-    features=[("gallery", (2, 3, 36, 16), dict(level=0, paint="d", shape="round")),
-              ("adit", (5, 14, 4, 10), dict(level=0, paint="d", walk=True)),
+    features=[("front", (0, 13, 40, 11), dict(level=1, paint="r")),          # the low rock of its front: nothing hidden
+              ("gallery", (2, 3, 36, 15), dict(level=0, paint="d", shape="round")),
+              ("adit", (5, 15, 4, 9), dict(level=0, paint="d", walk=True)),
               ("track", (4, 11, 34, 3), dict(level=0, paint="d", walk=True)),
               ("ledge", (15, 4, 12, 4), dict(level=2, paint="r")),
-              ("rubble_w", (10, 14, 4, 3), dict(level=1, paint="r", shape="round")),
-              ("rubble_e", (27, 14, 5, 3), dict(level=2, paint="r", shape="round"))],
+              ("rubble_w", (5, 5, 7, 5), dict(level=1, paint="r", shape="round")),
+              ("rubble_e", (28, 6, 7, 4), dict(level=2, paint="r", shape="round"))],
     stairs="auto",
     ways={"entry": ("s", 6.5, dict(span=2))},
     spawn="entry",
-    anchors={"chest_7": "ledge@18", "crate_4": "ledge@22", "jar_3": "ledge@25", "ore_1": "gallery.back@12",
-             "ore_2": "gallery.back@31", "jar_5": "track.s@25", "crate_6": "track.s2@34",
-             "journal_tunnel": "track.n@34", "cracked_wall": (37, 12), "ore_wall_seam": (37, 12),
-             "lost_quarry_marks": "track.s@19"},
-    props=[("lantern", 4, 10), ("lantern", 9, 14), ("crates", 30, 9), ("barrel", 32, 9), ("lantern", 28, 10)],
+    anchors={"chest_7": "ledge@18", "crate_4": "ledge@22", "jar_3": "ledge@25", "ore_1": "gallery.back@13",
+             "ore_2": "gallery.back@27", "jar_5": "track.s@19", "crate_6": "track.s@33",
+             "journal_tunnel": "track.n@35", "cracked_wall": (37, 12), "ore_wall_seam": (37, 12),
+             "lost_quarry_marks": (28, 15)},
+    props=[("lantern", 4, 10), ("lantern", 14, 10), ("lantern", 27, 10), ("crates", 9, 15), ("barrel", 11, 15)],
     flora={"density": 0.22},
     foes="auto")
 

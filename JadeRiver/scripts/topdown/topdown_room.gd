@@ -403,6 +403,15 @@ func nearest_standable(p: Vector2) -> Vector2:
 		if best != Vector2.INF: return best
 	return spawn
 
+## A point written for the side view (a trial's spawn: a tower floor's foes, the Grove's waves) on the grid: across the
+## side view's room (`side_bounds`, its [x, y, w, h]) as across this one, a cell in from the edges, then on the nearest
+## floor (R3: the Trial Tower's and the Grove's trials, written for the side view, are fought on the grid).
+func from_side(p: Vector2, side_bounds: Array) -> Vector2:
+	var b := Rect2(float(side_bounds[0]), float(side_bounds[1]), float(side_bounds[2]), float(side_bounds[3])) if side_bounds.size() == 4 else Rect2(0, 480, 1280, 480)
+	var f := ((p - b.position) / b.size).clamp(Vector2.ZERO, Vector2.ONE)
+	var q := Vector2(1.5 + f.x * (w - 3), 1.5 + f.y * (h - 3)) * TILE
+	return nearest_standable(q)
+
 ## What shows a way where it is (the top-down view's PortalView.entrance, docs/tutorial_order.md): "building" (in the
 ## doorway under a building's door art: a prop's `door` columns, the row under its footprint), "wall" (a gap in an
 ## interior's front wall at the room's edge), "edge" (walked out through the room's side), "" (nothing shows it).

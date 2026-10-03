@@ -72,7 +72,7 @@
   },
   {
    "kind": "scroll_shelf",
-   "x": 4,
+   "x": 5,
    "y": 1
   },
   {
@@ -172,8 +172,8 @@
    5
   ],
   "recipe_shelf": [
-   3,
-   2
+   3.5,
+   1
   ],
   "npc_mei_qing_sect": [
    19,
