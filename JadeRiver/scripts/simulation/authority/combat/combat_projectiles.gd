@@ -90,7 +90,7 @@ func tick_projectiles(delta: float) -> void:
 						p.hits.append(e.uid)
 						if c != null:
 							var view := combat.player_view(c)
-							combat._player_hits_enemy(c, view, e, p.attack, int(p.dir))
+							combat.player_hits_enemy(c, view, e, p.attack, int(p.dir))
 							if float(p.get("burst", 0.0)) > 0.0: combat.treasures.burst(c, p, e)
 						if p.hits.size() > int(p.get("pierce", 0)):
 							done = true
@@ -118,7 +118,7 @@ func tick_projectiles(delta: float) -> void:
 				if CombatAuthority.hit_test(_shot_view(p), int(p.dir), {"x": [-10, 10], "depth": 24, "alt": [0, 40]}, cv):
 					var e2: EnemyState = rt.enemies.get(int(str(p.owner)))
 					if e2 != null:
-						combat._enemy_hits_player(e2, c, combat.enemy_view(e2), cv, p.enemy_attack)
+						combat.enemy_hits_player(e2, c, combat.enemy_view(e2), cv, p.enemy_attack)
 					done = true
 		if (done or float(p.travelled) >= float(p.range)) and p.get("returning", false) and not p.get("returned", false):
 			# A thrown fan (S47 v1.1) turns at the end of its flight and cuts its way back.

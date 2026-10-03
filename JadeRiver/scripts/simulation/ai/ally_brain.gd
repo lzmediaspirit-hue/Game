@@ -67,7 +67,7 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 	a.ai.blink_t = maxf(0.0, float(a.ai.get("blink_t", 0.0)) - delta)
 	if a.flash > 0.0: a.flash = maxf(0.0, a.flash - delta)
 	if not a.hop.is_empty():
-		EnemyBrain._hop(game.enemies, a, delta)
+		EnemyBrain.hop(game.enemies, a, delta)
 		return
 	var grid: TopdownRoom = game.room_rt.topdown
 	# On the grid the floor underfoot carries it: stairs and steps at once, a drop under gravity.
@@ -138,7 +138,7 @@ static func think(game, a: EnemyState, delta: float, attack_power: float, reach:
 			a.ai.stuck = float(a.ai.get("stuck", 0.0)) + delta
 		else:
 			a.ai.stuck = 0.0
-			EnemyBrain._follow_edge(game.enemies, a, path[0], delta)
+			EnemyBrain.follow_edge(game.enemies, a, path[0], delta)
 			if a.plane.distance_to(st.plane) > 480.0: blink_to(game, a, st, side)
 			return
 	elif grid == null:

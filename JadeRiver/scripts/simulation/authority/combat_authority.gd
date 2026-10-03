@@ -394,7 +394,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	var aim := target_for(c, float(fam.get("reach", 46)), float(fam.get("depth", 30)), facing, aim_in, aimed)
 	if aim.has("aim"): tl.aim = aim.aim
 	tl.target_at = aim.get("at", null)   # decision 43: where the foe it picked stands (the step's pull toward it)
-	_start_step(c, fam, index, int(aim.facing), finisher, charge_s)
+	start_step(c, fam, index, int(aim.facing), finisher, charge_s)
 	if palms:
 		tl.step = (tl.step as Dictionary).duplicate()
 		tl.step.mult = float(tl.step.get("mult", 1.0)) * float(ContentDB.stat_const("sword_release.palm_mult", 0.8))
@@ -407,7 +407,7 @@ func basic_attack(c, facing: int, aim_in := Vector2.ZERO, aimed := false, finish
 	return ok({"action": tl.action, "duration": tl.duration, "facing": tl.facing, "combo": index, "air": in_air, "aim": aim.get("aim", Vector2(tl.facing, 0)),
 		"finisher": finisher, "at": aim.get("at", null), "charge": float(tl.get("charge", 0.0))})
 
-func _start_step(c, fam: Dictionary, index: int, facing: int, finisher := false, charge_s := 0.0) -> void:
+func start_step(c, fam: Dictionary, index: int, facing: int, finisher := false, charge_s := 0.0) -> void:
 	var tl := timeline(c.id)
 	var step: Dictionary = fam.combo[index]
 	tl.charge = 0.0
@@ -729,7 +729,7 @@ func tick(delta: float) -> void:
 	var c = game.active()
 	if c != null:
 		_tick_player(c, delta)
-		_tick_pools(c, delta)
+		tick_pools(c, delta)
 		flight.tick_flight(c, delta)
 		flight.tick_glide(c, delta)
 		treasures.tick_treasures(c, delta)
@@ -744,7 +744,7 @@ func tick(delta: float) -> void:
 	heals.tick_ally_hots(delta)
 	phantom.tick_decoys(delta)
 	plates.tick_arrays(delta)
-	_tick_ground_fires(delta)
+	tick_ground_fires(delta)
 	for uid in searched.keys():
 		searched[uid].t = float(searched[uid].t) - delta
 		if float(searched[uid].t) <= -2.0: searched.erase(uid)   # a little grace: the death is judged after the blow
@@ -772,7 +772,7 @@ func _tick_player(c, delta: float) -> void:
 	tl.t = float(tl.t) + delta
 	if not tl.hit_done and float(tl.t) >= float(tl.hit_at):
 		tl.hit_done = true
-		if tl.technique != "": _resolve_technique(c, ContentDB.entry("techniques", tl.technique))
+		if tl.technique != "": resolve_technique(c, ContentDB.entry("techniques", tl.technique))
 		else: _resolve_basic(c)
 	if float(tl.t) >= float(tl.duration):
 		var fam := ContentDB.entry("weapon_families", str(tl.family))
@@ -785,7 +785,7 @@ func _tick_player(c, delta: float) -> void:
 			basic_attack(c, int(fq.facing), fq.aim, bool(fq.aimed), true, float(fq.get("charge_s", 0.0)))
 		elif int(tl.queued) > 0 and tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1:
 			tl.queued = int(tl.queued) - 1
-			_start_step(c, fam, int(tl.combo) + 1, int(_aim_queued(c, fam, tl).facing))
+			start_step(c, fam, int(tl.combo) + 1, int(_aim_queued(c, fam, tl).facing))
 		else:
 			tl.window = float(ContentDB.stat_const("combat.combo_window_s", 0.5)) if tl.technique == "" and int(tl.combo) < fam.get("combo", []).size() - 1 else 0.0
 			# Decision 42: a technique woven into a chain hands it on: the next basic attack is the step after the one it cut.
@@ -799,7 +799,7 @@ func _tick_player(c, delta: float) -> void:
 		tl.window = maxf(0.0, float(tl.window) - delta)
 		if float(tl.window) <= 0.0: tl.combo = -1
 
-func _tick_pools(c, delta: float) -> void:
+func tick_pools(c, delta: float) -> void:
 	var p: ResourcePool = c.pools
 	p.since_hit += delta
 	p.since_composure_use += delta
@@ -824,7 +824,7 @@ func _tick_pools(c, delta: float) -> void:
 			if float(s.tick_s) >= 1.0:
 				s.tick_s = float(s.tick_s) - 1.0
 				var dmg := maxf(1.0, p.max_hp * float(s.get("power", 0.02)))
-				_damage_player(c, dmg, "dot", str(s.id), {})
+				damage_player(c, dmg, "dot", str(s.id), {})
 		if float(s.remaining) <= 0.0:
 			p.statuses.erase(s)
 			emit("status_expired", {"target": c.id, "effect": s.id})
@@ -860,7 +860,7 @@ func _tick_enemy_statuses(e: EnemyState, delta: float) -> void:
 				s.tick_s = float(s.tick_s) - 1.0
 				var caster = game.character(str(s.get("source", "")))
 				var reach := 0.0 if caster == null else maxf(caster.stats.value("physical_attack"), maxf(caster.stats.value("qi_attack"), caster.stats.value("soul_attack")))
-				_damage_enemy(e, maxf(1.0, CombatRules.hp_share(e.pools.max_hp * float(s.get("power", 0.02)), e.role, reach)), str(s.get("source", "")), "dot", str(s.id), false, {})
+				damage_enemy(e, maxf(1.0, CombatRules.hp_share(e.pools.max_hp * float(s.get("power", 0.02)), e.role, reach)), str(s.get("source", "")), "dot", str(s.id), false, {})
 		if float(s.remaining) <= 0.0:
 			e.pools.statuses.erase(s)
 			if e.is_boss() and def.get("cc", false): e.pools.steadfast[str(s.id)] = float(ContentDB.stat_const("combat.steadfast_s", 8))
@@ -912,7 +912,7 @@ func _resolve_basic(c) -> void:
 		if fam.has("armour_break"):
 			attack.armour_break = {"chance": float(step.get("armour_break", fam.armour_break.get("chance", 0.3))),
 				"duration_s": float(fam.armour_break.get("duration_s", 4))}
-		_player_hits_enemy(c, pv, e, attack, facing)
+		player_hits_enemy(c, pv, e, attack, facing)
 		n += 1
 		hit_any = true
 	# Objects: training stumps, dummies, jars, crates and wine jars take basic hits.
@@ -922,7 +922,7 @@ func _resolve_basic(c) -> void:
 			hit_any = true
 	if not hit_any: emit("attack_whiffed", {"actor": c.id})
 
-func _resolve_technique(c, t: Dictionary) -> void:
+func resolve_technique(c, t: Dictionary) -> void:
 	var tl := timeline(c.id)
 	var pv := player_view(c)
 	var facing := int(tl.facing)
@@ -1049,7 +1049,7 @@ func _resolve_technique(c, t: Dictionary) -> void:
 		if n >= max_targets: break
 		for h in maxi(1, int(t.get("hits", 1))):
 			if not e.alive: break
-			_player_hits_enemy(c, pv, e, attack, facing)
+			player_hits_enemy(c, pv, e, attack, facing)
 			hits_total += 1
 		target_def = e.def_id
 		struck.append(e)
@@ -1067,7 +1067,7 @@ func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array
 			wave.mult = [float(attack.mult[0]) * wm, float(attack.mult[1]) * wm]
 			wave.source = "combo"
 			for e in _enemies_within(at, float(cfx.get("radius", 120))):
-				_player_hits_enemy(c, pv, e, wave, 1 if e.plane.x >= at.x else -1)
+				player_hits_enemy(c, pv, e, wave, 1 if e.plane.x >= at.x else -1)
 		"pull":
 			for e in struck:
 				if e.alive and not e.def.get("knockback_immune", false) and not e.is_boss():
@@ -1077,7 +1077,7 @@ func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array
 					else: e.knockback = -float(cfx.get("value", 90)) * facing
 		"bleed":
 			for e in struck:
-				if e.alive: _apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
+				if e.alive: apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
 
 ## Targets nearest first: along x in the side view, on the plane top-down.
 func _nearest_first(targets: Array, pv: Dictionary) -> void:
@@ -1127,7 +1127,7 @@ func _nearest_enemy(at: Vector2, radius: float) -> EnemyState:
 			best = e
 	return best
 
-func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, facing: int) -> void:
+func player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, facing: int) -> void:
 	if e.invulnerable or bool(e.def.get("invulnerable", false)):
 		emit("hit_immune", {"attacker": c.id, "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover})
 		return
@@ -1152,7 +1152,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 		var sm := 1.0 + float(still)
 		attack.mult = [float(attack.mult[0]) * sm, float(attack.mult[1]) * sm]
 	# v1.2 the Confucian path's Righteous Qi: a quarter more against the Hollow and the demonic.
-	if ProgressionAuthority.walks(c, "confucian") and _unrighteous(e):
+	if ProgressionAuthority.walks(c, "confucian") and unrighteous(e):
 		attack = attack.duplicate()
 		attack.situation = float(attack.get("situation", 1.0)) * (1.0 + float(ContentDB.stat_const("paths", {}).get("confucian", {}).get("righteous", 0.25)))
 	# S28: a stronger Presence bearing down on you takes away part of every blow.
@@ -1185,7 +1185,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 		if keep < float(attack.knockback):
 			attack = attack.duplicate()
 			attack.knockback = keep
-	_damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing, away(Vector2(float(pv.x), float(pv.y)), e.plane) if grid() != null else Vector2.ZERO)
+	damage_enemy(e, amount, c.id, r.type, r.element, r.crit, attack, facing, away(Vector2(float(pv.x), float(pv.y)), e.plane) if grid() != null else Vector2.ZERO)
 	blood_path.lifesteal(c, amount, attack)
 	sword.feed_intent(c, e, attack)
 	if e.alive and not attack.get("status", {}).is_empty():
@@ -1194,7 +1194,7 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 			var applied := CombatRules.status_roll(s, ev, rng)
 			if not applied.is_empty():
 				applied.source = c.id
-				_apply_status_to_enemy(e, applied)
+				apply_status_to_enemy(e, applied)
 	if e.alive: riders.oil_strike(c, e, ev)
 	if e.alive: riders.weapon_after_hit(c, e, attack)
 	# Decision 38: the hit-stop by the blow's weight (CombatFeel: a light step 3 frames up to a finisher's 8, a crit 2 more),
@@ -1204,9 +1204,9 @@ func _player_hits_enemy(c, pv: Dictionary, e: EnemyState, attack: Dictionary, fa
 ## Another authority lays a status on a monster (S46 bloodline suppression: Fear).
 func apply_enemy_status(e: EnemyState, s: Dictionary) -> void:
 	if e == null or not e.alive or e.pools.steadfast.has(str(s.get("id", ""))): return
-	_apply_status_to_enemy(e, s)
+	apply_status_to_enemy(e, s)
 
-func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
+func apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	for existing in e.pools.statuses:
 		if existing.id == s.id:
 			if float(s.power) >= float(existing.get("power", 0)): existing.merge(s, true)
@@ -1215,7 +1215,7 @@ func _apply_status_to_enemy(e: EnemyState, s: Dictionary) -> void:
 	emit("status_applied", {"target": str(e.uid), "effect": s.id, "duration": s.remaining})
 
 ## `push`: on the top-down plane, the way a knockback drives it (away from the attacker); zero pushes along x by `facing`.
-func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0, push := Vector2.ZERO) -> void:
+func damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String, element: String, crit: bool, attack: Dictionary, facing := 0, push := Vector2.ZERO) -> void:
 	if not e.alive or e.ai.get("surrendered", false): return   # a foe who has yielded is judged, not struck (S49)
 	# S46 Beast Trial Grove: the keeper's own blows do no harm there; they rally the animals instead.
 	if game.room_rt != null and game.room_rt.event.get("pet_trial", false) and game.room_rt.event.get("active", false) \
@@ -1273,14 +1273,14 @@ func _damage_enemy(e: EnemyState, amount: float, attacker: String, dtype: String
 			game.enemies.stagger(e, sub)
 			emit("beast_subdued", {"actor": qc.id, "enemy": e.uid, "def": e.def_id, "seconds": sub})
 			return
-	if e.pools.hp <= 0.0: _defeat(e, attacker)
+	if e.pools.hp <= 0.0: defeat(e, attacker)
 
 # ------------------------------------------------------------------ a foe's end
 ## S49: the victor finishes a foe who yielded (Relations' judgement). The death is Combat's to announce.
 func apply_execute(e: EnemyState, attacker: String) -> void:
 	if not e.alive: return
 	e.pools.hp = 0.0
-	_defeat(e, attacker)
+	defeat(e, attacker)
 
 ## Decision 45: a foe slain by the story, not by a blow (the elders' arts on the first boss: the scene's checkpoint, or
 ## the rescue that comes without one). Its hide and its shelter go with it; `killer` names who (not a character, so no
@@ -1301,7 +1301,7 @@ func slay(e: EnemyState, killer: String) -> void:
 	e.ai.state = "slain"
 	e.invulnerable = false
 	e.pools.hp = 0.0
-	_defeat(e, killer)
+	defeat(e, killer)
 
 ## The effect `slay_foe` (a staged scene's checkpoint): every living foe of `def` in the loaded room, slain by `killer`.
 func apply_slay(def_id: String, killer: String) -> void:
@@ -1332,7 +1332,7 @@ func overwhelm(c, e: EnemyState, floor_k: float) -> void:
 	emit("resource_changed", {"actor": c.id, "pool": "hp", "value": p.hp, "max": p.max_hp})
 
 ## A foe falls to `attacker`: Enemies records the defeat, Combat announces it, and a kill feeds Killing Intent.
-func _defeat(e: EnemyState, attacker: String) -> void:
+func defeat(e: EnemyState, attacker: String) -> void:
 	var payload: Dictionary = game.enemies.defeat(e, attacker)
 	if not payload.is_empty(): emit("actor_defeated", payload)
 	var killer = game.character(attacker)
@@ -1359,7 +1359,7 @@ func apply_detonation_blast(c, e: EnemyState, radius: float, share: float) -> vo
 		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
 		return
 	var dmg: float = c.pools.max_hp * share * (0.5 if tl.guard else 1.0)
-	_damage_player(c, dmg, str(e.uid), "qi", {"damage_type": "qi", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "knockback": 160.0}, false, e)
+	damage_player(c, dmg, str(e.uid), "qi", {"damage_type": "qi", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0], "knockback": 160.0}, false, e)
 
 # ------------------------------------------------------------------ foes' blows and harm to the player
 ## Enemy strikes (called by EnemyAuthority at the hit moment of a melee attack).
@@ -1370,9 +1370,9 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 	var ev := enemy_view(e)
 	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	if hit_test(ev, e.facing, hitbox, pv, attack.get("both_sides", false)):
-		_enemy_hits_player(e, c, ev, pv, attack)
+		enemy_hits_player(e, c, ev, pv, attack)
 	phantom.strike_decoy(e, ev, hitbox, attack)
-	_enemy_hits_allies(e, attack, ev)
+	enemy_hits_allies(e, attack, ev)
 	# v1.2 Phase D: some blows leave the ground burning where they land (the Ashborn's cinders, Kharn's pyre).
 	var gf: Dictionary = attack.get("ground_fire", {})
 	if not gf.is_empty():
@@ -1390,7 +1390,7 @@ func enemy_strike(e: EnemyState, attack: Dictionary) -> void:
 ## each half second; a dodge or invulnerability passes through it.
 var ground_fires: Array = []
 
-func _tick_ground_fires(delta: float) -> void:
+func tick_ground_fires(delta: float) -> void:
 	if ground_fires.is_empty(): return
 	var c = game.active()
 	var st: ActorState = game.actor_state(c.id) if c != null else null
@@ -1409,7 +1409,7 @@ func _tick_ground_fires(delta: float) -> void:
 		apply_hazard_damage(c, c.pools.max_hp * float(f.pct) * 0.5, "dot", "fire", "ground_fire")
 
 ## The same strike lands on companions and spirit animals inside its hitbox.
-func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> void:
+func enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> void:
 	if game.room_rt == null: return
 	var hitbox: Dictionary = attack.get("hitbox", {"x": [0, 40], "depth": 26, "alt": [-30, 60]})
 	for a in game.room_rt.enemies.values():
@@ -1433,7 +1433,7 @@ func _enemy_hits_allies(e: EnemyState, attack: Dictionary, ev: Dictionary) -> vo
 			if companion: game.companions.apply_down(a)
 			else: game.pets.apply_retreat(a)
 
-func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack: Dictionary) -> void:
+func enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack: Dictionary) -> void:
 	var tl := timeline(c.id)
 	if c.pools.invulnerable > 0.0 or float(tl.dodge_t) > 0.0 or c.pools.has_status("spawn_protection"):
 		emit("hit_dodged", {"target": c.id, "attacker": str(e.uid)})
@@ -1457,7 +1457,7 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 		var counter = ProgressionRules.path_flag(c, "parry_counter", null)
 		if float(tl.stance) > 0.0 or counter != null:
 			var cm: float = float(counter) if counter != null else 2.0
-			_player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [cm, cm], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
+			player_hits_enemy(c, pv, e, {"damage_type": "physical", "element": "wood", "mult": [cm, cm], "range": [1.0, 1.0], "source": "counter"}, int(tl.facing))
 		return
 	# S47: a boss's telegraphed "shatter" blow that lands breaks a natal weapon in hand (guarding does not save it).
 	if attack.get("shatter", false): game.inventory.natal_break(c, "shatter")
@@ -1477,7 +1477,7 @@ func _enemy_hits_player(e: EnemyState, c, ev: Dictionary, pv: Dictionary, attack
 	if r.miss:
 		emit("hit_missed", {"attacker": str(e.uid), "target": c.id, "x": pv.x, "y": pv.y, "alt": float(pv.alt) + 90})
 		return
-	_damage_player(c, float(r.amount), str(e.uid), r.type, a, r.crit, e)
+	damage_player(c, float(r.amount), str(e.uid), r.type, a, r.crit, e)
 	if attack.has("status") and not attack.status.is_empty():
 		var applied := CombatRules.status_roll(attack.status, pv, Rng.stream(c.id, "combat"))
 		# S10 Spirit 50: fear and confusion from a weaker foe slide off.
@@ -1521,10 +1521,10 @@ func apply_hazard_damage(c, amount: float, dtype: String, element: String, sourc
 	if wounded.has(c.id) or c.pools.invulnerable > 0.0 or float(tl.dodge_t) > 0.0 or c.pools.has_status("spawn_protection"):
 		emit("hit_dodged", {"target": c.id, "attacker": source})
 		return -1.0
-	_damage_player(c, amount, source, dtype, {"element": element})
+	damage_player(c, amount, source, dtype, {"element": element})
 	return amount
 
-func _damage_player(c, amount: float, attacker: String, dtype: String, attack: Dictionary, crit := false, e: EnemyState = null) -> void:
+func damage_player(c, amount: float, attacker: String, dtype: String, attack: Dictionary, crit := false, e: EnemyState = null) -> void:
 	var p: ResourcePool = c.pools
 	if wounded.has(c.id): return
 	if attacker != "" and dtype != "dot": timeline(c.id).fight_t = game.sim_time
@@ -1676,7 +1676,7 @@ func apply_backlash(actor_id: String) -> void:
 	if c and c.pools.max_qi > 0: apply_resource_change(actor_id, "qi", -c.pools.max_qi * float(conf.get("backlash_qi_pct", 0.05)), "backlash")
 
 ## A Hollow or demonic foe (Righteous Qi bites deeper): Hollowed or demonic by nature, or carrying the Hollowing.
-static func _unrighteous(e: EnemyState) -> bool:
+static func unrighteous(e: EnemyState) -> bool:
 	return str(e.def.get("nature", "")) in ["demonic", "hollowed"] or str(e.def.get("element", "")).begins_with("hollow") \
 		or float(e.def.get("hollowing", 0.0)) > 0.0 or str(e.def.get("race", "")) in ["hollow", "demon"]
 
@@ -1686,13 +1686,13 @@ func sphere_strike(c, e: EnemyState, element: String, mult: float, kind: String)
 	var pv := player_view(c)
 	var attack := {"damage_type": "qi", "element": element, "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
 		"source": "sphere:" + kind, "sphere_kind": kind}
-	_player_hits_enemy(c, pv, e, attack, 1 if e.plane.x >= pv.get("x", e.plane.x) else -1)
+	player_hits_enemy(c, pv, e, attack, 1 if e.plane.x >= pv.get("x", e.plane.x) else -1)
 
 ## v1.2 the Copperjaw swarm's bite: `mult` times the bearer's Qi attack as Metal, which cannot miss.
 func swarm_strike(c, e: EnemyState, mult: float) -> void:
 	if c == null or not e.alive or e.invulnerable: return
 	var pv := player_view(c)
-	_player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "metal", "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
+	player_hits_enemy(c, pv, e, {"damage_type": "qi", "element": "metal", "mult": [mult, mult], "range": [0.95, 1.05], "never_miss": true,
 		"source": "swarm"}, 1 if e.plane.x >= float(pv.get("x", e.plane.x)) else -1)
 
 ## A pet or companion strike (AllyBrain) credits its owner.
@@ -1709,7 +1709,7 @@ func ally_hits_enemy(a: EnemyState, e: EnemyState, attack_power: float) -> void:
 		emit("hit_missed", {"attacker": str(a.uid), "target": str(e.uid), "x": e.plane.x, "y": e.plane.y, "alt": e.altitude + e.hover + e.height()})
 		return
 	e.threat[owner] = float(e.threat.get(owner, 0.0)) + float(r.amount)
-	_damage_enemy(e, float(r.amount), owner, "physical", "none", r.crit, {"source": "ally:" + str(a.uid)}, a.facing)
+	damage_enemy(e, float(r.amount), owner, "physical", "none", r.crit, {"source": "ally:" + str(a.uid)}, a.facing)
 
 func begin_spar(actor_id: String) -> void:
 	spar[actor_id] = true
@@ -1721,8 +1721,8 @@ func end_spar(actor_id: String) -> void:
 	if c != null: apply_resource_change(actor_id, "hp", c.pools.max_hp, "spar")
 
 # ------------------------------------------------------------------ the parts' faces
-# Every public method that moved into a part, and the private ones that tests and tools call by name (S11 renames
-# those), forwarded under the names they always had. The authority's own flow and the parts call a part directly.
+# Every public method that moved into a part, forwarded under the name it always had; the helpers tests and tools call
+# by name, under the public names audit 45's S11 gave them. The authority's own flow and the parts call a part directly.
 
 # Flight and the movement arts (combat_flight.gd).
 func start_flight(c) -> Dictionary: return flight.start_flight(c)
@@ -1737,18 +1737,18 @@ func glide(c, on: bool) -> Dictionary: return flight.glide(c, on)
 func is_gliding(actor_id: String) -> bool: return flight.is_gliding(actor_id)
 
 # Phantom Double (combat_phantom.gd).
-func _cast_illusion(c, t: Dictionary) -> void: phantom.cast_illusion(c, t)
+func cast_illusion(c, t: Dictionary) -> void: phantom.cast_illusion(c, t)
 func decoy_for(e: EnemyState, actor_id: String) -> Dictionary: return phantom.decoy_for(e, actor_id)
-func _strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Dictionary) -> void: phantom.strike_decoy(e, ev, hitbox, attack)
+func strike_decoy(e: EnemyState, ev: Dictionary, hitbox: Dictionary, attack: Dictionary) -> void: phantom.strike_decoy(e, ev, hitbox, attack)
 
 # The flying sword, Sword Intent and Killing Intent (combat_sword.gd).
 func natal_demand(inst: Dictionary) -> float: return sword.natal_demand(inst)
 func knows_sword_release(c) -> bool: return sword.knows_sword_release(c)
 func toggle_sword_release(c) -> Dictionary: return sword.toggle_sword_release(c)
-func _tick_sword(c, delta: float) -> void: sword.tick_sword(c, delta)
-func _feed_intent(c, e: EnemyState, attack: Dictionary) -> void: sword.feed_intent(c, e, attack)
+func tick_sword(c, delta: float) -> void: sword.tick_sword(c, delta)
+func feed_intent(c, e: EnemyState, attack: Dictionary) -> void: sword.feed_intent(c, e, attack)
 func intent_penetration(c) -> float: return sword.intent_penetration(c)
-func _gain_killing_intent(c, victim: EnemyState) -> void: sword.gain_killing_intent(c, victim)
+func gain_killing_intent(c, victim: EnemyState) -> void: sword.gain_killing_intent(c, victim)
 func killing_intent_stacks(actor_id: String) -> int: return sword.killing_intent_stacks(actor_id)
 
 # The sword swarm (combat_swarm.gd).
@@ -1756,7 +1756,7 @@ func swarm_count(c, with_treasure: bool) -> int: return swarm.swarm_count(c, wit
 func toggle_sword_swarm(c, t: Dictionary) -> Dictionary: return swarm.toggle_sword_swarm(c, t)
 func start_swarm(c, from_treasure: bool, secs: float) -> Dictionary: return swarm.start_swarm(c, from_treasure, secs)
 func swarm_of(actor_id: String) -> int: return swarm.swarm_of(actor_id)
-func _end_swarm(c, why: String) -> void: swarm.end_swarm(c, why)
+func end_swarm(c, why: String) -> void: swarm.end_swarm(c, why)
 
 # The flute's melody (combat_flute.gd).
 func channel_melody(c, on: bool) -> Dictionary: return flute.channel_melody(c, on)
@@ -1768,41 +1768,41 @@ static func heal_total(c, pct: float, amount: float) -> float: return CombatHeal
 func hots_of(actor_id: String) -> Array: return heals.hots_of(actor_id)
 func heal_circle(c, pct: float, seconds: float, radius: float, source: String) -> int: return heals.heal_circle(c, pct, seconds, radius, source)
 func sect_support_mult(c) -> float: return heals.sect_support_mult(c)
-func _sect_support(c, v: Dictionary) -> void: heals.sect_support(c, v)
+func sect_support(c, v: Dictionary) -> void: heals.sect_support(c, v)
 
 # The Blood path (combat_blood_path.gd).
 func blood_lifesteal(c) -> float: return blood_path.blood_lifesteal(c)
-func _lifesteal(c, amount: float, attack: Dictionary) -> void: blood_path.lifesteal(c, amount, attack)
+func lifesteal(c, amount: float, attack: Dictionary) -> void: blood_path.lifesteal(c, amount, attack)
 func essence_of(actor_id: String) -> float: return blood_path.essence_of(actor_id)
-func _feed_blood_essence(p: Dictionary) -> void: blood_path.feed_blood_essence(p)
+func feed_blood_essence(p: Dictionary) -> void: blood_path.feed_blood_essence(p)
 
 # Array Plates (combat_plates.gd) and talismans (combat_talismans.gd).
 func deploy_array(actor_id: String, e: Dictionary) -> void: plates.deploy_array(actor_id, e)
 func use_talisman(c, index: int) -> Dictionary: return talismans.use_talisman(c, index)
 
 # Projectiles (combat_projectiles.gd).
-func _spawn_projectile(p: Dictionary) -> void: projectiles.spawn_projectile(p)
+func spawn_projectile(p: Dictionary) -> void: projectiles.spawn_projectile(p)
 func spawn_enemy_projectile(e: EnemyState, attack: Dictionary) -> void: projectiles.spawn_enemy_projectile(e, attack)
-func _tick_projectiles(delta: float) -> void: projectiles.tick_projectiles(delta)
+func tick_projectiles(delta: float) -> void: projectiles.tick_projectiles(delta)
 
 # Treasures and throwables (combat_treasures.gd).
 static func treasure_of(item_id: String) -> Dictionary: return CombatTreasures.treasure_of(item_id)
 static func treasure_soul_cost(c, t: Dictionary) -> float: return CombatTreasures.treasure_soul_cost(c, t)
 func use_treasure(c, slot: int) -> Dictionary: return treasures.use_treasure(c, slot)
 func self_detonate(c, index: int, confirm: bool) -> Dictionary: return treasures.self_detonate(c, index, confirm)
-func _tick_treasures(c, delta: float) -> void: treasures.tick_treasures(c, delta)
+func tick_treasures(c, delta: float) -> void: treasures.tick_treasures(c, delta)
 func apply_throw(actor_id: String, e: Dictionary) -> void: treasures.apply_throw(actor_id, e)
-func _burst(c, p: Dictionary, first: EnemyState) -> void: treasures.burst(c, p, first)
+func burst(c, p: Dictionary, first: EnemyState) -> void: treasures.burst(c, p, first)
 
 # Grave wounds and revival (combat_revival.gd).
-func _gravely_wound(c, cause: String) -> void: revival.gravely_wound(c, cause)
+func gravely_wound(c, cause: String) -> void: revival.gravely_wound(c, cause)
 func revive_here_allowed(c) -> Dictionary: return revival.revive_here_allowed(c)
 func fruit_revival_allowed(c) -> Dictionary: return revival.fruit_revival_allowed(c)
 func choose_revival(c, where: String) -> Dictionary: return revival.choose_revival(c, where)
 
 # What a landed blow carries after its damage (combat_riders.gd).
-func _weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void: riders.weapon_after_hit(c, e, attack)
+func weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void: riders.weapon_after_hit(c, e, attack)
 func poison_body_active(c) -> bool: return riders.poison_body_active(c)
 func poison_body_threshold(c) -> float: return riders.poison_body_threshold(c)
-func _poison_body(c, e: EnemyState) -> void: riders.poison_body(c, e)
-func _oil_strike(c, e: EnemyState, ev: Dictionary) -> void: riders.oil_strike(c, e, ev)
+func poison_body(c, e: EnemyState) -> void: riders.poison_body(c, e)
+func oil_strike(c, e: EnemyState, ev: Dictionary) -> void: riders.oil_strike(c, e, ev)

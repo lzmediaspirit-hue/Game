@@ -198,7 +198,7 @@ class Layer extends Node2D:
 func _tab_id() -> String:
 	return str(tabs[tab].id) if tab < tabs.size() else ""
 
-func _is_tree() -> bool:
+func is_tree() -> bool:
 	return not _tab_id() in ["lost", "secret", ""]
 
 # ------------------------------------------------------------------ input: the chart pans under a finger
@@ -206,16 +206,16 @@ func _is_tree() -> bool:
 ## are now (_sync_chart_regions).
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		_pan = event.pressed and _is_tree() and CHART.has_point(event.position) and confirm.is_empty()
-	elif event is InputEventMouseButton and event.pressed and _is_tree() and CHART.has_point(event.position) and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		_glide(view + Vector2(0, -90.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 90.0), true)
+		_pan = event.pressed and is_tree() and CHART.has_point(event.position) and confirm.is_empty()
+	elif event is InputEventMouseButton and event.pressed and is_tree() and CHART.has_point(event.position) and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		glide(view + Vector2(0, -90.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 90.0), true)
 		accept_event()
 		return
 	elif event is InputEventMouseMotion and _pan and event.button_mask & MOUSE_BUTTON_MASK_LEFT and (_dragged or (event.position - _press_pos).length() > 10.0):
 		if not _dragged: queue_redraw()   # the card pressed is let go
 		_dragged = true
 		_pressed = -1
-		_glide(view - event.relative, true)
+		glide(view - event.relative, true)
 		accept_event()
 		return
 	if event is InputEventMouseButton: _sync_chart_regions()
@@ -235,13 +235,13 @@ func _process(delta: float) -> void:
 		_pic_gen = TechniquePicture.generation
 	if stage == null and _open_frame >= 0 and Engine.get_process_frames() > _open_frame and c() != null: _build_stage()
 	if c() == null: return
-	if _dirty and _is_tree():
+	if _dirty and is_tree():
 		_refresh()
 		queue_redraw()
 	if view != goal: view = goal if UiKit.reduce_motion() or view.distance_to(goal) < 1.0 else view.lerp(goal, minf(1.0, delta * 12.0))
-	_clip.visible = _is_tree()
-	_labels_layer.visible = _is_tree() and confirm.is_empty()
-	if not _is_tree(): return
+	_clip.visible = is_tree()
+	_labels_layer.visible = is_tree() and confirm.is_empty()
+	if not is_tree(): return
 	_follow_view()
 	var busy := _tend_tiles()
 	if not busy and not _pan and view == goal and _open_frame >= 0 and Engine.get_process_frames() - _open_frame > 2:
@@ -268,14 +268,14 @@ func _follow_view() -> void:
 		_labels_key = _labels()
 		_labels_layer.queue_redraw()
 	if view == goal and not _pan:
-		if _here != _fam_at_view(): queue_redraw()   # the chooser lights the family the view came to rest on
+		if _here != fam_at_view(): queue_redraw()   # the chooser lights the family the view came to rest on
 		if _regions_view != view: _sync_chart_regions()
 
 ## What the page writes over the chart for this view: the family in view (the plaque, the chooser's lit row) and the
 ## rings in view (the act's line).
 func _labels() -> String:
 	var r := _rings_in_view()
-	return "%s|%s|%d|%d" % [_tab_id(), _fam_at_view(), r.x, r.y]
+	return "%s|%s|%d|%d" % [_tab_id(), fam_at_view(), r.x, r.y]
 
 ## The first and last ring whose row is in view (lo > hi when none).
 func _rings_in_view() -> Vector2i:
@@ -290,14 +290,14 @@ func _rings_in_view() -> Vector2i:
 	return Vector2i(lo, hi)
 
 ## Move the view (clamped to the chart); `now` skips the glide (a drag).
-func _glide(to: Vector2, now := false) -> void:
+func glide(to: Vector2, now := false) -> void:
 	goal = Vector2(clampf(to.x, 0.0, maxf(0.0, _size.x - CHART.size.x)), clampf(to.y, 0.0, maxf(0.0, _size.y - CHART.size.y)))
 	if now: view = goal
 
 ## Centre the view on a family's column, at the rows around `ring` (its first by default).
 func _jump(fam_i: int, y := -1.0, now := false) -> void:
 	var at_y: float = y if y >= 0.0 else float(_rows.get(TechniqueTreeRules.first_ring(_tab_id()), 0.0)) - HEAD
-	_glide(Vector2(fam_i * FAM_W + FAM_W * 0.5 - CHART.size.x * 0.5, at_y), now)
+	glide(Vector2(fam_i * FAM_W + FAM_W * 0.5 - CHART.size.x * 0.5, at_y), now)
 
 # ------------------------------------------------------------------ the tree laid out
 ## The tree of this tab laid out once (its shape does not change): each family a column of three lanes (the orthodox
@@ -310,7 +310,7 @@ func _refresh() -> void:
 	_dirty = false
 	var ch = c()
 	var tree := _tab_id()
-	if ch == null or not _is_tree(): return
+	if ch == null or not is_tree(): return
 	if _laid != tree: _lay_out(ch, tree)
 	for it in _items:
 		if str(it.kind) != "dao": it.erase("state")
@@ -343,8 +343,8 @@ func _lay_out(ch, tree: String) -> void:
 		var taken: Dictionary = (shape.taken as Dictionary).duplicate()
 		for d in Game.progression.tree_dao_arts(ch, tree):
 			var it2 := {"id": str(d.id), "kind": "dao", "family": str(d.family), "dao": str(d.dao), "dao_tier": int(d.tier), "ring": 0, "state": str(d.state)}
-			_place(it2, it2.family, 0, [-1, 1, 0], taken, _rows)
-			_route_box(it2, tree, _by, _rows)
+			ShapeJob.place(it2, it2.family, 0, [-1, 1, 0], taken, _rows)
+			ShapeJob.route_box(it2, tree, _by, _rows)
 			_items.append(it2)
 			_by[str(it2.id)] = it2
 		_trees[tree] = {"of": shape, "items": _items, "by": _by}
@@ -415,15 +415,6 @@ func _warm_shapes() -> void:
 			_shapes[tree] = job.result()
 		return
 
-static func _col(fam: String) -> float:
-	return ShapeJob._col(fam)
-
-static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
-	ShapeJob._place(it, fam, ring, lanes, taken, rows)
-
-static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
-	ShapeJob._route_box(it, tree, by, rows)
-
 ## A tree's shape laid out in steps (_shape runs it through at once; an idle frame runs a step of it): the rows and the
 ## keystones first, then a family a step, then each node's route and box.
 class ShapeJob:
@@ -458,7 +449,7 @@ class ShapeJob:
 				var k: String = T.keystone_at(tree, kin, a)
 				if k == "" or not rows.has(T.edge_ring(a)): continue
 				var kit := {"id": k, "kind": "keystone", "kin": kin, "family": str(T.kin_sectors(kin)[0]), "ring": T.edge_ring(a)}
-				_place(kit, kit.family, kit.ring, [1, -1, 0], taken, rows)
+				place(kit, kit.family, kit.ring, [1, -1, 0], taken, rows)
 				_add(kit)
 
 	func _add(it: Dictionary) -> void:
@@ -474,19 +465,19 @@ class ShapeJob:
 			fi += 1
 			for ring in rows:
 				if str(ring).begins_with("n"): continue
-				_add({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows[ring]) - 9.0)})
+				_add({"id": T.passage(tree, f, ring), "kind": "passage", "family": f, "ring": ring, "at": Vector2(family_x(f), float(rows[ring]) - 9.0)})
 				var cl: Dictionary = T.cell(tree, f, ring)
 				var side := -1 if int(ring) % 2 == 0 else 1
 				for slot in ["o", "p"]:
 					for id in cl[slot]:
 						var it := {"id": str(id), "kind": "art", "family": f, "ring": ring}
-						_place(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0], taken, rows)
+						place(it, f, ring, [0, side, -side] if slot == "o" else [side, -side, 0], taken, rows)
 						_add(it)
 				if T.is_edge(ring):
-					_add({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(_col(f), float(rows["n%d" % T.act_of(ring)]) + 32.0)})
+					_add({"id": T.notable(tree, f, T.act_of(ring)), "kind": "notable", "family": f, "ring": ring, "at": Vector2(family_x(f), float(rows["n%d" % T.act_of(ring)]) + 32.0)})
 			if budget_us >= 0 and Time.get_ticks_usec() - t0 >= budget_us: return false
 		while ri < items.size():
-			_route_box(items[ri], tree, by, rows)
+			route_box(items[ri], tree, by, rows)
 			ri += 1
 			if budget_us >= 0 and ri % 24 == 0 and Time.get_ticks_usec() - t0 >= budget_us: return false
 		return true
@@ -495,20 +486,20 @@ class ShapeJob:
 		return {"of": list, "act": open_act, "items": items, "rows": rows, "size": Vector2(fams.size() * FAM_W, y + 24.0), "taken": taken}
 
 	## A family's column centre on the chart.
-	static func _col(fam: String) -> float:
+	static func family_x(fam: String) -> float:
 		return TechniqueTreeRules.sectors().find(fam) * FAM_W + FAM_W * 0.5
 
 	## A node into the first free lane of its family's ring (else two lanes out).
-	static func _place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
+	static func place(it: Dictionary, fam: String, ring: int, lanes: Array, taken: Dictionary, rows: Dictionary) -> void:
 		for ln in lanes:
 			if taken.has("%s|%d|%d" % [fam, ring, ln]): continue
 			taken["%s|%d|%d" % [fam, ring, ln]] = true
-			it.at = Vector2(ShapeJob._col(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))
+			it.at = Vector2(ShapeJob.family_x(fam) + ln * LANE, float(rows.get(ring, GATE_TOP)))
 			break
-		if not it.has("at"): it.at = Vector2(ShapeJob._col(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))
+		if not it.has("at"): it.at = Vector2(ShapeJob.family_x(fam) + 2.0 * LANE, float(rows.get(ring, GATE_TOP)))
 
 	## A node's route in (from its passage, the ring before or the gate), the box it and its route fill, and a card's name.
-	static func _route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
+	static func route_box(it: Dictionary, tree: String, by: Dictionary, rows: Dictionary) -> void:
 		var T = TechniqueTreeRules
 		var fams: Array = T.sectors()
 		var kind := str(it.kind)
@@ -523,7 +514,7 @@ class ShapeJob:
 			"notable":
 				pts = [by[T.passage(tree, str(it.family), int(it.ring))].at, it.at]
 				if fams.find(str(it.family)) + 1 < fams.size(): it.chan = true
-			"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(ShapeJob._col(str(it.family)), it.at.y + PIC * 0.5)]
+			"dao": pts = [Vector2(it.at.x, it.at.y + PIC * 0.5), Vector2(ShapeJob.family_x(str(it.family)), it.at.y + PIC * 0.5)]
 			_:
 				var pa: Vector2 = by[T.passage(tree, str(it.family) if kind == "art" else str(T.kin_sectors(str(it.kin))[0]), int(it.ring))].at
 				pts = [pa, Vector2(it.at.x, pa.y), it.at - Vector2(0, 3)]
@@ -550,7 +541,7 @@ func _state(it: Dictionary) -> Dictionary:
 func _on_screen(p: Vector2) -> Vector2:
 	return (CHART.position - view + p).round()
 
-func _fam_at_view() -> String:
+func fam_at_view() -> String:
 	var fams: Array = TechniqueTreeRules.sectors()
 	return str(fams[clampi(int((view.x + CHART.size.x * 0.5) / FAM_W), 0, fams.size() - 1)]) if not fams.is_empty() else "any"
 
@@ -562,7 +553,7 @@ func _fam_at_view() -> String:
 func draw_surface(r: Rect2) -> void:
 	ground(r, UiKit.SURFACE.space)
 	if text_log != null: text_log.append({"rect": MID, "s": "", "button": Rect2(), "ground": "carved_panel:normal"})
-	if c() != null and _is_tree():
+	if c() != null and is_tree():
 		if _dirty: _refresh()
 		ground(CHART, UiKit.SURFACE.space)
 		_chart_regions()
@@ -581,7 +572,7 @@ func _draw_back() -> void:
 	_back.draw_rect(r, UiKit.SURFACE.space)
 	Page.glow_on(_back, Rect2(MID.position - Vector2(80, 40), MID.size + Vector2(160, 80)), Color(UiKit.JADE_SHADOW, 0.22))
 	_back.draw_style_box(UiKit.style("carved_panel"), MID)
-	if _is_tree():
+	if is_tree():
 		var ec := SpriteCache.element_color(str(TechniqueTreeRules.tree_def(_tab_id()).get("element", "none")))
 		Page.glow_on(_back, Rect2(CHART.position + Vector2(-60, 40), CHART.size + Vector2(120, 80)), Color(ec, 0.07))
 
@@ -793,7 +784,7 @@ func _chart_regions() -> void:
 
 ## The chart's regions laid again for the view it stands at now, without drawing the page.
 func _sync_chart_regions() -> void:
-	if not _is_tree() or c() == null or _regions_view == view: return
+	if not is_tree() or c() == null or _regions_view == view: return
 	_regions = _regions.filter(func(r): return not r.get("chart", false))
 	_chart_regions()
 
@@ -846,7 +837,7 @@ const PLAQUE := Rect2(376, 78, 302, 28)   # the family in view, over the chart (
 
 ## The plaque's words for the view and their size: "<Family> arts of <Element>", stepped down to fit.
 func _plaque_words() -> Array:
-	var full := Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label)
+	var full := Tx.t("ui.techniques.arts_of_" + fam_at_view()) % str(tabs[tab].label)
 	var size := 22
 	while size > 16 and UiKit.text_width(full, size, true) > PLAQUE.size.x - 56: size -= 2
 	return [fit(full, size, PLAQUE.size.x, true), size]
@@ -859,8 +850,8 @@ func _act_words() -> String:
 
 ## The labels layer: the family in view on its plaque, and the act's rings in view (drawn over the chart and the page).
 func _draw_labels(cv: Layer) -> void:
-	if not _is_tree() or c() == null: return
-	_name_plaque_on(cv, PLAQUE, Tx.t("ui.techniques.arts_of_" + _fam_at_view()) % str(tabs[tab].label))
+	if not is_tree() or c() == null: return
+	_name_plaque_on(cv, PLAQUE, Tx.t("ui.techniques.arts_of_" + fam_at_view()) % str(tabs[tab].label))
 	var act := _act_words()
 	if act != "": UiKit.draw_text(cv, UiKit.fit(act, 14, 116), Vector2(VIS.position.x + 14, 98), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 116)
 
@@ -1020,7 +1011,7 @@ func _fam_icon(fam: String) -> String:
 func draw_page() -> void:
 	var ch = c()
 	if ch == null: return
-	if _dirty and _is_tree(): _refresh()
+	if _dirty and is_tree(): _refresh()
 	# Decision 43: a tour's anchors (the tree's window, the reading and the loadout dock).
 	tour_mark("chart", CHART)
 	tour_mark("reading", RIGHT)
@@ -1063,7 +1054,7 @@ func _preview_art() -> String:
 	if drawer or sel == "" or not ContentDB.has_entry("techniques", sel): return ""
 	var ch = c()
 	if ch.cultivator.techniques_known.has(sel): return sel
-	if _is_tree(): return sel if _by.has(sel) and str(_by[sel].kind) in ["art", "keystone", "dao"] else ""
+	if is_tree(): return sel if _by.has(sel) and str(_by[sel].kind) in ["art", "keystone", "dao"] else ""
 	if _tab_id() == "lost":
 		for a in _found(ch, lost_act, Game.progression.lost_arts_view(ch)):
 			if str(a.id) == sel and str(a.kind) == "technique": return sel
@@ -1092,7 +1083,7 @@ func _chooser_tree(ch) -> void:
 	var rz: Dictionary = _rz if not _rz.is_empty() else {"free": 0, "total": 0}
 	_head(tree, str(tabs[tab].label), Tx.t("ui.techniques.to_place") % [int(rz.free), int(rz.total)], Tx.t("ui.techniques.families_daos"), true)
 	var fams: Array = TechniqueTreeRules.sectors()
-	_here = _fam_at_view()
+	_here = fam_at_view()
 	var here := _here
 	var el_dao := str(TechniqueTreeRules.tree_def(tree).get("dao", ""))
 	list("fams", Rect2(20, 164, 208, 280), fams.size(), 56, func(i: int, rr: Rect2):
@@ -1163,7 +1154,7 @@ func _facts(id: String, t: Dictionary, lines: Array) -> void:
 	icon_at(Rect2(1090, 142, 64, 64), id)
 	var form := str(t.get("form", t.get("template", "")))
 	text(Vector2(1164, 164), Tx.t("ui.techniques.form_" + form) if form != "" else Tx.t("ui.techniques.kind_technique"), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, 96)
-	text(Vector2(1164, 184), Tx.t("ui.techniques.fam_" + str(t.get("family", "any"))) if str(t.get("family", "any")) != "any" else str(tabs[tab].label) if _is_tree() else "", 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 96)
+	text(Vector2(1164, 184), Tx.t("ui.techniques.fam_" + str(t.get("family", "any"))) if str(t.get("family", "any")) != "any" else str(tabs[tab].label) if is_tree() else "", 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 96)
 	for i in lines.size():   # a line too long for the column steps down a size
 		var w: float = (lines[i] as Array).reduce(func(acc, run): return acc + UiKit.text_width(str(run[0]), 16), 0.0)
 		rich(Rect2(1090, 214 + i * 22, 174, 20), lines[i], 16 if w <= 150.0 else 14)
@@ -1249,7 +1240,7 @@ static func _rz_mark_on(cv: CanvasItem, at: Vector2, k := 1.0) -> void:
 	cv.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -7) * k, at + Vector2(7, 0) * k, at + Vector2(0, 7) * k, at + Vector2(-7, 0) * k]), UiKit.PALE_GOLD)
 	cv.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -5) * k, at + Vector2(5, 0) * k, at + Vector2(0, 5) * k, at + Vector2(-5, 0) * k]), UiKit.JADE)
 
-## Page._lock_icon on any canvas item.
+## Page.lock_icon on any canvas item.
 static func _lock_on(cv: CanvasItem, p: Vector2, k := 1.0) -> void:
 	cv.draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
 	cv.draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)
@@ -1620,7 +1611,7 @@ func _dock_slot(r: Rect2, closed: bool, on: bool, target: bool) -> void:
 	rounded(r.grow(1), 6.0, UiKit.INK)
 	rounded(r, 5.0, UiKit.PALE_GOLD if on else (UiKit.BRIGHT_JADE if target else Color(UiKit.GOLD, 0.25 if closed else 0.7)))
 	rounded(r.grow(-1.5), 4.0, UiKit.SURFACE.space if closed else UiKit.SURFACE.cloth)
-	if closed: _lock_icon(r.get_center() - Vector2(6, 8))
+	if closed: lock_icon(r.get_center() - Vector2(6, 8))
 
 ## The realm that opens Inner Art slot `i` (slots.json rows: [realm, slots open from it]).
 func _slot_realm(i: int) -> String:
@@ -1651,7 +1642,7 @@ func on_action(id: String, data) -> void:
 		"node":
 			_choose(str(data))
 			drawer = false
-			if _is_tree(): last_tab = _tab_id()
+			if is_tree(): last_tab = _tab_id()
 		"next_learned":
 			var learned := _learned()
 			if learned.is_empty(): return
@@ -1659,7 +1650,7 @@ func on_action(id: String, data) -> void:
 			var it: Dictionary = learned[_learned_i]
 			_choose(str(it.id))
 			drawer = false
-			_glide(it.at - CHART.size * 0.5 + Vector2(0, CARD.y * 0.5))
+			glide(it.at - CHART.size * 0.5 + Vector2(0, CARD.y * 0.5))
 		"learn":
 			var it2: Dictionary = _state(_by[str(data)]) if _by.has(str(data)) else {}
 			for nid in it2.get("learn", [str(data)]):

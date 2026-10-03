@@ -373,7 +373,7 @@ func _activity(a: String) -> void:
 
 ## --phenomenon=cloud|lightning shows the heavens answering a breakthrough here (S49).
 func _phenomenon(a: String) -> void:
-	Game.calendar._phenomenon(Game.active().id, _val(a), Game.active().cultivator.realm_key)
+	Game.calendar.raise_phenomenon(Game.active().id, _val(a), Game.active().cultivator.realm_key)
 
 ## --egg=species puts a warming egg in the nest (S46 incubation previews).
 func _egg(a: String) -> void:
@@ -475,7 +475,7 @@ func _defeat_foe(a: String) -> void:
 	await _after(float(a.get_slice("=", 1)) if a.contains("=") else 1.0)
 	for e in Game.room_rt.living_enemies():
 		if e.team == "enemy":
-			Game.combat._defeat(e, Game.active_id)
+			Game.combat.defeat(e, Game.active_id)
 			break
 	if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
 
@@ -583,7 +583,7 @@ func _welcome_demo(_a: String) -> void:
 		c.posts["post"] = {"kind": "craft", "craft": Game.posts.craft_of_object(node[0]), "room": Game.room_rt.room_id, "object": str(node[0].id)}
 	if Game.posts.has_post(c): Game.posts.post_of(c).merge({"paused": false, "since": Clock.now_utc() - 3600.0 * 7.5}, true)
 	var welcome := {}
-	AccountAuthority._with_ledger(welcome, Game.posts.on_entered(c))
+	AccountAuthority.with_ledger(welcome, Game.posts.on_entered(c))
 	await _after(0.8)
 	if not welcome.is_empty(): main.open_page("welcome", welcome)
 
@@ -668,9 +668,9 @@ func _melody_throw_illusion(_a: String) -> void:
 	Unlocks.force_unlock(Game.active_id, "composure")
 	if "--melody" in args: Game.submit({"type": "channel_melody", "on": true})
 	elif "--illusion" in args:
-		Game.combat._cast_illusion(Game.active(), ContentDB.entry("techniques", "phantom_double"))
+		Game.combat.cast_illusion(Game.active(), ContentDB.entry("techniques", "phantom_double"))
 		if is_instance_valid(world) and world.player: world.player.state.plane += Vector2(-150, 30)
-	else: Game.combat._start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
+	else: Game.combat.start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
 
 ## --swarm raises a nine-sword swarm; --arrays lays a guarding, a killing and a binding array side by side (S47/S48 v1.1
 ## previews).
@@ -748,7 +748,7 @@ func _breakthrough(a: String) -> void:
 	var nxt := ContentDB.next_realm(bc.cultivator.realm_key)
 	moment_t = float(a.get_slice("=", 1)) if a.contains("=") else 2.4
 	moments.hold_at = moment_t
-	if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
+	if nxt != "": Game.progression.advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
 
 # ------------------------------------------------------------------ --capture
 ## The picture: after 2.5 s, or just past the moment's t; then --auto-path= and --auto-hunt, --wait=s, --hazard=; saved

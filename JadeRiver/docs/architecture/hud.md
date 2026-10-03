@@ -36,8 +36,9 @@ never added to the tree has its parts too). It keeps no state: every field stays
   typed reference lets the GDScript compiler check every name a part uses.
 
 **The facade.** Every public method the HUD had is still the HUD's, forwarded in one line to its part
-(`func press(id: int, p: Vector2): input.press(id, p)`). Tests and tools call 16 private names; their forwarders keep
-those names (`_layout`, `_ring2`, `_tick_fight`, `_tick_aims` …), as S10's do, until S11 renames them.
+(`func press(id: int, p: Vector2): input.press(id, p)`). Tests and tools called 16 private names. Since S11 their
+forwarders carry public names, mostly the part's own: `place_cluster` (was `_layout`), `on_ring` (was `_on`), `ring2`,
+`tick_fight`, `tick_aims` and the rest. The event handler is `on_event`.
 `tests/hud_tests.gd` holds the HUD to its 82 names.
 
 **The frame.** `_process` runs, in order: the place pose's wait, the page scroll, `notices.age` (the log, the toasts,

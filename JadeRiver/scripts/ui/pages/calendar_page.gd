@@ -101,7 +101,7 @@ func _draw_week(ch, now: float, slips: Array) -> void:
 		if d == 0: text(Vector2(x, 308), Tx.t("ui.calendar.day_%d" % posmod(today + 3, 7)), 14, UiKit.MIST, HORIZONTAL_ALIGNMENT_CENTER, COL_W - 2)
 	# The hour now, a red line down today.
 	var nx := roundf(COL_X + 1 + fposmod(now, 86400.0) / 86400.0 * (COL_W - 4))
-	glow(Rect2(nx - 6, ROW_Y - 4, 14, 198), Color(UiKit.RED, 0.35 * _halo()))
+	glow(Rect2(nx - 6, ROW_Y - 4, 14, 198), Color(UiKit.RED, 0.35 * halo_k()))
 	draw_rect(Rect2(nx, ROW_Y, 2, 194), UiKit.RED)
 	# The slips drop onto their days as the page opens (a fade under Reduce motion).
 	draw_set_transform(Vector2(0, -roundf((1.0 - unfold()) * 24.0)))
@@ -110,7 +110,7 @@ func _draw_week(ch, now: float, slips: Array) -> void:
 		var live := now >= float(o.start)
 		var ev := CalendarRules.event(str(o.id))
 		var fill := UiKit.SURFACE.river_lacquer.lerp(UiKit.GOLD, 0.4) if live else UiKit.SURFACE.river_lacquer.lerp(UiKit.SOUL, 0.24)
-		if live: glow(r.grow(8), Color(UiKit.GOLD, (0.3 + 0.1 * _pulse()) * _halo()))
+		if live: glow(r.grow(8), Color(UiKit.GOLD, (0.3 + 0.1 * _pulse()) * halo_k()))
 		if _key(o) == chosen: rounded(r.grow(3), 8.0, UiKit.PALE_GOLD)
 		rounded(r, 6.0, UiKit.GOLD if live else UiKit.SOUL.lerp(UiKit.PAPER, 0.3))
 		rounded(r.grow(-2), 5.0, fill)

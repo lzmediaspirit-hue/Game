@@ -27,9 +27,9 @@ func use_talisman(c, index: int) -> Dictionary:
 			if foe != null: center = foe.plane
 			for e in game.room_rt.living_enemies() if game.room_rt else []:
 				if e.team != "enemy" or e.hidden or e.plane.distance_to(center) > float(tal.get("radius", 80)): continue
-				combat._damage_enemy(e, amount, c.id, "qi", str(tal.get("element", "none")), false, {"source": "talisman"}, facing)
+				combat.damage_enemy(e, amount, c.id, "qi", str(tal.get("element", "none")), false, {"source": "talisman"}, facing)
 				if e.alive and tal.has("status") and not e.pools.steadfast.has(str(tal.status.id)):
-					combat._apply_status_to_enemy(e, {"id": str(tal.status.id), "power": float(tal.status.get("power", 1)), "remaining": float(tal.status.get("duration_s", 2)), "source": c.id})
+					combat.apply_status_to_enemy(e, {"id": str(tal.status.id), "power": float(tal.status.get("power", 1)), "remaining": float(tal.status.get("duration_s", 2)), "source": c.id})
 				hits += 1
 			at = center
 		"defence":
@@ -43,7 +43,7 @@ func use_talisman(c, index: int) -> Dictionary:
 			var foe2 := combat._nearest_enemy(at, float(tal.get("range", 260)))
 			if foe2 == null: return fail("no_target", {"text": Tx.t("sim.combat.no_target_near")})
 			if foe2.is_boss() or foe2.pools.steadfast.has("root"): emit("hit_immune", {"attacker": c.id, "target": str(foe2.uid), "x": foe2.plane.x, "y": foe2.plane.y, "alt": foe2.altitude})
-			else: combat._apply_status_to_enemy(foe2, {"id": "root", "power": 1.0, "remaining": float(tal.status.get("duration_s", 2)) * qmult, "source": c.id})
+			else: combat.apply_status_to_enemy(foe2, {"id": "root", "power": 1.0, "remaining": float(tal.status.get("duration_s", 2)) * qmult, "source": c.id})
 			at = foe2.plane
 			hits = 1
 	game.inventory.apply_remove_index(c.id, index, 1, "talisman")

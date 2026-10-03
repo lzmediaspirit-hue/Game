@@ -59,7 +59,7 @@ func draw_tab(r: Rect2, i: int, state: String) -> void:
 		ground(r, faded)
 	var words := str(tabs[i].label)
 	var count := ""
-	if str(tabs[i].id) == "done" and c() != null: count = UiKit.fmt(_done_ids(c()).size())
+	if str(tabs[i].id) == "done" and c() != null: count = UiKit.fmt(done_ids(c()).size())
 	var w := UiKit.text_width(words, 20) + (UiKit.text_width(count, 16) + 8.0 if count != "" else 0.0)
 	var x := r.get_center().x - w * 0.5
 	text(Vector2(x, r.position.y + 33), words, 20, RecordsKit.INK)
@@ -157,7 +157,7 @@ func draw_page() -> void:
 
 func _first(ch, b: Dictionary) -> String:
 	if str(tabs[tab].id) == "done":
-		var done := _done_ids(ch)
+		var done := done_ids(ch)
 		return str(done[0]) if not done.is_empty() else ""
 	if not b.story.is_empty() and ch.quests.is_active(str(b.story[0])): return str(b.story[0])
 	if not _next(ch).is_empty(): return "next"
@@ -333,7 +333,7 @@ func _round(ch) -> void:
 		if ready: ready_n += 1
 		var box := Rect2(clampf(at.x - 26, 96, 756), 452, 52, 48)
 		draw_line(at, Vector2(box.get_center().x, box.position.y), UiKit.INK, 3.0)
-		if ready: glow(box.grow(10), Color(UiKit.GOLD, (0.4 + 0.12 * _pulse()) * _halo()))
+		if ready: glow(box.grow(10), Color(UiKit.GOLD, (0.4 + 0.12 * _pulse()) * halo_k()))
 		rounded(box.grow(1), 6.0, UiKit.INK)
 		vshade(box, UiKit.SURFACE.wood.lerp(UiKit.BRONZE, 0.2), UiKit.SURFACE.wood.lerp(UiKit.INK, 0.2))
 		draw_rect(box.grow(-2), UiKit.GOLD if ready or claimed else UiKit.BRONZE, false, 1.5)
@@ -421,14 +421,14 @@ func _sheets(sheets: int, at: Vector2) -> void:
 	btn(Rect2(at.x + 402, at.y - 4, 56, 48), "›", "sheet", sheet + 1, false, sheet < sheets - 1, "", 22)
 
 ## Done: the finished slips, newest first, stamped; four across and six down a sheet.
-func _done_ids(ch) -> Array:
+func done_ids(ch) -> Array:
 	var out: Array = []
 	for q in ch.quests.done: out.append(str(q))
 	out.reverse()
 	return out.filter(func(q): return not Game.quest.quest_def(ch, q).is_empty())
 
 func _done(ch) -> void:
-	var ids := _done_ids(ch)
+	var ids := done_ids(ch)
 	if ids.is_empty():
 		text(Vector2(96, 160), Tx.t("ui.quest.nothing_done"), 18, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, 700)
 		return

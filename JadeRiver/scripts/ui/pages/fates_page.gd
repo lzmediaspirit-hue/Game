@@ -23,7 +23,7 @@ func content_rect() -> Rect2:
 ## The night the fortune is read under.
 func draw_surface(r: Rect2) -> void:
 	WayKit.night(self, r, 120, [Rect2(r.position.x + 300, r.position.y, 424, 70)])
-	glow(Rect2(MOUTH.x - 260, MOUTH.y - 120, 520, 220), Color(UiKit.PALE_GOLD, 0.08 * _halo()))
+	glow(Rect2(MOUTH.x - 260, MOUTH.y - 120, 520, 220), Color(UiKit.PALE_GOLD, 0.08 * halo_k()))
 	draw_rect(r, Color(UiKit.GOLD, 0.35), false, 1.0)
 
 func title_rect() -> Rect2:

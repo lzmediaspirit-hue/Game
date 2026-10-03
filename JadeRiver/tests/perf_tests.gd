@@ -329,10 +329,10 @@ func _crowd() -> void:
 		if i % 6 != 0: return
 		for tech in ["sword_swarm", "cursive_storm"]:
 			var t := ContentDB.entry("techniques", tech)
-			w._cast(tech, 1, UiKit.GOLD)
+			w._cast(tech, 1, UiKit.GOLD)   # side view: world.gd's own cast (the crowd stands in the side view)
 			for e in Game.room_rt.living_enemies().slice(0, int(t.max_targets)):
 				for h in int(t.hits):
-					w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,
+					w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,   # side view
 						"element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": 60.0, "source": "tech:" + tech})
 		spent[1] = maxi(spent[1], w.fx.fx.size())
 	var per := INF
@@ -431,7 +431,7 @@ func _techniques() -> void:
 		await get_tree().process_frame
 		var pg = main.top_page()
 		still = minf(still, await _frames(60, Callable()))
-		ms_pan = minf(ms_pan, await _frames(120, func(k: int): pg._glide(Vector2(k * 64.0, (k % 30) * 40.0), true)))
+		ms_pan = minf(ms_pan, await _frames(120, func(k: int): pg.glide(Vector2(k * 64.0, (k % 30) * 40.0), true)))
 		drawn = maxi(drawn, pg._regions.filter(func(x): return x.id == "node").size())
 		laid = pg._items.size()
 		main.close_all_pages()
@@ -544,9 +544,9 @@ func _life_ab(w, each: Callable) -> Array:
 	for r in LIFE_ROUNDS:
 		for with_life in ([true, false] if r % 2 == 0 else [false, true]):
 			TopdownLife.enabled = with_life
-			w._build_room()
-			w._place_player()
-			w._settle_camera()
+			w.build_room()
+			w.place_player()
+			w.settle_camera()
 			for k in 12:
 				if each.is_valid(): each.call(k)
 				Game.tick(1.0 / 60.0)
@@ -561,9 +561,9 @@ func _life_ab(w, each: Callable) -> Array:
 			else: off.append(ms)
 		diffs.append(float(on[-1]) - float(off[-1]))
 	TopdownLife.enabled = true
-	w._build_room()
-	w._place_player()
-	w._settle_camera()
+	w.build_room()
+	w.place_player()
+	w.settle_camera()
 	await get_tree().process_frame   # the room drawn as built before anything else moves the world on
 	on.sort()
 	off.sort()

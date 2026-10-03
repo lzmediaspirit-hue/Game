@@ -697,7 +697,7 @@ func _tour_size() -> int:
 # ------------------------------------------------------------------ layout
 ## The card's lines: wrapped at TEXT_W (at most two lines, the tutorials suite holds every line to it), once for its words
 ## and text size.
-func _lines() -> Array:
+func card_lines() -> Array:
 	var key := "%s|%s|%s" % [line, UiKit.text_scale(), mode]
 	if key != _lines_key:
 		_lines_key = key
@@ -731,7 +731,7 @@ func _layout() -> void:
 	_laid_scale = UiKit.text_scale()
 	_laid_hud = on_hud
 	_laid_at = target
-	var lines := _lines()
+	var lines := card_lines()
 	var text_h := lines.size() * UiKit.line_height(TEXT)
 	var sz: Vector2
 	if mode == "tour":
@@ -768,7 +768,7 @@ func _card_place(sz: Vector2) -> Rect2:
 		for n in ["close", "help", "title"]:
 			var r := top.tour_rect(n)
 			if r.size != Vector2.ZERO: avoid.append([r, 0.05])
-	var hr := hand_rect(false) if _hand_shown() else Rect2()
+	var hr := hand_rect(false) if hand_shown() else Rect2()
 	if hr.size != Vector2.ZERO: avoid.append([hr.grow(4), 0.05])
 	# On the play screen, clear of what the HUD shows (its controls, a guide's card sat over the Talk button; its plates,
 	# the equip prompt, the log), and a guide's (the player plays on under it) off the thumbs' places: the stick's and the
@@ -820,7 +820,7 @@ func _card_place(sz: Vector2) -> Rect2:
 	return least
 
 ## The hand shows where something is to be tapped: every guide step, and a tour step with a "try it".
-func _hand_shown() -> bool:
+func hand_shown() -> bool:
 	return target.size != Vector2.ZERO and (mode == "guide" or not (current().get("try", {}) as Dictionary).is_empty())
 
 ## Where the hand stands: over the anchor with its finger down, or under it with its finger up near the screen's top,
@@ -869,7 +869,7 @@ func _draw() -> void:
 			draw_circle(bc, 12.0 + pulse * 1.5, UiKit.INK, true, -1.0, true)
 			draw_circle(bc, 10.0 + pulse * 1.5, UiKit.RED, true, -1.0, true)
 			UiKit.draw_text(self, "!", bc + Vector2(-10, 6), 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 20)
-		if _hand_shown():
+		if hand_shown():
 			var hr := hand_rect()
 			draw_texture_rect(_hand_down if hr.position.y < target.position.y else _hand, hr, false)
 
@@ -896,7 +896,7 @@ func _draw_card(ci: CanvasItem) -> void:
 	var a := card_alpha()
 	ci.modulate.a = a
 	ci.draw_style_box(UiKit.style("minor_panel"), card)
-	var lines := _lines()
+	var lines := card_lines()
 	var lh := UiKit.line_height(TEXT)
 	var y := card.position.y + PAD + TEXT * UiKit.text_scale() if mode == "tour" else card.get_center().y - lines.size() * lh * 0.5 + TEXT * UiKit.text_scale() - 2.0
 	for ln in lines:

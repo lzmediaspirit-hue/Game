@@ -73,7 +73,7 @@ func _doors(o: float) -> void:
 	var r := OPENING
 	var half := r.size.x * 0.5
 	var leaf := UiKit.SURFACE.wood_dark.lerp(UiKit.INK, 0.3)
-	glow(Rect2(r.get_center().x - 60 - 160 * o, r.position.y, 120 + 320 * o, r.size.y), Color(UiKit.PALE_GOLD, (0.25 + 0.6 * o) * _halo()))
+	glow(Rect2(r.get_center().x - 60 - 160 * o, r.position.y, 120 + 320 * o, r.size.y), Color(UiKit.PALE_GOLD, (0.25 + 0.6 * o) * halo_k()))
 	var swing := 0.0 if UiKit.reduce_motion() else o
 	var fade := 1.0 - (o if UiKit.reduce_motion() else 0.0)
 	for side in [0, 1]:
@@ -85,7 +85,7 @@ func _doors(o: float) -> void:
 			for col in 3:
 				var at := Vector2(lr.position.x + lr.size.x * (0.2 + 0.3 * col), lr.position.y + 40 + row * 64)
 				draw_circle(at, 3.5, Color(UiKit.BRONZE, fade), true, -1.0, true)
-	if o <= 0.0: draw_line(Vector2(r.get_center().x, r.position.y), Vector2(r.get_center().x, r.end.y), Color(UiKit.PALE_GOLD, 0.8 * _halo()), 2.0)
+	if o <= 0.0: draw_line(Vector2(r.get_center().x, r.position.y), Vector2(r.get_center().x, r.end.y), Color(UiKit.PALE_GOLD, 0.8 * halo_k()), 2.0)
 	ground(r, leaf)
 
 func title_rect() -> Rect2:

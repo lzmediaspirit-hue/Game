@@ -223,7 +223,7 @@ func _player_pos() -> Vector2:
 ## the plane), z (the floor under it), flat (lies on the floor, else stands up from it), half (a flat part's depth in
 ## world units), side ("ground" or "air": the side view's layer), mark (a warning mark: always on `air`)} and what it
 ## draws (the hazard, its phase state, the spot or area, the impact).
-func _parts(rt: RoomRuntime) -> Array:
+func parts(rt: RoomRuntime) -> Array:
 	var out: Array = []
 	var add := func(kind: String, p: Vector2, z: float, flat: bool, half: float, side: String, extra: Dictionary) -> void:
 		var part := {"kind": kind, "p": p, "z": z, "flat": flat, "half": half, "side": side, "mark": kind == "mark"}
@@ -338,7 +338,7 @@ class Piece extends Node2D:
 ## Sort this frame's parts into the viewport (the marks stay on the overlay): a flat part just over the floor it lies
 ## on (TopdownRoom.decal_key, its depth as the mark's), an upright one at its spot's key. Nodes are kept and reused.
 func _place_pieces(rt: RoomRuntime) -> void:
-	var list := _parts(rt).filter(func(pt): return not pt.mark)
+	var list := parts(rt).filter(func(pt): return not pt.mark)
 	while pieces.size() < list.size():
 		var pc := Piece.new(self)
 		sorted_layer.add_child(pc)
@@ -356,7 +356,7 @@ func _place_pieces(rt: RoomRuntime) -> void:
 func _draw_ground() -> void:
 	var rt: RoomRuntime = Game.room_rt
 	if rt == null or sorted_layer != null: return
-	for part in _parts(rt):
+	for part in parts(rt):
 		if part.side == "ground": _draw_part(ground, part)
 
 ## What a blow left behind: dust rising, rubble, spikes sinking back, a scorch.
@@ -523,7 +523,7 @@ func _draw_air() -> void:
 			"star_wind": _air_star_wind(hs, view)
 			"deep_water": _air_deep_water(rt, hs, view)
 			"presence": _air_presence(hs, view)
-	for part in _parts(rt):
+	for part in parts(rt):
 		if part.side == "air" and (part.mark or sorted_layer == null): _draw_part(air, part)
 
 ## A falling rock over its spot: grit trickling in the tell, the rock shaking high up in the warning, its fall.

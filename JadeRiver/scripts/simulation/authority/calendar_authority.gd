@@ -18,11 +18,11 @@ func handle(intent: Dictionary) -> Dictionary:
 	return fail("unknown_intent")
 
 func subscribe() -> void:
-	GameEvents.subscribe("node_gathered", _on_gathered, 90)
+	GameEvents.subscribe("node_gathered", on_gathered, 90)
 	GameEvents.subscribe("room_entered", _on_room_entered, 90)
-	GameEvents.subscribe("breakthrough_succeeded", _on_breakthrough, 90)
-	GameEvents.subscribe("tribulation_started", _on_tribulation, 90)
-	GameEvents.subscribe("spar_ended", _on_rank_spar, 90)
+	GameEvents.subscribe("breakthrough_succeeded", on_breakthrough, 90)
+	GameEvents.subscribe("tribulation_started", on_tribulation, 90)
+	GameEvents.subscribe("spar_ended", on_rank_spar, 90)
 
 func _on_room_entered(_p: Dictionary) -> void:
 	var c = game.active()
@@ -87,7 +87,7 @@ func tick(delta: float) -> void:
 			cal.told[id] = int(up.k)
 			emit("world_event_scheduled", {"event": id, "k": int(up.k), "room": str(up.room), "start": float(up.start)})
 	var c = game.active()
-	if c != null: _pay_trial(c)
+	if c != null: pay_trial(c)
 	# The Heaven Ranking's seeded cultivators move on the calendar; a new order is announced.
 	var order: Array = CalendarRules.rank_table(now, cal_seed(), origin()).map(func(r): return str(r.id))
 	if cal.get("ranking", []) != order:
@@ -209,7 +209,7 @@ func apply_treasure_claim(actor_id: String, k: int) -> void:
 # ------------------------------------------------------------------ the gathering trial (Part 8)
 ## Every herb gathered on your sect's Herb Terraces while the trial runs counts: the Jade Sect's for its disciples,
 ## the Cloud Sect's for theirs. The sect weighs it against the other sect's gatherers (seeded scores) when the day ends.
-func _on_gathered(p: Dictionary) -> void:
+func on_gathered(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
 	var occ: Dictionary = active_of("gathering_trial")
 	if c == null or occ.is_empty() or game.room_rt == null or game.room_rt.room_id != trial_room(c): return
@@ -246,7 +246,7 @@ func trial_rank(c) -> int:
 	return rank
 
 ## When the trial day has passed, the ranking pays once: the top three learn the Foundation Guard Pill.
-func _pay_trial(c) -> void:
+func pay_trial(c) -> void:
 	var gt: Dictionary = c.cooldowns.get("gtrial", {})
 	if gt.is_empty() or gt.get("paid", false) or int(gt.get("pts", 0)) <= 0: return
 	var occ: Dictionary = active_of("gathering_trial")
@@ -264,13 +264,13 @@ func _pay_trial(c) -> void:
 # ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
 ## A major breakthrough gathers auspicious clouds over the room; a tribulation darkens it with lightning. Everyone in
 ## the room sees it: the people there congratulate you (and a jealous senior may not let it pass; Relations).
-func _on_breakthrough(p: Dictionary) -> void:
-	if p.get("major", false): _phenomenon(str(p.get("actor", "")), "cloud", str(p.get("to", "")))
+func on_breakthrough(p: Dictionary) -> void:
+	if p.get("major", false): raise_phenomenon(str(p.get("actor", "")), "cloud", str(p.get("to", "")))
 
-func _on_tribulation(p: Dictionary) -> void:
-	_phenomenon(str(p.get("actor", "")), "lightning", str(p.get("to", "")))
+func on_tribulation(p: Dictionary) -> void:
+	raise_phenomenon(str(p.get("actor", "")), "lightning", str(p.get("to", "")))
 
-func _phenomenon(actor_id: String, kind: String, realm: String) -> void:
+func raise_phenomenon(actor_id: String, kind: String, realm: String) -> void:
 	var c = game.character(actor_id)
 	if c == null or game.room_rt == null: return
 	var people := 0
@@ -319,7 +319,7 @@ func challenge_rank(c, npc: String) -> Dictionary:
 	c.cooldowns["rank_duel"] = npc
 	return game.quest.start_spar(c, str(above.enemy), int(above.level))
 
-func _on_rank_spar(p: Dictionary) -> void:
+func on_rank_spar(p: Dictionary) -> void:
 	var c = game.active()
 	if c == null or str(c.cooldowns.get("rank_duel", "")) == "": return
 	var npc := str(c.cooldowns.rank_duel)

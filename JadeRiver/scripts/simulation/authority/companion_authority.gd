@@ -21,7 +21,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		for id in ids:
 			if c.companions.roster.has(id) and active.size() < 2: active.append(id)
 		c.companions.active = active
-		_spawn_all(c)
+		spawn_all(c)
 		game.combat.refresh_stats(c.id)   # sworn siblings' party buff (S49)
 		emit("companions_changed", {"actor": c.id})
 		return ok()
@@ -33,12 +33,12 @@ func apply_add(actor_id: String, companion: String) -> void:
 	c.companions.roster.append(companion)
 	if c.companions.active.size() < 2: c.companions.active.append(companion)
 	emit("companion_joined", {"actor": actor_id, "companion": companion})
-	_spawn_all(c)
+	spawn_all(c)
 
 func _on_room_entered(_p: Dictionary) -> void:
-	_spawn_all(game.active())
+	spawn_all(game.active())
 
-func _spawn_all(c) -> void:
+func spawn_all(c) -> void:
 	if c == null or game.room_rt == null: return
 	# Uids restart in every room: only remove entries that really are our companions.
 	for id in allies:

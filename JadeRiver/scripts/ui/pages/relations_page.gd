@@ -87,14 +87,14 @@ func draw_page() -> void:
 
 # ------------------------------------------------------------------ the steelyard
 ## The beam's tilt now: the alignment's, reached through a damped swing over the opening.
-func _tilt(ch) -> float:
+func tilt(ch) -> float:
 	var target := TILT * clampf(ch.relations.alignment / 100.0, -1.0, 1.0)
 	var k := unfold()
 	return target + 0.09 * (1.0 - k) * cos(k * PI * 2.5)
 
 ## Where the beam passes over `x`, on its top edge.
-func _beam_at(ch, x: float) -> Vector2:
-	return Vector2(x, PIVOT.y - 7.0 + (x - PIVOT.x) * tan(_tilt(ch)))
+func beam_at(ch, x: float) -> Vector2:
+	return Vector2(x, PIVOT.y - 7.0 + (x - PIVOT.x) * tan(tilt(ch)))
 
 ## The hook with your fame's plaque, the beam tilted by merit against sin with the recent deeds notched along it, and
 ## the two weights hung from its ends with what they weigh.
@@ -112,7 +112,7 @@ func _steelyard(ch) -> void:
 	draw_arc(Vector2(PIVOT.x, plaque.end.y + 12), 10.0, -PI * 0.5, PI * 1.2, 16, UiKit.INK, 4.0, true)
 	draw_arc(Vector2(PIVOT.x, plaque.end.y + 12), 10.0, -PI * 0.5, PI * 1.2, 16, UiKit.BRONZE, 2.0, true)
 	# The beam, turned about its pivot.
-	var a := _tilt(ch)
+	var a := tilt(ch)
 	move(PIVOT, a)
 	rounded(Rect2(-HALF_BEAM - 2, -9, HALF_BEAM * 2 + 4, 18), 7.0, UiKit.INK)
 	vshade(Rect2(-HALF_BEAM, -7, HALF_BEAM * 2, 14), UiKit.SURFACE.wood, UiKit.SURFACE.wood_dark)
@@ -159,7 +159,7 @@ func _align_ink(v: int) -> Color:
 func _hung(ch, r: Rect2, cord: Color) -> void:
 	var reach := HALF_BEAM * 0.94 - 36.0   # inside the weights
 	for x in [clampf(r.position.x + 40.0, PIVOT.x - reach, PIVOT.x + reach), clampf(r.end.x - 40.0, PIVOT.x - reach, PIVOT.x + reach)]:
-		BondsKit.thread(self, _beam_at(ch, x) + Vector2(0, 14), Vector2(x, r.position.y + 10), cord, 0.0, 2.5)
+		BondsKit.thread(self, beam_at(ch, x) + Vector2(0, 14), Vector2(x, r.position.y + 10), cord, 0.0, 2.5)
 	BondsKit.board(self, r, cord)
 
 ## The hemp cords the ledger and the name hang by.

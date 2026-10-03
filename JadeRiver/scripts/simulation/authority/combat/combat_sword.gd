@@ -102,7 +102,7 @@ func feed_intent(c, e: EnemyState, attack: Dictionary) -> void:
 	if int(si.stacks) != before: emit("sword_intent_changed", {"actor": c.id, "stacks": int(si.stacks)})
 	if int(si.stacks) >= 10 and e.alive and e.level < ProgressionRules.level(c) and not e.pools.steadfast.has("fear"):
 		if Rng.stream(c.id, "combat").randf() < float(ContentDB.stat_const("sword_intent.fear_chance", 0.1)):
-			combat._apply_status_to_enemy(e, {"id": "fear", "power": 1.0, "remaining": 2.0, "source": c.id})
+			combat.apply_status_to_enemy(e, {"id": "fear", "power": 1.0, "remaining": 2.0, "source": c.id})
 
 func intent_penetration(c) -> float:
 	if str(StatRules.family(c).get("id", "")) != "jian": return 0.0

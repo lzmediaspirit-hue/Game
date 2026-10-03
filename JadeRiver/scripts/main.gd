@@ -53,7 +53,7 @@ var dye_buttons: Array:
 func _ready() -> void:
 	get_tree().auto_accept_quit = false
 	get_tree().quit_on_go_back = false
-	get_tree().root.go_back_requested.connect(_on_back)
+	get_tree().root.go_back_requested.connect(go_back)
 	get_tree().root.close_requested.connect(save_and_quit)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_add_backdrop()
@@ -185,7 +185,7 @@ func enter_world(slot: int) -> void:
 	if not welcome.get("gains", {}).is_empty(): open_page("welcome", welcome)
 
 func _mount_world() -> void:
-	_unmount_world()
+	unmount_world()
 	Game.in_world = true
 	_add_world_view()
 	hud = Hud.new()
@@ -229,7 +229,7 @@ func _add_world_view() -> void:
 	add_child(world)
 	_backdrop_follows_world()   # side view
 
-func _unmount_world() -> void:
+func unmount_world() -> void:
 	close_all_pages()
 	if is_instance_valid(scenes):
 		remove_child(scenes)
@@ -292,7 +292,7 @@ func _leave_topdown_proto() -> void:
 
 func return_to_selection() -> void:
 	if topdown:
-		if screen == "world": _unmount_world()
+		if screen == "world": unmount_world()
 		_leave_topdown_proto()
 		show_title()
 		return
@@ -300,14 +300,14 @@ func return_to_selection() -> void:
 		if screen == "world":
 			Game.submit({"type": "app_paused"})
 			Game.save_all()
-			_unmount_world()
+			unmount_world()
 		_leave_topdown_proto()
 		show_title()
 		return
 	if screen == "world":
 		Game.submit({"type": "app_paused"})
 		Game.save_all()
-		_unmount_world()
+		unmount_world()
 	show_selection()
 
 func save_and_quit() -> void:
@@ -366,7 +366,7 @@ func _shell_action(id: String, a: Dictionary) -> bool:
 ## S40: replace the saves with an export (the current files are saved first and kept as .bak).
 func _import_saves(path: String) -> void:
 	Game.save_all()
-	if screen == "world": _unmount_world()
+	if screen == "world": unmount_world()
 	close_all_pages()
 	var err := Saves.import_bundle(path)
 	Game.boot()
@@ -451,7 +451,7 @@ func _process(delta: float) -> void:
 		fade = maxf(0.0, fade - delta / 0.35)
 		fade_rect.color = Color(0, 0, 0, fade)
 
-func _on_back() -> void:
+func go_back() -> void:
 	# Decision 45: Back while a tutorial tour dims the screen skips the tour, not the page under it.
 	if is_instance_valid(coach) and coach.back(): return
 	var top := top_page()
@@ -466,7 +466,7 @@ func _on_back() -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
-		_on_back()
+		go_back()
 
 func _notification(what: int) -> void:
 	if not is_inside_tree() or not Game.booted: return
@@ -484,7 +484,7 @@ func _notification(what: int) -> void:
 # ------------------------------------------------------------------ side view (retiring)
 ## Decision 45: the side view goes once every room is top-down (docs/architecture/audit_45.md §2.4). What the shell does
 ## for it is here, and its calls elsewhere in this file are marked "side view": the World preload, _add_world_view's
-## last branch and its backdrop line, _unmount_world's backdrop line and _on_game_event's swap. The backdrop is also
+## last branch and its backdrop line, unmount_world's backdrop line and _on_game_event's swap. The backdrop is also
 ## the title screens' sky, so it stays until they have one of their own.
 
 ## The river backdrop behind everything (the title screens', and the side view's sky, scrolled with its camera).

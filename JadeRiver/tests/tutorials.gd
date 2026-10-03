@@ -133,7 +133,7 @@ func tap_button(which: String) -> void:
 ## at rest; `known`: every tutorial but those named counted guided and seen.
 func fresh(but: Array) -> void:
 	main.close_all_pages()
-	if main.screen == "world": main._unmount_world()
+	if main.screen == "world": main.unmount_world()
 	Game.boot()
 	Game.autosave_enabled = false
 	for s in Game.characters.keys(): Game.submit({"type": "delete_character", "slot": int(str(s).trim_prefix("c"))})
@@ -269,7 +269,7 @@ func _foundation_path() -> void:
 	# The first Level of the path: the Progression authority grants its foundation points.
 	ch.cultivator.realm_key = "bone_forging_1"
 	var lv := ProgressionRules.level(ch)
-	Game.progression._levels_gained(ch, 0, lv)
+	Game.progression.levels_gained(ch, 0, lv)
 	GameEvents.flush()
 	var pts: int = ch.cultivator.unspent_meridian_points
 	await frames(4)
@@ -499,7 +499,7 @@ func _save_and_load() -> void:
 	main.close_all_pages()
 	await frames(2)
 	Game.save_all()
-	main._unmount_world()
+	main.unmount_world()
 	Game.boot()
 	Game.autosave_enabled = false
 	main.enter_world(1)
@@ -1129,7 +1129,7 @@ func _fight_room_reload() -> void:
 	check(coach().state().entry == "guard" and coach().state().step == 1, "the fight over, it is back at its step (%s)" % str(coach().state()))
 	# A save and a reload mid-tour: it resumes at its step.
 	Game.save_all()
-	main._unmount_world()
+	main.unmount_world()
 	Game.boot()
 	Game.autosave_enabled = false
 	main.enter_world(1)
@@ -1165,10 +1165,10 @@ func _fight_room_reload() -> void:
 func _back_skips() -> void:
 	var pg := await page_tour("character", "character", ["quick_use", "character_menu"])
 	var ch = c()
-	main._on_back()
+	main.go_back()
 	await frames(3)
 	check(main.top_page() == pg and coach().state().mode == "" and ch.tutorials.seen.get("character", 0) == 2, "Back during a tour skips it and keeps its page (%s)" % str(coach().state()))
-	main._on_back()
+	main.go_back()
 	await frames(3)
 	check(main.top_page() == null, "Back again closes the page")
 	pg = await page_tour("mail", "mail", ["quick_use", "mail"])

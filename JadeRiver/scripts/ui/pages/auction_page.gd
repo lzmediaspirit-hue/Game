@@ -46,7 +46,7 @@ func draw_surface(_r: Rect2) -> void:
 	var k := unfold()
 	draw_polygon(PackedVector2Array([Vector2(596, 0), Vector2(684, 0), Vector2(PEDESTAL.end.x + 70, PEDESTAL.end.y), Vector2(PEDESTAL.position.x - 70, PEDESTAL.end.y)]),
 		PackedColorArray([Color(UiKit.PALE_GOLD, 0.2 * k), Color(UiKit.PALE_GOLD, 0.2 * k), Color(UiKit.PALE_GOLD, 0.02), Color(UiKit.PALE_GOLD, 0.02)]))
-	glow(Rect2(PEDESTAL.position + Vector2(-90, 50), PEDESTAL.size + Vector2(180, 40)), Color(UiKit.PALE_GOLD, 0.22 * k * _halo()))
+	glow(Rect2(PEDESTAL.position + Vector2(-90, 50), PEDESTAL.size + Vector2(180, 40)), Color(UiKit.PALE_GOLD, 0.22 * k * halo_k()))
 	# The pedestal: a black lacquer drum banded in brass.
 	vshade(PEDESTAL, UiKit.SURFACE.lacquer_black.lerp(UiKit.BRONZE, 0.25), UiKit.SURFACE.lacquer_black)
 	for by in [PEDESTAL.position.y + 10, PEDESTAL.end.y - 16]: draw_rect(Rect2(PEDESTAL.position.x, by, PEDESTAL.size.x, 6), UiKit.BRONZE)
@@ -95,11 +95,11 @@ func draw_page() -> void:
 	var l: Dictionary = lots[li]
 	chosen = str(l.id)
 	var mine: bool = str(l.bidder) == ch.id
-	var bidders: Array = Game.economy._au_cfg(house).get("bidders", [])
+	var bidders: Array = Game.economy.auction_config(house).get("bidders", [])
 	var who := Tx.t("ui.auction.you") if mine else (str(bidders[int(l.npc) % bidders.size()]) if str(l.bidder) == "npc" and not bidders.is_empty() else Tx.t("ui.auction.another"))
 	var price: int = Game.economy.auction_price(l)
 	# The lot board: what it is, what it stands at, who holds it and when it closes.
-	text(Vector2(x, board.position.y + 42), _lot_name(l), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, w)
+	text(Vector2(x, board.position.y + 42), lot_name(l), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, w)
 	text(Vector2(x, board.position.y + 82), Tx.t("ui.auction.stands_at") % UiKit.fmt(price), 20, UiKit.GOLD, HORIZONTAL_ALIGNMENT_LEFT, w)
 	text(Vector2(x, board.position.y + 114), Tx.t("ui.auction.held_by") % who, 16, UiKit.BRIGHT_JADE if mine else UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, w)
 	text(Vector2(x, board.position.y + 142), Tx.t("ui.auction.closes_in") % UiKit.span(maxf(0.0, float(l.ends) - Clock.now_utc())), 16, UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, w)
@@ -117,7 +117,7 @@ func draw_page() -> void:
 		var lo: Dictionary = lots[i]
 		var r := Rect2(sx + i * SMALL_W, FRONT.position.y, SMALL_W - 16, FRONT.size.y)
 		var on := i == li
-		if on: glow(r.grow(12), Color(UiKit.PALE_GOLD, 0.2 * _halo()))
+		if on: glow(r.grow(12), Color(UiKit.PALE_GOLD, 0.2 * halo_k()))
 		var plinth := Rect2(r.position.x + 10, r.position.y + 72, r.size.x - 20, 24)
 		vshade(plinth, UiKit.SURFACE.lacquer_black.lerp(UiKit.BRONZE, 0.3), UiKit.SURFACE.lacquer_black)
 		draw_rect(Rect2(plinth.position, Vector2(plinth.size.x, 3)), Color(UiKit.GOLD, 0.8 if on else 0.4))
@@ -128,7 +128,7 @@ func draw_page() -> void:
 			UiKit.BRIGHT_JADE if str(lo.bidder) == ch.id else UiKit.PALE_GOLD)
 		region(r, "lot", str(lo.id))
 
-func _lot_name(l: Dictionary) -> String:
+func lot_name(l: Dictionary) -> String:
 	var nm := Tx.t("ui.auction.recipe") % ContentDB.name_of("recipes", str(l.learn)) if str(l.get("learn", "")) != "" else ContentDB.item_name(str(l.item))
 	return nm + ("  ×%d" % int(l.count) if int(l.count) > 1 else "")
 
