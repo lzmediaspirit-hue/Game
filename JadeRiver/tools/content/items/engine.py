@@ -39,7 +39,7 @@ from .dsl import DROP, Family, resolve  # noqa: E402
 # The spec modules, in the order their families are compiled (and their lines appended to a shop).
 SPECS = ["pills", "herbs", "ores", "parts", "gear", "streams"]
 # A declared source's channel in wiki.py's terms (tools/dev/wiki.py CHANNELS).
-CHANNEL = {"shop": "Shop", "recipe": "Crafting", "craft": "Crafting", "drop": "Drop", "chest": "Container", "gather": "Gathering",
+CHANNEL = {"shop": "Shop", "auction": "Shop", "recipe": "Crafting", "craft": "Crafting", "drop": "Drop", "chest": "Container", "gather": "Gathering",
            "garden": "Garden", "reward": "Reward", "mail": "Mail"}
 MARKS = ("story", "system", "later")
 # Keys of a family's fields that are the engine's, not a kind's.
@@ -113,8 +113,10 @@ def _compile():
             st.errors.append("family %s is declared twice" % fam.fid)
         fids.add(fam.fid)
         try:
-            for i, raw in enumerate(fam.members):
-                m = _member(fam, raw, i)
+            ms = [_member(fam, raw, i) for i, raw in enumerate(fam.members)]
+            if fam.fields.get("seed"):
+                ms.append(_seed(fam, ms[0], len(ms)))
+            for m in ms:
                 if m["id"] in st.by_id:
                     st.errors.append("%s: id %s is already %s's" % (fam.fid, m["id"], st.by_id[m["id"]]["fid"]))
                     continue
@@ -191,8 +193,6 @@ def _member(fam, raw, index):
             else:
                 row[k] = resolve(v, dict(ctx, id=mid))
     member["row"] = row
-    if kind == "herb" and fam.fields.get("seed") and index == 0:
-        member["seed"] = kinds.seed(m, fam.fields["seed"])
     member["recipe"] = _recipe(fam, m, ctx)
     member["lines"] = _lines(m, sources.get("shop") or {}, mid)
     if member["recipe"]:
@@ -204,6 +204,26 @@ def _member(fam, raw, index):
     member["sinks"] = fam.fields.get("sinks")
     if member["sinks"] is not None and "sell" not in member["sinks"]:
         row["sell"] = False
+    return member
+
+
+def _seed(fam, first, index):
+    """A herb family's seed (S45): a member of its own (section "seeds"), from the family's seed=dict(grade, desc,
+    sources=...)."""
+    spec_s = fam.fields["seed"]
+    sid = spec_s.get("id") or fam.stem + "_seed"
+    m = {"id": sid, "tier": spec_s["grade"], "grade": spec_s["grade"], "_stem": fam.stem}
+    sources = {k: v for k, v in (spec_s.get("sources") or {}).items() if v is not False and v is not None}
+    member = Member(fid=fam.fid, kind="seed", id=sid, tier=spec_s["grade"], grade=spec_s["grade"], spec=fam.spec, section="seeds",
+                    table="items", index=index)
+    member["row"] = kinds.seed(m, spec_s)
+    member["recipe"] = None
+    member["lines"] = _lines(m, sources.get("shop") or {}, sid)
+    member["icon"] = None
+    member["sources"] = sources
+    member["herb"] = None
+    member["sinks"] = None
+    member["seed_of"] = (fam.stem, spec_s["desc"])
     return member
 
 
@@ -317,12 +337,8 @@ def _use(table, key):
 
 
 def items(section):
-    """The rows of a section, in its order: the members' rows (a herb family's seed rows are the section "seeds")."""
+    """The rows of a section, in its order (a herb family's seeds are the section "seeds")."""
     st = state()
-    if section == "seeds":
-        _use("items", section)
-        fams = [m for m in st.members if m.get("seed")]
-        return [copy.deepcopy(m["seed"]) for m in _ordered(st, "seeds", [dict(m, id=m["seed"]["id"]) for m in fams])]
     members = [m for m in st.members if m["section"] == section]
     if not members:
         raise SystemExit("item engine: no family writes the section %s" % section)
@@ -427,7 +443,7 @@ def herb_ages():
     out = {}
     for fam in st.families:
         if fam.kind == "herb":
-            for m in sorted([m for m in st.members if m["fid"] == fam.fid], key=lambda m: m["tier"]):
+            for m in sorted([m for m in st.members if m["fid"] == fam.fid and m["kind"] == "herb"], key=lambda m: m["tier"]):
                 out[m["id"]] = m["herb"]
     return out
 
@@ -435,13 +451,7 @@ def herb_ages():
 def seeds():
     """[(seed id, herb family, grade, desc)] in the seeds' order (garden.json `seeds`; herbs.py)."""
     st = state()
-    fams = [m for m in st.members if m.get("seed")]
-    rows = _ordered(st, "seeds", [dict(m, id=m["seed"]["id"]) for m in fams])
-    out = []
-    for m in rows:
-        fam = next(f for f in st.families if f.fid == m["fid"])
-        out.append((m["seed"]["id"], m["seed"]["seed"]["family"], m["seed"]["grade"], fam.fields["seed"]["desc"]))
-    return out
+    return [(m["id"], m["seed_of"][0], m["grade"], m["seed_of"][1]) for m in _ordered(st, "seeds", [m for m in st.members if m["kind"] == "seed"])]
 
 
 def members(kind=None):
@@ -459,7 +469,7 @@ def _static_checks(st):
             errs.append("%s (%s): nothing hands it out; name a source (shop, recipe, drop, chest, gather, garden, craft, "
                         "reward, mail) or a mark" % (m["id"], m["fid"]))
     known = set(st.by_id)
-    seeds_ = {m["seed"]["id"] for m in st.members if m.get("seed")}
+    seeds_ = set()
     rids = {m["recipe"]["row"]["id"] for m in st.members if m.get("recipe")}
     for key, pin in st.order.items():
         if pin == "grade":
@@ -478,7 +488,7 @@ def check_sources(errs):
     import wiki
     found = wiki.Sources(wiki.Data()).run().by_item
     for m in state().members:
-        ids = [m["id"]] + ([m["seed"]["id"]] if m.get("seed") else [])
+        ids = [m["id"]]
         have = {c for _, c, _ in found.get(m["id"], set())}
         named = {k for k in (m.get("sources") or {}) if k not in ("mark", "shop", "recipe")}
         if any(line[2]["item"] != "recipe_scroll" for line in m["lines"]):

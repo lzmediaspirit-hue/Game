@@ -58,7 +58,7 @@ def member(tier=None, grade=None, **fields):
     return d
 
 
-SOURCE_KEYS = {"shop", "recipe", "drop", "chest", "gather", "garden", "craft", "reward", "mail", "mark"}
+SOURCE_KEYS = {"shop", "auction", "recipe", "drop", "chest", "gather", "garden", "craft", "reward", "mail", "mark"}
 FAMILY_KEYS = {"kind", "tiers", "members", "id", "name", "desc", "section", "words", "sources", "recipe", "icon", "row",
                "sinks", "stack", "seed", "grade", "ilv"}
 

@@ -124,7 +124,7 @@ def herb(m):
 
 def seed(m, s):
     """The seed row of a herb family (S45): `s` is the family's seed=dict(grade, desc[, id])."""
-    return item(s.get("id") or m["_stem"] + "_seed", "seed", s["grade"], 99, s["desc"] + " Plant it in a garden bed.", seed={"family": m["_stem"]})
+    return item(m["id"], "seed", s["grade"], 99, s["desc"] + " Plant it in a garden bed.", seed={"family": m["_stem"]})
 
 
 # ------------------------------------------------------------------------------------------- ores and creature parts
