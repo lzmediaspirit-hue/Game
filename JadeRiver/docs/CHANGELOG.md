@@ -74,7 +74,11 @@ how to add a family are in `docs/architecture/item_engine.md`.
   - every named source is found, and every named creature drops its part;
   - each family pill icon renders the same bytes twice and the same as on disk;
   - the engine's 17 tests pass.
-- **Tests:** TOTALS.
+- **Tests.** `tools/run_tests.sh` on the merged tree: every gate (`item_engine` and `boot` among them), and 20 suites
+  with 73,731 checks, 0 failures and no SCRIPT ERROR (`perf_tests` met one budget over at a load of 5 in the full run
+  and passed 18 of 18 alone, as it failed 2 at the start of this work at a load of 12). Every suite keeps its count
+  through the migration. With the Streams Pills, `data_validation` counts their items, recipes and shop lines (50,278
+  to 50,348) and `balance_sim` gains the speed ladder's six checks (177 to 183).
 
 ## The shell: the debug flags in a script of their own, and the page registry (decision 45, S7)
 
