@@ -2,8 +2,8 @@
 
 The user played the prototype APK (build 108) and asked: **"I want the player and the NPCs to be drawn in higher
 quality."** (`docs/roadmap_master_ui.md`, decision 42). Before redrawing anything, this study shows the choice in
-pictures. Nothing in the game changed. The study lives in its own files (`tools/art/topdown/study_quality/`), and the
-shots were taken in the game with its own compositor.
+pictures. Nothing in the game changed. The study lived in its own files (`tools/art/topdown/study_quality/`, removed in decision 45's
+cleanup once the rollout shipped; git history keeps it), and the shots were taken in the game with its own compositor.
 
 ## The options
 
@@ -219,8 +219,8 @@ colour and dye, and the villagers with them. Moving it from the study to the pip
 - The same frames, rects and draw calls. The sheets hold 1.05 times the texels (140 MB of RGBA8 for all 168 sheets,
   from 134). A full build takes about 2.5 minutes on four cores (`build_character.py --jobs`).
 
-**In the game, before and after** (`tools/dev/topdown_capture.tscn -- --quality --quality-tag=<before|after>`, paired
-by `tools/art/topdown/study_quality/rollout.py`): the village square, Jade Gate Street, a fight with the jian, and the
+**In the game, before and after** (`tools/dev/capture/capture.tscn -- quality --tag=<before|after>`, paired
+by the study's `rollout.py`): the village square, Jade Gate Street, a fight with the jian, and the
 story's gestures, in `character_quality/rollout/`.
 
 ![The village square, before and after, x3](character_quality/rollout/01_village_square_x3.png)
@@ -255,15 +255,15 @@ scaled at runtime.
   cores.
 
 Before and after, the same instants in the game, in `people_scale/` (the pairs `*_pair.png`, the
-shots `before/` and `after/`; `tools/dev/topdown_capture.tscn -- --people-scale --people-tag=<before|after>`, and the
-pictures and pages with `tools/dev/picture_capture.tscn -- --tag=<before|after> --dir=people_scale [--pages]`).
+shots `before/` and `after/`; `tools/dev/capture/capture.tscn -- people_scale --tag=<before|after>`, and the
+pictures and pages with `tools/dev/capture/capture.tscn -- pictures --tag=<before|after> --dir=people_scale [--pages]`).
 
 ![At the hut door, beside a group of villagers](people_scale/01_door_hut_people_pair.png)
 
 ## Reproduce
 
-The study's code is kept as it was drawn. The pipeline's generators now carry B's locks and folds, so the study's
-pictures are reproduced from the commit before the rollout (`89db822`).
+The study's code was removed in decision 45's cleanup (the B renderer it chose has shipped); git history keeps it. Its
+pictures are reproduced from the commit before the rollout (`89db822`), where it is as it was drawn.
 
 ```sh
 python3 tools/art/topdown/study_quality/build_study.py B C D   # sheets into study_quality/build/ (ignored by git and Godot)

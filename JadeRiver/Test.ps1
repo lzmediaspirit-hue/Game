@@ -33,6 +33,7 @@ try { & (Join-Path $PSScriptRoot 'Validate-Animations.ps1') } catch { Write-Host
 #   sect_walks     decision 42: no step of the sect stretch asks for a plain walk over 35 s, nor a walk out and back;
 #   places         decision 43: the places table is current, every place where auto-path reaches it;
 #   sound          decision 43: the sound table is current, every sound on disk passes its levels, seams and band;
+#   cues           audit 45 (E6): the cue table (data/cues.json) is what its generator writes;
 #   pix            audit 45 (S5): the pixel library for new art draws each shape exactly as its source.
 $gates = @(
     @{ Name = 'build_data'; Args = @('tools/data/build_data.py', '--check') },
@@ -41,6 +42,7 @@ $gates = @(
     @{ Name = 'sect_walks'; Args = @('tools/data/sect_walks.py', '--check') },
     @{ Name = 'places'; Args = @('tools/data/places.py', '--check') },
     @{ Name = 'sound'; Args = @('tools/data/sound.py', '--check') },
+    @{ Name = 'cues'; Args = @('tools/data/cues.py', '--check') },
     @{ Name = 'pix'; Args = @('tools/lib/pix.py', '--check') }
 )
 foreach ($g in $gates) {

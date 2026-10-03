@@ -444,8 +444,8 @@ a module a species). Before and after, in the game, and every sheet at x3: `docs
 
 ## 10. Tile and prop pipeline
 
-`python3 tools/art/topdown/build_tiles.py [--check] [--review]`. Running `tools/art/build_topdown_proto.py` runs the
-same build.
+`python3 tools/art/topdown/build_tiles.py [--check] [--review]`. (The old entry point
+`tools/art/build_topdown_proto.py`, which ran the same build, was removed in decision 45.)
 
 | File | What |
 |---|---|
@@ -495,13 +495,13 @@ The move to `TileMapLayer`s on `proto_tiles.tres` stays for Phase 4. `01_square_
 - Tops tile with themselves, and faces tile sideways and downward.
 - A prop has a footprint, an origin, `solid` and a `shadow`, and an outline except on water.
 - It is built by the script, never painted by hand into the PNG. `--check` passes and `data_validation` is green.
-- It is reviewed in `--review`'s sheets at ×4, and in the room: `tools/dev/topdown_capture.tscn -- --phase3` draws it
+- It is reviewed in `--review`'s sheets at ×4, and in the room: `tools/dev/capture/capture.tscn -- phase3` draws it
   in the game.
 
 ## 12. Review images (`docs/redesign/phase3/`)
 
 `build_tiles.py --review` draws the sheets (04, 05, 12). The game draws the rest:
-`xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/topdown_capture.tscn -- --phase3`.
+`xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- phase3`.
 
 | File | What |
 |---|---|
@@ -884,7 +884,7 @@ Water keeps the four frames at 250 ms and is still drawn half a level low.
   - `data_validation` checks that every tile the v2 sets name is in the atlas and that every mark's pattern, decals and
     tints exist.
 - **Review images.** The tile sheet at ×4 is `docs/redesign/terrain_v2/10_tile_sheet_x4.png`. The before and after
-  views, drawn by the game (`tools/dev/topdown_capture.tscn -- --terrain <before|after>`), are in
+  views, drawn by the game (`tools/dev/capture/capture.tscn -- terrain --tag=<before|after>`), are in
   `docs/redesign/terrain_v2/before/` and `after/`, and the side-by-side pairs are
   `docs/redesign/terrain_v2/0N_*_before_after.png`.
 
@@ -999,8 +999,8 @@ kind has its own cap:
   - the particles under their caps by day and at night;
   - a night room lit by its lanterns.
 
-**Review images.** Before and after, drawn by the game (`tools/dev/topdown_capture.tscn -- --light
---light-tag=<before|after>`), are in `docs/redesign/terrain_v2/light/`:
+**Review images.** Before and after, drawn by the game (`tools/dev/capture/capture.tscn -- light
+--tag=<before|after>`), are in `docs/redesign/terrain_v2/light/`:
 
 - the village square by day, at the evening and at the clock's night;
 - the village at night;
@@ -1157,7 +1157,7 @@ and leaves on the ground. This part closes that gap and keeps every path readabl
 **Review images** (`docs/redesign/terrain_v2/foliage/`):
 
 - `before/` and `after/`: the Terrain v2 views, the Willow Path, the Herb Terraces, the Pavilion Rooftops, and two
-  fights under the HUD. They are drawn by `tools/dev/topdown_capture.tscn -- --terrain foliage/<before|after>`, and the
+  fights under the HUD. They are drawn by `tools/dev/capture/capture.tscn -- foliage --tag=<before|after>`, and the
   pairs are `NN_*_before_after.png`.
 - `after/rooms/`: every room on the grid whole at 1 art px.
 - `props_x2.png` and `decor_x4.png`: the kit and the ground cover (`build_decor.py --review`).
@@ -1314,7 +1314,7 @@ label follows them. `data_validation` (`life_art_suite`) checks the sheets and t
 
 **Review images** (`docs/redesign/feedback/living_world/`): `before/` and `after/` (the village, a sect, the marsh,
 the peaks, the market, four interiors and two nights, under the HUD at the phone's 1280 × 720, drawn by
-`tools/dev/topdown_capture.tscn -- --life --life-tag=<before|after>`), and `pairs/` (six of them side by side at the
+`tools/dev/capture/capture.tscn -- life --tag=<before|after>`), and `pairs/` (six of them side by side at the
 art's own size); `detail/` (close-ups x4 of each thing, `-- --life --life-detail`); `sheet_x4.png` and
 `vistas_x2.png` (`build_life.py --review`).
 
@@ -1425,7 +1425,7 @@ foliage placement rules and the reach checks hold as before.
 **Review images** (`docs/redesign/feedback/sand_snow/`): `before/` and `after/` (each painted room at x2 with the body
 on the new ground, `rooms/` each whole at 1 art px, and `closeups/` x4 of the transitions), `pairs/` side by side,
 `after/10_sampler.png` and its close-ups (every transition on a room of its own, drawn by the game), all by
-`tools/dev/topdown_capture.tscn -- --sand-snow --sand-snow-tag=<before|after>`; `11_tile_sheet_x4.png` (the patterns,
+`tools/dev/capture/capture.tscn -- sand_snow --tag=<before|after>`; `11_tile_sheet_x4.png` (the patterns,
 faces, decals, overlays over their grounds, the damp tint and the sandy shore, `build_tiles.py --review-sand-snow`).
 
 ## 15. Combat effects (decision 38)

@@ -38,6 +38,9 @@ if ! python3 tools/data/places.py --check; then failed+=("places"); fi
 # Decision 43: the sound pass's table is current, and every sound on disk passes its levels, loop seams and phone band.
 echo "== sound"
 if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
+# Audit 45 (E6): the cue table (data/cues.json) is what its generator writes.
+echo "== cues"
+if ! python3 tools/data/cues.py --check; then failed+=("cues"); fi
 # Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
 echo "== pix"
 if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi

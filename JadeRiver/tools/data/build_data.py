@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import common  # noqa: E402
 
-MODULES = ["realms", "stats", "combat_feel", "sound", "legends", "posts", "items", "gear", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "moments", "scenes", "contract", "places", "tutorials", "topdown_life"]
+MODULES = ["realms", "stats", "combat_feel", "sound", "legends", "posts", "items", "gear", "herbs", "techniques", "enemies", "world", "story", "economy", "crafts", "paths", "relations", "living_world", "moments", "scenes", "contract", "places", "tutorials", "topdown_life", "cues"]
 
 
 def main(argv=None):

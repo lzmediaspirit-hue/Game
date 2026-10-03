@@ -170,7 +170,7 @@ meets its pacing (`tests/tutorial_order.gd` invariant 14).
 - **The event contract** gains `scene_started`, `scene_marked`, `scene_ended`, and four events the hand-offs wait on
   that it had missed: `page_opened`, `quest_failed`, `object_hit` and `quick_use_changed`.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --story`, in `docs/redesign/phase5/story/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- story`, in `docs/redesign/phase5/story/`):
 
 - 01–05: the opening, its walk strip and both hand-offs;
 - 06–08: dawn in Home Lane;
@@ -232,7 +232,7 @@ Ping's door and the night begins again.
 - the palm Lu teaches on the boat;
 - the teas and pills you used against the awakened eel, given back.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --night`, in `docs/redesign/feedback/hollow_night/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- night`, in `docs/redesign/feedback/hollow_night/`):
 
 - 01–05: the storm, the river boiling, Dou among the minnows, Aunt Ping at her door, the first hand-off;
 - 06–07: a school cut down, and Old Ma running for the hut;
@@ -366,7 +366,7 @@ bank").
 elders slay it. `balance_sim`'s "story night" holds that phase 1 falls to the player every time, HP to spare, with the
 short blade or Guo's gauntlets alone.
 
-**Screenshots** (`tools/dev/topdown_capture.tscn -- --first-boss`, in `docs/redesign/feedback/first_boss/`):
+**Screenshots** (`tools/dev/capture/capture.tscn -- first_boss`, in `docs/redesign/feedback/first_boss/`):
 
 - `before_*`: the night's climax before the rework (build 110);
 - `after_*`: phase 1 under the boss bar, the waking (the river boiling, Aunt Ping's warning), phase 2 (the prompt, the
