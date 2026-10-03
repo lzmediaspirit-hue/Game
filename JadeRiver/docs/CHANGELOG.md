@@ -55,23 +55,22 @@ it so. Only names changed: the game plays the same, and the save data is untouch
 - **The side view.** `world.gd` and `player.gd` keep their names. Two calls into `world.gd` are left out of the rule
   with a `# side view` mark: `w._cast` and `w._on_event` in `perf_tests`' crowd, which runs in the side view. Renaming
   them would only touch the side view, and S12 deletes it.
-- **Checks.** `tools/run_tests.sh` ran three times as the base moved: on the tree merged with E1, then with E2, E4
-  and F1, then with R1. The first two runs were compared with a run of their base alone (`6e38940`, `eac2130`).
-  - Every gate passed on each run, `boot` among them, and no run had a SCRIPT ERROR.
-  - Each suite kept its base's count, except `contract_tests`: 1,112 against 1,109, the rule's 3 checks. After R1 the
-    22 suites have 73,872 checks, R1's 73,869 and those 3.
-  - In the full runs, `perf_tests` passed on the tree merged with E1 and on its base. It missed one millisecond budget
-    in the two later S11 runs and in the run of `eac2130`: the Marsh Edge's fight or the sword swarm. The machine was shared, at a load
-    of 4 to 7.
-  - `perf_tests` also ran alone, S11 and the base interleaved, eight rounds each. S11 missed 1, 0, 1, 1, 2, 1, 0 and
-    1 checks, and the base 0, 0, 1, 0, 2, 0, 0 and 0.
-    - The misses were the borderline budgets S9 named: the sword swarm and the Marsh Edge's fight (16.6 ms each),
-      and the wood tree's drag. Over the last five pairs the sword swarm measured 12.3 to 17.6 ms and the Marsh Edge
-      13.9 to 17.8 ms, on both sides.
-    - In those five pairs, S11's rounds ran at a higher load, 5.4 on average against the base's 4.5. In the pair run
-      at about the same load (5.0 and 5.2), both passed and measured about the same: the sword swarm 15.05 ms against
-      14.91, and the Marsh Edge 14.56 against 15.13.
-    - The change renames calls and moves no work, so it cannot change the run time.
+- **Checks.** `tools/run_tests.sh` ran four times as the base moved: on the tree merged with E1, then with E2, E4
+  and F1, then with R1, and last with R2 and R3. Each run but R1's was compared with a run of its base alone
+  (`6e38940`, `eac2130` and `2ede6e7`).
+  - The final run passed every gate, `boot` among them, and all 24 suites, `perf_tests` among them. It has 73,985
+    checks, 0 failures and no SCRIPT ERROR. The base has 73,982.
+  - In every run, each suite kept its base's count, except `contract_tests`: 1,112 against 1,109, the rule's 3 checks.
+    No run had a SCRIPT ERROR.
+  - `perf_tests`' frame budgets missed now and then on both sides while the machine was shared (a load of 4 to 7).
+    - In the full runs, S11 missed one check in two runs out of four. The three bases missed none, one and two.
+    - Run alone, S11 and the base interleaved, eight rounds each: S11 missed 1, 0, 1, 1, 2, 1, 0 and 1 checks, and the
+      base 0, 0, 1, 0, 2, 0, 0 and 0.
+    - Every miss was one of the borderline budgets S9 named: the sword swarm, the Marsh Edge's fight (16.6 ms each)
+      and the wood tree's drag.
+    - S11's rounds mostly ran at a higher load. In the pair run at about the same load (5.0 and 5.2), both passed with
+      about the same figures: the sword swarm 15.05 ms against 14.91, and the Marsh Edge 14.56 against 15.13.
+    - The change renames calls and moves no work.
   - `build_data.py` writes nothing. `data/` is unchanged, `event_contract.json` included, because no emit moved
     between files.
 
