@@ -47,7 +47,7 @@ const CONTROL := ["room_entered", "room_left", "character_switched"]
 func _ready() -> void:
 	cfg = ContentDB.config("moments").get("settings", {})
 	load_rows(ContentDB.all("moments"))
-	GameEvents.event.connect(_on_event)
+	GameEvents.event.connect(on_event)
 	if world == null: return
 	for n in [4, 8]:   # under the HUD (5), and over it but under the shell (15) and the pages (20)
 		var cl := CanvasLayer.new()
@@ -60,7 +60,7 @@ func _ready() -> void:
 		canvases.append(d)
 
 func _exit_tree() -> void:
-	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
+	if GameEvents.event.is_connected(on_event): GameEvents.event.disconnect(on_event)
 	_set_lock(0.0)
 
 ## The rows to play: moments.json, or fixture rows in the tests.
@@ -86,7 +86,7 @@ func clear() -> void:
 	recent.clear()
 	_set_lock(0.0)
 
-func _on_event(name: String, p: Dictionary) -> void:
+func on_event(name: String, p: Dictionary) -> void:
 	if watched.has(name): pending.append([name, p])
 
 func _process(delta: float) -> void:
@@ -745,11 +745,11 @@ func _draw_stats(ci: Node2D, pl: Dictionary, L: Dictionary, lt: float, a: float,
 ## What a stat rose by, as the card writes it: a whole-number stat by its rounded numbers (7 → 10 gains 3, whatever the
 ## fractions under them), so a rise that rounds away is not shown.
 static func _gain(id: String, was: float, now: float) -> float:
-	return now - was if UiKit._stat_is_percent(id) or id == "aura" else roundf(now) - roundf(was)
+	return now - was if UiKit.stat_is_percent(id) or id == "aura" else roundf(now) - roundf(was)
 
 static func _stat_text(id: String, v: float, delta := false) -> String:
 	if id == "aura": return Tx.t("moment.aura.%d" % int(v))
-	if UiKit._stat_is_percent(id): return "%.1f%%" % (v * 100.0)
+	if UiKit.stat_is_percent(id): return "%.1f%%" % (v * 100.0)
 	return Tx.t("moment.years") % UiKit.fmt(v) if id == "lifespan" and not delta else UiKit.fmt(v)
 
 ## The next-unlock chips (E5): what the new stage opens, one above another.

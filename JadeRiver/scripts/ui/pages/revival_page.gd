@@ -32,7 +32,7 @@ func draw_surface(r: Rect2) -> void:
 	draw_rect(r, Color(UiKit.BLOOD, 0.06))
 	ground(r, wall_light)
 	# The light falls to the right of the lamp; the left stays in shadow.
-	glow(Rect2(LAMP.x - 300, LAMP.y - 260, 600, 440), Color(UiKit.SURFACE.glow, 0.10 * _halo()))
+	glow(Rect2(LAMP.x - 300, LAMP.y - 260, 600, 440), Color(UiKit.SURFACE.glow, 0.10 * halo_k()))
 	hshade(Rect2(r.position.x, r.position.y, 360, r.size.y), Color(UiKit.INK, 0.55), Color(UiKit.INK, 0.0))
 	draw_rect(r, Color(UiKit.BRONZE, 0.5), false, 1.0)
 	# The niche: a round-topped recess, its lip catching the light.
@@ -44,7 +44,7 @@ func draw_surface(r: Rect2) -> void:
 	var lip := PackedVector2Array(Array(arch).map(func(p): return n.get_center() + (p - n.get_center()) * 1.08))
 	draw_colored_polygon(lip, UiKit.SURFACE.stone.lerp(UiKit.SURFACE.glow, 0.12))
 	draw_colored_polygon(arch, UiKit.INK)
-	glow(Rect2(LAMP.x - 90, LAMP.y - 150, 180, 200), Color(UiKit.SURFACE.ember, 0.35 * _halo()))
+	glow(Rect2(LAMP.x - 90, LAMP.y - 150, 180, 200), Color(UiKit.SURFACE.ember, 0.35 * halo_k()))
 
 func title_rect() -> Rect2:
 	return Rect2(frame_rect.get_center().x - 200, frame_rect.position.y + 14, 400, 52)
@@ -122,7 +122,7 @@ func _lamp() -> void:
 	var settle := 1.0 if still else clampf(opened / GUTTER_S, 0.0, 1.0)
 	var sway := 0.0 if still else (1.0 - settle) * sin(t * 23.0) * 0.8 + 0.12 * sin(t * 2.3)
 	var h := 30.0 + 8.0 * settle + (0.0 if still else 1.5 * sin(t * 3.1))
-	glow(Rect2(p.x - 40, p.y - 12 - h - 30, 80, h + 70), Color(UiKit.SURFACE.flame, 0.45 * _halo()))
+	glow(Rect2(p.x - 40, p.y - 12 - h - 30, 80, h + 70), Color(UiKit.SURFACE.flame, 0.45 * halo_k()))
 	WayKit.flame(self, p + Vector2(0, -8), h, sway)
 
 func on_action(id: String, data) -> void:

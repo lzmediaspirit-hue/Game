@@ -37,7 +37,7 @@ func frame_badges() -> Array:
 
 It replaced the caches in:
 - `WorldShared._frame_memo`;
-- `hud.gd`: `tour_targets`, `_frame_badges` (which no longer duplicates `points_override` on every call, BUG-08) and
+- `hud.gd`: `tour_targets`, `frame_badges` (which no longer duplicates `points_override` on every call, BUG-08) and
   `_look`;
 - `TopdownWorld.soft_target`;
 - `PostsPage.rows`;

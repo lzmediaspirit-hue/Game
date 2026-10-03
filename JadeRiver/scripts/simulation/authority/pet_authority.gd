@@ -21,7 +21,7 @@ func intents() -> Array:
 
 func subscribe() -> void:
 	GameEvents.subscribe("room_entered", _on_room_entered, 45)
-	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 75)
+	GameEvents.subscribe("actor_defeated", on_actor_defeated, 75)
 	GameEvents.subscribe("meditation_tick", _on_meditation_tick, 75)
 	GameEvents.subscribe("hit_landed", _on_player_hit, 75)
 	# S43 rules 5 and 12: no mount climbs; the rider steps down for a ladder or rope and back on at the landing.
@@ -36,13 +36,13 @@ func handle(intent: Dictionary) -> Dictionary:
 		"feed_swarm": return feed_swarm(c, str(intent.get("item", "")), int(intent.get("count", 1)))
 		"set_active_pet":
 			var uid := str(intent.get("pet", ""))
-			if uid != "" and _pet(c, uid).is_empty(): return fail("unknown_pet")
+			if uid != "" and pet_of(c, uid).is_empty(): return fail("unknown_pet")
 			var why := call_blocked(c, uid)
 			if why != "": return fail("cannot_call", {"text": why})
 			c.active_pet = uid
 			c.party_pets.erase(uid)
 			if uid == c.mount_pet: _clear_mount(c)
-			_spawn(c)
+			spawn(c)
 			emit("pet_changed", {"actor": c.id, "pet": uid})
 			return ok()
 		"set_pet_bag": return set_pet_bag(c, str(intent.get("pet", "")), bool(intent.get("on", true)))
@@ -50,7 +50,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"set_mount": return set_mount(c, str(intent.get("pet", "")), intent.get("on", null))
 		"arena_challenge": return arena_challenge(c, str(intent.get("mode", "solo")))
 		"set_pet_role":
-			var p := _pet(c, str(intent.get("pet", c.active_pet)))
+			var p := pet_of(c, str(intent.get("pet", c.active_pet)))
 			if p.is_empty(): return fail("unknown_pet")
 			var role := str(intent.get("role", "combat"))
 			if not role in ["combat", "gatherer", "cultivation", "mount", "guard"]: return fail("bad_role")
@@ -63,7 +63,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			# S46 Mount slot: the mount carries you in its own slot, so a combat animal can walk beside you.
 			if role == "mount":
 				if c.mount_pet != "" and c.mount_pet != str(p.uid):
-					var old := _pet(c, c.mount_pet)
+					var old := pet_of(c, c.mount_pet)
 					if not old.is_empty() and not mount_only(old): old.role = "combat"
 				c.mount_pet = str(p.uid)
 				c.riding = true
@@ -72,10 +72,10 @@ func handle(intent: Dictionary) -> Dictionary:
 			elif c.mount_pet == str(p.uid): _clear_mount(c)
 			emit("pet_changed", {"actor": c.id, "pet": p.uid})
 			if role == "mount": emit("system_used", {"actor": c.id, "system": "mount"})
-			_spawn(c)   # a mount carries you instead of following
+			spawn(c)   # a mount carries you instead of following
 			return ok()
 		"feed_pet":
-			var p2 := _pet(c, str(intent.get("pet", c.active_pet)))
+			var p2 := pet_of(c, str(intent.get("pet", c.active_pet)))
 			var item := str(intent.get("item", ""))
 			if p2.is_empty(): return fail("unknown_pet")
 			if is_construct(p2): return fail("construct", {"text": Tx.t("sim.pet.construct")})
@@ -95,7 +95,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"evolve_pet": return evolve(c, str(intent.get("pet", c.active_pet)), str(intent.get("branch", "")))
 		"breed": return breed(c, str(intent.get("a", "")), str(intent.get("b", "")))
 		"rename_pet":
-			var p3 := _pet(c, str(intent.get("pet", c.active_pet)))
+			var p3 := pet_of(c, str(intent.get("pet", c.active_pet)))
 			if p3.is_empty(): return fail("unknown_pet")
 			var nm := str(intent.get("name", p3.name)).strip_edges().left(16)
 			if nm == "": return fail("empty_name")
@@ -103,7 +103,7 @@ func handle(intent: Dictionary) -> Dictionary:
 			emit("pet_changed", {"actor": c.id, "pet": p3.uid})
 			return ok()
 		"lock_pet":
-			var p4 := _pet(c, str(intent.get("pet", c.active_pet)))
+			var p4 := pet_of(c, str(intent.get("pet", c.active_pet)))
 			if p4.is_empty(): return fail("unknown_pet")
 			p4.locked = bool(intent.get("locked", not p4.get("locked", false)))
 			emit("pet_changed", {"actor": c.id, "pet": p4.uid})
@@ -121,7 +121,7 @@ func handle(intent: Dictionary) -> Dictionary:
 		"pet_breakthrough": return pet_breakthrough(c, str(intent.get("pet", c.active_pet)), intent.get("support", []), str(intent.get("branch", "")))
 	return fail("unknown_intent")
 
-func _pet(c, uid: String) -> Dictionary:
+func pet_of(c, uid: String) -> Dictionary:
 	for p in c.pets:
 		if str(p.uid) == uid: return ensure_fields(p)
 	return {}
@@ -177,7 +177,7 @@ func stat_mult(p: Dictionary, stat: String) -> float:
 	return m
 
 func active_pet(c) -> Dictionary:
-	return _pet(c, c.active_pet) if c != null else {}
+	return pet_of(c, c.active_pet) if c != null else {}
 
 func gatherer_active(actor_id: String) -> bool:
 	var c = game.character(actor_id)
@@ -188,7 +188,7 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 	var sp := ContentDB.entry("pets", species)
 	if c == null or sp.is_empty(): return
 	var uid := "%s_%d" % [species, c.pets.size() + 1]
-	while not _pet(c, uid).is_empty(): uid += "b"
+	while not pet_of(c, uid).is_empty(): uid += "b"
 	var construct := bool(sp.get("construct", false))
 	if construct and c.pets.any(func(o): return str(o.species) == species): return   # one combat puppet only (S48)
 	var pet := {"uid": uid, "species": species, "name": str(sp.get("name", species)), "level": 1, "xp": 0.0, "bond": 1.0,
@@ -203,7 +203,7 @@ func apply_grant(actor_id: String, species: String, born: Dictionary = {}) -> vo
 	if c.active_pet == "": c.active_pet = uid
 	emit("pet_bonded", {"actor": actor_id, "pet": uid, "species": species})
 	if not construct: _check_awakening(c, pet)
-	_spawn(c)
+	spawn(c)
 
 ## S48 a combat puppet is a construct: it takes a pet slot but does not eat, bond, breed, fuse or grow.
 static func is_construct(p: Dictionary) -> bool:
@@ -220,9 +220,9 @@ func apply_bond_species(actor_id: String, species: String, amount: float) -> voi
 
 func apply_bond(actor_id: String, amount: float, uid := "") -> void:
 	var c = game.character(actor_id)
-	var p := active_pet(c) if uid == "" else _pet(c, uid)
+	var p := active_pet(c) if uid == "" else pet_of(c, uid)
 	if p.is_empty() or is_construct(p): return
-	if amount > 0.0: amount *= 1.0 + _trait_sum(p, "bond_gain")
+	if amount > 0.0: amount *= 1.0 + trait_sum(p, "bond_gain")
 	var before := int(float(p.bond))
 	p.bond = clampf(float(p.bond) + amount, 0.0, 10.0)
 	if int(float(p.bond)) != before:
@@ -266,8 +266,8 @@ func breed_partners(c, p: Dictionary) -> Array:
 func breed(c, a_uid: String, b_uid: String) -> Dictionary:
 	var why := breeding_blocked(c)
 	if why != "": return fail("locked", {"text": why})
-	var a := _pet(c, a_uid)
-	var b := _pet(c, b_uid)
+	var a := pet_of(c, a_uid)
+	var b := pet_of(c, b_uid)
 	if a.is_empty() or b.is_empty() or a_uid == b_uid: return fail("unknown_pet")
 	if not breed_partners(c, a).has(b): return fail("not_a_pair", {"text": Tx.t("sim.pet.two_adults_of_one_family")})
 	var cfg: Dictionary = growth().get("breeding", {})
@@ -309,7 +309,7 @@ func mount_of(c) -> Dictionary:
 	if c == null or dismounted.has(c.id) or climb_off.has(c.id): return {}
 	_migrate_mount(c)
 	if not c.riding or c.mount_pet == "": return {}
-	var p := _pet(c, c.mount_pet)
+	var p := pet_of(c, c.mount_pet)
 	if p.is_empty(): return {}
 	return ContentDB.entry("pets", str(p.species)).get("mount", {})
 
@@ -323,7 +323,7 @@ func _migrate_mount(c) -> void:
 	c.active_pet = ""
 
 func mount_pet_of(c) -> Dictionary:
-	return _pet(c, c.mount_pet) if c != null and c.mount_pet != "" else {}
+	return pet_of(c, c.mount_pet) if c != null and c.mount_pet != "" else {}
 
 func mount_only(p: Dictionary) -> bool:
 	return ContentDB.entry("pets", str(p.get("species", ""))).get("mount_only", false)
@@ -335,15 +335,15 @@ func _clear_mount(c) -> void:
 ## The Mount button: climb on or off; with a pet, put that animal in the Mount slot first.
 func set_mount(c, uid: String, on) -> Dictionary:
 	if uid != "":
-		var p := _pet(c, uid)
+		var p := pet_of(c, uid)
 		if p.is_empty(): return fail("unknown_pet")
 		return handle({"type": "set_pet_role", "actor": c.id, "pet": uid, "role": "mount"})
-	if c.mount_pet == "" or _pet(c, c.mount_pet).is_empty(): return fail("no_mount", {"text": Tx.t("sim.pet.no_mount")})
+	if c.mount_pet == "" or pet_of(c, c.mount_pet).is_empty(): return fail("no_mount", {"text": Tx.t("sim.pet.no_mount")})
 	var want: bool = (not c.riding) if on == null else bool(on)
 	if want and dismounted.has(c.id): return fail("thrown", {"text": Tx.t("sim.pet.thrown")})
 	c.riding = want
 	emit("pet_changed", {"actor": c.id, "pet": c.mount_pet})
-	_spawn(c)
+	spawn(c)
 	return ok({"riding": c.riding})
 
 ## The jump a rider makes (S43 rule 12): a ground mount's own impulse (default 530, the body's); a flying mount's
@@ -366,7 +366,7 @@ func _on_climb_started(p: Dictionary) -> void:
 	if c == null or mount_of(c).is_empty(): return
 	climb_off[c.id] = true
 	emit("dismounted", {"actor": c.id, "reason": "climb"})
-	_spawn(c)   # it waits below and follows
+	spawn(c)   # it waits below and follows
 
 func _on_landed_remount(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
@@ -375,7 +375,7 @@ func _on_landed_remount(p: Dictionary) -> void:
 	if st != null and (not st.climbing.is_empty() or st.surface == null): return
 	climb_off.erase(c.id)
 	emit("pet_changed", {"actor": c.id, "pet": c.mount_pet})
-	_spawn(c)
+	spawn(c)
 
 func mount_speed(c) -> float:
 	if mount_of(c).is_empty(): return 1.0
@@ -395,11 +395,11 @@ func _on_player_hit(p: Dictionary) -> void:
 	if float(p.get("amount", 0)) >= c.pools.max_hp * float(growth().get("dismount_hp_pct", 0.15)):
 		dismounted[c.id] = float(growth().get("dismount_s", 10))
 		emit("dismounted", {"actor": c.id})
-		_spawn(c)   # it lands beside you and follows until you climb back on
+		spawn(c)   # it lands beside you and follows until you climb back on
 
 func _on_room_entered(_p: Dictionary) -> void:
-	_spawn(game.active())
-	_trough(game.active())
+	spawn(game.active())
+	feed_from_trough(game.active())
 
 ## A pet on Guard duty (S45) keeps pests and thieves off the garden while you are away.
 func guard_pet(c) -> Dictionary:
@@ -407,7 +407,7 @@ func guard_pet(c) -> Dictionary:
 		if str(p.get("role", "")) == "guard": return p
 	return {}
 
-func _spawn(c) -> void:
+func spawn(c) -> void:
 	if c == null or game.room_rt == null: return
 	# Uids restart in every room: only remove entries that really are our animals.
 	for puid in allies:
@@ -415,7 +415,7 @@ func _spawn(c) -> void:
 		if old != null and old.team == "ally" and old.pet_owner == c.id and str(old.ai.get("pet", "")) == str(puid): game.room_rt.enemies.erase(allies[puid])
 	allies.clear()
 	ally_uid = 0
-	_apply_pockets(c)
+	apply_pockets(c)
 	if game.room_rt.def.get("type", "") == "interior": return
 	var i := 0
 	var walking: Array = party(c)
@@ -473,7 +473,7 @@ func tick(delta: float) -> void:
 		dismounted[actor] = float(dismounted[actor]) - delta
 		if float(dismounted[actor]) <= 0.0:
 			dismounted.erase(actor)
-			_spawn(game.character(actor))
+			spawn(game.character(actor))
 	var c = game.active()
 	if c == null: return
 	_tick_swarm(c, delta)
@@ -483,23 +483,23 @@ func tick(delta: float) -> void:
 	for puid in allies.keys():
 		var a: EnemyState = game.room_rt.enemies.get(allies[puid])
 		if a == null or str(a.ai.get("pet", "")) != str(puid): continue
-		var p := _pet(c, str(puid))
+		var p := pet_of(c, str(puid))
 		if p.is_empty(): continue
-		var power := pet_power(c, p) * _skill_mult(c, p, a, delta)
+		var power := pet_power(c, p) * skill_mult(c, p, a, delta)
 		var was_down: bool = a.ai.state == "downed"
 		# Frenzy (S46): after a kill its wind-ups and recoveries run 15% faster.
 		if float(a.ai.get("frenzy", 0.0)) > 0.0:
 			a.ai.frenzy = float(a.ai.frenzy) - delta
 			if str(a.ai.state) in ["windup", "recover"]: a.ai.timer = float(a.ai.timer) - delta * float(a.ai.get("frenzy_speed", 0.15))
 		AllyBrain.think(game, a, delta, power, 36.0)
-		_roar(c, p, a, delta)
+		roar(c, p, a, delta)
 		if was_down and a.ai.state != "downed":
 			emit("pet_returned", {"actor": c.id, "uid": a.uid, "pet": str(puid)})
-		_suppress(c, p, a, delta)
+		suppress(c, p, a, delta)
 
 ## One animal's strike: a share of the owner's attack, by stage, care, traits, rarity, gifts and role.
 func pet_power(c, p: Dictionary) -> float:
-	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + _trait_sum(p, "pet_damage") + c.stats.value("pet_damage")) \
+	var power: float = c.stats.value("physical_attack") * inherit_share(p) * care_mult(p) * (1.0 + trait_sum(p, "pet_damage") + c.stats.value("pet_damage")) \
 		* rarity_power(p) * stat_mult(p, "attack")
 	power *= 1.0 + role_match(p) if p.get("role", "combat") == "combat" else 0.6
 	if game.sim_time < float(rally_until.get(c.id, -1.0)): power *= float(arena_cfg().get("grove", {}).get("rally", {}).get("mult", 1.25))   # the keeper's rally
@@ -514,14 +514,14 @@ func apply_retreat(a: EnemyState) -> void:
 	var puid := str(a.ai.get("pet", c.active_pet if c else ""))
 	emit("pet_retreated", {"actor": c.id if c else "", "uid": a.uid, "pet": puid})
 	if c == null: return
-	var p := _pet(c, puid)
-	_knocked_out(c, p)
+	var p := pet_of(c, puid)
+	knocked_out(c, p)
 	# A Blood Contract binds the two of you: its knockout bruises your soul.
 	if str(p.get("contract", "")) == "blood":
 		game.progression.apply_injury(c.id, "soul", int(growth().get("contracts", {}).get("blood", {}).get("soul_injury", 1)))
 
 ## S46 Grievous Wound: three knockouts inside five minutes leave the animal at 80% until it rests or is dosed.
-func _knocked_out(c, p: Dictionary) -> void:
+func knocked_out(c, p: Dictionary) -> void:
 	if p.is_empty(): return
 	var g: Dictionary = growth().get("grievous", {})
 	var now: float = game.sim_time
@@ -546,7 +546,7 @@ func heal_wound(actor_id: String, uid := "", repair := false) -> bool:
 			p.knockouts = []
 			healed = true
 			emit("pet_healed", {"actor": c.id, "pet": str(p.uid)})
-	if healed: _spawn(c)
+	if healed: spawn(c)
 	return healed
 
 ## Rest your animals at the Beast Hall (Hermit Yao) or your sect's Beast Pavilion: every Grievous Wound mends.
@@ -561,7 +561,7 @@ func _at_beast_hall(c) -> bool:
 # ------------------------------------------------------------------ beast cores (S46)
 ## A core of the animal's own element feeds its growth.
 func devour_core(c, uid: String, item: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	if is_construct(p): return fail("construct", {"text": Tx.t("sim.pet.construct")})
 	var core: Dictionary = ContentDB.item(item).get("core", {})
@@ -610,7 +610,7 @@ func sell_cores(c, item: String, count: int) -> Dictionary:
 	emit("cores_sold", {"actor": c.id, "item": item, "count": count, "stones": price * count})
 	return ok({"count": count, "stones": price * count})
 
-func _on_actor_defeated(p: Dictionary) -> void:
+func on_actor_defeated(p: Dictionary) -> void:
 	var c = game.active()
 	var pet := active_pet(c)
 	if pet.is_empty() or p.get("victim_kind", "") != "enemy": return
@@ -618,7 +618,7 @@ func _on_actor_defeated(p: Dictionary) -> void:
 	# Frenzy (S46): every animal beside you that knows it quickens after a kill.
 	if game.room_rt == null: return
 	for puid in allies:
-		var q := _pet(c, str(puid))
+		var q := pet_of(c, str(puid))
 		var fr: Dictionary = ContentDB.entry("pet_skill_books", "frenzy").get("frenzy", {})
 		var a: EnemyState = game.room_rt.enemies.get(allies[puid])
 		if a != null and has_skill(q, "frenzy"):
@@ -690,7 +690,7 @@ func can_evolve(c, p: Dictionary) -> bool:
 	return not gates.is_empty() and gates.all(func(g): return g.ok)
 
 func evolve(c, uid: String, branch: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	var nx := next_stage(p)
 	if nx.is_empty(): return fail("final_stage", {"text": Tx.t("sim.pet.it_has_grown_as_far")})
@@ -730,9 +730,9 @@ func revealed_traits(p: Dictionary) -> Array:
 
 ## What the active animal's revealed traits add to one number (pet_traits.json `bonus`).
 func trait_bonus(c, key: String) -> float:
-	return _trait_sum(active_pet(c) if c != null else {}, key)
+	return trait_sum(active_pet(c) if c != null else {}, key)
 
-func _trait_sum(p: Dictionary, key: String) -> float:
+func trait_sum(p: Dictionary, key: String) -> float:
 	var total := 0.0
 	for t in revealed_traits(p):
 		total += float(ContentDB.entry("pet_traits", str(t)).get("bonus", {}).get(key, 0.0))
@@ -749,7 +749,7 @@ func resonance(c) -> float:
 		var share := 1.0 if str(p.get("role", "")) == "cultivation" and str(p.uid) == c.active_pet else 0.0
 		if share == 0.0 and str(p.get("contract", "")) == "equal": share = float(growth().get("contracts", {}).get("equal", {}).get("resonance_share", 0.5))
 		if share == 0.0: continue
-		var base := float(stage_def(str(p.get("stage", "hatchling"))).get("resonance", 0.0)) + _trait_sum(p, "resonance")
+		var base := float(stage_def(str(p.get("stage", "hatchling"))).get("resonance", 0.0)) + trait_sum(p, "resonance")
 		total += base * (1.0 + role_match(p)) * care_mult(p) * share
 	return total
 
@@ -908,7 +908,7 @@ func _check_awakening(c, p: Dictionary) -> void:
 		woke = true
 		emit("bloodline_awakened", {"actor": c.id, "pet": str(p.uid), "step": int(step[0]), "name": str(sp.get(str(step[2]), {}).get("name", "")),
 			"purity": int(p.purity)})
-	if woke and allies.has(str(p.uid)): _spawn(c)   # the new form shows at once
+	if woke and allies.has(str(p.uid)): spawn(c)   # the new form shows at once
 
 ## The ancestral skill woken at 50 purity ({} before).
 func bloodline_skill(p: Dictionary) -> Dictionary:
@@ -927,7 +927,7 @@ func _signature_skill(p: Dictionary) -> String:
 
 ## S46 casts: an awakened bloodline skill every 12 s of a fight, and an Equal Contract's free cast once a fight.
 ## Returns the multiplier for the strike this frame (1.0 when no skill goes with it).
-func _skill_mult(c, p: Dictionary, a: EnemyState, delta: float) -> float:
+func skill_mult(c, p: Dictionary, a: EnemyState, delta: float) -> float:
 	var eq: Dictionary = growth().get("contracts", {}).get("equal", {})
 	a.ai.skill_cd = maxf(0.0, float(a.ai.get("skill_cd", 0.0)) - delta)
 	var st: ActorState = game.actor_state(c.id)
@@ -980,7 +980,7 @@ func suppressed_by_party(c, e: EnemyState) -> bool:
 	return false
 
 ## Once a second an animal presses its blood on the wild beasts near it: each weaker one is gripped by Fear, once.
-func _suppress(c, p: Dictionary, a: EnemyState, delta: float) -> void:
+func suppress(c, p: Dictionary, a: EnemyState, delta: float) -> void:
 	var cfg: Dictionary = growth().get("suppression", {})
 	a.ai.sup_t = float(a.ai.get("sup_t", 0.0)) - delta
 	if float(a.ai.sup_t) > 0.0 or str(a.ai.get("state", "")) == "downed": return
@@ -999,7 +999,7 @@ func equal_contract_open(c, p: Dictionary) -> bool:
 	return str(p.get("contract", "master")) != "equal" and float(p.get("bond", 0.0)) >= need and not c.quests.has_flag("equal_contract")
 
 func offer_contract(c, uid: String, kind: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	var cfg: Dictionary = growth().get("contracts", {})
 	match kind:
@@ -1016,7 +1016,7 @@ func offer_contract(c, uid: String, kind: String) -> Dictionary:
 		_: return fail("bad_kind")
 	p.contract = kind
 	emit("contract_formed", {"actor": c.id, "pet": uid, "kind": kind})
-	_spawn(c)
+	spawn(c)
 	return ok({"contract": kind})
 
 # ------------------------------------------------------------------ command capacity (S46)
@@ -1036,16 +1036,16 @@ func party(c) -> Array:
 	if not act.is_empty() and not str(act.get("role", "")) in ["guard", "mount"] and not mount_only(act): out.append(act)   # on Guard duty it stays home (S45)
 	for uid in c.party_pets:
 		if out.size() >= command_capacity(c): break
-		var p := _pet(c, str(uid))
+		var p := pet_of(c, str(uid))
 		if p.is_empty() or str(p.uid) == c.active_pet or str(p.get("role", "")) in ["guard", "mount"] or mount_only(p): continue
 		out.append(p)
 	return out
 
 func set_party(c, uid: String, on: bool) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	if uid == c.active_pet: return fail("already_active")
-	c.party_pets = c.party_pets.filter(func(u): return str(u) != uid and not _pet(c, str(u)).is_empty())
+	c.party_pets = c.party_pets.filter(func(u): return str(u) != uid and not pet_of(c, str(u)).is_empty())
 	if on:
 		if str(p.get("role", "")) in ["guard", "mount"] or mount_only(p): return fail("busy", {"text": Tx.t("sim.pet.party_busy") % str(p.name)})
 		var why := call_blocked(c, uid)
@@ -1053,7 +1053,7 @@ func set_party(c, uid: String, on: bool) -> Dictionary:
 		var cap := command_capacity(c)
 		if c.party_pets.size() + 1 >= cap: return fail("capacity", {"text": Tx.plural("sim.pet.capacity", cap) % cap})
 		c.party_pets.append(uid)
-	_spawn(c)
+	spawn(c)
 	emit("party_changed", {"actor": c.id, "count": party(c).size()})
 	return ok({"party": c.party_pets.duplicate()})
 
@@ -1152,7 +1152,7 @@ func wash_marrow(actor_id: String) -> String:
 	p.aptitude[worst] = snappedf(Rng.stream(c.id, "bloodline").randf_range(float(ar[0]), float(ar[1])), 0.01)
 	emit("pet_changed", {"actor": c.id, "pet": str(p.uid)})
 	log_line(c.id, Tx.t("sim.pet.marrow_washed") % [str(p.name), Tx.t("ui.pets.apt_" + worst), float(p.aptitude[worst])], "loot")
-	_spawn(c)
+	spawn(c)
 	return worst
 
 # ------------------------------------------------------------------ skill books (S46)
@@ -1173,7 +1173,7 @@ func learn_blocked(p: Dictionary, skill: String) -> String:
 
 ## Teach a skill book: into a free slot, or over a random one when the slots are full.
 func learn_skill_book(c, uid: String, item: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	var skill := str(ContentDB.item(item).get("pet_book", ""))
 	var why := learn_blocked(p, skill)
@@ -1197,7 +1197,7 @@ func _learn(c, p: Dictionary, skill: String) -> Dictionary:
 		learned[i] = skill
 	p.learned_skills = learned
 	emit("pet_skill_learned", {"actor": c.id, "pet": str(p.uid), "skill": skill, "replaced": replaced})
-	_apply_pockets(c)
+	apply_pockets(c)
 	return {"skill": skill, "replaced": replaced}
 
 ## What an animal's learned skills add to one number (pet_skill_books.json `bonus`).
@@ -1210,12 +1210,12 @@ func _skill_sum(p: Dictionary, key: String) -> float:
 func damage_taken_mult(a: EnemyState) -> float:
 	var c = game.character(a.pet_owner)
 	if c == null: return 1.0
-	var p := _pet(c, str(a.ai.get("pet", c.active_pet)))
+	var p := pet_of(c, str(a.ai.get("pet", c.active_pet)))
 	# P7b Kin-Bond (the beast tamer line, 6 pieces): your animal takes less.
-	return maxf(0.1, 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")) * float(StatRules.set_flag(c, "kin_bond").get("taken", 1.0))
+	return maxf(0.1, 1.0 + trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")) * float(StatRules.set_flag(c, "kin_bond").get("taken", 1.0))
 
 ## Deep Pockets: the active animal carries a row of your gourd.
-func _apply_pockets(c) -> void:
+func apply_pockets(c) -> void:
 	var n := 0
 	var p := active_pet(c)
 	if has_skill(p, "deep_pockets"): n = int(ContentDB.entry("pet_skill_books", "deep_pockets").get("bag_slots", 6))
@@ -1228,7 +1228,7 @@ func whisper_range(c) -> float:
 	return 0.0
 
 ## Thunder Roar: every 15 s of a fight, foes near the animal are stunned for a second (bosses stand firm).
-func _roar(c, p: Dictionary, a: EnemyState, delta: float) -> void:
+func roar(c, p: Dictionary, a: EnemyState, delta: float) -> void:
 	if not has_skill(p, "thunder_roar") or str(a.ai.get("state", "")) == "downed": return
 	var cfg: Dictionary = ContentDB.entry("pet_skill_books", "thunder_roar").get("roar", {})
 	a.ai.roar_cd = maxf(0.0, float(a.ai.get("roar_cd", 0.0)) - delta)
@@ -1266,7 +1266,7 @@ func gear_bonus(p: Dictionary, stat: String) -> float:
 	return total
 
 func equip_pet(c, uid: String, index: int) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
 	if index < 0 or index >= c.inventory.bag.size() or c.inventory.bag[index] == null: return fail("empty")
 	var def := ContentDB.item(str(c.inventory.bag[index].id))
@@ -1278,11 +1278,11 @@ func equip_pet(c, uid: String, index: int) -> Dictionary:
 	p.equipment[slot] = inst
 	if old is Dictionary: game.inventory.apply_add_instance(c.id, old, "pet_gear")
 	emit("pet_gear_changed", {"actor": c.id, "pet": uid, "slot": slot, "item": str(inst.id)})
-	_spawn(c)
+	spawn(c)
 	return ok({"slot": slot})
 
 func unequip_pet(c, uid: String, slot: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	var inst = p.equipment.get(slot)
 	if not (inst is Dictionary): return fail("empty")
@@ -1290,7 +1290,7 @@ func unequip_pet(c, uid: String, slot: String) -> Dictionary:
 	p.equipment.erase(slot)
 	game.inventory.apply_add_instance(c.id, inst, "pet_gear")
 	emit("pet_gear_changed", {"actor": c.id, "pet": uid, "slot": slot, "item": ""})
-	_spawn(c)
+	spawn(c)
 	return ok()
 
 # ------------------------------------------------------------------ fusion (S46)
@@ -1305,8 +1305,8 @@ func fusion_blocked(c, keep: Dictionary, sacrifice: Dictionary) -> String:
 ## Sacrifice one animal to another: a 30% chance at each of its traits and learned skills, and half its purity above
 ## the kept one's. Needs a confirmation; locked animals are never fused. Its gear comes back to your gourd.
 func fuse_pets(c, keep_uid: String, sac_uid: String, confirm: bool) -> Dictionary:
-	var a := _pet(c, keep_uid)
-	var b := _pet(c, sac_uid)
+	var a := pet_of(c, keep_uid)
+	var b := pet_of(c, sac_uid)
 	var why := fusion_blocked(c, a, b)
 	if why != "": return fail("cannot_fuse", {"text": why})
 	if not confirm: return fail("confirm", {"text": Tx.t("sim.pet.fuse_confirm") % [str(b.name), str(a.name)]})
@@ -1338,7 +1338,7 @@ func fuse_pets(c, keep_uid: String, sac_uid: String, confirm: bool) -> Dictionar
 	if c.active_pet == sac_uid: c.active_pet = keep_uid
 	if gain > 0: add_purity(c, a, gain)
 	emit("pets_fused", {"actor": c.id, "keep": keep_uid, "sacrifice": sac_uid, "traits": got_traits, "skills": got_skills, "purity": gain})
-	_spawn(c)
+	spawn(c)
 	return ok({"traits": got_traits, "skills": got_skills, "purity": gain})
 
 # ------------------------------------------------------------------ pet breakthroughs and core grade (S46)
@@ -1368,7 +1368,7 @@ func breakthrough_chance(c, p: Dictionary, support: Array) -> float:
 ## From Awakened on a stage-up is a breakthrough: the gates as for any stage, then a roll. A failure costs a heart
 ## or leaves a Grievous Wound. Adult to Awakened is Pet Core Formation: it also rolls the core grade.
 func pet_breakthrough(c, uid: String, support: Array, branch: String) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
 	if is_construct(p): return fail("construct", {"text": Tx.t("sim.pet.construct")})
 	var nx := next_stage(p)
@@ -1417,7 +1417,7 @@ func _form_core(c, p: Dictionary, supports: int, rng: RandomNumberGenerator) -> 
 		if pts >= float(g.get("min", 0)): grade = str(g.id)
 	p.core_grade = grade
 	emit("pet_core_formed", {"actor": c.id, "pet": str(p.uid), "grade": grade, "points": pts})
-	_spawn(c)
+	spawn(c)
 	return grade
 
 # ------------------------------------------------------------------ rarity rolls (S46)
@@ -1462,16 +1462,16 @@ func in_combat(c) -> bool:
 func call_blocked(c, uid: String) -> String:
 	if uid == "": return ""
 	if in_combat(c): return Tx.t("sim.pet.not_in_combat")
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if mount_only(p): return Tx.t("sim.pet.mount_only") % str(p.name)
 	if safe_room() or c.pet_bag.has(uid) or uid == c.active_pet or c.party_pets.has(uid): return ""
 	return Tx.t("sim.pet.not_carried") % str(p.get("name", ""))
 
 ## Put an animal in the Spirit Beast Bag (or take it out), up to the bag's slots. Packing happens somewhere safe.
 func set_pet_bag(c, uid: String, on: bool) -> Dictionary:
-	var p := _pet(c, uid)
+	var p := pet_of(c, uid)
 	if p.is_empty(): return fail("unknown_pet")
-	c.pet_bag = c.pet_bag.filter(func(u): return str(u) != uid and not _pet(c, str(u)).is_empty())
+	c.pet_bag = c.pet_bag.filter(func(u): return str(u) != uid and not pet_of(c, str(u)).is_empty())
 	if on:
 		var cap := bag_capacity(c)
 		if cap <= 0: return fail("no_bag", {"text": Tx.t("sim.pet.no_bag")})
@@ -1483,15 +1483,15 @@ func set_pet_bag(c, uid: String, on: bool) -> Dictionary:
 
 ## The field swap: a carried animal takes the active place; the one it replaces goes into its slot in the bag.
 func swap_from_bag(c, uid: String) -> Dictionary:
-	if not c.pet_bag.has(uid) or _pet(c, uid).is_empty(): return fail("not_carried", {"text": Tx.t("sim.pet.not_carried") % str(_pet(c, uid).get("name", ""))})
+	if not c.pet_bag.has(uid) or pet_of(c, uid).is_empty(): return fail("not_carried", {"text": Tx.t("sim.pet.not_carried") % str(pet_of(c, uid).get("name", ""))})
 	if in_combat(c): return fail("in_combat", {"text": Tx.t("sim.pet.not_in_combat")})
 	var old: String = c.active_pet
 	var i: int = c.pet_bag.find(uid)
-	if old != "" and not _pet(c, old).is_empty(): c.pet_bag[i] = old
+	if old != "" and not pet_of(c, old).is_empty(): c.pet_bag[i] = old
 	else: c.pet_bag.remove_at(i)
 	c.active_pet = uid
 	c.party_pets.erase(uid)
-	_spawn(c)
+	spawn(c)
 	emit("pet_swapped", {"actor": c.id, "pet": uid, "from": old})
 	emit("pet_changed", {"actor": c.id, "pet": uid})
 	return ok({"from": old})
@@ -1502,7 +1502,7 @@ func taming_tier(c) -> int:
 
 # ------------------------------------------------------------------ Pavilion Feeding Trough (S46)
 ## Once a day, with a Beast Pavilion, hungry animals are fed from your storage (their favourite first, else any pet food).
-func _trough(c) -> void:
+func feed_from_trough(c) -> void:
 	if c == null or c.pets.is_empty(): return
 	var cfg: Dictionary = growth().get("trough", {})
 	var today := Clock.reset_day(Clock.now_utc())
@@ -1563,7 +1563,7 @@ func arena_team(c, mode: String) -> Array:
 	var act := active_pet(c)
 	if not act.is_empty() and not mount_only(act): pool.append(act)
 	for uid in (c.party_pets as Array) + (c.pet_bag as Array):
-		var p := _pet(c, str(uid))
+		var p := pet_of(c, str(uid))
 		if not p.is_empty() and not mount_only(p) and not pool.has(p): pool.append(p)
 	return pool.slice(0, 1 if mode == "solo" else 3)
 
@@ -1572,8 +1572,8 @@ func _arena_fighter(c, p: Dictionary) -> Dictionary:
 	var rec := {"name": str(p.name), "species": str(p.species), "level": int(p.level), "rarity": str(p.get("rarity", "common")),
 		"stage": str(p.get("stage", "hatchling")), "skill_mult": float(sk.get("mult", 1.0)) if not sk.is_empty() else 1.0,
 		"free_cast": str(p.get("contract", "")) == "equal"}
-	var taken := 1.0 + _trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")
-	return PetRules.combatant(rec, arena_cfg().get("battle", {}), {"hp": stat_mult(p, "hp"), "attack": stat_mult(p, "attack") * (1.0 + _trait_sum(p, "pet_damage")),
+	var taken := 1.0 + trait_sum(p, "pet_damage_taken") + _skill_sum(p, "pet_damage_taken")
+	return PetRules.combatant(rec, arena_cfg().get("battle", {}), {"hp": stat_mult(p, "hp"), "attack": stat_mult(p, "attack") * (1.0 + trait_sum(p, "pet_damage")),
 		"defence": stat_mult(p, "defence") / maxf(0.1, taken), "speed": stat_mult(p, "speed")})
 
 ## Challenge the tamer above you: solo (1v1) or trio (3v3), five fights a day. A win takes their rank.

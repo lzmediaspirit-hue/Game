@@ -293,7 +293,7 @@ func _play_every_hud_row() -> void:
 		hud.log_lines = []
 		hud.toasts = []
 		var picked := Cues.pick("hud", str(r.event), p)
-		hud._on_event(str(r.event), p)
+		hud.on_event(str(r.event), p)
 		var logs: Array = r.do.filter(func(s): return s.has("log"))
 		var toasts: Array = r.do.filter(func(s): return s.has("toast"))
 		var fine: bool = str(picked.get("id", "")) == str(r.id) and hud.log_lines.size() == logs.size() and hud.toasts.size() == toasts.size()

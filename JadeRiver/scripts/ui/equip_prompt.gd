@@ -106,7 +106,7 @@ func gain_lines() -> Array:
 	var out: Array = []
 	for rw in [current.get("gain", {}), current.get("cp", {})]:
 		if (rw as Dictionary).is_empty(): continue
-		out.append("%s ▲ %s" % [Tx.t(InventoryPage._stat_key(str(rw.stat))), CharacterPage.stat_text(str(rw.stat), float(rw.after) - float(rw.before)).trim_prefix("+")])
+		out.append("%s ▲ %s" % [Tx.t(InventoryPage.stat_key(str(rw.stat))), CharacterPage.stat_text(str(rw.stat), float(rw.after) - float(rw.before)).trim_prefix("+")])
 	return out
 
 ## Test hook: rules_tests reads the gain lines as one.

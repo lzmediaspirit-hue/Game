@@ -206,7 +206,7 @@ func _reduce_motion_and_fights() -> void:
 		d.advance(0.05)
 		t += 0.05
 	check(d.run != null and str(d.run.cam.get("to", "")) == "guo", "the errands' camera turns to Uncle Guo")
-	check(d.run != null and float(d.run.cam.s) == 0.0 and d._cam_now().distance_to(d.where("guo")) < 1.0, "under Reduce motion the camera cuts to its target, no pan")
+	check(d.run != null and float(d.run.cam.s) == 0.0 and d.cam_now().distance_to(d.where("guo")) < 1.0, "under Reduce motion the camera cuts to its target, no pan")
 	d.fight_override = true
 	d.advance(0.05)
 	check(d.run != null and str(d.run.mode) == "live" and not Game.paused, "a fight breaks into a cut: the scene goes on live, the controls back")
@@ -229,7 +229,7 @@ func _talks_close() -> void:
 	# Aunt Ping in the lane with two quests to give: her ladle, and her broth.
 	c().quests.done["the_runaway_kite"] = 1
 	c().quests.offered["aunt_pings_broth"] = true
-	Game.quest._refresh_offers()
+	Game.quest.refresh_offers()
 	var first: Dictionary = interact(str(npc_object("aunt_ping").get("id", ""))).get("dialogue", {})
 	var offered: Array = (first.get("choices", []) as Array).filter(func(ch): return ch.has("accept")).map(func(ch): return str(ch.accept))
 	check(offered.has("the_lost_ladle") and offered.has("aunt_pings_broth"), "Aunt Ping has two quests to give (%s)" % str(offered))

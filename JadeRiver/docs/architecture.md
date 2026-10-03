@@ -132,6 +132,13 @@ is left behind.
 the system that emits it. `contract_tests` checks that only that system's scripts emit it and that
 something reacts; reactors that read state every frame are marked `polled`.
 
+## Public surfaces
+
+A script calls another script by its public names only: no `other._x(…)` into a private method, in the game, the
+tests or the tools. The one allowance is a part calling its own owner's helpers through its back-reference
+(`combat._dao_tier` in `authority/combat/`, `hud._x` in `scripts/hud/`). `contract_tests` holds the rule;
+`docs/architecture/authority_parts.md` ("Public surfaces") has the details.
+
 ## Testing
 
 `tests/` holds the suites listed in the README (engine, data validation, rules, contract and strings,

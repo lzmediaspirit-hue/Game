@@ -480,7 +480,7 @@ func _probe_view() -> void:
 		Game.active_id = was
 	else:
 		probe.room = Game.room_rt.topdown
-		probe._build_room()
+		probe.build_room()
 	var def: Dictionary = Game.room_rt.def
 	var npcs: Array = def.get("objects", []).filter(func(o): return str(o.get("type", "")) == "npc")
 	var things: Array = def.get("objects", []).filter(func(o): return not str(o.get("type", "")) in ["npc", "decor"])
@@ -518,7 +518,7 @@ func _probe_light(bakes_before: int) -> void:
 			a._process(1.0 / 30.0)
 			most = maxi(most, a.particle_count())
 			for kind in TopdownLight.PARTICLES:
-				if a._count(kind) > int(TopdownLight.PARTICLES[kind].cap): over[kind] = true
+				if a.count_of(kind) > int(TopdownLight.PARTICLES[kind].cap): over[kind] = true
 		if most > TopdownLight.MAX_PARTICLES or not over.is_empty(): light_misses.append("%s at %.2f: %d particles (over %s)" % [rid, hour, most, str(over.keys())])
 	TopdownLight.debug_hour = -1.0
 	a.refresh()
@@ -630,7 +630,7 @@ func _walk_on_the_grid() -> void:
 	var at := Vector2(float(shen.at[0]), float(shen.at[1]))
 	w.player.motor.place(w.room.spot_near(at, float(shen.alt), at + Vector2(-40, 0)))
 	w.player.physics_step(1.0 / 60.0)
-	w._update_context()
+	w.update_context()
 	check(str(w.context.get("type", "")) == "npc" and str(w.context.get("npc", "")) == "shen_lian", "on the grid the context button offers a talk beside Shen Lian (%s)" % str(w.context))
 	# Her figure turns to the player at her west side, in the top-down style, and back to her rest when he walks off.
 	var fig: TopdownPlaces.Figure = null
@@ -643,7 +643,7 @@ func _walk_on_the_grid() -> void:
 		turned = fig.art.row
 		w.player.motor.place(w.room.spawn)
 		w.player.physics_step(1.0 / 60.0)
-		w._update_context()
+		w.update_context()
 		fig._process(0.0)
 		back = fig.art.row if not fig.twin.focus else "still focused"
 	check(turned == "w" and fig.art.action == fig.art.stand and back == fig.art.rest and back != "w",
@@ -693,7 +693,7 @@ func _auto_path(w: TopdownWorld, target: String, limit_s: float) -> bool:
 		w.player.physics_step(dt)
 		Game.tick(dt)
 		GameEvents.flush()
-		if room() != target: w._check_portals(dt)
+		if room() != target: w.check_portals(dt)
 		t += dt
 	play_s += t
 	return room() == target

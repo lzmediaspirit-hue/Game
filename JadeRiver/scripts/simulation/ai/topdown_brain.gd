@@ -37,9 +37,9 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 							ai.patrol_x = p.x
 							ai.patrol_y = p.y
 							break
-					EnemyBrain._set_state(auth, e, "patrol", 4.0)
+					EnemyBrain.set_state(auth, e, "patrol", 4.0)
 			else:
-				EnemyBrain._wander(auth, e, delta, 0.5)
+				EnemyBrain.wander(auth, e, delta, 0.5)
 		"aggro":
 			if EnemyBrain.gives_up(auth, e, tgt, seen.hidden): return
 			var d: Vector2 = tgt.pos - e.plane
@@ -49,7 +49,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 				return
 			var attacks: Array = e.def.get("attacks", [])
 			if attacks.is_empty(): return
-			var attack: Dictionary = attacks[EnemyBrain._choose_attack(auth, e, attacks)]
+			var attack: Dictionary = attacks[EnemyBrain.choose_attack(auth, e, attacks)]
 			var reach := float(attack.hitbox.x[1])
 			if ai.get("counter", false):
 				ai.timer = 0.0
@@ -69,7 +69,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 			chase(auth, e, tgt.pos, float(tgt.alt), EnemyBrain.chase_speed(auth, e), delta)
 		"flee":
 			if tgt.is_empty() or float(ai.timer) <= 0.0:
-				EnemyBrain._set_state(auth, e, "aggro", 0.3)
+				EnemyBrain.set_state(auth, e, "aggro", 0.3)
 				return
 			var off: Vector2 = e.plane - tgt.pos
 			_walk(auth, e, off.normalized() if off.length() > 0.1 else Vector2.RIGHT, float(e.def.get("ai", {}).get("move_speed", 90)) * 1.2, delta)
@@ -85,7 +85,7 @@ static func think(auth, e: EnemyState, delta: float) -> void:
 				e.threat.clear()
 				ai.leashed = false
 				ai.unreach = 0.0
-				EnemyBrain._set_state(auth, e, "idle", 1.0)
+				EnemyBrain.set_state(auth, e, "idle", 1.0)
 				return
 			chase(auth, e, e.spawn_point, home, float(e.def.get("ai", {}).get("move_speed", 90)), delta, false)
 
@@ -129,7 +129,7 @@ static func chase(auth, e: EnemyState, goal: Vector2, goal_alt: float, speed: fl
 	var stairs := not room.stair_at(path[0].x, path[0].y).is_empty() or not room.stair_at(TopdownRoom.cell_of(e.plane).x, TopdownRoom.cell_of(e.plane).y).is_empty()
 	if rise > 8.5 and not stairs and e.plane.distance_to(next) <= TopdownRoom.TILE * 1.2:
 		# A jumper hops the level up, on the grid's own gravity and a jump that clears one level.
-		EnemyBrain._start_hop(auth, e, {"kind": "jump", "to": "", "to_alt": room.cell_floor(path[0]), "to_pt": next},
+		EnemyBrain.start_hop(auth, e, {"kind": "jump", "to": "", "to_alt": room.cell_floor(path[0]), "to_pt": next},
 			float(ContentDB.movement("topdown.gravity", 1700)), conf("impulse", 400.0))
 		return
 	_walk(auth, e, (next - e.plane).normalized(), speed, delta)
@@ -171,8 +171,8 @@ static func move(auth, e: EnemyState, delta: float) -> void:
 		e.plane = next.clamp(Vector2.ZERO, Vector2(room.w, room.h) * TopdownRoom.TILE)
 		return
 	var r := float(conf("radius", 8.0))
-	var in_way: bool = auth._in_portal(e.plane)
-	var ok := func(p: Vector2) -> bool: return room.free_at(p, e.altitude, r) and (in_way or not auth._in_portal(p))
+	var in_way: bool = auth.in_portal(e.plane)
+	var ok := func(p: Vector2) -> bool: return room.free_at(p, e.altitude, r) and (in_way or not auth.in_portal(p))
 	if ok.call(next): e.plane = next
 	elif ok.call(Vector2(next.x, e.plane.y)): e.plane = Vector2(next.x, e.plane.y)
 	elif ok.call(Vector2(e.plane.x, next.y)): e.plane = Vector2(e.plane.x, next.y)

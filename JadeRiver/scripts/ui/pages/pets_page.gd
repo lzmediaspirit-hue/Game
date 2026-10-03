@@ -99,7 +99,7 @@ func _posts(ch, pet: Dictionary) -> void:
 			continue
 		draw_style_box(UiKit.style("slot", "normal" if i < cap else "disabled"), r)
 		if i >= cap:
-			_lock_icon(r.get_center() - Vector2(9, 12), 1.5)
+			lock_icon(r.get_center() - Vector2(9, 12), 1.5)
 			var opens := ""
 			for step in steps:
 				if int(step.get("count", 1)) > i:
@@ -144,7 +144,7 @@ func _stable(ch) -> void:
 			draw_circle(Vector2(rr.end.x - 14, rr.position.y + 14), 7.0, UiKit.INK, true, -1.0, true)
 			draw_circle(Vector2(rr.end.x - 14, rr.position.y + 14), 5.5, UiKit.RED, true, -1.0, true)
 		elif p.get("locked", false):
-			_lock_icon(Vector2(rr.end.x - 20, rr.position.y + 4))
+			lock_icon(Vector2(rr.end.x - 20, rr.position.y + 4))
 		region(rr, "sel", str(p.uid))
 	)
 
@@ -177,7 +177,7 @@ func _leaf(ch, pet: Dictionary) -> void:
 		region(Rect2(LX - 4, top + 2, nw + 12, 48), "rename")
 	text(Vector2(LX + 250, top + 34), Tx.t("ui.pets.lv_short") % int(pet.level), 22, RecordsKit.JADE_INK, HORIZONTAL_ALIGNMENT_RIGHT, 176, true)
 	var lock := Rect2(LEAF.end.x - 50, top + 4, 48, 48)
-	if pet.get("locked", false): _lock_icon(lock.get_center() - Vector2(9, 13), 1.5)
+	if pet.get("locked", false): lock_icon(lock.get_center() - Vector2(9, 13), 1.5)
 	else:   # an open padlock, faint: a tap locks it against fusion
 		var lc := lock.get_center()
 		draw_rect(Rect2(lc + Vector2(-9, -2), Vector2(18, 13)), Color(RecordsKit.BROWN, 0.6), false, 2.0)

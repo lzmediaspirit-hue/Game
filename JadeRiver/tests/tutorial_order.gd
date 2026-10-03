@@ -492,7 +492,7 @@ func _rest_controls(label: String) -> void:
 		hud_probe.set_state(false, open)
 		hud_probe.context = {}
 		var roles: Array = hud_probe.hit_targets().map(func(tg): return str(tg.role))
-		var filled: int = range(4).filter(func(i): return hud_probe._slot_filled(i + hud_probe.skill_page * 4)).size()
+		var filled: int = range(4).filter(func(i): return hud_probe.slot_filled(i + hud_probe.skill_page * 4)).size()
 		var want_skills: int = filled if Game.is_revealed("hud:skills") else 0
 		if roles.has("attack") != Game.is_revealed("hud:attack"): wrong.append("attack (fan %s)" % open)
 		if roles.count("skill") != want_skills: wrong.append("techniques %d of %d (fan %s)" % [roles.count("skill"), want_skills, open])
@@ -562,7 +562,7 @@ func _attack_holds() -> void:
 	hud_probe.player.plane = me.plane
 	hud_probe.context = ctx
 	hud_probe.fight_override = null
-	hud_probe._tick_fight(0.05)
+	hud_probe.tick_fight(0.05)
 	offers_in_fight[str(ctx.get("type", ""))] = int(offers_in_fight.get(str(ctx.get("type", "")), 0)) + 1
 	var slot: bool = hud_probe.hit_targets().any(func(tg): return str(tg.role) == "context")
 	if (not hud_probe.attack_first() or hud_probe.attack_glyph(c()) != str(StatRules.family(c()).get("hud_glyph", "fist")) or not slot) and hijacked.size() < 20:

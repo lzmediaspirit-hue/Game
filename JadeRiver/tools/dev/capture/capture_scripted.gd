@@ -67,7 +67,7 @@ func s_weapon_hall() -> void:
 		if not ContentDB.item(str(it[0])).is_empty(): Game.inventory.apply_add(c.id, str(it[0]), int(it[1]), "capture")
 	Game.combat.refresh_stats(c.id)
 	c.pools.qi = c.pools.max_qi
-	Game.quest._refresh_offers()
+	Game.quest.refresh_offers()
 	c.quests.offered["aunt_pings_broth"] = true
 	GameEvents.flush()
 	print("  capture: %s, weapon %s, Qi %d, slots %d" % [c.cultivator.realm_key, str(c.inventory.equipped.get("weapon", {}).get("id", "none") if c.inventory.equipped.get("weapon") != null else "none"),
@@ -402,7 +402,7 @@ func s_critters(kind: String) -> void:
 	match kind:
 		"sparrows", "sparrows_flee":
 			for i in 4:
-				var cr: TopdownLife.Critter = life._critter("sparrow", feet + Vector2(20 + i * 26, -110 - (i % 2) * 18))
+				var cr: TopdownLife.Critter = life.add_critter("sparrow", feet + Vector2(20 + i * 26, -110 - (i % 2) * 18))
 				cr.state = "ground"
 				cr.alpha = 1.0
 				cr.face = -1 if i % 2 else 1
@@ -413,27 +413,27 @@ func s_critters(kind: String) -> void:
 				p.movement = Vector2.ZERO
 		"water":
 			for i in 3:
-				var cr: TopdownLife.Critter = life._critter("fish", feet + Vector2(-40 + i * 50, 80 + i * 14))
+				var cr: TopdownLife.Critter = life.add_critter("fish", feet + Vector2(-40 + i * 50, 80 + i * 14))
 				cr.floor = TopdownRoom.WATER_Z
 				cr.alpha = 1.0
 				cr.v = Vector2(12, 3)
 				cr.anchor = cr.g
-			var df: TopdownLife.Critter = life._critter("dragonfly", feet + Vector2(30, 60))
+			var df: TopdownLife.Critter = life.add_critter("dragonfly", feet + Vector2(30, 60))
 			df.anchor = df.g
 			df.z = 9.0
 			df.alpha = 1.0
-			life._ring(feet + Vector2(-40, 80))
+			life.add_ring(feet + Vector2(-40, 80))
 			await frames(12)
 		"frogs":
 			for i in 3:
-				var cr: TopdownLife.Critter = life._critter("frog", feet + Vector2(-50 + i * 44, 18 + (i % 2) * 8))
+				var cr: TopdownLife.Critter = life.add_critter("frog", feet + Vector2(-50 + i * 44, 18 + (i % 2) * 8))
 				cr.state = "sit"
 				cr.alpha = 1.0
 				cr.water = Vector2.DOWN
 			await frames(12)
 		"butterflies":
 			for i in 4:
-				var cr: TopdownLife.Critter = life._critter("butterfly", feet + Vector2(-60 + i * 36, -20 + (i % 2) * 20))
+				var cr: TopdownLife.Critter = life.add_critter("butterfly", feet + Vector2(-60 + i * 36, -20 + (i % 2) * 20))
 				cr.anchor = cr.g
 				cr.variant = ["white", "gold", "blue", "coral"][i]
 				cr.z = 10.0
@@ -475,7 +475,7 @@ func s_worker(name, room: String, who: String, action: String) -> void:
 			break
 	m.place(stand)
 	m.dir = Vector2.UP
-	w._settle_camera()
+	w.settle_camera()
 	await frames(60)
 	var fig = null
 	for f in w.life.workers:
@@ -520,14 +520,14 @@ func s_place_use(name, kind: String) -> void:
 	var face := at - stand
 	m.dir = Vector2.DOWN if on_it else (face.normalized() if face.length() > 1.0 else Vector2.UP)
 	m.row = TopdownMotor.nearest_row(m.dir, m.row, TopdownMotor.ROW_ANGLES, 10.0)
-	w._settle_camera()
+	w.settle_camera()
 	# the unlock tutorials' coach (the places' systems were opened for this capture) kept off the shot
 	if is_instance_valid(main.coach):
 		main.coach.visible = false
 		main.coach.process_mode = Node.PROCESS_MODE_DISABLED
 	await frames(90)
 	var hud = main.hud
-	hud._after_interact(Game.submit({"type": "interact", "object": str(r0.object)}), str(r0.object))
+	hud.after_interact(Game.submit({"type": "interact", "object": str(r0.object)}), str(r0.object))
 	await frames(int(hud.PLACE_POSE_S * 60.0 * 0.85))
 	await s_detail(name, Vector2(0, 0))
 	hud.open_place_page()
@@ -545,7 +545,7 @@ func s_place_at(room: String, cell: Vector2, n: int) -> void:
 	_bind()
 	w.player.motor.place((cell + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	w.player.motor.dir = Vector2.DOWN
-	w._settle_camera()
+	w.settle_camera()
 	main.hud.toasts.clear()
 	await frames(n)
 
@@ -645,7 +645,7 @@ func s_staged(name, sc: Dictionary) -> void:
 	m.place((sc.spot as Vector2) * TopdownRoom.TILE)
 	m.dir = Vector2.DOWN
 	m.row = "s"
-	w._settle_camera()
+	w.settle_camera()
 	await frames(120)
 	var found := {}
 	for id in w.figures:
@@ -766,7 +766,7 @@ func s_lineup(list: Array) -> void:
 	m.place((MONSTER_SPOT + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	m.dir = Vector2.DOWN
 	m.row = "s"
-	w._settle_camera()
+	w.settle_camera()
 	lineup = []
 	for f in list:
 		var at: Vector2 = w.room.nearest_standable((MONSTER_SPOT + (f[1] as Vector2) + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
@@ -786,7 +786,7 @@ func s_pose_lineup(act: String, i: int, dir: Vector2, mirror := false) -> void:
 ## The lineup struck down, each held on its fall.
 func s_fell_lineup() -> void:
 	for e in lineup:
-		Game.combat._damage_enemy(e, e.pools.max_hp * 10.0, _c().id, "physical", "none", false, {})
+		Game.combat.damage_enemy(e, e.pools.max_hp * 10.0, _c().id, "physical", "none", false, {})
 		_pose_foe(e, "death", Vector2.DOWN, -3)
 
 func _pose_foe(e: EnemyState, act: String, dir: Vector2, i: int) -> void:
@@ -834,7 +834,7 @@ func s_eel_on_river() -> void:
 	await frames(30)
 	if eel != null:
 		m.place(w.room.nearest_standable(eel.plane + Vector2(-40, -110)))
-		w._settle_camera()
+		w.settle_camera()
 		await frames(30)
 		get_tree().paused = true
 
@@ -854,7 +854,7 @@ func s_leeches() -> void:
 	await s_lineup([["marsh_leech", Vector2(-4.4, 4.6), false], ["marsh_leech", Vector2(-2.2, 5.0), false]])
 	var leeches: Array = lineup
 	m.place((bank + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
-	w._settle_camera()
+	w.settle_camera()
 	get_tree().paused = false
 	var river: Array = []
 	for k in 2:
@@ -1107,7 +1107,7 @@ func s_quest_count(quest: String, n: int) -> void:
 	var st: Dictionary = _c().quests.active.get(quest, {})
 	if not st.is_empty():
 		st.progress[0] = n
-		Game.quest._check_ready(_c(), quest)
+		Game.quest.check_ready(_c(), quest)
 	GameEvents.flush()
 
 func s_clear_spawns() -> void:
@@ -1137,7 +1137,7 @@ func s_tutorial_stage() -> void:
 	for r in ContentDB.all("scenes"): c.quests.scenes[str(r.id)] = {"done": true}
 	for i in 8:
 		if main.scenes.run == null: break
-		main.scenes._finish(true)
+		main.scenes.finish(true)
 		await frames(2)
 	for e in TutorialRules.entries():
 		if str(e.id) in ["foundation", "techniques", "quests"]: continue
@@ -1181,7 +1181,7 @@ func s_coach(button: String) -> void:
 func s_levels_gained(realm: String) -> void:
 	var c = _c()
 	c.cultivator.realm_key = realm
-	Game.progression._levels_gained(c, 0, ProgressionRules.level(c))
+	Game.progression.levels_gained(c, 0, ProgressionRules.level(c))
 	GameEvents.flush()
 
 ## The tab of the page on top chosen by its id.
@@ -1237,7 +1237,7 @@ func s_hud_call(method: String) -> void:
 ## Every tour known (the unlock tutorials' coach keeps off the shots), and every guide the forced unlocks queued put off
 ## at once (one Later at a time would leave the next a moment's rest and bring it back on the shot, decision 45).
 func s_know_all() -> void:
-	Game.tutorials._know_all(_c())
+	Game.tutorials.know_all(_c())
 
 func s_guides_off() -> void:
 	var c = _c()
@@ -1247,7 +1247,7 @@ func s_guides_off() -> void:
 ## The coach kept off the shots: every tour known, the queue empty, a card on show put off (Later).
 func s_coach_off() -> void:
 	var c = _c()
-	Game.tutorials._know_all(c)
+	Game.tutorials.know_all(c)
 	if c.tutorials.has("queue"): c.tutorials.queue.clear()
 	for i in 6:
 		if main.get("coach") == null or not bool(main.coach.visible): break

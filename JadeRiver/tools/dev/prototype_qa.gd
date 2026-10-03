@@ -360,7 +360,7 @@ func walk_to(goal: Vector2, near := 16.0, limit := 30.0, place_if_stuck := true)
 		rid, str(me()), str(cell2), player().motor.z, str(grid.find_path(cell2, TopdownRoom.cell_of(spot), can_jump).slice(0, 6))])
 	if place_if_stuck and player() != null:
 		player().motor.place(spot)
-		main.world._settle_camera()
+		main.world.settle_camera()
 		await frames(4)
 	return false
 
@@ -512,7 +512,7 @@ func dialogue_through(key := "", value := "") -> bool:
 				pick = choices.size() - 1
 				if key != "": say("no %s=%s among %s" % [key, value, str(choices.map(func(ch): return str(ch.get("text", ""))))])
 			elif pick >= 0: chosen = true
-			if not await tap_region(dp, "choose", pick): dp._choose(pick)
+			if not await tap_region(dp, "choose", pick): dp.choose(pick)
 			await frames(10)
 			if key == "" or chosen:
 				# After the choice the talk may go on (the same person's next quest): read it and leave it.
