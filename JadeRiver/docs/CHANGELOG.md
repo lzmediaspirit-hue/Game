@@ -74,6 +74,62 @@ it so. Only names changed: the game plays the same, and the save data is untouch
   - `build_data.py` writes nothing. `data/` is unchanged, `event_contract.json` included, because no emit moved
     between files.
 
+## The peaks on the grid (R4)
+
+The room engine's peaks batch (`docs/architecture/room_engine.md`, "The peaks (R4)"). The eleven side-view rooms of
+the Crane Cliffs, Mist Peak, Summit Ridge, the Hidden Vale and the Hidden Grotto are specs now, and a top-down
+character plays the peaks' story on the grid.
+
+- **Eleven rooms, 12 to 29 spec lines each, anchors included.**
+  - The Crane Cliffs: the Cliff Faces and the Sky Ledges.
+  - Mist Peak: the Misty Slopes, the Forgotten Monastery and the Ascension Gate.
+  - Summit Ridge: the Windswept Ridge and the Frozen Shrine.
+  - The Hidden Vale: the Vale Gate, the Sect Grounds and the Back Mountain.
+  - The Hidden Grotto.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. Every sect building has its slot on the
+  Sect Grounds' paved walks. The side view's climbs (ropes, updrafts, crags and cloud ledges) are terraces stepping
+  north up the mountain, a flight up each. The monastery stands in ruined walls on its terrace, its hidden stair and
+  cellar opening in the retaining wall.
+- **Looks.**
+  - Three biomes: `mist_peak` (pines, grey dead trees, misty wet hollows), `snowfield` (the snow line, for Act II's
+    Rimefrost Heights too) and `hidden_vale`. The Crane Cliffs take R1's `mountain`.
+  - A biome may set the `ground` a spec that names none takes. The snow line's covers every cell in fresh snow and
+    tramples the walks to packed snow.
+  - The rooms' vistas (peaks behind, the cloud sea under the brinks) are in `topdown_life.VISTAS`.
+- **Engine rules.** Every room before them compiles byte for byte as it did.
+  - `wavy="s"`: one edge of a band wanders.
+  - `flights=[...]`: a long terrace climbed at several columns, ending at the walk rather than on it, with clear cheeks
+    closed by boulders (a body sent along a flight's step from the side was left wedged against it), and a foot flush
+    with the ground below where one is near. A terrace without `flights` keeps R2's rule for its one flight.
+  - `shape="ruin"`: broken walls round a floor.
+  - Neither a paint-only feature nor a walk is climbed onto.
+  - `ground` names `"*"` and `"walk"`.
+- **Shared fixes.**
+  - Raised stone reads as raised: a small raised block (a pillar, a plinth, a stretch of ruined wall) gets a lit top
+    and a lighter face (`TopdownTerrain`). This fixes R1's Cleansing Summit pillars too; their pictures are retaken.
+  - On the grid, the sect's raid comes in on the Sect Grounds' floor, never past its edge.
+  - Four places join `places.py`: the Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the
+    Frozen Shrine.
+- **The frontier.** The Falls Pool's path to the Hidden Vale and the Echo Cliffs' way west onto the Cliff Faces are
+  open, and the Hidden Vale's teleport stone lands on the grid. With R2's and R3's rooms, the gate stands only at Gu's
+  Warehouse and at the Ascension Gate's way up to the Azure Expanse (Act II).
+- **Tests.**
+  - A new suite, `topdown_peaks`. It plays the climb from the Cliff Faces to the Ascension Gate, with Above the Mist,
+    A Wider Sky, Beyond the Valley and The Ascension Gate's boss, and the monastery's hidden stair shown by Spirit Sense.
+    In the Hidden Vale it plays the teleport stone, a founded sect's raid and the Back Mountain, then the Grotto's rope
+    up to Behind the Falls. Each room is built by the view and walked by auto-path.
+  - One frontier check moved: `rules_tests`' teleport past the gate now takes the first stone in a room with no layout,
+    since the Hidden Vale's stone is on the grid.
+  - The `room_engine` capture set has the peaks' views (pictures in `docs/architecture/room_engine/r4/`).
+  - The run after merging R2 and R3: every gate holds and every suite is green, with no script error.
+    - `topdown_peaks` is new, with 35 checks.
+    - `room_engine` has 238 checks, three for each room it lays out (33 for the peaks' eleven).
+    - The suites that walk every room on the grid: `rules_tests` 2,712, `room_sweep` 3,736, `visibility_suite` 6,758
+      and `valley_run` 3,000.
+    - `perf_tests`' Marsh Edge frame time (16.6 ms at most) passes run alone (14.9 ms). In the full run it measured
+      18.2 ms while other work shared the machine's four cores.
+
 ## The Drowned Shrine and Whitewater Gorge on the grid (decision 45, R2)
 
 The ten side-view rooms south and west of Bend Shore are now on the height grid, each a room engine spec of 16 to 22

@@ -424,11 +424,14 @@ func prototype_suite() -> void:
 	# No teleport, tower climb or auto-path past it (auto-path to the room past the first gate; the tower climb while the
 	# Trial Tower has no layout).
 	var gate_to := str(Game.room_rt.portal_def(first[1]).get("to", ""))
-	Game.account.teleports["hidden_vale"] = true
+	var far_stone := ""   # the first teleport stone in a room with no layout yet (R4 put the Hidden Vale's on the grid)
+	for s in ContentDB.all("teleport_stones"):
+		if far_stone == "" and not TopdownRoom.has_layout(str(s.get("room", ""))): far_stone = str(s.id)
+	Game.account.teleports[far_stone] = true
 	Game.inventory.apply_add(td.id, "spirit_stone_shard", 50, "prototype_suite")
 	Unlocks.force_unlock(td.id, "teleport_stones")
 	Game.world.load_room(td, "sf_market", "")
-	var tp := Game.submit({"type": "teleport", "stone": "hidden_vale"})
+	var tp := Game.submit({"type": "teleport", "stone": far_stone})
 	var ap := Game.submit({"type": "auto_path", "target": gate_to})
 	Game.world.load_room(td, "sf_fairground", "")
 	var tower_off := not TopdownRoom.has_layout("sf_trial_tower")
