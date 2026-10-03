@@ -113,6 +113,38 @@ def shut(eyes: dict, action: str, f: int) -> bool:
     return action in s and f >= s[action]
 
 
+def collapse(P, t: float, seed: int) -> None:
+    """A body of stone coming apart (0..1): every part drops to the ground and spreads into a heap, each its own way
+    (by the species' seed), a limb becoming a lump at its middle; the marks and lights go dark early, the dust stays."""
+    from ..motion import h01, smooth
+    import numpy as np
+    e = smooth(t)
+    for i, part in enumerate(P.parts):
+        g = part.geo
+        if part.kind == "limb":
+            c = (np.asarray(g["p0"]) + np.asarray(g["p1"])) * 0.5
+            r = 0.5 * (g["r0"] + g["r1"]) * (1.0 + 0.6 * e)
+        else:
+            c = np.asarray(g["at"], float)
+            r = float(g["r"]) if part.kind == "sph" else float(min(g["radii"]))
+        ja, jb = h01(i, 3, seed % 997) - 0.5, h01(i, 7, seed % 991) - 0.5
+        land = np.array((c[0] * 1.15 + ja * 4.0, c[1] * 1.3 + jb * 4.0, r * 0.8))
+        hop = 1.6 * math.sin(math.pi * min(1.0, t * 1.3)) * h01(i, 11, seed % 983)
+        to = c + (land - c) * e + np.array((0.0, 0.0, hop * (1.0 - e)))
+        if part.kind == "limb":
+            half = (np.asarray(g["p1"]) - np.asarray(g["p0"])) * 0.5 * (1.0 - e)
+            g["p0"], g["p1"] = to - half, to + half
+            g["r0"], g["r1"] = g["r0"] + (r - g["r0"]) * e, g["r1"] + (r - g["r1"]) * e
+        else:
+            g["at"] = to
+    if t > 0.25:
+        P.marks, P.eyes, P.glow = [], [], []
+    for k in range(int(10 * e)):
+        a = math.radians(k * 67.0 + seed % 360)
+        rr = 3.0 + (k % 4) * 1.4 + 2.0 * e
+        P.fx.append((v3(math.cos(a) * rr, math.sin(a) * rr * 0.8, 0.3 + (k % 3) * 0.4 * (1.0 - e)), M.DUST if k % 2 else M.DUST_DIM))
+
+
 def topple(P, roll: float, mid: float, half: float) -> None:
     """A fall onto its side: rolled `roll` degrees about its length, its middle (`mid` over the ground) coming down to
     `half` (the body's half width) as it lies."""

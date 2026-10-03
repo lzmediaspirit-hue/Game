@@ -15,6 +15,14 @@ species("marsh_leech", plan="serpent.leech", size=1.44,
                   attacks=[("latch", 0.4, 38, 0.8, dict(dash=50, drain=0.3))], ai="melee", speed=40, width=20, height=16),
         sound=dict(body="slime", tell="water"))
 
+# A Hollow river fish lurking in a grey puddle of its own (the Grey Pools, past the Marsh Edge): its fin cuts the
+# surface; it leaps out to bite and falls back in. The hollow fish's grey (the minnow's ramps, as on its side-view sheet).
+species("greyfin", plan="fish.greyfin", size=1.4,
+        palette=["minnow", "minnow_back", "minnow_belly", "minnow_fin"], shadow=(7, 2), cycle=10.0,
+        data=dict(level=(7, 11), role="normal", element="hollow_water", page="marsh", drops=[("tiny_hollow_shard", 0.4)],
+                  attacks=[("leap_bite", 0.5, 44, 1.0, dict(dash=100))], ai="leaper", speed=70, width=18, height=22, hollowing=3),
+        sound=dict(body="slime", tell="water"))
+
 # The boarlet with its colour drunk out of it (the Hollow): ash grey with pale stripes, cold eyes, the Hollow's strands,
 # coming apart into motes when it falls.
 species("hollowed_boarlet", plan="quadruped.suid", size=1.4,

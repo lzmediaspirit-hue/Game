@@ -20,8 +20,8 @@ import math
 import numpy as np
 
 from .. import mats as M
-from ..motion import gait, h01v, wave
-from ..sculpt import E, L, Pose, chain, rot, v3
+from ..motion import gait, h01v, headon, wave
+from ..sculpt import E, L, Pose, S, chain, rot, v3
 
 STYLES = {
     "breathe_snap": {"breathe": (0.0, 0.25, 0.4, 0.35, 0.15, 0.0), "gape": (0.0, 0.0, 0.12, 0.2, 0.05, 0.0),
@@ -64,12 +64,44 @@ SNAPPER = {
     "tail": {"kind": "saw", "root": (-9.8, 0.0, -2.6), "tip": (-18.4, 1.2), "r": (2.0, 0.7)},
     "claw": {"kind": "crusher", "rest": ((10.0, -11.0, -1.2), (13.2, -10.0, 0.6), 22.0, -10.0), "root": (6.8, -7.6, -1.6)},
 }
+BEETLE_STYLES = {
+    "twitch": {"antennae": (0.0, 0.6, 1.0, 0.2, -0.6, -0.2), "bob": (0.0, 0.05, 0.1, 0.1, 0.05, 0.0)},
+    "tripod": {"kind": "tripod", "rock_amp": 2.5, "bob_step": 0.25},
+    "curl_up": {"lunge": (-0.3, -0.7, -0.9, -1.0), "pitch": (-6.0, -10.0, -6.0, 0.0), "ball": (0.18, 0.5, 0.85, 1.0),
+                "spin": (0.0, 0.0, -14.0, -26.0), "antennae": (0.6, 0.2, -0.4, -0.8), "dust": (2, 3)},
+    "roll_charge": {"lunge": (3.4, 6.2, 6.8, 5.8, 3.2, 1.0), "ball": (1.0, 1.0, 1.0, 0.75, 0.35, 0.0),
+                    "spin": (120.0, 250.0, 320.0, 350.0, 360.0, 360.0), "squash": {1: (0.9, 1.04, 1.08)}, "dust": (0, 1, 2),
+                    "streaks": (0, 1), "spark": 1},
+    "jolt": {"lunge": (-2.4, -1.4, -0.4), "pitch": (16.0, 6.0, 0.0), "splay": (1.0, 0.5, 0.0), "antennae": (-1.0, 0.4, 0.0),
+             "squash": {0: (0.9, 1.0, 1.08), 1: (1.04, 1.0, 0.97)}},
+    "flip_legs": {"lunge": (-0.4, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6), "pitch": (12.0, 4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                  "roll": (8.0, 40.0, 100.0, 150.0, 176.0, 172.0, 178.0, 176.0), "curl": (0.0, 0.1, 0.3, 0.6, 0.8, 1.0, 0.85, 1.0),
+                  "paw": (4, 6), "edge": (6.0, 3.0), "shut_from": 4},
+}
+STYLES.update(BEETLE_STYLES)
+
+BEETLE = {
+    "Z": 2.9,
+    "shell": {"kind": "beetle", "elytra": ((-1.4, 0.0, 0.3), (6.2, 4.9, 2.9)), "pronotum": ((4.1, 0.0, 0.2), (2.5, 4.0, 2.4)),
+              "under": ((0.2, 0.0, -0.9), (6.2, 3.9, 1.4)), "ball": 4.6, "seams": (-4.2, -1.2, 1.6), "lichen": 0.74,
+              "specks": 9, "lumps": ((-5.4, 1.6, 1.1), (-2.8, 2.6, 1.3), (-0.2, 2.3, 1.2), (-4.0, -2.2, 1.2), (-1.4, -2.9, 1.1),
+                                     (0.8, -1.6, 1.0), (-2.4, 0.9, 0.9), (-6.6, -0.6, 0.9))},
+    "head": {"kind": "horned", "at": (6.6, 0.0, -0.3), "r": (1.8, 2.1, 1.5), "lift": 26.0,
+             "horn": ((0.9, 0.0, 0.7), (2.2, 0.0, 1.6), (2.9, 0.0, 3.0), (2.5, 0.0, 4.1)), "horn_r": (1.05, 0.35),
+             "eyes": (1.0, 1.8, 0.3), "antennae": ((1.3, 1.0, 0.4), (2.6, 2.1, 1.1), (3.3, 3.0, 1.2)), "club": 0.5},
+    "legs": {"kind": "jointed", "at": (2.8, 0.2, -2.6), "hip": (3.0, -0.8), "knee": (5.4, 0.5), "foot": (6.7, 0.3),
+             "lean": (2.2, 0.3, -2.2), "r": ((0.62, 0.52), (0.5, 0.28)), "lift": 1.2, "stride": 1.4},
+}
 VARIANTS = {
     "snapper": {"parts": SNAPPER, "mats": {"shell": "snap_shell", "moss": "snap_moss", "moss_lit": "snap_moss_lit", "skin": "snap_skin",
                                            "belly": "snap_belly", "beak": "snap_beak", "claw": "crusher", "tip": "crusher_tip",
                                            "weed": "weed", "eye": "snap_eye", "maw": "maw"},
                 "motion": {"idle": "breathe_snap", "walk": "lumber", "windup": "rear_crusher", "attack": "slam_crusher",
                            "hurt": "pull_in", "death": "roll_plastron"}},
+    "beetle": {"parts": BEETLE, "mats": {"rock": "beetle_rock", "pronotum": "beetle_pronotum", "lichen": "beetle_lichen",
+                                         "chitin": "beetle_chitin", "horn": "beetle_horn"},
+               "motion": {"idle": "twitch", "walk": "tripod", "windup": "curl_up", "attack": "roll_charge", "hurt": "jolt",
+                          "death": "flip_legs"}},
 }
 
 
@@ -77,7 +109,9 @@ class _F:
     pass
 
 
-def pose(B, action: str, f: int) -> Pose:
+def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
+    if B.parts.shell.get("kind") == "beetle":
+        return _beetle(B, action, f, view)
     P = Pose()
     p = B.parts
     st = B.style(action)
@@ -301,3 +335,174 @@ def _crusher(P, B, c) -> None:
         for d in ((0.0, 0.0, 4.0), (1.2, 1.0, 3.0), (-1.0, -1.2, 3.4), (0.4, -0.6, 5.2), (-0.6, 0.8, 6.0), (1.6, -1.4, 4.6),
                   (-1.8, 0.4, 5.4), (0.8, 1.8, 6.4)):
             P.fx.append((v3(imp[0], imp[1], hh * 0.9) + v3(*d) * v3(1.0, 1.0, 0.6 + 0.3 * sp), white))
+
+
+# ================================================================================================= the beetle
+def _lerp(a, b, t):
+    return np.asarray(a, float) + (np.asarray(b, float) - np.asarray(a, float)) * t
+
+
+def _beetle(B, action: str, f: int, view: float = 48.0) -> Pose:
+    """A rock beetle (E2): a squat carapace of rocky plates (two elytra and the pronotum before them, ochre lichen and
+    pale flecks on the stone, a seam down the middle), dark chitin underneath, a small dark head with a curved ochre horn,
+    amber eyes and clubbed antennae, and six jointed legs that walk in tripods. `ball` (0..1) curls it up into a stone
+    ball, its legs, head and horn folded against its belly; `spin` rolls the ball forward (the plates, the belly and the
+    folded legs turn with it, so the roll reads frame to frame)."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    sh = p.shell
+    seed = int(B.opts.get("seed", 0))
+    lunge = B.pick("lunge", action, f)
+    pitch = B.pick("pitch", action, f)
+    ball = B.pick("ball", action, f)
+    spin = B.pick("spin", action, f)
+    bob = B.pick("bob", action, f)
+    rock = 0.0
+    if st.get("kind") == "tripod":
+        rock = st.rock_amp * math.sin(f / 8.0 * math.tau)
+        bob = st.bob_step * abs(math.sin(f / 8.0 * 2.0 * math.tau))
+    R = sh.ball
+    z = p.Z + (R - p.Z) * ball + bob
+    C = v3(lunge, 0.0, z)
+    bm = rot("a", rock) @ rot("b", pitch - spin)
+    at = lambda q: C + bm @ v3(q)
+
+    def stone(q, n):
+        """The carapace: rocky plates (a seam down the middle between the elytra, seams across them, cracks), ochre lichen
+        in patches, pale flecks; dark chitin where it turns under."""
+        loc = (q - C) @ bm
+        nl = n @ bm
+        a, b = loc[:, 0], loc[:, 1]
+        under = nl[:, 2] < -0.35
+        suture = (np.abs(b) < 0.32) & (a < 2.0 + 2.0 * ball) & (nl[:, 2] > 0.2)
+        across = np.min(np.abs(a[:, None] - np.array(sh.seams)[None, :]), axis=1) < 0.28
+        crack = h01v(np.floor(a * 1.4 + 70), np.floor(b * 1.4 + 70), seed % 97 + 7) > 0.9
+        lichen = (h01v(np.floor(a * 0.55 + 90), np.floor(b * 0.55 + 90), seed % 89 + 3) > sh.lichen) & (nl[:, 2] > 0.1)
+        fleck = h01v(np.floor(a * 2.6 + 30), np.floor(b * 2.6 + 30), seed % 83 + 5) > 0.93
+        names = np.where(under, m.chitin, np.where(lichen, m.lichen, m.rock)).astype(object)
+        bias = np.where(under, 0, np.where(suture | across, -2, np.where(crack, -1, np.where(fleck & ~lichen, 2, 0)))).astype(np.int16)
+        return names, bias
+
+    def plate(q, n):
+        loc = (q - C) @ bm
+        nl = n @ bm
+        under = nl[:, 2] < -0.35
+        rim = (np.abs(loc[:, 0] - sh.pronotum[0][0]) > sh.pronotum[1][0] * 0.78) & ~under
+        fleck = h01v(np.floor(loc[:, 0] * 2.6 + 50), np.floor(loc[:, 1] * 2.6 + 50), seed % 79 + 11) > 0.95
+        return (np.where(under, m.chitin, m.pronotum).astype(object),
+                np.where(rim, -1, np.where(fleck & ~under, 2, 0)).astype(np.int16))
+
+    def chitin(q, n):
+        """The underside: dark chitin in bands across it (the belly's plates, which show when it lies on its back)."""
+        loc = (q - C) @ bm
+        nl = n @ bm
+        band = (loc[:, 0] + 8.0) % 1.5 < 0.32
+        return np.full(len(q), m.chitin, dtype=object), np.where(band, -1, np.where(nl[:, 2] > 0.6, 1, 0)).astype(np.int16)
+
+    # The body: the chitin underside, the elytra, the pronotum; balled up, a sphere with its belly patch on one side.
+    ec, er = sh.elytra
+    pc, pr = sh.pronotum
+    uc, ur = sh.under
+    P.add(E(at(_lerp(uc, (0.2, 0.0, -R * 0.38), ball)), _lerp(ur, (R * 0.8, R * 0.76, R * 0.7), ball), m.chitin, "under", bm, chitin),
+          E(at(_lerp(ec, (0.0, 0.0, 0.0), ball)), _lerp(er, (R, R, R), ball), m.rock, "body", bm, stone),
+          E(at(_lerp(pc, (R * 0.6, 0.0, R * 0.28), ball)), _lerp(pr, (R * 0.44, R * 0.82, R * 0.72), ball), m.pronotum, "pronotum", bm, plate))
+    cen = _lerp(ec, (0.0, 0.0, 0.0), ball)
+    rr = _lerp(er, (R, R, R), ball) + 0.15
+    # Rocky lumps along the plates, breaking the dome's line so it reads as stone, not an egg.
+    for a0, b0, lr in sh.get("lumps", ()):
+        u, v = (a0 - ec[0]) / er[0], b0 / er[1]
+        w = math.sqrt(max(0.0, 1.0 - u * u - v * v))
+        q = cen + np.array((u, v, w)) * (rr - 0.15 - lr * 0.35)
+        P.add(E(at(q), (lr * 1.3, lr, lr * 0.75), m.rock, "lump", bm, stone, line=False))
+    # Pale flecks of stone and lichen on the carapace (placed by its seed, so each kind keeps its own), where they show.
+    for k in range(sh.specks):
+        on_u = math.radians((seed % 360 + k * 137.0) % 360.0)
+        on_v = math.radians(25.0 + (k * 23 + seed % 31) % 50)
+        q = np.array((math.cos(on_v) * math.cos(on_u), math.sin(on_u) * math.cos(on_v), math.sin(on_v)))
+        P.mark(at(cen + rr * q), M.SPECK if k % 3 else M.RAMPS[m.lichen][4])
+    _beetle_head(P, B, (action, f, at, bm, ball, R, st, headon(view)[0]))
+    _beetle_legs(P, B, (action, f, at, bm, ball, R, lunge, z, st))
+    # Dust as it curls and rolls, the ball's speed streaks, the spark of its hit.
+    if f in st.get("dust", ()):
+        for k in range(6):
+            ang = math.radians(k * 60.0 + f * 25.0)
+            r = R * 0.9 + (k % 3) * 0.7
+            P.fx.append((v3(lunge - R * 0.6 + math.cos(ang) * r * 0.5, math.sin(ang) * r, 0.3 + (k % 2) * 0.6),
+                         M.DUST if k % 2 else M.DUST_DIM))
+    if f in st.get("streaks", ()):
+        for k in range(4):
+            y = (k - 1.5) * 1.8
+            for d in range(3):
+                P.fx.append((v3(lunge - R - 2.0 - d * 1.2 - k % 2, y, z + (k % 2) * 0.8), M.DUST_DIM if d else M.DUST))
+    if action == "attack" and f == st.get("spark", -1):
+        tip = C + v3(R + 1.2, 0.0, 0.4)
+        for d in ((0.0, 0.0, 0.0), (0.0, 0.0, 1.2), (0.0, 0.0, -1.0), (0.0, 1.1, 0.0), (0.0, -1.1, 0.0), (0.9, 0.0, 0.0)):
+            P.glow.append((tip + v3(*d), M.GLINT))
+    roll = B.pick("roll", action, f)
+    if roll:
+        edge, back = st.edge
+        P.m = rot("a", roll)
+        turned = P.m @ v3(0.0, 0.0, z)
+        r = math.sin(math.radians(roll))
+        h = z + (edge - z) * r if roll <= 90.0 else back + (edge - back) * r   # over its edge onto its back
+        P.shift = v3(-turned[0], -turned[1], h - turned[2])
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, 0.0))
+    return P
+
+
+def _beetle_head(P, B, c) -> None:
+    """The small dark head under the pronotum's lip, its curved ochre horn sweeping up and back, amber eyes, clubbed
+    antennae feeling about; tucked against the belly in the ball."""
+    action, f, at, bm, ball, R, st, fr = c
+    h, m = B.parts.head, B.mats
+    hc = at(_lerp(h.at, (R * 0.55, 0.0, -R * 0.78), ball))
+    hm = bm @ rot("b", h.lift * fr * (1.0 - ball) - 150.0 * ball)
+    s_ = 1.0 - 0.25 * ball
+    P.add(E(hc, tuple(x * s_ for x in h.r), m.chitin, "head", hm))
+    pts = [hc + hm @ (v3(q) * (s_ - 0.35 * ball)) for q in h.horn]
+    r0, r1 = h.horn_r
+    n = len(pts) - 1.0
+    P.add(*[L(pts[i], pts[i + 1], r0 + (r1 - r0) * i / n, r0 + (r1 - r0) * (i + 1) / n, m.horn, "horn", caps=i == 0)
+            for i in range(len(pts) - 1)])
+    dead = action == "death" and f >= st.get("shut_from", 99)
+    tw = B.pick("antennae", action, f)
+    for s in (1, -1):
+        ea, eb, ec = h.eyes
+        P.mark(hc + hm @ v3(ea, s * eb, ec), M.RAMPS[m.chitin][1] if dead else M.BEETLE_EYE)
+        if not dead:
+            P.mark(hc + hm @ v3(ea + 0.3, s * (eb - 0.2), ec + 0.5), M.GLINT)
+        if ball < 0.6:
+            a0, a1, a2 = h.antennae
+            sway = tw * (0.9 if s > 0 else -0.6)
+            q = [hc + hm @ v3(a0[0], s * a0[1], a0[2]), hc + hm @ v3(a1[0], s * a1[1] + sway * 0.5, a1[2] + 0.3 * tw),
+                 hc + hm @ v3(a2[0] - 0.3 * abs(tw), s * a2[1] + sway, a2[2] + 0.5 * tw)]
+            P.add(chain(q, 0.3, 0.22, m.chitin, "antenna%d" % s, line=False), S(q[-1], h.club, m.chitin, "antenna%d" % s))
+
+
+def _beetle_legs(P, B, c) -> None:
+    """Six jointed legs, knees up and out, walking in tripods (fore and hind on one side with the middle of the other);
+    splayed when struck, folded flat against the belly in the ball, curled and pawing on its back."""
+    action, f, at, bm, ball, R, lunge, z, st = c
+    g, m = B.parts.legs, B.mats
+    curl = B.pick("curl", action, f)
+    splay = B.pick("splay", action, f)
+    paw = st.get("paw")
+    for s in (1, -1):
+        for k, a0 in enumerate(g.at):
+            lift, stride = gait(action, f, 0.5 if (k + (s > 0)) % 2 else 0.0, g.lift, g.stride)
+            lean = g.lean[k]
+            wig = 0.6 * math.sin(f * 1.9 + k + s) if paw is not None and paw[0] <= f <= paw[1] else 0.0
+            hip = at((a0 * (1.0 - 0.5 * ball), s * g.hip[0] * (1.0 - 0.35 * ball), g.hip[1] - R * 0.2 * ball))
+            knee = v3(lunge + a0 + lean * 0.5 + stride * 0.5, s * (g.knee[0] + 0.8 * splay), z + g.knee[1] + lift * 0.5 + 0.6 * splay)
+            foot = v3(lunge + a0 + lean + stride, s * (g.foot[0] + 1.2 * splay), g.foot[1] + lift)
+            if curl > 0.0:      # drawn in under the belly, so on its back they stick up off it, pawing the air
+                knee = _lerp(knee, at((a0 * 0.8 + lean * 0.3, s * 4.4, -2.4 - wig * 0.3)), curl)
+                foot = _lerp(foot, at((a0 * 0.6 + lean * 0.5 + wig * 0.5, s * (2.6 + wig * 0.4), -4.2 - wig)), curl)
+            if ball > 0.0:
+                knee = _lerp(knee, at((a0 * 0.45 + 0.4, s * R * 0.62, -R * 0.62)), ball)
+                foot = _lerp(foot, at((a0 * 0.3 + 1.0, s * R * 0.3, -R * 0.84)), ball)
+            r = g.r
+            P.add(L(hip, knee, r[0][0], r[0][1], m.chitin, "leg%d%d" % (s, k)), L(knee, foot, r[1][0], r[1][1], m.chitin, "leg%d%d" % (s, k)))
