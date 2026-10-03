@@ -152,7 +152,7 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
 | `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
-| `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring flickers by its pose (`sculpt.ring_seed`) so its held poses share too. Every M1 species has it; the species before keep their sheets byte for byte |
+| `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring is lean: it flickers by its pose (`sculpt.ring_seed`), so its held poses share too, and its alphas come in steps of 32 (`sculpt._aura`'s `lean`; the ring was half an elite sheet's cost). Every M1 species has it; the species before keep their sheets byte for byte |
 | `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
 | `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
 | `sound` | `"race"` (default: its race's and nature's voice), or `dict(body="shell" \| "slime" \| "wood", tell="water")` |
@@ -274,15 +274,17 @@ byte-identical, and the only change to `foes.json` is the twenty new blocks. Eve
 
 All twenty: 3,620 KB of PNG, 1,807 KB in the APK (1.76 MiB): the bases 1,038 KB, the nine elite sheets 769 KB. The
 elites are where a room makes one (each of those rooms has one set-piece elite); a spec's `elite=False` and
-`build.py --update ID` drop one. The sizes keep each creature's share of a person (46 px) from its side view.
+`build.py --update ID` drop one. Each creature's size keeps it near its share of a person (46 px) in the side view.
 
 The bosses keep their phases and tells: Big Toad Tan's raised club is the tell of his blow and of his call for his
 bandits, and the Drowned Abbot's raised staff of his bell's shockwave and of his ghosts. No boss here has a second look
 or wears the ring in its own look (`aura`), so their sheets stay near a person's.
 
-Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`, and the capture set `monsters_m1`
-(`docs/redesign/feedback/monsters/m1/after/`): the lineups held in every pose beside drawn foes for scale, the elites,
-and live fights in the species' own top-down rooms.
+Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
+`docs/redesign/feedback/monsters/m1/` (the twenty side by side facing SE, idle, in their tells and on their blows, and
+the elites' tells beside their bases); and the capture set `monsters_m1` (`docs/redesign/feedback/monsters/m1/after/`):
+the lineups held in every pose beside drawn foes for scale, the elites, and live fights in ten of the species' own
+top-down rooms.
 
 ## Still to draw
 

@@ -2,8 +2,9 @@
 
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 
-The species a top-down player meets next, by chapter, drawn with the monster engine (`docs/architecture/monster_engine.md`,
-"M1"). Until now they stood in with their side-view sheets at half size. R1 and R2 listed most of them as still to do.
+The species a top-down player meets next, by chapter, drawn with the monster engine
+(`docs/architecture/monster_engine.md`, "M1"). Until now they stood in with their side-view sheets at half size. R1 and
+R2 listed most of them as still to do.
 
 - **Twenty new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
   every action in five drawn facings, an elite sheet where a room makes an elite. Their rows, loot and voices are
@@ -44,20 +45,32 @@ The species a top-down player meets next, by chapter, drawn with the monster eng
   - the crab's great claw and pearls, the fish's barbels and water line;
   - three new plans: `person`, `bird` (chick) and `spirit` (talisman).
 - **Leaner sheets.** A spec's `share` lets identical frames of a facing share one cell of the sheet, and makes an
-  elite's ring lean: it flickers by its pose, and its alphas come in steps of 32 instead of one per pixel row. That is
-  the same look to the eye at a third less of an elite sheet (the ring was half its cost). Every M1 species has it.
+  elite's ring lean: it flickers by its pose, and its alphas come in steps of 32 instead of one per pixel row. It is the
+  same look to the eye, and the nine elite sheets cost a quarter less in the APK (the ring was half an elite's cost).
+  Every M1 species has it.
 - **`build.py --update ID[,ID]`** (and `build_foes.py --update`) builds only the named species and merges their blocks
   into `foes.json`, leaving the rest as they are.
 - **Size.** The new sheets are 3,620 KB of PNG and 1,807 KB in the APK (the imported `.ctex`): the twenty bases 1,038
   KB, the nine elite sheets 769 KB. That is about twice the ~0.9 MiB the APK had left. The engine doc lists every
   sheet's cost; a spec's `elite=False` (then `build.py --update ID`) drops an elite sheet.
-- **Review:** `docs/redesign/feedback/monsters/sheets/` (each sheet at x3 and a GIF) and the capture set `monsters_m1`
-  (`docs/redesign/feedback/monsters/m1/after/`). It holds the lineups in every pose beside drawn foes for scale, the
-  elites, and live fights in ten of their own rooms.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m1/`: the twenty side by side, idle, in their tells and on their blows, and the
+    elites' tells beside their bases.
+  - The capture set `monsters_m1` (`docs/redesign/feedback/monsters/m1/after/`): the lineups in every pose beside drawn
+    foes for scale, the elites, and live fights in ten of their own rooms.
 - **Still to draw:** seventeen species of the Act I zones, listed in story order in the engine doc. The next is the
   Riverbed Serpent.
 - `topdown_suite`'s stand-in check spawns a sandstorm scorpion. The stone tortoise it used has its own sheet now.
-{CHECKS}
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R1, R2 and R3.
+  - Every gate passed, `boot` among them. `build_data` writes no data file: the rows are byte-identical. The `monsters`
+    gate has 1,038 checks (471 at E2); it grows with the species, now 35.
+  - All 24 suites passed with no SCRIPT ERROR: 73,982 checks. No count grows with this batch: the suites check the
+    foes' art once a room (or once over the sheet), whatever is drawn.
+  - `perf_tests` missed one frame budget in the full run while the machine was loaded: the Marsh Edge's fight, 17.4 ms
+    a frame, with no M1 species in it. Run alone, all 18 of its checks passed.
+  - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as the batch's
+    `--update` builds.
 
 ## The Drowned Shrine and Whitewater Gorge on the grid (decision 45, R2)
 
