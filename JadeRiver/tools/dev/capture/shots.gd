@@ -61,11 +61,11 @@ const E1_VIEWS := [
 	# R5: the story's own rooms and the Tidebreak Front (their pictures under r5/)
 	["r5/01_gus_warehouse", "si_gus_warehouse", Vector2(22, 12), true], ["r5/02_warehouse_strongroom", "si_gus_warehouse", Vector2(36, 8), false],
 	["r5/03_trial_of_reflections", "si_trial_of_reflections", Vector2(18, 12), true], ["r5/04_presence_trial", "si_presence_trial", Vector2(20, 13), true],
-	["r5/05_siege_gate", "si_siege", Vector2(20, 15), true], ["r5/06_siege_field", "si_siege", Vector2(46, 14), false],
+	["r5/05_siege_gate", "si_siege", Vector2(20, 15), true], ["r5/06_siege_field", "si_siege", Vector2(40, 7), false],
 	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
-	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_bastion_bell", "tf_tidebreak_bastion", Vector2(42, 15), false],
-	["r5/11_tide_battle", "si_tide_battle", Vector2(30, 12), true], ["r5/12_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true],
-	["r5/13_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true], ["r5/14_drone_hive", "tf_drone_hive", Vector2(32, 13), true]]
+	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
+	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]

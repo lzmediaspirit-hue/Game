@@ -121,7 +121,7 @@ TF_HOLLOW_WAKE = room(
     features=[("outcrop", (11, 0, 8, 4), dict(level=2, paint="r", shape="round")),
               ("outcrop_2", (30, 23, 8, 5), dict(level=2, paint="r", shape="round")),
               ("outcrop_3", (47, 0, 8, 4), dict(level=2, paint="r", shape="round")),
-              ("pool", (17, 8, 12, 4), dict(water=True, shape="round")),
+              ("pool", (17, 9, 12, 3), dict(water=True, shape="round")),
               ("pool_2", (38, 17, 13, 3), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "track"), "east": ("e", "track")},
