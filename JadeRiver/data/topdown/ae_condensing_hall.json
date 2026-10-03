@@ -1,0 +1,157 @@
+{
+ "schema_version": 1,
+ "id": "ae_condensing_hall",
+ "name": "Condensing Hall",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  5,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000000000001111111104",
+  "400000000000001111111104",
+  "400000000000001111111104",
+  "400000000000001111111104",
+  "400000000000000020020004",
+  "400000000000000020020004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111100111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lsssssssssssssppppppppsl",
+  "lsssssssssssssppppppppsl",
+  "lsssssssssssssppppppppsl",
+  "lsssssssssssssppppppppsl",
+  "lssssssssssssssspsspsssl",
+  "lssssssssssssssspsspsssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "lssssssssssssssssssssssl",
+  "llllssllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 17,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "apothecary",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "apothecary",
+   "x": 14,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 2,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 11,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "incense",
+   "x": 9,
+   "y": 7
+  },
+  {
+   "kind": "mat",
+   "x": 6,
+   "y": 9
+  },
+  {
+   "kind": "mat",
+   "x": 11,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "water_jar",
+   "x": 22,
+   "y": 8
+  }
+ ],
+ "place": {
+  "furnace_ae": [
+   18,
+   3
+  ],
+  "npc_alchemist_fen": [
+   13,
+   6
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    4.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

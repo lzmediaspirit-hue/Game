@@ -1,0 +1,433 @@
+{
+ "schema_version": 1,
+ "id": "ae_skydock",
+ "name": "Skydock",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  53,
+  14
+ ],
+ "levels": [
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "00555555555555555111115555555555511111111155555555555555",
+  "11111111111111111111111155551111111111111111555511111555",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111100001111111111111110000000000001111000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "pprrrrrrrrrrrrrrrgggggrrrrrrrrrrrgggggggggrrrrrrrrrrrrrr",
+  "ggggggggggggggggggggggggrrrrggggggggggggggggrrrrgggggrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggppppgggggggggggggggppppppppppppggggppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppppppppsspppppppppp",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "rrwwwwwwwwrrrwwwwwrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrr",
+  "rrrrppprrrrrrwwwwwrrrrrrpppppppprrrwwwwwrrrppppppppprrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrrrwwwwwrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "hall",
+   "x": 41,
+   "y": 7,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 4,
+   "y": 8,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 20,
+   "y": 8,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "lantern",
+   "x": 40,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 49,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 8,
+   "y": 10
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 30,
+   "y": 10
+  },
+  {
+   "kind": "crates",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "sacks",
+   "x": 28,
+   "y": 17
+  },
+  {
+   "kind": "crates",
+   "x": 21,
+   "y": 19
+  },
+  {
+   "kind": "barrel",
+   "x": 23,
+   "y": 19
+  },
+  {
+   "kind": "sacks",
+   "x": 46,
+   "y": 18
+  },
+  {
+   "kind": "barrel",
+   "x": 47,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 12,
+   "y": 26
+  },
+  {
+   "kind": "post",
+   "x": 18,
+   "y": 26
+  },
+  {
+   "kind": "post",
+   "x": 34,
+   "y": 26
+  },
+  {
+   "kind": "post",
+   "x": 40,
+   "y": 26
+  },
+  {
+   "kind": "sky_ship",
+   "x": 10,
+   "y": 27
+  },
+  {
+   "kind": "sky_ship",
+   "x": 32,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 3,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 7,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 17,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 29,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 34,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 45,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 49,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 53,
+   "y": 5
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 10,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 20,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 23,
+   "y": 4
+  },
+  {
+   "kind": "tree_plum",
+   "x": 26,
+   "y": 3
+  },
+  {
+   "kind": "hedge_2",
+   "x": 38,
+   "y": 4
+  },
+  {
+   "kind": "hedge_2",
+   "x": 42,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 10,
+   "y": 6
+  },
+  {
+   "kind": "bush",
+   "x": 13,
+   "y": 6
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 18,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 23,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 27,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 40,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 25
+  },
+  {
+   "kind": "bush",
+   "x": 55,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 3,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 6,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 23,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 30,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 46,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 53,
+   "y": 27
+  }
+ ],
+ "place": {
+  "npc_sky_sailor_ning": [
+   14,
+   20
+  ],
+  "npc_dockmaster_fu": [
+   25,
+   18
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    55,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    14
+   ],
+   "span": 3
+  },
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "hall_door": {
+   "at": [
+    44.5,
+    10
+   ],
+   "dir": "n",
+   "arrive": [
+    44.5,
+    10.5
+   ],
+   "span": 2
+  },
+  "lake_ferry": {
+   "at": [
+    15,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    15,
+    25
+   ],
+   "span": 2
+  },
+  "peaks_ferry": {
+   "at": [
+    37,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    37,
+    25
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 104
+  }
+ ]
+}

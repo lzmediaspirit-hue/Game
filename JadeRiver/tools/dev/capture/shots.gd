@@ -48,7 +48,13 @@ const E1_VIEWS := [
 	["r2/03_scripture_well", "ds_scripture_well", Vector2(28, 16), true], ["r2/04_abbots_sanctum", "ds_abbots_sanctum", Vector2(36, 13), true],
 	["r2/05_drowned_grotto", "ds_drowned_grotto", Vector2(20, 11), true], ["r2/06_serpents_shallows", "dw_serpents_shallows", Vector2(31, 10), true],
 	["r2/07_gorge_mouth_bridge", "wg_gorge_mouth", Vector2(24, 11), true], ["r2/08_rapids_terraces_falls", "wg_rapids_terraces", Vector2(36, 13), true],
-	["r2/09_echo_cliffs", "wg_echo_cliffs", Vector2(30, 13), true], ["r2/10_waterfall_cave", "wg_waterfall_cave", Vector2(18, 10), true]]
+	["r2/09_echo_cliffs", "wg_echo_cliffs", Vector2(30, 13), true], ["r2/10_waterfall_cave", "wg_waterfall_cave", Vector2(18, 10), true],
+	# R6: Act II's first zones, the Azure Expanse: Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights,
+	# Mirrorwater Lake (their pictures under r6/)
+	["r6/01_arrival_terrace_gate", "ae_landing", Vector2(10, 14), true], ["r6/02_arrival_terrace_rim", "ae_landing", Vector2(30, 21), false],
+	["r6/03_port_market_street", "ae_port_market", Vector2(22, 12), true], ["r6/04_port_market_gate", "ae_port_market", Vector2(60, 16), false],
+	["r6/05_wayfarers_inn", "ae_wayfarers_inn", Vector2(12, 8), true], ["r6/06_skydock_berths", "ae_skydock", Vector2(25, 19), true],
+	["r6/07_condensing_hall", "ae_condensing_hall", Vector2(12, 8), true], ["r6/08_shipyard_slip", "ae_shipyard", Vector2(22, 18), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]

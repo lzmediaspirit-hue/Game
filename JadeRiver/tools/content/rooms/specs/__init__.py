@@ -8,6 +8,8 @@ ZONES += ["stonewall_quarry"]   # R3
 ZONES += ["greyreed_hamlet", "bamboo_grove", "crane_falls", "cleansing_peak"]
 # R2: the Drowned Shrine and Whitewater Gorge (the Serpent's Shallows is in deepwater_bend's module).
 ZONES += ["drowned_shrine", "whitewater_gorge"]
+# R6: Act II's first zones (the Azure Expanse): Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights, Mirrorwater Lake.
+ZONES += ["cloudgate_port"]
 
 
 def all_specs():
