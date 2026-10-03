@@ -226,6 +226,27 @@ RAMPS = {
     "rl_belly": _s("f2f6d6", "c8e2c0", "8fb4a0", "5a7c78"),
     "rl_fin": _s("e2fff6", "8cf0d6", "45bcb2", "23808a"),
     "rl_mouth": _s("c45a68", "8a2f40", "5e1c2c", "3a1020"),
+    # boulder serpent: a thick ochre hide, a sandstone belly, grey boulder plates and their lichen, a pink maw
+    "bs_hide": _s("d2a064", "9c6c3c", "6b4a33", "43302a"),
+    "bs_rock": _s("dcdad2", "a4a29c", "6c6c6c", "434348"),
+    "bs_belly": _s("f2dcaa", "c9ab78", "967c58", "5e4e3c"),
+    "bs_lichen": _s("d8dc88", "a8b25e", "7a8646", "4e5a34"),
+    "bs_mouth": _s("d67a7a", "a84a52", "72303c", "461c28"),
+    # mist vulture: grey-white feathers, darker flight feathers, a grey body, its mist, a bald pink head, an ivory beak
+    "mv_feather": _s("f6fafa", "cbd6dc", "8c9eae", "5a6a82"),
+    "mv_flight": _s("9eacbc", "6e7c90", "4a566c", "2e364a"),
+    "mv_body": _s("e2e8ec", "a9b5c0", "717f92", "48546a"),
+    "mv_mist": _s("ffffff", "e2eef4", "b6ccd8", "88a4b8"),
+    "mv_skin": _s("ffd4ca", "e9948e", "b4646c", "764252"),
+    "mv_beak": _s("f6eed8", "d8ccae", "a09478", "686052"),
+    "mv_leg": _s("dcd0a8", "b0a078", "7c7058", "524a40"),
+    # riverstone ox: a river-grey hide, moss, river pebbles, pale horns, a muzzle, dark hooves
+    "ro_hide": _s("aeaca2", "84827a", "5e5d56", "3e3d39"),
+    "ro_moss": _s("a4c47c", "78985a", "56743e", "3a522a"),
+    "ro_pebble": _s("eef4f4", "b6c6c8", "7e9298", "52626a"),
+    "ro_horn": _s("f4ecd8", "cfc2a0", "9a8c6c", "665a44"),
+    "ro_muzzle": _s("c8b8a8", "a08e7e", "76665a", "50443c"),
+    "ro_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -301,6 +322,12 @@ PROPS = {
     "rs_mouth": {"weight": 1.4}, "rs_orb": {"hi": True, "glossy": True, "weight": 1.4},
     "rl_skin": {"hi": True, "glossy": True}, "rl_belly": {"hi": True, "weight": 1.2}, "rl_fin": {"hi": True, "thin": True, "weight": 1.2},
     "rl_mouth": {"weight": 1.4},
+    "bs_hide": {"hi": True}, "bs_rock": {"hi": True}, "bs_belly": {"hi": True, "weight": 1.2}, "bs_lichen": {"hi": True, "weight": 1.2},
+    "bs_mouth": {"weight": 1.4},
+    "mv_feather": {"hi": True}, "mv_flight": {"hi": True}, "mv_body": {"hi": True}, "mv_mist": {"hi": True},
+    "mv_skin": {"hi": True, "weight": 1.3}, "mv_beak": {"hi": True, "glossy": True, "weight": 1.4}, "mv_leg": {"hi": True, "weight": 1.3},
+    "ro_hide": {"hi": True}, "ro_moss": {"hi": True, "weight": 1.2}, "ro_pebble": {"hi": True, "glossy": True, "weight": 1.3},
+    "ro_horn": {"hi": True, "glossy": True, "weight": 1.5}, "ro_muzzle": {"hi": True, "weight": 1.2}, "ro_hoof": {"hi": True, "weight": 1.3},
 }
 
 # Single colours laid on as marks and points.
@@ -401,6 +428,25 @@ RS_RIPPLE = c("D2F4EE", 210)
 RS_RIPPLE_DIM = c("8CCFC0", 160)
 # M2: the rapids lizard's amber eye.
 LIZARD_EYE = c("F2B640")
+# M2: the boulder serpent's amber eye.
+BOULDER_EYE = c("FFB440")
+# M2: the flyers' eyes (the vulture's red, the crane's gold, the hawk's yellow, the roc's amber), their talons' dark tips,
+# the vulture's mist, the hawk's sparks, the crane's cloud wisps.
+VULTURE_EYE = c("C8402E")
+CRANE_EYE = c("F2C14A")
+HAWK_EYE = c("FFD84A")
+ROC_EYE = c("FFB830")
+TALON_DARK = c("1D1B20")
+MIST_PUFF = c("E2EEF4", 200)
+MIST_PUFF_DIM = c("B6CCD8", 150)
+SPARK = c("FFF6B0")
+SPARK_DIM = c("FFD84A", 200)
+CLOUD_WISP = c("D6ECF7", 190)
+CLOUD_WISP_DIM = c("9DC0D8", 140)
+# M2: the riverstone ox's eye in anger and the steam of its snort.
+OX_EYE = c("FFD45A")
+STEAM = c("DFE8E8", 200)
+STEAM_DIM = c("B2C2C6", 150)
 
 
 def palette(*names) -> dict:

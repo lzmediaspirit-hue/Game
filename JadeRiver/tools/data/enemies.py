@@ -277,10 +277,8 @@ def build():
         mob("rogue_treasure_adept", (48, 50), "elite", "water", None, [d("bright_mirror", 1.0), d("sealed_storage_pouch", 1.0, (1, 2))],
             [atk("palm_of_tides", 0.5, 70, 1.2), atk("mirror_flash", 0.8, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
             ai="humanoid", art=human("rogue_treasure_adept"), race="human", energy="true_qi", width=18, height=90, guards=True),
-        mob("boulder_serpent", (32, 35), "normal", "earth", "gorge", [d("serpent_scale", 0.5), d("jadeiron", 0.2)],
-            [atk("boulder_roll", 0.6, 50, 1.2, dash=160)], ai="charger", speed=60, width=34, height=34),
-        mob("mist_vulture", (34, 36), "normal", "wind", "gorge", [d("vulture_plume", 0.5)],
-            [atk("dive", 0.6, 60, 1.2, dash=120)], ai="flyer", speed=100, flying=True, width=26, height=40),
+        spec_row("boulder_serpent"),
+        spec_row("mist_vulture"),
         mob("cloudwing_crane", (37, 40), "normal", "wind", "cliffs", [d("cloud_feather", 0.5)],
             [atk("swoop", 0.5, 60, 1.0, dash=120)], ai="flyer", speed=110, flying=True, width=26, height=50),
         mob("stormwing_hawk", (38, 43), "normal", "thunder", "cliffs", [d("storm_feather", 0.5)],
@@ -637,8 +635,7 @@ def build():
                  mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
                      passive=True))
     # S46: the Riverstone Ox grazes Quarry Rim from Cloud Stride 1; a mount-only spirit beast, tamed like the others.
-    M.append(mob("riverstone_ox", (37, 38), "normal", "earth", None, [], [atk("horn_toss", 0.5, 50, 0.9)], ai="wild_pet", tameable=True,
-                 width=30, height=46, passive=True))
+    M.append(spec_row("riverstone_ox"))
     # The species specs not placed above (a new species needs no row here): after the hand rows, in the specs' order.
     M += MON.rows({m["id"] for m in M}, mob, atk, d)
     beast_ranks(M)

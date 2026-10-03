@@ -28,7 +28,7 @@ import math
 import numpy as np
 
 from .. import mats as M
-from ..motion import h01, smooth, wave
+from ..motion import h01, h01v, smooth, wave
 from ..sculpt import E, L, Pose, S, chain, rot, v3
 
 # ================================================================================================= the eel
@@ -152,6 +152,8 @@ def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: flo
         return _leech(B, action, f, view)
     if "horns" in B.parts:
         return _dragon(B, action, f, k)
+    if "ball" in B.parts:
+        return _boulder(B, action, f, view)
     return _eel(B, action, f, k, awake)
 
 
@@ -621,6 +623,232 @@ def _dragon(B, action: str, f: int, k: float) -> Pose:
 
     P.water_fx = water
     return P
+
+
+# ================================================================================================= the boulder serpent (M2)
+# A heavy serpent armoured in boulder plates (the Echo Cliffs). Its styles' channels: `rise` (its head's height over the
+# ground), `reach` (its head held ahead), `wave` (the S of its body, its amplitude), `ball` (0..1: curled up into a
+# boulder), `spin` (the ball rolled forward, degrees), `lunge`, `gape`, `hpitch`, `limp` (lying slack), `crack` (0..1: its
+# plates split as it dies), `writhe`.
+BOULDER_STYLES = {
+    "rest_s": {"rise": (3.2, 3.3, 3.4, 3.3, 3.2, 3.1), "wave": (1.0,) * 6, "sway": 0.6, "tongue": (2, 5)},
+    "slither": {"kind": "slither", "rise": (2.4,) * 8, "wave": (1.3,) * 8, "tongue": (4,)},
+    "curl_ball": {"ball": (0.3, 0.65, 0.9, 1.0), "spin": (0.0, 0.0, -12.0, -22.0), "lunge": (-0.3, -0.6, -0.9, -1.0),
+                  "rise": (2.4, 1.6, 1.0, 1.0), "wave": (0.8, 0.5, 0.3, 0.2), "dust": (2, 3), "peek": True},
+    "boulder_roll": {"ball": (1.0, 1.0, 1.0, 0.7, 0.35, 0.0), "spin": (130.0, 255.0, 320.0, 350.0, 360.0, 360.0),
+                     "lunge": (3.6, 6.8, 7.4, 6.2, 3.4, 1.0), "rise": (1.0, 1.0, 1.0, 1.6, 2.4, 3.0), "wave": (0.2, 0.2, 0.2, 0.5, 0.8, 1.0),
+                     "squash": {1: (0.92, 1.04, 1.06)}, "dust": (0, 1, 2), "streaks": (0, 1), "spark": 1},
+    "flinch_back": {"rise": (4.0, 3.6, 3.3), "reach": (-1.6, -0.8, -0.2), "hpitch": (20.0, 8.0, 2.0), "gape": (0.6, 0.2, 0.0),
+                    "wave": (1.2, 1.1, 1.0), "writhe": (0.6, -0.3, 0.0)},
+    "slump_crack": {"rise": (3.6, 2.4, 1.2, 0.6, 0.5, 0.5, 0.5, 0.5), "limp": (0.0, 0.3, 0.6, 0.85, 1.0, 1.0, 1.0, 1.0),
+                    "hpitch": (16.0, 6.0, -4.0, -10.0, -12.0, -12.0, -12.0, -12.0), "gape": (0.6, 0.5, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3),
+                    "wave": (1.0, 0.9, 0.8, 0.7, 0.7, 0.7, 0.7, 0.7), "writhe": (0.8, -0.5, 0.3, -0.1, 0.0, 0.0, 0.0, 0.0),
+                    "crack": (0.0, 0.0, 0.2, 0.45, 0.7, 0.9, 1.0, 1.0), "dead_from": 3},
+}
+STYLES.update(BOULDER_STYLES)
+BOULDER = {
+    "length": 28.0, "ball": 4.6,
+    "width": ((0.0, 0.45), (0.12, 1.4), (0.35, 2.15), (0.62, 2.2), (0.85, 1.6), (0.93, 1.45), (1.0, 1.7)),
+    "plates": {"from": 0.1, "to": 0.86, "n": 10, "r": (1.75, 1.35, 1.15)},
+    "head": {"skull": (2.8, 2.1, 1.6), "snout": ((1.9, 0.0, -0.25), (1.8, 1.55, 1.1)), "brow": ((0.8, 0.0, 1.05), (1.8, 1.9, 0.75)),
+             "eye": (1.25, 1.65, 0.55)},
+}
+VARIANTS["boulder"] = {"parts": BOULDER, "mats": {"skin": "bs_hide", "belly": "bs_belly", "rock": "bs_rock", "lichen": "bs_lichen",
+                                                  "mouth": "bs_mouth"},
+                       "motion": {"idle": "rest_s", "walk": "slither", "windup": "curl_ball", "attack": "boulder_roll",
+                                  "hurt": "flinch_back", "death": "slump_crack"}}
+
+
+def _boulder(B, action: str, f: int, view: float) -> Pose:
+    """M2, the boulder serpent: a heavy serpent laid in an S on the ground, its head raised a little; a thick ochre hide,
+    a sandstone belly in scutes, a row of grey boulder plates down its spine (each its own lump, dark seams between them,
+    lichen on some), a heavy wedge of a head under a rocky brow plate (amber slit eyes, a forked tongue). It slithers; it
+    curls up into a boulder (the tell, held: its head tucked in, one eye peeking) and rolls forward to slam on the blow,
+    then unrolls; struck, it rears back; beaten, it slumps slack and its plates crack. The spine is laid out (the S on the
+    ground, or a spiral round the ball) and resampled evenly; the body is ellipsoids along it, the plates lumps over it."""
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    P = Pose()
+    seed = int(B.opts.get("seed", 0))
+    L_ = p.length
+    R = p.ball
+    ph = f / 8.0 * math.tau if action == "walk" else f / 6.0 * math.tau
+    rise = B.pick("rise", action, f, 3.0)
+    reach = B.pick("reach", action, f)
+    wav = B.pick("wave", action, f, 1.0)
+    ball = B.pick("ball", action, f)
+    spin = B.pick("spin", action, f)
+    lunge = B.pick("lunge", action, f)
+    gape = B.pick("gape", action, f)
+    hp_ = B.pick("hpitch", action, f)
+    limp = B.pick("limp", action, f)
+    crack = B.pick("crack", action, f)
+    y = math.radians(view)
+    fronton = max(0.0, math.sin(y))
+    sway = st.get("sway", 0.0) * math.sin(ph)
+    K = 40
+    u = np.linspace(0.0, 1.0, K)
+    # Laid out: an S along the ground behind the head (travelling down it as it slithers), its neck rising at the front.
+    travel = ph if st.get("kind") == "slither" else 0.0
+    a = -L_ * (1.0 - u) * 0.62 + 4.0 + lunge * (1.0 - ball) + reach * u ** 4
+    b = wav * 2.6 * np.sin(2 * math.pi * 1.05 * u - travel + 0.6) * (0.3 + 0.7 * (1.0 - u)) + sway * u ** 2 - 0.9 * fronton * u ** 3
+    neck = np.clip((u - 0.8) / 0.2, 0.0, 1.0)
+    c = rise * (neck * neck * (3.0 - 2.0 * neck)) * (1.0 - limp)
+    spine = np.stack([a, b, c], axis=1)
+    if B.has("writhe", action):
+        wr = B.pick("writhe", action, f)
+        spine[:, 1] += wr * 1.2 * np.sin(np.linspace(0.0, 8.0, K) + f)
+    C = v3(lunge, 0.0, R + 0.1)
+    if ball > 0.0:
+        # Curled up: a spiral round a ball, from the tail at its back underneath to the head at its front, peeking out.
+        # Wound from the bottom round to the crown (so its plates cover the ball all over), the neck coming down over
+        # the front to the head.
+        w_ = np.clip(u / 0.8, 0.0, 1.0)
+        h_ = np.clip((u - 0.8) / 0.2, 0.0, 1.0)
+        lat = np.radians(-68.0 + 136.0 * w_ - 50.0 * h_)
+        lon = np.radians(560.0 * (1.0 - w_) + 8.0 + 50.0 * (1.0 - h_) * (w_ >= 1.0))
+        sph = np.stack([np.cos(lat) * np.cos(lon), np.cos(lat) * np.sin(lon), np.sin(lat)], axis=1)
+        rolled = sph @ rot("b", -spin).T
+        coil = C + rolled * (R - 0.2)
+        e = ball * ball * (3.0 - 2.0 * ball)
+        spine = spine * (1.0 - e) + coil * e
+    pts, total = _resample(np.asarray(spine, float), 32)
+    n = len(pts)
+    T = np.gradient(pts, axis=0)
+    T /= np.maximum(1e-6, np.linalg.norm(T, axis=1))[:, None]
+    up = np.array((0.0, 0.0, 1.0))
+    W = p.width
+    frames = []
+    prevB = np.array((0.0, 1.0, 0.0))
+    for k in range(n):
+        Tk = T[k]
+        out = up if ball <= 0.0 else _unit(up * (1.0 - ball) + _unit(pts[k] - C) * ball)
+        Bk = np.cross(out, Tk)
+        if np.linalg.norm(Bk) < 0.2:
+            Bk = prevB
+        Bk = Bk / np.linalg.norm(Bk)
+        prevB = Bk
+        Nk = np.cross(Tk, Bk)
+        frames.append((Tk, Bk, Nk))
+    if ball > 0.0:
+        # The core of the ball, stone between the coils, grown as it curls (so it reads as one boulder).
+        P.add(S(C, (R - 0.5) * ball, m.rock, "core", _rock(m, C, up, seed + 7, 0.0)))
+    for k in range(n):
+        Tk, Bk, Nk = frames[k]
+        s = k / (n - 1.0)
+        r = _width(W, s)
+        centre = pts[k] + Nk * r * 0.8 if ball <= 0.0 else pts[k]
+        if ball <= 0.0:
+            centre = pts[k] + np.array((0.0, 0.0, r * 0.85))
+        mm = np.stack([Tk, Bk, Nk], axis=1)
+        P.add(E(centre, (max(0.6 * total / (n - 1) + 0.35, 0.8), r, r * 0.85), m.skin, "body", mm, _hide(m, centre, Nk, s * total, r)))
+        frames[k] = (Tk, Bk, Nk, centre, r)
+    # The boulder plates down its spine: grey lumps, dark seams between them, lichen on some, pale flecks; cracked as it
+    # dies (dark lines across them, by its seed).
+    pl = p.plates
+    for j in range(pl.n):
+        s = pl["from"] + (pl.to - pl["from"]) * j / (pl.n - 1.0)
+        k = int(round(s * (n - 1)))
+        Tk, Bk, Nk, centre, r = frames[k]
+        big = pl.r[0] * (0.75 + 0.25 * math.sin(math.pi * s)) * (1.0 + 0.15 * ((j * 7 + seed) % 3 == 0))
+        q = centre + Nk * (r * 0.78)
+        mm = np.stack([Tk, Bk, Nk], axis=1) @ rot("c", ((j * 37 + seed) % 21) - 10.0)
+        P.add(E(q, (big * 1.05, big * pl.r[1] / pl.r[0] * 1.15, big * pl.r[2] / pl.r[0]), m.rock, "plate%d" % (j % 2), mm,
+                _rock(m, q, Nk, seed + j, crack)))
+    # The head: a heavy wedge at the neck's end, under its rocky brow plate; tucked against the ball as it curls, one eye
+    # peeking out.
+    Tn, Bn, Nn, centre, r = frames[-1]
+    Tn = Tn.copy()
+    if ball <= 0.0:
+        Tn[2] *= 0.3
+        Tn /= np.linalg.norm(Tn)
+        Bn = np.cross(up, Tn)
+        Bn = Bn / max(1e-6, np.linalg.norm(Bn))
+        Nn = np.cross(Tn, Bn)
+    hm = np.stack([Tn, Bn, Nn], axis=1) @ rot("b", hp_ + 4.0 * fronton)
+    hd = p.head
+    hc = centre + hm @ v3(1.0, 0.0, 0.15)
+    P.add(E(hc, hd.skull, m.skin, "head", hm, _hide(m, hc, hm[:, 2], 0.0, hd.skull[1])))
+    P.add(E(hc + hm @ v3(hd.snout[0]), hd.snout[1], m.skin, "head", hm, _hide(m, hc, hm[:, 2], 0.0, hd.skull[1])))
+    P.add(E(hc + hm @ v3(hd.brow[0]), hd.brow[1], m.rock, "brow", hm, _rock(m, hc, hm[:, 2], seed + 99, crack)))
+    dead = action == "death" and f >= st.get("dead_from", 99)
+    for sd in (1, -1):
+        eye = hc + hm @ v3(hd.eye[0], sd * hd.eye[1], hd.eye[2])
+        if dead or (ball > 0.6 and sd < 0):
+            P.mark(eye, M.RAMPS[m.skin][0])
+        else:
+            P.eye(eye, M.BOULDER_EYE)
+            P.mark(eye + hm @ v3(0.0, sd * 0.05, 0.35), M.INKY)
+    if gape > 0.08:
+        jm = hm @ rot("b", -gape * 34.0)
+        hinge = hc + hm @ v3(-0.8, 0.0, -0.7)
+        P.add(E(hinge + jm @ v3(2.0, 0.0, -0.1), (1.9, 1.4, 0.5), m.belly, "jaw", jm))
+        P.add(E(hinge + hm @ v3(1.8, 0.0, -0.2), (1.5, 1.1, 0.35), m.mouth, "maw", hm, line=False))
+        for sd in (1, -1):
+            P.mark(hc + hm @ v3(hd.snout[0][0] + 0.6, sd * 0.6, -1.0), M.FANG)
+    if f in st.get("tongue", ()) and ball <= 0.0:
+        tip = hc + hm @ v3(hd.snout[0][0] + hd.snout[1][0] + 0.3, 0.0, -0.4)
+        for t in (0.0, 0.6, 1.2):
+            P.mark(tip + hm @ v3(t, 0.0, 0.0), M.VIPER_TONGUE)
+        for sd in (1, -1):
+            P.mark(tip + hm @ v3(1.7, sd * 0.45, 0.0), M.VIPER_TONGUE)
+    # Dust as it curls and as it rolls, speed streaks behind the ball, the spark of its slam.
+    if f in st.get("dust", ()):
+        for k in range(7):
+            ang = math.radians(k * 51.0 + f * 25.0)
+            rr = R * 0.9 + (k % 3) * 0.8
+            P.fx.append((v3(lunge - R * 0.5 + math.cos(ang) * rr * 0.6, math.sin(ang) * rr, 0.3 + (k % 2) * 0.6), M.DUST if k % 2 else M.DUST_DIM))
+    if action == "attack" and f in st.get("streaks", ()):
+        for k in range(4):
+            yy = (k - 1.5) * 2.2
+            for d in range(3):
+                P.fx.append((v3(lunge - R - 2.2 - d * 1.3 - k % 2, yy, R + (k % 2) * 1.0), M.DUST_DIM if d else M.DUST))
+    if action == "attack" and f == st.get("spark", -1):
+        for k in range(6):
+            ang = math.radians(k * 60.0)
+            P.glow.append((v3(lunge + R + 0.6, math.cos(ang) * 1.8, R * 0.6 + math.sin(ang) * 1.8), M.SPECK))
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, 0.0))
+    return P
+
+
+def _unit(v):
+    return v / max(1e-9, float(np.linalg.norm(v)))
+
+
+def _hide(m, centre, N, s0: float, w: float):
+    """The boulder serpent's hide: thick ochre, scales a step dark in rows across it; the sandstone belly underneath in
+    scutes (a dark line between each)."""
+    def skin(q, nrm):
+        d = q - centre
+        nz = nrm @ N
+        belly = nz < -0.25
+        rows = ((d @ N) * 0.0 + (q[:, 0] * 0.9 + q[:, 1] * 0.9 + q[:, 2] * 0.6)) % 1.3 < 0.25
+        scute = (q[:, 0] * 1.2 + q[:, 1] * 0.35) % 1.1 < 0.2
+        names = np.where(belly, m.belly, m.skin).astype(object)
+        return names, np.where(belly, np.where(scute, -1, 0), np.where(rows, -1, 0)).astype(np.int16)
+    return skin
+
+
+def _rock(m, centre, N, seed: int, crack: float):
+    """A boulder plate: grey stone, pits a step dark and pale flecks, lichen over its top on some (by the seed); cracked as
+    the serpent dies (dark lines across it, more as `crack` grows)."""
+    lichen_on = seed % 3 == 0
+
+    def rock(q, nrm):
+        d = q - centre
+        nz = nrm @ N
+        pit = h01v(np.floor(q[:, 0] * 1.6 + 60), np.floor(q[:, 1] * 1.6 + 60) + np.floor(q[:, 2] * 1.6), seed % 97 + 3) > 0.84
+        fleck = h01v(np.floor(q[:, 1] * 2.4 + 40), np.floor(q[:, 2] * 2.4 + 40), seed % 89 + 5) > 0.92
+        lichen = lichen_on & (nz > 0.45) & (h01v(np.floor(q[:, 0] * 0.9 + 20), np.floor(q[:, 1] * 0.9 + 20), seed % 83 + 7) > 0.4)
+        cracked = np.zeros(len(q), dtype=bool)
+        if crack > 0.0:
+            line = np.abs(((d[:, 0] * 0.8 + d[:, 1] * 1.3 + d[:, 2] * 0.5) % 2.2) - 1.1) < 0.12 * (1.0 + crack)
+            cracked = line & (h01v(np.floor(d[:, 0] * 2.0 + 30), np.floor(d[:, 1] * 2.0 + 30), seed % 71 + 9) < crack * 1.2)
+        names = np.where(lichen & ~cracked, m.lichen, m.rock).astype(object)
+        return names, np.where(cracked, -3, np.where(pit, -1, np.where(fleck & ~lichen, 1, 0))).astype(np.int16)
+    return rock
 
 
 # ================================================================================================= the leech
