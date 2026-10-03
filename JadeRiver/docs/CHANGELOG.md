@@ -41,25 +41,25 @@ and plays chapter 11 on the grid.
 - **R7's yurt.** R7's `arid.py` has a `yurt` of its own, the desert keeper's. R6's felt yurt is `herders_yurt`, so
   neither replaces the other in the sheet.
 - **Tests.**
-  - A new suite, `topdown_act2_start`, with 61 checks. It crosses the Ascension Gate both ways on the grid and plays
+  - A new suite, `topdown_act2_start`, with 63 checks. It crosses the Ascension Gate both ways on the grid and plays
     chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
     jades, the weasels), Horns for the Furnace and Sage. It walks on through Rimefrost (the hidden ice cave found) and
-    the lake (the ferry, the Hollow, the shrine's mirror), and checks the Nine Peaks ferry's gate. Each room is built
-    by the view and walked by auto-path.
+    the lake (the ferry, the Hollow, the shrine's mirror), and rides the Nine Peaks ferry over and back (gated while
+    Nine Peaks had no layout). Each room is built by the view and walked by auto-path.
   - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
   - `rules_tests`' route tour walks the nineteen rooms. Its first run lost three legs to open-sided flights by the
     walks (the Reedless Shore, Toad's Hollow, the Mirror Shallows). Every raised shape is now climbed by R4's
     closed-cheek `flights`, and a scratch walk of all 784 legs in R6's rooms arrives on every one.
-  - The run after merging R4, S11, T1, M1, E3 and R5: every gate holds, with no script error.
-    - Grid parity holds on 107 layouts (323 starts), and `npc_engine` holds.
-    - `topdown_act2_start` is new, with 61 checks.
-    - `room_engine` has 325 checks, three for each room it lays out (57 for R6's nineteen).
+  - The run after merging R4, S11, T1, M1, E3, R5 and R7: every gate and every suite passes, with no script error.
+    - All 30 counted runs and the engine tests: 75,847 checks, 0 failures.
+    - Grid parity holds on 127 layouts (383 starts). `places` reaches 41 places, and `npc_engine` holds.
+    - `topdown_act2_start` is new, with 63 checks.
+    - `room_engine` has 385 checks, three for each room it lays out (57 for R6's nineteen).
     - `rules_tests` 2,712, `contract_tests` 1,112, `room_sweep` 3,745, `visibility_suite` 6,764,
-      `data_validation` 50,403, `topdown_tutorial` 1,038, `topdown_traversal` 126 and `valley_run` 3,000.
-    - `perf_tests` (18 checks) passed run alone on a quiet machine (the Marsh Edge's fight at 16.3 ms). In the full
-      runs, with other suites on the four cores (a load of 5 to 7), one or two of its frame times missed their
-      budgets: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's fight at up to 19.4 ms against
-      16.6. None of them touches R6's rooms.
+      `data_validation` 50,403, `topdown_tutorial` 1,049, `topdown_sunscar` 57 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes in this run. In earlier runs, with other agents' suites on the four cores, one
+      frame time at a time missed its budget: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's
+      fight at up to 19.4 ms against 16.6. Neither touches R6's rooms.
 
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 

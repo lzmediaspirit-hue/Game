@@ -757,9 +757,10 @@ done (Heaven Glimpse 3, a sturdy body):
     ice cave (its hidden way found);
   - the Skydock's lake ferry to the Reedless Shore, along the lake through the Mirror Shallows (Toad's Hollow off
     them) and the Sentinel Causeway to the Lake Shrine, its bronze mirror looked into;
-- **the frontier:** the Nine Peaks ferry is the prototype's gate exactly while Nine Peaks has no layout.
+- **the frontier:** the Nine Peaks ferry is the prototype's gate exactly while Nine Peaks has no layout. With R7's
+  rooms it is open, and the test rides it to the Alliance Gate and back.
 
-In every room it checks the walks and the view as `topdown_chapter3` does: 61 checks. `rules_tests`' route tour walks
+In every room it checks the walks and the view as `topdown_chapter3` does: 63 checks. `rules_tests`' route tour walks
 the nineteen rooms too.
 
 | Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r6/`) |
