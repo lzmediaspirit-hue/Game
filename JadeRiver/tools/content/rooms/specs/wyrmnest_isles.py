@@ -77,7 +77,7 @@ WN_GUARDIANS_CROWN = room(
            ("path", 14, 3, dict(paint="d", walk=True)),
            ("brink", 25, 5, dict(level=0, paint="r")),
            ("slope", 17, 9, dict(level=1, paint="r", wavy="s"))],
-    features=[("crown", (20, 3, 16, 9), dict(level=3, paint="r", shape="round", flights=[24])),
+    features=[("crown", (20, 3, 16, 7), dict(level=3, paint="r", shape="round", flights=[24])),
               ("turf", (8, 17, 15, 7), dict(paint="g", shape="round")),
               ("turf_2", (36, 18, 15, 6), dict(paint="g", shape="round")),
               ("summit", (25, 3, 9, 5), dict(level=4, paint="r", shape="round", flights=[31])),

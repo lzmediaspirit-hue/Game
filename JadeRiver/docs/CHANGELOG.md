@@ -27,7 +27,7 @@ The Last Egg.
   - Ships are decks: `specs/skysea.py`'s `hull()` gives a deck its pointed bow and its stern. The Shoals' islets are
     sand round pale rock in R2's wading shallows.
   - Vistas in `topdown_life.VISTAS`.
-- **Places.** Fourteen rows in `places.py` (47 places): six shrines, two teleport stones, the harbour's board,
+- **Places.** Fourteen rows in `places.py` (55 places with R7's): six shrines, two teleport stones, the harbour's board,
   storehouse and two stalls, the Chandlery's furnace and Old Bo's planters.
 - **No engine rule.** `engine.py` is unchanged; every older spec compiles byte for byte.
 - **The frontier.** The Arrival Quay's skiff to the Citadel and the Harbor Market's stair to the Lantern Heart lead to

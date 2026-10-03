@@ -964,7 +964,7 @@ capture's x2 copies of the world alone are not kept.
 - The moored hulks (back decor) became the decks you walk.
 - The docks are piers to the brink or the water, a way at the tip where a skiff is a portal.
 
-**Places** (`places.py`, R8's block; 47 places now):
+**Places** (`places.py`, R8's block; 55 places now, with R7's):
 - the shrines of the Broken Pier, the Launch, the Arrival Quay, the Moored Hulks, the Blackmast Docks and the Nest
   Cliffs;
 - the Launch's and the Harbor Market's teleport stones;

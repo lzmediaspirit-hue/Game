@@ -1661,15 +1661,15 @@
    "added": false,
    "cell": [
     11,
-    12
+    14
    ],
    "stand": [
     11,
-    13
+    15
    ],
    "at": [
     368.0,
-    400.0
+    464.0
    ],
    "verb": "sim.world.pray",
    "icon": "shrine_marker",

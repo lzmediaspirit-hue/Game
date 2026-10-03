@@ -6,8 +6,8 @@ extends "res://tests/prologue_run.gd"
 ## done, at the realm it asks, with a sturdy body (the fights are the rooms', not the balance's); quests are taken and
 ## handed in where they stand (their givers are often off the grid). What the grid has no part in yet is a shortcut too,
 ## and says so: the Starsea crossings (a voyage loads the far room), the chart table and the slipway in the Shipwrights'
-## Yard, the Trial Hall, the jades' attunement, Presence training, taming and the egg's warming. Played through the World
-## authority:
+## Yard, the voyage to the Trial Hall (the hall itself is R7's, on the grid), the jades' attunement, Presence training,
+## taming and the egg's warming. Played through the World authority:
 ##   1. each room is entered on the grid, and the top-down view builds it (a figure for every person and thing, a mark
 ##      for every way); in each, auto-path (TopdownRoute.reach: a hop up a level, no running jump) reaches every NPC,
 ##      object and way from the spawn and every way in;
@@ -15,7 +15,8 @@ extends "res://tests/prologue_run.gd"
 ##      port's road; east to the Pirate Deck: Gu in chains on the junk's deck, freed for the Black Ledger, the pirates'
 ##      strongbox opened on the stern castle;
 ##   3. Lu's Last Page and Stars Beyond (ch 16): up to the Riven Peak, Lu's page on its knoll, a star reading at the stone
-##      on the highest crag; on to the Starsea Launch, Warden He and the launch ring on its dais;
+##      on the highest crag, the page shown to Trial Master Wen in the Trial Hall; back on the peak and on to the
+##      Starsea Launch, Warden He and the launch ring on its dais;
 ##   4. The Lantern Run and Crystal and Jade (ch 17): the Arrival Quay (the Wardens' skiff gated while the Citadel has no
 ##      layout), the Harbor Market's exchange, the Star Chandlery's furnace and the Tidelight Inn through their doors, the
 ##      stair to the Lantern Heart gated while it has no layout;
@@ -259,10 +260,17 @@ func _riven_peak() -> void:
 		"Lu's last page taken on the knoll where the stars are clearest (%s)" % str(page))
 	var steps := _steps("lus_last_page")
 	check(steps.size() >= 2 and int(steps[0]) >= 1 and int(steps[1]) >= 1, "Lu's Last Page: the peak climbed and the page found (%s)" % str(steps))
-	_finish("lus_last_page")   # its last step is Trial Master Wen's, in the Trial Hall off the grid
 	Unlocks.force_unlock(c().id, "star_charting")
 	var sight := interact("sight_riven_b")
 	check(sight.get("ok", false) and _alt("sight_riven_b") >= 5.0 * LV - 1.0, "a star reading taken at the stone on the peak's highest crag (alt %.0f; %s)" % [_alt("sight_riven_b"), str(sight)])
+	# Its last step is Trial Master Wen's, in the Nine Peaks' Trial Hall (R7's room; the sky-ship there is a voyage).
+	if TopdownRoom.has_layout("np_trial_hall"):
+		check(_load("np_trial_hall"), "to the Trial Hall, on the grid (room %s)" % room())
+		talk("trial_master_wen")
+		_done("lus_last_page", "the page shown to Trial Master Wen")
+		check(_load("sw_riven_peak", "east"), "back on the Riven Peak by its way east (room %s)" % room())
+	else:
+		_finish("lus_last_page")
 	_take("stars_beyond")
 	_give("star_chart_lantern")   # charted at a chart table, off the grid
 	check(go("east") and room() == "sw_starsea_launch", "east to the Starsea Launch (room %s)" % room())

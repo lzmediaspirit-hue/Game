@@ -16,31 +16,32 @@ from content.rooms.specs.story import octagon
 SW_BROKEN_PIER = room(
     "sw_broken_pier", size=(64, 28), biome="skyport", level=1,
     bands=[("crown", 0, 3, dict(level=5, paint="r", wall=True, wavy="s")),
-           ("quay", 3, 10, dict(level=2, paint="p", wavy="s", flights=[18, 49])),
-           ("road", 13, 3, dict(paint="p", walk=True)),
-           ("lower", 16, 12, dict(level=0, wavy="n"))],
+           ("quay", 3, 10, dict(level=2, paint="p", flights=[18, 49])),        # the old port's quay wall runs straight
+           ("apron", 13, 2, dict(paint="p")),
+           ("road", 15, 3, dict(paint="p", walk=True)),
+           ("lower", 18, 10, dict(level=0, wavy="n"))],
     features=hull("wreck", 26, 3, 10, 7, dict(level=3, paint="w", flights=[30]), bow=0, stern=4)
              + hull("wreck_fore", 40, 4, 6, 6, dict(level=3, paint="w", flights=[42]), bow=6)
              + [("outcrop", (8, 3, 8, 5), dict(level=3, paint="r", shape="round", flights=[12])),
                 ("outcrop_2", (53, 3, 8, 6), dict(level=3, paint="r", shape="round", flights=[57])),
-                ("pier", (3, 16, 5, 12), dict(level=1, paint="w")),                # the whole pier, out to the brink
-                ("pier_2", (20, 16, 3, 7), dict(level=1, paint="w")),              # and two snapped short
-                ("pier_3", (47, 16, 3, 5), dict(level=1, paint="w")),
-                ("paving", (11, 17, 8, 4), dict(paint="p", shape="round")),        # the lower quay's paving, broken
-                ("paving_2", (28, 17, 12, 5), dict(paint="p", shape="round")),
-                ("paving_3", (52, 17, 9, 4), dict(paint="p", shape="round"))],
+                ("pier", (3, 18, 5, 10), dict(level=1, paint="w")),                # the whole pier, out to the brink
+                ("pier_2", (20, 18, 3, 6), dict(level=1, paint="w")),              # and two snapped short
+                ("pier_3", (47, 18, 3, 4), dict(level=1, paint="w")),
+                ("paving", (11, 19, 8, 4), dict(paint="p", shape="round")),        # the lower quay's paving, broken
+                ("paving_2", (28, 19, 12, 5), dict(paint="p", shape="round")),
+                ("paving_3", (52, 19, 9, 4), dict(paint="p", shape="round"))],
     stairs="auto",
     ways={"east": ("e", "road")},
-    spawn=(5, 19),
+    spawn=(5, 21),
     anchors={"dock_wreck": "pier.front@5", "shrine_sw_pier": "verge.n@11", "sign_sw": "lower@10", "jar_2": "outcrop@12",
              "ore_1": "quay.front@38", "chest_ledge_mv_1": "wreck@28", "chest_cloud_mv": "wreck_fore@43",
              "jar_4": "verge.s@41", "crate_3": "outcrop_2@57", "crate_5": "lower@57"},
     props=[("broken_mast", 31, 8), ("broken_mast", 44, 9), ("hull_ribs", 36, 9), ("starsea_anchor", 19, 9),
-           ("lantern_red", 27, 6), ("lantern_red", 34, 5), ("pirate_banner", 25, 12), ("pirate_banner", 39, 12),
-           ("post", 3, 27), ("post", 7, 27), ("post", 20, 22), ("post", 22, 22), ("post", 47, 20), ("post", 49, 20),
-           ("crates", 23, 17), ("barrel", 25, 17), ("hull_ribs", 53, 23), ("broken_mast", 31, 24)],
+           ("lantern_red", 27, 6), ("lantern_red", 34, 5), ("pirate_banner", 25, 14), ("pirate_banner", 39, 14),
+           ("post", 3, 27), ("post", 7, 27), ("post", 20, 23), ("post", 22, 23), ("post", 47, 21), ("post", 49, 21),
+           ("crates", 23, 19), ("barrel", 25, 19), ("hull_ribs", 53, 24), ("broken_mast", 31, 25)],
     flora={"quay": {"kinds": ["rock_small", "tall_grass", "boulder", "dead_tree"], "density": 0.3},
-           "lower": dict(density=0.32)},
+           "apron": dict(density=0.0), "lower": dict(density=0.32)},
     foes="auto")
 
 

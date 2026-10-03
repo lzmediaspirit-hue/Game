@@ -16,7 +16,7 @@ BM_BLACKMAST_DOCKS = room(
            ("yard", 3, 7, dict(level=1, paint="r")),
            ("boardwalk", 10, 3, dict(paint="w", walk=True)),
            ("cove", 13, 15, dict(water=True))],
-    features=[("crag", (33, 3, 9, 5), dict(level=3, paint="r", shape="round", flights=[37])),
+    features=[("crag", (33, 3, 9, 5), dict(level=2, paint="r", shape="round", flights=[37])),
               ("pier", (4, 13, 4, 15), dict(level=1, paint="w")),
               ("pier_2", (28, 13, 4, 9), dict(level=1, paint="w")),
               ("pier_3", (56, 13, 4, 13), dict(level=1, paint="w"))]
@@ -47,13 +47,13 @@ BM_BLACKMAST_DOCKS = room(
 BM_GUNNERS_BATTERY = room(
     "bm_gunners_battery", size=(64, 28), biome="blackmast", level=1,
     bands=[("crags", 0, 4, dict(level=4, paint="r", wall=True, wavy="s")),
-           ("road", 9, 3, dict(paint="d", walk=True)),
+           ("road", 10, 3, dict(paint="d", walk=True)),
            ("floor", 14, 6, dict(level=1, paint="p")),
            ("parapet", 20, 2, dict(level=2, paint="s")),
            ("rocks", 22, 3, dict(level=0, paint="r", wavy="s")),
            ("lanes", 25, 3, dict(water=True, wavy="n"))],
     features=[("store", (10, 4, 7, 4), dict(level=2, paint="w", flights=[13])),
-              ("lookout", (31, 4, 7, 4), dict(level=3, paint="w", flights=[34]))]
+              ("lookout", (31, 4, 7, 4), dict(level=2, paint="w", flights=[34]))]
              + [("embrasure", (x, 20, 3, 2), dict(level=1, paint="p")) for x in (10, 18, 27, 36, 46, 55)],
     stairs="auto",
     ways={"west": ("w", "road"), "east": ("e", "road"), "cove": dict(at=(43, 3), dir="n", arrive=(43, 5), span=2)},
