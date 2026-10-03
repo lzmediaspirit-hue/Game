@@ -479,21 +479,42 @@ static func sets() -> Dictionary:
 		m1.append({"do": [["lineup", el[1]]]})
 		m1.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
 		m1.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
-	s["monsters_m1"] = {"doc": "M1: the monster engine's first batch past E2 (the quarry's, the bamboo grove's, chapter 3-5's beasts and people) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their top-down rooms under the HUD (--tag=after)",
+	s["monsters_m1"] = {"doc": "M1: the monster engine's first batch past E2 (the quarry's, the bamboo grove's, chapter 3-5's beasts and people) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their own top-down rooms under the HUD (the Caravan Road, Bend Shore, the Boss Den, the Lower Pit, the Thicket Heart, the Whispering Bamboo, the Pilgrim Stairs, the Hall of Lanterns, the Abbot's Sanctum, the Gorge Mouth) (--tag=after)",
 		"out": "redesign/feedback/monsters/m1/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
 		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m1 + [
 		{"do": [["paused", false], ["hud", "visible", true]]},
-		{"name": "12_fight_caravan_road", "room": "cr_caravan_road", "cell": Vector2(30, 16), "wait": 60, "foes": [["mudwater_bandit", Vector2(3, 1)],
-			["bandit_archer", Vector2(-5, 1)], ["mud_hound", Vector2(2, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
-		{"name": "13_fight_bend_shore", "room": "dw_bend_shore", "cell": Vector2(23, 15), "wait": 60, "foes": [["jade_carp", Vector2(-2, 2)],
-			["tide_crab", Vector2(3, 1)], ["ember_fox", Vector2(-4, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
-		{"name": "14_fight_boss_den", "room": "mh_boss_den", "cell": Vector2(28, 14), "wait": 60, "foes": [["big_toad_tan", Vector2(4, 0)],
-			["mudwater_lieutenant", Vector2(-3, 2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
-		{"name": "15_fight_flats", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["stone_tortoise", Vector2(4, 2)], ["ironclaw_mole", Vector2(-4, 1)],
-			["bamboo_monkey", Vector2(-2, -3)], ["green_viper", Vector2(3, -2)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]},
-		{"name": "16_fight_flats_shrine", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["stone_guardian", Vector2(4, 1)],
-			["paper_talisman_ghost", Vector2(-3, -2)], ["drowned_acolyte", Vector2(-4, 2)]], "turned": true, "fight": [150, false],
-			"take": [["shot"], ["view_x4", "*_x4"]]}]}
+		# A fight in the species' own room: the room's own foes cleared (they stand far above a new body's Level, and a
+		# blow of theirs would open the fall's page over the shot), the batch's set on the player at Level 1.
+		{"name": "12_fight_caravan_road", "room": "cr_caravan_road", "cell": Vector2(30, 16), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 16), [["mudwater_bandit", Vector2(3, 1)], ["bandit_archer", Vector2(-5, 1)], ["mud_hound", Vector2(2, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "13_fight_bend_shore", "room": "dw_bend_shore", "cell": Vector2(23, 15), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(23, 15), [["jade_carp", Vector2(-2, 2)], ["tide_crab", Vector2(3, 1)], ["ember_fox", Vector2(-4, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "14_fight_boss_den", "room": "mh_boss_den", "cell": Vector2(28, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(28, 14), [["big_toad_tan", Vector2(4, 0)], ["mudwater_lieutenant", Vector2(-3, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "15_fight_lower_pit", "room": "sq_lower_pit", "cell": Vector2(24, 17), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(24, 17), [["stone_tortoise", Vector2(4, 0)], ["ironclaw_mole", Vector2(-4, 1)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "16_fight_thicket_heart", "room": "bg_thicket_heart", "cell": Vector2(30, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 14), [["thornback_boar", Vector2(4, 1)], ["green_viper", Vector2(-4, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "17_fight_whispering_bamboo", "room": "bg_whispering_bamboo", "cell": Vector2(30, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 14), [["bamboo_monkey", Vector2(4, 2)], ["bamboo_monkey", Vector2(-4, 1)], ["ember_fox", Vector2(2, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "18_fight_pilgrim_stairs", "room": "cp_pilgrim_stairs", "cell": Vector2(24, 25), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(24, 25), [["stone_guardian", Vector2(4, 0)], ["stone_guardian", Vector2(-4, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "19_fight_hall_of_lanterns", "room": "ds_hall_of_lanterns", "cell": Vector2(28, 8), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(28, 8), [["drowned_acolyte", Vector2(-4, 2)], ["paper_talisman_ghost", Vector2(4, -1)], ["paper_talisman_ghost", Vector2(3, 3)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "20_fight_abbots_sanctum", "room": "ds_abbots_sanctum", "cell": Vector2(30, 13), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 13), [["drowned_abbot", Vector2(5, 0)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "21_fight_gorge_mouth", "room": "wg_gorge_mouth", "cell": Vector2(34, 11), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(34, 11), [["gorge_bandit_adept", Vector2(4, 1)], ["gorge_bandit_adept", Vector2(-4, 1)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]}]}
 
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
@@ -693,9 +714,11 @@ const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed
 	["marsh_leech", Vector2(3.4, 1.0), false], ["marsh_leech", Vector2(5.2, 1.0), true]]
 # M1: the monster engine's first batch, by kind, beside drawn foes for scale (the reed rat, the rock beetle, the boarlet,
 # the mud crab), and their elites beside them.
-const M1_LINEUP_A := [["stone_tortoise", Vector2(-7.5, -2.6), false], ["ironclaw_mole", Vector2(-3.0, -2.6), false],
+# The mole stands past its aggro range from the player (200 px, over six tiles): one that took the player for prey would
+# burrow toward it before the lineup is held, and a burrowing foe is not drawn.
+const M1_LINEUP_A := [["stone_tortoise", Vector2(-7.5, -2.6), false], ["bamboo_monkey", Vector2(-3.0, -2.6), false],
 	["reedtail_rat", Vector2(2.5, -2.6), false], ["thornback_boar", Vector2(7.0, -2.6), false],
-	["bamboo_monkey", Vector2(-7.5, 2.0), false], ["green_viper", Vector2(-3.5, 2.0), false], ["rock_beetle", Vector2(2.5, 2.0), false],
+	["ironclaw_mole", Vector2(-7.5, 2.0), false], ["green_viper", Vector2(-3.5, 2.0), false], ["rock_beetle", Vector2(2.5, 2.0), false],
 	["wild_boarlet", Vector2(7.0, 2.0), false]]
 const M1_LINEUP_B := [["jade_carp", Vector2(-7.5, -2.6), false], ["tide_crab", Vector2(-3.0, -2.6), false],
 	["ember_fox", Vector2(2.5, -2.6), false], ["mud_hound", Vector2(7.0, -2.6), false],
@@ -705,8 +728,8 @@ const M1_LINEUP_C := [["mudwater_bandit", Vector2(-7.5, -2.6), false], ["bandit_
 	["mudwater_lieutenant", Vector2(3.0, -2.6), false], ["big_toad_tan", Vector2(7.0, -2.6), false],
 	["drowned_acolyte", Vector2(-7.5, 2.2), false], ["rogue_cultivator", Vector2(-4.0, 2.2), false],
 	["drowned_abbot", Vector2(3.0, 2.2), false], ["gorge_bandit_adept", Vector2(7.0, 2.2), false]]
-const M1_ELITES_A := [["stone_tortoise", Vector2(-7.5, -2.4), false], ["stone_tortoise", Vector2(-3.0, -2.4), true],
-	["ironclaw_mole", Vector2(2.5, -2.4), false], ["ironclaw_mole", Vector2(6.5, -2.4), true],
+const M1_ELITES_A := [["ironclaw_mole", Vector2(-7.5, -2.4), false], ["stone_tortoise", Vector2(-3.0, -2.4), false],
+	["stone_tortoise", Vector2(2.5, -2.4), true], ["ironclaw_mole", Vector2(7.0, -2.4), true],
 	["bamboo_monkey", Vector2(-7.5, 2.0), false], ["bamboo_monkey", Vector2(-4.0, 2.0), true],
 	["green_viper", Vector2(2.5, 2.0), false], ["green_viper", Vector2(6.5, 2.0), true]]
 const M1_ELITES_B := [["thornback_boar", Vector2(-7.5, -2.4), false], ["thornback_boar", Vector2(-2.5, -2.4), true],

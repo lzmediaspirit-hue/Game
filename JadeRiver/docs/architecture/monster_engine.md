@@ -57,7 +57,7 @@ M1 added these variants and plans. Each new part kind is optional, so the specie
 | `humanoid` | `monkey` | the bamboo monkey | a hunched body (`hunch`), `fur` paint, a monkey face, a curling tail, a held bamboo shoot it hurls (`shoot`) |
 | `humanoid` | `guardian` | the stone guardian | a squat temple lion-dog of carved stone: `temple` paint with moss, a mane of curls, a collar and bell, jade-glowing eyes and cracks |
 | `bird` (new) | `chick` | the jade crane chick | a ball of down on two long legs (two bones by IK), a neck and round head, a beak, wings that fold, spread and beat, a tail tuft; styles `peer`, `strut`, `spread_puff`, `buffet`, `ruffle`, `fold_sit` |
-| `spirit` (new) | `talisman` | the paper talisman ghost | a floating body of layered strips: a hooded dome, a face talisman (dark eye holes glowing violet, a red seal), hanging strips that flutter, a bundle of strips at each side that fans out like a peacock in the tell; styles `hover`, `drift`, `fan`, `fling`, `flutter_back`, `come_apart` |
+| `spirit` (new) | `talisman` | the paper talisman ghost | a floating body of paper strips (flat plates cut square, a column of red script down each, torn ends): a hooded dome, a dark face under it with eyes glowing violet and a talisman hanging over it (a red seal), strips hanging round it that flutter, a bundle of strips at each side that fans out like a peacock in the tell; styles `hover`, `drift`, `fan`, `fling`, `flutter_back`, `come_apart` |
 | `person` (new) | `fighter`, `archer`, `brute` | the human foes | not a sculpture: the shared character body (below) |
 
 ### People (`person`, M1)
@@ -85,7 +85,9 @@ as a villager in the same clothes. No new body movement and no new layer pose wa
 elite is cast at 1.2 times the figure's density (never resampled). Its clothes, hair and steel darken toward the §14
 shadow as a sculpted elite's ramps do (the skin less), its eyes turn gold, and it wears the ring of Qi. A `tint`
 multiplies the picture, as the side view's and the villagers' tint does (the drowned's pallor). The room view plays
-the sheet like any foe's, so a person has its tell, its blow on frame 1, the hit flash and its elite look.
+the sheet like any foe's, so a person has its tell, its blow on frame 1, the hit flash and its elite look. Its label
+(the block's `top`) stands over its head where a villager's marks do (`creatures.PERSON_LIFT`, 8 art px:
+`TopdownPlaces.HEAD_LIFT`), not on its hair.
 
 ### Parts
 
@@ -189,8 +191,9 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
      and tail-on rows read as the creature, and the elite wears its ring with gold eyes.
 6. **Check:** `python3 tools/content/monsters/build.py --check` (the runners' `monsters` gate), then
    `tools/run_tests.sh`.
-7. **APK size:** report the new sheets' sizes. A sheet costs about 55% of its PNG in the APK (lossless WebP). An elite
-   sheet is about twice its base; leave it out where no room makes an elite.
+7. **APK size:** report the new sheets' sizes. A sheet costs about half its PNG in the APK: the imported `.ctex`
+   (lossless WebP at the project's settings), which `.godot/imported/` holds after the import. An elite sheet is about
+   twice its base (with `share`, about 1.8 times); leave it out where no room makes an elite.
 
 ## The escape hatch
 
@@ -239,3 +242,69 @@ stand-ins before. Each has a sheet, an elite where a room makes one, and its row
 - the rock beetle and the pebble imp of Stonewall Quarry (`sq_quarry_rim`, off Stoneford's quarry road; the quest
   `stone_and_sweat`);
 - the greyfin of the Grey Pools (`rm_grey_pools`, east of the Marsh Edge).
+
+## M1: the first batch past E2
+
+Twenty species: the foes a top-down player meets next, by chapter. They stood in with their side-view sheets before.
+Each is one spec; its rows moved in unchanged (`spec_row`). `enemies.json`, `loot_tables.json` and `sound.json` are
+byte-identical, and the only change to `foes.json` is the twenty new blocks. Every species before draws byte for byte.
+
+| Species | Where it is first met | Plan | PNG KB (base / elite) | APK KB (base / elite) |
+|---|---|---|---|---|
+| ironclaw_mole | Stonewall Quarry: the Lower Pit, the Collapsed Tunnel | `quadruped.talpid` | 65 / 132 | 35 / 67 |
+| stone_tortoise | the Lower Pit | `shell.tortoise` | 110 / 206 | 54 / 99 |
+| mudwater_bandit | chapter 3: the Caravan Road | `person.fighter` | 94 / 170 | 53 / 87 |
+| bandit_archer | the Mudwater Hideout | `person.archer` | 95 | 52 |
+| mud_hound | the Mudwater Hideout | `quadruped.canine` | 90 | 44 |
+| mudwater_lieutenant | the Loot Cave | `person.fighter` | 106 | 59 |
+| big_toad_tan | the Boss Den (dungeon boss) | `person.brute` | 131 | 67 |
+| jade_carp | Bend Shore | `fish.minnow` | 62 / 122 | 35 / 64 |
+| tide_crab | Bend Shore (and the Rapids Terraces) | `crab.mud` | 121 / 220 | 54 / 96 |
+| ember_fox | Bend Shore, the Whispering Bamboo | `quadruped.canine` | 76 | 39 |
+| bamboo_monkey | chapter 4: the Whispering Bamboo | `humanoid.monkey` | 78 / 148 | 37 / 69 |
+| green_viper | the Whispering Bamboo, the Thicket Heart | `serpent.viper` | 43 / 97 | 25 / 53 |
+| thornback_boar | the Thicket Heart | `quadruped.suid` | 160 / 287 | 74 / 129 |
+| jade_crane_chick | the Falls Pool | `bird.chick` | 69 | 34 |
+| stone_guardian | Cleansing Peak: the Pilgrim Stairs | `humanoid.guardian` | 154 | 69 |
+| drowned_acolyte | chapter 5: the Drowned Shrine | `person.fighter` | 102 | 54 |
+| paper_talisman_ghost | the Hall of Lanterns, the Scripture Well | `spirit.talisman` | 130 | 66 |
+| rogue_cultivator | the Drowned Grotto (elite) | `person.fighter` | 113 / 206 | 61 / 104 |
+| drowned_abbot | the Abbot's Sanctum (dungeon boss) | `person.brute` | 121 | 62 |
+| gorge_bandit_adept | Whitewater Gorge: the Gorge Mouth | `person.fighter` | 111 | 61 |
+
+All twenty: 3,620 KB of PNG, 1,807 KB in the APK (1.76 MiB): the bases 1,038 KB, the nine elite sheets 769 KB. The
+elites are where a room makes one (each of those rooms has one set-piece elite); a spec's `elite=False` and
+`build.py --update ID` drop one. The sizes keep each creature's share of a person (46 px) from its side view.
+
+The bosses keep their phases and tells: Big Toad Tan's raised club is the tell of his blow and of his call for his
+bandits, and the Drowned Abbot's raised staff of his bell's shockwave and of his ghosts. No boss here has a second look
+or wears the ring in its own look (`aura`), so their sheets stay near a person's.
+
+Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`, and the capture set `monsters_m1`
+(`docs/redesign/feedback/monsters/m1/after/`): the lineups held in every pose beside drawn foes for scale, the elites,
+and live fights in the species' own top-down rooms.
+
+## Still to draw
+
+The species of the top-down rooms and the Act I zones that still stand in with their side-view sheet, by when the
+story meets them (their levels), with the plan each would start from:
+
+| Species | Where | Start from |
+|---|---|---|
+| riverbed_serpent | Deepwater Bend, the Serpent's Shallows (field boss, 25) | `serpent.eel`: a clean jade variant (horns, whiskers, a gold belly, no Hollow strands, clear water; a water orb in the tell) |
+| rapids_lizard | Whitewater Gorge, the Rapids Terraces (28-31) | `quadruped`: a saurian head, sprawled legs and a finned tail (new kinds); its tail whip spins |
+| boulder_serpent | the Echo Cliffs (32-35) | `serpent.viper` with boulder plates, and the beetle's ball and roll |
+| mist_vulture | the Echo Cliffs (34-36) | `bird`: a flying variant (wings of a span, a bald head) |
+| riverstone_ox | the Quarry Rim (37-38) | `quadruped`: a bovid head kind |
+| cloudwing_crane | the Crane Cliffs (37-40) | `bird`: the chick grown, flying |
+| stormwing_hawk | the Crane Cliffs (38-43) | `bird`, flying |
+| cliff_ape | the Sky Ledges (41-45) | `humanoid.monkey` |
+| mist_wolf | Mist Peak, the Misty Slopes (46-50) | `quadruped.canine` |
+| mirror_wisp | the Misty Slopes (47-51) | `spirit` |
+| rogue_treasure_adept | the Misty Slopes (48-50) | `person.fighter` |
+| weeping_lantern | the Forgotten Monastery (50-55) | `spirit` |
+| jade_sentinel | the Forgotten Monastery (52-56) | `humanoid.guardian` |
+| elder_gu | Gu's Warehouse (story boss, 53) | `person` |
+| hollow_stag | the Summit Ridge (55-59) | `quadruped`: a cervid head kind, `hollowed` |
+| cloudpeak_roc | the Summit Ridge, the Frozen Shrine (58-63) | `bird`, flying |
+| gate_guardian | the Ascension Gate (story boss, 63) | `humanoid.guardian` |

@@ -14,8 +14,8 @@ species("bamboo_monkey", plan="humanoid.monkey", share=True, size=1.45,
 
 # A slender bamboo pit viper (green, a pale belly and flank stripe, an orange tail tip), coiled with its neck raised in an
 # S; it draws back into a tight S with its jaws parting (the tell) and strikes along the ground (its bite may poison).
-species("green_viper", plan="serpent.viper", share=True, size=1.5,
-        palette=["viper_scale", "viper_belly", "viper_tail", "viper_mouth"], accents=("viper_tail",), shadow=(11, 4), cycle=10.0,
+species("green_viper", plan="serpent.viper", share=True, size=1.8,
+        palette=["viper_scale", "viper_belly", "viper_tail", "viper_mouth"], accents=("viper_tail",), shadow=(13, 4), cycle=10.0,
         view=True,
         data=dict(level=(11, 14), role="normal", element="wood", page="bamboo", drops=[("viper_fang", 0.5), ("venom_sac", 0.3)],
                   attacks=[("strike", 0.35, 46, 1.0, dict(status={"id": "poison", "chance": 0.35, "power": 0.02, "duration_s": 5}))],

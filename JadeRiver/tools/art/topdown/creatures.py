@@ -51,6 +51,9 @@ EXTRA = {"swim": 8}
 LOOP = {"idle": True, "walk": True, "swim": True}
 FPS = {"idle": 7, "attack": 20, "hurt": 12, "death": 10}
 ELITE = 1.2          # an elite's size against its species'
+# M1: a person's label (its `top`) stands over its head where a villager's marks do (TopdownPlaces.HEAD_LIFT: 16 world
+# units, 8 art px), not on its hair.
+PERSON_LIFT = 8
 MAX_SIDE = 4096      # a sheet's largest side (phones' texture limit)
 
 
@@ -240,6 +243,8 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             idle = frames[(sp, el, "s")][0][..., 3] > 0
             iy = np.nonzero(idle.any(axis=1))[0]
             top = int(sculpt.FOOT[1] - iy.min()) if len(iy) else int(sculpt.FOOT[1] - y0)
+            if str(REGISTRY[sp].plan or "").startswith("person."):
+                top += PERSON_LIFT
             k = ELITE if el == "elite" else (float(REGISTRY[sp].awakened.get("size", 1.0)) if el == "awakened" else 1.0)
             shadow = [int(round(REGISTRY[sp].shadow[0] * k)), int(round(REGISTRY[sp].shadow[1] * k))]
             path = "art/topdown/foes/%s%s.png" % (sp, "" if el == "base" else "_" + el)
