@@ -62,13 +62,15 @@ R2 listed most of them as still to do.
 - **Still to draw:** seventeen species of the Act I zones, listed in story order in the engine doc. The next is the
   Riverbed Serpent.
 - `topdown_suite`'s stand-in check spawns a sandstorm scorpion. The stone tortoise it used has its own sheet now.
-- **Checks.** `tools/run_tests.sh` ran on the tree merged with R1, R2 and R3.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R1 to R4 and S11.
   - Every gate passed, `boot` among them. `build_data` writes no data file: the rows are byte-identical. The `monsters`
     gate has 1,038 checks (471 at E2); it grows with the species, now 35.
-  - All 24 suites passed with no SCRIPT ERROR: 73,982 checks. No count grows with this batch: the suites check the
-    foes' art once a room (or once over the sheet), whatever is drawn.
-  - `perf_tests` missed one frame budget in the full run while the machine was loaded: the Marsh Edge's fight, 17.4 ms
-    a frame, with no M1 species in it. Run alone, all 18 of its checks passed.
+  - All 25 suites passed with no SCRIPT ERROR: 74,023 checks. No count grows with this batch: the suites check the
+    foes' art once a room (or once over the sheet), whatever is drawn. `contract_tests` (1,112) finds no private
+    cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - Two timing checks missed once each in earlier full runs while the machine was loaded, and pass in this one:
+    `perf_tests`' Marsh Edge fight (no M1 species in it; it passed run alone too) and `rules_tests`' Techniques page
+    pictures.
   - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as the batch's
     `--update` builds.
 
