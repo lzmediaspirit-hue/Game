@@ -54,7 +54,7 @@ TP_HERDERS_CAMP = room(
     spawn="west",
     anchors={"shrine_tp_camp": "camp@19", "npc_herder_suo": (34, 11), "npc_herder_a_lan": "verge.s@44",
              "bed_tp_0": (23, 19), "bed_tp_1": (28, 19)},
-    props=[("yurt", 8, 7), ("yurt", 22, 6), ("yurt", 38, 7), ("cook_fire", 31, 10), ("haystack", 26, 10),
+    props=[("herders_yurt", 8, 7), ("herders_yurt", 22, 6), ("herders_yurt", 38, 7), ("cook_fire", 31, 10), ("haystack", 26, 10),
            ("haystack", 14, 11), ("drying_rack", 44, 10), ("woodpile", 34, 8), ("chop_block", 36, 9),
            ("fence_4", 19, 17), ("fence_4", 29, 17), ("fence_3", 19, 22), ("fence_4", 22, 22), ("fence_3", 29, 22),
            ("haystack", 41, 21), ("haystack", 44, 22), ("haystack", 48, 20),

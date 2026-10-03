@@ -604,6 +604,15 @@ PROPS.update({
     "drone_hive": (drone_hive, 32, 54, 2, 1, [0, 52], True, [18, -2, 15, 4]),
 })
 
+# R7: the dry country east of Nine Peaks, the Ironroot hold and the Tomb of Sunscar (E1's rooms): the canyons' rock and
+# prayer flags, the desert's palms, cactus, scrub and bones, the hold's anvil and brazier, the tomb's sarcophagi,
+# statues, mirrors, traps and throne, the peaks' guardian lions (tools/art/topdown/arid.py), into the sheet with these.
+import arid as _ARID  # noqa: E402
+
+PROPS.update(_ARID.PROPS)
+ANIM.update(_ARID.ANIM)
+
+
 
 # ============================================================================================================ R6
 # R6: Act II's first zones, the Azure Expanse (docs/architecture/room_engine.md, "Act II's first zones (R6)"):
@@ -895,7 +904,7 @@ def armillary(s: Img) -> None:
     s.outline()
 
 
-def yurt(s: Img) -> None:
+def herders_yurt(s: Img) -> None:
     """A herders' yurt of pale felt: the round wall lit on the west and shaded east, a band of red and indigo felt
     under the eave, the domed roof bound by ropes running down from the crown ring (its smoke hole open), and a painted
     door of orange lacquer facing south. Footprint 4 x 2. 64 x 58; corner (0, 56)."""
@@ -1115,7 +1124,7 @@ PROPS.update({
     "counter": (counter, 48, 30, 3, 1, [0, 28], True, [26, -2, 22, 3]),
     "stone_lion": (stone_lion, 20, 34, 1, 1, [2, 32], True, [10, -2, 8, 3]),
     "armillary": (armillary, 24, 36, 1, 1, [4, 34], True, [10, -2, 8, 3]),
-    "yurt": (yurt, 64, 58, 4, 2, [0, 56], True, [34, -4, 30, 5]),
+    "herders_yurt": (herders_yurt, 64, 58, 4, 2, [0, 56], True, [34, -4, 30, 5]),
     "haystack": (haystack, 32, 32, 2, 1, [0, 30], True, [18, -2, 14, 3]),
     "cook_fire": (cook_fire, 32, 34, 2, 1, [0, 32], True, None),
     "menhir": (menhir, 20, 46, 1, 1, [2, 44], True, [10, -2, 8, 3]),

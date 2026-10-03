@@ -73,17 +73,17 @@
  "stairs": [],
  "props": [
   {
-   "kind": "yurt",
+   "kind": "herders_yurt",
    "x": 8,
    "y": 7
   },
   {
-   "kind": "yurt",
+   "kind": "herders_yurt",
    "x": 22,
    "y": 6
   },
   {
-   "kind": "yurt",
+   "kind": "herders_yurt",
    "x": 38,
    "y": 7
   },

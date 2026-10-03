@@ -20,7 +20,7 @@ extends "res://tests/prologue_run.gd"
 ##   4. on past chapter 11: the Lightning Scar's way east opens to a Sage, up through Rimefrost Heights to the summit
 ##      and the hermit's ice cave (its hidden way found); the Skydock's lake ferry to Mirrorwater Lake, along the shore,
 ##      the shallows (Toad's Hollow off them), the causeway to the Lake Shrine; the Nine Peaks ferry is the prototype's
-##      gate exactly while Nine Peaks has no layout.
+##      gate exactly while Nine Peaks has no layout, and once it has one (R7), the ferry over and back on the grid.
 ## Run headless:  godot --headless --path . res://tests/topdown_act2_start.tscn [-- --verbose]
 
 const PORT := ["ae_landing", "ae_port_market", "ae_wayfarers_inn", "ae_skydock", "ae_condensing_hall", "ae_shipyard"]
@@ -292,6 +292,10 @@ func _beyond() -> void:
 	check(travel("ae_skydock") and room() == "ae_skydock", "home by the ferry to the Skydock (room %s)" % room())
 	check(_gated("peaks_ferry") == not TopdownRoom.has_layout("np_alliance_gate"),
 		"the Nine Peaks ferry is closed by the prototype's gate exactly while Nine Peaks has no layout")
+	if TopdownRoom.has_layout("np_alliance_gate"):
+		# R7 laid Nine Peaks out: the ferry carries a top-down character over and back, on the grid both ways.
+		_walk("peaks_ferry", "np_alliance_gate", "aboard the Nine Peaks ferry and down at the Alliance Gate")
+		_walk("ferry", "ae_skydock", "the sky-ship back from the Alliance Gate to the Skydock")
 
 # ------------------------------------------------------------------ 2: over the rooms
 func _the_rooms() -> void:

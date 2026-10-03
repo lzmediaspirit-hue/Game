@@ -1,0 +1,182 @@
+{
+ "schema_version": 1,
+ "id": "np_auction_pavilion",
+ "name": "Auction Pavilion",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  5,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000011111111110000004",
+  "400000011111111110000004",
+  "400000011111111110000004",
+  "400000011111111110000004",
+  "400000000020020000000004",
+  "400000000020020000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111100111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "llllwwllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 11,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "screen",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "screen",
+   "x": 15,
+   "y": 1
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 4
+  },
+  {
+   "kind": "lantern_red",
+   "x": 16,
+   "y": 4
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 1,
+   "y": 4
+  },
+  {
+   "kind": "cabinet",
+   "x": 19,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "crates",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "mat",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "mat",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "mat",
+   "x": 14,
+   "y": 8
+  },
+  {
+   "kind": "mat",
+   "x": 6,
+   "y": 10
+  },
+  {
+   "kind": "mat",
+   "x": 10,
+   "y": 10
+  },
+  {
+   "kind": "mat",
+   "x": 14,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 2,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 7,
+   "y": 12
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 21,
+   "y": 11
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 1,
+   "y": 9
+  }
+ ],
+ "place": {
+  "auction_block": [
+   11.5,
+   2
+  ],
+  "npc_auctioneer_tong": [
+   14.5,
+   3
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    4.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

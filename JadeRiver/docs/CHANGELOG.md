@@ -35,8 +35,11 @@ and plays chapter 11 on the grid.
     shore on the water below it, where the water runs under the whole of it.
   - A wavy or round region named in `ground` gives its own cells, not its rect.
 - **The frontier.** The Ascension Gate's way up is open. With Gu's Warehouse (R5), Act I has no way off the grid left.
-  In Act II the gate stands at the Skydock's ferry to Nine Peaks, and at R5's ways to Nine Peaks, the Citadel and the
-  Nebula Deep. The story's next quest past the lake is chapter 13's Nine Seats.
+  With Nine Peaks laid out (R7), the Skydock's ferry to the Alliance Gate and the sky-ship back are open, and
+  `topdown_act2_start` rides them. Every way out of R6's rooms leads to a room on the grid, and the story walks on foot
+  from the valley to the Tomb of Sunscar.
+- **R7's yurt.** R7's `arid.py` has a `yurt` of its own, the desert keeper's. R6's felt yurt is `herders_yurt`, so
+  neither replaces the other in the sheet.
 - **Tests.**
   - A new suite, `topdown_act2_start`, with 61 checks. It crosses the Ascension Gate both ways on the grid and plays
     chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
@@ -57,6 +60,55 @@ and plays chapter 11 on the grid.
       runs, with other suites on the four cores (a load of 5 to 7), one or two of its frame times missed their
       budgets: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's fight at up to 19.4 ms against
       16.6. None of them touches R6's rooms.
+
+## Nine Peaks to the Tomb of Sunscar on the grid (R7)
+
+The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The
+twenty side-view rooms of chapters 13 and 14 are specs now, and a top-down character plays both chapters and the Tomb
+King on the grid.
+
+- **Twenty rooms, 12 to 24 spec lines each, anchors included.**
+  - Nine Peaks: the Alliance Gate, the Hall of Nine, the Auction Pavilion, the Presence Terrace and the Trial Hall.
+  - The Gale Canyons: the Canyon Mouth, the Kite Winds, the Harpy Roosts and the Windbridge.
+  - Ironroot Hold: the Hold Gate, the Clan Hearth and the Ancestor Hall.
+  - The Sunscar Desert: the Glass Dunes, the Scorpion Flats, the Oasis of Bones and the Worm Sea.
+  - The Tomb of Sunscar: the Sealed Gate, the Hall of Sand Kings, the Mirror Crypt and the Throne of the Tomb King.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The canyons' ledges and pinnacles are
+  mesas with plank stairs, the Windbridge a trestle bridge over a chasm, the tomb's ledges galleries and alcoves.
+- **Looks.**
+  - Four biomes: `canyon` (sandstone over a red-earth floor, hoodoos, prayer flags), `desert` (sand over all, a red-earth
+    track, dunes with crests, an oasis), `iron_hold` (grey rock, iron-root roots, a cavern hall) and `tomb` (flagstone
+    halls in walls of cut sandstone, drifts, statues, braziers, spike plates). Nine Peaks takes R3's `sect_terraces`.
+  - Seventeen props for them (`tools/art/topdown/arid.py`, joined through `furnish.py`'s R7 block; the prop sheet
+    rebuilt with `build_tiles.py`): a sandstone boulder, a hoodoo, prayer flags, a date palm, cactus, dry scrub, a
+    ribcage, a yurt, an anvil, a brazier, iron-root roots, a sarcophagus, a sand king's statue, a bronze mirror, a spike
+    plate, the sun throne and a guardian lion.
+  - The rooms' vistas (the peaks past their north edges, the cloud sea under Nine Peaks' brinks) are in
+    `topdown_life.VISTAS`.
+- **Engine rules**, additive: every room before them compiles byte for byte as it did.
+  - `ground` takes `earth` (bare earth, `d`, over meadow or sand), the name `lowest` (the room's lowest floor off the
+    walks) and `-name` (a band's or a feature's cells kept out of a paint).
+- **Places.** Eight rows join `places.py` (41 in all): the Alliance Gate's teleport stone and shrine, the Canyon Shrine,
+  the Hold Gate's shrine, the Clan Forge's anvil, the Scorpion Flats' and the oasis's shrines and the Oasis of Bones'
+  teleport stone. They are the first places outside the valley. The world map opened on a place used to show the zone
+  you stand in, and now shows the place's own zone (`map_page.gd`'s setup).
+- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port was gated while the Skydock had no layout (R6); it
+  is open now.
+  Every other way out of these rooms leads to a room on the grid.
+- **Tests.**
+  - A new suite, `topdown_sunscar` (in `tests/suites.txt` after `topdown_traversal`), 57 checks. It plays Nine Seats,
+    the Auction Pavilion and the Trial Hall, The Canyon Toll, Ironroot Blood, Glass and Bone, The Sealed Gate,
+    Sovereign and The Tomb King room by room on the grid, and checks every room's walks and view.
+  - `room_engine` holds the twenty new specs.
+  - `rules_tests`' route tour walks the twenty rooms with auto-path. For it, the Scorpion Flats' outcrop stair stops
+    short of the track, and the Windbridge's crag stands two levels tall with its stair the one way up.
+- **Still to do** (room_engine.md lists it): top-down sheets for the wind kite, canyon brigand, canyon harpy, sandstorm
+  scorpion, dune worm, terracotta warden and the Tomb King; a lamplit TopdownLight area for the cavern and the tomb; a
+  warm rock paint of the terrain kit's own for the canyons' and the tomb's walls.
+- **Checks.** The full run (merged with R5 and E3): all 28 suites pass, 74,339 checks with 0 failures and no
+  SCRIPT ERROR. `topdown_sunscar` is new at 57 checks. `room_engine` is at 328 checks. Grid parity holds for 108
+  layouts and 326 starts. `places` reaches 41 places, `npc_engine` holds, and boot reports 0 failing.
 
 ## The story's rooms and the Tidebreak Front on the grid (R5)
 
