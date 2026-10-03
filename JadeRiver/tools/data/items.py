@@ -39,17 +39,6 @@ CORE_ELEMENTS = ["fire", "water", "wood", "earth", "wind", "thunder", "soul", "m
 # S45 herb ages and seeds, as garden.json reads them (herbs.py): the herb families' (specs/herbs.py).
 HERB_AGE = E.herb_ages()
 SEEDS = E.seeds()
-ORES = [
-    ("copper_ore", "plain", "Soft copper ore from the quarry rim.", "Copper"),
-    ("riverstone", "common", "Dense river-polished stone used in forging and building."),
-    ("jadeiron", "earth", "Iron veined with jade; it holds Qi paths well."),
-    ("spirit_stone_shard", "earth", "A splinter of crystallised Qi. Fuel and small change.", "Spirit Stone Shard"),
-    ("cloudsteel_ore", "heaven", "Feather-light ore from the sky ledges."),
-    ("mystic_ore", "mystic", "Ore that hums faintly in cold wind."),
-    ("stormsteel_ore", "spirit", "Blue-black ore from where lightning strikes the same ground twice."),
-    ("sunglass_ore", "sage", "Desert glass the Sunscar sun fused out of the dunes. It holds heat and light like a lamp.", "Sunglass"),
-    ("driftglass", "sovereign", "Glass the star tides have worn smooth on the Driftglass Bank. Lantern-makers grind it into lenses.", "Driftglass"),
-]
 # S47 talisman craft: inks and papers (Part 8).
 TALISMAN_MATS = [("cinnabar", "common", "Red mercury ore ground to powder: the ink every talisman begins with. Stoneford General Store sells it.", "Cinnabar"),
                  ("beast_blood_ink", "earth", "Ink cut with a beast's blood; it holds a stronger charge than cinnabar alone.", "Beast-Blood Ink"),
@@ -286,8 +275,7 @@ def build_items():
                      name="Dyed Root", source="system"))
     rows.append(item("rice_wine", "material", "common", 20, "A clay jar of cloudy rice wine. Herbs soaked in it on a drying rack make stronger pills."))
     rows.append(item("spirit_soil", "material", "heaven", 20, "Black earth that still remembers a spirit vein. Worked into a garden bed, it raises the bed's field grade one step, for good. Strong beasts sometimes carry it in their hides."))
-    for o in ORES:
-        rows.append(item(o[0], "ore", o[1], 99, o[2], name=o[3] if len(o) > 3 else None))
+    rows.extend(E.items("ores"))   # specs/ores.py
     for o in REFINING + TALISMAN_MATS:
         rows.append(item(o[0], "material", o[1], 99, o[2], name=o[3]))
     for tid, grade, kind, desc in TALISMANS:

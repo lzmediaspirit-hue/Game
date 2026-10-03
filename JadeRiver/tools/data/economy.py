@@ -104,12 +104,8 @@ def shops():
                    F("soulbell_flower"), F("frost_lotus")]},
         # S49: the Forge Guild's counter at Smith Bao's: ores for members, finer ores as the badge rises.
         {"id": "forge_guild", "name": "Forge Guild", "currency": "silver_tael",
-         "stock": [s("jadeiron", price=40, requires=all_of(flag("guild_smithing_adept"))),
-                   s("riverstone", price=12, requires=all_of(flag("guild_smithing_adept"))),
-                   s("refining_essence", price=60, requires=all_of(flag("guild_smithing_adept"))),
-                   s("cloudsteel_ore", price=120, requires=all_of(flag("guild_smithing_expert"))),
-                   s("mystic_ore", price=260, requires=all_of(flag("guild_smithing_expert"), realm("heaven_glimpse_1"))),
-                   s("stormsteel_ore", price=480, requires=all_of(flag("guild_smithing_master"))),
+         "stock": [F("jadeiron"), F("riverstone"), s("refining_essence", price=60, requires=all_of(flag("guild_smithing_adept"))),
+                   F("cloudsteel_ore"), F("mystic_ore"), F("stormsteel_ore"),
                    s("weapon_soul_crystal", price=9000, requires=all_of(flag("guild_smithing_master")))]},
         # S49: the Formation Guild's counter at Array Master Ren's: plates and stones for members.
         {"id": "formation_guild", "name": "Formation Guild", "currency": "silver_tael",
@@ -133,7 +129,7 @@ def shops():
                    # S47 imitation relics: the smith copies a relic only once it has been seen whole.
                    s("recipe_scroll", learn="moonshadow_jian", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:moonlit_blade"})),
                    s("recipe_scroll", learn="drowsing_edge", price=2400, requires=all_of({"kind": "flag_set", "flag": "bound:sleeping_blade"})),
-                   s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), s("copper_ore"), s("riverstone"),
+                   s("bamboo_hat"), s("cotton_robe"), s("cotton_trousers"), s("cloth_boots"), F("copper_ore"), F("riverstone"),
                    s("cloud_gourd", requires=all_of(realm("cloud_stride_1"))), s("mistjade_gourd", requires=all_of(realm("heaven_glimpse_1")))],
          "rotation": {"count": 1, "pool": [s("jadeiron_jian"), s("jadeiron_spear"), s("jadeiron_robe"), s("jadeiron_gourd"),
                                            s("jadeiron_heavy_sabre"), s("jadeiron_fan"), s("jadeiron_flute"), s("jadeiron_brush"), s("jadeiron_bell")]}},
@@ -142,7 +138,7 @@ def shops():
                    s("spirit_wood", price=30, requires=all_of(realm("cloud_stride_5"))), s("puppet_core", price=300, requires=all_of(realm("cloud_stride_5")))]},
         {"id": "gu_trade_house", "name": "Trade House", "currency": "silver_tael",
          "stock": [s("appraisers_loupe", requires=all_of(realm("qi_kindling_6"))), s("dusty_curio", price=20, requires=all_of(realm("qi_kindling_6"))),
-                   s("spirit_stone_shard"), s("manual_page", price=400), s("blank_plate", price=60, requires=all_of(realm("heart_tempering_5")))],
+                   F("spirit_stone_shard"), s("manual_page", price=400), s("blank_plate", price=60, requires=all_of(realm("heart_tempering_5")))],
          "rotation": {"count": 1, "pool": [s("jadeiron_hat"), s("cloudsilk_robe"), s("jadeiron_gourd")]}},
         {"id": "jade_sect", "name": "Jade Sect Mission Hall", "currency": "contribution", "discount": {"flag": "succession_named", "pct": 0.2},
          "requires": {"all": [{"kind": "training_sect", "sect": "jade_sect"}]},
@@ -206,7 +202,7 @@ def shops():
                    s("fuel_crystal_mid", requires=all_of(realm("sage_1"))), s("mistjade_gourd")],
          "rotation": {"count": 2, "pool": [F("clear_mind_pill"), F("soul_soothing_pill"), s("manual_page", price=6), s("spirit_egg", price=14)]}},
         {"id": "stormsteel_smith", "name": "Hong's Stormsteel Forge", "currency": "spirit_stone",
-         "stock": [s("stormsteel_ore"), s("mystic_ore"),
+         "stock": [F("stormsteel_ore"), F("mystic_ore"),
                    s("recipe_scroll", learn="stormsteel_jian", price=40, requires=all_of(realm("sage_1"))),
                    s("recipe_scroll", learn="stormsteel_spear", price=40, requires=all_of(realm("sage_1"))),
                    s("recipe_scroll", learn="stormsteel_gauntlets", price=40, requires=all_of(realm("sage_1"))),
@@ -243,7 +239,7 @@ def shops():
                    s("technique_manual", learn="qi_seal_toll", price=70, requires=all_of(realm("sphere_lord_1"))),
                    s("technique_manual", learn="cursive_storm", price=120, requires=all_of(realm("sphere_lord_2"))),
                    s("technique_manual", learn="wardens_call", price=120, requires=all_of(realm("sphere_lord_2"))),
-                   s("lantern_incense", price=4), s("driftglass", price=6)]
+                   s("lantern_incense", price=4), F("driftglass")]
                   # P7b (item_plan §2.9, G1): Sovereign grade, driftsteel and starsilk.
                   + [s(x, requires=all_of(realm("will_manifest_1"))) for x in grade_set("sovereign")]},
         # v1.2 Phase C · Stargazer Ming cuts another Sphere Comprehension Stone for one who has seen their Sphere and
@@ -267,7 +263,7 @@ def shops():
          "stock": [s("sky_ink", price=30), F("clear_mind_pill"), s("recipe_scroll", learn="star_chart_lantern", price=400,
                                                                    requires=all_of(realm("sage_sovereign_3")))]},
         {"id": "shipwright", "name": "Lao's Slipway Stores", "currency": "spirit_stone",
-         "stock": [s("spirit_wood", price=40), s("formation_stone"), s("stormsteel_ore")]},
+         "stock": [s("spirit_wood", price=40), s("formation_stone"), F("stormsteel_ore")]},
         {"id": "oasis_keeper", "name": "Oasis of Bones Stores", "currency": "spirit_stone",
          "stock": [s("herbal_tea"), s("rice_ball"), F("viper_antidote"), F("qi_restoration_pill"), F("storm_blood_pill"), s("cactus_water", price=12),
                    s("tough_meat")]},
@@ -298,7 +294,7 @@ def shops():
         {"id": "ironroot_clan", "name": "Ironroot Clan Forge", "currency": "spirit_stone",
          "discount": {"flag": "clan_ironroot", "pct": 0.15},
          "stock": [s("stormsteel_jian"), s("stormsteel_spear"), s("stormsteel_gauntlets"), s("stormsteel_staff"), s("stormsilk_robe"),
-                   s("stormsilk_boots"), s("stormsteel_ore"), F("bone_strengthening_pill"),
+                   s("stormsilk_boots"), F("stormsteel_ore"), F("bone_strengthening_pill"),
                    s("recipe_scroll", learn="nine_sword_array", price=60),
                    # S47 weapon awakening: more Weapon Soul Crystals, once Smith Hong has shown you the first.
                    s("weapon_soul_crystal", price=900, requires=all_of({"kind": "quest_done", "quest": "a_blade_that_answers"})),
