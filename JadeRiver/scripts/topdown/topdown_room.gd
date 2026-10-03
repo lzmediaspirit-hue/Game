@@ -32,6 +32,9 @@ var props: Array = []                ## {kind, cell: Vector2i, size: Vector2i, l
 var spawn := Vector2.ZERO            ## world units
 var tileset: Dictionary = {}
 var def: Dictionary = {}             ## the room's own file, for its spawns and kind
+## T1: the side view's rafts, updrafts and climbable faces on this grid (a TopdownTraverse, made by TopdownTraverse.of
+## from the layout's `traverse`; untyped, so this class never names it and none of its queries count it).
+var traverse = null
 
 ## A room's layout from `dir` (data/topdown/; a review room the tools draw sits outside data/, which ships).
 static func load_room(room_id: String, dir := DIR) -> TopdownRoom:
@@ -251,6 +254,124 @@ func place_near(p: Vector2, z: float, rings := 4) -> Vector2:
 		if best != Vector2.INF: return best
 	return nearest_standable(p)
 
+# ------------------------------------------------------------------ T1: a room event's points on the grid
+## docs/architecture/topdown_mechanics.md, "Set pieces on the grid". One rule for every room event begun in a room on
+## the grid (WorldRoomEvents.start_event passes each through grid_event): a set piece's waves, a Temper trial, a Trial
+## Tower floor, the Beast Trial Grove, the sect's defence and a mine's, a rift, a treasure birth, the heart demons.
+## The side view calls their foes to points in its own room; here each point is, in order:
+##   1. the room's own event, which merge_def already set on the layout's cells (`on_grid`), as it is;
+##   2. the layout's cells for the event: its `stage` row (cells dealt out point by point, in the event's order), else
+##      the layout's `event` cells group by group (wave, waves, fixed, timed: the room's event, or the one set piece
+##      begun there, as at the Scripture Well);
+##   3. else the side view's point mapped across the room (as far across and as deep as it stands in the side-view room,
+##      a cell and a half in from the edges), or a point already on the grid's plane (`on_plane`: a rift round the
+##      player, a birth round its tree), moved to the nearest open cell (open_cell_near) the player walks to.
+
+## A room event with its points on this grid (`from`: where the player stands; `side_bounds`: the side-view room's
+## [x, y, w, h], RoomRuntime's `side_bounds`). Marked `on_grid`: passed again, it is as it is.
+func grid_event(ev: Dictionary, from := Vector2.INF, side_bounds: Array = []) -> Dictionary:
+	if ev.get("on_grid", false): return ev
+	var out := ev.duplicate(true)
+	var ctx := _event_ctx(from, side_bounds, bool(out.get("on_plane", false)))
+	var row = def.get("stage", {}).get(str(out.get("id", "")))
+	if row is Array and not ctx.plane: ctx.flat = row
+	var lay: Dictionary = def.get("event", {}) if (ctx.flat as Array).is_empty() and not ctx.plane else {}
+	if out.get("wave") is Dictionary:
+		out.wave.points = _event_cells(out.wave.get("points", []), lay.get("wave", []), ctx)
+	var groups: Array = lay.get("waves", [])
+	for i in (out.get("waves", []) as Array).size():
+		out.waves[i].points = _event_cells(out.waves[i].get("points", []), groups[i] if i < groups.size() else [], ctx)
+	for key in [["fixed_spawns", "fixed"], ["timed_spawns", "timed"]]:
+		var cells: Array = lay.get(key[1], [])
+		var rows: Array = out.get(key[0], [])
+		for i in rows.size():
+			rows[i].at = _event_cells([rows[i].get("at", [0, 0])], [cells[i]] if i < cells.size() else [], ctx, true)[0]
+	out.on_grid = true
+	return out
+
+## Loose points by the same rule (the heart demons a Reflection brings): mapped from the side view unless `plane`.
+func grid_points(pts: Array, from := Vector2.INF, side_bounds: Array = [], plane := false) -> Array:
+	return _event_cells(pts, [], _event_ctx(from, side_bounds, plane))
+
+func _event_ctx(from: Vector2, side_bounds: Array, plane: bool) -> Dictionary:
+	return {"reach": reached_from(cell_of(from)) if from.is_finite() else {}, "taken": {}, "bounds": side_bounds, "plane": plane,
+		"flat": [], "dealt": 0}
+
+## A group's points on the grid: the layout's `cells` for the group (all of them, as merge_def lays a room's own event;
+## `each`: one for one), else the stage's cells dealt out in order, else each point mapped and set on open ground.
+func _event_cells(pts: Array, cells: Array, ctx: Dictionary, each := false) -> Array:
+	if not cells.is_empty() and not each: return cell_points(cells)
+	var out: Array = []
+	for i in pts.size():
+		var q: Vector2
+		if not cells.is_empty(): q = cell_point(cells[mini(i, cells.size() - 1)])
+		elif not (ctx.flat as Array).is_empty():
+			q = cell_point(ctx.flat[int(ctx.dealt) % (ctx.flat as Array).size()])
+			ctx.dealt = int(ctx.dealt) + 1
+		else:
+			var p := Vector2(float(pts[i][0]), float(pts[i][1]))
+			if not bool(ctx.plane): p = side_point(p, ctx.bounds)
+			q = open_cell_near(p, ctx.reach, ctx.taken)
+			var qc := cell_of(q)
+			for dy in range(-1, 2):
+				for dx in range(-1, 2): ctx.taken[qc + Vector2i(dx, dy)] = true   # the event's next point a cell apart
+		out.append([q.x, q.y])
+	return out
+
+## A side-view point mapped onto this grid: as far across and as deep as it stands in the side-view room (`bounds`, its
+## [x, y, w, h]), a cell and a half in from the grid's edges (a foe is never called onto the room's rim).
+func side_point(p: Vector2, bounds: Array) -> Vector2:
+	var b := Rect2(float(bounds[0]), float(bounds[1]), float(bounds[2]), float(bounds[3])) if bounds.size() == 4 else Rect2(0, 480, 1280, 480)
+	var f := ((p - b.position) / b.size).clamp(Vector2.ZERO, Vector2.ONE)
+	return Vector2(1.5 + f.x * float(w - 3), 1.5 + f.y * float(h - 3)) * TILE
+
+## Every cell a body walks to from `from` (walking, stairs, drops and a hop a level up, as find_path and auto-path go):
+## a set of Vector2i.
+func reached_from(from: Vector2i) -> Dictionary:
+	var seen := {}
+	if cell_floor(from) == INF: return seen
+	seen[from] = true
+	var queue: Array = [from]
+	var head := 0
+	while head < queue.size():
+		var c: Vector2i = queue[head]
+		head += 1
+		var h0 := cell_floor(c)
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = c + d
+			if seen.has(n): continue
+			var h1 := cell_floor(n)
+			if h1 == INF or h1 - h0 > LEVEL + 0.5: continue
+			seen[n] = true
+			queue.append(n)
+	return seen
+
+## The open cell nearest a ground point where a room event sets a foe: a floor (no wall, prop or water), not a stair, at
+## least three cells from every way in or out, in `reach` (the cells the player walks to; empty: anywhere) and not in
+## `taken` (the event's other points, kept a cell apart). Its centre, or the nearest standable point when none is open.
+func open_cell_near(p: Vector2, reach: Dictionary, taken: Dictionary) -> Vector2:
+	var c0 := cell_of(p.clamp(Vector2.ZERO, Vector2(w - 1, h - 1) * TILE + Vector2.ONE * (TILE - 1.0)))
+	var ways: Array = []
+	for pid in def.get("portals", {}):
+		var at: Array = def.portals[pid].get("at", [0, 0])
+		ways.append(Vector2(float(at[0]), float(at[1])))
+	for r in maxi(w, h):
+		var best := Vector2i(-1, -1)
+		var best_d := INF
+		for dy in range(-r, r + 1):
+			for dx in range(-r, r + 1):
+				if maxi(absi(dx), absi(dy)) != r: continue
+				var c := c0 + Vector2i(dx, dy)
+				if not standable(c) or not stair_at(c.x, c.y).is_empty() or taken.has(c): continue
+				if not reach.is_empty() and not reach.has(c): continue
+				if ways.any(func(a): return maxf(absf(a.x - float(c.x)), absf(a.y - float(c.y))) < 3.0): continue
+				var d := (Vector2(c) + Vector2(0.5, 0.5)).distance_to(p / TILE)
+				if d < best_d:
+					best_d = d
+					best = c
+		if best.x >= 0: return (Vector2(best) + Vector2(0.5, 0.5)) * TILE
+	return nearest_standable(p)
+
 # ------------------------------------------------------------------ Phase 2: foes on the grid
 ## The room as the simulation's RoomRuntime def (WorldAuthority.enter_grid_room): its id, name and kind, and its spawns
 ## with their points moved from tiles to world units (cell centres).
@@ -403,15 +524,6 @@ func nearest_standable(p: Vector2) -> Vector2:
 		if best != Vector2.INF: return best
 	return spawn
 
-## A point written for the side view (a trial's spawn: a tower floor's foes, the Grove's waves) on the grid: across the
-## side view's room (`side_bounds`, its [x, y, w, h]) as across this one, a cell in from the edges, then on the nearest
-## floor (R3: the Trial Tower's and the Grove's trials, written for the side view, are fought on the grid).
-func from_side(p: Vector2, side_bounds: Array) -> Vector2:
-	var b := Rect2(float(side_bounds[0]), float(side_bounds[1]), float(side_bounds[2]), float(side_bounds[3])) if side_bounds.size() == 4 else Rect2(0, 480, 1280, 480)
-	var f := ((p - b.position) / b.size).clamp(Vector2.ZERO, Vector2.ONE)
-	var q := Vector2(1.5 + f.x * (w - 3), 1.5 + f.y * (h - 3)) * TILE
-	return nearest_standable(q)
-
 ## What shows a way where it is (the top-down view's PortalView.entrance, docs/tutorial_order.md): "building" (in the
 ## doorway under a building's door art: a prop's `door` columns, the row under its footprint), "wall" (a gap in an
 ## interior's front wall at the room's edge), "edge" (walked out through the room's side), "" (nothing shows it).
@@ -455,33 +567,6 @@ func spot_near(p: Vector2, z: float, from: Vector2, tol := 40.0) -> Vector2:
 func geometry_def() -> Dictionary:
 	return {"bounds": [0, 0, w * TILE, h * TILE], "surfaces": [{"id": "grid", "rect": [0, 0, w * TILE, h * TILE], "stratum": "ground"}]}
 
-## R2: a set piece's room event begun in a room on the grid (a rite circle's trial: the Riverbreath Trial at the
-## Scripture Well). Its spawn points are the side view's, so each takes the layout's own cells for the room's event
-## (`event`: wave, waves, fixed, timed, as merge_def maps them), or else the nearest spot a body stands on.
-func grid_event(ev: Dictionary) -> Dictionary:
-	var out := ev.duplicate(true)
-	var lay_ev: Dictionary = def.get("event", {})
-	if out.get("wave") is Dictionary:
-		out.wave.points = cell_points(lay_ev.wave) if lay_ev.has("wave") else _standable(out.wave.get("points", []))
-	var cells: Array = lay_ev.get("waves", [])
-	for i in (out.get("waves", []) as Array).size():
-		out.waves[i].points = cell_points(cells[i]) if i < cells.size() else _standable(out.waves[i].get("points", []))
-	for key in [["fixed_spawns", "fixed"], ["timed_spawns", "timed"]]:
-		var at: Array = lay_ev.get(key[1], [])
-		var rows: Array = out.get(key[0], [])
-		for i in rows.size():
-			var p := cell_point(at[i]) if i < at.size() else nearest_standable(Vector2(float(rows[i].at[0]), float(rows[i].at[1])))
-			rows[i].at = [p.x, p.y]
-	return out
-
-## Side-view points as the nearest spots a body stands on, [x, y] each.
-func _standable(pts: Array) -> Array:
-	var out: Array = []
-	for q in pts:
-		var p := nearest_standable(Vector2(float(q[0]), float(q[1])))
-		out.append([p.x, p.y])
-	return out
-
 ## The RoomRuntime definition of a room of the world on the grid: its side-view definition (every id, rule, NPC,
 ## object, portal, spawn and event kept) with the places taken from the layout, in world units on the grid's plane:
 ##   place    object id -> cell: where it stands; its `alt` is the floor there (a roof, a loft, a terrace);
@@ -495,6 +580,8 @@ func merge_def(side: Dictionary) -> Dictionary:
 	var out := side.duplicate(true)
 	for k in SIDE_ONLY: out.erase(k)
 	out.view = "topdown"
+	# T1: the side-view room's own bounds, which a room event's side-view points are mapped across (grid_event).
+	out.side_bounds = side.get("bounds", [0, 480, 1280, 480])
 	out.bounds = [0, 0, w * TILE, h * TILE]
 	out.spawn_point = [spawn.x, spawn.y]
 	var place: Dictionary = def.get("place", {})
@@ -552,6 +639,7 @@ func merge_def(side: Dictionary) -> Dictionary:
 	var ev: Dictionary = out.get("event", {})
 	var lay_ev: Dictionary = def.get("event", {})
 	if not ev.is_empty() and not lay_ev.is_empty():
+		ev.on_grid = true   # T1: its points are the layout's own cells (WorldRoomEvents sets them as they are)
 		if ev.has("wave") and lay_ev.has("wave"): ev.wave.points = cell_points(lay_ev.wave)
 		var fixed: Array = lay_ev.get("fixed", [])
 		for i in mini((ev.get("fixed_spawns", []) as Array).size(), fixed.size()):
