@@ -28,7 +28,7 @@ removes one dead local.
 - **The pattern.**
   - A part `extends CombatPart`, a `RefCounted` that holds `game` and reads the authority through a `combat` getter on
     `game.combat`. It does not keep a reference, because a part and an authority holding each other would never be
-    freed, and `Game.reset_state` builds new ones.
+    freed, and every boot builds new ones (`Game.reset_state`).
   - The state stays on the authority, so the save and every reader of `Game.combat.<var>` are unchanged.
   - The authority makes its parts in `_init`, and its tick calls them in the old order.
   - Every name that code outside called is still on the authority, with the same arguments and results. For the 50

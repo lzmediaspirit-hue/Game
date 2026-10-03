@@ -924,6 +924,21 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 - **DEAD-13 and DEAD-14: done.** The 20 manifest ids are gone with their drawings (8 icons, 8 props, 4 UI assets),
   and so are the 51 `ui.*` string keys. The 11 `world_view.*` keys stay.
 
+### Status (phase 2, S8): `combat_authority.gd` in parts, done
+
+- **BUG-14, for Combat: done.** `combat_authority.gd` went from 2,912 lines to 1,798. It keeps the state, `handle`,
+  the tick and the attack and resolution flow. Thirteen parts in `scripts/simulation/authority/combat/` hold the rest,
+  1,303 lines: flight and the movement arts, Phantom Double, the flying sword and the intents, the swarm, the flute,
+  heals, the Blood path, Array Plates, talismans, projectiles, treasures, revival, and a blow's riders.
+- **The pattern is in `docs/architecture/authority_parts.md`**, for S9 and S10.
+  - A part extends a small per-authority base and reads the authority through `game`, never a kept reference, so
+    nothing leaks when `Game.reset_state` rebuilds the authorities.
+  - The state stays on the authority. Every name that code outside called is still there, with 50 one-line
+    forwarders.
+  - Part files carry the authority's prefix (`combat_*.gd`).
+- **Dead code:** one local, `_resolve_plunge`'s `struck`. Every function of the file is still called.
+- **Checks:** STATUS_CHECKS_PLACEHOLDER
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:

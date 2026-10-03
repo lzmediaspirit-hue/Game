@@ -48,8 +48,8 @@ func stop_flight(actor_id: String, reason: String) -> void:
 
 **Why a part reads its authority through `game`.** A part could keep a reference to its authority instead. But
 `RefCounted` has no cycle collector, so a part and its authority holding each other would never be freed.
-`Game.reset_state` builds new authorities, and the tests call it hundreds of times, so every reset would leak one
-authority with all its parts. The getter costs one call each time a part uses it.
+`Game.reset_state` builds new authorities on every boot, and the tests boot again and again, so every rebuild would
+leak the old authority with all its parts and state. The getter costs one call each time a part uses it.
 
 ## The rules
 
