@@ -48,12 +48,12 @@
   "nnnnnnnnnnnnnnnrnnnnnnnnrnnnnnnnnrnnnnnnnnrnnnnnnnrnnnnnrnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnrnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnrnnnnnnnnnsssnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnrn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnsssnnnnnnnnnnnnrnnnnnnrnnnnnn",
-  "nnnnnnnnnnsssnnnnnnkkkknnnnnnnnrnkkkkkknnnnnnnnnnkkkkkknkkkkkkkkkkkknnnn",
-  "kkkkkkknnnsssnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnrnnnnnnsssnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnrn",
+  "nnnnnnnnnnnnnnnnnnnnnsssnnnnrnnnnnnnnnnnnnnsssnnnnnnnnnnnnrnnnnnnrnnnnnn",
+  "nnnnnnnnnsssnnnnnnnkkkknnnnnnnnrnkkkkkknnnnnnnnnnkkkkkknkkkkkkkkkkkknnnn",
+  "kkkkkkknnsssnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnkkkkkkkkkkkkkkkkkkkkkknnn",
   "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
   "nnnkkkkkkkkkkknnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnkkkkkkkkkkkkk",
   "nnnnnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnknnnnnnnkkkknnnnnrnnnnnnnnnnnkkkknnnn",
@@ -72,7 +72,7 @@
  ],
  "stairs": [
   {
-   "x": 10,
+   "x": 9,
    "y": 11,
    "w": 3,
    "h": 2,
@@ -80,8 +80,8 @@
    "to": 1
   },
   {
-   "x": 24,
-   "y": 8,
+   "x": 21,
+   "y": 9,
    "w": 3,
    "h": 2,
    "from": 1,
@@ -116,6 +116,66 @@
    "kind": "ice_rock",
    "x": 66,
    "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 10
   },
   {
    "kind": "boulder",
@@ -183,6 +243,11 @@
    "y": 6
   },
   {
+   "kind": "dead_tree",
+   "x": 23,
+   "y": 7
+  },
+  {
    "kind": "boulder",
    "x": 28,
    "y": 4
@@ -233,18 +298,8 @@
    "y": 10
   },
   {
-   "kind": "dead_tree",
-   "x": 9,
-   "y": 11
-  },
-  {
    "kind": "boulder",
    "x": 17,
-   "y": 10
-  },
-  {
-   "kind": "boulder",
-   "x": 20,
    "y": 10
   },
   {
@@ -283,9 +338,9 @@
    "y": 3
   },
   {
-   "kind": "boulder",
-   "x": 23,
-   "y": 8
+   "kind": "rock_small",
+   "x": 27,
+   "y": 7
   },
   {
    "kind": "boulder",

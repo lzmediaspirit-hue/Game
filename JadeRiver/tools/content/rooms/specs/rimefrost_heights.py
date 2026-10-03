@@ -7,6 +7,9 @@ from content.rooms.spec import room
 
 CRAGS = dict(level=6, paint="r", wall=True, wavy=True)   # the heights' crags, snow on their crowns
 SHELF = dict(level=2, paint="r", shape="round")           # a rock shelf the snow apes keep, a flight up its face
+# Every raised shape is climbed by R4's `flights` (the flight ends at the ground below, its cheeks closed by boulders),
+# and the Climb's own flights have their cheeks closed by hand: auto-path's steering is never sent along a step from
+# its side.
 # The flora: frost pines and dead trees on the shelves and slopes, boulders and small rocks at the crags' foot and along
 # the trails (no grass: it is under the snow).
 SLOPE = dict(kinds=["tree_pine", "tree_pine", "dead_tree", "boulder", "rock_small"], density=0.4)
@@ -24,17 +27,19 @@ RF_FROSTPINE_CLIMB = room(
            ("crags", 0, 4, CRAGS)],
     features=[("landing_1", (19, 15, 7, 4), dict(level=1, paint="r")),
               ("landing_2", (43, 7, 7, 5), dict(level=2, paint="r")),
-              ("trail_low", (0, 20, 26, 3), dict(paint="d", walk=True, wavy=True)),
-              ("trail_mid", (20, 13, 30, 3), dict(paint="d", walk=True, wavy=True)),
+              ("trail_low", (0, 21, 26, 3), dict(paint="d", walk=True, wavy="s")),
+              ("trail_mid", (20, 14, 30, 3), dict(paint="d", walk=True, wavy="s")),
               ("trail_high", (44, 5, 28, 3), dict(paint="d", walk=True, wavy=True))],
     stairs=[(21, 19, 3, 2, 0, 1), (45, 12, 3, 2, 1, 2)],
-    ways={"west": ("w", 21), "east": ("e", 6)},
+    ways={"west": ("w", 22), "east": ("e", 6)},
     spawn="west",
     anchors={"sign_rf": "trail_low.n@4", "trail_frost_stoat": "lower@10", "herb_1": "middle@13", "jar_3": "middle@17",
              "journal_frostpine": "lower@28", "jar_4": "upper@32", "swarm_frost_cricket": "lower@34",
              "chest_cloud_mv": "upper@40", "jar_5": "lower@46", "npc_grey_pilgrim": "trail_high@51", "ore_2": "wall_foot@55",
              "jar_6": "middle@62"},
-    props=[("ice_rock", 30, 24), ("ice_rock", 57, 22), ("ice_rock", 12, 14), ("ice_rock", 66, 15)],
+    props=[("ice_rock", 30, 25), ("ice_rock", 57, 23), ("ice_rock", 12, 14), ("ice_rock", 66, 15), ("boulder", 20, 19),
+           ("boulder", 20, 20), ("boulder", 24, 19), ("boulder", 24, 20), ("boulder", 44, 12), ("boulder", 44, 13),
+           ("boulder", 48, 12), ("boulder", 48, 13)],
     flora={"lower": dict(SLOPE, density=0.32), "middle": SLOPE, "upper": SLOPE, "landing_1": [], "landing_2": []},
     foes="auto")
 
@@ -44,11 +49,11 @@ RF_FROSTPINE_CLIMB = room(
 # pines and ice-glazed boulders, the cricket swarm and the stoat's trail.
 RF_SNOW_APE_LEDGES = room(
     "rf_snow_ape_ledges", size=(72, 28), biome="snowfield",
-    bands=[("slope", 3, 9, dict(level=1, paint="r", wavy=True)),
+    bands=[("slope", 3, 9, dict(level=1, paint="r", wavy=True, flights=[11])),
            ("crags", 0, 4, CRAGS),
            ("trail", 12, 3, dict(level=0, paint="d", walk=True, wavy=True)),
            ("field", 15, 13, dict(level=0, paint="r"))],
-    features=[("shelf_w", (14, 3, 15, 6), SHELF), ("shelf_e", (37, 3, 11, 6), SHELF)],
+    features=[("shelf_w", (14, 3, 15, 6), dict(SHELF, flights=[25])), ("shelf_e", (37, 3, 11, 6), dict(SHELF, flights=[44]))],
     stairs="auto",
     ways={"west": ("w", "trail"), "east": ("e", "trail")},
     spawn="west",
@@ -70,8 +75,9 @@ RF_RIMEFROST_SUMMIT = room(
     bands=[("crags", 0, 4, CRAGS),
            ("trail", 13, 3, dict(level=0, paint="d", walk=True, wavy=True, w=24)),
            ("plateau", 16, 12, dict(level=0, paint="r"))],
-    features=[("outcrop_w", (17, 3, 13, 7), SHELF), ("crown", (30, 6, 9, 6), dict(level=2, paint="r", shape="round")),
-              ("outcrop_e", (39, 9, 10, 6), dict(level=1, paint="r", shape="round")),
+    features=[("outcrop_w", (17, 3, 13, 7), dict(SHELF, flights=[26])),
+              ("crown", (30, 6, 9, 6), dict(level=2, paint="r", shape="round", flights=[34])),
+              ("outcrop_e", (39, 9, 10, 6), dict(level=1, paint="r", shape="round", flights=[44])),
               ("cleft", (46, 2, 5, 3), dict(level=0, paint="r")),
               ("rim", (24, 22, 18, 6), dict(paint="s"))],
     stairs="auto",

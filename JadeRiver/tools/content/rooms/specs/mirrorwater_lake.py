@@ -5,10 +5,11 @@ water band's `mirror`: the engine lays each one's reflection), islands and pale 
 Thousand-Eye Toad's hollow off them), the Sentinel Causeway out to the Lake Shrine and its bronze mirror."""
 from content.rooms.spec import room
 
-BLUFF = dict(level=2, paint="r", wall=True, wavy=True)        # the lake's north bluff, rock under turf
+BLUFF = dict(level=3, paint="r", wall=True, wavy=True)        # the lake's north bluff, two levels over its knolls
 LAKE = dict(water=True, wavy=True, mirror=True)               # the still water: its north shore mirrored in it
 KNOLL = dict(level=1, paint="g", shape="round")               # a grassy knoll on the shore, a flight up its face
-PATH = dict(level=0, paint="d", walk=True, wavy=True)         # the shore path
+# (each knoll's `flights`: R4's rule, the flight ending at the path below, its cheeks closed by boulders)
+PATH = dict(level=0, paint="d", walk=True, wavy="s")          # the shore path (its north edge kept, the knolls' flights ending on it)
 # The north shore along the water: willows and maples (the water mirrors them), bushes and rocks between; the water's
 # own: grass on the bank, lotus out on it (no reeds: the Reedless Shore's lake).
 WATERSIDE = dict(kinds=["tree_willow", "tree_maple", "tree_willow", "rock_mossy"], density=0.3)
@@ -21,12 +22,12 @@ WATER = dict(kinds=["tree_willow", "tree_maple", "tall_grass", "lotus_pads"], de
 # the lake round a willow islet.
 ML_REEDLESS_SHORE = room(
     "ml_reedless_shore", size=(72, 28), biome="mirror_lake",
-    bands=[("shore", 3, 4, dict(level=0, paint="g")),
+    bands=[("shore", 3, 6, dict(level=0, paint="g")),
            ("bluff", 0, 4, BLUFF),
-           ("path", 7, 3, PATH),
-           ("waterside", 10, 8, dict(level=0, paint="g")),
+           ("path", 9, 3, PATH),
+           ("waterside", 12, 6, dict(level=0, paint="g")),
            ("lake", 17, 11, LAKE)],
-    features=[("knoll_w", (11, 2, 10, 5), KNOLL), ("knoll_e", (33, 2, 11, 5), KNOLL),
+    features=[("knoll_w", (11, 2, 10, 5), dict(KNOLL, flights=[15])), ("knoll_e", (33, 2, 11, 5), dict(KNOLL, flights=[38])),
               ("jetty", (6, 14, 4, 8), dict(level=0, paint="w")),
               ("islet", (43, 20, 14, 7), dict(level=0, paint="g", shape="round"))],
     stairs="auto",
@@ -40,7 +41,7 @@ ML_REEDLESS_SHORE = room(
            "waterside": WATERSIDE, "lake": WATER,
            "islet": dict(kinds=["tree_willow", "bush", "rock_mossy"], density=0.6)},
     ground={"sand": ["lake.bank"]},
-    pins={"add": [("tree_willow", 16, 16), ("tree_maple", 24, 16), ("tree_willow", 37, 16), ("tree_willow", 57, 16)]},
+    pins={"add": [("tree_willow", 16, 16), ("tree_maple", 24, 16), ("tree_willow", 37, 16), ("tree_willow", 55, 16)]},
     foes="auto")
 
 
@@ -51,10 +52,10 @@ ML_MIRROR_SHALLOWS = room(
     "ml_mirror_shallows", size=(72, 28), biome="mirror_lake",
     bands=[("shore", 3, 10, dict(level=0, paint="g")),
            ("bluff", 0, 4, BLUFF),
-           ("path", 9, 3, PATH),
+           ("path", 10, 3, PATH),
            ("shallows", 13, 9, dict(level=0, paint="h", wavy=True)),
            ("lake", 21, 7, LAKE)],
-    features=[("knoll_w", (2, 3, 9, 5), KNOLL), ("knoll_m", (13, 3, 10, 5), KNOLL),
+    features=[("knoll_w", (2, 3, 9, 5), dict(KNOLL, flights=[5])), ("knoll_m", (13, 3, 10, 5), dict(KNOLL, flights=[18])),
               ("mouth", (34, 2, 4, 3), dict(level=0, paint="d")),
               ("isle_w", (22, 14, 9, 5), dict(level=0, paint="g", shape="round")),
               ("isle_e", (50, 15, 10, 5), dict(level=0, paint="g", shape="round"))],
@@ -134,12 +135,12 @@ ML_LAKE_SHRINE = room(
 # bank. The way out west, back down to the shallows.
 ML_TOADS_HOLLOW = room(
     "ml_toads_hollow", size=(56, 28), biome="mirror_lake", level=2,
-    bands=[("rocks", 0, 22, dict(level=2, paint="r")), ("front", 22, 6, dict(level=1, paint="r"))],
+    bands=[("rocks", 0, 22, dict(level=2, paint="r", wall=True)), ("front", 22, 6, dict(level=1, paint="r", wall=True))],
     features=[("hollow", (3, 2, 50, 23), dict(level=0, paint="m", shape="round")),
               ("entry", (0, 12, 8, 3), dict(level=0, paint="d", walk=True)),
-              ("ledge", (24, 3, 9, 4), dict(level=1, paint="r", shape="round")),
+              ("ledge", (24, 3, 9, 4), dict(level=1, paint="r", shape="round", flights=[28])),
               ("pool", (17, 11, 18, 8), dict(water=True, shape="round", mirror=True))],
-    stairs=[(27, 7, 3, 2, 0, 1)],
+    stairs="auto",
     ways={"entry": ("w", 13)},
     spawn="entry",
     anchors={"chest_ledge_mv_1": "ledge@28", "toad_nest": "hollow@48"},

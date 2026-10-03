@@ -9,6 +9,8 @@ RISE = dict(level=1, paint="g", wavy=True)                   # the grassy rise u
 TRAIL = dict(level=0, paint="d", walk=True, wavy=True)       # the herders' trail, east to west
 HERD = dict(paint="d", wavy=True)                            # a herd's trail, trampled into the grass
 OUTCROP = dict(level=2, paint="r", shape="round")            # a storm-split outcrop, a ledge on it
+# Every raised shape is climbed by R4's `flights` (the flight ends at the ground below, its cheeks closed by boulders):
+# auto-path's steering is never sent along a step from its side.
 
 
 # The Stormgrass Verge: the plains' edge out of the port. The trail runs east under the rise, a rocky outcrop over it
@@ -16,11 +18,11 @@ OUTCROP = dict(level=2, paint="r", shape="round")            # a storm-split out
 # a scorched ring where the lightning struck, the insect swarm and the hedgehog's trail in the long grass.
 TP_STORMGRASS_VERGE = room(
     "tp_stormgrass_verge", size=(72, 28), biome="storm_plains",
-    bands=[("rise", 3, 8, RISE),
+    bands=[("rise", 3, 8, dict(RISE, flights=[34])),
            ("ridge", 0, 4, RIDGE),
            ("trail", 12, 3, TRAIL),
            ("grass", 15, 13, dict(level=0, paint="g"))],
-    features=[("outcrop", (37, 3, 10, 5), OUTCROP),
+    features=[("outcrop", (37, 3, 10, 5), dict(OUTCROP, flights=[42])),
               ("herd_trail", (16, 19, 30, 3), HERD), ("herd_trail", (40, 23, 32, 3), HERD),
               ("scorch", (54, 16, 8, 5), dict(paint="d", shape="round"))],
     stairs="auto",
@@ -65,11 +67,11 @@ TP_HERDERS_CAMP = room(
 # hole, where the thunderhorns drink.
 TP_THUNDERHORN_FLATS = room(
     "tp_thunderhorn_flats", size=(72, 28), biome="storm_plains",
-    bands=[("rise", 3, 8, RISE),
+    bands=[("rise", 3, 8, dict(RISE, flights=[50])),
            ("ridge", 0, 4, RIDGE),
            ("trail", 11, 3, TRAIL),
            ("flats", 14, 14, dict(level=0, paint="g"))],
-    features=[("outcrop", (12, 3, 11, 5), OUTCROP),
+    features=[("outcrop", (12, 3, 11, 5), dict(OUTCROP, flights=[19])),
               ("herd_trail", (0, 17, 28, 3), HERD), ("herd_trail", (22, 15, 26, 3), HERD),
               ("herd_trail", (44, 17, 28, 3), HERD), ("herd_trail", (4, 23, 24, 3), HERD),
               ("herd_trail", (44, 24, 28, 3), HERD),
@@ -92,12 +94,12 @@ TP_THUNDERHORN_FLATS = room(
 # chests; the trail east to Rimefrost's snowline (sealed till Sage).
 TP_LIGHTNING_SCAR = room(
     "tp_lightning_scar", size=(72, 28), biome="storm_plains",
-    bands=[("rise", 3, 8, RISE),
+    bands=[("rise", 3, 8, dict(RISE, flights=[13])),
            ("ridge", 0, 4, RIDGE),
            ("trail", 12, 3, TRAIL),
            ("flats", 15, 13, dict(level=0, paint="g"))],
-    features=[("ledge_w", (2, 3, 10, 5), OUTCROP), ("ledge_m", (22, 3, 9, 5), OUTCROP),
-              ("ledge_e", (38, 3, 11, 5), OUTCROP),
+    features=[("ledge_w", (2, 3, 10, 5), dict(OUTCROP, flights=[5])), ("ledge_m", (22, 3, 9, 5), dict(OUTCROP, flights=[27])),
+              ("ledge_e", (38, 3, 11, 5), dict(OUTCROP, flights=[43])),
               ("scar", (14, 16, 44, 11), dict(paint="d", shape="round")),
               ("glass", (29, 18, 13, 6), dict(paint="r", shape="round"))],
     stairs="auto",

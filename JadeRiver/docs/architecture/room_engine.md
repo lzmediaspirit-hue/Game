@@ -696,6 +696,17 @@ Starsea the airships.
   lake's waterside trees are pinned (`pins["add"]`) where the composition wants a reflection.
 - **A shaped region as ground:** a wavy or round band or feature named in `ground` gives its own cells, not its rect.
 
+**Flights and the route tour.** The first full run's route tour (`rules_tests`) lost three legs. In each, an open-sided
+flight stood on or beside a walk, and auto-path's steering sent the body along a step from its side, where it wedged.
+- Every raised shape in R6's rooms is now climbed by R4's `flights=[col]`: the flight ends at the ground below, and its
+  cheeks are closed by boulders.
+- Frostpine Climb's hand-laid flights have their trails moved off their sides (`wavy="s"`) and boulders at their
+  cheeks.
+- The lake's bluff stands two levels over its knolls, so no hop takes a body onto it.
+
+A scratch walk of every leg (from the spawn and each way in, to every thing and way: 521 legs over the nineteen rooms)
+found the same wedge on 16 of them. After the change it arrives on all 521.
+
 **Set pieces and the side view's mechanics on the grid.** The plains' lightning strikes a body on the grid.
 - Some of the side view has no top-down counterpart (T1's work):
   - the slippery ice of Frostpine Climb and Rimefrost Summit (`volumes` of kind `ice`, their traction);

@@ -8,7 +8,7 @@
  ],
  "spawn": [
   2,
-  21
+  22
  ],
  "levels": [
   "666666666666666666666666666666666666666666666666666666666666666666666666",
@@ -53,21 +53,21 @@
   "rnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnksssnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnrnnnnnkkkknnnkkkkkkkkkkkkkkkkkksssnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnn",
-  "nnnrnnnnnnnnnnnnnnnnkkkkkkkknnnnkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnrnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnkkknnnnnnnnnnnnnnnkkkkknnnnnnnnnnrnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnn",
-  "nnkkkkknnrnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "kkkkkkkkknnnnnnnnnkkksssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnrnnnnnnnnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnrnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnkkkkkkkknnnnkkkkkkkkkkkkkkkkkknnnrnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnkkknnnnnnnnnnnnnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "rnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnrnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnn",
+  "nnnnnnnnnnnnnnnnnnnnnsssnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "kkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "kkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnkkkkkkkkkkkknnnnnnnnnkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnrnnnnrnn",
-  "nnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnn",
-  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnkkkkknnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnrnnnnrnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
   "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnrnn"
  ],
  "stairs": [
@@ -92,12 +92,12 @@
   {
    "kind": "ice_rock",
    "x": 30,
-   "y": 24
+   "y": 25
   },
   {
    "kind": "ice_rock",
    "x": 57,
-   "y": 22
+   "y": 23
   },
   {
    "kind": "ice_rock",
@@ -108,6 +108,46 @@
    "kind": "ice_rock",
    "x": 66,
    "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 20
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 13
   },
   {
    "kind": "boulder",
@@ -345,14 +385,14 @@
    "y": 14
   },
   {
-   "kind": "boulder",
+   "kind": "rock_small",
    "x": 0,
-   "y": 17
+   "y": 18
   },
   {
-   "kind": "dead_tree",
-   "x": 12,
-   "y": 17
+   "kind": "rock_small",
+   "x": 11,
+   "y": 18
   },
   {
    "kind": "dead_tree",
@@ -366,12 +406,7 @@
   },
   {
    "kind": "dead_tree",
-   "x": 23,
-   "y": 17
-  },
-  {
-   "kind": "dead_tree",
-   "x": 26,
+   "x": 29,
    "y": 17
   },
   {
@@ -380,23 +415,18 @@
    "y": 18
   },
   {
-   "kind": "boulder",
-   "x": 37,
-   "y": 17
-  },
-  {
-   "kind": "boulder",
-   "x": 44,
-   "y": 17
-  },
-  {
-   "kind": "boulder",
-   "x": 47,
-   "y": 17
+   "kind": "rock_small",
+   "x": 36,
+   "y": 18
   },
   {
    "kind": "dead_tree",
-   "x": 50,
+   "x": 44,
+   "y": 18
+  },
+  {
+   "kind": "dead_tree",
+   "x": 48,
    "y": 18
   },
   {
@@ -426,13 +456,13 @@
   },
   {
    "kind": "boulder",
-   "x": 2,
-   "y": 25
+   "x": 3,
+   "y": 18
   },
   {
-   "kind": "tree_pine",
-   "x": 7,
-   "y": 25
+   "kind": "dead_tree",
+   "x": 8,
+   "y": 19
   },
   {
    "kind": "boulder",
@@ -445,9 +475,9 @@
    "y": 25
   },
   {
-   "kind": "tree_pine",
-   "x": 24,
-   "y": 24
+   "kind": "rock_small",
+   "x": 25,
+   "y": 19
   },
   {
    "kind": "dead_tree",
@@ -460,9 +490,9 @@
    "y": 24
   },
   {
-   "kind": "boulder",
-   "x": 38,
-   "y": 20
+   "kind": "tree_pine",
+   "x": 40,
+   "y": 25
   },
   {
    "kind": "rock_small",
@@ -485,18 +515,23 @@
    "y": 24
   },
   {
+   "kind": "dead_tree",
+   "x": 0,
+   "y": 27
+  },
+  {
    "kind": "boulder",
    "x": 10,
    "y": 27
   },
   {
    "kind": "boulder",
-   "x": 27,
-   "y": 27
+   "x": 25,
+   "y": 26
   },
   {
-   "kind": "dead_tree",
-   "x": 30,
+   "kind": "rock_small",
+   "x": 29,
    "y": 26
   },
   {
@@ -505,14 +540,14 @@
    "y": 27
   },
   {
-   "kind": "boulder",
-   "x": 39,
-   "y": 27
+   "kind": "dead_tree",
+   "x": 43,
+   "y": 26
   },
   {
    "kind": "boulder",
-   "x": 45,
-   "y": 27
+   "x": 46,
+   "y": 26
   },
   {
    "kind": "boulder",
@@ -536,14 +571,14 @@
   },
   {
    "kind": "rock_small",
-   "x": 9,
-   "y": 19
+   "x": 22,
+   "y": 24
   }
  ],
  "place": {
   "sign_rf": [
    4,
-   19
+   20
   ],
   "trail_frost_stoat": [
    10,
@@ -594,12 +629,12 @@
   "west": {
    "at": [
     0,
-    21
+    22
    ],
    "dir": "w",
    "arrive": [
     2,
-    21
+    22
    ],
    "span": 3
   },
@@ -620,7 +655,7 @@
   [
    [
     11,
-    18
+    26
    ],
    [
     21,
@@ -628,11 +663,11 @@
    ],
    [
     31,
-    10
+    19
    ],
    [
     40,
-    17
+    13
    ],
    [
     52,
@@ -646,7 +681,7 @@
   [
    [
     40,
-    11
+    18
    ]
   ]
  ],

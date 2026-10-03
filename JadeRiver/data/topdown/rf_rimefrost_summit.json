@@ -123,6 +123,106 @@
    "y": 22
   },
   {
+   "kind": "boulder",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 16
+  },
+  {
    "kind": "tree_pine",
    "x": 1,
    "y": 4

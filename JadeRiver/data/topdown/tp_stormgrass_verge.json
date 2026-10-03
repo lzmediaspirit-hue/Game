@@ -49,11 +49,11 @@
   "ggggggggggggggggggggggggggggggggggggggrrrrrrrrgggggggggggggggggggggggggg",
   "ggggggggggggggggggggggggggggggggggggggrrrrrrrrgggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggrrrrrrggggggggggggggggggggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggsssggggggggggggggggggggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggsssggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggsssgggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggsssgggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggdddgggggggggggggggggdddggggsssggggggggggdddggggggggggggggggggggggggg",
-  "gddddddddddddddddddgggddddddgggsssdddddddddddddddddddgggggddddddddddgggg",
+  "ggggdddgggggggggggggggggdddggggggsssggggggggdddggggggggggggggggggggggggg",
+  "gddddddddddddddddddgggddddddgggggsssdddddddddddddddddgggggddddddddddgggg",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "ddgggggdddddddddddddddddddddggggggdddddddddddddddggggdddddgggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
@@ -72,7 +72,7 @@
  ],
  "stairs": [
   {
-   "x": 31,
+   "x": 33,
    "y": 11,
    "w": 3,
    "h": 2,
@@ -80,7 +80,7 @@
    "to": 1
   },
   {
-   "x": 42,
+   "x": 41,
    "y": 8,
    "w": 3,
    "h": 2,
@@ -123,6 +123,41 @@
    "kind": "boulder",
    "x": 66,
    "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 9
   },
   {
    "kind": "rock_mossy",
@@ -290,11 +325,6 @@
    "y": 10
   },
   {
-   "kind": "boulder",
-   "x": 40,
-   "y": 10
-  },
-  {
    "kind": "tall_grass",
    "x": 46,
    "y": 10
@@ -341,8 +371,8 @@
   },
   {
    "kind": "tall_grass",
-   "x": 38,
-   "y": 16
+   "x": 39,
+   "y": 11
   },
   {
    "kind": "tall_grass",
@@ -589,7 +619,7 @@
    ],
    [
     30,
-    17
+    10
    ],
    [
     41,
