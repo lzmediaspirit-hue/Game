@@ -104,7 +104,7 @@ class Spec:
 # head over a disciple; Old Snapper 1.5x, about 77 px from its tail to its crusher; the hollowed eel about 1.4x, rising
 # about 60 px out of the river. An elite is ELITE times its species' size.
 REGISTRY = {
-    "mudshell_crab": Spec("crab", "crab", 1.2, ["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
+    "mudshell_crab": Spec("crab", "crab", 1.2, plan="crab.mud", palette=["shell", "shell_rim", "shell_pale", "crab_leg", "claw", "claw_tip", "eye"],
                           accents=("claw_tip",), gold=("eye",), shadow=(12, 4), cycle=10.0, sideways=True),
     "reedtail_rat": Spec("rat", "rat", 1.26, plan="quadruped.rodent", palette=["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",),
                          shadow=(10, 3), cycle=11.0, view=True),
@@ -114,7 +114,7 @@ REGISTRY = {
                          accents=("puppet_jade", "brass"), elite=False, shadow=(11, 4), cycle=12.0),
     "reed_frog": Spec("frog", "frog", 1.42, plan="amphibian.frog", palette=["frog", "frog_belly", "frog_stripe", "frog_sac", "frog_eye"], accents=("frog_eye",),
                       shadow=(11, 4), cycle=6.0),
-    "marsh_leech": Spec("leech", "leech", 1.44, ["leech", "leech_dark", "leech_belly", "leech_lip", "leech_maw"],
+    "marsh_leech": Spec("leech", "leech", 1.44, plan="serpent.leech", palette=["leech", "leech_dark", "leech_belly", "leech_lip", "leech_maw"],
                         accents=("leech_lip",), shadow=(13, 4), cycle=8.0, view=True, extra=("swim",)),
     "reed_otter": Spec("otter", "otter", 1.44, plan="quadruped.mustelid", palette=["otter", "otter_pale", "otter_dark"], shadow=(13, 4), cycle=12.0, view=True),
     "hollowed_boarlet": Spec("boar", "hollowed", 1.4, plan="quadruped.suid", body={"mats": {"hide": "h_hide", "head": "h_head", "stripe": "h_stripe", "hoof": "h_bristle", "snout": "h_snout", "bristle": "h_bristle", "tusk": "tusk", "ear": ("h_snout", 1)}, "opts": {"hollowed": True}}, palette=["h_hide", "h_head", "h_stripe", "h_snout", "h_bristle", "tusk", "strand", "pink"],
@@ -124,9 +124,9 @@ REGISTRY = {
                         accents=("crusher", "snap_eye"), elite=False, aura=True, shadow=(26, 6), cycle=9.0),
     "mossback_toad": Spec("toad", "toad", 1.56, plan="amphibian.toad", palette=["toad", "toad_leg", "toad_belly", "toad_sac", "toad_moss", "toad_fern", "tongue",
                                                  "toad_eye", "maw"], accents=("toad_eye", "tongue"), shadow=(12, 4), cycle=7.0, view=True),
-    "hollow_minnow": Spec("minnow", "minnow", 1.5, ["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
+    "hollow_minnow": Spec("minnow", "minnow", 1.5, plan="fish.minnow", palette=["minnow", "minnow_back", "minnow_belly", "minnow_fin", "strand"],
                           accents=("strand",), elite=False, shadow=(5, 2), cycle=10.0),
-    "hollowed_eel": Spec("eel", "eel", 1.44, ["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
+    "hollowed_eel": Spec("eel", "eel", 1.44, plan="serpent.eel", palette=["eel", "eel_belly", "eel_fin", "eel_mouth", "strand"], accents=("strand",),
                          elite=False, shadow=(13, 4), cycle=12.0, sized=True,
                          awakened={"size": 1.22, "ramps": {"eel": "eel_wake", "eel_belly": "eel_wake_belly", "eel_fin": "eel_wake_fin",
                                                            "eel_mouth": "eel_wake_mouth", "strand": "strand_wake"}}),
