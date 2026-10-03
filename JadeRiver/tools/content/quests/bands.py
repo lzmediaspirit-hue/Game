@@ -11,9 +11,9 @@ writes as its `cultivation`, `pay()` the currency reward the engine writes.
 BANDS: (band, first Level, currency, amount); a band runs to the Level before the next one's first.
   - The cultivation is not written here: it follows the curves (QUEST_CULTIVATION) and realms.json, so it cannot drift
     from what quest_tiers pays. The early Bone Forging stages are a band each, as their needs climb (600 to 1,600).
-  - The amounts were set from the hand side quests of each band (their middle value; docs/architecture/quest_engine.md
-    lists every quest that pays otherwise): about two and a half daily missions' pay (10 + 3 x Level taels) at the
-    band's first Level in Act I, where a side quest is about ten minutes of detour (tests/data/balance.json quest_minutes).
+  - The amounts were set from the hand side quests of each band, their middle value, and rise between them where no
+    hand quest stood (docs/architecture/quest_engine.md lists every quest that pays otherwise). balance_sim shows what
+    a band's side quests pay an hour of their ten minutes' detour against what an hour of play earns at their tier.
 """
 import os
 import sys

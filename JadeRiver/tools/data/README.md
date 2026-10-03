@@ -76,6 +76,15 @@ one-off rows it keeps among them; `topdown_life.py` takes its work and extras (`
 no spec writes yet); a person the engine places itself is an object `world.py` adds to the side-view room and an anchor
 the room engine lays out. Its gate is `python3 tools/content/npcs/engine.py --check`.
 
+## The quest engine
+
+Every side quest and the daily mission board are specs of the quest engine (`tools/content/quests`,
+`docs/architecture/quest_engine.md`): a quest's giver, steps and words; the engine derives its target room, the realm it
+opens at and its pay (the band table at its tier). `story.py` places each section of them among its hand quests
+(`QE.rows`) and settles their pay once the tiers are found (`QE.settle`); `economy.py`'s `missions()` takes the board.
+The prologue, the main story and the guided lessons stay `quest(...)` calls in `story.py`. Its gate is
+`python3 tools/content/quests/engine.py --check`.
+
 ## The gates here (tools/run_tests.sh runs them)
 
 - `room_lint.py`: the side-view rooms against the verticality rules.
