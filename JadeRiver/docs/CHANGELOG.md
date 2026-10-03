@@ -1,5 +1,50 @@
 # Changelog
 
+## Act II's first zones on the grid (R6)
+
+The room engine's batch for Act II's start (`docs/architecture/room_engine.md`, "Act II's first zones (R6)"). The
+nineteen side-view rooms of Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights and Mirrorwater Lake are specs
+now. The Ascension Gate's way up opens onto the Arrival Terrace, so a top-down character walks from Act I into Act II
+and plays chapter 11 on the grid.
+
+- **Nineteen rooms, 9 to 29 spec lines each, anchors included.**
+  - Cloudgate Port: the Arrival Terrace, the Port Market, the Wayfarers' Inn, the Skydock, the Condensing Hall and the
+    Shipwrights' Yard.
+  - The Thunderhorn Plains: the Stormgrass Verge, the Herders' Camp, the Thunderhorn Flats and the Lightning Scar.
+  - Rimefrost Heights: Frostpine Climb, the Snow Ape Ledges, Rimefrost Summit and the Hermit's Ice Cave.
+  - Mirrorwater Lake: the Reedless Shore, the Mirror Shallows, the Sentinel Causeway, the Lake Shrine and Toad's Hollow.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The side view's ledges and cloud platforms
+  are outcrops and tiers a flight up. The sky-ship ferries are gangways at the ends of piers. The hermit's hidden cave
+  is a cleft in the summit's crags.
+- **Looks.** Later zones reuse them.
+  - A sky port (`sky_port`): a paved town on a floating island. Its south rim falls into the cloud sea, where the
+    airships berth.
+  - Open plains (`storm_plains`): wide grass, few trees, storm-split menhirs and boulders, the herds' trails braided
+    across it in trampled earth.
+  - The snowy heights take R4's `snowfield`, with ice-glazed boulders.
+  - A mirror lake (`mirror_lake`): wide still water mirroring its shore, islets, pale strands, lotus lanterns afloat.
+- **New props** (`furnish.py`, the sheet rebuilt):
+  - the airship, hanging past the room's edge over the clouds;
+  - a market stall, a memorial archway, an inn's counter, guardian lions, an armillary sphere;
+  - yurts, haystacks, a cook fire, storm menhirs;
+  - ice-glazed rocks, floating lotus lanterns;
+  - and the reflections of trees and stone lanterns in still water.
+- **Engine rules.** Every room before them compiles byte for byte as it did.
+  - `mirror` on a water band or feature: the engine lays the reflection of each tree or stone lantern on its north
+    shore on the water below it, where the water runs under the whole of it.
+  - A wavy or round region named in `ground` gives its own cells, not its rect.
+- **The frontier.** The Ascension Gate's way up is open. The gate stands only at Gu's Warehouse and at the Skydock's
+  ferry to Nine Peaks. The story's next quest past it is chapter 13's Nine Seats.
+- **Tests.**
+  - A new suite, `topdown_act2_start`, with 61 checks. It crosses the Ascension Gate both ways on the grid and plays
+    chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
+    jades, the weasels), Horns for the Furnace and Sage. It walks on through Rimefrost (the hidden ice cave found) and
+    the lake (the ferry, the Hollow, the shrine's mirror), and checks the Nine Peaks ferry's gate. Each room is built
+    by the view and walked by auto-path.
+  - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
+  - R6_RUN_TOTALS
+
 ## The peaks on the grid (R4)
 
 The room engine's peaks batch (`docs/architecture/room_engine.md`, "The peaks (R4)"). The eleven side-view rooms of

@@ -525,9 +525,10 @@ def sky_ship(s: Img, f: int = 0) -> None:
     """A Cloudgate airship moored at the island's rim (the Skydock's berths, the lake ferry's): a long junk-built hull
     of tarred planks with a red lacquer wale and a row of bronze-rimmed ports, its deck of pale boards seen from above,
     a stern castle under a dark tiled roof with a lantern each side, two battened sails half reefed on their masts, the
-    Alliance's white-and-sky pennants streaming east (they stir over four frames), a gilt cloud scroll at the bow, and
-    the gangway in the middle of its north rail. The footprint is the rim's last row (10 x 1, walked through); the ship
-    hangs past the room's south edge over the sea of cloud, wisps of it about the keel. 176 x 112; corner (8, 64)."""
+    Alliance's white-and-sky pennants streaming east (still: four frames of a ship this wide outgrow the sheet), a gilt
+    cloud scroll at the bow, and the gangway in the middle of its north rail. The footprint is the rim's last row (10 x
+    1, walked through); the ship hangs past the room's south edge over the sea of cloud, wisps of it about the keel.
+    176 x 112; corner (8, 64)."""
     x0, x1 = 12, 168
     yc = 78                                                   # the deck's middle row
     for x in range(x0, x1):                                   # the hull's side: tarred planks, the wale, the ports
@@ -1013,4 +1014,4 @@ PROPS.update({
     "lotus_lantern": (lotus_lantern, 16, 14, 1, 1, [0, 14], False, None),
 })
 PROPS.update(_mirror_props())
-ANIM.update({"sky_ship": (4, 450), "cook_fire": (4, 160), "lotus_lantern": (4, 250)})
+ANIM.update({"cook_fire": (4, 160), "lotus_lantern": (4, 250)})
