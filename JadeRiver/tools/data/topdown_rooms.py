@@ -1,6 +1,7 @@
-"""Redesign Phase 4 (docs/redesign_top_down_plan.md, "As built: Phase 4", both parts): the tutorial area's rooms and
-chapter 2's stretch (both sects' Entry Trials and grounds, the Marsh Edge) redrawn for the top-down world, one layout per
-room in data/topdown/<room id>.json, read by TopdownRoom (scripts/topdown).
+"""Redesign Phase 4 (docs/redesign_top_down_plan.md, "As built: Phase 4", both parts): the rooms of the world redrawn for
+the top-down world, one layout per room in data/topdown/<room id>.json, read by TopdownRoom (scripts/topdown). Each room
+is a spec of the room engine (E1, audit 45 §6.1: tools/content/rooms/, docs/architecture/room_engine.md) compiled to the
+`Layout` below; this module keeps the Layout, the walking rules (`Grid`), the checks and the build.
 
 A layout keeps its side-view room's id and every id in it: the World authority takes the room's definition (NPCs,
 objects, portals and their rules, foes, events) from data/rooms/ and only the places from here (TopdownRoom.merge_def):
@@ -12,6 +13,7 @@ objects, portals and their rules, foes, events) from data/rooms/ and only the pl
                                     the cell arrived on, and its width in tiles
   spawns    one list of cells per side-view spawn, in order;  event {wave, fixed}: a room event's spawn cells
   routes    object id -> [[x, y, s], ...]: a rooftop thief's run
+  areas     [{kind, rect, ...}]: a hazard's areas in cells (the poison mist's pools; TopdownRoom.merge_def)
 
 Deterministic: `python3 tools/data/topdown_rooms.py` writes the files, `--check` proves they are current. Each layout
 is checked as it is built: every object, NPC, portal and spawn of its side-view room is placed on a cell a body can
@@ -530,133 +532,10 @@ def check_foliage(lay, d, g):
 
 
 # ==================================================================== the rooms
-
-
-def village(rid="lf_village", night=False):
-    """Lotus Ferry: Home Lane in the west (the Fisher's Hut, Granny Liu's hut, the West Gate), the paved square in the
-    middle (Uncle Guo's stump and dummy, the shrine, the spring, the board, Old Ma's store, the hall and the Ferry Inn
-    whose roofs the kite is caught on), the Ferry Docks in the east (the pier, Lu's boat, the watch-tower and its bell,
-    the East Gate), a grassy terrace behind the houses and the river along the south."""
-    w = 48 if night else 72
-    r = Layout(rid, w, 40, 0, "g")
-    r.rect(0, 0, w, 10, 1, "g")                   # the terrace behind the houses
-    r.rect(0, 0, w, 3, 2, "r")                    # rock above it
-    r.water(0, 34, w, 6)                          # the river
-    r.rect(0, 32, w, 2, 0, "d")                   # the towpath along the bank
-    r.hline(0, w - 1, 20, 3, "d")                 # the lane through the village
-    r.rect(22, 15, 26, 15, 0, "p")                # the square's paving
-    r.stair(12, 8, 3, 2, 0, 1, "s")               # up to the terrace from Home Lane
-    r.stair(33, 8, 3, 2, 0, 1, "s")               # and from the square
-    for x in (3, 20, 27, 41):
-        r.prop("willow", x, 5)
-    r.prop("bamboo", 8, 4)
-    r.prop("bamboo", 9, 5)
-    hut = r.prop("house", 4, 11)                  # the Fisher's Hut: door at x 6-7
-    r.prop("crates", 10, 13)                      # the way onto its roof
-    granny = r.prop("house", 15, 11)              # Granny Liu's Herb Hut: door at x 17-18
-    store = r.prop("storehouse", 38, 11)          # Old Ma's Store: door at x 39-40
-    for b in (hut, granny):
-        r.door_path(b, 20)                        # a path from each door down to the lane
-    r.door_path(store, 15, "p")
-    r.rect(1, 23, 4, 2, None, "f")                # flower beds along Home Lane
-    r.rect(9, 24, 5, 2, None, "f")
-    r.rect(1, 12, 2, 2, None, "f")
-    r.prop("lantern", 23, 15)
-    r.prop("lantern", 46, 15)
-    r.prop("barrel", 36, 13)
-    r.prop("bamboo", 19, 25)
-    r.prop("bamboo", 20, 26)
-    for x in (2, 8, 14, 26, 33, 44):
-        r.prop("reeds", x, 33)
-    r.prop("lotus", 10, 36)
-    r.prop("lotus", 30, 37)
-    # Foliage (decision 40): big trees along the terrace and round the square, bushes against the houses, a fence and
-    # flowers along Home Lane, willows and tall grass by the river, lotus pads on it.
-    r.green(("tree_camphor", 24, 6), ("tree_plum", 30, 5), ("tree_maple", 46, 6), ("tree_camphor", 53, 5),
-            ("tree_ribbons", 61, 6), ("tree_willow", 68, 5), ("bamboo_grove", 0, 4), ("bamboo_grove", 36, 4),
-            ("bush", 16, 9), ("bush_azalea", 22, 9), ("bush_wide", 38, 9), ("bush", 50, 9), ("bush_azalea", 57, 9),
-            ("hedge_2", 1, 9), ("bush", 64, 9),
-            ("tree_camphor", 29, 12), ("bush_wide", 32, 13), ("bush_azalea", 26, 13), ("bush", 43, 12),
-            ("bush_azalea", 45, 13), ("bush_wide", 62, 12), ("bush", 60, 14),
-            ("bush_azalea", 2, 15), ("bush", 10, 15), ("bush_azalea", 14, 15), ("bush", 21, 17),
-            ("fence_4", 5, 23), ("fence_3", 14, 23), ("tree_peach", 17, 27), ("tree_willow", 4, 29),
-            ("tall_grass", 1, 26), ("tall_grass", 7, 30), ("ferns", 12, 26), ("rock_mossy", 20, 30),
-            ("tree_willow", 40, 31), ("tall_grass", 26, 30), ("bush_wide", 30, 30), ("tall_grass", 35, 31),
-            ("tree_camphor", 51, 17), ("bush", 49, 15), ("bush_azalea", 57, 15), ("rock_small", 63, 19),
-            ("lotus_pads", 18, 35), ("lotus_pads", 40, 36), ("lotus_pads", 3, 37), ("cattails", 24, 34), ("cattails", 46, 34), ("cattails", 12, 34))
-    # Sand (decision 44): river sand along the waterline from Home Lane's end to the ferry landing, the towpath wandering
-    # over it; it widens up the bank into the washing beach below Mei's line, a cove further east and the ferry
-    # landing's sand under the docks round the pier's foot. By the West Gate the old embankment stays.
-    r.sand((6, 33, w - 6, 1), (10, 32, 11, 1), (28, 32, 11, 1), (47, 32, 25, 1))
-    if night:
-        r.spawn = [30, 22]
-        r.at("hut_refuge", 6.5, 15)
-        r.at("npc_ping_night", 8.5, 16.5)          # Aunt Ping at the hut's door with her lamp
-        r.at("npc_dou_night", 44, 25)
-        r.at("npc_granny_night", 18, 23)
-        r.at("npc_ma_night", 38, 18)
-        # The Hollow Night's event (world.py, in its order): two minnows about each villager; the river's minnows up the
-        # bank; the lane's schools from both ends once the villagers are in; the eel rising mid-river off the square (and,
-        # decision 45, rising there again at once, awake, after a reload once it has woken).
-        r.event = {"fixed": [[42, 26.5], [46, 26], [16, 25], [20.5, 24.5], [36, 20], [40.5, 20]],
-                   "waves": [[[5, 31], [15, 32], [25, 31], [35, 32], [44, 31]],
-                             [[1, 20.5], [1.5, 22], [46.5, 20.5], [46, 22], [24, 31], [32, 31]]],
-                   "timed": [[30, 36.5], [30, 36.5]]}
-        return r
-    hall = r.prop("house", 48, 11)                # the village hall
-    inn = r.prop("house", 55, 11)                 # the Ferry Inn, a tile's jump beyond the hall
-    r.prop("crates", 46, 13)                      # the way onto the hall's roof
-    r.rect(48, 24, 24, 8, 0, "w")                 # the docks' boards
-    r.rect(58, 34, 3, 4, 0, "w")                  # the pier
-    r.prop("boat", 61, 36)
-    r.rect(66, 15, 4, 5, 3, "s")                  # the watch-tower's top
-    r.stair(66, 20, 2, 4, 0, 3, "s")
-    r.prop("lantern_red", 50, 24)
-    r.prop("lantern_red", 70, 24)
-    r.prop("barrel", 63, 25)
-    r.prop("crates", 64, 30)
-    r.spawn = [8, 17]
-    r.door("hut_door", hut)
-    r.door("granny_door", granny)
-    r.door("store_door", store)
-    r.way("west_gate", 0, 21, "w", [2, 21], 3)
-    r.way("east_gate", 71, 21, "e", [69, 21], 3)
-    r.way("boat", 60, 36, "e", [59, 36], 1.5)
-    r.at("sign_home", 2, 18)
-    r.at("pings_ladle", 8, 11)                    # on the Fisher's Hut's roof
-    r.at("npc_aunt_ping_lane", 11, 17)
-    r.at("npc_washer_mei", 14, 31)
-    r.at("spring_village", 24, 26)
-    r.at("shrine_village", 26, 16)
-    r.at("npc_uncle_guo", 30, 22)
-    r.at("stump_guo", 31, 26)
-    r.at("dummy_guo", 34, 26)
-    r.at("board_village", 36, 16)
-    r.at("storage_village", 43, 16)
-    r.at("npc_little_dou", 44, 24)
-    r.at("cook_village", 46, 28)
-    r.at("kite", 58, 12)                          # on the Ferry Inn's roof
-    r.at("npc_shen_lian_npc", 52, 27)
-    r.at("npc_lu_boatman", 56, 28)
-    r.at("npc_fisher_wen", 64, 28)
-    r.at("fish_docks", 59, 37)
-    r.at("tower_bell", 68, 16)
-    r.at("gull_nest", 69, 15)
-    return r
-
-
-def village_night():
-    """Lotus Ferry at Night: Home Lane and the square as by day, the hut's door open, the villagers out in the lane
-    and the Hollow things coming up out of the river."""
-    return village("lf_village_night", True)
-
-
-# ==================================================================== chapter 2's stretch: the trials, the sects, the marsh
-# docs/redesign_top_down_plan.md "As built: Phase 4, second part": the rooms the story visits from the sect choice to the
-# first steps of chapter 2, for both sects a player can join (Jade and Cloud).
-
-
-LAYOUTS = [village, village_night]
+# E1 (audit 45 §6.1): every room is a spec of the room engine, tools/content/rooms/specs/<zone>.py, compiled to its Layout
+# by tools/content/rooms/engine.py (docs/architecture/room_engine.md). A hand function returning a Layout may still be
+# listed here (a review room, a one-off); none is today.
+LAYOUTS = []
 
 
 # -------------------------------------------------------------------- audit 45: the Grid against the game's own
