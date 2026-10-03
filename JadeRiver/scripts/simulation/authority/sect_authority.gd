@@ -239,6 +239,16 @@ func start_defence(c) -> Dictionary:
 	var tier := clampi(int(sect().get("defences_won", 0)) / 2, 0, waves.size() - 1)
 	var wave: Dictionary = waves[tier].duplicate(true)
 	wave["points"] = cfg.get("points", [[400, 860]])
+	var grid: TopdownRoom = game.room_rt.topdown
+	if grid != null:
+		# R4: on the height grid the side view's points (one past its east edge) come in on the nearest floor inside the
+		# room, so no raider stands outside it or in the lawn's pond.
+		var span := Vector2(grid.w, grid.h) * TopdownRoom.TILE - Vector2.ONE
+		var pts: Array = []
+		for p in wave.points:
+			var q := grid.nearest_standable(Vector2(float(p[0]), float(p[1])).clamp(Vector2.ONE, span))
+			pts.append([q.x, q.y])
+		wave["points"] = pts
 	var ev := {"id": "sect_defence", "duration": float(cfg.get("duration", 60)), "wave": wave,
 		"on_complete": [{"kind": "sect_defence_result", "won": true}]}
 	game.world.start_room_event(c, ev)

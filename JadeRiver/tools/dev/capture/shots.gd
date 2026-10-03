@@ -48,7 +48,17 @@ const E1_VIEWS := [
 	["r2/03_scripture_well", "ds_scripture_well", Vector2(28, 16), true], ["r2/04_abbots_sanctum", "ds_abbots_sanctum", Vector2(36, 13), true],
 	["r2/05_drowned_grotto", "ds_drowned_grotto", Vector2(20, 11), true], ["r2/06_serpents_shallows", "dw_serpents_shallows", Vector2(31, 10), true],
 	["r2/07_gorge_mouth_bridge", "wg_gorge_mouth", Vector2(24, 11), true], ["r2/08_rapids_terraces_falls", "wg_rapids_terraces", Vector2(36, 13), true],
-	["r2/09_echo_cliffs", "wg_echo_cliffs", Vector2(30, 13), true], ["r2/10_waterfall_cave", "wg_waterfall_cave", Vector2(18, 10), true]]
+	["r2/09_echo_cliffs", "wg_echo_cliffs", Vector2(30, 13), true], ["r2/10_waterfall_cave", "wg_waterfall_cave", Vector2(18, 10), true],
+	# R4: the peaks (a view named "r4/..." keeps its world picture and its room's whole one under r4/ too).
+	["r4/01_cliff_faces_crags", "cc_cliff_faces", Vector2(46, 12), true], ["r4/02_cliff_faces_brink", "cc_cliff_faces", Vector2(28, 24), false],
+	["r4/03_sky_ledges_climb", "cc_sky_ledges", Vector2(36, 15), true], ["r4/04_sky_ledges_summit", "cc_sky_ledges", Vector2(50, 7), false],
+	["r4/05_misty_slopes_mere", "mp_misty_slopes", Vector2(34, 20), true], ["r4/06_misty_slopes_knoll", "mp_misty_slopes", Vector2(22, 12), false],
+	["r4/07_monastery_hall", "mp_forgotten_monastery", Vector2(36, 11), true], ["r4/08_monastery_garden", "mp_forgotten_monastery", Vector2(50, 21), false],
+	["r4/09_ascension_gate", "mp_ascension_gate", Vector2(36, 14), true], ["r4/10_windswept_ridge", "sr_windswept_ridge", Vector2(28, 16), true],
+	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
+	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
+	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
+]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
