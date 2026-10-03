@@ -1,0 +1,543 @@
+{
+ "schema_version": 1,
+ "id": "gh_hamlet_square",
+ "name": "Greyreed Hamlet",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  27,
+  25
+ ],
+ "levels": [
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111000000111111111111111111111111111111111111",
+  "00000000111100000000000011111001111111111110000000110000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000001110000000000000000000000000000",
+  "00000000000000000000000001~10000000000000000000000000000",
+  "00000000000000000000000001110000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000~~~~~000000~~~~~~~000~~~~~~~~~~~~~00000000000000",
+  "000~~~~~~~~~~~~00~~~~~~~~~000~~~~~~~~~~~~~~~000000~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~000~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmddmmmmmmmmmddmmmmmmmmmmmmddmmmmmmmmmddmmmmmmmmmmmm",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "mmmmmmmmmmmmmmmmmmmppppppppppppppppmmmmmmmmmmpppppppppmm",
+  "mmmmmmmmmmmmmmmmmmmppppppssspppppppmmmmmmmmmmpppppppppmm",
+  "mmmmmmmmmmmmmmmmmmmpppppps~spppppppmmmmmmmmmmpppppppppmm",
+  "mmmmmmmmmmmmmmmmmmmppppppssspppppppmmmmmmmmmmpppppppppmm",
+  "mmmmmmmmmmmmmmmmmmmppppppppppppppppmmmmmmmmmmpppppppppmm",
+  "mmmmmmmmmmmmmmmmmmmppppppppppppppppmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmmmmmmmmmmmpppppppwwwppppppmmmmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmm~~~~~mmmmmm~~~~~~~www~~~~~~~~~~~~~mmmmmmmmmmmmmm",
+  "mmm~~~~~~~~~~~~mm~~~~~~~~~www~~~~~~~~~~~~~~~mmmmmm~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~www~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "house",
+   "x": 4,
+   "y": 8,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "hall",
+   "x": 14,
+   "y": 8,
+   "door": [
+    3,
+    4
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 10
+  },
+  {
+   "kind": "house",
+   "x": 29,
+   "y": 8,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 41,
+   "y": 8,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "crates",
+   "x": 45,
+   "y": 10
+  },
+  {
+   "kind": "water_jar",
+   "x": 11,
+   "y": 10
+  },
+  {
+   "kind": "drying_rack",
+   "x": 36,
+   "y": 10
+  },
+  {
+   "kind": "barrel",
+   "x": 40,
+   "y": 10
+  },
+  {
+   "kind": "laundry_line",
+   "x": 7,
+   "y": 17
+  },
+  {
+   "kind": "net_rack",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "fish_basket",
+   "x": 38,
+   "y": 17
+  },
+  {
+   "kind": "stump",
+   "x": 2,
+   "y": 0
+  },
+  {
+   "kind": "dead_tree",
+   "x": 7,
+   "y": 2
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 0
+  },
+  {
+   "kind": "dead_tree",
+   "x": 16,
+   "y": 0
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 18,
+   "y": 1
+  },
+  {
+   "kind": "stump",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "dead_tree",
+   "x": 24,
+   "y": 2
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 0
+  },
+  {
+   "kind": "rock_small",
+   "x": 31,
+   "y": 0
+  },
+  {
+   "kind": "log",
+   "x": 37,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 0
+  },
+  {
+   "kind": "tall_grass",
+   "x": 49,
+   "y": 2
+  },
+  {
+   "kind": "dead_tree",
+   "x": 53,
+   "y": 2
+  },
+  {
+   "kind": "dead_tree",
+   "x": 2,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "stump",
+   "x": 11,
+   "y": 3
+  },
+  {
+   "kind": "log",
+   "x": 16,
+   "y": 3
+  },
+  {
+   "kind": "stump",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 3
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 30,
+   "y": 4
+  },
+  {
+   "kind": "log",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 36,
+   "y": 4
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 41,
+   "y": 3
+  },
+  {
+   "kind": "stump",
+   "x": 46,
+   "y": 3
+  },
+  {
+   "kind": "tall_grass",
+   "x": 50,
+   "y": 4
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 54,
+   "y": 4
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 0,
+   "y": 11
+  },
+  {
+   "kind": "stump",
+   "x": 6,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 35,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 51,
+   "y": 10
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 2,
+   "y": 16
+  },
+  {
+   "kind": "dead_tree",
+   "x": 9,
+   "y": 19
+  },
+  {
+   "kind": "stump",
+   "x": 18,
+   "y": 19
+  },
+  {
+   "kind": "dead_tree",
+   "x": 37,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 17
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 53,
+   "y": 20
+  },
+  {
+   "kind": "stump",
+   "x": 2,
+   "y": 21
+  },
+  {
+   "kind": "dead_tree",
+   "x": 6,
+   "y": 21
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 18,
+   "y": 22
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 43,
+   "y": 21
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 48,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 11,
+   "y": 20
+  },
+  {
+   "kind": "dead_tree",
+   "x": 15,
+   "y": 22
+  },
+  {
+   "kind": "dead_tree",
+   "x": 35,
+   "y": 20
+  },
+  {
+   "kind": "dead_tree",
+   "x": 39,
+   "y": 20
+  },
+  {
+   "kind": "dead_tree",
+   "x": 45,
+   "y": 22
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 51,
+   "y": 21
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 0,
+   "y": 23
+  },
+  {
+   "kind": "grey_reeds",
+   "x": 8,
+   "y": 21
+  },
+  {
+   "kind": "dead_tree",
+   "x": 49,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 53,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 4,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 7,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 16,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 24,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 32,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 47,
+   "y": 24
+  },
+  {
+   "kind": "cattails",
+   "x": 55,
+   "y": 23
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 11,
+   "y": 27
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 17,
+   "y": 26
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 39,
+   "y": 25
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 51,
+   "y": 27
+  }
+ ],
+ "place": {
+  "grey_lantern_hall": [
+   18,
+   10
+  ],
+  "lit_lantern_hall": [
+   18,
+   10
+  ],
+  "grey_lantern_granary": [
+   42,
+   10
+  ],
+  "lit_lantern_granary": [
+   42,
+   10
+  ],
+  "well_cleanse": [
+   26,
+   19
+  ],
+  "npc_hamlet_elder_gao": [
+   30,
+   18
+  ],
+  "npc_hamlet_trader_min": [
+   44,
+   15
+  ],
+  "shrine_gh": [
+   50,
+   19
+  ]
+ },
+ "portals": {
+  "marsh": {
+   "at": [
+    27,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    27,
+    25
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "marsh",
+   "pad": 40
+  },
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

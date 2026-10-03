@@ -2,8 +2,11 @@
 `ALL` is every spec in the order topdown_rooms.py builds them. A new zone's module is added to ZONES."""
 import importlib
 
-ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend",
-         "drowned_shrine", "whitewater_gorge"]   # R2
+ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend"]
+# R1: the main story's path past chapter 3 (reed_marsh's rooms past the Marsh Edge are in its module).
+ZONES += ["greyreed_hamlet", "bamboo_grove", "crane_falls", "cleansing_peak"]
+# R2: the Drowned Shrine and Whitewater Gorge (the Serpent's Shallows is in deepwater_bend's module).
+ZONES += ["drowned_shrine", "whitewater_gorge"]
 
 
 def all_specs():

@@ -26,6 +26,13 @@ const E1_VIEWS := [
 	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
 	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
 	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true],
+	# R1: the main story's path past chapter 3 (pictures under r1/).
+	["r1/01_grey_pools_jetty", "rm_grey_pools", Vector2(22, 15), true], ["r1/02_grey_pools_hamlet_way", "rm_grey_pools", Vector2(34, 12), false],
+	["r1/03_sunken_causeway", "rm_sunken_causeway", Vector2(30, 14), true], ["r1/04_hermit_stilt_house", "rm_hermit_stilt_house", Vector2(8, 12), true],
+	["r1/05_hamlet_square", "gh_hamlet_square", Vector2(27, 14), true], ["r1/06_whispering_bamboo", "bg_whispering_bamboo", Vector2(26, 14), true],
+	["r1/07_thicket_heart", "bg_thicket_heart", Vector2(30, 14), true], ["r1/08_falls_pool", "cf_falls_pool", Vector2(24, 12), true],
+	["r1/09_behind_falls", "cf_behind_falls", Vector2(20, 16), true], ["r1/10_pilgrim_stairs_foot", "cp_pilgrim_stairs", Vector2(28, 26), true],
+	["r1/11_pilgrim_stairs_landing", "cp_pilgrim_stairs", Vector2(36, 18), false], ["r1/12_cleansing_summit", "cp_cleansing_summit", Vector2(17, 15), true],
 	# R2: the Serpent's Shallows, the Drowned Shrine and Whitewater Gorge (their pictures under r2/)
 	["r2/01_flooded_gate_court", "ds_flooded_gate", Vector2(14, 10), true], ["r2/02_hall_of_lanterns", "ds_hall_of_lanterns", Vector2(28, 12), true],
 	["r2/03_scripture_well", "ds_scripture_well", Vector2(28, 16), true], ["r2/04_abbots_sanctum", "ds_abbots_sanctum", Vector2(36, 13), true],
@@ -608,7 +615,7 @@ static func sets() -> Dictionary:
 		if v[3]: take.append(["whole_room", pre + "rooms/" + str(v[1])])
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
-		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360]], "rows": e1_rows}
+		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",
