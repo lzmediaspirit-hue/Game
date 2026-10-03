@@ -3,7 +3,7 @@ extends RefCounted
 ## README.md, "Preview and debug arguments"). main.gd loads this script only when the game starts with arguments after
 ## "--" (OS.get_cmdline_user_args), so a player's game, which has none, never reads it. It is not in scripts/shell/:
 ## the shell never writes game state (contract_tests), and these flags do nothing else.
-##   godot --path . -- --preview-world --room=lf_village --give=healing_pill:3 --open-page=inventory --capture --shot=bag
+##   godot --path . -- --preview-world --room=lf_village --give=herbal_tea:3 --open-page=inventory --capture --shot=bag
 ##
 ## A run goes in steps, each a table of rows read in a fixed order:
 ##   1. before the boot (before_boot): the preview saves, --load=, --log-events;
@@ -15,7 +15,7 @@ extends RefCounted
 ##   - flag: "--name=" takes a value; "--name" none; "--name[=]" either. In an EACH table a row runs once for each time
 ##     its flag is given, in the order the flags are given; in a ONCE table it runs once if its flag (or any flag of a
 ##     list) is given, in the table's order;
-##   - handler: a function of this script, given the whole argument ("--foe=wild_boarlet:2");
+##   - handler: a function of this script, given the whole argument ("--foe=ashborn_raider:2");
 ##   - needs (optional): what must be there for the row to run, else it is skipped (_has).
 ## A handler that waits (a timer) holds every row after it, so a picture is taken once all before it has played.
 
