@@ -1,7 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · the Trial Tower (S49 v1.0). Thirty floors at the Fairground (tower.json), all in one room: each floor is a
-## room event with its own rule. The floors you have cleared are World state on the character; each can be swept once a
-## day for its loot.
+class_name WorldTower
+extends WorldPart
+## WorldAuthority's part: the Trial Tower (S49 v1.0). Thirty floors at the Fairground (tower.json), all in one room:
+## each floor is a room event with its own rule. The floors you have cleared are World state on the character; each can
+## be swept once a day for its loot.
 
 func tower_floor(f: int) -> Dictionary:
 	return ContentDB.entry("tower", "floor_%d" % f)
@@ -20,7 +21,7 @@ func climb_tower(c, f: int) -> Dictionary:
 	if game.room_rt != null and game.room_rt.event.get("active", false): return fail("busy", {"text": Tx.t("sim.world.tower_busy")})
 	var room := str(ContentDB.config("tower").get("room", "sf_trial_tower"))
 	if game.room_rt == null or game.room_rt.room_id != room:
-		if game.room_rt != null and world.portals.prototype_gate(c, game.room_rt.room_id, room): return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
+		if game.room_rt != null and world.prototype_gate(c, game.room_rt.room_id, room): return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 		var moved := world.load_room(c, room, "entry")
 		if not moved.get("ok", false): return moved
 	var lv := int(row.level)
@@ -44,7 +45,7 @@ func climb_tower(c, f: int) -> Dictionary:
 			ev.fixed_spawns = [{"enemy": str(row.guardian), "at": [1600, 850], "level": int(row.get("guardian_level", lv + 4))},
 				{"enemy": str(foes[0]), "at": points[0], "level": lv}, {"enemy": str(foes[foes.size() - 1]), "at": points[3], "level": lv}]
 			ev.win_on_kill = str(row.guardian)
-	world.events.start_room_event(c, ev)
+	world.start_room_event(c, ev)
 	return ok({"floor": f})
 
 ## A floor cleared: its loot at your feet; the first time, Spirit Stones and the floor's first-clear rewards (P7b: the

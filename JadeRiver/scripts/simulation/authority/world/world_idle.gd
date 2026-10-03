@@ -1,12 +1,10 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · S49 mobile conventions: idle rooms, auto-hunt and auto-path, and the quest direction mark (P1). The toggles
-## and walks under way are the authority's `auto_hunt` and `auto_paths`.
+class_name WorldIdle
+extends WorldPart
+## WorldAuthority's part: S49 mobile conventions: idle rooms, auto-hunt and auto-path, and the quest direction mark
+## (P1). The toggles and walks under way are the authority's `auto_hunt` and `auto_paths`.
 
 ## Rooms where auto-hunt is always off (S49): bosses, trials, dungeons, story instances, secret places.
 const AUTO_HUNT_OFF := ["boss_arena", "trial", "dungeon", "story", "secret", "prologue"]
-
-var _auto_check := 0.0   # auto-hunt asks whether it may go on twice a second
-var _guide_cache := {}   # the direction mark's last step: {key, at, step}
 
 ## The idle Hunt and Gather tasks (S23) run only in rooms that list them (room.idle); rest, seclusion and
 ## training go anywhere.
@@ -48,9 +46,9 @@ func end_auto_hunt(actor_id: String, reason: String) -> void:
 
 func tick_auto_hunt(c, delta: float) -> void:
 	if not world.auto_hunt.has(c.id): return
-	_auto_check -= delta
-	if _auto_check > 0.0: return
-	_auto_check = 0.5
+	world.auto_check -= delta
+	if world.auto_check > 0.0: return
+	world.auto_check = 0.5
 	var why := auto_hunt_block(c)
 	if why != "": end_auto_hunt(c.id, why)
 
@@ -67,7 +65,7 @@ func start_auto_path(c, target: String, place := "") -> Dictionary:
 	if target == game.room_rt.room_id:
 		if goal.is_empty(): return fail("here", {"text": Tx.t("sim.world.auto_path_here")})
 	else:
-		r = world.portals.route(c, game.room_rt.room_id, target)
+		r = world.route(c, game.room_rt.room_id, target)
 		if r.is_empty(): return fail("no_route", {"text": Tx.t("sim.world.auto_path_none")})
 	end_auto_hunt(c.id, "path")
 	world.auto_paths[c.id] = {"target": target, "route": r}
@@ -121,18 +119,18 @@ func guide_step(c) -> Dictionary:
 	var goal := guide_target(c)
 	if goal == "": return {}
 	var key := here + ">" + goal
-	if str(_guide_cache.get("key", "")) == key and Clock.now_utc() - float(_guide_cache.get("at", 0.0)) < 5.0: return _guide_cache.step
+	if str(world.guide_cache.get("key", "")) == key and Clock.now_utc() - float(world.guide_cache.get("at", 0.0)) < 5.0: return world.guide_cache.step
 	var step := {}
-	var r := world.portals.route(c, here, goal)
+	var r := world.route(c, here, goal)
 	# Behind a hidden way not yet seen, the mark leads as far as the room that hides it (Spirit Sense shows it there).
 	if r.is_empty():
 		for hid in WorldRules.rooms_with("hidden_to=" + goal):
-			r = world.portals.route(c, here, str(hid))
+			r = world.route(c, here, str(hid))
 			if not r.is_empty(): break
 	if not r.is_empty() and str(r[0].room) == here:
 		var at := _step_point(r[0])
 		if not at.is_empty(): step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": float(at.x), "y": float(at.y)}
-	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
+	world.guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
 	return step
 
 ## The room the tracker leads to (the main story's first: its quest under way, or its next one between quests), other
@@ -179,7 +177,7 @@ func auto_path_room(_p: Dictionary) -> void:
 		return
 	if (ap.route as Array).any(func(s): return str(s.room) == game.room_rt.room_id): return
 	if game.room_rt.def.get("crossing", false): return   # under sail: the route goes on at the far pier
-	var r := world.portals.route(c, game.room_rt.room_id, str(ap.target))
+	var r := world.route(c, game.room_rt.room_id, str(ap.target))
 	if r.is_empty(): end_auto_path(c.id, "lost")
 	else: ap.route = r
 
@@ -188,10 +186,10 @@ func auto_path_board(c, dock_id: String) -> Dictionary:
 	# Decision 42: a transfer array on the route is taken to the node the route names.
 	for s in world.auto_paths.get(c.id, {}).get("route", []):
 		if game.room_rt != null and str(s.room) == game.room_rt.room_id and str(s.portal) == dock_id and str(s.get("array", "")) != "":
-			var ra := world.arrays.array_travel(c, dock_id, str(s.array))
+			var ra := world.array_travel(c, dock_id, str(s.array))
 			if not ra.get("ok", false): end_auto_path(c.id, "dock")
 			return ra
-	var r := world.context.interact(c, dock_id)
+	var r := world.interact(c, dock_id)
 	if not r.get("ok", false): end_auto_path(c.id, "dock")
 	return r
 

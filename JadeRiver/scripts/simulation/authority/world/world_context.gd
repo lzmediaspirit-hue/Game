@@ -1,6 +1,7 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · using a thing: interact (the intent) and the context button (Part 9.9), which offers the thing in reach
-## that claims it most, with its verb.
+class_name WorldContext
+extends WorldPart
+## WorldAuthority's part: using a thing: interact (the intent) and the context button (Part 9.9), which offers the thing
+## in reach that claims it most, with its verb.
 
 ## The world's resource nodes: things worked for a yield or a training (a herb, a vein, a pool, a swarm, a trail, a
 ## star ring, a bed or plot, a Temper drum). While the craft or the body level they ask is not there yet, they stay in
@@ -18,7 +19,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		return fail("too_far")
 	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > WorldAuthority.REACH_ALT:
 		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
-	var avail := world.objects.object_available(c, o)
+	var avail := world.object_available(c, o)
 	if avail.get("dormant", false) and not game.account.codex.has("seasons"): game.quest.apply_codex("seasons")
 	if not avail.ok and o.type != "npc":
 		return fail("unavailable", {"text": avail.text})
@@ -26,10 +27,10 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 	var result := ok({"type": o.type})
 	match str(o.type):
 		"npc":
-			if o.has("chase"): return world.races.start_chase(c, o)   # S43 rule 15: the rooftop thief bolts
+			if o.has("chase"): return world.start_chase(c, o)   # S43 rule 15: the rooftop thief bolts
 			return game.quest.talk(c, str(o.npc))
 		"route_stone":
-			return world.races.start_run(c, o)
+			return world.start_run(c, o)
 		"shrine":
 			c.last_shrine = {"room": game.room_rt.room_id, "x": float(at[0]), "y": float(at[1]), "object": object_id}
 			game.combat.apply_resource_change(c.id, "hp", c.pools.max_hp, "shrine")
@@ -45,9 +46,9 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 						{"text": Tx.t("sim.world.leave_it"), "close": true}]}})
 			return game.crafting.gather(c, o)
 		"starsea_dock":
-			return world.starsea.set_sail(c, str(o.get("route", "")))
+			return world.set_sail(c, str(o.get("route", "")))
 		"gravity_switch":
-			return world.objects.toggle_gravity(c, object_id)   # v1.2 the Orbit Ruins' jade switches
+			return world.toggle_gravity(c, object_id)   # v1.2 the Orbit Ruins' jade switches
 		"beast_trail":
 			return ok({"dialogue": game.posts.trail_dialogue(c, o)})   # S50 V10c Beast Snaring
 		"ancestral_altar":
@@ -55,7 +56,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		"chest":
 			var s: Dictionary = game.room_rt.objects.get(object_id, {})
 			s.state = "open"
-			world.room_mem(c, game.room_rt.room_id).opened[world.objects.open_key(o)] = true
+			world.room_mem(c, game.room_rt.room_id).opened[world.open_key(o)] = true
 			var chest_lv := int(o.get("level", 0))
 			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
@@ -63,7 +64,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
 		"transfer_array":
 			# Decision 42: the node learns the token, and the travel picker asks where to (array_view).
-			world.arrays.attune_array(c, object_id)
+			world.attune_array(c, object_id)
 			result.open_page = "transfer_array"
 			result.page_args = {"object": object_id}
 		"teleport_stone":
@@ -135,7 +136,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			game.inventory.apply_add(c.id, str(king.get("nest", {}).get("item", "rare_spirit_egg")), 1, "king_nest")
 			result.text = Tx.t("sim.world.nest_egg")
 		"beast_tide_drum":
-			return world.nests.start_beast_tide(c)
+			return world.start_beast_tide(c)
 		"spirit_mine":
 			return game.sect.mine_dialogue(c, str(o.get("mine", "")))
 		"rift_tear":
@@ -143,7 +144,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 		"treasure_birth":
 			return game.calendar.open_treasure(c, o)
 		"beast_trial_stone":
-			return world.nests.start_beast_trial(c)
+			return world.start_beast_trial(c)
 		"treasure_plot":
 			var tp: Dictionary = game.crafting.tend_treasure_plot(c, o)
 			result.text = str(tp.get("text", ""))
@@ -183,9 +184,9 @@ func query_context(c) -> Dictionary:
 		# M18: a chest on the ledge above never takes the button from the herb at your feet (interact would refuse it).
 		# Out of reach first: the HUD asks every frame, and whether a thing shows (its requirements) is the dear part.
 		if d > reach_of(o) or absf(st.altitude - float(o.get("alt", 0.0))) > WorldAuthority.REACH_ALT: continue
-		if not world.objects.object_visible(c, o): continue
+		if not world.object_visible(c, o): continue
 		if o.has("chase") and str(world.chases.get(c.id, {}).get("object", "")) == str(o.id): continue   # he is off over the roofs
-		var avail := world.objects.object_available(c, o)
+		var avail := world.object_available(c, o)
 		if avail.get("spent", false): continue
 		# A resource node not open to the character yet offers nothing (the prototype's QA: the Reed Shallows' herbs said
 		# "You don't know which leaves are worth picking yet" from the button in the first fight).
@@ -198,8 +199,8 @@ func query_context(c) -> Dictionary:
 	if best.is_empty():
 		for p in game.room_rt.def.get("portals", []):
 			if not context_portal(p): continue
-			if world.portals.portal_near(c, p):
-				var ps := world.portals.portal_state(c, p)
+			if world.portal_near(c, p):
+				var ps := world.portal_state(c, p)
 				if ps.get("hidden", false): continue
 				best = {"portal": str(p.id), "type": "portal", "label": Tx.t("sim.world.enter"), "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
 				break

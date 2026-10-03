@@ -1,6 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · hazards (S17) and hazard volumes (S43): a room's hazards cycle through cooldown, tell, warn and active, and
-## strike, push or pulse as their kind says, scaled by how well the answering attribute meets the room's need.
+class_name WorldHazards
+extends WorldPart
+## WorldAuthority's part: hazards (S17) and hazard volumes (S43): a room's hazards cycle through cooldown, tell, warn
+## and active, and strike, push or pulse as their kind says, scaled by how well the answering attribute meets the room's
+## need.
 
 ## Every hazard starts part-way into its cooldown, so nothing strikes on arrival.
 func init_hazards(c, rt: RoomRuntime) -> void:

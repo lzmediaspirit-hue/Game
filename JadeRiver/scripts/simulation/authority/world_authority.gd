@@ -4,25 +4,9 @@ extends Authority
 ## ground loot (rolled on actor_defeated), discovered teleport stones and the
 ## zone context. One room is loaded at a time.
 ##
-## This file keeps the room's lifecycle (loading and entering a room, the character's memory of it) and the tick. The
-## rest is in parts under world/ (docs/architecture/authority_parts.md): each is made here and its public methods are
-## forwarded at the end of this file, so every caller still asks `Game.world`. The state the parts share, and that other
-## code reads, stays here.
-
-const Ambush := preload("res://scripts/simulation/authority/world/world_ambush.gd")
-const Herbs := preload("res://scripts/simulation/authority/world/world_herbs.gd")
-const Portals := preload("res://scripts/simulation/authority/world/world_portals.gd")
-const Arrays := preload("res://scripts/simulation/authority/world/world_arrays.gd")
-const Objects := preload("res://scripts/simulation/authority/world/world_objects.gd")
-const Context := preload("res://scripts/simulation/authority/world/world_context.gd")
-const Loot := preload("res://scripts/simulation/authority/world/world_loot.gd")
-const Races := preload("res://scripts/simulation/authority/world/world_races.gd")
-const Hazards := preload("res://scripts/simulation/authority/world/world_hazards.gd")
-const Starsea := preload("res://scripts/simulation/authority/world/world_starsea.gd")
-const Events := preload("res://scripts/simulation/authority/world/world_events.gd")
-const Nests := preload("res://scripts/simulation/authority/world/world_nests.gd")
-const Tower := preload("res://scripts/simulation/authority/world/world_tower.gd")
-const Idle := preload("res://scripts/simulation/authority/world/world_idle.gd")
+## The authority keeps the state, the intents, the subscriptions, the room's lifecycle (loading and entering a room, the
+## character's memory of it) and the tick; the rest of the work is done by its parts in authority/world/, one for each
+## section (audit 45, S9: WorldPart says how a part works). Its public methods forward to them.
 
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
@@ -32,45 +16,47 @@ const REACH_ALT := 48.0   # an object answers only a body within this height of 
 ## A way to a room not built yet stays "Coming soon".
 var debug_open_ways := false
 var ambush_cd: Dictionary = {}    # actor -> seconds before the roads may spring another ambush (not saved)
+var herb_clock := 0.0             # the rare-herb check runs once a second
 var sensed_herbs: Dictionary = {} # object -> {until, ripe, seconds, dormant}: a Spirit Sense readout over the node
 var chases: Dictionary = {}       # actor -> {object, room, start}: a thief running over the roofs (not saved)
 var runs: Dictionary = {}         # actor -> {object, room, start}: a timed route under way (not saved)
 var voyages: Dictionary = {}      # actor -> {route, vessel, seconds}: a crossing under way
 var auto_hunt: Dictionary = {}    # actor -> true while the toggle is on (the session only)
 var auto_paths: Dictionary = {}   # actor -> {target, route: [{room, portal, to}]}
+var auto_check := 0.0             # auto-hunt asks whether it may go on twice a second
+var guide_cache := {}             # the direction mark's last step: {key, at, step}
 
-# The parts, in the order the file had their sections.
-var ambush: Ambush       # bandit ambushes
-var herbs: Herbs         # rare herbs and their guardians
-var portals: Portals     # portals, hidden ways, routes, teleports and Spirit Sense
-var arrays: Arrays       # the sect's transfer arrays
-var objects: Objects     # room objects: visible, available, their states, blows on them
-var context: Context     # interact and the context button
-var loot: Loot           # beast cores and loot
-var races: Races         # rooftop chases and timed routes
-var hazards: Hazards     # room hazards and hazard volumes
-var starsea: Starsea     # Starsea voyages
-var events: Events       # room events
-var nests: Nests         # Beast Kings' nests, the Beast Tide, the Beast Trial Grove
-var tower: Tower         # the Trial Tower
-var idle: Idle           # idle rooms, auto-hunt, auto-path and the direction mark
+var ambush: WorldAmbush       # bandit ambushes
+var herbs: WorldHerbs         # rare herbs and their guardians
+var portals: WorldPortals     # portals, hidden ways, routes, teleports and Spirit Sense
+var arrays: WorldArrays       # the sect's transfer arrays
+var objects: WorldObjects     # room objects: shown, open, their states, blows on them
+var context: WorldContext     # interact and the context button
+var loot: WorldLoot           # beast cores and loot
+var races: WorldRaces         # rooftop chases and timed routes
+var hazards: WorldHazards     # room hazards and hazard volumes
+var starsea: WorldStarsea     # Starsea voyages
+var events: WorldEvents       # room events
+var nests: WorldNests         # the Beast Kings' nests, the Beast Tide, the Beast Trial Grove
+var tower: WorldTower         # the Trial Tower
+var idle: WorldIdle           # idle rooms, auto-hunt, auto-path and the direction mark
 
 func _init(g) -> void:
 	super(g)
-	ambush = Ambush.new(self)
-	herbs = Herbs.new(self)
-	portals = Portals.new(self)
-	arrays = Arrays.new(self)
-	objects = Objects.new(self)
-	context = Context.new(self)
-	loot = Loot.new(self)
-	races = Races.new(self)
-	hazards = Hazards.new(self)
-	starsea = Starsea.new(self)
-	events = Events.new(self)
-	nests = Nests.new(self)
-	tower = Tower.new(self)
-	idle = Idle.new(self)
+	ambush = WorldAmbush.new(self)
+	herbs = WorldHerbs.new(self)
+	portals = WorldPortals.new(self)
+	arrays = WorldArrays.new(self)
+	objects = WorldObjects.new(self)
+	context = WorldContext.new(self)
+	loot = WorldLoot.new(self)
+	races = WorldRaces.new(self)
+	hazards = WorldHazards.new(self)
+	starsea = WorldStarsea.new(self)
+	events = WorldEvents.new(self)
+	nests = WorldNests.new(self)
+	tower = WorldTower.new(self)
+	idle = WorldIdle.new(self)
 
 func intents() -> Array:
 	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "climb_tower", "sweep_floor",
@@ -300,19 +286,22 @@ func tick(delta: float) -> void:
 	arrays.attune_arrays(c, rt, st)
 	hazards.tick_hazards(c, rt, st, delta)
 
-# ------------------------------------------------------------------ the parts' public methods
-# ambush (world/world_ambush.gd)
+# ------------------------------------------------------------------ the facade
+## Every public method, forwarded to the part that does the work. The old private names that tests and ObjectView call
+## by keep their own forwarders at the end (audit 45 S11 gives those public names).
+
+# Bandit ambushes (world_ambush.gd)
 func ambush_chance(c, amb: Dictionary) -> float: return ambush.ambush_chance(c, amb)
 func spring_ambush(c, amb: Dictionary) -> void: ambush.spring_ambush(c, amb)
 
-# herbs (world/world_herbs.gd)
+# Rare herbs (world_herbs.gd)
 func herb_state(o: Dictionary) -> Dictionary: return herbs.herb_state(o)
 func wake_guardian(c, o: Dictionary, window: int) -> EnemyState: return herbs.wake_guardian(c, o, window)
 func herb_guard_text(c, o: Dictionary) -> String: return herbs.herb_guard_text(c, o)
 
-# portals (world/world_portals.gd)
+# Portals, routes, teleports and Spirit Sense (world_portals.gd)
 func portal_near(c, portal: Dictionary) -> bool: return portals.portal_near(c, portal)
-static func seen_flag(room_id: String, portal_id: String) -> String: return Portals.seen_flag(room_id, portal_id)
+static func seen_flag(room_id: String, portal_id: String) -> String: return WorldPortals.seen_flag(room_id, portal_id)
 func prototype_gate(c, from_room: String, to_room: String) -> bool: return portals.prototype_gate(c, from_room, to_room)
 func portal_state(c, portal: Dictionary) -> Dictionary: return portals.portal_state(c, portal)
 func portal_open(c, room_id: String, p: Dictionary) -> bool: return portals.portal_open(c, room_id, p)
@@ -324,17 +313,17 @@ func teleport_fee(stone_id: String, c = null) -> int: return portals.teleport_fe
 func teleport(c, stone_id: String) -> Dictionary: return portals.teleport(c, stone_id)
 func sense_pulse(c) -> Dictionary: return portals.sense_pulse(c)
 
-# arrays (world/world_arrays.gd)
-static func array_flag(node_id: String) -> String: return Arrays.array_flag(node_id)
+# Transfer arrays (world_arrays.gd)
+static func array_flag(node_id: String) -> String: return WorldArrays.array_flag(node_id)
 func array_attuned(c, node_id: String) -> bool: return arrays.array_attuned(c, node_id)
-static func array_mine(c, node: Dictionary) -> bool: return Arrays.array_mine(c, node)
+static func array_mine(c, node: Dictionary) -> bool: return WorldArrays.array_mine(c, node)
 func array_open(c, from_room: String, from_id: String, to_id: String) -> bool: return arrays.array_open(c, from_room, from_id, to_id)
 func attune_array(c, node_id: String) -> void: arrays.attune_array(c, node_id)
 func array_destinations(c, node_id: String) -> Array: return arrays.array_destinations(c, node_id)
 func array_view(c, node_id: String) -> Dictionary: return arrays.array_view(c, node_id)
 func array_travel(c, from_id: String, to_id: String) -> Dictionary: return arrays.array_travel(c, from_id, to_id)
 
-# objects (world/world_objects.gd)
+# Room objects (world_objects.gd)
 func apply_node_depleted(c, object_id: String, regrow_s: float) -> void: objects.apply_node_depleted(c, object_id, regrow_s)
 func object_visible(c, o: Dictionary) -> bool: return objects.object_visible(c, o)
 func in_spar(npc: String) -> bool: return objects.in_spar(npc)
@@ -345,27 +334,27 @@ func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:
 func apply_object_hit(actor_id: String, o: Dictionary) -> void: objects.apply_object_hit(actor_id, o)
 func toggle_gravity(c, object_id: String) -> Dictionary: return objects.toggle_gravity(c, object_id)
 
-# context (world/world_context.gd)
+# Interact and the context button (world_context.gd)
 func interact(c, object_id: String, pick := false) -> Dictionary: return context.interact(c, object_id, pick)
 func reach_of(o: Dictionary) -> float: return context.reach_of(o)
 func query_context(c) -> Dictionary: return context.query_context(c)
-static func resource_node(o: Dictionary) -> bool: return Context.resource_node(o)
-static func offers_context(o: Dictionary) -> bool: return Context.offers_context(o)
-static func context_rank(o: Dictionary, calls := false) -> float: return Context.context_rank(o, calls)
-static func context_portal(p: Dictionary) -> bool: return Context.context_portal(p)
+static func resource_node(o: Dictionary) -> bool: return WorldContext.resource_node(o)
+static func offers_context(o: Dictionary) -> bool: return WorldContext.offers_context(o)
+static func context_rank(o: Dictionary, calls := false) -> float: return WorldContext.context_rank(o, calls)
+static func context_portal(p: Dictionary) -> bool: return WorldContext.context_portal(p)
 
-# loot (world/world_loot.gd)
-static func beast_rank(def: Dictionary, level: int) -> int: return Loot.beast_rank(def, level)
-static func beast_core_for(def: Dictionary, level: int) -> String: return Loot.beast_core_for(def, level)
-static func core_chance(def: Dictionary, level: int) -> float: return Loot.core_chance(def, level)
-static func zone_shard(room_id: String) -> String: return Loot.zone_shard(room_id)
+# Beast cores and loot (world_loot.gd)
+static func beast_rank(def: Dictionary, level: int) -> int: return WorldLoot.beast_rank(def, level)
+static func beast_core_for(def: Dictionary, level: int) -> String: return WorldLoot.beast_core_for(def, level)
+static func core_chance(def: Dictionary, level: int) -> float: return WorldLoot.core_chance(def, level)
+static func zone_shard(room_id: String) -> String: return WorldLoot.zone_shard(room_id)
 func pick_up(c, uid: int) -> Dictionary: return loot.pick_up(c, uid)
 ## A drop another authority leaves in the room (Enemies: a boss that fled). `source` names it for the loot fountain.
 func apply_loot_drop(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
 
-# races (world/world_races.gd)
-static func chase_point(route: Array, speed: float, t: float) -> Dictionary: return Races.chase_point(route, speed, t)
-static func chase_length(route: Array, speed: float) -> float: return Races.chase_length(route, speed)
+# Rooftop chases and timed routes (world_races.gd)
+static func chase_point(route: Array, speed: float, t: float) -> Dictionary: return WorldRaces.chase_point(route, speed, t)
+static func chase_length(route: Array, speed: float) -> float: return WorldRaces.chase_length(route, speed)
 func chase_done_today(c, object_id: String) -> bool: return races.chase_done_today(c, object_id)
 func chase_view(c) -> Dictionary: return races.chase_view(c)
 func start_chase(c, o: Dictionary) -> Dictionary: return races.start_chase(c, o)
@@ -375,21 +364,21 @@ func route_record(c, route_id: String) -> Dictionary: return races.route_record(
 func route_rank(route: Dictionary, week: int, seconds: float) -> int: return races.route_rank(route, week, seconds)
 func finish_route(c, route: Dictionary, seconds: float) -> Dictionary: return races.finish_route(c, route, seconds)
 
-# hazards (world/world_hazards.gd)
+# Hazards (world_hazards.gd)
 func hazard_drift(actor_id: String) -> Vector2: return hazards.hazard_drift(actor_id)
 func debug_hazard_phase(phase: String, k: float) -> void: hazards.debug_hazard_phase(phase, k)
 
-# starsea (world/world_starsea.gd)
+# Starsea voyages (world_starsea.gd)
 func best_vessel(c) -> String: return starsea.best_vessel(c)
 func set_sail(c, route_id: String) -> Dictionary: return starsea.set_sail(c, route_id)
 func apply_voyage_arrive(actor_id: String) -> void: starsea.apply_voyage_arrive(actor_id)
 
-# events (world/world_events.gd)
+# Room events (world_events.gd)
 func start_room_event(c, ev: Dictionary) -> void: events.start_room_event(c, ev)
 func apply_rift_reward(actor_id: String, loot_table: String, level: int) -> void: events.apply_rift_reward(actor_id, loot_table, level)
 func event_level(c, w: Dictionary) -> int: return events.event_level(c, w)
 
-# nests (world/world_nests.gd)
+# Nests, the Beast Tide and the Grove (world_nests.gd)
 func nest_closes(king: String) -> float: return nests.nest_closes(king)
 func tide_cfg() -> Dictionary: return nests.tide_cfg()
 func tide_due(c) -> bool: return nests.tide_due(c)
@@ -399,7 +388,7 @@ func start_beast_trial(c) -> Dictionary: return nests.start_beast_trial(c)
 func apply_trial_result(actor_id: String, won: bool) -> void: nests.apply_trial_result(actor_id, won)
 func apply_tide_result(actor_id: String, won: bool) -> void: nests.apply_tide_result(actor_id, won)
 
-# tower (world/world_tower.gd)
+# The Trial Tower (world_tower.gd)
 func tower_floor(f: int) -> Dictionary: return tower.tower_floor(f)
 func tower_cleared(c) -> int: return tower.tower_cleared(c)
 func tower_swept_today(c, f: int) -> bool: return tower.tower_swept_today(c, f)
@@ -407,7 +396,7 @@ func climb_tower(c, f: int) -> Dictionary: return tower.climb_tower(c, f)
 func apply_tower_clear(actor_id: String, f: int) -> void: tower.apply_tower_clear(actor_id, f)
 func sweep_tower(c, f := -1) -> Dictionary: return tower.sweep_tower(c, f)
 
-# idle (world/world_idle.gd)
+# Idle rooms, auto-hunt, auto-path and the direction mark (world_idle.gd)
 func idle_allowed(room_id: String, kind: String) -> bool: return idle.idle_allowed(room_id, kind)
 func auto_hunt_block(c) -> String: return idle.auto_hunt_block(c)
 func auto_hunting(actor_id: String) -> bool: return idle.auto_hunting(actor_id)
@@ -417,7 +406,7 @@ func auto_path_step(c) -> Dictionary: return idle.auto_path_step(c)
 func auto_path_arrive(c) -> void: idle.auto_path_arrive(c)
 func guide_step(c) -> Dictionary: return idle.guide_step(c)
 func guide_target(c) -> String: return idle.guide_target(c)
-static func place_name(room_id: String) -> String: return Idle.place_name(room_id)
+static func place_name(room_id: String) -> String: return WorldIdle.place_name(room_id)
 func auto_path_target(c) -> String: return idle.auto_path_target(c)
 func auto_path_board(c, dock_id: String) -> Dictionary: return idle.auto_path_board(c, dock_id)
 
@@ -429,7 +418,7 @@ func _verb(o: Dictionary) -> String: return context.verb(o)
 func _on_actor_defeated(p: Dictionary) -> void: loot.on_actor_defeated(p)
 func _starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void: loot.starter_drop(c, table, level, drop)
 func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
-static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return Loot.loot_spot(rt, at, alt, spread, jitter)
+static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, alt, spread, jitter)
 func _tick_chase(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_chase(c, rt, st)
 func _tick_run(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_run(c, rt, st)
 func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void: hazards.hazard_enter(c, rt, st, h, hs, rng, calm)

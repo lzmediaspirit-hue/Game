@@ -1,6 +1,7 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · room events (survival, S27 night): a timed event in the loaded room (set pieces, sect defence, trials, the
-## lantern defence) with its waves and timed spawns, won or lost, and the way on after it.
+class_name WorldEvents
+extends WorldPart
+## WorldAuthority's part: room events (survival, S27 night): a timed event in the loaded room (set pieces, sect defence,
+## trials, the lantern defence) with its waves and timed spawns, won or lost, and the way on after it.
 
 ## Room events remember every blow the player takes: a flawless Heaven's Cleansing burns off residue (G1).
 func on_hit_during_event(p: Dictionary) -> void:

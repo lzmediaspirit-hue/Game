@@ -1,7 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · room objects: whether one shows to a character and is open to it, the states they keep (opened, broken,
-## depleted and regrowing), blows on jars and training posts, jade gravity switches, shrines attuned in passing and the
-## first Spirit Fruit's announcement.
+class_name WorldObjects
+extends WorldPart
+## WorldAuthority's part: room objects: whether one shows to a character and is open to it, the states they keep
+## (opened, broken, depleted and regrowing), blows on jars and training posts, jade gravity switches, shrines attuned in
+## passing and the first Spirit Fruit's announcement.
 
 ## S45 treasure births (on the S49 calendar): World announces the fruit ripening in its room.
 func on_world_event_started(p: Dictionary) -> void:
@@ -62,9 +63,9 @@ func object_visible(c, o: Dictionary) -> bool:
 	if o.has("visible_if") and not RequirementRules.passes(o.visible_if, game.ctx(c)): return false
 	if str(o.get("type", "")) == "npc" and in_spar(str(o.get("npc", ""))): return false
 	if o.has("hidden_if") and RequirementRules.passes(o.hidden_if, game.ctx(c)): return false
-	if str(o.get("type", "")) == "egg_nest" and world.nests.nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
+	if str(o.get("type", "")) == "egg_nest" and world.nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
 	# S43 rule 15: a rooftop thief is on his street until you have chased him today (caught or not).
-	if o.has("chase") and c != null and world.races.chase_done_today(c, str(o.id)) and str(world.chases.get(c.id, {}).get("object", "")) != str(o.id): return false
+	if o.has("chase") and c != null and world.chase_done_today(c, str(o.id)) and str(world.chases.get(c.id, {}).get("object", "")) != str(o.id): return false
 	return true
 
 ## A person fighting a spar (QuestAuthority.start_spar): their partner figure is them while the spar lasts; at its end
@@ -103,8 +104,8 @@ func object_available(c, o: Dictionary) -> Dictionary:
 	if o.type == "egg_nest" and c.quests.has_flag(world.nests.nest_flag(str(o.get("king", "")))): return {"ok": false, "text": Tx.t("sim.world.nest_taken")}
 	if o.type == "beast_trial_stone" and int(c.cooldowns.get("grove_day", -1)) == Clock.reset_day(Clock.now_utc()):
 		return {"ok": false, "text": Tx.t("sim.world.grove_done")}
-	if o.type == "beast_tide_drum" and not world.nests.tide_due(c):
-		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, world.nests.tide_days_left(c)) * 86400.0)}
+	if o.type == "beast_tide_drum" and not world.tide_due(c):
+		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, world.tide_days_left(c)) * 86400.0)}
 	return {"ok": true, "text": ""}
 
 func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:

@@ -1,8 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · rare herbs (S45): a rare node ripens on its clock and in its season, says so once, and wakes its guardian as
-## you climb toward it. Spirit Sense and an animal's Herb Whisper leave their readouts in the authority's `sensed_herbs`.
-
-var herb_clock := 0.0             # the rare-herb check runs once a second
+class_name WorldHerbs
+extends WorldPart
+## WorldAuthority's part: rare herbs (S45): a rare node ripens on its clock and in its season, says so once, and wakes
+## its guardian as you climb toward it. Spirit Sense and an animal's Herb Whisper leave their readouts in the
+## authority's `sensed_herbs`.
 
 ## A rare node's state now: {ripe, seconds, window, dormant}.
 func herb_state(o: Dictionary) -> Dictionary:
@@ -13,9 +13,9 @@ func herb_state(o: Dictionary) -> Dictionary:
 
 ## Once a second: a rare node that has just ripened says so, and its guardian wakes when you climb toward it.
 func tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
-	herb_clock -= delta
-	if herb_clock > 0.0: return
-	herb_clock = 1.0
+	world.herb_clock -= delta
+	if world.herb_clock > 0.0: return
+	world.herb_clock = 1.0
 	var st: ActorState = game.actor_state(c.id)
 	var whisper: float = game.pets.whisper_range(c)   # S46 Herb Whisper: an animal beside you reads the herbs near you
 	for o in rt.def.get("objects", []):

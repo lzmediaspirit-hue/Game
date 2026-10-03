@@ -1,5 +1,6 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · the Beast Kings' nests, the Beast Tide and the Beast Trial Grove (S46).
+class_name WorldNests
+extends WorldPart
+## WorldAuthority's part: the Beast Kings' nests, the Beast Tide and the Beast Trial Grove (S46).
 
 ## When a fallen King's nest closes again (0 when it is closed).
 func nest_closes(king: String) -> float:

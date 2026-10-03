@@ -1,6 +1,7 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · beast ranks and cores (S46) and loot (S32): the roll on a kill, starter gear, the drops on the ground and
-## picking them up.
+class_name WorldLoot
+extends WorldPart
+## WorldAuthority's part: beast ranks and cores (S46) and loot (S32): the roll on a kill, starter gear, the drops on the
+## ground and picking them up.
 
 const PICKUP_RADIUS := 48.0
 const ATTUNEMENT_SHARDS := ["storm_shard", "star_shard"]
@@ -210,8 +211,8 @@ func collect(c, l: Dictionary) -> Dictionary:
 		emit("loot_picked", {"actor": c.id, "uid": l.uid, "item": l.item})
 	return ok()
 
-## Each tick: a drop the character stands at is picked up, and one left past its time is gone (a quest item or a piece of
-## Fine quality and up goes to the overflow instead).
+## Each tick: a drop the character stands at is picked up, and one left past its time is gone (a quest item or a
+## piece of Fine quality and up goes to the overflow instead).
 func tick_loot(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
 	# The pickup's reach in height: the side view's 60 up and down; on the height grid half a level, so a drop on the
 	# terrace is not drawn in from the square below its face.

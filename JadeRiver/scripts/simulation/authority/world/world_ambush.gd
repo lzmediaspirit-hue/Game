@@ -1,6 +1,7 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · bandit ambushes (S48 hidden cultivation): a road room with an `ambush` may spring one as you come in.
-## The rest between two is the authority's `ambush_cd`.
+class_name WorldAmbush
+extends WorldPart
+## WorldAuthority's part: bandit ambushes (S48 hidden cultivation): a road room with an `ambush` may spring one as you
+## come in. The rest between two is the authority's `ambush_cd`.
 
 ## The chance that a road's ambush springs on this entry. Bandits judge the realm you show, not the one you hold:
 ## past their reach they leave you be, and a false realm (Concealment) looks like easy prey and doubles the odds.

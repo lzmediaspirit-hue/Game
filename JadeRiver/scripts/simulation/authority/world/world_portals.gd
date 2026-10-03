@@ -1,7 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · the ways out of a room: portals and hidden ways (Spirit Sense, the Wandering Eye), which of them are open and
-## the shortest route through them, the prototype's gate (decision 41), teleport stones and the shrine a fall wakes
-## you at. Every way ends in the authority's load_room.
+class_name WorldPortals
+extends WorldPart
+## WorldAuthority's part: the ways out of a room: portals and hidden ways (Spirit Sense, the Wandering Eye), which of
+## them are open and the shortest route through them, the prototype's gate (decision 41), teleport stones and the shrine
+## a fall wakes you at. Every way ends in the authority's load_room.
 
 const PORTAL_RADIUS := Vector2(64, 44)
 
@@ -61,7 +62,7 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 ## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
-	if p.has("array"): return world.arrays.array_open(c, room_id, str(p.id), str(p.array))   # decision 42: a transfer array's link
+	if p.has("array"): return world.array_open(c, room_id, str(p.id), str(p.array))   # decision 42: a transfer array's link
 	if prototype_gate(c, room_id, str(p.get("to", ""))): return false   # decision 41: no route, mark or hop past the gate
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
 	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
@@ -194,7 +195,7 @@ func sense_pulse(c) -> Dictionary:
 			if o.type != "herb_patch" or not o.has("ripen"): continue
 			var at2: Array = o.get("at", [0, 0])
 			if here.distance_to(Vector2(float(at2[0]), float(at2[1]))) > radius: continue
-			var hs := world.herbs.herb_state(o)
+			var hs := world.herb_state(o)
 			world.sensed_herbs[str(o.id)] = {"until": game.sim_time + 8.0, "utc": Clock.now_utc(), "ripe": hs.ripe, "seconds": float(hs.seconds), "dormant": hs.dormant,
 				"season": str(o.get("season", "")), "spent": game.room_rt.objects.get(str(o.id), {}).get("state", "ready") == "depleted"}
 			herbs += 1

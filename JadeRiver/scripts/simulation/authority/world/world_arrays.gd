@@ -1,10 +1,12 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · the sect's transfer arrays (decision 42). A sect keeps transfer arrays at its key places (the gate's plaza by
-## the steward, the mentor's peak) and one at the Marsh Edge's watch post that both sects keep. A disciple's token opens
-## them once the Weapon Hall is done (the unlock `transfer_array`, taught at the gate as Strange Tracks begins). A node
-## answers the token once it knows it: stood on or tapped (the lesson keys the gate's and the watch post's, the mentor
-## his peak's). Tapped, it asks where to among the nodes the token knows; a route (the tracker, auto-path) takes one as
-## a way (WorldRules.ways_out). Free: the sect's own; the teleport stones' shards are for the world beyond.
+class_name WorldArrays
+extends WorldPart
+## WorldAuthority's part: the sect's transfer arrays (decision 42). A sect keeps transfer arrays at its key places (the
+## gate's plaza by the steward, the mentor's peak) and one at the Marsh Edge's watch post that both sects keep. A
+## disciple's token opens them once the Weapon Hall is done (the unlock `transfer_array`, taught at the gate as Strange
+## Tracks begins). A node answers the token once it knows it: stood on or tapped (the lesson keys the gate's and the
+## watch post's, the mentor his peak's). Tapped, it asks where to among the nodes the token knows; a route (the tracker,
+## auto-path) takes one as a way (WorldRules.ways_out). Free: the sect's own; the teleport stones' shards are for the
+## world beyond.
 
 const ARRAY_ATTUNE_R := 96.0
 
@@ -28,7 +30,7 @@ func array_open(c, from_room: String, from_id: String, to_id: String) -> bool:
 	var b: Dictionary = nodes.get(to_id, {})
 	if a.is_empty() or b.is_empty() or not array_mine(c, a) or not array_mine(c, b): return false
 	if not array_attuned(c, from_id) or not array_attuned(c, to_id): return false
-	return not world.portals.prototype_gate(c, from_room, str(b.room))
+	return not world.prototype_gate(c, from_room, str(b.room))
 
 func attune_array(c, node_id: String) -> void:
 	if c == null or array_attuned(c, node_id) or not Unlocks.is_unlocked(c.id, "transfer_array"): return
@@ -73,12 +75,12 @@ func array_travel(c, from_id: String, to_id: String) -> Dictionary:
 	if o.is_empty() or str(o.get("type", "")) != "transfer_array": return fail("unknown_object")
 	var st: ActorState = game.actor_state(c.id)
 	var at: Array = o.get("at", [0, 0])
-	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > world.context.reach_of(o) + 20.0: return fail("too_far")
+	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > world.reach_of(o) + 20.0: return fail("too_far")
 	if game.combat.is_wounded(c.id): return fail("wounded")
 	attune_array(c, from_id)
 	if not array_open(c, game.room_rt.room_id, from_id, to_id):
 		var node: Dictionary = WorldRules.array_nodes().get(to_id, {})
-		var gate: bool = not node.is_empty() and world.portals.prototype_gate(c, game.room_rt.room_id, str(node.room))
+		var gate: bool = not node.is_empty() and world.prototype_gate(c, game.room_rt.room_id, str(node.room))
 		return fail("sealed", {"text": Tx.t("sim.world.road_being_drawn") if gate else Tx.t("sim.world.array_unknown")})
 	var to: Dictionary = WorldRules.array_nodes()[to_id]
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")

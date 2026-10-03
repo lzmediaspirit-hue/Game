@@ -1,6 +1,7 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · Starsea voyages (S18): board at a dock, cross in the crossing's own room and make port at the far end. The
-## crossings under way are the authority's `voyages`.
+class_name WorldStarsea
+extends WorldPart
+## WorldAuthority's part: Starsea voyages (S18): board at a dock, cross in the crossing's own room and make port at the
+## far end. The crossings under way are the authority's `voyages`.
 
 ## The best vessel the character owns: the one that crosses fastest.
 func best_vessel(c) -> String:

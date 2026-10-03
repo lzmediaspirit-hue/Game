@@ -1,23 +1,26 @@
+class_name WorldPart
 extends RefCounted
-## One part of the World authority (docs/architecture/authority_parts.md): a section of its rules in a file of its own.
-## WorldAuthority makes its parts as it is made and forwards its public methods to them, so every caller still asks
-## `Game.world`. The state other code reads stays on the authority (`world.chases`, `world.voyages` ...); a part keeps
-## only its own timers and caches. A part calls a sibling through the authority (`world.loot.drop_loot`).
+## Base of WorldAuthority's parts (audit 45, S9). A part holds one section of the authority's work and no state of its
+## own: the authority makes one of each, keeps the state and forwards its public methods to them, so every caller still
+## calls Game.world.<method>. In a part:
+##   - the authority's state and its public methods are reached through `world`, as any caller would
+##     (world.chases, world.load_room);
+##   - a helper that another part keeps to itself is called on that part (world.loot.drop_loot);
+##   - emit, ok and fail work as they do in an authority.
 
-var game   # the Game autoload (GameAuthority facade)
-var _world: WeakRef
+var _authority: WeakRef   # weak: the authority holds its parts, and Game builds new authorities on every boot
+var game   # the Game autoload, as Authority.game
 
-## The authority this part belongs to. Held weakly: the authority holds its parts, and a strong hold both ways would keep
-## every authority GameAuthority.build_authorities replaces alive.
+## The authority this part belongs to.
 var world: WorldAuthority:
-	get: return _world.get_ref()
+	get: return _authority.get_ref()
 
 func _init(authority: WorldAuthority) -> void:
-	_world = weakref(authority)
+	_authority = weakref(authority)
 	game = authority.game
 
 func emit(name: String, payload: Dictionary) -> void:
-	GameEvents.emit_event(name, payload)
+	world.emit(name, payload)
 
 static func ok(extra: Dictionary = {}) -> Dictionary:
 	return Authority.ok(extra)

@@ -1,7 +1,8 @@
-extends "res://scripts/simulation/authority/world/world_part.gd"
-## World · rooftop chases and timed routes (S43 rule 15): a thief to catch over the roofs before he is over the far
-## wall, and a route (the Cloud Steps) to run against the clock and the week's rivals. The runs under way are the
-## authority's `chases` and `runs`.
+class_name WorldRaces
+extends WorldPart
+## WorldAuthority's part: rooftop chases and timed routes (S43 rule 15): a thief to catch over the roofs before he is
+## over the far wall, and a route (the Cloud Steps) to run against the clock and the week's rivals. The runs under way
+## are the authority's `chases` and `runs`.
 
 ## Where a rooftop thief is `t` seconds into his run: {x, y, alt, moving, done, facing}. His route is waypoints
 ## [x, y, alt, wait_s]: he waits at each, then runs to the next at `speed` along the plane (a climb counts half its
