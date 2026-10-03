@@ -1,0 +1,374 @@
+{
+ "schema_version": 1,
+ "id": "ae_shipyard",
+ "name": "Shipwrights' Yard",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  53,
+  14
+ ],
+ "levels": [
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "11555555511115555555555555511111115555555555555510005555",
+  "11155551111111111111111111111111111111555555555111111155",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111000111111000001111111111000011111111111111",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggrrrrrrrggggrrrrrrrrrrrrrrgggggggrrrrrrrrrrrrrrgppprrrr",
+  "gggrrrrgggggggggggggggggggggggggggggggrrrrrrrrrgggggggrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggpppggggggpppppggggggggggppppgggggggggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "pppwwwwwwppppprrrwwwwwwwwwwwrrrrrrppprrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrssssssssssssssssrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrwwwwwwrrrrrrrrwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "post",
+   "x": 2,
+   "y": 26
+  },
+  {
+   "kind": "post",
+   "x": 9,
+   "y": 26
+  },
+  {
+   "kind": "sky_ship",
+   "x": 17,
+   "y": 27
+  },
+  {
+   "kind": "woodpile",
+   "x": 29,
+   "y": 17
+  },
+  {
+   "kind": "woodpile",
+   "x": 29,
+   "y": 19
+  },
+  {
+   "kind": "crates",
+   "x": 14,
+   "y": 17
+  },
+  {
+   "kind": "sacks",
+   "x": 14,
+   "y": 18
+  },
+  {
+   "kind": "armillary",
+   "x": 43,
+   "y": 18
+  },
+  {
+   "kind": "lantern",
+   "x": 35,
+   "y": 17
+  },
+  {
+   "kind": "lantern",
+   "x": 50,
+   "y": 17
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 10,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 30,
+   "y": 12
+  },
+  {
+   "kind": "crates",
+   "x": 46,
+   "y": 11
+  },
+  {
+   "kind": "bush",
+   "x": 4,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 7,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 11,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 20,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 23,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 29,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 37,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 45,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 55,
+   "y": 5
+  },
+  {
+   "kind": "tree_plum",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 4
+  },
+  {
+   "kind": "tree_plum",
+   "x": 26,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 48,
+   "y": 4
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 52,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 41,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 30,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 0,
+   "y": 23
+  },
+  {
+   "kind": "tree_pine",
+   "x": 9,
+   "y": 18
+  },
+  {
+   "kind": "tree_pine",
+   "x": 12,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 15,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 22
+  },
+  {
+   "kind": "tree_pine",
+   "x": 38,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 41,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 47,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 54,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 0,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 12,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 44,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 50,
+   "y": 27
+  }
+ ],
+ "place": {
+  "dock_cloudgate": [
+   5,
+   24
+  ],
+  "slip_cloudgate": [
+   22,
+   15
+  ],
+  "npc_shipwright_lao": [
+   26,
+   21
+  ],
+  "npc_navigator_sun": [
+   33,
+   16
+  ],
+  "chart_table_cloudgate": [
+   38,
+   22
+  ],
+  "sight_cloudgate": [
+   48,
+   21
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    55,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 104
+  }
+ ]
+}

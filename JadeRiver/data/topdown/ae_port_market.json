@@ -1,0 +1,544 @@
+{
+ "schema_version": 1,
+ "id": "ae_port_market",
+ "name": "Port Market",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "115555555000005555555555111555555555551000055555555555555555555551111000",
+  "111155511111111111155511111115555511111111115551111115555555551111333333",
+  "000000011111110000011111111111111111111000000000011111111111111100333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000333333",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggrrrrrrrppppprrrrrrrrrrgggrrrrrrrrrrrgpppprrrrrrrrrrrrrrrrrrrrrrggggppp",
+  "ggggrrrggggggggggggrrrgggggggrrrrrggggggggggrrrggggggrrrrrrrrrggggllllll",
+  "pppppppgggggggpppppggggggggggggggggggggppppppppppgggggggggggggggppllllll",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppllllll",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppllllll",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppllllll",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppllllll",
+  "ppppppppppppppppppppppppppssppppppppppppppppppppppppppppppppppppppllllll",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppllllll",
+  "ppppppppppgggggggggpppppppppppppppppppppppppppgggggggggpppppppppppllllll",
+  "pppppppppgggggggggggpppppppppppppppppppppppppgggggggggggppppppppppllllll",
+  "ppppppppgggggggggggggppppppppppppppppppppppppgggggggggggppppppppppllllll",
+  "pppppppppggggggggggggppppppppppppppppppppppppgggggggggggppppppppppllllll",
+  "ppppppppppppggggggggppppppppppppppppppppppppppgggggggggppppppwwwwwwlllll",
+  "pgggggggggggpppppppppppgggggppppppgggppppppppppppppppppppppppwwwwwwppppp",
+  "ggggggggggggggpppppppgggggggggggggggggggggggppppppppgggggggggwwwwwwpgggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggwwwwwwggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 9,
+   "y": 7,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 24,
+   "y": 7,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 43,
+   "y": 7,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 54,
+   "y": 7,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 59,
+   "y": 7,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "market_stall",
+   "x": 17,
+   "y": 9
+  },
+  {
+   "kind": "market_stall",
+   "x": 39,
+   "y": 9
+  },
+  {
+   "kind": "market_stall",
+   "x": 50,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 5,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 64,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 64,
+   "y": 15
+  },
+  {
+   "kind": "lantern_red",
+   "x": 14,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 49,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 31,
+   "y": 15
+  },
+  {
+   "kind": "lantern_red",
+   "x": 41,
+   "y": 15
+  },
+  {
+   "kind": "sacks",
+   "x": 58,
+   "y": 10
+  },
+  {
+   "kind": "barrel",
+   "x": 63,
+   "y": 10
+  },
+  {
+   "kind": "crates",
+   "x": 53,
+   "y": 10
+  },
+  {
+   "kind": "sky_ship",
+   "x": 57,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 17,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 21,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 29,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 39,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 49,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 54,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 60,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 63,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 5,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 25,
+   "y": 4
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 36,
+   "y": 3
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 42,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 46,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 57,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 66,
+   "y": 3
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 10,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 16,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 13,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 18
+  },
+  {
+   "kind": "bush",
+   "x": 53,
+   "y": 18
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 1,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 5,
+   "y": 22
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 10,
+   "y": 23
+  },
+  {
+   "kind": "tree_plum",
+   "x": 14,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 17,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 21,
+   "y": 23
+  },
+  {
+   "kind": "tree_pine",
+   "x": 25,
+   "y": 23
+  },
+  {
+   "kind": "bush",
+   "x": 29,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 33,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 37,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 40,
+   "y": 23
+  },
+  {
+   "kind": "tree_pine",
+   "x": 45,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 48,
+   "y": 24
+  },
+  {
+   "kind": "tree_plum",
+   "x": 55,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 58,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 70,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 0,
+   "y": 26
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 3,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 10,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 13,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 20,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 26,
+   "y": 26
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 33,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 40,
+   "y": 26
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 49,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 54,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 67,
+   "y": 26
+  }
+ ],
+ "place": {
+  "npc_factor_ruan": [
+   13,
+   10
+  ],
+  "board_ae": [
+   15,
+   8
+  ],
+  "storage_ae": [
+   22,
+   8
+  ],
+  "npc_peddler_gou": [
+   18,
+   8
+  ],
+  "stone_cloudgate": [
+   35,
+   18
+  ],
+  "exchange_ae": [
+   37,
+   8
+  ],
+  "npc_smith_hong": [
+   40,
+   8
+  ],
+  "npc_apothecary_wu": [
+   51,
+   8
+  ],
+  "npc_sky_sailor_pei": [
+   64,
+   20
+  ],
+  "sign_ae_market": [
+   62,
+   10
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    13
+   ],
+   "span": 3
+  },
+  "inn_door": {
+   "at": [
+    26.5,
+    10
+   ],
+   "dir": "n",
+   "arrive": [
+    26.5,
+    10.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 104
+  }
+ ]
+}

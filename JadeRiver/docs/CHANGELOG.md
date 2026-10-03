@@ -50,6 +50,127 @@ T1 built the grid's traversal and listed what was left (`docs/architecture/topdo
   - The doc keeps the inventory and the ordered to-do of what is left: the Cloudwing Cranes' sheets, the mounts' art,
     the Lower Pit's cracked slab, Act II's items and presentation.
 
+## The quest engine: a side quest is one spec (decision 45, E5)
+
+A side quest used to be a `quest(...)` call in `story.py`, with its target room, the realm it opens at and its pay each
+chosen by hand. The daily mission board was a hand table in `economy.py`. The quest engine (`tools/content/quests/`,
+`docs/architecture/quest_engine.md`) makes a side quest one `side(...)` spec and a daily job one `job(...)`. It
+derives where a quest leads, when it opens and what it pays, and writes the rows the game has always read.
+
+- **The spec.** A side quest names:
+  - its giver, an NPC engine id;
+  - its steps, from seven templates (`clear`, `fetch`, `deliver`, `gather`, `talk`, `spar` and `escort`, with `reach`
+    and `step` for the rest);
+  - its words.
+
+  The engine derives:
+  - the target room, from where the target is: where a foe spawns most, where what it drops or a node yields is, or
+    where a person lives;
+  - the realm it opens at, from the middle of that room's band of Levels;
+  - its pay, from the band table at its tier.
+
+  Every derived value can be pinned in the spec.
+- **The band table** (`bands.py`): decision 45's fixed amounts as one rule.
+  - A band is a run of Levels with one need, so its cultivation is one number. It is phase 1's own, the number
+    `quest_tiers` pays at every tier of the band.
+  - Its money: taels in Act I, spirit stones in Act II, sage crystals in Act III. Each sum was set from the middle of
+    the hand quests in the band.
+- **The round trip: byte for byte.** The data came out unchanged for:
+  - the 53 side quests of the side sections (the valley's 21, the companions' 12 favours from one template, the Hidden
+    Vale's 3, Act II's 8, the Starsea's 6, Act III's 3, each placed in its chapter);
+  - the daily board's 6 templates and 19 jobs.
+
+  `story.py` lost 281 lines (20 added) and `economy.py` 30 (4 added); the row layout and its parts have their one home
+  in the engine. The prologue, the main story and the guided lessons stay hand-written.
+- **Where the hand quests pay otherwise.** 35 quests pin their sum and 7 pay no money, so nothing changed. The doc lists
+  them by band, and 14 quests whose rooms lie far from their tier (the companions' favours, the Grey Pools, some of
+  Act II's). Some may be balance bugs worth a later look; none is fixed here.
+- **Four new side quests** for converted Act I rooms that had none, each from a person of the NPC engine who had no
+  quest. Each is one spec of five to seven lines, with no room, realm or sum written:
+  - Apprentice Tao's Claws for the Grindstone (the Lower Pit);
+  - Rui's Pelted at the Fair (Whispering Bamboo);
+  - Vendor He's Scales for the Lanterns (Bend Shore);
+  - Fisher Gan's The Weir at the Rapids (the Rapids Terraces), once the hamlet is home again.
+- **Tests.**
+  - A new gate, `quest_engine` (`tools/content/quests/engine.py --check`), in both runners. It checks the specs,
+    determinism, the built data (each quest's pay settled at its tier, its cultivation phase 1's) and the bands, and
+    runs 9 tests of its own.
+  - `balance_sim` shows what each band's side quests pay an hour of their detour against the session's hour. Two new
+    checks hold it for Act I. The new quests leave every band within range (Qi Kindling 0.60 times the hour in
+    cultivation, 0.76 in taels), and every pacing row within ±15%.
+  - A new suite, `topdown_side_quests` (20 checks), plays Claws for the Grindstone on the grid:
+    - offered at the derived realm and not before;
+    - led to the Lower Pit by Stoneford Gate and the quarry road;
+    - the moles fought for their claws;
+    - handed in for the band's +310 cultivation and 90 taels.
+- **Checks.** The full run after merging R7 passes every gate (`quest_engine` among them; grid parity on 108 layouts)
+  and all 29 suites: 74,413 checks with 0 failures and no SCRIPT ERROR. Three counts are E5's:
+  - `topdown_side_quests` is new, at 20 checks;
+  - `data_validation` went from 50,403 to 50,445, for the four new quests' rows;
+  - `balance_sim` went from 183 to 185, for the side quests' pay an hour.
+
+  Every other count is as it was; `rules_tests` at 2,722, `room_engine` at 328 and `topdown_sunscar` at 57 are R7's.
+## Act II's first zones on the grid (R6)
+
+The room engine's batch for Act II's start (`docs/architecture/room_engine.md`, "Act II's first zones (R6)"). The
+nineteen side-view rooms of Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights and Mirrorwater Lake are specs
+now. The Ascension Gate's way up opens onto the Arrival Terrace, so a top-down character walks from Act I into Act II
+and plays chapter 11 on the grid.
+
+- **Nineteen rooms, 9 to 29 spec lines each, anchors included.**
+  - Cloudgate Port: the Arrival Terrace, the Port Market, the Wayfarers' Inn, the Skydock, the Condensing Hall and the
+    Shipwrights' Yard.
+  - The Thunderhorn Plains: the Stormgrass Verge, the Herders' Camp, the Thunderhorn Flats and the Lightning Scar.
+  - Rimefrost Heights: Frostpine Climb, the Snow Ape Ledges, Rimefrost Summit and the Hermit's Ice Cave.
+  - Mirrorwater Lake: the Reedless Shore, the Mirror Shallows, the Sentinel Causeway, the Lake Shrine and Toad's Hollow.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The side view's ledges and cloud platforms
+  are outcrops and tiers a flight up. The sky-ship ferries are gangways at the ends of piers. The hermit's hidden cave
+  is a cleft in the summit's crags.
+- **Looks.** Later zones reuse them.
+  - A sky port (`sky_port`): a paved town on a floating island. Its south rim falls into the cloud sea, where the
+    airships berth.
+  - Open plains (`storm_plains`): wide grass, few trees, storm-split menhirs and boulders, the herds' trails braided
+    across it in trampled earth.
+  - The snowy heights take R4's `snowfield`, with ice-glazed boulders.
+  - A mirror lake (`mirror_lake`): wide still water mirroring its shore, islets, pale strands, lotus lanterns afloat.
+- **New props** (`furnish.py`, the sheet rebuilt):
+  - the airship, hanging past the room's edge over the clouds;
+  - a market stall, a memorial archway, an inn's counter, guardian lions, an armillary sphere;
+  - yurts, haystacks, a cook fire, storm menhirs;
+  - ice-glazed rocks, floating lotus lanterns;
+  - and the reflections of trees and stone lanterns in still water.
+- **Engine rules.** Every room before them compiles byte for byte as it did.
+  - `mirror` on a water band or feature: the engine lays the reflection of each tree or stone lantern on its north
+    shore on the water below it, where the water runs under the whole of it.
+  - A wavy or round region named in `ground` gives its own cells, not its rect.
+- **The frontier.** The Ascension Gate's way up is open. With Gu's Warehouse (R5), Act I has no way off the grid left.
+  With Nine Peaks laid out (R7), the Skydock's ferry to the Alliance Gate and the sky-ship back are open, and
+  `topdown_act2_start` rides them. Every way out of R6's rooms leads to a room on the grid, and the story walks on foot
+  from the valley to the Tomb of Sunscar.
+- **R7's yurt.** R7's `arid.py` has a `yurt` of its own, the desert keeper's. R6's felt yurt is `herders_yurt`, so
+  neither replaces the other in the sheet.
+- **Tests.**
+  - A new suite, `topdown_act2_start`, with 63 checks. It crosses the Ascension Gate both ways on the grid and plays
+    chapter 11 through: Through the Gate, A Sky Full of Toll Roads, Storm in the Blood (the town gate opening, the
+    jades, the weasels), Horns for the Furnace and Sage. It walks on through Rimefrost (the hidden ice cave found) and
+    the lake (the ferry, the Hollow, the shrine's mirror), and rides the Nine Peaks ferry over and back (gated while
+    Nine Peaks had no layout). Each room is built by the view and walked by auto-path.
+  - The `room_engine` capture set has R6's views (pictures in `docs/architecture/room_engine/r6/`).
+  - `rules_tests`' route tour walks the nineteen rooms. Its first run lost three legs to open-sided flights by the
+    walks (the Reedless Shore, Toad's Hollow, the Mirror Shallows). Every raised shape is now climbed by R4's
+    closed-cheek `flights`, and a scratch walk of all 784 legs in R6's rooms arrives on every one.
+  - The run after merging R4, S11, T1, M1, E3, R5 and R7: every gate and every suite passes, with no script error.
+    - All 30 counted runs and the engine tests: 75,847 checks, 0 failures.
+    - Grid parity holds on 127 layouts (383 starts). `places` reaches 41 places, and `npc_engine` holds.
+    - `topdown_act2_start` is new, with 63 checks.
+    - `room_engine` has 385 checks, three for each room it lays out (57 for R6's nineteen).
+    - `rules_tests` 2,712, `contract_tests` 1,112, `room_sweep` 3,745, `visibility_suite` 6,764,
+      `data_validation` 50,403, `topdown_tutorial` 1,049, `topdown_sunscar` 57 and `valley_run` 3,000.
+    - `perf_tests` (18 checks) passes in this run. In earlier runs, with other agents' suites on the four cores, one
+      frame time at a time missed its budget: the Techniques page's preview at 10.4 ms against 8.8, the Marsh Edge's
+      fight at up to 19.4 ms against 16.6. Neither touches R6's rooms.
+
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
 The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The
@@ -82,7 +203,8 @@ King on the grid.
   the Hold Gate's shrine, the Clan Forge's anvil, the Scorpion Flats' and the oasis's shrines and the Oasis of Bones'
   teleport stone. They are the first places outside the valley. The world map opened on a place used to show the zone
   you stand in, and now shows the place's own zone (`map_page.gd`'s setup).
-- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout (R6).
+- **The frontier.** Nine Peaks' sky-ship back to Cloudgate Port was gated while the Skydock had no layout (R6); it
+  is open now.
   Every other way out of these rooms leads to a room on the grid.
 - **Tests.**
   - A new suite, `topdown_sunscar` (in `tests/suites.txt` after `topdown_traversal`), 57 checks. It plays Nine Seats,

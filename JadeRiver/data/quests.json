@@ -8095,6 +8095,189 @@
    "cultivation": 470
   },
   {
+   "id": "claws_for_the_grindstone",
+   "name": "Claws for the Grindstone",
+   "kind": "side",
+   "giver": "apprentice_tao",
+   "hand_in": "apprentice_tao",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Ironclaw Mole claws from the Lower Pit",
+     "count": 5,
+     "item": "mole_claw",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 90
+    }
+   ],
+   "offer_text": [
+    "Master Bao's grindstone has gone smooth as a river pebble. Nothing dresses a stone like a mole's claw.",
+    "The Lower Pit is full of them. Five claws, and don't tell him it was my idea."
+   ],
+   "complete_text": [
+    "Hear it bite? He'll say the stone was always this good.",
+    "Here. Apprentice pay, but it's honest."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
+     }
+    ]
+   },
+   "target_room": "sq_lower_pit",
+   "tier": "bone_forging_6",
+   "cultivation": 310
+  },
+  {
+   "id": "pelted_at_the_fair",
+   "name": "Pelted at the Fair",
+   "kind": "side",
+   "giver": "adventurer_rui",
+   "hand_in": "adventurer_rui",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Run the Bamboo Monkeys out of Whispering Bamboo",
+     "count": 8,
+     "enemy": "bamboo_monkey"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 120
+    },
+    {
+     "kind": "grant_item",
+     "item": "toad_oil_dumplings",
+     "count": 2
+    }
+   ],
+   "offer_text": [
+    "I took the short way through Whispering Bamboo and the monkeys pelted me with shoots. In front of half the fair.",
+    "I'm retired. You're not. Eight of them, and my pride is even."
+   ],
+   "complete_text": [
+    "Ha! Kai can stop laughing now. Dumplings, on me."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     }
+    ]
+   },
+   "target_room": "bg_whispering_bamboo",
+   "tier": "qi_kindling_3",
+   "cultivation": 530
+  },
+  {
+   "id": "scales_for_the_lanterns",
+   "name": "Scales for the Lanterns",
+   "kind": "side",
+   "giver": "fair_vendor_he",
+   "hand_in": "fair_vendor_he",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "collect",
+     "text": "Bring Jade Carp scales from Bend Shore",
+     "count": 4,
+     "item": "jade_scale",
+     "consume": true
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    },
+    {
+     "kind": "grant_item",
+     "item": "return_charm",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Lanterns for the next fair, and every vendor in Stoneford hangs paper ones. Mine will shine.",
+    "Jade carp scales, four of them. The carp at Bend Shore won't sell me theirs."
+   ],
+   "complete_text": [
+    "Look at them catch the light! Here, take a charm. Lucky ones. Mostly."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_3"
+     }
+    ]
+   },
+   "target_room": "dw_bend_shore",
+   "tier": "qi_unfurling_3",
+   "cultivation": 470
+  },
+  {
+   "id": "the_weir_at_the_rapids",
+   "name": "The Weir at the Rapids",
+   "kind": "side",
+   "giver": "fisher_gan",
+   "hand_in": "fisher_gan",
+   "marker": "blue",
+   "objectives": [
+    {
+     "kind": "kill",
+     "text": "Drive the Rapids Lizards off the Rapids Terraces' weir",
+     "count": 6,
+     "enemy": "rapids_lizard"
+    }
+   ],
+   "rewards": [
+    {
+     "kind": "grant_currency",
+     "currency": "silver_tael",
+     "amount": 200
+    },
+    {
+     "kind": "grant_item",
+     "item": "hemp_net",
+     "count": 1
+    }
+   ],
+   "offer_text": [
+    "Greyreed's nets used to hang in the eddies under the gorge. Three seasons away, and the rapids lizards took the weir.",
+    "Six of them. They bask on the terraces where the water breaks."
+   ],
+   "complete_text": [
+    "The weir's ours again. My cousin in Stoneford can keep his floor.",
+    "Take the spare net. It's mended. Mostly."
+   ],
+   "requires": {
+    "all": [
+     {
+      "kind": "quest_done",
+      "quest": "cleansing_the_well"
+     }
+    ]
+   },
+   "target_room": "wg_rapids_terraces",
+   "tier": "heart_tempering_1",
+   "cultivation": 670
+  },
+  {
    "id": "through_the_gate",
    "name": "Through the Gate",
    "kind": "main",

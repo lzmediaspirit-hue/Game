@@ -604,6 +604,62 @@
   }
  },
  "rooms": {
+  "ae_landing": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "ae_port_market": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 104
+    }
+   ]
+  },
+  "ae_shipyard": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 104
+    }
+   ]
+  },
+  "ae_skydock": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 104
+    }
+   ]
+  },
   "bg_thicket_heart": {
    "vista": [
     {
@@ -2223,6 +2279,66 @@
     }
    ]
   },
+  "ml_lake_shrine": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_mirror_shallows": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_reedless_shore": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_sentinel_causeway": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "ml_toads_hollow": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
   "mp_ascension_gate": {
    "vista": [
     {
@@ -2299,6 +2415,38 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 88
+    }
+   ]
+  },
+  "rf_frostpine_climb": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "rf_rimefrost_summit": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "rf_snow_ape_ledges": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     }
    ]
   },
@@ -3087,6 +3235,42 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 88
+    }
+   ]
+  },
+  "tp_herders_camp": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "tp_lightning_scar": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "tp_stormgrass_verge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "tp_thunderhorn_flats": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
     }
    ]
   },
