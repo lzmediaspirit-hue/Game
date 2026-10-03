@@ -6,7 +6,7 @@ Grottoes where Lu left his star notes, and the Leviathan's Maw. Reefs of dark ro
 cast shells, islets of coral out on the water; the reef cliffs along the north."""
 from content.rooms.spec import room
 
-REEF = dict(level=3, paint="r", wall=True, wavy="s")   # the reef cliffs along the north
+REEF = dict(level=4, paint="r", wall=True, wavy="s")   # the reef cliffs along the north, past a hop from any rise
 WAY = dict(paint="a", walk=True)                       # the way of pale nebula sand
 
 
@@ -76,7 +76,7 @@ ND_EEL_CURRENTS = room(
 # water south of the way.
 ND_CRAB_GROTTOES = room(
     "nd_crab_grottoes", size=(72, 28), biome="nebula",
-    bands=[("reef", 0, 6, dict(REEF, level=4)),
+    bands=[("reef", 0, 6, dict(REEF, level=5)),
            ("road", 13, 3, WAY),
            ("nebula", 22, 6, dict(water=True, wavy="n"))],
     features=[("grotto", (8, 1, 7, 6), dict(level=0, paint="a", shape="round")),

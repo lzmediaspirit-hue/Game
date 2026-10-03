@@ -604,6 +604,42 @@
   }
  },
  "rooms": {
+  "ar_ashborn_palisade": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "ar_cinder_fields": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "ar_kharns_pyre": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "ar_war_camp": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "bg_thicket_heart": {
    "vista": [
     {
@@ -2302,6 +2338,33 @@
     }
    ]
   },
+  "or_golem_foundry": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "or_orbit_garden": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "or_tumbling_stair": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
   "rm_grey_pools": {
    "vista": [
     {
@@ -3039,6 +3102,24 @@
     }
    ]
   },
+  "ss_lantern_crossing": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 0
+    }
+   ]
+  },
+  "ss_starsea_crossing": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 0
+    }
+   ]
+  },
   "tf_drone_hive": {
    "vista": [
     {
@@ -3082,6 +3163,24 @@
    ]
   },
   "tf_tidebreak_bastion": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "wc_citadel_gate": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "wc_presence_court": {
    "vista": [
     {
      "edge": "s",

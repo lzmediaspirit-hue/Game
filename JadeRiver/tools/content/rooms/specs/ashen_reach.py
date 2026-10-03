@@ -7,7 +7,7 @@ Ashborn's war tents of dark hide, their ember-red banners, pyres burning; a timb
 stockade's). The island's brink falls away south to the cloud sea, as the Citadel's does."""
 from content.rooms.spec import room
 
-RIDGE = dict(level=3, paint="r", wall=True, wavy="s")   # the ash cliffs along every room's north edge
+RIDGE = dict(level=5, paint="r", wall=True, wavy="s")   # the ash cliffs along every room's north edge, past a hop
 TRACK = dict(paint="a", walk=True)                       # the trodden track (the plain's earth kept off it)
 
 
