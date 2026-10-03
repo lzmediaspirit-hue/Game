@@ -110,11 +110,16 @@ def a_placement_the_engine_makes_writes_the_rooms_object_and_anchor():
                                                       place("gh_hamlet_square", "npc_t_new_two", anchor=(30, 18), side=[640, 800])])
     st = state(s)
     assert engine.anchors("gh_hamlet_square", st) == {"npc_t_new": "commons@20", "npc_t_new_two": (30, 18)}
-    objs = engine.objects("gh_hamlet_square", [0, 480, 2560, 480], st)
+    objs = engine.objects("gh_hamlet_square", [0, 480, 2560, 480], st=st)
     assert [list(o) for o in objs] == [["id", "type", "at", "npc", "facing", "visible_if"], ["id", "type", "at", "npc"]], objs
     # the anchor's column across the room (56 cells): cell 20's middle, 1.5 cells in from each edge
     assert objs[0]["at"] == [int(round((20 + 0.5 - 1.5) / 53.0 * 2560)), 864] and objs[1]["at"] == [640, 800], objs
     assert "belong to a placement the engine makes" in raises(lambda: place("r", facing=1), ValueError)
+    # a side-view point keeps the talk's reach clear of the room's other things: the nearest step along the ground
+    x0 = objs[0]["at"][0]
+    moved = engine.objects("gh_hamlet_square", [0, 480, 2560, 480], taken=[[x0 + 20, 860]], st=state(s))
+    assert moved[0]["at"] == [x0 - 3 * engine.SIDE_STEP, 864], moved      # 140 from it; two steps east is 60
+    assert moved[1]["at"] == [640, 800] and abs(moved[0]["at"][0] - (x0 + 20)) > engine.SIDE_CLEAR
 
 
 # ------------------------------------------------------------------------------------------------ work spots

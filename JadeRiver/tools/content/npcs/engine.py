@@ -151,22 +151,30 @@ def anchors(rid, st=None):
     return {p["oid"]: tuple(p["anchor"]) if isinstance(p["anchor"], list) else p["anchor"] for _, p in _placed(rid, st)}
 
 
-def objects(rid, bounds=None, st=None):
-    """The side-view room's objects for the people the engine places in room `rid` (world.py's Room.build adds them
-    after the room's own): each at its `side` point, or at its anchor's column across the room (`bounds`, the room's
-    [x, y, w, h]) on the ground line."""
+SIDE_CLEAR = 130     # how far a side-view point keeps from every other thing (the talk's reach is 110: data_validation M18)
+SIDE_STEP = 40      # how far along the ground line it moves to find that room
+
+
+def objects(rid, bounds=None, taken=(), st=None):
+    """The side-view room's objects for the people the engine places in room `rid` (world.py's npc_engine_pass adds
+    them after the room's own): each at its `side` point, or at its anchor's column across the room (`bounds`, the
+    room's [x, y, w, h]) on the ground line, moved along it until it stands SIDE_CLEAR from every point of `taken` (the
+    room's objects and ways) and from the people placed before it, so that no talk hides another."""
     out = []
+    taken = [tuple(t[:2]) for t in taken]
     for s, p in _placed(rid, st):
-        at = p["side"] or side_point(p["anchor"], rid, bounds)
+        at = p["side"] or side_point(p["anchor"], rid, bounds, taken)
+        taken.append(tuple(at))
         o = {"id": p["oid"], "type": "npc", "at": list(at), "npc": s["id"]}
         o.update(copy.deepcopy(p["obj"]))
         out.append(o)
     return out
 
 
-def side_point(anchor, rid, bounds):
+def side_point(anchor, rid, bounds, taken=()):
     """A side-view point for a top-down anchor: its column across the room (TopdownRoom.from_side, inverted), on the
-    ground line four fifths down the room's bounds."""
+    ground line four fifths down the room's bounds; the nearest step of SIDE_STEP along it, either way, that stands
+    SIDE_CLEAR from every point of `taken`."""
     from content.rooms.specs import all_specs
     b = bounds or [0, 480, 1280, 480]
     spec = next((r for r in all_specs() if r["id"] == rid), None)
@@ -180,7 +188,13 @@ def side_point(anchor, rid, bounds):
     else:
         col = (w - 1) / 2.0
     f = min(1.0, max(0.0, (col + 0.5 - 1.5) / max(1.0, w - 3.0)))
-    return [int(round(b[0] + f * b[2])), int(round(b[1] + 0.8 * b[3]))]
+    x0, y = int(round(b[0] + f * b[2])), int(round(b[1] + 0.8 * b[3]))
+    lo, hi = b[0] + 80, b[0] + b[2] - 80
+    for k in range(0, int(b[2] // SIDE_STEP) + 1):
+        for x in ((x0,) if k == 0 else (x0 - k * SIDE_STEP, x0 + k * SIDE_STEP)):
+            if lo <= x <= hi and all(((x - t[0]) ** 2 + (y - t[1]) ** 2) ** 0.5 > SIDE_CLEAR for t in taken):
+                return [x, y]
+    raise SpecError("%s: no room on the side view's ground line for a person at %r (give side=[x, y])" % (rid, anchor))
 
 
 # ------------------------------------------------------------------------------------------------ checks

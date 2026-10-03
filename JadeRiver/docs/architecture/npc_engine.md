@@ -47,8 +47,8 @@ npc("washer_ying", "Washer Ying", "Greyreed villager", look("ponytail", "cardiga
               work=work("laundry", "water_edge:wash", "by:laundry_line:hang"))])
 ```
 
-It writes her `npcs.json` row; her object in the side-view hamlet (at the anchor's column on the ground line, facing
-east, shown once Cleansing the Well is done); her cell in the top-down hamlet (the room engine resolves `commons@9` to
+It writes her `npcs.json` row; her object in the side-view hamlet (at the anchor's column on the ground line, moved
+along it until no other thing's talk overlaps hers, facing east, shown once Cleansing the Well is done); her cell in the top-down hamlet (the room engine resolves `commons@9` to
 (9, 19)); and her laundry loop in `life.json`, its spots found on the layout: the wash at the bank south of her, facing
 the water, `[9, 21, "s", "wash"]`; the hanging at the laundry line north of her, `[9, 18, "n", "hang"]`.
 
@@ -189,8 +189,9 @@ follows in `npcs.json` (`after=`): the figures the story stages rather than peop
 - **`topdown_life.py --check`** (in `build_data.py --check`): every spot stands on its person's floor within the
   leash, every leg is walked clear, a smith's anvil spot holds its anvil.
 - **`topdown_rooms.py --check`** and the room engine's `test_engine.py`: every person placed and reached on foot.
-- **`data_validation`** (npcs, services, shops), `story.validate` (every NPC a room places exists, every quest giver is
-  placed), `tutorial_order` and `topdown_tutorial`.
+- **`data_validation`** (npcs, services, shops; M18: no talk hides another in the side-view room, which the side point
+  the engine picks keeps clear), `story.validate` (every NPC a room places exists, every quest giver is placed),
+  `tutorial_order` and `topdown_tutorial`.
 
 ## The migration (the round trip)
 

@@ -2597,7 +2597,8 @@ def npc_engine_pass():
     for rid in sorted(rooms):
         r = ROOMS[rid]
         have = {o["id"] for o in r.d["objects"]}
-        for o in NPCS.objects(rid, r.d.get("bounds")):
+        taken = [o["at"] for o in r.d["objects"]] + [p["at"] for p in r.d["portals"] if "at" in p]
+        for o in NPCS.objects(rid, r.d.get("bounds"), taken):
             if o["id"] in have:
                 raise SystemExit("world: %s's object %s is the room's own and the NPC engine's" % (rid, o["id"]))
             r.d["objects"].append(o)

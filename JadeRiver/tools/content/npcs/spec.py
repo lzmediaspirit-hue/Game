@@ -25,8 +25,8 @@ names who the person is and where they live and work; the engine (engine.py) wri
     work       work(...) below: what they do there all day (life.json `work`)
     anchor     a placement the engine makes itself (a person new to the room): a room engine anchor ("road.n@30",
                "near:well", "auto" or a cell) for the top-down room; `side` the point in the side-view room ([x, y];
-               by default from the anchor's column, on the ground line), and `obj` the side-view object's other
-               fields (facing, visible_if, hidden_if)
+               by default from the anchor's column, on the ground line, clear of the talk's reach of every other
+               thing there), and `obj` the side-view object's other fields (facing, visible_if, hidden_if)
 
   work(loop, *spots, auto=None)
     loop       one of topdown_life.LOOPS (ROLE: the role's own, for a sect's staff)
