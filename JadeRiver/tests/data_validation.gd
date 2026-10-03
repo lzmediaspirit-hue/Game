@@ -1155,10 +1155,13 @@ func _granted(node, got: Dictionary) -> void:
 ## some authority both emits system_used and names the system.
 func _system_reported(system: String) -> bool:
 	var dir := "res://scripts/simulation/authority/"
-	for f in DirAccess.get_files_at(dir):
-		if not f.ends_with(".gd"): continue
-		var src := FileAccess.get_file_as_string(dir + f)
-		if src.contains("system_used") and src.contains('"%s"' % system): return true
+	var dirs := [dir]
+	for sub in DirAccess.get_directories_at(dir): dirs.append(dir + sub + "/")   # an authority's parts (audit 45 phase 2)
+	for d in dirs:
+		for f in DirAccess.get_files_at(d):
+			if not f.ends_with(".gd"): continue
+			var src := FileAccess.get_file_as_string(d + f)
+			if src.contains("system_used") and src.contains('"%s"' % system): return true
 	for rid in ContentDB.rooms:
 		if JSON.stringify(ContentDB.room(rid)).contains('"system":"%s"' % system): return true
 	# S43 movement arts report as art_used from the solver.

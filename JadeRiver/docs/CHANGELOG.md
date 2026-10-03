@@ -57,6 +57,71 @@ The code audit's slice S3 (`docs/architecture/audit_45.md` §3.3, §3.4 and §7)
 - **Found, not fixed:** `build_tiles.py --review` stops with a KeyError on the `sand` decals, in the Terrain v2
   sheet's ground table. This predates the slice. `--review-sand-snow` runs.
 
+## Crafting and Progression in parts (decision 45, S10)
+
+This is phase 2, wave 2, slice S10 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7). The two
+authorities are now split into parts, one for each section of their work:
+- `crafting_authority.gd`, which had 2,055 lines;
+- `progression_authority.gd`, which had 1,858 lines.
+
+The code moved as it was. The game plays the same, every caller still calls `Game.crafting.<method>` and
+`Game.progression.<method>`, and the save data is untouched.
+
+- **How the parts work.**
+  - Each authority keeps its state, its intents (`intents` and `handle`), its subscriptions and its tick. Its public
+    methods are one-line forwarders to the part that does the work.
+  - A part is a `RefCounted` that its authority makes. It has no state of its own. It holds a weak reference back to
+    the authority: `Game` builds new authorities on every boot, and a strong reference would keep the old ones alive.
+    The bases are `CraftingPart` and `ProgressionPart`.
+  - A part reaches the authority's state and public methods through the authority, as any caller would
+    (`crafting.pending`, `progression.apply_insight`). It calls a helper that another part keeps to itself on that part
+    (`progression.realms.fail_breakthrough`).
+  - Some private helpers are called by name from tests and tools, such as `_consume`, `_start_tribulation` and
+    `_levels_gained`. They keep their forwarders on the authority until S11 gives them public names. Inside their part
+    they are already public.
+- **Crafting** (`scripts/simulation/authority/crafting/`, 271 lines left in the authority) has nine parts:
+  - professions;
+  - gathering;
+  - the garden;
+  - recipes and the craft;
+  - the five-screen refine;
+  - furnaces, with the fire and the pill tribulation;
+  - the forge's gear upkeep;
+  - ancient recipes and experiments;
+  - the guilds.
+- **Progression** (`scripts/simulation/authority/progression/`, 274 lines left in the authority) has eleven parts:
+  - meditation, with seclusion and the offline claim;
+  - realms and breakthroughs;
+  - the heavenly tribulation;
+  - fates;
+  - insight and the Daos;
+  - attunement;
+  - the body;
+  - the cultivator's condition;
+  - vows and paths;
+  - methods and techniques;
+  - the element trees, with the Lost Arts.
+
+  The authority's tick still runs the cultivator's clock, in the same order. Phase 1's rules for meditation, fixed
+  experience and cultivation speed moved unchanged.
+- **Dead code dropped.**
+  - An unused local in `claim_offline`.
+  - The public copy of `_spend_fate_next`. `spend_fate_next` is now the function itself, and both names still work.
+- **The checks that name scripts now see the parts.** Both changes cover any `authority/<name>/` folder, so the other
+  splits need no edits of their own.
+  - `tools/data/contract.py` adds every script in an authority's folder to that authority's system, so the event
+    contract accepts an event that a part emits.
+  - It also stops the build if two scripts share a file name, because `contract_tests` finds scripts by name. The parts
+    are named after their authority, such as `crafting_garden.gd` and `progression_realms.gd`.
+  - In `data/event_contract.json`, only the `files` lists of the Crafting and Progression events changed.
+  - `data_validation` also looks in the part folders for the authority that reports a `use_system` objective.
+- **Checks.**
+  - Every suite has the same check count as the base, with no failures and no script errors.
+  - `balance_sim` prints the same figures, line for line.
+  - The data build is unchanged apart from the contract's `files` lists.
+  - `perf_tests` misses its millisecond budgets on the base and on S10 alike, at a load of about 14 on 4 cores. Over
+    two interleaved rounds, the base failed 9 and then 5 of its 18 checks, and S10 failed 6 and then 2.
+
 ## Shared runtime: one per-frame cache, one noise, one figure factory, lazy tables (decision 45, S4)
 
 This is phase 2, slice S4 of the code audit (`docs/architecture/audit_45.md` §4 and §5; findings DUP-01, 02 and 03,

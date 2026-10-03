@@ -2,7 +2,9 @@
 and the scripts that make up that system. tests/contract_tests checks the code against it:
 each event is emitted only by its system, and something consumes it.
 """
-from common import write, run_cli
+import os
+
+from common import ROOT, write, run_cli
 
 # Part 4 · Event catalogue, by emitting system.
 CATALOGUE = {
@@ -143,6 +145,24 @@ SYSTEMS = {
     "Calendar": ["calendar_authority"], "Field": ["field_authority", "field_rules"],
     "Posts": ["post_authority", "post_rules"],
 }
+
+
+def with_parts(files):
+    """An authority split into parts (audit 45 phase 2) keeps them in a folder named after it, next to it
+    (scripts/simulation/authority/crafting/ for crafting_authority): its parts belong to its system too."""
+    out = list(files)
+    for f in files:
+        folder = os.path.join(ROOT, "scripts", "simulation", "authority", f[:-len("_authority")])
+        if f.endswith("_authority") and os.path.isdir(folder):
+            out += sorted(n[:-3] for n in os.listdir(folder) if n.endswith(".gd") and n[:-3] not in out)
+    return out
+
+
+SYSTEMS = {system: with_parts(files) for system, files in SYSTEMS.items()}
+# contract_tests keys the scripts by file name, so a system's script may share its name with no other script.
+_names = [n[:-3] for _d, _s, fs in os.walk(os.path.join(ROOT, "scripts")) for n in fs if n.endswith(".gd")]
+_shared = sorted({n for files in SYSTEMS.values() for n in files if _names.count(n) > 1})
+assert not _shared, "scripts of a system share a file name with another script: %s" % ", ".join(_shared)
 
 # A second system that may also announce the event, and why.
 ALSO = {
