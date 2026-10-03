@@ -1186,7 +1186,61 @@
      "kind": "river",
      "pad": 32
     }
-   ]
+   ],
+   "work": {
+    "npc_fisher_gan": {
+     "loop": "mend",
+     "spots": [
+      [
+       11,
+       19,
+       "ne"
+      ],
+      [
+       12,
+       21,
+       "s"
+      ]
+     ]
+    },
+    "npc_old_jiu": {
+     "loop": "sweep",
+     "spots": [
+      [
+       22,
+       21,
+       "s"
+      ],
+      [
+       22,
+       19,
+       "n"
+      ],
+      [
+       20,
+       21,
+       "w"
+      ]
+     ]
+    },
+    "npc_washer_ying": {
+     "loop": "laundry",
+     "spots": [
+      [
+       9,
+       21,
+       "s",
+       "wash"
+      ],
+      [
+       9,
+       18,
+       "n",
+       "hang"
+      ]
+     ]
+    }
+   }
   },
   "hv_back_mountain": {
    "vista": [

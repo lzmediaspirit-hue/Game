@@ -173,8 +173,10 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
    what the engine decided. A spec error names the anchor or way that failed.
 3. `python3 tools/data/topdown_rooms.py` writes it and runs every check; `python3 tools/content/rooms/test_engine.py`
    walks it.
-4. A vista goes into `topdown_life.VISTAS` (until E3 owns the living world). A biome the zone needs goes into
-   `biomes.py`.
+4. A vista goes into `topdown_life.VISTAS`. A biome the zone needs goes into `biomes.py`. The room's people are specs of
+   the NPC engine (E3, `npc_engine.md`): a person's work there is `place(room, work=...)` in their spec, its spots by
+   anchors (`"by:stove"`, `"water_edge"`); a person new to the room is placed by the engine itself
+   (`place(room, anchor=...)`), its object and anchor added for you.
 5. Add its views to `E1_VIEWS`, then run
    `xvfb-run ... capture.tscn -- room_engine --out-root=<scratch>` and **look at every picture**:
    - paths that read;

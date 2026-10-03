@@ -5,9 +5,12 @@ data/topdown/life.json:
   loops     the work loops: at each work spot the steps (a character action, seconds, a cue for the view: dust off a
             broom, sparks off an anvil, chips off a block), the tool held, the weapon worn, the walk between spots;
   work      room -> NPC object id -> {loop, spots [[x, y, facing, steps?], ...]}: a villager's or a disciple's loop
-            between work spots within LEASH tiles of their own spot (spots in cells, like the layouts' places);
+            between work spots within LEASH tiles of their own spot (spots in cells, like the layouts' places); each
+            person's is written in their spec (the NPC engine, tools/content/npcs), a spot there a cell or an anchor
+            resolved here on the built layout;
   extras    room -> [{id, outfit, loop, spots}]: a few people with no part in the story at work where the room has
-            a job and no one to do it (a fisherman on the bank, a sweeper in a court); they speak to no one;
+            a job and no one to do it (a fisherman on the bank, a sweeper in a court); they speak to no one (the NPC
+            engine's `extra` specs);
   animals   room -> [[kind, x, y], ...]: the hens, cats and dogs that live there (the view keeps them near home);
   critters  area (the room's backdrop) -> kind -> how many at most in view (the wild ones: sparrows, butterflies,
             dragonflies, fish, frogs), and room -> overrides;
@@ -36,6 +39,7 @@ sys.path.insert(0, HERE)
 from common import DATA, ROOT, emit, fail, read, run_cli  # noqa: E402
 sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
 from lib.pix import h01  # noqa: E402  the pixel library's coordinate hash (tools/lib/pix.py)
+from content.npcs import engine as NPCS  # noqa: E402  decision 45, E3: the people's work and the extras
 
 OUT = os.path.join(ROOT, "data", "topdown", "life.json")
 LAYOUTS = os.path.join(ROOT, "data", "topdown")
@@ -102,124 +106,23 @@ CUES = ["sweep", "set_down", "scrub", "hang", "pick", "stir", "grind", "chop", "
         "look", "write", "breathe"]
 
 # ==================================================================================================================
-# The rooms. A spot is [x, y, facing, steps key?] in cells (fractions allowed); "auto": n picks n spots round the NPC
-# on its own floor by a hash of the room and the NPC (see auto_spots). Facing: n, ne, e, se, s, sw, w, nw.
-# A smith's "anvil" spot stands the room's anvil (the Forge place) a tile east of the feet and 0.4 of a tile south, in
-# front: the hammer's pose (figure/work.py BAR_AT) meets its hot ingot there (check_work holds every smith to it).
+# The rooms' people at work. Every person's work is written in their spec (the NPC engine: tools/content/npcs,
+# docs/architecture/npc_engine.md), each spot a cell [x, y, facing, steps key?] (fractions allowed) or an anchor the
+# engine resolves on the room's layout ("water_edge", "by:wash_tub", "near:shrine_village", "open"), or "auto": n
+# spots round the NPC on its own floor by a hash of the room and the NPC (see auto_spots). Facing: n, ne, e, se, s, sw,
+# w, nw. A smith's "anvil" spot stands the room's anvil (the Forge place) a tile east of the feet and 0.4 of a tile
+# south, in front: the hammer's pose (figure/work.py BAR_AT) meets its hot ingot there (check_work holds every smith
+# to it).
+# WORK and EXTRAS hold what no spec writes yet (a room batch's people in a `# R<n>` block, until their specs): room ->
+# object id -> {loop, spots | auto}, and room -> [{id, outfit, loop, spots}]. work_table() and extras_table() put them
+# after the engine's.
 # ==================================================================================================================
 WORK = {
-    "lf_village": {
-        "npc_aunt_ping_lane": {"loop": "sweep", "spots": [[11, 17, "w"], [9.2, 17.6, "w"], [12.6, 18.3, "sw"]]},
-        "npc_washer_mei": {"loop": "laundry", "spots": [[14.1, 33.2, "e", "wash"], [12.0, 30.4, "nw", "hang"]]},
-        "npc_uncle_guo": {"loop": "fists", "spots": [[30, 22, "se"], [31.6, 23.3, "s"], [28.8, 23.4, "e"]]},
-        "npc_little_dou": {"loop": "play", "spots": [[44, 24, "s"], [45.8, 25.4, "se"], [42.6, 25.6, "sw"], [44.8, 26.2, "s"]]},
-        "npc_shen_lian_npc": {"loop": "carry", "spots": [[52, 27, "e"], [54.2, 26.2, "ne"], [50.2, 26.4, "w"]]},
-        "npc_fisher_wen": {"loop": "mend", "spots": [[64.4, 27.2, "ne"], [66.2, 27.6, "n"]]},
-        "npc_lu_boatman": {"loop": "watch", "spots": [[56, 28, "s"], [57.8, 28.8, "s"]]},
-    },
-    "lf_fishers_hut": {"npc_aunt_ping": {"loop": "cook", "spots": [[6, 6, "sw"], [5.2, 8.1, "w"]]}},
-    "lf_granny_liu_hut": {"npc_granny_liu": {"loop": "grind", "spots": [[6, 6, "sw"], [4.3, 5.6, "w", "cook"], [4.2, 7.4, "w", "grind"]]}},
-    "lf_old_ma_store": {"npc_old_ma": {"loop": "sell", "spots": [[12, 3, "s"], [13.5, 2.2, "n"], [10.8, 2.6, "s"]]}},
-    "lf_lu_boat": {"npc_lu_boat": {"loop": "watch", "spots": [[10, 8, "s"], [8.2, 8.6, "s"], [11.8, 8.4, "se"]]}},
-    "ja_weapon_hall": {
-        "npc_jade_weapon_master": {"loop": "sword", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_jade_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
-    },
-    "cm_weapon_hall": {
-        "npc_cloud_weapon_master": {"loop": "staff", "spots": [[10, 5, "s"], [11.8, 6.2, "s"], [8.4, 6.0, "se"]]},
-        "npc_cloud_smith": {"loop": "hammer", "spots": [[18.0, 6.6, "e", "anvil"], [18.9, 4.6, "ne", "forge"], [17, 5, "s"]]},
-    },
-    "ja_gate_street": {
-        "npc_jade_disciple_a": {"loop": "sweep", "spots": [[29, 15, "sw"], [27.4, 16.2, "w"], [30.8, 16.4, "s"]]},
-        "npc_jade_disciple_b": {"loop": "sword", "spots": [[40, 17, "s"], [41.8, 17.6, "se"], [38.4, 18.2, "s"]]},
-        "npc_jade_steward": {"loop": "pray", "spots": [[7, 16, "s"], [5.4, 14.8, "n"]]},
-        "npc_jade_deacon": {"loop": "read", "spots": [[57, 15, "s"], [58.8, 14.2, "ne"]]},
-    },
-    "cm_cliff_stair": {
-        "npc_cloud_disciple_a": {"loop": "sweep", "spots": [[22, 22, "sw"], [20.4, 23.0, "w"], [23.8, 23.2, "s"]]},
-        "npc_cloud_steward": {"loop": "pray", "spots": [[7, 21, "s"], [8.4, 19.6, "n"]]},
-        "npc_cloud_deacon": {"loop": "read", "spots": [[48, 22, "s"], [46.8, 21.0, "n"]]},
-    },
-    "cm_sword_court": {
-        "npc_cloud_hall_master": {"loop": "staff", "auto": 2},
-        "npc_arena_cm": {"loop": "watch", "auto": 2},
-    },
-    "ja_pavilion_rooftops": {
-        "npc_jade_hall_master": {"loop": "fists", "auto": 2},
-        "npc_jade_wm_yard": {"loop": "sword", "auto": 2},
-    },
-    "ja_east_terrace": {
-        "npc_jade_formation_elder": {"loop": "read", "auto": 1},
-        "npc_jade_physician": {"loop": "herbs", "auto": 2},
-        "npc_arena_master": {"loop": "watch", "auto": 2},
-    },
-    "cm_array_court": {
-        "npc_cloud_formation_elder": {"loop": "read", "auto": 1},
-        "npc_cloud_physician": {"loop": "cook", "auto": 1},
-        "npc_cloud_gardener": {"loop": "herbs", "auto": 2},
-    },
-    "ja_herb_terraces": {"npc_jade_gardener": {"loop": "herbs", "auto": 2}},
-    "ja_elder_hu_peak": {"npc_elder_hu": {"loop": "meditate", "spots": [[24, 13, "s"]]}},
-    "cm_elder_sung_peak": {"npc_elder_sung": {"loop": "meditate", "spots": [[31, 5, "s"]]}},
-    "sf_gate": {
-        "npc_guard_hou": {"loop": "spear", "auto": 2},
-        "npc_foreman_dong": {"loop": "carry", "auto": 2},
-        "npc_adventurer_kai": {"loop": "sword", "auto": 1},
-    },
-    "sf_market": {
-        "npc_storekeeper_fang": {"loop": "sell", "auto": 1},
-        "npc_auntie_rong": {"loop": "cook", "auto": 1},
-        "npc_keeper_shi": {"loop": "sell", "auto": 1},
-        "npc_courier_lin": {"loop": "carry", "auto": 2},
-        "npc_tailor_xun": {"loop": "sell", "auto": 1},
-        "npc_adventurer_su": {"loop": "watch", "auto": 2},
-    },
-    "sf_artisan_row": {
-        "npc_smith_bao": {"loop": "hammer", "spots": [[15.0, 12.6, "e", "anvil"], [13, 13, "s"]]},
-        "npc_apprentice_tao": {"loop": "carry", "auto": 2},
-        "npc_old_scribe_bai": {"loop": "write", "auto": 1},
-        "npc_tinkerer_yu": {"loop": "mend", "auto": 1},
-    },
-    "sf_fairground": {
-        "npc_fair_vendor_he": {"loop": "sell", "auto": 1},
-        "npc_adventurer_rui": {"loop": "watch", "auto": 2},
-    },
-    "rm_marsh_edge": {
-        "npc_watcher_bo": {"loop": "watch", "auto": 2},
-        "npc_watcher_su": {"loop": "watch", "auto": 2},
-    },
-    # R3: Mei Qing at her drawers, the librarians and the magistrate at their desks, the foreman over his crews.
-    "ja_alchemy_hall": {"npc_mei_qing_sect": {"loop": "cook", "auto": 1}},
-    "ja_library": {"npc_jade_librarian": {"loop": "write", "auto": 1}},
-    "cm_cloud_library": {"npc_cloud_librarian": {"loop": "write", "auto": 1}},
-    "sf_county_hall": {"npc_magistrate_qian": {"loop": "read", "auto": 1}},
-    "sq_quarry_rim": {"npc_dong_rim": {"loop": "watch", "auto": 2}},
 }
 
-# People at work with no part in the story. Outfits are parts of the figures' catalogue (parts.json names).
-VILLAGER = {"body": "light", "hair": "short_knot", "hair_color": 0, "shirt": "vneck", "pants": "cuffed", "shoes": "folded",
-            "hat": "straw", "cape": "none", "weapon": "none", "shirt_dye": "earth"}
+# People at work with no part in the story (the NPC engine's `extra` specs; outfits are parts of the figures'
+# catalogue, parts.json names).
 EXTRAS = {
-    "lf_village": [
-        {"id": "x_bank_fisher", "outfit": dict(VILLAGER, hair_color=5, shirt_dye="grey"), "loop": "fish", "spots": [[38.5, 33.25, "s"]]},
-        {"id": "x_woodcutter", "outfit": dict(VILLAGER, hat="none", shirt="sleeveless", shirt_dye="ochre", pants="loose"),
-         "loop": "chop", "spots": [[65.1, 18.3, "w"]]},
-    ],
-    "ja_gate_street": [
-        {"id": "x_ja_sweeper", "outfit": {"body": "light", "hair": "ponytail", "hair_color": 3, "shirt": "disciple", "pants": "martial",
-                                          "shoes": "boots", "hat": "none", "cape": "none", "weapon": "none", "shirt_dye": "jade",
-                                          "pants_dye": "jade"},
-         "loop": "sweep", "spots": [[47, 19.5, "w"], [45.4, 20.2, "w"], [48.6, 20.6, "sw"]]},
-    ],
-    "cm_sword_court": [
-        {"id": "x_cm_pupil", "outfit": {"body": "light", "hair": "high_pony", "hair_color": 0, "shirt": "disciple", "pants": "martial",
-                                        "shoes": "boots", "hat": "none", "cape": "none", "weapon": "sword", "shirt_dye": "cloud",
-                                        "pants_dye": "cloud"},
-         "loop": "sword", "spots": [[24, 15, "s"], [26, 15.6, "s"]]},
-    ],
-    "rm_marsh_edge": [
-        {"id": "x_marsh_fisher", "outfit": dict(VILLAGER, shirt_dye="indigo"), "loop": "fish", "spots": [[33.4, 22.3, "s"]]},
-    ],
 }
 
 # The animals that live in a room: [kind, x, y] in cells; the view keeps each near home.
@@ -438,14 +341,14 @@ def check_furnish(rid: str, d: dict, g, clear: set) -> list:
 FACINGS = {"n": (0, -1), "ne": (1, -1), "e": (1, 0), "se": (1, 1), "s": (0, 1), "sw": (-1, 1), "w": (-1, 0), "nw": (-1, -1)}
 
 
-def _seed(text: str) -> int:
+def seed_of(text: str) -> int:
     s = 0
     for ch in text:
         s = (s * 31 + ord(ch)) & 0xFFFF
     return s
 
 
-def _floor(g, p):
+def floor_at(g, p):
     """The floor under a layout point (cells), in units, or None where nothing can stand."""
     import topdown_rooms as TR
     return g.floor(*TR.cell(p))
@@ -459,7 +362,7 @@ def walkable(g, a, b, floor) -> bool:
         t = k / n
         x, y = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
         for dx, dy in ((0, 0), (-0.22, 0), (0.22, 0), (0, -0.15), (0, 0.15)):
-            f = _floor(g, (x + dx, y + dy))
+            f = floor_at(g, (x + dx, y + dy))
             if f is None or abs(f - floor) > 8.0:
                 return False
     return True
@@ -482,10 +385,10 @@ def auto_spots(rid: str, oid: str, d: dict, g, n: int) -> list:
     away from the NPC's spot, toward the room's middle row."""
     import topdown_rooms as TR
     home = d["place"][oid]
-    floor = _floor(g, home)
+    floor = floor_at(g, home)
     lanes = blocked_cells(d)
     others = [TR.cell(at) for k, at in d["place"].items() if k != oid]
-    seed = _seed(rid + oid)
+    seed = seed_of(rid + oid)
     cands = []
     for dy in range(-3, 4):
         for dx in range(-3, 4):
@@ -496,7 +399,7 @@ def auto_spots(rid: str, oid: str, d: dict, g, n: int) -> list:
             c = TR.cell(p)
             if c in lanes or any(abs(c[0] - o[0]) <= 1 and abs(c[1] - o[1]) <= 1 for o in others):
                 continue
-            f = _floor(g, p)
+            f = floor_at(g, p)
             if f is None or abs(f - floor) > 8.0 or not walkable(g, home, p, floor):
                 continue
             cands.append(p)
@@ -594,6 +497,25 @@ def room_side(rid: str) -> dict:
     return read(rid, os.path.join(DATA, "rooms"))
 
 
+def work_table() -> dict:
+    """room -> object id -> {loop, spots | auto}: every spec's work (the NPC engine), then WORK's hand rows."""
+    out = NPCS.work()
+    for rid, ws in WORK.items():
+        for oid, w in ws.items():
+            if oid in out.get(rid, {}):
+                raise SystemExit("topdown_life: %s %s works in WORK and in its spec (tools/content/npcs)" % (rid, oid))
+            out.setdefault(rid, {})[oid] = w
+    return out
+
+
+def extras_table() -> dict:
+    """room -> [extra]: every extra's spec (the NPC engine), then EXTRAS' hand rows."""
+    out = NPCS.extras()
+    for rid, xs in EXTRAS.items():
+        out.setdefault(rid, []).extend(xs)
+    return out
+
+
 def build_rooms() -> tuple:
     """Every room's life: its work (spots expanded and checked), extras, animals, hangings and vistas; and the errors."""
     import topdown_rooms as TR
@@ -612,7 +534,8 @@ def build_rooms() -> tuple:
             errs.append("loop %s: no walk %s" % (name, lp.get("walk")))
     check_work(errs)
     rooms = {}
-    names = sorted(set(WORK) | set(EXTRAS) | set(ANIMALS) | set(HANGINGS) | set(VISTAS))
+    work_rows, extra_rows = work_table(), extras_table()
+    names = sorted(set(work_rows) | set(extra_rows) | set(ANIMALS) | set(HANGINGS) | set(VISTAS))
     for rid in names:
         path = os.path.join(LAYOUTS, rid + ".json")
         if not os.path.exists(path):
@@ -623,7 +546,7 @@ def build_rooms() -> tuple:
         side = {o["id"]: o for o in room_side(rid).get("objects", [])}
         out = {}
         work = {}
-        for oid, w in WORK.get(rid, {}).items():
+        for oid, w in work_rows.get(rid, {}).items():
             where = "%s %s" % (rid, oid)
             if oid not in d["place"] or side.get(oid, {}).get("type") != "npc":
                 errs.append(where + ": not an NPC of the room")
@@ -631,7 +554,12 @@ def build_rooms() -> tuple:
             if w["loop"] not in LOOPS:
                 errs.append(where + ": no loop " + w["loop"])
                 continue
-            spots = [list(s) for s in w["spots"]] if "spots" in w else auto_spots(rid, oid, d, g, int(w.get("auto", 2)))
+            try:
+                spots = NPCS.resolve_spots(rid, oid, d, g, w["spots"], d["place"][oid]) if "spots" in w \
+                    else auto_spots(rid, oid, d, g, int(w.get("auto", 2)))
+            except ValueError as e:      # a spot's anchor that fits nowhere (the NPC engine's SpotError)
+                errs.append(str(e))
+                continue
             if not spots:
                 errs.append(where + ": no work spot found")
                 continue
@@ -641,10 +569,15 @@ def build_rooms() -> tuple:
         if work:
             out["work"] = work
         extras = []
-        for e in EXTRAS.get(rid, []):
+        for e in extra_rows.get(rid, []):
             where = "%s %s" % (rid, e["id"])
             if e["loop"] not in LOOPS:
                 errs.append(where + ": no loop " + e["loop"])
+            try:
+                e = dict(e, spots=NPCS.resolve_spots(rid, e["id"], d, g, e["spots"]))
+            except ValueError as ex:
+                errs.append(str(ex))
+                continue
             home = e["spots"][0]
             errs += check_spots(where, g, home, e["spots"], LOOPS.get(e["loop"], {}))
             extras.append(dict(e))
@@ -652,7 +585,7 @@ def build_rooms() -> tuple:
             out["extras"] = extras
         animals = []
         for kind, x, y in ANIMALS.get(rid, []):
-            if _floor(g, (x, y)) is None:
+            if floor_at(g, (x, y)) is None:
                 errs.append("%s: the %s at %s stands on nothing" % (rid, kind, str((x, y))))
             animals.append([kind, x, y])
         if animals:
@@ -672,11 +605,11 @@ def check_spots(where: str, g, home, spots: list, loop: dict) -> list:
     """Each spot stands on its NPC's floor within LEASH tiles of its own spot, faces one of the eight rows, names steps
     its loop has; each leg (home to the first, then spot to spot and back round) is walked with nothing in the way."""
     errs = []
-    floor = _floor(g, home)
+    floor = floor_at(g, home)
     if floor is None:
         return [where + ": its own spot stands on nothing"]
     for s in spots:
-        f = _floor(g, s)
+        f = floor_at(g, s)
         if f is None or abs(f - floor) > 8.0:
             errs.append("%s: spot %s is not on its floor" % (where, str(s[:2])))
         if math.hypot(s[0] - home[0], s[1] - home[1]) > LEASH + 1e-6:
