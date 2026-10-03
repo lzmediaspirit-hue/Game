@@ -14,8 +14,9 @@ With --review-sand-snow it renders decision 44's sand and snow sheet at x4 into 
 bible "Sand and snow").
 The room itself is reviewed in the game: tools/dev/capture/capture.tscn -- phase3.
 
-Usage: python3 tools/art/topdown/build_tiles.py [--review] [--check]
-  --check  builds twice in memory and fails unless both builds are byte-identical
+Usage: python3 tools/art/topdown/build_tiles.py [--review] [--review-sand-snow] [--check]
+  --check  builds twice in memory and fails unless both builds are byte-identical; it also draws every review sheet
+           in memory (writing none), so a sheet the table has outgrown fails here, not at the next --review
 """
 from __future__ import annotations
 
@@ -205,10 +206,10 @@ def tileset_tres(at: dict, auto: dict) -> str:
 
 
 # ============================================================================================================ review
-def review(outputs: dict) -> None:
-    """The sheets for review: every tile at x4, named and grouped; the prop kit at x4."""
+def review(outputs: dict) -> dict:
+    """The sheets for review, as {path: image}: every tile at x4, named and grouped; the prop kit at x4; Terrain v2's
+    sheet."""
     from PIL import ImageDraw, ImageFont
-    REVIEW.mkdir(parents=True, exist_ok=True)
     sheet = Image.open(io.BytesIO(outputs[TILES_PNG])).convert("RGBA")
     psheet = Image.open(io.BytesIO(outputs[PROPS_PNG])).convert("RGBA")
     man = json.loads(outputs[MANIFEST])
@@ -243,18 +244,17 @@ def review(outputs: dict) -> None:
             ts.alpha_composite(bg, (x0, y0))
             d.text((x0, y0 + 67), n, font=font, fill=(175, 201, 209, 255))
         y += ((len(names) + per_row - 1) // per_row) * cell_h
-    ts.save(REVIEW / "04_tile_sheet_x4.png")
 
     # 2. The prop kit (frames and shadows) at x4.
     pk = Image.new("RGBA", psheet.size, (22, 30, 34, 255))
     pk.alpha_composite(psheet)
-    pk.resize((psheet.width * 4, psheet.height * 4), Image.NEAREST).save(REVIEW / "05_props_x4.png")
 
-    print("review images in", REVIEW.relative_to(ROOT))
-    review_v2(sheet, man, font, head)
+    return {REVIEW / "04_tile_sheet_x4.png": ts,
+            REVIEW / "05_props_x4.png": pk.resize((psheet.width * 4, psheet.height * 4), Image.NEAREST),
+            ROOT / "docs/redesign/terrain_v2/10_tile_sheet_x4.png": review_v2(sheet, man, font)}
 
 
-def review_v2(sheet, man: dict, font, head) -> None:
+def review_v2(sheet, man: dict, font) -> Image.Image:
     """Terrain v2's tile sheet at x4 (docs/redesign/terrain_v2/10_tile_sheet_x4.png): each material's macro pattern
     whole, the face patterns (first row, then the two body rows), grass over a path in a few corner cases as the room
     view lays them (the path's pattern under the positional overlay), the tint masks in their colours over the meadow,
@@ -301,11 +301,12 @@ def review_v2(sheet, man: dict, font, head) -> None:
                                                                                        ("0110", "shade"), ("1111", "shade"))]
                      + [grid(v2["tint_mask"][c], 4, v2["water"]["macro"]["frames"][0], v2["tint"][k])
                         for c, k in (("1110", "deep"), ("1111", "deeper"))]))
-    ground = {"grass": grass[0], "flowers": grass[1], "dirt": dirt[0], "pave": pave[0], "pave_hole": pave[9],
-              "stone": m["stone"]["tiles"][0],
-              "rock": m["rock"]["tiles"][0], "marsh": grass[2], "wood": m["wood"]["tiles"][0], "roof": m["roof"]["tiles"][0]}
+    # A decal set named for a material lies on that material's first tile (decision 44's sand and snow among them);
+    # the sets that are not a material, on the ground they are painted on.
+    ground = {"flowers": grass[1], "pave_hole": pave[9], "marsh": grass[2]}
     sections.append(("Decals on their ground: " + ", ".join(v2["decals"]),
-                     [grid(names, len(names), [ground[k]] * len(names)) for k, names in v2["decals"].items()]))
+                     [grid(names, len(names), [ground[k] if k in ground else m[k]["tiles"][0]] * len(names))
+                      for k, names in v2["decals"].items()]))
     wf = v2["water"]["macro"]["frames"]
     w0 = wf[0]
     sections.append(("Water: the pattern's four frames; a shore with land to the north and west (09), to the south "
@@ -314,12 +315,10 @@ def review_v2(sheet, man: dict, font, head) -> None:
                      + [grid(v2["water"]["shore"][s], 4, [w0[5]] * 4) for s in ("09", "04", "02")]
                      + [grid([v2["water"]["corner"][c][0] for c in ("nw", "ne", "sw", "se")], 4, [w0[6]] * 4),
                         grid(v2["water"]["ripple"], 4, [w0[1]] * 4)]))
-    path = ROOT / "docs/redesign/terrain_v2"
-    path.mkdir(parents=True, exist_ok=True)
-    _section_sheet(sections, z, font).save(path / "10_tile_sheet_x4.png")
+    return _section_sheet(sections, z, font)
 
 
-def review_sand_snow(outputs: dict) -> None:
+def review_sand_snow(outputs: dict) -> dict:
     """Decision 44's sheet at x4 (docs/redesign/feedback/sand_snow/11_tile_sheet_x4.png): the sand, fresh and packed
     snow patterns whole; their faces (the first row, then the two body rows); the decals on their ground; sand over a
     path and paving, grass over sand, snow over the meadow, granite, paving, rock and packed snow, and packed snow over
@@ -385,10 +384,7 @@ def review_sand_snow(outputs: dict) -> None:
     sections.append(("The shore by sand in its four frames (land to the north, the west, the south) beside the river's own (north)",
                      [grid([[[w0[f][5]], [v2["water"]["beach"][s][f]]] for f in range(4)], 4) for s in ("01", "08", "04")]
                      + [grid([[[w0[f][5]], [v2["water"]["shore"]["01"][f]]] for f in range(4)], 4)]))
-    path = ROOT / "docs/redesign/feedback/sand_snow"
-    path.mkdir(parents=True, exist_ok=True)
-    _section_sheet(sections, z, font).save(path / "11_tile_sheet_x4.png")
-    print("sand and snow sheet in", (path / "11_tile_sheet_x4.png").relative_to(ROOT))
+    return {ROOT / "docs/redesign/feedback/sand_snow/11_tile_sheet_x4.png": _section_sheet(sections, z, font)}
 
 
 def _section_sheet(sections: list, z: int, font) -> Image.Image:
@@ -433,15 +429,22 @@ def main(argv: list[str]) -> int:
             print("NOT deterministic:", p)
         if bad:
             return 1
+        drawn = {**review(outputs), **review_sand_snow(outputs)}
+        print("review sheets drawn in memory:", len(drawn))
     for path, data in outputs.items():
         out = ROOT / path
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(data)
         print("%-34s %8d bytes  sha1 %s" % (path, len(data), hashlib.sha1(data).hexdigest()[:12]))
+    sheets = {}
     if "--review" in argv:
-        review(outputs)
+        sheets.update(review(outputs))
     if "--review-sand-snow" in argv:
-        review_sand_snow(outputs)
+        sheets.update(review_sand_snow(outputs))
+    for path, img in sheets.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        img.save(path)
+        print("review sheet", path.relative_to(ROOT))
     return 0
 
 

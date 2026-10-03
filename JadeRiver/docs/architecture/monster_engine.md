@@ -1,0 +1,193 @@
+# The monster engine (audit 45 §6.2, E2)
+
+A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
+already existed:
+
+| What | Made by | From the spec's |
+|---|---|---|
+| its `enemies.json` row | `tools/data/enemies.py` (`mob()`, `atk()`, `d()`) | `data` |
+| its `loot_tables.json` row | `enemies.py`'s loot pass | `data.drops`, `loot` |
+| its top-down sheets and its `data/topdown/foes.json` block | `tools/art/topdown/creatures.py`, `build_foes.py` | `plan`, `parts`, `mats`, `motion`, `opts` and the art fields |
+| its voice in `sound.json` | `tools/data/sound.py` | `sound` |
+| its codex page | its row's collection `page` (`data.page`) | `data.page` |
+| its wiki entry | `tools/dev/wiki.py`, from `data/` after a full build | (the row and the loot) |
+
+Nothing else names a species: a new spec needs no edit to `enemies.py`, `creatures.py` or `sound.py`.
+
+## Files
+
+```
+tools/content/monsters/__init__.py      the engine: species(), and what each generator asks of it (row, rows,
+                                        loot, voices, art)
+tools/content/monsters/build.py         the command line: build, --check, --list, --review ID
+tools/content/monsters/specs/*.py       the specs, one file a region (sorted by name when read)
+tools/art/topdown/creature/plans/       the body plans: kit.py (what they share), and one module a plan
+tools/art/topdown/creature/sculpt.py    the sculpture and the renderer (unchanged)
+tools/art/topdown/creature/motion.py    the action catalogue, frames and HIT_FRAME (unchanged)
+tools/art/topdown/creature/mats.py      the ramps (five steps a material) and the single colours
+```
+
+## Body plans
+
+A plan is a pose function: `pose(body, action, frame, **facing) -> Pose`. It reads its sizes from the species' parts
+and its motion from named styles. Each plan was extracted from the species first drawn by hand with it. Every one of
+those species draws byte-identical through its plan, so the hand modules are gone.
+
+| Plan | Variants | Extracted from | Parts (kinds) |
+|---|---|---|---|
+| `quadruped` | `rodent`, `mustelid`, `suid` | the reed rat, the reed otter, the boarlets | body (three ellipsoids), head (`rodent`, `mustelid`, `suid`), legs (`paw`, `lope`, `hoof`), tail (`reed`, `thick`, `tassel`), coat (`streak`, `pale_chest`, `youth`), crest, dust; `opts.hollowed`: the Hollow's strands, cold eyes, a death into motes |
+| `amphibian` | `frog`, `toad` | the reed frog, the mossback toad | body, throat sac and cheeks, eyes (`bead`, `lidded`), legs (`spring`, `squat`), the back's glands, moss and ferns, the tongue |
+| `crab` | `mud` | the mud crab | shell (blotches, grooves, rim, brow), eye stalks, legs a side, two claws; drawn side-on (`sideways`) |
+| `serpent` | `eel`, `leech` | the hollowed eel, the marsh leech | `eel`: a spine through key poses rising out of the water, fins, a loop of the back, the head and jaw, strands, the water round it, `awake`; `leech`: a ringed body along a resampled spine, the inchworm loop, the rear in an S, the sucker mouth |
+| `fish` | `minnow`, `greyfin` | the hollow minnow; **new:** the greyfin | trunk, head, tail and lobes, dorsal plates, pectoral fins, eye socket, jaw, the Hollow's wake; `pool`: a puddle of its own, the fish under its surface (the greyfin) |
+| `shell` | `snapper`, `beetle` | Old Snapper; **new:** the rock beetle | `snapper`: dome, rim and plastron, keels, barnacles, weed, a beaked head on its neck, pillar legs, a saw tail, the crusher; `beetle`: elytra, pronotum and underside, rocky lumps, a horned head with antennae, six jointed legs, `ball` and `spin` (it curls up and rolls) |
+| `humanoid` | `puppet`, `imp` | the Trial Puppet; **new:** the pebble imp | hips, two-bone legs and arms, a trunk of three pieces, a head; joints (balls and wraps, or none), paint (`grain`, `stone`), face (`slits`, `grin`), studs and a glowing crack, a held stone, the Qi orb; `crumble`: a body of stone coming apart into a heap (`kit.collapse`) |
+
+### Parts
+
+A variant is a table of part parameters (`plans/<plan>.py`, `VARIANTS`). A spec lays its own over them (`parts=`),
+key by key. A size that turns with the facing is written `(x, head-on, tail-on)`: `motion.headon`'s `fr` (facing the
+camera) and `bk` (walking away), `x + kf·fr + kb·bk` (`kit.lin`). Materials are roles (`coat`, `pale`, `skin`,
+`shell`...) that the variant maps to ramp names (`mats=`). A spec changes them to recolour a body: the hollowed
+boarlet is the boarlet's body with the `h_*` ramps and `opts=dict(hollowed=True)`.
+
+### Motion styles
+
+Every species draws the same catalogue (`motion.py`): idle 6, walk 8, windup 4, attack 6 (the blow on frame 1),
+hurt 3, death 8, and any extras (the leech's swim 8). A spec names one style for each action:
+
+```python
+motion={"idle": "sniff", "walk": "bound", "windup": "rear", "attack": "lunge_bite", "hurt": "knock_squash",
+        "death": "topple_side"}
+```
+
+A style is a dict in the plan's `STYLES`:
+- its tables: a tuple per channel, one value per frame (`lunge`, `pitch`, `head`, `yaw`, `gape`, `squash`, `roll`,
+  `tail`...). These are the hand modules' `LUNGE`, `PITCH`, ... tables, split by action and named.
+- its scalars: a loop's amplitudes and phases (`bob_amp`, `pitch_amp`...), and flags the plan's code reads
+  (`reared`, `angry`, `dust`...).
+- `kind`: the formula a loop runs (`bound`, `lope`, `trot`, `tripod`, `march`, `cruise`...).
+
+Overrides go in the spec: `motion={"windup": ("rear", {"pitch": (8.0, 18.0, 30.0, 40.0)})}`. The styles each plan has
+are listed in its module's docstring.
+
+## The spec
+
+A real one, the reed rat (`specs/lotus_ferry.py`):
+
+```python
+species("reedtail_rat", plan="quadruped.rodent", size=1.26,
+        palette=["fur", "fur_light", "pink", "tail_a", "tail_b"], accents=("pink",), shadow=(10, 3), cycle=11.0, view=True,
+        data=dict(level=2, role="normal", element="none", page="valley_shore", drops=[("rat_tail", 0.6)], attacks=[("bite", 0.35, 36)],
+                  ai="melee", speed=120, flee=0.25, width=18, height=22, aggro=150),
+        loot=dict(starter=True, finds=EARLY))
+```
+
+It takes the rodent's own parts and styles, so it needs no `parts` or `motion`. A new one, the rock beetle
+(`specs/stonewall_quarry.py`):
+
+```python
+species("rock_beetle", plan="shell.beetle", size=1.6,
+        palette=["beetle_rock", "beetle_pronotum", "beetle_lichen", "beetle_chitin", "beetle_horn"], accents=("beetle_horn",),
+        shadow=(11, 4), cycle=9.0, view=True,
+        data=dict(level=(4, 5), role="normal", element="earth", page="quarry", drops=[("beetle_shell", 0.6), ("copper_ore", 0.3)],
+                  attacks=[("roll", 0.5, 40, 1.1, dict(dash=90))], ai="charger", speed=60, width=20, height=24),
+        sound=dict(body="shell"))
+```
+
+| Field | What |
+|---|---|
+| `plan` | `"plan.variant"`; or `pose="module:function"`, the escape hatch (below) |
+| `parts`, `mats`, `motion`, `opts` | laid over the variant's (`opts.hollowed`; the engine adds `seed` and `id`) |
+| `size` | the species against its sculpture's art px (the people are 46 px; an elite is `ELITE` 1.2 times larger again) |
+| `palette` | its ramps (`mats.RAMPS`); `accents` keep their colour on an elite, `gold` turn gold |
+| `elite` | it has an elite sheet (default True). Give one to every species a room can make an elite. |
+| `aura` | it wears the ring of Qi in its own look (a boss's presence) |
+| `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
+| `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
+| `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
+| `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
+| `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
+| `sound` | `"race"` (default: its race's and nature's voice), or `dict(body="shell" \| "slime" \| "wood", tell="water")` |
+
+**Order and ties.** A spec's row keeps its place among `enemies.py`'s hand rows when it is placed there with
+`spec_row("id")`. Otherwise it comes after them, in spec order. Its voice keeps its place in `sound.py`'s lists when
+it is named there, or comes after them. So migrating a species changes no byte of the data.
+
+**Deterministic.** There is no randomness. A plan that varies a look by species (the beetle's flecks and lichen, the
+imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32. The seed is the id.
+
+## Adding a species
+
+1. **Pick the plan and variant** nearest the creature. Read the variant's parts in `plans/<plan>.py`.
+   - If no part kind fits, add one to the plan (a head kind, a leg kind). Keep the existing kinds' code unchanged, so
+     the species already drawn stay byte-identical (`--check` proves it).
+2. **Add its ramps** to `mats.py`, from its side-view sheet's materials (`tools/art/creatures/<id>.py`), five steps:
+   deep, shadow, base, light, highlight.
+3. **Write the spec** in its region's file. If the species has a hand row in `enemies.py`, move the row into
+   `data` (same values, same field order) and put `spec_row("id")` in its place. Otherwise the engine appends the row.
+4. **Build:** `python3 tools/content/monsters/build.py`. It runs `build_data.py` (rows, loot, sound, the wiki) and
+   `build_foes.py --jobs 2` (sheets, `foes.json`). Then let Godot import the new sheets
+   (`godot --headless --path . --import`) and commit the `.png.import` files.
+5. **Review by eye.** Numbers cannot certify the art (AGENTS.md rule 3). Look at every action in every facing, base
+   and elite:
+   - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
+     (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
+   - **In the game:** the capture set `monsters_e2` (or a set of your own beside it in `tools/dev/capture/shots.gd`):
+     `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_e2`.
+     It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
+     struck, side-on, tail-on, falling, the elites, and a live fight. It plays on its own saves, never the Max Tester.
+   - Check that the tell reads and is its own, that the blow lands on frame 1, the feet sit on the line, the head-on
+     and tail-on rows read as the creature, and the elite wears its ring with gold eyes.
+6. **Check:** `python3 tools/content/monsters/build.py --check` (the runners' `monsters` gate), then
+   `tools/run_tests.sh`.
+7. **APK size:** report the new sheets' sizes. A sheet costs about 55% of its PNG in the APK (lossless WebP). An elite
+   sheet is about twice its base; leave it out where no room makes an elite.
+
+## The escape hatch
+
+`species("x", pose="creature.mymodule:fn", ...)` draws the species with a hand-written pose function `fn(action,
+frame, **facing) -> Pose`. It takes the same keywords a plan does (`view`, `aim`, `k`, `awake`, by the art fields).
+Use it when no plan draws the creature well and a new part kind would not pay for itself. The data, voice and sheet
+paths are the same. `--check` proves the hatch works with a stand-in module.
+
+## Checks (`build.py --check`, the `monsters` gate)
+
+| Part | What it proves |
+|---|---|
+| specs | Every spec resolves: its plan, variant and motion styles; its palette ramps, accents and gold; its voice; a hand module loads |
+| poses | Every species poses every action and frame in the five drawn facings and each of its looks; the catalogue's counts and `HIT_FRAME` are 1 |
+| data | Every spec's `enemies.json` row is the row its spec makes (after `enemies.py`'s passes); its loot table has its starter mark, finds and quest drops; `sound.json` gives it its spec's voice |
+| sheets | `foes.json` has every spec's block and looks, every action's frames, the blow on frame 1; the sheets are on disk; sampled frames drawn twice are identical and equal to the sheet's cell |
+| elite | An elite is larger and wears the ring of Qi; its species' own look does not |
+| hatch | A spec's hand module draws the species; every seed differs |
+
+`build_foes.py --check` builds every sheet twice and fails unless both builds are byte-identical. `build_data.py
+--check` fails unless every data file is what its generator writes.
+
+## Migration (decision 45, E2)
+
+| Species | Plan | Sheets | Data rows |
+|---|---|---|---|
+| mudshell_crab | `crab.mud` | identical | identical |
+| reedtail_rat | `quadruped.rodent` | identical | identical |
+| reed_otter | `quadruped.mustelid` | identical | identical |
+| wild_boarlet | `quadruped.suid` | identical | identical |
+| hollowed_boarlet | `quadruped.suid` + hollowed | identical | identical |
+| reed_frog | `amphibian.frog` | identical | identical |
+| mossback_toad | `amphibian.toad` | identical | identical |
+| hollow_minnow | `fish.minnow` | identical | identical |
+| hollowed_eel | `serpent.eel` (and its awakened look) | identical | identical |
+| marsh_leech | `serpent.leech` (and its swim) | identical | identical |
+| old_snapper | `shell.snapper` | identical | identical |
+| trial_puppet | `humanoid.puppet` | identical | identical |
+
+"Identical" means byte for byte: every sheet's PNG, every `foes.json` block, `enemies.json`, `loot_tables.json` and
+`sound.json`. So no frame needed a reviewed diff, and no species kept a hand module. The eleven hand pose modules
+(1,879 lines) are deleted.
+
+The first new species are the three a top-down player meets first past the top-down rooms. They had side-view
+stand-ins before. Each has a sheet, an elite where a room makes one, and its rows moved into its spec unchanged:
+- the rock beetle and the pebble imp of Stonewall Quarry (`sq_quarry_rim`, off Stoneford's quarry road; the quest
+  `stone_and_sweat`);
+- the greyfin of the Grey Pools (`rm_grey_pools`, east of the Marsh Edge).

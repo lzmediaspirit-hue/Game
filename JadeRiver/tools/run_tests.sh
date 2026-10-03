@@ -45,9 +45,17 @@ if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
 # Audit 45 (E6): the cue table (data/cues.json) is what its generator writes.
 echo "== cues"
 if ! python3 tools/data/cues.py --check; then failed+=("cues"); fi
+# Audit 45 (E4): the data holds every item family as its spec writes it, each source a family names is found, its pill
+# icons are current, and the engine's own tests pass (tools/content/items).
+echo "== item_engine"
+if ! python3 tools/content/items/engine.py --check; then failed+=("item_engine"); fi
 # Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
 echo "== pix"
 if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
+# Audit 45 (E2): the monster engine: every species spec resolves and poses in every action and facing, and its rows,
+# loot, voice and sheets are what it makes (tools/content/monsters/build.py).
+echo "== monsters"
+if ! python3 tools/content/monsters/build.py --check; then failed+=("monsters"); fi
 # The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
 # load their own scenes, so only this catches a missing or broken main scene.
 echo "== boot"
