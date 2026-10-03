@@ -28,9 +28,10 @@ import zlib
 # What a spec may say about its picture (creatures.Spec): the size against its sculpture, its palette (mats.RAMPS
 # names), the materials its elite keeps (`accents`) or turns gold (`gold`), whether it has an elite, its boss ring
 # (`aura`), its blob shadow, the walk cycle's length, the crab's `sideways`, the eel's `sized`, the beasts' `view`, the
-# actions past the catalogue (`extra`), a boss's awakened look, its glow materials.
+# actions past the catalogue (`extra`), a boss's awakened look, its glow materials, and (M1) whether a facing's identical
+# frames share one cell of its sheet (`share`).
 ART_KEYS = ("size", "palette", "accents", "gold", "glow", "elite", "aura", "shadow", "cycle", "sideways", "sized", "view",
-            "extra", "awakened")
+            "extra", "awakened", "share")
 # The voice families sound.py names (the creatures whose shell, slime or wood their race does not say).
 BODIES = ("shell", "slime", "wood")
 TELLS = ("water",)
@@ -61,6 +62,13 @@ class Species:
 
 _REG: dict = {}
 _LOADED = False
+
+
+def person(name: str, **outfit) -> dict:
+    """A person's `art` (M1): the outfit the side view's avatar and the top-down figure dress them in (hair, hair_color,
+    shirt, pants, shoes, weapon, hat, and any dyes, cape or tint, in that order), their name and the body, as enemies.py's
+    human() writes it. A `person.*` plan draws the species in it (tools/art/topdown/creature/plans/person.py)."""
+    return {"avatar": dict(outfit, name=name, body="light")}
 
 
 def species(id: str, **kw) -> Species:
@@ -154,5 +162,8 @@ def art(id: str) -> dict:
         kw["pose"] = sp.pose
     else:
         kw["plan"] = sp.plan
-        kw["body"] = {"parts": sp.parts, "mats": sp.mats, "motion": sp.motion, "opts": dict(sp.opts, seed=sp.seed, id=sp.id)}
+        parts = dict(sp.parts)
+        if sp.plan.startswith("person.") and "outfit" not in parts:
+            parts["outfit"] = dict(sp.data["art"]["avatar"])      # a person wears its row's outfit (plans/person.py)
+        kw["body"] = {"parts": parts, "mats": sp.mats, "motion": sp.motion, "opts": dict(sp.opts, seed=sp.seed, id=sp.id)}
     return kw

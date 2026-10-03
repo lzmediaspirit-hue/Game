@@ -19,3 +19,25 @@ species("pebble_imp", plan="humanoid.imp", size=1.5,
                   attacks=[("pebble_throw", 0.4, 300, 0.9, dict(projectile={"speed": 380, "art": "pebble"}))], ai="ranged", speed=70,
                   width=16, height=32, keep_distance=180),
         sound=dict(body="shell"))
+
+# M1. Deeper in the quarry (the Lower Pit): a huge, slow tortoise whose shell is a small stone mountain, pale granite
+# crags in strata, moss on the ledges, a little wind-bent pine on the saddle; an old beaked head. It rears onto its hind
+# legs (the tell) and stamps down in a ring of dust that strikes on both sides of it; beaten, it draws in and the
+# mountain cracks.
+species("stone_tortoise", plan="shell.tortoise", share=True, size=1.4,
+        palette=["mtn_rock", "mtn_rim", "mtn_moss", "mtn_pine", "mtn_bark", "tort_skin", "tort_belly", "tort_beak", "snap_eye", "maw"],
+        accents=("snap_eye",), shadow=(18, 5), cycle=9.0,
+        data=dict(level=(5, 7), role="normal", element="earth", page="quarry", drops=[("tortoise_plate", 0.5), ("jadeiron", 0.15)],
+                  attacks=[("slam", 0.6, 80, 1.2, dict(depth=40, both_sides=True, knockback=60))], ai="slow_melee", speed=35, width=36,
+                  height=40, hp_mult=1.4),
+        sound=dict(body="shell"))
+
+# M1. A plump velvet-furred mole with a pink star nose and huge iron-grey digging claws (the Lower Pit, the Collapsed
+# Tunnel). It moves unseen under the ground (the room view hides it as it burrows); it bursts up out of its hole rearing,
+# claws raised, clods flying (the tell), and rakes them down.
+species("ironclaw_mole", plan="quadruped.talpid", share=True, size=1.7,
+        palette=["mole_fur", "mole_sheen", "mole_palm", "mole_pink", "mole_iron", "mole_dirt"], accents=("mole_iron", "mole_pink"),
+        shadow=(10, 3), cycle=9.0, view=True,
+        data=dict(level=(5, 7), role="normal", element="earth", page="quarry", drops=[("mole_claw", 0.5), ("ore_dust", 0.6)],
+                  attacks=[("burst_claw", 0.6, 44, 1.2)], ai="burrower", speed=70, tameable=True, width=20, height=26),
+        sound=dict(body="shell"))

@@ -9,17 +9,6 @@ func on_hit_during_event(p: Dictionary) -> void:
 	if rt == null or not rt.event.get("active", false) or str(p.get("target_kind", "")) != "player": return
 	if int(p.get("amount", 0)) > 0: rt.event.hits_taken = int(rt.event.get("hits_taken", 0)) + 1
 
-## A trial's spawn points written for the side view (a Trial Tower floor's, the Grove's waves), for the loaded room: as
-## they are in the side view; on the height grid, each across the room as across the side view's, on a floor
-## (TopdownRoom.from_side; R3, E1's rooms: the tower's and the Grove's trials are fought on the grid).
-func side_points(points: Array) -> Array:
-	var rt: RoomRuntime = game.room_rt
-	if rt == null or rt.topdown == null: return points
-	var bounds: Array = ContentDB.room(rt.room_id).get("bounds", [])
-	return points.map(func(p):
-		var q: Vector2 = rt.topdown.from_side(Vector2(float(p[0]), float(p[1])), bounds)
-		return [q.x, q.y])
-
 ## Start a timed event in the loaded room (set pieces, sect defence).
 func start_room_event(c, ev: Dictionary) -> void:
 	if game.room_rt: start_event(c, game.room_rt, ev)
@@ -44,6 +33,11 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 			rt.event.leaving = _leave_after(rt, ev)
 		return
 	rt.event = ev.duplicate(true)
+	# T1 (docs/architecture/topdown_mechanics.md): on the height grid every event's points go through the one rule,
+	# TopdownRoom.grid_event: the layout's cells for it, else the side view's points mapped across the room onto open
+	# ground the player walks to. Every room event starts here, so no caller maps its own.
+	if not WorldAuthority.side_view(rt): rt.event = rt.topdown.grid_event(rt.event, _player_at(c), rt.def.get("side_bounds", []))
+	ev = rt.event
 	rt.event.active = true
 	rt.event.remaining = float(ev.get("duration", 60))
 	# A voyage lasts as long as its vessel takes to cross (S18).
@@ -82,10 +76,21 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 			rt.event.wave_timers.remove_at(wi)
 	# The Reflection brings your heart demons with it: one for every 25 on the meter (G1).
 	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
+	var at_demons: Array = []
+	for i in demons: at_demons.append([700.0 + 260.0 * i, 860.0])
+	if not at_demons.is_empty() and not WorldAuthority.side_view(rt): at_demons = rt.topdown.grid_points(at_demons, _player_at(c), rt.def.get("side_bounds", []))
 	for i in demons:
-		game.enemies.spawn_at(str(ev.heart_demons), Vector2(700.0 + 260.0 * i, 860.0), int(ev.get("level", -1)))
+		game.enemies.spawn_at(str(ev.heart_demons), Vector2(float(at_demons[i][0]), float(at_demons[i][1])), int(ev.get("level", -1)))
 	if demons > 0: emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(ev.heart_demons),
 		"text": Tx.t("sim.world.heart_demons_rise") % demons})
+
+## Where the player stands in the loaded room: an event's foes on the grid are set where it walks to from there. The
+## character's position, which the World authority keeps (an event begun as its room is loaded, a Trial Tower floor,
+## finds the body still where it was before), else the body's own; INF when neither is in this room.
+func _player_at(c) -> Vector2:
+	if str(c.position.get("room", "")) == game.room_rt.room_id: return Vector2(float(c.position.get("x", 0)), float(c.position.get("y", 0)))
+	var st: ActorState = game.actor_state(c.id)
+	return st.plane if st != null else Vector2.INF
 
 func tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	var ev: Dictionary = rt.event
@@ -140,6 +145,8 @@ func tick_event(c, rt: RoomRuntime, delta: float) -> void:
 	if ev.has("ground_grace_s"):
 		var st: ActorState = game.actor_state(c.id)
 		var grounded := st != null and st.mode() == "ground" and st.surface != null and not st.surface.is_block and st.surface.stratum == "ground"
+		# T1: on the height grid the ground is the room's floor at level 0; a pole's top, a roof or a terrace is off it.
+		if grounded and not WorldAuthority.side_view(rt): grounded = rt.topdown.floor_at(st.plane) <= 0.5
 		ev.ground_s = float(ev.ground_s) + delta if grounded and elapsed > float(ev.get("ground_free_s", 5.0)) else 0.0
 		if float(ev.ground_s) > float(ev.ground_grace_s):
 			end_event(c, rt, false, "ground")

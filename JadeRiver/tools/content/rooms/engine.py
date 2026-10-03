@@ -1227,6 +1227,51 @@ class Build:
             self.lay.routes = dict(self.spec["routes"])
         if self.spec.get("areas"):
             self.lay.areas = [dict(a) for a in self.spec["areas"]]
+        if self.spec.get("traverse"):
+            self.lay.traverse = self.traverse_rows()
+        if self.spec.get("stage"):
+            self.lay.stage = self.stage_cells()
+
+    # ================================================================ T1: the side view's traversal and set pieces
+    # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event
+    # the side view calls to its own points sets its foes. topdown_rooms.check_traverse holds each to the grid.
+    TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level"), "updraft": ("rect", "top", "speed"),
+                     "bounce": ("rect", "speed"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
+                     "crumble": ("rect", "level", "break_s", "return_s"), "current": ("rect", "push"), "flood": ("rect", "top"),
+                     "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top")}
+
+    def traverse_rows(self):
+        out = []
+        for row in self.spec["traverse"]:
+            kind, tid, opts = row if len(row) == 3 else (row[0], row[1], {})
+            keys = self.TRAVERSE_KEYS.get(kind)
+            if keys is None:
+                raise SpecError("%s: traverse %r: one of %s" % (self.id, kind, ", ".join(self.TRAVERSE_KEYS)))
+            stray = sorted(set(opts) - set(keys))
+            if stray:
+                raise SpecError("%s: traverse %s %s: unknown key %s (%s)" % (self.id, kind, tid, ", ".join(stray), ", ".join(keys)))
+            r = {"kind": kind, "id": tid}
+            for k in keys:
+                if k in opts:
+                    r[k] = _listed(opts[k])
+            out.append(r)
+        return out
+
+    def stage_cells(self):
+        """Each stage point: a cell as written, or an anchor expression resolved as an anchor is (reached from every way,
+        off the lanes, the stairs and the props, two cells from every thing and three from a way)."""
+        g = self.grid()
+        reach = self.reached(g)
+        lanes = self.lanes()
+        taken = self._prop_cells()
+        out = {}
+        for eid, pts in self.spec["stage"].items():
+            cells = []
+            for i, q in enumerate(pts):
+                c = q if isinstance(q, (tuple, list)) else self._resolve("stage %s %d" % (eid, i), q, {}, g, reach, lanes, taken)
+                cells.append([c[0], c[1]])
+            out[eid] = cells
+        return out
 
     # ================================================================
     def run(self):
@@ -1246,6 +1291,13 @@ class Build:
         self.ground()
         self.finish()
         return self.lay
+
+
+def _listed(v):
+    """A spec value as the layout's JSON writes it: tuples as lists, all the way down."""
+    if isinstance(v, (tuple, list)):
+        return [_listed(q) for q in v]
+    return v
 
 
 def _ring(x, y, n, W, H):

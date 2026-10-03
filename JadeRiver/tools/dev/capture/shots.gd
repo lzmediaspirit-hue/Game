@@ -486,6 +486,59 @@ static func sets() -> Dictionary:
 		{"name": "12_fight", "room": "lf_reed_shallows", "cell": SPOT, "wait": 60, "foes": [["rock_beetle", Vector2(3, 2)], ["pebble_imp", Vector2(-4, 1)],
 			["greyfin", Vector2(-2, -3)]], "turned": true, "fight": [150, false], "take": [["shot"], ["view_x4", "*_x4"]]}]}
 
+	# M1: the monster engine's first batch past E2 (tools/content/monsters/specs/), lined up by kind on the Reed Shallows
+	# beside drawn foes for scale: (a) the quarry's and the bamboo grove's, (b) chapter 3's and 4's beasts and the paper
+	# ghost, (c) the people (cast in the shared character body); every pose of the E2 set, their elites, and live fights
+	# in the top-down rooms they live in.
+	var m1 := []
+	for lu in [["a", M1_LINEUP_A], ["b", M1_LINEUP_B], ["c", M1_LINEUP_C]]:
+		m1.append({"do": [["lineup", lu[1]]]})
+		for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+				["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+				["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+			m1.append({"name": lu[0] + "_" + st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+		m1.append({"name": lu[0] + "_09_falling", "do": [["fell_lineup"]]})
+	for el in [["d", M1_ELITES_A], ["e", M1_ELITES_B]]:
+		m1.append({"do": [["lineup", el[1]]]})
+		m1.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
+		m1.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
+	s["monsters_m1"] = {"doc": "M1: the monster engine's first batch past E2 (the quarry's, the bamboo grove's, chapter 3-5's beasts and people) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their own top-down rooms under the HUD (the Caravan Road, Bend Shore, the Boss Den, the Lower Pit, the Thicket Heart, the Whispering Bamboo, the Pilgrim Stairs, the Hall of Lanterns, the Abbot's Sanctum, the Gorge Mouth) (--tag=after)",
+		"out": "redesign/feedback/monsters/m1/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m1 + [
+		{"do": [["paused", false], ["hud", "visible", true]]},
+		# A fight in the species' own room: the room's own foes cleared (they stand far above a new body's Level, and a
+		# blow of theirs would open the fall's page over the shot), the batch's set on the player at Level 1.
+		{"name": "12_fight_caravan_road", "room": "cr_caravan_road", "cell": Vector2(30, 16), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 16), [["mudwater_bandit", Vector2(3, 1)], ["bandit_archer", Vector2(-5, 1)], ["mud_hound", Vector2(2, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "13_fight_bend_shore", "room": "dw_bend_shore", "cell": Vector2(23, 15), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(23, 15), [["jade_carp", Vector2(-2, 2)], ["tide_crab", Vector2(3, 1)], ["ember_fox", Vector2(-4, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "14_fight_boss_den", "room": "mh_boss_den", "cell": Vector2(28, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(28, 14), [["big_toad_tan", Vector2(4, 0)], ["mudwater_lieutenant", Vector2(-3, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "15_fight_lower_pit", "room": "sq_lower_pit", "cell": Vector2(24, 17), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(24, 17), [["stone_tortoise", Vector2(4, 0)], ["ironclaw_mole", Vector2(-4, 1)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "16_fight_thicket_heart", "room": "bg_thicket_heart", "cell": Vector2(30, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 14), [["thornback_boar", Vector2(4, 1)], ["green_viper", Vector2(-4, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "17_fight_whispering_bamboo", "room": "bg_whispering_bamboo", "cell": Vector2(30, 14), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 14), [["bamboo_monkey", Vector2(4, 2)], ["bamboo_monkey", Vector2(-4, 1)], ["ember_fox", Vector2(2, -2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "18_fight_pilgrim_stairs", "room": "cp_pilgrim_stairs", "cell": Vector2(24, 25), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(24, 25), [["stone_guardian", Vector2(4, 0)], ["stone_guardian", Vector2(-4, 2)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "19_fight_hall_of_lanterns", "room": "ds_hall_of_lanterns", "cell": Vector2(28, 8), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(28, 8), [["drowned_acolyte", Vector2(-4, 2)], ["paper_talisman_ghost", Vector2(4, -1)], ["paper_talisman_ghost", Vector2(3, 3)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "20_fight_abbots_sanctum", "room": "ds_abbots_sanctum", "cell": Vector2(30, 13), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(30, 13), [["drowned_abbot", Vector2(5, 0)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]},
+		{"name": "21_fight_gorge_mouth", "room": "wg_gorge_mouth", "cell": Vector2(34, 11), "wait": 60, "do": [["clear_enemies"], ["close_pages"],
+			["foes", Vector2(34, 11), [["gorge_bandit_adept", Vector2(4, 1)], ["gorge_bandit_adept", Vector2(-4, 1)]], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]}]}
+
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
 		"out": "redesign/feedback/hud/", "vars": {"tag": "after"}, "stage": hud_stage, "rows": [
@@ -650,6 +703,34 @@ static func sets() -> Dictionary:
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
+	# T1 (docs/architecture/topdown_mechanics.md): the side view's traversal on the grid, played in the rooms that need
+	# it: a raft carrying the body over the Grey Pools and the hermit's pond, the vine up to the Falls Pool's spray ledge,
+	# a glide from it over the falls' spray, the spray lifting a glider, the rope up the falls ledge.
+	var on_the_ledge := Vector2(-1, 1).normalized()
+	s["traversal"] = {"doc": "T1: the side view's traversal on the grid: rafts, the vine and the rope, the glide and the falls' updraft, flight",
+		"out": "architecture/topdown_mechanics/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
+			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"],
+			["secret_art", "falling_leaf_glide"]], "rows": [
+		{"name": "01_raft_grey_pools", "room": "rm_grey_pools", "cell": Vector2(19, 21), "wait": 60, "do": [["on_raft", "log_raft_a"], ["frames", 150]],
+			"take": [["shot"], ["world", "world/01_raft_grey_pools"]]},
+		{"name": "02_raft_hermit_pond", "room": "rm_hermit_stilt_house", "cell": Vector2(12, 7), "wait": 60, "do": [["on_raft", "pond_raft"], ["frames", 150]],
+			"take": [["world", "world/02_raft_hermit_pond"]]},
+		{"name": "03_vine_climb", "room": "cf_falls_pool", "cell": Vector2(34, 8), "wait": 60, "do": [["move", Vector2.UP], ["frames", 48], ["stop"], ["frames", 4]],
+			"take": [["world", "world/03_vine_climb"]], "then": [["move", Vector2.UP], ["frames", 90], ["stop"]]},
+		{"name": "04_glide_over_the_spray", "room": "cf_falls_pool", "cell": Vector2(30, 6), "wait": 60,
+			"do": [["qi_full"], ["face", on_the_ledge], ["move", on_the_ledge], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 34]],
+			"take": [["world", "world/04_glide_over_the_spray"]], "then": [["frames", 90], ["hold_jump", false], ["stop"], ["frames", 60]]},
+		{"name": "05_updraft_lifts", "room": "cf_falls_pool", "cell": Vector2(25, 11), "wait": 60,
+			"do": [["qi_full"], ["face", Vector2.RIGHT], ["move", Vector2(1, -0.4).normalized()], ["frames", 2], ["jump"], ["hold_jump", true], ["frames", 44]],
+			"take": [["world", "world/05_updraft_lifts"]], "then": [["hold_jump", false], ["stop"], ["frames", 90]]},
+		{"name": "06_rope_falls_ledge", "room": "cf_falls_pool", "cell": Vector2(14, 7), "wait": 60, "do": [["move", Vector2.LEFT], ["frames", 44], ["stop"], ["frames", 4]],
+			"take": [["world", "world/06_rope_falls_ledge"]], "then": [["move", Vector2.LEFT], ["frames", 90], ["stop"]]},
+		{"name": "07_falls_pool_whole", "room": "cf_falls_pool", "cell": Vector2(36, 8), "wait": 60, "take": [["whole_room", "rooms/cf_falls_pool"]]},
+		{"name": "08_flight_over_the_shore", "room": "cf_falls_pool", "cell": Vector2(45, 22), "wait": 60,
+			"do": [["set", "cultivator.realm_key", "cloud_stride_1"], ["unlock", ["flight"]], ["refresh"], ["qi_full"], ["face", Vector2.DOWN],
+				["jump"], ["hold_jump", true], ["frames", 60], ["hold_jump", false], ["frames", 2], ["move", Vector2.RIGHT], ["frames", 20], ["stop"], ["frames", 2]],
+			"take": [["world", "world/08_flight_over_the_shore"]], "then": [["submit", {"type": "stop_flight", "reason": "landed"}], ["frames", 90]]}]}
+
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",
 		"out": "redesign/feedback/combat/", "stage": [["proto"], ["hud", "visible", false]], "rows": [
@@ -682,6 +763,30 @@ const POLISH_LINEUP := [["wild_boarlet", Vector2(-4.5, -2.2), false], ["hollowed
 	["wild_boarlet", Vector2(1.5, -2.2), true], ["reedtail_rat", Vector2(4.5, -2.2), false],
 	["reed_otter", Vector2(-4.5, 1.0), false], ["mossback_toad", Vector2(-1.5, 1.0), false], ["mudshell_crab", Vector2(1.5, 1.0), false],
 	["marsh_leech", Vector2(3.4, 1.0), false], ["marsh_leech", Vector2(5.2, 1.0), true]]
+# M1: the monster engine's first batch, by kind, beside drawn foes for scale (the reed rat, the rock beetle, the boarlet,
+# the mud crab), and their elites beside them.
+# The mole stands past its aggro range from the player (200 px, over six tiles): one that took the player for prey would
+# burrow toward it before the lineup is held, and a burrowing foe is not drawn.
+const M1_LINEUP_A := [["stone_tortoise", Vector2(-7.5, -2.6), false], ["bamboo_monkey", Vector2(-3.0, -2.6), false],
+	["reedtail_rat", Vector2(2.5, -2.6), false], ["thornback_boar", Vector2(7.0, -2.6), false],
+	["ironclaw_mole", Vector2(-7.5, 2.0), false], ["green_viper", Vector2(-3.5, 2.0), false], ["rock_beetle", Vector2(2.5, 2.0), false],
+	["wild_boarlet", Vector2(7.0, 2.0), false]]
+const M1_LINEUP_B := [["jade_carp", Vector2(-7.5, -2.6), false], ["tide_crab", Vector2(-3.0, -2.6), false],
+	["ember_fox", Vector2(2.5, -2.6), false], ["mud_hound", Vector2(7.0, -2.6), false],
+	["stone_guardian", Vector2(-7.5, 2.2), false], ["jade_crane_chick", Vector2(-3.0, 2.2), false],
+	["paper_talisman_ghost", Vector2(2.5, 2.2), false], ["mudshell_crab", Vector2(7.0, 2.2), false]]
+const M1_LINEUP_C := [["mudwater_bandit", Vector2(-7.5, -2.6), false], ["bandit_archer", Vector2(-4.0, -2.6), false],
+	["mudwater_lieutenant", Vector2(3.0, -2.6), false], ["big_toad_tan", Vector2(7.0, -2.6), false],
+	["drowned_acolyte", Vector2(-7.5, 2.2), false], ["rogue_cultivator", Vector2(-4.0, 2.2), false],
+	["drowned_abbot", Vector2(3.0, 2.2), false], ["gorge_bandit_adept", Vector2(7.0, 2.2), false]]
+const M1_ELITES_A := [["ironclaw_mole", Vector2(-7.5, -2.4), false], ["stone_tortoise", Vector2(-3.0, -2.4), false],
+	["stone_tortoise", Vector2(2.5, -2.4), true], ["ironclaw_mole", Vector2(7.0, -2.4), true],
+	["bamboo_monkey", Vector2(-7.5, 2.0), false], ["bamboo_monkey", Vector2(-4.0, 2.0), true],
+	["green_viper", Vector2(2.5, 2.0), false], ["green_viper", Vector2(6.5, 2.0), true]]
+const M1_ELITES_B := [["thornback_boar", Vector2(-7.5, -2.4), false], ["thornback_boar", Vector2(-2.5, -2.4), true],
+	["jade_carp", Vector2(3.0, -2.4), false], ["jade_carp", Vector2(7.0, -2.4), true],
+	["tide_crab", Vector2(-7.5, 2.2), true], ["mudwater_bandit", Vector2(-4.0, 2.2), false], ["mudwater_bandit", Vector2(3.0, 2.2), true],
+	["rogue_cultivator", Vector2(7.0, 2.2), true]]
 
 ## The sand and snow sampler's paint (40 x 22 cells, the phone's view). West: meadow, a dirt path and a paved corner round
 ## a sand flat, its beach on the water and a jetty. East: a snow field on the meadow with a packed-snow path through it,
