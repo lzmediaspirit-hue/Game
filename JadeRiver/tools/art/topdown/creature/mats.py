@@ -287,6 +287,22 @@ RAMPS = {
     "lantern_cap": _s("8a4a46", "5c2e33", "3f1f27", "29141b"),
     "lantern_tassel": _s("ff8a78", "d4474b", "9c2f3d", "661f30"),
     "wax": _s("ffffff", "efe6f7", "cbbde0", "9c8cb8"),
+    # jade sentinel: carved jade (and its darker carving), bronze trim, the halberd's dark shaft and pale blade
+    "sentinel_jade": _s("a7e3c6", "5fae8e", "3b7a66", "244f47"),
+    "sentinel_jade_dark": _s("77b89c", "437f6a", "2c5a4f", "1b3a36"),
+    "sentinel_bronze": _s("e8b872", "b07a40", "7d532f", "523522"),
+    "halberd_shaft": _s("8a5a3a", "5e3a28", "422a20", "2b1b16"),
+    "halberd_blade": _s("e9f4ea", "b9d2c4", "86a397", "5a7169"),
+    # hollow stag: a grey-white hide, pale antlers, dark hooves
+    "stag_hide": _s("eef2ef", "bcc6c8", "8a979d", "5f6a72"),
+    "stag_antler": _s("e4e8e4", "aeb7b8", "7e8a90", "56616a"),
+    "stag_hoof": _s("6e777e", "4d555c", "384046", "262c31"),
+    # cloudpeak roc: warm-white plumes, pale flight feathers, gold (its crest, tips and bands), a gold beak, dark talons
+    "roc_plume": _s("ffffff", "f1ebdc", "c9bb9c", "8f7d5f"),
+    "roc_flight": _s("fbf6ea", "ddd1b6", "ad9b78", "7a6a4f"),
+    "roc_gold": _s("fff2b4", "e8bb4e", "b3862f", "7a5a21"),
+    "roc_beak": _s("fff0b2", "efc45a", "b98b34", "7c5b23"),
+    "roc_talon": _s("6a5a4a", "403428", "2c231c", "1c1612"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -381,6 +397,12 @@ PROPS = {
     "wisp_pupil": {"weight": 1.8},
     "lantern_paper": {"hi": True}, "lantern_cap": {"hi": True, "weight": 1.3}, "lantern_tassel": {"hi": True, "weight": 1.4},
     "wax": {"hi": True, "weight": 1.2},
+    "sentinel_jade": {"hi": True, "glossy": True}, "sentinel_jade_dark": {"hi": True, "glossy": True},
+    "sentinel_bronze": {"hi": True, "glossy": True, "weight": 1.3}, "halberd_shaft": {"hi": True, "line": True, "weight": 1.5},
+    "halberd_blade": {"hi": True, "glossy": True, "weight": 1.5},
+    "stag_hide": {"hi": True}, "stag_antler": {"hi": True, "weight": 1.4}, "stag_hoof": {"hi": True, "weight": 1.3},
+    "roc_plume": {"hi": True}, "roc_flight": {"hi": True}, "roc_gold": {"hi": True, "glossy": True, "weight": 1.4},
+    "roc_beak": {"hi": True, "glossy": True, "weight": 1.5}, "roc_talon": {"hi": True, "weight": 1.4},
 }
 
 # Single colours laid on as marks and points.
@@ -507,6 +529,11 @@ WISP_GLINT = c("FFFFFF")
 WISP_CRACK = c("1D1238")
 LANTERN_TEAR = c("8E6BD0")
 LANTERN_INK = c("2A1838")
+# M2: the jade sentinel's and the gate guardian's gold runes and eyes.
+RUNE_CORE = c("FFFBE6")
+RUNE = c("FFE6A1")
+RUNE_DIM = c("E5B84C")
+RUNE_GLOW = c("FFE6A1", 130)
 SOUL_FLAME_CORE = c("F3E8FF")
 SOUL_FLAME = c("B28CF0")
 SOUL_FLAME_DEEP = c("7D55C8")

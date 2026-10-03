@@ -267,6 +267,25 @@ BOVID = {
     "tail": {"kind": "tassel"},
     "dust": True,
 }
+# M2: the hollow stag (its side-view sheet: ~56 px tall to its antler tips, ~44 long): a slender deer on long legs, a
+# deep chest, a long neck carrying its head high, broken branching antlers, grey-white with the Hollow's dark cracks
+# over it, empty white eyes, grey mist seeping off it.
+CERVID = {
+    "Z": 10.2, "hips": (-3.0, 0.4), "pivot": (-3.0, 0.0, 0.4), "side": 3.0,
+    "body": [{"at": ((3.0, 0.4), 1.0), "r": ((3.3, 0.0, 0.0), (2.5, 0.5, 0.0), (3.3, 0.0, 0.0))},
+             {"at": ((-0.4, 1.0), 0.6), "r": ((4.5, -1.6, 0.0), (2.4, 0.3, 0.2), (2.6, -0.2, 0.0))},
+             {"at": ((-3.8, 2.0), 0.9), "r": ((3.0, -0.4, 0.0), (2.5, 0.0, 0.5), (2.8, -0.3, 0.3))}],
+    "coat": {"kind": "cracked", "belly": -0.5, "crack": 0.86},
+    "head": {"kind": "cervid", "at": ((7.0, 0.6), (5.6, 1.0, -0.4)), "pitch": (-6.0, 16.0), "neck": ((4.4, 0.0, 2.2), 1.9, 1.3),
+             "skull": (2.0, 1.6, 1.7), "muzzle": ((0.8, 0.0, -0.3), (3.8, 0.0, -1.3), 1.25, 0.75), "nose": (4.0, 0.0, -1.2),
+             "ears": ((-0.6, 1.4, 1.0), (1.4, 0.4, 0.7)), "eyes": {"at": (1.0, 1.25, 0.45), "shut": {"hurt": 0, "death": 5}},
+             "antlers": {"beam": ((-0.5, 0.9, 1.5), (-1.4, 2.0, 3.8), (-2.4, 2.6, 6.0), (-2.2, 3.1, 8.0), (-1.4, 3.3, 9.4)),
+                         "tines": ((1, (1.3, 0.2, 1.8)), (2, (1.7, 0.5, 1.3)), (2, (-0.3, 1.2, 1.6)), (3, (0.6, -0.4, 0.9))),
+                         "r": (0.6, 0.18), "broken": (3,)}},
+    "legs": {"kind": "hoof", "thick": 0.72, "bones": ((4.3, 4.1), (4.5, 4.3))},
+    "tail": {"kind": "stub", "root": (-6.4, 1.8), "tip": (-7.6, 1.0), "r": (0.85, 0.55)},
+    "dust": True, "strands": False,
+}
 # M2: the rapids lizard (its side-view sheet: ~18 px tall to the crest, ~48 long nose to tail): a long low body on
 # sprawling legs, a wedge of a head with a cheek fin, a webbed crest down its back and along its long tail.
 SAURIAN = {
@@ -286,6 +305,11 @@ SAURIAN = {
     "tail": {"kind": "fin", "root": (-6.0, 0.2), "n": 12, "length": 13.0, "r": (1.45, 0.18), "fin": 0.9},
 }
 VARIANTS = {
+    "cervid": {"parts": CERVID, "mats": {"hide": "stag_hide", "head": "stag_hide", "stripe": "stag_hide", "hoof": "stag_hoof", "coat": "stag_hide",
+                                         "antler": "stag_antler", "pale": "stag_antler"},
+               "opts": {"hollowed": True},
+               "motion": {"idle": "alert", "walk": "trot", "windup": "paw_ground", "attack": "charge_toss", "hurt": "stumble",
+                          "death": "buckle_roll"}},
     "bovid": {"parts": BOVID, "mats": {"hide": "ro_hide", "head": "ro_hide", "stripe": "ro_hide", "hoof": "ro_hoof", "snout": "ro_muzzle",
                                        "bristle": "ro_moss", "horn": "ro_horn", "pebble": "ro_pebble", "moss": "ro_moss"},
               "motion": {"idle": "browse", "walk": "trot", "windup": ("paw_ground", {"snort": (1, 3)}), "attack": "charge_toss",
@@ -337,12 +361,12 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     if "crest" in p:
         _crest(P, B, c)
     {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
-     "saurian": _head_saurian, "bovid": _head_bovid}[p.head.kind](P, B, c)
+     "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid}[p.head.kind](P, B, c)
     {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig,
      "sprawl": _legs_sprawl}[p.legs.kind](P, B, c)
     {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
      "fin": _tail_fin}[p.tail.kind](P, B, c)
-    if B.opts.get("hollowed") and action != "death":
+    if B.opts.get("hollowed") and action != "death" and p.get("strands", True):
         _strands(P, B, c)
     if p.get("dust"):
         _dust(P, B, c)
@@ -452,6 +476,19 @@ def _coat(B, c):
             names = np.where(leaf, m.leaf, np.where(band, m.vine, m.hide)).astype(object)
             return names, np.where(grain, -1, np.where(leaf, 1, 0)).astype(np.int16)
         return vines
+
+    if co.kind == "cracked":
+        seed = int(B.opts.get("seed", 0))
+
+        def cracked(q, n):
+            """M2, the hollow stag: grey-white hide, the belly paler, the Hollow's dark cracks running over it (by its seed)."""
+            loc = (q - hips) @ bm
+            nz = (n @ bm)[:, 2]
+            belly = nz < co.belly
+            h = h01v(np.floor(loc[:, 0] * 1.2 + np.abs(loc[:, 1]) * 0.4 + 40), np.floor(loc[:, 2] * 1.4 + 40), seed % 97 + 1)
+            crack = (h > co.crack) & ~belly
+            return np.full(len(q), m.hide, dtype=object), np.where(crack, -3, np.where(belly, 1, 0)).astype(np.int16)
+        return cracked
 
     if co.kind == "river":
         seed = int(B.opts.get("seed", 0))
@@ -834,6 +871,57 @@ def _top_of(B, a0: float) -> float:
     return top
 
 
+def _head_cervid(P, B, c) -> None:
+    """M2, the hollow stag: a long neck from its chest carrying its head high, a long muzzle to a dark nose, ears out to
+    its sides, empty white eyes in a cold halo, and broken branching antlers (a beam sweeping back and up with tines
+    forward off it, one snapped short), levelled before it as it drops its head in its tell and charges."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.6 * fr)
+    hpitch = c.hpitch
+    drop_ = min(0.0, hpitch) / 34.0                   # 0 .. -1 as it lowers its head
+    hm = bm @ rot("c", yaw) @ rot("b", h.pitch[0] + hpitch + h.pitch[1] * fr)
+    (ha, hf), (hz, hzf, hzb) = h.at
+    hc = at((ha + hf * fr - 1.6 * drop_, 0.0, hz + hzf * fr + hzb * bk + 3.4 * drop_))
+    hp = lambda q: hc + hm @ v3(q)
+    n0, r0, r1 = h.neck
+    P.add(L(at(n0), hc + hm @ v3(-0.8, 0.0, -0.6), r0, r1, m.hide, "neck", c.paint))
+    P.add(E(hc, h.skull, m.hide, "head", hm, c.paint))
+    q0, q1, mr0, mr1 = h.muzzle
+    P.add(L(hp(q0), hp(q1), mr0, mr1, m.hide, "head", c.paint))
+    P.mark(hp(h.nose), M.RAMPS[m.hoof][0])
+    (ea, eb, ec), er = h.ears
+    an = h.antlers
+    for s in (1, -1):
+        flick = 16.0 if a == "idle" and f in (3, 4) and s > 0 else 0.0
+        P.add(E(hp((ea, s * eb, ec)), er, m.hide, "ear%d" % s, hm @ rot("a", s * (20.0 + flick))))
+        eye = hp((h.eyes.at[0], s * h.eyes.at[1], h.eyes.at[2]))
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.HOLLOW_EYE)
+            P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.EYE_HALO)
+        beam = [hp((x, s * y, z)) for x, y, z in an.beam]
+        nb = len(beam) - 1
+        for i in range(nb):
+            r0_ = an.r[0] + (an.r[1] - an.r[0]) * i / nb
+            r1_ = an.r[0] + (an.r[1] - an.r[0]) * (i + 1) / nb
+            P.add(L(beam[i], beam[i + 1], r0_, r1_, m.antler, "antler%d" % s))
+        for j, (i, d) in enumerate(an.tines):
+            short = 0.35 if (j in an.broken and s > 0) else 1.0
+            tip = beam[i] + hm @ v3(d[0] * short, s * d[1] * short, d[2] * short)
+            P.add(L(beam[i], tip, an.r[0] * 0.7, an.r[1] if short == 1.0 else an.r[0] * 0.5, m.antler, "antler%d" % s))
+            if short < 1.0:
+                P.mark(tip, M.RAMPS[m.antler][0])
+    # Grey mist seeping off it.
+    if a != "death":
+        for k in range(5):
+            u = (k * 0.29 + f * 0.13) % 1.0
+            q = at((-3.0 + k * 1.8, (k % 3 - 1) * 1.2, 3.4 + u * 4.0))
+            P.fx.append((q, M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
+
+
 def _head_bovid(P, B, c) -> None:
     """M2, the riverstone ox: a broad heavy head carried low, a pale broad muzzle with dark nostrils (steam snorted from
     them in its tell), two heavy horns curving out and up from its brow, ears out to the sides under them, a mossy
@@ -1030,7 +1118,7 @@ def _legs_hoof(P, B, c) -> None:
         if "fold_front" in st:
             fold = st.fold_front[f] if front else st.fold_hind[f]
             foot = foot + v3(-2.6 * fold if front else 1.2 * fold, 0.0, 1.6 * fold)
-        l1, l2 = (3.0, 2.9) if front else (3.1, 3.0)
+        l1, l2 = ((3.0, 2.9) if front else (3.1, 3.0)) if "bones" not in B.parts.legs else B.parts.legs.bones[0 if front else 1]
         knee, end = ik2(top, foot, l1, l2, v3(1.0 if front else -1.0, 0.0, 0.0))
         th = B.parts.legs.get("thick", 1.0)          # M2: the ox's heavier legs
         P.add(L(top, knee, (1.7 if front else 2.0 + 0.5 * bk) * th, 1.2 * th, m.hide, "leg_" + name),

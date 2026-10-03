@@ -57,3 +57,14 @@ species("weeping_lantern", plan="spirit.lantern", share=True, size=2.9,
                   ai="flyer", speed=50, flying=True, width=18, height=44,
                   elite_first_defeat=["mist_lantern_flame"]),   # the valley's Heavenly Flame (Part 8): the monastery's elite lantern carries it
         sound=dict(body="wood"))
+
+# M2. A carved jade warrior statue of the Forgotten Monastery that walks (the sentinels stand linked: strike one and its
+# fellows wake): lamellar jade armour with bronze trim, great pauldrons, a crested helmet over a stern mask with a glowing
+# gold slit for eyes, gold runes on its cuirass, a bronze-bladed halberd. It draws the halberd back over its shoulder as
+# its runes flare (the tell, held) and sweeps it low before it; beaten, it cracks and topples, its runes dying.
+species("jade_sentinel", plan="humanoid.sentinel", share=True, size=2.7,
+        palette=["sentinel_jade", "sentinel_jade_dark", "sentinel_bronze", "halberd_shaft", "halberd_blade"], elite=False, shadow=(12, 4),
+        cycle=12.0, view=True,
+        data=dict(level=(52, 56), role="normal", element="earth", page="mist_peak", drops=[("jade_core", 0.08), ("formation_stone", 0.5)],
+                  attacks=[("halberd_sweep", 0.6, 90, 1.2, dict(depth=36))], ai="slow_melee", speed=50, width=26, height=64, linked=True),
+        sound=dict(body="wood"))

@@ -154,6 +154,33 @@ APE_STYLES = {
                     "chatter": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3)},
 }
 STYLES.update(APE_STYLES)
+# M2, the jade sentinel: idle `halberd_rest` (the halberd held upright at its side), walk `march`, windup `halberd_back`
+# (drawn back over its shoulder, its runes flaring, held), attack `halberd_sweep` (a wide sweep landing low before it,
+# the blow on frame 1), hurt `armor_rock`, death `topple_crack` (it cracks, topples, its runes die).
+SENTINEL_STYLES = {
+    "halberd_rest": {"sway_amp": 0.15, "guard": 0.1,
+                     "right": ((2.4, -3.5, 1.2),) * 6, "left": ((2.6, -2.9, -2.4),) * 6},
+    "halberd_back": {"lean": (-3.0, -6.0, -8.0, -8.0), "twist": (-10.0, -22.0, -30.0, -32.0), "step": (-0.2, -0.5, -0.7, -0.8),
+                     "sink": (0.2, 0.5, 0.7, 0.8), "plant": True, "glow": (0.4, 0.8, 1.0, 1.0),
+                     "right": ((1.6, -3.4, 2.2), (0.2, -3.2, 3.2), (-1.0, -3.0, 3.8), (-1.3, -3.0, 4.0)),
+                     "left": ((2.4, -2.2, -0.6), (2.2, -1.4, 0.2), (1.8, -0.8, 0.8), (1.7, -0.6, 0.9))},
+    "halberd_sweep": {"lean": (2.0, 12.0, 12.0, 8.0, 3.0, 0.0), "twist": (-30.0, 34.0, 40.0, 30.0, 12.0, 0.0), "step": (0.4, 2.2, 2.4, 1.8, 0.8, 0.2),
+                      "sink": (0.8, 1.4, 1.4, 1.0, 0.4, 0.1), "plant": True, "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "sweep_trail": (1, 2),
+                      "squash": {1: (1.03, 1.0, 0.97)},
+                      "right": ((-0.4, -3.4, 3.6), (5.4, 1.6, -3.0), (5.0, 2.6, -3.4), (4.0, 1.0, -2.6), (3.0, -1.8, -0.6), (2.4, -3.3, 1.0)),
+                      "left": ((2.0, -1.0, 0.6), (2.6, -0.4, -1.4), (2.2, 0.6, -1.8), (2.4, -0.8, -1.8), (2.6, -2.2, -2.2), (2.6, -2.8, -2.4))},
+    "armor_rock": {"lean": (-12.0, -6.0, -2.0), "twist": (8.0, -4.0, 0.0), "step": (-2.0, -1.2, -0.4), "sink": (0.4, 0.2, 0.0),
+                   "droop": (-14.0, -4.0, 0.0), "right": ((1.6, -4.0, 2.4), (2.2, -3.8, 1.6), (2.4, -3.5, 1.2)),
+                   "left": ((2.0, -2.6, -1.0), (2.4, -2.8, -2.0), (2.6, -2.9, -2.4)), "squint": True},
+    "topple_crack": {"lean": (-6.0, 4.0, 10.0, 18.0, 16.0, 14.0, 14.0, 14.0), "sink": (0.0, 0.6, 3.0, 6.0, 6.4, 6.6, 6.6, 6.6),
+                     "droop": (0.0, 18.0, 26.0, 30.0, 30.0, 30.0, 30.0, 30.0), "roll": (0.0, 0.0, 0.0, 16.0, 46.0, 76.0, 88.0, 86.0),
+                     "limp": True, "dark_from": 3, "fall": (8.0, 3.0), "crack": (0.2, 0.5, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0),
+                     "right": ((2.6, -3.6, 0.8), (3.0, -3.8, -0.4), (3.4, -4.0, -2.0), (3.6, -4.4, -3.4), (3.6, -4.6, -4.0), (3.6, -4.6, -4.2),
+                               (3.6, -4.6, -4.2), (3.6, -4.6, -4.2)),
+                     "left": ((2.6, -2.8, -2.4), (2.6, -2.0, -3.0), (2.6, 1.0, -3.6), (2.0, 3.8, -4.2), (1.6, 4.4, -4.6), (1.6, 4.6, -4.6),
+                              (1.6, 4.6, -4.6), (1.6, 4.6, -4.6))},
+}
+STYLES.update(SENTINEL_STYLES)
 
 IMP = {
     "hip": 5.4,
@@ -233,7 +260,34 @@ APE = {
     "tail": None,
     "held": {"kind": "boulder", "r": 3.0, "mat": "boulder"},
 }
+# M2: the jade sentinel (its side-view sheet: ~58 px tall to the helmet's crest): a warrior statue of carved jade in
+# lamellar armour, a bronze belt and trim, plates hanging from its belt, great pauldrons, a crested helmet with cheek
+# guards over a stern mask, a glowing gold slit for its eyes, gold runes on its cuirass and pauldrons, a bronze-bladed
+# halberd on a dark shaft.
+SENTINEL = {
+    "hip": 8.4,
+    "legs": {"top": (1.5, -0.6), "foot": (1.9, 1.0, 0.6), "bones": (4.3, 4.2), "thigh": (1.45, 1.25), "shin": (1.25, 1.05), "knee": 1.25,
+             "boot": ((0.8, 0.0, -0.3), (1.9, 1.15, 0.85)), "plant": (1.2, -1.4)},
+    "trunk": [{"at": (0.0, 0.0, 0.6), "r": (2.0, 2.8, 1.7), "paint": True}, {"at": (0.0, 0.0, 2.6), "r": (1.75, 2.45, 1.2), "mat": "trim"},
+              {"at": (0.1, 0.0, 5.0), "r": (2.3, 3.4, 2.6), "paint": True}],
+    "neck": ((0.2, 0.0, 7.5), 1.0),
+    "head": {"at": ((0.4, 0.0, 7.8), 2.1), "r": (2.05, 1.95, 2.2)},
+    "face": {"kind": "helm", "dome": ((-0.1, 0.0, 0.55), (2.25, 2.15, 2.0)), "brim": ((0.0, 0.0, -0.05), (2.35, 2.25, 0.45)),
+             "crest": ((1.6, 0.0, 2.2), (-1.8, 0.0, 2.6), 0.55), "cheeks": ((0.7, 1.85, -0.9), (0.9, 0.35, 1.1)),
+             "mask": ((1.45, 0.0, -0.3), (0.75, 1.55, 1.45)), "slit": (2.15, 0.85, 0.1), "glow": "gold"},
+    "arms": {"shoulder": (3.4, 6.2), "bones": (3.4, 3.3), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (1.15, 1.05), "elbow": None,
+             "lower": (1.05, 0.95), "wrap": None, "fist": (1.15, 1.05, 1.05), "guard": (2.6, 3.2, -4.0), "limp": (0.8, 4.6, -5.0, 0.4)},
+    "paint": {"kind": "armor", "rows": 1.1, "belt": (2.0, 3.2)},
+    "armor": {"pauldrons": ((0.0, 3.6, 6.6), (1.7, 1.5, 1.05)), "tassets": 5, "tasset": (1.3, 0.3, 1.7),
+              "runes": ((2, 0.0, 55.0), (2, 25.0, 35.0), (2, -25.0, 35.0), (0, 0.0, 30.0)), "dead": "dark"},
+    "held": {"kind": "halberd", "shaft": (7.0, 4.2), "r": 0.4, "blade": (2.3, 0.3, 1.9), "spike": 3.0},
+}
 VARIANTS = {
+    "sentinel": {"parts": SENTINEL, "mats": {"body": "sentinel_jade", "limb": "sentinel_jade", "dark": "sentinel_jade_dark",
+                                             "joint": "sentinel_bronze", "neck": "sentinel_jade_dark", "trim": "sentinel_bronze",
+                                             "shaft": "halberd_shaft", "blade": "halberd_blade"},
+                 "motion": {"idle": "halberd_rest", "walk": "march", "windup": "halberd_back", "attack": "halberd_sweep", "hurt": "armor_rock",
+                            "death": "topple_crack"}},
     "ape": {"parts": APE, "mats": {"body": "ape_fur", "limb": "ape_fur", "dark": "ape_skin", "joint": "ape_fur", "neck": "ape_fur",
                                    "pale": "ape_face", "mantle": "ape_mane", "maw": "maw", "boulder": "boulder", "moss": "boulder_moss",
                                    "leaf": "boulder_moss"},
@@ -294,6 +348,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         grain = limb = _temple(m, hip, tm, int(B.opts.get("seed", 0)))
     elif p.paint.kind == "fur":
         grain, limb = _fur(m, hip, tm), None
+    elif p.paint.kind == "armor":
+        grain = limb = _armor(m, hip, tm, p.paint)
 
     # Legs: a stride in the march, planted apart otherwise; knees folding as it sinks.
     g = p.legs
@@ -322,6 +378,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         _grin(P, B, action, f, hc, hm, grain, math.sin(math.radians(view)) > -0.5)
     elif fc.kind == "monkey":
         _monkey_face(P, B, action, f, hc, hm)
+    elif fc.kind == "helm":
+        _helm(P, B, action, f, hc, hm)
     else:
         _slits(P, B, action, f, hc, hm)
     if p.get("tail"):
@@ -333,6 +391,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         _studs(P, B, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
     if p.get("cracks"):
         _cracks(P, B, action, f, up, tm, hc, hm, math.sin(math.radians(view)) > -0.5)
+    if p.get("armor"):
+        _armor_parts(P, B, action, f, up, tm, hc, hm)
     _finish(P, B, action, f, step)
     return P
 
@@ -383,11 +443,13 @@ def _arms(P, B, action: str, f: int, up, tm, grain, march: bool) -> None:
               E(end, a_.fist, m.dark, "arm%d" % s, tm))
         if p.get("qi") and s < 0:
             _qi(P, B, action, f, end, tm)
-        if p.get("held") and s < 0 and p.held.get("kind") != "boulder":
+        if p.get("held") and s < 0 and p.held.get("kind") not in ("boulder", "halberd"):
             _held(P, B, action, f, end, tm)
         ends[s] = end
     if p.get("held") and p.held.get("kind") == "boulder":
         _boulder(P, B, action, f, ends, tm)
+    if p.get("held") and p.held.get("kind") == "halberd":
+        _halberd(P, B, action, f, ends, tm)
 
 
 def _finish(P, B, action: str, f: int, step: float) -> None:
@@ -652,6 +714,122 @@ def _tail(P, B, action: str, f: int, up) -> None:
         r0 = t.r[0] + (t.r[1] - t.r[0]) * i / n
         r1 = t.r[0] + (t.r[1] - t.r[0]) * (i + 1) / n
         P.add(L(pts[i], pts[i + 1], r0, r1, m.mantle if i < n - 3 else m.body, "tail", caps=i == 0))
+
+
+# ================================================================================================= armoured constructs (M2)
+def _armor(m, hip, tm, a):
+    """Carved armour: lamellar rows across the torso and the limbs (a groove a step dark every `rows`), the plates' edges a
+    step lit, the bronze belt and trim between `belt` heights."""
+    def armor(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        row = (loc[:, 2] % a.rows) < 0.22
+        lit = ((loc[:, 2] % a.rows) > a.rows - 0.25) & (nl[:, 2] > -0.2)
+        belt = (loc[:, 2] > a.belt[0]) & (loc[:, 2] < a.belt[1])
+        names = np.where(belt, m.trim, m.body).astype(object)
+        return names, np.where(row & ~belt, -1, np.where(lit & ~belt, 1, 0)).astype(np.int16)
+    return armor
+
+
+GLOW_EYES = {"gold": (M.RUNE_CORE, M.RUNE, M.RUNE_DIM, M.RUNE_GLOW), "jade": GLOWS["jade"]}
+
+
+def _helm(P, B, action: str, f: int, hc, hm) -> None:
+    """A carved helmet over the head: its dome and brim, a crest along its top, cheek guards; a stern mask under it, its
+    eyes a glowing slit (flaring in the tell, squinting when struck, dark when it falls)."""
+    m, st, fc = B.mats, B.style(action), B.parts.face
+    P.add(E(hc + hm @ v3(fc.dome[0]), fc.dome[1], m.body, "helm", hm))
+    P.add(E(hc + hm @ v3(fc.brim[0]), fc.brim[1], m.trim, "brim", hm))
+    c0, c1, cr = fc.crest
+    P.add(L(hc + hm @ v3(c0), hc + hm @ v3(c1), cr, cr * 0.7, m.trim, "crest"))
+    ca, cb, cc = fc.cheeks[0]
+    for s in (1, -1):
+        P.add(E(hc + hm @ v3(ca, s * cb, cc), fc.cheeks[1], m.body, "cheek%d" % s, hm @ rot("a", s * 12.0)))
+    P.add(E(hc + hm @ v3(fc.mask[0]), fc.mask[1], m.dark, "mask", hm, line=False))
+    dark = action == "death" and f >= st.get("dark_from", 99)
+    core, main, dim, glow = GLOW_EYES[fc.get("glow", "gold")]
+    sa, sb, sc = fc.slit
+    g = B.pick("glow", action, f)
+    for k in range(5):
+        y = -sb + 2.0 * sb * k / 4.0
+        q = hc + hm @ v3(sa - 0.1 * abs(y), y, sc)
+        if dark:
+            P.mark(q, M.RAMPS[m.dark][0])
+        elif st.get("squint"):
+            P.mark(q, dim)
+        else:
+            (P.eye if k in (1, 3) else P.mark)(q, core if k in (1, 3) else main)
+            if g >= 0.8:
+                P.glow.append((q + hm @ v3(0.4, 0.0, 0.5), glow))
+
+
+def _armor_parts(P, B, action: str, f: int, up, tm, hc, hm) -> None:
+    """The armour over the body: great pauldrons on its shoulders, plates hanging from its belt round its hips, gold runes
+    on its cuirass (glowing in its tell and its blow, dark as it falls), cracks spreading over it as it dies."""
+    p, m, st = B.parts, B.mats, B.style(action)
+    a = p.armor
+    (pa, pb, pc), pr = a.pauldrons
+    for s in (1, -1):
+        q = up((pa, s * pb, pc))
+        P.add(E(q, pr, m.body, "pauldron%d" % s, tm @ rot("a", s * 25.0), _armor(m, q - tm @ v3(0.0, 0.0, 0.0), tm, p.paint)))
+        P.add(E(q + tm @ v3(0.0, s * 0.3, -pr[2] * 0.6), (pr[0] * 1.02, pr[1] * 1.02, 0.3), m.trim, "pauldron%d" % s, tm @ rot("a", s * 25.0),
+                line=False))
+    n = a.tassets
+    for k in range(n):
+        ang = math.radians(-80.0 + 160.0 * k / (n - 1.0))
+        q = up((math.cos(ang) * 2.2, math.sin(ang) * 2.9, -0.4))
+        mm = tm @ rot("c", math.degrees(ang)) @ rot("b", -12.0)
+        P.add(E(q, a.tasset, m.body if k % 2 else m.dark, "tasset", mm))
+    dark = action == "death" and f >= st.get("dark_from", 99)
+    g = B.pick("glow", action, f)
+    pieces = [(up(t.at), t.r, tm) for t in p.trunk] + [(hc, p.head.r, hm)]
+    for i, u, v in a.runes:
+        c, rad, mm = pieces[i]
+        q = on(c, rad, mm, u, v, 0.15)
+        for d in ((0.0, 0.0, 0.0), (0.0, 0.35, 0.0), (0.0, 0.0, 0.35), (0.0, -0.35, -0.35)):
+            P.mark(q + mm @ v3(*d), M.RAMPS[m.dark][0] if dark else (M.RUNE_CORE if g >= 0.8 else M.RUNE))
+        if g >= 0.8 and not dark:
+            P.glow.append((q + mm @ v3(0.5, 0.0, 0.4), M.RUNE_GLOW))
+    crack = B.pick("crack", action, f)
+    if crack > 0.0:
+        seed = int(B.opts.get("seed", 0))
+        for i, (c, rad, mm) in enumerate(pieces[:3] + pieces[3:]):
+            for k in range(int(2 + 4 * crack)):
+                u0 = (seed * 7 + i * 61 + k * 97) % 360 - 180.0
+                v0 = (seed * 3 + i * 29 + k * 53) % 120 - 60.0
+                for t in range(4):
+                    P.mark(on(c, rad, mm, u0 + t * 9.0 * (1 if k % 2 else -1), v0 - t * 11.0, 0.15), M.CRACK)
+
+
+def _halberd(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """The halberd: a dark shaft through both hands (the butt past the left, the head past the right), its bronze-edged
+    blade an axe's crescent to one side of the head and a spike before it, a gold rune on the shaft; the sweep trails an
+    arc of jade light."""
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    r_, l_ = ends[-1], ends[1]
+    d = r_ - l_
+    d = d / max(1e-6, float(np.linalg.norm(d)))
+    butt = l_ - d * h.shaft[0]
+    head = r_ + d * h.shaft[1]
+    P.add(L(butt, head, h.r, h.r, m.shaft, "shaft"))
+    side = np.cross(d, tm @ v3(0.0, 0.0, 1.0))
+    if float(np.linalg.norm(side)) < 0.2:
+        side = tm @ v3(1.0, 0.0, 0.0)
+    side = side / float(np.linalg.norm(side))
+    bl, bt, bw = h.blade
+    flat = np.cross(d, side)
+    mm = np.stack([d, side, flat], axis=1)
+    P.add(E(head - d * 0.8 + side * (bw * 0.7), (bl, bw, bt), m.blade, "blade", mm))
+    P.add(L(head - d * 0.4, head + d * h.spike, 0.45, 0.08, m.blade, "spike"))
+    P.add(S(head - d * 1.6, 0.5, m.trim, "collar"))
+    P.mark(r_ - d * 1.6, M.RUNE)
+    if action == "attack" and f in st.get("sweep_trail", ()):
+        c = (r_ + l_) * 0.5
+        for k in range(16):
+            ang = math.radians(-20.0 - k * 9.0)
+            rr = float(np.linalg.norm(head - c)) + 1.0
+            q = c + tm @ v3(math.cos(ang) * rr, math.sin(ang) * rr, -1.5 + 0.1 * k)
+            P.fx.append((q, M.QI if k % 2 else M.QI_DIM))
 
 
 def _boulder(P, B, action: str, f: int, ends: dict, tm) -> None:
