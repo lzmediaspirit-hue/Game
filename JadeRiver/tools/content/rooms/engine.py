@@ -1028,13 +1028,16 @@ class Build:
                 raise SpecError("%s: ground %r is not sand, snow or snowpack" % (self.id, paint))
 
     def _ground_rects(self, name):
-        """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect."""
+        """A band's name as ground: `stream.bank` the row along the water each side (its sand), else the band's rect, or
+        (R6) a wavy or round shape's own cells."""
         head, _, tail = name.partition(".")
         r = self.regions.get(head)
         if r is None:
             raise SpecError("%s: ground names no band %r" % (self.id, name))
         if tail == "bank":
             return [(x, y, 1, 1) for x, y in r.beside(1)]
+        if r.shape is not None:
+            return [(x, y, 1, 1) for x, y in r.cells()]   # R6: a wavy or round shape's own cells (a trail's packed snow)
         return [(r.x, r.y, r.w, r.h)]
 
     def _spawn_cell(self):

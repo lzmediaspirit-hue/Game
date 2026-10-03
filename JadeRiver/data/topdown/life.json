@@ -2120,6 +2120,38 @@
     }
    ]
   },
+  "rf_frostpine_climb": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "rf_rimefrost_summit": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "rf_snow_ape_ledges": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "rm_grey_pools": {
    "vista": [
     {
@@ -2732,6 +2764,42 @@
      ]
     }
    }
+  },
+  "tp_herders_camp": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "tp_lightning_scar": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "tp_stormgrass_verge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "tp_thunderhorn_flats": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
   },
   "wg_echo_cliffs": {
    "vista": [

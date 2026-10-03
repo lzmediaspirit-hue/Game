@@ -1,0 +1,660 @@
+{
+ "schema_version": 1,
+ "id": "rf_frostpine_climb",
+ "name": "Frostpine Climb",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  21
+ ],
+ "levels": [
+  "666666666666666666666666666666666666666666666666666666666666666666666666",
+  "666666666666666666666666666666666666666666666666666666666666666666666666",
+  "666666666666666666666666666666666666666666666666666666666666666666666666",
+  "222222266666666666666666000666666622222222266666666666666666666222222222",
+  "222222226666622222666622222226662222222222222222222226666622222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222222222222222222222",
+  "222222222222222222222222222222222222222222222222222222111111112222222222",
+  "111111122222211111111122222222222111112222111111122211111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111111111111111111111111111",
+  "011111111000011111011111111111111111111111111111111111111111111111111111",
+  "000111110000000000000000000000000111111111100000011111111111111111100000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnrnnrnnnnnnnnn",
+  "nnnnnnnnnnnnnrnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnkkkknnnnnkkkkkkknk",
+  "nnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnrnnnnnnnnnnkkkknnnnkkkkkkkkkkkkkkkkkkkk",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkk",
+  "nnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnkkkkkkkkkkkkkk",
+  "rnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnkkknnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnrnnnnnkkkknnnkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnkkkkkkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnn",
+  "nnnrnnnnnnnnnnnnnnnnkkkkkkkknnnnkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnrnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnkkknnnnnnnnnnnnnnnkkkkknnnnnnnnnnrnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnn",
+  "nnkkkkknnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "kkkkkkkkknnnnnnnnnkkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "kkkkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnkkkkkkkkkkkknnnnnnnnnkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnkkkkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnrnnnnrnn",
+  "nnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnrnn"
+ ],
+ "stairs": [
+  {
+   "x": 21,
+   "y": 19,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 45,
+   "y": 12,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "ice_rock",
+   "x": 30,
+   "y": 24
+  },
+  {
+   "kind": "ice_rock",
+   "x": 57,
+   "y": 22
+  },
+  {
+   "kind": "ice_rock",
+   "x": 12,
+   "y": 14
+  },
+  {
+   "kind": "ice_rock",
+   "x": 66,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 29,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 33,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 0,
+   "y": 9
+  },
+  {
+   "kind": "tree_pine",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "dead_tree",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "tree_pine",
+   "x": 13,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "kind": "dead_tree",
+   "x": 26,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 27,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 31,
+   "y": 9
+  },
+  {
+   "kind": "tree_pine",
+   "x": 43,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 46,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 49,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 62,
+   "y": 3
+  },
+  {
+   "kind": "dead_tree",
+   "x": 3,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 11,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 14,
+   "y": 10
+  },
+  {
+   "kind": "dead_tree",
+   "x": 22,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 35,
+   "y": 10
+  },
+  {
+   "kind": "dead_tree",
+   "x": 38,
+   "y": 11
+  },
+  {
+   "kind": "dead_tree",
+   "x": 41,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 58,
+   "y": 10
+  },
+  {
+   "kind": "dead_tree",
+   "x": 61,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 66,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 69,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 49,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 59,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 3,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 6,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 14,
+   "y": 13
+  },
+  {
+   "kind": "dead_tree",
+   "x": 19,
+   "y": 14
+  },
+  {
+   "kind": "tree_pine",
+   "x": 25,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 29,
+   "y": 12
+  },
+  {
+   "kind": "tree_pine",
+   "x": 53,
+   "y": 16
+  },
+  {
+   "kind": "dead_tree",
+   "x": 58,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 65,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 68,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 15,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 19,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 26,
+   "y": 17
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 37,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 47,
+   "y": 17
+  },
+  {
+   "kind": "dead_tree",
+   "x": 50,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 61,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 64,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 69,
+   "y": 18
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 49,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 2,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 7,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 24,
+   "y": 24
+  },
+  {
+   "kind": "dead_tree",
+   "x": 32,
+   "y": 21
+  },
+  {
+   "kind": "dead_tree",
+   "x": 37,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 20
+  },
+  {
+   "kind": "rock_small",
+   "x": 53,
+   "y": 25
+  },
+  {
+   "kind": "tree_pine",
+   "x": 59,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 64,
+   "y": 24
+  },
+  {
+   "kind": "tree_pine",
+   "x": 69,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 30,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 45,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 50,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 59,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 63,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 69,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 9,
+   "y": 19
+  }
+ ],
+ "place": {
+  "sign_rf": [
+   4,
+   19
+  ],
+  "trail_frost_stoat": [
+   10,
+   23
+  ],
+  "herb_1": [
+   13,
+   15
+  ],
+  "jar_3": [
+   17,
+   15
+  ],
+  "journal_frostpine": [
+   28,
+   23
+  ],
+  "jar_4": [
+   32,
+   7
+  ],
+  "swarm_frost_cricket": [
+   34,
+   23
+  ],
+  "chest_cloud_mv": [
+   40,
+   7
+  ],
+  "jar_5": [
+   46,
+   23
+  ],
+  "npc_grey_pilgrim": [
+   51,
+   7
+  ],
+  "ore_2": [
+   55,
+   5
+  ],
+  "jar_6": [
+   62,
+   15
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    21
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    21
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    6
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    6
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    11,
+    18
+   ],
+   [
+    21,
+    17
+   ],
+   [
+    31,
+    10
+   ],
+   [
+    40,
+    17
+   ],
+   [
+    52,
+    10
+   ],
+   [
+    62,
+    4
+   ]
+  ],
+  [
+   [
+    40,
+    11
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
+ ]
+}

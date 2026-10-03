@@ -352,6 +352,15 @@ VISTAS = {
     "ae_port_market": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 104}],
     "ae_skydock": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 104}],
     "ae_shipyard": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 104}],
+    # The Thunderhorn Plains' rolling hills past their ridge, Rimefrost's peaks rising behind the Lightning Scar.
+    "tp_stormgrass_verge": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "tp_herders_camp": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "tp_thunderhorn_flats": [{"edge": "n", "kind": "hills", "pad": 40}],
+    "tp_lightning_scar": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # Rimefrost Heights' peaks behind the crags; the summit over the sea of cloud.
+    "rf_frostpine_climb": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "rf_snow_ape_ledges": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "rf_rimefrost_summit": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

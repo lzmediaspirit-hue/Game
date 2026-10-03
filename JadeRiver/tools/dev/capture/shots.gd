@@ -54,7 +54,13 @@ const E1_VIEWS := [
 	["r6/01_arrival_terrace_gate", "ae_landing", Vector2(10, 14), true], ["r6/02_arrival_terrace_rim", "ae_landing", Vector2(30, 21), false],
 	["r6/03_port_market_street", "ae_port_market", Vector2(22, 12), true], ["r6/04_port_market_gate", "ae_port_market", Vector2(60, 16), false],
 	["r6/05_wayfarers_inn", "ae_wayfarers_inn", Vector2(12, 8), true], ["r6/06_skydock_berths", "ae_skydock", Vector2(25, 19), true],
-	["r6/07_condensing_hall", "ae_condensing_hall", Vector2(12, 8), true], ["r6/08_shipyard_slip", "ae_shipyard", Vector2(22, 18), true]]
+	["r6/07_condensing_hall", "ae_condensing_hall", Vector2(12, 8), true], ["r6/08_shipyard_slip", "ae_shipyard", Vector2(22, 18), true],
+	["r6/09_stormgrass_verge", "tp_stormgrass_verge", Vector2(40, 11), true], ["r6/10_herders_camp", "tp_herders_camp", Vector2(26, 12), true],
+	["r6/11_thunderhorn_flats_pool", "tp_thunderhorn_flats", Vector2(36, 17), true], ["r6/12_lightning_scar", "tp_lightning_scar", Vector2(34, 17), true],
+	["r6/13_lightning_scar_east", "tp_lightning_scar", Vector2(62, 10), false],
+	["r6/14_frostpine_climb", "rf_frostpine_climb", Vector2(24, 16), true], ["r6/15_frostpine_climb_high", "rf_frostpine_climb", Vector2(50, 9), false],
+	["r6/16_snow_ape_ledges", "rf_snow_ape_ledges", Vector2(24, 11), true], ["r6/17_rimefrost_summit", "rf_rimefrost_summit", Vector2(36, 15), true],
+	["r6/18_rimefrost_summit_rim", "rf_rimefrost_summit", Vector2(33, 24), false], ["r6/19_hermits_ice_cave", "rf_hermits_ice_cave", Vector2(16, 10), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]

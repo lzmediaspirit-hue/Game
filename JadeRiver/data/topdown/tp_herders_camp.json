@@ -1,0 +1,432 @@
+{
+ "schema_version": 1,
+ "id": "tp_herders_camp",
+ "name": "Herders' Camp",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "33333333333333333333333333333333333333333333333333333333",
+  "33333333333333333333333333333333333333333333333333333333",
+  "33333333333333333333333333333333333333333333333333333333",
+  "11333333333333111333333333333333333300111110000111333333",
+  "11113333333311111113333333333333311111111111111111111333",
+  "11111111111111111110000111111111111111000000000001111111",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "ggrrrrrrrrrrrrgggrrrrrrrrrrrrrrrrrrrggggggggggggggrrrrrr",
+  "ggggrrrrrrrrgggggggrrrrrrrrrrrrrrggggggggggggggggggggrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggddddddddddddddddddddddgggggggggggggg",
+  "ggggggggggddddddddddddddddddddddddddddddddddddgggggggggg",
+  "gggggggggddddddddddddddddddddddddddddddddddddddggggggggg",
+  "ggggggggggdddddddddddddddddddddddddddddddddddddggggggggg",
+  "ggggggggggggdddddddddddddddddddddddddddddddddddggggggggg",
+  "ggggggggggggggdddddddddddddddddddddddddgddggggggggggggdd",
+  "ggggggggggggggdddddddddggggddddddddddddddddgggggggggdddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "ddddddddddddddddddggggddddddddddddgggggggggggggddddddddd",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggddddddddddddgggggggggggggggggggggggg",
+  "ggggggggggggggggggggddddddddddddgggggggggggggggggggggggg",
+  "ggggggggggggggggggggddddddddddddgggggggggggggggggggggggg",
+  "ggggggggggggggggggggddddddddddddgggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "yurt",
+   "x": 8,
+   "y": 7
+  },
+  {
+   "kind": "yurt",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "yurt",
+   "x": 38,
+   "y": 7
+  },
+  {
+   "kind": "cook_fire",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "haystack",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "haystack",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "drying_rack",
+   "x": 44,
+   "y": 10
+  },
+  {
+   "kind": "woodpile",
+   "x": 34,
+   "y": 8
+  },
+  {
+   "kind": "chop_block",
+   "x": 36,
+   "y": 9
+  },
+  {
+   "kind": "fence_4",
+   "x": 19,
+   "y": 17
+  },
+  {
+   "kind": "fence_4",
+   "x": 29,
+   "y": 17
+  },
+  {
+   "kind": "fence_3",
+   "x": 19,
+   "y": 22
+  },
+  {
+   "kind": "fence_4",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "fence_3",
+   "x": 29,
+   "y": 22
+  },
+  {
+   "kind": "haystack",
+   "x": 41,
+   "y": 21
+  },
+  {
+   "kind": "haystack",
+   "x": 44,
+   "y": 22
+  },
+  {
+   "kind": "haystack",
+   "x": 48,
+   "y": 20
+  },
+  {
+   "kind": "menhir",
+   "x": 52,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 2,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 7,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 21,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 23,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 37,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 40,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "tall_grass",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 3
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 31,
+   "y": 4
+  },
+  {
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 3
+  },
+  {
+   "kind": "tall_grass",
+   "x": 40,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 49,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 54,
+   "y": 3
+  },
+  {
+   "kind": "dead_tree",
+   "x": 6,
+   "y": 9
+  },
+  {
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 46,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 12
+  },
+  {
+   "kind": "tall_grass",
+   "x": 45,
+   "y": 12
+  },
+  {
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 10,
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 25,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 32,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 50,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 13,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 22,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 28,
+   "y": 24
+  },
+  {
+   "kind": "tall_grass",
+   "x": 31,
+   "y": 23
+  },
+  {
+   "kind": "bush",
+   "x": 37,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 1,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 21,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 40,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 27
+  }
+ ],
+ "place": {
+  "shrine_tp_camp": [
+   19,
+   9
+  ],
+  "npc_herder_suo": [
+   34,
+   11
+  ],
+  "npc_herder_a_lan": [
+   44,
+   16
+  ],
+  "bed_tp_0": [
+   23,
+   19
+  ],
+  "bed_tp_1": [
+   28,
+   19
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "hills",
+   "pad": 40
+  }
+ ]
+}
