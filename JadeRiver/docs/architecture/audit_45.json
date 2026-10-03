@@ -7361,7 +7361,7 @@
   },
   {
    "after_phase1": [
-    "tools/dev/topdown_capture.gd (the boss job adds shots)"
+    "tools/dev/capture/shots.gd (the boss job adds shots: the first_boss set)"
    ],
    "id": "S3",
    "notes": "done: the capture registry tools/dev/capture/ (32 sets, 375 rows; the seven captures and fix_infer.py deleted; 245 of 531 pictures byte-identical to the old scripts under a pinned clock, the rest differ only in wall-clock water and sway); study_quality, technique_cards.py, build_topdown_proto.py and five unreferenced helpers deleted; tools/art/topdown/sheet.py (DUP-12). Not moved: the side-view pipeline, combo_rig and equipment_rig, which are deleted with the side view (S12). Kept: stat_probe and combat_trace (numeric probes), prototype_qa (the QA walk).",
@@ -7452,7 +7452,7 @@
     "tutorials",
     "topdown_tutorial",
     "rules_tests HUD checks",
-    "hud_capture before/after"
+    "capture.tscn -- hud --tag=before|after"
    ],
    "title": "hud.gd split and the notice table (E6's HUD half)",
    "wave": 2
@@ -7571,7 +7571,7 @@
    "risk": "medium-high",
    "size": "~400 changed, 2,233 moved",
    "tests": [
-    "side_view_suite (S2)",
+    "the side-view scripts (tools/dev/audit/run_legacy.py; S2 made no side_view_suite)",
     "engine_tests",
     "visibility_suite",
     "room_sweep",
@@ -7695,7 +7695,7 @@
    "tests": [
     "audio_tests",
     "rules_tests FX checks",
-    "topdown_capture before/after"
+    "capture.tscn -- combat before/after (--out-root)"
    ],
    "title": "Cue table for WorldShared.play (the HUD half is S6)",
    "wave": 2
