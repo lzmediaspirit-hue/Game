@@ -34,10 +34,11 @@ BIOMES = {
                   "walk": ["rock_small", "stump"],
                   "water": ["cattails", "tall_grass"]},
     },
-    # A cave under the hills (the Mudwater tunnels): rock walls round an earthen floor, mossy rocks, ferns in the damp,
-    # cattails in the seep pools. Lamp-lit (TopdownLight's "cave").
+    # A cave under the hills (the Mudwater tunnels): the rock mass round an earthen floor (`rubble`: the floor by a wall
+    # is the wall's rock rubble, where the mossy rocks and ferns grow), cattails in the seep pools. Lamp-lit
+    # (TopdownLight's "cave").
     "cave": {
-        "base": "d", "stair": "s", "density": 0.2,
+        "base": "r", "stair": "s", "density": 0.2, "rubble": True,
         "flora": {"wall": ["rock_mossy", "rock_small", "ferns"],
                   "ground": ["rock_small", "ferns", "rock_mossy"],
                   "walk": ["rock_small", "ferns"],

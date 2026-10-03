@@ -1,0 +1,327 @@
+{
+ "schema_version": 1,
+ "id": "mh_tunnels",
+ "name": "Tunnels",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444400000000004444444444444444444444",
+  "44444444444444444444001111111111110004444444444444444444",
+  "44444444444444444440001111111111110000444444444444444444",
+  "44444444444444444000001111111111110000044444000000444444",
+  "44444444444444440000001111111111110000044000000000000444",
+  "44444444000000440000000000000000000000040000000000000044",
+  "44440000000000000000000000000000000000000000000000000004",
+  "44400000000000000000000000000000000000000000000000000000",
+  "44000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "40000000000000000000000000000000000000000000000000000004",
+  "400000000000000000~~~~0000000000000~00000000000000000004",
+  "44000000000000000~~~~~~000000000000~~0000000000000000044",
+  "44444400000044400~~~~~~000000000000~00000400000000000444",
+  "444444444444444400~~~~0000000000000000004440000000004444",
+  "44444444444444440000000000000000000000004444444444444444",
+  "44444444444444444000000000000000000000044444444444444444",
+  "44444444444444444400000000000000000004444444444444444444",
+  "44444444444444444444440000000000000444444444444444444444",
+  "44444444444444444444444444000000444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrdrrrrrrrrrrrrddrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrddrrrrrrrrrrrrdddrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrddddrrrrrrrddddrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddddddddddsssddddddrrrrddddddddddrrrr",
+  "rrrrrrrrrddddrrrrddddddddddddsssddddddrrrddddddddddddrrr",
+  "rrrrrdddddddddddddddddddddddddddddddddddddddddddddddddrr",
+  "rrrrdddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "rrddddddddddddddddddddddddddddddddddddddddddddddddddddrr",
+  "rrrddddddddddddddd~~~~ddddddddddddd~dddddddddddddddddrrr",
+  "rrrrrrrddddrrrrrd~~~~~~dddddddddddd~~dddrrrdddddddddrrrr",
+  "rrrrrrrrrrrrrrrrr~~~~~~dddddddddddd~dddrrrrrdddddddrrrrr",
+  "rrrrrrrrrrrrrrrrrd~~~~dddddddddddddddddrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrddddddddddddddddddddrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrdddddddddddddddddrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 29,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 5,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 18,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 30,
+   "y": 15
+  },
+  {
+   "kind": "lantern",
+   "x": 44,
+   "y": 11
+  },
+  {
+   "kind": "barrel",
+   "x": 12,
+   "y": 16
+  },
+  {
+   "kind": "crates",
+   "x": 42,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 15,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 21,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 35,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 23,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 40,
+   "y": 8
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 50,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 43,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 51,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 8,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 15,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 1,
+   "y": 17
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 14,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 17,
+   "y": 21
+  },
+  {
+   "kind": "cattails",
+   "x": 17,
+   "y": 17
+  },
+  {
+   "kind": "cattails",
+   "x": 35,
+   "y": 16
+  }
+ ],
+ "place": {
+  "chest_7": [
+   30,
+   4
+  ],
+  "jar_4": [
+   25,
+   6
+  ],
+  "ore_1": [
+   48,
+   6
+  ],
+  "jar_2": [
+   24,
+   15
+  ],
+  "crate_3": [
+   37,
+   11
+  ],
+  "crate_5": [
+   8,
+   11
+  ],
+  "jar_6": [
+   49,
+   16
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    28,
+    7
+   ],
+   [
+    31,
+    6
+   ]
+  ],
+  [
+   [
+    11,
+    16
+   ],
+   [
+    29,
+    15
+   ],
+   [
+    46,
+    10
+   ],
+   [
+    52,
+    17
+   ]
+  ],
+  [
+   [
+    18,
+    9
+   ]
+  ],
+  [
+   [
+    40,
+    9
+   ]
+  ]
+ ],
+ "areas": [
+  {
+   "kind": "poison_mist",
+   "rect": [
+    11,
+    15,
+    4,
+    3
+   ]
+  },
+  {
+   "kind": "poison_mist",
+   "rect": [
+    27,
+    16,
+    4,
+    3
+   ]
+  },
+  {
+   "kind": "poison_mist",
+   "rect": [
+    40,
+    9,
+    4,
+    3
+   ]
+  }
+ ]
+}

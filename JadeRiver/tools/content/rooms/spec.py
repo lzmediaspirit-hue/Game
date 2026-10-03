@@ -27,18 +27,21 @@ is (x, y, w, h). Every key but `size` may be left out.
             the first walk band below it); a door way may carry its own ({path: ...})
   props     [(kind, x, y[, name]) | {kind, along, every, row}]: pieces placed as written (named ones a door can open
             into), or a row of one kind along a band
-  flora     {band: [kinds], "density": d}: the foliage scattered along each band's edges, seeded by the room's id (a
-            Poisson disc), clear of every anchor, way, lane and walk
+  flora     {band: [kinds] | {kinds, density}, "density": d}: the foliage along each band's edges (the biome's pool
+            for its role where the spec names none), seeded by the room's id (a Poisson disc), clear of every anchor,
+            way, lane, walk and foe; trees to a band's back, bushes on its lip, none on a road's shoulder
   ground    {"sand" | "snow" | "snowpack": [rect | band name]}: decision 44's sand and snow, laid after the flora
   spawn     (x, y) or a way's id: where a new character wakes (default: the first way's arrival)
   anchors   {object id: (x, y) | "anchor"}: every NPC and object of the side-view room; an anchor resolves to a cell:
               "road@34"   a band at a column (its middle row)       "road.n@60" "road.s"   the row north or south of it
+              "den.back"  a band's or a feature's own first row     "den.front"            its last row (n2, s2: two off)
               "knoll"     a feature's top, its middle cell          "verge" "verge.s@40"   beside the walk band
               "bank"      the land along the water                  "water"                the water (a fishing spot)
               "door:hut"  in front of a building's door             "near:herb_1"          a few cells from another
               "auto"      anywhere reached; each kind ranked by reach from every way and by distance from the others
-  foes      [[cells], ...] one list per side-view spawn, or "auto": each spawn's points on the verges (or the open
-            ground), in the side view's order and spread, clear of shrines, ways and lanes
+  foes      "auto", or one entry per side-view spawn: its cells, "auto" (its points on the verges, or the open ground,
+            each at the column its side-view point stands at), or "auto:<anchor>" (on the cells an anchor names: a
+            tower's top); clear of shrines, ways and lanes
   event     {wave, fixed, waves, timed}: a room event's cells;  routes {object id: [[x, y, s], ...]}: a rooftop run
   areas     [{kind, rect, ...}]: a hazard's areas in cells (the poison mist's pools)
   pins      the hand's last word, never the JSON's: {object id: (x, y)}, "spawn", "stairs", "foes", "props" (the whole

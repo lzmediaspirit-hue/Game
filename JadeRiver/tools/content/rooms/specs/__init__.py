@@ -2,7 +2,7 @@
 `ALL` is every spec in the order topdown_rooms.py builds them. A new zone's module is added to ZONES."""
 import importlib
 
-ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh"]
+ZONES = ["lotus_ferry", "willow_path", "stoneford", "jade_sect", "cloud_sect", "reed_marsh", "caravan_road", "mudwater_hideout", "deepwater_bend"]
 
 
 def all_specs():
