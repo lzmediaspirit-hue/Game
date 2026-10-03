@@ -1,5 +1,55 @@
 # Changelog
 
+## Follow-up fixes from the code audit (decision 45, F1)
+
+Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in
+the game changed.
+
+- **`build_tiles.py --review` draws again.** It stopped with a `KeyError` on the `sand` decals: Terrain v2's sheet laid
+  each decal set on a ground from a table, and decision 44's sand, snow and packed snow were not in it.
+  - A decal set named for a material now lies on that material's first tile. The three sets that are not a material
+    (flowers, the paving's holes, the marsh) keep their own ground.
+  - `--check` now also draws every review sheet in memory and writes none, so a sheet that the tables have outgrown
+    fails there.
+  - The built tiles, props, TileSet and manifest are byte-identical: `--check` passes, and a build leaves `art/` and
+    `data/` unchanged. The sand and snow sheet comes out byte-identical too.
+  - The Phase 3 and Terrain v2 review sheets in `docs/` were drawn before decision 44 and are left as they are.
+- **No live references to the scripts S2 and S3 deleted.**
+  - `tools/dev/audit/run_legacy.py` runs the side-view and review scripts that exist (`tests/README.md`, "Other
+    scripts here"). A named script that is not on disk is reported, and the run fails.
+  - `tools/dev/audit/findings.py`: the slices' tests and waits name the capture registry
+    (`capture.tscn -- hud`, `-- combat`, the `first_boss` set in `shots.gd`). S12's check names the side-view scripts,
+    since S2 made no `side_view_suite`. The findings and the baseline still name what the audit found.
+  - `findings.py --keep-scans` rebuilds the curated part of `audit_45.json` and keeps its scans, which describe the
+    audited tree (`35105ac`). `audit_45.json` was rebuilt with it, and only those lines changed.
+  - `docs/map-generation.md` says it is the record of v0.13's side-view map engine. Its checks are today's:
+    `tests/map_generation.gd` run with `godot -s`, and `engine_tests` in `tests/suites.txt`. Its pictures now come
+    from the capture registry.
+  - `docs/redesign_top_down_plan.md`'s Phase 1 and 2 tables note that decision 45 removed `build_topdown_proto.py`.
+- **`--capture` photographs a top-down world.** Its wait read `world.fx.fixed_step`, which the top-down FX view does
+  not have, so it stopped with a script error before the picture.
+  - The wait now counts frames only where the side view's `FxLayer` has a fixed step.
+  - The proof is a top-down capture of Lotus Ferry through the main scene, on saves of its own:
+    `godot --path . -- --topdown --preview-world --room=lf_village --capture --shot=<name>`.
+  - `docs/architecture/shell.md` is updated to match.
+- **The technique pictures' budget is timed on the main thread's own clock.**
+  - `TechniquePicture` times each start, finish and paint with `_clock_us()`.
+    - On desktop Linux, this is the wall clock less the time the thread stood in the run queue
+      (`/proc/thread-self/schedstat`), the clock `tests/lib/suite.gd` uses for `perf_tests`.
+    - Elsewhere, Android among them, it is the wall clock.
+    - The same file's CPU time is not used: it moves only on the scheduler's tick, which is too coarse.
+    - A read during which the thread was taken off the CPU is read again.
+  - A piece that is slow on its own, whether working or blocked, still counts in full. A 6 ms busy paint and a 5 ms
+    blocking finish both read over the 4 ms budget.
+  - The same building was timed in alternate rounds on each clock (scratch runs).
+    - At a load of about 5, 2 of 9 wall-clock rounds had a piece over 4 ms (5.8 and 6.5 ms). The most any piece took
+      on the new clock in 9 rounds was 1.8 ms.
+    - With four extra busy loops, 3 of 6 wall-clock rounds were over (4.3 to 5.6 ms). On the new clock, the most was
+      1.2 ms.
+  - `rules_tests` reads one building again. S2's rounds and its frame-by-frame settling are gone, the budgets (4 ms a
+    piece, 8 ms a frame) are unchanged, and the suite still has 2,712 checks.
+  - `tests/README.md` is updated to match.
+
 ## The World authority in parts (decision 45, S9)
 
 This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
