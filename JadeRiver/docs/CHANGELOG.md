@@ -72,10 +72,17 @@ Roadmap decision 45, phase 2, slice S2 of the code audit (`docs/architecture/aud
   - `Test.ps1` now runs the same data gates; reads each suite's output the same way (a SCRIPT ERROR or a non-zero exit
     fails it); and hands the gates the same Godot (`GODOT`).
   - Both run S5's `build_data.py --check` and `tools/lib/pix.py --check`, and E6's `cues.py --check`.
-  - Both run S4's `shared_runtime_tests` (42 checks) and E6's `cue_tests` (24 checks), each moved onto the suite base.
+  - Both run the suites the other slices added: S4's `shared_runtime_tests` (42 checks), E6's `cue_tests` (35 with S6's
+    rows) and S6's `hud_tests` (4). Each is moved onto the suite base, with its count unchanged.
   - `run_tests.sh` runs the animation rules where PowerShell is installed.
   - `topdown_tutorial`'s `reach()` takes the step and the jump from `data/movement.json`, as the Grid does.
-- **Tests:** TOTALS.
+- **Tests.**
+  - `tools/run_tests.sh` is green on the merged tree: every gate, and 20 suites with 73,655 checks, 0 failures and no
+    SCRIPT ERROR.
+  - Every suite keeps its check count. `contract_tests` gains the new rule's 22 checks (1,087 to 1,109).
+  - `Test.ps1` ran green under PowerShell 7.4 on Linux: every gate, and two of the suites.
+  - `Validate-Animations.ps1` now reads the dye sheets' `res://` paths. Before, it reported all 1,700 of them missing,
+    and stopped the old `Test.ps1` at its first line.
 
 ## The HUD in parts, and its notices as rows of the cue table (decision 45, S6)
 
