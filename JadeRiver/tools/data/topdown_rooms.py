@@ -57,6 +57,7 @@ class Layout:
         self.spawns = []
         self.event = {}
         self.routes = {}
+        self.areas = []
         self.spawn = [w // 2, h // 2]
 
     # ---------------------------------------------------------------- drawing
@@ -177,6 +178,8 @@ class Layout:
             out["event"] = self.event
         if self.routes:
             out["routes"] = self.routes
+        if self.areas:
+            out["areas"] = self.areas
         return out
 
 
@@ -527,28 +530,6 @@ def check_foliage(lay, d, g):
 
 
 # ==================================================================== the rooms
-def fishers_hut():
-    """Aunt Ping's hut: a wooden floor inside plastered walls, the loft over the east end up a short stair, Aunt Ping
-    by the hearth, the tea on the table, the door in the front wall."""
-    r = Layout("lf_fishers_hut", 20, 13, 0, "w")
-    r.walls(0, 0, 20, 13)
-    r.rect(9, 12, 2, 1, 0, "w")                   # the doorway in the front sill
-    r.rect(13, 1, 6, 2, 2, "w")                   # the loft
-    r.stair(13, 3, 2, 2, 0, 2, "w")
-    r.prop("crates", 9, 6)                        # the table (a floor one level up)
-    r.prop("barrel", 1, 1)
-    r.prop("barrel", 2, 1)
-    r.prop("lantern", 1, 10)
-    r.prop("lantern", 18, 10)
-    r.green(("pot_orchid", 1, 5), ("pot_bonsai", 18, 8))   # foliage (decision 40): Aunt Ping's potted plants
-    r.spawn = [4, 4]
-    r.at("npc_aunt_ping", 6, 6)
-    r.at("tea_table", 9.5, 6)
-    r.at("net", 16, 5)
-    r.at("lu_float", 15, 1)
-    r.at("tea_loft", 17, 1)
-    r.way("exit", 9.5, 12, "s", [9.5, 10.5], 2)
-    return r
 
 
 def village(rid="lf_village", night=False):
@@ -668,77 +649,6 @@ def village_night():
     """Lotus Ferry at Night: Home Lane and the square as by day, the hut's door open, the villagers out in the lane
     and the Hollow things coming up out of the river."""
     return village("lf_village_night", True)
-
-
-def old_ma_store():
-    """Old Ma's Store: the counter across the shop with Old Ma behind it, the soup jars up in the loft, the sacks by the
-    west wall with the old net under the shelf."""
-    r = Layout("lf_old_ma_store", 18, 12, 0, "w")
-    r.walls(0, 0, 18, 12)
-    r.rect(8, 11, 2, 1, 0, "w")
-    r.rect(1, 1, 5, 2, 2, "w")                    # the loft
-    r.stair(4, 3, 2, 2, 0, 2, "w")
-    r.prop("crates", 10, 5)                       # the counter
-    r.prop("crates", 12, 5)
-    r.prop("barrel", 1, 7)
-    r.prop("barrel", 1, 8)
-    r.prop("barrel", 16, 1)
-    r.prop("lantern", 16, 9)
-    r.green(("pot_bonsai", 16, 4), ("pot_orchid", 7, 1))   # foliage (decision 40): potted plants
-    r.spawn = [8, 9]
-    r.at("npc_old_ma", 12, 3)
-    r.at("soup_loft", 2, 1)
-    r.at("old_net_floor", 3, 9)
-    r.way("exit", 8.5, 11, "s", [8.5, 9.5], 2)
-    return r
-
-
-def granny_liu_hut():
-    """Granny Liu's Herb Hut: her table by the hearth, the family altar (the shrine) by the east wall, the herb loft over
-    the west end with its jars and a bundle of willow moss."""
-    r = Layout("lf_granny_liu_hut", 18, 12, 0, "w")
-    r.walls(0, 0, 18, 12)
-    r.rect(8, 11, 2, 1, 0, "w")
-    r.rect(1, 1, 6, 2, 2, "w")                    # the herb loft
-    r.stair(5, 3, 2, 2, 0, 2, "w")
-    r.prop("crates", 8, 6)                        # her table
-    r.prop("incense", 15, 4)
-    r.prop("barrel", 16, 1)
-    r.prop("barrel", 16, 2)
-    r.prop("lantern", 1, 9)
-    r.green(("pot_orchid", 16, 8), ("pot_bonsai", 12, 1))  # foliage (decision 40): potted plants
-    r.spawn = [8, 9]
-    r.at("npc_granny_liu", 6, 6)
-    r.at("shrine_granny", 14, 5)
-    r.at("jar_1", 1, 1)
-    r.at("jar_2", 2, 1)
-    r.at("moss_bundle", 4, 1)
-    r.way("exit", 8.5, 11, "s", [8.5, 9.5], 2)
-    return r
-
-
-def lu_boat():
-    """Lu's Boat: the deck on the river at night, the gangway back to the docks, the spring's breath at the bow where
-    the first breakthrough is made, Lu by the cabin and the star mat on its roof."""
-    r = Layout("lf_lu_boat", 24, 14, WATER, "~")
-    r.rect(3, 4, 18, 6, 0, "w")                   # the deck
-    r.rect(0, 6, 3, 2, 0, "w")                    # the gangway
-    r.prop("storehouse", 14, 4)                   # the cabin
-    r.prop("crates", 12, 6)                       # up onto its roof
-    r.prop("lantern_red", 3, 4)
-    r.prop("lantern_red", 20, 9)
-    r.prop("barrel", 20, 4)
-    r.prop("lotus", 1, 11)
-    r.prop("lotus", 18, 1)
-    r.prop("lotus", 8, 12)
-    # Foliage (decision 40): a potted pine on the deck, lotus pads round the boat.
-    r.green(("pot_bonsai", 19, 8), ("lotus_pads", 4, 1), ("lotus_pads", 12, 11), ("lotus_pads", 21, 11))
-    r.spawn = [7, 8]
-    r.at("npc_lu_boat", 10, 8)
-    r.at("boat_spring", 7, 7)
-    r.at("star_mat", 16, 4)
-    r.way("deck", 0, 6.5, "w", [2, 6.5], 2)
-    return r
 
 
 def reed_shallows():
@@ -1108,68 +1018,6 @@ def fairground():
 # ==================================================================== chapter 2's stretch: the trials, the sects, the marsh
 # docs/redesign_top_down_plan.md "As built: Phase 4, second part": the rooms the story visits from the sect choice to the
 # first steps of chapter 2, for both sects a player can join (Jade and Cloud).
-def trial_yard(rid, banner):
-    """The walled yard of an Entry Trial behind its trial hall on the Fairground: the gateway back in the south wall
-    between the sect's banners, stone lanterns round a sand ring where the Trial Puppet steps out once the bell has
-    rung. The climb to the bell is each sect's own (trial_jade, trial_cloud)."""
-    r = Layout(rid, 40, 24, 0, "p")
-    r.walls(0, 0, 40, 24, 2, 1)
-    r.rect(19, 23, 2, 1, 0, "p")                  # the gateway back to the Fairground
-    r.rect(1, 18, 7, 5, 0, "g")                   # lawns in the front corners
-    r.rect(32, 21, 7, 2, 0, "g")
-    r.rect(2, 20, 4, 2, 0, "f")
-    r.rect(21, 11, 16, 10, 0, "s")                # the granite apron round the ring
-    r.rect(22, 12, 14, 8, 0, "d")                 # the sand ring
-    r.rect(18, 12, 3, 11, 0, "s")                 # the walk from the gateway
-    for x in (17, 22):
-        r.prop(banner, x, 21)
-    for x, y in ((21, 11), (36, 11), (21, 20), (36, 20)):
-        r.prop("lantern", x, y)
-    r.prop("pine", 2, 19)
-    r.prop("pine", 37, 21)
-    r.prop("shrub", 6, 21)
-    r.prop("barrel", 1, 13)
-    r.prop("barrel", 1, 14)
-    # Foliage (decision 40): bushes on the front lawns, potted plants along the yard's front.
-    r.green(("bush_azalea", 4, 18), ("ferns", 1, 21), ("bush", 33, 21), ("pot_bonsai", 14, 22), ("pot_orchid", 26, 22))
-    r.spawn = [19.5, 20]
-    r.way("entry", 19.5, 23, "s", [19.5, 21.5], 2)
-    r.spawns = [[[29, 16]]]
-    return r
-
-
-def trial_jade():
-    """The Jade Sect's Entry Trial: the climb to the trial bell runs over three roofs along the north wall (crates onto
-    the first roof, a tile's running jump to the second and up its ridge, another jump to the third) and up onto the
-    bell tower's top; racks of training weapons stand along the east wall."""
-    r = trial_yard("sf_trial_jade", "banner_jade")
-    r.rect(3, 5, 7, 4, 2, "t")                    # the first roof (x 3-9, y 5-8)
-    r.prop("crates", 5, 9)                        # onto it
-    r.rect(11, 3, 7, 6, 2, "t")                   # the second roof, a tile's jump east
-    r.rect(15, 3, 3, 3, 3, "t")                   # its ridge, a level up
-    r.rect(19, 2, 6, 5, 3, "t")                   # the third roof, a tile's jump from the ridge
-    r.rect(25, 1, 4, 5, 4, "s")                   # the bell tower's top
-    for x in (31, 34):
-        r.prop("weapon_rack", x, 1)
-    r.at("trial_bell", 26.5, 3)
-    return r
-
-
-def trial_cloud():
-    """The Cloud Sect's Entry Trial: the climb runs up rock ledges out of the cliff behind the yard (the first ledge,
-    the one above it, a plank walk over the cliff pool a tile's jump across, and the top ledge where the bell hangs)."""
-    r = trial_yard("sf_trial_cloud", "banner_cloud")
-    r.rect(1, 1, 38, 2, 5, "r")                   # the cliff behind the yard
-    r.rect(6, 9, 6, 3, 1, "r")                    # the first ledge (x 6-11, y 9-11)
-    r.rect(6, 3, 6, 6, 2, "r")                    # the ledge above it
-    r.water(12, 3, 6, 6)                          # the cliff pool (x 12-17, y 3-8)
-    r.rect(13, 5, 5, 2, 2, "w")                   # the plank walk over it, a tile's jump from the ledge
-    r.rect(18, 3, 7, 5, 3, "r")                   # the top ledge
-    r.prop("lotus", 14, 8)
-    r.prop("boulder", 30, 4)
-    r.prop("boulder", 4, 13)
-    r.at("trial_bell", 22, 4)
-    return r
 
 
 def jade_gate_street():
@@ -1253,45 +1101,6 @@ def jade_gate_street():
     r.routes["thief_ja"] = [[15, 14, 0.0], [12.5, 8, 0.6], [15.5, 7, 0.5], [20.5, 7, 0.6], [23.5, 6, 0.5], [28.5, 6, 0.6],
                             [31.5, 5, 0.5], [36.5, 5, 0.6]]
     return r
-
-
-def weapon_hall(rid, banner, master, smith, anvil, dummies):
-    """A sect's Weapon Hall and Forge: racks of training weapons along the back wall between the sect's banners, the
-    weapon master before them, the sparring ring a level up in the west (boards and a step) with its two dummies, the
-    smith and the anvil at the forge in the east, and the door in the front wall back out."""
-    r = Layout(rid, 24, 14, 0, "s")
-    r.walls(0, 0, 24, 14)
-    r.rect(11, 13, 2, 1, 0, "s")                  # the doorway in the front sill
-    r.rect(2, 7, 7, 4, 1, "w")                    # the sparring ring
-    r.stair(4, 11, 3, 1, 0, 1, "w")
-    for x in (2, 5, 8):
-        r.prop("weapon_rack", x, 1)
-    for x in (12, 15):
-        r.prop(banner, x, 1)
-    r.prop("crates", 19, 1)
-    r.prop("barrel", 21, 1)
-    r.prop("barrel", 22, 2)
-    r.prop("lantern", 1, 11)
-    r.prop("lantern", 22, 11)
-    r.green(("pot_bonsai", 1, 6), ("pot_orchid", 22, 6), ("pot_bonsai", 17, 1))   # foliage (decision 40): potted plants
-    r.spawn = [11.5, 11]
-    r.at(master, 10, 5)
-    r.at(smith, 17, 5)
-    r.at(anvil, 19, 7)
-    r.at(dummies[0], 4, 8)
-    r.at(dummies[1], 7, 8)
-    r.way("exit", 11.5, 13, "s", [11.5, 11.5], 2)
-    return r
-
-
-def jade_weapon_hall():
-    return weapon_hall("ja_weapon_hall", "banner_jade", "npc_jade_weapon_master", "npc_jade_smith", "anvil_ja",
-                       ["dummy_wh_0", "dummy_wh_1"])
-
-
-def cloud_weapon_hall():
-    return weapon_hall("cm_weapon_hall", "banner_cloud", "npc_cloud_weapon_master", "npc_cloud_smith", "anvil_cm",
-                       ["dummy_cwh_0", "dummy_cwh_1"])
 
 
 def pavilion_rooftops():
@@ -1776,10 +1585,7 @@ def marsh_edge():
     return r
 
 
-LAYOUTS = [fishers_hut, village, village_night, old_ma_store, granny_liu_hut, lu_boat, reed_shallows, willow_path_east,
-           willow_path_west, stoneford_gate, stoneford_market, artisan_row, fairground,
-           trial_jade, trial_cloud, jade_gate_street, jade_weapon_hall, pavilion_rooftops, east_terrace, herb_terraces,
-           elder_hu_peak, cloud_cliff_stair, sword_court, cloud_weapon_hall, array_court, elder_sung_peak, marsh_edge]
+LAYOUTS = [village, village_night, reed_shallows, willow_path_east, willow_path_west, stoneford_gate, stoneford_market, artisan_row, fairground, jade_gate_street, pavilion_rooftops, east_terrace, herb_terraces, elder_hu_peak, cloud_cliff_stair, sword_court, array_court, elder_sung_peak, marsh_edge]
 
 
 # -------------------------------------------------------------------- audit 45: the Grid against the game's own
@@ -1845,10 +1651,29 @@ def parity(exe=None):
     return "grid parity with the game: %d layouts, %d starts, every cell" % (len(grids), sum(len(v) for v in ask.values()))
 
 
-def build():
-    failed = []
+def layouts():
+    """Every room's Layout: the room engine's specs compiled (E1, tools/content/rooms/: one spec a room, grouped by zone in
+    specs/), after the hand functions still left here."""
+    tools = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if tools not in sys.path:
+        sys.path.append(tools)
+    from content.rooms import engine, specs   # imported here: the engine imports this module for its Layout
+    made = set()
     for make in LAYOUTS:
         lay = make()
+        made.add(lay.id)
+        yield lay
+    for spec in specs.all_specs():
+        if spec["id"] not in made:
+            try:
+                yield engine.compile_room(spec)
+            except engine.SpecError as e:
+                raise SystemExit(str(e))
+
+
+def build():
+    failed = []
+    for lay in layouts():
         LIFE.dress(lay)            # decision 43 (tools/data/topdown_life.py): an interior's furnishings, a station's props
         d = lay.dict()
         LIFE.extend(lay.id, d)     # and the land past the room's edge the camera may show
