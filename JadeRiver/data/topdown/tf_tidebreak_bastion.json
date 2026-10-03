@@ -1,0 +1,412 @@
+{
+ "schema_version": 1,
+ "id": "tf_tidebreak_bastion",
+ "name": "Tidebreak Bastion",
+ "size": [
+  64,
+  26
+ ],
+ "spawn": [
+  10,
+  13
+ ],
+ "levels": [
+  "4444555554444444444444444444444444444455555444444444444444444444",
+  "4444555554444444444444444444444444444455555444444444444444444444",
+  "4444555554444444444444444444444444444455555444444444444444444444",
+  "4444555554444444444444444444444444444455555444444444444444444444",
+  "0000555550000000000111111100000000000055555000000000000033333333",
+  "0000555550000000000111111100000000000055555000000000000033333333",
+  "0000000000000000000111111100000000000000000000000000000033333333",
+  "0000000000000000000111111100000000000000000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000033333333",
+  "0000000000000000000000000000000000111111000000000000000033333333",
+  "0000000000000000000000000000000000111111000000000000000033333333",
+  "0000000000000000000000000000000000111111000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000033333333",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ppppsssssppppppppppsssssssppppppppppppssssspppppppppppppssssssss",
+  "ppppsssssppppppppppsssssssppppppppppppsssssppggggggggpppssssssss",
+  "pppppppppppppppppppssssssspppppppppppppppppppggggggggpppssssssss",
+  "pppppppppppppppppppssssssspppppppppppppppppppggggggggpppssssssss",
+  "pppppppppppppppppppppppppppppppppppppppppppppggggggggpppssssssss",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppssssssss",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppssssssss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppssssssss",
+  "ppppppppppppppppppppppppppppppppppssssssppppppppppppppppssssssss",
+  "ppppppppppppppppppppppppppppppppppssssssppppppppppppppppssssssss",
+  "rrrpwwwwrrrrrrrrrrrrrrrpppppppppppsssssspppppppprrrrrrrrssssssss",
+  "rrrrwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrssrrrrrrrrrrrrrrrrrrssssssss",
+  "rrrrwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrssrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrwwwwrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 36,
+   "y": 21,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 19,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 25,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 21,
+   "y": 5
+  },
+  {
+   "kind": "lantern",
+   "x": 23,
+   "y": 5
+  },
+  {
+   "kind": "lantern",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 43,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 13,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 28,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 43,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 4,
+   "y": 19
+  },
+  {
+   "kind": "lantern",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 12,
+   "y": 4
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "crates",
+   "x": 10,
+   "y": 6
+  },
+  {
+   "kind": "barrel",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "barrel",
+   "x": 17,
+   "y": 5
+  },
+  {
+   "kind": "forge",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "desk",
+   "x": 49,
+   "y": 17
+  },
+  {
+   "kind": "crates",
+   "x": 50,
+   "y": 20
+  },
+  {
+   "kind": "barrel",
+   "x": 52,
+   "y": 19
+  },
+  {
+   "kind": "sacks",
+   "x": 43,
+   "y": 17
+  },
+  {
+   "kind": "notice",
+   "x": 31,
+   "y": 9
+  },
+  {
+   "kind": "banner_jade",
+   "x": 55,
+   "y": 9
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 55,
+   "y": 17
+  },
+  {
+   "kind": "water_jar",
+   "x": 33,
+   "y": 5
+  },
+  {
+   "kind": "sacks",
+   "x": 35,
+   "y": 5
+  },
+  {
+   "kind": "barrel",
+   "x": 36,
+   "y": 5
+  },
+  {
+   "kind": "tall_grass",
+   "x": 0,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 25,
+   "y": 23
+  },
+  {
+   "kind": "bush",
+   "x": 45,
+   "y": 7
+  },
+  {
+   "kind": "tall_grass",
+   "x": 48,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 11,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 56,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 51,
+   "y": 5
+  },
+  {
+   "kind": "tall_grass",
+   "x": 46,
+   "y": 5
+  },
+  {
+   "kind": "tall_grass",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "tall_grass",
+   "x": 48,
+   "y": 8
+  },
+  {
+   "kind": "bush",
+   "x": 50,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 2,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 18,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 21,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 21
+  },
+  {
+   "kind": "tall_grass",
+   "x": 32,
+   "y": 22
+  },
+  {
+   "kind": "tall_grass",
+   "x": 43,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 49,
+   "y": 23
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 62,
+   "y": 23
+  },
+  {
+   "kind": "tall_grass",
+   "x": 1,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 14,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 20,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 28,
+   "y": 25
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 47,
+   "y": 24
+  },
+  {
+   "kind": "rock_small",
+   "x": 50,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 59,
+   "y": 25
+  }
+ ],
+ "place": {
+  "shrine_tf_bastion": [
+   10,
+   18
+  ],
+  "tide_horn": [
+   37,
+   19
+  ],
+  "npc_warden_captain_duan": [
+   25,
+   10
+  ],
+  "npc_quartermaster_bai": [
+   16,
+   9
+  ],
+  "npc_tinker_mei": [
+   47,
+   18
+  ]
+ },
+ "portals": {
+  "skiff": {
+   "at": [
+    6,
+    25
+   ],
+   "dir": "s",
+   "arrive": [
+    6,
+    23
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

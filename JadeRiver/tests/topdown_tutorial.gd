@@ -296,7 +296,17 @@ func _to_the_gate() -> void:
 	check(room() == "rm_marsh_edge", "the Cloud disciple at the Marsh Edge after The Humming Token (room %s)" % room())
 	# The gate at the nearest way off the grid: shut, walked into it says why, no route or auto-path goes through it.
 	var gw := _nearest_gate()
-	check(not gw.is_empty() and travel(str(gw.get("room", ""))), "to the nearest way off the grid from the Marsh Edge (%s; room %s)" % [str(gw), room()])
+	var there := false
+	if gw.get("far", false):
+		# R5: no way off the grid is left within walking reach (Act I is whole on the grid); the walk is set down by the
+		# first one there is (a test shortcut), and checks its gate there.
+		Game.world.load_room(c(), str(gw.get("room", "")), "")
+		GameEvents.flush()
+		place(Vector2(float(c().position.x), float(c().position.y)))
+		there = room() == str(gw.get("room", ""))
+	else:
+		there = not gw.is_empty() and travel(str(gw.get("room", "")))
+	check(there, "to the nearest way off the grid from the Marsh Edge (%s; room %s)" % [str(gw), room()])
 	var way: Dictionary = Game.room_rt.portal_def(str(gw.get("portal", "")))
 	var gs: Dictionary = Game.world.portal_state(c(), way)
 	check(gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn"),
@@ -313,6 +323,10 @@ func _to_the_gate() -> void:
 	check(gates.size() >= 1 and gates.all(func(g): return g.visible),
 		"the view stands the gate in the way, drawn post by post (%d pieces)" % gates.size())
 	_drop_view(w)
+	if gw.get("far", false):
+		Game.world.load_room(c(), "rm_marsh_edge", "")   # back the way the walk was set down (R5's test shortcut)
+		GameEvents.flush()
+		place(Vector2(float(c().position.x), float(c().position.y)))
 	check(travel("rm_marsh_edge"), "back at the Marsh Edge (room %s)" % room())
 	step_mei_qing()
 	invariants("Mei Qing's Errand (Cloud)")
@@ -372,14 +386,29 @@ func _to_the_gate() -> void:
 	keep("The prototype's end")
 
 ## The nearest way off the grid the character can walk to now: the first room on the grid, breadth-first over the ways
-## open to it (routes), with a way into a room that has no layout yet: {room, portal, to}, {} if none is left.
+## open to it (routes), with a way into a room that has no layout yet: {room, portal, to}. R5: when none is left within
+## reach (Act I's last, Gu's Warehouse, is on the grid), the first such way in any room on the grid that is not an
+## instance, by the layouts' names (the Ascension Gate's way up to Act II): {room, portal, to, far: true}; {} if none.
 func _nearest_gate() -> Dictionary:
-	for rid in routes():
-		if not TopdownRoom.has_layout(str(rid)): continue
-		for p in ContentDB.room(str(rid)).get("portals", []):
+	var gate := func(rid: String) -> Dictionary:
+		for p in ContentDB.room(rid).get("portals", []):
 			var to := str(p.get("to", ""))
 			if to != "" and str(p.get("type", "")) != "hidden" and not ContentDB.room(to).is_empty() and not TopdownRoom.has_layout(to):
-				return {"room": str(rid), "portal": str(p.id), "to": to}
+				return {"room": rid, "portal": str(p.id), "to": to}
+		return {}
+	for rid in routes():
+		if not TopdownRoom.has_layout(str(rid)): continue
+		var g: Dictionary = gate.call(str(rid))
+		if not g.is_empty(): return g
+	var files: Array = Array(DirAccess.get_files_at("res://data/topdown/"))
+	files.sort()
+	for f in files:
+		var rid := str(f).get_basename()
+		if not str(f).ends_with(".json") or not TopdownRoom.has_layout(rid) or ContentDB.room(rid).get("instanced", false): continue
+		var g: Dictionary = gate.call(rid)
+		if not g.is_empty():
+			g.far = true
+			return g
 	return {}
 
 ## A test shortcut past the Levels the fields are hunted for (the hunting is played in chapter 2's fights): the realm's

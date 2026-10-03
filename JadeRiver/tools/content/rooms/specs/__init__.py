@@ -10,6 +10,8 @@ ZONES += ["greyreed_hamlet", "bamboo_grove", "crane_falls", "cleansing_peak"]
 ZONES += ["drowned_shrine", "whitewater_gorge"]
 # R4: the peaks.
 ZONES += ["crane_cliffs", "mist_peak", "summit_ridge", "hidden_vale", "unmapped"]
+# R5: the story's own rooms and the Tidebreak Front.
+ZONES += ["story", "tidebreak_front"]
 
 
 def all_specs():

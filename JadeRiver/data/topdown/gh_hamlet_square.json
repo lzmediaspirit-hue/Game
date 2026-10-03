@@ -319,9 +319,9 @@
    "y": 16
   },
   {
-   "kind": "dead_tree",
-   "x": 9,
-   "y": 19
+   "kind": "tall_grass",
+   "x": 6,
+   "y": 20
   },
   {
    "kind": "stump",
@@ -349,9 +349,9 @@
    "y": 21
   },
   {
-   "kind": "dead_tree",
+   "kind": "rock_small",
    "x": 6,
-   "y": 21
+   "y": 22
   },
   {
    "kind": "grey_reeds",
@@ -375,8 +375,8 @@
   },
   {
    "kind": "grey_reeds",
-   "x": 11,
-   "y": 20
+   "x": 13,
+   "y": 21
   },
   {
    "kind": "dead_tree",
@@ -430,7 +430,7 @@
   },
   {
    "kind": "cattails",
-   "x": 7,
+   "x": 13,
    "y": 23
   },
   {
@@ -511,6 +511,18 @@
   "shrine_gh": [
    50,
    19
+  ],
+  "npc_washer_ying": [
+   9,
+   19
+  ],
+  "npc_fisher_gan": [
+   12,
+   19
+  ],
+  "npc_old_jiu": [
+   22,
+   21
   ]
  },
  "portals": {

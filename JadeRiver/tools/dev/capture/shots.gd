@@ -58,7 +58,14 @@ const E1_VIEWS := [
 	["r4/11_frozen_shrine_court", "sr_frozen_shrine", Vector2(26, 11), true], ["r4/12_vale_gate", "hv_vale_gate", Vector2(20, 13), true],
 	["r4/13_sect_grounds", "hv_sect_grounds", Vector2(28, 19), true], ["r4/14_back_mountain_spring", "hv_back_mountain", Vector2(26, 20), true],
 	["r4/15_hidden_grotto", "hg_hidden_grotto", Vector2(20, 12), true],
-]
+	# R5: the story's own rooms and the Tidebreak Front (their pictures under r5/)
+	["r5/01_gus_warehouse", "si_gus_warehouse", Vector2(22, 12), true], ["r5/02_warehouse_strongroom", "si_gus_warehouse", Vector2(36, 8), false],
+	["r5/03_trial_of_reflections", "si_trial_of_reflections", Vector2(18, 12), true], ["r5/04_presence_trial", "si_presence_trial", Vector2(20, 13), true],
+	["r5/05_siege_gate", "si_siege", Vector2(20, 15), true], ["r5/06_siege_field", "si_siege", Vector2(40, 7), false],
+	["r5/07_sect_war_gate", "si_sect_war", Vector2(14, 15), true], ["r5/08_sect_war_junk", "si_sect_war", Vector2(46, 14), false],
+	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
+	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
+	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -689,6 +696,21 @@ static func sets() -> Dictionary:
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
+
+	# E3, the NPC engine (docs/architecture/npc_engine.md): its first new people, Greyreed Hamlet's three villagers come
+	# home once the well runs clean, each one spec placed and set to work by anchors.
+	s["npc_engine"] = {"doc": "E3, the NPC engine: Greyreed Hamlet's square before the well runs clean and after, its three villagers home and at work (each worker up close), a word with one, and the square whole",
+		"out": "architecture/npc_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": [
+		{"name": "01_hamlet_before", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120},
+		{"do": [["quests_done", ["grey_roofs", "cleansing_the_well"]]]},
+		{"name": "02_hamlet_home_again", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 240},
+		{"name": "03_washer_ying_wash", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "tend"]]},
+		{"name": "04_washer_ying_hang", "take": [["worker", "*", "gh_hamlet_square", "npc_washer_ying", "work_hang"]]},
+		{"name": "05_fisher_gan_mend", "take": [["worker", "*", "gh_hamlet_square", "npc_fisher_gan", "work_mend"]]},
+		{"name": "06_old_jiu_sweep", "take": [["worker", "*", "gh_hamlet_square", "npc_old_jiu", "work_sweep"]]},
+		{"name": "07_talk_washer_ying", "room": "gh_hamlet_square", "cell": Vector2(11, 20), "wait": 60, "do": [["talk", "npc_washer_ying"], ["frames", 40], ["dialogue_end"], ["frames", 4]],
+			"then": [["close_pages"], ["frames", 10]]},
+		{"name": "08_hamlet_whole", "room": "gh_hamlet_square", "cell": Vector2(15, 17), "wait": 120, "take": [["whole_room", "rooms/gh_hamlet_square"]]}]}
 
 	# T1 (docs/architecture/topdown_mechanics.md): the side view's traversal on the grid, played in the rooms that need
 	# it: a raft carrying the body over the Grey Pools and the hermit's pond, the vine up to the Falls Pool's spray ledge,
