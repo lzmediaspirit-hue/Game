@@ -212,9 +212,9 @@ func run_view(suite, tree: SceneTree) -> void:
 	t.check(scattered and home_ok, "life view: a hen scatters from the player (%s) and keeps near home (%s)" % [scattered, home_ok])
 	# The pools hold however hard they are pushed.
 	for i in 200:
-		life._add_wild(["sparrow", "butterfly", "fish", "dragonfly"][i % 4], life._view())
-		life._puff("smoke", Vector2(500, 300))
-		life._bits(Vector2(500, 300), Vector2.UP, [Color.WHITE], 4)
+		life.add_wild(["sparrow", "butterfly", "fish", "dragonfly"][i % 4], life.view_rect())
+		life.add_puff("smoke", Vector2(500, 300))
+		life.add_bits(Vector2(500, 300), Vector2.UP, [Color.WHITE], 4)
 	await tree.process_frame
 	t.check(life.critters.size() <= TopdownLife.MAX_CRITTERS and life.puffs.size() <= TopdownLife.MAX_PUFFS and life.bits.size() <= TopdownLife.MAX_BITS
 		and life.pool.size() == TopdownLife.GROUND_POOL and life.pool.filter(func(n): return n.critter != null).size() <= TopdownLife.GROUND_POOL,
@@ -223,9 +223,9 @@ func run_view(suite, tree: SceneTree) -> void:
 	# Off to the room's far end: the critters left behind off screen are dropped, none lingers off screen.
 	var before: Array = life.critters.duplicate()
 	p.motor.place(Vector2(66.5, 20.5) * TopdownRoom.TILE)
-	w._settle_camera()
+	w.settle_camera()
 	await _frames(tree, 30)
-	var view: Rect2 = life._view().grow(TopdownLife.DROP_PX + 4.0)
+	var view: Rect2 = life.view_rect().grow(TopdownLife.DROP_PX + 4.0)
 	var off := func(c): return c.home_id < 0 and str(c.state) != "land" and not view.has_point((c.s as Vector2) - Vector2(0, float(c.z)))
 	var left := before.filter(func(c): return life.critters.has(c) and off.call(c)).size()
 	var gone := before.filter(func(c): return not life.critters.has(c)).size()
@@ -242,7 +242,7 @@ func run_view(suite, tree: SceneTree) -> void:
 	if plant != null:
 		var r: Rect2 = plant.rects[0]
 		p.motor.place(Vector2(r.position.x + 4.0, r.end.y - 3.0) * TopdownRoom.ART)
-		w._settle_camera()
+		w.settle_camera()
 		await _frames(tree, 6)
 		leaned = plant.bend != 0
 	t.check(pushed and leaned, "life view: the grass parts round the player (the shader's push at the feet: %s) and a tall plant leans aside (%s)" % [pushed, leaned])
@@ -340,7 +340,7 @@ func _labels(tree: SceneTree) -> void:
 	await tree.process_frame
 
 func _put(life: TopdownLife, kind: String, g: Vector2) -> TopdownLife.Critter:
-	var cr: TopdownLife.Critter = life._critter(kind, g)
+	var cr: TopdownLife.Critter = life.add_critter(kind, g)
 	cr.alpha = 1.0
 	return cr
 

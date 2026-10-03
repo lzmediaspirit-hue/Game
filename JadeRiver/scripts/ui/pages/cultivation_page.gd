@@ -79,7 +79,7 @@ func _overview(ch) -> void:
 	tour_mark("mountain", MOUNTAIN)
 	tour_mark("stair", STAIR)
 	tour_mark("next", RIGHT)
-	var steps := _steps(cu.realm_key)
+	var steps := realm_steps(cu.realm_key)
 	var here := steps.find(cu.realm_key)
 	if speed_open:
 		_speed(ch, Rect2(MOUNTAIN.position, Vector2(RIGHT.end.x - MOUNTAIN.position.x, MOUNTAIN.size.y)))
@@ -110,7 +110,7 @@ static func great_realms() -> Array:
 	return out
 
 ## The steps of the great realm `key` belongs to, in order (nine, three or one).
-static func _steps(key: String) -> Array:
+static func realm_steps(key: String) -> Array:
 	var g := ProgressionRules.great_realm(key)
 	return ContentDB.realm_order.filter(func(k): return ProgressionRules.great_realm(str(k)) == g)
 
@@ -189,7 +189,7 @@ func _mountain(ch) -> Vector2:
 		var name := ContentDB.text("realm_great." + str(realms[i]))
 		var room := r.end.x - p.x - 24.0
 		if i == ci:
-			glow(Rect2(p - Vector2(24, 24), Vector2(48, 48)), Color(UiKit.GOLD, 0.55 * _halo()))
+			glow(Rect2(p - Vector2(24, 24), Vector2(48, 48)), Color(UiKit.GOLD, 0.55 * halo_k()))
 			draw_circle(p, 13.0, UiKit.INK, true, -1.0, true)
 			draw_circle(p, 11.0, UiKit.PALE_GOLD, true, -1.0, true)
 			draw_circle(p, 8.5, UiKit.GOLD, true, -1.0, true)
@@ -254,13 +254,13 @@ func _stair(ch, steps: Array, here: int) -> Vector2:
 			draw_colored_polygon(PackedVector2Array([m + Vector2(0, -5), m + Vector2(5, 0), m + Vector2(0, 5), m + Vector2(-5, 0)]), UiKit.GOLD)
 	if here >= 0:
 		var cr: Rect2 = rects[here]
-		glow(cr.grow(10), Color(UiKit.PALE_GOLD, 0.18 * _halo()))
+		glow(cr.grow(10), Color(UiKit.PALE_GOLD, 0.18 * halo_k()))
 		draw_rect(cr.grow(1), UiKit.PALE_GOLD, false, 2.0)
 		# At a bottleneck the riser up to the next step glows.
 		if cu.state == "bottleneck" and here + 1 < n:
 			var nr: Rect2 = rects[here + 1]
 			var riser := Rect2(nr.position.x - 2, nr.position.y, 4, cr.position.y - nr.position.y)
-			glow(riser.grow(12), Color(UiKit.GOLD, 0.6 * _halo()))
+			glow(riser.grow(12), Color(UiKit.GOLD, 0.6 * halo_k()))
 			draw_rect(riser, UiKit.PALE_GOLD)
 	_gate(ch, rects[n - 1], cu.state == "bottleneck" and here == n - 1)
 	# The figure, seated on its step (climbing from the last one while it moves up); at the peak, before the gate.
@@ -292,12 +292,12 @@ func _stair(ch, steps: Array, here: int) -> Vector2:
 ## The gate on the last step: two red posts under a jade roof with a gold beam, the next great realm's name above it; lit
 ## while the character waits at it.
 func _gate(ch, top_step: Rect2, lit: bool) -> void:
-	var next := ContentDB.next_realm(str(_steps(ch.cultivator.realm_key)[-1]))
+	var next := ContentDB.next_realm(str(realm_steps(ch.cultivator.realm_key)[-1]))
 	if next == "": return
 	var cx := top_step.get_center().x
 	var half := maxf(14.0, minf(top_step.size.x * 0.5 - 4.0, 40.0))
 	var y := top_step.position.y
-	if lit: glow(Rect2(cx - half - 30, y - 110, half * 2 + 60, 120), Color(UiKit.GOLD, 0.5 * _halo()))
+	if lit: glow(Rect2(cx - half - 30, y - 110, half * 2 + 60, 120), Color(UiKit.GOLD, 0.5 * halo_k()))
 	for sx in [-1.0, 1.0]:
 		var post := Rect2(cx + sx * half - 3.0, y - 72, 6, 72)
 		draw_rect(post.grow(1), UiKit.INK)

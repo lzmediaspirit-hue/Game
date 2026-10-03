@@ -92,14 +92,14 @@ func s_spot(cell: Vector2, n: int) -> void:
 	_bind()
 	m.place((cell + Vector2(0.5, 0.5)) * TopdownRoom.TILE)
 	m.dir = Vector2.DOWN
-	w._settle_camera()
+	w.settle_camera()
 	await frames(n)
 
 ## Stand at a point (see _at), the camera on it at once.
 func s_start(at) -> void:
 	m.place(_at(at))
 	m.dir = Vector2.DOWN
-	w.cam = w._cam_target()
+	w.cam = w.cam_target()
 	await frames(30)
 
 ## An empty square round `at` with these foes ([def, offset in units]) turned on the player.
@@ -146,7 +146,7 @@ func s_beside(object: String) -> void:
 	var at := Vector2(float(o.at[0]), float(o.at[1]))
 	m.place(w.room.spot_near(at, float(o.get("alt", 0.0)), at + Vector2(0, 40)))
 	m.dir = Vector2.UP
-	w._settle_camera()
+	w.settle_camera()
 	await frames(30)
 
 func s_face(dir: Vector2) -> void:
@@ -438,7 +438,7 @@ func s_no_scenes() -> void:
 	for r in ContentDB.all("scenes"): c.quests.scenes[str(r.id)] = {"done": true}
 	for i in 8:
 		if main.scenes.run == null: break
-		main.scenes._finish(true)
+		main.scenes.finish(true)
 		await frames(2)
 	main.close_all_pages()
 

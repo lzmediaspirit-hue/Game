@@ -12,24 +12,24 @@ func weapon_after_hit(c, e: EnemyState, attack: Dictionary) -> void:
 	if not ab.is_empty() and not e.pools.steadfast.has("sundered"):
 		var chance := float(ab.get("chance", 0.3)) * float(ProgressionRules.path_flag(c, "armour_break_mult", 1.0))
 		if Rng.stream(c.id, "weapon").randf() < chance:
-			combat._apply_status_to_enemy(e, {"id": "sundered", "power": 1.0, "remaining": float(ab.get("duration_s", 4)), "source": c.id})
+			combat.apply_status_to_enemy(e, {"id": "sundered", "power": 1.0, "remaining": float(ab.get("duration_s", 4)), "source": c.id})
 	var up := float(attack.get("knockup_s", 0.0))
 	if up > 0.0 and not e.is_boss() and not e.def.get("knockback_immune", false) and not e.def.get("flying", false) \
 			and not e.pools.steadfast.has("launched") and not e.pools.has_status("launched"):
-		combat._apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
+		combat.apply_status_to_enemy(e, {"id": "launched", "power": 1.0, "remaining": up, "duration": up, "source": c.id})
 	# v1.2 the brush's talisman: one on a foe at a time, written by a technique.
 	var tal: Dictionary = attack.get("talisman", {})
 	if not tal.is_empty() and float(e.ai.get("talisman_until", 0.0)) <= game.sim_time and not e.pools.steadfast.has(str(tal.id)):
 		e.ai["talisman_until"] = game.sim_time + float(tal.remaining)
-		combat._apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.power), "remaining": float(tal.remaining), "source": c.id})
+		combat.apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.power), "remaining": float(tal.remaining), "source": c.id})
 	# S48 the Soul line: Sense Lock fixes the soul's eye on the foe; Soul Search marks an elite for its memories.
 	var lock := float(attack.get("sense_lock_s", 0.0))
 	if lock > 0.0:
-		combat._apply_status_to_enemy(e, {"id": "sense_locked", "power": 1.0, "remaining": lock, "source": c.id})
+		combat.apply_status_to_enemy(e, {"id": "sense_locked", "power": 1.0, "remaining": lock, "source": c.id})
 		e.hidden = false
 	var search := float(attack.get("soul_search_s", 0.0))
 	if search > 0.0 and (e.elite or e.is_boss() or e.role == "elite"):
-		combat._apply_status_to_enemy(e, {"id": "soul_searched", "power": 1.0, "remaining": search, "source": c.id})
+		combat.apply_status_to_enemy(e, {"id": "soul_searched", "power": 1.0, "remaining": search, "source": c.id})
 		combat.searched[str(e.uid)] = {"actor": c.id, "t": search}
 	poison_body(c, e)
 	_spirit_skill(c, attack)
@@ -67,7 +67,7 @@ func _skill_strike(c, sk: Dictionary, m: float, source: String, item_id: String)
 	var here := Vector2(float(pv.x), float(pv.y))
 	if str(sk.get("shape", "")) == "ring":
 		for e in combat._enemies_within(here, float(sk.get("reach", 160))):
-			combat._player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+			combat.player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 	else:
 		var n := maxi(1, int(sk.get("count", 1)))
 		for i in n:
@@ -94,7 +94,7 @@ func poison_body(c, e: EnemyState) -> void:
 	if game.sim_time - float(combat.poison_touch.get(e.uid, -99.0)) < float(cfg.get("per_foe_s", 0.5)): return
 	combat.poison_touch[e.uid] = game.sim_time
 	game.progression.apply_toxicity(c.id, -float(cfg.get("toxicity_per_hit", 1.0)))
-	combat._apply_status_to_enemy(e, {"id": "poison", "power": float(cfg.get("power", 0.02)), "remaining": float(cfg.get("duration_s", 4.0)), "source": c.id})
+	combat.apply_status_to_enemy(e, {"id": "poison", "power": float(cfg.get("power", 0.02)), "remaining": float(cfg.get("duration_s", 4.0)), "source": c.id})
 
 ## A weapon oil on the blade (S44): each hit may carry its status to the foe. Rolled on its own stream, so a
 ## fight without oil keeps the combat stream's sequence.
@@ -107,4 +107,4 @@ func oil_strike(c, e: EnemyState, ev: Dictionary) -> void:
 			"duration_s": float(oil.get("duration_s", 4.0))}, ev, Rng.stream(c.id, "oil"))
 		if not applied.is_empty():
 			applied.source = c.id
-			combat._apply_status_to_enemy(e, applied)
+			combat.apply_status_to_enemy(e, applied)

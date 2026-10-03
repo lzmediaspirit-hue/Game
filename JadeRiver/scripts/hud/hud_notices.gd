@@ -1,7 +1,7 @@
 class_name HudNotices
 extends HudPart
 ## The game's events as the player reads them: the log's lines, the toasts, the captions and the room's banner
-## (hud._on_event).
+## (hud.on_event).
 ## A part of the HUD (audit 45, S6): HudPart says how a part works.
 
 ## An event as the player reads it. Its caption first (a sound written out, when captions are on). Then, for most

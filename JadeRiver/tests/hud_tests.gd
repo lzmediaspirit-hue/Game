@@ -6,7 +6,7 @@ extends "res://tests/lib/suite.gd"
 ## Run headless:  godot --headless --path . res://tests/hud_tests.tscn
 
 ## The HUD's methods before the split (hud.gd at audit 45's S6): the public ones, and the private ones tests and tools
-## call by name. Each is still a method of the HUD, forwarded to its part.
+## called by name, under the public names S11 gave them. Each is still a method of the HUD, forwarded to its part.
 const API := ["bound", "shown", "scroll_skills", "advance_scroll", "set_state", "finish_tap", "toggle_on", "ring2_places",
 	"hit_targets", "tour_targets", "tour_rect", "point_badges", "open_points", "points_pop", "obstacle_rects",
 	"log_rect", "panel_rect", "go_hit", "role_at", "press", "toggle_fan", "drag", "release", "armed",
@@ -15,10 +15,10 @@ const API := ["bound", "shown", "scroll_skills", "advance_scroll", "set_state", 
 	"set_scene_lock", "world_news", "toggle_sphere", "toggle_presence", "add_log", "spar_line", "toast",
 	"drop_toasts_from", "ring", "glyph", "skill_position", "draw_skill_slot", "draw_skill_scroll", "bar",
 	"hub_ready", "tracker_objective", "place_marks", "minimap_place_at", "minimap_way", "context_label_rect",
-	"attack_glyph", "attack_gesture", "armed_glow", "log_rows", "toast_sub_rows", "toast_rects", "_layout", "_on",
-	"_slot_filled", "_fan_items", "_ring2", "_frame_badges", "_tick_points", "_context_shown", "_tick_fight",
-	"_tick_aims", "_tick_place_pose", "_after_interact", "_caption_worthy", "_context_glyph", "_band_on_top",
-	"_edge_point", "_on_event", "_notification"]
+	"attack_glyph", "attack_gesture", "armed_glow", "log_rows", "toast_sub_rows", "toast_rects", "place_cluster",
+	"on_ring", "slot_filled", "fan_items", "ring2", "frame_badges", "tick_points", "context_shown", "tick_fight",
+	"tick_aims", "tick_place_pose", "after_interact", "caption_worthy", "context_glyph", "band_on_top", "edge_point",
+	"on_event", "_notification"]
 
 func _main() -> void:
 	_facade()
@@ -45,7 +45,7 @@ func _swap_clear_of_label() -> void:
 	var placed := true
 	for lh in [false, true]:
 		hud.left_handed = lh
-		hud._layout()
+		hud.place_cluster()
 		for roles in loads:
 			var items: Array = hud.ring2_places(roles.map(func(r): return {"role": r, "home": r}))
 			var ctx: Array = items.filter(func(o): return str(o.role) == "context")
@@ -59,7 +59,7 @@ func _swap_clear_of_label() -> void:
 				if cp.distance_to(o.center) < 26.0: touching.append("%s %s at %s" % ["left" if lh else "right", o.role, o.center])
 	check(touching.is_empty() and placed, "no circle of ring 2 touches the context's words, the swap's among them, right- and left-handed (%s)" % [touching])
 	hud.left_handed = false
-	hud._layout()
-	var swap_at: Vector2 = hud._on(hud.attack_center, hud.RING2_R, 292.0)
+	hud.place_cluster()
+	var swap_at: Vector2 = hud.on_ring(hud.attack_center, hud.RING2_R, 292.0)
 	check(swap_at == Vector2(1245, 407) and hud.attack_center == Vector2(1165, 605), "the swap and the cluster stand where they stood (%s, %s)" % [swap_at, hud.attack_center])
 	hud.free()

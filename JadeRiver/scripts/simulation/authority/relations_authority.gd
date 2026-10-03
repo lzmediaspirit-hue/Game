@@ -18,17 +18,17 @@ func subscribe() -> void:
 	var events := {}
 	for dd in ContentDB.all("karma"): events[str(dd.get("event", ""))] = true
 	for ev in events:
-		if str(ev) != "": GameEvents.subscribe(str(ev), _on_deed_event.bind(str(ev)), 85)
-	GameEvents.subscribe("room_entered", _on_room_entered, 86)
-	GameEvents.subscribe("quest_completed", _on_quest_completed, 86)
-	GameEvents.subscribe("spar_ended", _on_spar_ended, 86)
-	GameEvents.subscribe("actor_defeated", _on_defeated, 86)
+		if str(ev) != "": GameEvents.subscribe(str(ev), on_deed_event.bind(str(ev)), 85)
+	GameEvents.subscribe("room_entered", on_room_entered, 86)
+	GameEvents.subscribe("quest_completed", on_quest_completed, 86)
+	GameEvents.subscribe("spar_ended", on_spar_ended, 86)
+	GameEvents.subscribe("actor_defeated", on_defeated, 86)
 	GameEvents.subscribe("quest_accepted", _on_quest_accepted, 86)
 	# S49 fortune encounters and heavenly phenomena (after the room, gathering and fall have settled).
 	GameEvents.subscribe("room_entered", _on_fortune_room, 95)
 	GameEvents.subscribe("node_gathered", _on_fortune_gathered, 95)
 	GameEvents.subscribe("fell_out", _on_fortune_fell, 95)
-	GameEvents.subscribe("heavenly_phenomenon", _on_phenomenon, 86)
+	GameEvents.subscribe("heavenly_phenomenon", on_phenomenon, 86)
 	GameEvents.subscribe("technique_used", _on_mortal_technique, 86)
 
 func handle(intent: Dictionary) -> Dictionary:
@@ -122,7 +122,7 @@ func apply_merit_used(actor_id: String, great_realm: String) -> void:
 func tick(delta: float) -> void:
 	var c = game.active()
 	if c == null: return
-	_fill_fortune(c, delta)   # the Fortune meter fills only while you play
+	fill_fortune(c, delta)   # the Fortune meter fills only while you play
 	debt_clock -= delta
 	if debt_clock > 0.0: return
 	debt_clock = 1.0
@@ -213,7 +213,7 @@ func apply_daily_deed(actor_id: String, deed_id: String, cap: int) -> bool:
 	return false
 
 ## A deed fires when its event's payload matches every {key: value} in "match".
-func _on_deed_event(p: Dictionary, event_name: String) -> void:
+func on_deed_event(p: Dictionary, event_name: String) -> void:
 	var c = game.character(str(p.get("actor", p.get("killer", game.active_id))))
 	if c == null: c = game.active()
 	if c == null: return
@@ -235,11 +235,11 @@ func _in_town() -> bool:
 # ------------------------------------------------------------------ Young Master provocations (Fame)
 ## From Rising Fame, walking into a town may bring out a young master who wants to prove himself against you
 ## (once a day). The challenge waits in that room for an answer; leaving the room lets it lapse.
-func _on_room_entered(_p: Dictionary) -> void:
+func on_room_entered(_p: Dictionary) -> void:
 	var c = game.active()
 	if c == null: return
 	challenges.erase(c.id)
-	_spawn_hunters(c)
+	spawn_hunters(c)
 	if not _in_town(): return
 	var yc: Dictionary = cfg().get("young_master", {})
 	if c.relations.fame < int(yc.get("fame", 150)): return
@@ -343,7 +343,7 @@ static func giftable(slot: Dictionary) -> bool:
 		and not ContentDB.is_equipment(id)
 
 ## Quests make friends: the giver likes you a little more for each one done.
-func _on_quest_completed(p: Dictionary) -> void:
+func on_quest_completed(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
 	if c == null: return
 	var def := ContentDB.entry("quests", str(p.get("quest", "")))
@@ -360,7 +360,7 @@ func _on_quest_completed(p: Dictionary) -> void:
 		emit("bond_formed", {"actor": c.id, "kind": "master", "npc": who})
 
 ## A friendly duel won against a companion (once a day counts).
-func _on_spar_ended(p: Dictionary) -> void:
+func on_spar_ended(p: Dictionary) -> void:
 	var opp := str(p.get("opponent", ""))
 	if str(p.get("winner", "")) == "player":
 		var cc = game.character(str(p.get("actor", game.active_id)))
@@ -474,7 +474,7 @@ func pay_grudge(c, faction: String, method: String) -> Dictionary:
 	return fail("no_method")
 
 ## Named kills raise their faction's grudge; a hunter or bounty target that falls is struck off.
-func _on_defeated(p: Dictionary) -> void:
+func on_defeated(p: Dictionary) -> void:
 	if str(p.get("victim_kind", "")) != "enemy": return
 	var c = game.character(str(p.get("killer", "")))
 	if c == null: c = game.active()
@@ -509,7 +509,7 @@ func _on_quest_accepted(p: Dictionary) -> void:
 
 ## Hunters: in a faction's hunting grounds, past its threshold, one may be waiting (at your level). Debt hunters
 ## (Kuai Shan) always wait in their room. Bounty targets appear in theirs while the bounty is yours.
-func _spawn_hunters(c) -> void:
+func spawn_hunters(c) -> void:
 	var rt = game.room_rt
 	if rt == null: return
 	var here: String = rt.room_id
@@ -595,7 +595,7 @@ func fortune_cfg() -> Dictionary:
 func fortune_meter(c) -> float:
 	return float(c.relations.fortune.get("meter", 0.0))
 
-func _fill_fortune(c, delta: float) -> void:
+func fill_fortune(c, delta: float) -> void:
 	var m := fortune_meter(c)
 	if m < 1.0: c.relations.fortune["meter"] = minf(1.0, m + delta / (float(fortune_cfg().get("meter_h", 3.0)) * 3600.0))
 
@@ -674,7 +674,7 @@ func apply_fortune_grotto(actor_id: String) -> void:
 
 # ------------------------------------------------------------------ heavenly phenomena (S49 v1.0)
 ## The sky answered your breakthrough where people could see it: sometimes a jealous senior cannot let it pass.
-func _on_phenomenon(p: Dictionary) -> void:
+func on_phenomenon(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
 	if c == null or c.id != game.active_id or str(p.get("kind", "")) != "cloud" or game.room_rt == null: return
 	if int(p.get("people", 0)) <= 0 or challenges.has(c.id) or game.room_rt.event.get("active", false): return

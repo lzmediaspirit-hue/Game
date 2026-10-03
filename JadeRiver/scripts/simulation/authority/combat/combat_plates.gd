@@ -40,7 +40,7 @@ func tick_arrays(delta: float) -> void:
 			for e in combat._enemies_within(here, float(a.radius)):
 				if a.marked.has(e.uid) or e.pools.steadfast.has(str(tal.id)): continue
 				a.marked[e.uid] = true
-				combat._apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.get("power", 1)), "remaining": float(tal.get("duration_s", 1.0)), "source": c.id})
+				combat.apply_status_to_enemy(e, {"id": str(tal.id), "power": float(tal.get("power", 1)), "remaining": float(tal.get("duration_s", 1.0)), "source": c.id})
 		match str(a.kind):
 			"killing":
 				a.tick = 1.0
@@ -48,11 +48,11 @@ func tick_arrays(delta: float) -> void:
 				var atk := {"damage_type": "qi", "element": "none", "mult": [float(a.mult), float(a.mult)], "range": [0.95, 1.05], "source": "array:killing",
 					"dao_tier": combat._dao_tier(c, "formation")}
 				for e in combat._enemies_within(here, float(a.radius)):
-					combat._player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
+					combat.player_hits_enemy(c, pv, e, atk, 1 if e.plane.x >= here.x else -1)
 			"binding":
 				a.tick = 0.5
 				for e in combat._enemies_within(here, float(a.radius)):
-					if not e.pools.steadfast.has("slow"): combat._apply_status_to_enemy(e, {"id": "slow", "power": float(a.slow), "remaining": 1.0, "source": c.id})
+					if not e.pools.steadfast.has("slow"): combat.apply_status_to_enemy(e, {"id": "slow", "power": float(a.slow), "remaining": 1.0, "source": c.id})
 			_:
 				a.tick = 0.5
 				var st: ActorState = game.actor_state(c.id)

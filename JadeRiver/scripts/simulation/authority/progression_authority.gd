@@ -140,8 +140,8 @@ func tick(delta: float) -> void:
 			game.mail.apply_send(c.id, "mentor_hint", [], {"realm": ContentDB.name_of("realms", cu.realm_key)})
 
 # ------------------------------------------------------------------ the facade
-## Every public method, forwarded to the part that does the work. A forwarder named with a leading underscore keeps a
-## private name that tests or tools call by (audit 45 S11 gives those public names).
+## Every public method, forwarded to the part that does the work, among them the helpers tests and tools call by name
+## (public since audit 45's S11).
 
 # Meditation, seclusion and the offline claim (progression_meditation.gd)
 func start_meditation(c) -> Dictionary: return meditation.start_meditation(c)
@@ -160,22 +160,22 @@ func play_guqin(c, score: float) -> Dictionary: return meditation.play_guqin(c, 
 func at_zone_ceiling(c) -> bool: return realms.at_zone_ceiling(c)
 func apply_progress(actor_id: String, amount: float, source: String, pct_of_need := 0.0) -> void: realms.apply_progress(actor_id, amount, source, pct_of_need)
 func cu_owner(cu: CultivatorState) -> String: return realms.cu_owner(cu)
-func _levels_gained(c, from_level: int, to_level: int) -> void: realms.levels_gained(c, from_level, to_level)
+func levels_gained(c, from_level: int, to_level: int) -> void: realms.levels_gained(c, from_level, to_level)
 func query_requirements(c) -> Array: return realms.query_requirements(c)
 func query_breakthrough(c, support_items: Array = []) -> Dictionary: return realms.query_breakthrough(c, support_items)
 func start_breakthrough(c, support_items: Array) -> Dictionary: return realms.start_breakthrough(c, support_items)
-func _maybe_deviate(c, risk: String) -> void: realms.maybe_deviate(c, risk)
+func maybe_deviate(c, risk: String) -> void: realms.maybe_deviate(c, risk)
 func is_channeling(actor_id: String) -> bool: return realms.is_channeling(actor_id)
-func _advance(c, to: String, major: bool) -> void: realms.advance(c, to, major)
-func _forge_core(c) -> void: realms.forge_core(c)
+func advance(c, to: String, major: bool) -> void: realms.advance(c, to, major)
+func forge_core(c) -> void: realms.forge_core(c)
 func core_forging_points(c) -> Array: return realms.core_forging_points(c)
 func roll_aptitude(c) -> void: realms.roll_aptitude(c)
 func apply_event_passed(actor_id: String, event: String) -> void: realms.apply_event_passed(actor_id, event)
-func _on_gravely_wounded(p: Dictionary) -> void: realms.on_gravely_wounded(p)
+func on_gravely_wounded(p: Dictionary) -> void: realms.on_gravely_wounded(p)
 
 # The heavenly tribulation (progression_tribulation.gd)
-func _start_tribulation(c, ch: Dictionary) -> void: tribulation.start_tribulation(c, ch)
-func _tick_tribulation(c, delta: float) -> void: tribulation.tick_tribulation(c, delta)
+func start_tribulation(c, ch: Dictionary) -> void: tribulation.start_tribulation(c, ch)
+func tick_tribulation(c, delta: float) -> void: tribulation.tick_tribulation(c, delta)
 func is_under_tribulation(actor_id: String) -> bool: return tribulation.is_under_tribulation(actor_id)
 func tribulation_view(actor_id: String) -> Dictionary: return tribulation.tribulation_view(actor_id)
 
@@ -183,7 +183,6 @@ func tribulation_view(actor_id: String) -> Dictionary: return tribulation.tribul
 func choose_fate(c, card: String) -> Dictionary: return fates.choose_fate(c, card)
 func apply_grant_fate(actor_id: String, card: String) -> void: fates.apply_grant_fate(actor_id, card)
 func spend_fate_next(c, key: String) -> float: return fates.spend_fate_next(c, key)
-func _spend_fate_next(c, key: String) -> float: return fates.spend_fate_next(c, key)
 func apply_pill_resistance_all(actor_id: String, amount: int) -> void: fates.apply_pill_resistance_all(actor_id, amount)
 func apply_purity_grade(actor_id: String, grades: int) -> void: fates.apply_purity_grade(actor_id, grades)
 func fate_flag(c, flag: String) -> bool: return fates.fate_flag(c, flag)
@@ -191,7 +190,7 @@ func fate_flag(c, flag: String) -> bool: return fates.fate_flag(c, flag)
 # Insight and the Daos (progression_insight.gd)
 func apply_insight(actor_id: String, dao: String, amount: float, context: String) -> void: insight.apply_insight(actor_id, dao, amount, context)
 func apply_open_dao(actor_id: String, dao: String) -> void: insight.apply_open_dao(actor_id, dao)
-func _roll_epiphany(c, context: String) -> void: insight.roll_epiphany(c, context)
+func roll_epiphany(c, context: String) -> void: insight.roll_epiphany(c, context)
 func trigger_epiphany(c, rng: RandomNumberGenerator) -> void: insight.trigger_epiphany(c, rng)
 func consult_jade_tree(c) -> Dictionary: return insight.consult_jade_tree(c)
 func chess_of(site: String) -> Dictionary: return insight.chess_of(site)
@@ -210,11 +209,11 @@ func attune_jade(c, zone_id: String, index: int) -> Dictionary: return attunemen
 # The body (progression_body.gd)
 func apply_body_xp(actor_id: String, xp: float, _source: String) -> void: body.apply_body_xp(actor_id, xp, _source)
 func pass_body_trial(actor_id: String, tier: String) -> void: body.pass_body_trial(actor_id, tier)
-func _check_body_tier(c) -> void: body.check_body_tier(c)
+func check_body_tier(c) -> void: body.check_body_tier(c)
 func awaken_physique(actor_id: String, physique: String) -> void: body.awaken_physique(actor_id, physique)
 func add_lifetime(c, key: String, amount: float) -> void: body.add_lifetime(c, key, amount)
-func _count_streak(c) -> void: body.count_streak(c)
-func _on_fire_pill(p: Dictionary) -> void: body.on_fire_pill(p)
+func count_streak(c) -> void: body.count_streak(c)
+func on_fire_pill(p: Dictionary) -> void: body.on_fire_pill(p)
 func add_air_distance(actor_id: String, px: float) -> void: body.add_air_distance(actor_id, px)
 
 # Condition (progression_condition.gd)

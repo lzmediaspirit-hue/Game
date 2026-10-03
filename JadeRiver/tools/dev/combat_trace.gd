@@ -124,7 +124,7 @@ func _frame() -> bool:
 	var held := false
 	if CombatFeel.hitstop_on() and Game.combat.hold_for_hitstop(DT): held = true
 	else:
-		for e in w.player.physics_step(DT): w._feedback(e)
+		for e in w.player.physics_step(DT): w.feedback(e)
 		Game.tick(DT)
 	w.held = held
 	GameEvents.flush()

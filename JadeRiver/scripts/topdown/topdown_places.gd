@@ -76,7 +76,7 @@ class Figure extends Node2D:
 					_was_staged = false
 					work.pos = plane
 					work.paused = 0.0
-					work._resume()
+					work.resume()
 				_work(_d, twin.focus, QuestAuthority.marker_calls(str(twin.marker)))
 				return
 			var moving := false

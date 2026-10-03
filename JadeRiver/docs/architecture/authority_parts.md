@@ -86,8 +86,9 @@ authority.
   - Every public method that moved into a part keeps a one-line forwarder on the authority, with the same name,
     arguments and result. In `combat_authority.gd`, the forwarders are the last section, "the parts' faces".
   - A static method gets a static forwarder, so `CombatAuthority.treasure_of` still works.
-  - Some private helpers are called by name from tests and tools, such as `Game.combat._tick_projectiles`. They keep a
-    forwarder under their old name, until S11 gives them public names. Inside their part they are already public.
+  - Some helpers are called by name from tests and tools, such as `Game.combat.tick_projectiles`. Their forwarders kept
+    the old private names until S11, and now carry the part's public name. The public-surface rule (below) keeps it
+    that way.
   - To find them, grep `scripts/`, `tests/` and `tools/` for `<name>.<method>` and `<Name>Authority.<method>` for every
     moved method.
   - When code outside needs a part's method, add a forwarder. Do not call `Game.<name>.<part>`.
@@ -96,9 +97,8 @@ authority.
   - The authority's own flow, such as its tick, calls the parts directly: `flight.tick_flight(c, delta)`.
   - A part reaches the authority's state and methods through the getter (`combat.player_view(c)`). It calls a helper
     that another part keeps to itself on that part (`combat.projectiles.spawn_projectile(p)`).
-  - Combat's parts also call the core's private helpers, such as `combat._apply_status_to_enemy` and
-    `combat._dao_tier`. The authority and its parts are one owner. A contract rule against private calls between
-    owners (S11) should allow those calls from inside `authority/<name>/`.
+  - Combat's parts also call the core's private helpers, such as `combat._dao_tier` and `combat._enemies_within`. The
+    authority and its parts are one owner. This is the one allowance of the public-surface rule (below).
   - Parts do not reach into other authorities' parts. They call other authorities through `game.<authority>`.
 - **Names.**
   - A moved method keeps its name, and drops its leading underscore when the authority or another part calls it. For
@@ -127,14 +127,14 @@ authority.
    - Prefix the authority's state and methods with `<name>.`.
    - Qualify the authority's static calls as `<Name>Authority.x`.
    - Point the authority's calls at the part.
-3. Add a forwarder for every moved public method, and for every private one that code outside calls.
+3. Add a forwarder for every moved public method. A private helper that code outside calls gets a public name first.
 4. Import, rebuild the data, and run `tools/run_tests.sh`. Every suite's check count must stay the same.
 
 ## CombatAuthority's parts (S8)
 
 `combat_authority.gd` went from 2,912 lines to 1,807. The core flow is 1,721 of those lines. The other 86 are the
-parts' faces: 59 forwarders, 42 for public methods and 17 for private names that tests and tools call. The parts hold
-1,308 lines.
+parts' faces: 59 forwarders, 42 for public methods and 17 for the helpers that tests and tools call. Those 17 kept
+their private names until S11 and are public now. The parts hold 1,308 lines.
 
 | Member | File | Lines | What it holds | State it works on |
 |---|---|---:|---|---|
@@ -161,15 +161,16 @@ The core file keeps these sections:
 - resolution, from a blow to a foe's damage;
 - a foe's end: defeat, execution, a story's slaying, the eel's overwhelm and a boss's detonation;
 - foes' blows and harm to the player: a foe's strikes, ground fire, the tribulation's bolt, hazards and
-  `_damage_player`;
+  `damage_player`;
 - the `apply_*` commands;
 - the parts' faces.
 
 ## WorldAuthority's parts (S9)
 
-`world_authority.gd` went from 2,321 lines to 433. Its facade is 106 one-line forwarders: 91 for public methods,
-including the new `apply_loot_drop` (BUG-05), and 15 for private names that tests and `ObjectView` call. The parts
-hold 2,133 lines.
+`world_authority.gd` went from 2,321 lines to 433. Its facade was 106 one-line forwarders: 91 for public methods,
+including the new `apply_loot_drop` (BUG-05), and 15 for private names that tests and `ObjectView` call. S11 dropped
+`_drop_loot`, the same call as `apply_loot_drop`, and gave the other 14 public names in their parts' sections. The
+parts hold 2,133 lines.
 
 | Member | File | Lines | What it holds | State it works on |
 |---|---|---:|---|---|
@@ -194,7 +195,7 @@ The authority's file keeps these sections:
 - the room's lifecycle: `load_room`, `enter_world`, `enter_grid_room`, the arrival, `grid_for` and the ground;
 - the character's memory of a room: `room_mem`, `slain_foes` and the foes slain and returned;
 - the tick;
-- the facade, and the old private names at its end.
+- the facade.
 
 **Its part members are untyped.** This is the one difference from the shape above, and it is deliberate:
 - With the members typed, the parts and `WorldAuthority` resolve in a cycle while `Game` boots.
@@ -213,3 +214,36 @@ Its brief asked S9 to group the side-view branches where that was free. Each of 
 (13 sites) or finds `grid_for` null (7 sites), so retiring the side view can find them all.
 
 Crafting's and Progression's parts are listed in the S10 entry of `docs/CHANGELOG.md`.
+
+## Public surfaces (S11)
+
+A script calls another script by its public names only. `contract_tests` (`_public_surfaces`) reads every script under
+`scripts/`, `tests/` and `tools/` and fails on a call into a method that another script keeps to itself:
+- `<expr>._name(…)`, for example `Game.combat._defeat(e, id)` or `UiKit._heart(…)`;
+- `<expr>.call("_name", …)` (and `callv`, `call_deferred`) and `Callable(<expr>, "_name")`, the same call by name.
+
+**The one allowance.** A part calls its own owner's private helpers through its back-reference: a script under
+`scripts/simulation/authority/<name>/` calls `<name>._x(…)` where `_x` is a function of `<name>_authority.gd` (Combat's
+parts call `combat._dao_tier`), and a HUD part under `scripts/hud/` calls `hud._x(…)` on `hud.gd`. The owner and its
+parts are one owner. A part that calls another part's private helper (`combat.sword._x`) is refused.
+
+**Not counted, since none of them is another script's private method:**
+- a call on `self` or `super`;
+- a script's own private function, called on another object of its kind or from one of its inner classes. Examples are
+  `coach._draw_card` in `tutorial_coach.gd`, and `TechniquePicture._tend()` from its own `Host` node;
+- Godot's virtual callbacks, such as `_process`, `_physics_process`, `_gui_input`, `_draw` and `_notification`. They
+  are the engine's names, and tests drive nodes through them.
+
+**The side view.** A line marked `# side view` is left out, since S12 deletes the side view with its marked lines.
+Today two lines are left out, in `perf_tests`' crowd: `w._cast` and `w._on_event` on `world.gd`, the side view's own
+world.
+
+**How the receiver is read.** `Game.<authority>` and `game.<authority>` name that authority's script. A global class
+(`UiKit`, `EnemyBrain`) or an autoload (`Audio`) names its script. For any other receiver (a local, a member, an
+expression), the call passes only if the calling script defines the function itself.
+
+**When the rule fails,** give the method a public name on its owner and call that. Do not add a forwarder under the
+private name, and do not move the call into a string. If tests need a helper, the helper is part of the owner's
+surface, and it gets a public name. `contract_tests` also runs the rule on lines of its own (nine calls it must catch,
+ten it must let through), so a change to the reader cannot quietly let calls past.
+

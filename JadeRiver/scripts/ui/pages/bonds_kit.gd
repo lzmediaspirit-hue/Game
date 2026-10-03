@@ -80,7 +80,7 @@ static func knot(pg: Page, c: Vector2, tied: bool, k := 1.0) -> void:
 ## A paper lantern on its cord: lit (red paper glowing, `glow_k` of its halo) or dark, hung with its top at `top`.
 static func lantern(pg: Page, top: Vector2, lit: bool, glow_k := 1.0) -> void:
 	var body := Rect2(top + Vector2(-15, 8), Vector2(30, 34))
-	if lit: pg.glow(body.grow(26 * glow_k), Color(UiKit.GOLD, 0.45 * glow_k * pg._halo()))
+	if lit: pg.glow(body.grow(26 * glow_k), Color(UiKit.GOLD, 0.45 * glow_k * pg.halo_k()))
 	pg.draw_line(top, top + Vector2(0, 8), UiKit.INK, 2.0, true)
 	pg.rounded(Rect2(body.position.x + 6, body.position.y - 3, 18, 5), 2.0, UiKit.INK)
 	pg.rounded(Rect2(body.position.x + 6, body.end.y - 2, 18, 5), 2.0, UiKit.INK)

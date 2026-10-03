@@ -35,7 +35,7 @@ func subscribe() -> void:
 	GameEvents.subscribe("daily_reset", _on_daily_reset, 60)
 	GameEvents.subscribe("weekly_reset", func(_p): start_weekly(false), 61)
 	for ev in ["quest_completed", "realm_changed", "flag_set", "room_entered", "quest_accepted", "item_added", "character_created", "presence_leveled"]:
-		GameEvents.subscribe(ev, _refresh_offers, 65)
+		GameEvents.subscribe(ev, refresh_offers, 65)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -300,7 +300,7 @@ func can_offer(c, def: Dictionary) -> bool:
 	if def.has("requires") and not RequirementRules.passes(def.requires, game.ctx(c)): return false
 	return true
 
-func _refresh_offers(_p := {}) -> void:
+func refresh_offers(_p := {}) -> void:
 	var c = game.active()
 	if c == null: return
 	for def in ContentDB.all("quests"):
@@ -593,9 +593,9 @@ func _recount(c, qid: String) -> void:
 			st.progress[i] = v
 			changed = true
 	if changed: emit("objective_progressed", {"actor": c.id, "quest": qid})
-	_check_ready(c, qid)
+	check_ready(c, qid)
 
-func _check_ready(c, qid: String) -> void:
+func check_ready(c, qid: String) -> void:
 	var def := quest_def(c, qid)
 	var st: Dictionary = c.quests.active.get(qid, {})
 	if st.is_empty(): return

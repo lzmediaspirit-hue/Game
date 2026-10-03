@@ -14,14 +14,14 @@ func subscribe() -> void:
 	GameEvents.subscribe("objective_progressed", _on_state_change, 40)
 	GameEvents.subscribe("item_added", _on_state_change, 40)
 	GameEvents.subscribe("flag_set", _on_state_change, 40)
-	GameEvents.subscribe("actor_defeated", _on_defeated, 45)
+	GameEvents.subscribe("actor_defeated", on_defeated, 45)
 	# A boss beaten "clean" (the Untouched achievement) means no grave wound in its room since the player came in.
 	GameEvents.subscribe("player_gravely_wounded", func(_p): wounded_here = true, 45)
 
 ## Whether the player was gravely wounded in the current room (cleared on entering a room).
 var wounded_here := false
 
-func _on_defeated(p: Dictionary) -> void:
+func on_defeated(p: Dictionary) -> void:
 	if str(p.get("role", "")) == "field_boss": emit("field_boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", ""))})
 	if str(p.get("role", "")) in ["dungeon_boss", "story_boss"] and str(p.get("killer", "")).begins_with("c"):
 		emit("boss_defeated", {"room": str(p.get("room", "")), "enemy": str(p.get("def", "")), "role": str(p.get("role", "")), "clean": not wounded_here})
@@ -73,7 +73,7 @@ func _on_state_change(_p: Dictionary) -> void:
 	# Conditional spawns (Old Snapper after five shells) appear when their requirement holds (once due, if slain).
 	if game.room_rt == null: return
 	for slot in game.room_rt.spawn_slots:
-		if int(slot.uid) == 0 and slot.get("held", false) and _spawn_allowed(slot.spec):
+		if int(slot.uid) == 0 and slot.get("held", false) and spawn_allowed(slot.spec):
 			slot.held = false
 			slot.entry = true   # a scripted appearance, not a respawn: it may show in view
 			slot.timer = maxf(1.0, _due_in(slot, game.active()))
@@ -119,7 +119,7 @@ func _due_in(slot: Dictionary, c) -> float:
 	if not slain.has(key): return 0.0
 	return float(slain[key]) + return_s(slot.spec, c) - Clock.now_utc()
 
-func _spawn_allowed(spec: Dictionary) -> bool:
+func spawn_allowed(spec: Dictionary) -> bool:
 	if spec.has("requires") and not RequirementRules.passes(spec.requires, game.ctx()): return false
 	if spec.get("field_boss", false):
 		var until := float(game.account.rooms.get("field_boss_timers", {}).get(str(spec.enemy), 0.0))
@@ -158,7 +158,7 @@ func populate() -> void:
 			if left > 0.0:
 				slot.timer = left
 				slot.entry = false
-			if not _spawn_allowed(spec): _hold(slot)
+			if not spawn_allowed(spec): _hold(slot)
 			rt.spawn_slots.append(slot)
 			index += 1
 
@@ -171,11 +171,11 @@ func tick(delta: float) -> void:
 		if int(slot.uid) != 0 or held or slot.get("held", false): continue
 		slot.timer = float(slot.timer) - delta
 		if float(slot.timer) <= 0.0:
-			if not _spawn_allowed(slot.spec):
+			if not spawn_allowed(slot.spec):
 				_hold(slot)
 				continue
-			var at := _spawn_point(slot)
-			if at.is_finite(): _spawn(slot, at)
+			var at := spawn_point(slot)
+			if at.is_finite(): spawn(slot, at)
 			else: slot.timer = 2.0   # every point is in view: look again shortly
 	for uid in rt.enemies.keys():
 		var e: EnemyState = rt.enemies[uid]
@@ -197,7 +197,7 @@ func tick(delta: float) -> void:
 			e.velocity = before
 			e.knockback -= step
 		if rt.topdown != null and e.hop.is_empty() and not bool(e.def.get("flying", false)): TopdownBrain.fall(rt.topdown, e, delta)
-		_check_phases(e)
+		check_phases(e)
 		if e.def.get("ai", {}).get("profile", "") == "event_eel":
 			_eel(e, delta)
 			continue
@@ -250,7 +250,7 @@ func _hover(rt: RoomRuntime, e: EnemyState, delta: float) -> void:
 ## the room appears only out of view, so the room never refills before their eyes, unless it fills on entry or a kill
 ## step asks for it; else it waits (INF). On the height grid another point is taken only while no foe stands on it, so a
 ## pack is never piled onto the one point out of the camera's rect.
-func _spawn_point(slot: Dictionary) -> Vector2:
+func spawn_point(slot: Dictionary) -> Vector2:
 	var point: Vector2 = slot.point
 	var rt: RoomRuntime = game.room_rt
 	var st: ActorState = game.actor_state(game.active_id)
@@ -264,7 +264,7 @@ func _spawn_point(slot: Dictionary) -> Vector2:
 	if slot.get("entry", false) or int(slot.index) < 0 or _quick(slot.spec, game.active()): return point
 	return Vector2.INF
 
-func _spawn(slot: Dictionary, point: Vector2) -> EnemyState:
+func spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 	var rt: RoomRuntime = game.room_rt
 	var spec: Dictionary = slot.spec
 	var def := ContentDB.entry("enemies", str(spec.enemy))
@@ -327,7 +327,7 @@ func spawn_at(def_id: String, point: Vector2, level := -1, extra := {}) -> Enemy
 	var lv: Array = def.get("level", [1, 1])
 	var slot := {"spec": {"enemy": def_id, "level": [level, level] if level > 0 else lv, "points": [[point.x, point.y]], "elite": extra.get("elite", false)},
 		"index": -1, "point": point, "uid": 0, "timer": 0.0}
-	var e := _spawn(slot, point)
+	var e := spawn(slot, point)
 	if e:
 		e.summoned = true
 		if extra.has("team"): e.team = str(extra.team)
@@ -350,13 +350,13 @@ func move_enemy(e: EnemyState, delta: float) -> void:
 		e.plane = next
 		return
 	var ok_next := func(p: Vector2) -> bool:
-		return surf.contains(p) and not rt.geometry.blocks_at(p, surf.height_at(p), surf.stratum) and not _in_portal(p)
+		return surf.contains(p) and not rt.geometry.blocks_at(p, surf.height_at(p), surf.stratum) and not in_portal(p)
 	if ok_next.call(next): e.plane = next
 	elif ok_next.call(Vector2(next.x, e.plane.y)): e.plane = Vector2(next.x, e.plane.y)
 	elif ok_next.call(Vector2(e.plane.x, next.y)): e.plane = Vector2(e.plane.x, next.y)
 	e.altitude = surf.height_at(e.plane)
 
-func _in_portal(p: Vector2) -> bool:
+func in_portal(p: Vector2) -> bool:
 	# Spawns and patrols never enter portal areas.
 	for portal in game.room_rt.def.get("portals", []):
 		var at: Array = portal.get("at", [0, 0])
@@ -393,7 +393,7 @@ func stagger(e: EnemyState, seconds: float) -> void:
 	e.action = "hurt"
 	e.action_time = 0.0
 
-func _check_phases(e: EnemyState) -> void:
+func check_phases(e: EnemyState) -> void:
 	var phases: Array = e.def.get("phases", [])
 	for i in phases.size():
 		if i <= int(e.ai.get("phase", -1)): continue

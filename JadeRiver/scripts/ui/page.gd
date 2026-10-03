@@ -123,7 +123,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	GameEvents.event.connect(_on_game_event)
 	if modal and frame_rect == WINDOW_FULL: frame_rect = WINDOW_SMALL
-	if identity != null: modulate.a = _open_alpha()   # it fades in from its first frame, drawn before its first step or after
+	if identity != null: modulate.a = open_alpha()   # it fades in from its first frame, drawn before its first step or after
 	_layout()
 
 func _exit_tree() -> void:
@@ -165,7 +165,7 @@ func _process(delta: float) -> void:
 	_stepped = true
 	t += delta
 	opened += delta
-	if identity != null: modulate.a = _open_alpha()
+	if identity != null: modulate.a = open_alpha()
 	var toasting := toast_t > 0.0
 	if toasting:
 		toast_t -= delta
@@ -180,7 +180,7 @@ func unfold(dur := -1.0) -> float:
 	return 1.0 - pow(1.0 - k, 3.0)
 
 ## The page's alpha while it opens: over its opening, or over MOTION_FADE_S under Reduce motion.
-func _open_alpha() -> float:
+func open_alpha() -> float:
 	return clampf(opened / maxf(0.01, UiKit.MOTION_FADE_S if UiKit.reduce_motion() else identity.open_s), 0.0, 1.0)
 
 func c():
@@ -341,7 +341,7 @@ func _draw_tabs() -> void:
 				HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 		else:
 			draw_tab(r, i, state)
-		if locked: _lock_icon(r.position + Vector2(r.size.x - 16, 8))
+		if locked: lock_icon(r.position + Vector2(r.size.x - 16, 8))
 		_register(r, "_tab", i, not locked, str(tb.get("locked", "")), "button")
 
 # ------------------------------------------------------------------ P5: what a page with its own identity overrides
@@ -428,7 +428,7 @@ static func glow_on(ci: CanvasItem, rect: Rect2, col: Color) -> void:
 	ci.draw_texture_rect(_glows[key], rect, false)
 
 ## Bright glows at 0.3 of their alpha with Settings › Bright flashes off (page_identity §6).
-func _halo() -> float:
+func halo_k() -> float:
 	return 1.0 if Game.account.settings.get("flashes", true) else 0.3
 
 ## A slow pulse for a live mark's glow; none under Reduce motion.
@@ -439,7 +439,7 @@ func _pulse() -> float:
 ## heart when it is coming.
 func _blossom(c: Vector2, live: bool, k: float) -> void:
 	var col := UiKit.GOLD if live else UiKit.SOUL
-	if live: glow(Rect2(c - Vector2.ONE * 20.0 * k, Vector2.ONE * 40.0 * k), Color(UiKit.GOLD, (0.35 + 0.1 * _pulse()) * _halo()))
+	if live: glow(Rect2(c - Vector2.ONE * 20.0 * k, Vector2.ONE * 40.0 * k), Color(UiKit.GOLD, (0.35 + 0.1 * _pulse()) * halo_k()))
 	for layer in [[5.1, UiKit.INK], [4.5, col]]:
 		for i in 5: draw_circle(c + Vector2.from_angle(-PI * 0.5 + i * TAU / 5.0) * 6.0 * k, float(layer[0]) * k, layer[1], true, -1.0, true)
 	draw_circle(c, 2.5 * k, UiKit.BLOOD if live else UiKit.PAPER, true, -1.0, true)
@@ -476,7 +476,7 @@ func regions_away(ch, room: String) -> int:
 func go_reason(ch, room: String) -> String:
 	return Tx.t("sim.world.auto_path_here") if ch != null and str(ch.position.get("room", "")) == room else Tx.t("sim.world.auto_path_none")
 
-func _lock_icon(p: Vector2, k := 1.0) -> void:
+func lock_icon(p: Vector2, k := 1.0) -> void:
 	draw_rect(Rect2(p + Vector2(0, 6) * k, Vector2(12, 9) * k), UiKit.BRONZE)
 	draw_arc(p + Vector2(6, 6) * k, 4 * k, PI, TAU, 8, UiKit.BRONZE, 2 * k)
 
@@ -513,7 +513,7 @@ func btn(rect: Rect2, label: String, id: String, data = null, primary := false, 
 		if primary: UiKit.draw_inked(self, label, at + off, size, col, HORIZONTAL_ALIGNMENT_CENTER, lw)
 		else: UiKit.draw_text(self, label, at + off, size, col, HORIZONTAL_ALIGNMENT_CENTER, lw)
 		if text_log != null: _log_text(at, label, size, HORIZONTAL_ALIGNMENT_CENTER, lw, false, rect, col, primary)
-	if not enabled and reason != "": _lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
+	if not enabled and reason != "": lock_icon(rect.position + Vector2(rect.size.x - 20, 6))
 	_register(rect, id, data, enabled, reason, "button")
 
 ## Invisible tap region (rows, cards, map nodes).
@@ -666,7 +666,7 @@ func slot_box(rect: Rect2, item_id: String, count := 0, quality := "", id := "",
 			draw_rect(rect.grow(-3), UiKit.quality_color(quality), false, 2)
 		if count > 1:
 			UiKit.draw_outlined(self, str(count), rect.end - Vector2(rect.size.x, 5), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 5)
-		if locked: _lock_icon(rect.position + (Vector2(5, rect.size.y - 21) if grade_rims else Vector2(4, 4)))
+		if locked: lock_icon(rect.position + (Vector2(5, rect.size.y - 21) if grade_rims else Vector2(4, 4)))
 	if selected: draw_style_box(UiKit.style("selected_slot_glow"), rect.grow(4))
 	if id != "": region(rect, id, data)
 
@@ -850,7 +850,7 @@ func _gui_input(event: InputEvent) -> void:
 			_drag_last = event.position.y
 		else:
 			var idx := _hit(event.position)
-			if idx >= 0 and idx == _pressed and not _dragged: _activate(_prev_regions[idx])
+			if idx >= 0 and idx == _pressed and not _dragged: activate(_prev_regions[idx])
 			elif _pressed < 0 and confirm.is_empty() and not frameless and not window_rect().has_point(event.position) and not _dragged: close()
 			_pressed = -1
 			_drag_area = ""
@@ -863,7 +863,7 @@ func _gui_input(event: InputEvent) -> void:
 			_pressed = -1
 		accept_event()
 
-func _activate(r: Dictionary) -> void:
+func activate(r: Dictionary) -> void:
 	var id := str(r.id)
 	if not r.enabled:
 		if str(r.reason) != "": flash(str(r.reason))

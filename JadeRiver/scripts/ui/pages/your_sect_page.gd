@@ -203,7 +203,7 @@ func _building(prop: String, pr: Rect2, fill: float, chosen: bool) -> void:
 	var used := SectKit.used_rect(tex)
 	var body := Rect2(pr.position + used.position, used.size) if used.size != Vector2.ZERO else pr
 	if chosen:
-		glow(body.grow(14), Color(UiKit.PALE_GOLD, 0.45 * _halo()))
+		glow(body.grow(14), Color(UiKit.PALE_GOLD, 0.45 * halo_k()))
 	if fill < 1.0:
 		# The building as it will stand, pale, inside its scaffold's dashed bronze outline.
 		_blit(tex, pr, Color(1, 1, 1, 0.3))
@@ -263,7 +263,7 @@ func _tags(s: Dictionary, tags: Array, blocked: Array) -> void:
 			var name := w.left(w.rfind("  "))
 			text(r.position + Vector2(9, 16), name, 14, col)
 			var lx := r.position.x + 9.0 + UiKit.text_width(name, 14) + 4.0
-			_lock_icon(Vector2(lx, r.position.y + 2), 0.85)
+			lock_icon(Vector2(lx, r.position.y + 2), 0.85)
 			text(Vector2(lx + 14, r.position.y + 16), w.substr(w.rfind("  ") + 2), 14, col)
 		else:
 			text(r.position + Vector2(9, 16), w, 14, col)
@@ -279,7 +279,7 @@ func _figures(s: Dictionary, live: Dictionary) -> Array:
 	var ds: Array = s.get("disciples", [])
 	var home := 0
 	for i in ds.size():
-		if busy.has(i) or Game.sect._on_expedition(i): continue
+		if busy.has(i) or Game.sect.is_on_expedition(i): continue
 		var x := 760.0 + home * 80.0
 		var feet := Vector2(_x(x), _foot(740.0 + (home % 2) * 50.0))
 		var key := "d%d" % i
@@ -412,7 +412,7 @@ func _disciples_card(s: Dictionary, r: Rect2) -> void:
 		draw_circle(cc, 15.0, UiKit.BRONZE, true, -1.0, true)
 		draw_circle(cc, 13.0, UiKit.JADE_SHADOW.lerp(UiKit.INK, 0.4), true, -1.0, true)
 		text(cc + Vector2(-15, 6), str(d.get("name", "?")).left(1), 16, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 30)
-		var away := Tx.t("ui.your_sect.away_expedition") if Game.sect._on_expedition(i) else (Tx.t("ui.your_sect.away_guard") if busy.has(i) else "")
+		var away := Tx.t("ui.your_sect.away_expedition") if Game.sect.is_on_expedition(i) else (Tx.t("ui.your_sect.away_guard") if busy.has(i) else "")
 		text(rr.position + Vector2(40, 16), Tx.t("ui.your_sect.lv") % [str(d.get("name", "")), int(d.get("level", 1)), _traits(d)], 16, UiKit.PAPER, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 44)
 		text(rr.position + Vector2(40, 34), away if away != "" else Tx.t("ui.your_sect.stats") % [int(d.get("strength", 1)), int(d.get("spirit", 1)), int(d.get("craft", 1))], 14,
 			UiKit.BRIGHT_JADE if away != "" else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, rr.size.x - 44)
@@ -545,7 +545,7 @@ func _free_disciple() -> int:
 	var busy := Game.sect.guarding()
 	var ds: Array = Game.sect.sect().get("disciples", [])
 	for i in ds.size():
-		if busy.has(i) or Game.sect._on_expedition(i): continue
+		if busy.has(i) or Game.sect.is_on_expedition(i): continue
 		return i
 	return -1
 
@@ -581,7 +581,7 @@ func on_action(id: String, data) -> void:
 			var busy := Game.sect.guarding()
 			var ids: Array = []
 			for i in Game.sect.sect().get("disciples", []).size():
-				if ids.size() < 2 and not busy.has(i) and not Game.sect._on_expedition(i): ids.append(i)
+				if ids.size() < 2 and not busy.has(i) and not Game.sect.is_on_expedition(i): ids.append(i)
 			submit({"type": "send_expedition", "region": str(data[0]), "hours": int(data[1]), "disciples": ids})
 		"collect": submit({"type": "collect_expedition", "index": int(data)})
 		"mine_collect": submit({"type": "collect_mine", "mine": str(data)})
