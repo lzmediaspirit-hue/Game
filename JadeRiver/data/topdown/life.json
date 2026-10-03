@@ -803,6 +803,47 @@
     }
    }
   },
+  "cm_cloud_library": {
+   "hangings": [
+    [
+     "window",
+     36,
+     -34
+    ],
+    [
+     "plaque",
+     78,
+     -56
+    ],
+    [
+     "window",
+     120,
+     -34
+    ],
+    [
+     "scroll",
+     264,
+     -40
+    ]
+   ],
+   "work": {
+    "npc_cloud_librarian": {
+     "loop": "write",
+     "spots": [
+      [
+       13,
+       6,
+       "s"
+      ],
+      [
+       15,
+       6,
+       "e"
+      ]
+     ]
+    }
+   }
+  },
   "cm_elder_sung_peak": {
    "vista": [
     {
@@ -828,6 +869,54 @@
      ]
     }
    }
+  },
+  "cm_herb_terraces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 80
+    }
+   ]
+  },
+  "cm_retreat": {
+   "hangings": [
+    [
+     "window",
+     116,
+     -26
+    ],
+    [
+     "plaque",
+     212,
+     -40
+    ],
+    [
+     "scroll",
+     196,
+     -30
+    ],
+    [
+     "scroll",
+     236,
+     -30
+    ],
+    [
+     "window",
+     360,
+     -26
+    ],
+    [
+     "herbs",
+     382,
+     -34
+    ]
+   ]
   },
   "cm_sword_court": {
    "extras": [
@@ -1035,6 +1124,20 @@
     }
    ]
   },
+  "dw_serpents_shallows": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "gh_hamlet_square": {
    "vista": [
     {
@@ -1080,6 +1183,57 @@
      "pad": 32
     }
    ]
+  },
+  "ja_alchemy_hall": {
+   "hangings": [
+    [
+     "plaque",
+     196,
+     -42
+    ],
+    [
+     "window",
+     180,
+     -26
+    ],
+    [
+     "window",
+     216,
+     -26
+    ],
+    [
+     "herbs",
+     278,
+     -36
+    ],
+    [
+     "herbs",
+     310,
+     -36
+    ],
+    [
+     "scroll",
+     372,
+     -30
+    ]
+   ],
+   "work": {
+    "npc_mei_qing_sect": {
+     "loop": "cook",
+     "spots": [
+      [
+       19,
+       7,
+       "s"
+      ],
+      [
+       17,
+       7,
+       "w"
+      ]
+     ]
+    }
+   }
   },
   "ja_east_terrace": {
    "vista": [
@@ -1336,6 +1490,47 @@
     }
    }
   },
+  "ja_library": {
+   "hangings": [
+    [
+     "scroll",
+     276,
+     -40
+    ],
+    [
+     "window",
+     304,
+     -34
+    ],
+    [
+     "plaque",
+     348,
+     -56
+    ],
+    [
+     "window",
+     392,
+     -34
+    ]
+   ],
+   "work": {
+    "npc_jade_librarian": {
+     "loop": "write",
+     "spots": [
+      [
+       14,
+       6,
+       "s"
+      ],
+      [
+       16,
+       6,
+       "e"
+      ]
+     ]
+    }
+   }
+  },
   "ja_pavilion_rooftops": {
    "vista": [
     {
@@ -1391,6 +1586,40 @@
      ]
     }
    }
+  },
+  "ja_retreat": {
+   "hangings": [
+    [
+     "window",
+     56,
+     -26
+    ],
+    [
+     "plaque",
+     212,
+     -40
+    ],
+    [
+     "scroll",
+     196,
+     -30
+    ],
+    [
+     "scroll",
+     236,
+     -30
+    ],
+    [
+     "window",
+     304,
+     -26
+    ],
+    [
+     "herbs",
+     78,
+     -34
+    ]
+   ]
   },
   "ja_weapon_hall": {
    "hangings": [
@@ -2139,6 +2368,66 @@
     }
    }
   },
+  "sf_beast_grove": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "sf_county_hall": {
+   "hangings": [
+    [
+     "window",
+     20,
+     -26
+    ],
+    [
+     "plaque",
+     44,
+     -40
+    ],
+    [
+     "window",
+     100,
+     -26
+    ],
+    [
+     "plaque",
+     180,
+     -42
+    ],
+    [
+     "scroll",
+     166,
+     -30
+    ],
+    [
+     "scroll",
+     210,
+     -30
+    ]
+   ],
+   "work": {
+    "npc_magistrate_qian": {
+     "loop": "read",
+     "spots": [
+      [
+       11.5,
+       2,
+       "s"
+      ],
+      [
+       10,
+       1,
+       "w"
+      ]
+     ]
+    }
+   }
+  },
   "sf_fairground": {
    "animals": [
     [
@@ -2411,6 +2700,85 @@
     }
    ]
   },
+  "sf_trial_tower": {
+   "hangings": [
+    [
+     "window",
+     136,
+     -26
+    ],
+    [
+     "window",
+     192,
+     -26
+    ],
+    [
+     "plaque",
+     324,
+     -42
+    ],
+    [
+     "ribbon_banner",
+     306,
+     -30
+    ],
+    [
+     "ribbon_banner",
+     348,
+     -30
+    ],
+    [
+     "window",
+     456,
+     -26
+    ],
+    [
+     "window",
+     512,
+     -26
+    ]
+   ]
+  },
+  "sq_lower_pit": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ]
+  },
+  "sq_quarry_rim": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    }
+   ],
+   "work": {
+    "npc_dong_rim": {
+     "loop": "watch",
+     "spots": [
+      [
+       10,
+       16,
+       "s"
+      ],
+      [
+       9,
+       17,
+       "w"
+      ],
+      [
+       11,
+       15,
+       "ne"
+      ]
+     ]
+    }
+   }
+  },
   "sr_frozen_shrine": {
    "vista": [
     {
@@ -2436,6 +2804,48 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 80
+    }
+   ]
+  },
+  "wg_echo_cliffs": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "wg_gorge_mouth": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "wg_rapids_terraces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
     }
    ]
   },

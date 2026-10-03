@@ -9,6 +9,7 @@ props (`ANIM`) hold their frames side by side. The kinds the Phase 1 room places
 """
 from __future__ import annotations
 
+import falls as FA
 import foliage as FL
 import furnish as FU
 import terrain2 as T2
@@ -664,6 +665,8 @@ PROPS.update(FL.PROPS)
 # Decision 43, the living world: the huts', shop's and halls' furnishings and the stations villagers work at
 # (tools/art/topdown/furnish.py; art bible §14.13).
 PROPS.update(FU.PROPS)
+# R2: the waterfall of Whitewater Gorge (tools/art/topdown/falls.py).
+PROPS.update(FA.PROPS)
 
 
 # Props whose top is a floor you stand on, in levels over their ground (decision 29; TopdownRoom reads `top`).
@@ -676,6 +679,7 @@ ANIM = {"bamboo": (4, 500), "willow": (4, 600), "lotus": (4, 250), "banner_jade"
         "lantern_red": (4, 700)}   # decision 43: the paper lantern swings on the wind
 ANIM.update({k: v for k, v in FL.ANIM.items() if k not in FL.STILL_TRUNK})
 ANIM.update(FU.ANIM)
+ANIM.update(FA.ANIM)
 SWAY = (0, 1, 1, 0)
 SHEET_W = 512
 

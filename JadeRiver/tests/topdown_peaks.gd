@@ -5,7 +5,8 @@ extends "res://tests/prologue_run.gd"
 ## (the Windswept Ridge, the Frozen Shrine), the Hidden Vale (the Vale Gate, the Sect Grounds, the Back Mountain) and the
 ## Hidden Grotto. Test shortcuts carry a new character to the peaks (the story before chapter 10 done, Heaven Glimpse 3,
 ## a sturdy body, so the fights are the rooms' and not the balance's) and set it down on the Cliff Faces, as if up from
-## the Echo Cliffs. From there it is played through the World authority, as topdown_chapter3 plays chapter 3:
+## the Echo Cliffs (that way open exactly when the Echo Cliffs is on the grid). From there it is played through the
+## World authority, as topdown_chapter3 plays chapter 3:
 ##   1. each room is entered on the grid, the climb through its ways from the room before (no gate on the way), and the
 ##      top-down view builds it: a figure for every person and thing, a mark for every way;
 ##   2. in each, auto-path (TopdownRoute.reach: a hop up a level, no running jump over a gap) reaches every NPC, object,
@@ -72,6 +73,8 @@ func _to_the_peaks() -> void:
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(room() == "cc_cliff_faces" and Game.room_rt.topdown != null and ProgressionRules.at_least(c().cultivator.realm_key, "heaven_glimpse_3"),
 		"at the peaks' door: the Cliff Faces on the grid, Heaven Glimpse 3 (room %s, realm %s)" % [room(), c().cultivator.realm_key])
+	check(_gated("east") == not TopdownRoom.has_layout("wg_echo_cliffs"),
+		"the Cliff Faces' way east down to the Echo Cliffs is gated exactly while the Echo Cliffs has no layout")
 
 ## A realm set outright (a test shortcut), its unlocks and offers evaluated.
 func _realm(key: String) -> void:

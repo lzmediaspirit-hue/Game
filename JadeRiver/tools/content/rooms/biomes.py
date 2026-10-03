@@ -46,6 +46,34 @@ BIOMES = {
                   "walk": ["rock_small", "ferns"],
                   "water": ["cattails", "ferns"]},
     },
+    # R3 -------------------------------------------------------------------------------------------------------------
+    # A sect's terraced herb gardens on the mountain (the Cloud Sect's Herb Terraces): plum, pine and maple over the
+    # terraces, hedges and azaleas along their lips, pines and mossy rocks under the crags, reeds round a terrace pond.
+    "sect_terraces": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "bush", "rock_mossy"],
+                  "ground": ["tree_plum", "tree_pine", "tree_maple", "hedge_3", "bush_azalea", "bush", "ferns"],
+                  "walk": ["bush", "rock_small", "tall_grass"],
+                  "water": ["tall_grass", "cattails", "lotus_pads"]},
+    },
+    # A quarry in the hills behind Stoneford (Stonewall Quarry): bare cut rock, gravel and spoil, a few pines and
+    # stumps where the trees were felled for the scaffolds, rocks along the haul roads.
+    "quarry": {
+        "base": "r", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["tree_pine", "rock_small", "stump"],
+                  "ground": ["tree_pine", "rock_small", "rock_mossy", "stump", "tall_grass", "bush"],
+                  "walk": ["rock_small", "stump"],
+                  "water": ["cattails", "tall_grass"]},
+    },
+    # A bamboo grove (the Beast Trial Grove north of Market Street): bamboo thick round a mossy clearing, ferns and
+    # mossy rocks under it, grass along the path.
+    "bamboo_clearing": {
+        "base": "g", "stair": "s", "density": 0.36,
+        "flora": {"wall": ["bamboo_grove", "rock_mossy", "ferns"],
+                  "ground": ["bamboo_grove", "tree_maple", "ferns", "rock_mossy", "tall_grass", "bush"],
+                  "walk": ["ferns", "tall_grass", "rock_small"],
+                  "water": ["cattails", "tall_grass", "lotus_pads"]},
+    },
     # R1: the main story's path past chapter 3 (the Reed Marsh, Greyreed, the Bamboo Grove, Crane Falls, Cleansing Peak).
     # The living reed marsh (the Sunken Causeway, the hermit's pond): marsh grass, willows and reeds, cattails in the
     # shallows and lotus out on the water.
@@ -88,6 +116,35 @@ BIOMES = {
                   "ground": ["tree_pine", "rock_mossy", "rock_small", "bush", "tall_grass"],
                   "walk": ["rock_small", "tall_grass"],
                   "water": ["tall_grass", "cattails"]},
+    },
+    # R2 ------------------------------------------------------------------------------------------------------------
+    # The Drowned Shrine: dressed granite walls round flagstone halls the river half fills (`q`, a floor under shallow
+    # water), moss and ferns where the silt settled, cattails in the shallows, lotus on the deep pools. Lamp-lit
+    # (TopdownLight's "cave"). No trees: nothing grows tall under the river.
+    "drowned_shrine": {
+        "base": "p", "stair": "s", "density": 0.34,
+        "flora": {"wall": ["ferns", "rock_mossy", "rock_small"],
+                  "ground": ["ferns", "rock_mossy", "ferns", "rock_small"],
+                  "walk": ["ferns", "rock_small"],
+                  "water": ["cattails", "lotus_pads"]},
+    },
+    # Whitewater Gorge: grey rock walls and ledges, pines clinging to them, mossy boulders and ferns at their feet, the
+    # river white over its stones, reeds only where it slows.
+    "gorge": {
+        "base": "r", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "ferns", "rock_small"],
+                  "ground": ["tree_pine", "rock_mossy", "ferns", "bush", "tall_grass"],
+                  "walk": ["rock_small", "ferns", "rock_mossy"],
+                  "water": ["tree_pine", "ferns", "cattails"]},
+    },
+    # A grotto under the river (the Drowned Grotto, the Waterfall Cave): the cave's rock round a floor of wet sand and
+    # shallows (`h`), ferns and mossy rocks by the walls, cattails in the shallows.
+    "grotto": {
+        "base": "r", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["rock_mossy", "ferns", "rock_small"],
+                  "ground": ["ferns", "rock_mossy", "rock_small"],
+                  "walk": ["ferns", "rock_small"],
+                  "water": ["cattails", "ferns"]},
     },
     # R4: the peaks (Mist Peak, Summit Ridge, the Hidden Vale; the Crane Cliffs take R1's `mountain`; Act II's
     # Rimefrost Heights reuses them).

@@ -185,6 +185,9 @@ class Build:
             while "%s_%d" % (name, k) in self.regions:
                 k += 1
             name = "%s_%d" % (name, k)
+        if opts.get("water") and opts.get("rapids"):
+            self._rapids(shape or [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)], opts["rapids"],
+                         len(self.regions))
         r = Region(name, x, y, w, h, opts, kind)
         r.shape = shape
         if r.level is None:
@@ -258,6 +261,29 @@ class Build:
         for _ in range(3):
             shape = {c for c in cells if sum((c[0] + dx, c[1] + dy) in shape for dx in (-1, 0, 1) for dy in (-1, 0, 1)) >= 5}
         return sorted(shape, key=lambda c: (c[1], c[0]))
+
+    def _rapids(self, cells, dens, salt):
+        """R2: a water band's rapids (`rapids`: the share of its cells that break the stream): rocks of a cell or two,
+        each standing in open water (two cells of water all round, so none joins the bank), three cells apart at least,
+        picked in the order of a hash of the room's seed and the cell; a boulder sits on each cell of it, the water's
+        shore foam round it makes the river white. Nothing stands on them: the rocks are no floor anyone reaches."""
+        water = {c for c in cells if 0 <= c[0] < self.w and 0 <= c[1] < self.h and self.lay.lv[c[1]][c[0]] == WATER}
+        want = int(round(len(water) * dens))
+        rocks = []
+        for c in sorted(water, key=lambda c: h01(c[0], c[1], self.seed + 23 * salt)):
+            if len(rocks) >= want:
+                break
+            if any(max(abs(c[0] - q[0]), abs(c[1] - q[1])) < 3 for q in rocks):
+                continue
+            two = h01(c[0], c[1], self.seed + 29 * salt) < 0.45
+            body = [c, (c[0] + 1, c[1])] if two else [c]
+            if all(q in water for b in body for q in [b] + _ring(b[0], b[1], 2, self.w, self.h)) and \
+                    all(0 < q[0] < self.w - 1 for q in body):
+                rocks.append(c)
+                for b in body:
+                    self.lay.rect(b[0], b[1], 1, 1, 0, "r")
+                    self.lay.prop("boulder", b[0], b[1])
+        self.notes.append("rapids: %d rocks" % len(rocks))
 
     def rubble(self):
         """A cave's walls stand in their own rubble (a biome's `rubble`): every floor cell of earth by a wall two levels
@@ -469,7 +495,8 @@ class Build:
             # reached here, and the checks hold the room to it once the flights are laid.
             for r in self.regions.values():
                 if not (r.wall or r.water or r.walk) and (r.level or 0) > 0:
-                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None}
+                    # Only its cells still at its level (R2: a cliff laid over a terrace's edge is no part of it).
+                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None and self.lay.lv[c[1]][c[0]] == r.level}
         lanes = self.lanes()
         taken = self._prop_cells()
         # The cells written out first (and the pinned ones), then each anchor in the spec's order.
@@ -657,22 +684,39 @@ class Build:
             if not on and not (r.kind == "band" and r.h >= 3) and not r.opts.get("flights"):
                 continue
             wanted.append((r, on))
+        # R2: a flight stands off the walks (a road) where it can: the walk along it would cross the flight from its
+        # side, which auto-path's steering cannot (it stalls against the cheek); and its foot on its landing's own level
+        # where it can (a step lower shows the flight's front as a slot). Where no spot is so (a tower over a narrow
+        # yard), the nearest spot as before.
+        walks = {c for q in self.regions.values() if q.walk for c in q.cells()}
         for r, on in wanted:
             if r.name in self.climbed:
                 continue
             width = 3 if r.w >= 8 else 2
             xs = [c[0] for c in on] or [r.x + r.w // 2]
-            # `flights=[col, ...]` (R4): a long terrace climbed at each of these columns, not once at what stands on it.
-            for want in r.opts.get("flights") or [sorted(xs)[len(xs) // 2]]:
-                self._flight(r, want, width, taken, lanes, bool(r.opts.get("flights")))
+            if r.opts.get("flights"):
+                # `flights=[col, ...]` (R4): a long terrace climbed at each of these columns, not once at what stands
+                # on it; each flight ends at the walk below, its cheeks clear and closed (`_flight_at`).
+                for want in r.opts["flights"]:
+                    self._flight_at(r, want, width, taken, lanes)
+                continue
+            want = sorted(xs)[len(xs) // 2]
+            spots = sorted(range(r.x, r.x1 - width + 1), key=lambda x: (abs(x + width // 2 - want), x))
+            flight = self._flight(r, spots, width, taken, lanes, walks, 0) or self._flight(r, spots, width, taken, lanes, walks) \
+                or self._flight(r, spots, width, taken, lanes, set())
+            if flight:
+                self.lay.stair(*flight, self.stair_paint)
+                self.notes.append("stair up onto %s at %d,%d" % (r.name, flight[0], flight[1]))
+            else:
+                self.notes.append("no stair up onto %s (no room under it)" % r.name)
 
-    def _flight(self, r, want, width, taken, lanes, keep_walk=False):
-        """One flight up onto `r`, at the column nearest `want` where it fits (auto_stairs' rules), clear of the flights
-        already laid. `keep_walk` (a band's `flights`): a column whose flight ends at the walk below first, then one
-        that comes down onto it, before one that runs across it (a stair laid over the road)."""
+    def _flight_at(self, r, want, width, taken, lanes):
+        """One flight up onto `r` (R4: a band's or a feature's `flights`), at a column near `want` where it fits
+        (auto_stairs' rules), clear of the flights already laid: a column whose flight ends at the walk below first,
+        then one that comes down onto it, before one that runs across it (a stair laid over the road)."""
         flights = {(xx, yy) for s in self.lay.stairs for yy in range(s["y"] - 1, s["y"] + s["h"] + 1)
                    for xx in range(s["x"] - 1, s["x"] + s["w"] + 1)}
-        walk = {c for q in self.regions.values() if q.walk for c in q.cells()} if keep_walk else set()
+        walk = {c for q in self.regions.values() if q.walk for c in q.cells()}
 
         def over_walk(x):
             """0: a flight at this column ends at the walk; 1: it comes down onto it; 2: it runs across it."""
@@ -689,8 +733,6 @@ class Build:
             # A flight that ends at the walk or comes down onto it, near the column (within eight), then anywhere on the
             # terrace, before one that runs across the walk (it would wall the road off).
             d = abs(x + width // 2 - want)
-            if not keep_walk:
-                return (0, 0, d, x)
             tier = over_walk(x)
             return (2 * tier + (0 if d <= 8 else 1), d, x)
         spots = sorted(range(r.x, r.x1 - width + 1), key=rank)
@@ -711,10 +753,10 @@ class Build:
             if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
                    or (xx, yy) in lanes or (xx, yy) in flights for xx, yy in cells):
                 continue
-            # Its cheeks stand clear (R4, a flight up a band's `flights`): the ground beside it, along its whole length, is
-            # no higher than its foot, so it never climbs in a notch of the shape with a wall at its side.
-            if keep_walk and any(not (0 <= xx < self.w) or self.lay.lv[yy][xx] == WATER or self.lay.lv[yy][xx] > below
-                                 for yy in range(top, top + depth) for xx in (x - 1, x + width)):
+            # Its cheeks stand clear: the ground beside it, along its whole length, is no higher than its foot, so it
+            # never climbs in a notch of the shape with a wall at its side.
+            if any(not (0 <= xx < self.w) or self.lay.lv[yy][xx] == WATER or self.lay.lv[yy][xx] > below
+                   for yy in range(top, top + depth) for xx in (x - 1, x + width)):
                 continue
             # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
             foot = [(xx, top + depth) for xx in range(x, x + width)]
@@ -737,20 +779,45 @@ class Build:
         x, top, depth, below = first
         self.lay.stair(x, top, width, depth, below, r.level, self.stair_paint)
         self.notes.append("stair up onto %s at %d,%d" % (r.name, x, top))
-        if keep_walk:
-            # Its cheeks are closed by boulders where the ground beside it is open at its foot's level, so no way runs
-            # along a step of it from the side (auto-path's plan reads a step's middle, the body its corners, and a body
-            # stepping off a flight sideways is left wedged against it). Never on a walk, a lane, a stair or an anchor.
-            walk = {c for q in self.regions.values() if q.walk for c in q.cells()}
-            stairs = {(xx, yy) for st in self.lay.stairs for yy in range(st["y"], st["y"] + st["h"])
-                      for xx in range(st["x"], st["x"] + st["w"])}
-            held = self._prop_cells() | {(int(c[0] + 0.5), int(c[1] + 0.5)) for c in self.cells.values()}
-            for yy in range(top, top + depth):
-                for xx in (x - 1, x + width):
-                    if (0 <= xx < self.w and self.lay.lv[yy][xx] == below and (xx, yy) not in walk and (xx, yy) not in lanes
-                            and (xx, yy) not in stairs and (xx, yy) not in held):
-                        self.lay.prop(self.biome.get("cheek", "boulder"), xx, yy)
+        # Its cheeks are closed by boulders where the ground beside it is open at its foot's level, so no way runs
+        # along a step of it from the side (auto-path's plan reads a step's middle, the body its corners, and a body
+        # stepping off a flight sideways is left wedged against it). Never on a walk, a lane, a stair or an anchor.
+        stairs = {(xx, yy) for st in self.lay.stairs for yy in range(st["y"], st["y"] + st["h"])
+                  for xx in range(st["x"], st["x"] + st["w"])}
+        held = self._prop_cells() | {(int(c[0] + 0.5), int(c[1] + 0.5)) for c in self.cells.values()}
+        for yy in range(top, top + depth):
+            for xx in (x - 1, x + width):
+                if (0 <= xx < self.w and self.lay.lv[yy][xx] == below and (xx, yy) not in walk and (xx, yy) not in lanes
+                        and (xx, yy) not in stairs and (xx, yy) not in held):
+                    self.lay.prop(self.biome.get("cheek", "boulder"), xx, yy)
         return True
+
+    def _flight(self, r, spots, width, taken, lanes, walks, drop=1):
+        """The first spot (x, y, w, h, from, to) where a flight up onto `r` fits, its cells off `walks`, its foot at most
+        `drop` levels under its landing; None if none."""
+        for x in spots:
+            # The flight's top row lies against the shape's south edge, the same row under every column of it.
+            bottoms = {r.bottom(xx) for xx in range(x, x + width)}
+            if len(bottoms) != 1 or None in bottoms:
+                continue
+            top = bottoms.pop() + 1
+            if top >= self.h:
+                continue
+            below = self.lay.lv[top][x]
+            if below == WATER or below >= r.level:
+                continue
+            depth = 2 * (r.level - below)
+            cells = [(xx, yy) for yy in range(top, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] != below or (xx, yy) in taken
+                   or (xx, yy) in lanes or (xx, yy) in walks for xx, yy in cells):
+                continue
+            # Its foot stands on the ground it leads down to: no higher, and a step at most lower.
+            foot = [(xx, top + depth) for xx in range(x, x + width)]
+            if any(not (0 <= yy < self.h) or self.lay.lv[yy][xx] == WATER or not below - drop <= self.lay.lv[yy][xx] <= below
+                   or (xx, yy) in taken for xx, yy in foot):
+                continue
+            return (x, top, width, depth, below, r.level)
+        return None
 
     # ================================================================ 6. the foes
     def foes(self):
@@ -894,7 +961,9 @@ class Build:
         placed = []
         n_before = len(self.lay.props)
         for r in sorted(self.regions.values(), key=lambda r: (r.y, r.x)):
-            pool = spec.get(r.name, pools.get(r.role()))
+            # A shape laid again under the same name (rubble, rubble_2, ...; R2) shares the pool its name is given.
+            pool = spec.get(r.name, spec.get(r.name.rstrip("0123456789").rstrip("_") if r.name[-1:].isdigit() else r.name,
+                                             pools.get(r.role())))
             dens = density
             if isinstance(pool, dict):          # {kinds, density}: a band's own pool and how thick it lies
                 dens = pool.get("density", density)
@@ -943,7 +1012,8 @@ class Build:
         """Where a band's flora grows, as (habitat, cells, spacing along it): a meadow's or a terrace's `back` (trees
         among bushes) and its `lip` along the south edge (bushes, grass, rocks: nothing that hides what stands below
         it); a cliff's `foot`; a road's `verge` each side (no tree on a road's shoulder); the water's `bank_back`
-        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus)."""
+        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus); a
+        floor under shallow water (R2: `q`, `h`) is `shallow` all over."""
         W, H = self.w, self.h
         lv = self.lay.lv
 
@@ -960,6 +1030,8 @@ class Build:
             land = lambda cs: [c for c in cs if 0 <= c[1] < H and lv[c[1]][c[0]] != WATER]
             return [("bank_back", land(r.beside(2)), 7), ("bank", land(r.beside(1)), 6),
                     ("shallow", shallow, 7), ("water", deep, 9)]
+        if r.opts.get("paint") in TR.FLOODED:
+            return [("shallow", [c for c in r.cells() if lv[c[1]][c[0]] != WATER], 7)]   # R2: a wading floor's reeds
         if r.walk:
             return [("verge", rows([r.y - 2, r.y - 1, r.y1, r.y1 + 1]), 7)]
         if r.wall:
@@ -990,7 +1062,7 @@ class Build:
                     if not water:
                         return False
                     continue
-                if kind in TR.WADING and water:
+                if kind in TR.WADING and (water or self.lay.pt[yy][xx] in TR.FLOODED):
                     continue
                 if water or any(s["x"] <= xx < s["x"] + s["w"] and s["y"] <= yy < s["y"] + s["h"] for s in self.lay.stairs):
                     return False

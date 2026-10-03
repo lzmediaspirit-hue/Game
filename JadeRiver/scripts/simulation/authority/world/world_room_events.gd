@@ -9,6 +9,17 @@ func on_hit_during_event(p: Dictionary) -> void:
 	if rt == null or not rt.event.get("active", false) or str(p.get("target_kind", "")) != "player": return
 	if int(p.get("amount", 0)) > 0: rt.event.hits_taken = int(rt.event.get("hits_taken", 0)) + 1
 
+## A trial's spawn points written for the side view (a Trial Tower floor's, the Grove's waves), for the loaded room: as
+## they are in the side view; on the height grid, each across the room as across the side view's, on a floor
+## (TopdownRoom.from_side; R3, E1's rooms: the tower's and the Grove's trials are fought on the grid).
+func side_points(points: Array) -> Array:
+	var rt: RoomRuntime = game.room_rt
+	if rt == null or rt.topdown == null: return points
+	var bounds: Array = ContentDB.room(rt.room_id).get("bounds", [])
+	return points.map(func(p):
+		var q: Vector2 = rt.topdown.from_side(Vector2(float(p[0]), float(p[1])), bounds)
+		return [q.x, q.y])
+
 ## Start a timed event in the loaded room (set pieces, sect defence).
 func start_room_event(c, ev: Dictionary) -> void:
 	if game.room_rt: start_event(c, game.room_rt, ev)

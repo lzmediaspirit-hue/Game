@@ -1070,6 +1070,153 @@
    }
   },
   {
+   "id": "ja_furnace",
+   "system": "alchemy",
+   "page": "alchemy",
+   "page_args": {},
+   "room": "ja_alchemy_hall",
+   "object": "furnace_ja",
+   "kind": "furnace",
+   "rule": "earned",
+   "name": "the Alchemy Hall Furnace",
+   "state": "smoke",
+   "sect": "jade_sect",
+   "added": false,
+   "cell": [
+    12.5,
+    5
+   ],
+   "stand": [
+    13,
+    6
+   ],
+   "at": [
+    416.0,
+    176.0
+   ],
+   "verb": "sim.world.refine",
+   "icon": "alchemy",
+   "kind_name": "Furnace",
+   "pose": "tend",
+   "where": "At the Alchemy Hall Furnace",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "realm_at_least",
+       "realm": "qi_unfurling_1"
+      }
+     ]
+    },
+    "first_use": true,
+    "scope": "queue",
+    "text": "Queue batches from anywhere from Qi Unfurling 1; refine by hand at a furnace."
+   }
+  },
+  {
+   "id": "ja_abode_garden",
+   "system": "herb_garden",
+   "page": "garden",
+   "page_args": {},
+   "room": "ja_cave_abode",
+   "object": "bed_0_ja_cave_abode",
+   "kind": "garden_bed",
+   "rule": "earned",
+   "name": "the Cave Abode's Beds",
+   "state": "growth",
+   "sect": "jade_sect",
+   "beds": [
+    "bed_0_ja_cave_abode",
+    "bed_1_ja_cave_abode"
+   ],
+   "where": "At the Cave Abode",
+   "added": false,
+   "cell": [
+    29,
+    16
+   ],
+   "stand": [
+    29,
+    17
+   ],
+   "at": [
+    944.0,
+    528.0
+   ],
+   "verb": "sim.world.tend",
+   "icon": "craft_foraging",
+   "kind_name": "Garden",
+   "pose": "tend",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "place_used:herb_garden"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Tend your beds from anywhere after your first harvest."
+   }
+  },
+  {
+   "id": "cm_abode_garden",
+   "system": "herb_garden",
+   "page": "garden",
+   "page_args": {},
+   "room": "cm_cave_abode",
+   "object": "bed_0_cm_cave_abode",
+   "kind": "garden_bed",
+   "rule": "earned",
+   "name": "the Cave Abode's Beds",
+   "state": "growth",
+   "sect": "cloud_sect",
+   "beds": [
+    "bed_0_cm_cave_abode",
+    "bed_1_cm_cave_abode"
+   ],
+   "where": "At the Cave Abode",
+   "added": false,
+   "cell": [
+    25,
+    14
+   ],
+   "stand": [
+    25,
+    15
+   ],
+   "at": [
+    816.0,
+    464.0
+   ],
+   "verb": "sim.world.tend",
+   "icon": "craft_foraging",
+   "kind_name": "Garden",
+   "pose": "tend",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "remote": {
+    "after": {
+     "all": [
+      {
+       "kind": "flag_set",
+       "flag": "place_used:herb_garden"
+      }
+     ]
+    },
+    "first_use": true,
+    "text": "Tend your beds from anywhere after your first harvest."
+   }
+  },
+  {
    "id": "hv_teleport_stone",
    "system": "teleport_stones",
    "page": "teleport",

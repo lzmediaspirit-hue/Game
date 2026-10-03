@@ -152,6 +152,15 @@ def places():
           beds=["bed_cm_0", "bed_cm_1", "bed_cm_2"], where="At the Array Court"),
         P("cm_furnace", "alchemy", "alchemy", "cm_array_court", "furnace_cm", "furnace", "earned",
           "the Array Court Furnace", "smoke", sect="cloud_sect"),
+        # ---- R3 (E1's rooms): the Jade Sect's Alchemy Hall furnace, and the beds of both sects' Cave Abodes.
+        P("ja_furnace", "alchemy", "alchemy", "ja_alchemy_hall", "furnace_ja", "furnace", "earned",
+          "the Alchemy Hall Furnace", "smoke", sect="jade_sect"),
+        P("ja_abode_garden", "herb_garden", "garden", "ja_cave_abode", "bed_0_ja_cave_abode", "garden_bed", "earned",
+          "the Cave Abode's Beds", "growth", sect="jade_sect", beds=["bed_0_ja_cave_abode", "bed_1_ja_cave_abode"],
+          where="At the Cave Abode"),
+        P("cm_abode_garden", "herb_garden", "garden", "cm_cave_abode", "bed_0_cm_cave_abode", "garden_bed", "earned",
+          "the Cave Abode's Beds", "growth", sect="cloud_sect", beds=["bed_0_cm_cave_abode", "bed_1_cm_cave_abode"],
+          where="At the Cave Abode"),
         # ---- R4, the peaks: the Hidden Vale's stone, its grounds' storehouse and shrine; the summit's Frozen Shrine.
         P("hv_teleport_stone", "teleport_stones", "teleport", "hv_vale_gate", "stone_hv", "teleport_stone", "place",
           "the Vale Gate Teleport Stone", "attuned"),
