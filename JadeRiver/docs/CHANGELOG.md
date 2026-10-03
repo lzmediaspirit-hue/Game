@@ -48,8 +48,8 @@ Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that 
   coats and crests they need) and the canine's mist; the `bird` flyers `vulture`, `crane`, `hawk` and `roc`;
   `spirit.wisp` and `spirit.lantern`; `humanoid.ape`, `sentinel`, `gate`, `chief`, `abbot` and `elder`.
 - **Big canvases.** A spec's `canvas` gives a big creature a working canvas of its own (the serpent, Tan, the roc, the
-  gate guardian). `creatures.build` now raises an error when a frame runs off its canvas instead of writing an empty
-  sheet.
+  gate guardian). `creatures.build` now raises an error when a frame runs off its canvas's top or left edge, instead of
+  writing an empty sheet.
 - **Size.** The nineteen sheets are 5,549 KB of PNG and 2,557 KB in the APK (the imported `.ctex`): the bases 1,482 KB,
   the ten elite sheets 1,074 KB. Less the two boss sheets they replace, the APK grows by 2,428 KB (2.37 MiB). Every
   species has `share`; an elite sheet is drawn only where a room makes an elite; each creature is near its side-view

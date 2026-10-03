@@ -189,7 +189,7 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
 | `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
-| `canvas` | (M2) the working canvas `(w, h)` a big species is drawn on, its feet at `(w // 2, h - 40)` (`creatures.foot_of`); the default is the sculpture's 136 x 124. `creatures.build` refuses a frame that runs off its canvas |
+| `canvas` | (M2) the working canvas `(w, h)` a big species is drawn on, its feet at `(w // 2, h - 40)` (`creatures.foot_of`); the default is the sculpture's 136 x 124. `creatures.build` refuses a frame that runs off its canvas's top or left edge (its cell would wrap round) |
 | `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring is lean: it flickers by its pose (`sculpt.ring_seed`), so its held poses share too, and its alphas come in steps of 32 (`sculpt._aura`'s `lean`; the ring was half an elite sheet's cost). Every M1 species has it; the species before keep their sheets byte for byte |
 | `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
 | `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
@@ -367,8 +367,10 @@ are: the gate guardian stands twice a person's height, as its row's height (180 
   people of size (above).
 - **Big canvases.** A creature taller than the sculpture's 136 x 124 working canvas names its own (`canvas`): the
   serpent (180 x 170), Big Toad Tan (164 x 156), the roc (176 x 150) and the gate guardian (200 x 186).
-  `creatures.build` raises an error when a frame runs off its canvas (an elite roc once did, and its sheet came out
-  empty), and `build.py --check` reads each sheet's cell against its canvas's feet.
+  `creatures.build` raises an error when a frame runs off its canvas's top or left edge, where its cell would wrap
+  round (an elite roc once did, and its sheet came out empty). Off the bottom or right edge a frame only loses its
+  cell's margin there, as the hollowed eel's awakened look always has, so the sheets before stay as they were.
+  `build.py --check` reads each sheet's cell against its canvas's feet.
 
 Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
 `docs/redesign/feedback/monsters/m2/` (the nineteen side by side facing SE beside a Mudwater bandit, idle, in their
