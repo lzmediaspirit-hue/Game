@@ -988,6 +988,30 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   - `data_validation` reads the part folders for `use_system` reports.
 - Behaviour, the balance figures and every suite's check count are unchanged.
 
+### Status (phase 2, S6): the HUD in parts, its notices in the cue table, done
+
+`docs/architecture/hud.md` has the parts, the side view's branches and how to add a notice.
+- **`hud.gd`** had 3,302 lines and 170 functions, and now has 552. It keeps the state, `_process` and `_draw` (which
+  call the parts in order), `_input` with the keys, the locks and a forwarder for every public method. Ten parts under
+  `scripts/hud/` (2,570 lines with their base `HudPart`) do the work: layout, tours, input, actions, notices,
+  controls, panels, minimap, the top stack and the side view's own answers.
+  - A part holds a plain typed reference to the HUD: a Node is not ref-counted, so it cannot form a cycle, and the
+    compiler checks every name a part uses.
+  - The HUD's 64 public methods keep their names. So do the 16 private ones tests call (S11 renames them).
+- **The notices (the HUD half of E6, BUG-02):** 187 of `_handle`'s 234 arms are 237 rows of `data/cues.json`
+  (`to: "hud"`, 188 events). 47 arms stay code, each for a reason `hud.md` gives. `HudNotices` has 291 lines, where the
+  events took 696. `Cues` gained the HUD's text sources and five conditions. Every arm's 1,417 payload variants write
+  the same log lines and toasts before and after.
+- **The swap and the context's label:** the label is 116 px wide (from 128), so ring 2's 292° place keeps clear of it.
+  Nothing moves.
+- **The side view:** its answers are in `HudSideView`, and each branch that calls it or guards against its body is
+  marked: fifteen lines in four parts and the HUD.
+- **Dead code:** none was left after S1. Every name of the HUD is used.
+- **The checks that read the HUD's sources** now read the parts too: `rules_tests`' `ui_style_suite` (the same 66 text
+  calls), `contract_tests`' strings and read-only gates, `extract_strings.py` and `ui_style_audit.py`.
+- The new suite `hud_tests` and the extended `cue_tests` cover the slice. Every other suite's check count is
+  unchanged.
+
 ## 8. Rerunning the audit
 
 Every scan is read-only and writes JSON only where asked:
