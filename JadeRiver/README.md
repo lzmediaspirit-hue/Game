@@ -137,6 +137,8 @@ every system, `--debug-sect` gives a founded sect with all buildings, `--fly` ta
 `--cast=<technique>[:t]` draws a technique's cast and hits at its tier (nothing is submitted), `--log-events`
 prints the event stream, `--capture` saves `../<shot>-preview.png`. `--room=` and `--at=` also work with `--load-slot`.
 `--max-character` makes the Max Test character (below) in an empty save and opens every way; add `--load-slot` to enter as them.
+`scripts/dev/debug_args.gd` reads every flag but `--max-character`, which is the Max Test build's own (`main.gd`). The
+game loads that script only when it is given arguments (`docs/architecture/shell.md`).
 
 ## Android builds
 
