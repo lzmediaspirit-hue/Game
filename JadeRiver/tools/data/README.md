@@ -68,6 +68,14 @@ engine (`tools/content/items`, `docs/architecture/item_engine.md`): a new item o
 here. `items.py` places their rows among its one-offs, and `economy.py` their recipes and shop lines. Its gate is
 `python3 tools/content/items/engine.py --check`.
 
+## The NPC engine
+
+Every person who lives somewhere is a spec of the NPC engine (`tools/content/npcs`, `docs/architecture/npc_engine.md`):
+their look, voice, services, dialogue tree, places and work loops. `story.py`'s `npcs()` takes its rows and places the
+one-off rows it keeps among them; `topdown_life.py` takes its work and extras (`WORK` and `EXTRAS` here hold only what
+no spec writes yet); a person the engine places itself is an object `world.py` adds to the side-view room and an anchor
+the room engine lays out. Its gate is `python3 tools/content/npcs/engine.py --check`.
+
 ## The gates here (tools/run_tests.sh runs them)
 
 - `room_lint.py`: the side-view rooms against the verticality rules.

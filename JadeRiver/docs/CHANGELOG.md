@@ -53,6 +53,46 @@ in them on the grid.
       carried a load of 6 to 10. Neither touches R5's rooms.
 - **Still to do.** Nine of these rooms' foes have no top-down sheet (M1 drew the Mudwater bandit and the gorge bandit
   adept). The Front's light follows the clock, not the side view's night. Details are in the doc.
+## The NPC engine: a person is one spec (decision 45, E3)
+
+A person of the world used to be written in four places: a row in `story.py`, an object of the side-view room in
+`world.py`, an anchor in the room's spec, and a work entry in `topdown_life.py` with its spots chosen cell by cell. The
+NPC engine (`tools/content/npcs/`, `docs/architecture/npc_engine.md`) makes each person one `npc(...)` spec and writes
+them into every place the game reads them from. The game reads nothing new.
+
+- **The spec** names who they are and where they live: id, name and title; their look, from the character pipeline's
+  parts and dyes (`look("ponytail:2", "cardigan:white", "straight", "slippers")`); their lines, barks and lines to a
+  hidden realm; their services and dialogue tree; and their places, home first, each with its daily work loop.
+- **Work by anchors.** A work spot may name what it is beside instead of a cell: `"water_edge"`, `"by:wash_tub"`,
+  `"near:shrine_village"`, `"open"`, `"home"`, with a facing or the loop's steps (`"by:laundry_line:hang"`).
+  `topdown_life.py` resolves them on the built layout and checks them as it checks hand spots: on the person's floor,
+  within the leash, every leg walked clear. The choice is deterministic, and a building moved with its worker keeps the
+  worker's spots round it.
+- **Placements the engine makes.** A person new to a room names a room engine anchor (`place(room, anchor="commons@9",
+  facing=1, visible_if=...)`). The engine adds their object to the side-view room (`world.py`'s new
+  `npc_engine_pass`) and their anchor to the room engine's layout.
+- **Role templates.** The two sects' staff come from one template a post (steward, weapon master, deacon...): a sect's
+  steward is `staff("steward", JADE, "Steward Wei", at=[...])`.
+- **Pins.** A spot written as a cell, `row={key: value}` (`DROP` removes a key), an anchor's cell, a side-view point and
+  a spot's facing can all be pinned in the spec, never in the JSON.
+- **The round trip.** All 118 people with a home and the 5 extras are specs now, in six zone modules: Lotus Ferry,
+  Stoneford, the valley's roads, the sects (20 of them from 10 templates), Act II and Act III. `npcs.json` and
+  `life.json` came out byte for byte as before. `story.py`'s `npcs()` went from 474 lines to 63, and `topdown_life.py`
+  lost its 110 lines of hand work and extras. Nine one-offs stay plain rows in a labelled section of `story.py`: the
+  rooftop thief, Elder Gu's and Shen Lian's quest turns, and the four companions.
+- **Greyreed Hamlet comes home.** The engine's first new people: once Cleansing the Well is done, three villagers are
+  home in Greyreed's empty square, as Elder Gao hoped. Washer Ying scrubs at the water's edge and hangs the washing on the
+  line, Fisher Gan mends nets at the rack, and Old Jiu sweeps the square. Each is one spec of five lines, placed and set
+  to work by anchors. The capture set `npc_engine` (`docs/architecture/npc_engine/`) shows the square before and after,
+  each at work up close, and a word with the washer. Their anchors moved a few of the hamlet's scattered plants.
+- **The capture tool's `worker` take** keeps the player out of a worker's notice at every spot of its loop, not only its
+  home: a washer walking to the water's edge no longer stops to greet a player standing on the bank.
+- **Tests.** A new gate, `npc_engine` (`tools/content/npcs/engine.py --check`), in both runners. It checks that two
+  compiles are the same, that every spec resolves, that the built data holds every person as the engine writes them, and
+  runs the engine's 12 tests. The three villagers add three rows to `npcs.json`, three objects and three anchors to the
+  hamlet, and three work loops to `life.json`, and with them checks to three suites: `data_validation` 50,349 to
+  50,403, `room_sweep` 3,736 to 3,744 and `visibility_suite` 6,758 to 6,764. Every other count is unchanged. A side-view
+  point the engine picks keeps clear of every other thing's talk (`data_validation`'s M18).
 
 ## The monster engine's first batch: twenty foes drawn for the grid (decision 45, M1)
 

@@ -1342,6 +1342,86 @@
    ]
   },
   {
+   "id": "washer_ying",
+   "name": "Washer Ying",
+   "title": "Greyreed villager",
+   "outfit": {
+    "body": "light",
+    "hair": "ponytail",
+    "hair_color": 0,
+    "shirt": "cardigan",
+    "pants": "straight",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "rose",
+    "pants_dye": "grey"
+   },
+   "lines": [
+    "The pools took the grey downstream. The washing comes out white again.",
+    "Elder Gao wept when the well ran clear. Don't tell him I told you."
+   ],
+   "barks": [
+    "Scrub, scrub.",
+    "White as a heron."
+   ],
+   "services": []
+  },
+  {
+   "id": "fisher_gan",
+   "name": "Fisher Gan",
+   "title": "Greyreed villager",
+   "outfit": {
+    "body": "light",
+    "hair": "short_knot",
+    "hair_color": 5,
+    "shirt": "vneck",
+    "pants": "cuffed",
+    "shoes": "folded",
+    "hat": "straw",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "grey",
+    "pants_dye": "earth"
+   },
+   "lines": [
+    "The pools gave the fish back before they gave back the colour.",
+    "Three seasons on my cousin's floor in Stoneford. Never again."
+   ],
+   "barks": [
+    "Knot, pull, knot.",
+    "Mind the hooks."
+   ],
+   "services": []
+  },
+  {
+   "id": "old_jiu",
+   "name": "Old Jiu",
+   "title": "Greyreed villager",
+   "outfit": {
+    "body": "light",
+    "hair": "topknot",
+    "hair_color": 1,
+    "shirt": "vneck",
+    "pants": "loose",
+    "shoes": "slippers",
+    "hat": "none",
+    "cape": "none",
+    "weapon": "none",
+    "shirt_dye": "earth"
+   },
+   "lines": [
+    "Grey dust everywhere. It sweeps like ash, but it is only dust now.",
+    "We came home the day the well ran clear. The hamlet remembers who cleaned it."
+   ],
+   "barks": [
+    "Sweep, sweep.",
+    "Mind your feet."
+   ],
+   "services": []
+  },
+  {
    "id": "peddler_shao",
    "name": "Peddler Shao",
    "title": "Sells after dark",

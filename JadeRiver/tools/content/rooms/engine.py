@@ -28,6 +28,7 @@ for _p in (TOOLS, os.path.join(TOOLS, "data")):
 import topdown_rooms as TR  # noqa: E402  the Layout DSL, the Grid and its rules
 from lib.pix import h01  # noqa: E402  the one coordinate hash (audit 45, DUP-03)
 from content.rooms import biomes as BIOMES  # noqa: E402
+from content.npcs import engine as NPCS  # noqa: E402  E3: the people the NPC engine places in a room itself
 
 DIRS = TR.DIRS
 WATER = TR.WATER
@@ -112,6 +113,13 @@ class Build:
         self.seed = seed_of(self.id)
         self.w, self.h = spec["size"]
         self.pins = dict(spec.get("pins", {}))
+        # The spec's anchors, then those of the people the NPC engine places here itself (E3, a placement with its own
+        # anchor: tools/content/npcs), in its specs' order.
+        self.anchor_spec = dict(spec.get("anchors", {}))
+        for oid, a in NPCS.anchors(self.id).items():
+            if oid in self.anchor_spec:
+                raise SpecError("%s: %s is anchored by the room's spec and by the NPC engine" % (self.id, oid))
+            self.anchor_spec[oid] = a
         self.biome = BIOMES.get(spec.get("biome", ""))
         base = spec.get("base", self.biome["base"])
         self.lay = TR.Layout(self.id, self.w, self.h, WATER if base == "~" else spec.get("level", 0), base)
@@ -487,7 +495,7 @@ class Build:
     # ================================================================ 4. the anchors
     def anchors(self):
         side = {o["id"]: o for o in self.side.get("objects", [])}
-        spec = self.spec.get("anchors", {})
+        spec = self.anchor_spec
         g = self.grid()
         reach = self.reached(g)
         if self.auto_stairs_wanted():
@@ -1190,7 +1198,7 @@ class Build:
 
     def finish(self):
         self.lay.spawn = list(self._spawn_cell())
-        for oid in self.spec.get("anchors", {}):
+        for oid in self.anchor_spec:
             c = self.cells[oid]
             self.lay.at(oid, c[0], c[1])
         self.set_ways()
