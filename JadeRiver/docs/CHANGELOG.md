@@ -55,11 +55,13 @@ it so. Only names changed: the game plays the same, and the save data is untouch
 - **The side view.** `world.gd` and `player.gd` keep their names. Two calls into `world.gd` are left out of the rule
   with a `# side view` mark: `w._cast` and `w._on_event` in `perf_tests`' crowd, which runs in the side view. Renaming
   them would only touch the side view, and S12 deletes it.
-- **Checks.** `tools/run_tests.sh` ran four times as the base moved: on the tree merged with E1, then with E2, E4
-  and F1, then with R1, and last with R2 and R3. Each run but R1's was compared with a run of its base alone
-  (`6e38940`, `eac2130` and `2ede6e7`).
-  - The final run passed every gate, `boot` among them, and all 24 suites, `perf_tests` among them. It has 73,985
-    checks, 0 failures and no SCRIPT ERROR. The base has 73,982.
+- **Checks.** `tools/run_tests.sh` ran five times as the base moved: on the tree merged with E1, then with E2, E4
+  and F1, then with R1, then with R2 and R3, and last with R4. Three runs were compared with a run of their base
+  alone (`6e38940`, `eac2130` and `2ede6e7`).
+  - The run merged with R2 and R3 passed every gate and all 24 suites: 73,985 checks against its base's 73,982.
+  - The final run, merged with R4, passed every gate, `boot` among them, and all 25 suites, `perf_tests` among them:
+    74,023 checks, 0 failures and no SCRIPT ERROR. Against the run before it, only R4's own counts moved:
+    `topdown_peaks` (35, new), `room_engine` (238) and `topdown_tutorial` (1,032).
   - In every run, each suite kept its base's count, except `contract_tests`: 1,112 against 1,109, the rule's 3 checks.
     No run had a SCRIPT ERROR.
   - `perf_tests`' frame budgets missed now and then on both sides while the machine was shared (a load of 4 to 7).
