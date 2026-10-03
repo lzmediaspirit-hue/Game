@@ -8,6 +8,9 @@ extends Node
 ##   3. every row played once through WorldShared.play on a stub host, with a payload its `when` holds for: it is the
 ##      row the table picks, and each of its effects, sounds and shakes happens; an event the table does not answer
 ##      is left to the view.
+##   4. (S6) the HUD's rows (`to: "hud"`): each step a log line with its colour or a toast with one of the HUD's styles;
+##      no event both a row and an arm of HudNotices.handle; the HUD's conditions and text sources; every row played
+##      once through the HUD's own _on_event: it is the row the table picks, and it writes its lines and toasts.
 ## Run headless:  godot --headless --path . res://tests/cue_tests.tscn
 
 var checks := 0
@@ -40,6 +43,9 @@ func _main() -> void:
 	_rows()
 	_conditions()
 	_play_every_row()
+	_hud_rows()
+	_hud_conditions()
+	_play_every_hud_row()
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
@@ -58,7 +64,7 @@ func _rows() -> void:
 	for r in rows:
 		var id := str(r.get("id", "?"))
 		var ev := str(r.get("event", ""))
-		if str(r.get("to", "")) != "world": bad.to.append(id)
+		if not str(r.get("to", "")) in ["world", "hud"]: bad.to.append(id)
 		if not contract.has(ev) and not emitted.has(ev): bad.event.append("%s (%s)" % [id, ev])
 		var k := "%s:%s" % [r.get("to", ""), ev]
 		if open.has(k): bad.order.append(id)
@@ -73,7 +79,7 @@ func _rows() -> void:
 				if not str(s.call) in WorldShared.HANDLERS: bad["call"].append("%s (%s)" % [id, s.call])
 			_colours(s.get("color"), id, bad.color)
 			_keys(s, id, bad.key)
-	check(bad.to.is_empty(), "every row is played by the world (%s)" % [bad.to])
+	check(bad.to.is_empty(), "every row is played by the world or the HUD (%s)" % [bad.to])
 	check(bad.event.is_empty(), "every row's event is one the game emits (%s)" % [bad.event])
 	check(bad.sound.is_empty(), "every row's sound is in the sound bank (%s)" % [bad.sound])
 	check(bad.fx.is_empty(), "every row's effect is one of FxLayer's (%s)" % [bad.fx])
@@ -115,9 +121,12 @@ func _colours(spec, id: String, bad: Array) -> void:
 		var ok := Color.html_is_valid(s) if s.begins_with("#") else (s.begins_with("array:") or MomentRules.tokens().has(s))
 		if not ok: bad.append("%s (%s)" % [id, s])
 
+## A key with a `suffix` (S6: "ui.relations.align_" and the payload's word) needs a string that begins with it.
 func _keys(node, id: String, bad: Array) -> void:
 	if node is Dictionary:
-		if node.has("key") and not ContentDB.strings.has(str(node.key)): bad.append("%s (%s)" % [id, node.key])
+		if node.has("key") and node.has("suffix"):
+			if not ContentDB.strings.keys().any(func(k): return str(k).begins_with(str(node.key))): bad.append("%s (%s…)" % [id, node.key])
+		elif node.has("key") and not ContentDB.strings.has(str(node.key)): bad.append("%s (%s)" % [id, node.key])
 		for v in node.values(): _keys(v, id, bad)
 	elif node is Array:
 		for v in node: _keys(v, id, bad)
@@ -173,7 +182,8 @@ func _play_every_row() -> void:
 		"items": [], "effects": [], "gains": {}, "hazard": "fog", "emote": "wave", "treasure": "bronze_bell", "line": "-", "target": "1"}
 	var played := 0
 	var wrong: Array = []
-	for r in ContentDB.all("cues"):
+	var world_rows: Array = ContentDB.all("cues").filter(func(r): return str(r.get("to", "")) == "world")
+	for r in world_rows:
 		var p := base.duplicate(true)
 		var undo := {}
 		for k in r.get("when", {}):
@@ -209,7 +219,7 @@ func _play_every_row() -> void:
 		if not fine: wrong.append("%s (picked %s; fx %d/%d, sounds %d/%d, shakes %d/%d)" % [r.id, picked.get("id", "none"), got_fx, want_fx, got_sounds, want_sounds, host.shakes.size(), want_shakes])
 		for k in undo: _set_active(str(k), undo[k])
 		played += 1
-	check(played == ContentDB.all("cues").size() and wrong.is_empty(), "every row plays as it is written, once each (%d rows; %s)" % [played, wrong])
+	check(played == world_rows.size() and wrong.is_empty(), "every row plays as it is written, once each (%d rows; %s)" % [played, wrong])
 	check(host.object_views.o1.hit_flash > 0.0, "a thing struck flashes")
 	check(not WorldShared.play(host, "resource_changed", {"actor": Game.active_id}), "an event the table does not answer is left to the view")
 
@@ -222,3 +232,89 @@ func _set_active(key: String, v):
 	var was = node.get(last)
 	node.set(last, v)
 	return was
+
+# ------------------------------------------------------------------ 4. the HUD's rows (S6)
+const TOAST_STYLES := ["unlock", "gold", "quest", "danger"]
+
+## Each step of a HUD row is a log line with its colour or a toast with one of the HUD's styles; an event the table
+## answers for the HUD is no arm of HudNotices.handle as well (it would never be reached).
+func _hud_rows() -> void:
+	var rows: Array = ContentDB.all("cues").filter(func(r): return str(r.get("to", "")) == "hud")
+	check(rows.size() >= 200, "the HUD's notices are rows of the table (%d)" % rows.size())
+	var bad: Array = []
+	for r in rows:
+		for s in r.get("do", []):
+			var log_ok: bool = s.has("log") and s.has("color") and not s.has("toast")
+			var toast_ok: bool = s.has("toast") and str(s.get("style", "")) in TOAST_STYLES and not s.has("log")
+			if not (log_ok or toast_ok): bad.append("%s (%s)" % [r.id, s])
+	check(bad.is_empty(), "every step of a HUD row is a log line with its colour or a toast in one of the HUD's styles (%s)" % [bad])
+	var arms := {}
+	var arm := RegEx.create_from_string("^\\t\\t(\"[a-z0-9_]+\"(, \"[a-z0-9_]+\")*):")
+	var q := RegEx.create_from_string("\"([a-z0-9_]+)\"")
+	for line in FileAccess.get_file_as_string("res://scripts/hud/hud_notices.gd").split("\n"):
+		var m := arm.search(line)
+		if m == null: continue
+		for e in q.search_all(m.get_string(1)): arms[e.get_string(1)] = true
+	var both: Array = rows.filter(func(r): return arms.has(str(r.event))).map(func(r): return str(r.id))
+	check(arms.size() >= 40 and both.is_empty(), "no event is both a HUD row and an arm of HudNotices.handle (%d arms; %s)" % [arms.size(), both])
+
+## The conditions and the text sources the HUD's rows add to Cues.
+func _hud_conditions() -> void:
+	check(Cues.holds({"reason": {"not": "recalled"}}, {}) and Cues.holds({"reason": {"not": "recalled"}}, {"reason": "time"})
+		and not Cues.holds({"reason": {"not": "recalled"}}, {"reason": "recalled"}) and not Cues.holds({"text": {"not": ""}}, {}),
+		"not holds for anything else (a payload that leaves the key out holds \"\")")
+	check(Cues.holds({"delta": {"lt": 0}}, {"delta": -2}) and not Cues.holds({"delta": {"lt": 0}}, {}) and Cues.holds({"rank": {"le": 3}}, {"rank": 3})
+		and Cues.holds({"stacks": {"ge": 10}}, {"stacks": 10}) and not Cues.holds({"stacks": {"ge": 10}}, {"stacks": 9}), "lt, le and ge compare numbers")
+	check(Cues.holds({"@revealed": "hud:system_log"}, {}) == Game.is_revealed("hud:system_log") and Cues.holds({"@unlocked": "mail"}, {}) == Unlocks.is_unlocked(Game.active_id, "mail"),
+		"@revealed and @unlocked ask the active character")
+	var p := {"n": 3, "secs": 90.0, "items": ["a", "b"], "word": "STABLE", "id": "wood_root", "silver": 12500, "bonus": 0.256, "kind": "cloud"}
+	check(Cues.arg({"int": "payload.secs"}, p) == 90 and Cues.arg({"int": {"payload": "gone", "or": 11}}, p) == 11 and Cues.arg({"int": "payload.bonus", "times": 100.0}, p) == 25
+		and Cues.arg({"round": "payload.bonus", "times": 100.0}, p) == 26 and Cues.arg({"neg": "payload.n"}, p) == -3 and Cues.arg({"count": "payload.items"}, p) == 2
+		and Cues.arg({"count": "payload.gone"}, p) == 0, "the numbers an argument makes (int, round, neg, count)")
+	check(Cues.arg({"span": "payload.secs"}, p) == UiKit.span(90.0) and Cues.arg({"fmt": "payload.silver"}, p) == UiKit.fmt(12500) and Cues.arg({"title": "payload.id"}, p) == "Wood Root"
+		and Cues.arg({"lower": "payload.word"}, p) == "stable" and Cues.arg({"pet_name": "payload.gone"}, p) == Tx.t("hud.your_spirit_animal"),
+		"the words an argument makes (span, fmt, title, lower, a pet's name)")
+	check(Cues.text({"join": [{"key": "hud.codex"}, "payload.word"]}, p) == Tx.t("hud.codex") + "STABLE" and Cues.text({"key": "hud.phenomenon_", "suffix": "payload.kind"}, p) == Tx.t("hud.phenomenon_cloud")
+		and Cues.text({"key": "hud.sword_swarm", "args": [{"int": "payload.n"}], "plural": {"int": "payload.n"}}, p) == Tx.plural("hud.sword_swarm", 3) % 3,
+		"a text joins texts, ends a key in a value and counts a plural")
+
+## Every HUD row played once through the HUD's own _on_event, with a payload its `when` holds for: it is the row the
+## table picks, and the HUD writes its log lines and toasts as the row says.
+func _play_every_hud_row() -> void:
+	var hud = main.hud
+	check(hud != null and hud.bound(), "the HUD is bound to the character")
+	if hud == null or not hud.bound(): return
+	# A finished route, a grudge with a value, a rank off the podium: a later row's payload is not caught by an earlier
+	# row's default. A line of words and a treasure for the rows that say them.
+	var base := {"finished": true, "value": 5, "rank": 5, "text": "A line.", "treasure": "mindwell_lotus"}
+	var played := 0
+	var wrong: Array = []
+	for r in ContentDB.all("cues").filter(func(r): return str(r.get("to", "")) == "hud"):
+		var p := base.duplicate(true)
+		for k in r.get("when", {}):
+			var want = r.when[k]
+			if str(k).begins_with("@"): continue   # every system is unlocked and revealed here
+			if str(k) in ["actor", "target"] and str(want) == "active": p[k] = Game.active_id
+			elif want is Array: p[k] = want[0]
+			elif want is Dictionary:
+				if want.has("not"): p[k] = (str(want["not"]) + "x") if want["not"] is String else (not want["not"] if want["not"] is bool else float(want["not"]) + 1.0)
+				elif want.has("gt"): p[k] = float(want.gt) + 1.0
+				elif want.has("lt"): p[k] = float(want.lt) - 1.0
+				else: p[k] = float(want.get("ge", want.get("le", 0)))
+			else: p[k] = want
+		hud.log_lines = []
+		hud.toasts = []
+		var picked := Cues.pick("hud", str(r.event), p)
+		hud._on_event(str(r.event), p)
+		var logs: Array = r.do.filter(func(s): return s.has("log"))
+		var toasts: Array = r.do.filter(func(s): return s.has("toast"))
+		var fine: bool = str(picked.get("id", "")) == str(r.id) and hud.log_lines.size() == logs.size() and hud.toasts.size() == toasts.size()
+		for i in mini(logs.size(), hud.log_lines.size()):
+			fine = fine and str(hud.log_lines[i].text) == Cues.text(logs[i]["log"], p) and str(hud.log_lines[i].text) != "" and hud.log_lines[i].color == Cues.color(logs[i]["color"], p)
+		for i in mini(toasts.size(), hud.toasts.size()):
+			fine = fine and str(hud.toasts[i].text) == Cues.text(toasts[i].toast, p) and str(hud.toasts[i].text) != "" and str(hud.toasts[i].kind) == str(toasts[i].style)
+		if not fine: wrong.append("%s (picked %s; log %d/%d, toasts %d/%d)" % [r.id, picked.get("id", "none"), hud.log_lines.size(), logs.size(), hud.toasts.size(), toasts.size()])
+		played += 1
+	hud.log_lines = []
+	hud.toasts = []
+	check(played >= 200 and wrong.is_empty(), "every HUD row plays as it is written, once each, through the HUD (%d rows; %s)" % [played, wrong.slice(0, 8)])

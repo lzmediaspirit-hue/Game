@@ -1,5 +1,50 @@
 # Changelog
 
+## The HUD in parts, and its notices as rows of the cue table (decision 45, S6)
+
+This is phase 2, slice S6 of the code audit (`docs/architecture/audit_45.md` §2.2, §6.6 and §7). The parts, the side
+view's branches and how to add a notice are in `docs/architecture/hud.md`; the table's format is in
+`docs/architecture/cues.md`. The HUD looks, answers and reads the same, apart from one fix.
+
+- **`hud.gd` is in parts.** It had 3,302 lines and 170 functions, and now has 589.
+  - It keeps the state, `_process` and `_draw` (which call the parts in the same order as before), `_input` with the
+    keys, the locks, and a forwarder for every public method.
+  - Ten parts under `scripts/hud/` do the work, 2,570 lines with their base `HudPart`: layout, tours, input, actions,
+    notices, controls, panels, minimap, the top stack, and the side view's own answers.
+  - A part holds a plain typed reference to the HUD. A Node is not ref-counted, so the two cannot keep each other
+    alive, and the compiler checks every name a part uses.
+  - Callers use the HUD as before: its 64 public methods, and the 16 private ones tests call, keep their names.
+- **The notices are rows.** 187 of the HUD's 234 match arms are now 237 rows of `data/cues.json` with `to: "hud"`, for
+  188 events. A row says an event in the log or as a toast, with its words, colour and style.
+  - It is the same table, generator and reader as the world's cues (E6). `Cues` gained the HUD's text sources (texts
+    joined, whole numbers, durations, sums, ids as words, a spirit animal's name) and five conditions (`not`, `ge`,
+    `lt`, `le`, and `@revealed` and `@unlocked` on the active character).
+  - 47 arms stay code: they open a page, set the banner or a fortune card, buzz, sound, ask the calendar or a quest, or
+    work out what they say. The events now take 291 lines, where they took 696.
+  - One string key was added, for a line that was a literal format: `hud.currency_gained`.
+  - The same words: every arm's 1,417 payload variants were played through the HUD before and after. Each wrote the
+    same log lines and colours, and the same toasts, styles and second lines.
+- **Fixed: the swap and the context's label.** At 1280 × 720 the weapon swap's button (ring 2 at 292°) crossed the
+  context's label ("Talk · Lu") by 3 px. The label is 116 px wide (from 128), centred as before. No control moves, and
+  a label wider than 116 px ends in "…" sooner.
+- **The side view, grouped.** Its answers on the HUD are in `HudSideView`: a dodge for a body with no dash, the climb,
+  a classic character's companion faces, and the minimap of a room with no height grid. Each line that calls it or
+  guards against its body is marked `# side view`: fifteen lines in four parts and the HUD. `hud.md` lists them, for
+  the side view's retirement.
+- **Dead code:** none. Every name of the HUD is used after S1.
+- **Checks.**
+  - The new suite `hud_tests` checks that the HUD keeps its 82 method names and makes its ten parts on `new()`, and
+    that ring 2 keeps clear of the label, right- and left-handed.
+  - `cue_tests` now covers the HUD's rows: their steps, that no event is both a row and an arm, the new conditions and
+    text sources, and every HUD row played once through the HUD's own `_on_event`.
+  - The checks that read the HUD's sources now read its parts too. These are `rules_tests`' `ui_style_suite` (the same
+    66 text calls on the type scale), `contract_tests`' strings and read-only gates, `extract_strings.py` and
+    `ui_style_audit.py`.
+  - Every other suite has the base's check count, with no script error.
+  - The capture sets `hud`, `hud_round` (also at 2400 × 1080), `tutorials` and `tutorials_late` were taken under the
+    pinned clock and seed, twice on the base and once after. The HUD is pixel for pixel the same. The pictures differ
+    only where the game draws by the wall clock (the water, the trees and the reeds), as two runs of the base do.
+
 ## CombatAuthority in parts (decision 45, S8)
 
 This is phase 2, wave 2, slice S8 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).

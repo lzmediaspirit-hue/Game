@@ -28,13 +28,21 @@ static func pick(to: String, event: String, p: Dictionary) -> Dictionary:
 	return {}
 
 ## True when every key of `when` holds: "actor" or "target" "active" is the active character; "@active" (true: there is
-## one) and "@<path>" (a value of the active character, "@pools.max_qi"; no match without one); any other key the
-## payload's value. A value tests as its own type (a payload that leaves the key out holds false, 0 or ""), a list for
-## one of its values and {"gt": n} for more than n.
+## one) and "@<path>" (a value of the active character, "@pools.max_qi"; no match without one); "@revealed" and
+## "@unlocked" (S6: an element of the screen the active character has had revealed, "hud:system_log", and a system it
+## has unlocked); any other key the payload's value. A value tests as its own type (a payload that leaves the key out
+## holds false, 0 or ""), a list for one of its values, {"gt": n}, {"ge": n}, {"lt": n} and {"le": n} against a number,
+## and {"not": v} for anything `v` does not hold for.
 static func holds(when: Dictionary, p: Dictionary) -> bool:
 	for k in when:
 		var key := str(k)
 		var want = when[k]
+		if key == "@revealed":
+			if not Game.is_revealed(str(want)): return false
+			continue
+		if key == "@unlocked":
+			if not Unlocks.is_unlocked(Game.active_id, str(want)): return false
+			continue
 		if key in ["actor", "target"] and str(want) == "active": want = Game.active_id
 		var got = _active(key) if key.begins_with("@") else p.get(key)
 		if key.begins_with("@") and got == null: return false
@@ -46,7 +54,14 @@ static func _test(got, want) -> bool:
 		for w in want:
 			if _test(got, w): return true
 		return false
-	if want is Dictionary: return want.has("gt") and (float(got) if got != null else 0.0) > float(want.gt)
+	if want is Dictionary:
+		if want.has("not"): return not _test(got, want["not"])
+		var n := float(got) if got != null else 0.0
+		if want.has("gt"): return n > float(want.gt)
+		if want.has("ge"): return n >= float(want.ge)
+		if want.has("lt"): return n < float(want.lt)
+		if want.has("le"): return n <= float(want.le)
+		return false
 	if want is bool: return (got != null and bool(got)) == want
 	if want is float or want is int: return (float(got) if got != null else 0.0) == float(want)
 	return (str(got) if got != null else "") == str(want)
@@ -87,7 +102,42 @@ static func color(spec, p := {}) -> Color:
 	if s.begins_with("array:"): return FxLayer.ARRAY_COLOURS.get(str(MomentRules.value(s.trim_prefix("array:"), p)), FxLayer.ARRAY_COLOURS.guard)
 	return MomentRules.color(s, p)
 
-## A text: moments.json's sources (MomentRules.text): a string key with its arguments, a data name, a payload value,
-## the first of several that says something; a mark written as it is ("!", "·").
+## A text: moments.json's sources (MomentRules.text): a string key with its arguments (`plural` the count that picks its
+## "_one" twin, `suffix` a value the key ends in), a data name, a payload value, the first of several that says
+## something; a mark written as it is ("!", "·"). The HUD's notices (S6) add {"join": [text, ...]}, the texts one after
+## another, and a key's arguments and count may be the numbers and words of Cues.arg.
 static func text(spec, p: Dictionary) -> String:
+	if spec is Dictionary and not spec.has("if") and not spec.has("if_slot"):
+		if spec.has("key"):
+			var k := str(spec["key"]) + (MomentRules.id_of(arg(spec["suffix"], p)) if spec.has("suffix") else "")
+			var s := Tx.plural(k, int(arg(spec["plural"], p))) if spec.has("plural") else Tx.t(k)
+			var args: Array = (spec.get("args", []) as Array).map(func(a): return arg(a, p))
+			return s % args if not args.is_empty() else s
+		if spec.has("join"): return "".join(PackedStringArray((spec["join"] as Array).map(func(x): return text(x, p))))
 	return MomentRules.text(spec, p)
+
+## A key's argument (S6): a value as it is ("payload.<key>", {"payload": key, "or": d}, a number written out); a number
+## made of one: {"int": ref} (with "times": k, of its product), {"float": ref}, {"round": ref, "times": k}, {"neg": ref}
+## and {"count": ref} (a list's size); the words of one: {"span": ref, "times": k} a duration (UiKit.span), {"fmt": ref}
+## a sum (UiKit.fmt), {"title": ref} an id as words ("wood_root": "Wood Root"), {"lower": ref}, {"pet_name": ref} the
+## active character's spirit animal of that uid ("your spirit animal" when it has none); or any text.
+static func arg(spec, p: Dictionary):
+	if not (spec is Dictionary) or spec.has("payload"): return value(spec, p)
+	if spec.has("int"): return int(float(value(spec["int"], p)) * float(spec["times"])) if spec.has("times") else int(value(spec["int"], p))
+	if spec.has("float"): return float(value(spec["float"], p))
+	if spec.has("round"): return int(round(float(value(spec["round"], p)) * float(spec.get("times", 1.0))))
+	if spec.has("neg"): return -int(value(spec["neg"], p))
+	if spec.has("count"):
+		var v = value(spec["count"], p)
+		return v.size() if v is Array or v is Dictionary else 0
+	if spec.has("span"): return UiKit.span(float(value(spec["span"], p)) * float(spec.get("times", 1.0)))
+	if spec.has("fmt"): return UiKit.fmt(int(value(spec["fmt"], p)))
+	if spec.has("title"): return str(value(spec["title"], p)).replace("_", " ").capitalize()
+	if spec.has("lower"): return str(value(spec["lower"], p)).to_lower()
+	if spec.has("pet_name"):
+		var c = Game.active()
+		var uid := str(value(spec["pet_name"], p))
+		for pt in (c.pets if c else []):
+			if str(pt.uid) == uid: return str(pt.name)
+		return Tx.t("hud.your_spirit_animal")
+	return text(spec, p)
