@@ -74,9 +74,9 @@ From this spec the engine derives:
 
 ## The templates
 
-Each template makes one objective, the row `o()` always wrote. Each step's `text` is its line in the quest log. Every
-migrated quest gives its own text. When a new one leaves it out, the text is made from the names: "Defeat Reedtail
-Rats", "Bring Mole Claws", "Gather Willow Moss", "Mine Jadeiron", "Talk to Elder Gao".
+Each template makes one objective (escort two), the row `o()` always wrote. Each step's `text` is its line in the
+quest log. Every migrated quest gives its own text. When a new one leaves it out, the text is made from the names:
+"Defeat Reedtail Rats", "Bring Mole Claws", "Gather Willow Moss", "Mine Jadeiron", "Talk to Elder Gao".
 
 | Template | Objective | Where it leads (`target_room`) |
 |---|---|---|
@@ -329,4 +329,4 @@ Fisher Gan is home only once the well runs clean (E3). His quest follows Cleansi
 and pays that quest's band. Each is one spec of five to seven lines. The data diff is their four rows, plus their
 rewards as sources in `docs/wiki/items.md`.
 
-**Engine size.** `spec.py` 212 lines, `bands.py` 87, `engine.py` 642, `tests.py` 205; the specs 353.
+**Engine size.** `spec.py` 212 lines, `bands.py` 87, `engine.py` 637, `tests.py` 204; the specs 353.

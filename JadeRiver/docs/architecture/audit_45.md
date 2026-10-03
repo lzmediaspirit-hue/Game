@@ -945,7 +945,7 @@ templates.
 
 **Status (phase 3, E5): built** (`docs/architecture/quest_engine.md`).
 - **The engine** is in `tools/content/quests/`: the spec language (`spec.py`, 212 lines), the band table (`bands.py`,
-  87), the compile, checks and command line (`engine.py`, 642) and 9 tests of its own (`tests.py`, 205).
+  87), the compile, checks and command line (`engine.py`, 637) and 9 tests of its own (`tests.py`, 204).
   - A side quest is one `side(...)` spec: its giver (an NPC engine id), its steps from seven templates (`clear`,
     `fetch`, `deliver`, `gather`, `talk`, `spar`, `escort`, with `reach` and `step` for the rest), and its words.
   - The engine derives:

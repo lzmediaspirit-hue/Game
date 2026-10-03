@@ -8,7 +8,7 @@ leads, when it opens and what it pays, and writes the quests.json row story.py p
        gives=(), pay=AUTO, target_room=AUTO, hand_in=None, requires=AUTO, **keys)
     steps        what the quest asks, in order: the templates below, each an objective (escort is two)
     giver        an NPC engine id (or a one-off row of story.py); `hand_in` another one ("" hands in anywhere)
-    name         the title, "The Muddy Wash"; by default the id's words (common.titled)
+    name         the title, "The Muddy Wash"; by default the id's words (engine.titled)
     offer, done  what the giver says on offering it and on handing it in (offer_text, complete_text); `progress`
                  what they say while it is under way
     after        the quests it follows (quest_done each); `during` quests it is offered while under way (quest_active)
@@ -42,7 +42,7 @@ leads, when it opens and what it pays, and writes the quests.json row story.py p
     escort(npc, to, text=None, meet=None)         meet someone and see them to a room (talk_to, reach_room). Leads to
                                                   `to`
     reach(room, text=None)                        reach a room (reach_room). Leads there
-    step(kind, text, count=1, **fields)           any other objective, as story.py's o() writes it (set_flag,
+    step(kind, text, count=1, **fields)           any other objective, as o() below writes it (set_flag,
                                                   use_system, hit_object, meditate_seconds, buy_item, ...). No room
 
   daily(id, name, *jobs, requires=None)   a template of the daily mission board (mission_templates.json)

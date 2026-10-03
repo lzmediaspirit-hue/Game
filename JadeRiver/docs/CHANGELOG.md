@@ -53,6 +53,13 @@ derives where a quest leads, when it opens and what it pays, and writes the rows
     - led to the Lower Pit by Stoneford Gate and the quarry road;
     - the moles fought for their claws;
     - handed in for the band's +310 cultivation and 90 taels.
+- **Checks.** The full run after merging R7 passes every gate (`quest_engine` among them; grid parity on 108 layouts)
+  and all 29 suites: 74,413 checks with 0 failures and no SCRIPT ERROR. Three counts are E5's:
+  - `topdown_side_quests` is new, at 20 checks;
+  - `data_validation` went from 50,403 to 50,445, for the four new quests' rows;
+  - `balance_sim` went from 183 to 185, for the side quests' pay an hour.
+
+  Every other count is as it was; `rules_tests` at 2,722, `room_engine` at 328 and `topdown_sunscar` at 57 are R7's.
 
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
