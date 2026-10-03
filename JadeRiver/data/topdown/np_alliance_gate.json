@@ -1,0 +1,607 @@
+{
+ "schema_version": 1,
+ "id": "np_alliance_gate",
+ "name": "Alliance Gate",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  7,
+  23
+ ],
+ "levels": [
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22222222222222222222222222222222222222222222222222222222",
+  "22221112222222221111111111111111111112222221111111111111",
+  "22111111122211111111111111111111111111122211111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111111111111111",
+  "11111011111111111111111111111111111111111111111111111111",
+  "11110011100011111111111111111111111111111111111111111111",
+  "11100011100001111111111111111111111111111111111111111111",
+  "11000011100000111111111111111111111111111111111111111111",
+  "10000011100000111111111100011111111111111111111111111110",
+  "10000011100000000000000000000000011110000001111111110000",
+  "00000011100000000000000000000000000000000000000000000000",
+  "00000011100000000000000000000000000000000000000000000000",
+  "00000011100000000000000000000000000000000000000000000000",
+  "00000011100000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggssspppppppppppppppppgggggggsssggggggggg",
+  "gggggggggggggggggssspppppppppppppppppgggggggsssggggggggg",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ggggggwwwgggggggggggpppppppppppppppppggggggggggggggggggg",
+  "ggggggwwwgggggggggggpppppppppppppppppggggggggggggggggggg",
+  "ggggggwwwgggggggggggpppppppppppppppppggggggggggggggggggg",
+  "ggggggwwwgggggggggggpppppppppppppppppggggggggggggggggggg",
+  "ggggggwwwgggggggggggpppppppppppppppppggggggggggggggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggsssgggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggsssgggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggwwwggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "stairs": [
+  {
+   "x": 17,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  },
+  {
+   "x": 44,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  },
+  {
+   "x": 45,
+   "y": 24,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "guardian_lion",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "guardian_lion",
+   "x": 33,
+   "y": 11
+  },
+  {
+   "kind": "guardian_lion",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "guardian_lion",
+   "x": 33,
+   "y": 17
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 20,
+   "y": 11
+  },
+  {
+   "kind": "banner_jade",
+   "x": 36,
+   "y": 11
+  },
+  {
+   "kind": "banner_jade",
+   "x": 20,
+   "y": 17
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 36,
+   "y": 17
+  },
+  {
+   "kind": "lantern",
+   "x": 5,
+   "y": 16
+  },
+  {
+   "kind": "lantern",
+   "x": 9,
+   "y": 16
+  },
+  {
+   "kind": "post",
+   "x": 5,
+   "y": 23
+  },
+  {
+   "kind": "post",
+   "x": 9,
+   "y": 23
+  },
+  {
+   "kind": "post",
+   "x": 5,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "crates",
+   "x": 10,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 3,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 47,
+   "y": 12
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 1,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 4,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 14,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 29,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 33,
+   "y": 3
+  },
+  {
+   "kind": "tree_pine",
+   "x": 39,
+   "y": 3
+  },
+  {
+   "kind": "bush",
+   "x": 45,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 5,
+   "y": 9
+  },
+  {
+   "kind": "tree_pine",
+   "x": 10,
+   "y": 3
+  },
+  {
+   "kind": "tree_maple",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "tree_maple",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "tree_maple",
+   "x": 28,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 32,
+   "y": 8
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 35,
+   "y": 7
+  },
+  {
+   "kind": "tree_pine",
+   "x": 40,
+   "y": 9
+  },
+  {
+   "kind": "hedge_3",
+   "x": 44,
+   "y": 6
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 48,
+   "y": 5
+  },
+  {
+   "kind": "tree_maple",
+   "x": 54,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 4,
+   "y": 11
+  },
+  {
+   "kind": "bush",
+   "x": 10,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 15,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 10
+  },
+  {
+   "kind": "hedge_3",
+   "x": 48,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 55,
+   "y": 10
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 12
+  },
+  {
+   "kind": "bush",
+   "x": 14,
+   "y": 17
+  },
+  {
+   "kind": "tall_grass",
+   "x": 38,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "hedge_3",
+   "x": 1,
+   "y": 18
+  },
+  {
+   "kind": "tree_pine",
+   "x": 9,
+   "y": 19
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 19,
+   "y": 18
+  },
+  {
+   "kind": "tree_plum",
+   "x": 43,
+   "y": 20
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 46,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 53,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 11,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 18,
+   "y": 22
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 25,
+   "y": 22
+  },
+  {
+   "kind": "hedge_3",
+   "x": 28,
+   "y": 22
+  },
+  {
+   "kind": "ferns",
+   "x": 32,
+   "y": 22
+  },
+  {
+   "kind": "hedge_3",
+   "x": 37,
+   "y": 21
+  },
+  {
+   "kind": "bush",
+   "x": 40,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 54,
+   "y": 22
+  },
+  {
+   "kind": "tree_maple",
+   "x": 4,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 3,
+   "y": 27
+  },
+  {
+   "kind": "hedge_3",
+   "x": 11,
+   "y": 27
+  },
+  {
+   "kind": "tree_maple",
+   "x": 1,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 14,
+   "y": 23
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 22,
+   "y": 22
+  },
+  {
+   "kind": "tree_plum",
+   "x": 25,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 25
+  },
+  {
+   "kind": "ferns",
+   "x": 34,
+   "y": 22
+  },
+  {
+   "kind": "tree_pine",
+   "x": 40,
+   "y": 25
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 52,
+   "y": 24
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 1,
+   "y": 27
+  },
+  {
+   "kind": "ferns",
+   "x": 16,
+   "y": 26
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 29,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 32,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 36,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 43,
+   "y": 27
+  },
+  {
+   "kind": "ferns",
+   "x": 49,
+   "y": 27
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 54,
+   "y": 27
+  }
+ ],
+ "place": {
+  "shrine_np_gate": [
+   15,
+   7
+  ],
+  "npc_alliance_guard_np": [
+   30,
+   16
+  ],
+  "war_gong_np": [
+   33,
+   12
+  ],
+  "stone_nine_peaks": [
+   46,
+   16
+  ],
+  "sign_np": [
+   51,
+   12
+  ]
+ },
+ "portals": {
+  "ferry": {
+   "at": [
+    7,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    7,
+    23
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 80
+  }
+ ]
+}

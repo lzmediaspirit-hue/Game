@@ -565,7 +565,7 @@ func add_foe(e: EnemyState) -> void:
 
 ## A villager standing at `at` (world units, on the floor there) facing `row`, in the NPC's own outfit, sorted with the
 ## room: the rooms of the world place theirs (TopdownPlaces); this stands one anywhere, for the prototype and reviews.
-## Test hook: the top-down suite and topdown_capture.
+## Test hook: the top-down suites and the capture registry (tools/dev/capture).
 func add_villager(npc_id: String, at: Vector2, row := "s") -> Node2D:
 	var g: float = room.height_at(at)
 	var o := {"type": "npc", "npc": npc_id, "at": [at.x, at.y], "alt": g if g < INF else 0.0, "row": row}

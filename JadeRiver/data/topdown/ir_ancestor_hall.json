@@ -1,0 +1,148 @@
+{
+ "schema_version": 1,
+ "id": "ir_ancestor_hall",
+ "name": "Ancestor Hall",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  5,
+  12
+ ],
+ "levels": [
+  "555555555555555555555555",
+  "500000111111111111000005",
+  "500000111111111111000005",
+  "500000111111111111000005",
+  "500000111111111111000005",
+  "500000000020020000000005",
+  "500000000020020000000005",
+  "500000000000000000000005",
+  "500000000000000000000005",
+  "500000000000000000000005",
+  "500000000000000000000005",
+  "500000000000000000000005",
+  "500000000000000000000005",
+  "111100111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "llllwwllllllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 11,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "roots",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "roots",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "incense",
+   "x": 8,
+   "y": 2
+  },
+  {
+   "kind": "incense",
+   "x": 15,
+   "y": 2
+  },
+  {
+   "kind": "lantern",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 4
+  },
+  {
+   "kind": "banner_jade",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "banner_jade",
+   "x": 19,
+   "y": 1
+  },
+  {
+   "kind": "brazier",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "brazier",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "mat",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "lantern",
+   "x": 2,
+   "y": 12
+  },
+  {
+   "kind": "lantern",
+   "x": 7,
+   "y": 12
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 21,
+   "y": 12
+  }
+ ],
+ "place": {
+  "ancestral_tablets": [
+   11.5,
+   2
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    4.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

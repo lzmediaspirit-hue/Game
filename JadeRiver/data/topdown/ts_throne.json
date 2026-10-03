@@ -1,0 +1,252 @@
+{
+ "schema_version": 1,
+ "id": "ts_throne",
+ "name": "Throne of the Tomb King",
+ "size": [
+  56,
+  24
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444444444",
+  "40000000000000000000001111111111111100000000111111111114",
+  "40000000000000000000001111111111111100000000111111111114",
+  "40000000000000000000001111111111111100000000111111111114",
+  "40000000000000000000001111111111111100000000111111111114",
+  "40000000400000040000001111111111111100000400111141111114",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000000",
+  "40000000000000000000000000000000000000000000000000000000",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000400000030000000000000000000000000400000020000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "apaaaapppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aaaaaaappppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aaaaaaappppppppppppppppppppppppppppppppppppppppppppppppa",
+  "apaaaappppppppppppaaaappppppppppppppaaappppppppppppppppa",
+  "appaapppappppppaaaaaaappppppppppppppaaaaaappppppappppppa",
+  "appppppppppaaaaaaaaaaaaaaaaasssaaaaaaaaaaaappppppssspppa",
+  "apppppppppaaaaaaaaaaaaaaaaaasssaaaaaaaaaaaaaappppssspppp",
+  "apppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppppp",
+  "appppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppppa",
+  "appppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppppa",
+  "apppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppa",
+  "ppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppa",
+  "ppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppa",
+  "apppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppa",
+  "appppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppa",
+  "apppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppppppppa",
+  "appaaaaappaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppaaaappa",
+  "apaaaaaaapaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapppaaaaaapa",
+  "aaaaaaaaaapaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppaaaaaaaaa",
+  "aaaaaaaaaapppppappaaaaaaaaaaaaaaaaaaaaaaaapppppaaaaaaaaa",
+  "aaaaaaaaaapppppppppaaaaaaaaaaaaaaaaaaapppppppppaaaaaaaaa",
+  "apaaaaaaapppppppppppaaaaaaaaaapppppppppppppppppaaaaaaapa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 28,
+   "y": 6,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 49,
+   "y": 6,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "sun_throne",
+   "x": 27,
+   "y": 2
+  },
+  {
+   "kind": "brazier",
+   "x": 23,
+   "y": 1
+  },
+  {
+   "kind": "brazier",
+   "x": 34,
+   "y": 1
+  },
+  {
+   "kind": "brazier",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "brazier",
+   "x": 41,
+   "y": 9
+  },
+  {
+   "kind": "brazier",
+   "x": 14,
+   "y": 17
+  },
+  {
+   "kind": "brazier",
+   "x": 41,
+   "y": 17
+  },
+  {
+   "kind": "king_statue",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "king_statue",
+   "x": 37,
+   "y": 1
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 7
+  },
+  {
+   "kind": "red_rock",
+   "x": 3,
+   "y": 4
+  },
+  {
+   "kind": "ribcage",
+   "x": 48,
+   "y": 19
+  },
+  {
+   "kind": "red_rock",
+   "x": 7,
+   "y": 21
+  },
+  {
+   "kind": "ribcage",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "ribcage",
+   "x": 3,
+   "y": 22
+  },
+  {
+   "kind": "ribcage",
+   "x": 50,
+   "y": 23
+  }
+ ],
+ "place": {
+  "npc_grey_pilgrim_tomb": [
+   10,
+   11
+  ],
+  "lost_the_king_who_waits": [
+   20,
+   9
+  ],
+  "lost_scorpion_script": [
+   39,
+   8
+  ],
+  "chest_1": [
+   51,
+   2
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    13
+   ],
+   "span": 2
+  },
+  "exit": {
+   "at": [
+    55,
+    8
+   ],
+   "dir": "e",
+   "arrive": [
+    53.5,
+    8
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    37,
+    12
+   ]
+  ]
+ ]
+}
