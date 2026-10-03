@@ -6,7 +6,8 @@ A family names its tiers by grade; every number a tier carries comes from here u
 - `cultivation(share, grade)`: decision 45's fixed cultivation: `share` of the need of the stage at MID_ILV, rounded as
   a reward (realms.cultivation, which reads the realm ladder, curves.json's minutes per Level).
 - `SPEED`: what a cultivation-speed item of a grade adds to `accumulation_rate`, and for how long.
-- `PILL_TOXICITY`: a pill's toxicity by grade, for a family that does not set its own.
+- `PILL_TOXICITY`: a pill's toxicity by grade, for a family that does not set its own;
+- `RECIPE_TIME`: an alchemy recipe's brewing time by grade, likewise.
 A curve is read in a spec as `curve("name")` (the tier's value) or `curve("name", key)`.
 """
 
@@ -17,14 +18,18 @@ GRADE_NAME = {g: g.capitalize() for g in GRADES}
 
 # Decision 45's cultivation-speed ladder: (accumulation_rate bonus, minutes). Plain and Common are the two incense
 # sticks (Granny Liu's +30% for 10 minutes, Stoneford's Deep Current +50% for 15), Earth the Qi Flow Pill (+20% for an
-# hour, with its debt). From Heaven a pill of the grade adds a tenth more for each grade above Earth, for half an
-# hour: the bonus-minutes it gives (bonus x minutes) climb 9, 12, 15, 18, 21 past the Qi Flow Pill's 12, as the Levels
-# a grade spans grow longer to sit through.
+# hour, with its debt). From Heaven a Streams Pill adds a tenth more for each grade above Earth, for 45 minutes: the
+# bonus-minutes a use gives (bonus x minutes: the minutes of sitting it saves, near enough) climb 3, 7.5, 12, then
+# 13.5, 18, 22.5, 27, 31.5, so each rung adds more Qi to a sitting at its own realm than the rung below at its own
+# (balance_sim's speed ladder), while a stage there takes ever longer to sit through.
 SPEED = {"plain": (0.3, 10), "common": (0.5, 15), "earth": (0.2, 60),
-         "heaven": (0.3, 30), "mystic": (0.4, 30), "spirit": (0.5, 30), "sage": (0.6, 30), "sovereign": (0.7, 30)}
+         "heaven": (0.3, 45), "mystic": (0.4, 45), "spirit": (0.5, 45), "sage": (0.6, 45), "sovereign": (0.7, 45)}
 # A pill's toxicity by grade when its family sets none: the lifting pills of the grade sit about here.
 PILL_TOXICITY = {"plain": 4, "common": 6, "earth": 8, "heaven": 8, "mystic": 10, "spirit": 10, "sage": 12, "sovereign": 12,
                  "will": 14, "law": 20, "monarch": 25}
+# An alchemy recipe's brewing time in seconds by grade when its family sets none (the pills of the grade sit about here).
+RECIPE_TIME = {"plain": 60, "common": 180, "earth": 300, "heaven": 600, "mystic": 900, "spirit": 900, "sage": 1200, "sovereign": 1200,
+               "will": 1800}
 
 
 def grade_index(grade):
@@ -61,6 +66,8 @@ def value(name, grade, key=None):
         return {"bonus": b, "seconds": s, "minutes": s // 60, "pct": int(round(b * 100))}[key or "bonus"]
     if name == "toxicity":
         return PILL_TOXICITY[grade]
+    if name == "recipe_time":
+        return RECIPE_TIME[grade]
     if name == "cultivation":
         return cultivation(key, grade)
     raise KeyError("no curve %s" % name)

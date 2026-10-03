@@ -34,7 +34,9 @@ try { & (Join-Path $PSScriptRoot 'Validate-Animations.ps1') } catch { Write-Host
 #   places         decision 43: the places table is current, every place where auto-path reaches it;
 #   sound          decision 43: the sound table is current, every sound on disk passes its levels, seams and band;
 #   cues           audit 45 (E6): the cue table (data/cues.json) is what its generator writes;
-#   pix            audit 45 (S5): the pixel library for new art draws each shape exactly as its source.
+#   item_engine    audit 45 (E4): the data holds every item family as its spec writes it, each source a family names
+#                  is found, its pill icons are current, and the engine's own tests pass;
+#   pix           audit 45 (S5): the pixel library for new art draws each shape exactly as its source.
 $gates = @(
     @{ Name = 'build_data'; Args = @('tools/data/build_data.py', '--check') },
     @{ Name = 'room_lint'; Args = @('tools/data/room_lint.py') },
@@ -43,6 +45,7 @@ $gates = @(
     @{ Name = 'places'; Args = @('tools/data/places.py', '--check') },
     @{ Name = 'sound'; Args = @('tools/data/sound.py', '--check') },
     @{ Name = 'cues'; Args = @('tools/data/cues.py', '--check') },
+    @{ Name = 'item_engine'; Args = @('tools/content/items/engine.py', '--check') },
     @{ Name = 'pix'; Args = @('tools/lib/pix.py', '--check') }
 )
 foreach ($g in $gates) {

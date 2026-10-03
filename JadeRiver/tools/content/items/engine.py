@@ -2,12 +2,12 @@
 into what the game reads.
 
     python3 tools/content/items/engine.py --check     # the engine's gate (tools/run_tests.sh, Test.ps1)
-    python3 tools/content/items/engine.py --list      # every family, its members and where each one comes from
+    python3 tools/content/items/engine.py --list      # every family and its members
 
 A family (specs/*.py, `FAMILIES`) writes, for each of its members:
 - its row in items.json or artifacts.json (items.py places each section: `items(section)`);
-- its recipe (economy.py places each block: `recipes(block)`), with the recipe's element and fragments;
-- its shop lines and the lines that sell its recipe (economy.py: `shelves(rows)`; a line the shop list does not place
+- its recipe (economy.py places each block: `recipes(block)`), with the recipe's element and ancient pages;
+- its shop lines and the lines that sell its recipe (economy.py: `shelves(rows)`; a line a shop's list does not place
   with an `F(item)` or `L(recipe)` marker goes at the end of that shop's stock or rotation);
 - its icon: a pill's vessel and grade kit (tools/icons/families/pills.py reads `pill_icons()`), any other kind's id;
 - each value a tier carries, from curves.py unless the spec pins it.
@@ -16,12 +16,14 @@ names but does not write (drops, chests, gathering, the garden, rewards...) in t
 """
 import copy
 import importlib
+import io
 import json
 import os
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.abspath(os.path.join(HERE, "..", ".."))
+DATA = os.path.join(TOOLS, "..", "data")
 for _p in (os.path.join(TOOLS, "data"), TOOLS):
     if _p not in sys.path:
         sys.path.append(_p)
@@ -36,15 +38,16 @@ from common import all_of, flag as flag_req, realm as realm_req, titled  # noqa:
 from . import curves, kinds  # noqa: E402
 from .dsl import DROP, Family, resolve  # noqa: E402
 
-# The spec modules, in the order their families are compiled (and their lines appended to a shop).
+# The spec modules, in the order their families compile (and their unplaced lines join a shop).
 SPECS = ["pills", "herbs", "ores", "parts", "gear", "streams"]
-# A declared source's channel in wiki.py's terms (tools/dev/wiki.py CHANNELS).
-CHANNEL = {"shop": "Shop", "auction": "Shop", "recipe": "Crafting", "craft": "Crafting", "drop": "Drop", "chest": "Container", "gather": "Gathering",
-           "garden": "Garden", "reward": "Reward", "mail": "Mail"}
+# A source's channel in wiki.py's terms (tools/dev/wiki.py CHANNELS). `shop` and `recipe` the engine writes; the rest
+# it finds in the built data.
+CHANNEL = {"shop": "Shop", "auction": "Shop", "recipe": "Crafting", "craft": "Crafting", "drop": "Drop", "chest": "Container",
+           "gather": "Gathering", "garden": "Garden", "reward": "Reward", "mail": "Mail"}
 MARKS = ("story", "system", "later")
-# Keys of a family's fields that are the engine's, not a kind's.
-META = {"id", "name", "desc", "section", "words", "recipe", "icon", "row", "sinks", "seed", "tier", "grade", "sources"}
 RECIPE_META = {"id", "craft", "inputs", "outputs", "grade", "element", "fragments", "block", "learn", "after"}
+# A shop line's own keys (`realm` and `flag` are a requires of one condition).
+LINE_KEYS = {"price", "requires", "realm", "flag", "rotation", "currency", "daily", "sealed"}
 
 
 class SpecError(Exception):
@@ -53,7 +56,7 @@ class SpecError(Exception):
 
 # ------------------------------------------------------------------------------------------------------- the compile
 class Member(dict):
-    """A compiled member: its row, recipe, lines and icon (a dict, so it prints as data)."""
+    """A compiled member: its row, recipe, lines, icon and sources (a dict, so it prints as data)."""
 
 
 class State:
@@ -61,16 +64,17 @@ class State:
         self.families = []          # Family, in SPECS order
         self.members = []           # Member, in family order
         self.by_id = {}
-        self.order = {}             # section or recipe block -> pinned order (ids)
+        self.order = {}             # section or recipe block -> its pinned ids, or "grade"
         self.modules = {}
         self.errors = []
-        self.used = {}              # table -> sections placed since begin()
+        self.used = {}              # table -> the sections a host placed since begin()
 
 
 _STATE = None
 
 
 def state():
+    """The compile of every spec (once a process)."""
     global _STATE
     if _STATE is None:
         _STATE = _compile()
@@ -80,12 +84,12 @@ def state():
 
 
 def spec(name):
-    """A spec module (its constants: specs/gear.py GRADE_WORD...)."""
+    """A spec module, for its constants (specs/gear.py GRADE_WORD, FAMILY_APPEARANCE...)."""
     return state().modules[name]
 
 
 def reset():
-    """Forget the compile (the tests compile twice to prove the build deterministic)."""
+    """Forget the compile (the gate compiles twice to prove the build deterministic)."""
     global _STATE
     _STATE = None
     for name in SPECS:
@@ -93,47 +97,59 @@ def reset():
 
 
 def _compile():
-    st = State()
+    families, order, modules, errors = [], {}, {}, []
     for name in SPECS:
         mod = importlib.import_module("content.items.specs." + name)
-        st.modules[name] = mod
+        modules[name] = mod
         for fam in getattr(mod, "FAMILIES", []):
             if not isinstance(fam, Family):
-                st.errors.append("specs/%s.py: FAMILIES holds %r, not a family()" % (name, fam))
+                errors.append("specs/%s.py: FAMILIES holds %r, not a family()" % (name, fam))
                 continue
             fam.spec = name
-            st.families.append(fam)
+            families.append(fam)
         for k, ids in getattr(mod, "ORDER", {}).items():
-            if k in st.order:
-                st.errors.append("specs/%s.py: ORDER pins %s twice" % (name, k))
-            st.order[k] = ids if isinstance(ids, str) else list(ids)
+            if k in order:
+                errors.append("specs/%s.py: ORDER pins %s twice" % (name, k))
+            order[k] = ids
+    st = compile_families(families, order)
+    st.modules, st.errors = modules, errors + st.errors
+    return st
+
+
+def compile_families(families, order=None):
+    """A State from families (the specs', or a test's own): members, rows, recipes, lines, icons; errors collected."""
+    st = State()
+    st.families = list(families)
+    st.order = {k: (v if isinstance(v, str) else list(v)) for k, v in (order or {}).items()}
     fids = set()
     for fam in st.families:
+        if not hasattr(fam, "spec"):
+            fam.spec = "test"
         if fam.fid in fids:
             st.errors.append("family %s is declared twice" % fam.fid)
         fids.add(fam.fid)
         try:
             ms = [_member(fam, raw, i) for i, raw in enumerate(fam.members)]
             if fam.fields.get("seed"):
-                ms.append(_seed(fam, ms[0], len(ms)))
-            for m in ms:
-                if m["id"] in st.by_id:
-                    st.errors.append("%s: id %s is already %s's" % (fam.fid, m["id"], st.by_id[m["id"]]["fid"]))
-                    continue
-                st.by_id[m["id"]] = m
-                st.members.append(m)
+                ms.append(_seed(fam, len(ms)))
         except (KeyError, ValueError, TypeError, SpecError) as e:
             st.errors.append("%s: %s" % (fam.fid, e))
+            continue
+        for m in ms:
+            if m["id"] in st.by_id:
+                st.errors.append("%s: id %s is already %s's" % (fam.fid, m["id"], st.by_id[m["id"]]["fid"]))
+                continue
+            st.by_id[m["id"]] = m
+            st.members.append(m)
     st.errors += _static_checks(st)
     return st
 
 
 def _ctx(fam, raw):
-    """The member's fields: the family's, then its own; then the context a template formats with."""
-    m = {k: v for k, v in fam.fields.items() if k not in ("words",)}
+    """The member's fields (the family's, then its own) and the context its templates format with."""
+    m = {k: v for k, v in fam.fields.items() if k != "words"}
     m.update(raw)
-    tier, grade = m.get("tier"), m.get("grade")
-    word = m.get("word")
+    tier, grade, word = m.get("tier"), m.get("grade"), m.get("word")
     ctx = dict(m, tier=tier, grade=grade, Tier=str(tier).capitalize(), Grade=curves.GRADE_NAME.get(grade, str(grade)), stem=fam.stem,
                Stem=titled(fam.stem), word=word or "", Word=(word or "").capitalize())
     if grade in curves.SPEED:
@@ -146,12 +162,29 @@ def _fmt(value, ctx):
     return value.format(**ctx) if isinstance(value, str) else value
 
 
+def _sources(fam, raw, m, ctx, mid):
+    """The member's sources: the family's, then its own (False drops one). An outside source given as a list names the
+    tiers (or ids) it covers; a part's `drop` list names creatures."""
+    src = dict(fam.sources)
+    src.update(raw.get("sources") or {})
+    src = {k: resolve(v, dict(ctx, id=mid)) for k, v in src.items() if v is not False and v is not None}
+    for k, v in list(src.items()):
+        if k not in ("shop", "drop", "mark") and isinstance(v, (list, tuple)):
+            if m.get("tier") in v or m.get("grade") in v or mid in v:
+                src[k] = True
+            else:
+                del src[k]
+    if src.get("mark") and src["mark"] not in MARKS:
+        raise SpecError("%s: mark %s is not one of %s" % (mid, src["mark"], ", ".join(MARKS)))
+    return src
+
+
 def _member(fam, raw, index):
     m, ctx = _ctx(fam, raw)
     kind = fam.kind
     if kind not in kinds.KINDS:
         raise SpecError("no kind %s (kinds: %s)" % (kind, ", ".join(kinds.KINDS)))
-    # The id: the member's own, the family's template, the herb rule, or (one member) the family's stem.
+    # The id: the member's own, the herb rule, the family's template, or (one member) the family's stem.
     if raw.get("id"):
         mid = raw["id"]
     elif kind == "herb":
@@ -164,10 +197,10 @@ def _member(fam, raw, index):
         raise SpecError("a ladder needs an id template (id=\"{word}_...\")")
     ctx["id"] = mid
     m = resolve(m, ctx)
-    m["id"], m["_stem"], m["fid"], m["kind"], m["index"] = mid, fam.stem, fam.fid, kind, index
+    m.update(id=mid, _stem=fam.stem, fid=fam.fid, kind=kind, index=index)
     if kind == "herb" and not raw.get("name") and not fam.fields.get("name"):
         m["name"] = kinds.herb_name(fam.stem, m["tier"], m.get("young_age"))
-    # Decision 45: a text that says the cultivation an item pays reads it from the item's own effects.
+    # Decision 45: a text that says the cultivation an item pays reads it from the item's own effects ({cult}).
     gains = [e.get("amount", 0) for e in m.get("use", []) if isinstance(e, dict) and e.get("kind") == "add_progress"]
     ctx["cult"] = kinds.cult_text(int(sum(gains))) if gains else ""
     for key in ("name", "desc"):
@@ -175,32 +208,24 @@ def _member(fam, raw, index):
             m[key] = _fmt(m[key], dict(ctx, **{k: v for k, v in m.items() if isinstance(v, (str, int, float)) and k not in ctx}))
     icon = m.get("icon")
     m["_icon"] = icon if isinstance(icon, str) else (icon or {}).get("id")
-    sources = dict(fam.sources)
-    sources.update(raw.get("sources") or {})
-    sources = {k: resolve(v, dict(ctx, id=mid)) for k, v in sources.items() if v is not False and v is not None}
-    for k, v in list(sources.items()):
-        # An outside source given as a list names the tiers (or ids) it hands out; a part's `drop` list names creatures.
-        if k not in ("shop", "drop", "mark") and isinstance(v, (list, tuple)):
-            if m.get("tier") in v or m.get("grade") in v or mid in v:
-                sources[k] = True
-            else:
-                del sources[k]
-    m["_sources"] = sources
+    sources = _sources(fam, raw, m, ctx, mid)
     if sources.get("mark"):
-        if sources["mark"] not in MARKS:
-            raise SpecError("%s: mark %s is not one of %s" % (mid, sources["mark"], ", ".join(MARKS)))
         m["_mark"] = sources["mark"]
     member = Member(fid=fam.fid, kind=kind, id=mid, tier=m.get("tier"), grade=m.get("grade"), spec=fam.spec,
                     section=m.get("section") or kinds.SECTION[kind], table=kinds.TABLE[kind], index=index)
     row = kinds.KINDS[kind](m)
+    # Hand tweaks (audit 45 §6 rule 3): `row` pins, the family's then the member's; a pinned key keeps its place.
     for pins in (fam.fields.get("row"), raw.get("row")):
         for k, v in (pins or {}).items():
             if v is DROP:
                 row.pop(k, None)
             else:
                 row[k] = resolve(v, dict(ctx, id=mid))
+    sinks = fam.fields.get("sinks")
+    if sinks is not None and "sell" not in sinks:
+        row["sell"] = False
     member["row"] = row
-    member["recipe"] = _recipe(fam, m, ctx)
+    member["recipe"] = _recipe(m, ctx)
     member["lines"] = _lines(m, sources.get("shop") or {}, mid)
     if member["recipe"]:
         r = member["recipe"]
@@ -208,33 +233,26 @@ def _member(fam, raw, index):
     member["icon"] = _icon(m, icon) if kind == "pill" else None
     member["sources"] = sources
     member["herb"] = (fam.stem, m["tier"]) if kind == "herb" else None
-    member["sinks"] = fam.fields.get("sinks")
-    if member["sinks"] is not None and "sell" not in member["sinks"]:
-        row["sell"] = False
     return member
 
 
-def _seed(fam, first, index):
-    """A herb family's seed (S45): a member of its own (section "seeds"), from the family's seed=dict(grade, desc,
-    sources=...)."""
+def _seed(fam, index):
+    """A herb family's seed (S45): a member of its own, in the section "seeds", from the family's
+    seed=dict(grade, desc[, id], sources=...)."""
     spec_s = fam.fields["seed"]
     sid = spec_s.get("id") or fam.stem + "_seed"
     m = {"id": sid, "tier": spec_s["grade"], "grade": spec_s["grade"], "_stem": fam.stem}
     sources = {k: v for k, v in (spec_s.get("sources") or {}).items() if v is not False and v is not None}
     member = Member(fid=fam.fid, kind="seed", id=sid, tier=spec_s["grade"], grade=spec_s["grade"], spec=fam.spec, section="seeds",
                     table="items", index=index)
-    member["row"] = kinds.seed(m, spec_s)
-    member["recipe"] = None
-    member["lines"] = _lines(m, sources.get("shop") or {}, sid)
-    member["icon"] = None
-    member["sources"] = sources
-    member["herb"] = None
-    member["sinks"] = None
-    member["seed_of"] = (fam.stem, spec_s["desc"])
+    member.update(row=kinds.seed(m, spec_s), recipe=None, lines=_lines(m, sources.get("shop") or {}, sid), icon=None, sources=sources,
+                  herb=None, seed_of=(fam.stem, spec_s["desc"]))
     return member
 
 
-def _recipe(fam, m, ctx):
+def _recipe(m, ctx):
+    """The member's recipe row from recipe=dict(inputs, craft, time_s..., element, fragments, block, learn, after), or a
+    function of the member that returns one (or None)."""
     spec_r = m.get("recipe")
     if callable(spec_r):
         spec_r = spec_r(m)
@@ -251,14 +269,13 @@ def _recipe(fam, m, ctx):
     for k, v in spec_r.items():
         if k not in RECIPE_META:
             row[k] = v
-    block = spec_r.get("block") or {"alchemy": "alchemy"}.get(craft, craft)
-    return {"row": row, "block": block, "element": spec_r.get("element"), "fragments": spec_r.get("fragments"),
+    return {"row": row, "block": spec_r.get("block") or craft, "element": spec_r.get("element"), "fragments": spec_r.get("fragments"),
             "learn": spec_r.get("learn") or {}, "after": spec_r.get("after")}
 
 
 def _applies(value, m):
-    """A source's value for this member, or None when it does not apply: a list of tiers (or ids) the source covers, a
-    dict keyed by tier (or id) of each one's details, or one details dict for every member."""
+    """A shop's value for this member, or None when it does not sell it: a list of the tiers (or ids) it sells, a dict
+    of each one's line keyed by tier (or id), or one line for every member."""
     if isinstance(value, (list, tuple)):
         return {} if (m["tier"] in value or m["id"] in value or m["grade"] in value) else None
     if isinstance(value, dict) and any(k not in LINE_KEYS for k in value):
@@ -269,11 +286,8 @@ def _applies(value, m):
     return dict(value or {})
 
 
-LINE_KEYS = {"price", "requires", "realm", "flag", "rotation", "currency", "daily", "sealed", "learn"}
-
-
 def _lines(m, shops, item_id, learn=None):
-    """The member's shop lines: [(shop, part, line)] from shop={shop: details}."""
+    """The member's shop lines [(shop, part, line)] from shop={shop: line keys}."""
     out = []
     for shop, value in shops.items():
         d = _applies(value, m)
@@ -281,7 +295,7 @@ def _lines(m, shops, item_id, learn=None):
             continue
         unknown = set(d) - LINE_KEYS
         if unknown:
-            raise SpecError("%s: shop %s: unknown line key %s" % (m["id"], shop, ", ".join(sorted(unknown))))
+            raise SpecError("%s: shop %s: unknown line key %s (keys: %s)" % (m["id"], shop, ", ".join(sorted(unknown)), ", ".join(sorted(LINE_KEYS))))
         line = {"item": item_id}
         if learn:
             line["learn"] = learn
@@ -300,7 +314,8 @@ def _lines(m, shops, item_id, learn=None):
 
 
 def _icon(m, icon):
-    """A pill's icon: (id, vessel kind, grade, mark, pill material, ink[, extra]), tools/icons/families/pills.py PILLS_HD."""
+    """A pill's icon: (id, vessel kind, grade, mark, pill material, ink[, extra]), tools/icons/families/pills.py PILLS_HD.
+    The vessel defaults to the pill's group's, the mark to its own."""
     if not icon or isinstance(icon, str):
         return None
     vessel = icon.get("vessel") or {"healing": "healing", "restoration": "restoration", "buff": "buff"}.get(m["group"], "utility")
@@ -310,64 +325,59 @@ def _icon(m, icon):
 
 # ------------------------------------------------------------------------------------------------------ the channels
 def _ordered(st, key, members):
-    """`members` in the order ORDER pins for `key` (then the unpinned ones in spec order)."""
+    """`members` in the order ORDER pins for `key` (the unpinned after, in spec order), or grade by grade ("grade")."""
     pin = st.order.get(key)
+    if pin == "grade":
+        fam_at = {f.fid: i for i, f in enumerate(st.families)}
+        return sorted(members, key=lambda m: (curves.grade_index(m["grade"]), fam_at[m["fid"]]))
     if not pin:
         return members
     by = {m["id"]: m for m in members}
     return [by[i] for i in pin if i in by] + [m for m in members if m["id"] not in pin]
 
 
-def begin(table):
+def begin(table, st=None):
     """A host starts placing a table's sections (items.py: items, artifacts; economy.py: recipes)."""
-    state().used[table] = []
+    (st or state()).used[table] = []
 
 
-def end(table):
+def end(table, st=None):
     """Every section of `table` with members was placed (else its rows would be lost)."""
-    st = state()
+    st = st or state()
     used = st.used.pop(table, [])
     if table == "recipes":
-        blocks = {m["recipe"]["block"] for m in st.members if m["recipe"]}
-        missing = sorted(blocks - set(used))
+        missing = sorted({m["recipe"]["block"] for m in st.members if m["recipe"]} - set(used))
     else:
         missing = sorted({m["section"] for m in st.members if m["table"] == table} - set(used))
     if missing:
-        raise SystemExit("item engine: %s: no host places %s (items.py / economy.py)" % (table, ", ".join(missing)))
+        raise SystemExit("item engine: %s: no host places %s (items.py, economy.py)" % (table, ", ".join(missing)))
 
 
-def _use(table, key):
-    used = state().used.setdefault(table, [])
+def _use(st, table, key):
+    used = st.used.setdefault(table, [])
     if key in used:
         raise SystemExit("item engine: %s %s is placed twice" % (table, key))
     used.append(key)
 
 
-def items(section):
+def items(section, st=None):
     """The rows of a section, in its order (a herb family's seeds are the section "seeds")."""
-    st = state()
-    members = [m for m in st.members if m["section"] == section]
-    if not members:
+    st = st or state()
+    members_ = [m for m in st.members if m["section"] == section]
+    if not members_:
         raise SystemExit("item engine: no family writes the section %s" % section)
-    _use(members[0]["table"], section)
-    if st.order.get(section) == "grade":
-        members = sorted(members, key=lambda m: (curves.grade_index(m["grade"]), _fam_index(st, m["fid"])))
-    else:
-        members = _ordered(st, section, members)
-    return [copy.deepcopy(m["row"]) for m in members]
+    _use(st, members_[0]["table"], section)
+    return [copy.deepcopy(m["row"]) for m in _ordered(st, section, members_)]
 
 
-def _fam_index(st, fid):
-    return next(i for i, f in enumerate(st.families) if f.fid == fid)
-
-
-def recipes(block):
-    """The recipe rows of a block (economy.py places each), in spec order, a recipe's `after` pin moving it."""
-    st = state()
-    _use("recipes", block)
+def recipes(block, st=None):
+    """The recipe rows of a block (economy.py places each), in spec order or grade by grade; `after` moves one."""
+    st = st or state()
+    _use(st, "recipes", block)
     ms = [m for m in st.members if m["recipe"] and m["recipe"]["block"] == block]
     if st.order.get(block) == "grade":
-        ms = sorted(ms, key=lambda m: (curves.grade_index(m["recipe"]["row"]["grade"]), _fam_index(st, m["fid"])))
+        fam_at = {f.fid: i for i, f in enumerate(st.families)}
+        ms = sorted(ms, key=lambda m: (curves.grade_index(m["recipe"]["row"]["grade"]), fam_at[m["fid"]]))
     rows = [m["recipe"] for m in ms]
     for r in [r for r in rows if r["after"]]:
         rows.remove(r)
@@ -378,9 +388,9 @@ def recipes(block):
     return [copy.deepcopy(r["row"]) for r in rows]
 
 
-def recipe_meta(rid):
-    """(element, fragments) of a family recipe, or None for a recipe no family writes."""
-    for m in state().members:
+def recipe_meta(rid, st=None):
+    """(element, ancient pages) of a family's recipe, or None for a recipe no family writes."""
+    for m in (st or state()).members:
         if m["recipe"] and m["recipe"]["row"]["id"] == rid:
             return m["recipe"]["element"], m["recipe"]["fragments"]
     return None
@@ -396,10 +406,10 @@ def L(recipe_id):
     return {"__learn__": recipe_id}
 
 
-def shelves(shops):
-    """The shop rows with every family line in place: each marker replaced by its line, then the lines no marker
-    placed at the end of their shop's stock or rotation, in spec order."""
-    st = state()
+def shelves(shops, st=None):
+    """The shop rows with every family line in place: each marker replaced by its line, then the lines no marker placed
+    at the end of their shop's stock or rotation, in spec order."""
+    st = st or state()
     declared = []      # (shop, part, key, line)
     for m in st.members:
         for shop, part, line in m["lines"]:
@@ -429,24 +439,23 @@ def shelves(shops):
             placed.add((shop, part, key))
             if part == "stock":
                 s.setdefault("stock", []).append(copy.deepcopy(line))
-            else:
-                if "rotation" not in s:
-                    errs.append("shop %s has no rotation for %s" % (shop, key[1]))
-                    continue
+            elif "rotation" in s:
                 s["rotation"]["pool"].append(copy.deepcopy(line))
+            else:
+                errs.append("shop %s has no rotation for %s" % (shop, key[1]))
     if errs:
         raise SystemExit("item engine: shops:\n  " + "\n  ".join(errs))
     return out
 
 
-def pill_icons():
+def pill_icons(st=None):
     """Every pill family member's icon row (tools/icons/families/pills.py PILLS_HD)."""
-    return [m["icon"] for m in state().members if m["icon"]]
+    return [m["icon"] for m in (st or state()).members if m["icon"]]
 
 
-def herb_ages():
-    """{herb id: (family, age)} family by family, ages rising (garden.json `families`; herbs.py)."""
-    st = state()
+def herb_ages(st=None):
+    """{herb id: (family, age)}, family by family, ages rising (garden.json `families`; herbs.py)."""
+    st = st or state()
     out = {}
     for fam in st.families:
         if fam.kind == "herb":
@@ -455,46 +464,49 @@ def herb_ages():
     return out
 
 
-def seeds():
+def seeds(st=None):
     """[(seed id, herb family, grade, desc)] in the seeds' order (garden.json `seeds`; herbs.py)."""
-    st = state()
+    st = st or state()
     return [(m["id"], m["seed_of"][0], m["grade"], m["seed_of"][1]) for m in _ordered(st, "seeds", [m for m in st.members if m["kind"] == "seed"])]
 
 
-def members(kind=None):
-    return [m for m in state().members if kind is None or m["kind"] == kind]
+def members(kind=None, st=None):
+    return [m for m in (st or state()).members if kind is None or m["kind"] == kind]
 
 
 # ---------------------------------------------------------------------------------------------------------- checks
 def _static_checks(st):
-    """What a spec must hold before it builds: a source for every member, pins that name real members."""
+    """What the specs must hold before they build: a source for every member, pins that name real members."""
     errs = []
     for m in st.members:
         src = m.get("sources") or {}
-        has = bool(m.get("lines")) or bool(m.get("recipe")) or "mark" in src or any(k in CHANNEL and k not in ("shop", "recipe") for k in src)
-        if not has:
-            errs.append("%s (%s): nothing hands it out; name a source (shop, recipe, drop, chest, gather, garden, craft, "
-                        "reward, mail) or a mark" % (m["id"], m["fid"]))
+        outside = [k for k in src if k in CHANNEL and k not in ("shop", "recipe")]
+        if not (m.get("lines") and any(x[2]["item"] != "recipe_scroll" for x in m["lines"])) and not m.get("recipe") and "mark" not in src \
+                and not outside:
+            errs.append("%s (%s): nothing hands it out; name a source (shop, recipe, drop, chest, gather, garden, craft, reward, mail, "
+                        "auction) or a mark" % (m["id"], m["fid"]))
     known = set(st.by_id)
-    seeds_ = set()
-    rids = {m["recipe"]["row"]["id"] for m in st.members if m.get("recipe")}
     for key, pin in st.order.items():
         if pin == "grade":
             continue
         for i in pin:
-            if i not in known and i not in seeds_ and i not in rids:
+            if i not in known:
                 errs.append("ORDER %s pins %s, which no family writes" % (key, i))
         if len(set(pin)) != len(pin):
             errs.append("ORDER %s names an id twice" % key)
     return errs
 
 
+def _table(name):
+    with open(os.path.join(DATA, name + ".json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
 def _drops():
-    """{creature: the items its loot table and first defeat hand out} from the built data (enemies.json, loot_tables.json)."""
-    data = os.path.join(TOOLS, "..", "data")
-    tables = {t["id"]: t for t in json.load(open(os.path.join(data, "loot_tables.json"), encoding="utf-8"))["entries"]}
+    """{creature: the items its loot table and first defeat hand out} in the built data (enemies.json, loot_tables.json)."""
+    tables = {t["id"]: t for t in _table("loot_tables")["entries"]}
     out = {}
-    for e in json.load(open(os.path.join(data, "enemies.json"), encoding="utf-8"))["entries"]:
+    for e in _table("enemies")["entries"]:
         t = tables.get(e.get("loot", e["id"]), {})
         got = {x["item"] for k in ("guaranteed", "rare", "quest_drops", "named", "elite_named", "lost") for x in t.get(k, [])}
         got |= {x["item"] for g in t.get("groups", []) for x in g.get("pick", [])}
@@ -502,45 +514,40 @@ def _drops():
     return out
 
 
-def check_sources(errs):
-    """Each source a family names but does not write is found in the built data (wiki.py's channels); a part's named
-    creatures each drop it (their rows are the monster engine's, tools/data/enemies.py)."""
+def check_sources(errs, st=None):
+    """Each source a family names is found in the built data by wiki.py's channels (the shop lines and recipes it
+    writes too), and a part's named creatures each drop it (their rows are the monster engine's, enemies.py)."""
     sys.path.append(os.path.join(TOOLS, "dev"))
     import wiki
     found = wiki.Sources(wiki.Data()).run().by_item
     drops = _drops()
-    for m in state().members:
+    for m in (st or state()).members:
         creatures = (m.get("sources") or {}).get("drop")
         for c in creatures if isinstance(creatures, list) else []:
             if c not in drops:
                 errs.append("%s names the creature %s, which enemies.json does not hold" % (m["id"], c))
             elif m["id"] not in drops[c]:
                 errs.append("%s names %s, which does not drop it (its loot table is the monster engine's, enemies.py)" % (m["id"], c))
-        ids = [m["id"]]
         have = {c for _, c, _ in found.get(m["id"], set())}
-        named = {k for k in (m.get("sources") or {}) if k not in ("mark", "shop", "recipe")}
+        named = {k for k in (m.get("sources") or {}) if k in CHANNEL and k not in ("shop", "recipe")}
         if any(line[2]["item"] != "recipe_scroll" for line in m["lines"]):
             named.add("shop")
         if m["recipe"]:
             named.add("recipe")
         for key in sorted(named):
-            ch = CHANNEL[key]
-            if ch not in have:
-                errs.append("%s names %s (%s), but the built data hands it out by %s" % (m["id"], key, ch, ", ".join(sorted(have)) or "nothing"))
-        for i in ids:
-            mark = m["row"].get("source")
-            if not found.get(i) and not (mark in MARKS or (isinstance(mark, list) and mark and mark[0] in MARKS)):
-                errs.append("%s: no source in the built data (wiki.py --gaps)" % i)
+            if CHANNEL[key] not in have:
+                errs.append("%s names %s (%s), but the built data hands it out by %s" % (m["id"], key, CHANNEL[key], ", ".join(sorted(have)) or "nothing"))
+        mark = m["row"].get("source")
+        if not have and not (mark in MARKS or (isinstance(mark, list) and mark and mark[0] in MARKS)):
+            errs.append("%s: no source in the built data (wiki.py --gaps)" % m["id"])
     return errs
 
 
-def check_built(errs):
+def check_built(errs, st=None):
     """The built tables hold every member as the engine writes it (build_data.py --check proves the files current)."""
-    data = os.path.join(TOOLS, "..", "data")
-    tables = {t: {r["id"]: r for r in json.load(open(os.path.join(data, t + ".json"), encoding="utf-8"))["entries"]}
-              for t in ("items", "artifacts", "recipes")}
-    manifest = json.load(open(os.path.join(data, "icon_manifest.json"), encoding="utf-8"))
-    for m in state().members:
+    tables = {t: {r["id"]: r for r in _table(t)["entries"]} for t in ("items", "artifacts", "recipes")}
+    manifest = _table("icon_manifest")
+    for m in (st or state()).members:
         if tables[m["table"]].get(m["id"]) != m["row"]:
             errs.append("%s: data/%s.json does not hold the engine's row (run build_data.py)" % (m["id"], m["table"]))
         if m["recipe"] and tables["recipes"].get(m["recipe"]["row"]["id"], {}).get("outputs") != m["recipe"]["row"]["outputs"]:
@@ -551,15 +558,37 @@ def check_built(errs):
     return errs
 
 
+def check_icons(errs, st=None):
+    """Each pill family's icon renders the same bytes twice, and the same as the PNGs on disk (build_icons.py)."""
+    sys.path.insert(0, os.path.join(TOOLS, "icons"))
+    import build_icons
+    from registry import HD_SIZE, REGISTRY
+    for row in pill_icons(st):
+        ident = row[0]
+        fam = REGISTRY[ident]["family"]
+
+        def png(img):
+            buf = io.BytesIO()
+            img.save(buf, format="PNG", optimize=False, compress_level=9)
+            return buf.getvalue()
+        a, b = build_icons.render_hd(ident), build_icons.render_hd(ident)
+        for n in a:
+            if png(a[n]) != png(b[n]):
+                errs.append("icon %s@%d renders differently twice" % (ident, n))
+            path = os.path.join(build_icons.ICON_DIR, fam, ident + (".png" if n == HD_SIZE[fam] else "@%d.png" % n))
+            if not os.path.exists(path) or open(path, "rb").read() != png(a[n]):
+                errs.append("icon %s@%d is not current on disk (tools/icons/build_icons.py)" % (ident, n))
+    return errs
+
+
 def deterministic(errs):
     """Two compiles write the same bytes."""
     def dump():
         st = state()
-        return json.dumps([[m["row"], m["recipe"] and m["recipe"]["row"], m["lines"], m["icon"]] for m in st.members], sort_keys=False)
+        return json.dumps([[m["row"], m["recipe"] and m["recipe"]["row"], m["lines"], m["icon"]] for m in st.members])
     a = dump()
     reset()
-    b = dump()
-    if a != b:
+    if a != dump():
         errs.append("two compiles differ: the engine is not deterministic")
     return errs
 
@@ -567,26 +596,28 @@ def deterministic(errs):
 def main(argv=None):
     import argparse
     ap = argparse.ArgumentParser(prog="engine.py", description=__doc__.strip().split("\n\n")[0])
-    ap.add_argument("--check", action="store_true", help="the gate: specs, determinism, the built data, sources, icons")
+    ap.add_argument("--check", action="store_true", help="the gate: the specs, determinism, the built data, the sources, the icons, tests.py")
     ap.add_argument("--list", action="store_true", help="every family and its members")
     args = ap.parse_args(argv)
     st = state()
     if args.list:
         for fam in st.families:
             ms = [m for m in st.members if m["fid"] == fam.fid]
-            print("%-28s %-6s %s" % (fam.fid, fam.kind, ", ".join("%s (%s)" % (m["id"], m["grade"]) for m in ms)))
+            print("%-24s %-8s %s" % (fam.fid, fam.kind, ", ".join("%s (%s)" % (m["id"], m["grade"]) for m in ms)))
         return 0
     errs = []
     deterministic(errs)
     check_built(errs)
     check_sources(errs)
+    check_icons(errs)
     from . import tests
-    errs += tests.run()
+    ran, failed = tests.run()
+    errs += failed
     if errs:
         print("item engine:\n  " + "\n  ".join(errs), file=sys.stderr)
         return 1
-    fams = len(st.families)
-    print("item engine: %d families, %d members (%d recipes, %d shop lines, %d pill icons); specs, determinism, the built "
-          "data, sources and icons hold" % (fams, len(st.members), sum(1 for m in st.members if m["recipe"]),
-                                              sum(len(m["lines"]) for m in st.members), len(pill_icons())))
+    st = state()
+    print("item engine: %d families, %d members (%d recipes, %d shop lines, %d pill icons); %d tests; the specs, determinism, the "
+          "built data, the sources and the icons hold" % (len(st.families), len(st.members), sum(1 for m in st.members if m["recipe"]),
+                                                           sum(len(m["lines"]) for m in st.members), len(pill_icons()), ran))
     return 0
