@@ -1,7 +1,7 @@
 extends "res://tests/prologue_run.gd"
-## topdown_drowned_shrine (R2; docs/architecture/room_engine.md, "The Drowned Shrine and Whitewater Gorge"): the ten rooms
-## the room engine laid out from the side view south and west of Bend Shore, played on the height grid by a top-down
-## character. Test shortcuts carry a new character to Bend Shore with the story before chapter 5 done, at Heart
+## topdown_drowned_shrine (R2; docs/architecture/room_engine.md, "The Drowned Shrine and Whitewater Gorge (R2)"): the
+## ten rooms the room engine laid out from the side view south and west of Bend Shore, played on the height grid by a
+## top-down character. Test shortcuts carry a new character to Bend Shore with the story before chapter 5 done, at Heart
 ## Tempering 1 (the realm the shrine and the gorge ask), with a sturdy body (the fights are the rooms', not the
 ## balance's); quests are taken and handed in where they stand (their givers are the sects' mentors, far off). From
 ## there it is played through the World authority:

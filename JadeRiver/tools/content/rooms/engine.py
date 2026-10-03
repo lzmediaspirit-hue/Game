@@ -884,7 +884,8 @@ class Build:
         """Where a band's flora grows, as (habitat, cells, spacing along it): a meadow's or a terrace's `back` (trees
         among bushes) and its `lip` along the south edge (bushes, grass, rocks: nothing that hides what stands below
         it); a cliff's `foot`; a road's `verge` each side (no tree on a road's shoulder); the water's `bank_back`
-        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus)."""
+        (willows), its `bank` (grass, reeds), its `shallow` cells by the land (cattails) and the open `water` (lotus); a
+        floor under shallow water (R2: `q`, `h`) is `shallow` all over."""
         W, H = self.w, self.h
         lv = self.lay.lv
 

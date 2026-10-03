@@ -29,10 +29,10 @@ extends RefCounted
 ## its neighbours, its `takes` the materials that may lie over it. The layers go: the base, sand creeping over a path
 ## or paving, the damp (`wet`) tint where sand touches the water, grass over the path or the sand, then snow over all of
 ## it. The water by sand (`beach`) shows the sand through its shallows (`v2.water.beach`).
-## R2 (tools/art/topdown/flood.py): a mark that `flood`s (the Drowned Shrine's flagstones, a river's pebbled bed) is a floor
-## under shallow water a body wades through: over its top lies the water's overlay (`v2.flood`) of its corner case, a
-## corner flooded where every cell round it in the room is a flooded mark or open water, so the water's edge wanders
-## through the flooded cells along dry floor.
+## R2 (tools/art/topdown/flood.py): a mark that `flood`s (the Drowned Shrine's flagstones, a river's pebbled bed) is a
+## floor under shallow water a body wades through: over its top lies the water's overlay (`v2.flood`) of its corner
+## case, a corner flooded where every cell round it in the room is a flooded mark or open water, so the water's edge
+## wanders through the flooded cells along dry floor.
 ## Every pick is a pure function of the room (its id seeds the hashes), so a room always looks the same.
 
 const T := 16.0
