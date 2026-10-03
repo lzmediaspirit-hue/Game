@@ -49,6 +49,9 @@ the game changed.
   - `rules_tests` reads one building again. S2's rounds and its frame-by-frame settling are gone, the budgets (4 ms a
     piece, 8 ms a frame) are unchanged, and the suite still has 2,712 checks.
   - `tests/README.md` is updated to match.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with E1 and E4. Every gate passed, `boot` among them, and so
+  did all 21 suites: 73,773 checks, 0 failures and no SCRIPT ERROR. Every suite kept its count. `build_data.py` writes
+  0 of 302 files.
 
 ## The room engine: rooms from short specs, and chapter 3 on the grid (decision 45, E1)
 
