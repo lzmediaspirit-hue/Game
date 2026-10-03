@@ -167,7 +167,7 @@ The core file keeps these sections:
 
 ## WorldAuthority's parts (S9)
 
-`world_authority.gd` went from 2,321 lines to 430. Its facade is 106 one-line forwarders: 91 for public methods,
+`world_authority.gd` went from 2,321 lines to 433. Its facade is 106 one-line forwarders: 91 for public methods,
 including the new `apply_loot_drop` (BUG-05), and 15 for private names that tests and `ObjectView` call. The parts
 hold 2,133 lines.
 

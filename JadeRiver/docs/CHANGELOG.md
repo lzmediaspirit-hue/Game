@@ -3,7 +3,7 @@
 ## The World authority in parts (decision 45, S9)
 
 This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
-`world_authority.gd` had 2,321 lines in 16 sections. It now has 430, and the rest of its work is in 14 parts under
+`world_authority.gd` had 2,321 lines in 16 sections. It now has 433, and the rest of its work is in 14 parts under
 `scripts/simulation/authority/world/`.
 
 The code moved as it was. The game plays the same, every caller still calls `Game.world.<method>` by the same name,
@@ -23,6 +23,12 @@ and the save data is untouched.
     helper that another part keeps to itself on that part (`world.loot.drop_loot`).
   - The tests and `ObjectView` call 15 private helpers by name, such as `_start_event`, `_drop_loot` and `_verb`. Their
     forwarders keep those names until S11 gives them public ones.
+  - Unlike the other split authorities, `WorldAuthority` keeps its part members untyped.
+    - Typed, they put the parts in a cycle with the authority while `Game` boots. Godot's analyzer then leaves
+      `ActorState`'s untyped members unresolved for every script it compiles later.
+    - `rules_tests.gd` failed to parse, and the suite hung.
+    - `authority_parts.md` has the details. The room events part is `room_events`, because `ActorState` already has
+      an `events` member.
 - **The parts** (`world_<part>.gd`), 2,133 lines in all, plus the 29-line base:
   - ambushes;
   - rare herbs and their guardians;

@@ -1055,9 +1055,11 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
 
 ### Status (phase 2, S9): the World authority in parts, done
 
-- **`world_authority.gd` had 2,321 lines and now has 430.** It keeps the state, the intents, the subscriptions, the
+- **`world_authority.gd` had 2,321 lines and now has 433.** It keeps the state, the intents, the subscriptions, the
   room's lifecycle (loading and entering a room, the character's memory of it), the tick and a forwarder for every
   public method.
+- **Its part members are untyped.** Typed, they made a cycle at boot that left `ActorState`'s untyped members
+  unresolved for later scripts, so `rules_tests.gd` failed to parse (`authority_parts.md`, S9).
 - **The work is in 14 parts under `authority/world/`**, 2,133 lines in all, plus the 29-line base `WorldPart`. They
   follow the pattern in `docs/architecture/authority_parts.md`, which lists them:
   - ambushes, rare herbs, and portals with routes, teleports and Spirit Sense;
