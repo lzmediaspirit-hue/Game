@@ -1608,7 +1608,7 @@ def main_quests():
         offer=["Stand in the circle at the summit. Let heaven wash you."], complete=["You saw someone in the light. A man with a river in his eyes. Yan Heng..."])
     quest("the_shrine_surfaces", "The Shrine Surfaces", "main", "elder_hu", [
         o("reach_room", "Enter the Drowned Shrine", room="ds_flooded_gate"),
-    ], [], offered_by_unlock=True, chapter="5", giver_any=M, hand_in_any=M,
+    ], [], offered_by_unlock=True, chapter="5", giver_any=M, hand_in_any=M, target_room="ds_flooded_gate",
         offer=["The Drowned Shrine has risen at Deepwater Bend. Lu's handwriting is on the old maps."], complete=["Go deeper."])
     quest("lus_handwriting", "Lu's Handwriting", "main", "elder_hu", [
         o("interact_object", "Find Lu's inscriptions", 4, type="inspect", room="ds_hall_of_lanterns"),

@@ -13,8 +13,10 @@ extends "res://tests/prologue_run.gd"
 ##      Road from Elder Gu, six more and the Hideout's key; the Mudwater Hideout, its four rooms walked to Big Toad Tan
 ##      and handed in; Gu's Cargo, the cart escorted to Bend Shore; the tracker leading into these rooms on the way;
 ##   4. past chapter 3 the story's next quest (Toward Cleansing Peak, at the Pilgrim Stairs) is played past the
-##      prototype's gate: the tracker's first entry is the prototype's end, and Bend Shore's ways west, to the Serpent's
-##      Shallows and to the Drowned Shrine are gated.
+##      prototype's gate exactly while its room has no layout (R1 laid it out; topdown_chapter4 plays chapter 4); where
+##      the story first leads past the gate the tracker's first entry is the prototype's end; every way out of these
+##      rooms into a room with no layout yet (Bend Shore's west, to the Serpent's Shallows and to the Drowned Shrine,
+##      until their rooms are laid out) is gated, every way on the grid open.
 ## Run headless:  godot --headless --path . res://tests/topdown_chapter3.tscn [-- --verbose]
 
 const ROOMS := ["cr_caravan_road", "mh_stockade", "mh_tunnels", "mh_loot_cave", "mh_boss_den", "dw_bend_shore"]
@@ -209,14 +211,20 @@ func _the_rooms() -> void:
 	check(walk_misses.is_empty(), "in every room of chapter 3 auto-path reaches every thing and way from the spawn and every way in (%s)" % str(walk_misses.slice(0, 6)))
 	check(view_misses.is_empty(), "the top-down view built every room of chapter 3: a figure for each person and thing, a mark for each way (%s)" % str(view_misses.slice(0, 4)))
 
-# ------------------------------------------------------------------ 4: the prototype's end past chapter 3
+# ------------------------------------------------------------------ 4: the prototype's frontier past chapter 3
+## Past chapter 3 the story's next quest, Toward Cleansing Peak, is played past the prototype's gate exactly while the
+## Pilgrim Stairs have no layout (R1 laid them out: topdown_chapter4 plays chapter 4). The story inside the prototype
+## stands done as it comes (a test shortcut), and where it first leads past the gate the tracker's first entry is the
+## prototype's end. Every way out of chapter 3's rooms into a room with no layout yet is closed by the gate, and every
+## way on the grid is open, whichever rooms the batches have laid out.
 func _past_the_chapter() -> void:
 	var waiting: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS)
-	check(not waiting.is_empty() and str(waiting[0].id) == "toward_cleansing_peak" and Game.quest.beyond_prototype(c(), waiting[0]),
-		"past chapter 3 the story's next quest is Toward Cleansing Peak, past the prototype's gate (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
-	# The lessons inside the prototype first (a test shortcut: done as they come, and those under way), then the
+	check(not waiting.is_empty() and str(waiting[0].id) == "toward_cleansing_peak"
+		and Game.quest.beyond_prototype(c(), waiting[0]) == not TopdownRoom.has_layout(str(waiting[0].get("target_room", ""))),
+		"past chapter 3 the story's next quest is Toward Cleansing Peak, past the prototype's gate exactly while the Pilgrim Stairs have no layout (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
+	# The lessons and the story inside the prototype (a test shortcut: done as they come, and those under way), then the
 	# prototype's end.
-	for i in 12:
+	for i in 60:
 		for q in c().quests.active.keys().duplicate():
 			if str(Game.quest.quest_def(c(), str(q)).get("kind", "")) == "guided":
 				c().quests.active.erase(q)
@@ -230,10 +238,15 @@ func _past_the_chapter() -> void:
 	var head: Dictionary = tr[0] if not tr.is_empty() else {}
 	check(head.get("gate", false) and str(head.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(head.get("target_room", "x")) == "",
 		"then the tracker's first entry is the prototype's end, leading nowhere (%s)" % str(head))
-	check(travel("dw_bend_shore"), "at Bend Shore (room %s)" % room())
 	var gated: Array = []
-	for pid in ["west", "shallows", "shrine"]:
-		var way: Dictionary = Game.room_rt.portal_def(pid)
-		var gs: Dictionary = Game.world.portal_state(c(), way)
-		if gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn"): gated.append(pid)
-	check(gated == ["west", "shallows", "shrine"], "Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine are closed by the prototype's gate (%s)" % str(gated))
+	var wrong: Array = []
+	for rid in ROOMS:
+		Game.world.load_room(c(), rid, "")
+		GameEvents.flush()
+		for way in Game.room_rt.def.get("portals", []):
+			var gs: Dictionary = Game.world.portal_state(c(), way)
+			var off_grid := not TopdownRoom.has_layout(str(way.get("to", "")))
+			var shut: bool = gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+			if off_grid: gated.append("%s:%s" % [rid, str(way.id)])
+			if shut != off_grid: wrong.append("%s:%s %s" % [rid, str(way.id), str(gs)])
+	check(wrong.is_empty(), "every way out of chapter 3's rooms into a room with no layout yet is closed by the prototype's gate, every way on the grid is not (gated %s; wrong %s)" % [str(gated), str(wrong.slice(0, 4))])

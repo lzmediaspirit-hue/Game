@@ -209,7 +209,9 @@ func s_keep_whole(on: bool) -> void:
 		get_tree().physics_frame.connect(_whole)
 
 func _whole() -> void:
-	if whole_hook.on and Game.active() != null and Game.active().pools.max_hp > 0.0: Game.active().pools.hp = Game.active().pools.max_hp
+	if whole_hook.on and Game.active() != null and Game.active().pools.max_hp > 0.0:
+		Game.active().pools.hp = Game.active().pools.max_hp
+		Game.combat.wounded.erase(Game.active_id)   # never left down by a blow bigger than the whole bar (R1)
 
 ## `n` frames, the steps of `events` ({frame: [steps]}) run on their frame; with `grab` [every, at, most, w, h] a crop
 ## round the body kept into `into` on the frames where f % every == at; `move` [[from, to, axis]] holds the stick;

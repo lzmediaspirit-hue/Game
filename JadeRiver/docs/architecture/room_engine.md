@@ -129,8 +129,10 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
   - in every room the engine lays out, auto-path (no running jump) reaches every thing and way from every way in.
 - `places.py --check`, `room_lint.py`, `sect_walks.py --check`, `build_data.py --check`: unchanged, and green.
 - `tests/topdown_chapter3.tscn`: chapter 3 played on the grid through the six new rooms (see below).
+- `tests/topdown_chapter4.tscn`: chapter 4 played on the grid along the road east, and the rooms beside it (R1, below).
 - The capture set `room_engine` (`tools/dev/capture/shots.gd`, `E1_VIEWS`): each converted room under the HUD, the world
-  alone at x2, and whole, into `docs/architecture/room_engine/`.
+  alone at x2, and whole, into `docs/architecture/room_engine/` (a batch's views under its own folder: `r1/`). The set
+  keeps the body whole (`keep_whole`, which also never leaves it wounded), so a foe the room spawns does not lay it down.
 
 ## The migration (the round trip)
 
@@ -174,12 +176,18 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
    - no ruled line where nature would not draw one.
 
    Fix what looks wrong in the spec: a band's `wavy`, a feature's `shape="round"`, a density, an anchor, a pin.
-6. The layout's file opens the gate: a top-down character walks in. Tests that name the prototype's frontier move with
-   it:
-   - `topdown_tutorial` stands the converted chapter done;
-   - `topdown_chapter3`'s last checks name the gated ways at its end;
-   - `rules_tests`' prototype checks name the Fairground's gated ways and the chapters done at the story's end, and
-     hold every way still gated to the gate.
+6. The layout's file opens the gate: a top-down character walks in. The tests of the prototype's frontier follow it
+   by themselves since R1; none names a gated way or a converted chapter:
+   - `topdown_tutorial` walks to the nearest way off the grid from the Marsh Edge (a breadth-first search over the ways
+     open to it) and checks its gate there; the story's quests on the grid past chapter 3 stand done as they come, to
+     the first one played past the gate; the Trial Tower's door is a gate while the tower has no layout;
+   - `topdown_chapter3` and `topdown_chapter4` end on every way out of their rooms: gated exactly when its room has no
+     layout;
+   - `rules_tests`' prototype checks hold every way into a room without a layout to the gate, show the view's barrier
+     and the walked-into plate at the first such way, and stand the story done to the first quest past the gate.
+
+   A batch that converts rooms touches none of them. A quest that should end the prototype names its room
+   (`target_room`), as The Shrine Surfaces now does.
 
 ## The first rooms: chapter 3
 
@@ -204,9 +212,64 @@ Each picture also has an x2 copy under `world/`.
 Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. The side view's
 crumbling boards in the tunnels have no top-down counterpart.
 
+**The frontier then** (E1): Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine; the Marsh
+Edge's way east; the sects' halls and abodes; the Trial Tower; the Quarry Road; the Beast Grove; the County Hall; Gu's
+Warehouse. Toward Cleansing Peak was past the gate. R1 opened the Marsh Edge's way east (below).
+
+## The road east: chapter 4 (R1)
+
+The ten rooms on the main story's path past the Marsh Edge, now on the grid: the road east through the Reed Marsh, the
+Bamboo Grove and Crane Falls up Cleansing Peak, and the three rooms beside it. Chapter 4 plays there end to end:
+- Toward Cleansing Peak: from the mentor's peak along the road to the Pilgrim Stairs, three Stone Guardians;
+- The Rite: Heaven's Cleansing passed in the summit's rite circle.
+
+Beside the road, `topdown_chapter4` also plays Greyreed Hamlet's Grey Roofs (the grey lanterns cleansed on the hall's
+and the granary's roofs, reached up a crate stack, as the Fisher's Hut's roof is) and Cleansing the Well, takes Lu's
+journal page behind the falls, and visits the hermit.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r1/`) |
+|---|---|---|---|
+| `rm_grey_pools` | 21 | `grey_marsh` | `01_grey_pools_jetty`, `02_grey_pools_hamlet_way`, `rooms/rm_grey_pools` |
+| `rm_sunken_causeway` | 20 | `reed_marsh` | `03_sunken_causeway`, `rooms/rm_sunken_causeway` |
+| `rm_hermit_stilt_house` | 17 | `reed_marsh` | `04_hermit_stilt_house`, `rooms/rm_hermit_stilt_house` |
+| `gh_hamlet_square` | 17 | `grey_marsh` | `05_hamlet_square`, `rooms/gh_hamlet_square` |
+| `bg_whispering_bamboo` | 19 | `bamboo` | `06_whispering_bamboo`, `rooms/bg_whispering_bamboo` |
+| `bg_thicket_heart` | 22 | `bamboo` | `07_thicket_heart`, `rooms/bg_thicket_heart` |
+| `cf_falls_pool` | 23 | `falls` | `08_falls_pool`, `rooms/cf_falls_pool` |
+| `cf_behind_falls` | 13 | `cave` | `09_behind_falls`, `rooms/cf_behind_falls` |
+| `cp_pilgrim_stairs` | 16 | `mountain` | `10_pilgrim_stairs_foot`, `11_pilgrim_stairs_landing`, `rooms/cp_pilgrim_stairs` |
+| `cp_cleansing_summit` | 16 | `mountain` | `12_cleansing_summit`, `rooms/cp_cleansing_summit` |
+
+The capture's x2 copies of the world alone match the pictures under the HUD here and are not kept. The specs:
+`specs/reed_marsh.py` (after the Marsh Edge), `greyreed_hamlet.py`, `bamboo_grove.py`, `crane_falls.py`,
+`cleansing_peak.py`.
+
+**Biomes and an engine rule.**
+- Five biomes: `reed_marsh` (willows, reeds, cattails, lotus), `grey_marsh` (dead trees, grey reeds, stumps and logs
+  where the Hollowing drank the marsh), `bamboo`, `falls` (pines and maples, mossy rocks, ferns), `mountain` (pines on
+  the ledges, bare rock).
+- Two knobs a biome may set: `tree_share`, the share of trees where trees grow (0.6), and `tree_gap`, how far apart its
+  trees stand (5 cells). The grove's bamboo stands at 0.8 and 3. Every other room compiles byte for byte as before.
+
+**How the side view's verticality came down.** A raised surface became a level: the canopy decks are wooden platforms
+on stilts with their ladders, the lily ledge and the knolls round rocks with steps, the pilgrims' landings granite
+terraces between three flights, the hermit's deck a level-2 floor over his pond. A rope bridge or a raft became a
+boardwalk or stepping stones across the water; the hamlet's roofs are reached up crate stacks. The terraces' and banks'
+lips wander (`wavy`), each laid over the one below it, with the stair landings fixed as features.
+
+**Still to do in these rooms.**
+- Foes with no top-down art yet (the view draws stand-ins; E2's work): the bamboo monkey, the green viper, the
+  thornback boar, the Stone Guardian, and the wild pets ember fox and jade crane chick. The greyfin, the hollowed
+  boarlet and the marsh leech have theirs.
+- The side view's movers (the Grey Pools' rafts, the hermit's raft), the falls' updraft and the vines have no
+  top-down counterpart; Leaf on the Wind's glide is the side view's.
+- A set piece's waves are called to the side view's points, read as world units on the grid: the summit is 28 rows
+  deep and the Pilgrim Stairs 72 cells wide so that Heaven's Cleansing's and the Iron Body trial's points land on open
+  ground. Converting their points is the engine's work, not a room's.
+
 **The frontier now:**
 - Bend Shore's ways west (Whitewater Gorge), to the Serpent's Shallows and to the Drowned Shrine;
-- the Marsh Edge's way east;
+- the Falls Pool's misty path to the Hidden Vale;
 - the sects' halls and abodes;
 - the Trial Tower;
 - the Quarry Road;
@@ -214,19 +277,18 @@ crumbling boards in the tunnels have no top-down counterpart.
 - the County Hall;
 - Gu's Warehouse.
 
-The story's next quest past it, Toward Cleansing Peak (the Pilgrim Stairs), is past the gate.
+The story's next quest past chapter 4, The Shrine Surfaces (the Drowned Shrine), is past the gate.
 
 ## The rooms left, and the pace
 
-135 side-view rooms remain, by zone (`region`):
+125 side-view rooms remain, by zone (`region`); the struck ones are done:
 
-- **Reed Marsh and its neighbours:**
-  - `reed_marsh`: `rm_grey_pools`, `rm_sunken_causeway`, `rm_hermit_stilt_house`;
-  - `greyreed_hamlet`: `gh_hamlet_square`;
-  - `bamboo_grove`: `bg_whispering_bamboo`, `bg_thicket_heart`;
-  - `crane_falls`: `cf_falls_pool`, `cf_behind_falls`;
-  - `cleansing_peak`: `cp_pilgrim_stairs`, `cp_cleansing_summit`. This is chapter 4's path, the next stretch of the
-    main story.
+- **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
+  - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
+  - `greyreed_hamlet`: ~~`gh_hamlet_square`~~;
+  - `bamboo_grove`: ~~`bg_whispering_bamboo`~~, ~~`bg_thicket_heart`~~;
+  - `crane_falls`: ~~`cf_falls_pool`~~, ~~`cf_behind_falls`~~;
+  - `cleansing_peak`: ~~`cp_pilgrim_stairs`~~, ~~`cp_cleansing_summit`~~. Chapter 4's path.
 - **Deepwater and the gorge:**
   - `deepwater_bend`: `dw_serpents_shallows`;
   - `drowned_shrine`: `ds_flooded_gate`, `ds_hall_of_lanterns`, `ds_scripture_well`, `ds_abbots_sanctum`,
