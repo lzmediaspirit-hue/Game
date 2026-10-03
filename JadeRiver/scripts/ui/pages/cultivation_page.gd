@@ -20,7 +20,8 @@ var speed_open := false    # decision 45: the Overview shows the cultivation spe
 ## is ui.cultivation.speed_way.<id>.
 const SPEED_WAYS := [["place", "", ""], ["qi_gathering_incense", "", "bone_forging_1"], ["congee", "", "bone_forging_2"],
 	["guqin", "", "bone_forging_2"], ["spring", "qi_springs", "bone_forging_7"], ["deep_current_incense", "", "qi_kindling_1"], ["method", "", ""],
-	["qi_flow_pill", "", "qi_kindling_5"], ["vow", "vows", "heart_tempering_1"], ["pet", "", "spirit_awakening_1"], ["paired", "", "sage_1"]]
+	["qi_flow_pill", "", "qi_kindling_5"], ["vow", "vows", "heart_tempering_1"], ["streams_pill", "", "cloud_stride_1"],
+	["pet", "", "spirit_awakening_1"], ["paired", "", "sage_1"]]
 const TOP_SCALE := 2      # decision 42: a top-down character's seated figure (TopdownDoll), screen px an art px
 var _seen_realm := ""      # the step the figure sat on at the last draw
 var _climb := {}           # {from: step index, at: page clock} while the figure climbs
