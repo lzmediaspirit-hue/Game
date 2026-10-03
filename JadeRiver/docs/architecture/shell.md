@@ -105,7 +105,7 @@ The side view is retiring (decision 45). `main.gd` keeps what it does for it in 
 - `const World`, the side view's script;
 - `_side_view()`, which `_add_world_view` mounts when the room has no top-down layout;
 - `_backdrop_follows_world()`, which shows the river backdrop behind the side view and hides it under the top-down
-  view. `_unmount_world` clears it.
+  view. `unmount_world` clears it.
 - `_swap_world_view()`, which `_on_game_event` calls on `room_entered` to swap the view when a character walks into a
   room of the other kind.
 

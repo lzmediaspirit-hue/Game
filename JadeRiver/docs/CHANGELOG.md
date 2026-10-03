@@ -1,5 +1,62 @@
 # Changelog
 
+## Public surfaces: no private cross-calls (decision 45, S11)
+
+This is phase 2, slice S11 of the code audit (`docs/architecture/audit_45.md` §2.3 and §7, BUG-05 and BUG-13). Every
+call from one script into another script's private method now goes through a public name, and `contract_tests` keeps
+it so. Only names changed: the game plays the same, and the save data is untouched.
+
+- **190 private methods got public names on their owners.** All 473 calls into them, in the game, the tests and the
+  tools, now use those names. Most names only lose the underscore (`Game.combat._damage_enemy` is
+  `Game.combat.damage_enemy`). Where the bare name was already taken or unclear, the method got a clearer one:
+  - the HUD's `_layout` and `_on` are `place_cluster` and `on_ring`, its parts' own names;
+  - `PetAuthority._pet` is `pet_of`, and `_trough` is `feed_from_trough`;
+  - `SectAuthority._on_expedition` is `is_on_expedition`, `EconomyAuthority._au_cfg` is `auction_config` and
+    `CalendarAuthority._phenomenon` is `raise_phenomenon`;
+  - `UiKit._heart` is `draw_heart`, `Audio._grid` is `music_grid`, `TechniquePicture._release` is
+    `release_all`, `Page._halo` is `halo_k`, and `main.gd`'s `_on_back` is `go_back`;
+  - TopdownLife's `_view`, `_critter`, `_bits`, `_puff` and `_ring` are `view_rect`, `add_critter`, `add_bits`,
+    `add_puff` and `add_ring`, and TopdownWorld's `_sync` is `sync_views`;
+  - the map's `_place`, `_region` and `_route` are `place_marks`, `region_of` and `route_to`. The Cultivation page's
+    `_steps` is `realm_steps`, the coach's `_lines` is `card_lines`, and TopdownAtmosphere's `_count` is `count_of`;
+  - the techniques page's `ShapeJob` has `family_x`, `place` and `route_box`. The page's three private wrappers
+    around them are gone, and the page calls `ShapeJob` itself.
+- **The old private names' forwarders are gone.** S8, S9, S10 and S6 kept 65 of them, so that tests and tools could
+  still call the split authorities and the HUD: 17 on Combat, 15 on World, 5 on Crafting, 12 on Progression and 16
+  on the HUD.
+  - 63 now carry their part's public name. On World, they moved into their parts' sections of the facade.
+  - Two were copies of a public method and are dropped: World's `_drop_loot`, the same as `apply_loot_drop`, and
+    Progression's `_spend_fate_next`, the same as `spend_fate_next`.
+  - `hud_tests` holds the HUD to the new names.
+- **BUG-05: done.** The last of the seven writes across authorities through private methods are public:
+  - `FieldAuthority` calls `game.combat.apply_status_to_enemy`;
+  - `AccountAuthority` calls `game.quest.refresh_offers`.
+- **BUG-07's leftovers: done.** The debug flags call `Game.combat.defeat`, `cast_illusion` and `start_step`,
+  `Game.progression.advance`, `Game.calendar.raise_phenomenon` and `AccountAuthority.with_ledger`.
+- **The brains share a public surface.** TopdownBrain and AllyBrain drove six of EnemyBrain's private helpers. They are
+  now EnemyBrain's public `set_state`, `wander`, `choose_attack`, `start_hop`, `hop` and `follow_edge`. They join the
+  eight rules TopdownBrain already called there (`target_position`, `sight`, `notices`, `gives_up`, `wind_up`,
+  `chase_speed`, `movement_of` and `out_of_reach_too_long`), so the brains' shared rules have one home.
+  - A separate `BrainKit` would have split one state machine's rules over two classes, so there is none.
+  - EnemyBrain's header names the shared surface. TopdownBrain's `auth._in_portal` is `EnemyAuthority.in_portal`.
+- **The rule.** `contract_tests` (`_public_surfaces`) reads every script under `scripts/`, `tests/` and `tools/`. It
+  fails on a call into another script's private method: `<expr>._name(…)`, `<expr>.call("_name", …)` or
+  `Callable(<expr>, "_name")`.
+  - **The one allowance:** a part under `authority/<name>/` or `scripts/hud/` calls its own owner's helpers through
+    its back-reference, as Combat's parts call `combat._dao_tier`. 27 calls use it today.
+  - Not counted, since none is another script's private method: calls on `self` and `super`, a script's own
+    private functions (called on another of its kind, or from its inner classes), and Godot's virtual callbacks
+    such as `_process` and `_gui_input`.
+  - `docs/architecture/authority_parts.md` ("Public surfaces") describes it.
+- **Proof.** Three violations were planted and then removed: `Game.combat._dao_tier` in a page,
+  `combat.blood_path._blood_cfg` (another part's helper) in a combat part, and `Game.combat.call("_dao_tier", …)`
+  in a tool. The rule failed on all three, by file and line. The suite also runs the rule on lines of its own: nine it
+  must catch and ten it must let through.
+- **The side view.** `world.gd` and `player.gd` keep their names. Two calls into `world.gd` are left out of the rule
+  with a `# side view` mark: `w._cast` and `w._on_event` in `perf_tests`' crowd, which runs in the side view. Renaming
+  them would only touch the side view, and S12 deletes it.
+- **Checks.** S11_CHECKS
+
 ## The World authority in parts (decision 45, S9)
 
 This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
