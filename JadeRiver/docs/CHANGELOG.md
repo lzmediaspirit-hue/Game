@@ -8,8 +8,8 @@ with the same spelling. `docs/architecture/shell.md` describes the shell.
 
 - **The debug flags moved to `scripts/dev/debug_args.gd`.**
   - `_handle_preview_args` was one 510-line chain of `if`s. The flags are now tables of rows, `[flag, handler, needs]`,
-    read in the same steps and order as before. Each handler is a small function: before the boot, the screen, the
-    preview character, the state the picture shows, and with `--capture` the picture.
+    and each row's handler is a small function. The tables are read in the same steps and order as before: before the
+    boot, the screen, the preview character, the state the picture shows, and with `--capture` the picture.
   - `main.gd` loads the script only when the game starts with arguments after `--`. That is the guard the flags always
     had, and a player's game, which has none, now never even loads the script.
   - The script is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state, and
@@ -27,6 +27,34 @@ with the same spelling. `docs/architecture/shell.md` describes the shell.
   following it, and the swap when a room of the other kind is entered. The `World` preload and the four side-view
   lines elsewhere (in `_add_world_view`, `_unmount_world` and `_on_game_event`) are marked `# side view`.
 - **Dead in `main.gd`:** `boot_report` was a member that only `_ready` read, and it is now a local.
+- **Found, not fixed:** `--capture` cannot take a top-down picture. Its wait reads `world.fx.fixed_step`, which only the
+  side view's `FxLayer` has, so on a top-down world it stops with a script error before the picture, as it did before.
+  The capture registry takes the top-down pictures.
+- **Checks.** The base is the tree before S7, and both sides ran on the same busy 4-core machine.
+  - Every suite's check count is the same as on the base, with no SCRIPT ERROR: 18 suites, 73,594 checks. Only
+    `perf_tests` failed, on its millisecond budgets, and it fails as often on the base under the same load.
+  - **Flag-driven pictures.** 28 command lines ran through `main.tscn` with `--capture`, on the base and on S7, under a
+    harness that pins the clock and the random seed, at `--fixed-fps 60`, each on fresh saves. A 29th, for `--mine=`,
+    `--assault=` and `--mount=`, ran on the base and on the merged tree. Together they use 80 of the 81 flags that are
+    left; the Max Test's `--max-character` is the one not used.
+    - 22 of the 25 pictures are byte-identical.
+    - The other three differ only in what the game draws by the wall clock: an array's spin, a sword of the swarm and
+      a ring's pulse. A second base run differs from the first in the same places.
+    - `--log-events` printed the same 21 events.
+    - The three top-down command lines stop at the same script error on both (above).
+    - After the merge with S2, S6, S8 and E6, nine of them ran again. Eight match the base byte for byte, and the ninth
+      differs only where S6 now shortens the context button's label.
+  - **The capture registry.** `--lint` is clean. The sets `phase1`, `hud`, `progression` and `places` (42 pictures) ran
+    under the same harness. 22 pictures are byte-identical. The rest differ only in the water, the swaying grass and
+    trees, and an array's spin, by about as much as two runs of the base differ from each other.
+  - **The tools that hand their arguments to `main`.** `prototype_qa` walks to Quiet River in the same 14 steps, with no
+    finds and no falls. `tutorial_prof` runs clean. README's own preview command runs through the main scene.
+  - `build_data.py` writes nothing (301 files current), and its `--check` and `tutorials.py --check` pass.
+  - **Boot and room loads** are within the noise. Over two interleaved rounds:
+    - `main.gd`'s `_ready` ended 3,467 and 3,511 ms after the engine started on the base, and 3,270 and 3,531 ms on S7;
+    - the page scripts were all warm at 12.4 and 11.2 s on the base, and 11.1 and 10.8 s on S7;
+    - rooms loaded in 30 and 28 ms on average on the base, and 32 and 31 ms on S7;
+    - Lotus Ferry was entered in 323 and 257 ms on the base, and 239 and 237 ms on S7.
 
 ## Tests: one suite base, the broken scripts gone, a steady performance gate (decision 45, S2)
 
