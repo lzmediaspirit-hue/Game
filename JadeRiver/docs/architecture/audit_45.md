@@ -988,7 +988,11 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   - Part files carry the authority's prefix (`combat_*.gd`). Only the `files` lists of the Combat events changed in
     `data/event_contract.json`.
 - **Dead code:** one local, `_resolve_plunge`'s `struck`. Every function of the file is still called.
-- **Checks:** STATUS_CHECKS_PLACEHOLDER
+- **Checks:**
+  - Every suite has the base's check count, with no script error. `rules_tests`, `balance_sim`, `hollow_night`,
+    `valley_run` and `contract_tests` pass.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike, at a load of about 14 on 4 cores.
+  - The data build is unchanged apart from the contract's Combat `files` lists.
 
 ## 8. Rerunning the audit
 

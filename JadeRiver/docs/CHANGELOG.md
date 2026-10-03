@@ -48,7 +48,28 @@ data is untouched.
     harm to the player, and the `apply_*` commands.
 - **Dead code.** One local was removed: `_resolve_plunge` counted the foes it struck in `struck` and never read it.
   Every function of the file is still called, by grep over `scripts/`, `tests/` and `tools/`.
-- **Checks.** CHECKS_PLACEHOLDER
+- **Checks.**
+  - The base, origin with S10, and S8 each ran the whole of `tools/run_tests.sh` side by side, on a shared 4-core
+    machine at a load of about 14. Every suite has the same check count on both, and neither has a script error.
+  - The guard suites pass on S8:
+    - `rules_tests`, 2,712 checks;
+    - `balance_sim`, 177;
+    - `hollow_night`, 76;
+    - `valley_run`, 3,000;
+    - `contract_tests`, 1,087.
+  - The technique pictures' main-thread time budget in `rules_tests` missed once in the full run, at 4.2 ms against 4.
+    It missed on the base in an earlier run too. Run alone, `rules_tests` passes all 2,712 checks.
+  - `perf_tests` misses its millisecond budgets on the base and on S8 alike at that load: 8 and 6 of its 18 checks in
+    the side-by-side runs.
+    - Over three interleaved rounds, the least of the fight frames does not lean either way. Fifteen monsters took
+      12.08 ms on the base and 10.92 ms on S8, the top-down fight 11.69 and 11.43 ms, and the sword swarm 15.44 and
+      16.30 ms.
+    - A part reads the authority through a weak reference. A part's method with its getter costs about 0.5 µs more
+      than reading the state directly.
+  - A comparison of each moved function with the base finds them all the same, apart from three changes. The
+    `combat.` prefixes and part calls are expected. The dead local is gone. And four ticks keep a local alias of the
+    authority's dictionary that they walk.
+  - The data build is unchanged apart from the event contract's Combat `files` lists.
 
 ## Tools: one capture registry, and the stale study and generators gone (decision 45, S3)
 
