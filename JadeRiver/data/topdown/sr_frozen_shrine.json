@@ -547,6 +547,64 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "ice",
+   "id": "shrine_ice",
+   "rect": [
+    15,
+    5,
+    25,
+    7
+   ]
+  },
+  {
+   "kind": "ice",
+   "id": "shrine_ice_2",
+   "rect": [
+    42,
+    5,
+    6,
+    5
+   ]
+  },
+  {
+   "kind": "crumble",
+   "id": "icicle_0_crumble",
+   "rect": [
+    13,
+    6,
+    2,
+    2
+   ],
+   "level": 3,
+   "look": "ice"
+  },
+  {
+   "kind": "crumble",
+   "id": "icicle_1_crumble",
+   "rect": [
+    13,
+    9,
+    2,
+    2
+   ],
+   "level": 3,
+   "look": "ice"
+  },
+  {
+   "kind": "crumble",
+   "id": "icicle_2_crumble",
+   "rect": [
+    40,
+    7,
+    2,
+    2
+   ],
+   "level": 3,
+   "look": "ice"
+  }
+ ],
  "vista": [
   {
    "edge": "n",

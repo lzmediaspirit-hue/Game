@@ -110,6 +110,15 @@
     16
    ]
   },
+  "icicle": {
+   "frames": 2,
+   "rect": [
+    0,
+    299,
+    16,
+    20
+   ]
+  },
   "ladder_foot": {
    "frames": 1,
    "rect": [

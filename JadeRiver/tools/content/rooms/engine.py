@@ -1212,7 +1212,7 @@ class Build:
     # hazard, ice and wind rows.
     TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level", "look"), "updraft": ("rect", "top", "speed"),
                      "bounce": ("rect", "speed", "look"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
-                     "crumble": ("rect", "level", "break_s", "return_s", "under"), "current": ("rect", "push"), "flood": ("rect", "top"),
+                     "crumble": ("rect", "level", "break_s", "return_s", "under", "look"), "current": ("rect", "push"), "flood": ("rect", "top"),
                      "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top"),
                      "hatch": ("rect",), "lantern": ("at", "size", "level", "mode", "length", "amp_deg", "period_s", "phase_deg", "radius"),
                      "hazard": ("rect",), "ice": ("rect",), "wind": ("rect",)}

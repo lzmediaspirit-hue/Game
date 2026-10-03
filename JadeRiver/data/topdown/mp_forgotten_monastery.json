@@ -762,6 +762,32 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "crumble",
+   "id": "west_floor_crumble",
+   "rect": [
+    19,
+    6,
+    5,
+    4
+   ],
+   "level": 4,
+   "under": 3
+  },
+  {
+   "kind": "crumble",
+   "id": "east_gallery_crumble",
+   "rect": [
+    45,
+    13,
+    6,
+    2
+   ],
+   "level": 2,
+   "under": 1
+  }
+ ],
  "vista": [
   {
    "edge": "n",

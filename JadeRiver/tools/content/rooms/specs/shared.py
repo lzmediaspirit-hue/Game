@@ -3,10 +3,10 @@ walled yard and a sect's Weapon Hall. Each returns a room's spec; the zone's mod
 from content.rooms.spec import room
 
 
-def trial_yard(rid, banner, features, props, bell):
+def trial_yard(rid, banner, features, props, bell, traverse=None):
     """The walled yard of an Entry Trial behind its trial hall on the Fairground: the gateway back in the south wall
     between the sect's banners, stone lanterns round a sand ring where the Trial Puppet steps out once the bell has
-    rung. The climb to the bell is each sect's own (`features`, `props`, the `bell`'s cell)."""
+    rung. The climb to the bell is each sect's own (`features`, `props`, the `bell`'s cell, T2's `traverse` rows)."""
     return room(
         rid, size=(40, 24), base="p", walls=dict(high=2, low=1),
         features=[
@@ -27,7 +27,8 @@ def trial_yard(rid, banner, features, props, bell):
             ("barrel", 1, 14),
             # Foliage (decision 40): bushes on the front lawns, potted plants along the yard's front.
             ("bush_azalea", 4, 18), ("ferns", 1, 21), ("bush", 33, 21), ("pot_bonsai", 14, 22), ("pot_orchid", 26, 22),
-        ] + props})
+        ] + props},
+        **({"traverse": traverse} if traverse else {}))
 
 
 def weapon_hall(rid, banner, master, smith, anvil, dummies):

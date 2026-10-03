@@ -23,6 +23,9 @@ BG_WHISPERING_BAMBOO = room(
              "rift_tear": "grove_s@36", "spirit_fruit_tree": "grove_s@10"},
     flora={"hill": dict(density=0.9), "grove_n": dict(density=0.9), "grove_s": dict(density=0.7), "copse": dict(density=1.0),
            "copse_2": dict(density=1.0)},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's bent bamboo, a culm bowed over into a springboard at
+    # the east knoll's foot beside its flight: a landing on it bounces a body up onto the knoll where the chest is.
+    traverse=[("bounce", "bent_bamboo_bounce", dict(rect=(42, 7, 2, 1), look="bamboo"))],
     foes="auto")
 
 # The Thicket Heart: the grove's densest part, thorn thickets either side of the path, and the canopy decks the hunters

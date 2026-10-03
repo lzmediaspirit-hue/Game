@@ -39,6 +39,8 @@ T2 (the rows T1 left; topdown_mechanics.md):
   ice_0..1      ice glazed over a floor (16 x 16): a pale blue sheen, white streaks, a glint moving across
   wind_0..2     a curl of wind-blown snow and grit (12 x 5)
   ripple_0..1   the ring of water round a swimmer's chest (24 x 8)
+  icicle_0..1   a shelf of ice a cell (16 x 20), the crumble's ice look: blue-white ice, icicles hanging off its south
+                face; cracked across in the second frame
 """
 from __future__ import annotations
 
@@ -610,6 +612,28 @@ def wind(s: Img, f: int = 0) -> None:
             s.put(x, y, alpha(SNOW2[6], 230 - k * 18))
 
 
+def icicle(s: Img, f: int = 0) -> None:
+    """A shelf of ice a cell (16 x 20): its top pale and lit at the upper left, frost along its grain, its south face in
+    blue shadow with icicles hanging off it; in frame 1 cracked across the middle (stood on)."""
+    for y in range(0, 14):
+        for x in range(16):
+            col = SNOW2[6] if x + y < 6 else SNOW2[5] if y < 11 else SNOW2[4]
+            if h01(x, y, 91) < 0.1:
+                col = SNOW2[6]
+            s.put(x, y, col)
+    for x in range(16):
+        s.put(x, 14, SNOW2[3])
+        s.put(x, 15, SNOW2[2])
+    for k, x in enumerate((1, 4, 6, 9, 12, 14)):   # the icicles
+        n = 2 + int(h01(k, 2, 92) * 3)
+        for y in range(16, 16 + n):
+            s.put(x, y, SNOW2[4] if y < 16 + n - 1 else SNOW2[5])
+    if f:   # the crack
+        for x in range(1, 15):
+            s.put(x, 6 + (x % 3 == 0) - (x % 5 == 0), SNOW2[1])
+    s.outline()
+
+
 def ripple(s: Img, f: int = 0) -> None:
     """The ring of water round a swimmer's chest (24 x 8): a broken ellipse of foam, wider in frame 1."""
     rx, ry = 10.0 + f, 2.6 + f * 0.4
@@ -649,6 +673,7 @@ SPRITES = {
     "ice": (16, 16, 2, ice),
     "wind": (12, 5, 3, wind),
     "ripple": (24, 8, 2, ripple),
+    "icicle": (16, 20, 2, icicle),
 }
 
 

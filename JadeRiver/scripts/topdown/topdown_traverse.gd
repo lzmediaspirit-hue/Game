@@ -81,7 +81,7 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			var hole := str(under) if under is String else ""
 			t.crumbles.append({"id": id, "kind": kind, "rect": Rect2(float(cc[0]) * T, float(cc[1]) * T, float(cc[2]) * T, float(cc[3]) * T),
 				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL, "break_s": float(r.get("break_s", 0.8)), "return_s": float(r.get("return_s", 5.0)),
-				"start": -1.0, "flush": under != null, "hole": hole,
+				"start": -1.0, "flush": under != null, "hole": hole, "look": str(r.get("look", "boards")),
 				"under": TopdownRoom.WATER_Z if hole != "" else (float(under) * TopdownRoom.LEVEL if under != null else -INF)})
 		elif kind == "hatch":
 			var hc: Array = r.get("rect", [0, 0, 1, 1])

@@ -496,6 +496,8 @@ def check_traverse(s, d, g, walked):
                 errs.append("%s %s: no %s volume of that id in the side-view room" % (kind, tid, want))
             x, y, w, h = r["rect"]
             cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)]
+            if kind == "crumble" and r.get("look", "boards") not in ("boards", "ice"):
+                errs.append("crumble %s: look %r is neither boards nor ice" % (tid, r.get("look")))
             if x < 0 or y < 0 or x + w > g.w or y + h > g.h:
                 errs.append("%s %s: its rect %s is outside the room" % (kind, tid, str(r["rect"])))
             elif kind == "crumble" and "under" in r:
@@ -505,7 +507,7 @@ def check_traverse(s, d, g, walked):
                     errs.append("crumble %s: under %r is neither a level under its boards nor water or a pit" % (tid, under))
                 if any(g.floor(*c) is None or abs(g.floor(*c) - lv * LEVEL) > 0.5 or g.stair[c[1]][c[0]] for c in cells):
                     errs.append("crumble %s: its boards %s are not the floor at level %g" % (tid, str(r["rect"]), lv))
-                elif not all(any(c in wk for c in cells) for wk in walked):
+                elif not all(any(c in g.reach(st) for c in cells) for st in starts_of(d) if g.floor(*st) is not None):
                     errs.append("crumble %s: its boards %s are not reached on foot from every way in" % (tid, str(r["rect"])))
             elif kind == "crumble" and any(g.floor(xx, yy) is not None and g.floor(xx, yy) >= float(r.get("level", 0)) * LEVEL
                                            for yy in range(y, y + h) for xx in range(x, x + w)):
@@ -524,7 +526,7 @@ def check_traverse(s, d, g, walked):
         elif kind == "lantern":
             # T2: a deck hanging over the floor that swings or goes round (its side-view mover): every cell it sweeps is
             # inside the room, under its level and clear of props, and somewhere on its sweep a floor reached on foot lies
-            # beside it a level under it or level with it (a body hops on).
+            # beside it within a level of it (a body steps on, or hops up or down onto it).
             m = side_mover_rows.get(tid, {})
             if str(m.get("mode", "")) not in ("swing", "circle") or r.get("mode") not in ("swing", "circle"):
                 errs.append("lantern %s: no swinging or circling mover of that surface in the side-view room" % tid)
@@ -538,7 +540,7 @@ def check_traverse(s, d, g, walked):
                     elif g.floor(*c) is not None and g.floor(*c) > lv + 0.5:
                         errs.append("lantern %s sweeps into %s, a floor over its level" % (tid, str(c)))
                 beside = {(cx + dx, cy + dy) for cx, cy in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
-                landed = landed or any(g.floor(*q) is not None and lv - LEVEL - 0.5 <= g.floor(*q) <= lv + 0.5
+                landed = landed or any(g.floor(*q) is not None and abs(g.floor(*q) - lv) <= LEVEL + 0.5
                                        and all(q in wk for wk in walked) for q in beside)
             if not landed:
                 errs.append("lantern %s: nowhere on its sweep a floor reached on foot to hop onto it from" % tid)

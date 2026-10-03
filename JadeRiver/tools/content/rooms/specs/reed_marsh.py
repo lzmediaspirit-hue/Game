@@ -112,7 +112,10 @@ RM_GREY_POOLS = room(
     # its way are left out).
     traverse=[("raft", "log_raft_a", dict(at=(17, 21), path=[(-9, 0)], speed=40, wait_s=2.5, mode="pingpong")),
               ("raft", "log_raft_loop", dict(at=(45, 18), path=[(2, 2), (2, 4), (-3, 4), (-2, 2)], speed=40, wait_s=2.5,
-                                             mode="loop"))],
+                                             mode="loop")),
+              # T2: the side view's lily pad, a giant lotus leaf on the reedbank at the lily ledge's foot: a landing on
+              # it bounces a body up onto the ledge.
+              ("bounce", "lily_bounce", dict(rect=(43, 8, 2, 2), look="lily"))],
     pins={"drop": [(44, 21), (15, 22)]},
     foes=["auto:flats", "auto", "auto:flats"])
 

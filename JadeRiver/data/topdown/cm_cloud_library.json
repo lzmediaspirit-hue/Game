@@ -230,5 +230,27 @@
    "span": 2
   }
  },
- "spawns": []
+ "spawns": [],
+ "traverse": [
+  {
+   "kind": "hatch",
+   "id": "floor_2_ladder",
+   "rect": [
+    19,
+    10,
+    2,
+    4
+   ]
+  },
+  {
+   "kind": "hatch",
+   "id": "floor_3_ladder",
+   "rect": [
+    19,
+    4,
+    2,
+    2
+   ]
+  }
+ ]
 }

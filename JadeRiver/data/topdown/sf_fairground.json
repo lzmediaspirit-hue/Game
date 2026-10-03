@@ -449,6 +449,19 @@
   }
  },
  "spawns": [],
+ "traverse": [
+  {
+   "kind": "bounce",
+   "id": "fair_drum_bounce",
+   "rect": [
+    36,
+    9,
+    2,
+    2
+   ],
+   "look": "drum"
+  }
+ ],
  "vista": [
   {
    "edge": "s",

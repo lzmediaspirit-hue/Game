@@ -437,6 +437,71 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "raft",
+   "id": "driftwood_a",
+   "at": [
+    13,
+    23
+   ],
+   "size": [
+    3,
+    1
+   ],
+   "path": [
+    [
+     5,
+     0
+    ]
+   ],
+   "speed": 20,
+   "wait_s": 2.0,
+   "look": "driftwood"
+  },
+  {
+   "kind": "raft",
+   "id": "driftwood_b",
+   "at": [
+    44,
+    23
+   ],
+   "size": [
+    3,
+    1
+   ],
+   "path": [
+    [
+     -12,
+     0
+    ]
+   ],
+   "speed": 20,
+   "wait_s": 2.0,
+   "look": "driftwood"
+  },
+  {
+   "kind": "raft",
+   "id": "driftwood_c",
+   "at": [
+    49,
+    23
+   ],
+   "size": [
+    3,
+    1
+   ],
+   "path": [
+    [
+     5,
+     0
+    ]
+   ],
+   "speed": 20,
+   "wait_s": 2.0,
+   "look": "driftwood"
+  }
+ ],
  "vista": [
   {
    "edge": "n",

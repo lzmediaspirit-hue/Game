@@ -1060,6 +1060,19 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "bounce",
+   "id": "bent_bamboo_bounce",
+   "rect": [
+    42,
+    7,
+    2,
+    1
+   ],
+   "look": "bamboo"
+  }
+ ],
  "vista": [
   {
    "edge": "n",

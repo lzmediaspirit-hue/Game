@@ -97,9 +97,9 @@ def review(outputs: dict) -> None:
         t2.alpha_composite(cut("ripple", f), (150 + f * 30, 70))
     for f in range(3):
         t2.alpha_composite(cut("wind", f), (220 + f * 16, 72))
-    for i, name in enumerate(("boards",)):
-        t2.alpha_composite(cut(name, 0), (90, 96))
-        t2.alpha_composite(cut(name, 1), (110, 96))
+    for i, name in enumerate(("boards", "icicle")):
+        t2.alpha_composite(cut(name, 0), (90 + i * 50, 96))
+        t2.alpha_composite(cut(name, 1), (110 + i * 50, 96))
     both = Image.new("RGBA", (300, 250), (20, 26, 30, 255))
     both.alpha_composite(img, (0, 0))
     both.alpha_composite(t2, (0, 120))

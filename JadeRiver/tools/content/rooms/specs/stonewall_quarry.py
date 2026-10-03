@@ -29,6 +29,9 @@ SQ_QUARRY_RIM = room(
            ("crates", 39, 10), ("barrel", 41, 10), ("lantern", 11, 20), ("lantern", 15, 20)],
     flora={"hillside": dict(density=0.34)},
     foes=["auto", "auto:scaffold", "auto", "auto"],
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's crane lift, a basket in the yard under the bench that
+    # a body stepping in sets off, up to the bench and back down.
+    traverse=[("lift", "crane_lift", dict(at=(16, 9), path=[(0, 0, 2)], speed=45, wait_s=2.0, mode="trigger"))],
     pins={"stairs": [(26, 9, 3, 4, 0, 2), (28, 6, 3, 2, 2, 3)]})
 
 

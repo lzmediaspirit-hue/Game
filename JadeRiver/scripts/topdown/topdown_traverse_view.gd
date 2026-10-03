@@ -229,7 +229,7 @@ class BoardsView extends TopdownWorld.Sorted:
 			var g := TopdownTraverseView.src(hole)
 			for p in cells: draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(p - position, g.size), g)
 			return
-		var r := TopdownTraverseView.src("boards", 1 if state == "giving" else 0)
+		var r := TopdownTraverseView.src("icicle" if str(c.get("look", "boards")) == "ice" else "boards", 1 if state == "giving" else 0)
 		for p in cells: draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(p - position, r.size), r)
 
 ## A flood's water over its cells at the height it has risen to now (nothing while it lies at rest), a sheet of the

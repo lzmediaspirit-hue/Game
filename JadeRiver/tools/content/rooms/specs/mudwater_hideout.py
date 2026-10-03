@@ -51,6 +51,12 @@ MH_TUNNELS = room(
            ("crates", 42, 16)],
     areas=[{"kind": "poison_mist", "rect": [11, 15, 4, 3]}, {"kind": "poison_mist", "rect": [27, 16, 4, 3]},
            {"kind": "poison_mist", "rect": [40, 9, 4, 3]}],
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's two spike pits across the track, each laid over with
+    # three rotten planks that are the track's floor: a foot that lingers on one sends it down into the pit, and the
+    # pit's spikes strike the body that falls in (it is back on its last safe spot); the planks are back in five seconds.
+    traverse=[("crumble", "plank_%s_crumble" % p, dict(rect=(x, 12, 2, 3), level=0, under="pit"))
+              for p, x in (("a0", 19), ("a1", 21), ("a2", 23), ("b0", 33), ("b1", 35), ("b2", 37))]
+             + [("hazard", "spike_pit_a", dict(rect=(19, 12, 6, 3))), ("hazard", "spike_pit_b", dict(rect=(33, 12, 6, 3)))],
     foes=["auto:ledge", "auto", "auto", "auto"])
 
 

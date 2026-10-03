@@ -78,6 +78,7 @@ is (x, y, w, h). Every key but `size` may be left out.
               crumble {under: level | "water" | "pit"}            boards that are the floor itself (the grid's own floor
                                                                    at `level`): gone, the cells drop to `under`, or open
                                                                    into the water or a pit the body falls into
+              crumble {look: "boards" | "ice"}                    rotten boards (unset) or a shelf of ice
               ("hatch", id, {rect})                               a sealed hatch over a flight of stairs, named by the side
                                                                    view's climbable: shut while climbable_open refuses it
               ("lantern", id, {at, size, level, mode, length, amp_deg, period_s, phase_deg, radius})  a deck hanging at
