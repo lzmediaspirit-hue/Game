@@ -6,7 +6,7 @@ The room engine's batch R8 (`docs/architecture/room_engine.md`, "The sky-sea zon
 game's sky-sea zones are specs now, and a top-down character plays chapters 15 to 19 in them, from The Skyport Wreck to
 The Last Egg.
 
-- **Twenty rooms, 10 to 29 spec lines each.**
+- **Twenty rooms, 10 to 30 spec lines each.**
   - The Skyport Wreck: the Broken Pier, the Pirate Deck, the Riven Peak and the Starsea Launch.
   - Lanternfall Harbor: the Arrival Quay, the Harbor Market, the Star Chandlery and the Tidelight Inn.
   - The Drifting Shoals: the Jellyfish Shallows, the Moored Hulks, the Sparrow Reefs and the Driftglass Bank.
@@ -34,12 +34,15 @@ The Last Egg.
   rooms with no layout and are gated. The zones are reached only by the Starsea crossings, which have no layout; a
   dock's `set_sail` is not closed by the prototype's gate.
 - **Tests.**
-  - A new suite, `topdown_skysea`, with 98 checks. It plays chapters 15 to 19's main quests on the grid. It walks
+  - A new suite, `topdown_skysea`, with 101 checks. It plays chapters 15 to 19's main quests on the grid. It walks
     from the harbour through the Shoals to Blackmast Haven on foot, and it fights the pirates, jellyfish, sparrows,
     gunners, Admiral Voss, the wyrmlings and the Brood Guardian. Each room is built by the view and walked by auto-path.
   - The `room_engine` capture set has R8's views (`docs/architecture/room_engine/r8/`).
+  - `rules_tests`' route tour walks the twenty rooms too. No flight stands on a road or a wading way, since a body
+    steered across a flight from its side sticks on its cheek.
 - **Still to do.** Nine foe species of these rooms have no top-down sheet. The Starsea crossing, shallow water's slow
   and the Field's night light have no grid part yet. Details are in the doc.
+
 ## Nine Peaks to the Tomb of Sunscar on the grid (R7)
 
 The room engine's Act II batch (`docs/architecture/room_engine.md`, "Nine Peaks to the Tomb of Sunscar (R7)"). The

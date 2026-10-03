@@ -33,7 +33,7 @@ DR_JELLYFISH_SHALLOWS = room(
              + islet("islet_e", 47, 6, 22, 18)
              + [("pool", (12, 18, 14, 6), dict(water=True, shape="round")),
                 ("pool_2", (39, 3, 9, 6), dict(water=True, shape="round")),
-                ("path", (0, 12, 64, 3), dict(walk=True))],
+                ("path", (0, 14, 64, 3), dict(walk=True))],          # south of the crag's flight
     stairs="auto",
     ways={"west": ("w", "path"), "east": ("e", "path")},
     spawn="west",
@@ -59,15 +59,15 @@ DR_MOORED_HULKS = room(
              + hull("hulk", 4, 3, 13, 7, dict(level=2, paint="w", flights=[12]), bow=6)
              + hull("hull_e", 30, 4, 9, 6, dict(level=2, paint="w", flights=[34]), bow=4, stern=2)
              + [("cabin", (4, 3, 5, 4), dict(level=3, paint="w")),                  # Old Bo's cabin at the stern
-                ("path", (0, 13, 48, 3), dict(walk=True)),
-                ("pier", (40, 16, 4, 12), dict(level=1, paint="w"))],
+                ("path", (0, 14, 48, 3), dict(walk=True)),
+                ("pier", (40, 17, 4, 11), dict(level=1, paint="w"))],
     stairs="auto",
     ways={"west": ("w", "path"), "east": ("e", "path"), "wyrm_skiff": ("s", 42)},
     spawn="west",
     anchors={"shrine_dr_hulks": "hulk@11", "bed_dr_0": "hulk@15", "bed_dr_1": "hulk@18", "npc_hulk_keeper_bo": "path.n@25"},
     props=[("stove", 23, 10), ("water_jar", 26, 10), ("barrel", 21, 10), ("crates", 22, 17), ("sacks", 24, 17),
            ("star_lantern", 12, 12), ("star_lantern", 30, 12), ("lantern_red", 20, 12), ("lantern_red", 39, 12),
-           ("star_lantern", 39, 16), ("star_lantern", 44, 16), ("post", 40, 27), ("post", 43, 27), ("boat", 44, 25),
+           ("star_lantern", 39, 17), ("star_lantern", 44, 17), ("post", 40, 27), ("post", 43, 27), ("boat", 44, 25),
            ("black_mast", 13, 8), ("broken_mast", 35, 8), ("driftglass", 4, 19)],
     flora={"islet": dict(density=0.3), "deep": {"kinds": ["lotus_pads"], "density": 0.2}},
     foes="auto")
@@ -88,9 +88,9 @@ DR_SPARROW_REEFS = room(
              + islet("reef_e", 37, 3, 14, 10, opts=dict(level=2, flights=[43]))
              + islet("bar", 24, 15, 12, 7)
              + islet("islet_e", 50, 5, 18, 18)
-             + [("pool", (6, 17, 12, 6), dict(water=True, shape="round")),
-                ("pool_2", (42, 16, 8, 7), dict(water=True, shape="round")),
-                ("path", (0, 13, 64, 3), dict(walk=True))],
+             + [("pool", (6, 18, 12, 6), dict(water=True, shape="round")),
+                ("pool_2", (42, 18, 8, 6), dict(water=True, shape="round")),
+                ("path", (0, 15, 64, 3), dict(walk=True))],          # south of the reefs' flights
     stairs="auto",
     ways={"west": ("w", "path"), "east": ("e", "path")},
     spawn="west",
@@ -115,9 +115,9 @@ DR_DRIFTGLASS_BANK = room(
              + [("rise", (2, 4, 10, 6), dict(level=1, paint="r", shape="round", flights=[7])),
                 ("ledge", (18, 4, 10, 5), dict(level=2, paint="r", shape="round", flights=[23])),
                 ("crag", (33, 3, 10, 6), dict(level=3, paint="r", shape="round", flights=[38])),
-                ("lens", (26, 13, 7, 5), dict(paint="a", shape="round")),
-                ("pool", (46, 16, 10, 5), dict(water=True, shape="round")),
-                ("path", (0, 13, 64, 3), dict(walk=True))],
+                ("lens", (26, 10, 7, 5), dict(paint="a", shape="round")),
+                ("pool", (46, 18, 10, 5), dict(water=True, shape="round")),
+                ("path", (0, 15, 64, 3), dict(walk=True))],          # south of the crags' flights
     stairs="auto",
     ways={"west": ("w", "path"), "east": ("e", "path")},
     spawn="west",
@@ -125,8 +125,8 @@ DR_DRIFTGLASS_BANK = room(
              "insight_star": "lens@29", "ore_2": "wall_foot@31", "jar_6": "path.s@33", "chest_9": "crag@35",
              "chest_cloud_mv": "crag@38", "chest_ledge_mv_1": "crag@41", "jar_7": "path.n@45", "swarm_starwing_mote": "path.s@44",
              "ore_3": "wall_foot@53", "jar_8": "flat@58"},
-    props=[("star_crystal", 14, 4), ("star_crystal", 45, 5), ("star_crystal", 61, 4), ("driftglass", 25, 18),
-           ("driftglass", 33, 18)],
+    props=[("star_crystal", 14, 4), ("star_crystal", 45, 5), ("star_crystal", 61, 4), ("driftglass", 25, 14),
+           ("driftglass", 33, 14)],
     flora={"flat": dict(density=0.45), "rise": dict(density=0.3), "ledge": dict(density=0.3), "crag": dict(density=0.3),
            "ridge": {"kinds": ["star_crystal", "driftglass", "rock_mossy"], "density": 0.5},
            "pool": {"kinds": ["lotus_pads", "cattails"], "density": 0.4}},

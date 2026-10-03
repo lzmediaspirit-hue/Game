@@ -8,7 +8,7 @@
  ],
  "spawn": [
   2,
-  14
+  15
  ],
  "levels": [
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -27,7 +27,7 @@
   "000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000011110000",
+  "000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000011110000",
   "000000000000000000000000000000000000000011110000",
   "000000000000000000000000000000000000000011110000",
@@ -57,7 +57,7 @@
   "hhaarrrrrsssrrrrrrrrrrrrrrrrrrrrrsssrrrrrraaahhh",
   "hhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaahhhh",
   "hhhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaahhhhh",
-  "hhhhaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrawwwwhhhh",
+  "hhhhaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaaahhhhh",
   "hhhhhaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrraaawwwwhhhh",
   "hhhhhhaaaaarrraarrrrrrrrrrrrrrrrrrrraaaawwwwhhhh",
   "hhhhhhhaaaaaaaaaaarrrraarrrrrrraaaaaaaahwwwwhhhh",
@@ -137,12 +137,12 @@
   {
    "kind": "star_lantern",
    "x": 39,
-   "y": 16
+   "y": 17
   },
   {
    "kind": "star_lantern",
    "x": 44,
-   "y": 16
+   "y": 17
   },
   {
    "kind": "post",
@@ -201,6 +201,16 @@
   },
   {
    "kind": "boulder",
+   "x": 8,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
    "x": 32,
    "y": 10
   },
@@ -228,6 +238,16 @@
    "kind": "boulder",
    "x": 36,
    "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 13
   },
   {
    "kind": "lotus_pads",
@@ -285,9 +305,9 @@
    "y": 13
   },
   {
-   "kind": "star_crystal",
-   "x": 26,
-   "y": 14
+   "kind": "driftglass",
+   "x": 27,
+   "y": 6
   },
   {
    "kind": "tall_grass",
@@ -325,29 +345,29 @@
    "y": 18
   },
   {
-   "kind": "driftglass",
-   "x": 14,
-   "y": 11
+   "kind": "tall_grass",
+   "x": 13,
+   "y": 12
   },
   {
    "kind": "tall_grass",
    "x": 16,
-   "y": 11
-  },
-  {
-   "kind": "tall_grass",
-   "x": 25,
-   "y": 16
+   "y": 18
   },
   {
    "kind": "driftglass",
-   "x": 30,
-   "y": 11
+   "x": 22,
+   "y": 13
   },
   {
    "kind": "rock_small",
-   "x": 37,
-   "y": 11
+   "x": 27,
+   "y": 13
+  },
+  {
+   "kind": "rock_small",
+   "x": 38,
+   "y": 12
   },
   {
    "kind": "cattails",
@@ -420,31 +440,31 @@
   ],
   "npc_hulk_keeper_bo": [
    25,
-   12
+   13
   ]
  },
  "portals": {
   "west": {
    "at": [
     0,
-    14
+    15
    ],
    "dir": "w",
    "arrive": [
     2,
-    14
+    15
    ],
    "span": 3
   },
   "east": {
    "at": [
     47,
-    14
+    15
    ],
    "dir": "e",
    "arrive": [
     45,
-    14
+    15
    ],
    "span": 3
   },

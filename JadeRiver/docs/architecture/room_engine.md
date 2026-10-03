@@ -866,7 +866,7 @@ own: the `skyport` biome, the broken hulls and masts, the snapped piers. Cloudga
 
 | Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r8/`) |
 |---|---|---|---|
-| `sw_broken_pier` | 29 | `skyport` | `01_broken_pier_dock`, `02_broken_pier_wreck`, `rooms/sw_broken_pier` |
+| `sw_broken_pier` | 30 | `skyport` | `01_broken_pier_dock`, `02_broken_pier_wreck`, `rooms/sw_broken_pier` |
 | `sw_pirate_deck` | 21 | `skyport` | `03_pirate_deck`, `rooms/sw_pirate_deck` |
 | `sw_riven_peak` | 21 | `skyport` | `04_riven_peak`, `rooms/sw_riven_peak` |
 | `sw_starsea_launch` | 20 | `skyport` | `05_starsea_launch`, `rooms/sw_starsea_launch` |
@@ -960,6 +960,10 @@ capture's x2 copies of the world alone are not kept.
   - the ledges of the Isles.
 
   Each is climbed by a flight; R4's `flights` close their cheeks.
+- No flight stands on a walk. A flight whose lower rows lie on a road or a wading way is crossed from its side, and
+  auto-path's body sticks on its cheek (`rules_tests`' route tour lost those legs). So the walks run south of every
+  flight's foot: the Broken Pier's quay wall runs straight with an apron below it, the Battery's road and the Shoals'
+  wading ways lie a row or two lower, and the Docks' crag and the Battery's lookout stand two levels up, not three.
 - The ladders up to the Launch's decks and the Inn's loft became the dais and the gallery.
 - The moored hulks (back decor) became the decks you walk.
 - The docks are piers to the brink or the water, a way at the tip where a skiff is a portal.
@@ -978,12 +982,12 @@ Each stands where auto-path reaches it from every way in, and `places_tests` ope
 shapes are spec helpers (`skysea.hull`, `drifting_shoals.islet`); the launch's floor is R5's `octagon` and the Inn's
 flight R5's `stair_with_cheeks`.
 
-**Tested in** `tests/topdown_skysea.tscn` (98 checks), by test shortcuts along the story:
+**Tested in** `tests/topdown_skysea.tscn` (101 checks), by test shortcuts along the story:
 - every room is entered on the grid, built by the view, and walked by auto-path from every way in;
 - The Skyport Wreck: set down on the Broken Pier by its dock; pirates fought on the road; Gu freed on the junk's deck
   for the Black Ledger; the strongbox opened on the stern castle;
-- Lu's Last Page and Stars Beyond: the page on the Riven Peak's knoll, a star reading on its highest crag, Warden He
-  and the launch ring on its dais;
+- Lu's Last Page and Stars Beyond: the page on the Riven Peak's knoll, shown to Trial Master Wen in R7's Trial Hall
+  on the grid, a star reading on its highest crag, Warden He and the launch ring on its dais;
 - The Lantern Run and Crystal and Jade: the harbourmaster, the exchange counter, the Chandlery's furnace and the Inn
   through their doors; the Wardens' skiff and the Lantern Heart's stair gated;
 - Salt of the Stars, Will Manifest and A Presence of One's Own: the jellyfish thinned wading the shallows, Old Bo's

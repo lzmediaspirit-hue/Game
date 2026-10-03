@@ -8,7 +8,7 @@
  ],
  "spawn": [
   2,
-  14
+  16
  ],
  "levels": [
   "3333333333333333333333333333333333333333333333333333333333333333",
@@ -27,13 +27,13 @@
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000~~~~~~0000000000",
   "00000000000000000000000000000000000000000000000~~~~~~~~000000000",
-  "00000000000000000000000000000000000000000000000~~~~~~~~~00000000",
-  "00000000000000000000000000000000000000000000000~~~~~~~~~00000000",
-  "000000000000000000000000000000000000000000000000~~~~~~~000000000",
-  "0000000000000000000000000000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000~~~~~~~~000000000",
+  "000000000000000000000000000000000000000000000000~~~~~~0000000000",
+  "0000000000000000000000000000000000000000000000000~~~~00000000000",
   "00~~~~~~~00000000000000000000~~~00000000000000000000000000000000",
   "~~~~~~~~~~~~~~~~~~0000000000~~~~~~~~~~~~~~~0000000000~~~0000000~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -51,19 +51,19 @@
   "hhrrrrrrrrrraarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaaaaaahhhhh",
   "harrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraarrraaaah",
   "arrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrraa",
-  "arrrrrsssrrrrrrrrrrrrrsssrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrrra",
-  "arrrrrsssrrrrrrrrrrrrrsssrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
-  "arrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
-  "arrrrrrrrrrrrrrrrrrrrrrrrrrraaarrrrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
-  "arrrrrrrrrrrrrrrrrrrrrrrrrraaaaarrrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
-  "arrrrrrrrrrrrrrrrrrrrrrrrraaaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "arrrrrrrrrrrrrrrrrrrrrrrrraaaaaaarrrrrrrrrrrrrrr~~~~~~rrrrrrrrra",
-  "harrrrrrrrrrrrrrrrrrrrrrrrraaaaarrrrrrrrrrrrrrr~~~~~~~~rrrrraaah",
-  "hhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr~~~~~~~~~aaahhhhh",
-  "hhhaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr~~~~~~~~~aahhhhhh",
-  "hhhhhhhhhaaaaaaaaarrrrrrrrrrrraarrrraaaarraaaaaa~~~~~~~ahhhhhhhh",
-  "hhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhh",
-  "hhhhhhhhhhhhhhhhhaaaaahhaaaahhaahhaaaaaahhhhhhhhaaaahhhhhhhhhhhh",
+  "arrrrrsssrrrrrrrrrrrrrsssrraaaaarrrrrsssrrrrrrrrrrrrrrrrrrrrrrra",
+  "arrrrrsssrrrrrrrrrrrrrsssraaaaaaarrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "arrrrrrrrrrrrrrrrrrrrrsssraaaaaaarrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "arrrrrrrrrrrrrrrrrrrrrrrrrraaaaaarrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "arrrrrrrrrrrrrrrrrrrrrrrrrrraaaarrrrrsssrrrrrrrrrrrrrrrrrrrrrrrr",
+  "arrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "arrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrra",
+  "harrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrraaah",
+  "hhaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr~~~~~~aaaaahhhhh",
+  "hhhaaaaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr~~~~~~~~aaahhhhhh",
+  "hhhhhhhhhaaaaaaaaarrrrrrrrrrrraarrrraaaarraaaaa~~~~~~~~ahhhhhhhh",
+  "hhhhhhhhhhhhhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~hhhhhhhhhh",
+  "hhhhhhhhhhhhhhhhhaaaaahhaaaahhaahhaaaaaahhhhhhhha~~~~hhhhhhhhhhh",
   "hh~~~~~~~hhhhhhhhhhhhhhhhhhhh~~~hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",
   "~~~~~~~~~~~~~~~~~~hhhhhhhhhh~~~~~~~~~~~~~~~hhhhhhhhhh~~~hhhhhhh~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -115,12 +115,12 @@
   {
    "kind": "driftglass",
    "x": 25,
-   "y": 18
+   "y": 14
   },
   {
    "kind": "driftglass",
    "x": 33,
-   "y": 18
+   "y": 14
   },
   {
    "kind": "boulder",
@@ -221,6 +221,26 @@
    "kind": "boulder",
    "x": 40,
    "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 14
   },
   {
    "kind": "driftglass",
@@ -278,24 +298,24 @@
    "y": 14
   },
   {
-   "kind": "star_crystal",
-   "x": 23,
-   "y": 17
+   "kind": "rock_small",
+   "x": 19,
+   "y": 15
   },
   {
    "kind": "driftglass",
-   "x": 39,
-   "y": 18
-  },
-  {
-   "kind": "star_crystal",
-   "x": 47,
-   "y": 9
+   "x": 37,
+   "y": 16
   },
   {
    "kind": "rock_small",
-   "x": 52,
-   "y": 13
+   "x": 45,
+   "y": 16
+  },
+  {
+   "kind": "driftglass",
+   "x": 49,
+   "y": 16
   },
   {
    "kind": "driftglass",
@@ -338,9 +358,14 @@
    "y": 8
   },
   {
+   "kind": "rock_mossy",
+   "x": 1,
+   "y": 11
+  },
+  {
    "kind": "star_crystal",
-   "x": 5,
-   "y": 18
+   "x": 4,
+   "y": 11
   },
   {
    "kind": "driftglass",
@@ -348,9 +373,9 @@
    "y": 15
   },
   {
-   "kind": "rock_small",
-   "x": 9,
-   "y": 18
+   "kind": "tall_grass",
+   "x": 12,
+   "y": 17
   },
   {
    "kind": "rock_mossy",
@@ -358,39 +383,39 @@
    "y": 15
   },
   {
-   "kind": "tall_grass",
-   "x": 19,
-   "y": 13
+   "kind": "rock_mossy",
+   "x": 22,
+   "y": 18
   },
   {
    "kind": "tall_grass",
    "x": 24,
-   "y": 15
+   "y": 18
   },
   {
-   "kind": "rock_small",
+   "kind": "rock_mossy",
    "x": 26,
-   "y": 14
+   "y": 17
   },
   {
    "kind": "rock_small",
-   "x": 32,
-   "y": 7
+   "x": 30,
+   "y": 17
   },
   {
    "kind": "driftglass",
    "x": 40,
-   "y": 13
+   "y": 17
   },
   {
-   "kind": "driftglass",
-   "x": 44,
-   "y": 14
+   "kind": "rock_small",
+   "x": 45,
+   "y": 8
   },
   {
-   "kind": "driftglass",
-   "x": 46,
-   "y": 18
+   "kind": "star_crystal",
+   "x": 48,
+   "y": 11
   },
   {
    "kind": "tall_grass",
@@ -398,108 +423,108 @@
    "y": 15
   },
   {
-   "kind": "star_crystal",
+   "kind": "driftglass",
    "x": 54,
-   "y": 16
+   "y": 13
   },
   {
    "kind": "star_crystal",
    "x": 58,
-   "y": 9
+   "y": 16
+  },
+  {
+   "kind": "tall_grass",
+   "x": 61,
+   "y": 12
   },
   {
    "kind": "rock_small",
-   "x": 17,
+   "x": 13,
    "y": 19
   },
   {
-   "kind": "rock_small",
+   "kind": "tall_grass",
    "x": 20,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 28,
    "y": 20
   },
   {
-   "kind": "driftglass",
-   "x": 23,
-   "y": 20
-  },
-  {
-   "kind": "driftglass",
-   "x": 29,
-   "y": 19
-  },
-  {
-   "kind": "driftglass",
-   "x": 33,
+   "kind": "rock_small",
+   "x": 36,
    "y": 19
   },
   {
    "kind": "rock_small",
-   "x": 43,
+   "x": 46,
    "y": 19
-  },
-  {
-   "kind": "driftglass",
-   "x": 10,
-   "y": 12
-  },
-  {
-   "kind": "driftglass",
-   "x": 18,
-   "y": 11
-  },
-  {
-   "kind": "rock_small",
-   "x": 20,
-   "y": 17
-  },
-  {
-   "kind": "driftglass",
-   "x": 34,
-   "y": 12
-  },
-  {
-   "kind": "tall_grass",
-   "x": 42,
-   "y": 11
-  },
-  {
-   "kind": "driftglass",
-   "x": 47,
-   "y": 12
-  },
-  {
-   "kind": "tall_grass",
-   "x": 49,
-   "y": 11
-  },
-  {
-   "kind": "tall_grass",
-   "x": 55,
-   "y": 11
   },
   {
    "kind": "tall_grass",
    "x": 32,
-   "y": 13
+   "y": 10
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 9,
+   "y": 18
   },
   {
    "kind": "driftglass",
-   "x": 26,
-   "y": 17
+   "x": 16,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
+   "x": 42,
+   "y": 14
+  },
+  {
+   "kind": "tall_grass",
+   "x": 47,
+   "y": 13
+  },
+  {
+   "kind": "rock_small",
+   "x": 51,
+   "y": 13
+  },
+  {
+   "kind": "tall_grass",
+   "x": 56,
+   "y": 14
   },
   {
    "kind": "cattails",
    "x": 48,
-   "y": 16
-  },
-  {
-   "kind": "cattails",
-   "x": 55,
    "y": 19
   },
   {
-   "kind": "lotus_pads",
-   "x": 50,
+   "kind": "cattails",
+   "x": 51,
    "y": 18
   },
   {
@@ -589,7 +614,7 @@
   ],
   "trail_star_gecko": [
    18,
-   16
+   18
   ],
   "jar_5": [
    23,
@@ -597,7 +622,7 @@
   ],
   "insight_star": [
    29,
-   13
+   11
   ],
   "ore_2": [
    31,
@@ -605,7 +630,7 @@
   ],
   "jar_6": [
    33,
-   16
+   18
   ],
   "chest_9": [
    35,
@@ -621,11 +646,11 @@
   ],
   "jar_7": [
    45,
-   12
+   14
   ],
   "swarm_starwing_mote": [
    44,
-   16
+   18
   ],
   "ore_3": [
    53,
@@ -633,31 +658,31 @@
   ],
   "jar_8": [
    58,
-   16
+   10
   ]
  },
  "portals": {
   "west": {
    "at": [
     0,
-    14
+    16
    ],
    "dir": "w",
    "arrive": [
     2,
-    14
+    16
    ],
    "span": 3
   },
   "east": {
    "at": [
     63,
-    14
+    16
    ],
    "dir": "e",
    "arrive": [
     61,
-    14
+    16
    ],
    "span": 3
   }
@@ -666,43 +691,43 @@
   [
    [
     11,
-    10
+    13
    ],
    [
     25,
-    17
+    19
    ],
    [
     40,
-    16
+    20
    ],
    [
     54,
-    11
+    14
    ]
   ],
   [
    [
     13,
-    17
+    18
    ],
    [
     26,
-    11
+    12
    ],
    [
     37,
-    16
+    19
    ],
    [
     51,
-    11
+    14
    ]
   ],
   [
    [
     35,
-    10
+    14
    ]
   ]
  ],

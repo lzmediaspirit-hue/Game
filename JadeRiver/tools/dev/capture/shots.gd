@@ -87,7 +87,7 @@ const E1_VIEWS := [
 	["r8/08_harbor_market_stair", "lh_harbor_market", Vector2(50, 12), false], ["r8/09_star_chandlery", "lh_star_chandlery", Vector2(12, 9), true],
 	["r8/10_tidelight_inn", "lh_tidelight_inn", Vector2(14, 8), true],
 	["r8/11_jellyfish_shallows", "dr_jellyfish_shallows", Vector2(22, 13), true], ["r8/12_moored_hulks", "dr_moored_hulks", Vector2(20, 13), true],
-	["r8/13_sparrow_reefs", "dr_sparrow_reefs", Vector2(30, 13), true], ["r8/14_driftglass_bank", "dr_driftglass_bank", Vector2(32, 13), true],
+	["r8/13_sparrow_reefs", "dr_sparrow_reefs", Vector2(34, 16), true], ["r8/14_driftglass_bank", "dr_driftglass_bank", Vector2(32, 13), true],
 	["r8/15_blackmast_docks", "bm_blackmast_docks", Vector2(20, 12), true], ["r8/16_gunners_battery", "bm_gunners_battery", Vector2(30, 15), true],
 	["r8/17_smugglers_cove", "bm_smugglers_cove", Vector2(22, 9), true], ["r8/18_flagship_deck", "bm_flagship_deck", Vector2(24, 13), true],
 	["r8/19_nest_cliffs", "wn_nest_cliffs", Vector2(12, 19), true], ["r8/20_eggshell_terraces", "wn_eggshell_terraces", Vector2(24, 15), true],

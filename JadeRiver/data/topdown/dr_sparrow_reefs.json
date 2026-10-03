@@ -8,7 +8,7 @@
  ],
  "spawn": [
   2,
-  14
+  16
  ],
  "levels": [
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -27,14 +27,14 @@
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
-  "00000000000000000000000000000000000000000000~~~~0000000000000000",
-  "000000000~~~~~~~000000000000000000000000000~~~~~~000000000000000",
-  "0000000~~~~~~~~~~0000000000000000000000000~~~~~~~000000000000000",
-  "000000~~~~~~~~~~~0000000000000000000000000~~~~~~~000000000000000",
-  "000000~~~~~~~~~~~00000000000000000000000000~~~~~~000000000000000",
-  "0000000~~~~~~~~~0000000000000000000000000000~~~~0000000000000000",
-  "000000000~~~~~~000000000000000000000000000000~~00000000000000000",
-  "~~0000000000000~~00000000000000000000000000000000~~~000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "000000000~~~~~~00000000000000000000000000000~~~~0000000000000000",
+  "0000000~~~~~~~~~000000000000000000000000000~~~~~~000000000000000",
+  "000000~~~~~~~~~~~00000000000000000000000000~~~~~~~00000000000000",
+  "000000~~~~~~~~~~~00000000000000000000000000~~~~~~~00000000000000",
+  "0000000~~~~~~~~~0000000000000000000000000000~~~~~000000000000000",
+  "~~0000000~~~~~~~~0000000000000000000000000000~~00~~~000000000000",
   "~~~000000000~~~~~~~~~~~~~~~000000~~~~~000000000~~~~~~00000000000",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -57,14 +57,14 @@
   "rrrrrrrrrrahhhhhhhhhhhhhhhhhhhhssshhhhhhhhssshhhhhharrrrrrrrrrrr",
   "rrrrrrrrraaahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhssshhhhhharrrrrrrrrrrr",
   "rrrrrrrrraaahhhhhhhhhhhhhhhaaaaaaahhhhhhhhhhhhhhhhharrrrrrrrrrrr",
-  "rrrrrrrrraahhhhhhhhhhhhhhaaaaaaaaaahhhhhhhhh~~~~hhhaarrrrrrrrrrr",
-  "rrrrrrrrr~~~~~~~hhhhhhhhaaaarrrraaaahhhhhhh~~~~~~hhaaarrrrrrrrrr",
-  "rrrrrrr~~~~~~~~~~hhhhhhhaaaarrrraaaahhhhhh~~~~~~~hhaaaarrrrrrrra",
-  "arrrrr~~~~~~~~~~~hhhhhhhhaaarrrraaaahhhhhh~~~~~~~hhhaaaarrrrrraa",
-  "aaaaaa~~~~~~~~~~~hhhhhhhhhaaaaaaaaahhhhhhhh~~~~~~hhhhaaaarrrraaa",
-  "haaaaaa~~~~~~~~~hhhhhhhhhhhaaaaaahhhhhhhhhhh~~~~hhhhhhaaaaaaaaaa",
-  "hhhhaahhh~~~~~~hhhhhhhhhhhhhhhhhhhhhhhhhhhhhh~~hhhhhhhhhaahhaaah",
-  "~~hhhhhhhhhhhhh~~hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh~~~hhhhhhhhhhhh",
+  "rrrrrrrrraahhhhhhhhhhhhhhaaaaaaaaaahhhhhhhhhhhhhhhhaarrrrrrrrrrr",
+  "rrrrrrrrraahhhhhhhhhhhhhaaaarrrraaaahhhhhhhhhhhhhhhaaarrrrrrrrrr",
+  "rrrrrrrrr~~~~~~hhhhhhhhhaaaarrrraaaahhhhhhhh~~~~hhhaaaarrrrrrrra",
+  "arrrrrr~~~~~~~~~hhhhhhhhhaaarrrraaaahhhhhhh~~~~~~hhhaaaarrrrrraa",
+  "aaaaaa~~~~~~~~~~~hhhhhhhhhaaaaaaaaahhhhhhhh~~~~~~~hhhaaaarrrraaa",
+  "haaaaa~~~~~~~~~~~hhhhhhhhhhaaaaaahhhhhhhhhh~~~~~~~hhhhaaaaaaaaaa",
+  "hhhhaah~~~~~~~~~hhhhhhhhhhhhhhhhhhhhhhhhhhhh~~~~~hhhhhhhaahhaaah",
+  "~~hhhhhhh~~~~~~~~hhhhhhhhhhhhhhhhhhhhhhhhhhhh~~hh~~~hhhhhhhhhhhh",
   "~~~hhhhhhhhh~~~~~~~~~~~~~~~hhhhhh~~~~~hhhhhhhhh~~~~~~hhhhhhhhhhh",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
@@ -177,6 +177,16 @@
   },
   {
    "kind": "boulder",
+   "x": 30,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
    "x": 29,
    "y": 7
   },
@@ -214,6 +224,26 @@
    "kind": "boulder",
    "x": 45,
    "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 45,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 45,
+   "y": 14
   },
   {
    "kind": "lotus_pads",
@@ -286,19 +316,14 @@
    "y": 10
   },
   {
-   "kind": "rock_mossy",
-   "x": 4,
-   "y": 18
+   "kind": "driftglass",
+   "x": 3,
+   "y": 8
   },
   {
    "kind": "driftglass",
    "x": 7,
    "y": 6
-  },
-  {
-   "kind": "tall_grass",
-   "x": 1,
-   "y": 19
   },
   {
    "kind": "driftglass",
@@ -358,47 +383,47 @@
   {
    "kind": "tall_grass",
    "x": 61,
-   "y": 18
+   "y": 12
   },
   {
    "kind": "tall_grass",
    "x": 5,
-   "y": 11
-  },
-  {
-   "kind": "tall_grass",
-   "x": 7,
-   "y": 11
+   "y": 13
   },
   {
    "kind": "driftglass",
+   "x": 7,
+   "y": 14
+  },
+  {
+   "kind": "rock_small",
    "x": 31,
-   "y": 17
+   "y": 19
   },
   {
    "kind": "tall_grass",
    "x": 53,
-   "y": 11
+   "y": 13
   },
   {
    "kind": "driftglass",
-   "x": 58,
-   "y": 12
+   "x": 57,
+   "y": 14
+  },
+  {
+   "kind": "cattails",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 12,
+   "y": 21
   },
   {
    "kind": "cattails",
    "x": 46,
-   "y": 16
-  },
-  {
-   "kind": "cattails",
-   "x": 15,
-   "y": 17
-  },
-  {
-   "kind": "lotus_pads",
-   "x": 13,
-   "y": 19
+   "y": 23
   },
   {
    "kind": "cattails",
@@ -480,7 +505,7 @@
   ],
   "swarm_starwing_mote": [
    36,
-   16
+   18
   ],
   "jar_2": [
    42,
@@ -499,24 +524,24 @@
   "west": {
    "at": [
     0,
-    14
+    16
    ],
    "dir": "w",
    "arrive": [
     2,
-    14
+    16
    ],
    "span": 3
   },
   "east": {
    "at": [
     63,
-    14
+    16
    ],
    "dir": "e",
    "arrive": [
     61,
-    14
+    16
    ],
    "span": 3
   }
@@ -525,33 +550,33 @@
   [
    [
     10,
-    10
+    13
    ],
    [
     21,
-    16
+    20
    ],
    [
     32,
-    16
+    20
    ],
    [
     42,
-    17
+    18
    ],
    [
     54,
-    16
+    19
    ]
   ],
   [
    [
     15,
-    10
+    14
    ],
    [
     29,
-    16
+    14
    ],
    [
     50,
@@ -561,7 +586,7 @@
   [
    [
     35,
-    10
+    14
    ]
   ]
  ],
