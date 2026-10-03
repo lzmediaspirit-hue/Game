@@ -33,12 +33,12 @@
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000001111000000000000000000000000000111111100000000000000000000000000",
-  "000111111111111100000000001111000000011111111111110000011111111100110000",
-  "011111111111111111111111111111111111111111111111111001111111111111111100",
-  "111111111111111111111111111111111111111111111111111111111111111111111110",
-  "111111111111111111111111111111111111111111111111111111111111111111111110",
-  "011111111111111111111111111111111111111111111111111011111111111111111100"
+  "000001111111110000000000000000000000001111111100000000000000000000000000",
+  "001111111111111100111111111111111011111111111111111000111111111111110000",
+  "011111111111111111111111111111111111111111111111111101111111111111111000",
+  "011111111111111101111111111111111111111111111111111001111111111111111100",
+  "001111111111111000111111111111110000011111111111100000111111111111111000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
  ],
  "paint": [
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -63,12 +63,12 @@
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-  "ddddddddaaaadddddddddddddddddddddddddddaaaaaaadddddddddddddddddddddddddd",
-  "dddaaaaaaaaaaaaaddddddddddaaaadddddddaaaaaaaaaaaaadddddaaaaaaaaaddaadddd",
-  "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaddaaaaaaaaaaaaaaaaadd",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad",
-  "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaadd"
+  "dddddaaaaaaaaaddddddddddddddddddddddddaaaaaaaadddddddddddddddddddddddddd",
+  "ddaaaaaaaaaaaaaaddaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaadddaaaaaaaaaaaaaadddd",
+  "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaddd",
+  "daaaaaaaaaaaaaaadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaddaaaaaaaaaaaaaaaaadd",
+  "ddaaaaaaaaaaaaadddaaaaaaaaaaaaaadddddaaaaaaaaaaaadddddaaaaaaaaaaaaaaaddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
  ],
  "stairs": [
   {
@@ -556,18 +556,38 @@
   },
   {
    "kind": "dry_scrub",
+   "x": 1,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 3,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 12,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 17,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
    "x": 33,
    "y": 24
   },
   {
-   "kind": "dead_tree",
-   "x": 37,
-   "y": 26
+   "kind": "red_rock",
+   "x": 39,
+   "y": 24
   },
   {
-   "kind": "red_rock",
-   "x": 42,
-   "y": 25
+   "kind": "dry_scrub",
+   "x": 41,
+   "y": 22
   },
   {
    "kind": "dry_scrub",
@@ -580,38 +600,58 @@
    "y": 23
   },
   {
+   "kind": "hoodoo",
+   "x": 35,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 37,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 41,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 15,
+   "y": 23
+  },
+  {
    "kind": "dead_tree",
-   "x": 16,
+   "x": 23,
+   "y": 24
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 25,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 28,
+   "y": 23
+  },
+  {
+   "kind": "red_rock",
+   "x": 31,
+   "y": 24
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 21,
    "y": 26
   },
   {
    "kind": "red_rock",
-   "x": 22,
-   "y": 27
-  },
-  {
-   "kind": "hoodoo",
-   "x": 25,
-   "y": 24
-  },
-  {
-   "kind": "dead_tree",
-   "x": 29,
-   "y": 27
+   "x": 52,
+   "y": 23
   },
   {
    "kind": "dry_scrub",
-   "x": 31,
-   "y": 27
-  },
-  {
-   "kind": "hoodoo",
-   "x": 52,
-   "y": 27
-  },
-  {
-   "kind": "dead_tree",
-   "x": 54,
+   "x": 55,
    "y": 23
   },
   {
@@ -621,13 +661,28 @@
   },
   {
    "kind": "dead_tree",
-   "x": 62,
+   "x": 63,
+   "y": 24
+  },
+  {
+   "kind": "red_rock",
+   "x": 71,
+   "y": 23
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 51,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 57,
    "y": 26
   },
   {
    "kind": "dry_scrub",
-   "x": 70,
-   "y": 27
+   "x": 61,
+   "y": 25
   }
  ],
  "place": {

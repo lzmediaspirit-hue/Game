@@ -283,6 +283,34 @@ def brazier(s: Img, f: int = 0) -> None:
     s.outline()
 
 
+def roots(s: Img) -> None:
+    """The roots of the iron-root trees breaking out of the rock, footprint 2 x 1: three thick roots arching up out of
+    the ground and diving back into it, their bark dark as old iron with a cold sheen along their backs, a few hair
+    roots trailing. 32 x 24; corner (0, 22)."""
+    bark = [c("1A1416"), c("2E2426"), c("463638"), c("5E4C4A"), c("7C6A64"), c("A6A2A4")]
+    s.ellipse(16, 21, 15, 2.5, bark[1])
+    for k, (x0, x1, top, th) in enumerate(((1, 20, 6, 4), (10, 30, 10, 3.5), (4, 14, 15, 3))):
+        for i in range(x0, x1 + 1):
+            t = (i - x0) / float(x1 - x0)
+            y = 21 - (21 - top) * 4.0 * t * (1.0 - t)          # the arch, its feet in the ground
+            for j in range(int(th) + 1):
+                col = bark[3]
+                if j == 0:
+                    col = bark[5] if (i + k) % 3 else bark[4]  # the sheen along its back
+                elif j == 1:
+                    col = bark[4]
+                elif j >= int(th):
+                    col = bark[1]
+                if h01(i, j, 791 + k) < 0.12:
+                    col = bark[2]                               # the bark's cracks
+                s.put(i, int(y) + j, col)
+    for k in range(5):                                          # hair roots
+        x = 3 + int(h01(k, 1, 792) * 26)
+        for j in range(2 + k % 3):
+            s.put(x + (j % 2), 19 + j, bark[2])
+    s.outline()
+
+
 # ============================================================================================================ the tomb
 def sarcophagus(s: Img) -> None:
     """A sand king's sarcophagus, footprint 2 x 1: a long chest of dressed tomb stone, its lid carved with a sun disc in
@@ -446,6 +474,7 @@ PROPS = {
     "ribcage": (ribcage, 32, 26, 2, 1, [0, 24], True, [18, -2, 15, 3]),
     "anvil": (anvil, 16, 22, 1, 1, [0, 20], True, [10, -2, 7, 3]),
     "brazier": (brazier, 16, 28, 1, 1, [0, 26], True, [10, -2, 7, 3]),
+    "roots": (roots, 32, 24, 2, 1, [0, 22], True, [18, -2, 15, 3]),
     "sarcophagus": (sarcophagus, 32, 26, 2, 1, [0, 24], True, [20, -2, 15, 3]),
     "king_statue": (king_statue, 24, 54, 1, 1, [4, 52], True, [12, -2, 10, 3]),
     "bronze_mirror": (bronze_mirror, 16, 34, 1, 1, [0, 32], True, [10, -2, 7, 3]),

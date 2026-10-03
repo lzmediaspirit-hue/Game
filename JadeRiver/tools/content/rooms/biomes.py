@@ -192,6 +192,16 @@ BIOMES = {
                   "water": ["dry_scrub", "cattails", "tall_grass"]},
         "ground": {"sand": ["*"], "earth": ["lowest"]},
     },
+    # Ironroot Hold: the clan's mountain of grey rock, the iron-root trees' roots breaking out of it, pines on its
+    # ledges, boulders and stumps where the clan cut timber; trampled earth in its yards (a spec's `d`), its cavern's
+    # floor by the walls rock rubble (`rubble`). Lamp and forge lit inside.
+    "iron_hold": {
+        "base": "r", "stair": "s", "density": 0.26, "rubble": True,
+        "flora": {"wall": ["roots", "tree_pine", "boulder", "rock_small"],
+                  "ground": ["tree_pine", "roots", "boulder", "rock_small", "stump", "rock_mossy"],
+                  "walk": ["rock_small", "stump"],
+                  "water": ["cattails", "ferns"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

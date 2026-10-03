@@ -363,6 +363,11 @@ VISTAS = {
     "np_presence_terrace": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     # R7: the Gale Canyons' far ranges over their north walls.
     "gc_canyon_mouth": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_kite_winds": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_harpy_roosts": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    "gc_windbridge": [{"edge": "n", "kind": "peaks", "pad": 56}],
+    # R7: Ironroot's mountain behind the Hold Gate (the Clan Hearth is a cavern under it).
+    "ir_hold_gate": [{"edge": "n", "kind": "peaks", "pad": 56}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

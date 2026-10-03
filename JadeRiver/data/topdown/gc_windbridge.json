@@ -11,14 +11,14 @@
   13
  ],
  "levels": [
-  "77777777777777777777777770000000~~~~000000077777777777777777777777777777",
-  "7777777777777777777777770000000~~~~~~00000007777777777777777777777777777",
-  "7777777777777777777777770000000~~~~~~00000007777777777777777777777777777",
-  "7777777777777777444443370000000~~~~~~00000000777777777777777777733377777",
-  "7777777333333334444444330000000~~~~~~00000000773333333333333333333333777",
-  "3333333333333334444444330000000~~~~~~00000000333333333333333333333333333",
+  "777777777777777777777777444444444444444444444477777777777777777777777777",
+  "777777777777777777777777444444444444444444444477777777777777777777777777",
+  "777777777777777777777777444444444444444444444477777777777777777777777777",
+  "7777777777777777444444370000000~~~~~~00000000777777777777777777733377777",
+  "7777777333333334444444430000000~~~~~~00000000773333333333333333333333777",
+  "3333333333333334444444430000000~~~~~~00000000333333333333333333333333333",
   "33333333333333344444443300000000~~~~~~0000000333333333333333333333333333",
-  "33333333333333334444433300000000~~~~~~0000000333333333333333333333333333",
+  "33333333333333334444333300000000~~~~~~0000000333333333333333333333333333",
   "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
   "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
   "33333333333333333333333300000000~~~~~~0000003333333333333333333333333333",
@@ -35,15 +35,15 @@
   "0000000000000000000000000000000000~~~~~000000000000000000000000000000000",
   "0000000000000000000000000000000000~~~~0000000000000000000000000000000000",
   "000000000000000000000000000000000~~~~~~000000000000000000000000000000000",
-  "000000011100110000000000000000000~~~~~~000000000000000000000000000000000",
-  "000111111111111000000000000000000~~~~~~000000000000000000000111100000000",
-  "001111111111111000000000000000000~~~~~~000000000000000000111111111110000",
-  "0001111111111110000000000000000000~~~~0000000000000000000111111111110000"
+  "001111111111111000000000000000000~~~~~~000000000000000000000000000000000",
+  "001111111111111000000000000000000~~~~~~000000000000000000111111111111000",
+  "001111111111111000000000000000000~~~~~~000000000000000000111111111111000",
+  "0000000000000000000000000000000000~~~~0000000000000000000000000000000000"
  ],
  "paint": [
-  "aaaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddddaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -53,9 +53,9 @@
   "aaaaaaaaaaaaaaaaawwwaaaadddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaadddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaddddddd~~~~~~ddddddaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaawwwwwwwwwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddddddddddddwwwwwwwwwwwwwwwwwwwwwwwwwwddddddddddddddddddddddd",
+  "dddddddddddddddddddddddwwwwwwwwwwwwwwwwwwwwwwwwwwddddddddddddddddddddddd",
+  "dddddddddddddddddddddddwwwwwwwwwwwwwwwwwwwwwwwwwwddddddddddddddddddddddd",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaadddddd~~~~~~dddddddaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -65,10 +65,10 @@
   "dddddddddddddddddddwwwdddddddddddd~~~~~ddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddwwwdddddddddddd~~~~dddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddwwwddddddddddd~~~~~~ddddddddddddddddddddddddddddddddd",
-  "dddddddaaaddaadddddwwwddddddddddd~~~~~~ddddddddddddddddddddddddddddddddd",
-  "dddaaaaaaaaaaaadddddddddddddddddd~~~~~~dddddddddddddddddddddaaaadddddddd",
-  "ddaaaaaaaaaaaaadddddddddddddddddd~~~~~~ddddddddddddddddddaaaaaaaaaaadddd",
-  "dddaaaaaaaaaaaaddddddddddddddddddd~~~~dddddddddddddddddddaaaaaaaaaaadddd"
+  "ddaaaaaaaaaaaaaddddwwwddddddddddd~~~~~~ddddddddddddddddddddddddddddddddd",
+  "ddaaaaaaaaaaaaadddddddddddddddddd~~~~~~ddddddddddddddddddaaaaaaaaaaaaddd",
+  "ddaaaaaaaaaaaaadddddddddddddddddd~~~~~~ddddddddddddddddddaaaaaaaaaaaaddd",
+  "dddddddddddddddddddddddddddddddddd~~~~dddddddddddddddddddddddddddddddddd"
  ],
  "stairs": [
   {
@@ -89,6 +89,11 @@
   }
  ],
  "props": [
+  {
+   "kind": "waterfall",
+   "x": 33,
+   "y": 3
+  },
   {
    "kind": "prayer_flags",
    "x": 20,
@@ -196,7 +201,7 @@
   },
   {
    "kind": "red_rock",
-   "x": 37,
+   "x": 32,
    "y": 2
   },
   {
@@ -222,7 +227,7 @@
   {
    "kind": "cattails",
    "x": 36,
-   "y": 4
+   "y": 3
   },
   {
    "kind": "dry_scrub",
@@ -278,6 +283,21 @@
    "kind": "red_rock",
    "x": 68,
    "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 25,
+   "y": 3
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 38,
+   "y": 4
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 42,
+   "y": 3
   },
   {
    "kind": "hoodoo",
@@ -586,8 +606,8 @@
   },
   {
    "kind": "dry_scrub",
-   "x": 7,
-   "y": 27
+   "x": 9,
+   "y": 25
   },
   {
    "kind": "dead_tree",
@@ -600,14 +620,14 @@
    "y": 25
   },
   {
-   "kind": "dead_tree",
-   "x": 65,
+   "kind": "dry_scrub",
+   "x": 61,
    "y": 25
   },
   {
-   "kind": "dry_scrub",
-   "x": 67,
-   "y": 27
+   "kind": "dead_tree",
+   "x": 65,
+   "y": 25
   }
  ],
  "place": {
@@ -703,5 +723,12 @@
     15
    ]
   ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
  ]
 }

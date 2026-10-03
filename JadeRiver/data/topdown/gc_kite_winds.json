@@ -14,12 +14,12 @@
   "777777777777777777777777777777777777777777777777777777777777777777777777",
   "777777777777777777777777777777777777777777777777777777777777777777777777",
   "777777777777777777777777777777777777777777777777777777777777777777777777",
-  "337777777333374444333337777777777735557777773333777773333337777777777777",
-  "333377733333344444443333777777773355555577333333333333333333333333333337",
-  "333333333333344444444333333333333555555553333333333333333333333333333333",
-  "333333333333344444444333333333333555555553333333333333333333333333333333",
-  "333333333333344444443333333333333355555553333333333333333333333333333333",
-  "333333333333334444433333333333333335555533333333333333333333333333333333",
+  "337777777333374444333337777777777734447777773333777773333337777777777777",
+  "333377733333344444443333777777773344444477333333333333333333333333333337",
+  "333333333333344444444333333333333444444443333333333333333333333333333333",
+  "333333333333344444444333333333333444444443333333333333333333333333333333",
+  "333333333333344444443333333333333344444443333333333333333333333333333333",
+  "333333333333334444433333333333333334444433333333333333333333333333333333",
   "333333333333333333333333333333333333333333333333333333333333333333333333",
   "333333333333333333333333333333333333333333333333333333333333333333333333",
   "333333333333333333333333333333333333333333333333333333333333333333333333",
@@ -32,13 +32,13 @@
   "222000022222220000222222222220002222220000222222200000000022222222222222",
   "220000000222000000000002220000000000000000002222000000000000222222222222",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000011111000000000000000",
-  "000000000000000000000000000000000000000000000000111111111100000000000000",
+  "000000000000000000000000000000000000000000000000011111111000000000000000",
   "000000000000000000000000000000000000000000000001111111111110000000000000",
-  "000000111110000000000000000000000000000000000011111111111111000111111100",
-  "000001111111000000000000000111110000000000000011111111111111001111111100",
-  "000001111110000000000000000111110000000000000001111111111110000111111100"
+  "000000000000000000000000000000000000000000000011111111111111000000000000",
+  "000111111111100000000000000000000000000000000011111111111111111111111100",
+  "001111111111100000000000111111111110000000000001111111111110111111111110",
+  "000111111111100000000000111111111110000000000000011111110000111111111100",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
  ],
  "paint": [
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -52,28 +52,28 @@
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaddddaaaaaaaddddaaaaaaaaaaadddaaaaaaddddaaaaaaadddddddddaaaaaaaaaaaaaa",
-  "aadddddddaaadddddddddddaaaddddddddddddddddddaaaaddddddddddddaaaaaaaaaaaa",
-  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwwwdddddd",
-  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwwwdddddd",
-  "ddddddddddddddddddddddddddddddddddddddddddddddddddddaaaaaddddddwwwdddddd",
-  "ddddddddddddddddddddddddddddddddddddddddddddddddaaaaaaaaaadddddwwwdddddd",
+  "aaaddddaaaaaaaddddaaaaaaaaaaadddaaaaaadwwwaaaaaaadddddddddaaaaaaaaaaaaaa",
+  "aadddddddaaadddddddddddaaadddddddddddddwwwddaaaaddddddddddddaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddwwwdddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddwwwdddddddaaaaaaaaddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddaaaaaaaaaaaaddddddddddddd",
-  "ddddddaaaaadddddddddddddddddddddddddddddddddddaaaaaaaaaaaaaadddaaaaaaadd",
-  "dddddaaaaaaadddddddddddddddaaaaaddddddddddddddaaaaaaaaaaaaaaddaaaaaaaadd",
-  "dddddaaaaaaddddddddddddddddaaaaadddddddddddddddaaaaaaaaaaaaddddaaaaaaadd"
+  "ddddddddddddddddddddddddddddddddddddddddddddddaaaaaaaaaaaaaadddddddddddd",
+  "dddaaaaaaaaaadddddddddddddddddddddddddddddddddaaaaaaaaaaaaaaaaaaaaaaaadd",
+  "ddaaaaaaaaaaadddddddddddaaaaaaaaaaaddddddddddddaaaaaaaaaaaadaaaaaaaaaaad",
+  "dddaaaaaaaaaadddddddddddaaaaaaaaaaaddddddddddddddaaaaaaaddddaaaaaaaaaadd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
  ],
  "stairs": [
   {
-   "x": 63,
-   "y": 20,
+   "x": 39,
+   "y": 18,
    "w": 3,
    "h": 4,
    "from": 0,
@@ -99,9 +99,9 @@
    "x": 36,
    "y": 9,
    "w": 3,
-   "h": 4,
+   "h": 2,
    "from": 3,
-   "to": 5
+   "to": 4
   }
  ],
  "props": [
@@ -184,21 +184,6 @@
    "kind": "red_rock",
    "x": 39,
    "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 35,
-   "y": 11
-  },
-  {
-   "kind": "red_rock",
-   "x": 39,
-   "y": 11
-  },
-  {
-   "kind": "red_rock",
-   "x": 35,
-   "y": 12
   },
   {
    "kind": "hoodoo",
@@ -346,9 +331,9 @@
    "y": 11
   },
   {
-   "kind": "dead_tree",
-   "x": 34,
-   "y": 11
+   "kind": "dry_scrub",
+   "x": 40,
+   "y": 12
   },
   {
    "kind": "dry_scrub",
@@ -421,14 +406,14 @@
    "y": 14
   },
   {
-   "kind": "dead_tree",
-   "x": 31,
-   "y": 15
+   "kind": "red_rock",
+   "x": 33,
+   "y": 12
   },
   {
-   "kind": "dry_scrub",
-   "x": 40,
-   "y": 10
+   "kind": "dead_tree",
+   "x": 37,
+   "y": 13
   },
   {
    "kind": "dry_scrub",
@@ -481,8 +466,8 @@
    "y": 18
   },
   {
-   "kind": "dry_scrub",
-   "x": 40,
+   "kind": "dead_tree",
+   "x": 37,
    "y": 17
   },
   {
@@ -522,13 +507,13 @@
   },
   {
    "kind": "dry_scrub",
-   "x": 36,
-   "y": 17
+   "x": 35,
+   "y": 12
   },
   {
-   "kind": "red_rock",
+   "kind": "dry_scrub",
    "x": 42,
-   "y": 17
+   "y": 18
   },
   {
    "kind": "red_rock",
@@ -578,7 +563,7 @@
   {
    "kind": "red_rock",
    "x": 38,
-   "y": 19
+   "y": 21
   },
   {
    "kind": "dry_scrub",
@@ -661,9 +646,14 @@
    "y": 26
   },
   {
+   "kind": "dead_tree",
+   "x": 51,
+   "y": 21
+  },
+  {
    "kind": "dry_scrub",
-   "x": 52,
-   "y": 23
+   "x": 58,
+   "y": 25
   },
   {
    "kind": "dead_tree",
@@ -672,23 +662,33 @@
   },
   {
    "kind": "dry_scrub",
-   "x": 13,
-   "y": 27
+   "x": 9,
+   "y": 24
   },
   {
    "kind": "dry_scrub",
-   "x": 68,
-   "y": 27
+   "x": 11,
+   "y": 25
   },
   {
-   "kind": "red_rock",
-   "x": 26,
+   "kind": "dry_scrub",
+   "x": 67,
    "y": 26
   },
   {
    "kind": "dry_scrub",
+   "x": 68,
+   "y": 24
+  },
+  {
+   "kind": "dead_tree",
+   "x": 25,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
    "x": 33,
-   "y": 27
+   "y": 25
   }
  ],
  "place": {
@@ -755,7 +755,7 @@
    ],
    [
     41,
-    17
+    13
    ],
    [
     52,
@@ -778,9 +778,16 @@
   ],
   [
    [
-    40,
-    12
+    38,
+    13
    ]
   ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
  ]
 }

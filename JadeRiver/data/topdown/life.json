@@ -1147,6 +1147,33 @@
     }
    ]
   },
+  "gc_harpy_roosts": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "gc_kite_winds": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
+  "gc_windbridge": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    }
+   ]
+  },
   "gh_hamlet_square": {
    "vista": [
     {
@@ -1190,6 +1217,15 @@
      "edge": "s",
      "kind": "river",
      "pad": 32
+    }
+   ]
+  },
+  "ir_hold_gate": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
     }
    ]
   },

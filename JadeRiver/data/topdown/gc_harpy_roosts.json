@@ -13,14 +13,15 @@
  "levels": [
   "666666666666666666666666666666666666666666666666666666666666666666666666",
   "666666666666666666666666666666666666666666666666666666666666666666666666",
-  "666600006664444446600006666666444444000666666666666644666600000000066666",
-  "000000000044444444000000000004444444400000000000044444440000000000000000",
-  "000000000044444444400000000044444444440000000000444444444000000000000000",
-  "000000000044444444440000000044444444444000000000444444444400000000000000",
-  "000000000444444444440000000044444444444000000004444444444400000000000000",
-  "000000000444444444440000000004444444444000000004444444444400000000000000",
-  "000000000044444444400000000000444444440000000000444444444000000000000000",
-  "000000000000444400000000000000044444400000000000004444400000000000000000",
+  "666600006666666666600006666666666000000666666666666666666600000000066666",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000003333330000000000000333333300000000000003333300000000000000000",
+  "000000000033333333000000000003333333330000000000333333330000000000000000",
+  "000000000333333333300000000003333333333000000003333333333000000000000000",
+  "000000000333333333330000000003333333333000000003333333333300000000000000",
+  "000000000333333333330000000003333333333000000003333333333300000000000000",
+  "000000000033333333300000000003333333330000000000333333333000000000000000",
+  "000000000003333330000000000000333333000000000000003333330000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -34,98 +35,97 @@
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
   "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000000000000000000000000000000000000000000000000000000000000000000000000",
-  "000001111111000000000000000000000000000111111100000000000000000000000000",
-  "000011111111110000001111111111000000111111111111110000011111111100000000",
-  "000111111111111000001111111111110001111111111111110000011111111111110000",
-  "000011111111110000001111111111110000111111111111110000011111111111110000"
+  "000011111111110000000000000000000000011111111111110000000000000000000000",
+  "000011111111111000011111111111111000111111111111110000111111111111110000",
+  "000011111111110000011111111111111000011111111111110000111111111111110000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
  ],
  "paint": [
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "aaaaddddaaaaaaaaaaaddddaaaaaaaaaaaaadddaaaaaaaaaaaaaaaaaaadddddddddaaaaa",
-  "ddddddddddaaaaaaaadddddddddddaaaaaaaaddddddddddddaaaaaaadddddddddddddddd",
-  "ddddddddddaaaaaaaaadddddddddaaaaaaaaaaddddddddddaaaaaaaaaddddddddddddddd",
-  "ddddddddddaaaaaaaaaaddddddddaaaaaaaaaaadddddddddaaaaaaaaaadddddddddddddd",
-  "dddddddddaaaaaaaaaaaddddddddaaaaaaaaaaaddddddddaaaaaaaaaaadddddddddddddd",
+  "aaaaddddaaaaaaaaaaaddddaaaaaaaaaaddddddaaaaaaaaaaaaaaaaaaadddddddddaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddaaaaaadddddddddddddaaaaaaadddddddddddddaaaaaddddddddddddddddd",
+  "ddddddddddaaaaaaaadddddddddddaaaaaaaaaddddddddddaaaaaaaadddddddddddddddd",
+  "dddddddddaaaaaaaaaaddddddddddaaaaaaaaaaddddddddaaaaaaaaaaddddddddddddddd",
   "dddddddddaaaaaaaaaaadddddddddaaaaaaaaaaddddddddaaaaaaaaaaadddddddddddddd",
-  "ddddddddddaaaaaaaaadddddddddddaaaaaaaaddddddddddaaaaaaaaaddddddddddddddd",
-  "ddddddddddddaaaadddddddddddddddaaaaaadddddddddddddaaaaaddddddddddddddddd",
+  "dddddddddaaaaaaaaaaadddddddddaaaaaaaaaaddddddddaaaaaaaaaaadddddddddddddd",
+  "ddddddddddaaaaaaaaaddddddddddaaaaaaaaaddddddddddaaaaaaaaaddddddddddddddd",
+  "dddddddddddaaaaaadddddddddddddaaaaaaddddddddddddddaaaaaadddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
   "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
-  "dddddddddddddwwwddddddddddddddddwwwddddddddddddddddwwwdddddddddddddddddd",
-  "aaaaaaaaaaaaawwwaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaawwwaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
   "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-  "dddddaaaaaaadddddddddddddddddddddddddddaaaaaaadddddddddddddddddddddddddd",
-  "ddddaaaaaaaaaaddddddaaaaaaaaaaddddddaaaaaaaaaaaaaadddddaaaaaaaaadddddddd",
-  "dddaaaaaaaaaaaadddddaaaaaaaaaaaadddaaaaaaaaaaaaaaadddddaaaaaaaaaaaaadddd",
-  "ddddaaaaaaaaaaddddddaaaaaaaaaaaaddddaaaaaaaaaaaaaadddddaaaaaaaaaaaaadddd"
+  "ddddaaaaaaaaaadddddddddddddddddddddddaaaaaaaaaaaaadddddddddddddddddddddd",
+  "ddddaaaaaaaaaaaddddaaaaaaaaaaaaaadddaaaaaaaaaaaaaaddddaaaaaaaaaaaaaadddd",
+  "ddddaaaaaaaaaadddddaaaaaaaaaaaaaaddddaaaaaaaaaaaaaddddaaaaaaaaaaaaaadddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
  ],
  "stairs": [
   {
    "x": 13,
-   "y": 10,
+   "y": 11,
    "w": 3,
-   "h": 8,
+   "h": 6,
    "from": 0,
-   "to": 4
+   "to": 3
   },
   {
    "x": 32,
-   "y": 10,
+   "y": 11,
    "w": 3,
-   "h": 8,
+   "h": 6,
    "from": 0,
-   "to": 4
+   "to": 3
   },
   {
    "x": 51,
-   "y": 10,
+   "y": 11,
    "w": 3,
-   "h": 8,
+   "h": 6,
    "from": 0,
-   "to": 4
+   "to": 3
   }
  ],
  "props": [
   {
    "kind": "ribcage",
    "x": 11,
-   "y": 4
+   "y": 6
   },
   {
    "kind": "ribcage",
    "x": 34,
-   "y": 4
+   "y": 6
   },
   {
    "kind": "ribcage",
    "x": 49,
-   "y": 4
+   "y": 6
   },
   {
    "kind": "dead_tree",
-   "x": 19,
-   "y": 5
+   "x": 18,
+   "y": 7
   },
   {
    "kind": "dead_tree",
-   "x": 29,
-   "y": 5
+   "x": 30,
+   "y": 6
   },
   {
    "kind": "dead_tree",
    "x": 56,
-   "y": 5
+   "y": 7
   },
   {
    "kind": "prayer_flags",
@@ -140,16 +140,6 @@
   {
    "kind": "red_rock",
    "x": 12,
-   "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 16,
-   "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 12,
    "y": 11
   },
   {
@@ -210,16 +200,6 @@
   {
    "kind": "red_rock",
    "x": 31,
-   "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 35,
-   "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 31,
    "y": 11
   },
   {
@@ -276,16 +256,6 @@
    "kind": "red_rock",
    "x": 35,
    "y": 16
-  },
-  {
-   "kind": "red_rock",
-   "x": 50,
-   "y": 10
-  },
-  {
-   "kind": "red_rock",
-   "x": 54,
-   "y": 10
   },
   {
    "kind": "red_rock",
@@ -403,64 +373,14 @@
    "y": 4
   },
   {
-   "kind": "dry_scrub",
-   "x": 9,
-   "y": 7
-  },
-  {
-   "kind": "red_rock",
-   "x": 19,
-   "y": 6
-  },
-  {
-   "kind": "red_rock",
-   "x": 11,
-   "y": 8
-  },
-  {
-   "kind": "red_rock",
-   "x": 28,
-   "y": 3
-  },
-  {
-   "kind": "dry_scrub",
-   "x": 34,
-   "y": 2
-  },
-  {
-   "kind": "red_rock",
-   "x": 28,
-   "y": 9
-  },
-  {
-   "kind": "dry_scrub",
-   "x": 33,
-   "y": 8
-  },
-  {
-   "kind": "red_rock",
-   "x": 47,
-   "y": 5
-  },
-  {
-   "kind": "red_rock",
-   "x": 57,
-   "y": 7
-  },
-  {
-   "kind": "dry_scrub",
-   "x": 47,
-   "y": 9
-  },
-  {
    "kind": "red_rock",
    "x": 0,
    "y": 13
   },
   {
-   "kind": "dry_scrub",
-   "x": 9,
-   "y": 13
+   "kind": "red_rock",
+   "x": 10,
+   "y": 9
   },
   {
    "kind": "dry_scrub",
@@ -473,9 +393,9 @@
    "y": 9
   },
   {
-   "kind": "dead_tree",
-   "x": 31,
-   "y": 7
+   "kind": "dry_scrub",
+   "x": 33,
+   "y": 3
   },
   {
    "kind": "dead_tree",
@@ -483,14 +403,14 @@
    "y": 9
   },
   {
-   "kind": "red_rock",
-   "x": 40,
+   "kind": "hoodoo",
+   "x": 45,
    "y": 6
   },
   {
    "kind": "dry_scrub",
-   "x": 55,
-   "y": 9
+   "x": 56,
+   "y": 6
   },
   {
    "kind": "hoodoo",
@@ -546,6 +466,51 @@
    "kind": "hoodoo",
    "x": 66,
    "y": 16
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 9,
+   "y": 7
+  },
+  {
+   "kind": "red_rock",
+   "x": 19,
+   "y": 6
+  },
+  {
+   "kind": "red_rock",
+   "x": 28,
+   "y": 5
+  },
+  {
+   "kind": "red_rock",
+   "x": 35,
+   "y": 7
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 29,
+   "y": 10
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 36,
+   "y": 9
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 48,
+   "y": 8
+  },
+  {
+   "kind": "red_rock",
+   "x": 50,
+   "y": 8
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 47,
+   "y": 10
   },
   {
    "kind": "dry_scrub",
@@ -709,6 +674,11 @@
   },
   {
    "kind": "dry_scrub",
+   "x": 45,
+   "y": 26
+  },
+  {
+   "kind": "dry_scrub",
    "x": 50,
    "y": 26
   },
@@ -718,24 +688,34 @@
    "y": 25
   },
   {
+   "kind": "dry_scrub",
+   "x": 26,
+   "y": 25
+  },
+  {
+   "kind": "dead_tree",
+   "x": 28,
+   "y": 26
+  },
+  {
    "kind": "red_rock",
-   "x": 30,
-   "y": 27
+   "x": 32,
+   "y": 25
   },
   {
    "kind": "dry_scrub",
-   "x": 33,
+   "x": 55,
+   "y": 25
+  },
+  {
+   "kind": "dry_scrub",
+   "x": 58,
    "y": 26
   },
   {
    "kind": "dry_scrub",
-   "x": 57,
-   "y": 27
-  },
-  {
-   "kind": "red_rock",
    "x": 66,
-   "y": 27
+   "y": 25
   },
   {
    "kind": "dead_tree",
@@ -750,11 +730,11 @@
   ],
   "chest_6": [
    12,
-   2
+   9
   ],
   "jar_2": [
    17,
-   8
+   6
   ],
   "crate_3": [
    31,
@@ -836,5 +816,12 @@
     21
    ]
   ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  }
  ]
 }
