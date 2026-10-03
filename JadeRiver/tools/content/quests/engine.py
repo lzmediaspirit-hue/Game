@@ -37,7 +37,7 @@ if __name__ == "__main__" and not __package__:
     from content.quests import engine as _engine
     raise SystemExit(_engine.main())
 
-from .spec import AUTO, DROP, ORDER, PAY, SpecError, Step, o  # noqa: E402
+from .spec import AUTO, DROP, ORDER, PAY, SpecError  # noqa: E402
 from . import bands as B  # noqa: E402
 
 NODES = ("herb_patch", "ore_vein", "insect_swarm", "star_sight")   # the room objects a template's item comes from
@@ -92,14 +92,8 @@ class World:
             if f.endswith(".json"):
                 rooms.append(_read("rooms", f))
         items = _read("items.json")["entries"] + _read("artifacts.json")["entries"]
-        homes = {}
-        try:
-            from content.npcs import engine as NE
-            for s in NE.state().npcs:
-                if s["at"]:
-                    homes[s["id"]] = s["at"][0]["room"]
-        except ImportError:
-            pass
+        from content.npcs import engine as NE
+        homes = {s["id"]: s["at"][0]["room"] for s in NE.state().npcs if s["at"]}
         return cls(rooms, _read("loot_tables.json")["entries"], _read("enemies.json")["entries"], items,
                    _read("npcs.json")["entries"], homes)
 
@@ -113,11 +107,11 @@ class World:
             return None
         return min(weights, key=lambda r: (-weights[r], (self.band(r) or (0, 0))[0], r))
 
-    def _spawns(self, enemy, weights, scale=1):
+    def _spawns(self, enemy, weights):
         for rid, r in self.rooms.items():
             for s in r.get("spawns", []):
                 if s.get("enemy") == enemy and not s.get("wild_pet") and "requires" not in s:
-                    weights[rid] = weights.get(rid, 0) + int(s.get("max", 1)) * scale
+                    weights[rid] = weights.get(rid, 0) + int(s.get("max", 1))
 
     def droppers(self, item, qid=None):
         """The foes whose loot carries `item` (and those that drop it for quest `qid` only)."""
@@ -269,7 +263,7 @@ class Pay(dict):
 
 
 def text_of(s, w):
-    """A step's quest-log line: its own, or one from the names ("Defeat Reedtail Rats", "Bring 5 Crab Shells")."""
+    """A step's quest-log line: its own, or one from the names ("Defeat Reedtail Rats", "Bring Crab Shells")."""
     if s.get("text") is not None:
         return s["text"]
     k, n = s["kind"], int(s.get("count", 1))
@@ -292,7 +286,8 @@ def text_of(s, w):
 
 
 def derive(q, w):
-    """What the engine derives for quest spec `q` (pins win): {target_room, realm, requires, why}."""
+    """What the engine derives for quest spec `q`, pins winning: {target_room, derived_room (where its steps lead,
+    pinned or not), realm, requires}."""
     from common import realm as realm_c, qdone, qactive
     import realms as R
     giver = q["giver"]

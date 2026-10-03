@@ -1,6 +1,5 @@
 """The quest engine's own tests (engine.py --check runs them): the templates, the derived rooms, realms and pay, the
 row's layout and pins, the band table and the daily board, on a small world of their own, and today's specs."""
-import copy
 import traceback
 
 from . import engine as E
