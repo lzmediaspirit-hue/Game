@@ -11,8 +11,8 @@
   22
  ],
  "levels": [
-  "44444444444444444444444444~~~~44444444444444444440004444",
-  "44444444444444444444444444~~~~44444444444444444440004444",
+  "44444444444444444444444444444444444444444444444440004444",
+  "44444444444444444444444444444444444444444444444440004444",
   "44444444444444444444444444~~~~44444444444444444440004444",
   "44444444444444444444444444~~~~44444444444444444440004444",
   "44444444444444444444444444~~~~44444444444444444440004444",
@@ -43,8 +43,8 @@
   "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
  ],
  "paint": [
-  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
-  "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrdddrrrr",
@@ -144,9 +144,14 @@
    "y": 7
   },
   {
-   "kind": "cattails",
-   "x": 29,
+   "kind": "tree_maple",
+   "x": 28,
    "y": 0
+  },
+  {
+   "kind": "cattails",
+   "x": 26,
+   "y": 4
   },
   {
    "kind": "ferns",

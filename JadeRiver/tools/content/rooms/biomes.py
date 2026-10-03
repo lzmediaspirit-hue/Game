@@ -3,7 +3,9 @@
 A biome is the look a room's spec asks for by name: the ground under it (`base`), the paint of the flights the engine
 cuts (`stair`), and its foliage pools by the role of a band (`flora`): `wall` a cliff's foot, `ground` a meadow or a
 terrace, `walk` a road's verges, `water` the bank, the shallows and the open water. A spec's own `flora` names bands and
-replaces the pool for those; `density` is how thick the scatter lies (pieces per two cells of edge).
+replaces the pool for those; `density` is how thick the scatter lies (pieces per two cells of edge). Two knobs a
+biome may set (R1): `tree_share`, the share of trees where trees grow (0.6; at a cliff's foot two thirds of it), and
+`tree_gap`, how far apart its trees stand (5 cells).
 
 The kinds are the foliage kit's (data/topdown/proto_tileset.json, `foliage`); each grows where the kit says (a tree or a
 bush on meadow, flowers, marsh or rock; cattails on the land or in the shallows; lotus pads on the water)."""
@@ -65,7 +67,7 @@ BIOMES = {
     },
     # The Bamboo Grove: tall bamboo clumps over ferns and mossy rocks, short canes and tall grass along the paths.
     "bamboo": {
-        "base": "g", "stair": "w", "density": 0.36,
+        "base": "g", "stair": "w", "density": 0.36, "tree_share": 0.8, "tree_gap": 3,
         "flora": {"wall": ["bamboo_grove", "rock_mossy", "ferns"],
                   "ground": ["bamboo_grove", "ferns", "bamboo", "rock_mossy", "tall_grass", "stump"],
                   "walk": ["bamboo", "ferns", "rock_small", "tall_grass"],

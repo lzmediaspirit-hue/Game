@@ -15,26 +15,26 @@
   "3333333333333333333333333333333333333333",
   "3333333333333333333333333333333333333333",
   "3333333333333333333333333333333333333333",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000220000000000000000000",
-  "0000000000000000000220000000000000000000",
-  "0000000000002200000000000022000000000000",
-  "0000000000002200000000000022000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000220000000000220000000000000",
-  "0000000000000220000000000220000000000000",
+  "0000000000000000000000000000000000011100",
+  "0000000000000000000000000000000000111110",
+  "0000000000000000000000000000000001111111",
+  "0000000000000000000220000000000001111111",
+  "0000000000000000000220000000000001111111",
+  "0000000000000220000000000220000000111111",
+  "0000000000000220000000000220000000011110",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000",
+  "0000000000000022000000002200000000001100",
+  "0011100000000022000000002200000000011110",
+  "0111110000000000000000000000000000111111",
+  "1111111000000000000000000000000000111111",
+  "1111111000000000000000000000000000111110",
+  "1111110000000000000000000000000000011100",
+  "0111100000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000",
@@ -45,30 +45,30 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggggggggggssssgggsssgggggggggggggg",
-  "gggggggggggggsssssssssssssssgggggggggggg",
-  "ggggggggggsssssssssssssssssssggggggggggg",
-  "gggggggggsssssssssssssssssssssgggggggggg",
-  "gggggggggssssssssssssssssssssssggggggggg",
-  "ggggggggssssssssssssssssssssssssgggggggg",
-  "gggggggsssssssssssssssssssssssssgggggggg",
-  "gggggggsssssssssssssssssssssssssgggggggg",
-  "gggggggssssssssssssssssssssssssssggggggg",
-  "gggggggssssssssssssssssssssssssssggggggg",
-  "gggggggssssssssssssssssssssssssssggggggg",
-  "gggggggssssssssssssssssssssssssssggggggg",
-  "ggggggggsssssssssssssssssssssssssggggggg",
-  "gggggggggsssssssssssssssssssssssgggggggg",
-  "ggggggggggssssssssssssssssssgggggggggggg",
-  "gggggggggggssssssssssssssssggggggggggggg",
-  "gggggggggggggggssssssssssggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg",
-  "gggggggggggggggggggggggggggggggggggggggg"
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrssssssssssrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrsssssssssssssrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrsssssssssssssssrrrrrrrrrrrr",
+  "rrrrrrrrrrrrsssssssssssssssssrrrrrrrrrrr",
+  "rrrrrrrrrrrssssssssssssssssssrrrrrrrrrrr",
+  "rrrrrrrrrrrsssssssssssssssssssrrrrrrrrrr",
+  "rrrrrrrrrrsssssssssssssssssssssrrrrrrrrr",
+  "sssssssssssssssssssssssssssssssrrrrrrrrr",
+  "sssssssssssssssssssssssssssssssrrrrrrrrr",
+  "sssssssssssssssssssssssssssssssrrrrrrrrr",
+  "rrrrrrrrrrrsssssssssssssssssssrrrrrrrrrr",
+  "rrrrrrrrrrrsssssssssssssssssssrrrrrrrrrr",
+  "rrrrrrrrrrrsssssssssssssssssssrrrrrrrrrr",
+  "rrrrrrrrrrrrsssssssssssssssssrrrrrrrrrrr",
+  "rrrrrrrrrrrrrsssssssssssssrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrssssrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
  ],
  "stairs": [],
  "props": [
@@ -113,9 +113,9 @@
    "y": 4
   },
   {
-   "kind": "tall_grass",
-   "x": 0,
-   "y": 19
+   "kind": "tree_pine",
+   "x": 1,
+   "y": 8
   },
   {
    "kind": "tree_pine",
@@ -126,6 +126,11 @@
    "kind": "tree_pine",
    "x": 20,
    "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 32,
+   "y": 15
   },
   {
    "kind": "tree_pine",
@@ -153,6 +158,11 @@
    "y": 26
   },
   {
+   "kind": "bush",
+   "x": 17,
+   "y": 26
+  },
+  {
    "kind": "tall_grass",
    "x": 22,
    "y": 27
@@ -174,22 +184,72 @@
   },
   {
    "kind": "tree_pine",
-   "x": 8,
-   "y": 10
+   "x": 33,
+   "y": 8
   },
   {
-   "kind": "tree_pine",
-   "x": 30,
-   "y": 7
+   "kind": "bush",
+   "x": 39,
+   "y": 5
   },
   {
    "kind": "tall_grass",
-   "x": 11,
+   "x": 9,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 29,
+   "y": 8
+  },
+  {
+   "kind": "tall_grass",
+   "x": 10,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 18,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 34,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 38,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 35,
    "y": 22
   },
   {
-   "kind": "tall_grass",
-   "x": 32,
+   "kind": "rock_small",
+   "x": 39,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 0,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 6,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 23
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 3,
    "y": 22
   }
  ],

@@ -28,12 +28,12 @@
   "00~~~00000~~~~~~~~~~00~~~~~~~~0000000000",
   "0~~~~~00000~~~~~~~~~~0~~~~~~~00000000000",
   "0~~~~~0000000~~~~~~~~0~~~~00000000000000",
-  "0~~~~~0000000000~~~~~0~~~000000000000000",
-  "00~~~00000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
-  "0000000000000000000000000000000000000000",
+  "0~~~~~0000000000~~~~~0~~~00000~~~~~~~000",
+  "00~~~000000000000000000000000~~~~~~~~~00",
+  "0000000000000000000000000000~~~~~~~~~~~0",
+  "0000000000000000000000000000~~~~~~~~~~~0",
+  "00000000000000000000000000000~~~~~~~~~00",
+  "000000000000000000000000000000~~~~~~~000",
   "0000000000000000000000000000000000000000"
  ],
  "paint": [
@@ -49,17 +49,17 @@
   "mmmmmmmmwwmm~~~~~~~rrr~~~~~~~mmmmmmmmmmm",
   "mmmmmmmmmmm~~~~~~~~rrr~~~~~~~~mmmmmmmmmm",
   "mmmmmmmmmmm~~~~~~~~rrr~~~~~~~~mmmmmmmmmm",
-  "mmmmmmmmmm~~~~~~~~~~r~~~~~~~~~mmmmmmmmmm",
-  "mmmmmmmmmm~~~~~~~~~~r~~~~~~~~~mmmmmmmmmm",
-  "mm~~~mmmmm~~~~~~~~~~rr~~~~~~~~mmmmmmmmmm",
-  "m~~~~~mmmmm~~~~~~~~~~r~~~~~~~mmmmmmmmmmm",
-  "m~~~~~mmmmmmm~~~~~~~~r~~~~mmmmmmmmmmmmmm",
-  "m~~~~~mmmmmmmmmm~~~~~r~~~mmmmmmmmmmmmmmm",
-  "mm~~~mmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
-  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
-  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
-  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
-  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm",
+  "mmmmmmmmmm~~~~~~~~~~s~~~~~~~~~mmmmmmmmmm",
+  "mmmmmmmmmm~~~~~~~~~~s~~~~~~~~~mmmmmmmmmm",
+  "mm~~~mmmmm~~~~~~~~~~ss~~~~~~~~mmmmmmmmmm",
+  "m~~~~~mmmmm~~~~~~~~~~s~~~~~~~mmmmmmmmmmm",
+  "m~~~~~mmmmmmm~~~~~~~~s~~~~mmmmmmmmmmmmmm",
+  "m~~~~~mmmmmmmmmm~~~~~s~~~mmmmm~~~~~~~mmm",
+  "mm~~~mmmmmmmmmmmmmmwwwmmmmmmm~~~~~~~~~mm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmm~~~~~~~~~~~m",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmm~~~~~~~~~~~m",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmm~~~~~~~~~mm",
+  "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmm~~~~~~~mmm",
   "mmmmmmmmmmmmmmmmmmmwwwmmmmmmmmmmmmmmmmmm"
  ],
  "stairs": [
@@ -209,13 +209,13 @@
   },
   {
    "kind": "ferns",
-   "x": 30,
+   "x": 27,
    "y": 22
   },
   {
-   "kind": "ferns",
-   "x": 32,
-   "y": 22
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 23
   },
   {
    "kind": "tall_grass",
@@ -273,11 +273,6 @@
    "y": 9
   },
   {
-   "kind": "bush",
-   "x": 20,
-   "y": 13
-  },
-  {
    "kind": "reeds",
    "x": 2,
    "y": 20
@@ -293,9 +288,29 @@
    "y": 15
   },
   {
-   "kind": "ferns",
-   "x": 21,
+   "kind": "tall_grass",
+   "x": 38,
+   "y": 17
+  },
+  {
+   "kind": "reeds",
+   "x": 29,
+   "y": 22
+  },
+  {
+   "kind": "reeds",
+   "x": 32,
    "y": 16
+  },
+  {
+   "kind": "cattails",
+   "x": 34,
+   "y": 17
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 33,
+   "y": 20
   }
  ],
  "place": {

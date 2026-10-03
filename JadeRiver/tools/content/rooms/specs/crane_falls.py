@@ -12,7 +12,7 @@ CF_FALLS_POOL = room(
     "cf_falls_pool", size=(56, 30), biome="falls",
     bands=[("cliff", 0, 6, dict(level=4, paint="r", wall=True)), ("shore", 6, 15, dict(level=0)),
            ("road", 21, 3, dict(paint="d")), ("meadow", 24, 3, dict(level=0)), ("stream", 27, 3, dict(water=True, wavy=True))],
-    features=[("falls", (26, 0, 4, 9), dict(water=True)), ("pool", (16, 8, 26, 12), dict(water=True, shape="round")),
+    features=[("falls", (26, 2, 4, 7), dict(water=True)), ("pool", (16, 8, 26, 12), dict(water=True, shape="round")),
               ("foot_ledge", (19, 6, 7, 2), dict(level=0, paint="s")),
               ("falls_ledge", (4, 6, 10, 3), dict(level=2, paint="r")),
               ("insight_shelf", (10, 12, 6, 3), dict(level=1, paint="r")),
@@ -38,7 +38,7 @@ CF_FALLS_POOL = room(
 CF_BEHIND_FALLS = room(
     "cf_behind_falls", size=(40, 24), biome="cave", level=4,
     features=[("grotto", (2, 2, 36, 19), dict(level=0, paint="d", shape="round")),
-              ("curtain", (6, 20, 28, 4), dict(water=True)), ("mouth", (18, 17, 5, 7), dict(level=0, paint="d")),
+              ("curtain", (0, 20, 40, 4), dict(water=True)), ("mouth", (18, 17, 5, 7), dict(level=0, paint="d")),
               ("ledge_1", (5, 5, 8, 4), dict(level=1, paint="r")), ("shaft_top", (25, 3, 9, 4), dict(level=2, paint="r")),
               ("spring_pool", (13, 9, 10, 6), dict(water=True, shape="round"))],
     stairs="auto",
