@@ -4,6 +4,20 @@ extends HudPart
 ## fortune card, the toasts and a caption; and the boss bar above them.
 ## A part of the HUD (audit 45, S6): HudPart says how a part works.
 
+## The top centre (P5a), one thing under another so none covers another, from under the party chips (or under the boss
+## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
+## the toasts (408 wide, 8 apart; a toast with no room waits), a caption.
+func draw(c) -> void:
+	var y := Hud.TOP_STACK_BOSS if room_boss() != null else Hud.TOP_STACK
+	y = _draw_run_banner(c, y)
+	if not band_on_top():   # a moment's band there says the same, and the two drawn together read as neither
+		y = _draw_banner(y)
+		y = _draw_event(c, y)
+	y = _draw_tribulation(c, y)
+	y = _draw_vignette(y)
+	y = _draw_toasts(y)
+	_draw_caption(y)
+
 ## S43 rule 15: while a thief runs or a timed route is on, the seconds sit at the top of the screen (first in the top
 ## centre's stack).
 func _draw_run_banner(c, y0: float) -> float:
@@ -30,20 +44,6 @@ func _draw_run_banner(c, y0: float) -> float:
 	UiKit.draw_text(hud, text, r.position + Vector2(0, 28), 22, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
 	return r.end.y + 8.0
 
-## The top centre (P5a), one thing under another so none covers another, from under the party chips (or under the boss
-## bar) down to the clear zone: the room's name as you enter, a room event or a tribulation under way, a fortune card,
-## the toasts (408 wide, 8 apart; a toast with no room waits), a caption.
-func draw(c) -> void:
-	var y := Hud.TOP_STACK_BOSS if room_boss() != null else Hud.TOP_STACK
-	y = _draw_run_banner(c, y)
-	if not band_on_top():   # a moment's band there says the same, and the two drawn together read as neither
-		y = _draw_banner(y)
-		y = _draw_event(c, y)
-	y = _draw_tribulation(c, y)
-	y = _draw_vignette(y)
-	y = _draw_toasts(y)
-	_draw_caption(y)
-
 func _draw_banner(y: float) -> float:
 	if hud.banner.text == "" or hud.banner.t > 3.4 or not hud.shown("room_banner"): return y
 	var a := clampf(hud.banner.t / 0.3, 0, 1) * clampf((3.4 - hud.banner.t) / 0.5, 0, 1)
@@ -51,6 +51,63 @@ func _draw_banner(y: float) -> float:
 	UiKit.draw_text(hud, str(hud.banner.text), Vector2(340, y + 32 + slide), 34, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 600, true, true)
 	if str(hud.banner.sub) != "": UiKit.draw_text(hud, str(hud.banner.sub), Vector2(340, y + 56 + slide), 16, Color(UiKit.MIST, a), HORIZONTAL_ALIGNMENT_CENTER, 600)
 	return y + 68.0
+
+## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.
+func _draw_event(c, y0: float) -> float:
+	if Game.room_rt == null or not Game.room_rt.event.get("active", false): return y0
+	var ev: Dictionary = Game.room_rt.event
+	var rule := ""
+	var danger := false
+	if float(ev.get("hp_floor", 0.0)) > 0.0:
+		rule = Tx.t("hud.event_rule.hp_floor") % int(round(float(ev.hp_floor) * 100))
+		danger = c.pools.hp < c.pools.max_hp * (float(ev.hp_floor) + 0.1)
+	if not (ev.get("kill_count", {}) as Dictionary).is_empty():
+		var foe := Tx.t("hud.event_rule.foes") if str(ev.kill_count.enemy) == "*" else str(ContentDB.entry("enemies", str(ev.kill_count.enemy)).get("name", ""))
+		rule = Tx.t("hud.event_rule.kills") % [foe, int(ev.get("kills", 0)), int(ev.kill_count.get("count", 1))]
+	elif str(ev.get("win_on_kill", "")) != "" and ev.has("floor"):
+		rule = Tx.t("hud.event_rule.guardian") % ContentDB.name_of("enemies", str(ev.win_on_kill))
+	elif ev.has("floor"):
+		rule = Tx.t("hud.event_rule.survive")
+	if ev.has("ground_grace_s"):
+		rule = Tx.t("hud.event_rule.ground")
+		danger = float(ev.get("ground_s", 0.0)) > 0.0
+	# v1.2 the lantern defence: the lantern's light, and a warning when it gutters.
+	if ev.get("lantern") is Dictionary and not ev.lantern.is_empty():
+		var light := float(ev.get("light", 100.0))
+		rule = Tx.t("hud.event_rule.lantern") % int(ceil(light))
+		danger = light < 35.0
+	var r := Rect2(470, y0, 340, 52 if rule != "" else 34)
+	hud.draw_style_box(UiKit.style("toast"), r)
+	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
+	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
+	UiKit.draw_text(hud, ev_name, r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
+	# Decision 45: an event whose time is only a last resort (`clock: false`, the Hollow Night: it ends when its boss
+	# falls) shows no countdown, which would read as a time to hold out for.
+	if ev.get("clock", true):
+		UiKit.draw_text(hud, UiKit.clock(left), r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
+		var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
+		hud.draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
+		hud.draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
+	if rule != "": UiKit.draw_text(hud, rule, r.position + Vector2(14, 46), 14, UiKit.RED_TEXT if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+	return r.end.y + 8.0
+
+## S48 heavenly tribulation: bolts struck and to come, and whether a ring is closing now.
+func _draw_tribulation(c, y0: float) -> float:
+	var tv: Dictionary = Game.progression.tribulation_view(c.id)
+	if tv.is_empty(): return y0
+	var r := Rect2(470, y0, 340, 52)
+	hud.draw_style_box(UiKit.style("toast"), r)
+	UiKit.draw_text(hud, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
+	UiKit.draw_text(hud, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
+	var n := int(tv.total)
+	var w := (r.size.x - 28) / maxf(1.0, float(n))
+	for i in n:
+		var cell := Rect2(r.position.x + 14 + i * w, r.position.y + 32, maxf(2.0, w - 2), 6)
+		hud.draw_rect(cell, UiKit.SKY if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
+	if not (tv.warn as Dictionary).is_empty():
+		UiKit.draw_text(hud, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
+		return r.end.y + 16.0
+	return r.end.y + 8.0
 
 ## A fortune encounter (S49): a card that fades in under the room banner, long enough to read, then fades away.
 func _draw_vignette(y0: float) -> float:
@@ -77,12 +134,6 @@ func _draw_vignette(y0: float) -> float:
 		UiKit.draw_text(hud, str(ln), Vector2(r.position.x + 24, y), 18, Color(UiKit.PAPER, a))
 		y += 23
 	return r.end.y + 8.0
-
-func moment_on_screen() -> bool:
-	return is_instance_valid(hud.moments) and hud.moments.screen_busy()
-
-func band_on_top() -> bool:
-	return is_instance_valid(hud.moments) and hud.moments.band_on_top()
 
 ## Toasts at the top centre (docs/mockups/20_states: over play, under the chips), 408 wide and 8 apart. The first always
 ## shows; the next only while it stays above the clear zone, and the rest wait their turn.
@@ -129,6 +180,12 @@ func _draw_caption(y: float) -> void:
 	var w := 520.0
 	hud.draw_rect(Rect2(640 - w / 2.0, y, w, 30), Color(UiKit.INK, 0.55 * a))
 	UiKit.draw_text(hud, "[" + str(hud.caption.text) + "]", Vector2(640 - w / 2.0, y + 21), 18, Color(UiKit.PAPER, a), HORIZONTAL_ALIGNMENT_CENTER, w)
+
+func moment_on_screen() -> bool:
+	return is_instance_valid(hud.moments) and hud.moments.screen_busy()
+
+func band_on_top() -> bool:
+	return is_instance_valid(hud.moments) and hud.moments.band_on_top()
 
 ## The boss in the room, if one lives (with two, the one furthest into the fight: the lowest share of its HP).
 func room_boss() -> EnemyState:
@@ -221,60 +278,3 @@ func _phase_words(ph: Dictionary, done: bool) -> String:
 		return (Tx.t("hud.phase_summoned") if done else Tx.t("hud.phase_summon")) % ContentDB.name_of("enemies", who)
 	if act in ["enrage", "dig_in", "drink_wine", "self_detonate", "awaken"]: return Tx.t("hud.phase_" + act)
 	return Tx.t("hud.phase_turn")
-
-## A room event under way (a survival rite, a Temper trial, a siege): its name, the time left and its rule.
-func _draw_event(c, y0: float) -> float:
-	if Game.room_rt == null or not Game.room_rt.event.get("active", false): return y0
-	var ev: Dictionary = Game.room_rt.event
-	var rule := ""
-	var danger := false
-	if float(ev.get("hp_floor", 0.0)) > 0.0:
-		rule = Tx.t("hud.event_rule.hp_floor") % int(round(float(ev.hp_floor) * 100))
-		danger = c.pools.hp < c.pools.max_hp * (float(ev.hp_floor) + 0.1)
-	if not (ev.get("kill_count", {}) as Dictionary).is_empty():
-		var foe := Tx.t("hud.event_rule.foes") if str(ev.kill_count.enemy) == "*" else str(ContentDB.entry("enemies", str(ev.kill_count.enemy)).get("name", ""))
-		rule = Tx.t("hud.event_rule.kills") % [foe, int(ev.get("kills", 0)), int(ev.kill_count.get("count", 1))]
-	elif str(ev.get("win_on_kill", "")) != "" and ev.has("floor"):
-		rule = Tx.t("hud.event_rule.guardian") % ContentDB.name_of("enemies", str(ev.win_on_kill))
-	elif ev.has("floor"):
-		rule = Tx.t("hud.event_rule.survive")
-	if ev.has("ground_grace_s"):
-		rule = Tx.t("hud.event_rule.ground")
-		danger = float(ev.get("ground_s", 0.0)) > 0.0
-	# v1.2 the lantern defence: the lantern's light, and a warning when it gutters.
-	if ev.get("lantern") is Dictionary and not ev.lantern.is_empty():
-		var light := float(ev.get("light", 100.0))
-		rule = Tx.t("hud.event_rule.lantern") % int(ceil(light))
-		danger = light < 35.0
-	var r := Rect2(470, y0, 340, 52 if rule != "" else 34)
-	hud.draw_style_box(UiKit.style("toast"), r)
-	var left := maxf(0.0, float(ev.get("remaining", 0.0)))
-	var ev_name := Tx.t("hud.tower_floor") % int(ev.floor) if ev.has("floor") else ContentDB.text("event." + str(ev.get("id", "")))
-	UiKit.draw_text(hud, ev_name, r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 240)
-	# Decision 45: an event whose time is only a last resort (`clock: false`, the Hollow Night: it ends when its boss
-	# falls) shows no countdown, which would read as a time to hold out for.
-	if ev.get("clock", true):
-		UiKit.draw_text(hud, UiKit.clock(left), r.position + Vector2(r.size.x - 84, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 70)
-		var frac := left / maxf(1.0, float(ev.get("duration", 1.0)))
-		hud.draw_rect(Rect2(r.position + Vector2(12, 29), Vector2(r.size.x - 24, 3)), Color(UiKit.INK, 0.8))
-		hud.draw_rect(Rect2(r.position + Vector2(12, 29), Vector2((r.size.x - 24) * clampf(frac, 0, 1), 3)), UiKit.BRIGHT_JADE)
-	if rule != "": UiKit.draw_text(hud, rule, r.position + Vector2(14, 46), 14, UiKit.RED_TEXT if danger else UiKit.MIST, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
-	return r.end.y + 8.0
-
-## S48 heavenly tribulation: bolts struck and to come, and whether a ring is closing now.
-func _draw_tribulation(c, y0: float) -> float:
-	var tv: Dictionary = Game.progression.tribulation_view(c.id)
-	if tv.is_empty(): return y0
-	var r := Rect2(470, y0, 340, 52)
-	hud.draw_style_box(UiKit.style("toast"), r)
-	UiKit.draw_text(hud, Tx.t("hud.tribulation_title"), r.position + Vector2(14, 23), 18, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, 200)
-	UiKit.draw_text(hud, Tx.t("hud.tribulation_count") % [int(tv.index), int(tv.total)], r.position + Vector2(r.size.x - 144, 23), 18, UiKit.PAPER, HORIZONTAL_ALIGNMENT_RIGHT, 130)
-	var n := int(tv.total)
-	var w := (r.size.x - 28) / maxf(1.0, float(n))
-	for i in n:
-		var cell := Rect2(r.position.x + 14 + i * w, r.position.y + 32, maxf(2.0, w - 2), 6)
-		hud.draw_rect(cell, UiKit.SKY if i < int(tv.index) else (UiKit.GOLD if i == int(tv.index) and not (tv.warn as Dictionary).is_empty() else Color(UiKit.INK, 0.8)))
-	if not (tv.warn as Dictionary).is_empty():
-		UiKit.draw_text(hud, Tx.t("hud.tribulation_move"), r.position + Vector2(14, 51), 16, UiKit.RED_TEXT, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 28)
-		return r.end.y + 16.0
-	return r.end.y + 8.0

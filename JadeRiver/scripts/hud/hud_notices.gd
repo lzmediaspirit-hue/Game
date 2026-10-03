@@ -4,105 +4,6 @@ extends HudPart
 ## (hud._on_event).
 ## A part of the HUD (audit 45, S6): HudPart says how a part works.
 
-## World news (the calendar's events, the seasons, the Heaven Ranking's shifts, a treasure born elsewhere) reaches the
-## player only once the calendar is theirs (the World menu's unlock, after the Prologue), never while a staged scene
-## holds the stage, and only of a place they know: a room they have been in, and in the top-down world never one past
-## the prototype's gate. The prototype's QA found a late-game event's toast ("The Drowned Shrine Surfaces · Abbot's
-## Sanctum") over a brand-new player's village and the Hollow Night's timer.
-func world_news(room := "") -> bool:
-	var c = Game.active()
-	if c == null or not Unlocks.is_unlocked(c.id, "world_menu"): return false
-	if hud.scene_lock or (hud.scenes != null and hud.scenes.get("run") != null): return false
-	if room != "" and (not Game.account.visited_rooms.has(room) or QuestAuthority.past_gate(c, room)): return false
-	return true
-
-## A calendar event's own room (or the first of its rooms) for world_news: "" when it names none.
-func _event_room(ev: Dictionary) -> String:
-	if str(ev.get("room", "")) != "": return str(ev.room)
-	var rooms: Array = ev.get("rooms", [])
-	for r in rooms:
-		if Game.account.visited_rooms.has(str(r)) and not QuestAuthority.past_gate(Game.active(), str(r)): return str(r)
-	return str(rooms[0]) if not rooms.is_empty() else ""
-
-func _pet_name(uid: String) -> String:
-	var c = Game.active()
-	for pt in (c.pets if c else []):
-		if str(pt.uid) == uid: return str(pt.name)
-	return Tx.t("hud.your_spirit_animal")
-
-## Wind-ups only from bosses and elites, notices only from monsters off screen.
-func caption_worthy(name: String, p: Dictionary) -> bool:
-	if name == "attack_started":
-		var e = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt and str(p.get("actor", "")).is_valid_int() else null
-		return e != null and (e.is_boss() or e.elite)
-	if name == "enemy_aggro":
-		var e2 = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
-		var st = Game.actor_state(Game.active_id)
-		return e2 != null and st != null and Game.room_rt.out_of_view(e2.plane, e2.altitude, st)
-	return true
-
-## Vibration on phones, when the player allows it (S40 haptics toggle).
-func _buzz(ms: int) -> void:
-	if Game.account.settings.get("haptics", true) and OS.has_feature("mobile"): Input.vibrate_handheld(ms)
-
-## Does the world in view draw a plate for the way `portal_id` (which says its refusal itself)?
-func _way_plate(portal_id: String) -> bool:
-	if not is_instance_valid(hud.world) or not "portal_views" in hud.world: return false
-	for pv in hud.world.portal_views:
-		if is_instance_valid(pv) and str(pv.def.get("id", "")) == portal_id: return true
-	return false
-
-## What a spar opponent says at a moment of the spar ("start", "won", "lost"), quoted with their name, or "" when they
-## have no line for it (enemies.json `spar_lines`).
-static func spar_line(opponent: String, moment: String) -> String:
-	var line := str(ContentDB.entry("enemies", opponent).get("spar_lines", {}).get(moment, ""))
-	return "" if line == "" else "%s: “%s”" % [ContentDB.name_of("enemies", opponent), line]
-
-## Before the quest tracker is revealed (the prologue), a new quest's first step rides under its toast...
-func _first_step(qid: String) -> String:
-	var c = Game.active()
-	if c == null or hud.shown("quest_tracker") or not c.quests.active.has(qid): return ""
-	var objs: Array = Game.quest.quest_def(c, qid).get("objectives", [])
-	if objs.is_empty(): return ""
-	var need := int(objs[0].get("count", 1))
-	return str(objs[0].get("text", "")) + ("  0/%d" % need if need > 1 else "")
-
-## ...and each step forward shows as its own toast: "Pick up Herbal Tea  2/3", ticked when done.
-func _objective_toast(qid: String) -> void:
-	var c = Game.active()
-	if c == null or hud.shown("quest_tracker"): return
-	var st: Dictionary = c.quests.active.get(qid, {})
-	if st.is_empty(): return
-	for line in Game.quest.steps_forward(c, qid, hud.objective_seen.get(qid, [])):
-		var txt := str(line.text) + ("  %d / %d" % [int(line.have), int(line.need)] if int(line.need) > 1 else "")
-		hud.toast(("✓ " if line.done else "") + txt, "quest")
-	hud.objective_seen[qid] = (st.progress as Array).duplicate()
-
-## A row of the cue table for the HUD ({} when none of its event's rows holds): its steps in order, each a line of the
-## log ({"log": text, "color": token, "always": bool}) or a toast ({"toast": text, "style": kind, "sub": text}).
-func play(row: Dictionary, p: Dictionary) -> void:
-	for s in row.get("do", []):
-		if s.has("log"): hud.add_log(Cues.text(s["log"], p), Cues.color(s.get("color", "PAPER"), p), bool(s.get("always", false)))
-		elif s.has("toast"): hud.toast(Cues.text(s["toast"], p), str(s.get("style", "unlock")), Cues.text(s["sub"], p) if s.has("sub") else "")
-
-## Each frame: the log's lines and the toasts age and go, and so do the room's name, a fortune card, a caption and the
-## reveal pulses.
-func age(delta: float) -> void:
-	for l in hud.log_lines: l.t += delta
-	hud.log_lines = hud.log_lines.filter(func(l): return l.t < 6.0)
-	# While a moment holds the screen (P6) the toasts wait under it, so the two never cover each other; a toast the top
-	# stack had no room for waits for the one above it to go.
-	if not hud.top_stack.moment_on_screen():
-		var n := hud.toasts.size() if not hud.is_visible_in_tree() else maxi(1, hud.toasts_fit)
-		for i in mini(n, hud.toasts.size()): hud.toasts[i].t += delta
-		hud.toasts = hud.toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
-	if not hud.top_stack.band_on_top(): hud.banner.t += delta   # the room's name keeps its time for after a band over it
-	hud.vignette.t = float(hud.vignette.t) + delta
-	hud.caption.t = float(hud.caption.t) + delta
-	for k in hud.pulses.keys():
-		hud.pulses[k] -= delta
-		if hud.pulses[k] <= 0: hud.pulses.erase(k)
-
 ## An event as the player reads it. Its caption first (a sound written out, when captions are on). Then, for most
 ## events, the first of its rows in the cue table (data/cues.json, `to: "hud"`; tools/data/cues.py) whose `when`
 ## holds: a log line, a toast or both (play). The events below are code: they open a page, set the banner, a fortune
@@ -289,3 +190,102 @@ func handle(name: String, p: Dictionary) -> void:
 				hud.add_log(Tx.t("hud.spirit_affinity") % [ContentDB.item_name(str(p.item)), int(aff)], UiKit.SOUL_TEXT)
 		"artifact_spirit_spoke":
 			hud.add_log(Tx.t("hud.spirit_says") % [str(ContentDB.item(str(p.item)).get("spirit", {}).get("name", "")), str(p.get("line", ""))], UiKit.SOUL_TEXT)
+
+## A row of the cue table for the HUD ({} when none of its event's rows holds): its steps in order, each a line of the
+## log ({"log": text, "color": token, "always": bool}) or a toast ({"toast": text, "style": kind, "sub": text}).
+func play(row: Dictionary, p: Dictionary) -> void:
+	for s in row.get("do", []):
+		if s.has("log"): hud.add_log(Cues.text(s["log"], p), Cues.color(s.get("color", "PAPER"), p), bool(s.get("always", false)))
+		elif s.has("toast"): hud.toast(Cues.text(s["toast"], p), str(s.get("style", "unlock")), Cues.text(s["sub"], p) if s.has("sub") else "")
+
+## Each frame: the log's lines and the toasts age and go, and so do the room's name, a fortune card, a caption and the
+## reveal pulses.
+func age(delta: float) -> void:
+	for l in hud.log_lines: l.t += delta
+	hud.log_lines = hud.log_lines.filter(func(l): return l.t < 6.0)
+	# While a moment holds the screen (P6) the toasts wait under it, so the two never cover each other; a toast the top
+	# stack had no room for waits for the one above it to go.
+	if not hud.top_stack.moment_on_screen():
+		var n := hud.toasts.size() if not hud.is_visible_in_tree() else maxi(1, hud.toasts_fit)
+		for i in mini(n, hud.toasts.size()): hud.toasts[i].t += delta
+		hud.toasts = hud.toasts.filter(func(tt): return tt.t < float(tt.get("life", 3.2)))
+	if not hud.top_stack.band_on_top(): hud.banner.t += delta   # the room's name keeps its time for after a band over it
+	hud.vignette.t = float(hud.vignette.t) + delta
+	hud.caption.t = float(hud.caption.t) + delta
+	for k in hud.pulses.keys():
+		hud.pulses[k] -= delta
+		if hud.pulses[k] <= 0: hud.pulses.erase(k)
+
+## World news (the calendar's events, the seasons, the Heaven Ranking's shifts, a treasure born elsewhere) reaches the
+## player only once the calendar is theirs (the World menu's unlock, after the Prologue), never while a staged scene
+## holds the stage, and only of a place they know: a room they have been in, and in the top-down world never one past
+## the prototype's gate. The prototype's QA found a late-game event's toast ("The Drowned Shrine Surfaces · Abbot's
+## Sanctum") over a brand-new player's village and the Hollow Night's timer.
+func world_news(room := "") -> bool:
+	var c = Game.active()
+	if c == null or not Unlocks.is_unlocked(c.id, "world_menu"): return false
+	if hud.scene_lock or (hud.scenes != null and hud.scenes.get("run") != null): return false
+	if room != "" and (not Game.account.visited_rooms.has(room) or QuestAuthority.past_gate(c, room)): return false
+	return true
+
+## A calendar event's own room (or the first of its rooms) for world_news: "" when it names none.
+func _event_room(ev: Dictionary) -> String:
+	if str(ev.get("room", "")) != "": return str(ev.room)
+	var rooms: Array = ev.get("rooms", [])
+	for r in rooms:
+		if Game.account.visited_rooms.has(str(r)) and not QuestAuthority.past_gate(Game.active(), str(r)): return str(r)
+	return str(rooms[0]) if not rooms.is_empty() else ""
+
+func _pet_name(uid: String) -> String:
+	var c = Game.active()
+	for pt in (c.pets if c else []):
+		if str(pt.uid) == uid: return str(pt.name)
+	return Tx.t("hud.your_spirit_animal")
+
+## Wind-ups only from bosses and elites, notices only from monsters off screen.
+func caption_worthy(name: String, p: Dictionary) -> bool:
+	if name == "attack_started":
+		var e = Game.room_rt.enemies.get(int(str(p.get("actor", "0")))) if Game.room_rt and str(p.get("actor", "")).is_valid_int() else null
+		return e != null and (e.is_boss() or e.elite)
+	if name == "enemy_aggro":
+		var e2 = Game.room_rt.enemies.get(int(p.get("enemy", 0))) if Game.room_rt else null
+		var st = Game.actor_state(Game.active_id)
+		return e2 != null and st != null and Game.room_rt.out_of_view(e2.plane, e2.altitude, st)
+	return true
+
+## Vibration on phones, when the player allows it (S40 haptics toggle).
+func _buzz(ms: int) -> void:
+	if Game.account.settings.get("haptics", true) and OS.has_feature("mobile"): Input.vibrate_handheld(ms)
+
+## Does the world in view draw a plate for the way `portal_id` (which says its refusal itself)?
+func _way_plate(portal_id: String) -> bool:
+	if not is_instance_valid(hud.world) or not "portal_views" in hud.world: return false
+	for pv in hud.world.portal_views:
+		if is_instance_valid(pv) and str(pv.def.get("id", "")) == portal_id: return true
+	return false
+
+## What a spar opponent says at a moment of the spar ("start", "won", "lost"), quoted with their name, or "" when they
+## have no line for it (enemies.json `spar_lines`).
+static func spar_line(opponent: String, moment: String) -> String:
+	var line := str(ContentDB.entry("enemies", opponent).get("spar_lines", {}).get(moment, ""))
+	return "" if line == "" else "%s: “%s”" % [ContentDB.name_of("enemies", opponent), line]
+
+## Before the quest tracker is revealed (the prologue), a new quest's first step rides under its toast...
+func _first_step(qid: String) -> String:
+	var c = Game.active()
+	if c == null or hud.shown("quest_tracker") or not c.quests.active.has(qid): return ""
+	var objs: Array = Game.quest.quest_def(c, qid).get("objectives", [])
+	if objs.is_empty(): return ""
+	var need := int(objs[0].get("count", 1))
+	return str(objs[0].get("text", "")) + ("  0/%d" % need if need > 1 else "")
+
+## ...and each step forward shows as its own toast: "Pick up Herbal Tea  2/3", ticked when done.
+func _objective_toast(qid: String) -> void:
+	var c = Game.active()
+	if c == null or hud.shown("quest_tracker"): return
+	var st: Dictionary = c.quests.active.get(qid, {})
+	if st.is_empty(): return
+	for line in Game.quest.steps_forward(c, qid, hud.objective_seen.get(qid, [])):
+		var txt := str(line.text) + ("  %d / %d" % [int(line.have), int(line.need)] if int(line.need) > 1 else "")
+		hud.toast(("✓ " if line.done else "") + txt, "quest")
+	hud.objective_seen[qid] = (st.progress as Array).duplicate()

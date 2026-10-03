@@ -4,39 +4,6 @@ extends HudPart
 ## and the techniques, the pet wheel, the holds, and the technique page's scroll.
 ## A part of the HUD (audit 45, S6): HudPart says how a part works.
 
-func scroll_skills(direction: int) -> void:
-	if hud.scroll_progress < 1.0: return
-	if hud.bound() and not Unlocks.is_unlocked(Game.active_id, "technique_page_2"): return
-	hud.scroll_direction = direction
-	hud.scroll_progress = 0.0
-	hud.skill_page = (hud.skill_page + 1) % 2
-	if hud.bound(): Game.active().skill_page = hud.skill_page
-
-func advance_scroll(delta: float) -> void:
-	hud.scroll_progress = minf(1.0, hud.scroll_progress + delta / 0.36)
-
-## Each frame, the holds on the controls: Cultivate held opens its page, Pet held its wheel, Dodge held guards, and
-## Attack held with a flute plays the melody.
-func tick_holds(delta: float) -> void:
-	if hud.cultivate_pressed:
-		hud.cultivate_hold += delta
-		if hud.cultivate_hold >= float(ContentDB.curve("meditation.hold_page_s", 0.6)) if Game else 0.6:
-			hud.cultivate_pressed = false
-			hud.cultivate_hold = -99.0
-			hud.open_page.emit("cultivation", {})
-	if hud.pet_pressed and not hud.pet_wheel:
-		hud.pet_hold += delta
-		if hud.pet_hold >= 0.45:
-			hud.pet_wheel = true
-			hud.pet_pick = -1
-	if hud.guard_pressed:
-		hud.guard_hold += delta
-		if hud.guard_hold > 0.18 and hud.bound() and not hud.player.state.flying and not Game.combat.timeline(Game.active_id).guard:
-			Game.submit({"type": "guard_start"})
-	if hud.attack_pressed:
-		hud.attack_hold += delta
-		_try_melody()
-
 func role_at(p: Vector2) -> String:
 	# The equip prompt's two buttons (clear of every control; the rest of its card lets a tap through).
 	var prompt := hud.equip_prompt.role_at(p) if hud.bound() else ""
@@ -156,12 +123,6 @@ func press(id: int, p: Vector2):
 	# In a fight the open fan is a quick pick: a toggle taken from it folds it again, out of the ring's way.
 	if hud.fight and hud.fan_open and role in Hud.FAN_ROLE.values(): hud.fan_open = false
 
-## The fan opens and closes (decision 20). At rest the choice is kept: it opens again after the next fight if left open.
-func toggle_fan() -> void:
-	hud.fan_open = not hud.fan_open
-	if not hud.fight: hud.fan_rest_open = hud.fan_open
-	Audio.ui("ui_tap")
-
 func drag(id: int, p: Vector2):
 	if not hud.touches.has(id): return
 	if id == hud.joystick_id:
@@ -213,6 +174,45 @@ func release(id: int):
 		if hud.guard_hold <= 0.18:
 			dodge()
 		Game.submit({"type": "guard_end"})
+
+## The fan opens and closes (decision 20). At rest the choice is kept: it opens again after the next fight if left open.
+func toggle_fan() -> void:
+	hud.fan_open = not hud.fan_open
+	if not hud.fight: hud.fan_rest_open = hud.fan_open
+	Audio.ui("ui_tap")
+
+## Each frame, the holds on the controls: Cultivate held opens its page, Pet held its wheel, Dodge held guards, and
+## Attack held with a flute plays the melody.
+func tick_holds(delta: float) -> void:
+	if hud.cultivate_pressed:
+		hud.cultivate_hold += delta
+		if hud.cultivate_hold >= float(ContentDB.curve("meditation.hold_page_s", 0.6)) if Game else 0.6:
+			hud.cultivate_pressed = false
+			hud.cultivate_hold = -99.0
+			hud.open_page.emit("cultivation", {})
+	if hud.pet_pressed and not hud.pet_wheel:
+		hud.pet_hold += delta
+		if hud.pet_hold >= 0.45:
+			hud.pet_wheel = true
+			hud.pet_pick = -1
+	if hud.guard_pressed:
+		hud.guard_hold += delta
+		if hud.guard_hold > 0.18 and hud.bound() and not hud.player.state.flying and not Game.combat.timeline(Game.active_id).guard:
+			Game.submit({"type": "guard_start"})
+	if hud.attack_pressed:
+		hud.attack_hold += delta
+		_try_melody()
+
+func scroll_skills(direction: int) -> void:
+	if hud.scroll_progress < 1.0: return
+	if hud.bound() and not Unlocks.is_unlocked(Game.active_id, "technique_page_2"): return
+	hud.scroll_direction = direction
+	hud.scroll_progress = 0.0
+	hud.skill_page = (hud.skill_page + 1) % 2
+	if hud.bound(): Game.active().skill_page = hud.skill_page
+
+func advance_scroll(delta: float) -> void:
+	hud.scroll_progress = minf(1.0, hud.scroll_progress + delta / 0.36)
 
 ## A technique refused says why in the log (no Qi, not ready, the wrong weapon, sealed, only in flight).
 func _technique_said(r: Dictionary) -> void:

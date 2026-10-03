@@ -6,132 +6,6 @@ extends HudPart
 
 const MenuPage = preload("res://scripts/ui/pages/menu_page.gd")
 
-## The badges in their row, each popping in as it appears: from small past full size and back, fading in.
-func draw_points(_c) -> void:
-	for pb in hud.layout.frame_badges():
-		var k := hud.layout.points_pop(str(pb.id))
-		if k >= 1.0:
-			hud.glyph("points_" + str(pb.id), pb.center, 32)
-			continue
-		var s := lerpf(0.4, 1.2, k / 0.6) if k < 0.6 else lerpf(1.2, 1.0, (k - 0.6) / 0.4)
-		hud.draw_set_transform(pb.center, 0.0, Vector2(s, s))
-		hud.glyph("points_" + str(pb.id), Vector2.ZERO, 32, Color(1, 1, 1, clampf(k * 2.5, 0.0, 1.0)))
-		hud.draw_set_transform(Vector2.ZERO)
-
-func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String, ahead := 0.0, flash := 0.0) -> void:
-	hud.draw_rect(r.grow(2), UiKit.INK)
-	hud.draw_rect(r, UiKit.BAR_TROUGH)
-	if ahead > 0.0 and frac < 1.0:
-		var a0 := r.size.x * clampf(frac, 0, 1)
-		hud.draw_rect(Rect2(r.position + Vector2(a0, 0), Vector2(r.size.x * clampf(frac + ahead, 0, 1) - a0, r.size.y)), Color(UiKit.BRIGHT_JADE, 0.45))
-	hud.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
-	# A consumable just touched this pool (item_used): the frame glows jade for a moment, full or not.
-	if flash > 0.0: hud.draw_rect(r.grow(2), Color(UiKit.BRIGHT_JADE, clampf(flash / 0.8, 0.0, 1.0)), false, 2.0)
-	hud.draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(UiKit.PALE_GOLD, 0.35), 2)
-	UiKit.draw_text(hud, label, r.position + Vector2(-34, 12), 14, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
-	UiKit.draw_outlined(hud, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
-
-func boss_arena() -> bool:
-	return Game.room_rt != null and str(Game.room_rt.def.get("type", "")) == "boss_arena"
-
-## The purse (mockup 02): silver and spirit stones on the currency pill under the icon row, growing leftward for large
-## sums; it rests in boss arenas (mockup 01).
-func draw_purse() -> void:
-	var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
-	var stones := int(Game.account.currencies.get("spirit_stone", 0))
-	var sw := UiKit.text_width(silver, 18)
-	var w := 38.0 + sw + 16.0
-	if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
-	w = maxf(222.0, w)
-	var cr := Rect2(1262 - w, 222, w, 34)
-	hud.purse_rect = cr
-	hud.draw_style_box(UiKit.style("currency_pill"), cr)
-	hud.glyph("coin", cr.position + Vector2(20, 17), 32)
-	UiKit.draw_text(hud, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
-	if stones > 0:
-		var sx := 38.0 + sw + 28.0
-		hud.glyph("spirit_stone", cr.position + Vector2(sx, 17), 32)
-		UiKit.draw_text(hud, UiKit.fmt(stones), cr.position + Vector2(sx + 20, 24), 18, UiKit.BRIGHT_JADE)
-
-## The icon row (Menu, Bag, Map, Mail at 56 apart): a count on Mail, and a vermilion ready seal on Menu when something
-## waits in the hub (mockup 02).
-func draw_icon_row(c) -> void:
-	for ic in hud.icon_row:
-		if not hud.shown(ic[0]): continue
-		var at: Vector2 = ic[1]
-		hud.ring(at, 26, hud.pulses.has("hud:" + ic[0]))
-		hud.glyph(ic[0], at, 32)
-		if ic[0] == "mail" and Game.mail.unread(c) > 0: UiKit.count_badge(hud, at + Vector2(23, -23), Game.mail.unread(c))
-		if ic[0] == "menu" and hub_ready(c): UiKit.ready_seal(hud, at + Vector2(25, -25))
-
-## Something waits in the hub: the bottleneck is reached, or a day's activity chest is full and not yet opened (the
-## Menu's tablets that carry a ready seal, MenuPage.ready_seals).
-func hub_ready(c) -> bool:
-	return not MenuPage.ready_seals(c).is_empty()
-
-## The party member's body in this room (a pet's or a disciple's ally), or null when it is not out.
-func _party_ally(pc: Dictionary):
-	if Game.room_rt == null: return null
-	var au = (Game.companions.allies if str(pc.kind) == "companion" else Game.pets.allies).get(str(pc.uid))
-	return Game.room_rt.enemies.get(int(au)) if au != null else null
-
-func draw_party(c) -> void:
-	for pc in hud.layout.party_chips(c):
-		var cen: Vector2 = pc.center
-		var kind := str(pc.kind)
-		var a = _party_ally(pc)
-		var frac: float = clampf(a.pools.hp / maxf(1.0, a.pools.max_hp), 0.0, 1.0) if a != null else 1.0
-		var down: bool = a != null and str(a.ai.get("state", "")) == "downed"
-		hud.ring(cen, 24, kind == "mount" and c.riding)
-		if kind == "companion":
-			_draw_face(cen, str(pc.uid), down)
-		else:
-			var p: Dictionary = Game.pets._pet(c, str(pc.uid))
-			var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
-			UiKit.draw_creature(hud, Rect2(cen - Vector2(18, 18), Vector2(36, 36)), art, "idle", hud.t)
-			if p.get("wounded", false): down = true   # a Grievous Wound: the ring runs red all round
-		if down: hud.draw_arc(cen, 28, 0, TAU, 32, UiKit.RED, 3)
-		elif kind in ["active", "party", "companion"]:
-			hud.draw_arc(cen, 28, -PI / 2, -PI / 2 + TAU * maxf(frac, 0.001), 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
-		# A name too long for its chip gives its last word ("Reed Otter" is the otter, mockup 01).
-		var nm := str(pc.name)
-		if UiKit.text_width(nm, 14, true) > 58.0: nm = nm.get_slice(" ", nm.get_slice_count(" ") - 1)
-		var col := UiKit.SKY
-		if kind == "bag": col = UiKit.MIST
-		elif kind == "mount":
-			col = UiKit.GOLD if c.riding else UiKit.MIST
-			nm = Tx.t("hud.walk") if c.riding else Tx.t("hud.ride")
-		UiKit.draw_outlined(hud, UiKit.fit(nm, 14, 58, true), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
-
-## A fellow disciple's face for their chip: the head of their figure as the game draws them. Decision 42 (no old
-## side-view character left in the top-down game): for a top-down character, the top-down figure's head (its idle
-## frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads: the chip is empty the frames
-## they take; the frame cast for the pictures at 38 px, decision 43, so the chip keeps the head it was framed for); the
-## side view's head and shoulders only for a classic side-view character.
-func _draw_face(center: Vector2, cid: String, dim := false) -> void:
-	var box := Vector2(Hud.FACE_BOX, Hud.FACE_BOX)
-	if Figures.top_down():
-		var fig: TopdownFigure = hud._faces.get("top|" + cid)
-		if fig == null:
-			fig = TopdownFigure.wearing(face_outfit(cid), true)
-			hud._faces["top|" + cid] = fig
-		if not fig.loaded(): return
-		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
-		var head := Vector2(roundf(b.get_center().x), b.position.y + Hud.FACE_TOP_HEAD)   # the head's middle, art px from the feet
-		fig.draw(hud, (center - head * Hud.FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), Hud.FACE_TOP_K,
-			Rect2(center - box * 0.5, box), true)
-		return
-	hud.side_view.draw_face(center, cid, dim)   # side view
-
-## A companion's look for their face: their outfit, its unset pieces a disciple's, no weapon.
-func face_outfit(cid: String) -> Dictionary:
-	var o: Dictionary = ContentDB.entry("companions", cid).get("outfit", {}).duplicate()
-	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
-		if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")
-	if not o.has("hair_color"): o.hair_color = 0
-	o.weapon = "none"
-	return o
-
 func draw_player_panel(c) -> void:
 	if not hud.shown("player_panel"): return
 	# The panel grows by one row once the Soul bar exists (Spirit Awakening).
@@ -219,6 +93,19 @@ func draw_player_panel(c) -> void:
 			if i < stacks: hud.draw_colored_polygon(dia, UiKit.GOLD if stacks >= 10 else UiKit.MIST)
 			hud.draw_polyline(dia + PackedVector2Array([dia[0]]), UiKit.INK, 1.5)
 
+func bar(r: Rect2, frac: float, fill: Color, label: String, value_text: String, ahead := 0.0, flash := 0.0) -> void:
+	hud.draw_rect(r.grow(2), UiKit.INK)
+	hud.draw_rect(r, UiKit.BAR_TROUGH)
+	if ahead > 0.0 and frac < 1.0:
+		var a0 := r.size.x * clampf(frac, 0, 1)
+		hud.draw_rect(Rect2(r.position + Vector2(a0, 0), Vector2(r.size.x * clampf(frac + ahead, 0, 1) - a0, r.size.y)), Color(UiKit.BRIGHT_JADE, 0.45))
+	hud.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(frac, 0, 1), r.size.y)), fill)
+	# A consumable just touched this pool (item_used): the frame glows jade for a moment, full or not.
+	if flash > 0.0: hud.draw_rect(r.grow(2), Color(UiKit.BRIGHT_JADE, clampf(flash / 0.8, 0.0, 1.0)), false, 2.0)
+	hud.draw_line(r.position + Vector2(1, 2), r.position + Vector2(maxf(1, r.size.x * clampf(frac, 0, 1) - 1), 2), Color(UiKit.PALE_GOLD, 0.35), 2)
+	UiKit.draw_text(hud, label, r.position + Vector2(-34, 12), 14, UiKit.HUD_LABEL, HORIZONTAL_ALIGNMENT_LEFT, -1, true)
+	UiKit.draw_outlined(hud, value_text, r.position + Vector2(0, r.size.y * 0.5 + 5), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, r.size.x)
+
 ## The Hollowing meter (mockup 02): its stops at Burden and at Seizure, the value, and which way it runs (falling
 ## faster near the lanterns). Returns where the status icons go on.
 func _draw_hollowing(c, at: Vector2) -> float:
@@ -249,6 +136,81 @@ func _draw_hollowing(c, at: Vector2) -> float:
 			UiKit.draw_outlined(hud, lw, Vector2(x, at.y + 18), 14, UiKit.BRIGHT_JADE, HORIZONTAL_ALIGNMENT_LEFT, 90)
 			x += UiKit.text_width(lw, 14, true) + 4.0
 	return x + 12.0
+
+## The badges in their row, each popping in as it appears: from small past full size and back, fading in.
+func draw_points(_c) -> void:
+	for pb in hud.layout.frame_badges():
+		var k := hud.layout.points_pop(str(pb.id))
+		if k >= 1.0:
+			hud.glyph("points_" + str(pb.id), pb.center, 32)
+			continue
+		var s := lerpf(0.4, 1.2, k / 0.6) if k < 0.6 else lerpf(1.2, 1.0, (k - 0.6) / 0.4)
+		hud.draw_set_transform(pb.center, 0.0, Vector2(s, s))
+		hud.glyph("points_" + str(pb.id), Vector2.ZERO, 32, Color(1, 1, 1, clampf(k * 2.5, 0.0, 1.0)))
+		hud.draw_set_transform(Vector2.ZERO)
+
+func draw_party(c) -> void:
+	for pc in hud.layout.party_chips(c):
+		var cen: Vector2 = pc.center
+		var kind := str(pc.kind)
+		var a = _party_ally(pc)
+		var frac: float = clampf(a.pools.hp / maxf(1.0, a.pools.max_hp), 0.0, 1.0) if a != null else 1.0
+		var down: bool = a != null and str(a.ai.get("state", "")) == "downed"
+		hud.ring(cen, 24, kind == "mount" and c.riding)
+		if kind == "companion":
+			_draw_face(cen, str(pc.uid), down)
+		else:
+			var p: Dictionary = Game.pets._pet(c, str(pc.uid))
+			var art := str(ContentDB.entry("pets", str(p.get("species", ""))).get("art", p.get("species", "")))
+			UiKit.draw_creature(hud, Rect2(cen - Vector2(18, 18), Vector2(36, 36)), art, "idle", hud.t)
+			if p.get("wounded", false): down = true   # a Grievous Wound: the ring runs red all round
+		if down: hud.draw_arc(cen, 28, 0, TAU, 32, UiKit.RED, 3)
+		elif kind in ["active", "party", "companion"]:
+			hud.draw_arc(cen, 28, -PI / 2, -PI / 2 + TAU * maxf(frac, 0.001), 32, UiKit.BRIGHT_JADE if frac > 0.3 else UiKit.RED, 3)
+		# A name too long for its chip gives its last word ("Reed Otter" is the otter, mockup 01).
+		var nm := str(pc.name)
+		if UiKit.text_width(nm, 14, true) > 58.0: nm = nm.get_slice(" ", nm.get_slice_count(" ") - 1)
+		var col := UiKit.SKY
+		if kind == "bag": col = UiKit.MIST
+		elif kind == "mount":
+			col = UiKit.GOLD if c.riding else UiKit.MIST
+			nm = Tx.t("hud.walk") if c.riding else Tx.t("hud.ride")
+		UiKit.draw_outlined(hud, UiKit.fit(nm, 14, 58, true), cen + Vector2(-30, 42), 14, col, HORIZONTAL_ALIGNMENT_CENTER, 60)
+
+## The party member's body in this room (a pet's or a disciple's ally), or null when it is not out.
+func _party_ally(pc: Dictionary):
+	if Game.room_rt == null: return null
+	var au = (Game.companions.allies if str(pc.kind) == "companion" else Game.pets.allies).get(str(pc.uid))
+	return Game.room_rt.enemies.get(int(au)) if au != null else null
+
+## A fellow disciple's face for their chip: the head of their figure as the game draws them. Decision 42 (no old
+## side-view character left in the top-down game): for a top-down character, the top-down figure's head (its idle
+## frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads: the chip is empty the frames
+## they take; the frame cast for the pictures at 38 px, decision 43, so the chip keeps the head it was framed for); the
+## side view's head and shoulders only for a classic side-view character.
+func _draw_face(center: Vector2, cid: String, dim := false) -> void:
+	var box := Vector2(Hud.FACE_BOX, Hud.FACE_BOX)
+	if Figures.top_down():
+		var fig: TopdownFigure = hud._faces.get("top|" + cid)
+		if fig == null:
+			fig = TopdownFigure.wearing(face_outfit(cid), true)
+			hud._faces["top|" + cid] = fig
+		if not fig.loaded(): return
+		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
+		var head := Vector2(roundf(b.get_center().x), b.position.y + Hud.FACE_TOP_HEAD)   # the head's middle, art px from the feet
+		fig.draw(hud, (center - head * Hud.FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), Hud.FACE_TOP_K,
+			Rect2(center - box * 0.5, box), true)
+		return
+	hud.side_view.draw_face(center, cid, dim)   # side view
+
+## A companion's look for their face: their outfit, its unset pieces a disciple's, no weapon.
+func face_outfit(cid: String) -> Dictionary:
+	var o: Dictionary = ContentDB.entry("companions", cid).get("outfit", {}).duplicate()
+	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
+		if not o.has(k): o[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "boots"}.get(k, "none")
+	if not o.has("hair_color"): o.hair_color = 0
+	o.weapon = "none"
+	return o
 
 ## The quest tracker (mockup 02): a plate under the statuses with a gold rule down its left, each quest's title, where
 ## it leads with a 48 px go button that walks you there (lit while it does), and its objectives; between main quests
@@ -306,6 +268,44 @@ func draw_tracker(c) -> void:
 ## the words give way with an ellipsis (the count was appended and cut: "…Shallows  0" for 0/5).
 static func tracker_objective(words: String, count: String, width: float) -> String:
 	return UiKit.fit(words, 16, width - (UiKit.text_width(count, 16) + 10.0 if count != "" else 0.0))
+
+## The icon row (Menu, Bag, Map, Mail at 56 apart): a count on Mail, and a vermilion ready seal on Menu when something
+## waits in the hub (mockup 02).
+func draw_icon_row(c) -> void:
+	for ic in hud.icon_row:
+		if not hud.shown(ic[0]): continue
+		var at: Vector2 = ic[1]
+		hud.ring(at, 26, hud.pulses.has("hud:" + ic[0]))
+		hud.glyph(ic[0], at, 32)
+		if ic[0] == "mail" and Game.mail.unread(c) > 0: UiKit.count_badge(hud, at + Vector2(23, -23), Game.mail.unread(c))
+		if ic[0] == "menu" and hub_ready(c): UiKit.ready_seal(hud, at + Vector2(25, -25))
+
+## Something waits in the hub: the bottleneck is reached, or a day's activity chest is full and not yet opened (the
+## Menu's tablets that carry a ready seal, MenuPage.ready_seals).
+func hub_ready(c) -> bool:
+	return not MenuPage.ready_seals(c).is_empty()
+
+## The purse (mockup 02): silver and spirit stones on the currency pill under the icon row, growing leftward for large
+## sums; it rests in boss arenas (mockup 01).
+func draw_purse() -> void:
+	var silver := UiKit.fmt(Game.economy.balance("silver_tael"))
+	var stones := int(Game.account.currencies.get("spirit_stone", 0))
+	var sw := UiKit.text_width(silver, 18)
+	var w := 38.0 + sw + 16.0
+	if stones > 0: w += 34.0 + UiKit.text_width(UiKit.fmt(stones), 18)
+	w = maxf(222.0, w)
+	var cr := Rect2(1262 - w, 222, w, 34)
+	hud.purse_rect = cr
+	hud.draw_style_box(UiKit.style("currency_pill"), cr)
+	hud.glyph("coin", cr.position + Vector2(20, 17), 32)
+	UiKit.draw_text(hud, silver, cr.position + Vector2(38, 24), 18, UiKit.PALE_GOLD)
+	if stones > 0:
+		var sx := 38.0 + sw + 28.0
+		hud.glyph("spirit_stone", cr.position + Vector2(sx, 17), 32)
+		UiKit.draw_text(hud, UiKit.fmt(stones), cr.position + Vector2(sx + 20, 24), 18, UiKit.BRIGHT_JADE)
+
+func boss_arena() -> bool:
+	return Game.room_rt != null and str(Game.room_rt.def.get("type", "")) == "boss_arena"
 
 ## The progress edge (mockups 01, 02): the stage's progress along the foot with a stop at each Level; at the
 ## bottleneck it glows gold, Stored Qi runs as a bright lane along it and the line above says the breakthrough is ready.

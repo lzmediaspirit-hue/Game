@@ -25,7 +25,7 @@ func tour_rect(name: String) -> Rect2:
 		"progress": return Rect2(0, 704, 1280, 16) if hud.shown("progress_bar") else Rect2()
 		"log": return hud.layout.log_rect()
 		"qi", "soul":
-			# The bars' rows as _draw_player_panel lays them: HP, then QI once there is a pool, then SL.
+			# The bars' rows as HudPanels.draw_player_panel lays them: HP, then QI once there is a pool, then SL.
 			if c == null or not hud.shown("player_panel"): return Rect2()
 			var qi: bool = c.pools.max_qi > 0.0 and hud.shown("qi_bar")
 			var at := hud.layout.panel_rect(c).position + Vector2(18, 78.0 if hud.shown("hp_bar") else 60.0)

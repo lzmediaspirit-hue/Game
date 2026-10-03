@@ -23,35 +23,6 @@ func on_ring(center: Vector2, r: float, deg: float, exact := false) -> Vector2:
 	if hud.left_handed: v.x = -v.x
 	return center + v if exact else (center + v).round()
 
-## Rest and fight (P5a): a foe near folds the fan and brings out the healing slot and the treasures; with none near
-## for FIGHT_HOLD_S the fan opens again if the player left it open. The techniques and Attack stay out either way
-## (decision 42).
-func tick_fight(delta: float) -> void:
-	var near := fight_now()
-	hud.fight_left = Hud.FIGHT_HOLD_S if near else maxf(0.0, hud.fight_left - delta)
-	var now := near or hud.fight_left > 0.0
-	if not hud._settled:
-		hud._settled = true
-		hud.fight = now
-		hud.fan_open = hud.fan_rest_open and not now
-	elif now != hud.fight:
-		hud.fight = now
-		hud.fan_open = false if hud.fight else hud.fan_rest_open
-
-func fight_now() -> bool:
-	if hud.fight_override != null: return bool(hud.fight_override)
-	if not hud.bound(): return true
-	return WorldLabels.fight_near(Game.active(), hud.player.plane) or enemy_close() or foe_engaged()
-
-## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
-## Test hook: rules_tests, tutorial_order, the top-down suite and the captures.
-func set_state(in_fight: bool, open := false) -> void:
-	hud.fight_override = in_fight
-	hud.fight = in_fight
-	hud.fight_left = 0.0
-	hud.fan_open = open
-	hud._settled = true
-
 ## A technique slot that holds a technique (an empty or locked slot is not drawn, review G3).
 func slot_filled(slot: int) -> bool:
 	if not hud.bound(): return true
@@ -152,9 +123,31 @@ func ring2_places(items: Array, taken: Array = []) -> Array:
 		out.append(o)
 	return out
 
+## The context's own button on ring 2 (decision 42): whatever the world offers in reach, at rest as in a fight, and a
+## harvest it began while it waits for its tap.
+func context_shown() -> bool:
+	return not hud.context.is_empty() or hud.tapping.object != ""
+
+## S50 Keeping Post: beside a node, out of a fight, the Keep Post button shows. One character is enough: the post works
+## while the game is put away, or for an incense stick burnt at it.
+func post_chip() -> bool:
+	return hud.bound() and str(hud.context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not in_fight_now() \
+		and Unlocks.is_unlocked(Game.active_id, "keeping_post")
+
+func has_draught() -> bool:
+	var c = Game.active()
+	return c != null and c.inventory.draught != null
+
+## A quest step asks for the healing slot: to put something in it, or to use what it holds (Granny's Remedy).
+func quick_asked(c) -> bool:
+	return Game.quest.asks_for(c, "use_system", "set_quick_use") or Game.quest.asks_for(c, "use_item", str(c.inventory.quick_use))
+
+func auto_hunt_shown(c) -> bool:
+	return c != null and hud.bound() and Unlocks.is_unlocked(c.id, "idle_tasks") and (Game.world.auto_hunting(c.id) or Game.world.auto_hunt_block(c) == "")
+
 ## Every round control the HUD shows now, as a hit circle {role, center, drawn, r}. The hud_suite in rules_tests holds
 ## the table to HIT_MIN and the drawn radius + 4.
-## `badges`: the points badges showing (the HUD's frame passes its own, _frame_badges), else asked now.
+## `badges`: the points badges showing (the HUD's frame passes its own, frame_badges), else asked now.
 func hit_targets(badges = null) -> Array:
 	var out: Array = []
 	var add := func(role: String, center: Vector2, drawn: float, hit := 0.0) -> void:
@@ -180,6 +173,37 @@ func hit_targets(badges = null) -> Array:
 	if auto_hunt_shown(c): add.call("auto_hunt", hud.auto_center, 26.0)
 	for pb in (point_badges(c) if badges == null else badges): add.call("points:" + str(pb.id), pb.center, 16.0, Hud.POINTS_PITCH * 0.5)
 	return out
+
+## The party chips beside the player panel (mockup 01): the animals beside you (the active one first) and the fellow
+## disciples, each a 48 px ring with its face, an HP arc and its name under it; then the animals in the Spirit Beast Bag
+## (tap to swap one in, never in a fight) and the mount (tap to ride or walk). An animal opens Spirit Animals, a disciple
+## Companions.
+func party_chips(c) -> Array:
+	var specs: Array = []
+	if c == null or not hud.shown("player_panel"): return specs
+	var seen := {}
+	if hud.shown("pet"):
+		var act: Dictionary = Game.pets.active_pet(c)
+		if not act.is_empty():
+			specs.append({"kind": "active", "uid": str(act.uid), "name": str(act.get("name", ""))})
+			seen[str(act.uid)] = true
+		for p in Game.pets.party(c):
+			if seen.has(str(p.uid)): continue
+			specs.append({"kind": "party", "uid": str(p.uid), "name": str(p.get("name", ""))})
+			seen[str(p.uid)] = true
+	for cid in c.companions.get("active", []):
+		specs.append({"kind": "companion", "uid": str(cid), "name": ContentDB.name_of("companions", str(cid))})
+	if hud.shown("pet"):
+		for uid in c.pet_bag:
+			var bp: Dictionary = Game.pets._pet(c, str(uid))
+			if bp.is_empty() or seen.has(str(uid)) or str(uid) == c.active_pet: continue
+			specs.append({"kind": "bag", "uid": str(uid), "name": str(bp.get("name", ""))})
+			seen[str(uid)] = true
+		if not Game.pets.mount_pet_of(c).is_empty(): specs.append({"kind": "mount", "uid": str(c.mount_pet), "name": ""})
+	for i in specs.size():
+		specs[i].center = Vector2(408.0 + i * 60.0, 44.0)
+		specs[i].r = 24.0
+	return specs
 
 ## The points badges showing now, in POINT_SYSTEMS order: {id, count, center, page, tab}. Bound only (the counts are
 ## the character's); a system not yet unlocked or with nothing to spend has none.
@@ -208,7 +232,7 @@ func _work_badges(c) -> Array:
 	return hud._badges
 
 ## Each frame: a badge newly shown starts its pop, and (after the first look) writes its line to the log. `badges`: the
-## frame's (_frame_badges), else asked now.
+## frame's (frame_badges), else asked now.
 func tick_points(badges = null) -> void:
 	var now := {}
 	for pb in (point_badges(Game.active() if hud.bound() else null) if badges == null else badges):
@@ -255,7 +279,7 @@ func log_rect() -> Rect2:
 	if n == 0: return Rect2()
 	var w := 0.0
 	for r in rows: w = maxf(w, float(r.indent) + UiKit.text_width(str(r.text), 16, true))
-	var x := 20.0 if not hud.left_handed else 1280.0 - 20.0 - Hud.LOG_W   # where _draw_log draws it
+	var x := 20.0 if not hud.left_handed else 1280.0 - 20.0 - Hud.LOG_W   # where HudPanels.draw_log draws it
 	return Rect2(x, Hud.LOG_FOOT - (n - 1) * 21.0 - 16.0, minf(w, Hud.LOG_W), (n - 1) * 21.0 + 22.0)
 
 ## The player panel, one row taller once the Soul bar shows: it draws there, and the whole of it opens Character.
@@ -263,9 +287,42 @@ func panel_rect(c) -> Rect2:
 	var soul_row: bool = c != null and c.pools.max_soul > 0.0 and hud.shown("soul_bar")
 	return Rect2(16, 16, 360, 120 if soul_row else 104)
 
+## The context button's words under it, as wide as the ring leaves them (CTX_LABEL_W).
+func context_label_rect() -> Rect2:
+	return Rect2(hud.context_center.x - Hud.CTX_LABEL_W * 0.5, hud.context_center.y + Hud.CTX_R + 2.0, Hud.CTX_LABEL_W, 18.0)
+
 ## A tracker line's go button hit area: 48 x 48 round the drawn button (P4 §7).
 static func go_hit(drawn: Rect2) -> Rect2:
 	return Rect2(drawn.get_center() - Vector2(24, 24), Vector2(48, 48))
+
+## Rest and fight (P5a): a foe near folds the fan and brings out the healing slot and the treasures; with none near
+## for FIGHT_HOLD_S the fan opens again if the player left it open. The techniques and Attack stay out either way
+## (decision 42).
+func tick_fight(delta: float) -> void:
+	var near := fight_now()
+	hud.fight_left = Hud.FIGHT_HOLD_S if near else maxf(0.0, hud.fight_left - delta)
+	var now := near or hud.fight_left > 0.0
+	if not hud._settled:
+		hud._settled = true
+		hud.fight = now
+		hud.fan_open = hud.fan_rest_open and not now
+	elif now != hud.fight:
+		hud.fight = now
+		hud.fan_open = false if hud.fight else hud.fan_rest_open
+
+func fight_now() -> bool:
+	if hud.fight_override != null: return bool(hud.fight_override)
+	if not hud.bound(): return true
+	return WorldLabels.fight_near(Game.active(), hud.player.plane) or enemy_close() or foe_engaged()
+
+## Tests and previews: hold the HUD at rest or in a fight, the fan open or closed.
+## Test hook: rules_tests, tutorial_order, the top-down suite and the captures.
+func set_state(in_fight: bool, open := false) -> void:
+	hud.fight_override = in_fight
+	hud.fight = in_fight
+	hud.fight_left = 0.0
+	hud.fan_open = open
+	hud._settled = true
 
 ## S43 rule 5: an enemy aggroed on the player within 400 makes a fight (the Attack button attacks either way since
 ## decision 42; Climb and Enter are on the context's own button).
@@ -285,60 +342,3 @@ func in_fight_now() -> bool:
 func foe_engaged() -> bool:
 	if Game.room_rt == null: return false
 	return Game.room_rt.living_enemies().any(func(e): return e.team == "enemy" and not e.def.get("passive", false) and e.in_fight())
-
-## The context's own button on ring 2 (decision 42): whatever the world offers in reach, at rest as in a fight, and a
-## harvest it began while it waits for its tap.
-func context_shown() -> bool:
-	return not hud.context.is_empty() or hud.tapping.object != ""
-
-## S50 Keeping Post: beside a node, out of a fight, the Keep Post button shows. One character is enough: the post works
-## while the game is put away, or for an incense stick burnt at it.
-func post_chip() -> bool:
-	return hud.bound() and str(hud.context.get("type", "")) in ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm"] and not in_fight_now() \
-		and Unlocks.is_unlocked(Game.active_id, "keeping_post")
-
-func has_draught() -> bool:
-	var c = Game.active()
-	return c != null and c.inventory.draught != null
-
-## The party chips beside the player panel (mockup 01): the animals beside you (the active one first) and the fellow
-## disciples, each a 48 px ring with its face, an HP arc and its name under it; then the animals in the Spirit Beast Bag
-## (tap to swap one in, never in a fight) and the mount (tap to ride or walk). An animal opens Spirit Animals, a disciple
-## Companions.
-func party_chips(c) -> Array:
-	var specs: Array = []
-	if c == null or not hud.shown("player_panel"): return specs
-	var seen := {}
-	if hud.shown("pet"):
-		var act: Dictionary = Game.pets.active_pet(c)
-		if not act.is_empty():
-			specs.append({"kind": "active", "uid": str(act.uid), "name": str(act.get("name", ""))})
-			seen[str(act.uid)] = true
-		for p in Game.pets.party(c):
-			if seen.has(str(p.uid)): continue
-			specs.append({"kind": "party", "uid": str(p.uid), "name": str(p.get("name", ""))})
-			seen[str(p.uid)] = true
-	for cid in c.companions.get("active", []):
-		specs.append({"kind": "companion", "uid": str(cid), "name": ContentDB.name_of("companions", str(cid))})
-	if hud.shown("pet"):
-		for uid in c.pet_bag:
-			var bp: Dictionary = Game.pets._pet(c, str(uid))
-			if bp.is_empty() or seen.has(str(uid)) or str(uid) == c.active_pet: continue
-			specs.append({"kind": "bag", "uid": str(uid), "name": str(bp.get("name", ""))})
-			seen[str(uid)] = true
-		if not Game.pets.mount_pet_of(c).is_empty(): specs.append({"kind": "mount", "uid": str(c.mount_pet), "name": ""})
-	for i in specs.size():
-		specs[i].center = Vector2(408.0 + i * 60.0, 44.0)
-		specs[i].r = 24.0
-	return specs
-
-func auto_hunt_shown(c) -> bool:
-	return c != null and hud.bound() and Unlocks.is_unlocked(c.id, "idle_tasks") and (Game.world.auto_hunting(c.id) or Game.world.auto_hunt_block(c) == "")
-
-## The context button's words under it, as wide as the ring leaves them (CTX_LABEL_W).
-func context_label_rect() -> Rect2:
-	return Rect2(hud.context_center.x - Hud.CTX_LABEL_W * 0.5, hud.context_center.y + Hud.CTX_R + 2.0, Hud.CTX_LABEL_W, 18.0)
-
-## A quest step asks for the healing slot: to put something in it, or to use what it holds (Granny's Remedy).
-func quick_asked(c) -> bool:
-	return Game.quest.asks_for(c, "use_system", "set_quick_use") or Game.quest.asks_for(c, "use_item", str(c.inventory.quick_use))
