@@ -25,7 +25,13 @@ const E1_VIEWS := [
 	["01_caravan_road_turnoff", "cr_caravan_road", Vector2(56, 13), true], ["02_caravan_road_west", "cr_caravan_road", Vector2(16, 14), false],
 	["03_bend_shore_bay", "dw_bend_shore", Vector2(21, 15), true], ["04_bend_shore_steps", "dw_bend_shore", Vector2(48, 17), false],
 	["05_stockade_yard", "mh_stockade", Vector2(26, 13), true], ["06_tunnels_cavern", "mh_tunnels", Vector2(28, 13), true],
-	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true]]
+	["07_loot_cave_hoard", "mh_loot_cave", Vector2(40, 14), true], ["08_boss_den", "mh_boss_den", Vector2(10, 13), true],
+	# R2: the Serpent's Shallows, the Drowned Shrine and Whitewater Gorge (their pictures under r2/)
+	["r2/01_flooded_gate_court", "ds_flooded_gate", Vector2(14, 10), true], ["r2/02_hall_of_lanterns", "ds_hall_of_lanterns", Vector2(28, 12), true],
+	["r2/03_scripture_well", "ds_scripture_well", Vector2(28, 16), true], ["r2/04_abbots_sanctum", "ds_abbots_sanctum", Vector2(36, 13), true],
+	["r2/05_drowned_grotto", "ds_drowned_grotto", Vector2(20, 11), true], ["r2/06_serpents_shallows", "dw_serpents_shallows", Vector2(31, 10), true],
+	["r2/07_gorge_mouth_bridge", "wg_gorge_mouth", Vector2(24, 11), true], ["r2/08_rapids_terraces_falls", "wg_rapids_terraces", Vector2(36, 13), true],
+	["r2/09_echo_cliffs", "wg_echo_cliffs", Vector2(30, 13), true], ["r2/10_waterfall_cave", "wg_waterfall_cave", Vector2(18, 10), true]]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -579,8 +585,10 @@ static func sets() -> Dictionary:
 	# under the HUD at a spot that shows it, the world alone x2 there, and each room whole once.
 	var e1_rows := []
 	for v in E1_VIEWS:
-		var take := [["shot"], ["world", "world/" + str(v[0])]]
-		if v[3]: take.append(["whole_room", "rooms/" + str(v[1])])
+		var dir := str(v[0]).get_base_dir()   # R2: a view under a folder (r2/) keeps its x2 copy and its room there too
+		var pre := dir + "/" if dir != "" else ""
+		var take := [["shot"], ["world", pre + "world/" + str(v[0]).get_file()]]
+		if v[3]: take.append(["whole_room", pre + "rooms/" + str(v[1])])
 		e1_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": take})
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360]], "rows": e1_rows}

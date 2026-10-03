@@ -1,0 +1,254 @@
+{
+ "schema_version": 1,
+ "id": "ds_abbots_sanctum",
+ "name": "Abbot's Sanctum",
+ "size": [
+  56,
+  26
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444440044",
+  "40000000111111100000222222200000111111100000222222200004",
+  "40000000111111100000222222200000111111100000222222200004",
+  "40000000111111100000222222200000111111100000222222200004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000030000030000030000020000030000030000030000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000004",
+  "00000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000111111111001111114",
+  "40000000000000000000000000000000000000111111111001111114",
+  "40000000000000000000000000000000000000111111111001111114",
+  "40000000000000000000000000000000000000000000000001111114",
+  "40000000000000000000000000000000000000000000000001111114",
+  "40000000000000000000000000000000000000000000000001111114",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "40000000000000000000000000000000000000000000000000000004",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssppss",
+  "spppppppssssssspppppssssssspppppssssssspppppssssssspppps",
+  "sppqqqppssssssspppppssssssspppppssssssspppppssssssspppps",
+  "spqqqqqpssssssspppppssssssspppppssssssspppppssssssspppps",
+  "spqqqqqpppssppppppppppssppppppppppssppppppppppssppppppps",
+  "sqqqqqqpppssppppppppppssppppppppppssppppppppppssppppppps",
+  "sqqqqqqpppppppppppppppssppppppppppppppppppppppssppppppps",
+  "sqqqqqqpppppppppppppppssppppppppppppppppppppppssppppppps",
+  "sqqqqqqpppppppppppppppppppppppppppppppppppppppppppppppps",
+  "sqqqqqqppspppppspppppspppppspppppspppppspppppsppppppppps",
+  "spqqqqppppppppppppppppppppppppppppppppppppppppppppppppps",
+  "sppqqpppppppppppppppppppppppppppppppppppppppppppppppppps",
+  "psssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "psssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "saaaaaaaaaaaaaaappppppppppppppppppaaaappppppppppppppppps",
+  "saaaqqqqqqqqqaaaaaapppppppppppppaaaaaasssssssssppsssssss",
+  "saaqqqqqqqqqqqqqqqqqqaaaaaaaaaaaaaaaaasssssssssqasssssss",
+  "sqqqqqqqqqqqqqqqrrrrrrqqqqqqqqqqqqqqqqsssssssssqqsssssss",
+  "sqqqqqqqqqqqqqqrrrrrrrrqqqqqqqqqqqqqqqqqqsssqqqqqsssssss",
+  "sqqqqqqqqqqqqqqrrrrrrrrrqqqqqqqqqqqqqqqqqsssqqqqqsssssss",
+  "sqqqqqqqqqqqqqqrrrrrrrrrqqqqqqqqqqqqqqqqqqqqqqqqqsssssss",
+  "sqqqqqqqqqqqqqqqrrrrrrrrqqqqqqqqqqqqqqqqqqqqqqqqqqqssqqs",
+  "sqqqqqqqqqqqqqqqqrrrrrrqqqqqqqqqqqqqqqqqqqqqqqqqqqqssqqs",
+  "spqqqqqqqqqqqqqpqqrrrrqqqqqqqppqqqqqqqqqqqqqqqqqpppppqqs",
+  "sssssssssssssssssssqqqqqqqsssssssqqqqqssssssssssssssssss"
+ ],
+ "stairs": [
+  {
+   "x": 10,
+   "y": 4,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 22,
+   "y": 4,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 34,
+   "y": 4,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 46,
+   "y": 4,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 41,
+   "y": 19,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 51,
+   "y": 22,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 12,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 24,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 42,
+   "y": 9
+  },
+  {
+   "kind": "incense",
+   "x": 40,
+   "y": 16
+  },
+  {
+   "kind": "incense",
+   "x": 45,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 15,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 18,
+   "y": 18
+  },
+  {
+   "kind": "rock_small",
+   "x": 19,
+   "y": 22
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 21,
+   "y": 24
+  }
+ ],
+ "place": {
+  "small_bell_0": [
+   11,
+   1
+  ],
+  "small_bell_1": [
+   23,
+   2
+  ],
+  "small_bell_2": [
+   35,
+   3
+  ],
+  "small_bell_3": [
+   47,
+   3
+  ],
+  "sleeping_blade_altar": [
+   42,
+   17
+  ],
+  "vault": [
+   52,
+   16
+  ],
+  "journal_vault": [
+   50,
+   21
+  ],
+  "lost_surfacing_bell": [
+   17,
+   16
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    13
+   ],
+   "span": 2
+  },
+  "exit": {
+   "at": [
+    53,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    53,
+    1.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    37,
+    13
+   ]
+  ]
+ ]
+}

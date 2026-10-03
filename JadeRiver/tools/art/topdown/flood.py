@@ -1,8 +1,8 @@
 """R2 (docs/architecture/room_engine.md, "The Drowned Shrine and Whitewater Gorge"): shallow water lying over a floor a
 body wades through, drawn to Terrain v2's rules (terrain2.py) and lit by its sun, high in the north-west.
 
-The paint marks that flood (`q` flagstones under the water, the Drowned Shrine's halls; `h` a river's sandy bed, the
-Serpent's Shallows) draw their own floor, then this overlay over it: clear water a few fingers deep, the floor showing
+The paint marks that flood (`q` flagstones under the water, the Drowned Shrine's halls; `h` a river's pebbled bed, the
+Serpent's Shallows and the grottoes) draw their own floor, then this overlay over it: clear water a few fingers deep, the floor showing
 through, tinted blue-green and darker where a slow noise says it lies deeper, with a few lit ripple dashes and a glint.
 Where the flooded floor meets dry floor its edge wanders in soft lobes (noise periodic in 64 px and round lumps, as
 sand creeps), the water's edge a px lit on the sunny side, a px of pale water on the other, and a damp line on the dry
@@ -53,9 +53,9 @@ def flood_over(corners: tuple, pos: tuple, seed: int = SEED) -> Img:
                 # The body of the water: its tint, deeper where a slow noise lies low, and a lit ripple now and then
                 # (short east-west dashes, as on the open water) and a rare glint.
                 d = fbm(X, Y, seed + 3, (32, 16), (0.6, 0.4))
-                col, a = (WATER2[3], 104) if d > 0.42 else (WATER2[2], 124)
+                col, a = (WATER2[4], 112) if d > 0.42 else (WATER2[3], 128)
                 if d > 0.62:
-                    col, a = WATER2[4], 96
+                    col, a = WATER2[5], 100
                 if hp(X // 4, Y, seed + 5, 16, 64) < 0.03 and hp(X, Y, seed + 6) < 0.85:
                     col, a = WATER2[6], 150
                 elif hp(X, Y, seed + 8) < 0.006:

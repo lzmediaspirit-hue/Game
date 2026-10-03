@@ -183,6 +183,9 @@ class Build:
             while "%s_%d" % (name, k) in self.regions:
                 k += 1
             name = "%s_%d" % (name, k)
+        if opts.get("water") and opts.get("rapids"):
+            self._rapids(shape or [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)], opts["rapids"],
+                         len(self.regions))
         r = Region(name, x, y, w, h, opts, kind)
         r.shape = shape
         if r.level is None:
@@ -223,6 +226,29 @@ class Build:
         for _ in range(3):
             shape = {c for c in cells if sum((c[0] + dx, c[1] + dy) in shape for dx in (-1, 0, 1) for dy in (-1, 0, 1)) >= 5}
         return sorted(shape, key=lambda c: (c[1], c[0]))
+
+    def _rapids(self, cells, dens, salt):
+        """R2: a water band's rapids (`rapids`: the share of its cells that break the stream): rocks of a cell or two,
+        each standing in open water (two cells of water all round, so none joins the bank), three cells apart at least,
+        picked in the order of a hash of the room's seed and the cell; a boulder sits on each cell of it, the water's
+        shore foam round it makes the river white. Nothing stands on them: the rocks are no floor anyone reaches."""
+        water = {c for c in cells if 0 <= c[0] < self.w and 0 <= c[1] < self.h and self.lay.lv[c[1]][c[0]] == WATER}
+        want = int(round(len(water) * dens))
+        rocks = []
+        for c in sorted(water, key=lambda c: h01(c[0], c[1], self.seed + 23 * salt)):
+            if len(rocks) >= want:
+                break
+            if any(max(abs(c[0] - q[0]), abs(c[1] - q[1])) < 3 for q in rocks):
+                continue
+            two = h01(c[0], c[1], self.seed + 29 * salt) < 0.45
+            body = [c, (c[0] + 1, c[1])] if two else [c]
+            if all(q in water for b in body for q in [b] + _ring(b[0], b[1], 2, self.w, self.h)) and \
+                    all(0 < q[0] < self.w - 1 for q in body):
+                rocks.append(c)
+                for b in body:
+                    self.lay.rect(b[0], b[1], 1, 1, 0, "r")
+                    self.lay.prop("boulder", b[0], b[1])
+        self.notes.append("rapids: %d rocks" % len(rocks))
 
     def rubble(self):
         """A cave's walls stand in their own rubble (a biome's `rubble`): every floor cell of earth by a wall two levels
@@ -434,7 +460,8 @@ class Build:
             # reached here, and the checks hold the room to it once the flights are laid.
             for r in self.regions.values():
                 if not (r.wall or r.water or r.walk) and (r.level or 0) > 0:
-                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None}
+                    # Only its cells still at its level (R2: a cliff laid over a terrace's edge is no part of it).
+                    reach = reach | {c for c in r.cells() if g.floor(*c) is not None and self.lay.lv[c[1]][c[0]] == r.level}
         lanes = self.lanes()
         taken = self._prop_cells()
         # The cells written out first (and the pinned ones), then each anchor in the spec's order.
@@ -795,7 +822,9 @@ class Build:
         placed = []
         n_before = len(self.lay.props)
         for r in sorted(self.regions.values(), key=lambda r: (r.y, r.x)):
-            pool = spec.get(r.name, pools.get(r.role()))
+            # A shape laid again under the same name (rubble, rubble_2, ...; R2) shares the pool its name is given.
+            pool = spec.get(r.name, spec.get(r.name.rstrip("0123456789").rstrip("_") if r.name[-1:].isdigit() else r.name,
+                                             pools.get(r.role())))
             dens = density
             if isinstance(pool, dict):          # {kinds, density}: a band's own pool and how thick it lies
                 dens = pool.get("density", density)
