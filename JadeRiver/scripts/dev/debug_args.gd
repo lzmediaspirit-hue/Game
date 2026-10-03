@@ -15,7 +15,9 @@ extends RefCounted
 ##   - flag: "--name=" takes a value; "--name" none; "--name[=]" either. In an EACH table a row runs once for each time
 ##     its flag is given, in the order the flags are given; in a ONCE table it runs once if its flag (or any flag of a
 ##     list) is given, in the table's order;
-##   - handler: a function of this script, given the whole argument ("--foe=ashborn_raider:2");
+##   - handler: a function of this script, given the whole argument ("--foe=ashborn_raider:2"). The row holds the
+##     function itself, never its name (contract_tests: no script calls a method by a name), so the tables are
+##     variables, not constants;
 ##   - needs (optional): what must be there for the row to run, else it is skipped (_has).
 ## A handler that waits (a timer) holds every row after it, so a picture is taken once all before it has played.
 
@@ -23,107 +25,107 @@ const EACH := 0
 const ONCE := 1
 
 ## The screen the preview opens on.
-const OPEN := [ONCE, [
-	["--topdown-proto", "_topdown_proto"],         # redesign Phase 1: the top-down prototype room, the real HUD
-	["--topdown", "_topdown"],                     # Phase 4: the preview character is a top-down one (decision 41)
-	["--topdown-tutorial", "_topdown_tutorial"],   # Phase 4: the top-down game, as the title's hidden entry opens it
-	["--preview-selection", "_selection"],
-	["--preview-create", "_creation"],
+var OPEN := [ONCE, [
+	["--topdown-proto", _topdown_proto],       # redesign Phase 1: the top-down prototype room, the real HUD
+	["--topdown", _topdown],                   # Phase 4: the preview character is a top-down one (decision 41)
+	["--topdown-tutorial", _topdown_tutorial], # Phase 4: the top-down game, as the title's hidden entry opens it
+	["--preview-selection", _selection],
+	["--preview-create", _creation],
 ]]
-const ROOM := [EACH, [
-	["--room=", "_room"],
-	["--text-size=", "_text_size"],
+var ROOM := [EACH, [
+	["--room=", _room],
+	["--text-size=", _text_size],
 ]]
 ## The preview character placed in its room (--room=), before it enters the world.
-const PLACE := [
-	[EACH, [["--at=", "_at"]]],
-	[ONCE, [["--unlock-all", "_unlock_all"], ["--debug-sect", "_debug_sect"]]],
+var PLACE := [
+	[EACH, [["--at=", _at]]],
+	[ONCE, [["--unlock-all", _unlock_all], ["--debug-sect", _debug_sect]]],
 ]
 
 ## The state the picture shows, set up in turn.
-const STEPS := [
+var STEPS := [
 	# The character, its account and its room (S38 debug tools; the S45 to S49 previews).
 	[EACH, [
-		["--pet=", "_pet", ["active"]],
-		["--mine=", "_mine", ["sect"]],
-		["--assault=", "_assault", ["active"]],
-		["--mount=", "_mount", ["active"]],
-		["--bag=", "_bag", ["active"]],
-		["--arena=", "_arena", ["active"]],
-		["--deed=", "_deed", ["active"]],
-		["--companion=", "_companion", ["active"]],
-		["--hearts=", "_hearts", ["active"]],
-		["--grudge=", "_grudge", ["active"]],
-		["--event=", "_event", ["active"]],
-		["--weather=", "_weather"],
-		["--challenge", "_challenge", ["active"]],
-		["--fortune=", "_fortune", ["active"]],
-		["--tower=", "_tower", ["active"]],
-		["--climb=", "_climb", ["active"]],
-		["--activity=", "_activity"],
-		["--phenomenon=", "_phenomenon", ["active"]],
-		["--egg=", "_egg", ["active"]],
-		["--give=", "_give", ["active"]],
-		["--realm=", "_realm", ["active"]],
-		["--wield=", "_wield", ["active"]],
-		["--relic=", "_relic", ["active"]],
-		["--awaken=", "_awaken", ["active"]],
-		["--join=", "_join", ["active"]],
-		["--foe=", "_foe", ["active", "actor"]],
-		["--defeat-foe[=]", "_defeat_foe", ["room"]],
-		["--pick-up[=]", "_pick_up", ["room"]],
-		["--equip=", "_equip", ["active"]],
-		["--cast=", "_cast", ["world", "room"]],
-		["--hold=", "_hold", ["moments"]],
-		["--false-realm=", "_false_realm", ["active"]],
-		["--vessel=", "_vessel", ["active"]],
+		["--pet=", _pet, ["active"]],
+		["--mine=", _mine, ["sect"]],
+		["--assault=", _assault, ["active"]],
+		["--mount=", _mount, ["active"]],
+		["--bag=", _bag, ["active"]],
+		["--arena=", _arena, ["active"]],
+		["--deed=", _deed, ["active"]],
+		["--companion=", _companion, ["active"]],
+		["--hearts=", _hearts, ["active"]],
+		["--grudge=", _grudge, ["active"]],
+		["--event=", _event, ["active"]],
+		["--weather=", _weather],
+		["--challenge", _challenge, ["active"]],
+		["--fortune=", _fortune, ["active"]],
+		["--tower=", _tower, ["active"]],
+		["--climb=", _climb, ["active"]],
+		["--activity=", _activity],
+		["--phenomenon=", _phenomenon, ["active"]],
+		["--egg=", _egg, ["active"]],
+		["--give=", _give, ["active"]],
+		["--realm=", _realm, ["active"]],
+		["--wield=", _wield, ["active"]],
+		["--relic=", _relic, ["active"]],
+		["--awaken=", _awaken, ["active"]],
+		["--join=", _join, ["active"]],
+		["--foe=", _foe, ["active", "actor"]],
+		["--defeat-foe[=]", _defeat_foe, ["room"]],
+		["--pick-up[=]", _pick_up, ["room"]],
+		["--equip=", _equip, ["active"]],
+		["--cast=", _cast, ["world", "room"]],
+		["--hold=", _hold, ["moments"]],
+		["--false-realm=", _false_realm, ["active"]],
+		["--vessel=", _vessel, ["active"]],
 	]],
 	# Pages, talk and the room's people.
 	[EACH, [
-		["--open-page=", "_open_page"],
-		["--tap=", "_tap", ["page"]],
-		["--preview-t=", "_preview_t", ["technique_preview"]],
-		["--talk=", "_talk"],
-		["--interact=", "_interact"],
-		["--shot=", "_shot"],
-		["--posts-demo", "_posts_demo", ["active", "room"]],
-		["--welcome-demo", "_welcome_demo", ["active", "room"]],
-		["--guide-demo", "_guide_demo", ["active"]],
-		["--offer-fates", "_offer_fates", ["active"]],
+		["--open-page=", _open_page],
+		["--tap=", _tap, ["page"]],
+		["--preview-t=", _preview_t, ["technique_preview"]],
+		["--talk=", _talk],
+		["--interact=", _interact],
+		["--shot=", _shot],
+		["--posts-demo", _posts_demo, ["active", "room"]],
+		["--welcome-demo", _welcome_demo, ["active", "room"]],
+		["--guide-demo", _guide_demo, ["active"]],
+		["--offer-fates", _offer_fates, ["active"]],
 	]],
 	[ONCE, [
-		["--ride", "_ride", ["world"]],
-		["--fly", "_fly", ["world"]],
+		["--ride", _ride, ["world"]],
+		["--fly", _fly, ["world"]],
 	]],
-	[EACH, [["--herb-ripe=", "_herb_ripe", ["room"]]]],
+	[EACH, [["--herb-ripe=", _herb_ripe, ["room"]]]],
 	# Powers and things in play, held for the picture.
 	[ONCE, [
-		["--garden-preview", "_garden_preview", ["room"]],
-		["--tap-preview", "_tap_preview", ["hud"]],
-		[["--melody", "--throw", "--illusion"], "_melody_throw_illusion", ["active"]],
-		[["--swarm", "--arrays"], "_swarm_arrays", ["active"]],
-		["--beetle-swarm", "_beetle_swarm", ["active"]],
-		["--pet-wheel", "_pet_wheel", ["hud"]],
+		["--garden-preview", _garden_preview, ["room"]],
+		["--tap-preview", _tap_preview, ["hud"]],
+		[["--melody", "--throw", "--illusion"], _melody_throw_illusion, ["active"]],
+		[["--swarm", "--arrays"], _swarm_arrays, ["active"]],
+		["--beetle-swarm", _beetle_swarm, ["active"]],
+		["--pet-wheel", _pet_wheel, ["hud"]],
 	]],
 	# The HUD, pressed as the player presses it.
 	[EACH, [
-		["--toggle=", "_toggle", ["active"]],
-		["--fan=", "_fan", ["hud"]],
-		["--tap-points=", "_tap_points", ["hud"]],
-		["--use-item=", "_use_item", ["active", "hud"]],
+		["--toggle=", _toggle, ["active"]],
+		["--fan=", _fan, ["hud"]],
+		["--tap-points=", _tap_points, ["hud"]],
+		["--use-item=", _use_item, ["active", "hud"]],
 	]],
 	# The moments (P6).
 	[EACH, [
-		["--moment=", "_moment", ["moments"]],
-		["--breakthrough[=]", "_breakthrough", ["moments", "active"]],
+		["--moment=", _moment, ["moments"]],
+		["--breakthrough[=]", _breakthrough, ["moments", "active"]],
 	]],
 ]
 
 ## With --capture, once the picture's wait is over.
-const CAPTURE := [
-	[EACH, [["--auto-path=", "_auto_path", ["active"]], ["--auto-hunt", "_auto_hunt", ["active"]]]],
-	[EACH, [["--wait=", "_wait"]]],
-	[EACH, [["--hazard=", "_hazard"]]],
+var CAPTURE := [
+	[EACH, [["--auto-path=", _auto_path, ["active"]], ["--auto-hunt", _auto_hunt, ["active"]]]],
+	[EACH, [["--wait=", _wait]]],
+	[EACH, [["--hazard=", _hazard]]],
 ]
 
 var main               ## the shell (scripts/main.gd)
@@ -167,12 +169,12 @@ func run() -> void:
 func _run(stage: Array) -> void:
 	if stage[0] == ONCE:
 		for row in stage[1]:
-			if _given(row[0]) and _met(row): await call(row[1], "")
+			if _given(row[0]) and _met(row): await (row[1] as Callable).call("")
 		return
 	for a in args:
 		for row in stage[1]:
 			if _matches(str(a), str(row[0])):
-				if _met(row): await call(row[1], str(a))
+				if _met(row): await (row[1] as Callable).call(str(a))
 				break
 
 static func _matches(a: String, flag: String) -> bool:
