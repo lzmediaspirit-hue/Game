@@ -8,15 +8,19 @@ is (x, y, w, h). Every key but `size` may be left out.
   size      (w, h) in cells
   biome     the flora pools, verges and stair paint a generated room draws from (biomes.py)
   base      the ground under everything: a paint ("g" meadow, "w" planks, "p" paving, "s" granite, "d" path, "m" marsh,
-            "r" rock, "~" water) and `level` its height (0)
+            "r" rock, "a" sand, "~" water; R2's floors under shallow water a body wades: "q" flagstones, "h" a river's
+            pebbled bed) and `level` its height (0)
   walls     an interior: True, or {high, low, paint, rect}: the back and side walls `high` levels up, the front a low
             sill; a way on the sill cuts its doorway
-  bands     [(name, y, h, {level, paint, water, walk, wall, x, w})]: strata from the north, the room's width each (or
-            from `x`, `w` wide); `walk` marks the main walk (a road), `wall` a cliff no one climbs; laid in order
+  bands     [(name, y, h, {level, paint, water, walk, wall, wavy, rapids, x, w})]: strata from the north, the room's
+            width each (or from `x`, `w` wide); `walk` marks the main walk (a road), `wall` a cliff no one climbs,
+            `wavy` edges that wander, `rapids` (water: the share of its cells that break the stream as boulders); laid
+            in order, so a band laid later covers the edge of one before it
   features  [(name, (x, y, w, h), {level, paint, water, rise})]: raised, sunk or painted shapes laid over the bands in
             order; `rise: (from, to)` makes it a flight of stairs rising north
   stairs    [(x, y, w, h, from, to[, paint])] laid after the features, and/or "auto": a flight wherever a walk crosses a
-            level edge, and up onto every raised shape something stands on
+            level edge, and up onto every raised shape something stands on (off the walks and its foot level with its
+            landing where it can)
   ways      {portal id: way}, in the order the layout lists them:
               ("e", row) ("w", row) ("n", col) ("s", col)   an edge way (or an interior's doorway in its sill); a band's
                                                             name for row or col takes its middle; {span, arrive, cut}
@@ -27,7 +31,8 @@ is (x, y, w, h). Every key but `size` may be left out.
             the first walk band below it); a door way may carry its own ({path: ...})
   props     [(kind, x, y[, name]) | {kind, along, every, row}]: pieces placed as written (named ones a door can open
             into), or a row of one kind along a band
-  flora     {band: [kinds] | {kinds, density}, "density": d}: the foliage along each band's edges (the biome's pool
+  flora     {band: [kinds] | {kinds, density}, "density": d}: the foliage along each band's edges (a shape laid again
+            under one name, rubble_2, takes rubble's; the biome's pool
             for its role where the spec names none), seeded by the room's id (a Poisson disc), clear of every anchor,
             way, lane, walk and foe; trees to a band's back, bushes on its lip, none on a road's shoulder
   ground    {"sand" | "snow" | "snowpack": [rect | band name]}: decision 44's sand and snow, laid after the flora
@@ -42,7 +47,8 @@ is (x, y, w, h). Every key but `size` may be left out.
   foes      "auto", or one entry per side-view spawn: its cells, "auto" (its points on the verges, or the open ground,
             each at the column its side-view point stands at), or "auto:<anchor>" (on the cells an anchor names: a
             tower's top); clear of shrines, ways and lanes
-  event     {wave, fixed, waves, timed}: a room event's cells;  routes {object id: [[x, y, s], ...]}: a rooftop run
+  event     {wave, fixed, waves, timed}: a room event's cells (or a set piece's begun here: TopdownRoom.grid_event);
+            routes {object id: [[x, y, s], ...]}: a rooftop run
   areas     [{kind, rect, ...}]: a hazard's areas in cells (the poison mist's pools)
   pins      the hand's last word, never the JSON's: {object id: (x, y)}, "spawn", "stairs", "foes", "props" (the whole
             ordered list, hand-placed), "flora" (the scatter, hand-placed), "add": [(kind, x, y)] more pieces, "drop":

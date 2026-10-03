@@ -1007,6 +1007,20 @@
     }
    ]
   },
+  "dw_serpents_shallows": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "hills",
+     "pad": 40
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "gh_hamlet_square": {
    "vista": [
     {
@@ -2306,6 +2320,48 @@
      "edge": "s",
      "kind": "cloud_sea",
      "pad": 64
+    }
+   ]
+  },
+  "wg_echo_cliffs": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "wg_gorge_mouth": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "wg_rapids_terraces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
     }
    ]
   },

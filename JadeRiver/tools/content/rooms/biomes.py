@@ -89,6 +89,35 @@ BIOMES = {
                   "walk": ["rock_small", "tall_grass"],
                   "water": ["tall_grass", "cattails"]},
     },
+    # R2 ------------------------------------------------------------------------------------------------------------
+    # The Drowned Shrine: dressed granite walls round flagstone halls the river half fills (`q`, a floor under shallow
+    # water), moss and ferns where the silt settled, cattails in the shallows, lotus on the deep pools. Lamp-lit
+    # (TopdownLight's "cave"). No trees: nothing grows tall under the river.
+    "drowned_shrine": {
+        "base": "p", "stair": "s", "density": 0.34,
+        "flora": {"wall": ["ferns", "rock_mossy", "rock_small"],
+                  "ground": ["ferns", "rock_mossy", "ferns", "rock_small"],
+                  "walk": ["ferns", "rock_small"],
+                  "water": ["cattails", "lotus_pads"]},
+    },
+    # Whitewater Gorge: grey rock walls and ledges, pines clinging to them, mossy boulders and ferns at their feet, the
+    # river white over its stones, reeds only where it slows.
+    "gorge": {
+        "base": "r", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["tree_pine", "rock_mossy", "ferns", "rock_small"],
+                  "ground": ["tree_pine", "rock_mossy", "ferns", "bush", "tall_grass"],
+                  "walk": ["rock_small", "ferns", "rock_mossy"],
+                  "water": ["tree_pine", "ferns", "cattails"]},
+    },
+    # A grotto under the river (the Drowned Grotto, the Waterfall Cave): the cave's rock round a floor of wet sand and
+    # shallows (`h`), ferns and mossy rocks by the walls, cattails in the shallows.
+    "grotto": {
+        "base": "r", "stair": "s", "density": 0.26,
+        "flora": {"wall": ["rock_mossy", "ferns", "rock_small"],
+                  "ground": ["ferns", "rock_mossy", "rock_small"],
+                  "walk": ["ferns", "rock_small"],
+                  "water": ["cattails", "ferns"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

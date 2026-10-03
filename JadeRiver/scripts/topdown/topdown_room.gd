@@ -446,6 +446,33 @@ func spot_near(p: Vector2, z: float, from: Vector2, tol := 40.0) -> Vector2:
 func geometry_def() -> Dictionary:
 	return {"bounds": [0, 0, w * TILE, h * TILE], "surfaces": [{"id": "grid", "rect": [0, 0, w * TILE, h * TILE], "stratum": "ground"}]}
 
+## R2: a set piece's room event begun in a room on the grid (a rite circle's trial: the Riverbreath Trial at the
+## Scripture Well). Its spawn points are the side view's, so each takes the layout's own cells for the room's event
+## (`event`: wave, waves, fixed, timed, as merge_def maps them), or else the nearest spot a body stands on.
+func grid_event(ev: Dictionary) -> Dictionary:
+	var out := ev.duplicate(true)
+	var lay_ev: Dictionary = def.get("event", {})
+	if out.get("wave") is Dictionary:
+		out.wave.points = cell_points(lay_ev.wave) if lay_ev.has("wave") else _standable(out.wave.get("points", []))
+	var cells: Array = lay_ev.get("waves", [])
+	for i in (out.get("waves", []) as Array).size():
+		out.waves[i].points = cell_points(cells[i]) if i < cells.size() else _standable(out.waves[i].get("points", []))
+	for key in [["fixed_spawns", "fixed"], ["timed_spawns", "timed"]]:
+		var at: Array = lay_ev.get(key[1], [])
+		var rows: Array = out.get(key[0], [])
+		for i in rows.size():
+			var p := cell_point(at[i]) if i < at.size() else nearest_standable(Vector2(float(rows[i].at[0]), float(rows[i].at[1])))
+			rows[i].at = [p.x, p.y]
+	return out
+
+## Side-view points as the nearest spots a body stands on, [x, y] each.
+func _standable(pts: Array) -> Array:
+	var out: Array = []
+	for q in pts:
+		var p := nearest_standable(Vector2(float(q[0]), float(q[1])))
+		out.append([p.x, p.y])
+	return out
+
 ## The RoomRuntime definition of a room of the world on the grid: its side-view definition (every id, rule, NPC,
 ## object, portal, spawn and event kept) with the places taken from the layout, in world units on the grid's plane:
 ##   place    object id -> cell: where it stands; its `alt` is the floor there (a roof, a loft, a terrace);

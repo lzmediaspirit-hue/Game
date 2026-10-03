@@ -386,6 +386,7 @@ PLANTED = set("gfbmr")                    # what a plant or a garden piece stand
 ANYWHERE = {"pot_bonsai", "pot_orchid"}   # a potted plant stands on any floor (a hall's, a deck, the paving)
 ON_WATER = {"lotus_pads"}
 WADING = {"cattails"}                     # stands on the land it grows on or in the shallows
+FLOODED = {k for k, v in TILESET["paint"].items() if v.get("flood")}   # R2: floors under shallow water (a wading plant's)
 DECOR = common.read("decor", OUT)
 
 
@@ -506,7 +507,7 @@ def check_foliage(lay, d, g):
                     if not water:
                         errs.append(where + ": a water plant on land")
                     continue
-                if kind in WADING and water:
+                if kind in WADING and (water or d["paint"][y][x] in FLOODED):
                     continue
                 if water or g.stair[y][x]:
                     errs.append(where + ": on the water or the stairs")

@@ -1,0 +1,200 @@
+{
+ "schema_version": 1,
+ "id": "ds_drowned_grotto",
+ "name": "Drowned Grotto",
+ "size": [
+  56,
+  26
+ ],
+ "spawn": [
+  4,
+  2
+ ],
+ "levels": [
+  "44000000444444444444444444444444444444444444444444444444",
+  "44000000444444444444444444444444444444444444444444444444",
+  "44000000444444000044440000000000444400444444444444444444",
+  "44000000444440000000000011111111111000004444444444444444",
+  "44000000440000000000000011111111111000000000000044444444",
+  "44000000000000000000000011111111111000000000000004444444",
+  "44000000000000000000000011111111111000000000000000444444",
+  "44000000000000000000000011111111111000000000000000000444",
+  "44000000000000000000000000000000000000000000000000000044",
+  "44400000000000000000000000000000000000000000000000000044",
+  "44000000000000000000000000000000000000000000000000000044",
+  "44000000000000000000000000000000000000000000000000000444",
+  "40000000000000000000000000000000000000000000000000000444",
+  "40000000~~~~0000000000000000000000000000~~~~~~0000000444",
+  "440000~~~~~~~00000000000000000000000000~~~~~~~~000000444",
+  "44400~~~~~~~~~000000000000000000000000~~~~~~~~~~00000444",
+  "44440~~~~~~~~~000000000000000000000000~~~~~~~~~~00004444",
+  "444444~~~~~~~~000000000000000000000000~~~~~~~~~~00044444",
+  "4444444~~~~~~00000000000000000000000000~~~~~~~~044444444",
+  "4444444444444000000000000000000000000000~~~~~~4444444444",
+  "44444444444444444444440000000000444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444"
+ ],
+ "paint": [
+  "rraaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rraaaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rraaaaaarrrrrrhhhhrrrrhhhhhhhhhhrrrrhhrrrrrrrrrrrrrrrrrr",
+  "rraaaaaarrrrrhhhhhhhhhhhrrrrrrrrrrrhhhhhrrrrrrrrrrrrrrrr",
+  "rraaaaaarrhhhhhhhhhhhhhhrrrrrrrrrrrhhhhhhhhhhhhhrrrrrrrr",
+  "rraaaaaahhhhhhhhhhhhhhhhrrrrrrrrrrrhhhhhhhhhhhhhhrrrrrrr",
+  "rraaaaaahhhhhhhhhhhhhhhhrrrrrrrrrrrhhhhhhhhhhhhhhhrrrrrr",
+  "rraaaaaahhhhhhhhhhhhhhhhrrrrrrrrrrrhhhhhhhhhhhhhhhhhhrrr",
+  "rraaaaaahhhhhhhhhhhhhhhhhhhhhhhssshhhhhhhhhhhhhhhhhhhhrr",
+  "rrrhhhhhhhhhhhhhhhhaaahhhhhhhhhssshhhhhaaaaaaaaaahhhhhrr",
+  "rrahhhhaaaaaaaaaaaaaaaaaaaaaaaahhhhhhaaaaaaaaaaaaaaahhrr",
+  "rraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahrrr",
+  "rhhhhhhhhhhhaaaaaaaaaaaaaaaaaaaaaahhhhhhhhaaaaaaaaaahrrr",
+  "rhhhhhhh~~~~hhhhhaaaaaaaaaaaaaaaahhhhhhh~~~~~~aahhhhhrrr",
+  "rrhhhh~~~~~~~hhaaaaaaaaaaaaaaaaaaahhhhh~~~~~~~~hhhhhhrrr",
+  "rrrhh~~~~~~~~~aaaaaaaaaaaaaaaaaaaaahhh~~~~~~~~~~hhhhhrrr",
+  "rrrrh~~~~~~~~~aaaaaaaaaaaaaaaaaaaaahhh~~~~~~~~~~hhhhrrrr",
+  "rrrrrr~~~~~~~~haaaaaaaaaaaaaaaaaaahhhh~~~~~~~~~~hhhrrrrr",
+  "rrrrrrr~~~~~~hhhhhhhaaaaaaaaaahhhhhhhhh~~~~~~~~hrrrrrrrr",
+  "rrrrrrrrrrrrrhhhhhhhhhhhhhhhhhhhhhhhhhhh~~~~~~rrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrhhhhhhhhhhrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 31,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "lantern",
+   "x": 9,
+   "y": 9
+  },
+  {
+   "kind": "lantern",
+   "x": 44,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 26,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "ferns",
+   "x": 28,
+   "y": 7
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 30,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "ferns",
+   "x": 8,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 6,
+   "y": 18
+  },
+  {
+   "kind": "cattails",
+   "x": 10,
+   "y": 18
+  },
+  {
+   "kind": "ferns",
+   "x": 44,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 41,
+   "y": 20
+  },
+  {
+   "kind": "cattails",
+   "x": 45,
+   "y": 13
+  }
+ ],
+ "place": {
+  "chest_grotto": [
+   32,
+   3
+  ],
+  "herb_1": [
+   26,
+   6
+  ],
+  "air_pocket_0": [
+   20,
+   15
+  ],
+  "air_pocket_1": [
+   37,
+   13
+  ],
+  "herb_2": [
+   48,
+   12
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    4,
+    0
+   ],
+   "dir": "n",
+   "arrive": [
+    4,
+    2
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    26,
+    15
+   ],
+   [
+    44,
+    7
+   ]
+  ],
+  [
+   [
+    36,
+    9
+   ]
+  ]
+ ]
+}

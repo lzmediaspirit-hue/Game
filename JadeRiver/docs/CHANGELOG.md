@@ -1,5 +1,53 @@
 # Changelog
 
+## The Drowned Shrine and Whitewater Gorge on the grid (decision 45, R2)
+
+The ten side-view rooms south and west of Bend Shore are now on the height grid, each a room engine spec of 16 to 22
+lines: `docs/architecture/room_engine.md`, "The Drowned Shrine and Whitewater Gorge (R2)".
+
+- **The rooms.**
+  - Deepwater Bend: the Serpent's Shallows.
+  - The Drowned Shrine: the Flooded Gate, the Hall of Lanterns, the Scripture Well, the Abbot's Sanctum and the Drowned
+    Grotto.
+  - Whitewater Gorge: the Gorge Mouth, the Rapids Terraces, the Echo Cliffs and the Waterfall Cave.
+
+  Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine now lead onto them. The prototype's gate
+  stands at the Echo Cliffs' way west (Crane Cliffs). Their pictures are in `docs/architecture/room_engine/r2/`.
+- **New looks.**
+  - Three biomes: `drowned_shrine` (granite halls, pillars, rubble, silt, lanterns), `gorge` (rock walls, pines, white
+    water) and `grotto`.
+  - Floors under shallow water that a body wades: `q` flagstones and `h` a river's pebbled bed. Each draws its own floor
+    with the water's overlay over it (`tools/art/topdown/flood.py`, `TopdownTerrain`), and its steps wade.
+  - An animated `waterfall` prop (`tools/art/topdown/falls.py`).
+- **Engine rules** (`tools/content/rooms/engine.py`). Every older room compiles to its file as before.
+  - A water band's `rapids` breaks the stream with boulders.
+  - A flight stands off the walks, its foot level with its landing, where it can.
+  - A raised shape counts as reached only where it is still at its level.
+  - Repeated shapes share their name's flora.
+  - Reeds grow in a floor under shallow water.
+- **Set pieces on the grid.** A rite circle's set piece used to spawn its foes at the side view's points, off the grid.
+  They now spawn on the layout's own cells (`TopdownRoom.grid_event`, from `QuestAuthority.start_set_piece`). The
+  Riverbreath Trial's drowned rise by the Scripture Well's ring.
+- **The living world:** vistas for the four outdoor rooms.
+- **Checks.**
+  - A new suite, `topdown_drowned_shrine` (44 checks), plays the ten rooms on the grid:
+    - each room is built by the view and walked by auto-path;
+    - the Riverbed Serpent;
+    - chapter 5's shrine: The Shrine Surfaces, Lu's Handwriting, The Riverbreath Trial and The Drowned Abbot;
+    - the gorge to the Echo Cliffs' gate.
+  - The frontier tests (`topdown_chapter3`, `topdown_chapter4`, `topdown_tutorial`, `rules_tests`; data-driven since
+    R1) pass unchanged: Bend Shore's three ways lead onto the grid, and the Echo Cliffs' way west stays gated.
+  - `rules_tests`' route tour now covers the ten rooms too. Its 2,712 checks, `topdown_chapter3`'s 41 and
+    `topdown_chapter4`'s 47 are unchanged.
+  - `topdown_tutorial` has 1,027 (R1's run had 1,011). Its walk to the nearest gated way counts the rooms it enters on
+    the way, and that gate moved with R2.
+  - The full run after merging R1: every gate, `boot` and every suite passed with no SCRIPT ERROR, except
+    `perf_tests`' frame budgets on the shared machine (seven agents on four CPUs; 146 s of the run waiting for a CPU).
+    Its misses were the crowd scene in `wp_west`, a page drag and the Marsh Edge's fight, none in these rooms. Run
+    alone, it passed all 18 checks.
+- **Still to do.** Nine foe species of these rooms have no top-down sheets (E2's work), and the side view's moving parts
+  here (rafts, currents, rising floods, the grotto's swim) have no top-down counterpart.
+
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
 The room engine's first batch past chapter 3 (`docs/architecture/room_engine.md`, "The road east: chapter 4"). The
@@ -48,6 +96,7 @@ on the grid end to end.
   - `topdown_tutorial` has 1,011, four more: the walk to the nearest gate and back, and chapter 4's quests stood done.
   - `topdown_chapter3` has 41, one fewer: Bend Shore's two gate checks are now one over every way of its rooms.
   - `rules_tests` keeps its 2,712. No other suite counts its checks by these rooms.
+
 ## Follow-up fixes from the code audit (decision 45, F1)
 
 Four small problems the decision-45 cleanup (`docs/architecture/audit_45.md`) turned up along the way. Nothing else in
