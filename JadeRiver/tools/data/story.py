@@ -14,6 +14,10 @@ import technique_hand as LOST_HAND
 from realms import level_of
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))   # tools/: the content engines
 from content.npcs import engine as NPCS  # noqa: E402
+# The quest engine (decision 45, E5: tools/content/quests, docs/architecture/quest_engine.md): the side quests and the
+# daily board are its specs; the row layout and its parts (o, item, fx, the currencies) have their one home there.
+from content.quests import engine as QE  # noqa: E402
+from content.quests.spec import o, item, fx, taels, stones as spirit_stones, crystals as sage_crystals  # noqa: E402,F401
 
 # ---------------------------------------------------------------------------------------------
 # NPCs. Every person who lives somewhere is a spec of the NPC engine (decision 45, E3: tools/content/npcs,
@@ -392,51 +396,11 @@ def unlocks():
 Q = []
 
 
-def o(kind, text, count=1, **kw):
-    """An objective. Items a quest asks for are either handed over when it is turned in (`consume`, and every deliver)
-    or only counted (proof you gathered them, or a craft step's ingredients): each collect says which."""
-    d = {"kind": kind, "text": text, "count": count}
-    if kind == "deliver":
-        d["consume"] = True
-    assert kind != "collect" or isinstance(kw.get("consume"), bool), "collect objective %r must say consume=True/False" % text
-    d.update(kw)
-    return d
-
-
-# Gap report G1 · the karma ledger: deeds that ease another's lot earn merit on completion. Their merit, alignment
-# and Fame are in karma.json (relations.py, S49); the quest reward names the deed.
-from relations import QUEST_DEEDS as KARMA_QUESTS
-
-
 def quest(qid, name, kind, giver, objectives, rewards=(), hand_in=None, offer=(), complete=(), progress=(), **kw):
-    rewards = list(rewards)
-    if qid in KARMA_QUESTS:
-        rewards.append({"kind": "deed", "deed": qid})
-    d = {"id": qid, "name": name, "kind": kind, "giver": giver, "hand_in": giver if hand_in is None else hand_in,
-         "marker": kw.pop("marker", "gold" if kind in ("main", "prologue") else "blue"),
-         "objectives": list(objectives), "rewards": rewards}
-    if offer:
-        d["offer_text"] = list(offer)
-    if complete:
-        d["complete_text"] = list(complete)
-    if progress:
-        d["progress_text"] = list(progress)
-    d.update(kw)
+    """A hand quest (the prologue, the guided lessons, the main story): its row as the engine lays every quest out
+    (QE.quest_row; a deed of the karma ledger, relations.QUEST_DEEDS, names it last among its rewards)."""
+    d = QE.quest_row(qid, name, kind, giver, objectives, rewards, hand_in, offer, complete, progress, **kw)
     Q.append(d)
-    return d
-
-
-def item(i, n=1):
-    return {"kind": "grant_item", "item": i, "count": n}
-
-
-def taels(n):
-    return {"kind": "grant_currency", "currency": "silver_tael", "amount": n}
-
-
-def fx(kind, **kw):
-    d = {"kind": kind}
-    d.update(kw)
     return d
 
 
@@ -1258,10 +1222,6 @@ def main_quests():
         complete=["I'm still here. Because you cleared every defence. Thank you."])
 
 
-def spirit_stones(n):
-    return {"kind": "grant_currency", "currency": "spirit_stone", "amount": n}
-
-
 def act2_quests():
     """Act II · chapter 11, Beyond the Gate (docs/act2_design.md)."""
     quest("through_the_gate", "Through the Gate", "main", "warden_cao", [
@@ -1507,10 +1467,6 @@ def act2_chapters_15_16():
         next="the_lantern_run")
 
 
-def sage_crystals(n):
-    return {"kind": "grant_currency", "currency": "sage_crystal", "amount": n}
-
-
 def act3_chapter17():
     """Act III · chapter 17, Lanternfall (Sage Sovereign 3 - Will Manifest 1; docs/act3_design.md)."""
     quest("the_lantern_run", "The Lantern Run", "main", "launch_warden_he", [
@@ -1694,14 +1650,7 @@ def act3_citadel_quests():
                "more about space than anyone alive. Find him. Bring him back if he will come. He will not come."],
         complete=["The golems woke because the island turns faster. The island turns faster because the lanterns are going out. Everything is connected.",
                   "You walked the folds in the Hall without falling off the world. That is the first lesson of the Space Dao. The rest I will show you."])
-    quest("the_written_word", "The Written Word", "side", "lanternwright_han", [
-        o("use_system", "Walk the Confucian path (the Cultivation page, Paths)", system="confucian_path"),
-    ], [fx("learn_technique", technique="upright_glyph"), sage_crystals(25), fx("codex", entry="confucian_path")], offered_by_unlock=True,
-        chapter="20", target_room="lh_star_chandlery",
-        offer=["The first Wardens were scholars before they were soldiers. Their words held stars in cages.",
-               "If your heart is upright, walk the path of the written word with me. Righteous Qi bites the Hollow a quarter harder than any blade."],
-        complete=["Now the first glyph: Upright. Write it in the air and mean it. The strength of it is in your Insight, not your arm.",
-                  "The other glyphs are on my shelf, when you have the realm to hold them."])
+    Q.extend(QE.rows("citadel"))   # the Confucian path: the quest engine's (specs/act3.py)
 
 
 def act3_ash_and_tide_quests():
@@ -1757,26 +1706,13 @@ def act3_ash_and_tide_quests():
                "They eat an hour's food an hour and grow while they eat, even while you are gone. Unfed, they dwindle."],
         complete=["Good. Now open the box when the drones come and watch. Wood-things they don't like much. Everything else, they do.",
                   "If you are lucky a Queen will rise one day. Then they grow faster and bite harder. I have seen it twice."])
-    quest("brush_and_bell", "Brush and Bell", "side", "quartermaster_bai", [
-        o("buy_item", "Buy the Ink-Warden's Brush from the Bastion's armoury", item="ink_warden_brush"),
-    ], [sage_crystals(30), fx("learn_technique", technique="splashed_ink")], requires=all_of(qdone("kharns_pyre")),
-        chapter="21", target_room="tf_tidebreak_bastion",
-        offer=["A scribe's brush writes a talisman on whatever it strikes. A Warden's bell rings out on both sides.",
-               "Buy one of each if you have the crystals. Swords are for the young."],
-        complete=["There. A brush wants writing: here is Splashed Ink, the first stroke every Warden scribe learns.",
-                  "The bell is on the shelf when you want it. Swords are for the young."])
+    Q.extend(QE.rows("ash_and_tide"))   # the brush and the bell: the quest engine's (specs/act3.py)
 
 
 def act3_lantern_heart_quests():
     """v1.2 · Phase E, chapter 22 (The Lantern Heart): the Leviathan's Maw (optional), Lu's Lantern (the Lantern Heavenly
     Flame), Greyfall (Shen Lian stays behind; the Frontier hook)."""
-    quest("the_leviathans_maw", "The Leviathan's Maw", "side", "warden_captain_duan", [
-        o("kill", "Bring down the Nebula Leviathan in its Maw", enemy="nebula_leviathan"),
-    ], [sage_crystals(200), item("leviathan_scale", 2), fx("codex", entry="nebula_leviathan")], requires=all_of(qdone("star_warden")),
-        chapter="22", target_room="nd_leviathans_maw",
-        offer=["Something in the Nebula Deep swallows the lantern ships whole. The old Wardens called it the Leviathan.",
-               "It has a Presence like a storm and a Sphere as wide as a harbour. Go if you are ready. Nobody will think less of you if you are not."],
-        complete=["You brought it down. The ships will run the Deep again. Take its scales; the alchemists will want them for the Law pills."])
+    Q.extend(QE.rows("lantern_heart"))   # the Leviathan's Maw (optional): the quest engine's (specs/act3.py)
     quest("lus_lantern", "Lu's Lantern", "main", "harbormaster_lin", [
         o("reach_room", "Cross the Drone Hive into the Nebula Deep", room="nd_nebula_verge"),
         o("set_flag", "Find Lu's star notes in the Crab Grottoes", flag="lus_notes_found"),
@@ -1824,219 +1760,21 @@ def act2_starsea_side_quests():
         offer=["Sage Qi is thick. Two cultivators breathing together thin it for each other. Paired cultivation, the old texts call it.",
                "Sit with one of your companions. Breathe when they breathe. See what happens."],
         complete=["Faster, yes? Keep a companion close when you sit. The river flows better with two banks."])
-    quest("the_deserters", "The Deserters", "side", "champion_qiao", [
-        o("kill", "Bring down the rogue Nine Peaks disciples at the Broken Pier", 6, enemy="nine_peaks_disciple"),
-        o("collect", "Return their scratched badges", 4, item="alliance_badge", consume=True),
-    ], [spirit_stones(160), item("will_tempering_pill", 1)], requires=all_of(qdone("gus_ledger")), target_room="sw_broken_pier",
-        offer=["Some of ours ran to the comet sails. They scratch the peaks off their badges, as if that makes them someone else.",
-               "Bring the badges home. Six of them will not come quietly."],
-        complete=["Four badges. I'll give them back to their peaks. What the peaks do with them is their business."])
-    quest("iron_from_a_comet", "Iron from a Comet", "side", "shipwright_lao", [
-        o("collect", "Bring comet iron from the pirates' hulls", 6, item="comet_iron", consume=True),
-    ], [spirit_stones(150), fx("learn_recipe", recipe="storm_sloop")], requires=all_of(qdone("keel_and_ward"), qdone("gus_ledger")),
-        target_room="sw_pirate_deck",
-        offer=["The comet sails outrun everything in the Expanse. It's the iron: flew through a comet's tail and came out ringing.",
-               "Six ingots. I'll teach you the sloop. Two sails, comet keel. You'll need a formation master's plates too."],
-        complete=["Listen to it ring. Here: the sloop's lines. Half again as fast as the skiff, if your formations hold."])
-    quest("clear_skies_over_the_peak", "Clear Skies over the Peak", "side", "navigator_sun", [
-        o("gather_node", "Take star readings on the Riven Peak", 3, item="star_reading", craft="star_charting"),
-    ], [spirit_stones(120), item("sky_ink", 6)], requires=all_of(qdone("the_skyport_wreck")), target_room="sw_riven_peak",
-        offer=["The stars over the Riven Peak are the clearest in the Expanse. The pirates say they watch you back.",
-               "Three readings from up there. I want to see if they are right."],
-        complete=["These are... very clear. Hm. Keep your chart close up there."])
-    # Rare Daos (v1.1): three teachers of the Expanse open a Dao the valley never taught.
-    quest("blood_remembers", "Blood Remembers", "side", "matriarch_tie", [
-        o("set_flag", "Kneel before the Ironroot tablets in the Ancestor Hall", flag="tablets_honoured"),
-        o("reach_realm", "Become a Sage Sovereign", realm="sage_sovereign_1"),
-    ], [fx("open_dao", dao="blood"), fx("learn_lost_art", art="blood_burning"), spirit_stones(100)], requires=all_of(qdone("ironroot_blood")), target_room="ir_ancestor_hall",
-        offer=["Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
-               "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."],
-        complete=["There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now."])
-    quest("what_the_bones_say", "What the Bones Say", "side", "bone_reader_xiu", [
-        o("collect", "Bring shards of the Terracotta Wardens, who died and did not die", 3, item="terracotta_shard", consume=True),
-    ], [fx("open_dao", dao="life_death"), spirit_stones(100)], requires=all_of(qdone("the_tomb_king")), target_room="ts_hall_of_sand_kings",
-        offer=["The wardens were men once. Then clay. Then something that remembers being men. Bring me what is left of three.",
-               "I will show you the line between living and not. It is thinner than you think, and it moves."],
-        complete=["Hold this shard. Warm, yes? The Life and Death Dao begins where you stop being sure which side it is on."])
-    quest("the_sound_of_snow", "The Sound of Snow", "side", "hermit_shuang", [
-        o("kill", "Quiet the Snow Apes on their ledges", 6, enemy="snow_ape"),
-        o("meditate_seconds", "Sit in silence in the hermit's ice cave", 30),
-    ], [fx("open_dao", dao="emotion"), spirit_stones(100)], requires=all_of(qdone("frost_and_silence"), realm("sage_sovereign_1")),
-        target_room="rf_hermits_ice_cave",
-        offer=["...", "The apes are loud. Quiet them. Then sit here, with me, until you can hear what you feel."],
-        complete=["...", "There. Every feeling has a sound. The Emotion Dao is only listening. You were loud for a long time."])
+    # The side stories (deserters, comet iron, the Riven Peak, three rare Daos of v1.1): the quest engine's section
+    # starsea (tools/content/quests/specs/starsea.py).
+    Q.extend(QE.rows("starsea"))
 
 
 def act2_side_quests():
-    """Act II side stories of the port, the plains, the heights, the lake, the canyons and the Hold."""
-    quest("snow_for_the_cabinet", "Snow for the Cabinet", "side", "apothecary_wu", [
-        o("collect", "Pick Frost Lotus on Rimefrost Heights", 3, item="frost_lotus", consume=True),
-    ], [item("storm_blood_pill", 3), spirit_stones(40)], requires=all_of(qdone("frost_and_silence"), realm("sage_1")), target_room="rf_frostpine_climb",
-        offer=["Frost Lotus. Three. It only blooms where the snow never melts.", "It steadies a Sage's Qi. And my prices."],
-        complete=["Perfect petals. Here, Storm Blood Pills, fresh from the cabinet."])
-    quest("clear_skies", "Clear Skies", "side", "dockmaster_fu", [
-        o("kill", "Drive off the Azure Carp Dragonets over the Reedless Shore", 8, enemy="azure_carp_dragonet"),
-    ], [spirit_stones(70), item("dragonet_scale", 2)], requires=all_of(qactive("the_mirror_remembers"), realm("sage_2")), target_room="ml_reedless_shore",
-        offer=["Dragonets keep spitting at my lake ferry. The sails can't take much more.", "Eight of them. The rest will learn."],
-        complete=["The ferry thanks you. So does my budget."])
-    quest("a_lans_herd", "A-Lan's Herd", "side", "herder_a_lan", [
-        o("kill", "Drive the Spark Weasels away from the herd", 10, enemy="spark_weasel"),
-        o("collect", "Bring Spark Pelts for new saddle blankets", 4, item="spark_pelt", consume=True),
-    ], [spirit_stones(50), item("thunderhorn_stew", 3)], requires=all_of(qdone("storm_in_the_blood"), realm("heaven_glimpse_3")), target_room="tp_stormgrass_verge",
-        offer=["The weasels keep stealing lightning out of the grass, and then the rhinos stampede!", "Chase them off? Please?"],
-        complete=["Grandpa says you'd make a good herder. That's the best thing he says about anyone."])
-    quest("silk_on_the_wind", "Silk on the Wind", "side", "tollkeeper_bai", [
-        o("collect", "Cut Kite Silk from the Wind Kites of the canyons", 5, item="kite_silk", consume=True),
-    ], [spirit_stones(80), item("storm_shard", 10)], requires=all_of(qdone("nine_seats"), realm("sage_2")), target_room="gc_kite_winds",
-        offer=["The canyon wind shreds my toll flags in a week. The kites up there are made of something it can't tear.",
-               "Five lengths of their silk. The Alliance can keep its banners."],
-        complete=["Look at that. Not a fray. The next brigand who says he couldn't see the flag can argue with it."])
-    quest("plumes_for_the_bellows", "Plumes for the Bellows", "side", "clan_smith_gang", [
-        o("collect", "Bring Harpy Plumes from the Harpy Roosts", 4, item="harpy_plume", consume=True),
-    ], [spirit_stones(90), item("stormsteel_ore", 4)], requires=all_of(qdone("ironroot_blood")), target_room="gc_harpy_roosts",
-        offer=["Harpy plumes hold a wind of their own. Line the bellows with them and the forge breathes like a storm.",
-               "Four will do. Kin price, of course. Meaning you fetch them."],
-        complete=["Hear that? The fire's roaring on its own. Take some stormsteel. It'll take a better edge now."])
-    quest("cactus_water", "Cactus Water", "side", "oasis_keeper_meng", [
-        o("collect", "Pick Ember Cactus flowers on the Glass Dunes", 4, item="ember_cactus", consume=True),
-    ], [spirit_stones(90), item("cactus_water", 4)], requires=all_of(qdone("glass_and_bone")), target_room="sd_glass_dunes",
-        offer=["The flowers store the sun. Steep them right and the water keeps the heat out of you instead.",
-               "Four flowers. Pick them at dusk if you can. At noon they bite."],
-        complete=["Cactus water. Drink it before the heat and your Essence runs cool. Here, the first jars are yours."])
-    quest("glass_teeth", "Glass Teeth", "side", "bone_reader_xiu", [
-        o("collect", "Bring Dune Worm glass teeth", 3, item="worm_glass_tooth", consume=True),
-    ], [spirit_stones(110), item("clear_mind_pill", 2)], requires=all_of(qdone("glass_and_bone")), target_room="sd_worm_sea",
-        offer=["Bones for the past, glass for the future. A worm's tooth shows what is coming, if you hold it to the sun.",
-               "Three teeth. The worms will not give them politely."],
-        complete=["Clear as water. I see... a ship with no sea. Hm. That one is yours to find, not mine."])
-    quest("stingers_for_the_hold", "Stingers for the Hold", "side", "clan_smith_gang", [
-        o("collect", "Bring Sandstorm Scorpion stingers", 5, item="scorpion_stinger", consume=True),
-    ], [spirit_stones(120), item("stormsteel_ore", 4)], requires=all_of(qdone("glass_and_bone"), qdone("plumes_for_the_bellows")),
-        target_room="sd_scorpion_flats",
-        offer=["Scorpion venom on a quenched edge. Old Ironroot trick for the desert raiders. Bring me stingers.",
-               "Five. Mind the tails."],
-        complete=["Good. The raiders will think twice. Here, more ore. Kin price."])
+    """Act II side stories of the port, the plains, the heights, the lake, the canyons and the Hold: the quest engine's
+    section act2 (tools/content/quests/specs/expanse.py)."""
+    Q.extend(QE.rows("act2"))
 
 
 def side_quests():
-    # Small valley threads for the people who had none (optional; Part 8 "about 35 side quests").
-    quest("nets_and_shells", "Nets and Shells", "side", "fisher_wen", [o("collect", "Bring Mudshell Crab shells", 5, item="crab_shell", consume=True)],
-          [taels(40), item("roast_fish", 2)], requires=all_of(realm("bone_forging_2")), target_room="lf_reed_shallows",
-          offer=["The crabs cut my nets to ribbons. Bring me their shells and I'll patch the nets with them. Fair's fair."],
-          complete=["Ha! Crab-shell floats. They'll never live it down. Here, supper."])
-    quest("the_muddy_wash", "The Muddy Wash", "side", "washer_mei", [o("kill", "Chase the Reedtail Rats off the washing lines", 6, enemy="reedtail_rat")],
-          [taels(40)], requires=all_of(realm("bone_forging_3")), target_room="lf_reed_shallows",
-          offer=["Rats in the reeds again. They chew the lines and drag the washing through the mud. Six of them, at least."],
-          complete=["Clean sheets for once. Bless you."])
-    quest("beetle_shell_lacquer", "Beetle Shell Lacquer", "side", "storekeeper_fang", [o("collect", "Bring Rock Beetle shells", 6, item="beetle_shell", consume=True)],
-          [taels(90)], requires=all_of(realm("bone_forging_5")), target_room="sq_quarry_rim",
-          offer=["Ground beetle shell makes the finest lacquer in the valley. The quarry beetles are too tough for my porters."],
-          complete=["Look at that shine. The Jade Sect will pay double for boxes like these."])
-    quest("copper_for_the_bellows", "Copper for the Bellows", "side", "smith_bao", [o("collect", "Bring Copper ore", 8, item="copper_ore", consume=True)],
-          [taels(100), item("forge_hammer", 1)], requires=all_of(realm("bone_forging_5")),
-          offer=["My bellows need new copper fittings and the quarry price doubled. Mine me some, would you?"],
-          complete=["Good ore. Take my old hammer. It still rings true."])
-    quest("auntie_rongs_soup", "Auntie Rong's Soup", "side", "auntie_rong", [o("deliver", "Bring Riverfish Soup", 2, item="riverfish_soup")],
-          [taels(80), item("lotus_root_tea", 2)], requires=all_of(realm("bone_forging_8"), unlocked("cooking")),
-          offer=["My hands shake too much to gut fish these days. Two bowls of riverfish soup for my grandsons?"],
-          complete=["Just like my mother made. Take some tea, dear."])
-    quest("kais_wager", "Kai's Wager", "side", "adventurer_kai", [o("kill", "Defeat Mud Hounds at the Mudwater stockade", 6, enemy="mud_hound")],
-          [taels(150)], requires=all_of(realm("qi_kindling_7")), target_room="mh_stockade",
-          offer=["I bet Rui you could clear the stockade kennels before I could. Don't make me lose."],
-          complete=["Ha! Rui owes me a month of dumplings. Here's your cut."])
-    quest("su_qings_map", "Su Qing's Map", "side", "adventurer_su", [
-        o("reach_room", "Reach the Echo Cliffs", room="wg_echo_cliffs"),
-        o("kill", "Drive off Boulder Serpents", 3, enemy="boulder_serpent"),
-    ], [taels(250), item("spirit_stone_low", 2)], requires=all_of(realm("heart_tempering_3")), target_room="wg_echo_cliffs",
-          offer=["I'm charting the gorge for the cartographers' guild. The serpents on the Echo Cliffs keep eating my surveyors' lunch."],
-          complete=["The ledge is clear. My map will have your name in the corner."])
-    quest("mins_first_caravan", "Min's First Caravan", "side", "hamlet_trader_min", [o("kill", "Clear the gorge bandits from the caravan road", 5, enemy="gorge_bandit_adept")],
-          [item("spirit_stone_low", 3)], requires=all_of(qdone("market_day")), target_room="wg_gorge_mouth",
-          offer=["Greyreed's first caravan leaves for Stoneford tomorrow. The gorge bandits know it too."],
-          complete=["The caravan made it! Greyreed is a real trade post now."])
-    # S49 grudges: the Gorge Bandits' feud with Greyreed ends in a fair fight with their chief.
-    quest("old_scores", "Old Scores", "side", "hamlet_trader_min", [
-        o("win_spar", "Settle it hand to hand with Chief Yan Bo at the Gorge Mouth", opponent="gorge_chief"),
-    ], [taels(300)], requires=all_of(qdone("mins_first_caravan")), target_room="wg_gorge_mouth",
-          offer=["The Gorge Bandits and Greyreed have old scores. Their chief says he'll call it even if someone beats him fairly. No knives, no crowd.",
-                 "He waits at the Gorge Mouth. Win, and the feud is over. For Greyreed, and for you."],
-          complete=["Yan Bo sent word: the Gorge is quiet for Greyreed. And for you. I didn't think I'd live to see it."])
-    quest("wen_zhaos_challenge", "Wen Zhao's Challenge", "side", "wen_zhao", [o("win_spar", "Beat Wen Zhao in a rematch", opponent="wen_zhao")],
-          [fx("grant_title", title="rivals_respect")], requires=all_of(qdone("the_valley_finals")),
-          offer=["The finals were luck. Face me again, here, with no crowd to cheer for you."],
-          complete=["...Not luck, then. Next time I'll be ready."])
-    quest("guos_old_wound", "Guo's Old Wound", "side", "uncle_guo", [o("collect", "Bring Willow Salve", item="willow_salve", consume=True)],
-          [taels(80)], requires=all_of(realm("qi_kindling_3")), target_room="lf_village",
-          offer=["My old meridian wound aches. Granny's salve helps."], complete=["Ahh. Better."])
-    quest("the_broken_kindling", "The Broken Kindling", "side", "uncle_guo", [o("collect", "Bring Qi Gathering Pills", 2, item="qi_gathering_pill", consume=True)],
-          [taels(120)], requires=all_of(qdone("guos_old_wound")), offer=["I want to try again. Kindling. Help me?"], complete=["We'll see."])
-    quest("a_second_try", "A Second Try", "side", "uncle_guo", [o("talk_to", "Watch Uncle Guo meditate", npc="uncle_guo")],
-          [fx("grant_title", title="guos_student")], requires=all_of(qdone("the_broken_kindling"), realm("qi_unfurling_1")),
-          offer=["Stay with me while I try."], complete=["Qi Kindling 1. At my age! Ha!"], hand_in="")
-    quest("dous_kite_returns", "Dou's Kite Returns", "side", "little_dou", [o("deliver", "Bring a Cloud Feather for the new kite", item="cloud_feather")],
-          [taels(50)], requires=all_of(realm("bone_forging_3"), qdone("the_runaway_kite")), offer=["I'm making a kite that flies to the clouds! I need a cloud feather."],
-          complete=["It flies! Sort of!"])
-    quest("dou_wants_to_train", "Dou Wants to Train", "side", "little_dou", [o("hit_object", "Show Dou how to punch the stump", 20, type="training_stump")],
-          [fx("grant_title", title="big_sibling")], requires=all_of(qdone("dous_kite_returns")), offer=["Teach me to punch! Please please please."],
-          complete=["Hi-YAH! Did you see?!"])
-    # Part 8 (Hamlet Square): the grey roofs' lanterns are cleansed by hand, one on the hall and one on the granary
-    # (inspect objects in gh_hamlet_square that set these flags; the hamlet opens at the quest's own realm).
-    quest("grey_roofs", "Grey Roofs", "side", "hamlet_elder_gao", [
-        o("kill", "Clear the Hollowed from the Grey Pools", 10, enemy="hollowed_boarlet"),
-        o("set_flag", "Cleanse the grey lantern on the hall roof", flag="grey_lantern_hall"),
-        o("set_flag", "Cleanse the grey lantern on the granary roof", flag="grey_lantern_granary"),
-    ], [taels(120)], requires=all_of(realm("heart_tempering_1")), target_room="rm_grey_pools",
-          offer=["The grey came up from the pools and settled on our roofs. Clear the Hollowed from the pools, and wipe "
-                 "the grey from the lanterns on the hall and the granary. Then we can walk home."],
-          complete=["The lanterns burn and the road home is open."])
-    quest("cleansing_the_well", "Cleansing the Well", "side", "hamlet_elder_gao", [o("set_flag", "Cleanse the hamlet well", flag="well_cleansed")],
-          [taels(150)], requires=all_of(qdone("grey_roofs")), target_room="gh_hamlet_square",
-          on_accept=[item("cleansing_pill", 1)], offer=["The well. If it runs clear, we stay."], complete=["Clear water. Thank you."])
-    quest("market_day", "Market Day", "side", "hamlet_elder_gao", [o("deliver", "Deliver Rice", 10, item="rice")],
-          [taels(200)], requires=all_of(qdone("cleansing_the_well")), offer=["A market needs goods. Rice to start."],
-          complete=["Greyreed trades again!"])
-    quest("old_pans_errand_1", "Old Pan's First Errand", "side", "old_pan", [o("deliver", "Bring Ember Peppers", 5, item="ember_pepper")],
-          [item("spirit_stone_low", 2)], requires=all_of(unlock_req("appraisal")), offer=["Peppers. Five."], complete=["Spicy. Good."])
-    quest("old_pans_errand_2", "Old Pan's Second Errand", "side", "old_pan", [o("deliver", "Bring a Pearl", item="pearl")],
-          [item("spirit_stone_low", 4)], requires=all_of(qdone("old_pans_errand_1")), offer=["A pearl. From the tide crabs."], complete=["Lovely."])
-    quest("old_pans_errand_3", "Old Pan's Third Errand", "side", "old_pan", [o("deliver", "Bring Mist Lotus", 2, item="mist_lotus")],
-          [fx("set_flag", flag="pan_rotation_plus")], requires=all_of(qdone("old_pans_errand_2")), offer=["Mist lotus. Two."],
-          complete=["I'll keep something special for you from now on."])
-    for cid, name, lines in [
-        ("lan_yue", "Lan Yue", [("the_herb_thief", "The Herb Thief", "kill", "bamboo_monkey", 8), ("a_cure_for_stoneford", "A Cure for Stoneford", "collect", "riverreed_ginseng_10", 5),
-                                ("lan_yues_oath", "Lan Yue's Oath", "kill", "drowned_acolyte", 6)]),
-        ("tie_niu", "Tie Niu", [("iron_oxs_debt", "Iron Ox's Debt", "collect", "copper_ore", 10), ("the_quarry_fight", "The Quarry Fight", "kill", "stone_tortoise", 5),
-                                ("stronger_than_stone", "Stronger Than Stone", "kill", "boulder_serpent", 5)]),
-        ("qiu_feng", "Qiu Feng", [("the_missing_hunter", "The Missing Hunter", "kill", "green_viper", 6), ("crane_falls_at_dawn", "Crane Falls at Dawn", "reach", "cf_falls_pool", 1),
-                                  ("one_arrow", "One Arrow", "kill", "mist_vulture", 5)]),
-        ("bai_ling", "Bai Ling", [("lines_on_the_floor", "Lines on the Floor", "collect", "formation_stone", 3), ("the_broken_array", "The Broken Array", "kill", "jade_sentinel", 4),
-                                  ("bai_lings_formation", "Bai Ling's Formation", "collect", "formation_stone", 6)]),
-    ]:
-        prev = None
-        for qid, qname, kind, target, n in lines:
-            if kind == "kill":
-                ob = o("kill", "Defeat %s" % target.replace("_", " ").title(), n, enemy=target)
-            elif kind == "collect":
-                ob = o("collect", "Bring %s" % target.replace("_", " ").title(), n, item=target, consume=True)
-            else:
-                ob = o("reach_room", "Visit the Falls Pool at dawn", room=target)
-            rq = all_of({"kind": "companion_owned", "companion": cid}) if prev is None else all_of(qdone(prev))
-            # Bai Ling's last favour gives the Wisp Banner; Qiu Feng's dawn at the falls, the Crane Robe (P7b, item_plan §3.4).
-            rw = [fx("add_bond", amount=10), taels(80)] + [item(x, 1) for q, x in (("bai_lings_formation", "wisp_banner"), ("crane_falls_at_dawn", "crane_robe"))
-                                                         if q == qid]
-            quest(qid, qname, "side", cid, [ob], rw, requires=rq, chapter="companion",
-                  offer=["%s has a favour to ask." % name], complete=["%s smiles. \"Thank you.\"" % name])
-            prev = qid
-    quest("a_hall_of_our_own", "A Hall of Our Own", "side", "courier_lin", [o("use_system", "Found your sect", system="found_sect")],
-          [taels(300)], offered_by_unlock=True, hand_in="", offer=["(A letter) The Hidden Vale beyond Crane Falls could hold a sect. Yours."])
-    quest("first_recruits", "First Recruits", "side", "courier_lin", [o("use_system", "Recruit NPC disciples", 2, system="recruit")],
-          [taels(200)], requires=all_of(qdone("a_hall_of_our_own")), hand_in="", offer=["A sect needs people."])
-    quest("walls_of_the_vale", "Walls of the Vale", "side", "courier_lin", [o("use_system", "Win a defence event", system="defence_won")],
-          [taels(400)], requires=all_of(qdone("first_recruits")), hand_in="", offer=["Defend the Vale."])
-
-
-def unlock_req(s):
-    return {"kind": "unlock", "system": s}
+    """Small valley threads for the people who had none (optional; Part 8 "about 35 side quests"), the companions'
+    favours, the Hidden Vale's letters: the quest engine's section act1 (tools/content/quests/specs)."""
+    Q.extend(QE.rows("act1"))
 
 
 # ---------------------------------------------------------------------------------------------
@@ -2649,6 +2387,7 @@ def build():
         q.setdefault("qp", "act2_side")
     chapter_floors(Q)
     quest_tiers(Q, U)
+    QE.settle(Q)   # the engine's quests: each one's pay from the band table at its tier
     entries("quests", Q, chapter_floors=CHAPTER_FLOORS, chapter_floors_planned=CHAPTER_FLOORS_PLANNED)
     clear(os.path.join(DATA, "dialogue"), "")   # every tree is one file: one renamed away leaves none behind
     dialogue()
