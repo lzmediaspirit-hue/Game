@@ -39,7 +39,7 @@ SR_FROZEN_SHRINE = room(
            ("path", 14, 3, dict(paint="d", walk=True)),
            ("drop", 23, 7, dict(level=0)),
            ("flank", 17, 7, dict(level=1, wavy="s"))],
-    features=[("court", (15, 5, 25, 7), dict(level=3, paint="p"))],
+    features=[("court", (15, 5, 25, 7), dict(level=3, paint="p", flights=[27]))],
     stairs="auto",
     ways={"east": ("e", "path"), "west": ("w", "path")},
     spawn="east",

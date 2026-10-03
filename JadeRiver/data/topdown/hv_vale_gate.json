@@ -43,12 +43,12 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "ffffffffffffffffffffffffffffffffffffffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
-  "ffffffffffffffffffffffffssssssssssssffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
+  "ffffffffffffffffffffffffppppppppppppffff",
   "ffffffffffffffffffffffffffffsssfffffffff",
   "ffffffffffffffffffffffffffffsssfffffffff",
   "pppppppppppppppppppppppppppppppppppppppp",
@@ -158,7 +158,7 @@
    "y": 9
   },
   {
-   "kind": "tree_peach",
+   "kind": "tree_maple",
    "x": 21,
    "y": 9
   },
@@ -243,7 +243,7 @@
    "y": 17
   },
   {
-   "kind": "tree_peach",
+   "kind": "tree_camphor",
    "x": 11,
    "y": 18
   },

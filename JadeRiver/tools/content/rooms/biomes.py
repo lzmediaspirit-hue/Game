@@ -79,7 +79,7 @@ BIOMES = {
     "hidden_vale": {
         "base": "g", "stair": "s", "density": 0.32,
         "flora": {"wall": ["tree_pine", "bamboo_grove", "rock_mossy", "ferns"],
-                  "ground": ["tree_plum", "tree_peach", "tree_maple", "bush_azalea", "bush", "ferns", "tall_grass"],
+                  "ground": ["tree_plum", "tree_camphor", "tree_maple", "tree_pine", "bush_azalea", "bush", "ferns", "tall_grass"],
                   "walk": ["bush_azalea", "rock_small", "ferns"],
                   "water": ["tree_willow", "cattails", "lotus_pads", "tall_grass"]},
     },

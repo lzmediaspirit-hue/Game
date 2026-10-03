@@ -211,7 +211,10 @@ class Build:
                     continue
                 gap = {"s": cy == y + h - 1 and abs(cx - mid_x + 0.5) <= 2, "n": cy == y and abs(cx - mid_x + 0.5) <= 2,
                        "e": cx == x + w - 1 and abs(cy - mid_y + 0.5) <= 2, "w": cx == x and abs(cy - mid_y + 0.5) <= 2}
-                if gap.get(door) or h01(cx, cy, salt) < 0.2:
+                corner = cx in (x, x + w - 1) and cy in (y, y + h - 1)
+                # The corners always stand: a gap there would leave two walls touching only at a corner, which the
+                # game's route crosses diagonally and the Grid's never does (parity).
+                if gap.get(door) or (h01(cx, cy, salt) < 0.2 and not corner):
                     continue
                 lv = top - 1 if h01(cx, cy, salt + 1) < 0.2 else top
                 if lv > floor:

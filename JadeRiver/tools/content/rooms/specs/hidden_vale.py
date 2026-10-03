@@ -14,7 +14,7 @@ HV_VALE_GATE = room(
            ("road", 12, 3, dict(paint="p", walk=True)),
            ("meadow", 15, 6, dict(level=0)),
            ("stream", 21, 5, dict(water=True, wavy=True))],
-    features=[("terrace", (24, 4, 12, 6), dict(level=1, paint="s"))],
+    features=[("terrace", (24, 4, 12, 6), dict(level=1, paint="p"))],
     stairs="auto",
     ways={"path": ("w", "road"), "east": ("e", "road")},
     spawn="path",
@@ -23,31 +23,35 @@ HV_VALE_GATE = room(
     flora={"lawn": dict(density=0.4), "meadow": dict(density=0.36)},
     foes="auto")
 
-# The Sect Grounds: the sect's courts climbing in two paved terraces under the cliffs, the lawn and the road below. The
-# great buildings' slots line the upper terrace (the treasury, the main hall's pagoda, the meditation pavilion, the
-# beast pavilion, the alchemy hall); the hall's altar, the mission hall, the forge, the library, the watchtower, the
-# guest house, the mirror and the ancestral shrine stand on the court below; on the lawn the herb terraces' beds, the
-# array's nodes, the storehouse chest, the shrine and the alarm bell. Each building is drawn once it is raised.
+# The Sect Grounds: the sect's lawns climbing in two terraces under the cliffs, each fronted by a paved walk where
+# its buildings' slots stand, the road and the lower lawn below. The great buildings' slots line the upper walk (the
+# treasury, the main hall's pagoda, the meditation pavilion, the beast pavilion, the alchemy hall); the hall's altar,
+# the mission hall, the forge, the library, the watchtower, the guest house, the mirror and the ancestral shrine stand
+# on the walk below; on the lawn the herb terraces' beds, the array's nodes, the storehouse chest, the shrine, the
+# alarm bell and a lotus pond. Each building is drawn once it is raised; until then the lawns and their trees.
 HV_SECT_GROUNDS = room(
     "hv_sect_grounds", size=(56, 30), biome="hidden_vale",
     bands=[("crown", 0, 3, dict(level=6, paint="r", wall=True)),
-           ("upper", 3, 8, dict(level=2, paint="p", flights=[9, 46])),
-           ("court", 11, 7, dict(level=1, paint="p", flights=[28])),
+           ("upper", 3, 8, dict(level=2, flights=[9, 28, 46])),
+           ("court", 11, 7, dict(level=1, flights=[28])),
            ("road", 19, 3, dict(paint="p", walk=True)),
            ("lawn", 22, 8, dict(level=0))],
+    features=[("upper_walk", (0, 8, 56, 3), dict(paint="p")), ("court_walk", (0, 15, 56, 3), dict(paint="p")),
+              ("axis", (25, 10, 7, 9), dict(paint="p")),
+              ("pond", (41, 25, 13, 5), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "road"), "east": ("e", "road")},
     spawn="west",
     anchors={"beast_pavilion_hv": "upper.front@4", "treasury_hv": "upper.front@15", "hall_pagoda": "upper.front@28",
              "pavilion_hv": "upper.front@39", "alchemy_hall_hv": "upper.front@51", "mission_hall_hv": "court.front@12",
-             "forge_hv": "court.front@20", "sect_hall": "court.front@31", "library_hv": "court.front@24",
-             "outpost_hv": "court.back@36", "mirror_hv": "court.front@36", "guest_house_hv": "court.front@45",
+             "forge_hv": "court.front@20", "sect_hall": "court.front@32", "library_hv": "court.front@24",
+             "outpost_hv": "court_walk@36", "mirror_hv": "court.front@36", "guest_house_hv": "court.front@45",
              "ancestral_shrine_hv": "court.front@52", "hall_gate": "verge.s@3", "terrace_bed_0": "lawn@8",
              "terrace_bed_1": "lawn@11", "terrace_bed_2": "lawn@14", "storage_hv": "verge.s@18",
-             "array_node_0": "lawn@25", "array_node_1": "lawn@31", "shrine_hv": "verge.s@40", "defence_bell": "verge.s@50"},
+             "array_node_0": "lawn@25", "array_node_1": "lawn@31", "shrine_hv": "verge.s@38", "defence_bell": "verge.s@50"},
     props=[("banner_jade", 7, 10), ("banner_jade", 49, 10), ("lantern", 26, 17), ("lantern", 33, 17),
-           ("post", 36, 25), ("post", 39, 26), ("weapon_rack", 42, 24)],
-    flora={"upper": dict(density=0.3), "lawn": dict(density=0.34)},
+           ("post", 35, 25), ("post", 38, 27), ("weapon_rack", 30, 28)],
+    flora={"upper": dict(density=0.4), "court": dict(density=0.4), "lawn": dict(density=0.34)},
     foes="auto")
 
 # The Back Mountain: the sect's quiet ground behind the grounds, where disciples sit. A glade by a spring pool (the
@@ -55,13 +59,13 @@ HV_SECT_GROUNDS = room(
 # plot in its ring of stones; meditation mats and incense; terraces of rock climb north-east under the peaks to the
 # spirit shard vein and, on the highest, the cloudtop orchid.
 HV_BACK_MOUNTAIN = room(
-    "hv_back_mountain", size=(56, 30), biome="hidden_vale", level=1,
-    bands=[("crown", 0, 4, dict(level=7, paint="r", wall=True)),
-           ("ledges", 4, 9, dict(level=2, wavy="s", flights=[12, 30])),
+    "hv_back_mountain", size=(56, 30), biome="hidden_vale",
+    bands=[("crown", 0, 4, dict(level=6, paint="r", wall=True)),
+           ("ledges", 4, 9, dict(level=1, wavy="s", flights=[12, 30])),
            ("path", 14, 3, dict(paint="d", walk=True, w=40)),
-           ("glade", 17, 13, dict(level=1))],
-    features=[("ledge_100", (30, 4, 26, 8), dict(level=3, paint="r", shape="round")),
-              ("ledge_200", (40, 4, 16, 6), dict(level=4, paint="r", shape="round")),
+           ("glade", 17, 13, dict(level=0))],
+    features=[("ledge_100", (30, 4, 26, 8), dict(level=2, paint="r", shape="round")),
+              ("ledge_200", (40, 4, 16, 6), dict(level=3, paint="r", shape="round")),
               ("pool", (12, 19, 15, 8), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"west": ("w", "path")},
