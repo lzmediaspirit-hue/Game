@@ -14,17 +14,17 @@
   "5555555555555555555555555555555555555555555555555555555555555555",
   "5555555555555555555555555555555555555555555555555555555555555555",
   "1155555555555555555555555555555555555511111111111555555555555555",
-  "2222222222333322222222222222222222222222222222222222222233322222",
-  "2222222223333332222222222233333333332222222222222222223333332222",
-  "2222222223333333222222223333333333332222333333222222233333333222",
+  "2222222222333322222222222233333333332222222222222222222233322222",
+  "2222222223333332222222223333333333332222333333222222223333332222",
   "2222222223333333222222333333333333332222333333332222233333333222",
+  "2222222223333333222222333333333333332222333333333322233333333222",
   "2222222222333332222222333333333333332222333333333322223333332222",
-  "2222222222222222222222333333333333332222333333333322222333322222",
-  "2222222222222222222222223333333333332222333333332222222222222222",
+  "2222222222222222222222223333333333332222333333332222222333322222",
   "2222222222222222222222222233333333332222333333222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
+  "2222222222222222222222222222222222222222222222222222222222222222",
   "2222222222222222222111111122222222222222222222222211222222222222",
   "2211111111111222211111111111122222222222222222211111112222222211",
-  "1111111111111111111111111111111111111111111111111111111111111111",
   "1111111111111111111111111111111111111111111111111111111111111111",
   "1111000000001111111111111111100000000000001111111111110001111111",
   "0001111100000011111111111100000000000000000011111111000000111111",
@@ -44,19 +44,19 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "pppppppppprrrrpppppppppppppppppppppppppppppppppppppppppprrrppppp",
-  "ppppppppprrrrrrpppppppppppwwwwwwwwwwpppppppppppppppppprrrrrrpppp",
-  "ppppppppprrrrrrrppppppppwwwwwwwwwwwwppppwwwwwwppppppprrrrrrrrppp",
+  "pppppppppprrrrppppppppppppwwwwwwwwwwpppppppppppppppppppprrrppppp",
+  "ppppppppprrrrrrpppppppppwwwwwwwwwwwwppppwwwwwwpppppppprrrrrrpppp",
   "ppppppppprrrrrrrppppppwwwwwwwwwwwwwwppppwwwwwwwwppppprrrrrrrrppp",
+  "ppppppppprrrrrrrppppppwwwwwwwwwwwwwwppppwwwwwwwwwwppprrrrrrrrppp",
   "pppppppppprrrrrpppppppwwwwwwwwwwwwwwppppwwwwwwwwwwpppprrrrrrpppp",
-  "pppppppppppsssppppppppwwwwwwwwwwwwwwppppwwwwwwwwwwppppprrrrppppp",
-  "pppppppppppsssppppppppppwwwwwwwwwwwwppppwwwwwwwwppppppppsssppppp",
-  "ppppppppppppppppppppppppppwwwwwwwwwwppppwwwwwwppppppppppsssppppp",
-  "ppppppppppppppppppprsssrrrpppssspppppppppssppppppprrpppppppppppp",
-  "pprrrrrrrrrrrpppprrrsssrrrrrrssspppppppppsspppprrrrrrrpppppppprr",
-  "ppppppppppppppppppppppppppppppppppppppppppppsssppppppppppppppppp",
-  "ppppppppppppppppppppppppppppppppppppppppppppsssppppppppppppppppp",
+  "pppppppppppsssppppppppppwwwwwwwwwwwwppppwwwwwwwwppppppprrrrppppp",
+  "pppppppppppsssppppppppppppwwwwwwwwwwppppwwwwwwppppppppppsssppppp",
+  "pppppppppppppppppppppppppppppssspppppppppsspppppppppppppsssppppp",
+  "pppppppppppppppppppppppppppppssspppppppppssppppppppppppppppppppp",
+  "ppppppppppppppppppprrrrrrrpppppppppppppppppppppppprrpppppppppppp",
   "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "ppppppppppppppssspppppppppppppppppppppppppppsssppppppppppppppppp",
+  "ppppppppppppppssspppppppppppppppppppppppppppsssppppppppppppppppp",
   "rrrwwwwwrrrrrrrrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrwwwrrrrrrrrrrrrrr",
   "rrrwwwwwrrrrppppprrrwwwrrrrrrrppppppprrrrrrrrrrwwwrrrrpppppprrrr",
   "rrrwwwwwrrrppppppprrwwwrrrrrrppppppppprrrrrrrrrwwwrrrpppppppprrr",
@@ -72,8 +72,8 @@
  ],
  "stairs": [
   {
-   "x": 20,
-   "y": 11,
+   "x": 14,
+   "y": 14,
    "w": 3,
    "h": 2,
    "from": 1,
@@ -81,7 +81,7 @@
   },
   {
    "x": 44,
-   "y": 13,
+   "y": 14,
    "w": 3,
    "h": 2,
    "from": 1,
@@ -89,7 +89,7 @@
   },
   {
    "x": 29,
-   "y": 11,
+   "y": 10,
    "w": 3,
    "h": 2,
    "from": 2,
@@ -97,7 +97,7 @@
   },
   {
    "x": 41,
-   "y": 11,
+   "y": 10,
    "w": 2,
    "h": 2,
    "from": 2,
@@ -213,23 +213,13 @@
   },
   {
    "kind": "boulder",
-   "x": 19,
-   "y": 11
+   "x": 28,
+   "y": 10
   },
   {
    "kind": "boulder",
-   "x": 23,
-   "y": 11
-  },
-  {
-   "kind": "boulder",
-   "x": 19,
-   "y": 12
-  },
-  {
-   "kind": "boulder",
-   "x": 23,
-   "y": 12
+   "x": 32,
+   "y": 10
   },
   {
    "kind": "boulder",
@@ -243,8 +233,13 @@
   },
   {
    "kind": "boulder",
-   "x": 32,
-   "y": 12
+   "x": 40,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 43,
+   "y": 10
   },
   {
    "kind": "boulder",
@@ -255,16 +250,6 @@
    "kind": "boulder",
    "x": 43,
    "y": 11
-  },
-  {
-   "kind": "boulder",
-   "x": 40,
-   "y": 12
-  },
-  {
-   "kind": "boulder",
-   "x": 43,
-   "y": 12
   },
   {
    "kind": "boulder",
@@ -337,14 +322,14 @@
    "y": 7
   },
   {
-   "kind": "rock_small",
-   "x": 24,
-   "y": 11
+   "kind": "tall_grass",
+   "x": 23,
+   "y": 12
   },
   {
-   "kind": "dead_tree",
+   "kind": "tall_grass",
    "x": 50,
-   "y": 11
+   "y": 12
   },
   {
    "kind": "tall_grass",
@@ -521,7 +506,7 @@
   ],
   "ore_1": [
    38,
-   12
+   13
   ],
   "chest_ledge_mv_1": [
    28,
@@ -529,7 +514,7 @@
   ],
   "chest_cloud_mv": [
    43,
-   5
+   7
   ],
   "jar_4": [
    41,
@@ -583,8 +568,8 @@
   ],
   [
    [
-    24,
-    12
+    22,
+    11
    ],
    [
     33,

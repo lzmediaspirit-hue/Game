@@ -5,6 +5,7 @@ away past every room's south edge into the cloud sea; the old port's paving, its
 on it. The side view's ledges (100 to 320 units) are hull decks, outcrops and crags here, a flight up each."""
 from content.rooms.spec import room
 from content.rooms.specs.skysea import hull
+from content.rooms.specs.story import octagon
 
 # The Broken Pier: where the skiffs from Cloudgate come in. The one whole pier runs out from the old port's road to the
 # brink at the west, the dock at its end; two more are snapped off short. North of the road the port's upper quay under
@@ -15,11 +16,11 @@ from content.rooms.specs.skysea import hull
 SW_BROKEN_PIER = room(
     "sw_broken_pier", size=(64, 28), biome="skyport", level=1,
     bands=[("crown", 0, 3, dict(level=5, paint="r", wall=True, wavy="s")),
-           ("quay", 3, 9, dict(level=2, paint="p", wavy="s", flights=[18, 49])),
+           ("quay", 3, 10, dict(level=2, paint="p", wavy="s", flights=[18, 49])),
            ("road", 13, 3, dict(paint="p", walk=True)),
            ("lower", 16, 12, dict(level=0, wavy="n"))],
-    features=hull("wreck", 26, 4, 10, 7, dict(level=3, paint="w", flights=[30]), bow=0, stern=4)
-             + hull("wreck_fore", 40, 5, 6, 6, dict(level=3, paint="w", flights=[42]), bow=6)
+    features=hull("wreck", 26, 3, 10, 7, dict(level=3, paint="w", flights=[30]), bow=0, stern=4)
+             + hull("wreck_fore", 40, 4, 6, 6, dict(level=3, paint="w", flights=[42]), bow=6)
              + [("outcrop", (8, 3, 8, 5), dict(level=3, paint="r", shape="round", flights=[12])),
                 ("outcrop_2", (53, 3, 8, 6), dict(level=3, paint="r", shape="round", flights=[57])),
                 ("pier", (3, 16, 5, 12), dict(level=1, paint="w")),                # the whole pier, out to the brink
@@ -108,10 +109,10 @@ SW_STARSEA_LAUNCH = room(
            ("terrace", 3, 17, dict(level=1, paint="p")),
            ("road", 15, 3, dict(paint="p", walk=True)),
            ("brink", 21, 5, dict(level=0))],
-    features=[("ring", (19, 4, 15, 11), dict(paint="s", shape="round")),          # the launch ring's floor
-              ("dais", (24, 9, 5, 3), dict(level=2, paint="s")),
-              ("garden", (2, 3, 9, 6), dict(level=2, paint="g", shape="round")),
-              ("pier", (39, 18, 5, 8), dict(level=1, paint="w"))],
+    features=octagon("ring", 19, 4, 15, 11, 3, dict(paint="s"))                    # the launch ring's floor
+             + [("dais", (24, 9, 5, 3), dict(level=2, paint="s")),
+                ("garden", (2, 3, 9, 6), dict(level=2, paint="g", shape="round")),
+                ("pier", (39, 18, 5, 8), dict(level=1, paint="w"))],
     stairs="auto",
     ways={"west": ("w", "road")},
     spawn="west",
