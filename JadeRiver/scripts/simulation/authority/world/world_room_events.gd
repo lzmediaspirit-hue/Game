@@ -1,4 +1,4 @@
-class_name WorldEvents
+class_name WorldRoomEvents
 extends WorldPart
 ## WorldAuthority's part: room events (survival, S27 night): a timed event in the loaded room (set pieces, sect defence,
 ## trials, the lantern defence) with its waves and timed spawns, won or lost, and the way on after it.

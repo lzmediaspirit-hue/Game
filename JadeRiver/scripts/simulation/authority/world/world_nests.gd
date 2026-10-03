@@ -30,7 +30,7 @@ func start_beast_tide(c) -> Dictionary:
 	if game.room_rt.event.get("active", false): return fail("busy")
 	var ev := {"id": "beast_tide", "duration": float(cfg.get("duration", 90)), "waves": cfg.get("waves", []),
 		"on_complete": [{"kind": "beast_tide_result", "won": true}]}
-	world.events.start_event(c, game.room_rt, ev)
+	world.room_events.start_event(c, game.room_rt, ev)
 	emit("beast_tide_started", {"actor": c.id, "room": game.room_rt.room_id, "week": Clock.reset_week(Clock.now_utc()),
 		"duration": float(cfg.get("duration", 90))})
 	return ok({"event": "beast_tide"})
@@ -55,7 +55,7 @@ func start_beast_trial(c) -> Dictionary:
 	var ev := {"id": "beast_trial", "pet_trial": true, "duration": float(cfg.get("duration", 150)), "waves": waves,
 		"kill_count": {"enemy": "*", "count": int(cfg.get("count", 10))},
 		"on_complete": [{"kind": "beast_trial_result", "won": true}], "on_timeout": [{"kind": "beast_trial_result", "won": false}]}
-	world.events.start_event(c, game.room_rt, ev)
+	world.room_events.start_event(c, game.room_rt, ev)
 	return ok({"event": "beast_trial"})
 
 ## The Grove's reward: the Guardian Spirit book the first time, then one draw from the pool.

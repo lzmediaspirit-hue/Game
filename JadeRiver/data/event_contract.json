@@ -1736,7 +1736,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1746,6 +1745,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],
@@ -1765,7 +1765,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1775,6 +1774,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1786,7 +1786,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1796,6 +1795,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1807,7 +1807,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1817,6 +1816,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1828,7 +1828,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1838,6 +1837,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],
@@ -1850,7 +1850,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1860,6 +1859,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],
@@ -1872,7 +1872,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1882,6 +1881,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1893,7 +1893,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1903,6 +1902,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1914,7 +1914,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1924,6 +1923,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1935,7 +1935,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1945,6 +1944,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1956,7 +1956,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1966,6 +1965,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1977,7 +1977,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -1987,6 +1986,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -1998,7 +1998,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2008,6 +2007,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2019,7 +2019,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2029,6 +2028,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2040,7 +2040,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2050,6 +2049,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2061,7 +2061,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2071,6 +2070,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2082,7 +2082,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2092,6 +2091,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2103,7 +2103,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2113,6 +2112,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2124,7 +2124,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2134,6 +2133,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2145,7 +2145,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2155,6 +2154,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2166,7 +2166,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2176,6 +2175,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2187,7 +2187,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2197,6 +2196,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2208,7 +2208,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2218,6 +2217,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2229,7 +2229,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2239,6 +2238,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2250,7 +2250,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2260,6 +2259,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2271,7 +2271,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2281,6 +2280,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],
@@ -2298,7 +2298,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2308,6 +2307,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2319,7 +2319,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2329,6 +2328,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2340,7 +2340,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2350,6 +2349,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2361,7 +2361,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2371,6 +2370,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2382,7 +2382,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2392,6 +2391,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2403,7 +2403,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2413,6 +2412,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2424,7 +2424,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2434,6 +2433,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],
@@ -2446,7 +2446,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2456,6 +2455,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ]
@@ -2467,7 +2467,6 @@
     "world_ambush",
     "world_arrays",
     "world_context",
-    "world_events",
     "world_hazards",
     "world_herbs",
     "world_idle",
@@ -2477,6 +2476,7 @@
     "world_part",
     "world_portals",
     "world_races",
+    "world_room_events",
     "world_starsea",
     "world_tower"
    ],

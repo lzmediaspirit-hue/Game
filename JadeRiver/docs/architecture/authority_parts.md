@@ -184,7 +184,7 @@ hold 2,133 lines.
 | `races` | `world_races.gd` | 164 | The rooftop chases and the timed routes (S43 rule 15) | `chases`, `runs` |
 | `hazards` | `world_hazards.gd` | 213 | Room hazards (S17), hazard volumes (S43) and the drift they push | `RoomRuntime.hazards` |
 | `starsea` | `world_starsea.gd` | 41 | The Starsea voyages (S18) | `voyages` |
-| `events` | `world_events.gd` | 227 | Room events: waves, timed spawns, the lantern, kill-to-win, and the way on | `RoomRuntime.event`, `voyages` |
+| `room_events` | `world_room_events.gd` | 227 | Room events: waves, timed spawns, the lantern, kill-to-win, and the way on | `RoomRuntime.event`, `voyages` |
 | `nests` | `world_nests.gd` | 102 | The Beast Kings' nests, the Beast Tide and the Beast Trial Grove (S46) | the character's cooldowns |
 | `tower` | `world_tower.gd` | 87 | The Trial Tower (S49) | the character's `tower` |
 | `idle` | `world_idle.gd` | 198 | Idle rooms, auto-hunt, auto-path and the direction mark | `auto_hunt`, `auto_paths`, `auto_check`, `guide_cache` |
@@ -195,6 +195,19 @@ The authority's file keeps these sections:
 - the character's memory of a room: `room_mem`, `slain_foes` and the foes slain and returned;
 - the tick;
 - the facade, and the old private names at its end.
+
+**Its part members are untyped.** This is the one difference from the shape above, and it is deliberate:
+- With the members typed, the parts and `WorldAuthority` resolve in a cycle while `Game` boots.
+- Godot 4.5's analyzer then leaves `ActorState`'s untyped members, such as `plane`, unresolved for every script it
+  compiles afterwards. `rules_tests.gd` fails to parse at `_jump_to` (`var v := (toward - st.plane)…`), and the suite
+  hangs on the await of its first broken call. A one-line script that does the same fails in the same way.
+- Which members trip it depends on the graph. A member named `events` alone did it, as did `room_events`
+  (`WorldRoomEvents`) with its real content.
+- Untyped members keep the parts out of `WorldAuthority`'s interface. Each one's comment names its class.
+- The parts still type their back-reference, `world: WorldAuthority`. The other authorities' typed members pass today.
+  If a test script ever fails to parse with "Cannot infer the type" on an untyped member, look for such a cycle first.
+
+The member for room events is `room_events`, not `events`, because `ActorState` already has an `events` member.
 
 Its brief asked S9 to group the side-view branches where that was free. Each of them asks `WorldAuthority.side_view(rt)`
 (13 sites) or finds `grid_for` null (7 sites), so retiring the side view can find them all.

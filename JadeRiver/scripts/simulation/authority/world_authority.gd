@@ -26,20 +26,23 @@ var auto_paths: Dictionary = {}   # actor -> {target, route: [{room, portal, to}
 var auto_check := 0.0             # auto-hunt asks whether it may go on twice a second
 var guide_cache := {}             # the direction mark's last step: {key, at, step}
 
-var ambush: WorldAmbush       # bandit ambushes
-var herbs: WorldHerbs         # rare herbs and their guardians
-var portals: WorldPortals     # portals, hidden ways, routes, teleports and Spirit Sense
-var arrays: WorldArrays       # the sect's transfer arrays
-var objects: WorldObjects     # room objects: shown, open, their states, blows on them
-var context: WorldContext     # interact and the context button
-var loot: WorldLoot           # beast cores and loot
-var races: WorldRaces         # rooftop chases and timed routes
-var hazards: WorldHazards     # room hazards and hazard volumes
-var starsea: WorldStarsea     # Starsea voyages
-var events: WorldEvents       # room events
-var nests: WorldNests         # the Beast Kings' nests, the Beast Tide, the Beast Trial Grove
-var tower: WorldTower         # the Trial Tower
-var idle: WorldIdle           # idle rooms, auto-hunt, auto-path and the direction mark
+# The parts, untyped on purpose (docs/architecture/authority_parts.md, S9): typed, they put the parts in a cycle with
+# this class, and Godot's analyzer then leaves ActorState's untyped members unresolved for every script compiled after
+# boot (rules_tests failed to parse). Each holds the class named in its comment.
+var ambush        # WorldAmbush: bandit ambushes
+var herbs         # WorldHerbs: rare herbs and their guardians
+var portals       # WorldPortals: portals, hidden ways, routes, teleports and Spirit Sense
+var arrays        # WorldArrays: the sect's transfer arrays
+var objects       # WorldObjects: room objects: shown, open, their states, blows on them
+var context       # WorldContext: interact and the context button
+var loot          # WorldLoot: beast cores and loot
+var races         # WorldRaces: rooftop chases and timed routes
+var hazards       # WorldHazards: room hazards and hazard volumes
+var starsea       # WorldStarsea: Starsea voyages
+var room_events   # WorldRoomEvents: room events
+var nests         # WorldNests: the Beast Kings' nests, the Beast Tide, the Beast Trial Grove
+var tower         # WorldTower: the Trial Tower
+var idle          # WorldIdle: idle rooms, auto-hunt, auto-path and the direction mark
 
 func _init(g) -> void:
 	super(g)
@@ -53,7 +56,7 @@ func _init(g) -> void:
 	races = WorldRaces.new(self)
 	hazards = WorldHazards.new(self)
 	starsea = WorldStarsea.new(self)
-	events = WorldEvents.new(self)
+	room_events = WorldRoomEvents.new(self)
 	nests = WorldNests.new(self)
 	tower = WorldTower.new(self)
 	idle = WorldIdle.new(self)
@@ -70,9 +73,9 @@ func subscribe() -> void:
 	for ev in ["boss_phase", "field_boss_defeated"]:
 		GameEvents.subscribe(ev, _on_room_script.bind(ev), 50)
 	GameEvents.subscribe("actor_defeated", loot.on_actor_defeated, 50)
-	GameEvents.subscribe("actor_defeated", events.event_kill, 55)
+	GameEvents.subscribe("actor_defeated", room_events.event_kill, 55)
 	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
-	GameEvents.subscribe("hit_landed", events.on_hit_during_event, 50)
+	GameEvents.subscribe("hit_landed", room_events.on_hit_during_event, 50)
 	GameEvents.subscribe("room_entered", portals.on_room_entered_fates, 51)
 	GameEvents.subscribe("room_entered", ambush.on_room_entered_ambush, 52)
 	GameEvents.subscribe("world_event_started", objects.on_world_event_started, 50)
@@ -173,7 +176,7 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 	objects.restore_object_states(c, rt)
 	_arrive(c, rt, portal_id, arrival, facing, first, str(zone_new))
 	if zone_new != zone_old: emit("zone_entered", {"actor": c.id, "zone": zone_new})
-	if rt.def.has("event"): events.start_event(c, rt, rt.def.event)
+	if rt.def.has("event"): room_events.start_event(c, rt, rt.def.event)
 	game.crafting.check_raids(c)   # S45: what came for the garden while you were away
 	return ok({"room": room_id, "x": arrival.x, "y": arrival.y, "facing": facing})
 
@@ -278,8 +281,8 @@ func tick(delta: float) -> void:
 		c.position.room = rt.room_id
 	objects.tick_regrowth(rt, delta)
 	loot.tick_loot(c, rt, st, delta)
-	if rt.event.get("active", false): events.tick_event(c, rt, delta)
-	elif rt.event.has("leaving"): events.tick_leave(c, rt, delta)
+	if rt.event.get("active", false): room_events.tick_event(c, rt, delta)
+	elif rt.event.has("leaving"): room_events.tick_leave(c, rt, delta)
 	races.tick_chase(c, rt, st)
 	races.tick_run(c, rt, st)
 	objects.attune_shrines(c, rt, st)
@@ -373,10 +376,10 @@ func best_vessel(c) -> String: return starsea.best_vessel(c)
 func set_sail(c, route_id: String) -> Dictionary: return starsea.set_sail(c, route_id)
 func apply_voyage_arrive(actor_id: String) -> void: starsea.apply_voyage_arrive(actor_id)
 
-# Room events (world_events.gd)
-func start_room_event(c, ev: Dictionary) -> void: events.start_room_event(c, ev)
-func apply_rift_reward(actor_id: String, loot_table: String, level: int) -> void: events.apply_rift_reward(actor_id, loot_table, level)
-func event_level(c, w: Dictionary) -> int: return events.event_level(c, w)
+# Room events (world_room_events.gd)
+func start_room_event(c, ev: Dictionary) -> void: room_events.start_room_event(c, ev)
+func apply_rift_reward(actor_id: String, loot_table: String, level: int) -> void: room_events.apply_rift_reward(actor_id, loot_table, level)
+func event_level(c, w: Dictionary) -> int: return room_events.event_level(c, w)
 
 # Nests, the Beast Tide and the Grove (world_nests.gd)
 func nest_closes(king: String) -> float: return nests.nest_closes(king)
@@ -423,8 +426,8 @@ func _tick_chase(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_chase(c
 func _tick_run(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_run(c, rt, st)
 func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void: hazards.hazard_enter(c, rt, st, h, hs, rng, calm)
 func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array: return hazards.hazard_spots(rt, st, h, rng)
-func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void: events.start_event(c, rt, ev)
-func _tick_event(c, rt: RoomRuntime, delta: float) -> void: events.tick_event(c, rt, delta)
-func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void: events.end_event(c, rt, won, reason)
-func _event_kill(p: Dictionary) -> void: events.event_kill(p)
+func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void: room_events.start_event(c, rt, ev)
+func _tick_event(c, rt: RoomRuntime, delta: float) -> void: room_events.tick_event(c, rt, delta)
+func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void: room_events.end_event(c, rt, won, reason)
+func _event_kill(p: Dictionary) -> void: room_events.event_kill(p)
 func _tick_auto_hunt(c, delta: float) -> void: idle.tick_auto_hunt(c, delta)
