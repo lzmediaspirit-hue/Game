@@ -303,6 +303,41 @@ RAMPS = {
     "roc_gold": _s("fff2b4", "e8bb4e", "b3862f", "7a5a21"),
     "roc_beak": _s("fff0b2", "efc45a", "b98b34", "7c5b23"),
     "roc_talon": _s("6a5a4a", "403428", "2c231c", "1c1612"),
+    # gate guardian: jade (and its darker carving), bronze, its jade bi rings
+    "gg_jade": _s("a4e4c8", "539f86", "316e5f", "1e4743"),
+    "gg_jade_dark": _s("72b39a", "3f7d6a", "29574e", "193833"),
+    "gg_bronze": _s("f3c67c", "b9803f", "84572f", "563722"),
+    "gg_ring": _s("c4f7e0", "63cdab", "2f9078", "1b5a50"),
+    # M2, the people of size: the character body's own skin (figure/sets, the light body's ramp)
+    "folk_skin": _r("99423C", "CC8665", "E4A47C", "F9D5BA", "FAECE7"),
+    # Big Toad Tan: black hair, a red sash, a leather vest, dark trousers, pale shin wraps, boots; his cleaver's steel and
+    # his wine gourd
+    "tan_hair": _r("111419", "1A1E24", "262B33", "353B45", "4B525E"),
+    "tan_sash": _s("ff8a78", "d4474b", "9c2f3d", "661f30"),
+    "tan_vest": _s("a87a52", "7a5434", "553a26", "38261a"),
+    "tan_trousers": _s("5f6878", "353d4a", "1d222c", "0b0d12"),
+    "tan_wrap": _s("e8e0cc", "c4b898", "948868", "645a46"),
+    "tan_boot": _s("7d674c", "5c4127", "4d371e", "2e2013"),
+    "cleaver_steel": _s("f2f6f6", "c4ccd0", "8a949c", "5a626a"),
+    "gourd": _s("f0c070", "c8903c", "946428", "5e3e1a"),
+    # the Drowned Abbot: the river's pallor, white hair, a waterlogged robe, a faded kasaya, a dark straw hat, dark iron and
+    # beads, a bronze bell and its verdigris
+    "drowned_skin": _s("dfe6e2", "b4c4c4", "869a9e", "5a6e76"),
+    "abbot_hair": _s("f2f2ee", "c8ccc8", "9aa09e", "6a706e"),
+    "abbot_robe": _s("a8bcc4", "7890a0", "566a7c", "3a4a5a"),
+    "abbot_kasaya": _s("d8907c", "a85a50", "7a3c3c", "4e2428"),
+    "abbot_hat": _s("a89a74", "7a6e50", "554c38", "3a3326"),
+    "abbot_dark": _s("4a4f58", "33373f", "24272e", "16181c"),
+    "abbot_bell": _s("d6a868", "9a6a38", "6a4628", "42301e"),
+    "abbot_patina": _s("9ad8c0", "5aa890", "3a7a68", "24504a"),
+    # Elder Gu: grey hair, his crimson robe (deeper than the character's crimson dye, apart from his face), gold trim, a
+    # black sash, his dark cape, black shoes
+    "gu_hair": _r("3A4052", "5D6680", "8C93A8", "BCC3D0", "E6EAF0"),
+    "gu_robe": _r("1E070D", "4A1019", "7E1E2A", "B23A3E", "D86A60"),
+    "gu_gold": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "gu_sash": _r("0B0D12", "1D222C", "353D4A", "5F6878", "979DA7"),
+    "gu_cape": _r("02302C", "054B45", "0D6A5E", "1F8A78", "4AA894"),
+    "gu_shoe": _s("4a4f58", "2a2e37", "1b1f25", "111419"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -403,6 +438,16 @@ PROPS = {
     "stag_hide": {"hi": True}, "stag_antler": {"hi": True, "weight": 1.4}, "stag_hoof": {"hi": True, "weight": 1.3},
     "roc_plume": {"hi": True}, "roc_flight": {"hi": True}, "roc_gold": {"hi": True, "glossy": True, "weight": 1.4},
     "roc_beak": {"hi": True, "glossy": True, "weight": 1.5}, "roc_talon": {"hi": True, "weight": 1.4},
+    "gg_jade": {"hi": True, "glossy": True}, "gg_jade_dark": {"hi": True, "glossy": True}, "gg_bronze": {"hi": True, "glossy": True, "weight": 1.3},
+    "gg_ring": {"hi": True, "glossy": True, "weight": 1.4},
+    "folk_skin": {"hi": True}, "tan_hair": {"hi": True, "weight": 1.3}, "tan_sash": {"hi": True, "weight": 1.3}, "tan_vest": {"hi": True},
+    "tan_trousers": {"hi": True}, "tan_wrap": {"hi": True, "weight": 1.2}, "tan_boot": {"hi": True, "weight": 1.3},
+    "cleaver_steel": {"hi": True, "glossy": True, "weight": 1.4}, "gourd": {"hi": True, "glossy": True, "weight": 1.3},
+    "drowned_skin": {"hi": True}, "abbot_hair": {"hi": True, "weight": 1.2}, "abbot_robe": {"hi": True}, "abbot_kasaya": {"hi": True, "weight": 1.2},
+    "abbot_hat": {"hi": True}, "abbot_dark": {"hi": True, "weight": 1.3}, "abbot_bell": {"hi": True, "glossy": True, "weight": 1.4},
+    "abbot_patina": {"hi": True, "weight": 1.2},
+    "gu_hair": {"hi": True, "weight": 1.2}, "gu_robe": {"hi": True}, "gu_gold": {"hi": True, "glossy": True, "weight": 1.3},
+    "gu_sash": {"hi": True, "weight": 1.2}, "gu_cape": {"hi": True}, "gu_shoe": {"hi": True, "weight": 1.3},
 }
 
 # Single colours laid on as marks and points.
@@ -534,6 +579,14 @@ RUNE_CORE = c("FFFBE6")
 RUNE = c("FFE6A1")
 RUNE_DIM = c("E5B84C")
 RUNE_GLOW = c("FFE6A1", 130)
+# M2: the drowned abbot's cold eyes and their glow, the river dripping off him, his bell's toll; Elder Gu's tide.
+DROWNED_EYE = c("E8FBFF")
+DROWNED_EYE_DIM = c("8CCFE0")
+DROWNED_GLOW = c("A8ECF4", 150)
+DRIP = c("9FD0DA", 200)
+TOLL = c("F2E6B4", 210)
+TIDE = c("6FC8E8", 220)
+TIDE_CORE = c("E8FBFF")
 SOUL_FLAME_CORE = c("F3E8FF")
 SOUL_FLAME = c("B28CF0")
 SOUL_FLAME_DEEP = c("7D55C8")

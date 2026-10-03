@@ -232,6 +232,11 @@ def build(jobs: int = 1, only=None) -> tuple[dict, dict]:
             ys, xs = np.nonzero(al)
             x0, x1 = xs.min() - 1, xs.max() + 2
             y0, y1 = ys.min() - 1, ys.max() + 2
+            if x0 < 0 or y0 < 0 or x1 > al.shape[1] or y1 > al.shape[0]:
+                # M2: a frame touching the canvas's edge is cut off there (and its cell would wrap): the species needs
+                # a canvas of its own (Spec.canvas).
+                raise ValueError("%s %s: its frames run off the working canvas (%dx%d); give its spec a larger `canvas`"
+                                 % (sp, el, al.shape[1], al.shape[0]))
             cw, ch = int(x1 - x0), int(y1 - y0)
             # Each facing's cells: every frame its own, or (`share`) each distinct picture once, the frames pointing at it.
             cells = {}

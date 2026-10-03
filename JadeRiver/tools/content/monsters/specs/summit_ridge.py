@@ -17,7 +17,7 @@ species("hollow_stag", plan="quadruped.cervid", share=True, size=2.2,
 # wind gathers round it (the tell, held) and beats them forward in a great gust that throws you back; beaten, it folds
 # and falls.
 species("cloudpeak_roc", plan="bird.roc", share=True, size=2.7,
-        palette=["roc_plume", "roc_flight", "roc_gold", "roc_beak", "roc_talon"], accents=("roc_gold", "roc_beak"), shadow=(16, 5),
+        palette=["roc_plume", "roc_flight", "roc_gold", "roc_beak", "roc_talon"], accents=("roc_gold", "roc_beak"), shadow=(16, 5), canvas=(176, 150),
         cycle=16.0, view=True,
         data=dict(level=(58, 63), role="normal", element="wind", page="summit", drops=[("roc_feather", 0.5), ("mystic_ore", 0.1)],
                   attacks=[("wing_gust", 0.7, 160, 1.0, dict(depth=60, knockback=120))], ai="flyer", speed=110, flying=True, width=40, height=50))

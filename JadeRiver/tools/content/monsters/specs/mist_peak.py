@@ -44,6 +44,18 @@ species("mirror_wisp", plan="spirit.wisp", share=True, size=2.0,
                   ai="flyer_ranged", speed=70, flying=True, width=18, height=30),
         sound=dict(body="shell"))
 
+# M2. S47 rogue cultivators: what they carry in the open is what they drop. The Rogue Mirror Adept of the Misty Slopes (an
+# elite where it guards): a scholar's robe, loose trousers, slippers, a guan over its topknot; it fights bare-handed, its
+# tell the palm drawn back in a crouch.
+species("rogue_treasure_adept", plan="person.fighter", share=True, size=1.0, shadow=(8, 3), cycle=12.0,
+        data=dict(level=(48, 50), role="elite", element="water", page=None, drops=[("bright_mirror", 1.0), ("sealed_storage_pouch", 1.0, (1, 2))],
+                  attacks=[("palm_of_tides", 0.5, 70, 1.2),
+                           ("mirror_flash", 0.8, 300, 1.2, dict(damage_type="qi", projectile={"speed": 520, "art": "qi_arc"}))],
+                  ai="humanoid",
+                  art=person("Rogue Mirror Adept", hair="topknot", hair_color=4, shirt="scholar", pants="loose", shoes="slippers", weapon="none",
+                             hat="guan"),
+                  race="human", energy="true_qi", width=18, height=90, guards=True))
+
 # M2. A haunted paper lantern of the Forgotten Monastery, lit from inside by a violet soul flame, a sad face painted on its
 # paper, crying wax tears, a dark red cap and a red tassel. Its flame flares up out of its top (the tell, held) and it
 # throws a ring of soul fire round it (its blow strikes on both sides and may confuse); beaten, its paper crumples and
@@ -67,4 +79,17 @@ species("jade_sentinel", plan="humanoid.sentinel", share=True, size=2.7,
         cycle=12.0, view=True,
         data=dict(level=(52, 56), role="normal", element="earth", page="mist_peak", drops=[("jade_core", 0.08), ("formation_stone", 0.5)],
                   attacks=[("halberd_sweep", 0.6, 90, 1.2, dict(depth=36))], ai="slow_melee", speed=50, width=26, height=64, linked=True),
+        sound=dict(body="wood"))
+
+# M2. The valley's final boss at the Ascension Gate: a towering guardian of jade and bronze, a bronze chest plate over a
+# jade cuirass, layered bronze pauldrons, long armoured skirt panels, bronze gauntlets, a stern bronze mask with heavy
+# brows and glowing gold eyes under a jade crown whose eave horns sweep up like a temple roof's, gold runes; two jade bi
+# rings orbit it. It raises its arms wide as the rings spin up and rise and its eyes flare (the tell, held: its sweep's
+# and its soul gaze's), and whirls the rings round it wide on both sides; beaten, the rings drop and it kneels, cracking.
+species("gate_guardian", plan="humanoid.gate", share=True, size=4.1,
+        palette=["gg_jade", "gg_jade_dark", "gg_bronze", "gg_ring"], elite=False, shadow=(18, 6), cycle=12.0, view=True, canvas=(200, 186),
+        data=dict(level=63, role="story_boss", element="earth", page=None, drops=[],
+                  attacks=[("ring_sweep", 0.7, 180, 1.3, dict(both_sides=True, depth=70, knockback=100)),
+                           ("soul_gaze", 0.9, 320, 1.1, dict(damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"}))],
+                  ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
         sound=dict(body="wood"))

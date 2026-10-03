@@ -84,11 +84,9 @@ CLIMBERS = {"bamboo_monkey", "cliff_ape"}
 
 # The people's outfits (the side view's avatar; the top-down figure dresses them in the same). A species with a spec in
 # the monster engine says its own (content.monsters.person: the Mudwater bandits and archers, Lieutenant Kuai, Big Toad
-# Tan, the drowned acolytes and their abbot, the rogue cultivators, the gorge's bandit adepts).
+# Tan, the drowned acolytes and their abbot, the rogue cultivators and the rogue mirror adept, the gorge's bandit adepts, Elder
+# Gu).
 HUMAN = {
-    # S47 rogue cultivators: what they carry in the open is what they drop.
-    "rogue_treasure_adept": {"hair": "topknot", "hair_color": 4, "shirt": "scholar", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "guan"},
-    "elder_gu": {"hair": "long_tied", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "none", "hat": "none"},
     "shen_lian": {"hair": "high_pony", "hair_color": 2, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "none", "hat": "none"},
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
     "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
@@ -170,7 +168,7 @@ NAMES = {"kuai_shan": "Kuai Shan", "tan_the_younger": "Tan the Younger", "gorge_
          "one_eye_pang": "One-Eye Pang", "ferryman_lou": "Ferryman Lou", "knife_hand_sui": "Knife-Hand Sui",
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
          "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
-         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "pirate_gunner": "Pirate Gunner", "admiral_voss": "Admiral Voss", "ironpine_warden": "Warden Dai Song",
          "blackreed_disciple": "Blackreed Disciple", "blackreed_warden": "Warden Qu Heng", "scarlet_kiln_disciple": "Scarlet Kiln Disciple",
          "scarlet_kiln_warden": "Warden Rong Yan"}
@@ -274,9 +272,7 @@ def build():
         spec_row("gorge_bandit_adept"),
         # S47 rogue cultivators: elites whose visible weapon or treasure is a guaranteed drop, with a sealed pouch.
         spec_row("rogue_cultivator"),
-        mob("rogue_treasure_adept", (48, 50), "elite", "water", None, [d("bright_mirror", 1.0), d("sealed_storage_pouch", 1.0, (1, 2))],
-            [atk("palm_of_tides", 0.5, 70, 1.2), atk("mirror_flash", 0.8, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
-            ai="humanoid", art=human("rogue_treasure_adept"), race="human", energy="true_qi", width=18, height=90, guards=True),
+        spec_row("rogue_treasure_adept"),
         spec_row("boulder_serpent"),
         spec_row("mist_vulture"),
         spec_row("cloudwing_crane"),
@@ -488,20 +484,14 @@ def build():
         mob("heart_demon", 36, "normal", "none", None, [], [atk("whisper_of_doubt", 0.5, 70, 0.8, damage_type="soul")],
             ai="duelist", art={"avatar": "player", "tint": "#b0283c"}, race="human", energy="primal_qi", width=18, height=90,
             name="Heart Demon", hp_mult=0.5),
-        mob("elder_gu", 53, "story_boss", "water", None, [d("smuggler_ledger", 1.0)], [atk("tide_palm", 0.5, 90, 1.2, damage_type="qi")],
-            ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True,
-            # P1: Gu cannot be beaten here, so his phases run on the clock: hired blades at 20 s, a cornered rat at 40 s.
-            phases=[{"after_s": 20, "action": "summon", "summon": "gorge_bandit_adept", "summon_level": 50},
-                    {"after_s": 40, "action": "enrage", "cooldown": 0.7, "damage": 1.25}]),
+        spec_row("elder_gu"),
         mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
             [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120, shatter=True), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
             ai="boss_behemoth", width=80, height=140, hollowing=8,
             # P1: the Behemoth sheds Hollowed boarlets at 60% and stampedes without pause below 30%.
             phases=[{"below": 0.6, "action": "summon", "summon": "hollowed_boarlet", "summon_level": 56},
                     {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}]),
-        mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
-                                                                   atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
-            ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
+        spec_row("gate_guardian"),
         # Shen Lian's spar (Fish-Gutting Fists) is a lesson: he spars at the player's own Level (`spar_level` "match", as
         # the sparring disciples do), his fist winds up as long as Old Snapper's claw (a tell a thumb can read), and he
         # says what the spar teaches as it starts and as it ends (`spar_lines`, the HUD). A Level-4 double beat the
