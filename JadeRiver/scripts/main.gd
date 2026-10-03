@@ -2,79 +2,23 @@ extends Control
 ## Game shell (S35): boot → title → character selection → creator → world.
 ## Hosts the backdrop, the room world, the HUD and a stack of pages. It only
 ## routes intents and signals; every rule lives behind `Game.submit`.
+## The pages it opens are in the page registry (scripts/shell/page_registry.gd); the preview and debug flags of the
+## command line are in scripts/dev/debug_args.gd, loaded only when the game starts with arguments
+## (docs/architecture/shell.md).
 
-const World = preload("res://scripts/world.gd")
+const World = preload("res://scripts/world.gd")   # side view
 const Hud = preload("res://scripts/hud.gd")
 const Backdrop = preload("res://scripts/backdrop.gd")
 const TopdownWorldScript = preload("res://scripts/topdown/topdown_world.gd")
+const PageRegistry = preload("res://scripts/shell/page_registry.gd")
+const DEBUG_ARGS := "res://scripts/dev/debug_args.gd"
 ## The top-down prototype (redesign Phase 1) from the title screen plays on its own saves, never the player's.
 const PROTO_SAVES := "user://topdown_proto_saves/"
 ## The top-down game (redesign Phase 4) from the title screen plays on saves of its own.
 const TOPDOWN_SAVES := "user://topdown_saves/"
 
-const PAGES := {
-	"menu": "res://scripts/ui/pages/menu_page.gd",
-	"inventory": "res://scripts/ui/pages/inventory_page.gd",
-	"character": "res://scripts/ui/pages/character_page.gd",
-	"cultivation": "res://scripts/ui/pages/cultivation_page.gd",
-	"breakthrough": "res://scripts/ui/pages/breakthrough_page.gd",
-	"techniques": "res://scripts/ui/pages/techniques_page.gd",
-	"quests": "res://scripts/ui/pages/quest_page.gd",
-	"world_map": "res://scripts/ui/pages/map_page.gd",
-	"codex": "res://scripts/ui/pages/codex_page.gd",
-	"collection": "res://scripts/ui/pages/codex_page.gd",
-	"seasons": "res://scripts/ui/pages/codex_page.gd",
-	"mail": "res://scripts/ui/pages/mail_page.gd",
-	"shop": "res://scripts/ui/pages/shop_page.gd",
-	"storage": "res://scripts/ui/pages/storage_page.gd",
-	"characters": "res://scripts/ui/pages/characters_page.gd",
-	"settings": "res://scripts/ui/pages/settings_page.gd",
-	"dialogue": "res://scripts/ui/pages/dialogue_page.gd",
-	"welcome": "res://scripts/ui/pages/welcome_page.gd",
-	"posts": "res://scripts/ui/pages/posts_page.gd",
-	"pouches": "res://scripts/ui/pages/pouches_page.gd",
-	"works": "res://scripts/ui/pages/works_page.gd",
-	"revival": "res://scripts/ui/pages/revival_page.gd",
-	"teleport": "res://scripts/ui/pages/teleport_page.gd",
-	"transfer_array": "res://scripts/ui/pages/array_page.gd",
-	"emotes": "res://scripts/ui/pages/emotes_page.gd",
-	"notice_board": "res://scripts/ui/pages/notice_page.gd",
-	"training_sect": "res://scripts/ui/pages/training_sect_page.gd",
-	"your_sect": "res://scripts/ui/pages/your_sect_page.gd",
-	"spirit_animals": "res://scripts/ui/pages/pets_page.gd",
-	"beast_arena": "res://scripts/ui/pages/beast_arena_page.gd",
-	"relations": "res://scripts/ui/pages/relations_page.gd",
-	"gift": "res://scripts/ui/pages/gift_page.gd",
-	"mercy": "res://scripts/ui/pages/mercy_page.gd",
-	"calendar": "res://scripts/ui/pages/calendar_page.gd",
-	"tower": "res://scripts/ui/pages/tower_page.gd",
-	"county": "res://scripts/ui/pages/county_page.gd",
-	"guqin": "res://scripts/ui/pages/guqin_page.gd",
-	"chess": "res://scripts/ui/pages/chess_page.gd",
-	"companions": "res://scripts/ui/pages/companions_page.gd",
-	"crafts": "res://scripts/ui/pages/crafts_page.gd",
-	"cooking": "res://scripts/ui/pages/crafts_page.gd",
-	"alchemy": "res://scripts/ui/pages/crafts_page.gd",
-	"forge": "res://scripts/ui/pages/crafts_page.gd",
-	"formations": "res://scripts/ui/pages/workshop_page.gd",
-	"workshop": "res://scripts/ui/pages/workshop_page.gd",
-	"talisman": "res://scripts/ui/pages/crafts_page.gd",
-	"guild": "res://scripts/ui/pages/crafts_page.gd",
-	"arrays": "res://scripts/ui/pages/crafts_page.gd",
-	"charts": "res://scripts/ui/pages/crafts_page.gd",
-	"vessels": "res://scripts/ui/pages/crafts_page.gd",
-	"garden": "res://scripts/ui/pages/garden_page.gd",
-	"core_exchange": "res://scripts/ui/pages/core_exchange_page.gd",
-	"fishing": "res://scripts/ui/pages/fishing_page.gd",
-	"seclusion": "res://scripts/ui/pages/cultivation_page.gd",
-	"heart": "res://scripts/ui/pages/cultivation_page.gd",
-	"body": "res://scripts/ui/pages/cultivation_page.gd",
-	"fates": "res://scripts/ui/pages/fates_page.gd",
-	"library": "res://scripts/ui/pages/shop_page.gd",
-	"exchange": "res://scripts/ui/pages/exchange_page.gd",
-	"auction": "res://scripts/ui/pages/auction_page.gd",
-	"achievements": "res://scripts/ui/pages/codex_page.gd",
-}
+## The page table: page id -> the script that draws it. Its home is the registry; the tests and tools read it here.
+const PAGES := PageRegistry.PAGES
 
 var backdrop: Control
 var world: Node2D
@@ -90,13 +34,13 @@ var fade := 0.0
 var screen := "title"
 var shell: Page
 var pages: Array = []
-var preview_mode := false
-var boot_report: Dictionary = {}
+var preview_mode := false       ## started with arguments: the preview saves, and the flags (debug_args) read
 var creator: Page
 var topdown := false            ## the world mounted is the top-down prototype room (redesign Phase 1)
 var proto_isolated := false     ## opened from the title screen on PROTO_SAVES; leaving it restores the player's saves
 var _proto_force_was := false
 var _saves_before := "user://"  ## the saves set aside while the top-down game or the prototype runs on its own
+var _debug_args: RefCounted = null   ## the flags' run (it waits on timers, so the shell keeps it)
 
 # Creator access kept for the engine checks.
 var draft: Dictionary:
@@ -112,11 +56,7 @@ func _ready() -> void:
 	get_tree().root.go_back_requested.connect(_on_back)
 	get_tree().root.close_requested.connect(save_and_quit)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var background_layer := CanvasLayer.new()
-	background_layer.layer = -10
-	add_child(background_layer)
-	backdrop = Backdrop.new()
-	background_layer.add_child(backdrop)
+	_add_backdrop()
 	hud_layer = CanvasLayer.new()
 	hud_layer.name = "MobileHUD"
 	hud_layer.layer = 5
@@ -144,24 +84,13 @@ func _ready() -> void:
 	fade_layer.add_child(fade_rect)
 	GameEvents.event.connect(_on_game_event)
 	_warm_pages()
+	# The preview and debug flags: only with arguments after "--", which a player's game never has.
 	var user_args := OS.get_cmdline_user_args()
 	preview_mode = not user_args.is_empty()
-	if "--test-saves" in user_args or preview_mode: Saves.use_folder("user://preview_saves/")
-	for a in user_args:
-		# Debug tools (S38): play from a copy of any save folder, e.g. a valley_run checkpoint.
-		if str(a).begins_with("--load="):
-			var src := str(a).trim_prefix("--load=")
-			if not src.ends_with("/"): src += "/"
-			# The copy is named after its source, so two previews of different checkpoints run at once do not clobber
-			# each other's copy.
-			var dst := "user://loaded_%s/" % src.trim_suffix("/").get_file()
-			DirAccess.make_dir_recursive_absolute(dst)
-			for f in DirAccess.get_files_at(dst): DirAccess.remove_absolute(dst + f)
-			for f in DirAccess.get_files_at(src): DirAccess.copy_absolute(src + f, dst + f)
-			Saves.use_folder(dst)
-	if "--log-events" in user_args:
-		GameEvents.event.connect(func(n: String, p: Dictionary): if n not in ["resource_changed", "meditation_tick"]: print("[event] ", n, " ", p))
-	boot_report = Game.boot()
+	if preview_mode:
+		_debug_args = load(DEBUG_ARGS).new(self, user_args)
+		_debug_args.before_boot()
+	var boot_report := Game.boot()
 	# The Max Test APK (custom feature "max_test"; --max-character in the editor): every way open, every system
 	# unlocked, and on first launch a ready-made character at the top of this build.
 	if OS.has_feature("max_test") or "--max-character" in user_args:
@@ -172,516 +101,10 @@ func _ready() -> void:
 	show_title()
 	if not boot_report.get("recovered", []).is_empty():
 		shell.flash(Tx.t("main.a_damaged_save_was_restored"))
-	_handle_preview_args(user_args)
+	if _debug_args: _debug_args.run()
 
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_game_event): GameEvents.event.disconnect(_on_game_event)
-
-func _handle_preview_args(user_args: Array) -> void:
-	# Redesign Phase 1: --topdown-proto opens the top-down prototype room (a preview character, the real HUD).
-	if "--topdown-proto" in user_args: enter_topdown_proto(false)
-	# Redesign Phase 4: --topdown makes the preview's character a top-down one (the creator makes top-down ones already,
-	# decision 41); --topdown-tutorial opens the top-down game as the title's hidden entry does, on the preview saves.
-	var preview_view := "topdown" if "--topdown" in user_args else ""
-	if "--topdown-tutorial" in user_args: enter_topdown_tutorial(false)
-	if "--preview-selection" in user_args: show_selection()
-	if "--preview-create" in user_args: show_creation(1)
-	var room := ""
-	for a in user_args:
-		if str(a).begins_with("--room="): room = str(a).trim_prefix("--room=")
-		# Debug tools (S38): preview at a text size (0 small, 1 normal, 2 large).
-		if str(a).begins_with("--text-size="): Game.account.settings["text_size"] = clampi(int(str(a).trim_prefix("--text-size=")), 0, 2)
-	var loaded := "--load-slot" in user_args   # --room= with it starts the loaded character in that room
-	if loaded or "--preview-world" in user_args or room != "":
-		if not loaded and Game.character("c1") == null:
-			Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}, "view": preview_view})
-		if room != "" and Game.character("c1") != null:
-			var ch = Game.character("c1")
-			ch.position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
-			for a in user_args:
-				# Debug tools (S38): --at=x,y starts the preview at a point in the room.
-				if str(a).begins_with("--at="):
-					var xy := str(a).trim_prefix("--at=").split(",")
-					ch.position.x = float(xy[0])
-					ch.position.y = float(xy[1]) if xy.size() > 1 else 840.0
-			if "--unlock-all" in user_args: Unlocks.debug_force_all = true
-			if "--debug-sect" in user_args:
-				# Debug tools (S38): a founded sect with every building at level 1, for previews.
-				var b := {}
-				for row in ContentDB.all("sect_buildings"): b[str(row.id)] = 1
-				Game.account.sect = {"name": Tx.t("main.preview_sect"), "emblem": [0, 0], "level": 6, "prestige": 0, "buildings": b, "queue": [],
-					"disciples": [], "candidates": [], "expeditions": [], "candidate_day": -1}
-		enter_world(1)
-	var shot := screen
-	var moment_t := -1.0   # P6: with --capture, the shot is taken this many seconds after a moment starts
-	for a in user_args:
-		if str(a).begins_with("--pet=") and Game.active() != null:
-			# Debug tools (S38): --pet=species[:stage[:purity[:hearts]]] grants an animal and makes it active (S46 previews).
-			var pa := str(a).trim_prefix("--pet=").split(":")
-			Game.pets.apply_grant(Game.active().id, pa[0])
-			var np: Dictionary = Game.active().pets[Game.active().pets.size() - 1]
-			if pa.size() > 1: np.stage = pa[1]
-			if pa.size() > 2: Game.pets.add_purity(Game.active(), np, int(pa[2]) - int(np.purity))
-			if pa.size() > 3: np.bond = float(pa[3])
-			Game.active().active_pet = str(np.uid)
-		if str(a).begins_with("--mine=") and Game.sect.founded():
-			# Debug tools (S38): --mine=id[:contested] gives the (debug) sect a spirit mine with ten hours in its carts and
-			# two disciples, one on guard (S49 territory previews); --assault=id starts the fight for one.
-			var ma := str(a).trim_prefix("--mine=").split(":")
-			var now := Clock.now_utc()
-			if Game.sect.sect().disciples.is_empty():
-				var names: Array = ContentDB.config("disciples").get("names", [])
-				for k in 2:
-					Game.sect.sect().disciples.append({"name": str(names[k % names.size()]) if not names.is_empty() else "", "strength": 3 - k, "spirit": 2 + k * 2,
-						"craft": 1 + k, "trait": "green_thumb", "level": 4 - k * 2})
-			var all: Dictionary = Game.sect.sect().get("mines", {})
-			all[ma[0]] = {"collected": now - 36000.0, "contest": now + 180000.0, "contested": ma.size() > 1, "until": now + 5.5 * 3600.0 if ma.size() > 1 else 0.0,
-				"guards": [0], "n": 0}
-			Game.sect.sect().mines = all
-		if str(a).begins_with("--assault=") and Game.active() != null:
-			Game.submit({"type": "assault_mine", "mine": str(a).trim_prefix("--assault=")})
-		if str(a).begins_with("--mount=") and Game.active() != null:
-			# Debug tools (S38): --mount=species grants an animal and puts it in the Mount slot, riding (S46 previews).
-			Game.pets.apply_grant(Game.active().id, str(a).trim_prefix("--mount="))
-			var mp: Dictionary = Game.active().pets[Game.active().pets.size() - 1]
-			Unlocks.force_unlock(Game.active().id, "mounts")
-			Game.pets.set_mount(Game.active(), str(mp.uid), null)
-		if str(a).begins_with("--bag=") and Game.active() != null:
-			# Debug tools (S38): --bag=species[,species] grants animals and carries them in the Spirit Beast Bag.
-			Game.inventory.apply_add(Game.active().id, "beast_bag_star", 1, "debug")
-			var keep: String = Game.active().active_pet
-			for sp in str(a).trim_prefix("--bag=").split(","):
-				Game.pets.apply_grant(Game.active().id, sp)
-				Game.active().pet_bag.append(str(Game.active().pets[Game.active().pets.size() - 1].uid))
-			Game.active().active_pet = keep
-		if str(a).begins_with("--arena=") and Game.active() != null:
-			# Debug tools (S38): --arena=solo|trio fights one Beast Arena challenge (S46 previews).
-			Game.pets.arena_challenge(Game.active(), str(a).trim_prefix("--arena="))
-		if str(a).begins_with("--deed=") and Game.active() != null:
-			# Debug tools (S38): --deed=id applies one karma.json deed (S49 Relations previews); repeatable.
-			Game.relations.apply_deed(Game.active().id, str(a).trim_prefix("--deed="))
-		if str(a).begins_with("--companion=") and Game.active() != null:
-			# Debug tools (S38): --companion=id adds a fellow disciple to the party (S26/S49 previews).
-			Game.companions.apply_add(Game.active().id, str(a).trim_prefix("--companion="))
-		if str(a).begins_with("--hearts=") and Game.active() != null:
-			# Debug tools (S38): --hearts=npc:n sets that person's hearts (S49 affinity previews).
-			var hp := str(a).trim_prefix("--hearts=").split(":")
-			Game.relations.apply_affinity(Game.active().id, hp[0], int(hp[1]) * 100 - Game.relations.points(Game.active(), hp[0]) if hp.size() > 1 else 100, "debug")
-		if str(a).begins_with("--grudge=") and Game.active() != null:
-			# Debug tools (S38): --grudge=faction:n sets a faction's grudge (S49 previews).
-			var gp := str(a).trim_prefix("--grudge=").split(":")
-			Game.relations.apply_grudge(Game.active().id, gp[0], int(gp[1]) - Game.relations.grudge(Game.active(), gp[0]) if gp.size() > 1 else 30, "debug")
-		if str(a).begins_with("--event=") and Game.active() != null:
-			# Debug tools (S38): --event=id moves the clock ten minutes into that world event's next opening (S49).
-			var up: Dictionary = Game.calendar.upcoming_of(str(a).trim_prefix("--event="))
-			if not up.is_empty(): Clock.debug_offset_s += maxf(0.0, float(up.start) + 600.0 - Clock.now_utc())
-		if str(a).begins_with("--weather="):
-			# Debug tools (S38): --weather=rain|fog|storm previews a sky in rooms that have weather (S49).
-			Game.calendar.debug_weather = str(a).trim_prefix("--weather=")
-		if str(a) == "--challenge" and Game.active() != null:
-			# Debug tools (S38): a young master's challenge waits in this room (S49 Fame previews).
-			Game.relations.offer_challenge(Game.active(), "young_master")
-		if str(a).begins_with("--fortune=") and Game.active() != null:
-			# Debug tools (S38): --fortune=card turns up that fortune encounter here, meter or not (S49 previews).
-			var card := ContentDB.entry("fortune_deck", str(a).trim_prefix("--fortune="))
-			if not card.is_empty(): Game.relations.fortune_check(Game.active(), str((card.get("triggers", ["room_entered"]) as Array)[0]), str(card.id))
-		if str(a).begins_with("--tower=") and Game.active() != null:
-			# Debug tools (S38): --tower=N marks the Trial Tower cleared to floor N (S49 previews).
-			Game.active().tower["cleared"] = int(str(a).trim_prefix("--tower="))
-		if str(a).begins_with("--climb=") and Game.active() != null:
-			# Debug tools (S38): --climb=N starts Trial Tower floor N (S49 previews).
-			Game.world.climb_tower(Game.active(), int(str(a).trim_prefix("--climb=")))
-		if str(a).begins_with("--activity="):
-			# Debug tools (S38): --activity=N sets today's activity points (S49 chest previews).
-			Game.accounts.activity()["points"] = int(str(a).trim_prefix("--activity="))
-		if str(a).begins_with("--phenomenon=") and Game.active() != null:
-			# Debug tools (S38): --phenomenon=cloud|lightning shows the heavens answering a breakthrough here (S49).
-			Game.calendar._phenomenon(Game.active().id, str(a).trim_prefix("--phenomenon="), Game.active().cultivator.realm_key)
-		if str(a).begins_with("--egg=") and Game.active() != null:
-			# Debug tools (S38): --egg=species puts a warming egg in the nest (S46 incubation previews).
-			Game.active().eggs.append({"species": str(a).trim_prefix("--egg="), "hatch_utc": Clock.now_utc() + 7200.0})
-		if str(a).begins_with("--give=") and Game.active() != null:
-			# Debug tools (S38): --give=item[:count[:quality]] puts items in the bag for previews.
-			var g := str(a).trim_prefix("--give=").split(":")
-			if ContentDB.item(g[0]).has("draught"): Game.inventory.apply_draught(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug")
-			else: Game.inventory.apply_add(Game.active().id, g[0], int(g[1]) if g.size() > 1 else 1, "debug", {"quality": g[2]} if g.size() > 2 else {})
-		if str(a).begins_with("--learn=") and Game.active() != null:
-			# Debug tools (S38): --learn=craft learns every recipe of one craft, for previews of its page.
-			if str(a) == "--learn=inner_arts":
-				for ia in ContentDB.all("inner_arts"): Game.progression.apply_learn_inner_art(Game.active().id, str(ia.id))
-				Game.submit({"type": "equip_inner_art", "slot": 0, "art": "iron_shirt"})
-				Game.submit({"type": "equip_inner_art", "slot": 1, "art": "sword_heart"})
-			var learn: Array = []
-			for r in ContentDB.all("recipes"):
-				if str(r.get("craft", "")) == str(a).trim_prefix("--learn="): learn.append({"kind": "learn_recipe", "recipe": str(r.id)})
-			Game.apply_effects(Game.active().id, learn, "debug")
-		if str(a).begins_with("--realm=") and Game.active() != null:
-			# Debug tools (S38): preview at a realm; every aptitude shows.
-			var rc0 = Game.active()
-			rc0.cultivator.realm_key = str(a).trim_prefix("--realm=")
-			for k in rc0.cultivator.aptitude: rc0.cultivator.aptitude[k].revealed = true
-			Game.combat.refresh_stats(rc0.id)
-		if str(a).begins_with("--wield=") and Game.active() != null:
-			# Debug tools (S38): --wield=item puts a weapon straight into the hand (S47 v1.1 weapon family previews).
-			var wc = Game.active()
-			var wid := str(a).trim_prefix("--wield=")
-			Game.inventory.apply_add_equipment(wc.id, wid, 14, "common", "debug")
-			var wi: int = wc.inventory.first_index(wid)
-			if wi >= 0:
-				var was = wc.inventory.equipped.get("weapon")
-				wc.inventory.equipped["weapon"] = wc.inventory.bag[wi]
-				wc.inventory.bag[wi] = was
-				Game.combat.refresh_stats(wc.id)
-				if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
-					world.player.avatar.outfit = InventoryAuthority.outfit_for(wc)
-					world.player.avatar.last_key = ""
-		if str(a).begins_with("--relic=") and Game.active() != null:
-			# Debug tools (S38): --relic=item[:awake[:affinity]] holds a bound relic, its spirit asleep or awake, and has
-			# the spirit speak once (S47 Artifact Spirit previews).
-			var rc = Game.active()
-			var ra := str(a).trim_prefix("--relic=").split(":")
-			var rinst := LootRules.make_instance(ra[0], int(ContentDB.item(ra[0]).get("ilv", 50)), "fine", null, rc.inventory.take_uid())
-			rinst.erase("sealed")
-			rinst.bound = true
-			if ra.size() > 1 and ra[1] == "awake": rinst.spirit = "awake"
-			if ra.size() > 2: rinst.spirit_affinity = float(ra[2])
-			var rwas = rc.inventory.equipped.get("weapon")
-			rc.inventory.equipped["weapon"] = rinst
-			if rwas != null: Game.inventory.apply_add_instance(rc.id, rwas, "debug")
-			for fid in ["iron_jian", "iron_spear"]: Game.inventory.apply_add_equipment(rc.id, fid, 10, "common", "debug")
-			Game.inventory.apply_add(rc.id, str(ContentDB.item(ra[0]).get("spirit", {}).get("favourite", "refining_essence")), 3, "debug")
-			Game.combat.refresh_stats(rc.id)
-			if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
-				world.player.avatar.outfit = InventoryAuthority.outfit_for(rc)
-				world.player.avatar.last_key = ""
-			Game.inventory.speak(rc, rinst, "awake" if str(rinst.spirit) == "awake" else "gift", true)
-		if str(a).begins_with("--awaken=") and Game.active() != null:
-			# Debug tools (S38): --awaken=item[:awake] holds that weapon at +10 with its Dao at Explanation and a Weapon Soul
-			# Crystal in the bag, awakened already with ":awake" (S47 weapon awakening previews).
-			var kc = Game.active()
-			var ka := str(a).trim_prefix("--awaken=").split(":")
-			var kinst := LootRules.make_instance(ka[0], int(ContentDB.item(ka[0]).get("ilv", 45)), "fine", null, kc.inventory.take_uid())
-			kinst.enhance = 10
-			if ka.size() > 1 and ka[1] == "awake": kinst.awakened = true
-			var kwas = kc.inventory.equipped.get("weapon")
-			kc.inventory.equipped["weapon"] = kinst
-			if kwas != null: Game.inventory.apply_add_instance(kc.id, kwas, "debug")
-			var kdao := str(ContentDB.entry("weapon_families", str(ContentDB.item(ka[0]).get("family", ""))).get("dao", "sword"))
-			kc.cultivator.daos[kdao] = {"tier": 4, "insight": 0.0}
-			Unlocks.force_unlock(kc.id, "smithing")
-			Game.inventory.apply_add(kc.id, "weapon_soul_crystal", 1, "debug")
-			Game.combat.refresh_stats(kc.id)
-			if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
-				world.player.avatar.outfit = InventoryAuthority.outfit_for(kc)
-				world.player.avatar.last_key = ""
-		if str(a).begins_with("--join=") and Game.active() != null:
-			# Debug tools (S38): --join=sect[:rank] joins a training sect at a rank with 2000 contribution (sect role previews).
-			var ja := str(a).trim_prefix("--join=").split(":")
-			var jc = Game.active()
-			jc.training_sect = {}
-			Game.training.apply_join(jc.id, ja[0])
-			if ja.size() > 1:
-				for rk in ContentDB.config("sect_ranks").get("order", []):
-					Game.training.apply_rank(jc.id, str(rk))
-					if str(rk) == ja[1]: break
-			Game.training.apply_contribution(jc.id, 2000, "debug")
-		if str(a).begins_with("--foe=") and Game.active() != null and Game.actor_state(Game.active_id) != null:
-			# Debug tools (S38): --foe=enemy[:count[:hp]] sets foes in front of the player (combat previews), at a share of
-			# their HP if given (a boss past a phase, P6).
-			var fa := str(a).trim_prefix("--foe=").split(":")
-			var fst: ActorState = Game.actor_state(Game.active_id)
-			for k in (int(fa[1]) if fa.size() > 1 else 1):
-				var foe: EnemyState = Game.enemies.spawn_at(fa[0], fst.plane + Vector2(110 + k * 60, -10 + (k % 2) * 20), ProgressionRules.level(Game.active()) + 5)
-				if foe and fa.size() > 2: foe.pools.hp = foe.pools.max_hp * float(fa[2])
-		if str(a).begins_with("--defeat-foe") and Game.room_rt != null:
-			# Debug tools (S38): --defeat-foe[=s] defeats the first foe in the room after s seconds (default 1) through
-			# Combat, with its real drop (P6 previews of a boss's fall and the loot fountain).
-			await get_tree().create_timer(float(str(a).get_slice("=", 1)) if str(a).contains("=") else 1.0).timeout
-			for e in Game.room_rt.living_enemies():
-				if e.team == "enemy":
-					Game.combat._defeat(e, Game.active_id)
-					break
-			if moment_t < 0.0: moment_t = moments.hold_at if is_instance_valid(moments) and moments.hold_at >= 0.0 else 0.3   # with --capture: the drop in the air
-		if str(a).begins_with("--pick-up") and Game.room_rt != null:
-			# Debug tools (S38): --pick-up[=s] picks up everything lying in the room after s seconds (default 1), through the
-			# pick_up intent (previews of the equip prompt a find raises).
-			await get_tree().create_timer(float(str(a).get_slice("=", 1)) if str(a).contains("=") else 1.0).timeout
-			for l in Game.room_rt.loot.duplicate(): Game.submit({"type": "pick_up", "uid": int(l.uid)})
-		if str(a).begins_with("--equip=") and Game.active() != null:
-			# Debug tools (S38): --equip=item wears the newest piece of that item in the bag, through the equip intent.
-			var eb: Array = Game.active().inventory.bag
-			var newest := -1
-			for i in eb.size():
-				if eb[i] != null and str(eb[i].id) == str(a).trim_prefix("--equip=") and (newest < 0 or int(eb[i].get("uid", 0)) > int(eb[newest].get("uid", 0))): newest = i
-			if newest >= 0: Game.submit({"type": "equip", "index": newest})
-		if str(a).begins_with("--cast=") and is_instance_valid(world) and Game.room_rt != null:
-			# Debug tools (S38): --cast=technique[:t] draws a technique's cast and its hits on the foes in reach at its tier
-			# (World.preview_cast; nothing is submitted); with --capture, the shot t s after (default 0.15).
-			var ca := str(a).trim_prefix("--cast=").split(":")
-			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection (1.5 s), so the caster is solid
-			# Decision 23: with --capture the cast's effects and pose step a sixtieth a frame, so the shot lands on the frame
-			# t names whatever the renderer's pace (the capture wait below counts frames too).
-			if "--capture" in user_args:
-				world.fx.fixed_step = 1.0 / 60.0
-				world.sim_frozen = true   # the foes hold still too: the shot is the effect on the pose
-			world.preview_cast(ca[0])
-			moment_t = float(ca[1]) if ca.size() > 1 else 0.15
-		if str(a).begins_with("--hold=") and is_instance_valid(moments):
-			# Debug tools (S38): --hold=t[:row] holds the moment on screen (or only that row) once it reaches t s (captures
-			# of real ones).
-			var ho := str(a).trim_prefix("--hold=").split(":")
-			moments.hold_at = float(ho[0])
-			moments.hold_row = ho[1] if ho.size() > 1 else ""
-		if str(a).begins_with("--body=") and Game.active() != null:
-			# Debug tools (S38): --body=level[:tier[:trials]] sets the body ladder for previews (S48).
-			var bd := str(a).trim_prefix("--body=").split(":")
-			var bc = Game.active()
-			bc.cultivator.body_level = int(bd[0])
-			if bd.size() > 1: bc.cultivator.body_tier = bd[1]
-			if bd.size() > 2:
-				for tr in bd[2].split(","): bc.cultivator.body_trials.append(tr)
-			Game.combat.refresh_stats(bc.id)
-		if str(a).begins_with("--physique=") and Game.active() != null:
-			for ph in str(a).trim_prefix("--physique=").split(","): Game.progression.awaken_physique(Game.active().id, ph)
-		if str(a).begins_with("--false-realm=") and Game.active() != null:
-			# Debug tools (S38): preview Concealment's false realm (S48).
-			if not "concealment" in Game.active().cultivator.secret_arts: Game.active().cultivator.secret_arts.append("concealment")
-			Game.submit({"type": "set_false_realm", "realm": str(a).trim_prefix("--false-realm=")})
-		if str(a).begins_with("--vessel=") and Game.active() != null:
-			# Debug tools (S38): preview a flight vessel (G2); pair it with --fly.
-			var vid := str(a).trim_prefix("--vessel=")
-			Game.inventory.apply_add(Game.active().id, vid, 1, "debug")
-			Game.submit({"type": "choose_vessel", "item": vid})
-	for a in user_args:
-		if str(a).begins_with("--open-page="):
-			await get_tree().create_timer(0.8).timeout
-			var spec := str(a).trim_prefix("--open-page=").split(":")
-			open_page(spec[0], {"tab": spec[1]} if spec.size() > 1 else {})
-		if str(a).begins_with("--tap=") and top_page() != null:
-			# Debug tools (S38): tap the top page at x,y (a press and a release), for previews of a page's states.
-			await get_tree().create_timer(0.6).timeout
-			var xy := str(a).trim_prefix("--tap=").split(",")
-			for down in [true, false]:
-				var ev := InputEventMouseButton.new()
-				ev.button_index = MOUSE_BUTTON_LEFT
-				ev.pressed = down
-				ev.position = Vector2(float(xy[0]), float(xy[1]))
-				top_page()._gui_input(ev)
-		if str(a).begins_with("--preview-t=") and top_page() != null and top_page().get("stage") is TechniquePreview:
-			# Debug tools (S38): hold the Techniques page's preview t s into its loop, for shots of its frames.
-			await get_tree().create_timer(0.3).timeout
-			top_page().stage.hold(float(str(a).trim_prefix("--preview-t=")))
-		if str(a).begins_with("--talk="):
-			await get_tree().create_timer(0.8).timeout
-			var r := Game.submit({"type": "talk", "npc": str(a).trim_prefix("--talk=")})
-			if r.get("ok", false) and r.has("dialogue"): open_page("dialogue", {"convo": r.dialogue})
-		if str(a).begins_with("--interact="):
-			# Debug tools (S38): use a room object as if pressed (a thief to chase, a route stone), for previews.
-			await get_tree().create_timer(0.8).timeout
-			Game.submit({"type": "interact", "object": str(a).trim_prefix("--interact=")})
-		if str(a).begins_with("--shot="): shot = str(a).trim_prefix("--shot=")
-		if str(a) == "--posts-demo" and Game.active() != null and Game.room_rt != null:
-			# Debug tools (S38): two more characters keeping post at this room's nodes, hours in, for Roll-Call previews (S50).
-			var nodes: Array = Game.room_rt.def.get("objects", []).filter(func(o): return Game.posts.craft_of_object(o) != "")
-			for k in mini(2, nodes.size()):
-				var slot := 2 + k
-				Game.account.slots_unlocked = maxi(Game.account.slots_unlocked, slot)
-				if not Game.characters.has("c%d" % slot): Game.submit({"type": "create_character", "slot": slot, "name": [Tx.t("main.wen_ruo"), Tx.t("main.bai_lin")][k], "skip_prologue": true})
-				var oc = Game.character("c%d" % slot)
-				if oc == null: continue
-				for u in ["keeping_post", "insect_netting", "herb_gathering", "mining", "fishing"]: Unlocks.force_unlock(oc.id, u)
-				oc.posts = {"post": {"kind": "craft", "craft": Game.posts.craft_of_object(nodes[k]), "room": Game.room_rt.room_id,
-					"object": str(nodes[k].id), "since": Clock.now_utc() - 3600.0 * (2.5 + 9.0 * k), "paused": false}, "crafts": {}, "pouch": {}}
-				oc.position.room = Game.room_rt.room_id
-		if str(a) == "--welcome-demo" and Game.active() != null and Game.room_rt != null:
-			# Debug tools (S38): the active character comes in from 7.5 hours at its post (or at this room's first node),
-			# for Welcome Back previews (P5): the real Return Ledger of the post authority, opened as entering the world does.
-			var wc = Game.active()
-			var node: Array = Game.room_rt.def.get("objects", []).filter(func(o): return Game.posts.craft_of_object(o) != "")
-			if not Game.posts.has_post(wc) and not node.is_empty():
-				wc.posts["post"] = {"kind": "craft", "craft": Game.posts.craft_of_object(node[0]), "room": Game.room_rt.room_id, "object": str(node[0].id)}
-			if Game.posts.has_post(wc): Game.posts.post_of(wc).merge({"paused": false, "since": Clock.now_utc() - 3600.0 * 7.5}, true)
-			var welcome := {}
-			AccountAuthority._with_ledger(welcome, Game.posts.on_entered(wc))
-			await get_tree().create_timer(0.8).timeout
-			if not welcome.is_empty(): open_page("welcome", welcome)
-		if str(a) == "--guide-demo" and Game.active() != null:
-			# Debug tools (S38): quest states that show every head marker in Lotus Ferry and a tracked quest leading out (P1).
-			var gq = Game.active().quests
-			gq.done["fists_first"] = 1
-			gq.done["crab_trouble"] = 1
-			gq.active["guos_old_wound"] = {"state": "active", "progress": [0], "accepted_tick": 0}
-			gq.offered["the_muddy_wash"] = true
-			gq.active["glowflies"] = {"state": "active", "progress": [0], "accepted_tick": 0}
-			gq.tracked = ["glowflies"]
-		if str(a) == "--offer-fates" and Game.active() != null:
-			# Debug tools (S38): a fate offer for previews of the picker (S48).
-			Game.active().cultivator.fate_offer = ["thunder_tempered", "lucky_star", "scar_of_failure"]
-		if str(a) == "--tribulation" and Game.active() != null:
-			# Debug tools (S38): a heavenly tribulation over the preview room (S48); the capture waits for a ring.
-			await get_tree().create_timer(0.8).timeout
-			Game.progression._start_tribulation(Game.active(), {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": []})
-			await get_tree().create_timer(2.6).timeout
-		if str(a).begins_with("--set-piece="):
-			# Debug tools (S38): start a set piece's room event in the preview room (the S48 Temper trials).
-			await get_tree().create_timer(0.8).timeout
-			var sp := ContentDB.entry("set_pieces", str(a).trim_prefix("--set-piece="))
-			if sp.has("room_event") and Game.room_rt: Game.world.start_room_event(Game.active(), sp.room_event)
-			await get_tree().create_timer(2.5).timeout
-	if "--ride" in user_args and is_instance_valid(world):
-		# Debug tools (S38): preview riding a mount (grants a Jade Crane when there is no mountable animal).
-		await get_tree().create_timer(0.3).timeout
-		var rc = Game.active()
-		var mount_uid := ""
-		for pt in rc.pets:
-			if Game.pets.mountable(pt): mount_uid = str(pt.uid)
-		if mount_uid == "":
-			Game.pets.apply_grant(rc.id, "jade_crane")
-			mount_uid = str(rc.pets[rc.pets.size() - 1].uid)
-		Game.submit({"type": "set_active_pet", "pet": mount_uid})
-		Game.submit({"type": "set_pet_role", "pet": mount_uid, "role": "mount"})
-	if "--fly" in user_args and is_instance_valid(world):
-		# Debug tools (S38): preview flight with a filled QI pool.
-		await get_tree().create_timer(0.5).timeout
-		var fc = Game.active()
-		fc.pools.max_qi = maxf(fc.pools.max_qi, 400.0)
-		fc.pools.qi = fc.pools.max_qi
-		world.player.take_off()
-		world.player.fly_up = true
-		await get_tree().create_timer(0.9).timeout
-		world.player.fly_up = false
-	for a in user_args:
-		if str(a).begins_with("--herb-ripe=") and Game.room_rt:
-			# Debug tools (S38): move the clock to a rare herb's next ripening, in its season (S45).
-			var ho: Dictionary = Game.room_rt.object_def(str(a).trim_prefix("--herb-ripe="))
-			for i in 40:
-				if ho.is_empty(): break
-				var hs := HerbRules.ripen_state(ho, Clock.now_utc())
-				if HerbRules.in_season(ho, Clock.now_utc()) and hs.ripe: break
-				Clock.debug_offset_s += 604800.0 if not HerbRules.in_season(ho, Clock.now_utc()) else float(hs.seconds) + 120.0
-	if "--garden-preview" in user_args and Game.room_rt:
-		# Debug tools (S38): fill this room's garden beds to show every state (S45).
-		var gc = Game.active()
-		var keys: Array = Game.crafting.room_beds(gc, Game.room_rt.room_id)
-		var fill := [["willow_moss", 0.45, 0], ["cloudtop_orchid", 0.8, 1], ["riverreed_ginseng_100", 1.0, 0]]
-		for i in mini(keys.size(), fill.size()):
-			var rec: Dictionary = Game.crafting.bed_record(gc, str(keys[i]))
-			rec.herb = str(fill[i][0])
-			rec.progress = float(fill[i][1])
-			rec.soil = int(fill[i][2])
-			rec.grow_s = 8.0 * 3600.0
-			rec.updated = Clock.now_utc()
-		for it in [["spring_water", 2], ["spirit_soil", 1], ["verdant_dew_vial", 1], ["willow_moss_seed", 3], ["ember_pepper_seed", 2]]:
-			Game.inventory.apply_add(gc.id, str(it[0]), int(it[1]), "debug")
-		gc.crafting["dew"] = {"count": 2, "last": Clock.now_utc() - 3600.0}
-		Game.inventory.apply_add(gc.id, "drying_rack", 1, "debug")
-		Game.inventory.apply_add(gc.id, "mist_lotus", 6, "debug")
-		Game.inventory.apply_add(gc.id, "riverreed_ginseng_10", 4, "debug")
-		Game.inventory.apply_add(gc.id, "rice_wine", 1, "debug")
-		gc.crafting["racks"] = [{"kind": "steamed", "herb": "mist_lotus", "count": 5, "done": Clock.now_utc() + 1400.0}]
-	if "--tap-preview" in user_args and is_instance_valid(hud):
-		# Debug tools (S38): hold the harvest ring part-way through its shrink (S45).
-		await get_tree().create_timer(1.0).timeout
-		hud.tapping = {"object": "preview", "t": 660.0, "ring": 1000.0, "target": 0.7, "window": 0.16}
-	if ("--melody" in user_args or "--throw" in user_args or "--illusion" in user_args) and Game.active() != null:
-		# Debug tools (S38): --melody holds the flute's melody; --throw throws the fan (S47 v1.1 previews);
-		# --illusion leaves Phantom Double's illusion and steps the player aside (S48 the Soul line).
-		await get_tree().create_timer(1.0 if "--melody" in user_args or "--illusion" in user_args else 2.2).timeout
-		Unlocks.force_unlock(Game.active_id, "composure")
-		if "--melody" in user_args: Game.submit({"type": "channel_melody", "on": true})
-		elif "--illusion" in user_args:
-			Game.combat._cast_illusion(Game.active(), ContentDB.entry("techniques", "phantom_double"))
-			if is_instance_valid(world) and world.player: world.player.state.plane += Vector2(-150, 30)
-		else: Game.combat._start_step(Game.active(), ContentDB.entry("weapon_families", "fan"), 2, 1)
-	if ("--swarm" in user_args or "--arrays" in user_args) and Game.active() != null:
-		# Debug tools (S38): --swarm raises a nine-sword swarm; --arrays lays a guarding, a killing and a binding
-		# array side by side (S47/S48 v1.1 previews).
-		await get_tree().create_timer(1.0).timeout
-		var dc = Game.active()
-		if "--swarm" in user_args:
-			dc.cultivator.daos["sword"] = {"tier": 5, "insight": 0.0}
-			Game.combat.start_swarm(dc, true, 60.0)
-		if "--arrays" in user_args and is_instance_valid(world) and world.player:
-			var home: Vector2 = world.player.state.plane
-			for k in [["guard", 0], ["killing", 340], ["binding", 680]]:
-				world.player.state.plane = home + Vector2(float(k[1]), 0)
-				Game.combat.deploy_array(dc.id, {"array": str(k[0]), "radius": 150, "duration": 60})
-			world.player.state.plane = home
-	if "--beetle-swarm" in user_args and Game.active() != null:
-		# Debug tools (S38): open the Copperjaw Box (v1.2 Phase D) so the swarm circles the character for previews.
-		await get_tree().create_timer(1.0).timeout
-		Game.pets.release_swarm(Game.active())
-	if "--pet-wheel" in user_args and is_instance_valid(hud):
-		# Debug tools (S38): hold the Pet button's command wheel open, Stay picked (v2 HUD previews).
-		await get_tree().create_timer(1.0).timeout
-		hud.pet_wheel = true
-		hud.pet_pick = 1
-	for a in user_args:
-		# Debug tools (S38): --toggle=presence|sphere holds a field power through its intent, and --fan=open|closed sets the
-		# HUD's fan (P5a previews of the fan and its pinned toggles).
-		if str(a).begins_with("--toggle=") and Game.active() != null:
-			await get_tree().create_timer(0.5).timeout
-			Game.submit({"type": "toggle_" + str(a).trim_prefix("--toggle=")})
-		if str(a).begins_with("--fan=") and is_instance_valid(hud):
-			hud.fan_open = str(a).trim_prefix("--fan=") == "open"
-			hud.fan_rest_open = hud.fan_open
-		if str(a).begins_with("--tap-points=") and is_instance_valid(hud):
-			# Debug tools (S38): tap a points badge through the HUD, as the player does (its page opens on its tab).
-			await get_tree().create_timer(1.0).timeout
-			var pid := "points:" + str(a).trim_prefix("--tap-points=")
-			for tg in hud.hit_targets():
-				if str(tg.role) == pid:
-					hud.press(90, tg.center)
-					hud.release(90)
-		if str(a).begins_with("--use-item=") and Game.active() != null and is_instance_valid(hud):
-			# Debug tools (S38): --use-item=item[:hp] sets the HP share (default as it is), puts the item in Quick-use and
-			# taps it through the HUD, as the player does; with --capture the shot is taken 0.5 s after (feedback previews).
-			var ua := str(a).trim_prefix("--use-item=").split(":")
-			var uc = Game.active()
-			await get_tree().create_timer(2.0).timeout   # past the arrival's spawn protection
-			if uc.inventory.count(ua[0]) <= 0: Game.inventory.apply_add(uc.id, ua[0], 1, "debug")
-			if ua.size() > 1: uc.pools.hp = uc.pools.max_hp * float(ua[1])
-			Game.submit({"type": "set_quick_use", "item": ua[0], "slot": 0})
-			uc.pools.cooldowns.clear()
-			hud.use_quick()
-			moment_t = 0.5
-	for a in user_args:
-		if str(a).begins_with("--moment=") and is_instance_valid(moments):
-			# Debug tools (S38): --moment=id[:t] plays a moments.json row with its sample payload and holds it at t s; with
-			# --capture the shot is taken at t (P6 previews).
-			var mo := str(a).trim_prefix("--moment=").split(":")
-			await get_tree().create_timer(1.0).timeout
-			moment_t = float(mo[1]) if mo.size() > 1 else 2.0
-			moments.preview(mo[0], moment_t)
-		if str(a).begins_with("--breakthrough") and is_instance_valid(moments) and Game.active() != null:
-			# Debug tools (S38): --breakthrough[=t] takes the character over its next step at once, through the progression
-			# authority (a great step when it stands at one), and holds its moment at t s (P6 previews of the real stat rise).
-			await get_tree().create_timer(1.5).timeout
-			var bc = Game.active()
-			var nxt := ContentDB.next_realm(bc.cultivator.realm_key)
-			moment_t = float(str(a).get_slice("=", 1)) if str(a).contains("=") else 2.4
-			moments.hold_at = moment_t
-			if nxt != "": Game.progression._advance(bc, nxt, bool(ContentDB.realm(nxt).get("major", false)))
-	if "--capture" in user_args:
-		if is_instance_valid(world) and world.fx.fixed_step > 0.0:
-			for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / world.fx.fixed_step): await get_tree().process_frame
-		else:
-			await get_tree().create_timer(2.5 if moment_t < 0.0 else moment_t + 0.05).timeout
-		for a in user_args:
-			# Debug tools (S38): --auto-path=room walks there and --auto-hunt fights (S49); --wait=s lets them run.
-			if str(a).begins_with("--auto-path=") and Game.active() != null: Game.submit({"type": "auto_path", "target": str(a).trim_prefix("--auto-path=")})
-			if str(a) == "--auto-hunt" and Game.active() != null: Game.submit({"type": "set_auto_hunt", "on": true})
-		for a in user_args:
-			if str(a).begins_with("--wait="): await get_tree().create_timer(float(str(a).trim_prefix("--wait="))).timeout
-		for a in user_args:
-			# Debug tools (S38): --hazard=phase[:fraction] holds the room's hazards in one state.
-			if str(a).begins_with("--hazard="):
-				var hz := str(a).trim_prefix("--hazard=").split(":")
-				Game.world.debug_hazard_phase(hz[0], float(hz[1]) if hz.size() > 1 else 0.5)
-				await get_tree().create_timer(0.1).timeout
-		await RenderingServer.frame_post_draw
-		get_tree().root.get_texture().get_image().save_png("res://../" + (shot if shot != "" else screen) + "-preview.png")
-		get_tree().quit()
 
 # ------------------------------------------------------------------ shell screens
 ## A page or shell screen put away: hidden now and freed at the frame's end. Taken out of the tree at once while the
@@ -802,26 +225,9 @@ func _add_world_view() -> void:
 		world = TopdownWorldScript.new()
 		world.live = true
 	else:
-		world = World.new()
-		world.room_mode = true
+		world = _side_view()   # side view
 	add_child(world)
-	var side: bool = world is World
-	backdrop.world = world if side else null
-	backdrop.visible = side
-
-## A room entered in the other view (a top-down character walking from a room on the grid into one still side-view, or
-## back): the world view is swapped under the same HUD, pages and moments.
-func _swap_world_view() -> void:
-	if not is_instance_valid(world) or topdown: return
-	if (world is World) == (Game.room_rt.topdown == null): return
-	remove_child(world)
-	world.queue_free()
-	_add_world_view()
-	if is_instance_valid(hud):
-		hud.player = world.player
-		hud.world = world
-	if is_instance_valid(moments): moments.world = world
-	if is_instance_valid(scenes): scenes.world = world
+	_backdrop_follows_world()   # side view
 
 func _unmount_world() -> void:
 	close_all_pages()
@@ -841,7 +247,7 @@ func _unmount_world() -> void:
 		remove_child(world)
 		world.queue_free()
 	world = null
-	backdrop.world = null
+	backdrop.world = null   # side view
 	Game.in_world = false
 
 ## Redesign Phase 4: the game in the top-down world, from the title screen's hidden entry (five taps on the version) or
@@ -911,39 +317,10 @@ func save_and_quit() -> void:
 	get_tree().quit()
 
 # ------------------------------------------------------------------ pages
+## A page by its id (scripts/shell/page_registry.gd), or one of the shell's own actions (_shell_action).
 func open_page(id: String, a: Dictionary) -> void:
-	if id == "_harvest":
-		# S45: "Pick it" at a rare herb hands back to the HUD's hold-and-tap harvest.
-		if is_instance_valid(hud): hud.begin_harvest(str(a.get("object", "")))
-		return
-	if id == "_exit":
-		return_to_selection()
-		return
-	if id == "_tour":
-		# Decision 43: a page's "?" plays its tour again.
-		if is_instance_valid(coach): coach.replay_tour(str(a.get("page", "")), str(a.get("tab", "")))
-		return
-	if id == "_import":
-		# S40: replace the saves with an export (the current files are saved first and kept as .bak).
-		Game.save_all()
-		if screen == "world": _unmount_world()
-		close_all_pages()
-		var err := Saves.import_bundle(str(a.get("path", "")))
-		Game.boot()
-		show_selection()
-		if err != OK: push_warning("import failed: %s" % err)
-		return
-	if id == "_switch":
-		var r := Game.submit({"type": "switch_character", "slot": int(a.get("slot", 1))})
-		if not r.get("ok", false):
-			if top_page(): top_page().flash(str(r.get("text", Tx.t("main.cannot_switch_here"))))
-			return
-		Game.submit({"type": "enter_world"})
-		_mount_world()
-		fade = 1.0
-		if not r.get("welcome", {}).get("gains", {}).is_empty(): open_page("welcome", r.welcome)
-		return
-	var path := str(PAGES.get(id, ""))
+	if _shell_action(id, a): return
+	var path := PageRegistry.script_of(id)
 	if path == "" or not ResourceLoader.exists(path):
 		if is_instance_valid(hud): hud.add_log(Tx.t("main.coming_in_a_later_update"), UiKit.MIST)
 		return
@@ -963,13 +340,57 @@ func open_page(id: String, a: Dictionary) -> void:
 	if Game.active():
 		Game.submit({"type": "report_page_opened", "page": id})
 
+## The ids a page or a dialogue choice navigates to that are no page: the shell answers them itself. False for any
+## other id.
+func _shell_action(id: String, a: Dictionary) -> bool:
+	match id:
+		"_harvest":
+			# S45: "Pick it" at a rare herb hands back to the HUD's hold-and-tap harvest.
+			if is_instance_valid(hud): hud.begin_harvest(str(a.get("object", "")))
+		"_exit":
+			# The Menu's Save & Exit.
+			return_to_selection()
+		"_tour":
+			# Decision 43: a page's "?" plays its tour again.
+			if is_instance_valid(coach): coach.replay_tour(str(a.get("page", "")), str(a.get("tab", "")))
+		"_import":
+			# Settings' restore from an export.
+			_import_saves(str(a.get("path", "")))
+		"_switch":
+			# The Characters page and the Roll-Call.
+			_switch_character(int(a.get("slot", 1)))
+		_:
+			return false
+	return true
+
+## S40: replace the saves with an export (the current files are saved first and kept as .bak).
+func _import_saves(path: String) -> void:
+	Game.save_all()
+	if screen == "world": _unmount_world()
+	close_all_pages()
+	var err := Saves.import_bundle(path)
+	Game.boot()
+	show_selection()
+	if err != OK: push_warning("import failed: %s" % err)
+
+## Another character of the account, played from where it stands.
+func _switch_character(slot: int) -> void:
+	var r := Game.submit({"type": "switch_character", "slot": slot})
+	if not r.get("ok", false):
+		if top_page(): top_page().flash(str(r.get("text", Tx.t("main.cannot_switch_here"))))
+		return
+	Game.submit({"type": "enter_world"})
+	_mount_world()
+	fade = 1.0
+	if not r.get("welcome", {}).get("gains", {}).is_empty(): open_page("welcome", r.welcome)
+
 ## The technique trees' index and the Techniques page's tree for the tab it would open on, built as the world mounts and
 ## as a room is entered (under their fades), not on the page's first opening or a fight's first cast (perf_tests: every
 ## page opens in under 0.15 s). Both are kept once built, so this is nearly free after the first time; the page's tree
 ## waits for the page's script to be in from its loading thread (never waiting on it here).
 func _warm_techniques() -> void:
 	TechniqueTreeRules.home("")
-	var tp := str(PAGES.techniques)
+	var tp := PageRegistry.script_of("techniques")
 	if _page_scripts.has(tp) or ResourceLoader.load_threaded_get_status(tp) == ResourceLoader.THREAD_LOAD_LOADED:
 		_page_script(tp).warm(Game.active())
 
@@ -980,7 +401,7 @@ var _page_scripts: Dictionary = {}
 var _page_warmer: PageWarmer = null
 
 func _warm_pages() -> void:
-	_page_warmer = PageWarmer.new(PAGES.values())
+	_page_warmer = PageWarmer.new(PageRegistry.scripts())
 	_page_warmer.tick()
 
 ## True once every page script has been asked for and is in.
@@ -1017,7 +438,7 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 		"room_entered":
 			fade = maxf(fade, 0.9)
 			close_all_pages()
-			if screen == "world" and Game.room_rt != null: _swap_world_view()
+			if screen == "world" and Game.room_rt != null: _swap_world_view()   # side view
 			if screen == "world" and not topdown: _warm_techniques()
 		"player_gravely_wounded":
 			if screen == "world": open_page("revival", p)
@@ -1059,3 +480,43 @@ func _notification(what: int) -> void:
 				if not r.get("welcome", {}).get("gains", {}).is_empty(): open_page("welcome", r.welcome)
 		NOTIFICATION_WM_CLOSE_REQUEST:
 			save_and_quit()
+
+# ------------------------------------------------------------------ side view (retiring)
+## Decision 45: the side view goes once every room is top-down (docs/architecture/audit_45.md §2.4). What the shell does
+## for it is here, and its calls elsewhere in this file are marked "side view": the World preload, _add_world_view's
+## last branch and its backdrop line, _unmount_world's backdrop line and _on_game_event's swap. The backdrop is also
+## the title screens' sky, so it stays until they have one of their own.
+
+## The river backdrop behind everything (the title screens', and the side view's sky, scrolled with its camera).
+func _add_backdrop() -> void:
+	var background_layer := CanvasLayer.new()
+	background_layer.layer = -10
+	add_child(background_layer)
+	backdrop = Backdrop.new()
+	background_layer.add_child(backdrop)
+
+## The side view of the character's room.
+func _side_view() -> Node2D:
+	var w := World.new()
+	w.room_mode = true
+	return w
+
+## The backdrop follows the side view and is hidden under the top-down one, which draws its own ground.
+func _backdrop_follows_world() -> void:
+	var side: bool = world is World
+	backdrop.world = world if side else null
+	backdrop.visible = side
+
+## A room entered in the other view (a top-down character walking from a room on the grid into one still side-view, or
+## back): the world view is swapped under the same HUD, pages and moments.
+func _swap_world_view() -> void:
+	if not is_instance_valid(world) or topdown: return
+	if (world is World) == (Game.room_rt.topdown == null): return
+	remove_child(world)
+	world.queue_free()
+	_add_world_view()
+	if is_instance_valid(hud):
+		hud.player = world.player
+		hud.world = world
+	if is_instance_valid(moments): moments.world = world
+	if is_instance_valid(scenes): scenes.world = world

@@ -55,6 +55,14 @@ foreach ($g in $gates) {
     $r.Lines | ForEach-Object { Write-Host $_ }
     if ($r.Code -ne 0) { $failed.Add($g.Name) }
 }
+# The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
+# load their own scenes, so only this catches a missing or broken main scene.
+Write-Host '== boot'
+$r = Invoke-Native $GodotPath @('--headless', '--path', '.', '--quit-after', '120')
+if ($r.Code -ne 0 -or ($r.Lines -match 'Failed loading|SCRIPT ERROR')) {
+    $r.Lines | Where-Object { $_ -match 'Failed loading|SCRIPT ERROR|ERROR' } | Select-Object -First 8 | ForEach-Object { Write-Host "  | $_" }
+    $failed.Add('boot')
+}
 # The audio files: their last line when they pass, their failures when not.
 if (-not $python) { $failed.Add('audio_check') }
 else {

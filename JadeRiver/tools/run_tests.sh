@@ -48,6 +48,15 @@ if ! python3 tools/content/items/engine.py --check; then failed+=("item_engine")
 # Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
 echo "== pix"
 if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi
+# The game starts: the project's main scene (project.godot run/main_scene) loads and runs a few frames. The suites
+# load their own scenes, so only this catches a missing or broken main scene.
+echo "== boot"
+bout="$("$GODOT" --headless --path . --quit-after 120 2>&1)"
+bcode=$?
+if [[ $bcode -ne 0 ]] || grep -qE "Failed loading|SCRIPT ERROR" <<<"$bout"; then
+  grep -E "Failed loading|SCRIPT ERROR|ERROR" <<<"$bout" | head -8 | sed 's/^/  | /'
+  failed+=("boot")
+fi
 alog="$(mktemp)"
 if ! python3 tools/audio/build_audio.py --check > "$alog" 2>&1; then grep -E "FAIL|MISSING|Error" "$alog" | head -20; failed+=("audio_check"); else tail -1 "$alog"; fi
 rm -f "$alog"

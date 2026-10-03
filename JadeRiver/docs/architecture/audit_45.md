@@ -372,7 +372,7 @@ Others go with their tests: `MapGenerator.generate` (110 lines), `equipment_rig.
   >     `generated_runtime`, `release_review`, `pixel_input`, `platform_contact_visual`, `movement_visual_v07` with
   >     `review_visual_v08`/`v09`, and `generated_visuals` with `visual_checks`;
   >   - `support_review_v08`, which reviewed the v0.9 generated regions and failed 2 of its 13,102 checks;
-  >   - `scenes/pixel_stage.tscn`, which only these scripts used.
+  >   - `scenes/pixel_stage.tscn`, wrongly: it is the main scene. It was restored, and a `boot` gate now guards it.
   > - **Kept**, each still working:
   >   - `gauntlet_review` (AGENTS.md rule 1's sheets, byte-identical);
   >   - `weapon_combo_visual`;
@@ -1062,6 +1062,24 @@ helpers (FrameMemo, Figures, the suite base). The splits come before the engines
   calls), `contract_tests`' strings and read-only gates, `extract_strings.py` and `ui_style_audit.py`.
 - The new suite `hud_tests` and the extended `cue_tests` cover the slice. Every other suite's check count is
   unchanged.
+
+### Status (phase 2, S7): the shell, done
+
+- **BUG-07: done.** `main.gd` had 1,061 lines and now has 522. `docs/architecture/shell.md` describes it.
+  - The preview and debug flags are tables of rows with small handlers in `scripts/dev/debug_args.gd`. `main.gd`
+    loads that script only when the game starts with arguments, which is the guard the flags always had.
+  - It is not in `scripts/shell/`, because `contract_tests` holds the shell to never writing game state.
+  - Six flags that nothing used are gone: `--body=`, `--learn=`, `--physique=`, `--set-piece=`, `--tribulation` and
+    `--test-saves`. With `--tribulation`, the call to `Game.progression._start_tribulation` went too.
+  - The flags still call six private methods: `Game.combat._defeat`, `_cast_illusion` and `_start_step`,
+    `Game.progression._advance`, `Game.calendar._phenomenon`, and `AccountAuthority._with_ledger`. Those go to S11.
+- **The page table is a registry**, `scripts/shell/page_registry.gd`. `main.gd`'s `PAGES` names it, and
+  `tools/data/tutorials.py` reads it. The data pipeline held no page metadata of its own, only the copy it takes from
+  this table, so the table stays in GDScript.
+- **The side view's four branches in `main.gd`** (§2.4) are in one section, "side view (retiring)", with their call
+  sites marked.
+- Behaviour and every suite's check count are unchanged.
+
 
 ## 8. Rerunning the audit
 
