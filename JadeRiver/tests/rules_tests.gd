@@ -199,7 +199,7 @@ func prototype_suite() -> void:
 	check(AccountAuthority.new_game_view({}) == "topdown" and AccountAuthority.new_game_view({"classic_side_view": true}) == "",
 		"prototype: a new game is top-down unless Settings keeps the classic side view")
 	var settings_page: Page = load("res://scripts/ui/pages/settings_page.gd").new()
-	check("classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF and not settings_page._is_on("classic_side_view"),
+	check("classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF and not settings_page.is_on("classic_side_view"),
 		"prototype: Settings' classic side view is a fallback, off by default (the old top-down toggle is gone)")
 	settings_page.free()
 	var made := {}
@@ -258,8 +258,8 @@ func prototype_suite() -> void:
 	news.player.actor_id = str(td.id)
 	var told := func(ev: String, room: String) -> int:
 		news.toasts.clear()
-		if ev != "": news._on_event("world_event_started", {"event": ev, "k": 1, "room": room, "ends": Clock.now_utc() + 60.0})
-		else: news._on_event("season_changed", {"season": "summer"})
+		if ev != "": news.on_event("world_event_started", {"event": ev, "k": 1, "room": room, "ends": Clock.now_utc() + 60.0})
+		else: news.on_event("season_changed", {"season": "summer"})
 		return news.toasts.size()
 	var fresh_told: int = told.call("shrine_reopening", "ds_abbots_sanctum") + told.call("auction_day", "sf_market") + told.call("", "")
 	Unlocks.force_unlock(td.id, "world_menu")
@@ -285,18 +285,18 @@ func prototype_suite() -> void:
 	var who := str(Game.active().id) if Game.active() != null else str(td.id)
 	var opens: Dictionary = band_row.sample.duplicate(true)
 	opens.actor = who
-	mv._on_event(str(band_row.event), opens)
+	mv.on_event(str(band_row.event), opens)
 	mv.advance(0.0)
-	var band_on: bool = mv.playing != null and str(mv.playing.row.id) == "trial_opens" and news._band_on_top()
+	var band_on: bool = mv.playing != null and str(mv.playing.row.id) == "trial_opens" and news.band_on_top()
 	for i in int((float(band_row.duration_s) + 0.2) * 60.0): mv.advance(1.0 / 60.0)
-	var band_off: bool = not news._band_on_top()
+	var band_off: bool = not news.band_on_top()
 	mv.clear()
 	var beat: Dictionary = beat_row.sample.duplicate(true)
 	beat.actor = who
 	beat.chapter_end = true
-	mv._on_event(str(beat_row.event), beat)
+	mv.on_event(str(beat_row.event), beat)
 	mv.advance(0.0)
-	var beat_low: bool = mv.playing != null and str(mv.playing.row.id) == "story_beat" and not news._band_on_top()
+	var beat_low: bool = mv.playing != null and str(mv.playing.row.id) == "story_beat" and not news.band_on_top()
 	check(band_on and band_off and beat_low,
 		"prototype: a moment's band in the top centre holds the room's name and the event's plate under it, and lets them go when it ends (on %s, off %s, a low band %s)" % [band_on, band_off, beat_low])
 	news.moments = null
@@ -313,7 +313,7 @@ func prototype_suite() -> void:
 	# ... and off the log's rows while they show (a boarlet's plate lay across "Codex: Body training").
 	news.log_lines.clear()
 	var quiet_rect: Rect2 = news.log_rect()
-	news._on_event("system_log", {"text": "Codex: Body training"})
+	news.on_event("system_log", {"text": "Codex: Body training"})
 	news.log_lines[-1]["always"] = true
 	var log_r: Rect2 = news.log_rect()
 	check(quiet_rect.size.x == 0.0 and log_r.size.x > 0.0 and news.obstacle_rects().has(log_r) and log_r.end.x <= 20.0 + news.LOG_W + 0.5,
@@ -323,7 +323,7 @@ func prototype_suite() -> void:
 	# the log (it was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
 	# in view logs it once while it repeats, and a line floating over the player stays whole on the screen.
 	news.log_lines.clear()
-	for i in 5: news._on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
 	var plateless: int = news.log_lines.size()
 	var host_src := GDScript.new()
 	host_src.source_code = "extends Node2D\nvar portal_views := []\n"
@@ -334,7 +334,7 @@ func prototype_suite() -> void:
 	host.portal_views.append(gate_pv)
 	news.world = host
 	news.log_lines.clear()
-	for i in 5: news._on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
 	var plated: int = news.log_lines.size()
 	news.world = null
 	gate_pv.free()
@@ -1000,11 +1000,11 @@ func identity_suite() -> void:
 			check(pp._regions.filter(func(r): return r.id == "_tab" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 2
 				and pp.text_log.any(func(tx): return str(tx.s) == "Probe" and tx.get("outlined", false)),
 				"P5: a page with its own identity keeps its tabs' targets and its title, inked on its own mount")
-		got[motion] = {"unfold0": pp.unfold(), "alpha0": pp._open_alpha(), "live": pp._regions.filter(func(r): return r.id in ["_close", "_tab", "act"]).size()}
+		got[motion] = {"unfold0": pp.unfold(), "alpha0": pp.open_alpha(), "live": pp._regions.filter(func(r): return r.id in ["_close", "_tab", "act"]).size()}
 		pp.opened = 0.1
 		got[motion]["unfold_mid"] = pp.unfold()
 		pp.opened = 0.2
-		got[motion]["alpha_02"] = pp._open_alpha()
+		got[motion]["alpha_02"] = pp.open_alpha()
 		pp.opened = 0.0
 		var press := InputEventMouseButton.new()
 		press.button_index = MOUSE_BUTTON_LEFT
@@ -1012,7 +1012,7 @@ func identity_suite() -> void:
 		press.position = Vector2(4, 4)
 		pp._gui_input(press)
 		got[motion]["after_tap"] = pp.unfold()
-		got[motion]["alpha_tap"] = pp._open_alpha()
+		got[motion]["alpha_tap"] = pp.open_alpha()
 		pp.queue_free()
 	Game.account.settings["reduce_motion"] = keep
 	var off: Dictionary = got[false]
@@ -1075,18 +1075,18 @@ func _records_checks() -> void:
 	await get_tree().process_frame
 	check(cp.title == Tx.t("ui.codex.collection") and cp._regions.any(func(r): return r.id == "leaf" and int(r.data) == 1) and not cp._regions.any(func(r): return r.id == "leaf" and int(r.data) == -1),
 		"P5 Codex: the open ribbon carries the title, and the first spread turns only onward")
-	cp._activate(cp._regions.filter(func(r): return r.id == "leaf")[0])
+	cp.activate(cp._regions.filter(func(r): return r.id == "leaf")[0])
 	cp.text_log.clear()
 	cp.queue_redraw()
 	await get_tree().process_frame
 	var p2 := str(cp._spreads[1].page)
 	check(int(cp.leaf.collection) == 1 and cp.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.codex.page_" + p2)), "P5 Codex: a corner turns the leaf to the next spread (%s)" % p2)
-	cp._activate(cp._regions.filter(func(r): return r.id == "contents")[0])
+	cp.activate(cp._regions.filter(func(r): return r.id == "contents")[0])
 	cp.queue_redraw()
 	await get_tree().process_frame
 	var goto: Array = cp._regions.filter(func(r): return r.id == "goto")
 	check(goto.size() == cp._pages.size(), "P5 Codex: Contents lists every page of the book (%d)" % goto.size())
-	cp._activate(goto[-1])
+	cp.activate(goto[-1])
 	check(str(cp._spreads[int(cp.leaf.collection)].page) == str(cp._pages[-1].id) and not cp.contents, "P5 Codex: a page in Contents turns to it")
 	# The Old Scrolls: an account at Heart Tempering has four rungs rubbed, the rest bare.
 	for k in Game.account.codex.keys(): if str(k).begins_with("old_scrolls"): Game.account.codex.erase(k)
@@ -1101,9 +1101,9 @@ func _records_checks() -> void:
 	var rungs: Array = cp._regions.filter(func(r): return r.id == "rung")
 	check(rungs.size() == 4 and said.has("FOUNDATION ESTABLISHMENT") and not said.has("CORE FORMATION") and said.has("Qi Kindling") and said.has("Qi Unfurling"),
 		"P5 Old Scrolls: only the rungs reached are rubbed, each glossed with our realms on it (%d rungs)" % rungs.size())
-	cp._activate(rungs[2])
+	cp.activate(rungs[2])
 	var first: String = cp.rung_realm
-	cp._activate(rungs[2])
+	cp.activate(rungs[2])
 	cp.text_log.clear()
 	cp.queue_redraw()
 	await get_tree().process_frame
@@ -1174,7 +1174,7 @@ func _records_two_checks() -> void:
 		"P5 Quests: the story's slip carries the story quest under way, else the tracker's Next entry (%s)" % (str(story[0].data) if not story.is_empty() else "none"))
 	var stacks: Array = qp._regions.filter(func(r): return r.id == "spread")
 	if not stacks.is_empty():
-		qp._activate(stacks[0])
+		qp.activate(stacks[0])
 		qp.queue_redraw()
 		await get_tree().process_frame
 		var grp := str(stacks[0].data)
@@ -1201,7 +1201,7 @@ func _records_two_checks() -> void:
 	qp.on_action("_tab", "done")
 	qp.queue_redraw()
 	await get_tree().process_frame
-	var done_n: int = qp._done_ids(c).size()
+	var done_n: int = qp.done_ids(c).size()
 	check(qp._regions.filter(func(r): return r.id == "sel").size() == mini(done_n, 24) and (done_n <= 24 or qp._regions.any(func(r): return r.id == "sheet")),
 		"P5 Quests: Done lays the finished slips out a sheet at a time (%d done)" % done_n)
 	qp.queue_free()
@@ -1363,7 +1363,7 @@ func _market_checks() -> void:
 		au.text_log.clear()
 		au.queue_redraw()
 		await get_tree().process_frame
-		up = au.chosen == str(lots[1].id) and au.text_log.any(func(tx): return str(tx.get("s", "")).left(6) == au._lot_name(lots[1]).left(6))
+		up = au.chosen == str(lots[1].id) and au.text_log.any(func(tx): return str(tx.get("s", "")).left(6) == au.lot_name(lots[1]).left(6))
 	check(not lots.is_empty() and small.size() == lots.size() and up and (au._regions.filter(func(r): return r.id == "bid").size() in [0, 2]),
 		"P5 Auction: every lot on a small pedestal along the stage's front, a tap bringing it to the lit pedestal, two paddles to bid")
 	_identity_view(au, "auction", dim, lost, {}, {})
@@ -1614,8 +1614,8 @@ func _bag_checks() -> void:
 	pg.open({"index": wi})
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var kinds: Array = ["gear", "pills", "materials", "other"].map(func(k): return pg._kind_count(c.inventory, k))
-	check(kinds.reduce(func(a, b): return a + b, 0) == pg._kind_count(c.inventory, "all") and int(kinds[0]) >= 1 and int(kinds[1]) >= 1,
+	var kinds: Array = ["gear", "pills", "materials", "other"].map(func(k): return pg.kind_count(c.inventory, k))
+	check(kinds.reduce(func(a, b): return a + b, 0) == pg.kind_count(c.inventory, "all") and int(kinds[0]) >= 1 and int(kinds[1]) >= 1,
 		"P5 Bag: the kinds split the bag with nothing lost (%s)" % str(kinds))
 	check(pg._regions.filter(func(r): return r.id == "slot").size() == 8, "P5 Bag: the eight worn slots ride the orbit round the figure")
 	var card: Array = pg._regions.filter(func(r): return r.id == "_card")
@@ -1626,7 +1626,7 @@ func _bag_checks() -> void:
 	check(acts.size() == 3 and acts.all(func(r): return (r.rect as Rect2).size.x >= Page.MIN_TAP and (r.rect as Rect2).size.y >= Page.MIN_TAP),
 		"P5 Bag: the piece's card offers Equip, Set as spare and '···', each 48 px or more")
 	var said: Array = pg.text_log.map(func(tx): return str(tx.get("s", "")))
-	var shown: Array = rows.filter(func(r): return pg._stat_key(str(r.stat)) != "" and str(r.stat) != "combat_power").slice(0, 3) + [rows[-1]]
+	var shown: Array = rows.filter(func(r): return pg.stat_key(str(r.stat)) != "" and str(r.stat) != "combat_power").slice(0, 3) + [rows[-1]]
 	check(shown.all(func(r): return said.has(CharacterPage.stat_text(str(r.stat), float(r.after)))),
 		"P5 Bag: the card shows the totals StatRules.equip_change gives (%s)" % str(shown.map(func(r): return CharacterPage.stat_text(str(r.stat), float(r.after)))))
 	var dim: Array = []
@@ -1668,7 +1668,7 @@ func _bag_checks() -> void:
 ## and Walk there travel by auto_path and close the map; a locked zone's tag says why.
 func map_suite() -> void:
 	var map_script = load("res://scripts/ui/pages/map_page.gd")
-	var vz: Dictionary = map_script._zone("jade_river_valley")
+	var vz: Dictionary = map_script.zone("jade_river_valley")
 	var off: Array = []
 	for r in ContentDB.zone("jade_river_valley").regions:
 		if r.get("hidden", false): continue
@@ -1679,7 +1679,7 @@ func map_suite() -> void:
 	check(art != null and art.get_size() == Vector2(1280, 640) and off.is_empty(), "P5 map: the valley's nodes stand where its painting drew each area, each with its picture (%s)" % str(off))
 	var lost: Array = []
 	for id in ContentDB.rooms:
-		var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+		var zz: Dictionary = map_script.zone(str(ContentDB.room_zone.get(id, "")))
 		if not str(zz.node_of.get(str(id), "")) in zz.order: lost.append(str(id))
 	check(lost.is_empty(), "P5 map: every room of every zone shows at an area of its zone (%d lost: %s)" % [lost.size(), str(lost.slice(0, 6))])
 	# The pass on a crowd round one point: what fits is placed clear of the rest, what does not is left out.
@@ -1708,17 +1708,17 @@ func map_suite() -> void:
 	for known in ["all", "few"]:
 		Game.account.visited_rooms = {}
 		for id in ContentDB.rooms:
-			var zz: Dictionary = map_script._zone(str(ContentDB.room_zone.get(id, "")))
+			var zz: Dictionary = map_script.zone(str(ContentDB.room_zone.get(id, "")))
 			if known == "all" or zz.node_of.get(id, "") == zz.order[0]: Game.account.visited_rooms[id] = true
 		for ts in 3:
 			Game.account.settings["text_size"] = ts
 			for ti in pg.tabs.size() - 1:
 				pg.tab = ti
-				pg._sync_tab()
+				pg.sync_tab()
 				for v in ["areas", "resources", "objectives"]:
 					for k in (["herb_patch", "ore_vein", "fishing_spot"] if v == "resources" else [""]):
 						for pick in [0, 1]:
-							var zz: Dictionary = map_script._zone(str(pg.tabs[ti].id))
+							var zz: Dictionary = map_script.zone(str(pg.tabs[ti].id))
 							pg.view = v
 							if k != "": pg.res_kind = k
 							pg.res_item = ""
@@ -1740,7 +1740,7 @@ func map_suite() -> void:
 								elif str(tx.s) != str(on[0].name): wordy.append("%s \"%s\"" % [where, str(tx.s)])
 							for rid in L.plates:
 								var pl: Dictionary = L.plates[rid]
-								if str(pl.name) != str(pg._region(rid).name) or (pl.rect as Rect2).size != map_script._plate_size(str(pl.name)): wordy.append("%s %s" % [where, rid])
+								if str(pl.name) != str(pg.region_of(rid).name) or (pl.rect as Rect2).size != map_script.plate_size(str(pl.name)): wordy.append("%s %s" % [where, rid])
 							if str(pg.tabs[ti].id) == "jade_river_valley" and not L.hidden.is_empty(): left_out.append("%s %s" % [where, str(L.hidden)])
 	for f in faults.slice(0, 12): print("  map_suite: ", f)
 	check(views >= 180 and faults.is_empty(), "P5 map: no plate or mark touches another, a node or the frame's furniture, and every word on the painting is on its plate, in every zone, view and text size (%d views, %d faults)" % [views, faults.size()])
@@ -1755,7 +1755,7 @@ func map_suite() -> void:
 	GameEvents.flush()
 	pg.tab = 0
 	pg.view = "areas"
-	pg._sync_tab()
+	pg.sync_tab()
 	await get_tree().process_frame
 	pg.on_action("sel", "stoneford")
 	pg.queue_redraw()
@@ -1765,7 +1765,7 @@ func map_suite() -> void:
 	pg.closed.connect(func(_p): closed[0] += 1)
 	var track: Array = pg._regions.filter(func(r): return r.id == "track")
 	var to := str(track[0].data) if not track.is_empty() else ""
-	if not track.is_empty(): pg._activate(track[0])
+	if not track.is_empty(): pg.activate(track[0])
 	check(track.size() == 1 and to in vz.rooms.stoneford and Game.world.auto_path_target(c) == to and closed[0] == 1,
 		"P5 map: Track Route walks to Stoneford (%s) by auto_path and closes the map" % to)
 	Game.submit({"type": "auto_path", "target": ""})
@@ -1773,7 +1773,7 @@ func map_suite() -> void:
 	var walk_to := "sf_market"
 	for tq in Game.quest.tracker(c):
 		var qn := str(vz.node_of.get(str(tq.target_room), ""))
-		if walk_to == "sf_market" and qn != "" and str(tq.target_room) != "wp_west" and not pg._route(c, qn, str(tq.target_room)).is_empty(): walk_to = str(tq.target_room)
+		if walk_to == "sf_market" and qn != "" and str(tq.target_room) != "wp_west" and not pg.route_to(c, qn, str(tq.target_room)).is_empty(): walk_to = str(tq.target_room)
 	var walk: Array = []
 	if walk_to != "sf_market":
 		pg.on_action("sel", str(vz.node_of[walk_to]))
@@ -1781,7 +1781,7 @@ func map_suite() -> void:
 		await get_tree().process_frame
 		await get_tree().process_frame
 		walk = pg._regions.filter(func(r): return r.id == "walk")
-		if not walk.is_empty(): pg._activate(walk[0])
+		if not walk.is_empty(): pg.activate(walk[0])
 	else:
 		pg.on_action("walk", walk_to)
 	check((walk_to == "sf_market" or walk.size() == 1) and Game.world.auto_path_target(c) == walk_to and closed[0] == 2,
@@ -1790,7 +1790,7 @@ func map_suite() -> void:
 	# A locked zone's tag answers a tap with its reason and leaves the map where it was.
 	var locked: Array = pg._regions.filter(func(r): return r.id == "_tab" and not r.enabled)
 	var zone_was: String = pg.zone_id
-	if not locked.is_empty(): pg._activate(locked[0])
+	if not locked.is_empty(): pg.activate(locked[0])
 	check(locked.is_empty() or (pg.toast == str(pg.tabs[int(locked[0].data)].locked) and pg.zone_id == zone_was), "P5 map: a locked zone's tag says why (%s)" % pg.toast)
 	pg.queue_free()
 	if room_was != "": Game.world.load_room(c, room_was, "")
@@ -2029,10 +2029,10 @@ func hud_suite() -> void:
 	hud.context = {"type": "npc", "npc": "old_ma", "label": "Talk"}
 	var touching := _cluster_touching(hud, states)
 	hud.left_handed = true
-	hud._layout()
+	hud.place_cluster()
 	var touching_lh := _cluster_touching(hud, states)
 	hud.left_handed = false
-	hud._layout()
+	hud.place_cluster()
 	hud.context = {}
 	check(touching.is_empty() and touching_lh.is_empty(), "decision 42, 43: no two controls of the cluster touch, the bigger Jump and the round techniques among them, right- and left-handed (%s; %s)"
 		% [str(touching.slice(0, 4)), str(touching_lh.slice(0, 4))])
@@ -2048,8 +2048,8 @@ func hud_suite() -> void:
 		"decision 45: the three quick slots stand at 204°, 226° and 244° of ring 2, the treasure on the next free place, the context at 270° (%s)"
 		% str(q3.map(func(o): return [o.role, o.center])))
 	var all_places: Array = []
-	for d in hud.RING2_DEG: all_places.append(hud._on(hud.attack_center, hud.RING2_R, float(d)))
-	for d in hud.RING3_DEG: all_places.append(hud._on(hud.attack_center, hud.RING3_R, float(d)))
+	for d in hud.RING2_DEG: all_places.append(hud.on_ring(hud.attack_center, hud.RING2_R, float(d)))
+	for d in hud.RING3_DEG: all_places.append(hud.on_ring(hud.attack_center, hud.RING3_R, float(d)))
 	var closest := INF
 	for i in all_places.size():
 		for j in range(i + 1, all_places.size()): closest = minf(closest, (all_places[i] as Vector2).distance_to(all_places[j]))
@@ -2072,7 +2072,7 @@ func hud_suite() -> void:
 	var on_label: Array = []
 	for sname in states:
 		hud.set_state(states[sname][0], states[sname][1])
-		var r2now: Array = hud._ring2(c)
+		var r2now: Array = hud.ring2(c)
 		var ctx_at := Vector2.INF
 		for it in r2now:
 			if str(it.role) == "context": ctx_at = it.center
@@ -2112,10 +2112,10 @@ func hud_suite() -> void:
 	hud.set_state(false, true)
 	hud.fan_rest_open = true
 	hud.fight_override = true
-	hud._tick_fight(0.1)
+	hud.tick_fight(0.1)
 	var folded: bool = hud.fight and not hud.fan_open
 	hud.fight_override = false
-	hud._tick_fight(hud.FIGHT_HOLD_S + 0.1)
+	hud.tick_fight(hud.FIGHT_HOLD_S + 0.1)
 	check(folded and not hud.fight and hud.fan_open, "P5a: a foe near folds the fan; with none near it opens again as it was left")
 	# Nothing in the lower middle round the player (the clear zone), in a fight or at rest with the fan closed; the open
 	# fan at rest keeps off the player at the common camera positions (x 640 give or take the look-ahead, feet at 470 to
@@ -2130,7 +2130,7 @@ func hud_suite() -> void:
 	check(panels.all(func(r): return not (r as Rect2).intersects(zone)), "P5a: the panel, the minimap, the tracker, the log, the boss bar and the purse keep out of the clear zone")
 	# The left-handed option mirrors the cluster, and it still keeps out of the clear zone.
 	hud.left_handed = true
-	hud._layout()
+	hud.place_cluster()
 	hud.set_state(true, false)
 	var mirrored: Array = hud.hit_targets()
 	var lh_zone: Array = mirrored.filter(func(tg): return Rect2(tg.center - Vector2(tg.drawn, tg.drawn), Vector2(tg.drawn, tg.drawn) * 2.0).intersects(zone))
@@ -2138,7 +2138,7 @@ func hud_suite() -> void:
 		and hud.page_center == Vector2(40, 672) and lh_zone.is_empty() and hud.role_at(Vector2(900, 400)) == "joystick",
 		"P5a: left-handed, the cluster is mirrored, the joystick takes the right half and the clear zone stays clear (%s)" % str(lh_zone.map(func(tg): return tg.role)))
 	hud.left_handed = false
-	hud._layout()
+	hud.place_cluster()
 	var toasts_was: Array = hud.toasts
 	hud.toasts = []
 	for i in 3: hud.toast("probe", "gold", "a second line")
@@ -2209,7 +2209,7 @@ func hud_suite() -> void:
 	var rest_q: Array = at.call("quick:0", hud.hit_targets())
 	hud.set_state(false, true)
 	var fan_q: Array = at.call("quick:0", hud.hit_targets())
-	var fan_at: Array = hud._fan_items().map(func(f): return f.center)
+	var fan_at: Array = hud.fan_items().map(func(f): return f.center)
 	if teas == 0: Game.inventory.apply_remove(c.id, "herbal_tea", 1, "test")
 	c.inventory.quick_use = ""
 	hud.set_state(false, false)
@@ -2336,10 +2336,10 @@ func points_badges_suite() -> void:
 	# The pop: a badge newly shown starts small and settles at full size; with Reduce motion it stands still. A badge
 	# appearing after the first look writes its line to the log.
 	hud.points_override["bench"] = 0
-	hud._tick_points()
+	hud.tick_points()
 	hud.log_lines = []
 	hud.points_override["bench"] = 2
-	hud._tick_points()
+	hud.tick_points()
 	var logged: bool = hud.log_lines.size() == 1 and str(hud.log_lines[0].text) == Tx.t("hud.points_bench")
 	var popping: bool = hud.points_pop("bench") < 1.0
 	var rm_was = Game.account.settings.get("reduce_motion", false)
@@ -2368,7 +2368,7 @@ func points_badges_suite() -> void:
 	for o in opened:
 		var pg: Page = await _open_page(str(o[1]), o[2])
 		var on: String = str(pg.tabs[pg.tab].id) if pg.tab < pg.tabs.size() else ""
-		if (str(o[3]) != "" and on != str(o[3])) or (str(o[1]) == "techniques" and not pg._is_tree()): wrong.append("%s opened on %s" % [o[0], on])
+		if (str(o[3]) != "" and on != str(o[3])) or (str(o[1]) == "techniques" and not pg.is_tree()): wrong.append("%s opened on %s" % [o[0], on])
 		pg.queue_free()
 	await get_tree().process_frame
 	check(opened.size() == rows.size() and wrong.is_empty(), "Points badges: each tap opens its page on the tab where the points are spent (%s)" % str(wrong))
@@ -2435,7 +2435,7 @@ static func _pictures_left(rounds: Array) -> Variant:
 ## picture let go (each sheet started again), then the HUD's pictures, the Techniques page's (the Water tree, Flowing
 ## Palm's reading, the loadout bar) and a side-view character's HUD pictures built again, as the suite built them.
 func _pictures_again(hud, c, look: Dictionary, arts: Array, inner: int, shown: Array) -> void:
-	for sh in TechniquePicture._sheets: TechniquePicture._restart_sheet(sh, int(sh.s))
+	for sh in TechniquePicture._sheets: TechniquePicture.restart_sheet(sh, int(sh.s))
 	for i in 120:
 		hud.queue_redraw()
 		await get_tree().process_frame
@@ -2671,7 +2671,7 @@ func _cluster_touching(hud, states: Dictionary) -> Array:
 					hit = near_pt.distance_to(ci.center) < float(ci.drawn)
 				else: hit = d.length() < ra + rb
 				if hit: out.append("%s: %s and %s" % [sname, a.role, b.role])
-		if hud._context_shown():
+		if hud.context_shown():
 			var lr: Rect2 = hud.context_label_rect()
 			for tg in ts:
 				if str(tg.role) != "skill": continue
@@ -2820,14 +2820,14 @@ func attack_first_suite() -> void:
 		hud.release(9)
 	# Decision 42, no foe about: the button still attacks; the gather has its own button on ring 2, and a tap there
 	# gathers.
-	hud._tick_fight(5.0)
+	hud.tick_fight(5.0)
 	var rest_slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
 	tap.call(hud.attack_center)
 	var rest_attacks: int = stub.attacks
 	var rest_channel := str(hud.channel.object)
 	if not rest_slot.is_empty(): tap.call(rest_slot[0].center)
 	check(not hud.fight and hud.attack_first() and rest_attacks == 1 and rest_channel == "" and rest_slot.size() == 1 and str(hud.channel.object) == str(node.id)
-		and hud.attack_glyph(c) == str(StatRules.family(c).get("hud_glyph", "fist")) and hud._context_glyph() == "gather",
+		and hud.attack_glyph(c) == str(StatRules.family(c).get("hud_glyph", "fist")) and hud.context_glyph() == "gather",
 		"decision 42, no foe about: the attack button attacks beside the herb (attacks %d) and the gather is a tap away on its own button (%s)" % [rest_attacks, str(hud.channel)])
 	# The harvest's tap lands on the context's button, not on Attack.
 	hud.channel.object = ""
@@ -2841,7 +2841,7 @@ func attack_first_suite() -> void:
 	hud.channel.object = ""
 	# A foe in the fight range: the button attacks; the gather waits in the context slot on ring 2, a tap away.
 	var foe: EnemyState = Game.enemies.spawn_at("mudshell_crab", at + Vector2(200, 0), 2)
-	hud._tick_fight(0.05)
+	hud.tick_fight(0.05)
 	tap.call(hud.attack_center)
 	var slot: Array = hud.hit_targets().filter(func(tg): return str(tg.role) == "context")
 	check(hud.attack_first() and stub.attacks == rest_attacks + 1 and str(hud.channel.object) == "" and slot.size() == 1,
@@ -2854,7 +2854,7 @@ func attack_first_suite() -> void:
 	foe.ai.state = "aggro"
 	hud.fight = false
 	hud.fight_left = 0.0
-	hud._tick_fight(0.05)
+	hud.tick_fight(0.05)
 	tap.call(hud.attack_center)
 	check(hud.attack_first() and stub.attacks == rest_attacks + 2 and str(hud.channel.object) == "", "a foe engaged anywhere in the room: the button still attacks (attacks %d)" % stub.attacks)
 	Game.room_rt.enemies.erase(foe.uid)
@@ -3345,7 +3345,7 @@ func sword_loadout_suite() -> void:
 	check(not Game.combat.sword_released.has(c.id) and int(heard.get("sword_returned", 0)) >= 1, "the sword returns after 8 s")
 	# Sword Intent: consecutive jian hits stack to 10 (+1% penetration each) and fade 3 s after the last.
 	if foe == null or not foe.alive: foe = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(40, 0), 2)
-	for i in 12: Game.combat._feed_intent(c, foe, {"source": "basic"})
+	for i in 12: Game.combat.feed_intent(c, foe, {"source": "basic"})
 	check(int(Game.combat.sword_intent[c.id].stacks) == 10 and near(Game.combat.intent_penetration(c), 0.10, 0.001), "ten jian hits give ten stacks of Intent (+10% penetration)")
 	for i in 70:
 		Game.tick(0.05)
@@ -3610,7 +3610,7 @@ func weapon_families_suite() -> void:
 		if heard.hits.has(str(f.uid)): struck += 1
 	check(struck >= 2, "one sabre cleave strikes several foes in a line (%d of 3)" % struck)
 	var foe: EnemyState = foes[0]
-	Game.combat._weapon_after_hit(c, foe, {"armour_break": {"chance": 1.0, "duration_s": 4}})
+	Game.combat.weapon_after_hit(c, foe, {"armour_break": {"chance": 1.0, "duration_s": 4}})
 	check(foe.pools.has_status("sundered"), "an armour break leaves the foe Sundered")
 	var pv := Game.combat.player_view(c)
 	pv["accuracy"] = 99999.0
@@ -3624,7 +3624,7 @@ func weapon_families_suite() -> void:
 	# The fan: wind that lifts a foe (helpless until it lands) and a third stroke thrown out and back.
 	_wield(c, "iron_fan")
 	var foe2: EnemyState = foes[1]
-	Game.combat._weapon_after_hit(c, foe2, {"knockup_s": 0.8})
+	Game.combat.weapon_after_hit(c, foe2, {"knockup_s": 0.8})
 	check(foe2.pools.has_status("launched") and foe2.pools.blocked("move") and foe2.pools.blocked("attack"), "the fan's wind launches a foe: it can neither move nor strike")
 	for i in 8: Game.tick(0.05)
 	check(foe2.hover > 20.0, "a launched foe rises into the air (%.0f)" % foe2.hover)
@@ -3637,7 +3637,7 @@ func weapon_families_suite() -> void:
 	heard.hits = {}
 	heard.arts = {}
 	var fam_fan := ContentDB.entry("weapon_families", "fan")
-	Game.combat._start_step(c, fam_fan, 2, 1)
+	Game.combat.start_step(c, fam_fan, 2, 1)
 	for i in 50:
 		Game.tick(0.05)
 	GameEvents.flush()
@@ -3814,29 +3814,29 @@ func soul_poison_suite() -> void:
 		if n == "illusion_broken": heard.broken = str(p.get("reason", ""))
 	GameEvents.event.connect(listen)
 	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "test"}
-	for i in 30: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 30: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(int(heard.miss) >= 5, "an evasive foe dodges ordinary blows (%d of 30 missed)" % int(heard.miss))
-	Game.combat._weapon_after_hit(c, foe, {"sense_lock_s": 8.0})
+	Game.combat.weapon_after_hit(c, foe, {"sense_lock_s": 8.0})
 	heard.miss = 0
-	for i in 30: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 30: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(foe.pools.has_status("sense_locked") and int(heard.miss) == 0, "Sense Locked, it cannot evade (%d missed)" % int(heard.miss))
 	foe.alive = false
 	# Phantom Double: foes near it turn on the illusion; three strikes break it; time also ends it.
 	var foe2: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(150, 0), lv)
-	Game.combat._cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
+	Game.combat.cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
 	var aim := EnemyBrain.target_position(Game.enemies, foe2)
 	check(str(aim.get("id", "")) == "decoy", "a foe near the illusion hunts it instead of the player")
 	var d: Dictionary = Game.combat.decoys[c.id]
 	foe2.plane = Vector2(float(d.x) + 30.0, float(d.y))
 	foe2.facing = -1
 	var ev := Game.combat.enemy_view(foe2)
-	for i in 3: Game.combat._strike_decoy(foe2, ev, {"x": [0, 60], "depth": 30, "alt": [-30, 60]}, {})
+	for i in 3: Game.combat.strike_decoy(foe2, ev, {"x": [0, 60], "depth": 30, "alt": [-30, 60]}, {})
 	GameEvents.flush()
 	check(not Game.combat.decoys.has(c.id) and heard.broken == "struck", "three strikes break the illusion")
 	heard.broken = ""
-	Game.combat._cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
+	Game.combat.cast_illusion(c, ContentDB.entry("techniques", "phantom_double"))
 	for i in 240:
 		Game.tick(0.05)
 		if not Game.combat.decoys.has(c.id): break
@@ -3845,20 +3845,20 @@ func soul_poison_suite() -> void:
 	foe2.alive = false
 	# Soul Search: an elite searched and slain gives up a memory and an extra drop; a common foe is not marked.
 	var common: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(80, 20), lv)
-	Game.combat._weapon_after_hit(c, common, {"soul_search_s": 12.0})
+	Game.combat.weapon_after_hit(c, common, {"soul_search_s": 12.0})
 	check(not Game.combat.searched.has(str(common.uid)), "Soul Search marks only elites and bosses")
 	common.alive = false
 	var elite: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(80, -20), lv, {"elite": true})
-	Game.combat._weapon_after_hit(c, elite, {"soul_search_s": 12.0})
+	Game.combat.weapon_after_hit(c, elite, {"soul_search_s": 12.0})
 	check(Game.combat.searched.has(str(elite.uid)) and elite.pools.has_status("soul_searched"), "an elite is marked for Soul Search")
-	Game.combat._damage_enemy(elite, elite.pools.hp + 10.0, c.id, "soul", "soul", false, {})
+	Game.combat.damage_enemy(elite, elite.pools.hp + 10.0, c.id, "soul", "soul", false, {})
 	for i in 4: Game.tick(0.05)
 	GameEvents.flush()
 	check(heard.search != "" and (heard.search == "?" or Game.account.codex.has(heard.search)), "a searched elite's death gives up a soul memory (%s)" % heard.search)
 	# Soul Lantern Ward: a shield of 10% max HP for 6 s (P12: a share of the pool Might scales, as blows scale).
 	c.pools.shield = 0.0
 	if c.pools.max_soul <= 0.0: c.pools.max_soul = 100.0
-	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "soul_lantern_ward"))
+	Game.combat.resolve_technique(c, ContentDB.entry("techniques", "soul_lantern_ward"))
 	check(near(c.pools.shield, c.pools.max_hp * 0.1, 0.5), "Soul Lantern Ward shields 10%% of max HP (%.1f)" % c.pools.shield)
 	for i in 130: Game.tick(0.05)
 	check(c.pools.shield == 0.0, "and fades after 6 s")
@@ -3871,9 +3871,9 @@ func soul_poison_suite() -> void:
 	check(Game.combat.poison_body_active(c), "a poison art and toxicity past half open the Poison Body")
 	var pf: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
 	var tx0: float = c.cultivator.toxicity
-	Game.combat._poison_body(c, pf)
+	Game.combat.poison_body(c, pf)
 	check(pf.pools.has_status("poison") and near(c.cultivator.toxicity, tx0 - 1.0, 0.01), "each hit turns a point of toxicity into poison on the foe")
-	Game.combat._poison_body(c, pf)
+	Game.combat.poison_body(c, pf)
 	check(near(c.cultivator.toxicity, tx0 - 1.0, 0.01), "at most once per foe each half second")
 	c.cultivator.toxicity = tol * 0.3
 	check(not Game.combat.poison_body_active(c), "below half the tolerance it closes")
@@ -3948,14 +3948,14 @@ func blood_buddhist_suite() -> void:
 	_idle_hands(c)
 	c.pools.hp = c.pools.max_hp
 	c.pools.cooldowns.erase("tech:crimson_palm")
-	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "normal"})
+	Game.combat.feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "normal"})
 	check(near(Game.combat.essence_of(c.id), 10.0, 0.01), "a kill gives 10 blood essence")
 	Game.submit({"type": "use_technique", "slot": 0, "facing": 1})
 	check(near(c.pools.hp, c.pools.max_hp, 1.0) and near(Game.combat.essence_of(c.id), 5.0, 0.01), "blood essence pays the art's cost first")
 	_idle_hands(c)
-	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": true, "role": "elite"})
-	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
-	Game.combat._feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
+	Game.combat.feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": true, "role": "elite"})
+	Game.combat.feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
+	Game.combat.feed_blood_essence({"victim_kind": "enemy", "killer": c.id, "def": "wild_boarlet", "elite": false, "role": "boss"})
 	check(near(Game.combat.essence_of(c.id), 100.0, 0.01), "elites give 25, bosses 50, up to 100")
 	Game.combat.blood_essence[c.id].t = Game.sim_time - 30.0
 	for i in 20: Game.tick(0.05)
@@ -3965,10 +3965,10 @@ func blood_buddhist_suite() -> void:
 	check(near(Game.combat.blood_lifesteal(c), 0.03, 0.0001), "lifesteal is 3% at Blood Dao tier 0")
 	c.pools.hp = c.pools.max_hp * 0.5
 	var h0: float = c.pools.hp
-	Game.combat._lifesteal(c, 1000.0, {"source": "basic"})
+	Game.combat.lifesteal(c, 1000.0, {"source": "basic"})
 	check(near(c.pools.hp - h0, 30.0, 0.5), "a 1000 blow drinks back 30 health")
 	h0 = c.pools.hp
-	Game.combat._lifesteal(c, 1000.0, {"technique": "crimson_palm"})
+	Game.combat.lifesteal(c, 1000.0, {"technique": "crimson_palm"})
 	check(near(c.pools.hp - h0, 60.0, 0.5), "a Blood art drinks back twice that")
 	# The sect's regard below zero closes the Mission Hall's manuals.
 	c.training_sect.reputation[sect] = -5
@@ -4017,7 +4017,7 @@ func blood_buddhist_suite() -> void:
 	check(str(g0.get("reason", "")) == "needs_vow", "the Golden Body answers only a vow-keeper")
 	c.cultivator.vows.append("plain_fare")
 	var def0: float = c.stats.value("physical_defense")
-	Game.combat._resolve_technique(c, ContentDB.entry("techniques", "golden_body"))
+	Game.combat.resolve_technique(c, ContentDB.entry("techniques", "golden_body"))
 	check(c.stats.value("physical_defense") > def0 * 1.2, "the Golden Body hardens the body (+25%% defence: %.0f -> %.0f)" % [def0, c.stats.value("physical_defense")])
 	# Where the arts are found.
 	var peddler := ContentDB.entry("shops", "night_peddler")
@@ -4116,7 +4116,7 @@ func sect_roles_suite() -> void:
 	# The Cloud support variant is a shield.
 	c.training_sect = {"id": "cloud_sect", "rank": "outer_disciple", "contribution": 100, "reputation": {"cloud_sect": 10}, "role": "support"}
 	c.pools.shield = 0.0
-	Game.combat._sect_support(c, ProgressionRules.signature_variant(c, "jade_thrust"))
+	Game.combat.sect_support(c, ProgressionRules.signature_variant(c, "jade_thrust"))
 	check(near(c.pools.shield, c.pools.max_hp * 0.08, 1.0), "Guarding Cloud shields 8% of health")
 	GameEvents.event.disconnect(listen)
 	c.pools.shield = 0.0
@@ -4206,7 +4206,7 @@ func swarm_array_puppet_suite() -> void:
 	c.pools.cooldowns.clear()
 	var tr := Game.submit({"type": "use_treasure", "slot": 0})
 	check(tr.get("ok", false) and Game.combat.swarm_of(c.id) == mini(9, cap), "the Nine Swords Array, released, orbits nine swords (%s)" % str(tr))
-	Game.combat._end_swarm(c, "recalled")
+	Game.combat.end_swarm(c, "recalled")
 	c.inventory.treasures = treasures_before.duplicate()
 	Game.inventory.apply_remove(c.id, "nine_sword_array", 1, "test")
 	c.cultivator.daos["sword"] = daos_before.get("sword", {"tier": 0, "insight": 0.0})
@@ -4326,7 +4326,7 @@ func artifact_spirit_suite() -> void:
 	foe.pools.max_hp = 999999.0
 	foe.pools.hp = 999999.0
 	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "basic", "never_miss": true}
-	for i in 25: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 25: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(near(float(blade.get("spirit_affinity", 0.0)), 1.0), "25 blows with it: one point of affinity (%.1f)" % float(blade.get("spirit_affinity", 0.0)))
 	# Gifts: three a day; its favourite counts double; it will not take just anything.
@@ -4373,7 +4373,7 @@ func artifact_spirit_suite() -> void:
 	# Its skill: every tenth blow of the blade the Waking Edge strikes on its own; a hand too weak to control it gets none.
 	Game.combat.spirit_hits.erase(c.id)
 	heard.skill = 0
-	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 10: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(int(heard.skill) == 1, "the Waking Edge strikes on the tenth blow (%d)" % int(heard.skill))
 	c.stats.add_modifier({"stat": "spirit", "op": "flat", "value": -99999.0, "duration": 30.0, "source": "test:weak"})
@@ -4381,7 +4381,7 @@ func artifact_spirit_suite() -> void:
 	check(not StatRules.spirit_controlled(c, blade) and near(StatRules.spirit_power(c, blade), StatRules.spirit_power(null, blade) * 0.5, 0.001),
 		"below its control demand the spirit gives half")
 	heard.skill = 0
-	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 10: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(int(heard.skill) == 0, "and keeps its skill to itself")
 	c.stats.remove_prefix("test:weak")
@@ -4470,7 +4470,7 @@ func awaken_legend_suite() -> void:
 	foe.pools.hp = 999999.0
 	var atk := {"damage_type": "physical", "element": "none", "mult": [0.01, 0.01], "range": [1.0, 1.0], "source": "basic", "never_miss": true}
 	Game.combat.awaken_hits.erase(c.id)
-	for i in 12: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 12: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(int(heard.skills) == 1, "an awakened jian's Sword Light strikes on the twelfth blow (%d)" % int(heard.skills))
 	# A +10 Heaven piece raises the flag Smith Hong waits on.
@@ -4512,7 +4512,7 @@ func awaken_legend_suite() -> void:
 	Game.combat.refresh_stats(c.id)
 	heard.skills = 0
 	Game.combat.awaken_hits.erase(c.id)
-	for i in 10: Game.combat._player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
+	for i in 10: Game.combat.player_hits_enemy(c, Game.combat.player_view(c), foe, atk, 1)
 	GameEvents.flush()
 	check(int(heard.skills) == 1 and near(heard.ring, 170.0), "the Mountain Drum sounds on the tenth blow, a ring of 170")
 	foe.alive = false
@@ -4553,10 +4553,10 @@ func natal_wardrobe_suite() -> void:
 	c.pools.invulnerable = 0.0
 	c.pools.statuses = c.pools.statuses.filter(func(x): return str(x.id) != "spawn_protection")
 	Game.combat.timeline(c.id).dodge_t = 0.0
-	Game.combat._enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01})
+	Game.combat.enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01})
 	check(not jian.get("broken", false), "an ordinary blow never breaks a natal weapon")
 	c.pools.invulnerable = 0.0
-	Game.combat._enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01, "shatter": true})
+	Game.combat.enemy_hits_player(foe, c, Game.combat.enemy_view(foe), Game.combat.player_view(c), {"mult": 0.01, "shatter": true})
 	GameEvents.flush()
 	check(jian.get("broken", false) and StatRules.instance_mult(jian, c.cultivator.energy_type) == 0.0 and not c.cultivator.injuries.is_empty(),
 		"a shatter blow breaks it: its stats go dark and an injury follows")
@@ -4572,8 +4572,8 @@ func natal_wardrobe_suite() -> void:
 	var listen := func(n: String, p: Dictionary):
 		if n == "item_blooded": bled.append(p)
 	GameEvents.event.connect(listen)
-	Game.inventory._first_wear(c, robe, "robe")
-	Game.inventory._first_wear(c, robe, "robe")
+	Game.inventory.first_wear(c, robe, "robe")
+	Game.inventory.first_wear(c, robe, "robe")
 	GameEvents.flush()
 	GameEvents.event.disconnect(listen)
 	var look := str(robe.get("appearance", ContentDB.item("jadeiron_robe").get("appearance", "")))
@@ -4762,7 +4762,7 @@ func new_forms_suite() -> void:
 	var poisoned := 0
 	for i in 60:
 		foe.pools.statuses.clear()
-		Game.combat._oil_strike(c, foe, Game.combat.enemy_view(foe))
+		Game.combat.oil_strike(c, foe, Game.combat.enemy_view(foe))
 		if foe.pools.has_status("poison"): poisoned += 1
 	check(poisoned > 3 and poisoned < 25, "Viper Oil poisons about one hit in five (%d of 60)" % poisoned)
 	c.pools.cooldowns.erase("item:utility")
@@ -4771,7 +4771,7 @@ func new_forms_suite() -> void:
 	Game.combat.cure_status(c.id, "ember_oil")
 	# The Viper Smoke Pill leaves a poison cloud: 4% of max HP a second for 5 s.
 	foe.pools.statuses.clear()
-	Game.combat._burst(c, {"x": foe.plane.x, "y": foe.plane.y, "alt": 0.0, "burst": 90.0, "attack": {"damage_type": "physical", "mult": [0.2, 0.2], "range": [1.0, 1.0]},
+	Game.combat.burst(c, {"x": foe.plane.x, "y": foe.plane.y, "alt": 0.0, "burst": 90.0, "attack": {"damage_type": "physical", "mult": [0.2, 0.2], "range": [1.0, 1.0]},
 		"cloud": ContentDB.item("viper_smoke_pill").use[0].cloud}, null)
 	var cloud_ok := false
 	for s2 in foe.pools.statuses:
@@ -5014,7 +5014,7 @@ func body_path_suite() -> void:
 	check(cu.body_tier == "mortal", "the Copper trial alone does not open Copper Body")
 	cu.body_trials.clear()
 	cu.body_baths.append("copper")
-	Game.progression._check_body_tier(c)
+	Game.progression.check_body_tier(c)
 	check(cu.body_tier == "mortal", "the Copper bath alone does not open it either")
 	Game.progression.pass_body_trial(c.id, "copper")
 	check(cu.body_tier == "copper" and ProgressionRules.body_tier_index(cu) == 1, "trial and bath together: Copper Body")
@@ -5026,7 +5026,7 @@ func body_path_suite() -> void:
 	check(mods == 1, "Copper Body's gift is one Physical Defense modifier (%d)" % mods)
 	Game.progression.pass_body_trial(c.id, "iron")
 	cu.body_baths.append("iron")
-	Game.progression._check_body_tier(c)
+	Game.progression.check_body_tier(c)
 	check(cu.body_tier == "copper", "Iron Body waits for body level 36")
 	cu.body_level = 35
 	Game.progression.apply_body_xp(c.id, ProgressionRules.body_xp_needed(35) + 1.0, "test")
@@ -5037,15 +5037,15 @@ func body_path_suite() -> void:
 	# The trials themselves are room events: the HP floor fails one, a kill count wins another.
 	Game.world.apply_teleport(c.id, "wp_west")
 	var sp := ContentDB.entry("set_pieces", "copper_body_trial")
-	Game.world._start_event(c, Game.room_rt, sp.room_event)
+	Game.world.start_event(c, Game.room_rt, sp.room_event)
 	c.pools.hp = c.pools.max_hp * 0.4
-	Game.world._tick_event(c, Game.room_rt, 0.1)
+	Game.world.tick_event(c, Game.room_rt, 0.1)
 	check(not Game.room_rt.event.get("active", true), "falling below half HP ends the Copper trial")
 	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, "cp_pilgrim_stairs")
 	var iron := ContentDB.entry("set_pieces", "iron_body_trial")
-	Game.world._start_event(c, Game.room_rt, iron.room_event)
-	for i in 5: Game.world._event_kill({"def": "stone_guardian", "victim_kind": "enemy"})
+	Game.world.start_event(c, Game.room_rt, iron.room_event)
+	for i in 5: Game.world.event_kill({"def": "stone_guardian", "victim_kind": "enemy"})
 	check(not Game.room_rt.event.get("active", true), "five Stone Guardians in one run pass the Iron trial")
 	# Gold Body is immune to Qi Seal; the flag lives on the tier.
 	cu.body_tier = "gold"
@@ -5072,9 +5072,9 @@ func body_path_suite() -> void:
 	check(cu.physiques.has("jade_bone") and c.stats.value("max_hp") > hp0 and c.stats.value("qi_resistance") <= qr0,
 		"Jade Bone: more HP, a little less Qi Resistance")
 	cu.lifetime_stats["fire_pills"] = 49.0
-	Game.progression._on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "tiger_blood_pill", "count": 1})
+	Game.progression.on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "tiger_blood_pill", "count": 1})
 	check(cu.physiques.has("ember_heart"), "the fiftieth Fire pill awakens Ember Heart")
-	Game.progression._on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "healing_pill", "count": 5})
+	Game.progression.on_fire_pill({"actor": c.id, "craft": "alchemy", "recipe": "healing_pill", "count": 5})
 	check(float(cu.lifetime_stats.get("fire_pills", 0)) == 50.0, "pills of other elements do not count")
 	cu.heart_demon = 0.0
 	cu.physiques.append("hollow_touched")
@@ -5092,7 +5092,7 @@ func body_path_suite() -> void:
 	Game.progression.pass_body_trial(c.id, "copper")
 	cu.body_baths.append("copper")
 	cu.body_level = 18
-	Game.progression._check_body_tier(c)
+	Game.progression.check_body_tier(c)
 	check(cu.physiques.has("stone_marrow"), "Copper Body before Qi Unfurling 3 awakens Stone Marrow")
 	cu.physiques.clear()
 	# Named roots at the edges: +5% counts, above +10% is Heavenly, the strongest wind is Mutated.
@@ -5133,7 +5133,7 @@ func body_path_suite() -> void:
 		Rng.restore(c.id, {}, 4242)
 		cu.realm_key = "heart_tempering_9"
 		cu.purity = 9
-		Game.progression._forge_core(c)
+		Game.progression.forge_core(c)
 		grades.append(cu.core_grade)
 	check(grades[0] == grades[1] and cu.purity == cu.core_grade and cu.core_grade >= 5 and cu.core_grade <= 9 - 0,
 		"the same seed forms the same core (%s)" % str(grades))
@@ -5182,11 +5182,11 @@ func heaven_suite() -> void:
 	var starts := []
 	var hook := func(n: String, p: Dictionary): if n == "tribulation_result": starts.append(p)
 	GameEvents.event.connect(hook)
-	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
+	Game.progression.start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
 	check(Game.progression.is_under_tribulation(c.id) and int(Game.progression.tribulation_view(c.id).total) == 3, "the cloud gathers: 3 bolts")
 	var guard := 0
 	while Game.progression.is_under_tribulation(c.id) and guard < 400:
-		Game.progression._tick_tribulation(c, 0.1)
+		Game.progression.tick_tribulation(c, 0.1)
 		GameEvents.flush()
 		guard += 1
 	var res: Dictionary = starts.back() if not starts.is_empty() else {}
@@ -5200,13 +5200,13 @@ func heaven_suite() -> void:
 	# Stepping out of the ring: the bolt misses.
 	cu.realm_key = "cloud_stride_9"
 	c.pools.hp = c.pools.max_hp
-	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": -1.0})
+	Game.progression.start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": -1.0})
 	var home: Vector2 = st.plane
 	guard = 0
 	while Game.progression.is_under_tribulation(c.id) and guard < 400:
 		var tv: Dictionary = Game.progression.tribulation_view(c.id)
 		if not (tv.get("warn", {}) as Dictionary).is_empty(): st.plane = Vector2(float(tv.warn.x) + 400.0, float(tv.warn.y))
-		Game.progression._tick_tribulation(c, 0.1)
+		Game.progression.tick_tribulation(c, 0.1)
 		GameEvents.flush()
 		guard += 1
 	st.plane = home
@@ -5214,10 +5214,10 @@ func heaven_suite() -> void:
 	check(cu.realm_key == "cloud_stride_9", "a weathered tribulation still rolls the breakthrough (forced to fail here)")
 	# Brought to nothing under the heavens: a Bodily failure, not a grave wound.
 	c.pools.hp = c.pools.max_hp * 0.1
-	Game.progression._start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
+	Game.progression.start_tribulation(c, {"to": "spirit_awakening_1", "risk": "low", "from": "cloud_stride_9", "used": [], "causes": [], "bonus": 1.0})
 	guard = 0
 	while Game.progression.is_under_tribulation(c.id) and guard < 400:
-		Game.progression._tick_tribulation(c, 0.1)
+		Game.progression.tick_tribulation(c, 0.1)
 		GameEvents.flush()
 		guard += 1
 	check(not starts.back().get("survived", true) and str(starts.back().get("failure", "")) == "bodily_failure" and c.pools.hp > 0.0 and cu.realm_key == "cloud_stride_9",
@@ -5252,11 +5252,11 @@ func heaven_suite() -> void:
 	cu.purity = 6
 	cu.fate_offer = ["debt_of_heaven", "lucky_star", "iron_will"]
 	Game.submit({"type": "choose_fate", "card": "debt_of_heaven"})
-	check(cu.purity == 5 and ProgressionRules.tribulation_bolts("cloud_stride_9", 0.0, 0, int(Game.progression._spend_fate_next(c, "tribulation_bolts"))) == 5
-		and Game.progression._spend_fate_next(c, "tribulation_bolts") == 0.0, "Debt of Heaven: purity a grade better; the next tribulation alone gets 2 more bolts")
+	check(cu.purity == 5 and ProgressionRules.tribulation_bolts("cloud_stride_9", 0.0, 0, int(Game.progression.spend_fate_next(c, "tribulation_bolts"))) == 5
+		and Game.progression.spend_fate_next(c, "tribulation_bolts") == 0.0, "Debt of Heaven: purity a grade better; the next tribulation alone gets 2 more bolts")
 	cu.fate_offer = ["scar_of_failure", "lucky_star", "iron_will"]
 	Game.submit({"type": "choose_fate", "card": "scar_of_failure"})
-	check(cu.stability == "unstable" and near(Game.progression._spend_fate_next(c, "breakthrough_bonus"), 0.10), "Scar of Failure: unstable now, +10% on the next breakthrough")
+	check(cu.stability == "unstable" and near(Game.progression.spend_fate_next(c, "breakthrough_bonus"), 0.10), "Scar of Failure: unstable now, +10% on the next breakthrough")
 	cu.stability = "stable"
 	# The draw: distinct, by weight, never an unavailable card, the same for the same seed.
 	var pool := ProgressionRules.fate_pool(Game.ctx(c))
@@ -5272,10 +5272,10 @@ func heaven_suite() -> void:
 	check(never, "a card not yet available (Fox Spirit's Favour, S46) is never drawn")
 	# Blood Memory: a streak of 10 kills feeds the heart demon only with the fate.
 	cu.heart_demon = 0.0
-	for i in 10: Game.progression._count_streak(c)
+	for i in 10: Game.progression.count_streak(c)
 	check(near(cu.heart_demon, 0.0), "a streak of 10 without Blood Memory costs nothing")
 	cu.fates.append({"id": "blood_memory", "realm": ProgressionRules.great_realm(cu.realm_key)})
-	for i in 10: Game.progression._count_streak(c)
+	for i in 10: Game.progression.count_streak(c)
 	check(near(cu.heart_demon, 1.0), "Blood Memory: +1 heart demon at a streak of 10 (%.1f)" % cu.heart_demon)
 	# Qi Deviation: only at Severe risk or on a Poor method.
 	check(ProgressionRules.qi_deviates("severe", "good") and ProgressionRules.qi_deviates("low", "poor") and not ProgressionRules.qi_deviates("high", "excellent"),
@@ -5285,9 +5285,9 @@ func heaven_suite() -> void:
 	cu.method_id = "stonebody_canon"
 	var earth_was: Dictionary = cu.aptitude.get("element_earth", {}).duplicate()
 	cu.aptitude["element_earth"] = {"value": 0.08, "revealed": true}
-	Game.progression._maybe_deviate(c, "high")
+	Game.progression.maybe_deviate(c, "high")
 	check(not c.pools.has_status("qi_deviation"), "a failure at High risk on a good method does not deviate")
-	Game.progression._maybe_deviate(c, "severe")
+	Game.progression.maybe_deviate(c, "severe")
 	var els := {}
 	for i in 30: els[Game.combat.technique_element(c, ContentDB.entry("techniques", "flowing_palm"))] = true
 	check(c.pools.has_status("qi_deviation") and els.size() >= 3, "at Severe risk the Qi deviates: techniques take random elements (%d seen)" % els.size())
@@ -5418,25 +5418,25 @@ func vows_suite() -> void:
 	var blow := {"damage_type": "physical", "element": "none", "mult": [8.0, 8.0], "range": [1.0, 1.0], "source": "test"}
 	for i in 6:
 		if not e.alive or e.pools.hp <= 1.01: break
-		Game.combat._player_hits_enemy(c, pv, e, blow, 1)
+		Game.combat.player_hits_enemy(c, pv, e, blow, 1)
 	check(e.alive and e.pools.hp >= 1.0, "Mercy: the fleeing boarlet gets away with its life")
 	Game.submit({"type": "set_vow", "vow": "mercy", "on": false})
 	for i in 6:
 		if not e.alive: break
-		Game.combat._player_hits_enemy(c, pv, e, blow, 1)
+		Game.combat.player_hits_enemy(c, pv, e, blow, 1)
 	check(not e.alive, "without the vow the blow lands")
 	GameEvents.flush()
 	cu.heart_demon = 0.0
 	# Killing Intent: kills in quick succession, +1% crit a stack, up to 10; Silence sheathes it.
 	Game.combat.killing_intent.erase(c.id)
 	var crit0 := float(Game.combat.player_view(c).crit_chance)
-	for i in 12: Game.combat._gain_killing_intent(c, e)
+	for i in 12: Game.combat.gain_killing_intent(c, e)
 	check(Game.combat.killing_intent_stacks(c.id) == 10 and near(float(Game.combat.player_view(c).crit_chance), crit0 + 0.10),
 		"Killing Intent: 10 stacks at most, +10%% crit (%d)" % Game.combat.killing_intent_stacks(c.id))
-	for i in 110: Game.combat._tick_sword(c, 0.1)
+	for i in 110: Game.combat.tick_sword(c, 0.1)
 	check(Game.combat.killing_intent_stacks(c.id) == 0, "ten seconds without a kill and it fades")
 	Game.submit({"type": "set_vow", "vow": "silence", "on": true})
-	Game.combat._gain_killing_intent(c, e)
+	Game.combat.gain_killing_intent(c, e)
 	check(Game.combat.killing_intent_stacks(c.id) == 0, "Silence keeps the killing intent sheathed")
 	Game.submit({"type": "set_vow", "vow": "silence", "on": false})
 	cu.heart_demon = 0.0
@@ -5448,7 +5448,7 @@ func vows_suite() -> void:
 	var seen := 0
 	for i in 2000:
 		var before := cu.epiphany_cooldown
-		Game.progression._roll_epiphany(c, "tech:flowing_palm:x")
+		Game.progression.roll_epiphany(c, "tech:flowing_palm:x")
 		if cu.epiphany_cooldown != before: seen += 1
 	check(seen == 0, "no second epiphany while the mind rests")
 	cu.epiphany_cooldown = 0.0
@@ -5525,11 +5525,11 @@ func vows_suite() -> void:
 	cu.realm_key = "sage_1"
 	cu.state = "accumulating"
 	cu.qp = cu.need() * 0.5
-	Game.progression._on_gravely_wounded({"actor": c.id})
+	Game.progression.on_gravely_wounded({"actor": c.id})
 	check(near(cu.qp, cu.need() * 0.45), "from Sage the soul flees: 5%% lost (%.3f of the need left)" % (cu.qp / cu.need()))
 	cu.realm_key = "cloud_stride_5"
 	cu.qp = cu.need() * 0.5
-	Game.progression._on_gravely_wounded({"actor": c.id})
+	Game.progression.on_gravely_wounded({"actor": c.id})
 	check(near(cu.qp, cu.need() * 0.4), "below Sage: 10% lost")
 	cu.injuries.clear()
 	cu.heart_demon = 0.0
@@ -5539,9 +5539,9 @@ func vows_suite() -> void:
 	c.pools.hp = c.pools.max_hp
 	var boss: EnemyState = Game.enemies.spawn_at("pirate_captain", st.plane + Vector2(120, 0), 80)
 	boss.pools.hp = boss.pools.max_hp * 0.35
-	Game.enemies._check_phases(boss)
+	Game.enemies.check_phases(boss)
 	boss.pools.hp = boss.pools.max_hp * 0.1
-	Game.enemies._check_phases(boss)
+	Game.enemies.check_phases(boss)
 	check(str(boss.ai.get("state", "")) == "detonating" and boss.invulnerable, "cornered, the Captain burns his nascent soul (a telegraph)")
 	var hp_before: float = c.pools.hp
 	for i in 40:
@@ -5797,7 +5797,7 @@ func herb_prep_suite() -> void:
 	check(Game.inventory.count_prep(c, "riverreed_ginseng_10", "wine") == 3, "four hours later: three wine-soaked roots")
 	# A pill takes the prep of its principal herb when all of it was prepared.
 	Game.inventory.apply_add(c.id, "willow_moss", 2, "test")
-	var used: Dictionary = Game.crafting._consume(c, "healing_pill", [{"item": "riverreed_ginseng_10", "count": 1}, {"item": "willow_moss", "count": 2}], "riverreed_ginseng_10")
+	var used: Dictionary = Game.crafting.consume(c, "healing_pill", [{"item": "riverreed_ginseng_10", "count": 1}, {"item": "willow_moss", "count": 2}], "riverreed_ginseng_10")
 	check(str(used.prep) == "wine" and Game.inventory.count_prep(c, "riverreed_ginseng_10", "wine") == 2 and not used.fake, "a healing pill from a wine-soaked root is wine-soaked")
 	check(near(InventoryAuthority.pill_potency({"id": "healing_pill", "prep": "wine"}), 1.1) and near(InventoryAuthority.pill_toxicity_mult({"id": "healing_pill", "prep": "steamed"}), 0.7),
 		"wine-soaked: +10% potency; steamed: -30% toxicity")
@@ -5824,12 +5824,12 @@ func herb_prep_suite() -> void:
 	var ap := Game.submit({"type": "appraise_item", "index": fake_i})
 	check(ap.get("ok", false) and ap.get("fake", false) and c.inventory.count("dyed_root") == 1 and c.inventory.count("riverreed_ginseng_100") == 1,
 		"appraisal shows the fake: a dyed root")
-	var used2: Dictionary = Game.crafting._consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus")
+	var used2: Dictionary = Game.crafting.consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus")
 	check(not used2.fake, "the genuine sealed root is no fake")
 	if not had_loupe: Game.inventory.apply_remove(c.id, "appraisers_loupe", 1, "test")
 	c.inventory.next_uid += 1
 	Game.inventory.apply_add(c.id, "riverreed_ginseng_100", 1, "test", {"unappraised": true, "fake": true, "seal": c.inventory.next_uid})
-	check(Game.crafting._consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus").fake, "an unappraised fake goes into the furnace unseen")
+	check(Game.crafting.consume(c, "cleansing_pill", [{"item": "riverreed_ginseng_100", "count": 1}], "mist_lotus").fake, "an unappraised fake goes into the furnace unseen")
 	# Garden raids: an unguarded bed can be hit while you are away; a Protection formation keeps it safe.
 	var bed := "ja_herb_terraces:bed_1"
 	var garden_was: Dictionary = Game.crafting.beds(c).duplicate(true)
@@ -5907,17 +5907,17 @@ func beasts_suite() -> void:
 	# Grievous Wound: three knockouts in five minutes; the Beast Revival Pill mends it.
 	c.active_pet = str(fox.uid)
 	var hp0: float = Game.pets.stat_mult(fox, "hp")
-	for i in 3: Game.pets._knocked_out(c, fox)
+	for i in 3: Game.pets.knocked_out(c, fox)
 	GameEvents.flush()
 	check(fox.wounded and near(Game.pets.stat_mult(fox, "hp"), hp0 * 0.8, 0.001), "three knockouts in five minutes: a Grievous Wound, -20%")
 	Game.inventory.apply_add(c.id, "beast_revival_pill", 1, "test")
 	Game.submit({"type": "use_item", "index": _bag_index(c, "beast_revival_pill"), "confirm": true})
 	check(not fox.wounded, "a Beast Revival Pill mends it")
 	fox.knockouts = []
-	Game.pets._knocked_out(c, fox)
-	Game.pets._knocked_out(c, fox)
+	Game.pets.knocked_out(c, fox)
+	Game.pets.knocked_out(c, fox)
 	Game.sim_time += 400.0
-	Game.pets._knocked_out(c, fox)
+	Game.pets.knocked_out(c, fox)
 	check(not fox.wounded, "three knockouts spread over more than five minutes do not")
 	# Taming by nature: a demonic hound takes only a Purifying Offering; a Hollowed boarlet must be cleansed first.
 	var st: ActorState = Game.actor_state(c.id)
@@ -5937,9 +5937,9 @@ func beasts_suite() -> void:
 	# The taming fix: struck down with an offering on quick-use, a tameable beast stays subdued at 1 HP.
 	var otter: EnemyState = Game.enemies.spawn_at("reed_otter", st.plane + Vector2(60, 0), 20)
 	c.inventory.quick_use = "bonding_offering_common"
-	Game.combat._damage_enemy(otter, otter.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(otter, otter.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
 	check(otter.alive and near(otter.pools.hp, 1.0) and otter.ai.get("subdued_once", false), "a one-hit otter is subdued at 1 HP, not killed")
-	Game.combat._damage_enemy(otter, 10.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(otter, 10.0, c.id, "physical", "none", false, {})
 	check(not otter.alive, "only once: the next blow lands")
 	c.inventory.quick_use = ""
 	for e in Game.room_rt.living_enemies():
@@ -5992,9 +5992,9 @@ func bloodline_suite() -> void:
 	fox.traits = ["stormborn", "quick_paws", "loyal"]
 	fox.revealed = 1
 	fox.purity = 0
-	var t0 := Game.pets._trait_sum(fox, "pet_damage")
+	var t0 := Game.pets.trait_sum(fox, "pet_damage")
 	fox.purity = 100
-	check(near(t0, 0.15) and near(Game.pets._trait_sum(fox, "pet_damage"), 0.15 * 1.2), "a pure bloodline strengthens its traits by 20%")
+	check(near(t0, 0.15) and near(Game.pets.trait_sum(fox, "pet_damage"), 0.15 * 1.2), "a pure bloodline strengthens its traits by 20%")
 	# Suppression (the Pressure contest): an Epic, awakened fox cows a rank 1 rat, not a rank 9 boss.
 	check(near(CombatRules.pressure_loss(2.0, 1.0), 0.25) and near(CombatRules.pressure_loss(1.0, 2.0), 0.0) and near(CombatRules.pressure_loss(9.0, 1.0), 0.5),
 		"Pressure over Will: min(50%, 25% x (P/W - 1))")
@@ -6012,13 +6012,13 @@ func bloodline_suite() -> void:
 	fox.awakened = 2
 	check(near(Game.pets.tame_chance(c, rat, "bonding_offering_common", 0.5), minf(plain + 0.1, float(ContentDB.config("taming").get("max", 0.95)))),
 		"suppression adds +10% to the taming chance")
-	Game.pets._spawn(c)
+	Game.pets.spawn(c)
 	var ally: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
 	check(ally != null and float(ally.def.art.get("scale", 1.0)) > 1.0, "the true form stands larger")
 	if ally != null:
 		ally.plane = rat.plane + Vector2(-40, 0)
 		ally.ai.sup_t = 0.0
-		Game.pets._suppress(c, fox, ally, 0.1)
+		Game.pets.suppress(c, fox, ally, 0.1)
 		GameEvents.flush()
 		check(rat.ai.get("suppressed", false) and rat.pools.has_status("fear") and heard.has("beast_suppressed"), "and its blood grips the rat with Fear")
 	Game.enemies.release(rat)
@@ -6027,9 +6027,9 @@ func bloodline_suite() -> void:
 		ally.ai.state = "windup"
 		ally.ai.timer = 0.01
 		ally.ai.skill_cd = 0.0
-		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 2.5) and float(ally.ai.skill_cd) > 11.0, "the bloodline skill lands at x2.5, then rests 12 s")
+		check(near(Game.pets.skill_mult(c, fox, ally, 0.02), 2.5) and float(ally.ai.skill_cd) > 11.0, "the bloodline skill lands at x2.5, then rests 12 s")
 		ally.ai.timer = 0.01
-		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 1.0), "not again while it rests")
+		check(near(Game.pets.skill_mult(c, fox, ally, 0.02), 1.0), "not again while it rests")
 	# Contracts: Equal at 10 hearts, once per character; Blood with essence blood.
 	fox.bond = 9.0
 	check(str(Game.submit({"type": "offer_contract", "pet": fox.uid, "kind": "equal"}).get("reason", "")) == "hearts", "no Equal Contract at 9 hearts")
@@ -6043,9 +6043,9 @@ func bloodline_suite() -> void:
 		ally.ai.state = "windup"
 		ally.ai.timer = 0.01
 		ally.ai.skill_cd = 5.0
-		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 2.5) and not ally.ai.free_cast, "Equal: one free skill cast in a fight")
+		check(near(Game.pets.skill_mult(c, fox, ally, 0.02), 2.5) and not ally.ai.free_cast, "Equal: one free skill cast in a fight")
 		ally.ai.timer = 0.01
-		check(near(Game.pets._skill_mult(c, fox, ally, 0.02), 1.0), "only one")
+		check(near(Game.pets.skill_mult(c, fox, ally, 0.02), 1.0), "only one")
 	Game.pets.apply_grant(c.id, "reed_otter")
 	var otter: Dictionary = c.pets[c.pets.size() - 1]
 	otter.bond = 10.0
@@ -6171,26 +6171,26 @@ func pet_growth_suite() -> void:
 	Game.submit({"type": "learn_skill_book", "pet": otter.uid, "book": "pet_book_frenzy"})
 	check(otter.learned_skills == after1, "under the same seed the same slot is overwritten")
 	otter.learned_skills = ["iron_hide", "deep_pockets"]
-	Game.pets._apply_pockets(c)
+	Game.pets.apply_pockets(c)
 	# Iron Hide in combat; Herb Whisper beside you; Thunder Roar; Guardian Spirit; Frenzy after a kill.
-	Game.pets._spawn(c)
+	Game.pets.spawn(c)
 	var ally: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
-	check(ally != null and near(Game.pets.damage_taken_mult(ally), 1.0 + Game.pets._trait_sum(otter, "pet_damage_taken") - 0.1), "Iron Hide: 10% less damage")
+	check(ally != null and near(Game.pets.damage_taken_mult(ally), 1.0 + Game.pets.trait_sum(otter, "pet_damage_taken") - 0.1), "Iron Hide: 10% less damage")
 	check(Game.pets.whisper_range(c) == 0.0, "no Herb Whisper yet")
 	otter.learned_skills = ["herb_whisper", "thunder_roar"]
-	Game.pets._apply_pockets(c)
+	Game.pets.apply_pockets(c)
 	check(c.inventory.capacity() == cap0 and near(Game.pets.whisper_range(c), 400.0), "Deep Pockets forgotten: the row goes; Herb Whisper reads herbs within 400")
 	var st: ActorState = Game.actor_state(c.id)
 	if ally != null:
 		var rat: EnemyState = Game.enemies.spawn_at("reedtail_rat", ally.plane + Vector2(40, 0), 2)
 		ally.ai.roar_cd = 0.0
-		Game.pets._roar(c, otter, ally, 0.1)
+		Game.pets.roar(c, otter, ally, 0.1)
 		check(rat.pools.has_status("stun") and float(ally.ai.roar_cd) > 14.0, "Thunder Roar stuns a foe beside it, then rests 15 s")
 		Game.enemies.release(rat)
 		otter.learned_skills = ["guardian_spirit", "frenzy"]
 		Game.pets.guardian_cd.erase(c.id)
 		check(Game.pets.guardian_absorbs(c) and not Game.pets.guardian_absorbs(c), "Guardian Spirit takes one blow, then waits 30 s")
-		Game.pets._on_actor_defeated({"victim_kind": "enemy", "level": 1})
+		Game.pets.on_actor_defeated({"victim_kind": "enemy", "level": 1})
 		check(float(ally.ai.get("frenzy", 0.0)) > 5.0, "Frenzy: a kill quickens it for 6 s")
 	# Pet gear: worn through the equip intent, +10% of base a level of enhancement; a saddle only on a mount.
 	otter.learned_skills = []
@@ -6263,7 +6263,7 @@ func pet_growth_suite() -> void:
 	c.active_pet = active_was
 	c.party_pets = party_was
 	c.cultivator.realm_key = realm_was
-	Game.pets._apply_pockets(c)
+	Game.pets.apply_pockets(c)
 	c.inventory.bag.fill(null)
 	if room_was != "": Game.world.load_room(c, room_was, "")
 
@@ -6372,9 +6372,9 @@ func beast_world_suite() -> void:
 	check(Game.world.nest_closes("riverbed_serpent") > Clock.now_utc() + 1700.0, "its nest opens for 30 minutes")
 	var shore := {"enemy": "reed_otter", "king_alive": "riverbed_serpent"}
 	timers["riverbed_serpent"] = Clock.now_utc() + 3600.0
-	check(not Game.enemies._spawn_allowed(shore), "with the King dead, no extra paw-marked beasts")
+	check(not Game.enemies.spawn_allowed(shore), "with the King dead, no extra paw-marked beasts")
 	timers["riverbed_serpent"] = 0.0
-	check(Game.enemies._spawn_allowed(shore), "while it lives they gather")
+	check(Game.enemies.spawn_allowed(shore), "while it lives they gather")
 	Game.world.load_room(c, "dw_serpents_shallows", "")
 	var nest: Dictionary = Game.room_rt.object_def("serpent_nest")
 	check(Game.world.object_visible(c, nest), "the nest shows while it is open")
@@ -6394,17 +6394,17 @@ func beast_world_suite() -> void:
 	Game.room_rt.event.remaining = float(Game.room_rt.event.duration) - 40.0
 	Game.room_rt.event.wave_timers[0] = 0.0
 	var crabs := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "tide_crab").size()
-	Game.world._tick_event(c, Game.room_rt, 0.01)
+	Game.world.tick_event(c, Game.room_rt, 0.01)
 	check(Game.room_rt.living_enemies().filter(func(e): return e.def_id == "tide_crab").size() == crabs, "the first wave stops after its 30 seconds")
 	var stag_eggs: int = c.inventory.count("cloud_stag_egg")
 	c.quests.flags.erase("tide_stag_egg")
-	Game.world._end_event(c, Game.room_rt, true)
+	Game.world.end_event(c, Game.room_rt, true)
 	GameEvents.flush()
 	check(not Game.world.tide_due(c) and c.inventory.count("cloud_stag_egg") == stag_eggs + 1 and c.inventory.count("spirit_soil") >= 1,
 		"held: the week's tide is spent; a Cloud Stag egg (Cloud Stride 1) and Spirit Soil")
 	# Pets never die: at 0 HP an animal retreats into its token and comes back.
 	Game.world.load_room(c, "lf_reed_shallows", "")
-	Game.pets._spawn(c)
+	Game.pets.spawn(c)
 	var a: EnemyState = Game.room_rt.enemies.get(Game.pets.ally_uid)
 	check(a != null, "the otter is out")
 	if a != null:
@@ -6478,7 +6478,7 @@ func beast_arena_suite() -> void:
 		and int(c.beast_arena.rank) == 11, "the week turns: rank 3 pays out, the ladder starts again")
 	# The Trial Grove: once a day; the keeper's blows rally instead of striking; ten kills; the Guardian Spirit first.
 	Game.world.load_room(c, "sf_beast_grove", "")
-	Game.pets._spawn(c)
+	Game.pets.spawn(c)
 	c.cooldowns.erase("grove_day")
 	check(Game.world.start_beast_trial(c).get("ok", false) and Game.room_rt.event.get("pet_trial", false), "the Grove's trial begins")
 	check(str(Game.world.start_beast_trial(c).get("reason", "")) == "done", "once a day")
@@ -6486,17 +6486,17 @@ func beast_arena_suite() -> void:
 	var boar: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 20)
 	var hp0: float = boar.pools.hp
 	Game.pets.rally_ready.erase(c.id)
-	Game.combat._damage_enemy(boar, 50.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(boar, 50.0, c.id, "physical", "none", false, {})
 	check(near(boar.pools.hp, hp0) and float(Game.pets.rally_until.get(c.id, 0.0)) > Game.sim_time, "your blow rallies the animals instead of striking")
 	var pw := Game.pets.pet_power(c, wolf)
 	Game.pets.rally_until.erase(c.id)
 	check(near(pw, Game.pets.pet_power(c, wolf) * 1.25, 0.01), "rallied: +25%")
-	Game.combat._damage_enemy(boar, 1e9, c.id, "physical", "none", false, {"source": "ally:1"})
+	Game.combat.damage_enemy(boar, 1e9, c.id, "physical", "none", false, {"source": "ally:1"})
 	GameEvents.flush()
 	check(int(Game.room_rt.event.get("kills", 0)) == 1, "the animals' kills count toward the ten")
 	c.quests.flags.erase("grove_first_clear")
 	var books0: int = c.inventory.count("pet_book_guardian_spirit")
-	Game.world._end_event(c, Game.room_rt, true)
+	Game.world.end_event(c, Game.room_rt, true)
 	GameEvents.flush()
 	check(c.inventory.count("pet_book_guardian_spirit") == books0 + 1, "the first clear gives the Guardian Spirit book")
 	# Beast Taming Dao: elites from tier 3; eggs 10% sooner from tier 2; teachable from tier 4.
@@ -6520,10 +6520,10 @@ func beast_arena_suite() -> void:
 	Game.account.storage["items"] = [{"id": "roast_fish", "count": 2}]
 	wolf.hunger_day = Clock.reset_day(Clock.now_utc()) - 2
 	c.cooldowns.erase("trough_day")
-	Game.pets._trough(c)
+	Game.pets.feed_from_trough(c)
 	check(int(wolf.hunger_day) == Clock.reset_day(Clock.now_utc()) and int(Game.account.storage.items[0].count) == 1, "the trough feeds the hungry wolf from storage")
 	wolf.hunger_day = 0
-	Game.pets._trough(c)
+	Game.pets.feed_from_trough(c)
 	check(int(wolf.hunger_day) == 0, "once a day")
 	Game.account.sect = sect_was
 	Game.account.storage["items"] = storage_was
@@ -6569,19 +6569,19 @@ func relations_suite() -> void:
 	# Event deeds: a spar won in a town square is public; the same spar in the wilds is not.
 	Game.world.load_room(c, "sf_market", "")
 	var f0 := rel.fame
-	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "player", "room": "sf_market"}, "spar_ended")
+	Game.relations.on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "player", "room": "sf_market"}, "spar_ended")
 	check(rel.fame == f0 + 3, "a public win: +3 Fame")
-	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "sf_market"}, "spar_ended")
+	Game.relations.on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "sf_market"}, "spar_ended")
 	check(rel.fame == f0 - 2, "a public defeat costs 5")
 	Game.world.load_room(c, "lf_reed_shallows", "")
-	Game.relations._on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "lf_reed_shallows"}, "spar_ended")
+	Game.relations.on_deed_event({"actor": c.id, "opponent": "sparring_disciple", "winner": "opponent", "room": "lf_reed_shallows"}, "spar_ended")
 	check(rel.fame == f0 - 2, "no one sees a spar in the reeds")
 	var f1 := rel.fame
 	var boss := {"victim": "9", "victim_kind": "enemy", "def": "riverbed_serpent", "role": "field_boss", "killer": c.id}
-	Game.relations._on_deed_event(boss, "actor_defeated")
-	Game.relations._on_deed_event(boss, "actor_defeated")
+	Game.relations.on_deed_event(boss, "actor_defeated")
+	Game.relations.on_deed_event(boss, "actor_defeated")
 	boss.def = "thousand_eye_toad"
-	Game.relations._on_deed_event(boss, "actor_defeated")
+	Game.relations.on_deed_event(boss, "actor_defeated")
 	check(rel.fame == f1 + 20, "each field lord felled is +10 Fame, the first time")
 	# Fame tiers and the tier-up.
 	rel.fame = 140
@@ -6611,25 +6611,25 @@ func relations_suite() -> void:
 	# A black-market purchase is a deed from the event, per item.
 	rel.alignment = 0
 	var sin0 := rel.sin
-	Game.relations._on_deed_event({"actor": c.id, "shop": "free_market", "item": "manual_page", "count": 3}, "item_bought")
+	Game.relations.on_deed_event({"actor": c.id, "shop": "free_market", "item": "manual_page", "count": 3}, "item_bought")
 	check(rel.sin == sin0 + 6 and rel.alignment == -3, "three items from the back room: +6 sin, -3 alignment")
 	# Young masters: from Rising Fame, a town may bring one out; answer him or lose face.
 	Game.world.load_room(c, "sf_market", "")
 	GameEvents.flush()
 	rel.fame = 100
 	c.cooldowns.erase("young_master_day")
-	for i in 40: Game.relations._on_room_entered({})
+	for i in 40: Game.relations.on_room_entered({})
 	check(Game.relations.challenge_of(c).is_empty(), "below Rising no one comes")
 	rel.fame = 200
 	var came := false
 	for i in 60:
 		c.cooldowns.erase("young_master_day")
-		Game.relations._on_room_entered({})
+		Game.relations.on_room_entered({})
 		if not Game.relations.challenge_of(c).is_empty():
 			came = true
 			break
 	check(came, "a Rising name draws a young master in town")
-	Game.relations._on_room_entered({})
+	Game.relations.on_room_entered({})
 	check(Game.relations.challenge_of(c).is_empty(), "once a day at most")
 	Game.relations.offer_challenge(c, "young_master")
 	check(Game.submit({"type": "answer_challenge", "accept": false}).get("ok", false) and rel.fame == 195, "declining costs 5 Fame")
@@ -6695,7 +6695,7 @@ func bonds_suite() -> void:
 	check(RequirementRules.passes({"all": [{"kind": "hearts_at_least", "npc": "aunt_ping", "value": 3}]}, {"char": c}), "hearts_at_least reads the hearts")
 	# Quests make friends.
 	var gp: int = int(rel.affinity.get("granny_liu", {}).get("points", 0))
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "grannys_remedy"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "grannys_remedy"})
 	check(int(rel.affinity.granny_liu.points) == gp + 30, "a quest done for Granny Liu: +30")
 	# A keeper who likes you gives a little off.
 	var dear := ""
@@ -6725,7 +6725,7 @@ func bonds_suite() -> void:
 		Game.enemies.end_spar(dz, c.id)
 		GameEvents.flush()
 	check(int(rel.affinity.lan_yue.points) == lp + 20, "winning the duel: +20")
-	Game.relations._on_spar_ended({"actor": c.id, "opponent": "duel_lan_yue", "winner": "player"})
+	Game.relations.on_spar_ended({"actor": c.id, "opponent": "duel_lan_yue", "winner": "player"})
 	check(int(rel.affinity.lan_yue.points) == lp + 20, "once a day")
 	check(str(Game.submit({"type": "offer_bond", "kind": "sworn", "npc": "lan_yue"}).get("reason", "")) == "hearts", "sworn siblings need four hearts")
 	Game.relations.apply_affinity(c.id, "lan_yue", 100, "test")
@@ -6745,7 +6745,7 @@ func bonds_suite() -> void:
 	Game.submit({"type": "set_active_companions", "ids": ["lan_yue"]})
 	check(Game.relations.bond_support(c) == 0, "not when they stay behind")
 	# The master: the personal-disciple trial binds you; the last lesson passes the legacy art.
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "the_mentors_gift"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "the_mentors_gift"})
 	var mentor := "elder_sung" if str(c.training_sect.get("id", "")) == "cloud_sect" else "elder_hu"
 	check(str(rel.bonds.master) == mentor, "the mentor's trial makes %s your master" % mentor)
 	c.cultivator.inner_arts_known.erase("lotus_mind_legacy")
@@ -6780,9 +6780,9 @@ func grudges_suite() -> void:
 	var rel: RelationsState = c.relations
 	rel.restore({})
 	# Named kills raise a faction's grudge; the rank and file do not.
-	Game.relations._on_defeated({"victim_kind": "enemy", "def": "mudwater_bandit", "killer": c.id})
+	Game.relations.on_defeated({"victim_kind": "enemy", "def": "mudwater_bandit", "killer": c.id})
 	check(Game.relations.grudge(c, "mudwater") == 0, "an ordinary bandit is no one's name")
-	Game.relations._on_defeated({"victim_kind": "enemy", "def": "big_toad_tan", "killer": c.id})
+	Game.relations.on_defeated({"victim_kind": "enemy", "def": "big_toad_tan", "killer": c.id})
 	check(Game.relations.grudge(c, "mudwater") == 15, "killing Big Toad Tan: the Mudwater grudge +15")
 	# Past the threshold, hunters wait on the roads they know, at your level; not every time, not too often.
 	Game.relations.apply_grudge(c.id, "mudwater", 15, "test")
@@ -6793,13 +6793,13 @@ func grudges_suite() -> void:
 		c.cooldowns.erase("hunt_mudwater")
 		for e in Game.room_rt.living_enemies():
 			if e.def_id == "mudwater_cutthroat": Game.enemies.release(e)
-		Game.relations._spawn_hunters(c)
+		Game.relations.spawn_hunters(c)
 		for e in Game.room_rt.living_enemies():
 			if e.def_id == "mudwater_cutthroat" and e.level == ProgressionRules.level(c): found = true
 		if found: break
 	check(found, "at 30 the Mudwater send a cutthroat onto the Caravan Road, at your level")
 	var n0 := Game.room_rt.living_enemies().filter(func(e): return e.def_id == "mudwater_cutthroat").size()
-	for i in 20: Game.relations._spawn_hunters(c)
+	for i in 20: Game.relations.spawn_hunters(c)
 	check(Game.room_rt.living_enemies().filter(func(e): return e.def_id == "mudwater_cutthroat").size() == n0, "then not again for a while")
 	for e in Game.room_rt.living_enemies():
 		if e.def_id == "mudwater_cutthroat": Game.enemies.release(e)
@@ -6817,12 +6817,12 @@ func grudges_suite() -> void:
 		GameEvents.flush()
 	check(tan != null and Game.relations.grudge(c, "mudwater") == 0, "winning it settles the grudge")
 	Game.relations.apply_grudge(c.id, "gorge", 25, "test")
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "old_scores"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "old_scores"})
 	check(Game.relations.grudge(c, "gorge") == 0, "Old Scores settles the Gorge Bandits")
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "gus_cargo"})
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "hidden_cargo"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "gus_cargo"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "hidden_cargo"})
 	check(Game.relations.grudge(c, "smugglers") == 40, "Gu's ring: +20 for the cargo, +20 for the hidden cargo")
-	Game.relations._on_quest_completed({"actor": c.id, "quest": "gus_warehouse"})
+	Game.relations.on_quest_completed({"actor": c.id, "quest": "gus_warehouse"})
 	Game.relations.apply_grudge(c.id, "smugglers", 30, "test")
 	check(Game.relations.grudge(c, "smugglers") == 0, "the warehouse ends it for good")
 	# Bounties: the board's named targets wait in their rooms while the bounty is yours.
@@ -6837,18 +6837,18 @@ func grudges_suite() -> void:
 	check(pang != null and pang.elite, "One-Eye Pang is on the Caravan Road")
 	var t1 := int(Game.account.currencies.get("silver_tael", 0))
 	var f1 := rel.fame
-	Game.relations._on_defeated({"victim_kind": "enemy", "def": "one_eye_pang", "killer": c.id})
+	Game.relations.on_defeated({"victim_kind": "enemy", "def": "one_eye_pang", "killer": c.id})
 	check(int(Game.account.currencies.silver_tael) == t1 + 150 and rel.fame == f1 + 10 and rel.bounties.is_empty(), "the bounty pays 150 taels and +10 Fame")
 	check(Game.relations.grudge(c, "mudwater") == 15, "and Pang was a name the Mudwater remember")
 	check(str(Game.submit({"type": "take_bounty", "id": "one_eye_pang"}).get("reason", "")) == "today", "each bounty once a day")
 	# A named foe yields: spare him (merit; he remembers) or finish him (sin; his brother hunts you).
 	var st: ActorState = Game.actor_state(c.id)
 	var lt: EnemyState = Game.enemies.spawn_at("mudwater_lieutenant", st.plane + Vector2(80, 0), 19)
-	Game.combat._damage_enemy(lt, lt.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(lt, lt.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
 	GameEvents.flush()
 	check(lt.alive and lt.ai.get("surrendered", false), "Lieutenant Kuai yields instead of dying")
 	var hp_y := lt.pools.hp
-	Game.combat._damage_enemy(lt, 500.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(lt, 500.0, c.id, "physical", "none", false, {})
 	check(near(lt.pools.hp, hp_y), "a foe who has yielded is not struck")
 	var m0 := rel.merit
 	check(Game.submit({"type": "judge_foe", "enemy": lt.uid, "spare": true}).get("ok", false) and not lt.alive and rel.merit == m0 + 10, "sparing him: +10 merit")
@@ -6858,7 +6858,7 @@ func grudges_suite() -> void:
 	GameEvents.flush()
 	check(bool(rel.debts.lieutenant_spared.paid) and c.quests.has_flag("warned_of_ambush") and Game.account.mail.size() > mail0, "before Gu's warehouse, his warning arrives")
 	var lt2: EnemyState = Game.enemies.spawn_at("mudwater_lieutenant", st.plane + Vector2(80, 0), 19)
-	Game.combat._damage_enemy(lt2, lt2.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
+	Game.combat.damage_enemy(lt2, lt2.pools.max_hp * 5.0, c.id, "physical", "none", false, {})
 	var s0 := rel.sin
 	check(Game.submit({"type": "judge_foe", "enemy": lt2.uid, "spare": false}).get("ok", false) and not lt2.alive and rel.sin == s0 + 15, "killing a foe who yielded: +15 sin")
 	rel.debts.lieutenant_killed.due_utc = 0.0
@@ -6871,7 +6871,7 @@ func grudges_suite() -> void:
 	for e in Game.room_rt.living_enemies():
 		if e.def_id == "kuai_shan": ks = true
 	check(ks, "Kuai Shan waits on the Caravan Road")
-	Game.relations._on_defeated({"victim_kind": "enemy", "def": "kuai_shan", "killer": c.id})
+	Game.relations.on_defeated({"victim_kind": "enemy", "def": "kuai_shan", "killer": c.id})
 	check(rel.hunters.is_empty(), "until he falls")
 	# Little Dou's rescue is repaid in chapter 6 with a heaven herb.
 	Game.apply_effects(c.id, [{"kind": "record_debt", "id": "dou_rescue"}], "test")
@@ -6882,7 +6882,7 @@ func grudges_suite() -> void:
 	check(Game.account.mail.size() == mails + 1 and str(Game.account.mail[0].attachments[0].item) == "cloudtop_orchid", "Dou's letter brings a Cloudtop Orchid")
 	# The night peddler: +5 sin a purchase.
 	var s1 := rel.sin
-	Game.relations._on_deed_event({"actor": c.id, "shop": "night_peddler", "item": "manual_page", "count": 2}, "item_bought")
+	Game.relations.on_deed_event({"actor": c.id, "shop": "night_peddler", "item": "manual_page", "count": 2}, "item_bought")
 	check(rel.sin == s1 + 10, "two things from the night peddler: +10 sin")
 	check(not RequirementRules.passes(ContentDB.entry("shops", "night_peddler").requires, {"char": c}) or Clock.time_of_day() == "night", "his mat is out only at night")
 	for e in Game.room_rt.living_enemies():
@@ -6940,11 +6940,11 @@ func calendar_suite() -> void:
 	Clock.override_utc = float(s0.end) + 3600.0
 	var spec := {"enemy": "drowned_abbot", "calendar": "shrine_reopening"}
 	c.collection_first_kills.erase("drowned_abbot")
-	check(Game.enemies._spawn_allowed(spec), "the first defeat is never behind the cycle")
+	check(Game.enemies.spawn_allowed(spec), "the first defeat is never behind the cycle")
 	c.collection_first_kills["drowned_abbot"] = true
-	check(not Game.enemies._spawn_allowed(spec), "a repeat waits for the shrine to surface")
+	check(not Game.enemies.spawn_allowed(spec), "a repeat waits for the shrine to surface")
 	Clock.override_utc = float(s0.start) + 3600.0
-	check(Game.enemies._spawn_allowed(spec), "and wakes while it has")
+	check(Game.enemies.spawn_allowed(spec), "and wakes while it has")
 	# The Waterfall Cave's inner cache: once per opening.
 	Clock.override_utc = float(f0.start) + 3600.0
 	var cache := {}
@@ -6969,14 +6969,14 @@ func calendar_suite() -> void:
 	for sp in Game.room_rt.def.get("spawns", []):
 		if not sp.get("boss", false) and not sp.has("requires"): room_top = maxi(room_top, int((sp.get("level", [0]) as Array).back()))
 	check(top == room_top + 3, "its beasts come three levels stronger (%d over %d)" % [top, room_top])
-	Game.world._end_event(c, Game.room_rt, false)
+	Game.world.end_event(c, Game.room_rt, false)
 	Clock.override_utc = float(r0.end) + 600.0
 	check(not Game.world.object_visible(c, tear), "the tear closes with the hour")
 	# Seasons from the account's first week: spring first.
 	HerbRules.origin_week = Clock.reset_week(origin)
 	check(HerbRules.season(origin + 3600.0) == "spring" and HerbRules.season(origin + 7 * 86400.0 + 3600.0) != "spring", "spring comes first, from the account's first week")
 	HerbRules.origin_week = 0
-	if Game.room_rt.event.get("active", false): Game.world._end_event(c, Game.room_rt, false)
+	if Game.room_rt.event.get("active", false): Game.world.end_event(c, Game.room_rt, false)
 	Clock.override_utc = over_was
 	Game.account.created_utc = created_was
 	Game.account.rng_seed = seed_was
@@ -7027,7 +7027,7 @@ func world_events_suite() -> void:
 	var won: Dictionary = Game.submit({"type": "auction_bid", "house": "valley", "lot": str(lot.id), "amount": int(lot.cap) + 5})
 	check(won.get("top", false), "a bid above the house's limit holds the lot")
 	Clock.override_utc = float(ad.end) + 60.0
-	Game.economy._auction_close("valley")
+	Game.economy.auction_close("valley")
 	check(c.crafting.recipes.has(str(lot.learn)) and Game.account.mail.size() > mail0, "when the hammer falls the recipe is yours")
 	check(str(Game.submit({"type": "auction_bid", "house": "valley", "lot": str(vlots[0].id), "amount": 999}).get("reason", "")) == "closed", "after the day the stall is gone")
 	# A Spirit Fruit birth: two rivals and a guardian; beat all three and the fruit is yours, once.
@@ -7055,18 +7055,18 @@ func world_events_suite() -> void:
 	Game.world.load_room(c, "ja_herb_terraces", "")
 	GameEvents.flush()
 	c.cooldowns.erase("gtrial")
-	Game.calendar._on_gathered({"actor": c.id, "item": "mist_lotus", "count": 30})
+	Game.calendar.on_gathered({"actor": c.id, "item": "mist_lotus", "count": 30})
 	check(int(c.cooldowns.gtrial.pts) == 30 and Game.calendar.trial_rank(c) == 1, "thirty herbs lead the valley's gatherers")
 	check(Game.calendar.trial_rivals(int(gtr.k)) == Game.calendar.trial_rivals(int(gtr.k)), "the rivals' scores are fixed for the trial")
 	c.crafting.recipes.erase("foundation_guard_pill")
-	Game.calendar._pay_trial(c)
+	Game.calendar.pay_trial(c)
 	check(not c.crafting.recipes.has("foundation_guard_pill"), "nothing is paid while the trial runs")
 	Clock.override_utc = float(gtr.end) + 60.0
-	Game.calendar._pay_trial(c)
+	Game.calendar.pay_trial(c)
 	GameEvents.flush()
 	check(c.crafting.recipes.has("foundation_guard_pill") and c.inventory.count("foundation_guard_pill") == 3, "first place: the Foundation Guard Pill recipe and three pills")
 	var n3: int = c.inventory.count("foundation_guard_pill")
-	Game.calendar._pay_trial(c)
+	Game.calendar.pay_trial(c)
 	check(c.inventory.count("foundation_guard_pill") == n3, "paid once")
 	# Weather: a storm feeds Thunder; rain widens the fishing window; clear skies take it all away.
 	Game.combat.apply_weather(c.id, "storm")
@@ -7105,9 +7105,9 @@ func fortune_suite() -> void:
 	c.relations.fortune = {}
 	check(near(Game.relations.fortune_meter(c), 0.0), "a new character's Fortune meter starts empty")
 	check(Game.relations.fortune_check(c, "room_entered").is_empty(), "no encounter while it is empty")
-	Game.relations._fill_fortune(c, 3.0 * 3600.0 - 60.0)
+	Game.relations.fill_fortune(c, 3.0 * 3600.0 - 60.0)
 	check(Game.relations.fortune_meter(c) < 1.0, "a minute short of three hours of play, not yet")
-	Game.relations._fill_fortune(c, 120.0)
+	Game.relations.fill_fortune(c, 120.0)
 	check(near(Game.relations.fortune_meter(c), 1.0), "full after three hours of play, and no fuller")
 	var fired := 0
 	for i in 500:
@@ -7152,14 +7152,14 @@ func fortune_suite() -> void:
 	check(near(float(c.cooldowns.get("grain_blessing", 0.0)), 0.25), "the wine blesses the next batch (+25% Grain)")
 	if Unlocks.is_unlocked(c.id, "perfect_timing"):
 		Game.crafting.apply_grain_blessing(c.id, 1.0)
-		check(Game.crafting._rare_pill_quality(c, [1.0, 1.0, 1.0], _seeded(3)) in ["pill_grain", "pill_halo", "pill_soul"], "blessed, a Perfect run comes out Grain or better")
+		check(Game.crafting.rare_pill_quality(c, [1.0, 1.0, 1.0], _seeded(3)) in ["pill_grain", "pill_halo", "pill_soul"], "blessed, a Perfect run comes out Grain or better")
 	# Heavenly phenomena: a major breakthrough gathers clouds, a tribulation lightning; minor steps pass quietly.
 	var seen: Array = []
 	var on_ph := func(p: Dictionary): seen.append(str(p.kind))
 	GameEvents.subscribe("heavenly_phenomenon", on_ph, 200)
-	Game.calendar._on_breakthrough({"actor": c.id, "to": "qi_kindling_2", "major": false})
-	Game.calendar._on_breakthrough({"actor": c.id, "to": "qi_unfurling_1", "major": true})
-	Game.calendar._on_tribulation({"actor": c.id, "to": "cloud_stride_1"})
+	Game.calendar.on_breakthrough({"actor": c.id, "to": "qi_kindling_2", "major": false})
+	Game.calendar.on_breakthrough({"actor": c.id, "to": "qi_unfurling_1", "major": true})
+	Game.calendar.on_tribulation({"actor": c.id, "to": "cloud_stride_1"})
 	GameEvents.flush()
 	check(seen == ["cloud", "lightning"], "clouds for a major breakthrough, lightning for a tribulation, nothing for a minor step %s" % str(seen))
 	Game.world.load_room(c, "sf_market", "")
@@ -7167,11 +7167,11 @@ func fortune_suite() -> void:
 	Game.relations.challenges.erase(c.id)
 	var offered := false
 	for i in 30:
-		Game.relations._on_phenomenon({"actor": c.id, "kind": "cloud", "people": 3})
+		Game.relations.on_phenomenon({"actor": c.id, "kind": "cloud", "people": 3})
 		if str(Game.relations.challenge_of(c).get("enemy", "")) == "jealous_senior": offered = true
 		Game.relations.challenges.erase(c.id)
 	check(offered, "where people saw it, a jealous senior may step out")
-	Game.relations._on_phenomenon({"actor": c.id, "kind": "cloud", "people": 0})
+	Game.relations.on_phenomenon({"actor": c.id, "kind": "cloud", "people": 0})
 	check(Game.relations.challenge_of(c).is_empty(), "with nobody there to see, nobody is jealous")
 	GameEvents.unsubscribe_object(self)
 	# Lifespan: display only. Each great realm's span, a year every four weeks, longevity treasures.
@@ -7232,7 +7232,7 @@ func tower_activity_ranking_suite() -> void:
 	c.tower["cleared"] = 1
 	Game.world.climb_tower(c, 2)
 	GameEvents.flush()
-	Game.world._end_event(c, Game.room_rt, true)
+	Game.world.end_event(c, Game.room_rt, true)
 	GameEvents.flush()
 	check(Game.world.tower_cleared(c) == 2, "floor 2 (survive): holding out clears it")
 	# The sweep: every cleared floor once a day, straight to the bag.
@@ -7280,7 +7280,7 @@ func tower_activity_ranking_suite() -> void:
 		if not other.is_empty(): check(str(Game.calendar.challenge_rank(c, str(other[0].id)).get("reason", "")) == "not_above", "only the one directly above can be challenged")
 		c.cooldowns["rank_duel"] = str(above.id)
 		var f0: int = c.relations.fame
-		Game.calendar._on_rank_spar({"opponent": str(ContentDB.entry("rankings", str(above.id)).enemy), "winner": "player"})
+		Game.calendar.on_rank_spar({"opponent": str(ContentDB.entry("rankings", str(above.id)).enemy), "winner": "player"})
 		GameEvents.flush()
 		var t2: Array = Game.calendar.ranking(c)
 		var mine := -1
@@ -7329,14 +7329,14 @@ func mobile_conventions_suite() -> void:
 	c.pools.hp = c.pools.max_hp
 	check(Game.submit({"type": "set_auto_hunt", "on": true}).get("ok", false) and Game.world.auto_hunting(c.id), "auto-hunt turns on in the marsh")
 	Game.world.start_room_event(c, {"id": "test_event", "duration": 30.0})
-	Game.world._tick_auto_hunt(c, 1.0)
+	Game.world.tick_auto_hunt(c, 1.0)
 	GameEvents.flush()
 	check(not Game.world.auto_hunting(c.id), "a room event turns it off")
-	Game.world._end_event(c, Game.room_rt, true)
+	Game.world.end_event(c, Game.room_rt, true)
 	GameEvents.flush()
 	check(Game.submit({"type": "set_auto_hunt", "on": true}).get("ok", false), "and it can go on again after")
 	c.pools.hp = c.pools.max_hp * 0.1
-	Game.world._tick_auto_hunt(c, 1.0)
+	Game.world.tick_auto_hunt(c, 1.0)
 	check(not Game.world.auto_hunting(c.id), "low health turns it off")
 	c.pools.hp = c.pools.max_hp
 	# Auto-path: the fewest rooms through open portals, the portal to take here, arriving, and stopping at danger.
@@ -7597,18 +7597,18 @@ func territory_suite() -> void:
 	var days := (due - t0) / 86400.0
 	check(days >= 2.0 and days <= 4.0, "the Ironpine Gate come back within two to four days (%.1f)" % days)
 	Clock.override_utc = due + 60.0
-	Game.sect._tick_mines(Clock.now_utc())
+	Game.sect.tick_mines(Clock.now_utc())
 	GameEvents.flush()
 	check(bool(st.contested) and seen.contested == 1 and is_equal_approx(float(st.until), due + 12.0 * 3600.0), "a contest opens with twelve hours to answer it")
 	check(Game.submit({"type": "defend_mine", "mine": "lower_pit_seam"}).get("ok", false) and str(Game.room_rt.event.get("id", "")) == "mine_defence", "holding the mine starts its fight")
 	GameEvents.flush()
-	Game.world._end_event(c, Game.room_rt, true)
+	Game.world.end_event(c, Game.room_rt, true)
 	GameEvents.flush()
 	check(not bool(st.contested) and seen.defended == ["you"] and float(st.contest) > Clock.now_utc() + 2.0 * 86400.0 - 1.0, "held: the next visit is days away")
 	# Away while they come: the guards decide it when the window closes; a lost mine takes its carts with it.
 	cfg.contest.base = -5.0
 	Clock.override_utc = float(st.contest) + 13.0 * 3600.0
-	Game.sect._tick_mines(Clock.now_utc())
+	Game.sect.tick_mines(Clock.now_utc())
 	GameEvents.flush()
 	check(not Game.sect.holds("lower_pit_seam") and seen.lost.size() == 1 and int(seen.lost[0]) == 24, "the guards fall: the mine and its 24 stones are lost")
 	check(Game.sect.guarding().is_empty(), "the guards come home")
@@ -7900,30 +7900,30 @@ func furnace_game_suite() -> void:
 	while str(Game.crafting.refine_session(c).get("stage", "")) == "extraction" and frames < 3000:
 		var rs: Dictionary = Game.crafting.refine_session(c)
 		var h: Dictionary = rs.herbs[int(rs.at)]
-		page.fanning = float(page.play.get("heat", 0.3)) < page._band_mid(h, float(page.play.get("t", 0.0)) + 0.1)
+		page.fanning = float(page.play.get("heat", 0.3)) < page.band_mid(h, float(page.play.get("t", 0.0)) + 0.1)
 		for j in (h.specks as Array).size():
 			if float(page.play.get("t", -1.0)) > float(h.specks[j].t) + 0.2: page.on_action("speck", j)
-		page._tick_furnace(1.0 / 60.0)
+		page.tick_furnace(1.0 / 60.0)
 		frames += 1
 	var rs2: Dictionary = Game.crafting.refine_session(c)
 	check(str(rs2.get("stage", "")) == "fusion" and float(rs2.extraction[0]) > 0.8 and float(rs2.extraction[1]) > 0.8,
 		"a steady hand on the fan holds the heat in the band (%s)" % str(rs2.get("extraction", [])))
-	page._tick_furnace(1.0 / 60.0)
+	page.tick_furnace(1.0 / 60.0)
 	for i in rs2.order: page.on_action("orb", int(i))
 	var kf: Dictionary = Game.crafting.furnace_game().fusion
 	frames = 0
 	while str(Game.crafting.refine_session(c).get("stage", "")) == "fusion" and frames < 1000:
 		var at: int = (page.play.get("offs", []) as Array).size()
-		if at < rs2.marks.size() and float(page.play.get("t", -1.0)) / float(kf.seconds) >= float(rs2.marks[at]): page._hot("turn")
-		page._tick_furnace(1.0 / 60.0)
+		if at < rs2.marks.size() and float(page.play.get("t", -1.0)) / float(kf.seconds) >= float(rs2.marks[at]): page.press_hot("turn")
+		page.tick_furnace(1.0 / 60.0)
 		frames += 1
 	var rs3: Dictionary = Game.crafting.refine_session(c)
 	check(str(rs3.get("stage", "")) == "condensation" and float(rs3.fusion) > 0.85, "merged in order, the array turned on its marks (%.2f)" % float(rs3.get("fusion", 0.0)))
 	var kc: Dictionary = Game.crafting.furnace_game().condensation
 	frames = 0
 	while not Game.crafting.refine_session(c).is_empty() and frames < 1000:
-		if float(page.play.get("t", -1.0)) >= float(kc.seconds): page._hot("condense")
-		else: page._tick_furnace(1.0 / 60.0)
+		if float(page.play.get("t", -1.0)) >= float(kc.seconds): page.press_hot("condense")
+		else: page.tick_furnace(1.0 / 60.0)
 		frames += 1
 	check(Game.crafting.refine_session(c).is_empty() and c.inventory.count(r) >= 1 and page.screen == "ingredients",
 		"condensed on the ring: the pill is made and the page is back at Ingredients")
@@ -7977,11 +7977,11 @@ func expanse_herbs_suite() -> void:
 	c.cooldowns.erase("gtrial")
 	Game.world.load_room(c, "ja_herb_terraces", "")
 	GameEvents.flush()
-	Game.calendar._on_gathered({"actor": c.id, "item": "willow_moss", "count": 5})
+	Game.calendar.on_gathered({"actor": c.id, "item": "willow_moss", "count": 5})
 	check(not c.cooldowns.has("gtrial"), "a Cloud disciple's herbs from the Jade terraces do not count")
 	Game.world.load_room(c, "cm_herb_terraces", "")
 	GameEvents.flush()
-	Game.calendar._on_gathered({"actor": c.id, "item": "willow_moss", "count": 30})
+	Game.calendar.on_gathered({"actor": c.id, "item": "willow_moss", "count": 30})
 	check(int(c.cooldowns.get("gtrial", {}).get("pts", 0)) == 30 and str(c.cooldowns.gtrial.room) == "cm_herb_terraces" and Game.calendar.trial_rank(c) == 1,
 		"on the Cloud terraces they do: thirty herbs lead the Jade Sect's gatherers")
 	# The Verdant Dew Vial: past a thousand years only in an Azure Expanse bed.
@@ -8078,16 +8078,16 @@ func rooftop_routes_suite() -> void:
 	var t0 := Game.economy.balance("silver_tael")
 	var go := Game.submit({"type": "interact", "object": "thief_sf"})
 	check(go.get("ok", false) and Game.world.chases.has(c.id), "speak to him and he bolts")
-	Game.world._tick_chase(c, Game.room_rt, st)
+	Game.world.tick_chase(c, Game.room_rt, st)
 	check(Game.world.chases.has(c.id), "standing beside him as he goes does not catch him")
 	Game.sim_time += 3.0
 	var at3: Dictionary = Game.world.chase_view(c)
 	st.plane = Vector2(float(at3.x), float(at3.y))
 	st.altitude = 0.0
-	Game.world._tick_chase(c, Game.room_rt, st)
+	Game.world.tick_chase(c, Game.room_rt, st)
 	check(Game.world.chases.has(c.id) or float(at3.alt) <= 40.0, "from the street below you cannot lay a hand on him (he is at %d)" % int(at3.alt))
 	st.altitude = float(at3.alt)
-	Game.world._tick_chase(c, Game.room_rt, st)
+	Game.world.tick_chase(c, Game.room_rt, st)
 	GameEvents.flush()
 	check(not Game.world.chases.has(c.id) and Game.economy.balance("silver_tael") == t0 + 150 and Game.world.chase_done_today(c, "thief_sf")
 		and not Game.world.object_visible(c, th2), "on his roof at his height: caught, 150 taels, and he is gone for the day")
@@ -8101,7 +8101,7 @@ func rooftop_routes_suite() -> void:
 	Game.submit({"type": "interact", "object": "thief_sf"})
 	Game.sim_time += WorldAuthority.chase_length(th2.chase.route, float(th2.chase.speed)) + 1.0
 	st.plane = Vector2(100, 900)
-	Game.world._tick_chase(c, Game.room_rt, st)
+	Game.world.tick_chase(c, Game.room_rt, st)
 	check(not Game.world.chases.has(c.id) and Game.economy.balance("silver_tael") == t1 and Game.world.chase_done_today(c, "thief_sf"),
 		"too slow: he is over the far wall, nothing paid")
 	# The Cloud Steps: a timed climb; the week's board, medals once each, and the top three paid once a week.
@@ -8143,7 +8143,7 @@ func rooftop_routes_suite() -> void:
 	st.altitude = 300.0
 	var got: Array = []
 	GameEvents.subscribe("route_finished", func(pp): got.append(pp), 200)
-	Game.world._tick_run(c, Game.room_rt, st)
+	Game.world.tick_run(c, Game.room_rt, st)
 	GameEvents.flush()
 	check(begun.get("ok", false) and got.size() == 1 and near(float(got[0].seconds), 11.5, 0.11) and got[0].finished, "at the bell: the run is timed (%s)" % str(got))
 	st.plane = Vector2(260, 830)
@@ -8151,7 +8151,7 @@ func rooftop_routes_suite() -> void:
 	Game.submit({"type": "interact", "object": "cloud_steps_stone"})
 	Game.sim_time += float(rt.limit_s) + 1.0
 	got.clear()
-	Game.world._tick_run(c, Game.room_rt, st)
+	Game.world.tick_run(c, Game.room_rt, st)
 	GameEvents.flush()
 	check(got.size() == 1 and not got[0].finished and not Game.world.runs.has(c.id), "the incense burns down: the run does not count")
 	c.cooldowns = cd_was
@@ -8272,7 +8272,7 @@ func hollow_tide_suite() -> void:
 	c.pools.hollowing = 60.0
 	var comp_ok := Unlocks.is_unlocked(c.id, "composure")
 	c.pools.composure = 50.0
-	Game.combat._tick_pools(c, 1.0)
+	Game.combat.tick_pools(c, 1.0)
 	check(not comp_ok or c.pools.composure < 50.0, "and Composure drains instead of recovering (%.1f)" % c.pools.composure)
 	# At full: the seizure.
 	var st: ActorState = Game.actor_state(c.id)
@@ -8296,7 +8296,7 @@ func hollow_tide_suite() -> void:
 	Game.world.apply_teleport(c.id, "lh_harbor_market")
 	c.pools.hollowing = 40.0
 	c.cultivator.meditating = false
-	Game.combat._tick_pools(c, 60.0)
+	Game.combat.tick_pools(c, 60.0)
 	check(near(c.pools.hollowing, 36.0, 0.2), "under a lit lantern a minute takes 4 points, not 1 (%.1f)" % c.pools.hollowing)
 	GameEvents.event.disconnect(grab)
 	Game.room_rt.enemies.clear()
@@ -8523,7 +8523,7 @@ func station_suite() -> void:
 	# The Apprentice Bench.
 	check(Game.submit({"type": "bench_assign", "slot": 0, "item": "hemp_cord"}).get("ok", false), "set an apprentice to hemp cord")
 	Game.posts.bench(c)["updated"] = Clock.now_utc() - 3600.0
-	Game.posts._bench_settle(c)
+	Game.posts.bench_settle(c)
 	var stock := float(Game.posts.bench(c).stock.get("hemp_cord", 0.0))
 	check(stock > 0.0 and stock <= Game.posts.bench_capacity(c) + 0.01, "an hour at the bench: %.0f hemp cord (capacity %.0f)" % [stock, Game.posts.bench_capacity(c)])
 	var col := Game.submit({"type": "bench_collect"})
@@ -8920,7 +8920,7 @@ func sphere_suite() -> void:
 	var r3 := Game.submit({"type": "set_path", "path": "confucian", "on": true})
 	check(r3.get("ok", false) and ProgressionAuthority.walks(c, "confucian") and c.relations.alignment == 35, "walk it: +5 alignment (%s)" % str(r3))
 	var hollow: EnemyState = Game.enemies.spawn_at("hollowed_wyrmling", st.plane + Vector2(900, 0), 88)
-	check(CombatAuthority._unrighteous(hollow) and not CombatAuthority._unrighteous(near_e), "Righteous Qi knows the Hollow from a moth")
+	check(CombatAuthority.unrighteous(hollow) and not CombatAuthority.unrighteous(near_e), "Righteous Qi knows the Hollow from a moth")
 	var tech: Dictionary = ContentDB.entry("techniques", "upright_glyph")
 	check(tech.get("confucian_path", false) and near(float(tech.get("insight_scale", 0.0)), 0.5), "the glyphs follow Insight and belong to the path")
 	GameEvents.event.disconnect(listen)
@@ -8967,9 +8967,9 @@ func ash_tide_suite() -> void:
 	var held = _wield(c, "ink_warden_brush")
 	check(str(StatRules.family(c).id) == "brush" and str(StatRules.family(c).get("damage_type", "")) == "qi", "the Ink-Warden's Brush puts the brush in hand (Qi strikes)")
 	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), lv)
-	Game.combat._weapon_after_hit(c, foe, {"talisman": {"id": "burn", "power": 0.006, "remaining": 4.0}})
+	Game.combat.weapon_after_hit(c, foe, {"talisman": {"id": "burn", "power": 0.006, "remaining": 4.0}})
 	check(foe.pools.has_status("burn"), "a Fire talisman sets the foe burning")
-	Game.combat._weapon_after_hit(c, foe, {"talisman": {"id": "slow", "power": 0.3, "remaining": 4.0}})
+	Game.combat.weapon_after_hit(c, foe, {"talisman": {"id": "slow", "power": 0.3, "remaining": 4.0}})
 	check(not foe.pools.has_status("slow"), "one talisman on a foe at a time")
 	foe.alive = false
 	var known0: Array = c.cultivator.techniques_known.duplicate()
@@ -9686,11 +9686,11 @@ func pills_suite() -> void:
 	Unlocks.force_unlock(c.id, "perfect_timing")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 2026
-	check(Game.crafting._rare_pill_quality(c, [0.95, 0.6, 0.95], rng) == "perfect", "one imperfect strike: no rare quality")
-	check(Game.crafting._rare_pill_quality(c, [1.0, 1.0], rng) == "perfect", "an unfinished run: no rare quality")
+	check(Game.crafting.rare_pill_quality(c, [0.95, 0.6, 0.95], rng) == "perfect", "one imperfect strike: no rare quality")
+	check(Game.crafting.rare_pill_quality(c, [1.0, 1.0], rng) == "perfect", "an unfinished run: no rare quality")
 	var got := {}
 	for i in 4000:
-		var q := Game.crafting._rare_pill_quality(c, [1.0, 0.9, 0.95], rng)
+		var q := Game.crafting.rare_pill_quality(c, [1.0, 0.9, 0.95], rng)
 		got[q] = int(got.get(q, 0)) + 1
 	var boost: float = 1.0 + Game.crafting.furnace_bonus(c) + 0.1 * int(c.cultivator.daos.get("alchemy", {}).get("tier", 0))
 	var rare: Dictionary = ContentDB.config("grades").pill.rare
@@ -9771,7 +9771,7 @@ func treasures_suite() -> void:
 	check(c.inventory.count("evergreen_heart_fruit") == 2, "another fruit the next season")
 	check(str(Game.crafting.tend_treasure_plot(c, {"id": "elsewhere", "type": "treasure_plot"}).get("text", "")).contains("grows in"), "one tree per character")
 	# The fruit lifts you from a grave wound where you fell, at full health.
-	Game.combat._gravely_wound(c, "hp")
+	Game.combat.gravely_wound(c, "hp")
 	c.pools.hp = 0.0
 	check(Game.combat.choose_revival(c, "fruit").get("ok", false) and near(c.pools.hp, c.pools.max_hp) and c.inventory.count("evergreen_heart_fruit") == 1,
 		"an Evergreen Heart fruit revives in place at full health")
@@ -10144,7 +10144,7 @@ func g1_suite() -> void:
 	check(near(float(rg.get("factor", 0)), InventoryAuthority.pill_potency({"quality": "pill_grain"})) and int(cu.pill_resistance.accumulation.doses) == 1,
 		"a Pill Grain ignores lifetime resistance and adds no dose")
 	cu.pill_resistance.accumulation.count = 3
-	Game.progression._advance(c, "heart_tempering_4", true)
+	Game.progression.advance(c, "heart_tempering_4", true)
 	check(ProgressionRules.resistance_count(cu, "accumulation") == 1, "a major breakthrough: count 3 drops by 1, then halves (1)")
 	var old := CultivatorState.new()
 	old.restore({"pill_resistance": {"qi": 7}, "foundation": {"realm": "heart_tempering", "total": 10.0, "pill": 4.0}, "support_fails": {"x": {"a": 1, "b": 2}}})
@@ -10246,7 +10246,7 @@ func g1_suite() -> void:
 	rng.seed = 7
 	var any_rare := false
 	for i in 400:
-		if Game.crafting._rare_pill_quality(c, [1.0, 1.0, 1.0], rng, []) != "perfect": any_rare = true
+		if Game.crafting.rare_pill_quality(c, [1.0, 1.0, 1.0], rng, []) != "perfect": any_rare = true
 	check(not any_rare, "no rare quality ever comes out of charcoal")
 	# A better furnace sits in the bag until you set it; enhancement steadies its heat 1% a level.
 	Game.inventory.apply_add(c.id, "jadeiron_furnace", 1, "test")
@@ -10282,7 +10282,7 @@ func g1_suite() -> void:
 	Game.inventory.apply_add(c.id, "pebble_core", 1, "test")
 	check(not "beast_fire" in Game.crafting.fires_available(c), "a rank-1 Pebble Core is too weak for Beast Fire")
 	Game.inventory.apply_add(c.id, "serpent_core", 1, "test")
-	check("beast_fire" in Game.crafting.fires_available(c) and Game.crafting._core_to_burn(c) == "serpent_core", "a rank-2 core lights Beast Fire")
+	check("beast_fire" in Game.crafting.fires_available(c) and Game.crafting.core_to_burn(c) == "serpent_core", "a rank-2 core lights Beast Fire")
 	# Old saves: furnaces in the key-item pouch become furnace instances, the best in the slot.
 	var inv2 := InventoryState.new()
 	inv2.restore({"bag": [], "key_items": [{"id": "bronze_furnace", "count": 1}, {"id": "earth_vein_furnace", "count": 1}, {"id": "old_pickaxe", "count": 1}]})
@@ -10301,7 +10301,7 @@ func g1_suite() -> void:
 		check("earth_fire" in Game.crafting.fires_available(c) and Game.crafting.station_near(c, ["alchemy_furnace", "earth_vent"]),
 			"at the vent: Earth Fire, and the vent serves as a furnace")
 	# Pill marks: a Pill Soul carries all nine; each is +2%.
-	check(Game.crafting._roll_marks("pill_soul", rng) == 9 and Game.crafting._roll_marks("flawed", rng) == 0, "marks: Soul nine, Flawed none")
+	check(Game.crafting.roll_marks("pill_soul", rng) == 9 and Game.crafting.roll_marks("flawed", rng) == 0, "marks: Soul nine, Flawed none")
 	check(near(InventoryAuthority.pill_potency({"quality": "common", "marks": 5}), 1.1), "five marks: +10%")
 	Game.inventory.apply_add(c.id, "qi_gathering_pill", 2, "test", {"quality": "fine", "marks": 3})
 	Game.inventory.apply_add(c.id, "qi_gathering_pill", 1, "test", {"quality": "fine"})
@@ -10424,7 +10424,7 @@ func g2_suite() -> void:
 	var hp_a: float = archer.pools.hp
 	Game.combat.spawn_enemy_projectile(archer, archer.def.attacks[0])
 	events.clear()
-	for i in 12: Game.combat._tick_projectiles(0.05)
+	for i in 12: Game.combat.tick_projectiles(0.05)
 	GameEvents.flush()
 	check(events.any(func(e): return e[0] == "projectile_reflected") and near(c.pools.hp, hp_c) and archer.pools.hp < hp_a,
 		"the arrow turns back and strikes its archer (%.0f)" % (hp_a - archer.pools.hp))
@@ -10437,7 +10437,7 @@ func g2_suite() -> void:
 	hp_c = c.pools.hp
 	Game.combat.spawn_enemy_projectile(archer, archer.def.attacks[0])
 	events.clear()
-	Game.combat._tick_projectiles(0.05)
+	Game.combat.tick_projectiles(0.05)
 	GameEvents.flush()
 	check(events.any(func(e): return e[0] == "projectile_absorbed") and Game.room_rt.projectiles.is_empty() and near(c.pools.hp, hp_c),
 		"the gourd swallows the arrow before it lands")
@@ -10456,10 +10456,10 @@ func g2_suite() -> void:
 	var w_hp := w1.pools.hp
 	Game.submit({"type": "use_treasure", "slot": 0})
 	events.clear()
-	Game.combat._tick_treasures(c, 1.0)
+	Game.combat.tick_treasures(c, 1.0)
 	GameEvents.flush()
 	check(events.filter(func(e): return e[0] == "wisp_struck").size() == 1 and w1.pools.hp < w_hp, "a second in, the wisps find the only foe")
-	for i in 10: Game.combat._tick_treasures(c, 1.0)
+	for i in 10: Game.combat.tick_treasures(c, 1.0)
 	check(not Game.combat.treasure_fx.get(c.id, {}).has("wisps"), "after 10 s the banner furls")
 	# The Taming Cauldron: a worn-down beast is taken whole, as materials, with no loot roll.
 	_g2_ready(c)
@@ -10487,14 +10487,14 @@ func g2_suite() -> void:
 	check(r.get("ok", false) and Game.room_rt.projectiles.size() == 3 and c.inventory.count("iron_needles") == 4, "one bundle throws three needles")
 	check(str(Game.inventory.use_item(c, _bag_index(c, "iron_needles"), true).get("reason", "")) == "cooldown" and near(c.pools.cooldown("item:throw"), 1.2),
 		"throwables share a 1.2 s cooldown")
-	for i in 10: Game.combat._tick_projectiles(0.05)
+	for i in 10: Game.combat.tick_projectiles(0.05)
 	check(t1.pools.hp < t_hp and Game.room_rt.projectiles.is_empty(), "the needles land (%.0f)" % (t_hp - t1.pools.hp))
 	# Shots fly at chest height but still strike a creature under the line (a rat is 22 tall).
 	_g2_ready(c)
 	var rat := _g2_foe("reedtail_rat", here + Vector2(120, 0))
-	Game.combat._spawn_projectile({"team": "player", "owner": c.id, "x": here.x + 28, "y": here.y, "alt": Game.actor_state(c.id).altitude + 58.0, "dir": 1,
+	Game.combat.spawn_projectile({"team": "player", "owner": c.id, "x": here.x + 28, "y": here.y, "alt": Game.actor_state(c.id).altitude + 58.0, "dir": 1,
 		"speed": 620, "range": 480, "pierce": 0, "art": "arrow", "attack": {"damage_type": "physical", "element": "none", "mult": [1.0, 1.0], "range": [1.0, 1.0]}})
-	for i in 6: Game.combat._tick_projectiles(0.05)
+	for i in 6: Game.combat.tick_projectiles(0.05)
 	check(rat.pools.hp < rat.pools.max_hp, "an arrow at chest height strikes a rat beneath it")
 	# A thunderclap pellet bursts: the foe behind the one it hits is caught too.
 	_g2_ready(c)
@@ -10504,7 +10504,7 @@ func g2_suite() -> void:
 	var p_hp := p2.pools.hp
 	events.clear()
 	Game.inventory.use_item(c, _bag_index(c, "thunderclap_pellet"), true)
-	for i in 10: Game.combat._tick_projectiles(0.05)
+	for i in 10: Game.combat.tick_projectiles(0.05)
 	GameEvents.flush()
 	check(events.any(func(e): return e[0] == "projectile_burst") and p2.pools.hp < p_hp and p1.pools.hp < p1.pools.max_hp, "the pellet bursts and catches the foe behind")
 	# Elder Hu's Talisman: three charges of 600% Qi Attack from a Treasure button, charges only.
@@ -11046,7 +11046,7 @@ func moments_suite() -> void:
 		var q := p.duplicate(true)
 		for k in ["actor", "target"]:
 			if q.has(k): q[k] = c.id
-		mv._on_event(ev, q)
+		mv.on_event(ev, q)
 	var played := func(id: String) -> Array: return mv.logged.filter(func(e): return str(e.row) == id)
 	# 1. Every real row fires from its sample and ends on time, each layer logged within a frame of its t.
 	var real: Array = ContentDB.all("moments")
@@ -11351,7 +11351,7 @@ func moments_suite() -> void:
 	run.call(2.1)
 	check(stings.call() == intros and mv.playing == null, "his second aggro in the same visit opens nothing")
 	toad.pools.hp = toad.pools.max_hp * 0.49
-	Game.enemies._check_phases(toad)
+	Game.enemies.check_phases(toad)
 	GameEvents.flush()
 	mv.advance(0.0)
 	check(mv.playing != null and mv.playing.row.id == "boss_phase", "at 49%% his phase card cuts in (%s)" % str(mv.playing.row.id if mv.playing else ""))
@@ -11375,26 +11375,26 @@ func moments_suite() -> void:
 	var drops: Array = []
 	var grab := func(n: String, p: Dictionary): if n == "loot_dropped": drops.append(p)
 	GameEvents.event.connect(grab)
-	Game.world._on_actor_defeated({"victim": str(toad.uid), "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id,
+	Game.world.on_actor_defeated({"victim": str(toad.uid), "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id,
 		"x": toad.plane.x, "y": toad.plane.y, "level": toad.level})
 	GameEvents.flush()
 	GameEvents.event.disconnect(grab)
 	check(not drops.is_empty() and drops.all(func(p): return str(p.get("source", "")) == "boss"), "a boss's drop says so (source boss)")
 	feed.call("boss_defeated", {"room": "mh_boss_den", "enemy": "big_toad_tan", "role": "dungeon_boss", "clean": true})
 	feed.call("achievement_unlocked", {"actor": "", "id": "untouched", "name": "Untouched"})
-	for d in drops: mv._on_event("loot_dropped", d)
+	for d in drops: mv.on_event("loot_dropped", d)
 	mv.advance(0.0)
 	check(mv.playing != null and mv.playing.row.id == "boss_defeated" and mv.playing.slots.has("untouched")
 		and MomentRules.text({"key": "moment.boss.untouched", "if": "clean"}, mv.playing.p) != "", "his fall is written with the Untouched line")
 	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and not e.bounce), "his drop flies out in a fountain")
 	put.call("reduce_motion", true)
 	fresh.call()
-	for d in drops: mv._on_event("loot_dropped", d)
+	for d in drops: mv.on_event("loot_dropped", d)
 	mv.advance(0.0)
 	check(played.call("loot_fountain").any(func(e): return str(e.layer) == "fountain" and e.bounce), "with Reduce motion the drop only bounces")
 	Game.account.settings["reduce_motion"] = was.get("reduce_motion", false)
 	fresh.call()
-	mv._on_event("loot_dropped", {"room": "x", "items": [], "x": 0.0, "y": 0.0, "source": "jar"})
+	mv.on_event("loot_dropped", {"room": "x", "items": [], "x": 0.0, "y": 0.0, "source": "jar"})
 	mv.advance(0.0)
 	check(played.call("loot_fountain").is_empty(), "a jar's drop keeps today's bounce")
 	# P6d. Case 14: the rare rule.
@@ -11408,7 +11408,7 @@ func moments_suite() -> void:
 	var find := {"room": "x", "items": [{"uid": 901, "item": "mudwater_cleaver", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "enemy"}
 	fresh.call()
 	burst.call()
-	mv._on_event("loot_dropped", find)
+	mv.on_event("loot_dropped", find)
 	feed.call("dao_tier_up", {"actor": "", "dao": "sword", "tier": 3})
 	var seq: Array = []
 	for i in 720:
@@ -11417,10 +11417,10 @@ func moments_suite() -> void:
 	check(seq == ["breakthrough_major", "dao_tier", "title_earned", "rare_drop"], "the queue after a breakthrough: %s" % str(seq))
 	# Rare finds within 1.5 s share one strip.
 	fresh.call()
-	mv._on_event("loot_dropped", find)
+	mv.on_event("loot_dropped", find)
 	mv.advance(0.0)
 	run.call(0.5)
-	mv._on_event("loot_dropped", {"room": "x", "items": [{"uid": 902, "item": "jade_current_hat", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "chest"})
+	mv.on_event("loot_dropped", {"room": "x", "items": [{"uid": 902, "item": "jade_current_hat", "count": 1, "coins": 0, "quality": "common"}], "x": 0.0, "y": 0.0, "source": "chest"})
 	mv.advance(0.0)
 	var strips: Array = mv.active.filter(func(q): return q.row.id == "rare_drop" and not q.joined)
 	check(strips.size() == 1 and (strips[0].slots.rare as Array).size() == 2 and mv.queue.is_empty(), "two rare finds 0.5 s apart share one strip")
@@ -11538,14 +11538,14 @@ func boss_event_suite() -> void:
 	GameEvents.event.connect(grab)
 	var room := Game.room_rt.room_id if Game.room_rt else "lf_village"
 	Game.enemies.wounded_here = false
-	Game.enemies._on_defeated({"victim": "e1", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	Game.enemies.on_defeated({"victim": "e1", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
 	GameEvents.flush()
 	check(seen.size() == 1 and bool(seen[0].get("clean", false)), "a dungeon boss beaten with no grave wound is a clean boss_defeated")
 	Game.enemies.wounded_here = true
-	Game.enemies._on_defeated({"victim": "e2", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
+	Game.enemies.on_defeated({"victim": "e2", "victim_kind": "enemy", "def": "big_toad_tan", "role": "dungeon_boss", "killer": c.id, "room": room})
 	GameEvents.flush()
 	check(seen.size() == 2 and not bool(seen[1].get("clean", true)), "after a grave wound in the room it is not clean")
-	Game.enemies._on_defeated({"victim": "e3", "victim_kind": "enemy", "def": "mudshell_crab", "role": "normal", "killer": c.id, "room": room})
+	Game.enemies.on_defeated({"victim": "e3", "victim_kind": "enemy", "def": "mudshell_crab", "role": "normal", "killer": c.id, "room": room})
 	GameEvents.flush()
 	check(seen.size() == 2, "an ordinary foe announces no boss_defeated")
 	GameEvents.event.disconnect(grab)
@@ -11589,12 +11589,12 @@ func starter_gear_suite() -> void:
 	var table := ContentDB.entry("loot_tables", "mudshell_crab")
 	var kill := func(with_piece: bool) -> Array:
 		var drop := {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "flawed", "starter": true}] if with_piece else []}
-		Game.world._starter_drop(c, table, 1, drop)
+		Game.world.starter_drop(c, table, 1, drop)
 		return drop.equipment
 	var eq0: Array = kill.call(false)
 	check(eq0.size() == 1 and eq0[0].get("first", false) and str(eq0[0].get("family", "")) == str(cfg.first_family), "the first first-room kill drops the first weapon (%s)" % str(eq0))
 	var later := {"items": [], "coins": 0, "equipment": []}
-	Game.world._starter_drop(c, ContentDB.entry("loot_tables", "rock_beetle"), 5, later)
+	Game.world.starter_drop(c, ContentDB.entry("loot_tables", "rock_beetle"), 5, later)
 	check(later.equipment.is_empty() and int(c.starter_drops.get("kills", 0)) == 0, "a later foe's kill neither drops starter gear nor counts")
 	var at: Array = []
 	for k in range(1, 200):
@@ -11605,7 +11605,7 @@ func starter_gear_suite() -> void:
 	var old := GameCharacter.new()
 	old.restore({"id": "c9", "slot": 9})
 	var none := {"items": [], "coins": 0, "equipment": []}
-	Game.world._starter_drop(old, table, 1, none)
+	Game.world.starter_drop(old, table, 1, none)
 	check(none.equipment.is_empty() and GameCharacter.new().snapshot().has("starter_drops"), "a character saved before starter gear gets no first weapon now; the count is saved")
 
 ## P7a, P7b (item_plan §4.1): the equipment roll. Only banded bases, up to the highest banded grade's top Level; 40%
@@ -11809,11 +11809,11 @@ func set_suite() -> void:
 	c.pools.shield = 0.0
 	c.pools.cooldowns.erase("unbroken")
 	c.pools.hp = c.pools.max_hp * 0.35
-	Game.combat._damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
+	Game.combat.damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
 	check(near(c.pools.hp, c.pools.max_hp * 0.35, 0.01) and c.pools.shield > 0.0 and c.pools.cooldown("unbroken") > 59.0,
 		"Unbroken: the blow that would break 30%% lands on a shield of 10%% (hp %.2f)" % (c.pools.hp / c.pools.max_hp))
 	c.pools.shield = 0.0
-	Game.combat._damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
+	Game.combat.damage_player(c, c.pools.max_hp * 0.08, "test", "physical", {})
 	check(c.pools.hp < c.pools.max_hp * 0.3 and c.pools.shield == 0.0, "only once a minute")
 	c.pools.hp = c.pools.max_hp
 	c.pools.cooldowns.erase("unbroken")
@@ -11823,7 +11823,7 @@ func set_suite() -> void:
 	var foe: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(60, 0), 5)
 	Game.combat.sword_intent.erase(c.id)
 	var most := int(ProgressionRules.path_flag(c, "sword_intent_max", ContentDB.stat_const("sword_intent.max", 10))) + 2
-	for i in most + 3: Game.combat._feed_intent(c, foe, {"source": "basic"})
+	for i in most + 3: Game.combat.feed_intent(c, foe, {"source": "basic"})
 	check(int(Game.combat.sword_intent[c.id].stacks) == most and near(float(Game.combat.sword_intent[c.id].t), 2.0 * float(ContentDB.stat_const("sword_intent.fade_s", 3.0)), 0.001),
 		"Honed Intent: Sword Intent builds two stacks higher (%d) and holds twice as long" % most)
 	Game.combat.sword_intent.erase(c.id)
@@ -11839,7 +11839,7 @@ func set_suite() -> void:
 	var oiled := 0
 	for i in 12:
 		foe.pools.statuses.clear()
-		Game.combat._oil_strike(c, foe, Game.combat.enemy_view(foe))
+		Game.combat.oil_strike(c, foe, Game.combat.enemy_view(foe))
 		if foe.pools.has_status("poison"): oiled += 1
 	check(oiled == 12, "Venom Hand's oil takes on the hits its row names (%d of 12 at 100%%)" % oiled)
 	Game.combat.cure_status(c.id, "viper_oil")
@@ -11860,7 +11860,7 @@ func set_suite() -> void:
 	# Pet damage (a stat): the animal's strike grows with it.
 	wear.call([])
 	var pw0 := Game.pets.pet_power(c, otter)
-	var trait_pd := Game.pets._trait_sum(otter, "pet_damage")
+	var trait_pd := Game.pets.trait_sum(otter, "pet_damage")
 	c.set_meta("extra_modifiers", [{"stat": "pet_damage", "op": "flat", "value": 0.5, "source": "gear:test"}])
 	Game.combat.refresh_stats(c.id)
 	check(near(Game.pets.pet_power(c, otter), pw0 * (1.5 + trait_pd) / (1.0 + trait_pd), 0.001), "pet damage +50%% strengthens the animal's strike (%.1f -> %.1f)" % [pw0, Game.pets.pet_power(c, otter)])
@@ -11924,7 +11924,7 @@ func set_suite() -> void:
 	ally.team = "ally"
 	ally.pools.hp = ally.pools.max_hp * 0.2
 	var chm := ContentDB.entry("techniques", "clear_heart_melody")
-	Game.combat._resolve_technique(c, chm)
+	Game.combat.resolve_technique(c, chm)
 	var hot: Array = Game.combat.ally_hots.get(ally.uid, [])
 	check(not hot.is_empty() and near(float(hot.back().per_s), ally.pools.max_hp * float(chm.allies_heal_pct) * 1.5, 0.01),
 		"melody power +50%: Clear Heart Melody heals half again")
@@ -11988,7 +11988,7 @@ func codex_seals_suite() -> void:
 	acc.leaves.erase("hollowed_boarlet")
 	var kill := func(id: String, n: int) -> Array:
 		GameEvents.flush()
-		for i in n: Game.accounts._on_actor_defeated({"victim_kind": "enemy", "killer": c.id, "def": id})
+		for i in n: Game.accounts.on_actor_defeated({"victim_kind": "enemy", "killer": c.id, "def": id})
 		var names: Array = GameEvents._queue.filter(func(q): return str(q[0]) == "collection_seal_ready").map(func(q): return int(q[1].seal))
 		GameEvents.flush()
 		return names
@@ -12063,13 +12063,13 @@ func legacy_suite() -> void:
 	var bonus_before: float = Game.progression.accumulation_bonus(c)
 	acc.legacy.clear()
 	acc.highest_realm = "heart_tempering_2"
-	Game.accounts._backfill_legacy(c.id)
+	Game.accounts.backfill_legacy(c.id)
 	GameEvents.flush()
 	check(acc.legacy.has("qi_kindling") and acc.legacy.has("qi_unfurling") and acc.legacy.has("heart_tempering"),
 		"the backfill records every great realm the account reached (%s)" % str(acc.legacy.keys()))
 	check(not acc.legacy.has("bone_forging") and not acc.legacy.has("cloud_stride"), "but not Bone Forging, and nothing above the highest")
 	var n := acc.legacy.size()
-	Game.accounts._backfill_legacy(c.id)
+	Game.accounts.backfill_legacy(c.id)
 	check(acc.legacy.size() == n, "a second backfill records nothing new")
 	var bonus_three: float = Game.progression.accumulation_bonus(c)
 	acc.legacy.clear()
@@ -12077,7 +12077,7 @@ func legacy_suite() -> void:
 	# The old scrolls' names open with the realms the account has reached, and no further.
 	var codex_was: Dictionary = acc.codex.duplicate()
 	for k in acc.codex.keys(): if str(k).begins_with("old_scrolls"): acc.codex.erase(k)
-	Game.accounts._grant_old_scrolls()
+	Game.accounts.grant_old_scrolls()
 	GameEvents.flush()
 	check(acc.codex.has("old_scrolls") and acc.codex.has("old_scrolls_mortal") and acc.codex.has("old_scrolls_heart_tempering"),
 		"the old scrolls' entries open up to the account's highest realm")
@@ -12660,7 +12660,7 @@ func _early_grace(c) -> void:
 		cu.injuries.clear()
 		cu.heart_demon = 0.0
 		check(ProgressionRules.death_grace(realm), "%s is under the early grace" % realm)
-		Game.combat._gravely_wound(c, "hp")
+		Game.combat.gravely_wound(c, "hp")
 		GameEvents.flush()
 		check(near(cu.qp, cu.need() * 0.5) and cu.injuries.is_empty() and cu.heart_demon == 0.0, "a fall at %s costs no progress, no injury, no heart demon (%.3f)" % [realm, cu.qp / cu.need()])
 		check(bool(Game.combat.wounded.get(c.id, {}).get("grace", false)), "the fall at %s is marked as the grace's" % realm)
@@ -12672,7 +12672,7 @@ func _early_grace(c) -> void:
 	cu.realm_key = "bone_forging_5"
 	cu.qp = cu.need() * 0.5
 	check(not ProgressionRules.death_grace("bone_forging_5"), "the grace ends at Bone Forging 5")
-	Game.combat._gravely_wound(c, "hp")
+	Game.combat.gravely_wound(c, "hp")
 	GameEvents.flush()
 	check(near(cu.qp, cu.need() * 0.4), "from Bone Forging 5 a fall costs 10%% of the stage (%.3f)" % (cu.qp / cu.need()))
 	Game.submit({"type": "choose_revival", "where": "shrine"})
@@ -12767,13 +12767,13 @@ func _early_surprises(c, heard: Array) -> void:
 	# herd downed the QA player twice): Crab Trouble first on the Reed Shallows, The Willow Path first on its west field.
 	var crabs_done = c.quests.done.get("crab_trouble", null)
 	c.quests.done.erase("crab_trouble")
-	var early: EnemyState = Game.enemies._spawn({"spec": spec, "index": -1, "point": Vector2(1400, 880), "uid": 0, "timer": 0.0}, Vector2(1400, 880))
+	var early: EnemyState = Game.enemies.spawn({"spec": spec, "index": -1, "point": Vector2(1400, 880), "uid": 0, "timer": 0.0}, Vector2(1400, 880))
 	var herd_waits: bool = ContentDB.room("wp_west").get("spawns", []).all(func(sp): return float(sp.get("elite_chance", 0.0)) <= 0.0 or str(sp.get("elite_after", "")) == "the_willow_path")
 	check(str(spec.get("elite_after", "")) == "crab_trouble" and early != null and not early.elite and herd_waits,
 		"an early surprise waits until the room's story fight is done (%s, %s)" % [str(spec.get("elite_after", "")), str(early.elite) if early else "-"])
 	if early != null: Game.room_rt.enemies.erase(early.uid)
 	c.quests.done["crab_trouble"] = crabs_done if crabs_done != null else 1
-	var elite: EnemyState = Game.enemies._spawn({"spec": spec, "index": -1, "point": Vector2(1500, 880), "uid": 0, "timer": 0.0}, Vector2(1500, 880))
+	var elite: EnemyState = Game.enemies.spawn({"spec": spec, "index": -1, "point": Vector2(1500, 880), "uid": 0, "timer": 0.0}, Vector2(1500, 880))
 	GameEvents.flush()
 	var es: Dictionary = last.call("elite_spawned")
 	check(elite != null and elite.elite and elite.role == "elite" and bool(es.get("random", false)), "a crab comes as an elite (%s)" % str(es))
@@ -13251,7 +13251,7 @@ func _technique_preview_suite(pg, c) -> void:
 		var pose_ok := st.pose == TechniquePreview.pose_of(t, c, st.caster.outfit) and (want_pose.begins_with("combo_") or st.pose == want_pose or st.pose == "idle")
 		var n_ok := st.foes.size() == int(cfg.foes[form])
 		st.restart()
-		while st.clock < st.impact + 0.12: st._advance(1.0 / 60.0)
+		while st.clock < st.impact + 0.12: st.advance(1.0 / 60.0)
 		var anim: Array = st.fx.fx.filter(func(e): return str(e.kind) == "anim" and str(e.form) == form)
 		var hurt: bool = str(st.foes[0].sprite.action) in ["hurt", "walk"]
 		var nums: int = st.fx.fx.filter(func(e): return str(e.kind) == "number").size()
@@ -13261,7 +13261,7 @@ func _technique_preview_suite(pg, c) -> void:
 		"the preview casts each art in its pose with its form's sheet, at the pack its form asks (one for a strike, three for a flurry or a rain), the foes hurt, bound, parried or warded off (%s)" % str(seen))
 	# Another art restarts the loop; a passage casts nothing.
 	var ids: Array = seen.keys().map(func(f): return pick.call(f))
-	for i in 20: st._advance(1.0 / 60.0)
+	for i in 20: st.advance(1.0 / 60.0)
 	var clock_before: float = st.clock
 	pg.on_action("node", ids[0])
 	pg.queue_redraw()
@@ -13295,7 +13295,7 @@ func _technique_preview_suite(pg, c) -> void:
 	pg.queue_redraw()
 	await get_tree().process_frame
 	var t0 := now_us()
-	for i in 240: st._advance(1.0 / 60.0)
+	for i in 240: st.advance(1.0 / 60.0)
 	var step_ms := (now_us() - t0) / 1000.0 / 240.0
 	var t1 := now_us()
 	for i in 30: await get_tree().process_frame
@@ -13366,7 +13366,7 @@ func techniques_page_suite() -> void:
 	pg.on_action("family", T.sectors().find("jian"))
 	pg.view = pg.goal
 	await redraw.call()
-	check(pg._fam_at_view() == "jian" and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.arts_of_jian") % str(pg.tabs[pg.tab].label)),
+	check(pg.fam_at_view() == "jian" and pg.text_log.any(func(tx): return str(tx.s) == Tx.t("ui.techniques.arts_of_jian") % str(pg.tabs[pg.tab].label)),
 		"the chooser's Jian row jumps the view to the jian's arts")
 	# Learn: an open art whose passage is the one step missing takes both, and says what it spends.
 	pg.on_action("family", 0)
@@ -13582,9 +13582,9 @@ func _bonds_checks() -> void:
 	c.relations.alignment = 60
 	var rp: Page = await _open_page("relations", {})
 	rp.opened = 1.0
-	var right_down: bool = rp._tilt(c) > 0.0 and rp._beam_at(c, 1000.0).y > rp._beam_at(c, 300.0).y
+	var right_down: bool = rp.tilt(c) > 0.0 and rp.beam_at(c, 1000.0).y > rp.beam_at(c, 300.0).y
 	c.relations.alignment = -60
-	var left_down: bool = rp._tilt(c) < 0.0
+	var left_down: bool = rp.tilt(c) < 0.0
 	for ti in rp.tabs.size():
 		rp.tab = ti
 		rp.text_log.clear()
@@ -13623,7 +13623,7 @@ func _sect_checks() -> void:
 	for b in mp.BAYS.size():
 		for id in mp.BAYS[b][1]:
 			var reg: Array = tabs_at.filter(func(r): return str(r.data) == str(id))
-			in_bay = in_bay and reg.size() == 1 and (reg[0].rect as Rect2).position.x >= mp._bay_x(b) - 1.0 and (reg[0].rect as Rect2).end.x <= mp._bay_x(b) + mp.BAY_W + 1.0
+			in_bay = in_bay and reg.size() == 1 and (reg[0].rect as Rect2).position.x >= mp.bay_x(b) - 1.0 and (reg[0].rect as Rect2).end.x <= mp.bay_x(b) + mp.BAY_W + 1.0
 	var bayed: Array = []
 	for bay in mp.BAYS: bayed.append_array(bay[1])
 	check(in_bay and tabs_at.size() == entries.size() and bayed.size() == entries.size() and entries.all(func(id): return bayed.has(id))
@@ -13749,7 +13749,7 @@ func _way_checks() -> void:
 	var said: Array = cp.text_log.map(func(tx): return str(tx.get("s", "")))
 	var realms: Array = cp.great_realms()
 	var named: int = realms.filter(func(g): return said.any(func(s): return str(s).begins_with(ContentDB.text("realm_great." + str(g)).left(5)))).size()
-	var steps: Array = cp._steps(cu.realm_key)
+	var steps: Array = cp.realm_steps(cu.realm_key)
 	check(realms.size() == 19 and named == realms.size() and steps.size() == 9 and range(1, 10).all(func(i): return said.has(str(i)))
 		and cp._regions.any(func(r): return r.id == "meditate") and cp._regions.any(func(r): return r.id == "breakthrough"),
 		"P5 Cultivation: the mountain names all %d great realms (%d drawn), the stair numbers this realm's %d steps, Meditate and Break Through at the foot" % [realms.size(), named, steps.size()])

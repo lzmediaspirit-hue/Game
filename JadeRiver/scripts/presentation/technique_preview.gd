@@ -151,13 +151,13 @@ func restart() -> void:
 	if still:
 		# One frame at the impact: every piece stepped there, the blow's first number risen into view, then held.
 		var to := impact + 0.02 if not tech.is_empty() else 0.0
-		while clock < to - 0.0001: _advance(minf(1.0 / 30.0, to - clock))
-		_advance(0.0)
+		while clock < to - 0.0001: advance(minf(1.0 / 30.0, to - clock))
+		advance(0.0)
 
 ## Debug (--preview-t, the page's shots): the loop from its start stepped `at` s in and held there.
 func hold(at: float) -> void:
 	restart()
-	while clock < at - 0.0001: _advance(minf(1.0 / 60.0, at - clock))
+	while clock < at - 0.0001: advance(minf(1.0 / 60.0, at - clock))
 	set_process(false)
 
 func _loop() -> void:
@@ -225,7 +225,7 @@ func _process(delta: float) -> void:
 		if _acc < 1.0 / float(cfg.get("battery_fps", 30)): return
 		delta = _acc
 	_acc = 0.0
-	_advance(minf(delta, 0.1))
+	advance(minf(delta, 0.1))
 
 ## Once, when the clock passes `at`.
 func _beat(name: String, at: float) -> bool:
@@ -234,7 +234,7 @@ func _beat(name: String, at: float) -> bool:
 	return true
 
 ## The loop moved on by `dt`: its beats, then each piece (each drawn again only when what it shows changed).
-func _advance(dt: float) -> void:
+func advance(dt: float) -> void:
 	clock += dt
 	if not tech.is_empty():
 		if clock >= length:

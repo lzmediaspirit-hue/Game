@@ -121,8 +121,8 @@ func tick(_delta: float) -> void:
 	guilds.tick_exam()
 
 # ------------------------------------------------------------------ the facade
-## Every public method, forwarded to the part that does the work. A forwarder named with a leading underscore keeps a
-## private name that tests or tools call by (audit 45 S11 gives those public names).
+## Every public method, forwarded to the part that does the work, among them the helpers tests and tools call by name
+## (public since audit 45's S11).
 
 # Professions (crafting_professions.gd)
 func rank_of(c, craft: String) -> String: return professions.rank_of(c, craft)
@@ -148,7 +148,7 @@ func bed_speed(key: String) -> float: return garden.bed_speed(key)
 func settle_bed(c, key: String) -> Dictionary: return garden.settle_bed(c, key)
 func bed_view(c, key: String) -> Dictionary: return garden.bed_view(c, key)
 func room_beds(c, room_id: String) -> Array: return garden.room_beds(c, room_id)
-func _bed_check(c, key: String) -> String: return garden.bed_check(c, key)
+func bed_check(c, key: String) -> String: return garden.bed_check(c, key)
 func plant_seed(c, key: String, seed: String) -> Dictionary: return garden.plant_seed(c, key, seed)
 func water_bed(c, key: String) -> Dictionary: return garden.water_bed(c, key)
 func harvest_bed(c, key: String) -> Dictionary: return garden.harvest_bed(c, key)
@@ -175,7 +175,7 @@ func with_aged(c, inputs: Array, count: int) -> Dictionary: return recipes.with_
 func craft_step(c, recipe_id: String, craft_kind: String, offset: float, fire := "charcoal") -> Dictionary: return recipes.craft_step(c, recipe_id, craft_kind, offset, fire)
 func steps_for(recipe_id: String) -> int: return recipes.steps_for(recipe_id)
 func craft(c, recipe_id: String, count: int, scores: Array, craft_kind: String, fire := "charcoal", substitute: Dictionary = {}, live := false) -> Dictionary: return recipes.craft(c, recipe_id, count, scores, craft_kind, fire, substitute, live)
-func _consume(c, recipe_id: String, rows: Array, principal: String) -> Dictionary: return recipes.consume(c, recipe_id, rows, principal)
+func consume(c, recipe_id: String, rows: Array, principal: String) -> Dictionary: return recipes.consume(c, recipe_id, rows, principal)
 func quality_score(c, craft_kind: String, furnace: Dictionary, r: Dictionary, scores: Array) -> float: return recipes.quality_score(c, craft_kind, furnace, r, scores)
 func queue_auto(c, recipe_id: String, count: int) -> Dictionary: return recipes.queue_auto(c, recipe_id, count)
 func collect_auto(c) -> Dictionary: return recipes.collect_auto(c)
@@ -206,11 +206,11 @@ func furnace_of(c) -> Dictionary: return furnaces.furnace_of(c)
 func fires_available(c) -> Array: return furnaces.fires_available(c)
 func band_mult(c, fire: String) -> float: return furnaces.band_mult(c, fire)
 func rare_allowed(furnace: Dictionary, fire: String) -> Array: return furnaces.rare_allowed(furnace, fire)
-func _core_to_burn(c) -> String: return furnaces.core_to_burn(c)
-func _roll_marks(quality: String, rng: RandomNumberGenerator) -> int: return furnaces.roll_marks(quality, rng)
+func core_to_burn(c) -> String: return furnaces.core_to_burn(c)
+func roll_marks(quality: String, rng: RandomNumberGenerator) -> int: return furnaces.roll_marks(quality, rng)
 func absorb_flame(c, index: int) -> Dictionary: return furnaces.absorb_flame(c, index)
 func apply_absorb_flame(actor_id: String, id: String) -> void: furnaces.apply_absorb_flame(actor_id, id)
-func _rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator, allowed: Array = ["pill_grain", "pill_halo", "pill_soul"]) -> String: return furnaces.rare_pill_quality(c, scores, rng, allowed)
+func rare_pill_quality(c, scores: Array, rng: RandomNumberGenerator, allowed: Array = ["pill_grain", "pill_halo", "pill_soul"]) -> String: return furnaces.rare_pill_quality(c, scores, rng, allowed)
 func apply_grain_blessing(actor_id: String, value: float) -> void: furnaces.apply_grain_blessing(actor_id, value)
 func furnace_bonus(c) -> float: return furnaces.furnace_bonus(c)
 func begin_tribulation(c, recipe_id: String, count: int, quality: String, fire: String, furnace: Dictionary, prep := "") -> Dictionary: return furnaces.begin_tribulation(c, recipe_id, count, quality, fire, furnace, prep)

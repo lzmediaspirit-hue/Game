@@ -325,7 +325,7 @@ func _process(delta: float) -> void:
 	_busy = busy
 
 ## Test hook: topdown_tutorial checks the particle caps with it.
-func _count(kind: String) -> int:
+func count_of(kind: String) -> int:
 	var n := 0
 	for p in particles: if p.kind == kind: n += 1
 	return n

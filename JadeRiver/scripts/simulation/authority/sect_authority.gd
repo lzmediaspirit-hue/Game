@@ -168,7 +168,7 @@ func send_expedition(region: String, hours: int, disciples: Array) -> Dictionary
 	if disciples.is_empty() or disciples.size() > 4: return fail("bad_party")
 	var busy := guarding()
 	for d in disciples:
-		if busy.has(int(d)) or _on_expedition(int(d)) or int(d) >= sect().disciples.size(): return fail("busy")
+		if busy.has(int(d)) or is_on_expedition(int(d)) or int(d) >= sect().disciples.size(): return fail("busy")
 	sect().expeditions.append({"region": region, "hours": hours, "disciples": disciples.duplicate(), "done_utc": Clock.now_utc() + hours * 3600.0})
 	emit("expedition_sent", {"region": region})
 	return ok()
@@ -211,7 +211,7 @@ func tick(delta: float) -> void:
 	timer = 0.0
 	_refresh_candidates()
 	var now := Clock.now_utc()
-	_tick_mines(now)
+	tick_mines(now)
 	for q in sect().queue.duplicate():
 		if now >= float(q.done_utc):
 			sect().buildings[str(q.building)] = int(q.level)
@@ -321,7 +321,7 @@ func guarding() -> Dictionary:
 		for d in mines()[id].get("guards", []): out[int(d)] = str(id)
 	return out
 
-func _on_expedition(index: int) -> bool:
+func is_on_expedition(index: int) -> bool:
 	for e in sect().get("expeditions", []):
 		for d in e.disciples:
 			if int(d) == index: return true
@@ -445,7 +445,7 @@ func guard_mine(id: String, index: int) -> Dictionary:
 	else:
 		var elsewhere := str(guarding().get(index, ""))
 		if elsewhere != "": return fail("busy", {"text": Tx.t("sim.sect.mine_guard_elsewhere") % ContentDB.name_of("territory", elsewhere)})
-		if _on_expedition(index): return fail("busy", {"text": Tx.t("sim.sect.mine_guard_away")})
+		if is_on_expedition(index): return fail("busy", {"text": Tx.t("sim.sect.mine_guard_away")})
 		if guards.size() >= int(tcfg().get("contest", {}).get("max_guards", 3)): return fail("full", {"text": Tx.t("sim.sect.mine_guards_full")})
 		guards.append(index)
 	mines()[id].guards = guards
@@ -461,7 +461,7 @@ func guard_chance(id: String) -> float:
 	return clampf(p, 0.0, 0.95)
 
 ## The old holders' timers (they run offline too): a contest opens, and when its window closes the guards decide it.
-func _tick_mines(now: float) -> void:
+func tick_mines(now: float) -> void:
 	var window := float(tcfg().get("contest", {}).get("window_h", 12)) * 3600.0
 	for id in mines().keys():
 		var m: Dictionary = mines()[id]

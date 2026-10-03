@@ -97,7 +97,7 @@ func _hunt(c) -> Vector2:
 
 ## Toward a point, across surfaces when it lies on another one (the room's navigation graph); INF when there.
 func _toward(goal: Vector2, goal_surface: String, near: float) -> Vector2:
-	if Game.room_rt.topdown != null: return _toward_grid(goal, near)
+	if Game.room_rt.topdown != null: return toward_grid(goal, near)
 	var here: Vector2 = player.plane
 	if not player.state.climbing.is_empty(): return Vector2(0, climb_dir)
 	if player.surface == null: return Vector2(signf(goal.x - here.x) * 0.7, 0)   # in the air: steer
@@ -134,7 +134,7 @@ func _toward(goal: Vector2, goal_surface: String, near: float) -> Vector2:
 ## drops and a jump one level up, which it presses Jump for), round every solid prop, wall and bank with the foot box
 ## clear of them, in straight runs; the stick fully pushed, so the body sprints as the player's does. INF when there.
 var _route: TopdownRoute = null
-func _toward_grid(goal: Vector2, near: float) -> Vector2:
+func toward_grid(goal: Vector2, near: float) -> Vector2:
 	var room: TopdownRoom = Game.room_rt.topdown
 	if _route == null or _route.room != room: _route = TopdownRoute.new(room)
 	var axis := _route.steer(player.plane, player.altitude, player.surface != null, goal, near)

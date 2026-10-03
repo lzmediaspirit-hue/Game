@@ -17,9 +17,9 @@ func intents() -> Array:
 
 func subscribe() -> void:
 	GameEvents.subscribe("realm_changed", _on_realm_changed, 70)
-	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 70)
+	GameEvents.subscribe("actor_defeated", on_actor_defeated, 70)
 	GameEvents.subscribe("sect_level_changed", _on_sect_level, 70)
-	GameEvents.subscribe("system_unlocked", func(p): if str(p.get("system", "")) == "account_legacy": _backfill_legacy(str(p.get("actor", ""))); _grant_old_scrolls(), 70)
+	GameEvents.subscribe("system_unlocked", func(p): if str(p.get("system", "")) == "account_legacy": backfill_legacy(str(p.get("actor", ""))); grant_old_scrolls(), 70)
 	# S49 daily activity: what counts toward today's chests.
 	GameEvents.subscribe("quest_completed", func(p): if str(p.get("kind", "")) == "daily": apply_activity("mission"), 88)
 	GameEvents.subscribe("actor_defeated", func(p): if str(p.get("role", "")) == "dungeon_boss" and str(p.get("killer", "")).begins_with("c"): apply_activity("dungeon"), 88)
@@ -312,17 +312,17 @@ func enter_character(slot: int) -> Dictionary:
 		welcome = collect_idle(c.id)
 		c.idle_task = {}
 	# S50 Keeping Post: a character coming in from its post settles it (the Return Ledger) and pauses it while played.
-	_with_ledger(welcome, game.posts.on_entered(c))
+	with_ledger(welcome, game.posts.on_entered(c))
 	c.cultivator.meditating = false
 	if previous != "" and previous != c.id: emit("character_switched", {"from": previous, "to": c.id})
 	emit("character_entered", {"actor": c.id, "slot": slot})
 	check_resets()
-	game.quest._refresh_offers()
+	game.quest.refresh_offers()
 	GameEvents.unlock_pending = true
 	return ok({"welcome": welcome})
 
 ## A post's Return Ledger joins the welcome report (its hours stand in when nothing else was away).
-static func _with_ledger(welcome: Dictionary, ledger: Dictionary) -> void:
+static func with_ledger(welcome: Dictionary, ledger: Dictionary) -> void:
 	if ledger.is_empty(): return
 	if not welcome.has("gains"): welcome["gains"] = {}
 	welcome["post"] = ledger
@@ -500,7 +500,7 @@ func _on_realm_changed(p: Dictionary) -> void:
 	if ContentDB.realm_position(to) > ContentDB.realm_position(acc.highest_realm):
 		acc.highest_realm = to
 		emit("account_highest_realm_changed", {"realm": to})
-		_grant_old_scrolls()
+		grant_old_scrolls()
 		_check_slots()
 		var realm := str(ContentDB.realm(to).get("realm", ""))
 		if bool(p.get("major", false)) and not acc.legacy.has(realm) and Unlocks.is_unlocked(str(p.actor), "account_legacy"):
@@ -513,7 +513,7 @@ func _on_realm_changed(p: Dictionary) -> void:
 
 ## The old scrolls' names (P10): each great realm's Codex entry opens the first time the account reaches that realm, so
 ## later names stay hidden. Also run when the Account Legacy opens, which catches saves made before these entries.
-func _grant_old_scrolls() -> void:
+func grant_old_scrolls() -> void:
 	var top := ContentDB.realm_position(game.account.highest_realm)
 	if top < ContentDB.realm_position("bone_forging_1"): return
 	game.quest.apply_codex("old_scrolls")
@@ -523,7 +523,7 @@ func _grant_old_scrolls() -> void:
 
 ## Saves made before the Account Legacy unlock existed reached great realms it never recorded: record each great realm
 ## the account has reached above Bone Forging (the first recorded one), once, when the unlock arrives.
-func _backfill_legacy(actor: String) -> void:
+func backfill_legacy(actor: String) -> void:
 	var acc: AccountState = game.account
 	var top := ContentDB.realm_position(acc.highest_realm)
 	for r in ContentDB.all("realms"):
@@ -552,7 +552,7 @@ func apply_slot(slot: int) -> void:
 		game.account.slots_unlocked = mini(slot, AccountState.MAX_SLOTS)
 		emit("slot_unlocked", {"slot": slot})
 
-func _on_actor_defeated(p: Dictionary) -> void:
+func on_actor_defeated(p: Dictionary) -> void:
 	if p.get("victim_kind", "") != "enemy" or not str(p.get("killer", "")).begins_with("c"): return
 	if not Unlocks.is_unlocked(str(p.killer), "collection_book"): return
 	var def := ContentDB.entry("enemies", str(p.def))
@@ -717,7 +717,7 @@ func app_resumed() -> Dictionary:
 	if not c.seclusion.is_empty() and float(el.elapsed) > 0.0:
 		result = game.progression.claim_offline(c, float(el.elapsed))
 	# S50: a character left at its post when the game was put away worked there meanwhile.
-	_with_ledger(result, game.posts.on_entered(c))
+	with_ledger(result, game.posts.on_entered(c))
 	c.last_active_utc = Clock.now_utc()
 	check_resets()
 	emit("app_resumed", {"elapsed": el.elapsed, "welcome": float(el.elapsed) > 300.0})

@@ -191,7 +191,7 @@ func _draw_plate() -> void:
 	if focus and def.type != "pickup":
 		var c = Game.active()
 		var avail: Dictionary = Game.world.object_available(c, def) if c else {"ok": true}
-		var label := Game.world._verb(def)
+		var label := Game.world.verb(def)
 		var h := SpriteCache.prop_size(current_prop()).y if prop_id != "" else 40.0
 		draw_set_transform(Vector2(label_offset.x, 0.0))   # a crowd's plate may stand half a box aside (WorldLabels)
 		var plate := UiKit.draw_nameplate(self, label if avail.ok else str(avail.get("text", "")), "", -h - 12 + label_offset.y,
@@ -225,7 +225,7 @@ func _draw_badge() -> void:
 	if focus:
 		var who = Game.active()
 		var avail: Dictionary = Game.world.object_available(who, def) if who else {"ok": true}
-		sub = Game.world._verb(def) if avail.ok else str(avail.get("text", ""))
+		sub = Game.world.verb(def) if avail.ok else str(avail.get("text", ""))
 		if not avail.ok: col = UiKit.MIST
 	badge.draw_set_transform(Vector2(label_offset.x, 0.0))
 	var plate := UiKit.draw_nameplate(badge, name_text, sub, c.y - 36.0 + label_offset.y, col, UiKit.BRIGHT_JADE if focus else UiKit.MIST, 18 if focus else 16)

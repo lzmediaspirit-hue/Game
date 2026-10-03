@@ -120,7 +120,7 @@ func _opens_pages() -> void:
 	# The verbs: the letter box is read, the mat is sat on.
 	var lb := {"type": "letter_box"}
 	var mat := {"type": "meditation_mat"}
-	check(Game.world._verb(lb) == Tx.t("sim.world.read") and Game.world._verb(mat) == Tx.t("sim.world.sit"), "places: the letter box's verb is Read, the mat's Sit")
+	check(Game.world.verb(lb) == Tx.t("sim.world.read") and Game.world.verb(mat) == Tx.t("sim.world.sit"), "places: the letter box's verb is Read, the mat's Sit")
 
 # ------------------------------------------------------------------ decision 44: the place poses
 ## Using a place plays its pose before its page (the HUD): the storehouse's and the letter box's `open`, a garden bed's
@@ -162,7 +162,7 @@ func _poses(tree: SceneTree) -> void:
 			stub.posed.clear()
 			hud.set_blocked(false)
 			stub.posed.clear()
-			hud._after_interact(Game.world.interact(c, str(r.object)), str(r.object))
+			hud.after_interact(Game.world.interact(c, str(r.object)), str(r.object))
 			if want == "":
 				if asked != [str(r.page)]: bad.append("%s: no pose, page %s" % [r.id, str(asked)])
 				break
@@ -170,9 +170,9 @@ func _poses(tree: SceneTree) -> void:
 			if skip:
 				hud.use_context()   # the second tap
 			else:
-				hud._tick_place_pose(hud.PLACE_POSE_S * 0.5)
+				hud.tick_place_pose(hud.PLACE_POSE_S * 0.5)
 				if not asked.is_empty(): bad.append("%s: page before the pose ends" % r.id)
-				hud._tick_place_pose(hud.PLACE_POSE_S * 0.5 + 0.01)
+				hud.tick_place_pose(hud.PLACE_POSE_S * 0.5 + 0.01)
 			if asked != [str(r.page)]: bad.append("%s: page after the pose (skip %s): %s" % [r.id, skip, str(asked)])
 			if stub.posed.has("end"): bad.append("%s: rose while the page is open" % r.id)
 			hud.set_blocked(false)
@@ -204,7 +204,7 @@ func _remote_rules() -> void:
 			seed = str(it.id)
 			break
 	enter("sf_market", Vector2(20 * 32, 17 * 32))
-	var away0: String = Game.crafting._bed_check(c, key)
+	var away0: String = Game.crafting.bed_check(c, key)
 	enter("ja_herb_terraces", PlaceRules.stand_point(PlaceRules.get_place("ja_garden")))
 	var rec: Dictionary = Game.crafting.bed_record(c, key)
 	rec.herb = str(ContentDB.config("garden").get("families", {}).values()[0].get("10", ""))
@@ -212,7 +212,7 @@ func _remote_rules() -> void:
 	rec.updated = Clock.now_utc()
 	var harvest: Dictionary = Game.crafting.harvest_bed(c, key)
 	enter("sf_market", Vector2(20 * 32, 17 * 32))
-	var away1: String = Game.crafting._bed_check(c, key)
+	var away1: String = Game.crafting.bed_check(c, key)
 	check(PlaceRules.rule("herb_garden") == "earned" and away0 == Tx.t("sim.crafting.bed_elsewhere") and harvest.get("ok", false) and away1 == "" and seed != "",
 		"places: a bed is tended where it grows until the first harvest there, then from anywhere (before %s, harvest %s, after %s)" % [away0, str(harvest.get("ok", false)), away1])
 	# The Crafts queue: a batch is queued at a furnace until Qi Unfurling (and a first batch queued at one).
@@ -251,8 +251,8 @@ func _marks(tree: SceneTree) -> void:
 		c.training_sect = {"id": str(r.get("sect", "")) if str(r.get("sect", "")) != "" else "jade_sect", "rank": "outer", "contribution": 0}
 		map.args = {"place": str(r.id)}
 		map.setup()
-		var m: Dictionary = map._model(c)
-		var placed: Dictionary = map._place(c, m)
+		var m: Dictionary = map.model(c)
+		var placed: Dictionary = map.place_marks(c, m)
 		var rid := str(m.z.node_of.get(str(r.room), ""))
 		if map.view != "places" or not placed.marks.has("place:" + rid) or str(m.get("place", {}).get("id", "")) != str(r.id): missing.append(str(r.id))
 	check(missing.is_empty(), "places: the world map's Places view marks the area of every place, and opened on a place chooses it (%s)" % str(missing))

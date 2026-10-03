@@ -564,13 +564,13 @@ func music_for_room(room: Dictionary) -> String:
 	return "field"
 
 ## The track's grid (bpm, beats a bar, loop length) from the manifest.
-func _grid(id: String) -> Dictionary:
+func music_grid(id: String) -> Dictionary:
 	return SoundBank.manifest().get("music", {}).get(id, {})
 
 ## Seconds until the next beat (unit "beat") or bar line ("bar") of the lane's track, from where its player is; 0 when
 ## it has no grid or is not playing.
 func until_next(l: Lane, unit := "beat") -> float:
-	var g := _grid(l.id)
+	var g := music_grid(l.id)
 	var bpm := float(g.get("bpm", 0.0))
 	if bpm <= 0.0 or not l.player.playing: return 0.0
 	var beat := 60.0 / bpm
@@ -582,7 +582,7 @@ func until_next(l: Lane, unit := "beat") -> float:
 	return nxt - pos
 
 func beat_s(id: String) -> float:
-	var bpm := float(_grid(id).get("bpm", 0.0))
+	var bpm := float(music_grid(id).get("bpm", 0.0))
 	return 60.0 / bpm if bpm > 0.0 else 0.5
 
 ## The fight as the music hears it: is a foe near the player fighting it, and is it a boss with a theme of its own?
@@ -668,7 +668,7 @@ func _leave_fight(now := false) -> void:
 	_cancel("music")
 	var f: Dictionary = SoundBank.section("music").get("fight", {})
 	var ref: Lane = alt if alt.player.playing and alt.k > 0.0 else explore
-	var bar := float(f.get("leave_fade_bars", 1.0)) * beat_s(ref.id) * float(_grid(ref.id).get("bar_beats", 4))
+	var bar := float(f.get("leave_fade_bars", 1.0)) * beat_s(ref.id) * float(music_grid(ref.id).get("bar_beats", 4))
 	var go := func():
 		stem.fade(0.0, bar)
 		explore.trim_db = 0.0

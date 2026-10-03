@@ -112,7 +112,7 @@ func _main() -> void:
 	var fb: Array = []
 	for i in 50:
 		var t0 := Time.get_ticks_usec()
-		var b = main.hud._frame_badges()
+		var b = main.hud.frame_badges()
 		var t1 := Time.get_ticks_usec()
 		main.hud.hit_targets(b)
 		var t2 := Time.get_ticks_usec()
@@ -201,7 +201,7 @@ func measure(n := 400) -> String:
 
 func fresh(but: Array) -> void:
 	main.close_all_pages()
-	if main.screen == "world": main._unmount_world()
+	if main.screen == "world": main.unmount_world()
 	Game.boot()
 	Game.autosave_enabled = false
 	for s in Game.characters.keys(): Game.submit({"type": "delete_character", "slot": int(str(s).trim_prefix("c"))})

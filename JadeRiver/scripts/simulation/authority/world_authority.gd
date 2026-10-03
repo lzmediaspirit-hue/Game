@@ -290,8 +290,8 @@ func tick(delta: float) -> void:
 	hazards.tick_hazards(c, rt, st, delta)
 
 # ------------------------------------------------------------------ the facade
-## Every public method, forwarded to the part that does the work. The old private names that tests and ObjectView call
-## by keep their own forwarders at the end (audit 45 S11 gives those public names).
+## Every public method, forwarded to the part that does the work, among them the helpers tests and ObjectView call by
+## name (public since audit 45's S11).
 
 # Bandit ambushes (world_ambush.gd)
 func ambush_chance(c, amb: Dictionary) -> float: return ambush.ambush_chance(c, amb)
@@ -301,6 +301,7 @@ func spring_ambush(c, amb: Dictionary) -> void: ambush.spring_ambush(c, amb)
 func herb_state(o: Dictionary) -> Dictionary: return herbs.herb_state(o)
 func wake_guardian(c, o: Dictionary, window: int) -> EnemyState: return herbs.wake_guardian(c, o, window)
 func herb_guard_text(c, o: Dictionary) -> String: return herbs.herb_guard_text(c, o)
+func guardian_wakes(o: Dictionary, st: ActorState) -> bool: return herbs.guardian_wakes(o, st)
 
 # Portals, routes, teleports and Spirit Sense (world_portals.gd)
 func portal_near(c, portal: Dictionary) -> bool: return portals.portal_near(c, portal)
@@ -345,6 +346,7 @@ static func resource_node(o: Dictionary) -> bool: return WorldContext.resource_n
 static func offers_context(o: Dictionary) -> bool: return WorldContext.offers_context(o)
 static func context_rank(o: Dictionary, calls := false) -> float: return WorldContext.context_rank(o, calls)
 static func context_portal(p: Dictionary) -> bool: return WorldContext.context_portal(p)
+func verb(o: Dictionary) -> String: return context.verb(o)
 
 # Beast cores and loot (world_loot.gd)
 static func beast_rank(def: Dictionary, level: int) -> int: return WorldLoot.beast_rank(def, level)
@@ -354,6 +356,9 @@ static func zone_shard(room_id: String) -> String: return WorldLoot.zone_shard(r
 func pick_up(c, uid: int) -> Dictionary: return loot.pick_up(c, uid)
 ## A drop another authority leaves in the room (Enemies: a boss that fled). `source` names it for the loot fountain.
 func apply_loot_drop(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
+func on_actor_defeated(p: Dictionary) -> void: loot.on_actor_defeated(p)
+func starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void: loot.starter_drop(c, table, level, drop)
+static func loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, alt, spread, jitter)
 
 # Rooftop chases and timed routes (world_races.gd)
 static func chase_point(route: Array, speed: float, t: float) -> Dictionary: return WorldRaces.chase_point(route, speed, t)
@@ -366,10 +371,14 @@ func route_board(route: Dictionary, week: int) -> Array: return races.route_boar
 func route_record(c, route_id: String) -> Dictionary: return races.route_record(c, route_id)
 func route_rank(route: Dictionary, week: int, seconds: float) -> int: return races.route_rank(route, week, seconds)
 func finish_route(c, route: Dictionary, seconds: float) -> Dictionary: return races.finish_route(c, route, seconds)
+func tick_chase(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_chase(c, rt, st)
+func tick_run(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_run(c, rt, st)
 
 # Hazards (world_hazards.gd)
 func hazard_drift(actor_id: String) -> Vector2: return hazards.hazard_drift(actor_id)
 func debug_hazard_phase(phase: String, k: float) -> void: hazards.debug_hazard_phase(phase, k)
+func hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void: hazards.hazard_enter(c, rt, st, h, hs, rng, calm)
+func hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array: return hazards.hazard_spots(rt, st, h, rng)
 
 # Starsea voyages (world_starsea.gd)
 func best_vessel(c) -> String: return starsea.best_vessel(c)
@@ -380,6 +389,10 @@ func apply_voyage_arrive(actor_id: String) -> void: starsea.apply_voyage_arrive(
 func start_room_event(c, ev: Dictionary) -> void: room_events.start_room_event(c, ev)
 func apply_rift_reward(actor_id: String, loot_table: String, level: int) -> void: room_events.apply_rift_reward(actor_id, loot_table, level)
 func event_level(c, w: Dictionary) -> int: return room_events.event_level(c, w)
+func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void: room_events.start_event(c, rt, ev)
+func tick_event(c, rt: RoomRuntime, delta: float) -> void: room_events.tick_event(c, rt, delta)
+func end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void: room_events.end_event(c, rt, won, reason)
+func event_kill(p: Dictionary) -> void: room_events.event_kill(p)
 
 # Nests, the Beast Tide and the Grove (world_nests.gd)
 func nest_closes(king: String) -> float: return nests.nest_closes(king)
@@ -412,22 +425,4 @@ func guide_target(c) -> String: return idle.guide_target(c)
 static func place_name(room_id: String) -> String: return WorldIdle.place_name(room_id)
 func auto_path_target(c) -> String: return idle.auto_path_target(c)
 func auto_path_board(c, dock_id: String) -> Dictionary: return idle.auto_path_board(c, dock_id)
-
-# ------------------------------------------------------------------ old private names still called from outside
-# The tests (and ObjectView's `_verb`) call these by their names from before the split; S11 moves those calls to the
-# parts' public names and drops this block.
-func _guardian_wakes(o: Dictionary, st: ActorState) -> bool: return herbs.guardian_wakes(o, st)
-func _verb(o: Dictionary) -> String: return context.verb(o)
-func _on_actor_defeated(p: Dictionary) -> void: loot.on_actor_defeated(p)
-func _starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void: loot.starter_drop(c, table, level, drop)
-func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
-static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, alt, spread, jitter)
-func _tick_chase(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_chase(c, rt, st)
-func _tick_run(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_run(c, rt, st)
-func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void: hazards.hazard_enter(c, rt, st, h, hs, rng, calm)
-func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array: return hazards.hazard_spots(rt, st, h, rng)
-func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void: room_events.start_event(c, rt, ev)
-func _tick_event(c, rt: RoomRuntime, delta: float) -> void: room_events.tick_event(c, rt, delta)
-func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void: room_events.end_event(c, rt, won, reason)
-func _event_kill(p: Dictionary) -> void: room_events.event_kill(p)
-func _tick_auto_hunt(c, delta: float) -> void: idle.tick_auto_hunt(c, delta)
+func tick_auto_hunt(c, delta: float) -> void: idle.tick_auto_hunt(c, delta)

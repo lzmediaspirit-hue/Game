@@ -208,7 +208,7 @@ func on_action(id: String, data) -> void:
 				Audio.talk_next()
 			elif (convo.get("choices", []) as Array).is_empty() or ends_on_tap():
 				close()
-		"choose": _choose(int(data))
+		"choose": choose(int(data))
 
 ## Decision 42: a talk that itself finished or gave a quest (`quest_moved`: a talk objective, a quest done by talking)
 ## closes at its last line's tap like one with nothing to choose, when all it offers besides is a service (Trade, a page,
@@ -218,7 +218,7 @@ func ends_on_tap() -> bool:
 	return (convo.get("choices", []) as Array).all(func(ch): return not (ch.has("accept") or ch.has("hand_in") or ch.has("effects") or ch.has("next")
 		or ch.has("intent")))
 
-func _choose(i: int) -> void:
+func choose(i: int) -> void:
 	var choices: Array = convo.get("choices", [])
 	if i < 0 or i >= choices.size(): return
 	var ch: Dictionary = choices[i]
@@ -262,7 +262,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			on_action("advance", null)
 			get_viewport().set_input_as_handled()
 		elif event.keycode >= KEY_1 and event.keycode <= KEY_4 and at_end():
-			_choose(event.keycode - KEY_1)
+			choose(event.keycode - KEY_1)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
 			close()
