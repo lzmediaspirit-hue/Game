@@ -75,6 +75,7 @@ def review(outputs: dict) -> None:
         img.alpha_composite(cut(kind + "_foot"), (x0, 48))
     for f in range(2):
         img.alpha_composite(cut("glide", f), (110 + f * 40, 80))
+        img.alpha_composite(cut("cloud", f), (200 + f * 40, 84))
     img.resize((img.width * 4, img.height * 4), Image.NEAREST).save(out_dir / "traverse_x4.png")
     print("review image in", (out_dir / "traverse_x4.png").relative_to(ROOT))
 

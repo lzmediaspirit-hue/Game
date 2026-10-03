@@ -114,6 +114,8 @@ func _on_bottleneck(p: Dictionary) -> void:
 ## S43 rising water: the room's geometry answers a boss phase or a boss's fall.
 func _on_room_script(p: Dictionary, ev: String) -> void:
 	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
+	# T1: on the grid the same script raises the layout's floods (TopdownTraverse).
+	if game.room_rt != null and game.room_rt.topdown != null and game.room_rt.topdown.traverse != null: game.room_rt.topdown.traverse.on_event(ev, p)
 
 # ------------------------------------------------------------------ rooms
 static func compile_geometry(def: Dictionary) -> Dictionary:

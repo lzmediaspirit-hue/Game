@@ -485,11 +485,23 @@ func _hold_jump(c) -> void:
 	var held := jump_held or Input.is_physical_key_pressed(KEY_SPACE)
 	if not held: _glide_spent = false
 	var air := not motor.grounded and motor.climbing.is_empty() and not motor.plunging and motor.sink_t < 0.0
+	# T1 · flight (Cloud Stride): Combat holds it and pays its QI; the motor flies while it does. Jump held climbs, Evade
+	# held descends; a landing (or Combat letting go: no QI, a room that refuses flight) ends it.
+	if motor.flying and not Game.combat.is_flying(actor_id): motor.fly(false)
+	if not motor.flying and Game.combat.is_flying(actor_id): Game.submit({"type": "stop_flight", "reason": "landed"})
+	if motor.flying:
+		motor.fly_input = float(held or fly_up) - float(fly_down or Input.is_physical_key_pressed(KEY_K))
+		return
 	if state.gliding and (not held or not air): Game.submit({"type": "glide", "on": false})
-	elif held and air and motor.vz <= 0.0 and not state.gliding and not _glide_spent and Game.combat.knows_art(c, "glide"):
+	elif held and air and motor.vz <= 0.0 and not state.gliding and not _glide_spent:
+		# As the side view's hold: from Cloud Stride 1, where flight is allowed and QI holds, the body takes to the air;
+		# otherwise Falling Leaf Glide slows the fall.
 		_glide_spent = true
 		state.surface = null
-		Game.submit({"type": "glide", "on": true})
+		if Unlocks.is_unlocked(actor_id, "flight") and Game.combat.flight_allowed(actor_id) and Game.submit({"type": "start_flight"}).get("ok", false):
+			motor.fly(true)
+			motor.fly_input = 0.0
+		elif Game.combat.knows_art(c, "glide"): Game.submit({"type": "glide", "on": true})
 	motor.gliding = state.gliding
 
 ## T1 · the stick held toward a climbable face (into it at its foot, over the edge at its top) for the side view's hold
@@ -537,6 +549,7 @@ func _mirror() -> void:
 	state.zone_id = world.room.id
 	# T1: on a climbable face (Combat refuses blows and arts there), and a dart's once an airtime ends with the airtime.
 	state.climbing = {"id": str(motor.climbing.id), "kind": str(motor.climbing.kind)} if not motor.climbing.is_empty() else {}
+	state.flying = motor.flying
 	if motor.grounded: state.air_dash_used = false
 
 ## Pick the action and frame from the motor and Combat's timeline, then place the node: x on whole art px, y at the
@@ -668,5 +681,7 @@ func _draw() -> void:
 	# A cut holds the simulation (and this body's clock) still: no blow's white is held through it either.
 	material = TopdownFx.white_material() if hurt_t < float(CombatFeel.cfg().get("flash", {}).get("white_s", 0.05)) and not Game.paused else null
 	if not ghost.visible: draw_body(self, Vector2(0, screen.y - position.y), tint)
-	# T1: Falling Leaf Glide's leaf of qi spread over the body while it glides (an effect: no new body pose).
+	# T1: Falling Leaf Glide's leaf of qi spread over the body while it glides, flight's cloud under the feet (effects:
+	# no new body pose; the body holds the jump's apex frame).
 	if motor.gliding: TopdownTraverseView.draw_glide(self, Vector2(0, screen.y - position.y))
+	if motor.flying: TopdownTraverseView.draw_cloud(self, Vector2(0, screen.y - position.y))

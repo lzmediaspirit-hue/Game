@@ -121,7 +121,10 @@
    "bounce_speed": 528,
    "climb_speed": 80,
    "climb_reach": 22,
-   "climb_hold_s": 0.3
+   "climb_hold_s": 0.3,
+   "fly_climb": 160,
+   "fly_ceiling": 160,
+   "fly_speed": 1.2
   }
  },
  "jump": {

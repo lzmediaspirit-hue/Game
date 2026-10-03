@@ -1,8 +1,9 @@
 class_name TopdownTraverseView
 extends RefCounted
 ## T1 (docs/architecture/topdown_mechanics.md): the room view's side of the traversal (TopdownTraverse): each raft on
-## the water riding its run on the room's clock, each climbable face hung with its vine, rope, ladder or chain, and
-## each updraft's column of rising spray, drawn from the traversal sheet (art/topdown/traverse.png, built by
+## the water riding its run on the room's clock (and each lift's deck rising and falling), each climbable face hung
+## with its vine, rope, ladder or chain, each updraft's column of rising spray, rotten boards giving way, and a flood's
+## water rising over its cells, drawn from the traversal sheet (art/topdown/traverse.png, built by
 ## tools/art/topdown/build_traverse.py, its manifest data/topdown/traverse_art.json), in the sorted layer by the grid's
 ## keys. The glide's leaf over the body is the player's to draw (`draw_glide`). Nearest neighbour, whole art px.
 
@@ -37,6 +38,8 @@ static func build(world) -> Array:
 	for r in tr.rafts: out.append(RaftView.new(world, tr, r))
 	for c in tr.climbs: out.append(ClimbView.new(world, c))
 	for u in tr.updrafts: out.append(SprayView.new(world, u))
+	for c in tr.crumbles: out.append(BoardsView.new(world, tr, c))
+	for f in tr.floods: out.append(FloodView.new(world, tr, f))
 	return out
 
 ## Falling Leaf Glide's leaf of qi spread over a gliding body, its feet at `feet` on `canvas` (the player's _draw).
@@ -45,17 +48,27 @@ static func draw_glide(canvas: CanvasItem, feet: Vector2) -> void:
 	var r := src("glide", int(Time.get_ticks_msec() / 160))
 	canvas.draw_texture_rect_region(sheet(), Rect2(feet + Vector2(-roundf(r.size.x * 0.5), -53.0), r.size), r)
 
-## A raft on the water: its deck where the room's clock has carried it, bobbing a px on the water's clock. Its key is
-## its deck's north edge, so a body standing on the deck draws over it and one on the bank north of it under it.
+## Flight's cloud of qi under a flying body's feet (the player's _draw), drifting between its frames.
+static func draw_cloud(canvas: CanvasItem, feet: Vector2) -> void:
+	if sheet() == null: return
+	var r := src("cloud", int(Time.get_ticks_msec() / 220))
+	canvas.draw_texture_rect_region(sheet(), Rect2(feet + Vector2(-roundf(r.size.x * 0.5), -4.0), r.size), r)
+
+## A raft on the water (or a lift's deck): where the room's clock has carried it, a raft bobbing a px on the water's
+## clock, a lift at its deck's height now; a deck larger than two cells is laid in two-cell pieces. Its key is the
+## deck's north edge on the plane, so a body standing on the deck draws over it and one north of it under it.
 class RaftView extends TopdownWorld.Sorted:
 	var tr: TopdownTraverse
 	var raft: Dictionary
+	var sprite := "raft_2x2"
 	var at := Vector2.INF
 	var frame := 0
+	var size := Vector2.ZERO
 	func _init(w, t: TopdownTraverse, r: Dictionary) -> void:
 		super(w)
 		tr = t
 		raft = r
+		sprite = "lift_2x2" if str(r.kind) == "lift" else "raft_2x2"
 		rects.append(Rect2())
 		_place()
 	func _ready() -> void:
@@ -64,17 +77,25 @@ class RaftView extends TopdownWorld.Sorted:
 		_place()
 	func _place() -> void:
 		var deck := tr.raft_rect(raft)
-		var p := (TopdownWorld.to_screen(deck.position, float(raft.z))).round()
-		var f := int(Time.get_ticks_msec() / 500) % 2
+		var p := (TopdownWorld.to_screen(deck.position, tr.deck_z(raft))).round()
+		var f := (int(Time.get_ticks_msec() / 500) % 2) if sprite == "raft_2x2" else 0
 		if p == at and f == frame: return
 		at = p
 		frame = f
-		key(floorf(p.y))
-		rects[0] = Rect2(p, deck.size / TopdownRoom.ART + Vector2(0, 6))
+		size = deck.size / TopdownRoom.ART
+		key(floorf(deck.position.y / TopdownRoom.ART))
+		rects[0] = Rect2(p, size + Vector2(0, 6))
 		queue_redraw()
 	func _draw() -> void:
-		var r := TopdownTraverseView.src("raft_2x2", frame)
-		draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position, r.size), r)
+		var r := TopdownTraverseView.src(sprite, frame)
+		var piece := Vector2(2.0, 2.0) * T
+		var y := 0.0
+		while y < size.y - 0.5:
+			var x := 0.0
+			while x < size.x - 0.5:
+				draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position + Vector2(x, y), r.size), r)
+				x += piece.x
+			y += piece.y
 
 ## A climbable face hung with its kind's tiles: on a south face down the face from the lip to the floor (the top tile at
 ## the lip, the middle ones a level each, the foot on the floor); on an east or west side, hanging at the edge from
@@ -153,3 +174,65 @@ class SprayView extends TopdownWorld.Sorted:
 				var part := minf(r.size.y, float(c[1]) - y)
 				draw_texture_rect_region(tex, Rect2(Vector2(float(c[0]), y - lift), Vector2(r.size.x, part)), Rect2(r.position, Vector2(r.size.x, part)))
 				y += r.size.y
+
+## Rotten boards over a pit, a cell each: whole, split and sagging while they give under a foot, gone (the pit showing)
+## until they are back, on the room's clock (TopdownTraverse.crumble_state). Keyed at their north edge, as a deck.
+class BoardsView extends TopdownWorld.Sorted:
+	var tr: TopdownTraverse
+	var c: Dictionary
+	var state := ""
+	var cells: Array = []
+	func _init(w, t: TopdownTraverse, cr: Dictionary) -> void:
+		super(w)
+		tr = t
+		c = cr
+		var r: Rect2 = cr.rect
+		var c0 := TopdownRoom.cell_of(r.position)
+		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
+		for cy in range(c0.y, c1.y + 1):
+			for cx in range(c0.x, c1.x + 1):
+				cells.append(TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, float(cr.z)).round())
+		key(floorf(r.position.y / TopdownRoom.ART))
+		rects.clear()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		var s := tr.crumble_state(c)
+		if s != state:
+			state = s
+			queue_redraw()
+	func _draw() -> void:
+		if state == "broken": return
+		var r := TopdownTraverseView.src("boards", 1 if state == "giving" else 0)
+		for p in cells: draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(p - position, r.size), r)
+
+## A flood's water over its cells at the height it has risen to now (nothing while it lies at rest), a sheet of the
+## water's colour with a lit line along its north edge. Keyed just before its north edge, so a body wading in it draws
+## over it.
+class FloodView extends TopdownWorld.Sorted:
+	const DEEP := Color(0.16, 0.36, 0.46, 0.62)
+	const LIT := Color(0.62, 0.84, 0.86, 0.75)
+	var tr: TopdownTraverse
+	var f: Dictionary
+	var level := -INF
+	func _init(w, t: TopdownTraverse, fl: Dictionary) -> void:
+		super(w)
+		tr = t
+		f = fl
+		key(floorf((fl.rect as Rect2).position.y / TopdownRoom.ART) - 0.25)
+		rects.clear()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		var k := tr.flood_k(f)
+		var z := roundf(lerpf(TopdownRoom.WATER_Z, float(f.top), k)) if k > 0.0 else -INF
+		if z != level:
+			level = z
+			queue_redraw()
+	func _draw() -> void:
+		if level == -INF: return
+		var r: Rect2 = f.rect
+		var p := TopdownWorld.to_screen(r.position, level).round() - position
+		var sz := (r.size / TopdownRoom.ART).round()
+		draw_rect(Rect2(p, sz), DEEP)
+		draw_rect(Rect2(p, Vector2(sz.x, 1.0)), LIT)

@@ -22,6 +22,9 @@ var rafts: Array = []      ## {id, kind, rest: Rect2, mover: {path, speed, wait_
 var updrafts: Array = []   ## {id, kind, rect: Rect2, lo, hi, speed}
 var climbs: Array = []     ## {id, kind, foot: Vector2, top: Vector2, foot_z, top_z, dir: Vector2, face: Vector2}
 var bounces: Array = []    ## {id, kind, rect: Rect2, z, speed}: a landing on it launches the body straight back up
+var crumbles: Array = []   ## {id, kind, rect: Rect2, z, break_s, return_s, start}: rotten boards over a pit
+var currents: Array = []   ## {id, kind, rect: Rect2, push: Vector2}: water pushing a body standing in it
+var floods: Array = []     ## {id, kind, rect: Rect2, top, rises, goal, level}: rising water on an event's script
 static var _geo: ZoneGeometry = null
 
 ## The room's traversal, read from its layout once and kept on the room (TopdownRoom.traverse, untyped so the grid's
@@ -38,15 +41,37 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 	for r in rows:
 		var kind := str(r.get("kind", ""))
 		var id := str(r.get("id", ""))
-		if kind == "raft":
+		if kind == "raft" or kind == "lift":
+			# A raft rides the water along the plane; a lift (a crane's basket, a trial's plank) rises and falls between
+			# levels (its path's third number, in levels), over the floor under it. Both are decks a body rides.
 			var at: Array = r.get("at", [0, 0])
 			var size: Array = r.get("size", [2, 2])
 			var path: Array = []
-			for q in r.get("path", []): path.append([float(q[0]) * T, float(q[1]) * T, 0.0])
+			for q in r.get("path", []): path.append([float(q[0]) * T, float(q[1]) * T, float(q[2]) * TopdownRoom.LEVEL if (q as Array).size() > 2 else 0.0])
 			t.rafts.append({"id": id, "kind": kind, "rest": Rect2(float(at[0]) * T, float(at[1]) * T, float(size[0]) * T, float(size[1]) * T),
 				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL,
 				"mover": {"surface": id, "path": path, "speed": float(r.get("speed", 40.0)), "wait_s": float(r.get("wait_s", 2.0)),
 					"mode": str(r.get("mode", "pingpong")), "trigger_t": -1.0}})
+		elif kind == "crumble":
+			# Rotten boards over a pit: a floor at `level` until a foot has stood on them `break_s`, gone for `return_s`.
+			var cc: Array = r.get("rect", [0, 0, 1, 1])
+			t.crumbles.append({"id": id, "kind": kind, "rect": Rect2(float(cc[0]) * T, float(cc[1]) * T, float(cc[2]) * T, float(cc[3]) * T),
+				"z": float(r.get("level", 0)) * TopdownRoom.LEVEL, "break_s": float(r.get("break_s", 0.8)), "return_s": float(r.get("return_s", 5.0)),
+				"start": -1.0})
+		elif kind == "current":
+			var qc: Array = r.get("rect", [0, 0, 1, 1])
+			var push: Array = r.get("push", [0, 0])
+			t.currents.append({"id": id, "kind": kind, "rect": Rect2(float(qc[0]) * T, float(qc[1]) * T, float(qc[2]) * T, float(qc[3]) * T),
+				"push": Vector2(float(push[0]), float(push[1]))})
+		elif kind == "flood":
+			# Rising water: over its cells the water's top follows the side-view volume's script (`rise`: the event that
+			# starts it, how fast, how long it holds, back), up to `top` levels; under it a floor is water.
+			var fc: Array = r.get("rect", [0, 0, 1, 1])
+			var rises: Array = []
+			for v in ContentDB.room(room.id).get("volumes", []):
+				if str(v.get("id", "")) == id: rises = v.get("rise", [])
+			t.floods.append({"id": id, "kind": kind, "rect": Rect2(float(fc[0]) * T, float(fc[1]) * T, float(fc[2]) * T, float(fc[3]) * T),
+				"top": float(r.get("top", 1.0)) * TopdownRoom.LEVEL, "rises": rises, "goal": {}, "level": -INF})
 		elif kind == "updraft":
 			var rc: Array = r.get("rect", [0, 0, 1, 1])
 			t.updrafts.append({"id": id, "kind": kind, "rect": Rect2(float(rc[0]) * T, float(rc[1]) * T, float(rc[2]) * T, float(rc[3]) * T),
@@ -78,7 +103,72 @@ static func conf(key: String, fallback = 0.0):
 	return ContentDB.movement("topdown.traverse." + key, fallback)
 
 func is_empty() -> bool:
-	return rafts.is_empty() and updrafts.is_empty() and climbs.is_empty() and bounces.is_empty()
+	return rafts.is_empty() and updrafts.is_empty() and climbs.is_empty() and bounces.is_empty() and crumbles.is_empty() \
+		and currents.is_empty() and floods.is_empty()
+
+# ------------------------------------------------------------------ crumbling boards
+## The boards at a ground point that are a floor now ({} when none, or they have given way).
+func crumble_at(p: Vector2) -> Dictionary:
+	for c in crumbles:
+		if (c.rect as Rect2).has_point(p) and crumble_state(c) != "broken": return c
+	return {}
+
+## "whole", "giving" (stood on: it holds `break_s`), "broken" (gone `return_s`), on the room's clock (the side view's
+## crumble rule).
+func crumble_state(c: Dictionary) -> String:
+	var s := float(c.start)
+	if s < 0.0: return "whole"
+	var e := time - s
+	if e < float(c.break_s): return "giving"
+	if e < float(c.break_s) + float(c.return_s): return "broken"
+	c.start = -1.0
+	return "whole"
+
+## A foot on the boards: they start to give way (once, until they are back).
+func touch(c: Dictionary) -> void:
+	if float(c.start) < 0.0: c.start = time
+
+# ------------------------------------------------------------------ currents
+## The push of the water on a body standing at `p` (units a second; the side view's current volume).
+func current_at(p: Vector2) -> Vector2:
+	var out := Vector2.ZERO
+	for q in currents:
+		if (q.rect as Rect2).has_point(p): out += q.push
+	return out
+
+# ------------------------------------------------------------------ rising water
+## A game event starts a flood's script (a boss's phase): its rise row that matches, as the side view's on_event.
+func on_event(event_name: String, payload: Dictionary) -> void:
+	for f in floods:
+		for r in f.rises:
+			if str(r.get("event", "")) != event_name: continue
+			var fits := true
+			for k in r.get("match", {}):
+				if str(payload.get(k, "")) != str(r.match[k]): fits = false
+			if fits: f.goal = {"t0": time, "over": maxf(0.01, float(r.get("over_s", 4.0))), "hold": float(r.get("hold_s", -1.0)), "back": r.has("back_to")}
+
+## How far up its top a flood's water stands now (0 at rest, 1 risen), on the room's clock: up over `over_s`, held
+## `hold_s`, back down over the same (or held for good without a way back).
+func flood_k(f: Dictionary) -> float:
+	var g: Dictionary = f.goal
+	if g.is_empty(): return 0.0
+	var e := time - float(g.t0)
+	var over := float(g.over)
+	if e < over: return e / over
+	if not bool(g.back) or float(g.hold) < 0.0: return 1.0
+	e -= over + float(g.hold)
+	if e < 0.0: return 1.0
+	if e < over: return 1.0 - e / over
+	f.goal = {}
+	return 0.0
+
+## Is the floor at `p` (height `floor_z`) under a flood's water now?
+func flooded(p: Vector2, floor_z: float) -> bool:
+	for f in floods:
+		if not (f.rect as Rect2).has_point(p): continue
+		var k := flood_k(f)
+		if k > 0.0 and lerpf(TopdownRoom.WATER_Z, float(f.top), k) > floor_z + 0.5: return true
+	return false
 
 ## The bounce a body landing at `p` on the floor at `z` comes down on ({} when none).
 func bounce_at(p: Vector2, z: float) -> Dictionary:
@@ -92,6 +182,12 @@ func raft_offset(r: Dictionary, t := -1.0) -> Vector2:
 	if _geo == null: _geo = ZoneGeometry.new()
 	var o: Vector3 = _geo.mover_offset(r.mover, time if t < 0.0 else t)
 	return Vector2(o.x, o.y)
+
+## A deck's height now: a raft's is its own; a lift's rises and falls along its path.
+func deck_z(r: Dictionary) -> float:
+	if str(r.kind) != "lift": return float(r.z)
+	if _geo == null: _geo = ZoneGeometry.new()
+	return float(r.z) + (_geo.mover_offset(r.mover, time) as Vector3).z
 
 ## The raft's deck on the plane now.
 func raft_rect(r: Dictionary) -> Rect2:

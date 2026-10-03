@@ -18,6 +18,9 @@ hash, never a random generator).
                 48), its motes a quarter of their climb higher each frame
   glide_0..1    Falling Leaf Glide's leaf of qi spread over the body (26 x 10): a broad jade leaf, its veins lit, its
                 edges fluttering between the frames
+  cloud_0..1    flight's cloud of qi under a flying body's feet (28 x 10), its lobes drifting between the frames
+  lift_2x2      a lift's deck (a crane's basket, a trial's plank): planks in a frame of beams, a ring at each corner
+  boards_0..1   rotten boards over a pit, a cell: whole, then split and sagging under a foot
 """
 from __future__ import annotations
 
@@ -213,6 +216,80 @@ def glide(s: Img, f: int) -> None:
         s.put(x, int(1.0 + 4.5 * u * u + 1.8 * (1.0 - u * u)), alpha(BJADE, 230))
 
 
+def lift(s: Img) -> None:
+    """A lift's deck two cells square (32 x 37): planks laid north-south in a frame of beams, an iron ring at each corner
+    for its ropes, the frame's side and its shadow on its south face."""
+    for x in range(1, 31):
+        for y in range(1, 31):
+            plank = (x - 1) // 5
+            edge = (x - 1) % 5
+            col = WOOD[4] if edge == 0 else WOOD[3] if edge < 4 else WOOD[2]
+            if h01(x, y // 6 + plank * 7, 79) < 0.06:
+                col = WOOD[1]
+            s.put(x, y, col)
+    for i in range(0, 32):   # the frame's beams round the deck
+        for j in (0, 31):
+            s.put(i, j, DARKWOOD[3] if j == 0 else DARKWOOD[2])
+            s.put(j, i, DARKWOOD[3] if j == 0 else DARKWOOD[2])
+    for x in range(1, 31):
+        s.put(x, 1, WOOD[5])
+    for cx, cy in ((2, 2), (29, 2), (2, 29), (29, 29)):
+        s.rect(cx - 1, cy - 1, 3, 3, STONE[2])
+        s.put(cx - 1, cy - 1, STONE[5])
+        s.put(cx, cy, (0, 0, 0, 0))
+    for y in range(32, 37):
+        for x in range(0, 32):
+            s.put(x, y, DARKWOOD[2] if y < 35 else DARKWOOD[1])
+    s.outline()
+
+
+def boards(s: Img, f: int) -> None:
+    """Rotten boards over a pit, a cell (16 x 20): three warped planks on two sagging joists, nail heads, rot; in the
+    second frame (stood on) split across the middle plank and sagging."""
+    for k in range(3):
+        y0 = 1 + k * 5
+        sag = 1 if f and k == 1 else 0
+        for x in range(0, 16):
+            dip = sag if 4 < x < 12 else 0
+            for y in range(y0 + dip, y0 + 4 + dip):
+                r = h01(x, y + k * 17, 80)
+                col = WOOD[4] if y == y0 + dip else WOOD[3] if r > 0.18 else WOOD[2]
+                if r < 0.05:
+                    col = MOSS[2]
+                s.put(x, y, col)
+            s.put(x, y0 + 4 + dip, DARKWOOD[1])
+        s.put(2, y0 + 1, STONE[4])
+        s.put(13, y0 + 1, STONE[4])
+    if f:   # the split
+        for y in range(6, 11):
+            s.put(7 + (y % 2), y, DARKWOOD[0])
+    for y in range(16, 20):   # the joists' ends and the dark of the pit under them
+        s.put(3, y, DARKWOOD[2])
+        s.put(12, y, DARKWOOD[2])
+    s.outline()
+
+
+def cloud(s: Img, f: int) -> None:
+    """Flight's cloud of qi under the feet (28 x 10): a small heap of mist, lit on its upper left, its lobes drifting a
+    pixel between the frames, a jade breath at its heart."""
+    lobes = ((7, 5, 6.0, 3.6), (14, 4, 7.0, 4.2), (21, 5, 6.0, 3.6))
+    for y in range(10):
+        for x in range(28):
+            inside = False
+            lit = False
+            for i, (cx, cy, rx, ry) in enumerate(lobes):
+                dx = (x + 0.5 - cx - (1 if f and i != 1 else 0) * (1 if i == 2 else -1)) / rx
+                dy = (y + 0.5 - cy) / ry
+                d = dx * dx + dy * dy
+                if d <= 1.0:
+                    inside = True
+                    lit = lit or (d > 0.45 and dx + dy < -0.4)
+            if inside:
+                core = abs(x + 0.5 - 14) < 5 and 4 <= y <= 6
+                s.put(x, y, alpha(FOAM2, 235) if lit else alpha(QI, 150) if core else alpha(MIST, 215))
+    s.outline()
+
+
 SPRITES = {
     "raft_2x2": (32, 38, 2, raft),
     "vine_top": (16, 16, 0, lambda s: vine(s, "top")), "vine_mid": (16, 16, 0, lambda s: vine(s, "mid")),
@@ -225,6 +302,9 @@ SPRITES = {
     "chain_foot": (16, 16, 0, lambda s: chain(s, "foot")),
     "spray": (16, 48, 4, spray),
     "glide": (26, 10, 2, glide),
+    "cloud": (28, 10, 2, cloud),
+    "lift_2x2": (32, 37, 0, lift),
+    "boards": (16, 20, 2, boards),
 }
 
 

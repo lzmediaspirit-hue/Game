@@ -1069,7 +1069,8 @@ class Build:
     # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event
     # the side view calls to its own points sets its foes. topdown_rooms.check_traverse holds each to the grid.
     TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level"), "updraft": ("rect", "top", "speed"),
-                     "bounce": ("rect", "speed"),
+                     "bounce": ("rect", "speed"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
+                     "crumble": ("rect", "level", "break_s", "return_s"), "current": ("rect", "push"), "flood": ("rect", "top"),
                      "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top")}
 
     def traverse_rows(self):
@@ -1078,7 +1079,7 @@ class Build:
             kind, tid, opts = row if len(row) == 3 else (row[0], row[1], {})
             keys = self.TRAVERSE_KEYS.get(kind)
             if keys is None:
-                raise SpecError("%s: traverse %r: a raft, an updraft, a bounce, a vine, a ladder, a rope or a chain" % (self.id, kind))
+                raise SpecError("%s: traverse %r: one of %s" % (self.id, kind, ", ".join(self.TRAVERSE_KEYS)))
             stray = sorted(set(opts) - set(keys))
             if stray:
                 raise SpecError("%s: traverse %s %s: unknown key %s (%s)" % (self.id, kind, tid, ", ".join(stray), ", ".join(keys)))

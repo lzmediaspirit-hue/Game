@@ -77,6 +77,8 @@ var skimming := false      ## on the water's surface with Water Skimming (the en
 var climbing: Dictionary = {}   ## the climbable face the body is on (TopdownTraverse.climbs), {} when none
 var climb_k := 0.0         ## 0 at the climbable's foot, 1 at its top
 var climb_moving := false  ## the stick moves it along the face this frame (the climb's pose cycles)
+var flying := false        ## Cloud Stride's flight, while Combat holds it (the player keeps the two together)
+var fly_input := 0.0       ## +1 climbing (Jump held), -1 descending (Evade held), 0 holding the height
 var _trav_room = null
 var _trav: TopdownTraverse = null
 
@@ -118,6 +120,9 @@ var glide_fall: float
 var glide_drift: float
 var updraft_ease: float
 var climb_speed: float
+var fly_climb: float
+var fly_ceiling: float
+var fly_k: float
 
 static func conf(key: String, fallback = 0.0):
 	return ContentDB.movement("topdown." + key, fallback)
@@ -160,6 +165,9 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 	glide_drift = conf("traverse.glide_drift", 1.1)
 	updraft_ease = conf("traverse.updraft_ease", 3.0)
 	climb_speed = conf("traverse.climb_speed", 80.0)
+	fly_climb = conf("traverse.fly_climb", 160.0)
+	fly_ceiling = conf("traverse.fly_ceiling", 160.0)
+	fly_k = conf("traverse.fly_speed", 1.2)
 	place(room.spawn if at == Vector2.INF else at)
 
 ## Stand on the floor at a ground point.
@@ -177,6 +185,7 @@ func place(p: Vector2) -> void:
 	gliding = false
 	hold_t = 0.0
 	ride = ""
+	flying = false
 	_took_off()
 
 ## The jump's apex over its take-off, and its airtime back to the same height (movement numbers, §As built).
@@ -198,6 +207,7 @@ func step(dt: float, axis: Vector2, jump := false, dash := false) -> void:
 			return
 	# T1: a press in the air past the coyote time kicks off a wall pushed into (Wall-Step), else is the Cloud Ladder
 	# Step's second jump; otherwise it waits for the ground (the buffer), as the side view's jump does.
+	if jump and flying: jump = false   # a flier climbs on the held button (fly_input), it does not jump
 	if jump and not grounded and coyote <= 0.0 and sink_t < 0.0 and not plunging and (_wall_kick(axis) or _double_jump()): jump = false
 	if jump: buffer = buffer_s
 	if dash: _start_dash(axis)
@@ -220,9 +230,18 @@ func traverse() -> TopdownTraverse:
 ## one floats there now (T1).
 func floor_at(p: Vector2) -> float:
 	var h := room.height_at(p)
-	if h == TopdownRoom.WATER_Z:
-		var r := _raft_under(p)
-		if not r.is_empty(): return float(r.z)
+	var tr := traverse()
+	if tr != null:
+		# T1: a raft's deck over the water, a lift's over the floor under it; whole boards over a pit; a flood's water.
+		if not tr.rafts.is_empty():
+			var r := tr.raft_at(p)
+			if not r.is_empty():
+				var dz := tr.deck_z(r)
+				if h == TopdownRoom.WATER_Z or (str(r.kind) == "lift" and dz >= h - 0.5): return dz
+		if not tr.crumbles.is_empty():
+			var cb := tr.crumble_at(p)
+			if not cb.is_empty() and float(cb.z) > h: return float(cb.z)
+		if not tr.floods.is_empty() and h < INF and not water_walk and tr.flooded(p, h): return TopdownRoom.WATER_Z
 	return 0.0 if water_walk and h == TopdownRoom.WATER_Z else h
 
 ## The raft whose deck is at a ground point now ({} when none, or the room has none).
@@ -230,10 +249,31 @@ func _raft_under(p: Vector2) -> Dictionary:
 	var tr := traverse()
 	return {} if tr == null or tr.rafts.is_empty() else tr.raft_at(p)
 
-## The cell under a point is open water a walking body stops at (a raft's deck over it is a floor).
+## The cell under a point is open water a walking body stops at (a raft's deck over it is a floor, and whole boards).
 func _water_at(c: Vector2) -> bool:
 	var cp := TopdownRoom.cell_of(c)
-	return room.is_water(cp.x, cp.y) and _raft_under(c).is_empty()
+	var tr := traverse()
+	if room.is_water(cp.x, cp.y): return _raft_under(c).is_empty() and (tr == null or tr.crumbles.is_empty() or tr.crumble_at(c).is_empty())
+	return tr != null and not tr.floods.is_empty() and floor_at(c) == TopdownRoom.WATER_Z and room.height_at(c) < INF
+
+## T1 · the push of a current on a body standing in it (the side view's current volume: only while it stands).
+func _current() -> Vector2:
+	var tr := traverse()
+	if tr == null or tr.currents.is_empty() or not grounded or plunging: return Vector2.ZERO
+	return tr.current_at(pos)
+
+## The nearest spot to `p` a body stands on dry: `p` itself unless the water has come over it (a flood risen over the last
+## safe spot sends the body to the nearest dry floor instead).
+func _dry(p: Vector2) -> Vector2:
+	if not _water_at(p): return p
+	var c0 := TopdownRoom.cell_of(p)
+	for r in range(1, maxi(room.w, room.h)):
+		for dy in range(-r, r + 1):
+			for dx in range(-r, r + 1):
+				if maxi(absi(dx), absi(dy)) != r: continue
+				var q := (Vector2(c0 + Vector2i(dx, dy)) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				if room.standable(TopdownRoom.cell_of(q)) and not _water_at(q): return q
+	return p
 
 ## T1 · a raft carries its rider: the deck's move since the last frame (the room's clock, the side view's mover rule),
 ## before the body's own step. Boarding it is announced (the side view's mover_boarded) and sets a trigger raft off.
@@ -243,11 +283,14 @@ func _ride() -> void:
 		ride = ""
 		return
 	var r := {}
-	if grounded and sink_t < 0.0 and room.height_at(pos) == TopdownRoom.WATER_Z:
-		# Still on the deck where it stood at the last frame (the clock has moved it since), else on the one under it now.
+	if grounded and sink_t < 0.0:
+		# Still on the deck where it stood at the last frame (the clock has moved it since), else on the one under it now:
+		# a raft over the water, a lift at the body's own height.
 		var was := tr.raft(ride) if ride != "" else {}
 		if not was.is_empty() and Rect2((was.rest as Rect2).position + ride_off, (was.rest as Rect2).size).has_point(pos): r = was
-		else: r = tr.raft_at(pos)
+		else:
+			var now := tr.raft_at(pos)
+			if not now.is_empty() and absf(tr.deck_z(now) - z) <= step_up and (str(now.kind) == "lift" or room.height_at(pos) == TopdownRoom.WATER_Z): r = now
 	if r.is_empty():
 		ride = ""
 		return
@@ -315,7 +358,7 @@ func _substep(h: float, axis: Vector2) -> void:
 		sink_t += h
 		z -= 60.0 * h
 		if sink_t >= reset_s:
-			place(safe)
+			place(_dry(safe))
 			events.append({"type": "reset"})
 		return
 	if buffer > 0.0 and (grounded or coyote > 0.0): _jump()
@@ -339,6 +382,9 @@ func _substep(h: float, axis: Vector2) -> void:
 		if mag > 0.05 and grounded: running = mag > tiptoe_axis
 		var target := axis.normalized() * (sprint if mag > tiptoe_axis else walk * tiptoe) * speed_k if mag > 0.05 else Vector2.ZERO
 		if grounded: vel = vel.move_toward(target, (accel if target != Vector2.ZERO else decel) * h)
+		elif flying:
+			# T1 · flight (Cloud Stride): the stick steers the body over anything lower than it at the walk's pace, at once.
+			vel = vel.move_toward(axis.normalized() * walk * fly_k * speed_k if mag > 0.05 else Vector2.ZERO, accel * h)
 		elif gliding:
 			# T1 · Falling Leaf Glide: the body sails on at the drift (the side view's x1.1 of the walk), steered by the
 			# stick at the air's pick-up, along the way it was going when the stick is let go: a glide is a dash across a
@@ -358,7 +404,7 @@ func _substep(h: float, axis: Vector2) -> void:
 	_turn_row(h)
 	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
 	# the bank stop it as they stop walking.
-	var v := vel + (drift if not plunging else Vector2.ZERO)
+	var v := vel + (drift if not plunging else Vector2.ZERO) + _current()
 	_move(Vector2(v.x * h, 0.0), axis)
 	_move(Vector2(0.0, v.y * h), axis)
 	_vertical(h)
@@ -569,8 +615,16 @@ func _vertical(h: float) -> void:
 			var on_water := water_walk and room.height_at(pos) == TopdownRoom.WATER_Z and ride == ""
 			if on_water and not skimming: events.append({"type": "skimmed"})
 			skimming = on_water
+			# T1 · rotten boards underfoot start to give way (the side view's crumble).
+			var tr := traverse()
+			if tr != null and not tr.crumbles.is_empty():
+				var cb := tr.crumble_at(pos)
+				if not cb.is_empty() and absf(float(cb.z) - z) < 0.5: tr.touch(cb)
 		return
 	coyote = maxf(0.0, coyote - h)
+	if flying:
+		_fly_step(h)
+		return
 	var up := updraft_here()
 	if plunging: z += vz * h   # the Plunge holds its speed
 	elif hold_t > 0.0:
@@ -593,6 +647,40 @@ func _vertical(h: float) -> void:
 	if z <= ground:
 		z = ground
 		if vz <= 0.0: _land()
+
+## T1 · flight (Cloud Stride; Combat grants it and pays its QI): from the air the body holds its height; `fly_input`
+## (+1 Jump held, -1 Evade held) climbs or descends at `fly_climb`, never past `fly_ceiling` over the floor under it
+## (an updraft lifts a flier at half its speed, as in the side view). Coming down onto a floor lands, and ends it.
+func fly(on: bool) -> void:
+	if on and (grounded or sink_t >= 0.0 or not climbing.is_empty()): return
+	flying = on
+	if on:
+		vz = 0.0
+		gliding = false
+		plunging = false
+		hold_t = 0.0
+		long_jump = false
+		events.append({"type": "took_off"})
+
+func _fly_step(h: float) -> void:
+	var under := floor_at(pos)
+	var lift := 0.0
+	var up := updraft_here()
+	if fly_input >= 0.0 and not up.is_empty(): lift = float(up.speed) * 0.5
+	vz = fly_input * fly_climb + lift
+	var top := (under if under < INF else z) + fly_ceiling
+	var nz := z + vz * h
+	if vz > 0.0: nz = minf(nz, maxf(top, z))   # never past the ceiling (over a drop it holds where it is)
+	z = nz
+	peak = maxf(peak, z)
+	_push_out()
+	under = floor_at(pos)
+	if z <= under and fly_input < 0.0:
+		z = under
+		flying = false
+		events.append({"type": "flight_landed"})
+		_land()
+	elif z < under: z = under
 
 ## T1: the updraft the body is in, in the air ({} when none, or the room has none, or it plunges).
 func updraft_here() -> Dictionary:
@@ -648,7 +736,7 @@ func _corners(p: Vector2) -> Array:
 func _corner_blocks(c: Vector2) -> bool:
 	var cp := TopdownRoom.cell_of(c)
 	if room.level(cp.x, cp.y) == TopdownRoom.SOLID: return true
-	if grounded and not water_walk and room.is_water(cp.x, cp.y) and _raft_under(c).is_empty(): return true   # T1: a raft's deck is a floor
+	if grounded and not water_walk and _water_at(c): return true   # T1: a raft's deck is a floor, and whole boards
 	return floor_at(c) > z + (step_up if grounded else mantle)
 
 func blocked_at(p: Vector2) -> bool:

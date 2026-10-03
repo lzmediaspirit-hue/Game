@@ -2,6 +2,15 @@
  "schema_version": 1,
  "sheet": "res://art/topdown/traverse.png",
  "sprites": {
+  "boards": {
+   "frames": 2,
+   "rect": [
+    33,
+    112,
+    16,
+    20
+   ]
+  },
   "chain_foot": {
    "frames": 1,
    "rect": [
@@ -27,6 +36,15 @@
     38,
     16,
     16
+   ]
+  },
+  "cloud": {
+   "frames": 2,
+   "rect": [
+    53,
+    102,
+    28,
+    10
    ]
   },
   "glide": {
@@ -63,6 +81,15 @@
     38,
     16,
     16
+   ]
+  },
+  "lift_2x2": {
+   "frames": 1,
+   "rect": [
+    0,
+    112,
+    32,
+    37
    ]
   },
   "raft_2x2": {

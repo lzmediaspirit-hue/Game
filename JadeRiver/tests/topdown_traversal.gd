@@ -14,7 +14,12 @@ extends "res://tests/prologue_run.gd"
 ##   5. Skipping Stones: Water Skimming across the hermit's pond counts, the mist lotus picked, the hermit takes it;
 ##   6. Swallow Dart and the Cloud Ladder Step in the Falls Pool: three darts along the stick holding the height, three
 ##      second jumps, each lesson's objectives done on the grid (their librarian waits in the library, past the gate);
-##   7. Wall-Step off the cliff's face and a bounce off a drum laid on the grid, each its art_used.
+##   7. Wall-Step off the cliff's face and a bounce off a drum laid on the grid, each its art_used;
+##   8. a lift laid at the cliff's foot carries its rider up to the top and goes back without it; rotten boards hold a
+##      foot, give way into the water and come back;
+##   9. a current pushes a body standing in it; a flood rises on a boss's phase, sends the body to dry floor, and falls;
+##  10. flight: Jump held takes to the air (Wings of Cloud's objective), climbs, holds, lands on Evade held, ends out
+##      of QI, and glides where flight is refused.
 ## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose]
 
 const BEFORE := ["prologue", "main"]
@@ -32,7 +37,8 @@ func _main() -> void:
 	GameEvents.event.connect(_heard)
 	_shortcut()
 	_world()
-	for part in [_set_pieces, _rafts, _leaf_on_the_wind, _rope, _skipping_stones, _dart_and_ladder, _wall_and_bounce]:
+	for part in [_set_pieces, _rafts, _leaf_on_the_wind, _rope, _skipping_stones, _dart_and_ladder, _wall_and_bounce,
+			_lift_and_boards, _current_and_flood, _flight]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -492,3 +498,145 @@ func _wall_and_bounce() -> void:
 	frames(int(1.2 / DT), Vector2.ZERO, false, func(): top.z = maxf(top.z, m.z); return false)
 	tr.bounces.pop_back()
 	check(int(arts.get("bounce", 0)) > b0 and float(top.z) - ground > m.apex() + 20.0, "a landing on a bounce launches the body higher than its jump (%.0f over %.0f)" % [float(top.z) - ground, m.apex()])
+
+# ------------------------------------------------------------------ 8: a lift, rotten boards
+## The Falls Pool, for the parts that lay their own rows on its grid (each part stands alone under --only).
+func _falls_pool() -> bool:
+	return room() == "cf_falls_pool" or enter("cf_falls_pool", "west")
+
+## Water Skimming set aside for a part that wants a body the water takes (a skimmer runs on it): whether it was known.
+func _unskim() -> bool:
+	var had: bool = c().cultivator.secret_arts.has("water_skimming")
+	c().cultivator.secret_arts.erase("water_skimming")
+	return had
+
+func _reskim(had: bool) -> void:
+	if had and not c().cultivator.secret_arts.has("water_skimming"): c().cultivator.secret_arts.append("water_skimming")
+
+## A lift (a crane's basket, a trial's plank) laid at the foot of the Falls Pool's cliff (level 4): boarded from the
+## shore it sets off, carries its rider up four levels to the cliff's top, the rider steps off onto the cliff, and the
+## lift goes back down without it. Rotten boards over the pool's edge hold a foot, give way under it into the water
+## (the body back on its last safe spot) and are back after their time.
+func _lift_and_boards() -> void:
+	check(_falls_pool(), "to the Falls Pool for a lift and rotten boards")
+	var skim := _unskim()
+	var m := motor()
+	var tr := trav()
+	var L := TopdownRoom.LEVEL
+	tr.rafts.append({"id": "t1_lift", "kind": "lift", "rest": Rect2(40.0 * 32.0, 6.0 * 32.0, 64.0, 64.0), "z": 0.0,
+		"mover": {"surface": "t1_lift", "path": [[0.0, 0.0, 4.0 * L]], "speed": 64.0, "wait_s": 1.5, "mode": "trigger", "trigger_t": -1.0}})
+	var lift: Dictionary = tr.rafts.back()
+	var seen := boarded.size()
+	stand(Vector2(40.5, 6.5))
+	frames(2)
+	check(m.ride == "t1_lift" and boarded.slice(seen).has("t1_lift") and float(lift.mover.trigger_t) >= 0.0,
+		"stepping onto a lift boards it and sets it off (%s; heard %s)" % [m.ride, str(boarded.slice(seen))])
+	frames(int(2.3 / DT), Vector2.ZERO, false, func(): return tr.deck_z(lift) >= 4.0 * L - 0.01)
+	frames(2)   # the body's step follows the deck the clock has raised
+	check(m.grounded and absf(m.z - 4.0 * L) < 1.0 and m.sink_t < 0.0, "the lift carries its rider up four levels (z %.0f)" % m.z)
+	frames(int(0.5 / DT), Vector2.UP)
+	var cp := TopdownRoom.cell_of(m.pos)
+	check(cp.y <= 5 and m.grounded and absf(m.z - 4.0 * L) < 1.0 and m.ride == "", "stepped off the lift onto the cliff's top (cell %s, z %.0f)" % [str(cp), m.z])
+	frames(int(4.0 / DT), Vector2.ZERO, false, func(): return float(lift.mover.trigger_t) < 0.0)
+	check(tr.deck_z(lift) < 0.5 and absf(m.z - 4.0 * L) < 1.0, "the lift went back down without its rider, who stays on the cliff (deck %.0f)" % tr.deck_z(lift))
+	tr.rafts.erase(lift)
+	# Rotten boards over the pool's edge (row 9: water to x 37, the shore from 38).
+	tr.crumbles.append({"id": "t1_boards", "kind": "crumble", "rect": Rect2(36.0 * 32.0, 9.0 * 32.0, 64.0, 32.0), "z": 0.0,
+		"break_s": 0.8, "return_s": 2.0, "start": -1.0})
+	var boards: Dictionary = tr.crumbles.back()
+	stand(Vector2(38.5, 9.0))
+	frames(int(0.6 / DT), Vector2.LEFT, false, func(): return not tr.crumble_at(m.pos).is_empty())
+	frames(int(0.15 / DT))
+	check(m.grounded and absf(m.z) < 0.5 and tr.crumble_state(boards) == "giving" and Game.room_rt.topdown.is_water(TopdownRoom.cell_of(m.pos).x, TopdownRoom.cell_of(m.pos).y),
+		"rotten boards over the water hold a foot, and start to give way (%s, z %.0f)" % [tr.crumble_state(boards), m.z])
+	var safe := m.safe   # the last spot on the shore (never the boards over the water)
+	var fell := {"sank": false}
+	frames(int(2.0 / DT), Vector2.ZERO, false, func(): fell.sank = bool(fell.sank) or m.sink_t >= 0.0; return bool(fell.sank) and m.grounded and m.sink_t < 0.0)
+	check(bool(fell.sank) and m.grounded and m.pos.distance_to(safe) < 1.0 and not Game.room_rt.topdown.is_water(TopdownRoom.cell_of(m.pos).x, TopdownRoom.cell_of(m.pos).y),
+		"the boards gave way into the water; the body is back on its last safe spot (%s, sank %s)" % [str(TopdownRoom.cell_of(m.pos)), str(fell.sank)])
+	frames(int(2.5 / DT))
+	check(tr.crumble_state(boards) == "whole" and absf(m.floor_at(boards.rect.get_center())) < 0.5, "the boards are back after their time")
+	tr.crumbles.erase(boards)
+	_reskim(skim)
+
+# ------------------------------------------------------------------ 9: a current, rising water
+## A current over the Falls Pool's shore pushes a body standing in it (not one in the air); a flood laid there rises on
+## its side-view volume's script (a boss's phase, through the World authority), sends the body standing in it to the
+## nearest dry floor, holds, and goes back down.
+func _current_and_flood() -> void:
+	check(_falls_pool(), "to the Falls Pool for a current and rising water")
+	var skim := _unskim()
+	var m := motor()
+	var tr := trav()
+	var area := Rect2(44.0 * 32.0, 12.0 * 32.0, 7.0 * 32.0, 3.0 * 32.0)   # the shore east of the pool
+	tr.currents.append({"id": "t1_current", "kind": "current", "rect": area, "push": Vector2(-60.0, 0.0)})
+	stand(Vector2(48.5, 13.0))
+	var x0 := m.pos.x
+	frames(int(1.0 / DT))
+	check(x0 - m.pos.x > 40.0 and x0 - m.pos.x < 80.0 and m.grounded, "a current pushes a body standing in it (%.0f units in a second)" % (x0 - m.pos.x))
+	tr.currents.pop_back()
+	tr.floods.append({"id": "t1_flood", "kind": "flood", "rect": area, "top": TopdownRoom.LEVEL, "goal": {}, "level": -INF,
+		"rises": [{"event": "boss_phase", "match": {"boss": "t1_flood"}, "to": 32, "over_s": 1.0, "hold_s": 1.5, "back_to": 0}]})
+	var flood: Dictionary = tr.floods.back()
+	stand(Vector2(47.5, 13.0))
+	check(absf(m.floor_at(area.get_center())) < 0.5, "the flood's cells are dry ground at rest")
+	GameEvents.emit_event("boss_phase", {"boss": "t1_flood", "action": "t1"})
+	GameEvents.flush()
+	var wet := {"sank": false}
+	frames(int(1.5 / DT), Vector2.ZERO, false, func(): wet.sank = bool(wet.sank) or m.sink_t >= 0.0; return false)
+	check(tr.flood_k(flood) >= 1.0 and m.floor_at(area.get_center()) == TopdownRoom.WATER_Z, "a boss's phase raises the flood over its cells")
+	frames(int(1.0 / DT), Vector2.ZERO, false, func(): return m.grounded and m.sink_t < 0.0)
+	check(bool(wet.sank) and m.grounded and m.sink_t < 0.0 and not area.has_point(m.pos) and absf(m.z) < 0.5,
+		"the body the water rose over is back on the nearest dry floor (%s)" % str(TopdownRoom.cell_of(m.pos)))
+	frames(int(3.0 / DT), Vector2.ZERO, false, func(): return flood.goal.is_empty())
+	check(tr.flood_k(flood) == 0.0 and absf(m.floor_at(area.get_center())) < 0.5, "the water goes back down after its hold")
+	tr.floods.erase(flood)
+	_reskim(skim)
+
+# ------------------------------------------------------------------ 10: flight
+## Cloud Stride's flight on the grid: Jump held as the body comes down takes to the air (Wings of Cloud's first
+## objective), held it climbs past any jump to its ceiling, let go it holds its height as it flies along the stick,
+## Evade held brings it down to land; out of QI it falls; where flight is refused the same hold glides.
+func _flight() -> void:
+	_realm("cloud_stride_1")
+	check(_falls_pool(), "to the Falls Pool to fly")
+	if not Game.combat.knows_art(c(), "glide"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "falling_leaf_glide"}], "test")
+	if not c().quests.is_active("wings_of_cloud"): submit({"type": "accept_quest", "quest": "wings_of_cloud"})
+	GameEvents.flush()
+	check(c().quests.is_active("wings_of_cloud") and Unlocks.is_unlocked(c().id, "flight"), "at Cloud Stride 1, Wings of Cloud accepted opens flight")
+	var m := motor()
+	stand(Vector2(40, 22))
+	w.player.jump()
+	frames(int(1.6 / DT), Vector2.ZERO, true)
+	var prog: Array = c().quests.active.get("wings_of_cloud", {}).get("progress", [0])
+	check(m.flying and Game.combat.is_flying(c().id) and st.flying and m.z > m.apex() + 40.0,
+		"Jump held as the body comes down takes to the air, and climbs past a jump (z %.0f, apex %.0f)" % [m.z, m.apex()])
+	check(int(prog[0]) >= 1, "Wings of Cloud's 'take to the air' is done on the grid (%s)" % str(prog))
+	var p0 := m.pos
+	var z0 := m.z
+	frames(int(0.5 / DT), Vector2.RIGHT)
+	check(m.flying and absf(m.z - z0) < 1.0 and m.pos.x - p0.x > 60.0, "let go, the flier holds its height and flies along the stick (%.0f units, z %.0f to %.0f)" % [m.pos.x - p0.x, z0, m.z])
+	w.player.fly_down = true
+	frames(int(4.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	w.player.fly_down = false
+	frames(2)
+	check(m.grounded and not m.flying and not Game.combat.is_flying(c().id) and not st.flying, "Evade held brings the flier down; landing ends the flight")
+	# Out of QI the flight ends and the body falls.
+	_whole()
+	stand(Vector2(40, 22))
+	w.player.jump()
+	frames(int(0.6 / DT), Vector2.ZERO, true)
+	var flew := m.flying
+	c().pools.qi = 0.0
+	frames(int(3.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	check(flew and m.grounded and not m.flying and not Game.combat.is_flying(c().id), "out of QI the flight ends and the body comes down")
+	_whole()
+	# Where flight is refused (an interior, a sect's grounds, a room that forbids it) the same hold glides.
+	Game.room_rt.def["no_flight"] = true
+	stand(Vector2(40, 22))
+	w.player.jump()
+	var glid := {"on": false}
+	frames(int(0.6 / DT), Vector2.ZERO, true, func(): glid.on = bool(glid.on) or st.gliding; return false)
+	check(not m.flying and not Game.combat.is_flying(c().id) and bool(glid.on), "where flight is refused the hold glides instead (flying %s, glided %s, knows %s)" % [str(m.flying), str(glid.on), str(Game.combat.knows_art(c(), "glide"))])
+	frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	Game.room_rt.def.erase("no_flight")

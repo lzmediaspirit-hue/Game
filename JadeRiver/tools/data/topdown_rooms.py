@@ -453,6 +453,32 @@ def check_traverse(s, d, g, walked):
             x, y, w, h = r["rect"]
             if x < 0 or y < 0 or x + w > g.w or y + h > g.h or float(r.get("top", 0)) <= 0:
                 errs.append("updraft %s: its rect %s is outside the room or it lifts nowhere" % (tid, str(r["rect"])))
+        elif kind == "lift":
+            if tid not in side_movers:
+                errs.append("lift %s: no mover of that surface in the side-view room" % tid)
+            base = float(r.get("level", 0))
+            path = r.get("path", [])
+            ends = [(0.0, 0.0, base)] + ([] if not path else [(float(path[-1][0]), float(path[-1][1]), base + float(path[-1][2]) if len(path[-1]) > 2 else base)])
+            for c in raft_cells(r, (0.0, 0.0)):
+                fl = g.floor(*c) if 0 <= c[0] < g.w and 0 <= c[1] < g.h else None
+                if fl is None or fl > base * LEVEL + 0.5:
+                    errs.append("lift %s: its cell %s at rest is no floor under its deck" % (tid, str(c)))
+            for dx, dy, lv in ends:
+                cells = set(raft_cells(r, (dx, dy)))
+                beside = {(cx + ex, cy + ey) for cx, cy in cells for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
+                if not any(g.floor(*q) is not None and abs(g.floor(*q) - lv * LEVEL) <= STEP for q in beside):
+                    errs.append("lift %s: no landing at its level %g at offset %s" % (tid, lv, str((dx, dy))))
+        elif kind in ("crumble", "current", "flood"):
+            want = {"crumble": "crumble", "current": "current", "flood": "rising_water"}[kind]
+            v = side_volumes.get(tid, {})
+            if str(v.get("kind", "")) != want:
+                errs.append("%s %s: no %s volume of that id in the side-view room" % (kind, tid, want))
+            x, y, w, h = r["rect"]
+            if x < 0 or y < 0 or x + w > g.w or y + h > g.h:
+                errs.append("%s %s: its rect %s is outside the room" % (kind, tid, str(r["rect"])))
+            elif kind == "crumble" and any(g.floor(xx, yy) is not None and g.floor(xx, yy) >= float(r.get("level", 0)) * LEVEL
+                                           for yy in range(y, y + h) for xx in range(x, x + w)):
+                errs.append("crumble %s: its boards at level %s lie over no pit" % (tid, r.get("level", 0)))
         elif kind == "bounce":
             v = side_volumes.get(tid, {})
             if str(v.get("kind", "")) != "bounce":
