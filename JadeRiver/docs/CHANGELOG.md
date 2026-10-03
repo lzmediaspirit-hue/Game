@@ -1,5 +1,53 @@
 # Changelog
 
+## The peaks on the grid (R4)
+
+The room engine's peaks batch (`docs/architecture/room_engine.md`, "The peaks (R4)"). The eleven side-view rooms of
+the Crane Cliffs, Mist Peak, Summit Ridge, the Hidden Vale and the Hidden Grotto are specs now, and a top-down
+character plays the peaks' story on the grid.
+
+- **Eleven rooms, 12 to 28 spec lines each, anchors included.**
+  - The Crane Cliffs: the Cliff Faces and the Sky Ledges.
+  - Mist Peak: the Misty Slopes, the Forgotten Monastery and the Ascension Gate.
+  - Summit Ridge: the Windswept Ridge and the Frozen Shrine.
+  - The Hidden Vale: the Vale Gate, the Sect Grounds and the Back Mountain.
+  - The Hidden Grotto.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. Every sect building has its slot on the
+  Sect Grounds' paved walks. The side view's climbs (ropes, updrafts, crags and cloud ledges) are terraces stepping
+  north up the mountain, a flight up each. The monastery stands in ruined walls on its terrace, its hidden stair and
+  cellar opening in the retaining wall.
+- **Looks.**
+  - Three biomes: `mist_peak` (pines, grey dead trees, misty wet hollows), `snowfield` (the snow line, for Act II's
+    Rimefrost Heights too) and `hidden_vale`. The Crane Cliffs take R1's `mountain`.
+  - A biome may set the `ground` a spec that names none takes. The snow line's covers every cell in fresh snow and
+    tramples the walks to packed snow.
+  - The rooms' vistas (peaks behind, the cloud sea under the brinks) are in `topdown_life.VISTAS`.
+- **Engine rules.** Every room before them compiles byte for byte as it did.
+  - `wavy="s"`: one edge of a band wanders.
+  - `flights=[...]`: a long terrace climbed at several columns, keeping off the walk.
+  - `shape="ruin"`: broken walls round a floor.
+  - A flight prefers a foot flush with the ground below.
+  - Neither a paint-only feature nor a walk is climbed onto.
+  - `ground` names `"*"` and `"walk"`.
+- **Shared fixes.**
+  - Raised stone reads as raised: a small raised block (a pillar, a plinth, a stretch of ruined wall) gets a lit top
+    and a lighter face (`TopdownTerrain`). This fixes R1's Cleansing Summit pillars too; their pictures are retaken.
+  - On the grid, the sect's raid comes in on the Sect Grounds' floor, never past its edge.
+  - Four places join `places.py`: the Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the
+    Frozen Shrine.
+- **The frontier.** The Falls Pool's path to the Hidden Vale is open, and the Hidden Vale's teleport stone lands on
+  the grid. The gate now stands at the Cliff Faces' way east to the Echo Cliffs (R2's gorge) and at the Ascension
+  Gate's way up to the Azure Expanse.
+- **Tests.**
+  - A new suite, `topdown_peaks`. It plays the climb from the Cliff Faces to the Ascension Gate, with Above the Mist,
+    A Wider Sky, Beyond the Valley and The Ascension Gate's boss, and the monastery's hidden stair shown by Spirit Sense.
+    In the Hidden Vale it plays the teleport stone, a founded sect's raid and the Back Mountain, then the Grotto's rope
+    up to Behind the Falls. Each room is built by the view and walked by auto-path.
+  - The frontier's own checks needed no edit.
+  - The `room_engine` capture set has the peaks' views (pictures in `docs/architecture/room_engine/r4/`). A view named
+    under a folder keeps its world picture and its whole room under that folder too.
+
 ## The road east on the grid: chapter 4 top-down (decision 45, R1)
 
 The room engine's first batch past chapter 3 (`docs/architecture/room_engine.md`, "The road east: chapter 4"). The

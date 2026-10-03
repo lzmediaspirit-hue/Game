@@ -675,10 +675,16 @@ class Build:
         walk = {c for q in self.regions.values() if q.walk for c in q.cells()} if keep_walk else set()
 
         def over_walk(x):
-            top = (r.bottom(x) if r.bottom(x) is not None else r.y1 - 1) + 1
-            rows = [y for y in range(top, top + 2 * max(1, r.level - (self.lay.lv[min(top, self.h - 1)][x] if self.lay.lv[min(top, self.h - 1)][x] != WATER else 0)))]
-            hits = sum((x, y) in walk for y in rows)
+            """0: a flight at this column ends at the walk; 1: it comes down onto it; 2: it runs across it."""
+            b = r.bottom(x)
+            top = (b if b is not None else r.y1 - 1) + 1
+            if top >= self.h:
+                return 0
+            below = self.lay.lv[top][x]
+            depth = 2 * max(1, r.level - (below if below != WATER else 0))
+            hits = sum((x, y) in walk for y in range(top, top + depth))
             return 0 if not hits else (1 if hits <= 2 else 2)
+
         def rank(x):
             d = abs(x + width // 2 - want)
             return ((over_walk(x) if d <= 8 else 3) if keep_walk else 0, d, x)

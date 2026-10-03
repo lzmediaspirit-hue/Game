@@ -14,7 +14,11 @@ is (x, y, w, h). Every key but `size` may be left out.
   bands     [(name, y, h, {level, paint, water, walk, wall, x, w})]: strata from the north, the room's width each (or
             from `x`, `w` wide); `walk` marks the main walk (a road), `wall` a cliff no one climbs; laid in order
   features  [(name, (x, y, w, h), {level, paint, water, rise})]: raised, sunk or painted shapes laid over the bands in
-            order; `rise: (from, to)` makes it a flight of stairs rising north
+            order; `rise: (from, to)` makes it a flight of stairs rising north; `shape="round"` a cavern or a pond,
+            `shape="ruin"` a ruined building's broken walls up to `level` round the floor it stands on (`door`: the
+            open side, "s" by default); a feature with no `level` is paint over what lies under it
+            (R4) a band or a feature may also take `wavy` (True, or "s" / "n": that edge alone wanders) and
+            `flights=[col, ...]` (stairs "auto" climbs it at each column, keeping off the walk below)
   stairs    [(x, y, w, h, from, to[, paint])] laid after the features, and/or "auto": a flight wherever a walk crosses a
             level edge, and up onto every raised shape something stands on
   ways      {portal id: way}, in the order the layout lists them:
@@ -30,7 +34,8 @@ is (x, y, w, h). Every key but `size` may be left out.
   flora     {band: [kinds] | {kinds, density}, "density": d}: the foliage along each band's edges (the biome's pool
             for its role where the spec names none), seeded by the room's id (a Poisson disc), clear of every anchor,
             way, lane, walk and foe; trees to a band's back, bushes on its lip, none on a road's shoulder
-  ground    {"sand" | "snow" | "snowpack": [rect | band name]}: decision 44's sand and snow, laid after the flora
+  ground    {"sand" | "snow" | "snowpack": [rect | band name | "*" | "walk"]}: decision 44's sand and snow, laid after
+            the flora ("*" every cell, "walk" the walks and their cuts, neither on a stair); the biome's when unset
   spawn     (x, y) or a way's id: where a new character wakes (default: the first way's arrival)
   anchors   {object id: (x, y) | "anchor"}: every NPC and object of the side-view room; an anchor resolves to a cell:
               "road@34"   a band at a column (its middle row)       "road.n@60" "road.s"   the row north or south of it

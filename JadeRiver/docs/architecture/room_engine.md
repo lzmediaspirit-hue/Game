@@ -267,9 +267,9 @@ lips wander (`wavy`), each laid over the one below it, with the stair landings f
   deep and the Pilgrim Stairs 72 cells wide so that Heaven's Cleansing's and the Iron Body trial's points land on open
   ground. Converting their points is the engine's work, not a room's.
 
-**The frontier now:**
+**The frontier then** (R1):
 - Bend Shore's ways west (Whitewater Gorge), to the Serpent's Shallows and to the Drowned Shrine;
-- the Falls Pool's misty path to the Hidden Vale;
+- the Falls Pool's misty path to the Hidden Vale (opened by R4, below);
 - the sects' halls and abodes;
 - the Trial Tower;
 - the Quarry Road;
@@ -279,9 +279,116 @@ lips wander (`wavy`), each laid over the one below it, with the stair landings f
 
 The story's next quest past chapter 4, The Shrine Surfaces (the Drowned Shrine), is past the gate.
 
+## The peaks (R4)
+
+The eleven rooms of the peaks, now on the grid: the Crane Cliffs, Mist Peak, Summit Ridge, the Hidden Vale and the
+Hidden Grotto. Their high-mountain, mist and snow looks are the ones Act II's Rimefrost Heights will reuse.
+`topdown_peaks` plays them by test shortcuts, a top-down character at Heaven Glimpse 3 set down on the Cliff Faces:
+- the climb room by room through their ways, with no gate on the way: the Cliff Faces, the Sky Ledges, the Misty
+  Slopes, the Forgotten Monastery, the Windswept Ridge, the Frozen Shrine and the Ascension Gate;
+- Above the Mist's Stormwing Hawks on the Sky Ledges;
+- A Wider Sky, meditated by the heaven insight stone;
+- the monastery's hidden cellar, shown by Spirit Sense and taken to the hidden stair;
+- Beyond the Valley to the Frozen Shrine, and Lu's journal page there;
+- The Ascension Gate: the Gate Guardian on the summit's arena, and Act I's end;
+- the Hidden Vale's teleport stone, a founded sect's raid on the Sect Grounds, the Back Mountain opened by the sect's
+  level, and the Grotto's rope up to Behind the Falls.
+
+In each room it checks the walks and the view as `topdown_chapter3` does.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r4/`) |
+|---|---|---|---|
+| `cc_cliff_faces` | 18 | `mountain` | `01_cliff_faces_crags`, `02_cliff_faces_brink`, `rooms/cc_cliff_faces` |
+| `cc_sky_ledges` | 19 | `mountain` | `03_sky_ledges_climb`, `04_sky_ledges_summit`, `rooms/cc_sky_ledges` |
+| `mp_misty_slopes` | 23 | `mist_peak` | `05_misty_slopes_mere`, `06_misty_slopes_knoll`, `rooms/mp_misty_slopes` |
+| `mp_forgotten_monastery` | 28 | `mist_peak` | `07_monastery_hall`, `08_monastery_garden`, `rooms/mp_forgotten_monastery` |
+| `mp_ascension_gate` | 15 | `snowfield` | `09_ascension_gate`, `rooms/mp_ascension_gate` |
+| `sr_windswept_ridge` | 19 | `snowfield` | `10_windswept_ridge`, `rooms/sr_windswept_ridge` |
+| `sr_frozen_shrine` | 18 | `snowfield` | `11_frozen_shrine_court`, `rooms/sr_frozen_shrine` |
+| `hv_vale_gate` | 15 | `hidden_vale` | `12_vale_gate`, `rooms/hv_vale_gate` |
+| `hv_sect_grounds` | 25 | `hidden_vale` | `13_sect_grounds`, `rooms/hv_sect_grounds` |
+| `hv_back_mountain` | 17 | `hidden_vale` | `14_back_mountain_spring`, `rooms/hv_back_mountain` |
+| `hg_hidden_grotto` | 12 | `cave` | `15_hidden_grotto`, `rooms/hg_hidden_grotto` |
+
+The line counts take in the anchors; the longest rooms are the ones with the most things (the monastery has 19). As
+R1's, the capture's x2 copies of the world alone are not kept. The specs: `specs/crane_cliffs.py`, `mist_peak.py`,
+`summit_ridge.py`, `hidden_vale.py`, `unmapped.py`.
+
+**The looks.**
+- Three biomes. `mist_peak` has pines and grey dead trees, ferns and mossy stones, and the mist lies over the slopes'
+  wet hollows (paint `m`, TopdownAtmosphere's mist). `snowfield` is the snow line. `hidden_vale` is a sheltered sect
+  valley of blossom, maples, camphor, pines and bamboo, with willows and lotus on its water.
+- The Crane Cliffs take R1's `mountain`.
+- **The snow line.** A biome may set the `ground` a spec that names none takes. `snowfield`'s is fresh snow over every
+  cell (`"*"`) and packed snow on the walks and their cuts (`"walk"`), never on a flight of stairs. Paving is never
+  snowed, so a court or an arena reads swept.
+- **Mountains.** The Cliff Faces' trail runs under a level-6 cliff, crane ledges and crags rising north up it. The
+  rooms that end in clouds fall in a wavy step to a brink over the `cloud_sea` vista.
+- A raised thing is placed at least its level in rows from the north edge. The view draws a top `level` rows up, and a
+  chest on a level-5 crag in row 3 would stand above the room's picture.
+- Water lies beside ground at level 0 (the Back Mountain's spring pool), so a pool's bank is one level and never a pit.
+
+**Engine rules.** None of them changes a room built before. Every older spec compiles to its file byte for byte, and
+`test_engine` holds it.
+- `wavy="s"` (or `"n"`) wanders one edge only, such as a terrace's lip under a cliff laid before it.
+- `flights=[col, ...]` on a band or a feature: stairs "auto" climbs it at each column. Near the column it prefers a
+  flight that ends at the walk below, then one that comes down onto it, before one that runs across it.
+- A flight prefers a column within ten whose foot is flush with the ground it leads to. A foot a step lower leaves a
+  dark lip under the flight's last row. The Caravan Road's outcrop and R1's Grey Pools have no such column and keep
+  theirs.
+- A feature with no `level` of its own is paint and gets no flight. A walk is never climbed onto either.
+- `shape="ruin"`: a ruined building's walls round its rect, broken by a hash of the seed. About one piece in five is
+  gone and one in five is fallen a level. The corners always stand, so two walls never touch only diagonally, which
+  the game's route crosses and the Grid's does not. A doorway of four cells is left on its `door` side. Its region is
+  the floor inside, which anchors stand on and plants grow on.
+- The ground cases above: `"*"` and `"walk"` as `ground` names, and a biome's `ground`.
+
+**Shared rules for the view and the systems.**
+- **Raised stone reads as raised** (`TopdownTerrain._lit_blocks`). A small raised block is one of at most 12 cells of
+  one level, standing two levels or more over the ground round it: a pillar, a plinth, a stretch of ruined wall. Its
+  top takes a lit tint (`LIT`) and its face a lighter sky tint (`FACE_LIT`). Over its cast shadow it reads as a lit
+  stone, not a dark square sunk into the paving. This also fixes R1's Cleansing Summit pillars; their two pictures
+  are retaken under `r1/`.
+- **The sect's raid on the grid** (`SectAuthority.start_defence`). The defence's points are the side view's, read as
+  world units, and one stands past the room's east edge. On the grid each comes in on the nearest floor inside the
+  room. The Sect Grounds keep the lawn open where the first two land: cells 9 and 46 of row 26, the latter pinned free
+  of the scatter.
+- **Places.** The Vale Gate's teleport stone, the Sect Grounds' storehouse and shrine, and the Frozen Shrine are rows
+  of `places.py`. There are 30 places now.
+
+**How the side view's verticality came down.**
+- The cloud and rock ledges, at 100 to 900 units, are terraces stepping north, a flight up each.
+- The monastery's roofs and boards are its paved upper terrace, ruined walls, a raised floor and a gallery of boards.
+- The ring of cloud platforms round the Gate Guardian is four low plinths on the arena.
+- The tree-branch routes are tors on the ridge's crest.
+- The hidden stair and cellar are ways into the retaining wall's face.
+- The Grotto's rope is a way up the cleft in its west wall.
+
+**Still to do in these rooms.**
+- Foes with no top-down art yet (the view draws stand-ins; E2's work): the cliff ape, Cloudpeak Roc, Cloudwing Crane,
+  the Gate Guardian, Hollow Stag, Jade Sentinel, Mirror Wisp, Mist Wolf, the rogue treasure adept, Stormwing Hawk and
+  Weeping Lantern.
+- Some of the side view has no top-down counterpart: the crumbling boards and icicles, the updrafts, the ridge's wind
+  and Wings of Cloud's flight.
+- The sect's buildings are drawn as the side view's facades at half size once raised, as every thing is. Their slots
+  line the Sect Grounds' two paved walks, and the big ones overlap when they stand side by side.
+
+**The frontier now** (R4; R1's list less the Falls Pool's path, now open):
+- the Cliff Faces' way east to Whitewater Gorge's Echo Cliffs. Until R2's gorge lands, the climb from the Cliff
+  Faces to the Ascension Gate has no way in on the grid, and `topdown_peaks` sets a body down on it. The Hidden Vale is
+  reached from the Falls Pool and by its teleport stone;
+- Bend Shore's ways west (Whitewater Gorge), to the Serpent's Shallows and to the Drowned Shrine;
+- the sects' halls and abodes;
+- the Trial Tower;
+- the Quarry Road;
+- the Beast Grove;
+- the County Hall;
+- Gu's Warehouse;
+- the Ascension Gate's way up to the Azure Expanse (Act II's Cloudgate Port).
+
 ## The rooms left, and the pace
 
-125 side-view rooms remain, by zone (`region`); the struck ones are done:
+114 side-view rooms remain, by zone (`region`); the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -299,12 +406,12 @@ The story's next quest past chapter 4, The Shrine Surfaces (the Drowned Shrine),
   - `stonewall_quarry`: `sq_quarry_rim`, `sq_lower_pit`, `sq_collapsed_tunnel`;
   - `jade_sect`: `ja_alchemy_hall`, `ja_library`, `ja_retreat`, `ja_cave_abode`;
   - `cloud_sect`: `cm_cloud_library`, `cm_herb_terraces`, `cm_retreat`, `cm_cave_abode`.
-- **The peaks:**
-  - `crane_cliffs`: `cc_cliff_faces`, `cc_sky_ledges`;
-  - `mist_peak`: `mp_misty_slopes`, `mp_forgotten_monastery`, `mp_ascension_gate`;
-  - `summit_ridge`: `sr_windswept_ridge`, `sr_frozen_shrine`;
-  - `hidden_vale`: `hv_vale_gate`, `hv_sect_grounds`, `hv_back_mountain`;
-  - `unmapped`: `hg_hidden_grotto`.
+- **The peaks** (R4, all done: "The peaks (R4)" above):
+  - `crane_cliffs`: ~~`cc_cliff_faces`~~, ~~`cc_sky_ledges`~~;
+  - `mist_peak`: ~~`mp_misty_slopes`~~, ~~`mp_forgotten_monastery`~~, ~~`mp_ascension_gate`~~;
+  - `summit_ridge`: ~~`sr_windswept_ridge`~~, ~~`sr_frozen_shrine`~~;
+  - `hidden_vale`: ~~`hv_vale_gate`~~, ~~`hv_sect_grounds`~~, ~~`hv_back_mountain`~~;
+  - `unmapped`: ~~`hg_hidden_grotto`~~.
 - **The story's own rooms:**
   - `story`: `si_gus_warehouse`, `si_presence_trial`, `si_sect_war`, `si_siege`, `si_trial_of_reflections`;
   - `tidebreak_front`: `si_tide_battle`, `tf_drone_hive`, `tf_greyfall_breach`, `tf_hollow_wake`,
