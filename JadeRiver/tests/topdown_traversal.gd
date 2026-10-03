@@ -4,7 +4,7 @@ extends "res://tests/prologue_run.gd"
 ## frame as the world steps it, then Game.tick), each mechanic in the converted room that needs it:
 ##   1. set pieces: every room event a set piece starts in a room with a layout sets its foes on the grid's open floors,
 ##      reached on foot from the player, inside the room (the summit's by its stage, the rest by their mapped points),
-##      however the room is sized; so do a rift and a treasure birth, made from where things stand on the grid;
+##      however the room is sized; so do a rift, a treasure birth and the sect's raid, on the grid's own floors;
 ##   2. rafts: the Grey Pools' log raft boarded from the jetty carries its rider across the grey pool to the west bank
 ##      (mover_boarded), the loop raft round the east pool and back, the hermit's raft across his pond; never a splash;
 ##   3. Leaf on the Wind, the lesson played on the grid: the vine climbed to the spray ledge (no blow while on it), a
@@ -240,6 +240,18 @@ func _set_pieces() -> void:
 		"a rift's foes come either side of the player, on open ground (%s)" % str(rift))
 	Game.world.load_room(c(), "rm_grey_pools", "west")   # leaves the event behind
 	GameEvents.flush()
+	# The sect's raid (SectAuthority.start_defence's event, its side-view points past the room's east edge) by the same rule.
+	if TopdownRoom.has_layout("hv_sect_grounds"):
+		check(enter("hv_sect_grounds"), "to the Sect Grounds")
+		var cfg := ContentDB.config("defence")
+		var raid := {"id": "sect_defence", "duration": 60.0, "wave": (cfg.get("waves", [{}])[0] as Dictionary).duplicate(true)}
+		raid.wave["points"] = cfg.get("points", [[400, 860]])
+		Game.world.start_room_event(c(), raid)
+		var raid_off := _event_points_off()
+		check(Game.room_rt.event.get("active", false) and raid_off.is_empty() and not (Game.room_rt.event.wave.points as Array).is_empty(),
+			"the sect's raid comes in on the Sect Grounds' open floor (%s; off %s)" % [str(Game.room_rt.event.wave.points), str(raid_off)])
+		Game.world.load_room(c(), "hv_sect_grounds", "")
+		GameEvents.flush()
 
 ## The event's points that are not open ground the player walks to.
 func _event_points_off() -> Array:
