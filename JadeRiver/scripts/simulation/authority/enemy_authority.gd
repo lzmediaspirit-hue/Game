@@ -759,7 +759,7 @@ func _flee(e: EnemyState) -> void:
 	var c = game.active()
 	if c != null:
 		var drop := LootRules.roll(str(e.def.get("loot", e.def_id)), Rng.stream(c.id, "loot"), e.level, 0.0, 0.0, {"no_equipment": true})
-		game.world._drop_loot(c, drop, e.plane, e.altitude, "fled")
+		game.world.apply_loot_drop(c, drop, e.plane, e.altitude, "fled")
 	emit("boss_fled", {"enemy": e.uid, "def": e.def_id, "room": game.room_rt.room_id})
 	release(e)
 

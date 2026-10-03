@@ -3,226 +3,83 @@ extends Authority
 ## S17/S18/S32 · Owns the loaded room (RoomRuntime), portals and world objects,
 ## ground loot (rolled on actor_defeated), discovered teleport stones and the
 ## zone context. One room is loaded at a time.
+##
+## The authority keeps the state, the intents, the subscriptions, the room's lifecycle (loading and entering a room, the
+## character's memory of it) and the tick; the rest of the work is done by its parts in authority/world/, one for each
+## section (audit 45, S9: WorldPart says how a part works). Its public methods forward to them.
 
-const PICKUP_RADIUS := 48.0
-const PORTAL_RADIUS := Vector2(64, 44)
 const BREAKABLES := ["jar", "crate", "wine_jar"]
 const TRAINING := ["training_stump", "training_dummy"]
-## The world's resource nodes: things worked for a yield or a training (a herb, a vein, a pool, a swarm, a trail, a
-## star ring, a bed or plot, a Temper drum). While the craft or the body level they ask is not there yet, they stay in
-## the world as a promise and never take the context button (query_context, resource_node).
-const RESOURCE_NODES := ["herb_patch", "ore_vein", "fishing_spot", "insect_swarm", "beast_trail", "star_sight", "garden_bed", "treasure_plot"]
 const REACH_ALT := 48.0   # an object answers only a body within this height of it (the context button and interact)
 
 ## Debug tools (S38, the Max Test APK): every portal, hidden way and climb is open, whatever its quest, flag or rank.
 ## A way to a room not built yet stays "Coming soon".
 var debug_open_ways := false
+var ambush_cd: Dictionary = {}    # actor -> seconds before the roads may spring another ambush (not saved)
+var herb_clock := 0.0             # the rare-herb check runs once a second
+var sensed_herbs: Dictionary = {} # object -> {until, ripe, seconds, dormant}: a Spirit Sense readout over the node
+var chases: Dictionary = {}       # actor -> {object, room, start}: a thief running over the roofs (not saved)
+var runs: Dictionary = {}         # actor -> {object, room, start}: a timed route under way (not saved)
+var voyages: Dictionary = {}      # actor -> {route, vessel, seconds}: a crossing under way
+var auto_hunt: Dictionary = {}    # actor -> true while the toggle is on (the session only)
+var auto_paths: Dictionary = {}   # actor -> {target, route: [{room, portal, to}]}
+var auto_check := 0.0             # auto-hunt asks whether it may go on twice a second
+var guide_cache := {}             # the direction mark's last step: {key, at, step}
+
+# The parts, untyped on purpose (docs/architecture/authority_parts.md, S9): typed, they put the parts in a cycle with
+# this class, and Godot's analyzer then leaves ActorState's untyped members unresolved for every script compiled after
+# boot (rules_tests failed to parse). Each holds the class named in its comment.
+var ambush        # WorldAmbush: bandit ambushes
+var herbs         # WorldHerbs: rare herbs and their guardians
+var portals       # WorldPortals: portals, hidden ways, routes, teleports and Spirit Sense
+var arrays        # WorldArrays: the sect's transfer arrays
+var objects       # WorldObjects: room objects: shown, open, their states, blows on them
+var context       # WorldContext: interact and the context button
+var loot          # WorldLoot: beast cores and loot
+var races         # WorldRaces: rooftop chases and timed routes
+var hazards       # WorldHazards: room hazards and hazard volumes
+var starsea       # WorldStarsea: Starsea voyages
+var room_events   # WorldRoomEvents: room events
+var nests         # WorldNests: the Beast Kings' nests, the Beast Tide, the Beast Trial Grove
+var tower         # WorldTower: the Trial Tower
+var idle          # WorldIdle: idle rooms, auto-hunt, auto-path and the direction mark
+
+func _init(g) -> void:
+	super(g)
+	ambush = WorldAmbush.new(self)
+	herbs = WorldHerbs.new(self)
+	portals = WorldPortals.new(self)
+	arrays = WorldArrays.new(self)
+	objects = WorldObjects.new(self)
+	context = WorldContext.new(self)
+	loot = WorldLoot.new(self)
+	races = WorldRaces.new(self)
+	hazards = WorldHazards.new(self)
+	starsea = WorldStarsea.new(self)
+	room_events = WorldRoomEvents.new(self)
+	nests = WorldNests.new(self)
+	tower = WorldTower.new(self)
+	idle = WorldIdle.new(self)
 
 func intents() -> Array:
-	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "set_sail", "climb_tower", "sweep_floor",
+	return ["use_portal", "interact", "teleport", "pick_up", "enter_world", "sense_pulse", "climb_tower", "sweep_floor",
 		"set_auto_hunt", "auto_path", "enter_grid_room", "array_travel"]
 
 func subscribe() -> void:
 	# S49 mobile conventions: auto-path follows the character room to room and stops at danger.
-	GameEvents.subscribe("room_entered", _auto_path_room, 60)
-	GameEvents.subscribe("hit_landed", _auto_path_danger, 60)
+	GameEvents.subscribe("room_entered", idle.auto_path_room, 60)
+	GameEvents.subscribe("hit_landed", idle.auto_path_danger, 60)
 	# S43 rising water: a boss phase or a boss's fall moves the water in the room.
 	for ev in ["boss_phase", "field_boss_defeated"]:
 		GameEvents.subscribe(ev, _on_room_script.bind(ev), 50)
-	GameEvents.subscribe("actor_defeated", _on_actor_defeated, 50)
-	GameEvents.subscribe("actor_defeated", _event_kill, 55)
+	GameEvents.subscribe("actor_defeated", loot.on_actor_defeated, 50)
+	GameEvents.subscribe("actor_defeated", room_events.event_kill, 55)
 	GameEvents.subscribe("bottleneck_reached", _on_bottleneck, 50)
-	GameEvents.subscribe("hit_landed", _on_hit_during_event, 50)
-	GameEvents.subscribe("room_entered", _on_room_entered_fates, 51)
-	GameEvents.subscribe("room_entered", _on_room_entered_ambush, 52)
-	GameEvents.subscribe("world_event_started", _on_world_event_started, 50)
-	for ev in ["room_entered", "quest_completed"]: GameEvents.subscribe(ev, _announce_first_fruit, 96)
-
-## S45 treasure births (on the S49 calendar): World announces the fruit ripening in its room.
-func _on_world_event_started(p: Dictionary) -> void:
-	if str(p.get("event", "")) != "treasure_birth": return
-	emit("treasure_birth_announced", {"room": str(p.get("room", "")), "item": str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit")),
-		"ends": float(p.get("ends", 0.0)), "first": false})
-
-## The character's own first Spirit Fruit (an early surprise, CalendarAuthority.open_first_fruit): announced once, the
-## moment its tree shows in the room the character stands in (on arrival, or as The Willow Path is done there).
-func _announce_first_fruit(_p := {}) -> void:
-	var c = game.active()
-	if c == null or game.room_rt == null or c.quests.has_flag("first_fruit_seen"): return
-	for o in game.room_rt.def.get("objects", []):
-		if not o.get("first", false) or str(o.get("type", "")) != "treasure_birth" or not object_visible(c, o): continue
-		game.quest.apply_flag(c.id, "first_fruit_seen")
-		emit("treasure_birth_announced", {"room": game.room_rt.room_id, "item": str(CalendarRules.event("treasure_birth").get("item", "spirit_fruit")),
-			"ends": 0.0, "first": true})
-		return
-
-## S48 Wandering Eye (a fate): one hidden way in each room entered shows itself.
-func _on_room_entered_fates(p: Dictionary) -> void:
-	var c = game.character(str(p.get("actor", "")))
-	if c == null or game.room_rt == null or not game.progression.fate_flag(c, "reveal_hidden"): return
-	for pt in game.room_rt.def.get("portals", []):
-		if str(pt.get("type", "")) != "hidden": continue
-		var f := seen_flag(game.room_rt.room_id, str(pt.id))
-		if c.quests.has_flag(f): continue
-		game.quest.apply_flag(c.id, f)
-		emit("hidden_portal_revealed", {"actor": c.id, "portal": str(pt.id), "room": game.room_rt.room_id, "source": "wandering_eye"})
-		return
-
-# ------------------------------------------------------------------ bandit ambushes (S48 hidden cultivation)
-var ambush_cd: Dictionary = {}   # actor -> seconds before the roads may spring another ambush (not saved)
-
-## The chance that a road's ambush springs on this entry. Bandits judge the realm you show, not the one you hold:
-## past their reach they leave you be, and a false realm (Concealment) looks like easy prey and doubles the odds.
-func ambush_chance(c, amb: Dictionary) -> float:
-	var k: Dictionary = ContentDB.stat_const("ambush", {})
-	var cu: CultivatorState = c.cultivator
-	var shown := ProgressionRules.level_for(game.progression.shown_realm(c), cu.progress_fraction())
-	var lv: Array = amb.get("level", [1, 1])
-	if shown > int(lv[1]) + int(k.get("reach", 8)): return 0.0
-	var chance := float(k.get("chance", 0.06))
-	if cu.false_realm != "": chance *= float(k.get("concealed_mult", 2.0))
-	return chance
-
-## A road room with an `ambush` rolls once as you come in: never on a first visit, never during a room event and not
-## again until the cooldown has run.
-func _on_room_entered_ambush(p: Dictionary) -> void:
-	var c = game.character(str(p.get("actor", "")))
-	var rt: RoomRuntime = game.room_rt
-	if c == null or rt == null or p.get("first_visit", false) or rt.event.get("active", false): return
-	var amb: Dictionary = rt.def.get("ambush", {})
-	if amb.is_empty() or float(ambush_cd.get(c.id, 0.0)) > 0.0: return
-	if amb.has("requires") and not RequirementRules.passes(amb.requires, game.ctx(c)): return
-	if Rng.stream(c.id, "ambush").randf() >= ambush_chance(c, amb): return
-	spring_ambush(c, amb)
-
-## The gang drops in on both sides of you. They are summoned foes: they fight like the road's own and scatter if
-## you leave.
-func spring_ambush(c, amb: Dictionary) -> void:
-	var rt: RoomRuntime = game.room_rt
-	if rt == null: return
-	var k: Dictionary = ContentDB.stat_const("ambush", {})
-	ambush_cd[c.id] = float(k.get("cooldown_s", 900))
-	var rng := Rng.stream(c.id, "ambush")
-	var lv: Array = amb.get("level", [1, 1])
-	var at := Vector2(float(c.position.get("x", 400)), float(c.position.get("y", 850)))
-	var n := int(amb.get("count", 2))
-	var off := float(k.get("offset", 360))
-	for i in n:
-		var dx := (1.0 if i % 2 == 0 else -1.0) * (off + 90.0 * floorf(i / 2.0))
-		var spot := Vector2(clampf(at.x + dx, 120.0, rt.width() - 120.0), at.y)
-		# On the height grid: on the floor round the player, on its own level (not in a wall, the water or a roof).
-		if rt.topdown != null: spot = rt.topdown.place_near(at + Vector2(dx, 0.0), rt.topdown.floor_at(at))
-		game.enemies.spawn_at(str(amb.enemy), spot, rng.randi_range(int(lv[0]), int(lv[1])))
-	emit("ambush_sprung", {"actor": c.id, "room": rt.room_id, "enemy": str(amb.enemy), "count": n, "concealed": c.cultivator.false_realm != ""})
-
-# ------------------------------------------------------------------ rare herbs (S45)
-var herb_clock := 0.0             # the rare-herb check runs once a second
-var sensed_herbs: Dictionary = {} # object -> {until, ripe, seconds, dormant}: a Spirit Sense readout over the node
-
-## A rare node's state now: {ripe, seconds, window, dormant}.
-func herb_state(o: Dictionary) -> Dictionary:
-	var now := Clock.now_utc()
-	var st := HerbRules.ripen_state(o, now)
-	st.dormant = not HerbRules.in_season(o, now)
-	return st
-
-## Once a second: a rare node that has just ripened says so, and its guardian wakes when you climb toward it.
-func _tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
-	herb_clock -= delta
-	if herb_clock > 0.0: return
-	herb_clock = 1.0
-	var st: ActorState = game.actor_state(c.id)
-	var whisper: float = game.pets.whisper_range(c)   # S46 Herb Whisper: an animal beside you reads the herbs near you
-	for o in rt.def.get("objects", []):
-		if o.type != "herb_patch" or not o.has("ripen"): continue
-		var os: Dictionary = rt.objects.get(str(o.id), {})
-		var hs := herb_state(o)
-		var hat: Array = o.get("at", [0, 0])
-		if whisper > 0.0 and st != null and st.plane.distance_to(Vector2(float(hat[0]), float(hat[1]))) <= whisper:
-			sensed_herbs[str(o.id)] = {"until": game.sim_time + 1.5, "utc": Clock.now_utc(), "ripe": hs.ripe, "seconds": float(hs.seconds), "dormant": hs.dormant,
-				"season": str(o.get("season", "")), "spent": os.get("state", "ready") == "depleted"}
-		var ripe: bool = hs.ripe and not hs.dormant and os.get("state", "ready") == "ready"
-		if ripe and not os.get("ripe", false):
-			emit("herb_ripening", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "item": str(o.item), "seconds": float(hs.seconds)})
-			if not game.account.codex.has("rare_herbs"): game.quest.apply_codex("rare_herbs")
-		os.ripe = ripe
-		rt.objects[str(o.id)] = os
-		if ripe and st != null and _guardian_wakes(o, st): wake_guardian(c, o, int(hs.window))
-
-func _guardian_wakes(o: Dictionary, st: ActorState) -> bool:
-	var g: Dictionary = ContentDB.config("garden").get("guardian", {})
-	var at: Array = o.get("at", [0, 0])
-	# The side view measures across; on the height grid the approach is on the plane, from any side.
-	var d: float = absf(st.plane.x - float(at[0])) if game.room_rt == null or game.room_rt.topdown == null else st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
-	return d <= float(g.get("wake_px", 480)) and st.altitude >= float(o.get("alt", 0)) - float(g.get("wake_below", 60))
-
-## The guardian rises once per ripening (S45): an elite of the room's roster, on the ground under the node.
-func wake_guardian(c, o: Dictionary, window: int) -> EnemyState:
-	var gd: Dictionary = o.get("guardian", {})
-	var rt: RoomRuntime = game.room_rt
-	if gd.is_empty() or gd.get("boss", false) or rt == null: return null
-	var mem := _room_mem(c, rt.room_id)
-	if not mem.has("guardians"): mem.guardians = {}
-	if int(mem.guardians.get(str(o.id), -999)) == window: return null
-	mem.guardians[str(o.id)] = window
-	var at: Array = o.get("at", [0, 0])
-	var under := Vector2(float(at[0]), 840.0)
-	if rt.topdown != null: under = rt.topdown.place_near(Vector2(float(at[0]), float(at[1])), 0.0, 6)   # the ground below the node, on the grid
-	var e: EnemyState = game.enemies.spawn_at(str(gd.enemy), under, int(gd.get("level", -1)), {"elite": gd.get("elite", true)})
-	if e == null: return null
-	rt.guardians[str(o.id)] = e.uid
-	emit("guardian_spawned", {"actor": c.id, "room": rt.room_id, "object": str(o.id), "enemy": str(gd.enemy), "uid": e.uid})
-	return e
-
-## Why a ripe node can't be picked yet ("" if it can). Kill the guardian, lure it past its leash, or pick the herb
-## unseen: with Concealment, a guardian that hasn't noticed you doesn't stop you.
-func herb_guard_text(c, o: Dictionary) -> String:
-	var gd: Dictionary = o.get("guardian", {})
-	var rt: RoomRuntime = game.room_rt
-	if gd.is_empty() or rt == null: return ""
-	var hs := herb_state(o)
-	if not hs.ripe: return ""   # an early pick finds no guardian: they rise with the ripening
-	var at: Array = o.get("at", [0, 0])
-	var node := Vector2(float(at[0]), float(at[1]))
-	var leash := float(ContentDB.config("garden").get("guardian", {}).get("leash_px", 600))
-	var unseen: bool = "concealment" in c.cultivator.secret_arts
-	var keeper: EnemyState = null
-	if gd.get("boss", false):
-		for e in rt.living_enemies():
-			if e.def_id == str(gd.enemy) and e.plane.distance_to(node) <= leash: keeper = e
-	else:
-		if int(_room_mem(c, rt.room_id).get("guardians", {}).get(str(o.id), -999)) != int(hs.window):
-			keeper = wake_guardian(c, o, int(hs.window))
-		else:
-			var uid := int(rt.guardians.get(str(o.id), -1))
-			var e2 = rt.enemies.get(uid)
-			if e2 != null and e2.alive and e2.plane.distance_to(node) <= leash: keeper = e2
-	if keeper == null: return ""
-	if unseen and not str(keeper.ai.get("state", "")) in ["aggro", "windup", "attack", "recover"]: return ""
-	return Tx.t("sim.world.herb_guarded") % ContentDB.name_of("enemies", keeper.def_id)
-
-## Room events remember every blow the player takes: a flawless Heaven's Cleansing burns off residue (G1).
-func _on_hit_during_event(p: Dictionary) -> void:
-	var rt: RoomRuntime = game.room_rt
-	if rt == null or not rt.event.get("active", false) or str(p.get("target_kind", "")) != "player": return
-	if int(p.get("amount", 0)) > 0: rt.event.hits_taken = int(rt.event.get("hits_taken", 0)) + 1
-
-## S18: at the zone's ceiling the land itself is the limit.
-func _on_bottleneck(p: Dictionary) -> void:
-	var c = game.character(str(p.get("actor", "")))
-	if c == null or not game.progression.at_zone_ceiling(c): return
-	var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
-	emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": str(p.get("realm_key", ""))})
-
-## Crafting gathered a node: World owns room objects, their regrowth and the character's memory of them.
-func apply_node_depleted(c, object_id: String, regrow_s: float) -> void:
-	var rt: RoomRuntime = game.room_rt
-	var st: Dictionary = rt.objects.get(object_id, {"state": "ready"})
-	st.state = "depleted"
-	st.timer = regrow_s
-	rt.objects[object_id] = st
-	_room_mem(c, rt.room_id).nodes[object_id] = Clock.now_utc() + regrow_s
-	emit("node_depleted", {"room": rt.room_id, "object": object_id})
+	GameEvents.subscribe("hit_landed", room_events.on_hit_during_event, 50)
+	GameEvents.subscribe("room_entered", portals.on_room_entered_fates, 51)
+	GameEvents.subscribe("room_entered", ambush.on_room_entered_ambush, 52)
+	GameEvents.subscribe("world_event_started", objects.on_world_event_started, 50)
+	for ev in ["room_entered", "quest_completed"]: GameEvents.subscribe(ev, objects.announce_first_fruit, 96)
 
 func handle(intent: Dictionary) -> Dictionary:
 	var c = char_of(intent)
@@ -238,10 +95,25 @@ func handle(intent: Dictionary) -> Dictionary:
 		"sweep_floor": return sweep_tower(c, int(intent.get("floor", -1)))
 		"set_auto_hunt": return set_auto_hunt(c, bool(intent.get("on", false)))
 		"auto_path": return start_auto_path(c, str(intent.get("target", "")), str(intent.get("place", "")))
-		"set_sail": return set_sail(c, str(intent.get("route", "")))
 		"enter_grid_room": return enter_grid_room(c, TopdownRoom.load_room(str(intent.get("room", ""))))
 		"array_travel": return array_travel(c, str(intent.get("from", "")), str(intent.get("to", "")))
 	return fail("unknown_intent")
+
+## The side view (decision 41 keeps it as a new-game fallback): a room played side-on, with no height grid. Every
+## side-view branch of the world asks this, or finds grid_for null, so they can go together when the side view does.
+static func side_view(rt: RoomRuntime) -> bool:
+	return rt == null or rt.topdown == null
+
+## S18: at the zone's ceiling the land itself is the limit.
+func _on_bottleneck(p: Dictionary) -> void:
+	var c = game.character(str(p.get("actor", "")))
+	if c == null or not game.progression.at_zone_ceiling(c): return
+	var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
+	emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": str(p.get("realm_key", ""))})
+
+## S43 rising water: the room's geometry answers a boss phase or a boss's fall.
+func _on_room_script(p: Dictionary, ev: String) -> void:
+	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
 
 # ------------------------------------------------------------------ rooms
 static func compile_geometry(def: Dictionary) -> Dictionary:
@@ -283,11 +155,11 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 		else:
 			var sp: Array = rt.def.get("spawn_point", [200, 800])
 			arrival = Vector2(float(sp[0]), float(sp[1]))
-	var surf := _ground_at(rt, arrival)
+	var surf := ground_at(rt, arrival)
 	if surf == null:
 		var sp2: Array = rt.def.get("spawn_point", [200, 800])
 		arrival = Vector2(float(sp2[0]), float(sp2[1]))
-		surf = _ground_at(rt, arrival)
+		surf = ground_at(rt, arrival)
 	if grid != null:
 		# On the grid: a spot inside the room where a body can stand (a shrine's step or a saved spot is never in a wall).
 		if not rt.geometry.bounds.has_point(arrival): arrival = grid.spawn
@@ -301,20 +173,20 @@ func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> D
 	var zone_old = ContentDB.room_zone.get(old, "")
 	var zone_new = ContentDB.room_zone.get(room_id, "")
 	if def.get("type", "") in ["town", "sect", "home"] or def.get("town", false): c.last_town = room_id
-	_restore_object_states(c, rt)
+	objects.restore_object_states(c, rt)
 	_arrive(c, rt, portal_id, arrival, facing, first, str(zone_new))
 	if zone_new != zone_old: emit("zone_entered", {"actor": c.id, "zone": zone_new})
-	if rt.def.has("event"): _start_event(c, rt, rt.def.event)
+	if rt.def.has("event"): room_events.start_event(c, rt, rt.def.event)
 	game.crafting.check_raids(c)   # S45: what came for the garden while you were away
 	return ok({"room": room_id, "x": arrival.x, "y": arrival.y, "facing": facing})
 
 ## Every room's arrival: its hazards set, a moment of spawn protection, and room_entered (Enemies fills the spawns).
 func _arrive(c, rt: RoomRuntime, portal_id: String, arrival: Vector2, facing: int, first: bool, zone: String) -> void:
-	_init_hazards(c, rt)
+	hazards.init_hazards(c, rt)
 	rt.arrival_protection = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
 	game.combat.apply_status(c.id, "spawn_protection", rt.arrival_protection, 1.0)
 	emit("room_entered", {"actor": c.id, "room": rt.room_id, "portal": portal_id, "first_visit": first, "x": arrival.x, "y": arrival.y,
-		"facing": facing, "surface": str(c.position.get("surface", "")) if rt.topdown == null else "", "zone": zone})
+		"facing": facing, "surface": str(c.position.get("surface", "")) if side_view(rt) else "", "zone": zone})
 
 ## Redesign Phase 2: enter a room on the top-down height grid (the prototype room). It runs on the same authorities as
 ## every room (its foes, loot, fights), but it is not a place in the world: the character's saved position and
@@ -348,7 +220,8 @@ func grid_for(c, room_id: String) -> TopdownRoom:
 	var grid := TopdownRoom.load_room(room_id)
 	return grid if grid.w > 0 else null
 
-func _ground_at(rt: RoomRuntime, p: Vector2) -> WalkSurface:
+## The surface under a point, the ground before a ledge; with none under it, the room's first ground.
+func ground_at(rt: RoomRuntime, p: Vector2) -> WalkSurface:
 	var best: WalkSurface = null
 	for s in rt.geometry.surfaces:
 		if s.contains(p) and (best == null or s.stratum == "ground"): best = s
@@ -365,272 +238,9 @@ func enter_world(c) -> Dictionary:
 	game.in_world = true
 	return load_room(c, room_id, str(c.position.get("portal", "")), point)
 
-func portal_near(c, portal: Dictionary) -> bool:
-	var st: ActorState = game.actor_state(c.id)
-	if st == null: return true
-	var at: Array = portal.get("at", [0, 0])
-	var r: Vector2 = PORTAL_RADIUS
-	if portal.has("reach"):
-		# Redesign Phase 4: a way on the height grid reaches along its edge or doorway and a tile across it (turned with
-		# its direction, TopdownRoom.merge_def), and only on its own floor: never from the ground under a terrace's door.
-		r = Vector2(float(portal.reach[0]), float(portal.reach[1]))
-		if absf(st.altitude - float(portal.get("alt", 0.0))) > TopdownRoom.LEVEL * 0.5: return false
-	return absf(st.plane.x - float(at[0])) <= r.x and absf(st.plane.y - float(at[1])) <= r.y
-
-## The flag a character carries once a hidden way in a room has shown itself to them.
-static func seen_flag(room_id: String, portal_id: String) -> String:
-	return "seen_" + room_id + "_" + portal_id
-
-## Decision 41, the end of the prototype: in a top-down character's game, a way from a room on the height grid into a
-## room with no top-down layout yet is closed by a gate ("The road beyond is still being drawn."), so the side view is
-## never entered mid-game. A way out of a side-view room (a save from before the gate) stays open, back onto the grid.
-func prototype_gate(c, from_room: String, to_room: String) -> bool:
-	return c != null and str(c.view) == "topdown" and to_room != "" and TopdownRoom.has_layout(from_room) and not TopdownRoom.has_layout(to_room)
-
-func portal_state(c, portal: Dictionary) -> Dictionary:
-	var target := str(portal.get("to", ""))
-	if ContentDB.room(target).is_empty():
-		return {"open": false, "text": Tx.t("sim.world.coming_soon")}
-	# The prototype's gate comes before every other lock (the debug tools' too): a way never shown yet stays hidden.
-	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, target):
-		if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
-			return {"open": false, "text": "", "hidden": true}
-		return {"open": false, "text": Tx.t("sim.world.road_being_drawn"), "gate": true}
-	if debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
-	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
-		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
-	# A quest whose step is to leave this room keeps its ways shut until the steps before it are done, and says which.
-	var hold: String = game.quest.room_hold(c, game.room_rt.room_id) if game.room_rt != null else ""
-	if hold != "": return {"open": false, "text": Tx.t("sim.world.step_first") % hold}
-	if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
-		return {"open": false, "text": "", "hidden": true}
-	return {"open": true, "text": ContentDB.name_of("rooms", target)}
-
-func use_portal(c, portal_id: String, crossing: bool) -> Dictionary:
-	if game.room_rt == null: return fail("no_room")
-	var p = game.room_rt.portal_def(portal_id)
-	if p.is_empty(): return fail("unknown_portal")
-	if not crossing and not portal_near(c, p): return fail("too_far")
-	if game.combat.is_wounded(c.id): return fail("wounded")
-	var state := portal_state(c, p)
-	if not state.open:
-		emit("portal_blocked", {"actor": c.id, "portal": portal_id, "text": state.text})
-		return fail("sealed", {"text": state.text})
-	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
-	# S49 fortune: the Hidden Grotto's way up leaves you where you fell.
-	var back: Dictionary = c.cooldowns.get("grotto_return", {}) if p.get("fortune_return", false) else {}
-	if not back.is_empty() and not ContentDB.room(str(back.room)).is_empty():
-		emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(back.room), "hidden": false})
-		c.cooldowns.erase("grotto_return")
-		return load_room(c, str(back.room), "", Vector2(float(back.x), float(back.y)))
-	emit("portal_used", {"actor": c.id, "portal": portal_id, "room": game.room_rt.room_id, "to": str(p.to), "hidden": str(p.get("type", "")) == "hidden"})
-	var r := load_room(c, str(p.to), str(p.get("to_portal", "")))
-	return r
-
-func apply_teleport(actor_id: String, target: String, portal := "") -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	match target:
-		"last_town":
-			var town = c.last_town if c.last_town != "" else "lf_village"
-			load_room(c, town, "town_arrival")
-		"dungeon_exit":
-			var exit_room = str(game.room_rt.def.get("dungeon_exit", c.last_town)) if game.room_rt else c.last_town
-			load_room(c, exit_room if exit_room != "" else "lf_village", "")
-		_:
-			if not ContentDB.room(target).is_empty(): load_room(c, target, portal)
-
-func apply_return_to_shrine(actor_id: String) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	# A story set piece there is no walking back into (the Hollow Night, instanced) wakes you inside it at its `refuge`
-	# (Aunt Ping's door), and its event begins again: a fall there never leaves you in the day with the night unfinished.
-	var here: RoomRuntime = game.room_rt
-	if here != null and str(here.def.get("refuge", "")) != "":
-		var ro: Dictionary = here.object_def(str(here.def.refuge))
-		var ra: Array = ro.get("at", here.def.get("spawn_point", [200, 800]))
-		load_room(c, here.room_id, "", Vector2(float(ra[0]), float(ra[1])))
-		return
-	if c.last_shrine.is_empty():
-		var start := str(ContentDB.zone("jade_river_valley").get("start_room", "lf_fishers_hut"))
-		var sr = c.last_town if c.last_town != "" else start
-		load_room(c, sr, "")
-		return
-	load_room(c, str(c.last_shrine.room), "", Vector2(float(c.last_shrine.x) + 50, float(c.last_shrine.y) + 20))
-
-## S18: a stone in another zone answers across the sky, at five times its fee.
-func teleport_fee(stone_id: String, c = null) -> int:
-	var stone := ContentDB.entry("teleport_stones", stone_id)
-	var fee := int(stone.get("fee_shards", 1))
-	# An Elder's token (Sage Sovereign 1) calls its bearer home to the training sect for nothing.
-	if c != null and str(stone.get("sect", "")) != "" and str(stone.get("sect", "")) == str(c.training_sect.get("id", "")):
-		var elder := str(ContentDB.entry("sects", str(stone.sect)).get("token", "")).replace("_token", "_elder_token")
-		if c.inventory.count(elder) > 0: return 0
-	if game.room_rt != null and ContentDB.room_zone.get(str(stone.get("room", "")), "") != ContentDB.room_zone.get(game.room_rt.room_id, ""):
-		fee *= int(ContentDB.stat_const("teleport_cross_zone_mult", 5))
-	return fee
-
-func teleport(c, stone_id: String) -> Dictionary:
-	if not Unlocks.is_unlocked(c.id, "teleport_stones"): return fail("locked")
-	if not game.account.teleports.has(stone_id): return fail("undiscovered")
-	var stone := ContentDB.entry("teleport_stones", stone_id)
-	if stone.is_empty(): return fail("unknown_stone")
-	# Decision 41: a stone another character found off the top-down map is past the prototype's gate.
-	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, str(stone.get("room", ""))):
-		return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
-	var fee := teleport_fee(stone_id, c)
-	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.plural("sim.world.needs_spirit_stone_shard", fee) % fee})
-	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
-	emit("teleported", {"actor": c.id, "stone": stone_id})
-	return load_room(c, str(stone.room), "", _stone_spot(c, stone, stone_id))
-
-## Where a teleport lands: beside its stone, the side view's spot, or on the grid in front of the stone where the
-## room's layout sets it.
-func _stone_spot(c, stone: Dictionary, stone_id: String) -> Vector2:
-	var grid := grid_for(c, str(stone.room))
-	if grid != null:
-		for o in ContentDB.room(str(stone.room)).get("objects", []):
-			if str(o.get("type", "")) == "teleport_stone" and str(o.get("stone", o.id)) == stone_id and grid.def.get("place", {}).has(str(o.id)):
-				return TopdownRoom.cell_point(grid.def.place[str(o.id)]) + Vector2(0, TopdownRoom.TILE)
-	return Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10)
-
-# ------------------------------------------------------------------ the sect's transfer arrays (decision 42)
-## A sect keeps transfer arrays at its key places (the gate's plaza by the steward, the mentor's peak) and one at the
-## Marsh Edge's watch post that both sects keep. A disciple's token opens them once the Weapon Hall is done (the unlock
-## `transfer_array`, taught at the gate as Strange Tracks begins). A node answers the token once it knows it: stood on
-## or tapped (the lesson keys the gate's and the watch post's, the mentor his peak's). Tapped, it asks where to among
-## the nodes the token knows; a route (the tracker, auto-path) takes one as a way (WorldRules.ways_out). Free: the
-## sect's own; the teleport stones' shards are for the world beyond.
-const ARRAY_ATTUNE_R := 96.0
-
-static func array_flag(node_id: String) -> String:
-	return "array_" + node_id
-
-func array_attuned(c, node_id: String) -> bool:
-	return c != null and c.quests.has_flag(array_flag(node_id))
-
-## A node of the character's own sect's network, or one both sects keep.
-static func array_mine(c, node: Dictionary) -> bool:
-	var net := str(node.get("network", ""))
-	return net == "" or (c != null and net == str(c.training_sect.get("id", "")))
-
-## May the character take the array at `from_id` (in `from_room`) to `to_id` now: the arrays opened to it, both nodes
-## its sect's and known to its token, and never past the prototype's gate.
-func array_open(c, from_room: String, from_id: String, to_id: String) -> bool:
-	if c == null or not Unlocks.is_unlocked(c.id, "transfer_array"): return false
-	var nodes := WorldRules.array_nodes()
-	var a: Dictionary = nodes.get(from_id, {})
-	var b: Dictionary = nodes.get(to_id, {})
-	if a.is_empty() or b.is_empty() or not array_mine(c, a) or not array_mine(c, b): return false
-	if not array_attuned(c, from_id) or not array_attuned(c, to_id): return false
-	return not prototype_gate(c, from_room, str(b.room))
-
-func attune_array(c, node_id: String) -> void:
-	if c == null or array_attuned(c, node_id) or not Unlocks.is_unlocked(c.id, "transfer_array"): return
-	if not array_mine(c, WorldRules.array_nodes().get(node_id, {})): return
-	game.quest.apply_flag(c.id, array_flag(node_id))
-	emit("array_attuned", {"actor": c.id, "object": node_id})
-
-## Where the array at `node_id` can send the character now: [{id, room, network}] in data order.
-func array_destinations(c, node_id: String) -> Array:
-	var here := str(WorldRules.array_nodes().get(node_id, {}).get("room", ""))
-	return WorldRules.array_links(node_id).filter(func(n): return array_open(c, here, node_id, str(n.id)))
-
-## What the travel picker shows at the node `node_id` (decision 42: its own small page, not a talk): the array's name,
-## the room it stands in, a line, and where the token can go from it ([{id, room, name}] in data order: the nodes of its
-## network the token knows, never one past the prototype's gate, array_destinations).
-func array_view(c, node_id: String) -> Dictionary:
-	var node: Dictionary = WorldRules.array_nodes().get(node_id, {})
-	var here := str(node.get("room", ""))
-	var label := Tx.t("sim.world.array_speaker")
-	for o in ContentDB.room(here).get("objects", []):
-		if str(o.get("id", "")) == node_id: label = str(o.get("name", label))
-	var dests: Array = []
-	if c != null and not node.is_empty():
-		for n in array_destinations(c, node_id):
-			dests.append({"id": str(n.id), "room": str(n.room), "name": ContentDB.name_of("rooms", str(n.room))})
-	return {"id": node_id, "name": label, "room": here, "room_name": ContentDB.name_of("rooms", here) if here != "" else "",
-		"line": Tx.t("sim.world.array_where") if not dests.is_empty() else Tx.t("sim.world.array_alone"), "destinations": dests}
-
-## Keep the nodes the character walks onto (the shrines' rule: close by is enough).
-func _attune_arrays(c, rt: RoomRuntime, st: ActorState) -> void:
-	if st == null or not Unlocks.is_unlocked(c.id, "transfer_array"): return
-	for o in rt.def.get("objects", []):
-		if str(o.get("type", "")) != "transfer_array" or array_attuned(c, str(o.id)): continue
-		var at: Array = o.get("at", [0, 0])
-		if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= ARRAY_ATTUNE_R and absf(st.altitude - float(o.get("alt", 0.0))) <= REACH_ALT:
-			attune_array(c, str(o.id))
-
-## Step onto the array at `from_id` and come out on the one at `to_id`.
-func array_travel(c, from_id: String, to_id: String) -> Dictionary:
-	if game.room_rt == null: return fail("no_room")
-	var o: Dictionary = game.room_rt.object_def(from_id)
-	if o.is_empty() or str(o.get("type", "")) != "transfer_array": return fail("unknown_object")
-	var st: ActorState = game.actor_state(c.id)
-	var at: Array = o.get("at", [0, 0])
-	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > reach_of(o) + 20.0: return fail("too_far")
-	if game.combat.is_wounded(c.id): return fail("wounded")
-	attune_array(c, from_id)
-	if not array_open(c, game.room_rt.room_id, from_id, to_id):
-		var node: Dictionary = WorldRules.array_nodes().get(to_id, {})
-		var gate: bool = not node.is_empty() and prototype_gate(c, game.room_rt.room_id, str(node.room))
-		return fail("sealed", {"text": Tx.t("sim.world.road_being_drawn") if gate else Tx.t("sim.world.array_unknown")})
-	var to: Dictionary = WorldRules.array_nodes()[to_id]
-	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
-	emit("array_travelled", {"actor": c.id, "from": from_id, "to": to_id, "room": game.room_rt.room_id, "to_room": str(to.room)})
-	return load_room(c, str(to.room), "", _array_spot(c, to))
-
-## Where an array lands: on the far node, on the grid where its layout sets it; in the side view on its ground.
-func _array_spot(c, node: Dictionary) -> Vector2:
-	var grid := grid_for(c, str(node.room))
-	if grid != null and grid.def.get("place", {}).has(str(node.id)):
-		return TopdownRoom.cell_point(grid.def.place[str(node.id)])
-	return Vector2(float(node.at[0]), float(node.at[1]) + 20.0)
-
-## Spirit Sense (S17, SA1/SA2): a soul pulse that reveals hidden portals and
-## fog-hidden monsters within the sense radius.
-func sense_pulse(c) -> Dictionary:
-	if not Unlocks.is_unlocked(c.id, "spirit_sense"): return fail("locked", {"text": Unlocks.locked_text("spirit_sense")})
-	if c.pools.cooldown("sense") > 0.0: return fail("cooldown")
-	var cost := 10.0
-	if StatRules.gate_flag(c, "sense_cost_25"): cost *= float(ContentDB.stat_const("gates", {}).get("sense_cost_mult", 0.75))   # S10 Spirit 25
-	if c.pools.get_value("soul") < cost: return fail("no_soul", {"text": Tx.t("sim.world.not_enough_soul")})
-	game.combat.apply_resource_change(c.id, "soul", -cost, "spirit_sense")
-	c.pools.cooldowns["sense"] = 6.0
-	var st: ActorState = game.actor_state(c.id)
-	var here: Vector2 = st.plane if st else Vector2(float(c.position.x), float(c.position.y))
-	var radius := maxf(420.0, c.stats.value("sense_radius"))
-	var found := 0
-	if game.room_rt:
-		for p in game.room_rt.def.get("portals", []):
-			if p.get("type", "") != "hidden" or not Unlocks.is_unlocked(c.id, "hidden_portals"): continue
-			var at: Array = p.get("at", [0, 0])
-			var f := seen_flag(game.room_rt.room_id, str(p.id))
-			if here.distance_to(Vector2(float(at[0]), float(at[1]))) <= radius and not c.quests.has_flag(f):
-				game.quest.apply_flag(c.id, f)
-				emit("hidden_portal_revealed", {"actor": c.id, "portal": str(p.id), "room": game.room_rt.room_id})
-				found += 1
-		for e in game.room_rt.living_enemies():
-			if e.hidden and here.distance_to(e.plane) <= radius:
-				e.hidden = false
-				e.ai["sensed"] = 8.0
-	# S45: rare herbs in reach show when they ripen (or how long they stay ripe, or their season).
-	var herbs := 0
-	if game.room_rt:
-		for o in game.room_rt.def.get("objects", []):
-			if o.type != "herb_patch" or not o.has("ripen"): continue
-			var at2: Array = o.get("at", [0, 0])
-			if here.distance_to(Vector2(float(at2[0]), float(at2[1]))) > radius: continue
-			var hs := herb_state(o)
-			sensed_herbs[str(o.id)] = {"until": game.sim_time + 8.0, "utc": Clock.now_utc(), "ripe": hs.ripe, "seconds": float(hs.seconds), "dormant": hs.dormant,
-				"season": str(o.get("season", "")), "spent": game.room_rt.objects.get(str(o.id), {}).get("state", "ready") == "depleted"}
-			herbs += 1
-	emit("spirit_sense_pulsed", {"actor": c.id, "x": here.x, "y": here.y, "radius": radius, "found": found, "herbs": herbs})
-	emit("system_used", {"actor": c.id, "system": "spirit_sense"})
-	return ok({"found": found})
-
-# ------------------------------------------------------------------ objects
-func _room_mem(c, room_id: String) -> Dictionary:
+# ------------------------------------------------------------------ the character's memory of a room
+## What the character remembers of a room: nodes gathered, chests opened, jars broken and foes slain.
+func room_mem(c, room_id: String) -> Dictionary:
 	if not c.rooms.has(room_id): c.rooms[room_id] = {"nodes": {}, "opened": {}, "broken": {}}
 	if not c.rooms[room_id].has("slain"): c.rooms[room_id]["slain"] = {}   # older saves
 	return c.rooms[room_id]
@@ -644,576 +254,11 @@ func slain_foes(c, room_id: String) -> Dictionary:
 ## Enemies: a spawn point's foe was slain (or tamed); the character remembers it with the room.
 func apply_foe_slain(c, room_id: String, key: String) -> void:
 	if c == null: return
-	_room_mem(c, room_id).slain[key] = Clock.now_utc()
+	room_mem(c, room_id).slain[key] = Clock.now_utc()
 
 ## Enemies: the spawn point's foe is back; the memory of its kill is let go.
 func apply_foe_returned(c, room_id: String, key: String) -> void:
 	if c != null and c.rooms.has(room_id): c.rooms[room_id].get("slain", {}).erase(key)
-
-func _restore_object_states(c, rt: RoomRuntime) -> void:
-	var mem := _room_mem(c, rt.room_id)
-	var now := Clock.now_utc()
-	for o in rt.def.get("objects", []):
-		var id := str(o.get("id", ""))
-		var st := {"state": "ready", "timer": 0.0, "hits": 0}
-		if o.type in ["herb_patch", "ore_vein", "star_sight", "insect_swarm"] and float(mem.nodes.get(id, 0.0)) > now:
-			st.state = "depleted"
-			st.timer = float(mem.nodes[id]) - now
-		if o.type in ["chest"] and mem.opened.has(open_key(o)): st.state = "open"
-		if o.type == "pickup" and mem.opened.has(id): st.state = "open"   # taken once (Aunt Ping's teas stay taken on a reload)
-		if o.type in BREAKABLES and float(mem.broken.get(id, 0.0)) > now:
-			st.state = "broken"
-			st.timer = float(mem.broken[id]) - now
-		rt.objects[id] = st
-
-func object_visible(c, o: Dictionary) -> bool:
-	if o.has("visible_if") and not RequirementRules.passes(o.visible_if, game.ctx(c)): return false
-	if str(o.get("type", "")) == "npc" and in_spar(str(o.get("npc", ""))): return false
-	if o.has("hidden_if") and RequirementRules.passes(o.hidden_if, game.ctx(c)): return false
-	if str(o.get("type", "")) == "egg_nest" and nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
-	# S43 rule 15: a rooftop thief is on his street until you have chased him today (caught or not).
-	if o.has("chase") and c != null and chase_done_today(c, str(o.id)) and str(chases.get(c.id, {}).get("object", "")) != str(o.id): return false
-	return true
-
-## A person fighting a spar (QuestAuthority.start_spar): their partner figure is them while the spar lasts; at its end
-## the partner is gone at once (EnemyAuthority._finish_spar) and the person stands in their place again.
-func in_spar(npc: String) -> bool:
-	if npc == "" or game.room_rt == null: return false
-	for e in game.room_rt.enemies.values():
-		if e.alive and e.def.get("spar", false) and str(e.ai.get("partner", "")) == npc: return true
-	return false
-
-## A sealed climbable (S43: library floors, lofts) opens when its requirement is met.
-func climbable_open(c, climbable: Dictionary) -> Dictionary:
-	if climbable.has("requires") and not debug_open_ways and not RequirementRules.passes(climbable.requires, game.ctx(c)):
-		return {"ok": false, "text": str(climbable.get("locked_text", RequirementRules.first_failure_text(climbable.requires, game.ctx(c))))}
-	return {"ok": true}
-
-## A chest that `reopens` with a calendar event is opened once per occurrence (S49); any other chest once.
-func open_key(o: Dictionary) -> String:
-	if str(o.get("reopens", "")) == "": return str(o.id)
-	# S49 fortune: the Hidden Grotto's chest fills again for each fall that ends there.
-	if str(o.reopens) == "fortune":
-		var fc = game.active()
-		return "%s@%d" % [str(o.id), int(fc.relations.fortune.get("grotto_n", 0)) if fc != null else 0]
-	var occ: Dictionary = game.calendar.active_of(str(o.reopens))
-	return "%s@%d" % [str(o.id), int(occ.get("k", -1))]
-
-func object_available(c, o: Dictionary) -> Dictionary:
-	if not object_visible(c, o): return {"ok": false, "text": "", "hidden": true}
-	if o.has("requires") and not RequirementRules.passes(o.requires, game.ctx(c)):
-		return {"ok": false, "locked": true, "text": str(o.get("locked_text", RequirementRules.first_failure_text(o.requires, game.ctx(c))))}
-	var st: Dictionary = game.room_rt.objects.get(str(o.id), {})
-	if st.get("state", "ready") in ["depleted", "broken", "open"]: return {"ok": false, "text": "", "spent": true}
-	# S45: a rare herb out of its season lies dormant (seasons never gate progression).
-	if o.type == "herb_patch" and not HerbRules.in_season(o, Clock.now_utc()):
-		return {"ok": false, "text": Tx.t("sim.world.herb_dormant") % ContentDB.name_of("seasons", str(o.season)), "dormant": true}
-	if o.type == "egg_nest" and c.quests.has_flag(_nest_flag(str(o.get("king", "")))): return {"ok": false, "text": Tx.t("sim.world.nest_taken")}
-	if o.type == "beast_trial_stone" and int(c.cooldowns.get("grove_day", -1)) == Clock.reset_day(Clock.now_utc()):
-		return {"ok": false, "text": Tx.t("sim.world.grove_done")}
-	if o.type == "beast_tide_drum" and not tide_due(c):
-		return {"ok": false, "text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, tide_days_left(c)) * 86400.0)}
-	return {"ok": true, "text": ""}
-
-func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array:
-	var out: Array = []
-	var c = game.active()
-	if game.room_rt == null or c == null: return out
-	for o in game.room_rt.def.get("objects", []):
-		if not (o.type in BREAKABLES or o.type in TRAINING): continue
-		if not object_visible(c, o): continue
-		var st: Dictionary = game.room_rt.objects.get(str(o.id), {})
-		if st.get("state", "ready") == "broken": continue
-		var at: Array = o.get("at", [0, 0])
-		var view := {"x": float(at[0]), "y": float(at[1]), "alt": float(o.get("alt", 0)), "half_width": 14.0, "height": 40.0}
-		if CombatAuthority.hit_test(pv, facing, hitbox, view): out.append(o)
-	return out
-
-func apply_object_hit(actor_id: String, o: Dictionary) -> void:
-	var c = game.character(actor_id)
-	var id := str(o.id)
-	var st: Dictionary = game.room_rt.objects.get(id, {"state": "ready", "hits": 0})
-	st.hits = int(st.get("hits", 0)) + 1
-	game.room_rt.objects[id] = st
-	var at: Array = o.get("at", [0, 0])
-	emit("object_hit", {"actor": actor_id, "object": id, "type": o.type, "x": float(at[0]), "y": float(at[1]), "hits": st.hits})
-	if o.type in BREAKABLES and int(st.hits) >= int(o.get("hp", 1)):
-		st.state = "broken"
-		st.timer = float(o.get("respawn_s", 300))
-		_room_mem(c, game.room_rt.room_id).broken[id] = Clock.now_utc() + st.timer
-		var drop := LootRules.roll(str(o.get("loot", "jar_valley_low")), Rng.stream(actor_id, "loot"), int(o.get("level", 1)),
-			c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "jar")
-		emit("object_broken", {"actor": actor_id, "object": id, "type": o.type})
-
-## `pick` (S45): go straight to the harvest at a rare herb, past the Pick / Dig it up choice.
-func interact(c, object_id: String, pick := false) -> Dictionary:
-	if game.room_rt == null: return fail("no_room")
-	var o = game.room_rt.object_def(object_id)
-	if o.is_empty(): return fail("unknown_object")
-	var st: ActorState = game.actor_state(c.id)
-	var at: Array = o.get("at", [0, 0])
-	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > reach_of(o) + 20.0:
-		return fail("too_far")
-	if st != null and absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT:
-		return fail("out_of_reach", {"text": Tx.t("sim.world.out_of_reach_from_here")})
-	var avail := object_available(c, o)
-	if avail.get("dormant", false) and not game.account.codex.has("seasons"): game.quest.apply_codex("seasons")
-	if not avail.ok and o.type != "npc":
-		return fail("unavailable", {"text": avail.text})
-	if o.type == "herb_patch" and o.has("ripen") and not game.account.codex.has("rare_herbs"): game.quest.apply_codex("rare_herbs")
-	var result := ok({"type": o.type})
-	match str(o.type):
-		"npc":
-			if o.has("chase"): return start_chase(c, o)   # S43 rule 15: the rooftop thief bolts
-			return game.quest.talk(c, str(o.npc))
-		"route_stone":
-			return start_run(c, o)
-		"shrine":
-			c.last_shrine = {"room": game.room_rt.room_id, "x": float(at[0]), "y": float(at[1]), "object": object_id}
-			game.combat.apply_resource_change(c.id, "hp", c.pools.max_hp, "shrine")
-			if c.pools.max_qi > 0: game.combat.apply_resource_change(c.id, "qi", c.pools.max_qi, "shrine")
-			GameEvents.save_pending = true
-			result.text = Tx.t("sim.world.the_shrine_remembers_you_wounds")
-		"herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm":
-			# S45: with a Spirit Spade and Expert gathering, a rare herb can be dug up whole instead of picked.
-			if o.type == "herb_patch" and o.has("ripen") and not pick and game.crafting.can_transplant(c):
-				return ok({"dialogue": {"npc": "", "speaker": ContentDB.item_name(str(o.item)), "portrait": {}, "lines": [Tx.t("sim.world.rare_herb_choice")],
-					"choices": [{"text": Tx.t("sim.world.pick_it"), "page": "_harvest", "args": {"object": object_id}},
-						{"text": Tx.t("sim.world.dig_it_up") % int(round(game.crafting.transplant_death(c) * 100.0)), "intent": {"type": "transplant", "object": object_id}},
-						{"text": Tx.t("sim.world.leave_it"), "close": true}]}})
-			return game.crafting.gather(c, o)
-		"starsea_dock":
-			return set_sail(c, str(o.get("route", "")))
-		"gravity_switch":
-			return toggle_gravity(c, object_id)   # v1.2 the Orbit Ruins' jade switches
-		"beast_trail":
-			return ok({"dialogue": game.posts.trail_dialogue(c, o)})   # S50 V10c Beast Snaring
-		"ancestral_altar":
-			return ok({"dialogue": game.posts.altar_dialogue(c, o)})   # S50 V10c Ancestral Rites
-		"chest":
-			var s: Dictionary = game.room_rt.objects.get(object_id, {})
-			s.state = "open"
-			_room_mem(c, game.room_rt.room_id).opened[open_key(o)] = true
-			var chest_lv := int(o.get("level", 0))
-			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
-			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
-				c.stats.value("drop_rate"), c.stats.value("coin_find"))
-			_drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
-		"transfer_array":
-			# Decision 42: the node learns the token, and the travel picker asks where to (array_view).
-			attune_array(c, object_id)
-			result.open_page = "transfer_array"
-			result.page_args = {"object": object_id}
-		"teleport_stone":
-			var sid := str(o.get("stone", object_id))
-			if not game.account.teleports.has(sid):
-				game.account.teleports[sid] = true
-				emit("teleport_discovered", {"actor": c.id, "id": sid})
-			result.open_page = "teleport"
-		"lifting_stone":
-			emit("object_hit", {"actor": c.id, "object": object_id, "type": o.type, "x": float(at[0]), "y": float(at[1]), "hits": 1})
-			result.channel = 3.0
-		"pickup":
-			var item := str(o.get("item", ""))
-			var mem := _room_mem(c, game.room_rt.room_id)
-			mem.opened[object_id] = true
-			game.room_rt.objects[object_id] = {"state": "open"}
-			game.inventory.apply_add(c.id, item, int(o.get("count", 1)), "pickup")
-		"inspect":
-			result.text = str(o.get("text", ""))
-			if o.has("open_page"): result.open_page = str(o.open_page)
-			if o.has("page_args"): result.page_args = o.page_args
-			# Some things teach you something the first time you look (a Codex entry): once per character.
-			if o.has("effects") and not c.quests.has_flag("inspected_" + object_id):
-				game.quest.apply_flag(c.id, "inspected_" + object_id)
-				game.apply_effects(c.id, o.effects, "inspect:" + object_id)
-		"rite_circle":
-			return game.quest.start_set_piece(c, str(o.get("event", "")))
-		"storage_chest":
-			result.open_page = "storage"
-			PlaceRules.note_use(game, c, "storage")   # decision 43: the first use at the place (earned remote access)
-		"letter_box":
-			result.open_page = "mail"   # decision 43: the letter box at home, a courier post in a town
-		"meditation_mat":
-			result.open_page = "cultivation"   # decision 43: sit and cultivate where the Qi gathers
-		"bath_station":
-			# S44: the bath is a seclusion focus, chosen on the Seclusion page.
-			result.open_page = "seclusion"
-		"cooking_pot", "alchemy_furnace", "earth_vent", "forge_anvil", "formation_table", "garden_bed", "chart_table", "shipyard_slip":
-			result.open_page = str(o.get("page", {"cooking_pot": "cooking", "alchemy_furnace": "alchemy", "earth_vent": "alchemy", "forge_anvil": "forge",
-				"formation_table": "formations", "garden_bed": "garden", "chart_table": "charts", "shipyard_slip": "vessels"}[o.type]))
-		"notice_board":
-			result.open_page = "notice_board"
-			PlaceRules.read_board(game, c)   # decision 43: its papers read, the gold "!" goes
-		"signpost":
-			result.text = str(o.get("text", ""))
-		"insight_stone":
-			result.text = str(o.get("text", Tx.t("sim.world.meditate_here")))
-			# P13a: a stele that holds a lost art gives it to a rubbing once its condition holds; until then, and after,
-			# it is only a stone to meditate at (roadmap decision 19: it never says what it holds).
-			if game.progression.read_stele(c, object_id):
-				result.text = Tx.t("sim.world.rubbing_taken")
-			# S49 leisure arts: a chess problem is carved beside every insight stone; one answer a day.
-			elif game.progression.chess_open(c, object_id):
-				return ok({"dialogue": {"npc": "", "speaker": Tx.t("sim.world.chess_speaker"), "portrait": {}, "lines": [Tx.t("sim.world.chess_line")],
-					"choices": [{"text": Tx.t("sim.world.chess_study"), "page": "chess", "args": {"site": object_id}},
-						{"text": Tx.t("sim.world.chess_meditate"), "close": true}]}})
-		"qi_spring":
-			# S45: a gardener bottles the spring's water, three bottles a day; otherwise it is a place to meditate.
-			var sw: Dictionary = game.crafting.bottle_spring_water(c) if Unlocks.is_unlocked(c.id, "herb_garden") else {}
-			result.text = str(sw.get("text", o.get("text", Tx.t("sim.world.meditate_here"))))
-		"spar_post":
-			return game.quest.start_spar_from_object(c, o)
-		"defence_drum":
-			return game.sect.start_defence(c)
-		"egg_nest":
-			# S46: the fallen King's nest gives each character one Rare egg per opening.
-			var king := ContentDB.entry("beast_kings", str(o.get("king", "")))
-			game.quest.apply_flag(c.id, _nest_flag(str(o.get("king", ""))))
-			game.inventory.apply_add(c.id, str(king.get("nest", {}).get("item", "rare_spirit_egg")), 1, "king_nest")
-			result.text = Tx.t("sim.world.nest_egg")
-		"beast_tide_drum":
-			return start_beast_tide(c)
-		"spirit_mine":
-			return game.sect.mine_dialogue(c, str(o.get("mine", "")))
-		"rift_tear":
-			return game.calendar.open_rift(c)
-		"treasure_birth":
-			return game.calendar.open_treasure(c, o)
-		"beast_trial_stone":
-			return start_beast_trial(c)
-		"treasure_plot":
-			var tp: Dictionary = game.crafting.tend_treasure_plot(c, o)
-			result.text = str(tp.get("text", ""))
-		"treasure_tree":
-			var tt: Dictionary = game.progression.consult_jade_tree(c)
-			result.text = str(tt.get("text", ""))
-		"bell":
-			var bs: Dictionary = game.room_rt.objects.get(object_id, {})
-			bs.state = "open"
-			game.room_rt.objects[object_id] = bs
-			emit("bell_rung", {"actor": c.id, "object": object_id})
-		_:
-			pass
-	if o.has("set_flag"): game.quest.apply_flag(c.id, str(o.set_flag))
-	emit("object_interacted", {"actor": c.id, "object": object_id, "type": o.type, "room": game.room_rt.room_id})
-	return result
-
-## How far from a thing the context button offers it and interact takes it: its `radius`; a person's on the height grid
-## as much further as the people there are drawn bigger (decision 43, TopdownRoom.PEOPLE), so a talk starts from the same
-## gap between two bodies.
-func reach_of(o: Dictionary) -> float:
-	var r := float(o.get("radius", 110))
-	if str(o.get("type", "")) == "npc" and game.room_rt != null and game.room_rt.topdown != null: r *= TopdownRoom.PEOPLE
-	return r
-
-## Context action for the Attack button (Part 9.9): quest target → NPC → loot → gather → travel.
-func query_context(c) -> Dictionary:
-	if game.room_rt == null or c == null: return {}
-	var st: ActorState = game.actor_state(c.id)
-	if st == null: return {}
-	var best := {}
-	var best_score := INF
-	for o in game.room_rt.def.get("objects", []):
-		if not offers_context(o): continue
-		var at: Array = o.get("at", [0, 0])
-		var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
-		# M18: a chest on the ledge above never takes the button from the herb at your feet (interact would refuse it).
-		# Out of reach first: the HUD asks every frame, and whether a thing shows (its requirements) is the dear part.
-		if d > reach_of(o) or absf(st.altitude - float(o.get("alt", 0.0))) > REACH_ALT: continue
-		if not object_visible(c, o): continue
-		if o.has("chase") and str(chases.get(c.id, {}).get("object", "")) == str(o.id): continue   # he is off over the roofs
-		var avail := object_available(c, o)
-		if avail.get("spent", false): continue
-		# A resource node not open to the character yet offers nothing (the prototype's QA: the Reed Shallows' herbs said
-		# "You don't know which leaves are worth picking yet" from the button in the first fight).
-		if avail.get("locked", false) and resource_node(o): continue
-		var calls: bool = o.type == "npc" and QuestAuthority.marker_calls(game.quest.npc_marker(c, str(o.npc)))
-		var score: float = context_rank(o, calls) * 1000.0 + d
-		if score < best_score:
-			best_score = score
-			best = {"object": str(o.id), "type": o.type, "label": _verb(o), "ok": avail.ok, "text": avail.text, "npc": str(o.get("npc", ""))}
-	if best.is_empty():
-		for p in game.room_rt.def.get("portals", []):
-			if not context_portal(p): continue
-			if portal_near(c, p):
-				var ps := portal_state(c, p)
-				if ps.get("hidden", false): continue
-				best = {"portal": str(p.id), "type": "portal", "label": Tx.t("sim.world.enter"), "ok": ps.open, "text": ps.text, "target": str(p.get("to", ""))}
-				break
-	return best
-
-## A thing worked for a yield or a training (RESOURCE_NODES), or a Temper drum (a body trial's circle).
-static func resource_node(o: Dictionary) -> bool:
-	return str(o.get("type", "")) in RESOURCE_NODES or str(o.get("event", "")).ends_with("_body_trial")
-
-## Objects the context button offers: not the ones a blow breaks or trains on, nor decor, air pockets or a run's finish.
-static func offers_context(o: Dictionary) -> bool:
-	var kind := str(o.get("type", ""))
-	return not (kind in BREAKABLES or kind in TRAINING or kind in ["decor", "air_pocket", "route_finish"])
-
-## How strongly an object in reach claims the context button; the lowest rank wins and distance breaks ties within a
-## rank. A pickup first, an NPC whose marker calls you over, any NPC, other objects, gathering last; a door or gate
-## is offered only when no object is in reach.
-static func context_rank(o: Dictionary, calls := false) -> float:
-	match str(o.get("type", "")):
-		"pickup": return 0.5
-		"npc": return 1.0 if calls else 2.0
-		"herb_patch", "ore_vein", "fishing_spot", "star_sight", "insect_swarm": return 4.0
-	return 3.0
-
-## A portal the context button can take ("Enter"): anything but a plain edge, which is walked through.
-static func context_portal(p: Dictionary) -> bool:
-	return str(p.get("type", "edge")) != "edge" or p.get("press_up", false)
-
-func _verb(o: Dictionary) -> String:
-	if o.has("chase"): return Tx.t("sim.world.chase")
-	match str(o.type):
-		"npc": return Tx.t("sim.world.talk")
-		"route_stone": return Tx.t("sim.world.begin")
-		"herb_patch": return Tx.t("sim.world.gather")
-		"ore_vein": return Tx.t("sim.world.mine")
-		"fishing_spot": return Tx.t("sim.world.fish")
-		"insect_swarm": return Tx.t("sim.world.net")
-		"gravity_switch": return Tx.t("sim.world.turn")
-		"beast_trail": return Tx.t("sim.world.snare")
-		"ancestral_altar": return Tx.t("sim.world.rites")
-		"chest", "storage_chest": return Tx.t("sim.world.open")
-		"shrine": return Tx.t("sim.world.pray")
-		"pickup": return Tx.t("sim.world.take")
-		"lifting_stone": return Tx.t("sim.world.lift")
-		"cooking_pot": return Tx.t("sim.world.cook")
-		"alchemy_furnace", "earth_vent": return Tx.t("sim.world.refine")
-		"forge_anvil": return Tx.t("sim.world.forge")
-		"bath_station": return Tx.t("sim.world.bathe")
-		"teleport_stone", "transfer_array": return Tx.t("sim.world.travel")
-		"notice_board", "signpost", "inspect", "letter_box": return Tx.t("sim.world.read")
-		"meditation_mat": return Tx.t("sim.world.sit")
-		"rite_circle": return Tx.t("sim.world.begin")
-		"spar_post": return Tx.t("sim.world.spar")
-		"bell", "beast_tide_drum": return Tx.t("sim.world.ring")
-		"rift_tear": return Tx.t("sim.world.touch")
-		"treasure_birth": return Tx.t("sim.world.reach")
-		"beast_trial_stone": return Tx.t("sim.world.begin")
-		"egg_nest": return Tx.t("sim.world.take")
-		"treasure_plot", "garden_bed": return Tx.t("sim.world.tend")
-		"treasure_tree": return Tx.t("sim.world.sit_beneath")
-		"star_sight": return Tx.t("sim.world.observe")
-		"chart_table": return Tx.t("sim.world.chart")
-		"shipyard_slip": return Tx.t("sim.world.build")
-		"starsea_dock": return Tx.t("sim.world.set_sail")
-		"spirit_mine": return Tx.t("sim.world.survey")
-	return Tx.t("sim.world.use")
-
-# ------------------------------------------------------------------ beast ranks and cores (S46)
-## A beast's rank from its Level (1-9 is rank 1 ... 73+ is rank 9); 0 for anything that is not a beast.
-static func beast_rank(def: Dictionary, level: int) -> int:
-	if str(def.get("race", "beast")) != "beast": return 0
-	return clampi((maxi(1, level) - 1) / 9 + 1, 1, 9)
-
-## The core a beast of this Level carries (by its element and rank tier), or "" below rank 2.
-static func beast_core_for(def: Dictionary, level: int) -> String:
-	var rank := beast_rank(def, level)
-	var cfg: Dictionary = ContentDB.config("pet_growth").get("cores", {})
-	if rank < int(cfg.get("min_rank", 2)): return ""
-	var tier := ""
-	for t in cfg.get("tiers", {}):
-		var band: Array = cfg.tiers[t]
-		if rank >= int(band[0]) and rank <= int(band[1]): tier = str(t)
-	var el := str(def.get("element", "earth")).trim_prefix("hollow_")
-	if el in ["hollow", "none", ""]: el = "soul" if el == "hollow" else "earth"
-	var id := "%s_core_%s" % [el, tier]
-	if ContentDB.item(id).is_empty(): id = "%s_core_%s" % [CombatRules.parent_element(el), tier]   # a sub-element's parent
-	return id if ContentDB.item(id).size() > 0 else ""
-
-static func core_chance(def: Dictionary, level: int) -> float:
-	return float(ContentDB.config("pet_growth").get("cores", {}).get("chance_per_rank", 0.02)) * beast_rank(def, level)
-
-# ------------------------------------------------------------------ loot (S32)
-## The next soul memory the account has not read ("" once all are read).
-func _next_soul_memory() -> String:
-	for i in range(1, 100):
-		var id := "soul_memory_%d" % i
-		if not ContentDB.has_entry("codex", id): return ""
-		if not game.account.codex.has(id): return id
-	return ""
-
-func _on_actor_defeated(p: Dictionary) -> void:
-	if p.get("victim_kind", "") != "enemy" or game.room_rt == null: return
-	var c = game.character(str(p.get("killer", game.active_id)))
-	if c == null: c = game.active()
-	if c == null: return
-	var def := ContentDB.entry("enemies", str(p.def))
-	if def.is_empty(): return
-	var rng := Rng.stream(c.id, "loot")
-	var elite_spawn: bool = bool(p.get("elite", false)) and def.get("role", "normal") == "normal"
-	var table := ContentDB.entry("loot_tables", str(def.get("loot", p.def)))
-	var drop := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate") + game.pets.trait_bonus(c, "drop_chance"), c.stats.value("coin_find"),
-		{"needs": game.quest.item_needs(c), "elite": elite_spawn or def.get("role", "") == "elite", "find_rng": Rng.stream(c.id, "finds")})
-	if elite_spawn:
-		# A normal kind spawned as an elite rolls its items again, pays an elite's coins and has one more equipment roll
-		# (P7b: grades.json drop.elite_extra).
-		var extra := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		drop.items.append_array(extra.items)
-		drop.coins = LootRules.coins_for(int(p.level), 6.0, c.stats.value("coin_find"))
-		var ex: Dictionary = LootRules.drop_cfg().get("elite_extra", {})
-		if rng.randf() < float(ex.get("chance", 0.0)):
-			drop.equipment.append({"level": int(p.level), "min_quality": str(ex.get("min_quality", "common")), "starter": bool(table.get("starter", false))})
-	if bool(p.get("summoned", false)): drop.equipment.clear()
-	elif not game.combat.captured.has(str(p.get("victim", ""))): _starter_drop(c, table, int(p.level), drop)
-	# Quest-only items drop only while a quest needs them.
-	drop.items = drop.items.filter(func(it): return not ContentDB.item(it.item).get("quest_item", false) or game.quest.needs_item(c, str(it.item)))
-	# First kill of each species per character gives a bonus roll.
-	if not c.collection_first_kills.has(str(p.def)):
-		c.collection_first_kills[str(p.def)] = true
-		var bonus := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), 1.0, 0.0, {"no_equipment": true})
-		drop.items.append_array(bonus.items)
-	# S48 Soul Search: a searched elite gives up what it hid (one more roll) and a memory for the Codex.
-	var sm: Dictionary = game.combat.searched.get(str(p.get("victim", "")), {})
-	if not sm.is_empty():
-		game.combat.searched.erase(str(p.victim))
-		var hid := LootRules.roll(str(def.get("loot", p.def)), rng, int(p.level), c.stats.value("drop_rate"), 0.0, {"no_equipment": true})
-		drop.items.append_array(hid.items)
-		var memory := _next_soul_memory()
-		if memory != "": game.apply_effects(c.id, [{"kind": "codex", "entry": memory}], "soul_search")
-		emit("soul_searched", {"actor": c.id, "def": str(p.def), "memory": memory, "items": hid.items.size()})
-	# P13a Lost Arts (technique_plan §5.3): the kill's own roll of its lost manuals (not the extra rolls above) is kept
-	# only while the art is not found, and is sure by its pity-th kill.
-	if not bool(p.get("summoned", false)) and not game.combat.captured.has(str(p.get("victim", ""))):
-		drop.items.append_array(game.progression.lost_drops(c, drop.get("lost", [])))
-	# Taken whole by the Taming Cauldron (S47): its materials at full count, no loot roll, no coins, nothing it wore.
-	if game.combat.captured.has(str(p.get("victim", ""))):
-		game.combat.captured.erase(str(p.victim))
-		drop = {"items": LootRules.capture_materials(str(def.get("loot", p.def))), "coins": 0, "equipment": []}
-		emit("beast_captured", {"actor": c.id, "def": str(p.def), "items": drop.items.size()})
-	# S46 beast cores: rank 2 and up, 2% a rank, by the beast's element and rank tier (their own stream).
-	var core := beast_core_for(def, int(p.level))
-	if core != "" and not bool(p.get("summoned", false)) and Rng.stream(c.id, "cores").randf() < core_chance(def, int(p.level)):
-		drop.items.append({"item": core, "count": 1})
-	# S46 pet skill books from bosses and elites, on their own stream.
-	var book: Dictionary = def.get("pet_book", {})
-	if not book.is_empty() and not bool(p.get("summoned", false)) and (bool(p.get("elite", false)) or not book.get("elite_only", false)) \
-			and Rng.stream(c.id, "books").randf() < float(book.get("chance", 0.0)):
-		drop.items.append({"item": str(book.item), "count": 1})
-	# S45 Spirit Soil: 1% from a beast of rank 3 or above (Level 19+), on its own stream so the loot roll is untouched.
-	var soil: Dictionary = ContentDB.config("garden").get("spirit_soil", {})
-	if str(def.get("race", "")) == "beast" and int(p.level) >= int(soil.get("min_level", 19)) and not bool(p.get("summoned", false)) \
-			and Rng.stream(c.id, "garden").randf() < float(soil.get("chance", 0.01)):
-		drop.items.append({"item": "spirit_soil", "count": 1})
-	# A boss's one-time treasure (a Heavenly Flame, G1): guaranteed on its first defeat, outside the loot roll.
-	# An elite can carry one too (the Weeping Lantern's Mist Lantern Flame, S44): only the elite of its kind drops it.
-	var once: Array = def.get("first_defeat", []).duplicate()
-	if p.get("elite", false): once.append_array(def.get("elite_first_defeat", []))
-	for it in once:
-		var flag := "first_defeat:%s:%s" % [str(p.def), str(it)]
-		if c.quests.has_flag(flag): continue
-		game.quest.apply_flag(c.id, flag)
-		drop.items.append({"item": str(it), "count": 1})
-	var role := str(p.get("role", ""))
-	_drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)),
-		"field_boss" if role == "field_boss" else ("boss" if role in ["dungeon_boss", "story_boss"] else ("elite" if p.get("elite", false) else "enemy")))
-
-## Starter gear (grades.json drop.starter; docs/tutorial_order.md): a kill of a first-room foe (a `starter` table).
-## The character's first such kill drops its first weapon, a Fine training piece of `first_family`, marked for its
-## moment. After it, until the character has `pity_pieces` starter pieces, a kill that drops none counts on the
-## character (`starter_drops.kills`) and the `pity`-th gives one.
-func _starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void:
-	if not table.get("starter", false): return
-	var cfg: Dictionary = LootRules.drop_cfg().get("starter", {})
-	var sd: Dictionary = c.starter_drops
-	if not sd.get("first", false):
-		sd.first = true
-		drop.equipment.append({"level": level, "min_quality": str(cfg.get("first_quality", "fine")), "starter": true,
-			"family": str(cfg.get("first_family", "")), "first": true})
-		return
-	if sd.get("closed", false) or int(sd.get("pieces", 0)) >= int(cfg.get("pity_pieces", 0)): return
-	sd.kills = int(sd.get("kills", 0)) + 1
-	if drop.equipment.is_empty() and int(sd.kills) >= int(cfg.get("pity", 15)):
-		drop.equipment.append({"level": level, "min_quality": str(table.get("equipment", {}).get("min_quality", "flawed")), "starter": true})
-	if not drop.equipment.is_empty():
-		sd.pieces = int(sd.get("pieces", 0)) + 1
-		sd.kills = 0
-
-const ATTUNEMENT_SHARDS := ["storm_shard", "star_shard"]
-
-## The shard a zone's attunement jades eat ("" in a zone with no attunement).
-static func zone_shard(room_id: String) -> String:
-	var att = ContentDB.zone_of_room(room_id).get("attunement")
-	return str(att.get("shard", "")) if att is Dictionary else ""
-
-## `source` says what left the loot (P6: the loot fountain tells a boss's drop from a jar's): enemy, elite, boss,
-## field_boss, fled, jar, chest, rift or tower. It only goes into the event.
-func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void:
-	var rt: RoomRuntime = game.room_rt
-	var rng := Rng.stream(c.id, "loot")
-	var drops: Array = []
-	var here_shard := zone_shard(rt.room_id)
-	for it in drop.get("items", []):
-		if ContentDB.item(str(it.item)).is_empty() or int(it.count) <= 0: continue
-		var iid := str(it.item)
-		# S18 v1.2: a foe that roams two zones (the Starsea pirates) leaves the attunement shards of the zone it dies in.
-		if here_shard != "" and iid != here_shard and iid in ATTUNEMENT_SHARDS: iid = here_shard
-		drops.append({"item": iid, "count": int(it.count), "find": bool(it.get("find", false))})
-	var family := StatRules.family_of_weapon(c.inventory.equipped.get("weapon"))
-	for eq in drop.get("equipment", []):
-		var inst := LootRules.make_drop(Rng.stream(c.id, "affix"), eq, c.stats.value("fortune"), true, c.inventory.next_uid, family)
-		if inst.is_empty(): continue
-		c.inventory.take_uid()   # the uid it was made with
-		drops.append({"item": inst.id, "count": 1, "instance": inst, "first": bool(eq.get("first", false))})
-	if int(drop.get("coins", 0)) > 0: drops.append({"coins": int(LootRules.zone_coins(rt.room_id, int(drop.coins)).amount)})
-	var i := 0
-	var items_out: Array = []
-	for d in drops:
-		var spread := (i - (drops.size() - 1) * 0.5) * 22.0
-		var spot := _loot_spot(rt, at, alt, spread, rng.randf_range(-6, 6))
-		var entry := {"uid": rt.uid(), "item": str(d.get("item", "")), "count": int(d.get("count", 0)), "coins": int(d.get("coins", 0)),
-			"instance": d.get("instance", {}), "x": spot.x, "y": spot.y, "alt": spot.z,
-			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
-		entry.quality = str(d.get("instance", {}).get("quality", "common"))
-		if d.get("find", false): entry.find = true   # a rare row marked as a find (an early surprise): the rare-find moment
-		if d.get("first", false): entry.first = true   # a character's first weapon: a find of its own (MomentRules.is_rare)
-		rt.loot.append(entry)
-		items_out.append(entry.duplicate())
-		i += 1
-	if not items_out.is_empty():
-		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source,
-			"first_weapon": items_out.any(func(it): return it.get("first", false))})
-
-## Where one drop of a spill lies: (x, y, height), in a row across the spot, `spread` from it and `jitter` in depth. The
-## side view keeps it inside its walk strip at the spot's height. On the height grid each lies on the floor it falls
-## on, and one that would land in a wall, the water or off the spot's own floor (over a ledge) lies on the spot itself.
-static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3:
-	if rt.topdown == null: return Vector3(at.x + spread, clampf(at.y + jitter, 626, 956), alt)
-	var g := rt.topdown
-	var p := at + Vector2(spread, jitter)
-	if not g.standable(TopdownRoom.cell_of(p)) or absf(g.floor_at(p) - g.floor_at(at)) > 8.0: p = at
-	return Vector3(p.x, p.y, g.floor_at(p))
-
-func pick_up(c, uid: int) -> Dictionary:
-	if game.room_rt == null: return fail("no_room")
-	for l in game.room_rt.loot:
-		if int(l.uid) == uid: return _collect(c, l)
-	return fail("gone")
-
-func _collect(c, l: Dictionary) -> Dictionary:
-	var rt: RoomRuntime = game.room_rt
-	if int(l.coins) > 0:
-		game.economy.apply_currency(str(LootRules.zone_coins(rt.room_id, 1).currency), int(l.coins), "loot")
-		rt.loot.erase(l)
-		emit("loot_picked", {"actor": c.id, "uid": l.uid, "coins": l.coins})
-		return ok()
-	var added := 0
-	if not (l.instance as Dictionary).is_empty():
-		added = game.inventory.apply_add_instance(c.id, l.instance, "loot")
-	else:
-		added = game.inventory.apply_add(c.id, str(l.item), int(l.count), "loot", {}, false)
-	if added <= 0: return fail("bag_full")
-	l.count = int(l.count) - added
-	if int(l.count) <= 0 or not (l.instance as Dictionary).is_empty():
-		rt.loot.erase(l)
-		emit("loot_picked", {"actor": c.id, "uid": l.uid, "item": l.item})
-	return ok()
 
 # ------------------------------------------------------------------ tick
 func tick(delta: float) -> void:
@@ -1221,1101 +266,168 @@ func tick(delta: float) -> void:
 	var c = game.active()
 	if rt == null or c == null: return
 	rt.elapsed += delta
-	_tick_auto_hunt(c, delta)
+	idle.tick_auto_hunt(c, delta)
 	if float(ambush_cd.get(c.id, 0.0)) > 0.0: ambush_cd[c.id] = float(ambush_cd[c.id]) - delta
-	_tick_rare_herbs(c, rt, delta)
+	herbs.tick_rare_herbs(c, rt, delta)
 	# S43: the room clock moves movers, drops crumbled floors and raises water.
 	rt.geometry.advance(delta)
 	var st: ActorState = game.actor_state(c.id)
-	if st != null: _tick_hazard_volumes(c, rt, st, delta)
+	if st != null: hazards.tick_hazard_volumes(c, rt, st, delta)
 	# The spot a save resumes at: on the grid too (Phase 4), never in the prototype room, which is not a place.
 	if st != null and st.surface != null and not rt.def.get("prototype", false):
 		c.position.x = st.plane.x
 		c.position.y = st.plane.y
-		c.position.surface = st.surface.id if rt.topdown == null else ""
+		c.position.surface = st.surface.id if side_view(rt) else ""
 		c.position.room = rt.room_id
-	for id in rt.objects:
-		var os: Dictionary = rt.objects[id]
-		if os.get("state", "ready") in ["depleted", "broken"] and float(os.get("timer", 0.0)) > 0.0:
-			os.timer = float(os.timer) - delta
-			if float(os.timer) <= 0.0:
-				os.state = "ready"
-				os.hits = 0
-				emit("node_regrown", {"room": rt.room_id, "object": id})
-	# The pickup's reach in height: the side view's 60 up and down; on the height grid half a level, so a drop on the
-	# terrace is not drawn in from the square below its face.
-	var loot_band := 60.0 if rt.topdown == null else TopdownRoom.LEVEL * 0.5
-	for l in rt.loot.duplicate():
-		l.age = float(l.age) + delta
-		if st != null and not game.combat.is_wounded(c.id) and float(l.age) > 0.45:
-			if Vector2(float(l.x), float(l.y)).distance_to(st.plane) <= PICKUP_RADIUS * (1.6 if game.pets.gatherer_active(c.id) else 1.0) and absf(float(l.alt) - st.altitude) < loot_band:
-				# A stack the bag refused is tried again once the bag changes, not every tick (each try says the bag is full).
-				var bag_now := "%d|%d" % [c.inventory.free_slots(), c.inventory.count(str(l.item))]
-				if str(l.get("refused", "")) != bag_now:
-					if _collect(c, l).ok: continue
-					l.refused = bag_now
-		if float(l.age) >= float(l.ttl):
-			rt.loot.erase(l)
-			if int(l.coins) == 0 and (ContentDB.item(str(l.item)).get("quest_item", false) or l.get("quality", "common") in ["fine", "superior", "perfect", "relic"]):
-				game.inventory.apply_overflow(c.id, [{"item": l.item, "count": l.count, "instance": l.instance}])
-			emit("loot_expired", {"uid": l.uid})
-	if rt.event.get("active", false): _tick_event(c, rt, delta)
-	elif rt.event.has("leaving"): _tick_leave(c, rt, delta)
-	_tick_chase(c, rt, st)
-	_tick_run(c, rt, st)
-	_attune_shrines(c, rt, st)
-	_attune_arrays(c, rt, st)
-	_tick_hazards(c, rt, st, delta)
-
-# ------------------------------------------------------------------ rooftop chases and timed routes (S43 rule 15)
-var chases: Dictionary = {}   # actor -> {object, room, start}: a thief running over the roofs (not saved)
-var runs: Dictionary = {}     # actor -> {object, room, start}: a timed route under way (not saved)
-
-## Where a rooftop thief is `t` seconds into his run: {x, y, alt, moving, done, facing}. His route is waypoints
-## [x, y, alt, wait_s]: he waits at each, then runs to the next at `speed` along the plane (a climb counts half its
-## height). He stands at the last one until its wait is over, and then he is gone.
-static func chase_point(route: Array, speed: float, t: float) -> Dictionary:
-	var left := maxf(0.0, t)
-	var facing := 1
-	for i in route.size():
-		var w: Array = route[i]
-		var wait := float(w[3]) if w.size() > 3 else 0.0
-		if left <= wait or i == route.size() - 1:
-			return {"x": float(w[0]), "y": float(w[1]), "alt": float(w[2]), "moving": false, "done": i == route.size() - 1 and left > wait, "facing": facing}
-		left -= wait
-		var n: Array = route[i + 1]
-		var d := Vector2(float(n[0]) - float(w[0]), float(n[1]) - float(w[1])).length() + absf(float(n[2]) - float(w[2])) * 0.5
-		var leg := maxf(0.15, d / maxf(1.0, speed))
-		facing = 1 if float(n[0]) >= float(w[0]) else -1
-		if left <= leg:
-			var k := left / leg
-			return {"x": lerpf(float(w[0]), float(n[0]), k), "y": lerpf(float(w[1]), float(n[1]), k), "alt": lerpf(float(w[2]), float(n[2]), k),
-				"moving": true, "done": false, "facing": facing}
-		left -= leg
-	return {"x": 0.0, "y": 0.0, "alt": 0.0, "moving": false, "done": true, "facing": facing}
-
-## How long a thief's whole run lasts, in seconds.
-static func chase_length(route: Array, speed: float) -> float:
-	var total := 0.0
-	for i in route.size():
-		var w: Array = route[i]
-		total += float(w[3]) if w.size() > 3 else 0.0
-		if i + 1 < route.size():
-			var n: Array = route[i + 1]
-			var d := Vector2(float(n[0]) - float(w[0]), float(n[1]) - float(w[1])).length() + absf(float(n[2]) - float(w[2])) * 0.5
-			total += maxf(0.15, d / maxf(1.0, speed))
-	return total
-
-func chase_done_today(c, object_id: String) -> bool:
-	return int(c.cooldowns.get("chase_" + object_id, -1)) == Clock.reset_day(Clock.now_utc())
-
-## The thief in the active character's chase, for the street to draw: {object, x, y, alt, moving, facing} or {}.
-func chase_view(c) -> Dictionary:
-	var ch: Dictionary = chases.get(c.id, {}) if c != null else {}
-	if ch.is_empty() or game.room_rt == null or game.room_rt.room_id != str(ch.room): return {}
-	var o: Dictionary = game.room_rt.object_def(str(ch.object))
-	var p := chase_point(o.chase.route, float(o.chase.get("speed", 260)), game.sim_time - float(ch.start))
-	p.object = str(ch.object)
-	return p
-
-## Speaking to the thief sends him running over the roofs. Catch him (reach him at his height) before he is over
-## the far wall. One chase a street a day, caught or not.
-func start_chase(c, o: Dictionary) -> Dictionary:
-	var oid := str(o.id)
-	if chase_done_today(c, oid): return fail("done", {"text": Tx.t("sim.world.thief_gone")})
-	if chases.has(c.id): return fail("busy")
-	chases[c.id] = {"object": oid, "room": game.room_rt.room_id, "start": game.sim_time}
-	emit("chase_started", {"actor": c.id, "object": oid, "room": game.room_rt.room_id,
-		"seconds": chase_length(o.chase.route, float(o.chase.get("speed", 260)))})
-	return ok({"text": Tx.t("sim.world.thief_runs")})
-
-func _tick_chase(c, rt: RoomRuntime, st: ActorState) -> void:
-	var ch: Dictionary = chases.get(c.id, {})
-	if ch.is_empty(): return
-	var o: Dictionary = rt.object_def(str(ch.object)) if rt.room_id == str(ch.room) else {}
-	if o.is_empty():
-		_end_chase(c, ch, false)   # you left the street: he is away over the roofs
-		return
-	var k: Dictionary = o.chase
-	var el: float = game.sim_time - float(ch.start)
-	var p := chase_point(k.route, float(k.get("speed", 260)), el)
-	if st != null and el >= float(k.get("grace_s", 0.8)) and st.plane.distance_to(Vector2(float(p.x), float(p.y))) <= float(k.get("catch_px", 80)) \
-			and absf(st.altitude - float(p.alt)) <= float(k.get("catch_alt", 40)):
-		_end_chase(c, ch, true, o)
-	elif p.done:
-		_end_chase(c, ch, false, o)
-
-func _end_chase(c, ch: Dictionary, caught: bool, o: Dictionary = {}) -> void:
-	chases.erase(c.id)
-	c.cooldowns["chase_" + str(ch.object)] = Clock.reset_day(Clock.now_utc())
-	var secs: float = snappedf(game.sim_time - float(ch.start), 0.1)
-	if caught:
-		game.apply_effects(c.id, o.chase.get("rewards", []), "thief_chase")
-		emit("thief_caught", {"actor": c.id, "object": str(ch.object), "room": str(ch.room), "seconds": secs})
-	else:
-		emit("thief_escaped", {"actor": c.id, "object": str(ch.object), "room": str(ch.room)})
-
-## A timed route (the Cloud Sect's Cloud Steps): touch the stone to start, reach the finish before the limit.
-func start_run(c, o: Dictionary) -> Dictionary:
-	if runs.has(c.id) and str(runs[c.id].object) == str(o.id): return fail("busy", {"text": Tx.t("sim.world.run_on")})
-	runs[c.id] = {"object": str(o.id), "room": game.room_rt.room_id, "start": game.sim_time}
-	emit("route_started", {"actor": c.id, "route": str(o.route.id), "room": game.room_rt.room_id, "limit": float(o.route.get("limit_s", 90))})
-	return ok({"text": Tx.t("sim.world.run_go")})
-
-## The week's board for a route: its rivals' times, the same on every device (the account seed and the week).
-func route_board(route: Dictionary, week: int) -> Array:
-	var r := CalendarRules.draw(game.calendar.cal_seed(), "route:" + str(route.id), week)
-	var span: Array = route.get("rival_s", [30, 60])
-	var out: Array = []
-	for name in route.get("rivals", []): out.append({"name": str(name), "seconds": snappedf(r.randf_range(float(span[0]), float(span[1])), 0.1)})
-	return out
-
-## A character's record on a route: {week, best, paid} for this week, plus medals won for good.
-func route_record(c, route_id: String) -> Dictionary:
-	var rec: Dictionary = c.cooldowns.get("route_" + route_id, {})
-	var week: int = game.calendar.rank_week()
-	if int(rec.get("week", -1)) != week: rec = {"week": week, "best": 0.0, "paid": false, "medals": rec.get("medals", [])}
-	c.cooldowns["route_" + route_id] = rec
-	return rec
-
-## Your place on this week's board with this time: 1 + the rivals who were faster.
-func route_rank(route: Dictionary, week: int, seconds: float) -> int:
-	var rank := 1
-	for rv in route_board(route, week):
-		if float(rv.seconds) < seconds: rank += 1
-	return rank
-
-func _tick_run(c, rt: RoomRuntime, st: ActorState) -> void:
-	var run: Dictionary = runs.get(c.id, {})
-	if run.is_empty(): return
-	var o: Dictionary = rt.object_def(str(run.object)) if rt.room_id == str(run.room) else {}
-	if o.is_empty() or st == null:
-		runs.erase(c.id)
-		return
-	var route: Dictionary = o.route
-	var el: float = game.sim_time - float(run.start)
-	if el > float(route.get("limit_s", 90)):
-		runs.erase(c.id)
-		emit("route_finished", {"actor": c.id, "route": str(route.id), "finished": false})
-		return
-	var fin: Dictionary = route.get("finish", {})
-	var at: Array = fin.get("at", [0, 0])
-	if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > float(fin.get("radius", 70)) or st.altitude < float(fin.get("alt", 0)) - 12.0: return
-	runs.erase(c.id)
-	finish_route(c, route, snappedf(el, 0.1))
-
-## A finished run: the week's best, its place on the board (a place in the top three pays once a week), and each
-## medal's reward the first time its par is beaten.
-func finish_route(c, route: Dictionary, seconds: float) -> Dictionary:
-	var rec := route_record(c, str(route.id))
-	if float(rec.best) <= 0.0 or seconds < float(rec.best): rec.best = seconds
-	var rank := route_rank(route, int(rec.week), float(rec.best))
-	var medal := ""
-	var pars: Dictionary = route.get("pars", {})
-	for m in ["gold", "silver", "bronze"]:
-		if pars.has(m) and seconds <= float(pars[m]):
-			medal = m
-			break
-	var medals: Array = rec.get("medals", [])
-	for m in ["bronze", "silver", "gold"]:
-		if medal != "" and ["bronze", "silver", "gold"].find(m) <= ["bronze", "silver", "gold"].find(medal) and not medals.has(m):
-			medals.append(m)
-			game.apply_effects(c.id, route.get("medal_rewards", {}).get(m, []), "route:" + str(route.id))
-	rec.medals = medals
-	if rank <= 3 and not rec.get("paid", false):
-		rec.paid = true
-		game.apply_effects(c.id, route.get("week_rewards", []), "route:" + str(route.id))
-	var out := {"actor": c.id, "route": str(route.id), "finished": true, "seconds": seconds, "best": float(rec.best), "rank": rank,
-		"of": (route.get("rivals", []) as Array).size() + 1, "medal": medal}
-	emit("route_finished", out)
-	return ok(out)
-
-## Walking past a shrine is enough for it to remember you as a revival point
-## (praying still heals). Nobody loses their respawn by forgetting to press Pray.
-func _attune_shrines(c, rt: RoomRuntime, st: ActorState) -> void:
-	if st == null or c.last_shrine.get("room", "") == rt.room_id: return
-	for o in rt.def.get("objects", []):
-		if str(o.get("type", "")) != "shrine": continue
-		var at: Array = o.get("at", [0, 0])
-		if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= 160.0:
-			c.last_shrine = {"room": rt.room_id, "x": float(at[0]), "y": float(at[1]), "object": str(o.id)}
-			emit("shrine_attuned", {"actor": c.id, "room": rt.room_id, "object": str(o.id)})
-			GameEvents.save_pending = true
-			return
-
-# ------------------------------------------------------------------ hazards (S17)
-## Every hazard starts part-way into its cooldown, so nothing strikes on arrival.
-func _init_hazards(c, rt: RoomRuntime) -> void:
-	rt.hazards.clear()
-	rt.hazard_drift = Vector2.ZERO
-	if rt.def.get("safe", false): return
-	var rng := Rng.stream(c.id, "world")
-	for hid in rt.def.get("hazards", []):
-		var h := ContentDB.entry("hazards", str(hid))
-		if h.is_empty(): continue
-		rt.hazards[str(hid)] = {"phase": "cooldown", "t": 0.0, "dur": rng.randf_range(2.0, 2.0 + HazardRules.duration(h, "cooldown")),
-			"spots": [], "dir": 1, "pulse": 0.0, "inside": false}
-
-## The push the room puts on a character this tick (gusts, currents); the presentation adds it to walking.
-func _on_room_script(p: Dictionary, ev: String) -> void:
-	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
-
-## S43 hazard volumes (lava, spores, poison vents): status and damage each pulse while inside their rect and altitude.
-func _tick_hazard_volumes(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
-	if rt.geometry.volumes.is_empty() or game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection"): return
-	for v in rt.geometry.volumes_at(st.plane, st.altitude):
-		if str(v.kind) != "hazard": continue
-		var key := "hazard_vol:" + str(v.id)
-		var left := float(rt.hazard_pulse.get(key, 0.0)) - delta
-		if left > 0.0:
-			rt.hazard_pulse[key] = left
-			continue
-		rt.hazard_pulse[key] = float(v.get("pulse_s", 1.0))
-		var amount := 0.0
-		if float(v.get("damage_pct", 0.0)) > 0.0:
-			amount = game.combat.apply_hazard_damage(c, c.pools.max_hp * float(v.damage_pct), str(v.get("damage_type", "physical")),
-				str(v.get("element", "none")), "hazard:" + str(v.id))
-		var sd: Dictionary = v.get("status", {})
-		if not sd.is_empty(): game.combat.apply_status(c.id, str(sd.id), float(sd.get("s", 2.0)), float(sd.get("power", 1.0)))
-		emit("hazard_struck", {"actor": c.id, "room": rt.room_id, "hazard": str(v.get("hazard", v.id)), "amount": int(round(maxf(0.0, amount))),
-			"share": 1.0, "answered": false, "stat": "", "need": 0, "have": 0})
-
-func hazard_drift(actor_id: String) -> Vector2:
-	if game.room_rt == null or actor_id != game.active_id: return Vector2.ZERO
-	return game.room_rt.hazard_drift
-
-func _tick_hazards(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
-	rt.hazard_drift = Vector2.ZERO
-	if rt.hazards.is_empty() or st == null: return
-	# The cycle keeps running; its effects wait while the character is down or just arrived.
-	var calm: bool = game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection")
-	for hid in rt.hazards:
-		var h := ContentDB.entry("hazards", str(hid))
-		var hs: Dictionary = rt.hazards[hid]
-		hs.t = float(hs.t) + delta
-		if float(hs.t) >= float(hs.dur): _hazard_advance(c, rt, st, h, hs, calm)
-		_hazard_hold(c, rt, st, h, hs, delta, calm)
-
-## Next phase, skipping phases of zero length (a thicket is always active).
-func _hazard_advance(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, calm: bool) -> void:
-	var rng := Rng.stream(c.id, "world")
-	for i in HazardRules.PHASES.size():
-		hs.phase = HazardRules.next_phase(str(hs.phase))
-		hs.t = 0.0
-		hs.dur = HazardRules.duration(h, str(hs.phase))
-		if hs.phase == "cooldown": hs.dur = float(hs.dur) * rng.randf_range(0.8, 1.2)
-		if float(hs.dur) <= 0.0: continue
-		_hazard_enter(c, rt, st, h, hs, rng, calm)
-		return
-	# Every phase but "active" is empty: a constant hazard.
-	hs.phase = "active"
-	hs.dur = HazardRules.duration(h, "active")
-	_hazard_enter(c, rt, st, h, hs, rng, calm)
-
-func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void:
-	match str(hs.phase):
-		"tell":
-			hs.dir = int(h.get("dir", -1 if rng.randf() < 0.5 else 1))
-			hs.spots = _hazard_spots(rt, st, h, rng)
-		"warn":
-			if str(h.get("aim", "")) == "player": hs.spots = [[st.plane.x, st.plane.y, st.altitude]]
-			emit("hazard_warned", {"actor": c.id, "room": rt.room_id, "hazard": str(h.id), "spots": hs.spots, "dir": int(hs.dir)})
-		"active":
-			hs.pulse = 0.0
-			match str(h.kind):
-				"strike":
-					var r := float(h.get("radius", 60))
-					# A blow lands on its own floor: the side view's reach up and down, one level on the height grid.
-					var band := 90.0 if rt.topdown == null else TopdownRoom.LEVEL
-					for sp in hs.spots:
-						var at := Vector2(float(sp[0]), float(sp[1]))
-						if st.plane.distance_to(at) <= r and absf(st.altitude - float(sp[2])) < band:
-							_hazard_hit(c, rt, h, calm)
-							break
-				"aura":
-					if not _sheltered(rt, st, h): _hazard_hit(c, rt, h, calm)
-				"gust":
-					_hazard_hit(c, rt, h, calm)
-
-## Debug tools (S38): hold every hazard of the room part-way into a phase, for previews. Nothing strikes.
-func debug_hazard_phase(phase: String, k: float) -> void:
-	var rt: RoomRuntime = game.room_rt
-	var c = game.active()
-	if rt == null or c == null or not phase in HazardRules.PHASES: return
-	var st: ActorState = game.actor_state(c.id)
-	var rng := Rng.stream(c.id, "world")
-	for hid in rt.hazards:
-		var h := ContentDB.entry("hazards", str(hid))
-		var hs: Dictionary = rt.hazards[hid]
-		hs.phase = "tell"
-		_hazard_enter(c, rt, st, h, hs, rng, true)
-		if phase != "tell":
-			hs.phase = "warn"
-			_hazard_enter(c, rt, st, h, hs, rng, true)
-		hs.phase = phase
-		hs.dur = maxf(HazardRules.duration(h, phase), 2.0)
-		hs.t = clampf(k, 0.0, 0.95) * float(hs.dur)
-
-## Strikes land around (or on) the character; the first spot is always close.
-func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array:
-	if str(h.kind) != "strike": return []
-	var out: Array = []
-	var spread := float(h.get("spread", 0))
-	for i in int(h.get("count", 1)):
-		var reach := spread * (0.35 if i == 0 else 1.0)
-		if rt.topdown != null:
-			# On the height grid the strikes fall all round on the plane, on floors inside the room, at the floor's height.
-			var q: Vector2 = st.plane + Vector2.from_angle(rng.randf() * TAU) * reach * sqrt(rng.randf())
-			var g := rt.topdown.nearest_standable(q.clamp(Vector2.ONE * TopdownRoom.TILE, Vector2(rt.topdown.w - 1, rt.topdown.h - 1) * TopdownRoom.TILE))
-			out.append([g.x, g.y, rt.topdown.floor_at(g)])
-			continue
-		var p := Vector2(clampf(st.plane.x + rng.randf_range(-reach, reach), 80.0, rt.width() - 80.0),
-			clampf(st.plane.y + rng.randf_range(-50.0, 50.0), 660.0, 940.0))
-		var s := _ground_at(rt, p)
-		out.append([p.x, p.y, s.height_at(p) if s else 0.0])
-	return out
-
-## Is the character on the floor, within `tol` of it (not jumping over a pool or a current): the ground in the side
-## view, the floor under it on the height grid, so a pool on the square acts on a body on the terrace only on its own.
-func _on_hazard_floor(rt: RoomRuntime, st: ActorState, tol: float) -> bool:
-	if rt.topdown == null: return st.altitude < tol
-	return absf(st.altitude - rt.topdown.floor_at(st.plane)) < tol
-
-## Hazards that act for as long as they are active: gusts and currents push, pools pulse.
-func _hazard_hold(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, delta: float, calm: bool) -> void:
-	var active: bool = hs.phase == "active"
-	match str(h.kind):
-		"gust":
-			if active and not calm:
-				var push := float(h.get("push", 200)) * _hazard_share(c, rt, h)
-				if st.flying: push *= float(ContentDB.stat_const("hazard.flyer_push", 1.5))
-				rt.hazard_drift += Vector2(float(hs.dir) * push, 0.0)
-		"flow":
-			var inside := false
-			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, 2.0):
-					inside = true
-					if not calm:
-						var flow := float(a.get("current", -60)) * (float(h.get("surge", 2.0)) if active else 1.0)
-						rt.hazard_drift += Vector2(flow * _hazard_share(c, rt, h), 0.0)
-			# A surge that catches you is reported once, when you enter it or it rises around you.
-			if active and inside and not hs.inside: _hazard_hit(c, rt, h, calm)
-			hs.inside = inside and active
-		"pool":
-			if not active: return
-			hs.pulse = float(hs.pulse) - delta
-			if float(hs.pulse) > 0.0: return
-			hs.pulse = float(h.get("pulse", 1.0))
-			for a in HazardRules.areas(h, rt.def):
-				if HazardRules.rect(a).has_point(st.plane) and _on_hazard_floor(rt, st, 10.0):
-					_hazard_hit(c, rt, h, calm)
-					return
-
-## How much of a push or status gets through this character's answer.
-func _hazard_share(c, rt: RoomRuntime, h: Dictionary) -> float:
-	return HazardRules.effect_scale(c.stats.value(str(h.answer)), float(HazardRules.need(h, rt.def)))
-
-func _sheltered(rt: RoomRuntime, st: ActorState, h: Dictionary) -> bool:
-	var kinds: Array = h.get("shelter", [])
-	if kinds.is_empty(): return false
-	var r := float(ContentDB.stat_const("hazard.shelter_radius", 220))
-	for o in rt.def.get("objects", []):
-		if str(o.get("type", "")) in kinds:
-			var at: Array = o.get("at", [0, 0])
-			if st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) <= r: return true
-	return false
-
-## One blow of a hazard on the character: damage, status, buff and Hollowing, each scaled by
-## how well the answering attribute meets the room's need.
-func _hazard_hit(c, rt: RoomRuntime, h: Dictionary, calm: bool) -> void:
-	if calm: return
-	var need_v := float(HazardRules.need(h, rt.def))
-	var have: float = c.stats.value(str(h.answer))
-	var share := HazardRules.effect_scale(have, need_v)
-	var amount := 0.0
-	if float(h.get("damage_pct", 0.0)) > 0.0:
-		# A blow to the soul is measured against the Soul pool it lands on, not against HP.
-		var pool_max: float = c.pools.max_soul if str(h.get("damage_type", "")) == "soul" and c.pools.max_soul > 0.0 else c.pools.max_hp
-		amount = game.combat.apply_hazard_damage(c, pool_max * float(h.damage_pct) * HazardRules.damage_scale(have, need_v),
-			str(h.get("damage_type", "physical")), str(h.get("element", "none")), "hazard:" + str(h.id))
-		if amount < 0.0: return   # dodged
-	var sd: Dictionary = h.get("status", {})
-	if not sd.is_empty() and share > 0.0:
-		var by_time := str(sd.get("scale", "power")) == "duration"
-		game.combat.apply_status(c.id, str(sd.id), float(sd.s) * (share if by_time else 1.0), float(sd.power) * (1.0 if by_time else share))
-	var bd: Dictionary = h.get("buff", {})
-	if not bd.is_empty() and share > 0.0:
-		game.combat.apply_buff(c.id, {"stat": str(bd.stat), "op": str(bd.get("op", "pct_add")), "value": float(bd.value) * share,
-			"duration": HazardRules.duration(h, "active") + 1.0, "source": "hazard:" + str(h.id)}, "hazard")
-	if float(h.get("hollowing", 0.0)) > 0.0 and share > 0.0:
-		game.combat.apply_resource_change(c.id, "hollowing", float(h.hollowing) * share, "hazard")
-	# The Starsea's star wind strips Qi before it touches the body (Starsea survival, Sage 3).
-	if float(h.get("qi_drain_pct", 0.0)) > 0.0 and share > 0.0 and c.pools.max_qi > 0.0:
-		game.combat.apply_resource_change(c.id, "qi", -c.pools.max_qi * float(h.qi_drain_pct) * share, "hazard")
-	emit("hazard_struck", {"actor": c.id, "room": rt.room_id, "hazard": str(h.id), "amount": int(round(amount)), "share": share,
-		"answered": share <= 0.0, "stat": str(h.answer), "need": int(need_v), "have": int(have)})
-
-# ------------------------------------------------------------------ Starsea voyages (S18)
-var voyages: Dictionary = {}   # actor -> {route, vessel, seconds}: a crossing under way
-
-## The best vessel the character owns: the one that crosses fastest.
-func best_vessel(c) -> String:
-	var best := ""
-	var speed := 0.0
-	for k in c.inventory.key_items:
-		var v: Dictionary = ContentDB.item(str(k.id)).get("vessel", {})
-		if not v.is_empty() and float(v.get("speed", 1.0)) > speed:
-			speed = float(v.get("speed", 1.0))
-			best = str(k.id)
-	return best
-
-## Board at a Starsea dock: a vessel, the route's star chart and a Qi that survives the star wind
-## (Sage 3). The crossing is its own room: the event runs while the vessel sails, and ends in port.
-func set_sail(c, route_id: String) -> Dictionary:
-	var v := ContentDB.entry("voyages", route_id)
-	if v.is_empty(): return fail("unknown_route")
-	if game.room_rt == null or game.room_rt.room_id != str(v.get("from", "")): return fail("wrong_dock")
-	if v.get("planned", false): return fail("planned", {"text": str(v.get("planned_text", Tx.t("sim.world.this_route_is_not_charted_yet")))})
-	if not Unlocks.is_unlocked(c.id, "starsea"): return fail("locked", {"text": Unlocks.locked_text("starsea")})
-	var vessel := best_vessel(c)
-	if vessel == "": return fail("no_vessel", {"text": Tx.t("sim.world.you_need_a_vessel_to_sail")})
-	if c.inventory.count(str(v.chart)) <= 0:
-		return fail("no_chart", {"text": Tx.t("sim.world.you_need_the_chart") % ContentDB.item_name(str(v.chart))})
-	var speed := float(ContentDB.item(vessel).get("vessel", {}).get("speed", 1.0))
-	voyages[c.id] = {"route": route_id, "vessel": vessel, "seconds": float(v.get("base_s", 60)) / maxf(0.25, speed)}
-	emit("voyage_started", {"actor": c.id, "route": route_id, "vessel": vessel, "seconds": voyages[c.id].seconds})
-	return load_room(c, str(v.crossing), "")
-
-## The crossing's event ended: make port at the far end of the route.
-func apply_voyage_arrive(actor_id: String) -> void:
-	var c = game.character(actor_id)
-	if c == null or not voyages.has(actor_id): return
-	var v := ContentDB.entry("voyages", str(voyages[actor_id].route))
-	voyages.erase(actor_id)
-	emit("voyage_arrived", {"actor": actor_id, "route": str(v.get("id", "")), "room": str(v.get("to", ""))})
-	load_room(c, str(v.get("to", "")), str(v.get("to_portal", "")))
-
-# ------------------------------------------------------------------ room events (survival, S27 night)
-## Start a timed event in the loaded room (set pieces, sect defence).
-func start_room_event(c, ev: Dictionary) -> void:
-	if game.room_rt: _start_event(c, game.room_rt, ev)
-
-## What a survived rift leaves behind: a chest's roll at the rift's level, dropped at your feet (S49).
-func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
-	var c = game.character(actor_id)
-	var st: ActorState = game.actor_state(actor_id)
-	if c == null or st == null: return
-	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"))
-	_drop_loot(c, drop, st.plane, 0.0, "rift")
-
-func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
-	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return
-	# Decision 45: an event already won before a reload (`won_if`: the Hollow Night's eel slain, the way on not yet
-	# taken) comes back won, its foes gone and its rewards kept: only its way on waits (the scene after it, then Lu's boat).
-	if ev.has("won_if") and RequirementRules.passes(ev.won_if, game.ctx(c)):
-		rt.event = ev.duplicate(true)
-		rt.event.active = false
-		rt.event.remaining = 0.0
-		if ev.get("leave") is Dictionary:
-			rt.event.leaving = float(ev.leave.get("grid_after_s" if rt.topdown != null else "after_s", ev.leave.get("after_s", 0.0)))
-		return
-	rt.event = ev.duplicate(true)
-	rt.event.active = true
-	rt.event.remaining = float(ev.get("duration", 60))
-	# A voyage lasts as long as its vessel takes to cross (S18).
-	if voyages.has(c.id) and str(ev.get("id", "")) == "starsea_crossing":
-		rt.event.remaining = float(voyages[c.id].get("seconds", rt.event.remaining))
-	rt.event.duration = rt.event.remaining
-	rt.event.spawn_timer = 2.0
-	# Several waves can run at once, each on its own timer; timed spawns arrive once, part-way through.
-	var waves: Array = ev.get("waves", [ev.wave] if ev.has("wave") else [])
-	rt.event.waves = waves.duplicate(true)
-	rt.event.wave_timers = []
-	for w in waves: rt.event.wave_timers.append(float(w.get("first_s", 2.0)))
-	rt.event.timed_done = []
-	# A timed spawn decided as the event begins (`from_start`, decision 45: the eel risen awake after a reload) comes
-	# only if its `requires` holds then; one that waits on the story later is never it.
-	var ts_rows: Array = ev.get("timed_spawns", [])
-	for i in ts_rows.size():
-		if ts_rows[i].get("from_start", false) and not RequirementRules.passes(ts_rows[i].get("requires", {}), game.ctx(c)): rt.event.timed_done.append(i)
-	rt.event.hits_taken = 0
-	rt.event.kills = 0         # kill_count events (S48 Iron Body trial)
-	if ev.get("lantern") is Dictionary: rt.event.light = float(ev.lantern.get("light", 100.0))   # v1.2 the lantern defence
-	rt.event.ground_s = 0.0    # the pole trial: seconds on the ground in a row
-	emit("room_event_started", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "duration": rt.event.remaining})
-	# A Temper trial clears the ground: the room's own foes withdraw and wait for it to end (S48).
-	if ev.get("clear_room", false):
-		for e in rt.living_enemies():
-			if not e.summoned and e.team == "enemy": game.enemies.release(e)
-	for sp in ev.get("fixed_spawns", []):
-		if sp.has("unless") and RequirementRules.passes(sp.unless, game.ctx(c)): continue
-		game.enemies.spawn_at(str(sp.enemy), Vector2(float(sp.at[0]), float(sp.at[1])), int(sp.get("level", -1)))
-	# A wave whose `unless` holds does not run this time (decision 45: the river's minnows fled the awakened eel).
-	for w in rt.event.waves.duplicate():
-		if w.has("unless") and RequirementRules.passes(w.unless, game.ctx(c)):
-			var wi: int = rt.event.waves.find(w)
-			rt.event.waves.remove_at(wi)
-			rt.event.wave_timers.remove_at(wi)
-	# The Reflection brings your heart demons with it: one for every 25 on the meter (G1).
-	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
-	for i in demons:
-		game.enemies.spawn_at(str(ev.heart_demons), Vector2(700.0 + 260.0 * i, 860.0), int(ev.get("level", -1)))
-	if demons > 0: emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(ev.heart_demons),
-		"text": Tx.t("sim.world.heart_demons_rise") % demons})
-
-func _tick_event(c, rt: RoomRuntime, delta: float) -> void:
-	var ev: Dictionary = rt.event
-	ev.remaining = float(ev.remaining) - delta
-	var rng := Rng.stream(c.id, "world")
-	var elapsed := float(ev.duration) - float(ev.remaining)
-	for i in (ev.waves as Array).size():
-		var w: Dictionary = ev.waves[i]
-		# A wave that waits on the story (`requires`: the Hollow Night's villagers in the hut) starts when it first holds,
-		# and runs `for_s` from then.
-		var since := _part_since(c, ev, "wave%d" % i, w, elapsed)
-		if since < 0.0 or (w.has("for_s") and elapsed - since > float(w.for_s)): continue
-		ev.wave_timers[i] = float(ev.wave_timers[i]) - delta
-		if float(ev.wave_timers[i]) > 0.0: continue
-		if w.has("until_s") and elapsed > float(w.until_s): continue   # its part of the event is over
-		ev.wave_timers[i] = float(w.get("every_s", 4.0))
-		var alive := 0
-		for e in rt.living_enemies():
-			if e.def_id == str(w.enemy) and (e.summoned or not ev.get("clear_room", false)): alive += 1
-		if alive < int(w.get("max", 6)):
-			var pts: Array = w.get("points", [[400, 800]])
-			var p: Array = pts[rng.randi_range(0, pts.size() - 1)]
-			var we: EnemyState = game.enemies.spawn_at(str(w.enemy), Vector2(float(p[0]), float(p[1])), event_level(c, w))
-			# A wave that `hunt`s comes for the player wherever they stand (the Hollow Night's minnows up the bank and the lane).
-			if we != null and w.get("hunt", false): we.threat[c.id] = 1.0
-	var timed: Array = ev.get("timed_spawns", [])
-	for i in timed.size():
-		if i in ev.timed_done: continue
-		# A timed spawn arrives `after_s` into the event; one that waits on the story, `delay_s` after its `requires` first
-		# holds, and at `latest_s` whatever the story (the Hollow Night's eel, should the villagers never reach the hut).
-		# One whose `unless` holds never comes (decision 45: the eel risen awake after a reload comes by its own row).
-		if timed[i].has("unless") and RequirementRules.passes(timed[i].unless, game.ctx(c)):
-			ev.timed_done.append(i)
-			continue
-		var ts := _part_since(c, ev, "timed%d" % i, timed[i], elapsed)
-		var due := ts >= 0.0 and elapsed >= maxf(float(timed[i].get("after_s", 0.0)), ts + float(timed[i].get("delay_s", 0.0)))
-		if not due and not (timed[i].has("latest_s") and elapsed >= float(timed[i].latest_s)): continue
-		ev.timed_done.append(i)
-		game.enemies.spawn_at(str(timed[i].enemy), Vector2(float(timed[i].at[0]), float(timed[i].at[1])), int(timed[i].get("level", -1)))
-		emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(timed[i].enemy),
-			"text": str(timed[i].get("text", ""))})
-	# v1.2 the lantern defence (the Hollow Tide battle): every foe near the lantern drains its light; standing beside it
-	# without striking relights it. At no light the battle is lost; alive when the timer ends, it is won.
-	if ev.get("lantern") is Dictionary and not ev.lantern.is_empty():
-		if _tick_lantern(c, rt, ev, delta):
-			_end_event(c, rt, false, "lantern")
-			return
-	# S48 Temper trials: fall below the HP floor, or stand on the ground too long in the pole trial, and it is over.
-	if float(ev.get("hp_floor", 0.0)) > 0.0 and c.pools.hp < c.pools.max_hp * float(ev.hp_floor):
-		_end_event(c, rt, false, "hp_floor")
-		return
-	if ev.has("ground_grace_s"):
-		var st: ActorState = game.actor_state(c.id)
-		var grounded := st != null and st.mode() == "ground" and st.surface != null and not st.surface.is_block and st.surface.stratum == "ground"
-		ev.ground_s = float(ev.ground_s) + delta if grounded and elapsed > float(ev.get("ground_free_s", 5.0)) else 0.0
-		if float(ev.ground_s) > float(ev.ground_grace_s):
-			_end_event(c, rt, false, "ground")
-			return
-	if float(ev.remaining) <= 0.0:
-		# A kill-to-win event (a trial) that runs out of time is failed, not passed; one whose foe can also be outlasted
-		# (`timeout_wins`: the Hollow Night, where Lu comes at its end) is won either way.
-		if (ev.has("win_on_kill") or ev.has("kill_count")) and not ev.get("timeout_wins", false):
-			_end_event(c, rt, false, "time")
-		else:
-			_end_event(c, rt, true, "time" if ev.get("timeout_wins", false) else "")
-
-## When a part of an event (a wave, a timed spawn) that waits on the story opened: the event's elapsed seconds its
-## `requires` first held at (0 without one), and -1 while it has not.
-func _part_since(c, ev: Dictionary, key: String, part: Dictionary, elapsed: float) -> float:
-	if not part.has("requires"): return 0.0
-	var opened: Dictionary = ev.get("opened", {})
-	if not opened.has(key):
-		if not RequirementRules.passes(part.requires, game.ctx(c)): return -1.0
-		opened[key] = elapsed
-		ev.opened = opened
-	return float(opened[key])
-
-## A won event's way on (the Hollow Night's: to Lu's boat), `leave` {after_s, grid_after_s, requires, effects}: its
-## effects once its requirement holds (the scene after the fight has played) or its seconds of the room's time have
-## passed, whichever comes first. The room keeps it while the event's cut holds the game still.
-func _tick_leave(c, rt: RoomRuntime, delta: float) -> void:
-	var lv: Dictionary = rt.event.get("leave", {})
-	rt.event.leaving = float(rt.event.leaving) - delta
-	if float(rt.event.leaving) > 0.0 and not (lv.has("requires") and RequirementRules.passes(lv.requires, game.ctx(c))): return
-	rt.event.erase("leaving")
-	# What the fight left on the ground goes with you (the eel's fang, its pearl and taels), gathered up as you leave.
-	for l in rt.loot.duplicate(): _collect(c, l)
-	game.apply_effects(c.id, lv.get("effects", []), "event:" + str(rt.event.get("id", "")) + ":leave")
-
-## One step of the lantern's light (0-100): true when it has gone out.
-func _tick_lantern(c, rt: RoomRuntime, ev: Dictionary, delta: float) -> bool:
-	var ln: Dictionary = ev.lantern
-	var o := rt.object_def(str(ln.get("object", "")))
-	if o.is_empty(): return false
-	var at_arr: Array = o.get("at", [0, 0])
-	var at := Vector2(float(at_arr[0]), float(at_arr[1]))
-	var near := 0
-	for e in rt.living_enemies():
-		if e.team == "enemy" and not e.hidden and e.plane.distance_to(at) <= float(ln.get("drain_radius", 180)): near += 1
-	var light := float(ev.get("light", ln.get("light", 100.0)))
-	light -= float(ln.get("drain_per_foe", 3.0)) * near * delta
-	var st: ActorState = game.actor_state(c.id)
-	var striking: bool = game.combat.is_busy(c.id)
-	if st != null and near == 0 and not striking and st.plane.distance_to(at) <= float(ln.get("relight_radius", 120)):
-		light += float(ln.get("relight", 4.0)) * delta
-	light = clampf(light, 0.0, float(ln.get("light", 100.0)))
-	var was := int(ceil(float(ev.get("light", 100.0)) / 10.0))
-	ev.light = light
-	if int(ceil(light / 10.0)) != was: emit("lantern_light", {"actor": c.id, "room": rt.room_id, "light": light, "near": near})
-	return light <= 0.0
-
-## The level a wave's foes come at: a number, or "player" for the character's own Level (the Temper trials).
-func event_level(c, w: Dictionary) -> int:
-	if str(w.get("level", "")) == "player":
-		return clampi(ProgressionRules.level(c) + int(w.get("level_offset", 0)), int(w.get("level_min", 1)), int(w.get("level_max", 999)))
-	return int(w.get("level", -1))
-
-# ------------------------------------------------------------------ Beast Kings' nests and the Beast Tide (S46)
-## When a fallen King's nest closes again (0 when it is closed).
-func nest_closes(king: String) -> float:
-	return float(game.account.rooms.get("king_nests", {}).get(king, 0.0))
-
-func _nest_flag(king: String) -> String:
-	return "king_nest:%s:%d" % [king, int(nest_closes(king))]
-
-func tide_cfg() -> Dictionary:
-	return ContentDB.config("expeditions").get("beast_tide", {})
-
-## The Beast Tide comes once a real week: due when this character has not stood against this week's tide.
-func tide_due(c) -> bool:
-	return int(c.cooldowns.get("beast_tide_week", -1)) != Clock.reset_week(Clock.now_utc())
-
-func tide_days_left(c) -> int:
-	var now := Clock.now_utc()
-	var d := 0
-	while d < 8 and Clock.reset_week(now + d * 86400.0) == Clock.reset_week(now): d += 1
-	return d
-
-## Ring the gate's gong: three waves of beasts, their Level following yours (S25 room-event waves).
-func start_beast_tide(c) -> Dictionary:
-	var cfg := tide_cfg()
-	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "sf_gate")): return fail("not_here")
-	if not tide_due(c): return fail("not_due", {"text": Tx.t("sim.world.tide_not_due") % Tx.span(maxi(1, tide_days_left(c)) * 86400.0)})
-	if game.room_rt.event.get("active", false): return fail("busy")
-	var ev := {"id": "beast_tide", "duration": float(cfg.get("duration", 90)), "waves": cfg.get("waves", []),
-		"on_complete": [{"kind": "beast_tide_result", "won": true}]}
-	_start_event(c, game.room_rt, ev)
-	emit("beast_tide_started", {"actor": c.id, "room": game.room_rt.room_id, "week": Clock.reset_week(Clock.now_utc()),
-		"duration": float(cfg.get("duration", 90))})
-	return ok({"event": "beast_tide"})
-
-## S46 Beast Trial Grove: once a day the animals fight ten beasts (their Level following yours) while you rally them.
-func start_beast_trial(c) -> Dictionary:
-	var cfg: Dictionary = ContentDB.config("beast_arena").get("grove", {})
-	if game.room_rt == null or game.room_rt.room_id != str(cfg.get("room", "sf_beast_grove")): return fail("not_here")
-	var today := Clock.reset_day(Clock.now_utc())
-	if int(c.cooldowns.get("grove_day", -1)) == today: return fail("done", {"text": Tx.t("sim.world.grove_done")})
-	if game.pets.party(c).is_empty(): return fail("no_pet", {"text": Tx.t("sim.pet.no_active")})
-	if game.room_rt.event.get("active", false): return fail("busy")
-	c.cooldowns["grove_day"] = today
-	var waves: Array = []
-	for w in cfg.get("waves", []):
-		var w2: Dictionary = (w as Dictionary).duplicate()
-		w2.level = "player"
-		w2.level_offset = int(cfg.get("level_offset", -2))
-		w2.level_min = int(cfg.get("level_min", 10))
-		w2.level_max = int(cfg.get("level_max", 60))
-		waves.append(w2)
-	var ev := {"id": "beast_trial", "pet_trial": true, "duration": float(cfg.get("duration", 150)), "waves": waves,
-		"kill_count": {"enemy": "*", "count": int(cfg.get("count", 10))},
-		"on_complete": [{"kind": "beast_trial_result", "won": true}], "on_timeout": [{"kind": "beast_trial_result", "won": false}]}
-	_start_event(c, game.room_rt, ev)
-	return ok({"event": "beast_trial"})
-
-## The Grove's reward: the Guardian Spirit book the first time, then one draw from the pool.
-func apply_trial_result(actor_id: String, won: bool) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	var cfg: Dictionary = ContentDB.config("beast_arena").get("grove", {})
-	var item := ""
-	if won:
-		if not c.quests.has_flag("grove_first_clear"):
-			game.quest.apply_flag(c.id, "grove_first_clear")
-			item = str(cfg.get("first", ""))
-		else:
-			var pool: Array = cfg.get("pool", [])
-			var pick := LootRules.RngService_weighted(Rng.stream(c.id, "world"), pool)
-			item = str(pick.get("item", ""))
-		if item != "": game.inventory.apply_add(c.id, item, 1, "beast_trial")
-	emit("beast_trial_result", {"actor": c.id, "won": won, "item": item})
-
-## Held the gate: this week's tide is spent; cores of your rank, an egg (the Cloud Stag's once, from Cloud Stride 1)
-## and Spirit Soil.
-func apply_tide_result(actor_id: String, won: bool) -> void:
-	var c = game.character(actor_id)
-	if c == null: return
-	c.cooldowns["beast_tide_week"] = Clock.reset_week(Clock.now_utc())
-	var rw: Dictionary = tide_cfg().get("rewards", {})
-	var got: Array = []
-	if won:
-		var rng := Rng.stream(c.id, "world")
-		var els: Array = ["fire", "water", "wood", "earth", "wind", "thunder"]
-		var tier := "low" if ProgressionRules.level(c) < 28 else ("mid" if ProgressionRules.level(c) < 46 else "high")
-		for i in int(rw.get("cores", 3)):
-			var core := "%s_core_%s" % [els[rng.randi_range(0, els.size() - 1)], tier]
-			game.inventory.apply_add(c.id, core, 1, "beast_tide")
-			got.append(core)
-		var egg := str(rw.get("egg", "spirit_egg"))
-		if ProgressionRules.at_least(c.cultivator.realm_key, str(rw.get("stag_realm", "cloud_stride_1"))) and not c.quests.has_flag("tide_stag_egg"):
-			egg = str(rw.get("stag_egg", "cloud_stag_egg"))
-			game.quest.apply_flag(c.id, "tide_stag_egg")
-		game.inventory.apply_add(c.id, egg, 1, "beast_tide")
-		got.append(egg)
-		game.inventory.apply_add(c.id, "spirit_soil", int(rw.get("soil", 1)), "beast_tide")
-		got.append("spirit_soil")
-	emit("beast_tide_result", {"actor": c.id, "won": won, "items": got})
-
-func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void:
-	var ev: Dictionary = rt.event
-	ev.active = false
-	emit("room_event_completed" if won else "room_event_failed", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "reason": reason})
-	for e in rt.living_enemies():
-		if e.summoned: game.enemies.release(e)   # the rest scatter: no loot, no kill credit
-	game.apply_effects(c.id, ev.get("on_complete" if won else "on_timeout", []), "event:" + str(ev.get("id", "")))
-	if won and int(ev.get("hits_taken", 0)) == 0 and not ev.get("on_flawless", []).is_empty():
-		emit("room_event_flawless", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
-		game.apply_effects(c.id, ev.on_flawless, "event:" + str(ev.get("id", "")) + ":flawless")
-	# On the height grid, where the scene after the fight plays (behind whatever moments the win brings), the way on waits
-	# for it longer (`grid_after_s`); in the side view, which stages no scenes, `after_s`.
-	if won and ev.get("leave") is Dictionary and game.room_rt == rt:
-		ev.leaving = float(ev.leave.get("grid_after_s" if rt.topdown != null else "after_s", ev.leave.get("after_s", 0.0)))
-
-## A kill-to-win event ends the moment its foe falls.
-func _event_kill(p: Dictionary) -> void:
-	var rt: RoomRuntime = game.room_rt
-	if rt == null or not rt.event.get("active", false): return
-	if str(rt.event.get("win_on_kill", "")) != "" and str(p.get("def", "")) == str(rt.event.win_on_kill):
-		var c = game.active()
-		if c != null: _end_event(c, rt, true)
-		return
-	# S48 Iron Body trial: so many of one foe in a single run.
-	var kc: Dictionary = rt.event.get("kill_count", {})
-	if not kc.is_empty() and (str(kc.get("enemy", "")) == "*" or str(p.get("def", "")) == str(kc.get("enemy", ""))) and str(p.get("victim_kind", "enemy")) == "enemy":
-		rt.event.kills = int(rt.event.get("kills", 0)) + 1
-		var c2 = game.active()
-		if c2 != null: emit("room_event_wave", {"actor": c2.id, "room": rt.room_id, "event": str(rt.event.get("id", "")), "enemy": str(kc.enemy),
-			"text": Tx.t("sim.world.trial_kills") % [int(rt.event.kills), int(kc.get("count", 1))]})
-		if c2 != null and int(rt.event.kills) >= int(kc.get("count", 1)): _end_event(c2, rt, true)
-
-# ------------------------------------------------------------------ the Trial Tower (S49 v1.0)
-## Thirty floors at the Fairground (tower.json), all in one room: each floor is a room event with its own rule.
-## The floors you have cleared are World state on the character; each can be swept once a day for its loot.
-func tower_floor(f: int) -> Dictionary:
-	return ContentDB.entry("tower", "floor_%d" % f)
-
-func tower_cleared(c) -> int:
-	return int(c.tower.get("cleared", 0))
-
-func tower_swept_today(c, f: int) -> bool:
-	return int(c.tower.get("swept", {}).get(str(f), -1)) == Clock.reset_day(Clock.now_utc())
-
-## Climb a floor: the next one, or any you have cleared before. The trial starts in the tower room.
-func climb_tower(c, f: int) -> Dictionary:
-	var row := tower_floor(f)
-	if row.is_empty(): return fail("no_floor")
-	if f > tower_cleared(c) + 1: return fail("locked", {"text": Tx.t("sim.world.tower_locked") % (tower_cleared(c) + 1)})
-	if game.room_rt != null and game.room_rt.event.get("active", false): return fail("busy", {"text": Tx.t("sim.world.tower_busy")})
-	var room := str(ContentDB.config("tower").get("room", "sf_trial_tower"))
-	if game.room_rt == null or game.room_rt.room_id != room:
-		if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, room): return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
-		var moved := load_room(c, room, "entry")
-		if not moved.get("ok", false): return moved
-	var lv := int(row.level)
-	var foes: Array = row.get("foes", [])
-	var points := [[900, 860], [1300, 820], [1700, 860], [2100, 840]]
-	var ev := {"id": "tower_floor", "floor": f, "clear_room": true, "duration": float(row.get("time_s", 60)),
-		"on_complete": [{"kind": "tower_clear", "floor": f}]}
-	match str(row.kind):
-		"clear", "swift":
-			var n := int(row.get("count", 4))
-			var spawns: Array = []
-			for i in n: spawns.append({"enemy": str(foes[i % foes.size()]), "at": points[i % points.size()], "level": lv})
-			ev.fixed_spawns = spawns
-			ev.kill_count = {"enemy": "*", "count": n}
-		"survive":
-			var waves: Array = []
-			for i in foes.size():
-				waves.append({"enemy": str(foes[i]), "first_s": 2.0 + i * 3.0, "every_s": 5.0, "max": 2, "level": lv, "points": points})
-			ev.waves = waves
-		_:
-			ev.fixed_spawns = [{"enemy": str(row.guardian), "at": [1600, 850], "level": int(row.get("guardian_level", lv + 4))},
-				{"enemy": str(foes[0]), "at": points[0], "level": lv}, {"enemy": str(foes[foes.size() - 1]), "at": points[3], "level": lv}]
-			ev.win_on_kill = str(row.guardian)
-	start_room_event(c, ev)
-	return ok({"floor": f})
-
-## A floor cleared: its loot at your feet; the first time, Spirit Stones and the floor's first-clear rewards (P7b: the
-## guardians of floors 15-30 leave a Day's Incense) as well, and the next floor opens.
-func apply_tower_clear(actor_id: String, f: int) -> void:
-	var c = game.character(actor_id)
-	var st: ActorState = game.actor_state(actor_id)
-	var row := tower_floor(f)
-	if c == null or row.is_empty(): return
-	var first := f > tower_cleared(c)
-	if first: c.tower["cleared"] = f
-	if st != null and game.room_rt != null:
-		_drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find")),
-			st.plane, 0.0, "tower")
-	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}] + row.get("first", []), "tower")
-	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
-
-## Sweep: each floor you have cleared gives its loot once a day, straight to the bag, without the fight.
-## floor -1 sweeps every cleared floor not yet swept today.
-func sweep_tower(c, f := -1) -> Dictionary:
-	var day := Clock.reset_day(Clock.now_utc())
-	var swept: Dictionary = c.tower.get("swept", {})
-	var done := 0
-	for i in range(1, tower_cleared(c) + 1):
-		if (f > 0 and i != f) or int(swept.get(str(i), -1)) == day: continue
-		var row := tower_floor(i)
-		var drop := LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		var fx: Array = []
-		for it in drop.get("items", []):
-			if not ContentDB.item(str(it.item)).is_empty() and int(it.count) > 0: fx.append({"kind": "grant_item", "item": str(it.item), "count": int(it.count)})
-		var silver := int(drop.get("coins", 0)) + int(ContentDB.config("tower").get("sweep_silver_per_floor", 15))
-		fx.append({"kind": "grant_currency", "currency": "silver_tael", "amount": silver})
-		game.apply_effects(c.id, fx, "tower_sweep")
-		swept[str(i)] = day
-		done += 1
-	c.tower["swept"] = swept
-	if done == 0: return fail("nothing", {"text": Tx.t("sim.world.tower_nothing")})
-	emit("tower_swept", {"actor": c.id, "floors": done})
-	return ok({"floors": done})
-
-# ------------------------------------------------------------------ S49 mobile conventions: idle rooms, auto-hunt, auto-path
-## Rooms where auto-hunt is always off (S49): bosses, trials, dungeons, story instances, secret places.
-const AUTO_HUNT_OFF := ["boss_arena", "trial", "dungeon", "story", "secret", "prologue"]
-var auto_hunt: Dictionary = {}    # actor -> true while the toggle is on (the session only)
-var auto_paths: Dictionary = {}   # actor -> {target, route: [{room, portal, to}]}
-var _auto_check := 0.0
-
-## The idle Hunt and Gather tasks (S23) run only in rooms that list them (room.idle); rest, seclusion and
-## training go anywhere.
-func idle_allowed(room_id: String, kind: String) -> bool:
-	if not kind in ["hunt", "gather"]: return true
-	return (ContentDB.room(room_id).get("idle", []) as Array).has(kind)
-
-## Why this character may not auto-hunt here now ("" when it may): the room must allow idle Hunt, and it is off in
-## bosses, trials, dungeons, room events and tribulations. It never uses treasures, pills or breakthroughs.
-func auto_hunt_block(c) -> String:
-	var rt: RoomRuntime = game.room_rt
-	if c == null or rt == null: return "room"
-	if str(rt.def.get("type", "")) in AUTO_HUNT_OFF or not idle_allowed(rt.room_id, "hunt"): return "room"
-	if rt.event.get("active", false): return "event"
-	if not game.progression.tribulation_view(c.id).is_empty(): return "tribulation"
-	if c.pools.hp < c.pools.max_hp * 0.2: return "low_hp"
-	for e in rt.living_enemies():
-		if e.is_boss(): return "boss"
-	return ""
-
-func auto_hunting(actor_id: String) -> bool:
-	return auto_hunt.has(actor_id)
-
-func set_auto_hunt(c, on: bool) -> Dictionary:
-	if not on:
-		_end_auto_hunt(c.id, "off")
-		return ok({"on": false})
-	var why := auto_hunt_block(c)
-	if why != "": return fail(why, {"text": Tx.t("sim.world.auto_hunt_" + why)})
-	auto_paths.erase(c.id)
-	auto_hunt[c.id] = true
-	emit("auto_hunt_changed", {"actor": c.id, "on": true, "reason": ""})
-	return ok({"on": true})
-
-func _end_auto_hunt(actor_id: String, reason: String) -> void:
-	if not auto_hunt.has(actor_id): return
-	auto_hunt.erase(actor_id)
-	emit("auto_hunt_changed", {"actor": actor_id, "on": false, "reason": reason})
-
-func _tick_auto_hunt(c, delta: float) -> void:
-	if not auto_hunt.has(c.id): return
-	_auto_check -= delta
-	if _auto_check > 0.0: return
-	_auto_check = 0.5
-	var why := auto_hunt_block(c)
-	if why != "": _end_auto_hunt(c.id, why)
-
-## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
-func portal_open(c, room_id: String, p: Dictionary) -> bool:
-	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
-	if p.has("array"): return array_open(c, room_id, str(p.id), str(p.array))   # decision 42: a transfer array's link
-	if prototype_gate(c, room_id, str(p.get("to", ""))): return false   # decision 41: no route, mark or hop past the gate
-	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
-	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
-	return true
-
-## The shortest way between two rooms through the portals open to this character (its realm, quests and arts):
-## [{room, portal, to}], [] when there is none or it is already there.
-func route(c, from_room: String, to_room: String) -> Array:
-	return WorldRules.route(from_room, to_room, func(room_id: String, p: Dictionary) -> bool: return portal_open(c, room_id, p))
-
-## Decision 43: with `place` (a place's id, data/places.json) the walk goes on inside the place's room to the cell its
-## user stands on (the Menu's and the map's travel to a place), from another room or from this one.
-func start_auto_path(c, target: String, place := "") -> Dictionary:
-	var goal := PlaceRules.get_place(place) if place != "" else {}
-	if not goal.is_empty(): target = str(goal.room)
-	if target == "":
-		_end_auto_path(c.id, "cancelled")
-		return ok()
-	if game.room_rt == null: return fail("no_room")
-	var r: Array = []
-	if target == game.room_rt.room_id:
-		if goal.is_empty(): return fail("here", {"text": Tx.t("sim.world.auto_path_here")})
-	else:
-		r = route(c, game.room_rt.room_id, target)
-		if r.is_empty(): return fail("no_route", {"text": Tx.t("sim.world.auto_path_none")})
-	_end_auto_hunt(c.id, "path")
-	auto_paths[c.id] = {"target": target, "route": r}
-	if not goal.is_empty(): auto_paths[c.id].place = place
-	emit("auto_path_started", {"actor": c.id, "target": target, "rooms": r.size(), "place": place, "name": str(goal.get("name", ""))})
-	return ok({"route": r, "place": place})
-
-## Where auto-path is heading in this room: the portal to take ({portal, x, y, press_up}), in the place's own room the
-## cell its user stands on ({place, x, y}), or {}.
-func auto_path_step(c) -> Dictionary:
-	var ap: Dictionary = auto_paths.get(c.id, {}) if c != null else {}
-	if ap.is_empty() or game.room_rt == null: return {}
-	for s in ap.route:
-		if str(s.room) != game.room_rt.room_id: continue
-		var at := _step_point(s)
-		if at.is_empty(): return {}
-		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": false, "surface": ""}
-		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": bool(at.p.get("press_up", false)), "surface": str(at.p.get("surface", ""))}
-	if ap.has("place") and game.room_rt.room_id == str(ap.target):
-		var pl := PlaceRules.get_place(str(ap.place))
-		var sp := PlaceRules.stand_point(pl) if game.room_rt.topdown != null else PlaceRules.point(pl)
-		if game.room_rt.topdown == null:
-			# A side-view room: the place's object where the side view has it.
-			var o: Dictionary = game.room_rt.object_def(str(pl.get("object", "")))
-			if not o.is_empty(): sp = Vector2(float(o.at[0]), float(o.at[1]))
-		return {"place": str(ap.place), "object": str(pl.get("object", "")), "x": sp.x, "y": sp.y}
-	return {}
-
-## Decision 43: the walk to a place ends at its user's cell.
-func auto_path_arrive(c) -> void:
-	if c == null or not auto_paths.has(c.id): return
-	var pl := PlaceRules.get_place(str(auto_paths[c.id].get("place", "")))
-	_end_auto_path(c.id, "arrived")
-	if not pl.is_empty(): emit("place_reached", {"actor": c.id, "place": str(pl.id), "object": str(pl.object), "room": str(pl.room)})
-
-## Where a route step starts in this room: its dock object or its portal ({x, y, p: the portal}), {} when it is not here.
-func _step_point(s: Dictionary) -> Dictionary:
-	if s.get("dock", false):
-		for o in game.room_rt.def.get("objects", []):
-			if str(o.id) == str(s.portal): return {"x": float(o.at[0]), "y": float(o.at[1]), "p": {}}
-		return {}
-	var p = game.room_rt.portal_def(str(s.portal))
-	return {} if p.is_empty() else {"x": float(p.at[0]), "y": float(p.at[1]), "p": p}
-
-## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).
-func toggle_gravity(c, object_id: String) -> Dictionary:
-	if game.room_rt == null: return fail("no_room")
-	var st: Dictionary = game.room_rt.objects.get(object_id, {})
-	var on := str(st.get("state", "up")) != "down"
-	st["state"] = "down" if on else "up"
-	game.room_rt.objects[object_id] = st
-	game.room_rt.geometry.set_switch(object_id, on)
-	emit("gravity_switched", {"actor": c.id, "room": str(game.room_rt.room_id), "switch": object_id, "on": on})
-	emit("system_used", {"actor": c.id, "system": "gravity_switch"})
-	return ok({"on": on, "text": t("sim.world.gravity_on") if on else t("sim.world.gravity_off")})
-
-## P1 quest direction: where the tracked quest leads from this room, the main story's first:
-## {target, next, portal, x, y} (the exit to take here) or {} when nothing tracked leads elsewhere.
-var _guide_cache := {}
-func guide_step(c) -> Dictionary:
-	if c == null or game.room_rt == null: return {}
-	var here := str(game.room_rt.room_id)
-	var goal := guide_target(c)
-	if goal == "": return {}
-	var key := here + ">" + goal
-	if str(_guide_cache.get("key", "")) == key and Clock.now_utc() - float(_guide_cache.get("at", 0.0)) < 5.0: return _guide_cache.step
-	var step := {}
-	var r := route(c, here, goal)
-	# Behind a hidden way not yet seen, the mark leads as far as the room that hides it (Spirit Sense shows it there).
-	if r.is_empty():
-		for hid in WorldRules.rooms_with("hidden_to=" + goal):
-			r = route(c, here, str(hid))
-			if not r.is_empty(): break
-	if not r.is_empty() and str(r[0].room) == here:
-		var at := _step_point(r[0])
-		if not at.is_empty(): step = {"target": goal, "next": str(r[0].to), "portal": str(r[0].portal), "x": float(at.x), "y": float(at.y)}
-	_guide_cache = {"key": key, "at": Clock.now_utc(), "step": step}
-	return step
-
-## The room the tracker leads to (the main story's first: its quest under way, or its next one between quests), other
-## than where the character stands.
-func guide_target(c) -> String:
-	if c == null: return ""
-	var here := str(c.position.get("room", ""))
-	# Decision 43: a tutorial leading to a place (the coach's guide) takes the direction mark first, while it leads.
-	var taught: String = game.tutorials.goal_of(c) if game.tutorials != null else ""
-	if taught != "" and taught != here: return taught
-	var goal := ""
-	for q in game.quest.tracker(c):
-		var t := str(q.get("target_room", ""))
-		if t == "" or t == here: continue
-		if goal == "" or QuestAuthority.leads(str(q.kind)): goal = t
-		if QuestAuthority.leads(str(q.kind)): break
-	return goal
-
-## "Room · Region" for a room id, as the tracker and the map name a destination.
-static func place_name(room_id: String) -> String:
-	var rd := ContentDB.room(room_id)
-	var nm := str(rd.get("name", room_id))
-	var zone := ContentDB.entry("zones", str(rd.get("zone", "")))
-	for rg in zone.get("regions", []):
-		if str(rg.get("id", "")) == str(rd.get("region", "")) and str(rg.get("name", "")) != nm: return "%s · %s" % [nm, str(rg.name)]
-	return nm
-
-func auto_path_target(c) -> String:
-	return str(auto_paths.get(c.id, {}).get("target", "")) if c != null else ""
-
-func _end_auto_path(actor_id: String, reason: String) -> void:
-	if not auto_paths.has(actor_id): return
-	var target := str(auto_paths[actor_id].target)
-	auto_paths.erase(actor_id)
-	emit("auto_path_ended", {"actor": actor_id, "target": target, "reason": reason})
-
-## Each room reached: arrived, still on the way, or off the route (it finds a new one from here).
-func _auto_path_room(_p: Dictionary) -> void:
-	var c = game.active()
-	if c == null or not auto_paths.has(c.id) or game.room_rt == null: return
-	var ap: Dictionary = auto_paths[c.id]
-	if game.room_rt.room_id == str(ap.target):
-		if not ap.has("place"): _end_auto_path(c.id, "arrived")   # a place's walk goes on to it (auto_path_step)
-		return
-	if (ap.route as Array).any(func(s): return str(s.room) == game.room_rt.room_id): return
-	if game.room_rt.def.get("crossing", false): return   # under sail: the route goes on at the far pier
-	var r := route(c, game.room_rt.room_id, str(ap.target))
-	if r.is_empty(): _end_auto_path(c.id, "lost")
-	else: ap.route = r
-
-## At a Starsea dock the route boards a vessel; without one (or a chart) it stops there and says why.
-func auto_path_board(c, dock_id: String) -> Dictionary:
-	# Decision 42: a transfer array on the route is taken to the node the route names.
-	for s in auto_paths.get(c.id, {}).get("route", []):
-		if game.room_rt != null and str(s.room) == game.room_rt.room_id and str(s.portal) == dock_id and str(s.get("array", "")) != "":
-			var ra := array_travel(c, dock_id, str(s.array))
-			if not ra.get("ok", false): _end_auto_path(c.id, "dock")
-			return ra
-	var r := interact(c, dock_id)
-	if not r.get("ok", false): _end_auto_path(c.id, "dock")
-	return r
-
-## It stops at danger: the moment something strikes you, the controls are yours again.
-func _auto_path_danger(p: Dictionary) -> void:
-	if str(p.get("target_kind", "")) == "player" and auto_paths.has(str(p.get("target", ""))): _end_auto_path(str(p.target), "danger")
+	objects.tick_regrowth(rt, delta)
+	loot.tick_loot(c, rt, st, delta)
+	if rt.event.get("active", false): room_events.tick_event(c, rt, delta)
+	elif rt.event.has("leaving"): room_events.tick_leave(c, rt, delta)
+	races.tick_chase(c, rt, st)
+	races.tick_run(c, rt, st)
+	objects.attune_shrines(c, rt, st)
+	arrays.attune_arrays(c, rt, st)
+	hazards.tick_hazards(c, rt, st, delta)
+
+# ------------------------------------------------------------------ the facade
+## Every public method, forwarded to the part that does the work. The old private names that tests and ObjectView call
+## by keep their own forwarders at the end (audit 45 S11 gives those public names).
+
+# Bandit ambushes (world_ambush.gd)
+func ambush_chance(c, amb: Dictionary) -> float: return ambush.ambush_chance(c, amb)
+func spring_ambush(c, amb: Dictionary) -> void: ambush.spring_ambush(c, amb)
+
+# Rare herbs (world_herbs.gd)
+func herb_state(o: Dictionary) -> Dictionary: return herbs.herb_state(o)
+func wake_guardian(c, o: Dictionary, window: int) -> EnemyState: return herbs.wake_guardian(c, o, window)
+func herb_guard_text(c, o: Dictionary) -> String: return herbs.herb_guard_text(c, o)
+
+# Portals, routes, teleports and Spirit Sense (world_portals.gd)
+func portal_near(c, portal: Dictionary) -> bool: return portals.portal_near(c, portal)
+static func seen_flag(room_id: String, portal_id: String) -> String: return WorldPortals.seen_flag(room_id, portal_id)
+func prototype_gate(c, from_room: String, to_room: String) -> bool: return portals.prototype_gate(c, from_room, to_room)
+func portal_state(c, portal: Dictionary) -> Dictionary: return portals.portal_state(c, portal)
+func portal_open(c, room_id: String, p: Dictionary) -> bool: return portals.portal_open(c, room_id, p)
+func route(c, from_room: String, to_room: String) -> Array: return portals.route(c, from_room, to_room)
+func use_portal(c, portal_id: String, crossing: bool) -> Dictionary: return portals.use_portal(c, portal_id, crossing)
+func apply_teleport(actor_id: String, target: String, portal := "") -> void: portals.apply_teleport(actor_id, target, portal)
+func apply_return_to_shrine(actor_id: String) -> void: portals.apply_return_to_shrine(actor_id)
+func teleport_fee(stone_id: String, c = null) -> int: return portals.teleport_fee(stone_id, c)
+func teleport(c, stone_id: String) -> Dictionary: return portals.teleport(c, stone_id)
+func sense_pulse(c) -> Dictionary: return portals.sense_pulse(c)
+
+# Transfer arrays (world_arrays.gd)
+static func array_flag(node_id: String) -> String: return WorldArrays.array_flag(node_id)
+func array_attuned(c, node_id: String) -> bool: return arrays.array_attuned(c, node_id)
+static func array_mine(c, node: Dictionary) -> bool: return WorldArrays.array_mine(c, node)
+func array_open(c, from_room: String, from_id: String, to_id: String) -> bool: return arrays.array_open(c, from_room, from_id, to_id)
+func attune_array(c, node_id: String) -> void: arrays.attune_array(c, node_id)
+func array_destinations(c, node_id: String) -> Array: return arrays.array_destinations(c, node_id)
+func array_view(c, node_id: String) -> Dictionary: return arrays.array_view(c, node_id)
+func array_travel(c, from_id: String, to_id: String) -> Dictionary: return arrays.array_travel(c, from_id, to_id)
+
+# Room objects (world_objects.gd)
+func apply_node_depleted(c, object_id: String, regrow_s: float) -> void: objects.apply_node_depleted(c, object_id, regrow_s)
+func object_visible(c, o: Dictionary) -> bool: return objects.object_visible(c, o)
+func in_spar(npc: String) -> bool: return objects.in_spar(npc)
+func climbable_open(c, climbable: Dictionary) -> Dictionary: return objects.climbable_open(c, climbable)
+func open_key(o: Dictionary) -> String: return objects.open_key(o)
+func object_available(c, o: Dictionary) -> Dictionary: return objects.object_available(c, o)
+func hittable_objects(pv: Dictionary, facing: int, hitbox: Dictionary) -> Array: return objects.hittable_objects(pv, facing, hitbox)
+func apply_object_hit(actor_id: String, o: Dictionary) -> void: objects.apply_object_hit(actor_id, o)
+func toggle_gravity(c, object_id: String) -> Dictionary: return objects.toggle_gravity(c, object_id)
+
+# Interact and the context button (world_context.gd)
+func interact(c, object_id: String, pick := false) -> Dictionary: return context.interact(c, object_id, pick)
+func reach_of(o: Dictionary) -> float: return context.reach_of(o)
+func query_context(c) -> Dictionary: return context.query_context(c)
+static func resource_node(o: Dictionary) -> bool: return WorldContext.resource_node(o)
+static func offers_context(o: Dictionary) -> bool: return WorldContext.offers_context(o)
+static func context_rank(o: Dictionary, calls := false) -> float: return WorldContext.context_rank(o, calls)
+static func context_portal(p: Dictionary) -> bool: return WorldContext.context_portal(p)
+
+# Beast cores and loot (world_loot.gd)
+static func beast_rank(def: Dictionary, level: int) -> int: return WorldLoot.beast_rank(def, level)
+static func beast_core_for(def: Dictionary, level: int) -> String: return WorldLoot.beast_core_for(def, level)
+static func core_chance(def: Dictionary, level: int) -> float: return WorldLoot.core_chance(def, level)
+static func zone_shard(room_id: String) -> String: return WorldLoot.zone_shard(room_id)
+func pick_up(c, uid: int) -> Dictionary: return loot.pick_up(c, uid)
+## A drop another authority leaves in the room (Enemies: a boss that fled). `source` names it for the loot fountain.
+func apply_loot_drop(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
+
+# Rooftop chases and timed routes (world_races.gd)
+static func chase_point(route: Array, speed: float, t: float) -> Dictionary: return WorldRaces.chase_point(route, speed, t)
+static func chase_length(route: Array, speed: float) -> float: return WorldRaces.chase_length(route, speed)
+func chase_done_today(c, object_id: String) -> bool: return races.chase_done_today(c, object_id)
+func chase_view(c) -> Dictionary: return races.chase_view(c)
+func start_chase(c, o: Dictionary) -> Dictionary: return races.start_chase(c, o)
+func start_run(c, o: Dictionary) -> Dictionary: return races.start_run(c, o)
+func route_board(route: Dictionary, week: int) -> Array: return races.route_board(route, week)
+func route_record(c, route_id: String) -> Dictionary: return races.route_record(c, route_id)
+func route_rank(route: Dictionary, week: int, seconds: float) -> int: return races.route_rank(route, week, seconds)
+func finish_route(c, route: Dictionary, seconds: float) -> Dictionary: return races.finish_route(c, route, seconds)
+
+# Hazards (world_hazards.gd)
+func hazard_drift(actor_id: String) -> Vector2: return hazards.hazard_drift(actor_id)
+func debug_hazard_phase(phase: String, k: float) -> void: hazards.debug_hazard_phase(phase, k)
+
+# Starsea voyages (world_starsea.gd)
+func best_vessel(c) -> String: return starsea.best_vessel(c)
+func set_sail(c, route_id: String) -> Dictionary: return starsea.set_sail(c, route_id)
+func apply_voyage_arrive(actor_id: String) -> void: starsea.apply_voyage_arrive(actor_id)
+
+# Room events (world_room_events.gd)
+func start_room_event(c, ev: Dictionary) -> void: room_events.start_room_event(c, ev)
+func apply_rift_reward(actor_id: String, loot_table: String, level: int) -> void: room_events.apply_rift_reward(actor_id, loot_table, level)
+func event_level(c, w: Dictionary) -> int: return room_events.event_level(c, w)
+
+# Nests, the Beast Tide and the Grove (world_nests.gd)
+func nest_closes(king: String) -> float: return nests.nest_closes(king)
+func tide_cfg() -> Dictionary: return nests.tide_cfg()
+func tide_due(c) -> bool: return nests.tide_due(c)
+func tide_days_left(c) -> int: return nests.tide_days_left(c)
+func start_beast_tide(c) -> Dictionary: return nests.start_beast_tide(c)
+func start_beast_trial(c) -> Dictionary: return nests.start_beast_trial(c)
+func apply_trial_result(actor_id: String, won: bool) -> void: nests.apply_trial_result(actor_id, won)
+func apply_tide_result(actor_id: String, won: bool) -> void: nests.apply_tide_result(actor_id, won)
+
+# The Trial Tower (world_tower.gd)
+func tower_floor(f: int) -> Dictionary: return tower.tower_floor(f)
+func tower_cleared(c) -> int: return tower.tower_cleared(c)
+func tower_swept_today(c, f: int) -> bool: return tower.tower_swept_today(c, f)
+func climb_tower(c, f: int) -> Dictionary: return tower.climb_tower(c, f)
+func apply_tower_clear(actor_id: String, f: int) -> void: tower.apply_tower_clear(actor_id, f)
+func sweep_tower(c, f := -1) -> Dictionary: return tower.sweep_tower(c, f)
+
+# Idle rooms, auto-hunt, auto-path and the direction mark (world_idle.gd)
+func idle_allowed(room_id: String, kind: String) -> bool: return idle.idle_allowed(room_id, kind)
+func auto_hunt_block(c) -> String: return idle.auto_hunt_block(c)
+func auto_hunting(actor_id: String) -> bool: return idle.auto_hunting(actor_id)
+func set_auto_hunt(c, on: bool) -> Dictionary: return idle.set_auto_hunt(c, on)
+func start_auto_path(c, target: String, place := "") -> Dictionary: return idle.start_auto_path(c, target, place)
+func auto_path_step(c) -> Dictionary: return idle.auto_path_step(c)
+func auto_path_arrive(c) -> void: idle.auto_path_arrive(c)
+func guide_step(c) -> Dictionary: return idle.guide_step(c)
+func guide_target(c) -> String: return idle.guide_target(c)
+static func place_name(room_id: String) -> String: return WorldIdle.place_name(room_id)
+func auto_path_target(c) -> String: return idle.auto_path_target(c)
+func auto_path_board(c, dock_id: String) -> Dictionary: return idle.auto_path_board(c, dock_id)
+
+# ------------------------------------------------------------------ old private names still called from outside
+# The tests (and ObjectView's `_verb`) call these by their names from before the split; S11 moves those calls to the
+# parts' public names and drops this block.
+func _guardian_wakes(o: Dictionary, st: ActorState) -> bool: return herbs.guardian_wakes(o, st)
+func _verb(o: Dictionary) -> String: return context.verb(o)
+func _on_actor_defeated(p: Dictionary) -> void: loot.on_actor_defeated(p)
+func _starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void: loot.starter_drop(c, table, level, drop)
+func _drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
+static func _loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, alt, spread, jitter)
+func _tick_chase(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_chase(c, rt, st)
+func _tick_run(c, rt: RoomRuntime, st: ActorState) -> void: races.tick_run(c, rt, st)
+func _hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Dictionary, rng: RandomNumberGenerator, calm: bool) -> void: hazards.hazard_enter(c, rt, st, h, hs, rng, calm)
+func _hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNumberGenerator) -> Array: return hazards.hazard_spots(rt, st, h, rng)
+func _start_event(c, rt: RoomRuntime, ev: Dictionary) -> void: room_events.start_event(c, rt, ev)
+func _tick_event(c, rt: RoomRuntime, delta: float) -> void: room_events.tick_event(c, rt, delta)
+func _end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void: room_events.end_event(c, rt, won, reason)
+func _event_kill(p: Dictionary) -> void: room_events.event_kill(p)
+func _tick_auto_hunt(c, delta: float) -> void: idle.tick_auto_hunt(c, delta)
