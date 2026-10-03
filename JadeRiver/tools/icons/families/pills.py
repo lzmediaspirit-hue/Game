@@ -430,46 +430,23 @@ def make_pill_hd(vessel, grade, mark, pill, ink, extra=None):
     return draw
 
 
-PILLS_HD = [
-    # id, kind (VESSEL_OF), grade, mark, pill material, mark ink (material, level), extra
-    # jars: what heals and restores
-    ('healing_pill', 'healing', 'common', 'heart', 'red', ('red', 0)),
-    ('qi_restoration_pill', 'restoration', 'common', 'spiral', 'qi', ('qi', -1)),
-    ('soul_soothing_pill', 'restoration', 'heaven', 'eye', 'violet', ('violet', -1)),
-    ('tide_cleansing_pill', 'restoration', 'sovereign', 'knot', 'driftteal', ('driftteal', -2)),
-    # bottles: taken at a breakthrough, a settling or a cleansing
-    ('cleansing_pill', 'breakthrough', 'common', 'gate_cloud', 'pearl', ('navy', -1)),
-    ('foundation_guard_pill', 'breakthrough', 'earth', 'gate', 'gold', ('gold', -3)),
-    ('qi_refining_pill', 'breakthrough', 'earth', 'spiral', 'jade', ('qi', -2)),
-    ('heavenly_flame_pill', 'breakthrough', 'earth', 'flame', 'fire', ('red', -2)),
-    ('mind_lake_opening_pill', 'breakthrough', 'heaven', 'eye_gate', 'storm', ('navy', -1)),
-    ('sage_condensing_pill', 'breakthrough', 'mystic', 'knot', 'gold', ('plum', -1)),
-    ('sovereign_settling_pill', 'breakthrough', 'sage', 'knot', 'ember', ('clay', -2)),
-    ('law_condensing_pill', 'breakthrough', 'law', 'law', 'storm', ('plum', -1)),
-    ('law_touching_pill', 'breakthrough', 'law', 'eye_gate', 'pearl', ('plum', -1)),
-    ('monarch_condensing_pill', 'breakthrough', 'monarch', 'crown', 'pearl', ('red', -2)),
-    ('sigil_anchor_pill', 'breakthrough', 'monarch', 'anchor', 'seal', ('plum', -1)),
-    # gourds: a draught that lifts you for a while
-    ('tiger_blood_pill', 'buff', 'common', 'flame', 'ember', ('ember', -2)),
-    ('sunfire_pill', 'buff', 'common', 'sun', 'yellow', ('red', -2)),
-    ('clear_mind_pill', 'buff', 'earth', 'lamp', 'sky', ('navy', -1)),
-    ('qi_flow_pill', 'buff', 'earth', 'spiral_up', 'jade', ('qi', -2)),
-    ('cloudstep_pill', 'buff', 'heaven', 'arrows', 'cloud', ('navy', -1)),
-    ('storm_blood_pill', 'buff', 'mystic', 'bolt', 'storm', ('navy', -1)),
-    ('will_tempering_pill', 'buff', 'sage', 'eye', 'violet', ('navy', -1)),
-    # boxes: what remakes the body, a method or an animal
-    ('qi_gathering_pill', 'utility', 'common', 'spiral_up', 'cyan', ('qi', -1)),
-    ('bone_strengthening_pill', 'utility', 'common', 'bone', 'bone', ('earth', -2)),
-    ('meridian_reversal_pill', 'utility', 'earth', 'arrows_loop', 'qi', ('qi', -2)),
-    ('method_conversion_pill', 'utility', 'earth', 'arrows', 'violet', ('violet', -2)),
-    ('stillwater_pill', 'utility', 'earth', 'drop_leaf', 'indigo', ('navy', -1)),
-    ('beast_revival_pill', 'utility', 'earth', 'paw', 'leaf', ('earth', -2)),
+def family_pills():
+    """The pill families' icons (the item engine, tools/content/items/specs/pills.py `icon=`): (id, kind, grade, mark,
+    pill material, mark ink[, extra]), the vessel by kind and the grade's kit."""
+    import os
+    import sys
+    tools = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+    if tools not in sys.path:
+        sys.path.append(tools)
+    from content.items import engine
+    return engine.pill_icons()
+
+
+PILLS_HD = family_pills() + [
+    # id, kind (VESSEL_OF), grade, mark, pill material, mark ink (material, level), extra: the pills no family writes
+    ('beast_revival_pill', 'utility', 'earth', 'paw', 'leaf', ('earth', -2)),          # pet medicine (items.py)
     ('beast_marrow_washing_pill', 'utility', 'earth', 'bone', 'pearl', ('earth', -2)),
-    # loose, on a paper wrap: the simple remedies, the failed pill, the pill that is thrown
-    ('purging_pill', 'loose', 'common', 'drop_leaf', 'oil', ('earth', -2)),
-    ('viper_antidote', 'loose', 'common', 'leaf', 'leaf', ('leaf', -2)),
-    ('viper_smoke_pill', 'loose', 'common', 'fang', 'venom', ('navy', -1), 'smoke'),
-    ('murky_pill', 'loose', 'plain', 'drop_leaf', 'mud', ('earth', -2), 'grit'),
+    ('viper_smoke_pill', 'loose', 'common', 'fang', 'venom', ('navy', -1), 'smoke'),  # thrown from quick-use
 ]
 
 for _row in PILLS_HD:

@@ -73,7 +73,47 @@ func _main() -> void:
 	_starter_checks(c, cfg)
 	_technique_checks(c, cfg)
 	_codex_seals(c)
+	_speed_items(c, cfg)
 	end_suite()
+
+# ------------------------------------------------------------------ cultivation speed from items (decision 45)
+## The rungs of the cultivation-speed ladder, a grade each (tools/content/items/curves.py SPEED): the two incense sticks,
+## the Qi Flow Pill, then the Streams Pills (the item engine's first new family, docs/architecture/item_engine.md).
+const SPEED_LADDER := ["qi_gathering_incense", "deep_current_incense", "qi_flow_pill", "three_streams_pill", "five_streams_pill",
+	"seven_streams_pill", "nine_streams_pill"]
+
+## Every item that raises cultivation speed (an add_modifier on accumulation_rate), at the realm in the middle of its
+## grade's band (its item Level): the Qi an active hour of the sim's mix gathers without it and with it working all
+## hour (its bonus on the meditating share), the Qi one use adds to a sitting as long as it lasts, and its price against
+## the taels an hour brings there. Each rung of the ladder adds more to a sitting at its own realm than the rung below.
+func _speed_items(c, cfg: Dictionary) -> void:
+	var rows := []
+	for it in ContentDB.all("items"):
+		for u in it.get("use", []):
+			if str(u.get("kind", "")) == "add_modifier" and str(u.get("stat", "")) == "accumulation_rate":
+				rows.append({"id": str(it.id), "grade": str(it.grade), "lv": int(it.get("ilv", 1)), "bonus": float(u.get("value", 0.0)),
+					"minutes": float(u.get("duration", 0.0)) / 60.0})
+	rows.sort_custom(func(a, b): return a.lv < b.lv or (a.lv == b.lv and a.id < b.id))
+	var mix: Dictionary = cfg.get("mix", {})
+	var per_use := {}
+	print("speed item               grade      Lv  realm                 Qi/h   with it   · one use  · price (taels)  taels/h")
+	for r in rows:
+		var key := ContentDB.realm_key_for_level(int(r.lv))
+		var major := str(ContentDB.realm(key).get("realm", key))
+		var income := _income(c, cfg, key, int(r.lv))   # sets the realm and method the sit below is measured with
+		var density := float(cfg.get("density", {}).get(major, 1.0))
+		var gain := ProgressionRules.meditation_rate(c, density, float(r.bonus)) - ProgressionRules.meditation_rate(c, density, 0.0)
+		per_use[r.id] = gain * float(r.minutes)
+		var price := LootRules.buy_price(str(r.id))
+		print("%-24s %-9s %3d  %-20s %6d  %7d (+%d%%)  · %6d  · %6d  %8d" % [r.id, r.grade, r.lv, key, int(60.0 * income),
+			int(60.0 * (income + float(mix.get("meditate", 0.3)) * gain)), int(round(100.0 * float(mix.get("meditate", 0.3)) * gain / income)),
+			int(per_use[r.id]), price, int(_taels_per_hour(cfg, int(r.lv)))])
+	for i in range(1, SPEED_LADDER.size()):
+		var lo := str(SPEED_LADDER[i - 1])
+		var hi := str(SPEED_LADDER[i])
+		check(per_use.has(lo) and per_use.has(hi) and float(per_use[hi]) > float(per_use[lo]),
+			"speed ladder: one %s adds %d Qi to a sitting at its realm, more than one %s at its own (%d)" % [hi, int(per_use.get(hi, 0)), lo,
+			int(per_use.get(lo, 0))])
 
 # ------------------------------------------------------------------ story fights against the par character
 ## Research player_motivation P1: every fight the story asks for in the first 5 hours (a kill step of a prologue, main

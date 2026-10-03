@@ -29,6 +29,10 @@ if ! python3 tools/data/room_lint.py; then failed+=("room_lint"); fi
 # Redesign Phase 4: the top-down layouts are current and every thing in them is placed and reached on foot.
 echo "== topdown_rooms"
 if ! python3 tools/data/topdown_rooms.py --check; then failed+=("topdown_rooms"); fi
+# Audit 45 (E1): the room engine compiles every spec the same twice and to its layout, resolves every anchor kind, and
+# auto-path walks every room it lays out (tools/content/rooms/test_engine.py).
+echo "== room_engine"
+if ! python3 tools/content/rooms/test_engine.py; then failed+=("room_engine"); fi
 # Decision 42: no step of the sect stretch asks for a plain walk over 35 s with nothing on the way, nor a walk out and back.
 echo "== sect_walks"
 if ! python3 tools/data/sect_walks.py --check; then failed+=("sect_walks"); fi
@@ -41,6 +45,10 @@ if ! python3 tools/data/sound.py --check; then failed+=("sound"); fi
 # Audit 45 (E6): the cue table (data/cues.json) is what its generator writes.
 echo "== cues"
 if ! python3 tools/data/cues.py --check; then failed+=("cues"); fi
+# Audit 45 (E4): the data holds every item family as its spec writes it, each source a family names is found, its pill
+# icons are current, and the engine's own tests pass (tools/content/items).
+echo "== item_engine"
+if ! python3 tools/content/items/engine.py --check; then failed+=("item_engine"); fi
 # Audit 45 (S5): the pixel library for new art draws each shape exactly as the source it came from.
 echo "== pix"
 if ! python3 tools/lib/pix.py --check; then failed+=("pix"); fi

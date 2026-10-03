@@ -1,0 +1,349 @@
+{
+ "schema_version": 1,
+ "id": "mh_loot_cave",
+ "name": "Loot Cave",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444400440044440000440044444444444444444444",
+  "44444444444444400000001111111100000000004444444444444444",
+  "44444444111111111000001111111100000111111111444444444444",
+  "44444444111111111000001111111100000111111111044444444444",
+  "44444440111111111000001111111100000111111111000000044444",
+  "44444000111111111000000000000000000111111111000000004444",
+  "44440000000000000000000000000000000000000000000000004444",
+  "44440000000000000000000000000000000000000000000000000444",
+  "44400000000000000000000000000000000000000000000000000044",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "44000000000000000000000000000000000000000000000000000004",
+  "44000000000000000000000000000000000000000000000000000004",
+  "444000000000000~~~~0000000000000000000000000000000000044",
+  "44444400000000~~~~~~000000000000000000000000000000004444",
+  "44444440000000~~~~~~000000000000000000000000000000004444",
+  "444444400000000~~~~0000000000000000000000000000000004444",
+  "44444444000000000000000000000000000000000000000000004444",
+  "44444444440000000000000000000000000000000000004444444444",
+  "44444444444440000000000000000000000000000000044444444444",
+  "44444444444444444400000044440004444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddrrrrrrrrdddddrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddrrrrrrrrdddddrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddrrrrrrrrdddddrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddddsssddddddddrrrrrrrrrddddddrrrrrr",
+  "rrrrrrdddddsssddddddddddsssddddddddddddsssdddddddddrrrrr",
+  "rrrrrddddddsssdddddddddddddddddddddddddsssdddddddddrrrrr",
+  "rrrrrdddddddddddddddddddddddddddddddddddddddddddddddrrrr",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "rrrdddddddddddddddddddddddddddddddddddddddddddddddddddrr",
+  "rrrrdddddddddddddddddddddddddddddddddddddddddddddddddrrr",
+  "rrrrrrrdddddddd~~~~ddddddddddddddddddddddwwwwwwwwwwwrrrr",
+  "rrrrrrrrdddddd~~~~~~dddddddddddddddddddddwwwwwwwwwwwrrrr",
+  "rrrrrrrrdddddd~~~~~~dddddddddddddddddddddwwwwwwwwwwwrrrr",
+  "rrrrrrrrrdddddd~~~~ddddddddddddddddddddddwwwwwwwwwwwrrrr",
+  "rrrrrrrrrrrddddddddddddddddddddddddddddddwwwwwwwwwwwrrrr",
+  "rrrrrrrrrrrrrrddddddddddddddddddddddddddddddrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrddddrrrrrrdrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 11,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 24,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 39,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "crates",
+   "x": 42,
+   "y": 18
+  },
+  {
+   "kind": "sacks",
+   "x": 45,
+   "y": 18
+  },
+  {
+   "kind": "cloth_bolts",
+   "x": 47,
+   "y": 18
+  },
+  {
+   "kind": "barrel",
+   "x": 50,
+   "y": 18
+  },
+  {
+   "kind": "crates",
+   "x": 43,
+   "y": 20
+  },
+  {
+   "kind": "sacks",
+   "x": 49,
+   "y": 20
+  },
+  {
+   "kind": "water_jar",
+   "x": 51,
+   "y": 20
+  },
+  {
+   "kind": "lantern_red",
+   "x": 5,
+   "y": 11
+  },
+  {
+   "kind": "lantern_red",
+   "x": 19,
+   "y": 11
+  },
+  {
+   "kind": "lantern_red",
+   "x": 33,
+   "y": 11
+  },
+  {
+   "kind": "lantern_red",
+   "x": 47,
+   "y": 11
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 24,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 9,
+   "y": 17
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 11,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 38,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 45,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 53,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 9,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 17,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 45,
+   "y": 24
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 51,
+   "y": 24
+  },
+  {
+   "kind": "ferns",
+   "x": 28,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 13,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 8,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 37,
+   "y": 6
+  },
+  {
+   "kind": "rock_small",
+   "x": 35,
+   "y": 8
+  },
+  {
+   "kind": "cattails",
+   "x": 18,
+   "y": 20
+  }
+ ],
+ "place": {
+  "chest_6": [
+   25,
+   6
+  ],
+  "jar_1": [
+   12,
+   8
+  ],
+  "crate_2": [
+   40,
+   5
+  ],
+  "jar_3": [
+   6,
+   15
+  ],
+  "crate_4": [
+   31,
+   15
+  ],
+  "jar_5": [
+   48,
+   11
+  ],
+  "page_method_conversion_pill_1": [
+   26,
+   16
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    55,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    16
+   ],
+   [
+    20,
+    11
+   ],
+   [
+    28,
+    10
+   ],
+   [
+    39,
+    16
+   ],
+   [
+    47,
+    17
+   ]
+  ],
+  [
+   [
+    12,
+    5
+   ]
+  ],
+  [
+   [
+    50,
+    17
+   ]
+  ],
+  [
+   [
+    36,
+    5
+   ]
+  ]
+ ]
+}

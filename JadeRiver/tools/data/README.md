@@ -61,6 +61,13 @@ if __name__ == "__main__":
 3. If it has a check worth running on every change, add `python3 tools/data/<module>.py --check` to
    `tools/run_tests.sh` (as `places` and `sound` are).
 
+## The item engine
+
+The pills, the herbs by age, the ores, the creature parts and the gear by family × grade are families of the item
+engine (`tools/content/items`, `docs/architecture/item_engine.md`): a new item of those kinds is a spec there, not a row
+here. `items.py` places their rows among its one-offs, and `economy.py` their recipes and shop lines. Its gate is
+`python3 tools/content/items/engine.py --check`.
+
 ## The gates here (tools/run_tests.sh runs them)
 
 - `room_lint.py`: the side-view rooms against the verticality rules.
@@ -68,5 +75,7 @@ if __name__ == "__main__":
   foot, and their Grid walks as the game does. The Grid's measures come from `data/movement.json` `topdown`
   (`step_up`, and the jump's `impulse`, `gravity` and `mantle`); `parity()` asks the game, through
   `grid_parity.tscn` (Godot from `$GODOT`, else `godot` on the PATH), for every layout's floors and auto-path reach
-  (`TopdownRoute.reach`) and compares them cell for cell. Without a Godot it says it did not run.
+  (`TopdownRoute.reach`) and compares them cell for cell. Without a Godot it says it did not run. Every room is a spec
+  of the room engine (E1, `tools/content/rooms/`, `docs/architecture/room_engine.md`); its own gate,
+  `tools/content/rooms/test_engine.py`, runs beside this one.
 - `sect_walks.py --check`, `places.py --check`, `sound.py --check`.

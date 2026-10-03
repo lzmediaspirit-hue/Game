@@ -50,6 +50,131 @@ the game changed.
     piece, 8 ms a frame) are unchanged, and the suite still has 2,712 checks.
   - `tests/README.md` is updated to match.
 
+## The room engine: rooms from short specs, and chapter 3 on the grid (decision 45, E1)
+
+Roadmap decision 45, phase 3, the first content engine (`docs/architecture/audit_45.md` §6.1). A room on the height grid
+is now a short spec that the engine compiles, not a function of coordinates. `docs/architecture/room_engine.md`
+describes it.
+
+- **The engine (`tools/content/rooms/`).** It compiles a spec to the same layout the game has always read. No game code
+  changed.
+  - Bands and features: rects, round caverns and ponds, wavy shores.
+  - Flights of stairs wherever a walk climbs a level edge, and up onto every raised shape something stands on.
+  - Edge ways, cuts through a cliff, door paths, an interior's doorways.
+  - Anchors resolved to cells, ranked by reach from every way and by distance from the others.
+  - The foliage scattered along each band's edges, seeded by the room's id: trees to a meadow's back, bushes on its
+    lip, willows and cattails by the water, nothing astride a level edge or on a walk.
+  - The foes on the verges, clear of ways and shrines.
+  - Every value can be pinned in the spec, never in the JSON.
+- **The round trip.** The 27 world layouts are specs now, and all 27 compile to their files byte for byte.
+  - Their hand-placed props and foliage are pinned: no rule reproduces them.
+  - `topdown_rooms.py` keeps the Layout, the walking rules and the checks: 1,871 lines to 646.
+- **Chapter 3 on the grid.** Six side-view rooms are converted, each a spec of 15 to 23 lines:
+  - the Caravan Road;
+  - the Mudwater Hideout's Stockade, Tunnels, Loot Cave and Boss Den;
+  - Bend Shore.
+
+  A top-down character now plays Bandits on the Road, The Caravan Road's key, the Mudwater Hideout and Gu's Cargo on
+  the grid. The prototype's gate has moved past them: to Bend Shore's ways west, to the Serpent's Shallows and to the
+  Drowned Shrine. Their pictures are in `docs/architecture/room_engine/`.
+- **Tools.** `tools/content/rooms/build.py`:
+  - `--show <room>` draws a compiled room in text;
+  - `--new <room>` starts a spec from a side-view room, with every id it needs;
+  - otherwise it builds, as `topdown_rooms.py` does.
+- **Checks.**
+  - A new runner gate, `room_engine` (`tools/content/rooms/test_engine.py`):
+    - determinism;
+    - the round trip;
+    - every anchor kind on a sample room;
+    - the pins;
+    - auto-path through every room the engine lays out.
+  - A new suite, `topdown_chapter3`: chapter 3 played on the grid, each room built by the view and walked by
+    auto-path.
+  - `topdown_tutorial` stands chapter 3 done where its gate was. Its 962 checks are unchanged.
+  - `rules_tests`' prototype checks moved with the gate: the Fairground's tower door is its last barrier there, and
+    chapter 3 is done at the story's end. Its 2,712 checks are unchanged.
+  - Every other suite keeps its count.
+- **The living world** (`topdown_life.py`): vistas for the three outdoor rooms, and no butterflies in a cave.
+## The item engine: items as families, and the Streams Pills (decision 45, E4)
+
+Roadmap decision 45, phase 3, engine E4 (`docs/architecture/audit_45.md` §6.4). The user wants engines that make
+items, monsters, NPCs and rooms from small specs, so new content costs fewer tokens. A new ladder of items used to touch
+four or five files (its rows, its shops, its recipes, its loot, its icons); it is now one spec. The spec, the checks and
+how to add a family are in `docs/architecture/item_engine.md`.
+
+- **The engine** (`tools/content/items/`, about 1,000 lines). A family × tier spec writes, for each member:
+  - its row in `items.json` or `artifacts.json`;
+  - its recipe, with its element and its ancient pages;
+  - its shop lines, and the lines that sell its recipe;
+  - its pill icon: the vessel by kind and the grade's kit (`PILL_GRADES`);
+  - each tier's values from the curves (`curves.py`: `MID_ILV`, decision 45's fixed `cultivation`, `SPEED`,
+    `PILL_TOXICITY`, `RECIPE_TIME`).
+
+  Gear works the same way: `gear("jian", ...)`, each weapon family under the `gear.py` `ARCHETYPES` archetype that lists
+  it. Hand tweaks are `row` pins in the spec (`DROP` removes a key), never edits to the JSON. A family must name its
+  sources: the engine refuses a member nothing hands out, and its gate finds every named source in the built data. A
+  creature part names its creatures, and each must drop it.
+- **The hosts.** `items.py` places each family's section among the rows it still writes by hand. `economy.py` places
+  the recipe blocks, and its shop lists name a family's line only where it must stand (`F(item)`, `L(recipe)`); any
+  other declared line joins the end of its shop. `pills.py` draws the families' pill icons from `engine.pill_icons()`.
+  Recipes live in `economy.py`, not `crafts.py` (which holds the professions); the loot tables stay the monster
+  engine's (E2).
+- **The migration**, one family at a time, each step with an empty `git diff data/` (and the same icons):
+  - the pills (30 families);
+  - the herbs by age (9 families) and their seeds;
+  - the ores;
+  - the creature parts, a family a zone;
+  - the gear by family × grade (11 weapon families, 4 armour slots, the gourds, the pet gear ladders and the far
+    zones' furnaces).
+
+  That is 290 rows with their recipes, 212 shop lines and 30 pill icons. About 650 hand lines left `items.py` (1,031
+  lines to 672), `economy.py` and `pills.py`; 676 spec lines replace them. The one-offs stay plain rows in `items.py`'s
+  labelled section: quest items and keys, the unique treasures, relics, flames and named pieces. So do the small
+  groups no family writes yet: foods, fish, talismans, tools, scrolls, cores, the pet medicine and the post goods.
+  Decision 45's numbers are kept: the Qi Gathering Pill +420, a raw ginseng +130, +240 and +800, the Qi Flow Pill +20%
+  for an hour (now `SPEED`'s Earth rung). Every `balance_sim` figure is unchanged.
+- **The first new family: the Streams Pills** (`specs/streams.py`, 36 lines). Cultivation speed from Cloud Stride to
+  Will Manifest, where the incense and the Qi Flow Pill stop:
+
+  | Pill | Grade | Speed | Sold | Recipe |
+  |---|---|---|---|---|
+  | Three Streams | Heaven | +30% for 45 min | Mei Qing's stall, from Cloud Stride 1 | Alchemist Guild (Expert), 1,900 taels |
+  | Five Streams | Mystic | +40% for 45 min | Mei Qing's stall, from Heaven Glimpse 1 | Alchemist Guild (Expert), 2,900 taels |
+  | Seven Streams | Sage | +60% for 45 min | Alchemist Fen's stores, from Sage Sovereign 1 | Apothecary Wu, 45 stones |
+  | Nine Streams | Sovereign | +70% for 45 min | Apothecary Sang, from Will Manifest 1 | Apothecary Sang, 5 crystals |
+
+  One works at a time (one source, `streams_pill`); they stack with the incense and the Qi Flow Pill and count toward
+  the accumulation family's resistance. Their price is the game's for their Level, about 16 to 20 minutes of the taels
+  an hour brings at their realm. Their toxicity and brewing time come from the curves. Their four icons are the pill
+  kit's lifting gourd in each grade's material: 13.6 KB of PNG.
+
+  `balance_sim`'s new speed ladder: the Qi of an active hour at each rung's realm, without and with it working, and
+  what one use adds to a sitting. Each rung adds more than the rung below:
+
+  | Item | Realm | Qi an hour | With it | One use |
+  |---|---|---|---|---|
+  | Qi-Gathering Incense | Bone Forging 5 | 5,711 | 6,594 (+15%) | 588 |
+  | Deep Current Incense | Qi Kindling 5 | 5,147 | 6,334 (+23%) | 1,187 |
+  | Qi Flow Pill | Qi Unfurling 9 | 4,293 | 4,597 (+7%) | 1,216 |
+  | Three Streams Pill | Cloud Stride 9 | 4,158 | 4,573 (+10%) | 1,247 |
+  | Five Streams Pill | Heaven Glimpse 2 | 4,324 | 4,945 (+14%) | 1,862 |
+  | Seven Streams Pill | Sage Sovereign 2 | 4,428 | 5,421 (+22%) | 2,980 |
+  | Nine Streams Pill | Will Manifest 2 | 4,531 | 5,763 (+27%) | 3,694 |
+
+  The Cultivation page's list of ways does not name them yet; while one works, the bonus list does, by its name.
+- **The gate: `item_engine`** (`python3 tools/content/items/engine.py --check`, in `tools/run_tests.sh` and `Test.ps1`).
+  It checks that:
+  - two compiles write the same bytes;
+  - the built data holds every member's row, recipe and icon;
+  - every named source is found, and every named creature drops its part;
+  - each family pill icon renders the same bytes twice and the same as on disk;
+  - the engine's 17 tests pass.
+- **Tests.** `tools/run_tests.sh` on the merged tree: every gate (`item_engine` and `boot` among them), and 20 suites
+  with 73,731 checks, 0 failures and no SCRIPT ERROR (`perf_tests` met one budget over at a load of 5 in the full run
+  and passed 18 of 18 alone, as it failed 2 at the start of this work at a load of 12). Every suite keeps its count
+  through the migration. With the Streams Pills, `data_validation` counts their items, recipes and shop lines (50,278
+  to 50,348) and `balance_sim` gains the speed ladder's six checks (177 to 183).
+
 ## The World authority in parts (decision 45, S9)
 
 This is phase 2, wave 2, slice S9 of the code audit (`docs/architecture/audit_45.md` §2.2 and §7).
