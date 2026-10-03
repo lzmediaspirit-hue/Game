@@ -25,7 +25,7 @@ from content.rooms import engine, specs  # noqa: E402
 
 MARKS = {"tree": "T", "foliage": "*", "walk": "'", "building": "H", "other": "o"}
 PAINT = {"g": ",", "f": ";", "m": ",", "b": ";", "d": ".", "p": ":", "s": ":", "w": "=", "r": "^", "l": "#", "t": "^",
-         "a": "_", "n": "-", "k": "-"}
+         "a": "_", "n": "-", "k": "-", "q": "\"", "h": "\""}   # R2: the flooded floors
 
 
 def find(rid):

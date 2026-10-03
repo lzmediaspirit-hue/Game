@@ -469,6 +469,15 @@ func nearest_standable(p: Vector2) -> Vector2:
 		if best != Vector2.INF: return best
 	return spawn
 
+## A point written for the side view (a trial's spawn: a tower floor's foes, the Grove's waves) on the grid: across the
+## side view's room (`side_bounds`, its [x, y, w, h]) as across this one, a cell in from the edges, then on the nearest
+## floor (R3: the Trial Tower's and the Grove's trials, written for the side view, are fought on the grid).
+func from_side(p: Vector2, side_bounds: Array) -> Vector2:
+	var b := Rect2(float(side_bounds[0]), float(side_bounds[1]), float(side_bounds[2]), float(side_bounds[3])) if side_bounds.size() == 4 else Rect2(0, 480, 1280, 480)
+	var f := ((p - b.position) / b.size).clamp(Vector2.ZERO, Vector2.ONE)
+	var q := Vector2(1.5 + f.x * (w - 3), 1.5 + f.y * (h - 3)) * TILE
+	return nearest_standable(q)
+
 ## What shows a way where it is (the top-down view's PortalView.entrance, docs/tutorial_order.md): "building" (in the
 ## doorway under a building's door art: a prop's `door` columns, the row under its footprint), "wall" (a gap in an
 ## interior's front wall at the room's edge), "edge" (walked out through the room's side), "" (nothing shows it).
@@ -511,6 +520,33 @@ func spot_near(p: Vector2, z: float, from: Vector2, tol := 40.0) -> Vector2:
 ## side view's geometry (the ground under a point, a free spot) has an answer; heights come from the grid.
 func geometry_def() -> Dictionary:
 	return {"bounds": [0, 0, w * TILE, h * TILE], "surfaces": [{"id": "grid", "rect": [0, 0, w * TILE, h * TILE], "stratum": "ground"}]}
+
+## R2: a set piece's room event begun in a room on the grid (a rite circle's trial: the Riverbreath Trial at the
+## Scripture Well). Its spawn points are the side view's, so each takes the layout's own cells for the room's event
+## (`event`: wave, waves, fixed, timed, as merge_def maps them), or else the nearest spot a body stands on.
+func grid_event(ev: Dictionary) -> Dictionary:
+	var out := ev.duplicate(true)
+	var lay_ev: Dictionary = def.get("event", {})
+	if out.get("wave") is Dictionary:
+		out.wave.points = cell_points(lay_ev.wave) if lay_ev.has("wave") else _standable(out.wave.get("points", []))
+	var cells: Array = lay_ev.get("waves", [])
+	for i in (out.get("waves", []) as Array).size():
+		out.waves[i].points = cell_points(cells[i]) if i < cells.size() else _standable(out.waves[i].get("points", []))
+	for key in [["fixed_spawns", "fixed"], ["timed_spawns", "timed"]]:
+		var at: Array = lay_ev.get(key[1], [])
+		var rows: Array = out.get(key[0], [])
+		for i in rows.size():
+			var p := cell_point(at[i]) if i < at.size() else nearest_standable(Vector2(float(rows[i].at[0]), float(rows[i].at[1])))
+			rows[i].at = [p.x, p.y]
+	return out
+
+## Side-view points as the nearest spots a body stands on, [x, y] each.
+func _standable(pts: Array) -> Array:
+	var out: Array = []
+	for q in pts:
+		var p := nearest_standable(Vector2(float(q[0]), float(q[1])))
+		out.append([p.x, p.y])
+	return out
 
 ## The RoomRuntime definition of a room of the world on the grid: its side-view definition (every id, rule, NPC,
 ## object, portal, spawn and event kept) with the places taken from the layout, in world units on the grid's plane:

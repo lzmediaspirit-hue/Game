@@ -211,3 +211,65 @@ SF_TRIAL_CLOUD = trial_yard(
 
 
 ROOMS = [SF_GATE, SF_MARKET, SF_ARTISAN_ROW, SF_FAIRGROUND, SF_TRIAL_JADE, SF_TRIAL_CLOUD]
+
+
+# ==================================================================================================================== R3
+# Stoneford's insides and its grove (E1's batch R3): the County Hall off the gate, the Trial Tower's hall off the
+# Fairground, the Beast Trial Grove up the path north of Market Street.
+
+# The County Hall: the magistrate's dais at the back between two painted screens, his desk before him; the county's
+# notice board and the relief box on the floor below, the ancestral altar in the west, the records' shelves in the east,
+# red lanterns at the door.
+SF_COUNTY_HALL = room(
+    "sf_county_hall", size=(24, 14), base="w", walls=dict(high=4),
+    features=[("dais", (8, 1, 8, 4), dict(level=1, paint="w")),           # the magistrate's dais
+              ("cheek", (10, 5, 1, 2), dict(level=2, paint="w")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (13, 5, 1, 2), dict(level=2, paint="w"))],
+    stairs=[(11, 5, 2, 2, 0, 1, "w")],
+    ways={"entry": ("s", 11.5)},
+    spawn="entry",
+    anchors={"npc_magistrate_qian": (11.5, 2), "county_board": (6, 9), "relief_box": (17, 9), "ancestral_altar": (3, 3)},
+    props=[("screen", 8, 1), ("screen", 14, 1), ("desk", 11, 3), ("lantern_red", 8, 4), ("lantern_red", 15, 4),
+           ("incense", 1, 3), ("incense", 6, 3), ("scroll_shelf", 17, 1), ("scroll_shelf", 19, 1), ("cabinet", 21, 1),
+           ("desk", 19, 5), ("lantern_red", 9, 11), ("lantern_red", 14, 11), ("pot_bonsai", 1, 8),
+           ("pot_orchid", 22, 8)])
+
+
+# The Trial Tower's hall: a granite floor round the sand of its arena, where each floor's trial is fought; the guardians'
+# dais at the back under the two sects' banners, the stele that lists the floors by the door, weapon racks and lanterns
+# down the walls.
+SF_TRIAL_TOWER = room(
+    "sf_trial_tower", size=(40, 22), base="s", walls=dict(high=4),
+    features=[("arena", (9, 10, 24, 9), dict(level=0, paint="d")),         # the arena's sand
+              ("dais", (14, 1, 14, 5), dict(level=1, paint="p")),          # the guardians' dais
+              ("cheek", (19, 6, 1, 2), dict(level=2, paint="p")),          # its steps' cheeks, a level over the dais
+              ("cheek_2", (22, 6, 1, 2), dict(level=2, paint="p"))],
+    stairs=[(20, 6, 2, 2, 0, 1)],
+    ways={"entry": ("s", 5.5)},
+    spawn="entry",
+    anchors={"tower_stele": (5, 16)},
+    props=[("banner_jade", 15, 1), ("banner_jade", 18, 1), ("banner_cloud", 23, 1), ("banner_cloud", 26, 1),
+           ("lantern", 14, 5), ("lantern", 27, 5), ("lantern", 9, 9), ("lantern", 32, 9), ("lantern", 9, 19),
+           ("lantern", 32, 19), ("weapon_rack", 2, 1), ("weapon_rack", 5, 1), ("weapon_rack", 33, 1),
+           ("weapon_rack", 36, 1), ("post", 2, 8), ("post", 37, 8), ("barrel", 1, 4), ("barrel", 38, 4),
+           ("lantern", 1, 20), ("pot_bonsai", 38, 20)])
+
+
+# The Beast Trial Grove: a mossy clearing in the bamboo up the path from Market Street, the grove stone in its middle,
+# a rock outcrop in the east and a pond in the west, the hillside behind.
+SF_BEAST_GROVE = room(
+    "sf_beast_grove", size=(40, 26), biome="bamboo_clearing",
+    bands=[("hill", 0, 3, dict(level=3, paint="r", wall=True)),
+           ("thicket", 3, 6, dict(level=1)),
+           ("clearing", 9, 11, dict(level=0)),
+           ("bamboo", 20, 6, dict(level=0))],
+    features=[("path", (19, 18, 3, 8), dict(paint="d", walk=True)),
+              ("outcrop", (29, 10, 6, 4), dict(level=1, paint="r", shape="round")),
+              ("pond", (3, 12, 10, 6), dict(water=True, shape="round"))],
+    ways={"entry": ("s", 20)},
+    spawn="entry",
+    anchors={"grove_stone": (20, 13)},
+    props=[("lantern", 17, 17), ("lantern", 23, 17), ("lantern", 28, 15)],
+    flora={"bamboo": dict(density=0.6), "thicket": dict(density=0.5), "clearing": dict(density=0.22)})
+
+ROOMS += [SF_COUNTY_HALL, SF_TRIAL_TOWER, SF_BEAST_GROVE]   # R3

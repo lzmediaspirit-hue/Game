@@ -51,6 +51,7 @@ func start_beast_trial(c) -> Dictionary:
 		w2.level_offset = int(cfg.get("level_offset", -2))
 		w2.level_min = int(cfg.get("level_min", 10))
 		w2.level_max = int(cfg.get("level_max", 60))
+		if w2.has("points"): w2.points = world.room_events.side_points(w2.points)   # R3: the Grove on the grid
 		waves.append(w2)
 	var ev := {"id": "beast_trial", "pet_trial": true, "duration": float(cfg.get("duration", 150)), "waves": waves,
 		"kill_count": {"enemy": "*", "count": int(cfg.get("count", 10))},

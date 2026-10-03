@@ -1,0 +1,198 @@
+{
+ "schema_version": 1,
+ "id": "ja_alchemy_hall",
+ "name": "Alchemy Hall",
+ "size": [
+  26,
+  16
+ ],
+ "spawn": [
+  13,
+  14
+ ],
+ "levels": [
+  "44444444444444444444444444",
+  "42222222000000000000000004",
+  "42222222000000000000000004",
+  "42222222000000000000000004",
+  "42222222001111110000000004",
+  "40003003001111110000000004",
+  "40003003001111110000000004",
+  "40003003001111110000000004",
+  "40003003000200200000000004",
+  "40000000000200200000000004",
+  "40000000000000000000000004",
+  "40000000000000000000000004",
+  "40000000000000000000000004",
+  "40000000000000000000000004",
+  "40000000000000000000000004",
+  "11111111111100111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllll",
+  "lwwwwwwwsssssssssssssssssl",
+  "lwwwwwwwsssssssssssssssssl",
+  "lwwwwwwwsssssssssssssssssl",
+  "lwwwwwwwssppppppsssssssssl",
+  "lssswwwwssppppppsssssssssl",
+  "lssswwwwssppppppsssssssssl",
+  "lssswwwwssppppppsssssssssl",
+  "lssswwwwssspsspssssssssssl",
+  "lsssssssssspsspssssssssssl",
+  "lssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssl",
+  "lssssssssssssssssssssssssl",
+  "llllllllllllssllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 5,
+   "y": 5,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 12,
+   "y": 8,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 5,
+   "y": 1
+  },
+  {
+   "kind": "banner_jade",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "banner_jade",
+   "x": 15,
+   "y": 1
+  },
+  {
+   "kind": "apothecary",
+   "x": 17,
+   "y": 1
+  },
+  {
+   "kind": "apothecary",
+   "x": 19,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 22,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "drying_rack",
+   "x": 22,
+   "y": 5
+  },
+  {
+   "kind": "mortar",
+   "x": 21,
+   "y": 8
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 24,
+   "y": 8
+  },
+  {
+   "kind": "water_jar",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "sacks",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "sacks",
+   "x": 1,
+   "y": 10
+  },
+  {
+   "kind": "desk",
+   "x": 4,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 24,
+   "y": 13
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 8,
+   "y": 1
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 24,
+   "y": 11
+  }
+ ],
+ "place": {
+  "furnace_ja": [
+   12.5,
+   5
+  ],
+  "recipe_shelf": [
+   3.5,
+   1
+  ],
+  "npc_mei_qing_sect": [
+   19,
+   7
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    12.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    12.5,
+    13.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

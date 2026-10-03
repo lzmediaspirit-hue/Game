@@ -1,0 +1,234 @@
+{
+ "schema_version": 1,
+ "id": "cm_cloud_library",
+ "name": "Cloud Library",
+ "size": [
+  28,
+  16
+ ],
+ "spawn": [
+  13,
+  14
+ ],
+ "levels": [
+  "6666666666666666666666666666",
+  "6000000000000000003333333336",
+  "6000000000000000003333333336",
+  "6000000000000000003333333336",
+  "6000000000000000004224222226",
+  "6000000000000000004224222226",
+  "6000000000000000002222222226",
+  "6000000000000000002222222222",
+  "6000000000000000002222222222",
+  "6000000000000000002222222226",
+  "6000000000000000003003000006",
+  "6000000000000000003003000006",
+  "6000000000000000003003000006",
+  "6000000000000000003003000006",
+  "6000000000000000000000000006",
+  "1111111111110011111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllllllll",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwwwwwww",
+  "lssssssssssssssssswwwwwwwwww",
+  "lssssssssssssssssswwwwwwwwwl",
+  "lssssssssssssssssswwwwsssssl",
+  "lssssssssssssssssswwwwsssssl",
+  "lssssssssssssssssswwwwsssssl",
+  "lssssssssssssssssswwwwsssssl",
+  "lssssssssssssssssssssssssssl",
+  "llllllllllllssllllllllllllll"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 4,
+   "w": 2,
+   "h": 2,
+   "from": 2,
+   "to": 3
+  },
+  {
+   "x": 19,
+   "y": 10,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 18,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 23,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 25,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 22,
+   "y": 4
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 24,
+   "y": 4
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 10,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 12,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 14,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 12,
+   "y": 7
+  },
+  {
+   "kind": "desk",
+   "x": 9,
+   "y": 11
+  },
+  {
+   "kind": "desk",
+   "x": 14,
+   "y": 11
+  },
+  {
+   "kind": "screen",
+   "x": 4,
+   "y": 1
+  },
+  {
+   "kind": "incense",
+   "x": 2,
+   "y": 3
+  },
+  {
+   "kind": "incense",
+   "x": 8,
+   "y": 3
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "banner_cloud",
+   "x": 9,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 2,
+   "y": 8
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 6,
+   "y": 8
+  },
+  {
+   "kind": "lantern",
+   "x": 17,
+   "y": 1
+  },
+  {
+   "kind": "lantern",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "kind": "lantern",
+   "x": 26,
+   "y": 13
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 4,
+   "y": 8
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 1,
+   "y": 6
+  }
+ ],
+ "place": {
+  "floor_3_shelves": [
+   23,
+   2
+  ],
+  "floor_2_shelves": [
+   23,
+   5
+  ],
+  "npc_cloud_librarian": [
+   13,
+   6
+  ],
+  "ancestral_altar": [
+   5,
+   3
+  ]
+ },
+ "portals": {
+  "exit": {
+   "at": [
+    12.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    12.5,
+    13.5
+   ],
+   "span": 2
+  },
+  "cliff_door": {
+   "at": [
+    27,
+    7.5
+   ],
+   "dir": "e",
+   "arrive": [
+    25.5,
+    7.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

@@ -1,0 +1,206 @@
+{
+ "schema_version": 1,
+ "id": "wg_waterfall_cave",
+ "name": "Waterfall Cave",
+ "size": [
+  40,
+  22
+ ],
+ "spawn": [
+  6,
+  19
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444",
+  "4444444444444422222222200044444444444444",
+  "44444111111110222222222000~~~~~044444444",
+  "44444111111110222222222000~~~~~000444444",
+  "44400111111110000000000000~~~~~000044444",
+  "44000111111110000000000000~~~~~000004444",
+  "4400000000000000000000000000000000000444",
+  "4400000000000000000000000000000111111044",
+  "4000000000000000000000000000000111111044",
+  "4000000000000000000000000000000111111044",
+  "4400000000000000000000000000000000000044",
+  "4440000000000000000000000000000000000044",
+  "4444000000000000000000000000000000000444",
+  "4444400000000000000000000000000000004444",
+  "4444000004000000000000000000000000044444",
+  "4444000004444444440044000000004444444444",
+  "4444000004444444444444444444444444444444",
+  "4444000004444444444444444444444444444444",
+  "4444000004444444444444444444444444444444",
+  "4444000004444444444444444444444444444444"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrraaarrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrarrrrrrrrraaa~~~~~arrrrrrrr",
+  "rrrrrrrrrrrrrarrrrrrrrraaa~~~~~aaarrrrrr",
+  "rrraarrrrrrrraaaaaasssaaah~~~~~aaaarrrrr",
+  "rraaarrrrrrrraaaaaasssahhh~~~~~hhhaarrrr",
+  "rraaaaasssaaaaaaaaassshhhhhhhhhhhhhaarrr",
+  "rraaaaasssaaaaaaaaassshhhhhhhhhrrrrrrarr",
+  "raaaaaaaaaaaaaaaaaaahhhhhhhhhhhrrrrrrhrr",
+  "raaaaaaaaaaaaaaaaaaahhhhhhhhhhhrrrrrrhrr",
+  "rraaaaaaaaaaaaaaaaaahhhhhhhhhhhhhsshhhrr",
+  "rrraaaaaaaaaaaaaaaaahhhhhhhhhhhhhsshhhrr",
+  "rrrraaaaaaaaaaaaaaaaahhhhhhhhhhhhhhhhrrr",
+  "rrrrraaaaaaaaaaaaaaaaaahhhhhhhhhhhhhrrrr",
+  "rrrraaaaaraaaaaaaaaaaaaahhhhhhhhhhhrrrrr",
+  "rrrraaaaarrrrrrrrraarraaahhhhhrrrrrrrrrr",
+  "rrrraaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrraaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrraaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrraaaaarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 7,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 19,
+   "y": 6,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 33,
+   "y": 12,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "waterfall",
+   "x": 27,
+   "y": 4
+  },
+  {
+   "kind": "ferns",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 12,
+   "y": 3
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 38,
+   "y": 15
+  },
+  {
+   "kind": "ferns",
+   "x": 1,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 9,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 21,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 37,
+   "y": 17
+  },
+  {
+   "kind": "ferns",
+   "x": 14,
+   "y": 5
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 11,
+   "y": 7
+  },
+  {
+   "kind": "ferns",
+   "x": 27,
+   "y": 2
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 33,
+   "y": 9
+  },
+  {
+   "kind": "ferns",
+   "x": 4,
+   "y": 15
+  }
+ ],
+ "place": {
+  "cave_lotus": [
+   8,
+   7
+  ],
+  "journal_cave": [
+   16,
+   4
+  ],
+  "chest_1": [
+   20,
+   3
+  ],
+  "cave_shard_vein": [
+   34,
+   11
+  ],
+  "cave_inner_cache": [
+   32,
+   16
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    6,
+    21
+   ],
+   "dir": "s",
+   "arrive": [
+    6,
+    19
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}
