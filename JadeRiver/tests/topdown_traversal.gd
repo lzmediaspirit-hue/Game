@@ -65,8 +65,8 @@ func _main() -> void:
 			_air_distance, _sealed_ladders, _act1_rafts, _bounces, _trials_and_crane, _tunnels, _drowned_shrine, _echo_shaft,
 			_peaks, _swim, _shallows, _chases,
 			# T3: Act II onward, and T2's leftovers
-			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _swim_stroke, _bounce_gives, _upright_lanterns,
-			_returning_boards, _open_spikes, _wind_diagonals]:
+			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _late_light, _sky_sea_leftovers, _swim_stroke,
+			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -1399,74 +1399,132 @@ func _low_gravity() -> void:
 	_reskim(skim)
 
 # ------------------------------------------------------------------ 29: the Starsea dock
-## The Shipwrights' Yard's Starsea dock on the grid (R6's room): a top-down character with a vessel and the Wreck Run's
-## chart at Sage 3 sets sail with the dock's own call (the context's interact). While the crossing's deck or the far
-## port has no layout the prototype's gate holds the dock as it holds a way (the side view is never entered); with both
-## laid out, the voyage plays on the grid: the crossing's event for the vessel's time, its foes on the deck's floors,
-## and the port made at the far pier.
+## The Starsea's four docks on the grid (the Shipwrights' Yard's, R6's; the Broken Pier's, the Launch's and the Arrival
+## Quay's, R8's): a top-down character with a vessel and the route's chart at Sage 3 sets sail with the dock's own call
+## (the context's interact). While a route's crossing deck or its far port has no layout, the prototype's gate holds the
+## dock as it holds a way (the side view is never entered); with both laid out the voyage plays on the grid: the
+## crossing's event for the vessel's time, its foes come aboard onto the deck's floors, and the port is made at the far
+## pier.
 func _starsea() -> void:
-	check(enter("ae_shipyard", ""), "to the Shipwrights' Yard on the grid")
 	Unlocks.force_unlock(c().id, "starsea")
-	for k in ["cloud_skiff", "star_chart_wreck"]:
+	for k in ["cloud_skiff", "star_chart_wreck", "star_chart_lantern"]:
 		if c().inventory.count(k) == 0: Game.inventory.apply_add(c().id, k, 1, "test")
-	var v := ContentDB.entry("voyages", "wreck_run")
-	var dock: Dictionary = Game.room_rt.object_def("dock_cloudgate")
-	stand(TopdownRoom.cell_of(Vector2(float(dock.at[0]), float(dock.at[1]))) + Vector2i(0, 1))
-	var laid := TopdownRoom.has_layout(str(v.crossing)) and TopdownRoom.has_layout(str(v.to))
-	var r := Game.submit({"type": "interact", "object": "dock_cloudgate"})
-	GameEvents.flush()
-	if not laid:
-		check(not r.get("ok", false) and str(r.get("reason", "")) == "gate" and str(r.get("text", "")) == Tx.t("sim.world.road_being_drawn") and room() == "ae_shipyard",
-			"while the crossing (%s) or the Wreck has no layout the dock is gated as a way is (%s)" % [str(v.crossing), str(r)])
-		return
-	st = w.player.state
-	_sync()
-	check(r.get("ok", false) and room() == str(v.crossing) and Game.room_rt.topdown != null and Game.room_rt.event.get("active", false)
-		and absf(float(Game.room_rt.event.remaining) - float(v.base_s)) < 1.0, "the skiff sets sail: the crossing's deck on the grid, its event under way for the voyage's %d s" % int(v.base_s))
-	var grid: TopdownRoom = Game.room_rt.topdown
-	var seen := {}
-	frames(int(20.0 / DT), Vector2.ZERO, false, func():
+	var foes_seen := false
+	for row in [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]:
+		var rid := str(row[0])
+		check(enter(rid), "to %s's Starsea dock on the grid" % rid)
+		var dock: Dictionary = Game.room_rt.object_def(str(row[1]))
+		var v := ContentDB.entry("voyages", str(dock.get("route", "")))
+		var at := Vector2(float(dock.at[0]), float(dock.at[1]))
+		var grid: TopdownRoom = Game.room_rt.topdown
+		var spot := grid.spot_near(at, float(dock.get("alt", 0.0)), at)
+		stand(Vector2(spot.x / TopdownRoom.TILE - 0.5, spot.y / TopdownRoom.TILE - 0.5))
+		var laid := TopdownRoom.has_layout(str(v.crossing)) and TopdownRoom.has_layout(str(v.to))
+		var r := Game.submit({"type": "interact", "object": str(row[1])})
+		GameEvents.flush()
+		if not laid:
+			check(not r.get("ok", false) and str(r.get("reason", "")) == "gate" and str(r.get("text", "")) == Tx.t("sim.world.road_being_drawn") and room() == rid,
+				"%s: while the crossing (%s) or the port (%s) has no layout the dock is gated as a way is (%s)" % [v.id, v.crossing, v.to, str(r)])
+			continue
+		st = w.player.state
+		_sync()
+		var secs := float(v.base_s) / float(ContentDB.item(Game.world.best_vessel(c())).get("vessel", {}).get("speed", 1.0))
+		check(r.get("ok", false) and room() == str(v.crossing) and Game.room_rt.topdown != null and Game.room_rt.event.get("active", false)
+			and absf(float(Game.room_rt.event.remaining) - secs) < 1.0,
+			"%s: the skiff sets sail, the crossing's deck on the grid, its event under way for the voyage's %d s (%s)" % [v.id, int(secs), str(r)])
+		if not foes_seen:
+			var deck: TopdownRoom = Game.room_rt.topdown
+			var seen := {}
+			frames(int(24.0 / DT), Vector2.ZERO, false, func():
+				_whole()
+				for e in Game.room_rt.living_enemies(): if e.summoned: seen[e.uid] = e.plane
+				return seen.size() >= 2)
+			var off := seen.values().filter(func(p): return not deck.standable(TopdownRoom.cell_of(p)))
+			check(seen.size() >= 2 and off.is_empty(), "%s: its foes come aboard onto the deck's floors (%d, %d off)" % [v.id, seen.size(), off.size()])
+			foes_seen = true
+		Game.room_rt.event.remaining = 0.01
+		frames(3)
+		GameEvents.flush()
+		st = w.player.state
+		_sync()
+		check(room() == str(v.to) and Game.room_rt.topdown != null and not Game.world.voyages.has(c().id), "%s: the crossing makes port at %s on the grid" % [v.id, v.to])
 		_whole()
-		for e in Game.room_rt.living_enemies(): if e.summoned: seen[e.uid] = e.plane
-		return seen.size() >= 2)
-	var off := seen.values().filter(func(p): return not grid.standable(TopdownRoom.cell_of(p)))
-	check(seen.size() >= 2 and off.is_empty(), "its foes come aboard onto the deck's floors (%d, %d off)" % [seen.size(), off.size()])
-	Game.room_rt.event.remaining = 0.01
-	frames(3)
+
+# ------------------------------------------------------------------ 29b: the light of the late zones
+## R7's and R8's rooms lit as their side view is: the tomb's halls and the Clan Hearth's cavern lamp-lit whatever the
+## hour; the Lantern Star Field's rooms (and the star field's past it) starlit at noon; Lanternfall's star lanterns burn.
+func _late_light() -> void:
+	for row in [["ts_sealed_gate", "lamplit"], ["ir_clan_hearth", "lamplit"], ["lh_arrival_quay", "night_story"], ["sw_broken_pier", "night_story"],
+			["wn_nest_cliffs", "night_story"], ["ir_hold_gate", "day"]]:
+		var def: Dictionary = ContentDB.room(str(row[0]))
+		check(str(TopdownLight.look(def, 0.375).hour) == str(row[1]), "%s at noon: %s (%s)" % [row[0], row[1], TopdownLight.look(def, 0.375).hour])
+	check(enter("lh_arrival_quay"), "to the Arrival Quay on the grid")
+	var lanterns: int = Game.room_rt.topdown.props.filter(func(p): return str(p.kind) == "star_lantern").size()
+	var lit: int = w.atmosphere.lights.filter(func(l): return str(l[0]) == "star").size()
+	check(lanterns > 0 and lit == lanterns, "the quay's %d star lanterns each give their starlight (%d)" % [lanterns, lit])
+
+# ------------------------------------------------------------------ 29c: the shoals' wade and the cove's crack
+## R8's two played by shortcut: the Jellyfish Shallows' wading floors slow the walk as the side view's shallows do
+## (T2's rule); Spirit Sense's pulse at the Gunners' Battery shows the crack into the Smugglers' Cove on the grid.
+func _sky_sea_leftovers() -> void:
+	check(enter("dr_jellyfish_shallows", "west"), "to the Jellyfish Shallows on the grid")
+	var m := motor()
+	var run := func(cell: Vector2) -> float:
+		stand(cell)
+		frames(int(0.3 / DT), Vector2.RIGHT)
+		var x0 := m.pos.x
+		frames(int(0.5 / DT), Vector2.RIGHT)
+		return (m.pos.x - x0) / 0.5
+	var dry: float = run.call(Vector2(51, 12))
+	var wade: float = run.call(Vector2(36, 12))
+	check(absf(wade / dry - 0.7) < 0.05, "wading the shallows goes at %.2f of the dry walk's pace (the side view's 0.7)" % (wade / dry))
+	check(enter("bm_gunners_battery", "west"), "to the Gunners' Battery on the grid")
+	for u in ["spirit_sense", "hidden_portals"]:
+		if not Unlocks.is_unlocked(c().id, u): Unlocks.force_unlock(c().id, u)
+	var flag := WorldPortals.seen_flag("bm_gunners_battery", "cove")
+	c().quests.flags.erase(flag)
+	var cove: Dictionary = Game.room_rt.portal_def("cove")
+	check(Game.world.portal_state(c(), cove).get("hidden", false), "the crack into the cove is hidden until sensed")
+	stand(Vector2(43, 5))   # where the crack sets a body down, at the cliff's foot
+	c().pools.soul = maxf(c().pools.soul, 50.0)
+	c().pools.cooldowns.erase("sense")
+	var r := Game.submit({"type": "sense_pulse"})
 	GameEvents.flush()
-	st = w.player.state
-	_sync()
-	check(room() == str(v.to) and Game.room_rt.topdown != null and not Game.world.voyages.has(c().id), "the crossing makes port at %s on the grid" % str(v.to))
+	check(r.get("ok", false) and c().quests.has_flag(flag) and not Game.world.portal_state(c(), cove).get("hidden", false),
+		"Spirit Sense's pulse on the grid shows it (%s)" % str(r))
 
 # ------------------------------------------------------------------ 30: the swim's stroke
 ## T2's swimmer is the walk cut at the water's line; its stroke now has a rhythm: a pull every `swim_stroke_s` while it
 ## moves (the walk's frames run once through, its pace surging), then a glide on the walk's rest frame, and each pull
 ## leaves a ring on the water.
 func _swim_stroke() -> void:
-	var had: bool = c().cultivator.secret_arts.has("breath_control")
-	if not had: Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "breath_control"}], "test")
+	var skim := _unskim()   # a skimmer would run on the water; Breath Control is learned again below
+	Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "breath_control"}], "test")
 	check(enter("ds_drowned_grotto", "entry"), "to the Drowned Grotto to swim")
 	var m := motor()
 	stand(Vector2(9, 12))
 	frames(int(1.0 / DT), Vector2.DOWN, false, func(): return m.swimming)
-	motor_events.clear()
 	var pull := {}
 	var glide := {}
 	var rest := TopdownFigure.rest_frame("walk")
-	frames(int(2.0 / DT), Vector2.RIGHT, false, func():
+	frames(int(0.3 / DT), Vector2.DOWN)   # out into the pool's middle
+	motor_events.clear()
+	var look := func():
 		w.player.sync(DT)
 		if w.player.anim == "walk":
 			var k := m.stroke_t / m.swim_stroke
 			if k < 0.5: pull[w.player.frame] = true
 			elif k > 0.6: glide[w.player.frame] = true
-		return false)
+		return false
+	for way in [Vector2.RIGHT, Vector2.LEFT, Vector2.RIGHT, Vector2.LEFT]: frames(int(0.5 / DT), way, false, look)   # to and fro across it
 	var strokes := motor_events.filter(func(e): return str(e.type) == "stroked").size()
 	var wakes: int = w.fx.items.filter(func(it): return str(it.kind) == "wake").size()
 	for e in motor_events: w.feedback(e)
 	wakes = w.fx.items.filter(func(it): return str(it.kind) == "wake").size() - wakes
 	check(m.swimming and strokes >= 2 and strokes <= 3 and wakes == strokes, "two seconds' swim is %d strokes, each leaving its wake (%d)" % [strokes, wakes])
 	check(pull.size() >= 3 and glide.keys() == [rest], "the pull runs the walk's frames (%s), the glide holds its rest frame (%s)" % [str(pull.keys()), str(glide.keys())])
-	if not had: c().cultivator.secret_arts.erase("breath_control")
+	c().cultivator.secret_arts.erase("breath_control")
+	_reskim(skim)
 
 # ------------------------------------------------------------------ 31: a bounce that gives
 ## The Fairground's drum, as it launches a body: its skin pressed in, then springing back, then at rest (BounceView).
@@ -1533,9 +1591,9 @@ func _returning_boards() -> void:
 	frames(int((float(wf.return_s) + 1.5) / DT))
 	check(absf(dropped - 3.0 * TopdownRoom.LEVEL) < 0.5 and tr.crumble_state(wf) == "broken" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5,
 		"past their time the boards stay gone over the body under them, not lifting it (z %.0f, %s)" % [m.z, tr.crumble_state(wf)])
-	frames(int(1.5 / DT), Vector2.DOWN, false, func(): return not Rect2(wf.rect).has_point(m.pos))
+	frames(int(1.5 / DT), Vector2.LEFT, false, func(): return not Rect2(wf.rect).has_point(m.pos))   # west, onto the terrace (the flight is south)
 	frames(int(0.6 / DT))
-	check(tr.crumble_state(wf) == "whole" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5, "stepped out from under them, the boards come back (%s)" % tr.crumble_state(wf))
+	check(tr.crumble_state(wf) == "whole" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5, "stepped out from under them, the boards come back (%s; the body at %s, z %.0f)" % [tr.crumble_state(wf), str(TopdownRoom.cell_of(m.pos)), m.z])
 
 # ------------------------------------------------------------------ 34: the pits open beside their planks
 ## The Tunnels' spike pits open beside their planks, as the side view's pit lies round its planks: a body standing on the
