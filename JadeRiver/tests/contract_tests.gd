@@ -158,8 +158,8 @@ func _data_text() -> String:
 ## The same rules as tools/dev/extract_strings.py: a literal that reads like text is not
 ## allowed in the player-facing scripts unless it is an id, a technical token, a key,
 ## a comparison, a membership list, a const, a signature default or debug output.
-const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
-	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
+const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd",
+	"res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
 	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
 	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
 	"res://scripts/presentation/scene_director.gd", "res://scripts/presentation/scene_stage.gd",

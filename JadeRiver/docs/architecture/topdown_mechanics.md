@@ -11,6 +11,16 @@ shallows' slow (the to-do's items 1 to 13, "T2" below). T3 did the rest of the t
 Lower Pit's cracked slab, Rimefrost's ice, no-flight volumes, low gravity and its jade switches, the Starsea's docks,
 the late zones' light, T2's presentation leftovers and edge cases ("T3" below).
 
+**Status (S12a): the side view is gone.** Its world, its player and its solver are deleted, and every room plays on the
+grid. What it left the grid still reads: a room's side-view `volumes` (a flood's script, an ice's traction, a wind's
+push: `TopdownTraverse.from_layout`), its `climbables` (`TopdownPlayer`), its `bounds` (the side points a room event and
+an old save are mapped across: `TopdownRoom.grid_event`), and the side geometry `tools/data/topdown_rooms.py` builds the
+layouts from. `MovementSolver` keeps only the arts Combat starts on a body (air dash, Plunge, glide) and the numbers the
+brains read; `LocalAuthority` only announces a body's events; `ZoneGeometry` is the stand-in ground under the grid and
+the rafts' clock. The events only the side view's solver emitted (`jumped`, `landed`, `fell_out`, `volume_entered`,
+`volume_left`) are dormant in the event contract (`tools/data/contract.py` `DORMANT`); their reactors wait. Below, "the
+side view's" names where a number or a rule came from.
+
 The rule throughout: **the authorities keep their rules; the grid only says where things stand.** A raft rides the side
 view's own mover function on the room's clock, a glide spends Combat's QI, a climb asks the World authority whether it
 is open. The top-down side adds placement (spec rows, layout cells), the motor's response, and the drawing.

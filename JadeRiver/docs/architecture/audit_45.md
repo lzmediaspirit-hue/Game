@@ -240,6 +240,40 @@ Deleting the side view is a product decision: it would retire the fallback setti
 36,000 lines. I recommend taking that decision once the room engine (E1) has converted the remaining rooms. After
 that, no room needs the side view.
 
+#### Status (phase 3, S12a): the side view retired, and its creature sheets with it (S12b)
+
+The product took the decision, and S12a carried it out once every room had its layout; S12b followed when M3 and M4
+had drawn the last foes.
+- **One world.** `world.gd`, `player.gd`, `backdrop.gd`, `terrain.gd`, `avatar.gd` and the side view's views, the HUD's
+  `HudSideView`, the settings' choice of view, the creator's and `debug_args.gd`'s side-view paths are deleted; main.gd
+  mounts the top-down world only. The 74 branches are collapsed to their top-down arm (the authorities, the AI, the
+  HUD, the pages). `MovementSolver` keeps the arts Combat starts (air dash, Plunge, glide), `LocalAuthority` the
+  announcing of a body's events, `ZoneGeometry` the stand-in ground under the grid and the rooms' clock.
+- **Decision 41's gate** and `tests/lib/off_grid.gd` are gone: `tools/data/topdown_rooms.py` checks once that every
+  room of `world.py`, and every way's target, has a layout.
+- **Saves.** `GameCharacter.MINOR` 1 to 2 (`SaveService.VERSION` stays 3): a side-view character loads into the grid with its
+  look, gear, dyes and bag, its position and last shrine mapped onto the layout (`TopdownRoom.grid_event`'s rule), the
+  account's `classic_side_view` forgotten. `rules_tests`' `side_view_save_suite` loads `tests/data/side_view_save/`
+  (made by the side view's own code) and plays it.
+- **Art and generators** deleted, each proved unread first (`asset_refs.py`, `manifest_refs.py`, `gd_graph.py`,
+  `py_graph.py`, grep): the `art/` root's 4,240 part files (16.5 MB with their imports), `art/dye` (16.0 MB),
+  `art/environment` (23.3 MB), `art/backdrops` (2.6 MB), `art/creatures` (2.3 MB, S12b), the 55 props and 8 tiles only
+  the side view drew (0.2 MB); `tools/backdrops`, `tools/art/creatures`, `pixel.py`, `helpers_batch_*`, the bakes and
+  the side parts of `tools/props`; `data/poses.json`, `map_themes.json`, `surface_masks.json`,
+  `movement_contracts.json`, `backdrops.json`, `creature_art.json`, and `parts.json` cut to the looks' catalogue
+  (559 KB to 3 KB). In all 8,160 art files, 60.9 MB in the repository; about 28.0 MB of imported art, 0.8 MB of data
+  and 0.3 MB of scripts out of the export.
+- **Lines** (from the merged head to S12a's): scripts −6,390 +1,020, tools −34,955 +108, tests −3,165 +1,396.
+- **Still read from the side view's data at runtime** (kept on purpose): a room's `volumes` (the traverse rows'
+  scripts and numbers), `climbables` (the player's climbs), `bounds` (the side points a room event and an old save are
+  mapped across); its side geometry feeds `tools/data/topdown_rooms.py` and `room_lint`. Dormant since: the movement
+  events only the side view emitted (`jumped`, `landed`, `fell_out`, `volume_entered`, `volume_left`; the paths above,
+  the remount after a landing, a fall's fortune and Hidden Cave wait), the shallow-water dodge refusal (the grid's
+  stand-in has no volumes), and the fame greeting a villager gave a famous player (`world.gd` alone drew it).
+- **No top-down sheet yet** for four creatures that are not foes: the cloud stag, the hatchling wyrm, the Copperjaw
+  swarm and its queen (`data_validation`'s `NO_TOP_SHEET_YET`); they show a shadow in the room and an empty slot on a
+  page.
+
 ## 3. Dead code
 
 How each class of finding was checked:
@@ -1081,6 +1115,17 @@ Every slice below rebases onto those changes. The ones that touch the same files
 **Why this order:** dead code and shared utilities first shrink the files the splits must move and give them their
 helpers (FrameMemo, Figures, the suite base). The splits come before the engines so E6's notice table lands in a small
 `hud/notices.gd` rather than inside a 3,266-line file.
+
+### Status (phase 3, S12a and S12b): the side view deleted, done
+
+S12 went the optional way: the product retired the side view, so S12a deleted it instead of freezing it behind
+`RoomSpace`, and S12b deleted its creature sheets once M3 and M4 had drawn every foe. §2.4's status lists what went and
+what stays. The suites that drove side-view rooms drive the grid (`tests/README.md`, "One world"): `engine_tests`
+3,908 → 898 checks (the side view's solver and avatar gone, the grid's motor and figure in), `room_sweep` 3,745 →
+15,724 (every leg walked on the grid), `visibility_suite` 6,764 → 5,617 (the grid's places), `rules_tests` 2,722 →
+2,627 (the side view's movement, traversal and volume suites gone, the prototype's gate checks folded into one world,
+a side-view save played), `data_validation` drops the side tables' checks; the five legacy scripts and the side view's
+galleries and bakes are deleted.
 
 ### Status: S5 (generator hygiene), done
 

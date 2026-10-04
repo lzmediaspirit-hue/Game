@@ -100,17 +100,11 @@ cast through the side view's `World.preview_cast`; the Techniques page's preview
 `--capture` waits on the clock (2.5 s, or just past a moment's t). The capture registry (`tools/dev/capture/`) takes
 the review pictures.
 
-## The side view in main.gd
+## One world (S12a)
 
-The side view is retiring (decision 45). `main.gd` keeps what it does for it in its last section, "side view
-(retiring)". Its calls elsewhere carry a `# side view` mark:
-- `const World`, the side view's script;
-- `_side_view()`, which `_add_world_view` mounts when the room has no top-down layout;
-- `_backdrop_follows_world()`, which shows the river backdrop behind the side view and hides it under the top-down
-  view. `unmount_world` clears it.
-- `_swap_world_view()`, which `_on_game_event` calls on `room_entered` to swap the view when a character walks into a
-  room of the other kind.
-
-`_add_backdrop()` is in the same section. The backdrop is also the title screens' sky, so it stays until those screens
-have one of their own. In `debug_args.gd`, `_dress` (the avatar's outfit), `_cast`, `_fly` and `--capture`'s frame
-count are side-view only and marked so.
+The side view is gone. `main.gd` mounts the top-down world alone (`_add_world_view`: a room of the world on its grid,
+or the prototype square), with no swap between views; its section "side view (retiring)" (`World`, `_side_view`,
+`_backdrop_follows_world`, `_swap_world_view`, `_add_backdrop`) is deleted. The title screens draw their own sky
+(`ShellSky`, `_add_sky`), hidden while a world is mounted. Settings offers no choice of view, the creator makes every
+character for the grid, and `debug_args.gd`'s `_dress` and `_cast` went with the side view; `--fly` takes off on the
+grid (Combat's flight, the motor's), and `--capture` waits on the clock alone.

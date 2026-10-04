@@ -1,5 +1,29 @@
 # Changelog
 
+## One world: the side view retired, and its creature sheets with it (decision 45, S12a and S12b)
+
+Every room has its layout on the height grid, and every species its top-down sheet, so the side view goes
+(`docs/architecture/audit_45.md` §2.4 and §7, "Status (phase 3, S12a)").
+
+- **One world.** The game is top-down only: `world.gd`, `player.gd`, `backdrop.gd`, `terrain.gd`, `avatar.gd` and the
+  side view's views and rigs are deleted, and the 74 branches that chose between the views keep their top-down arm.
+  Settings no longer offers the classic side view; the creator, the character selection and every page draw the
+  top-down figure (`Figures`, `TopdownDoll`).
+- **Decision 41's gate is gone**, with its plate, its barrier and `tests/lib/off_grid.gd`. One data check holds instead:
+  every room of `world.py`, and every way's target, has a layout (`tools/data/topdown_rooms.py`).
+- **Old saves come along.** A character saved in the side view loads into the grid with its look, gear, dyes and bag,
+  at its spot and last shrine mapped onto the layout; the account forgets the view setting (the character format's minor 2).
+- **The creatures are drawn from their top-down sheets everywhere (S12b):** a spirit animal in the room (at its form's
+  size and tint), and on the pages the bestiary, the Spirit Animals' stable, the Beast Arena, the Core Exchange, a
+  bounty's target and a pet's party chip. The cloud stag, the hatchling wyrm and the Copperjaw swarm and queen have no
+  top-down sheet yet: they show their shadow, or an empty slot, until they are drawn.
+- **Smaller.** 8,160 art files (60.9 MB in the repository; about 28 MB of imported art out of the APK), about 34,900
+  lines of generators, 6,400 of game scripts and 3,200 of tests are deleted: the avatar's parts and dyes, the painted
+  scenery and backdrops, the creature sheets and their toolkit, the props only the side view drew, the bakes.
+- **Tests on the grid.** `engine_tests`, `room_sweep`, `visibility_suite`, `valley_run`, `prologue_run`,
+  `tutorial_order` and `rules_tests` drive the top-down world; the five legacy side-view scripts, the animation gate
+  and the side view's galleries are retired (`tests/README.md`, "One world").
+
 ## The monster engine's third batch: Act II's foes, the Reflection, the Behemoth and the Tomb King (decision 45, M3)
 
 Twenty species drawn with the monster engine in story order (`docs/architecture/monster_engine.md`, "M3"): the heart

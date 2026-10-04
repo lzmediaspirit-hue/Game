@@ -1,5 +1,7 @@
 ## Version 0.3 — detailed environment assets
 
+**Historical (S12a):** the side view's art these prompts made (`art/environment/`, `art/backdrops/`, the avatar's parts) is deleted with it.
+
 Tool: built-in image_gen; no CLI fallback. Final project assets:
 - `art/environment/pavilion-v3.png` (building atlas; native UV masks remove the retained opaque backdrop)
 - `art/environment/courtyard-v3.png` (courtyard stone)

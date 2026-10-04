@@ -1,5 +1,7 @@
 # Art contracts for new Jade River drawings
 
+**Historical (S12a, S12b):** these contracts were for the side view's art: the layered avatar's parts and the creature sheets (`art/creatures`, `tools/art/pixel.py`), both deleted. New art is top-down: the figure's layer sets (`tools/art/topdown/figure/`) and the foes' sheets (the monster engine, `docs/architecture/monster_engine.md`).
+
 These contracts let generated pixel art plug into the engine without code changes.
 All new art follows Part 9 of the build prompt: uniform crisp pixels, cluster cel
 shading, dark-hued 1–2 px outlines, light from the upper left, no blur, no

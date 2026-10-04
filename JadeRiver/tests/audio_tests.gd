@@ -35,11 +35,15 @@ func _main() -> void:
 	Game.boot()
 	Game.autosave_enabled = false
 	Unlocks.debug_force_all = true
-	# The Listener skips the Prologue: its opening scene would start as the world mounts and hold the music ducked
-	# (Audio's "scene" hold) past the prototype room's own mounting, under the stingers' checks.
-	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}, "skip_prologue": true})
+	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}})
 	main.enter_world(1)
 	for i in 3: await get_tree().process_frame
+	# On the grid a new character's first room stages its scene as the world mounts (decision 39); the Listener skips it,
+	# as a player may, so its hold on the music (Audio's "scene") ends before the prototype room's checks.
+	var lc = Game.active()
+	for sid in lc.quests.scenes.keys():
+		if not lc.quests.scenes[sid].get("done", false): Game.submit({"type": "scene_end", "scene": str(sid), "skipped": true})
+	GameEvents.flush()
 	_ids()
 	_buses()
 	_surfaces()

@@ -188,18 +188,11 @@ old files byte for byte, and `topdown_rooms.py` lost every hand function: 1,871 
    - no ruled line where nature would not draw one.
 
    Fix what looks wrong in the spec: a band's `wavy`, a feature's `shape="round"`, a density, an anchor, a pin.
-6. The layout's file opens the gate: a top-down character walks in. The tests of the prototype's frontier follow it
-   by themselves since R1; none names a gated way or a converted chapter:
-   - `topdown_tutorial` walks to the nearest way off the grid from the Marsh Edge (a breadth-first search over the ways
-     open to it) and checks its gate there; the story's quests on the grid past chapter 3 stand done as they come, to
-     the first one played past the gate; the Trial Tower's door is a gate while the tower has no layout;
-   - `topdown_chapter3` and `topdown_chapter4` end on every way out of their rooms: gated exactly when its room has no
-     layout;
-   - `rules_tests`' prototype checks hold every way into a room without a layout to the gate, show the view's barrier
-     and the walked-into plate at the first such way, and stand the story done to the first quest past the gate.
-
-   A batch that converts rooms touches none of them. A quest that should end the prototype names its room
-   (`target_room`), as The Shrine Surfaces now does.
+6. Every room of the world has its layout since the room engine converted the last of them, and S12a retired the side
+   view with decision 41's prototype gate (the barrier on every way into a room with no layout, its plate and the
+   frontier's tests): there is no frontier. One data check holds instead: `tools/data/topdown_rooms.py`
+   (`every_room_laid_out`, the runners' `topdown_rooms` gate) fails when a room of `tools/data/world.py` has no layout
+   or a way leads to a room that has none. A room added to the world comes with its layout, or the build stops.
 
 ## The first rooms: chapter 3
 
@@ -221,13 +214,15 @@ The six rooms past the Fairground on the main story's path, now on the grid. Cha
 Each picture also has an x2 copy under `world/`.
 
 **Still to do in these rooms.** Their foes have no top-down art yet: the bandits, hounds, archers, Lieutenant Kuai,
-Big Toad Tan, the carp and the crabs. The view draws its stand-ins; drawing them is E2's work. ~~The side view's
+Big Toad Tan, the carp and the crabs. ~~The view draws its stand-ins; drawing them is E2's work.~~ Every species has
+its top-down sheet since M3 and M4, and S12b deleted the stand-ins. ~~The side view's
 crumbling boards in the tunnels have no top-down counterpart.~~ T2: six rotten planks over two spike pits across the
 track (`docs/architecture/topdown_mechanics.md`).
 
 **The frontier then** (E1): Bend Shore's ways west, to the Serpent's Shallows and to the Drowned Shrine; the Marsh
 Edge's way east; the sects' halls and abodes; the Trial Tower; the Quarry Road; the Beast Grove; the County Hall; Gu's
-Warehouse. Toward Cleansing Peak was past the gate. R1 opened the Marsh Edge's way east (below).
+Warehouse. Toward Cleansing Peak was past the gate. R1 opened the Marsh Edge's way east (below). (S12a: the gate is gone;
+every room has its layout.)
 
 ## The road east: chapter 4 (R1)
 

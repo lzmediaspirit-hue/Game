@@ -1,5 +1,7 @@
 # Generated environment artwork
 
+**Historical (S12a):** `art/environment/` was the side view's painted scenery and is deleted.
+
 Tool: built-in image_gen; no API/CLI fallback used.
 
 ## art/environment/sanctuary.png

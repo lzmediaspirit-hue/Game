@@ -1,5 +1,7 @@
 # Map engine v0.13
 
+**Historical (S12a):** the side view and its map engine (`MapGenerator`, `tests/map_generation.gd`) are deleted; this page is the record of how they worked.
+
 **Status (decision 45):** this is the record of v0.13's side-view map engine. The game no longer opens in a generated
 map, and the side view is retiring. Only `tests/map_generation.gd` calls `MapGenerator.generate` today. The game's rooms
 are top-down layouts (`docs/redesign_top_down_plan.md`).

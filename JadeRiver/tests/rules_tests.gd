@@ -10724,7 +10724,12 @@ func moments_suite() -> void:
 	var toad: EnemyState = null
 	for e in Game.room_rt.living_enemies():
 		if e.def_id == "big_toad_tan": toad = e
-	if toad == null: toad = Game.enemies.spawn_at("big_toad_tan", st2.plane + Vector2(160, 0), 18)
+	# His own spawn when the den has none of him up (his kill remembered): on the grid, on the den's floor.
+	if toad == null:
+		var den: Array = Game.room_rt.def.get("spawns", []).filter(func(sp): return str(sp.get("enemy", "")) == "big_toad_tan")
+		var at: Vector2 = Game.room_rt.topdown.spawn + Vector2(160, 0)
+		if not den.is_empty() and not (den[0].get("points", []) as Array).is_empty(): at = Vector2(float(den[0].points[0][0]), float(den[0].points[0][1]))
+		toad = Game.enemies.spawn_at("big_toad_tan", Game.room_rt.topdown.nearest_standable(at), 18)
 	fresh.call()
 	mv.advance(0.0)
 	c.pools.hp = c.pools.max_hp
@@ -11336,18 +11341,28 @@ func set_suite() -> void:
 	var ringer: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-200, 0), 5)
 	ringer.pools.max_hp = 999999.0
 	ringer.stats["evasion"] = 0.0
+	# The ring's own blows on the ringer (on the grid the companion and the animals strike it too, credited to their owner).
+	var rung := {"amount": 0}
+	var by_bell := func(n: String, p: Dictionary):
+		if n == "hit_landed" and str(p.get("attacker", "")) == str(c.id) and str(p.get("target", "")) == str(ringer.uid) \
+				and not str(p.get("source", "")).begins_with("ally:"): rung.amount = int(rung.amount) + int(p.amount)
+	GameEvents.event.connect(by_bell)
 	var ring := func() -> float:
 		ringer.pools.hp = 999999.0
+		rung.amount = 0
 		_idle_hands(c)
 		Game.combat.basic_attack(c, 1)
 		for i in 14:
 			Game.tick(0.05)
 			ringer.plane = st.plane + Vector2(-200, 0)
-		return 999999.0 - ringer.pools.hp
+		GameEvents.flush()
+		return float(rung.amount)
 	var reached: float = ring.call()
 	c.remove_meta("extra_modifiers")
 	Game.combat.refresh_stats(c.id)
-	check(reached > 0.0 and ring.call() == 0.0, "melody power +50%: the bell's ring reaches a foe 200 behind; without it, not (reach 160)")
+	var unreached: float = ring.call()
+	check(reached > 0.0 and unreached == 0.0, "melody power +50%%: the bell's ring reaches a foe 200 behind; without it, not (reach 160: %.0f, %.0f)" % [reached, unreached])
+	GameEvents.event.disconnect(by_bell)
 	ringer.alive = false
 	# Put everything back.
 	ContentDB.tables["sets"].erase(set_id)
