@@ -45,7 +45,11 @@ the Leviathan's swim row.
 - **Tests and pictures.**
   - `topdown_traversal` grows by fifteen parts (25 to 39).
   - The capture set `traversal_t3` writes `docs/architecture/topdown_mechanics/t3/`.
-- **Checks.** CHECKS_PENDING
+- **Checks.** The full run (merged with R9 and E5b): every gate passes (`room_engine`, `topdown_rooms` with grid parity,
+  `places` and `boot` among them) and all 34 suites, 77,005 checks with 0 failures and no SCRIPT ERROR. Only
+  `topdown_traversal` grows: from 236 to 348, its fifteen new parts 112 of them. Grid parity holds for 168 layouts and
+  498 starts. Only the layouts of the rooms with T3 rows changed: the Lower Pit, the Tunnels, Frostpine Climb, Rimefrost
+  Summit and the Orbit Ruins' three.
 
 ## The star field's end on the grid (R9)
 
@@ -103,6 +107,7 @@ and the Starsea's voyages on the grid.
   no SCRIPT ERROR. `topdown_starfield` has 77 of them, `topdown_skysea` 101 and `room_engine` 508. Grid parity holds for
   168 layouts (every side-view room) and 498 starts, and `places` reaches all 62. The R8 and R9 views, captured again
   after the merge, match their committed pictures pixel for pixel.
+
 ## Side quests at their rooms' tiers, and every pin with a reason (decision 45, E5b)
 
 E5's migration kept the hand quests' balance as it was. It pinned 35 sums and kept 14 quests whose rooms lie far from
