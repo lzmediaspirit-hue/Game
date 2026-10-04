@@ -212,6 +212,132 @@ RAMPS = {
     "talisman_old": _s("e6d4a0", "cdb67c", "a28a58", "6e5a3a"),
     "cinnabar": _s("f08070", "cf3a3a", "962430", "5e1624"),
     "soul_void": _s("5a4290", "3a2a5c", "2a1a40", "1a0f2a"),
+    # M2. Each from its side-view sheet's materials (tools/art/creatures/), as M1's.
+    # riverbed serpent: jade scales, gold belly scutes and spines, a pale jade fin, ivory horns, a red maw; its water orb
+    "rs_scale": _s("96f0c8", "2fa982", "1b7466", "114a4c"),
+    "rs_belly": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "rs_fin": _s("d2fff2", "6fdcc2", "2c9e8f", "15514f"),
+    "rs_horn": _s("fff6d2", "e8d49c", "b09c6a", "6e6040"),
+    "rs_gold": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "rs_mouth": _s("e0707a", "a83a4c", "6e2034", "401222"),
+    "rs_orb": _s("f2fffc", "a8ecec", "5cc0cc", "2e7a8e"),
+    # rapids lizard: blue-green skin, a pale belly, a pale jade fin, a dark red maw
+    "rl_skin": _s("7fd8c6", "28868f", "1b5a74", "133a52"),
+    "rl_belly": _s("f2f6d6", "c8e2c0", "8fb4a0", "5a7c78"),
+    "rl_fin": _s("e2fff6", "8cf0d6", "45bcb2", "23808a"),
+    "rl_mouth": _s("c45a68", "8a2f40", "5e1c2c", "3a1020"),
+    # boulder serpent: a thick ochre hide, a sandstone belly, grey boulder plates and their lichen, a pink maw
+    "bs_hide": _s("d2a064", "9c6c3c", "6b4a33", "43302a"),
+    "bs_rock": _s("dcdad2", "a4a29c", "6c6c6c", "434348"),
+    "bs_belly": _s("f2dcaa", "c9ab78", "967c58", "5e4e3c"),
+    "bs_lichen": _s("d8dc88", "a8b25e", "7a8646", "4e5a34"),
+    "bs_mouth": _s("d67a7a", "a84a52", "72303c", "461c28"),
+    # mist vulture: grey-white feathers, darker flight feathers, a grey body, its mist, a bald pink head, an ivory beak
+    "mv_feather": _s("f6fafa", "cbd6dc", "8c9eae", "5a6a82"),
+    "mv_flight": _s("9eacbc", "6e7c90", "4a566c", "2e364a"),
+    "mv_body": _s("e2e8ec", "a9b5c0", "717f92", "48546a"),
+    "mv_mist": _s("ffffff", "e2eef4", "b6ccd8", "88a4b8"),
+    "mv_skin": _s("ffd4ca", "e9948e", "b4646c", "764252"),
+    "mv_beak": _s("f6eed8", "d8ccae", "a09478", "686052"),
+    "mv_leg": _s("dcd0a8", "b0a078", "7c7058", "524a40"),
+    # riverstone ox: a river-grey hide, moss, river pebbles, pale horns, a muzzle, dark hooves
+    "ro_hide": _s("aeaca2", "84827a", "5e5d56", "3e3d39"),
+    "ro_moss": _s("a4c47c", "78985a", "56743e", "3a522a"),
+    "ro_pebble": _s("eef4f4", "b6c6c8", "7e9298", "52626a"),
+    "ro_horn": _s("f4ecd8", "cfc2a0", "9a8c6c", "665a44"),
+    "ro_muzzle": _s("c8b8a8", "a08e7e", "76665a", "50443c"),
+    "ro_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
+    # cloudwing crane: white plumes, pale flight feathers, cloud-blue tips, a slate face and legs, a gold beak, a red crown
+    "crane_plume": _s("ffffff", "e8f0f2", "b3c6d2", "7b92a6"),
+    "crane_flight": _s("eef5f8", "cbd9e2", "97aec0", "687f95"),
+    "cloud_tip": _s("d6ecf7", "9dc0d8", "7497b6", "56769a"),
+    "crane_slate": _s("6f7f8c", "4c5a66", "36424d", "252e37"),
+    "crane_beak": _s("fff3b8", "e3cf7a", "b39e54", "78693a"),
+    "crane_crown": _s("ff8f80", "e45858", "b3384a", "7a2234"),
+    # stormwing hawk: a storm-blue body, coverts and flight feathers, a pale barred breast, lightning gold, a dark beak, a
+    # yellow cere and feet
+    "hawk_body": _s("86a6f4", "4466c2", "2c4386", "1b2757"),
+    "hawk_covert": _s("8eacf4", "5070c8", "34498e", "202d61"),
+    "hawk_flight": _s("6682d0", "3a52a4", "283b7a", "1a2552"),
+    "hawk_breast": _s("e6ecf6", "b9c7e0", "8397bd", "56688f"),
+    "hawk_bolt": _s("fff6b0", "ffd84a", "d9a82a", "9c7418"),
+    "hawk_beak": _s("5a6378", "343b4d", "232836", "161a24"),
+    "hawk_cere": _s("fff0a0", "f2c63a", "c49522", "8a6618"),
+    # cliff ape: grey-brown fur, a shaggy white mane, a dark leathery face, chest, hands and feet; its ochre boulder, moss
+    "ape_fur": _s("a8977f", "7b6a5a", "554a4b", "373138"),
+    "ape_mane": _s("fbf8ee", "dcd8cb", "a9aaa6", "77797e"),
+    "ape_skin": _s("7a6f78", "544b56", "3a343f", "26222b"),
+    "ape_face": _s("a2959c", "7a6f78", "544b56", "3a343f"),
+    "boulder": _s("d8b27a", "a67c4c", "76583e", "4b3a31"),
+    "boulder_moss": _s("b3cf6a", "7ea346", "5a7b37", "3b562b"),
+    # mist wolf: pale blue-grey fur, a darker saddle, dark paws, the mist its tail frays into (and its pale chest)
+    "wolf_fur": _s("f1f6f8", "bccbd6", "8a9db0", "5d6f86"),
+    "wolf_saddle": _s("aebfce", "8597ab", "617388", "44536a"),
+    "wolf_paw": _s("7d8a9c", "566276", "3e4758", "2a3140"),
+    "wolf_mist": _s("f6fafb", "d6e2ea", "aebfcd", "8597ab"),
+    # mirror wisp: mirror-bright shards (the far ones darker), its socket, the sclera, the violet iris and its pupil
+    "mirror_shard": _s("ffffff", "ddd3f6", "a58fd8", "5f4b98"),
+    "mirror_shard_back": _s("c9bdec", "9d88d0", "7560ae", "4a3a7c"),
+    "wisp_socket": _s("8e76cc", "5d489a", "3e2f6e", "281e4a"),
+    "wisp_sclera": _s("ffffff", "f1ecfb", "cfc3ec", "a592d4"),
+    "wisp_iris": _s("d9c6f5", "9b78d1", "6e4fa8", "452f78"),
+    "wisp_pupil": _s("3a2a5c", "1d1238", "140c28", "0a0614"),
+    # weeping lantern: violet-lit paper, a dark red cap, a red tassel, wax
+    "lantern_paper": _s("f1e4ff", "d3bdf0", "a283d2", "6c50a2"),
+    "lantern_cap": _s("8a4a46", "5c2e33", "3f1f27", "29141b"),
+    "lantern_tassel": _s("ff8a78", "d4474b", "9c2f3d", "661f30"),
+    "wax": _s("ffffff", "efe6f7", "cbbde0", "9c8cb8"),
+    # jade sentinel: carved jade (and its darker carving), bronze trim, the halberd's dark shaft and pale blade
+    "sentinel_jade": _s("a7e3c6", "5fae8e", "3b7a66", "244f47"),
+    "sentinel_jade_dark": _s("77b89c", "437f6a", "2c5a4f", "1b3a36"),
+    "sentinel_bronze": _s("e8b872", "b07a40", "7d532f", "523522"),
+    "halberd_shaft": _s("8a5a3a", "5e3a28", "422a20", "2b1b16"),
+    "halberd_blade": _s("e9f4ea", "b9d2c4", "86a397", "5a7169"),
+    # hollow stag: a grey-white hide, pale antlers, dark hooves
+    "stag_hide": _s("eef2ef", "bcc6c8", "8a979d", "5f6a72"),
+    "stag_antler": _s("e4e8e4", "aeb7b8", "7e8a90", "56616a"),
+    "stag_hoof": _s("6e777e", "4d555c", "384046", "262c31"),
+    # cloudpeak roc: warm-white plumes, pale flight feathers, gold (its crest, tips and bands), a gold beak, dark talons
+    "roc_plume": _s("ffffff", "f1ebdc", "c9bb9c", "8f7d5f"),
+    "roc_flight": _s("fbf6ea", "ddd1b6", "ad9b78", "7a6a4f"),
+    "roc_gold": _s("fff2b4", "e8bb4e", "b3862f", "7a5a21"),
+    "roc_beak": _s("fff0b2", "efc45a", "b98b34", "7c5b23"),
+    "roc_talon": _s("6a5a4a", "403428", "2c231c", "1c1612"),
+    # gate guardian: jade (and its darker carving), bronze, its jade bi rings
+    "gg_jade": _s("a4e4c8", "539f86", "316e5f", "1e4743"),
+    "gg_jade_dark": _s("72b39a", "3f7d6a", "29574e", "193833"),
+    "gg_bronze": _s("f3c67c", "b9803f", "84572f", "563722"),
+    "gg_ring": _s("c4f7e0", "63cdab", "2f9078", "1b5a50"),
+    # M2, the people of size: the character body's own skin (figure/sets, the light body's ramp)
+    "folk_skin": _r("99423C", "CC8665", "E4A47C", "F9D5BA", "FAECE7"),
+    # Big Toad Tan: black hair, a red sash, a leather vest, dark trousers, pale shin wraps, boots; his cleaver's steel and
+    # his wine gourd
+    "tan_hair": _r("111419", "1A1E24", "262B33", "353B45", "4B525E"),
+    "tan_sash": _s("ff8a78", "d4474b", "9c2f3d", "661f30"),
+    "tan_vest": _s("a87a52", "7a5434", "553a26", "38261a"),
+    "tan_trousers": _s("5f6878", "353d4a", "1d222c", "0b0d12"),
+    "tan_wrap": _s("e8e0cc", "c4b898", "948868", "645a46"),
+    "tan_boot": _s("7d674c", "5c4127", "4d371e", "2e2013"),
+    "cleaver_steel": _s("f2f6f6", "c4ccd0", "8a949c", "5a626a"),
+    "gourd": _s("f0c070", "c8903c", "946428", "5e3e1a"),
+    # the Drowned Abbot: the river's pallor, white hair, a waterlogged robe, a faded kasaya, a dark straw hat, dark iron and
+    # beads, a bronze bell and its verdigris
+    "drowned_skin": _s("dfe6e2", "b4c4c4", "869a9e", "5a6e76"),
+    "abbot_hair": _s("f2f2ee", "c8ccc8", "9aa09e", "6a706e"),
+    "abbot_robe": _s("a8bcc4", "7890a0", "566a7c", "3a4a5a"),
+    "abbot_kasaya": _s("d8907c", "a85a50", "7a3c3c", "4e2428"),
+    "abbot_hat": _s("a89a74", "7a6e50", "554c38", "3a3326"),
+    "abbot_dark": _s("4a4f58", "33373f", "24272e", "16181c"),
+    "abbot_bell": _s("d6a868", "9a6a38", "6a4628", "42301e"),
+    "abbot_patina": _s("9ad8c0", "5aa890", "3a7a68", "24504a"),
+    # Elder Gu: grey hair, his crimson robe (deeper than the character's crimson dye, apart from his face), gold trim, a
+    # black sash, his dark cape, black shoes
+    "gu_hair": _r("3A4052", "5D6680", "8C93A8", "BCC3D0", "E6EAF0"),
+    "gu_robe": _r("1E070D", "4A1019", "7E1E2A", "B23A3E", "D86A60"),
+    "gu_gold": _s("fff2ac", "e5b84c", "b07e30", "6e4a22"),
+    "gu_sash": _r("0B0D12", "1D222C", "353D4A", "5F6878", "979DA7"),
+    "gu_cape": _r("02302C", "054B45", "0D6A5E", "1F8A78", "4AA894"),
+    "gu_shoe": _s("4a4f58", "2a2e37", "1b1f25", "111419"),
 }
 
 # How each material takes the light and resolves (render.MATS's keys).
@@ -281,6 +407,47 @@ PROPS = {
     "chick_beak": {"hi": True, "glossy": True, "weight": 1.5}, "chick_crown": {"hi": True, "weight": 1.6},
     "talisman": {"hi": True, "thin": True}, "talisman_old": {"hi": True, "thin": True}, "cinnabar": {"hi": True, "weight": 1.5},
     "soul_void": {"weight": 1.8},
+    # M2
+    "rs_scale": {"hi": True, "glossy": True}, "rs_belly": {"hi": True, "weight": 1.2}, "rs_fin": {"hi": True, "thin": True},
+    "rs_horn": {"hi": True, "glossy": True, "weight": 1.5}, "rs_gold": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "rs_mouth": {"weight": 1.4}, "rs_orb": {"hi": True, "glossy": True, "weight": 1.4},
+    "rl_skin": {"hi": True, "glossy": True}, "rl_belly": {"hi": True, "weight": 1.2}, "rl_fin": {"hi": True, "thin": True, "weight": 1.2},
+    "rl_mouth": {"weight": 1.4},
+    "bs_hide": {"hi": True}, "bs_rock": {"hi": True}, "bs_belly": {"hi": True, "weight": 1.2}, "bs_lichen": {"hi": True, "weight": 1.2},
+    "bs_mouth": {"weight": 1.4},
+    "mv_feather": {"hi": True}, "mv_flight": {"hi": True}, "mv_body": {"hi": True}, "mv_mist": {"hi": True},
+    "mv_skin": {"hi": True, "weight": 1.3}, "mv_beak": {"hi": True, "glossy": True, "weight": 1.4}, "mv_leg": {"hi": True, "weight": 1.3},
+    "ro_hide": {"hi": True}, "ro_moss": {"hi": True, "weight": 1.2}, "ro_pebble": {"hi": True, "glossy": True, "weight": 1.3},
+    "ro_horn": {"hi": True, "glossy": True, "weight": 1.5}, "ro_muzzle": {"hi": True, "weight": 1.2}, "ro_hoof": {"hi": True, "weight": 1.3},
+    "crane_plume": {"hi": True}, "crane_flight": {"hi": True}, "cloud_tip": {"hi": True, "weight": 1.2}, "crane_slate": {"hi": True, "weight": 1.3},
+    "crane_beak": {"hi": True, "glossy": True, "weight": 1.5}, "crane_crown": {"hi": True, "weight": 1.6},
+    "hawk_body": {"hi": True}, "hawk_covert": {"hi": True}, "hawk_flight": {"hi": True}, "hawk_breast": {"hi": True, "weight": 1.2},
+    "hawk_bolt": {"hi": True, "weight": 1.6}, "hawk_beak": {"hi": True, "glossy": True, "weight": 1.5}, "hawk_cere": {"hi": True, "weight": 1.5},
+    "ape_fur": {"hi": True}, "ape_mane": {"hi": True, "weight": 1.2}, "ape_skin": {"hi": True, "weight": 1.3}, "boulder": {"hi": True},
+    "ape_face": {"hi": True, "weight": 1.3},
+    "boulder_moss": {"hi": True, "weight": 1.2},
+    "wolf_fur": {"hi": True}, "wolf_saddle": {"hi": True}, "wolf_paw": {"hi": True, "weight": 1.2}, "wolf_mist": {"hi": True, "weight": 1.2},
+    "mirror_shard": {"hi": True, "glossy": True, "thin": True, "weight": 1.3}, "mirror_shard_back": {"hi": True, "glossy": True, "thin": True},
+    "wisp_socket": {"hi": True, "weight": 1.3}, "wisp_sclera": {"hi": True, "glossy": True}, "wisp_iris": {"hi": True, "weight": 1.6},
+    "wisp_pupil": {"weight": 1.8},
+    "lantern_paper": {"hi": True}, "lantern_cap": {"hi": True, "weight": 1.3}, "lantern_tassel": {"hi": True, "weight": 1.4},
+    "wax": {"hi": True, "weight": 1.2},
+    "sentinel_jade": {"hi": True, "glossy": True}, "sentinel_jade_dark": {"hi": True, "glossy": True},
+    "sentinel_bronze": {"hi": True, "glossy": True, "weight": 1.3}, "halberd_shaft": {"hi": True, "line": True, "weight": 1.5},
+    "halberd_blade": {"hi": True, "glossy": True, "weight": 1.5},
+    "stag_hide": {"hi": True}, "stag_antler": {"hi": True, "weight": 1.4}, "stag_hoof": {"hi": True, "weight": 1.3},
+    "roc_plume": {"hi": True}, "roc_flight": {"hi": True}, "roc_gold": {"hi": True, "glossy": True, "weight": 1.4},
+    "roc_beak": {"hi": True, "glossy": True, "weight": 1.5}, "roc_talon": {"hi": True, "weight": 1.4},
+    "gg_jade": {"hi": True, "glossy": True}, "gg_jade_dark": {"hi": True, "glossy": True}, "gg_bronze": {"hi": True, "glossy": True, "weight": 1.3},
+    "gg_ring": {"hi": True, "glossy": True, "weight": 1.4},
+    "folk_skin": {"hi": True}, "tan_hair": {"hi": True, "weight": 1.3}, "tan_sash": {"hi": True, "weight": 1.3}, "tan_vest": {"hi": True},
+    "tan_trousers": {"hi": True}, "tan_wrap": {"hi": True, "weight": 1.2}, "tan_boot": {"hi": True, "weight": 1.3},
+    "cleaver_steel": {"hi": True, "glossy": True, "weight": 1.4}, "gourd": {"hi": True, "glossy": True, "weight": 1.3},
+    "drowned_skin": {"hi": True}, "abbot_hair": {"hi": True, "weight": 1.2}, "abbot_robe": {"hi": True}, "abbot_kasaya": {"hi": True, "weight": 1.2},
+    "abbot_hat": {"hi": True}, "abbot_dark": {"hi": True, "weight": 1.3}, "abbot_bell": {"hi": True, "glossy": True, "weight": 1.4},
+    "abbot_patina": {"hi": True, "weight": 1.2},
+    "gu_hair": {"hi": True, "weight": 1.2}, "gu_robe": {"hi": True}, "gu_gold": {"hi": True, "glossy": True, "weight": 1.3},
+    "gu_sash": {"hi": True, "weight": 1.2}, "gu_cape": {"hi": True}, "gu_shoe": {"hi": True, "weight": 1.3},
 }
 
 # Single colours laid on as marks and points.
@@ -367,6 +534,62 @@ GHOST_GLOW = c("B89CF0")
 GHOST_GLOW_HI = c("EFE6FF")
 GHOST_VOID = c("1A0F2A")
 GHOST_AURA = c("B89CF0", 140)
+# M2: the riverbed serpent's gold eye (its core, glow and ring), its orb's glint and aura, and its clear river (the pool
+# round it, lit at its foot, and the rings spreading).
+RS_EYE_CORE = c("FFFBE0")
+RS_EYE = c("FFD24A")
+RS_EYE_RING = c("E0801E")
+RS_EYE_GLOW = c("FFD24A", 140)
+RS_ORB_GLINT = c("FFFFFF", 230)
+RS_ORB_AURA = c("A8ECEC", 150)
+RS_POOL = c("2E7A8A", 140)
+RS_POOL_LIT = c("5CB4B4", 190)
+RS_RIPPLE = c("D2F4EE", 210)
+RS_RIPPLE_DIM = c("8CCFC0", 160)
+# M2: the rapids lizard's amber eye.
+LIZARD_EYE = c("F2B640")
+# M2: the boulder serpent's amber eye.
+BOULDER_EYE = c("FFB440")
+# M2: the flyers' eyes (the vulture's red, the crane's gold, the hawk's yellow, the roc's amber), their talons' dark tips,
+# the vulture's mist, the hawk's sparks, the crane's cloud wisps.
+VULTURE_EYE = c("C8402E")
+CRANE_EYE = c("F2C14A")
+HAWK_EYE = c("FFD84A")
+ROC_EYE = c("FFB830")
+TALON_DARK = c("1D1B20")
+MIST_PUFF = c("E2EEF4", 200)
+MIST_PUFF_DIM = c("B6CCD8", 150)
+SPARK = c("FFF6B0")
+SPARK_DIM = c("FFD84A", 200)
+CLOUD_WISP = c("D6ECF7", 190)
+CLOUD_WISP_DIM = c("9DC0D8", 140)
+# M2: the riverstone ox's eye in anger and the steam of its snort.
+OX_EYE = c("FFD45A")
+STEAM = c("DFE8E8", 200)
+STEAM_DIM = c("B2C2C6", 150)
+# M2: the mist wolf's violet soul-glow eye.
+WOLF_EYE = c("8E64D8")
+# M2: the mirror wisp's glint and the cracks across its eye; the weeping lantern's tears and its soul flame.
+WISP_GLINT = c("FFFFFF")
+WISP_CRACK = c("1D1238")
+LANTERN_TEAR = c("8E6BD0")
+LANTERN_INK = c("2A1838")
+# M2: the jade sentinel's and the gate guardian's gold runes and eyes.
+RUNE_CORE = c("FFFBE6")
+RUNE = c("FFE6A1")
+RUNE_DIM = c("E5B84C")
+RUNE_GLOW = c("FFE6A1", 130)
+# M2: the drowned abbot's cold eyes and their glow, the river dripping off him, his bell's toll; Elder Gu's tide.
+DROWNED_EYE = c("E8FBFF")
+DROWNED_EYE_DIM = c("8CCFE0")
+DROWNED_GLOW = c("A8ECF4", 150)
+DRIP = c("9FD0DA", 200)
+TOLL = c("F2E6B4", 210)
+TIDE = c("6FC8E8", 220)
+TIDE_CORE = c("E8FBFF")
+SOUL_FLAME_CORE = c("F3E8FF")
+SOUL_FLAME = c("B28CF0")
+SOUL_FLAME_DEEP = c("7D55C8")
 
 
 def palette(*names) -> dict:

@@ -41,6 +41,13 @@ The motion styles (STYLES) are the hand modules' key-frame tables, named: idle `
 `bound`, `lope`, `trot`; windup `rear`, `sit_up`, `paw_ground`; attack `lunge_bite`, `lunge_shake`, `charge_toss`;
 hurt `knock_squash`, `flinch`, `stumble`; death `topple_side`, `curl_side`, `buckle_roll`. M1's: idle `alert`, `pant`;
 windup `crouch` (low, the tail raised), `bark` (the head up, barking); attack `pounce_bite` (the forepaws reaching).
+
+M2's variants: `saurian` (the rapids lizard: a saurian head with a cheek fin, `sprawl` legs, a `fin` crest and finned
+tail, a `river` coat; styles idle `bask`, walk `scurry`, windup `tail_curl`, attack `spin_whip`, death `flip_over`),
+`bovid` (the riverstone ox: a horned head snorting steam, heavy `hoof` legs by `legs.thick` and `legs.bones`, a
+`cracked` coat under a crest of `pebbles`) and `cervid` (the hollow stag: antlers, hollow eyes and mist, a `saddle` coat,
+`hackles`; the Hollow's look without its strands, `strands` False). The mist wolf is the canine with `opts.misty` (its
+fall comes apart into mist) and a `mist` brush tail.
 """
 from __future__ import annotations
 
@@ -131,6 +138,25 @@ STYLES = {
                     "dissolve": (0.0, 0.0, 0.0, 0.0, 0.12, 0.34, 0.62, 0.9),
                     "fold_front": (0.0, 0.8, 1.0, 1.0, 0.8, 0.5, 0.4, 0.4), "fold_hind": (0.0, 0.0, 0.3, 0.5, 0.5, 0.4, 0.3, 0.3)},
 }
+# M2, the saurian (the rapids lizard): idle `bask` (a head bob, its throat working), walk `scurry` (a trot in diagonal
+# pairs, its body swinging side to side, `wig`), windup `tail_curl` (its tail raised and curled over its back, the crest
+# and cheek fins flared, hissing: `tailup`, `flare`), attack `spin_whip` (it whirls round on its belly so its tail lashes
+# out before it on the blow, then spins on round: `spin`, degrees, its tail lagging, `lag`), death `flip_over` (onto its
+# back, its legs curling up).
+SAURIAN_STYLES = {
+    "bask": {"head": (0.0, -4.0, 2.0, 0.0, -3.0, 0.0), "yaw": (0.0, 6.0, 10.0, 4.0, -6.0, -2.0), "bob_amp": 0.08,
+             "gape": (0.0, 0.0, 0.0, 0.12, 0.0, 0.0)},
+    "scurry": {"kind": "scurry", "wig_amp": 9.0, "bob_wave": (0.0, 0.25), "head_wave": (-3.0, 3.0, 0.6)},
+    "tail_curl": {"lunge": (-0.3, -0.7, -1.0, -1.1), "pitch": (2.0, 4.0, 6.0, 6.0), "head": (6.0, 12.0, 16.0, 16.0),
+                  "gape": (0.2, 0.5, 0.8, 0.9), "tailup": (0.3, 0.65, 0.9, 1.0), "flare": (0.3, 0.7, 1.0, 1.0), "angry": True},
+    "spin_whip": {"spin": (70.0, 180.0, 235.0, 290.0, 335.0, 360.0), "lag": (40.0, 55.0, 45.0, 35.0, 20.0, 0.0),
+                  "lunge": (0.6, 1.4, 1.4, 1.0, 0.5, 0.0), "gape": (0.6, 0.4, 0.2, 0.1, 0.0, 0.0), "flare": (1.0, 0.8, 0.5, 0.3, 0.1, 0.0),
+                  "streaks": (0, 1, 2), "angry": True},
+    "flip_over": {"lunge": (-0.6, -0.9, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0), "head": (16.0, 10.0, 0.0, -6.0, -8.0, -8.0, -8.0, -8.0),
+                  "gape": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3), "roll": (0.0, 16.0, 60.0, 120.0, 165.0, 178.0, 176.0, 178.0),
+                  "curl": (0.0, 0.1, 0.3, 0.6, 0.85, 1.0, 1.0, 1.0)},
+}
+STYLES.update(SAURIAN_STYLES)
 
 # ------------------------------------------------------------------------------------------------ variants
 # A body piece: (where along it: (a, kf), height c), radii ((x, kf, kb) x 3), and `arch` (it bends against the lope).
@@ -229,7 +255,75 @@ TALPID = {
     "legs": {"kind": "dig", "fore": (2.4, 2.7), "hind": (-3.4, (2.1, 0.4, 1.0)), "lift": 1.0, "stride": 1.3},
     "tail": {"kind": "stub", "root": (-6.2, 0.2), "tip": (-8.0, -0.6), "r": (0.7, 0.35)},
 }
+# M2: the riverstone ox (its side-view sheet: ~33 px tall, ~59 long): the boarlet's frame grown broad and heavy, a hump
+# over the shoulders, a broad head with a pale muzzle and two heavy horns curving out and up, smooth river pebbles grown
+# into its back with moss between them and a mossy mane down its neck, a tasselled tail.
+BOVID = {
+    "Z": 9.4, "hips": (-1.4, 0.0), "pivot": (0.0, 0.0, 0.0), "side": 5.2,
+    "body": [{"at": ((3.4, 0.0), 1.4), "r": ((4.8, 0.0, 0.0), (5.4, 0.8, 0.0), (5.6, 0.0, 0.0))},
+             {"at": ((-0.4, 0.5), 0.4), "r": ((6.4, -1.0, 0.0), (5.4, 0.4, 0.3), (4.8, 0.0, 0.0))},
+             {"at": ((-4.8, 1.4), 0.6), "r": ((4.0, 0.0, 0.0), (4.6, 0.0, 0.7), (4.4, 0.0, 0.4))}],
+    "coat": {"kind": "river", "belly": -0.45, "mottle": 0.8},
+    "crest": {"kind": "pebbles", "stones": ((4.2, 0.0, 1.8), (2.4, 1.8, 1.5), (1.4, -2.0, 1.55), (0.0, 0.3, 1.9), (-1.8, 2.2, 1.45),
+                                             (-2.6, -1.6, 1.6), (-4.2, 0.6, 1.65), (-5.6, -1.8, 1.2), (-5.8, 2.3, 1.1)), "moss": 10},
+    "head": {"kind": "bovid", "rest": -10.0, "pitch": (-4.0, 14.0), "at": ((8.8, -0.6), (0.8, 0.5)), "skull": (3.5, 3.4, 3.1),
+             "muzzle": ((2.8, 0.0, -1.5), (2.1, 2.6, 1.9)), "horns": ((0.0, 2.1, 1.6), (0.6, 4.4, 2.2), (1.4, 5.0, 4.4), (2.4, 4.6, 5.6)),
+             "horn_r": (1.0, 0.75, 0.45, 0.15), "ears": ((-0.6, 2.9, 0.4), (0.7, 1.5, 0.45)),
+             "eyes": {"shut": {"hurt": 0, "death": 5}}},
+    "legs": {"kind": "hoof", "thick": 1.4},
+    "tail": {"kind": "tassel"},
+    "dust": True,
+}
+# M2: the hollow stag (its side-view sheet: ~56 px tall to its antler tips, ~44 long): a slender deer on long legs, a
+# deep chest, a long neck carrying its head high, broken branching antlers, grey-white with the Hollow's dark cracks
+# over it, empty white eyes, grey mist seeping off it.
+CERVID = {
+    "Z": 10.2, "hips": (-3.0, 0.4), "pivot": (-3.0, 0.0, 0.4), "side": 3.0,
+    "body": [{"at": ((3.0, 0.4), 1.0), "r": ((3.3, 0.0, 0.0), (2.5, 0.5, 0.0), (3.3, 0.0, 0.0))},
+             {"at": ((-0.4, 1.0), 0.6), "r": ((4.5, -1.6, 0.0), (2.4, 0.3, 0.2), (2.6, -0.2, 0.0))},
+             {"at": ((-3.8, 2.0), 0.9), "r": ((3.0, -0.4, 0.0), (2.5, 0.0, 0.5), (2.8, -0.3, 0.3))}],
+    "coat": {"kind": "cracked", "belly": -0.5, "crack": 0.86},
+    "head": {"kind": "cervid", "at": ((7.0, 0.6), (5.6, 1.0, -0.4)), "pitch": (-6.0, 16.0), "neck": ((4.4, 0.0, 2.2), 1.9, 1.3),
+             "skull": (2.0, 1.6, 1.7), "muzzle": ((0.8, 0.0, -0.3), (3.8, 0.0, -1.3), 1.25, 0.75), "nose": (4.0, 0.0, -1.2),
+             "ears": ((-0.6, 1.4, 1.0), (1.4, 0.4, 0.7)), "eyes": {"at": (1.0, 1.25, 0.45), "shut": {"hurt": 0, "death": 5}},
+             "antlers": {"beam": ((-0.5, 0.9, 1.5), (-1.4, 2.0, 3.8), (-2.4, 2.6, 6.0), (-2.2, 3.1, 8.0), (-1.4, 3.3, 9.4)),
+                         "tines": ((1, (1.3, 0.2, 1.8)), (2, (1.7, 0.5, 1.3)), (2, (-0.3, 1.2, 1.6)), (3, (0.6, -0.4, 0.9))),
+                         "r": (0.6, 0.18), "broken": (3,)}},
+    "legs": {"kind": "hoof", "thick": 0.72, "bones": ((4.3, 4.1), (4.5, 4.3))},
+    "tail": {"kind": "stub", "root": (-6.4, 1.8), "tip": (-7.6, 1.0), "r": (0.85, 0.55)},
+    "dust": True, "strands": False,
+}
+# M2: the rapids lizard (its side-view sheet: ~18 px tall to the crest, ~48 long nose to tail): a long low body on
+# sprawling legs, a wedge of a head with a cheek fin, a webbed crest down its back and along its long tail.
+SAURIAN = {
+    "Z": 2.7, "hips": (-3.0, 0.0), "pivot": (-3.0, 0.0, 0.0), "side": 2.0, "mid": -0.6,
+    "body": [{"at": ((-3.4, 0.8), 0.0), "r": ((3.0, 0.0, 0.0), (2.2, 0.0, 0.3), (1.6, 0.0, 0.1))},
+             {"at": ((-0.2, 0.4), 0.15), "r": ((3.8, -1.0, 0.0), (2.4, 0.2, 0.0), (1.75, 0.0, 0.0))},
+             {"at": ((2.8, 0.0), 0.25), "r": ((2.6, 0.0, 0.0), (2.1, 0.2, 0.0), (1.6, 0.0, 0.0))}],
+    "coat": {"kind": "bands", "belly": -0.35, "band": (2.2, 0.55)},
+    "crest": {"kind": "fin", "from": 4.4, "to": -6.4, "n": 10, "height": 1.3, "r": 0.28},
+    "head": {"kind": "saurian", "at": ((6.2, 0.8), (0.9, 0.9, 0.2)), "pitch": (-4.0, 18.0), "neck": ((4.0, 0.0, 0.5), 1.5, 1.25),
+             "skull": (2.1, 1.65, 1.3), "snout": ((0.8, 0.0, -0.15), (3.6, 0.0, -0.45), 1.3, 0.55),
+             "jaw": {"at": (0.2, 0.0, -0.8), "to": (3.2, 0.0, 0.0), "r": (0.85, 0.4), "turn": 34.0},
+             "eyes": {"at": (0.9, 1.15, 0.75), "colour": "LIZARD_EYE", "shut": {"hurt": 0, "death": 4}},
+             "cheek": {"at": (-0.6, 1.4, 0.0), "n": 3, "length": 1.6}},
+    "legs": {"kind": "sprawl", "fore": 2.6, "hind": -3.4, "top": -0.3, "out": 3.9, "elbow": 2.0, "reach": 4.6, "r": (0.9, 0.7, 0.5),
+             "toe": 0.9, "lift": 1.1, "stride": 1.6},
+    "tail": {"kind": "fin", "root": (-6.0, 0.2), "n": 12, "length": 13.0, "r": (1.45, 0.18), "fin": 0.9},
+}
 VARIANTS = {
+    "cervid": {"parts": CERVID, "mats": {"hide": "stag_hide", "head": "stag_hide", "stripe": "stag_hide", "hoof": "stag_hoof", "coat": "stag_hide",
+                                         "antler": "stag_antler", "pale": "stag_antler"},
+               "opts": {"hollowed": True},
+               "motion": {"idle": "alert", "walk": "trot", "windup": "paw_ground", "attack": "charge_toss", "hurt": "stumble",
+                          "death": "buckle_roll"}},
+    "bovid": {"parts": BOVID, "mats": {"hide": "ro_hide", "head": "ro_hide", "stripe": "ro_hide", "hoof": "ro_hoof", "snout": "ro_muzzle",
+                                       "bristle": "ro_moss", "horn": "ro_horn", "pebble": "ro_pebble", "moss": "ro_moss"},
+              "motion": {"idle": "browse", "walk": "trot", "windup": ("paw_ground", {"snort": (1, 3)}), "attack": "charge_toss",
+                         "hurt": "stumble", "death": ("buckle_roll", {"dissolve": (0.0,) * 8})}},
+    "saurian": {"parts": SAURIAN, "mats": {"coat": "rl_skin", "pale": "rl_belly", "fin": "rl_fin", "maw": "rl_mouth"},
+                "motion": {"idle": "bask", "walk": "scurry", "windup": "tail_curl", "attack": "spin_whip", "hurt": "knock_squash",
+                           "death": "flip_over"}},
     "talpid": {"parts": TALPID, "mats": {"coat": "mole_fur", "sheen": "mole_sheen", "pale": "mole_palm", "pink": "mole_pink",
                                          "iron": "mole_iron", "dirt": "mole_dirt"},
                "motion": {"idle": "sniff", "walk": "bound", "windup": ("rear", {"clods": (0, 1, 2), "pitch": (6.0, 12.0, 18.0, 22.0)}),
@@ -273,10 +367,13 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     _body(P, B, c)
     if "crest" in p:
         _crest(P, B, c)
-    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine}[p.head.kind](P, B, c)
-    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig}[p.legs.kind](P, B, c)
-    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub}[p.tail.kind](P, B, c)
-    if B.opts.get("hollowed") and action != "death":
+    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
+     "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid}[p.head.kind](P, B, c)
+    {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig,
+     "sprawl": _legs_sprawl}[p.legs.kind](P, B, c)
+    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
+     "fin": _tail_fin}[p.tail.kind](P, B, c)
+    if B.opts.get("hollowed") and action != "death" and p.get("strands", True):
         _strands(P, B, c)
     if p.get("dust"):
         _dust(P, B, c)
@@ -303,6 +400,10 @@ def _motion(B, c) -> None:
     elif kind == "lope":                        # the lope: arched, then stretched long
         c.arch = st.arch_amp * math.sin(f / 8.0 * math.tau)
         c.bob = st.bob_wave[0] * max(0.0, math.sin(f / 8.0 * math.tau + st.bob_wave[1]))
+    elif kind == "scurry":                      # M2: diagonal pairs, the body swinging side to side
+        c.wig = st.wig_amp * math.sin(f / 8.0 * math.tau)
+        c.bob = st.bob_wave[0] + st.bob_wave[1] * math.cos(f / 8.0 * 4.0 * math.pi)
+        c.hpitch = st.head_wave[0] + st.head_wave[1] * math.sin(f / 8.0 * 4.0 * math.pi + st.head_wave[2])
     elif kind == "trot":                        # diagonal pairs: two bobs a cycle
         c.bob = st.bob_wave[0] + st.bob_wave[1] * math.cos(f / 8.0 * 4.0 * math.pi)
         c.pitch = st.pitch_wave[0] * math.sin(f / 8.0 * 4.0 * math.pi + st.pitch_wave[1])
@@ -312,6 +413,8 @@ def _motion(B, c) -> None:
         c.sc = 1.0 + st.breathe * wave(a, f)
     c.curl = B.pick("curl", a, f)
     c.z = B.parts.Z + c.bob
+    if kind != "scurry":
+        c.wig = 0.0
 
 
 def _frame(B, c) -> None:
@@ -320,6 +423,8 @@ def _frame(B, c) -> None:
     c.hips = v3(c.lunge + p.hips[0], 0.0, c.z + p.hips[1])
     if "curl_yaw" in p:
         c.bm = rot("b", c.pitch + c.arch * p.arch) @ rot("c", c.curl * p.curl_yaw)
+    elif c.wig:
+        c.bm = rot("c", c.wig) @ rot("b", c.pitch)
     else:
         c.bm = rot("b", c.pitch)
     piv = v3(p.pivot)
@@ -379,6 +484,59 @@ def _coat(B, c):
             return names, np.where(grain, -1, np.where(leaf, 1, 0)).astype(np.int16)
         return vines
 
+    if co.kind == "cracked":
+        seed = int(B.opts.get("seed", 0))
+
+        def cracked(q, n):
+            """M2, the hollow stag: grey-white hide, the belly paler, the Hollow's dark cracks running over it (by its seed)."""
+            loc = (q - hips) @ bm
+            nz = (n @ bm)[:, 2]
+            belly = nz < co.belly
+            h = h01v(np.floor(loc[:, 0] * 1.2 + np.abs(loc[:, 1]) * 0.4 + 40), np.floor(loc[:, 2] * 1.4 + 40), seed % 97 + 1)
+            crack = (h > co.crack) & ~belly
+            return np.full(len(q), m.hide, dtype=object), np.where(crack, -3, np.where(belly, 1, 0)).astype(np.int16)
+        return cracked
+
+    if co.kind == "river":
+        seed = int(B.opts.get("seed", 0))
+
+        def river(q, n):
+            """M2, the riverstone ox: a river-grey hide mottled a step darker in patches (by its seed), paler underneath."""
+            loc = (q - hips) @ bm
+            nz = (n @ bm)[:, 2]
+            belly = nz < co.belly
+            h = h01v(np.floor(loc[:, 0] * 0.7 + 40), np.floor(loc[:, 2] * 0.7 + np.abs(loc[:, 1]) * 0.5 + 40), seed % 97 + 1)
+            mottle = (h > co.mottle) & ~belly
+            return np.full(len(q), m.hide, dtype=object), np.where(belly, 1, np.where(mottle, -1, 0)).astype(np.int16)
+        return river
+
+    if co.kind == "bands":
+        def bands(q, n):
+            """M2, the saurian: blue-green skin, dark crossbands over its back (a step dark, a step darker at their middle),
+            the pale belly underneath."""
+            loc = (q - hips) @ bm
+            nz = (n @ bm)[:, 2]
+            belly = nz < co.belly
+            u = (loc[:, 0] / co.band[0]) % 1.0
+            band = (u < co.band[1]) & (nz > 0.0)
+            core = (u < co.band[1] * 0.45) & (nz > 0.35)
+            names = np.where(belly, m.pale, m.coat).astype(object)
+            return names, np.where(band & ~belly, np.where(core, -2, -1), 0).astype(np.int16)
+        return bands
+
+    if co.kind == "saddle":
+        def saddle(q, n):
+            """M2, the mist wolf: pale blue-grey fur, a darker saddle over its back and the top of its neck, the throat,
+            chest and belly paler; its grain in fine streaks."""
+            loc = (q - hips) @ bm
+            nl = n @ bm
+            pale = ((nl[:, 2] < co.chest[0]) & (loc[:, 0] > co.chest[1])) | (nl[:, 2] < co.belly)
+            back = (nl[:, 2] > co.saddle) & (loc[:, 0] < co.reach) & ~pale
+            streak = ((loc[:, 0] * 1.1 + np.abs(loc[:, 1]) * 0.7) % 1.5 < 0.2) & ~pale
+            names = np.where(pale, m.pale, np.where(back, m.saddle, m.coat)).astype(object)
+            return names, np.where(streak, -1, 0).astype(np.int16)
+        return saddle
+
     if co.kind == "bib":
         seed = int(B.opts.get("seed", 0))
 
@@ -436,6 +594,43 @@ def _crest(P, B, c) -> None:
     a, f, at, bm = c.action, c.f, c.at, c.bm
     angry = B.style(a).get("angry", False)
     cr = B.parts.crest
+    if cr.get("kind") == "hackles":
+        # M2, the mist wolf: a ruff of fur down its nape and over its shoulders, lying flat, raised in anger (its tell).
+        up_ = 1.0 if angry else 0.0
+        for k in range(cr.n):
+            a0 = cr["from"] - k * cr.step
+            for s in ((0,) if k % 2 == 0 else (1, -1)):
+                base = at((a0, s * 0.8, _top_of(B, a0) - 0.35))
+                tip = base + bm @ v3(-1.4 + 0.9 * up_, s * 0.5, 0.5 + cr.length * up_ * (1.0 - 0.06 * k))
+                P.add(L(base, tip, cr.r, 0.15, B.mats.saddle, "hackle", line=False))
+        return
+    if cr.get("kind") == "pebbles":
+        # M2, the riverstone ox: smooth river pebbles grown into its back (pale and rounded, each its own stone), moss
+        # in tufts between them and down its neck in a mane.
+        for k, (a0, b0, r) in enumerate(cr.stones):
+            top = _top_of(B, a0)
+            q = at((a0, b0, top - 0.25 - 0.12 * abs(b0)))
+            P.add(E(q, (r * 1.2, r, r * 0.6), B.mats.pebble, "pebble%d" % (k % 2), bm @ rot("c", (k * 37) % 40 - 20.0)))
+        for k in range(cr.moss):
+            a0 = 6.4 - k * 1.25
+            b0 = (0.9 if k % 2 else -0.9) * (0.4 + 0.6 * ((k * 7) % 3) / 2.0)
+            q = at((a0, b0, _top_of(B, a0) - 0.1))
+            P.add(E(q, (0.9, 0.7, 0.5), B.mats.moss, "moss", bm, line=False))
+        return
+    if cr.get("kind") == "fin":
+        # M2, the saurian: a webbed crest of spines down its back from the nape to the root of its tail, flaring up in
+        # its tell; the web between the spines a pale fin, the spines a step darker.
+        flare = B.pick("flare", a, f)
+        for k in range(cr.n):
+            u = k / (cr.n - 1.0)
+            a0 = cr["from"] + (cr.to - cr["from"]) * u
+            h = cr.height * (0.55 + 0.9 * math.sin(math.pi * min(1.0, 0.15 + u))) * (1.0 + 0.9 * flare)
+            base = at((a0, 0.0, _top_of(B, a0) - 0.4))
+            tip = base + bm @ v3(-0.5 - 0.4 * (1.0 - flare), 0.0, h)
+            P.add(E((base + tip) * 0.5, (0.75, 0.2, h * 0.55 + 0.2), B.mats.fin, "crest", bm, line=False))
+            P.add(L(base, tip, cr.r, 0.1, B.mats.fin, "crest", line=False))
+            P.mark(tip, M.RAMPS[B.mats.fin][1])
+        return
     if cr.get("kind") == "thorns":
         for k in range(cr.n):
             a0 = cr.at[0] - k * cr.step
@@ -670,7 +865,199 @@ def _head_canine(P, B, c) -> None:
                 P.fx.append((tip + d * t, M.DUST if t < 1.5 else M.DUST_DIM))
 
 
+def _top_of(B, a0: float) -> float:
+    """The height of the body's back over its spine at `a0` along it (in its own frame, before the pivot): the highest
+    of its pieces there."""
+    top = 0.0
+    for piece in B.parts.body:
+        (pa, _), h = piece.at
+        ra, _, rc = (lin(x, 0.0, 0.0) for x in piece.r)
+        t = (a0 - pa) / ra
+        if abs(t) < 1.0:
+            top = max(top, lin(h, 0.0, 0.0) + rc * math.sqrt(1.0 - t * t))
+    return top
+
+
+def _head_cervid(P, B, c) -> None:
+    """M2, the hollow stag: a long neck from its chest carrying its head high, a long muzzle to a dark nose, ears out to
+    its sides, empty white eyes in a cold halo, and broken branching antlers (a beam sweeping back and up with tines
+    forward off it, one snapped short), levelled before it as it drops its head in its tell and charges."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.6 * fr)
+    hpitch = c.hpitch
+    drop_ = min(0.0, hpitch) / 34.0                   # 0 .. -1 as it lowers its head
+    hm = bm @ rot("c", yaw) @ rot("b", h.pitch[0] + hpitch + h.pitch[1] * fr)
+    (ha, hf), (hz, hzf, hzb) = h.at
+    hc = at((ha + hf * fr - 1.6 * drop_, 0.0, hz + hzf * fr + hzb * bk + 3.4 * drop_))
+    hp = lambda q: hc + hm @ v3(q)
+    n0, r0, r1 = h.neck
+    P.add(L(at(n0), hc + hm @ v3(-0.8, 0.0, -0.6), r0, r1, m.hide, "neck", c.paint))
+    P.add(E(hc, h.skull, m.hide, "head", hm, c.paint))
+    q0, q1, mr0, mr1 = h.muzzle
+    P.add(L(hp(q0), hp(q1), mr0, mr1, m.hide, "head", c.paint))
+    P.mark(hp(h.nose), M.RAMPS[m.hoof][0])
+    (ea, eb, ec), er = h.ears
+    an = h.antlers
+    for s in (1, -1):
+        flick = 16.0 if a == "idle" and f in (3, 4) and s > 0 else 0.0
+        P.add(E(hp((ea, s * eb, ec)), er, m.hide, "ear%d" % s, hm @ rot("a", s * (20.0 + flick))))
+        eye = hp((h.eyes.at[0], s * h.eyes.at[1], h.eyes.at[2]))
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.HOLLOW_EYE)
+            P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.EYE_HALO)
+        beam = [hp((x, s * y, z)) for x, y, z in an.beam]
+        nb = len(beam) - 1
+        for i in range(nb):
+            r0_ = an.r[0] + (an.r[1] - an.r[0]) * i / nb
+            r1_ = an.r[0] + (an.r[1] - an.r[0]) * (i + 1) / nb
+            P.add(L(beam[i], beam[i + 1], r0_, r1_, m.antler, "antler%d" % s))
+        for j, (i, d) in enumerate(an.tines):
+            short = 0.35 if (j in an.broken and s > 0) else 1.0
+            tip = beam[i] + hm @ v3(d[0] * short, s * d[1] * short, d[2] * short)
+            P.add(L(beam[i], tip, an.r[0] * 0.7, an.r[1] if short == 1.0 else an.r[0] * 0.5, m.antler, "antler%d" % s))
+            if short < 1.0:
+                P.mark(tip, M.RAMPS[m.antler][0])
+    # Grey mist seeping off it.
+    if a != "death":
+        for k in range(5):
+            u = (k * 0.29 + f * 0.13) % 1.0
+            q = at((-3.0 + k * 1.8, (k % 3 - 1) * 1.2, 3.4 + u * 4.0))
+            P.fx.append((q, M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
+
+
+def _head_bovid(P, B, c) -> None:
+    """M2, the riverstone ox: a broad heavy head carried low, a pale broad muzzle with dark nostrils (steam snorted from
+    them in its tell), two heavy horns curving out and up from its brow, ears out to the sides under them, a mossy
+    forelock, small dark eyes with a glint (gold in anger), shut when struck or beaten."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    angry = st.get("angry", False)
+    hm = bm @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    sniff = st.sniff[0] * wave(a, f, st.sniff[1]) if a == "idle" and "sniff" in st else 0.0
+    (ha, hf), (hz, hzf) = h.at
+    hc = at((ha + sniff + hf * fr, 0.0, hz + hzf * fr))
+    hp = lambda q: hc + hm @ v3(q)
+    P.add(L(at((5.6, 0.0, 1.6)), hc + hm @ v3(-1.6, 0.0, 0.4), 3.6, 2.8, m.head, "neck", c.paint))
+    P.add(E(hc, h.skull, m.head, "head", hm, c.paint))
+    P.add(E(hp(h.muzzle[0]), h.muzzle[1], m.snout, "muzzle", hm))
+    mq = h.muzzle[0]
+    for s in (1, -1):
+        P.mark(hp((mq[0] + h.muzzle[1][0] * 0.92, s * 0.8, mq[2] + 0.2)), M.RAMPS[m.snout][0])
+    hr = h.horn_r
+    for s in (1, -1):
+        pts = [hp((x, s * y, z)) for x, y, z in h.horns]
+        for i in range(len(pts) - 1):
+            P.add(L(pts[i], pts[i + 1], hr[i], hr[i + 1], m.horn, "horn%d" % s))
+        (ea, eb, ec), er = h.ears
+        flick = 14.0 if a == "idle" and f in (2, 3) and s > 0 else 0.0
+        P.add(E(hp((ea, s * eb, ec)), er, m.head, "ear%d" % s, hm @ rot("a", s * (10.0 + flick))))
+        eye = on(hc, h.skull, hm, s * 48.0, 14.0)
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.head][0])
+        else:
+            P.eye(eye, M.OX_EYE if angry else M.INKY)
+            P.mark(on(hc, h.skull, hm, s * 40.0, 24.0), M.GLINT)
+    for k in range(3):
+        P.add(E(hp((0.4 - k * 0.7, (k - 1) * 0.9, h.skull[2] * 0.85)), (0.8, 0.7, 0.45), m.moss, "forelock", hm, line=False))
+    if a == "windup" and f in st.get("snort", ()):
+        nose = hp((mq[0] + h.muzzle[1][0] + 0.3, 0.0, mq[2]))
+        for k in range(6):
+            d = hm @ v3(0.8 + 0.3 * k, (k % 3 - 1) * 0.8, -0.3 + 0.25 * k)
+            P.fx.append((nose + d * (1.0 + 0.4 * k), M.STEAM if k % 2 else M.STEAM_DIM))
+
+
+def _head_saurian(P, B, c) -> None:
+    """M2, the rapids lizard: a wedge of a head on a short neck, a tapering snout, a jaw that drops in its hiss on a dark
+    red maw and small teeth, amber eyes with a slit under a brow ridge, a cheek fin fanning behind each jaw (flared in its
+    tell); the pale under its jaw."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.5 * fr)
+    hm = bm @ rot("c", yaw - 0.6 * c.wig) @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), hz = h.at
+    hc = at((ha + hf * fr, 0.0, lin(hz, fr, bk)))
+    hp = lambda q: hc + hm @ v3(q)
+
+    def face(q, n):
+        loc = (q - hc) @ hm
+        nl = n @ hm
+        pale = (nl[:, 2] < -0.35) | (loc[:, 2] < -0.75)
+        return np.where(pale, m.pale, m.coat).astype(object), np.zeros(len(q), dtype=np.int16)
+
+    n0, r0, r1 = h.neck
+    P.add(L(at(n0), hc + hm @ v3(-0.8, 0.0, -0.2), r0, r1, m.coat, "neck", c.paint))
+    P.add(E(hc, h.skull, m.coat, "head", hm, face))
+    q0, q1, sr0, sr1 = h.snout
+    P.add(L(hp(q0), hp(q1), sr0, sr1, m.coat, "head", face))
+    gape = B.pick("gape", a, f)
+    j = h.jaw
+    if gape > 0.05:
+        jm = hm @ rot("b", -gape * j.turn)
+        hinge = hp(j.at)
+        P.add(E(hinge + hm @ rot("b", -gape * j.turn * 0.5) @ v3(1.8, 0.0, 0.05), (1.6, 0.9, 0.35), m.maw, "maw", hm, line=False))
+        P.add(L(hinge, hinge + jm @ v3(j.to), j.r[0], j.r[1], m.pale, "jaw"))
+        for s in (1, -1):
+            P.mark(hp((2.6, s * 0.55, -0.75)), M.FANG)
+    flare = B.pick("flare", a, f)
+    ey, ch = h.eyes, h.cheek
+    for s in (1, -1):
+        # The brow ridge over the eye, the eye amber with a dark slit (shut when struck, when it dies).
+        P.add(E(hp((ey.at[0], s * (ey.at[1] - 0.25), ey.at[2] + 0.35)), (0.9, 0.45, 0.35), m.coat, "brow", hm, line=False))
+        eye = hp(ey.at[0:1] + (s * ey.at[1],) + ey.at[2:3])
+        if shut(ey, a, f):
+            P.mark(eye, M.RAMPS[m.coat][0])
+        else:
+            P.eye(eye, colour(ey.colour))
+            P.mark(eye + hm @ v3(0.3, 0.0, 0.0), M.INKY)
+        # The cheek fin: spines fanning back and out behind the jaw, webbed.
+        root = hp((ch.at[0], s * ch.at[1], ch.at[2]))
+        for k in range(ch.n):
+            ang = math.radians(-35.0 + 35.0 * k)
+            d = hm @ v3(-math.cos(ang) * 0.8, s * (0.5 + 0.6 * flare), math.sin(ang))
+            tip = root + d * ch.length * (1.0 + 0.5 * flare)
+            P.add(L(root, tip, 0.3, 0.1, m.fin, "cheek%d" % s, line=False))
+    if a == "windup" and gape > 0.6:
+        # The hiss: short lines off its open jaws.
+        tip = hp(q1)
+        for k in range(3):
+            d = hm @ v3(1.0, (k - 1) * 0.8, 0.3 + (k - 1) * 0.3)
+            for t in (1.0, 1.7):
+                P.fx.append((tip + d * t, M.DUST if t < 1.5 else M.DUST_DIM))
+
+
 # ------------------------------------------------------------------------------------------------ legs
+def _legs_sprawl(P, B, c) -> None:
+    """M2, the saurian: legs splayed out to its sides, the elbow and knee raised over the ground beside the body, the
+    foot planted out wide on four splayed toes; a trot in diagonal pairs; curled up over its belly as it dies on its
+    back."""
+    g, m = B.parts.legs, B.mats
+    a, f, fr, bk, at, lunge = c.action, c.f, c.fr, c.bk, c.at, c.lunge
+    for name, a0, s, off in (("fl", g.fore, 1, 0.0), ("fr", g.fore, -1, 0.5), ("hl", g.hind, 1, 0.5), ("hr", g.hind, -1, 0.0)):
+        front = name[0] == "f"
+        lift, stride = gait(a, f, off, g.lift, g.stride)
+        top = at((a0, s * 1.5, g.top))
+        out = g.out * (1.0 + 0.1 * (fr + bk))
+        # The upper limb out to the side at the body's height, the lower one down to the foot planted further out.
+        elbow = v3(top[0] + (0.5 if front else -0.5) + stride * 0.5, s * out, g.elbow + lift * 0.7)
+        foot = v3(lunge + a0 + stride + (0.9 if front else -0.7), s * g.reach * (1.0 + 0.1 * (fr + bk)), 0.35 + lift)
+        if c.curl > 0.0:
+            foot = foot + (top + c.bm @ v3(0.4, s * 1.2, -2.6) - foot) * c.curl
+            elbow = elbow + (top + c.bm @ v3(0.2, s * 1.8, -1.2) - elbow) * c.curl
+        r0, r1, r2 = g.r
+        P.add(L(top, elbow, r0, r1, _skin(B), "leg_" + name, c.paint), L(elbow, foot, r1, r2, _skin(B), "leg_" + name))
+        for t in (-40.0, -12.0, 14.0, 40.0):
+            ang = math.radians(t + (20.0 if s > 0 else -20.0) * (0.0 if front else 1.0))
+            d = v3(math.cos(ang) * (1.0 if front else 0.6), s * abs(math.sin(ang)) * 0.8 + math.sin(ang) * 0.5, -0.1)
+            P.add(L(foot, foot + d * g.toe, 0.28, 0.16, _skin(B), "toe_" + name, line=False))
+
+
+# ------------------------------------------------------------------------------------------------ legs (the earlier kinds)
 def _legs_paw(P, B, c) -> None:
     """Short forelegs and haunches with long feet; the scurry lands the forepaws together, then the hind; in a rearing
     tell the forepaws lift off the ground."""
@@ -738,11 +1125,12 @@ def _legs_hoof(P, B, c) -> None:
         if "fold_front" in st:
             fold = st.fold_front[f] if front else st.fold_hind[f]
             foot = foot + v3(-2.6 * fold if front else 1.2 * fold, 0.0, 1.6 * fold)
-        l1, l2 = (3.0, 2.9) if front else (3.1, 3.0)
+        l1, l2 = ((3.0, 2.9) if front else (3.1, 3.0)) if "bones" not in B.parts.legs else B.parts.legs.bones[0 if front else 1]
         knee, end = ik2(top, foot, l1, l2, v3(1.0 if front else -1.0, 0.0, 0.0))
-        P.add(L(top, knee, 1.7 if front else 2.0 + 0.5 * bk, 1.2, m.hide, "leg_" + name),
-              L(knee, end, 1.15, 0.95, m.hide, "leg_" + name))
-        P.add(E(end + v3(0.3, 0.0, -0.25), (1.15, 1.0, 0.8), m.hoof, "leg_" + name))
+        th = B.parts.legs.get("thick", 1.0)          # M2: the ox's heavier legs
+        P.add(L(top, knee, (1.7 if front else 2.0 + 0.5 * bk) * th, 1.2 * th, m.hide, "leg_" + name),
+              L(knee, end, 1.15 * th, 0.95 * th, m.hide, "leg_" + name))
+        P.add(E(end + v3(0.3, 0.0, -0.25), (1.15 * th, 1.0 * th, 0.8 * th), m.hoof, "leg_" + name))
 
 
 def _legs_dig(P, B, c) -> None:
@@ -863,7 +1251,14 @@ def _tail_brush(P, B, c) -> None:
     for k in range(n):
         u0, u1 = k / float(n), (k + 1) / float(n)
         mat = m.tip if u0 >= 1.0 - t.tip - 1e-6 else _skin(B)
-        P.add(L(pts[k], pts[k + 1], _brush_r(t, u0), _brush_r(t, u1), mat, "tail", caps=k == 0))
+        P.add(L(pts[k], pts[k + 1], _brush_r(t, u0), _brush_r(t, u1), mat, "tail", caps=k == 0, line=not t.get("mist") or k < n // 2))
+    if t.get("mist"):
+        # M2, the mist wolf: its tail frays into mist past its root, puffs drifting off it.
+        tip = pts[-1]
+        for k in range(9):
+            u = (k * 0.137 + f * 0.09) % 1.0
+            q = pts[max(1, n - 3)] + (tip - pts[max(1, n - 3)]) * (0.5 + u) + v3(-u * 2.0, 0.6 * math.sin(k * 2.1 + f), 0.4 * u + 0.3 * (k % 2))
+            P.fx.append((q, M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
     if t.get("flame"):
         flare = 1.0 + (0.4 + 0.25 * f if a == "windup" and f in st.get("flare", ()) else 0.0)
         tip = pts[-1]
@@ -874,6 +1269,49 @@ def _tail_brush(P, B, c) -> None:
             P.glow.append((q, M.FLAME_CORE if k < 3 else (M.FLAME if k < 7 else M.FLAME_DEEP)))
         for k in range(4):
             P.glow.append((tip + v3(0.2 * k - 0.3, 0.3 * (k - 1.5), 2.0 * flare + k * 0.7 + (f % 2) * 0.5), M.FLAME_GLOW))
+
+
+def _tail_fin(P, B, c) -> None:
+    """M2, the saurian: a long tail tapering from the rump to a point, a webbed fin along its top; waving in an S as it
+    basks and scurries (swept out to one side head-on, so it shows beside the body); raised and curled over its back in
+    its tell; lagging behind as it whirls (`lag`), so it sweeps round in an arc."""
+    t, m = B.parts.tail, B.mats
+    a, f, fr, bk, at = c.action, c.f, c.fr, c.bk, c.at
+    up = B.pick("tailup", a, f)
+    lag = B.pick("lag", a, f)
+    ph = f / (6.0 if a == "idle" else 8.0) * math.tau
+    sway = (1.0 if a == "idle" else 1.8) if a in ("idle", "walk") else 0.0
+    root = at((t.root[0], 0.0, t.root[1]))
+    pts = [root]
+    step = t.length / t.n
+    for k in range(1, t.n + 1):
+        u = k / float(t.n)
+        th = math.radians(up * 260.0 * u)                     # 0: straight back, curling up over and forward
+        # Its sway an S down it; head-on or tail-on swept out to one side, so it shows beside the body; lagging round.
+        side = sway * 0.55 * math.sin(ph - u * 3.0) * u + (1.5 * fr + 0.7 * bk) * (0.25 + u) - c.wig * 0.015 * u
+        side += math.radians(lag) * 1.1 * u
+        d = v3(-math.cos(th) * (1.0 - 0.45 * fr * (1.0 - up)), side, math.sin(th) * (1.0 if up > 0.0 else 0.0) - (0.18 if up <= 0.0 else 0.0))
+        d = d / float(np.linalg.norm(d))
+        q = pts[-1] + d * step
+        q[2] = max(q[2], 0.5)
+        if c.curl > 0.0:
+            q[2] = max(q[2] - c.curl * 0.0, 0.5)
+        pts.append(q)
+    for k in range(t.n):
+        r0 = t.r[0] + (t.r[1] - t.r[0]) * k / t.n
+        r1 = t.r[0] + (t.r[1] - t.r[0]) * (k + 1) / t.n
+        P.add(L(pts[k], pts[k + 1], r0, r1, _skin(B), "tail", c.paint, caps=k == 0))
+        if k < t.n - 2:
+            mid = (pts[k] + pts[k + 1]) * 0.5
+            seg = pts[k + 1] - pts[k]
+            seg = seg / max(1e-6, float(np.linalg.norm(seg)))
+            upv = np.cross(np.cross(seg, v3(0.0, 0.0, 1.0)), seg)
+            upv = upv / max(1e-6, float(np.linalg.norm(upv)))
+            if up > 0.5:
+                upv = -upv if upv[2] < 0.0 else upv
+            fin = t.fin * (1.0 - k / t.n) * (1.0 + 0.5 * B.pick("flare", a, f))
+            mm = np.stack([seg, np.cross(upv, seg), upv], axis=1)
+            P.add(E(mid + upv * (r0 + fin * 0.4), (step * 0.6, 0.18, fin * 0.6 + 0.15), m.fin, "tailfin", mm, line=False))
 
 
 def _tail_stub(P, B, c) -> None:
@@ -982,8 +1420,24 @@ def _finish(P, B, c) -> None:
     roll = B.pick("roll", a, f)
     if roll:
         topple(P, roll, B.parts.Z, B.parts.side)
+    spin = B.pick("spin", a, f)
+    if spin % 360.0:
+        # M2, the saurian's whirl: the whole body turned about its middle on the ground.
+        P.m = rot("c", spin)
+        mid = v3(c.lunge + B.parts.mid, 0.0, 0.0)
+        P.shift = mid - P.m @ mid
+    if a == "attack" and f in B.style(a).get("streaks", ()):
+        for k in range(10):
+            ang = math.radians(B.pick("spin", a, f) + 150.0 + k * 9.0)
+            rr = 9.0 + (k % 3) * 1.5
+            P.fx.append((v3(c.lunge + B.parts.get("mid", 0.0) + math.cos(ang) * rr, math.sin(ang) * rr, 0.5 + (k % 2) * 0.6),
+                         M.DUST if k % 2 else M.DUST_DIM))
     if a == "death" and B.opts.get("hollowed"):
         P.dissolve = B.pick("dissolve", a, f)
         P.dissolve_col = M.MOTE
+    elif a == "death" and B.opts.get("misty"):
+        # M2, the mist wolf: it comes apart into mist as it dies.
+        P.dissolve = B.pick("dissolve", a, f)
+        P.dissolve_col = M.MIST_PUFF
     if c.sa != 1.0 or c.sc != 1.0:
         P.squash(c.sa, 1.0 / math.sqrt(c.sa * c.sc), c.sc, (c.lunge, 0.0, 0.0))

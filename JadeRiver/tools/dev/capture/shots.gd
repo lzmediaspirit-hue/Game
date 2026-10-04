@@ -574,6 +574,46 @@ static func sets() -> Dictionary:
 			["foes", Vector2(34, 11), [["gorge_bandit_adept", Vector2(4, 1)], ["gorge_bandit_adept", Vector2(-4, 1)]], true],
 			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]}]}
 
+	# M2: the monster engine's second batch (tools/content/monsters/specs/): the gorge's, the bend's and the quarry rim's
+	# beasts (a), the crane cliffs' and Mist Peak's (b), the summit's and the bosses (c), lined up on the Reed Shallows
+	# beside drawn foes for scale; every pose of the E2 set, their elites, and live fights in the top-down rooms they live in.
+	var m2 := []
+	for lu in [["a", M2_LINEUP_A], ["b", M2_LINEUP_B], ["c", M2_LINEUP_C]]:
+		m2.append({"do": [["lineup", lu[1]]]})
+		for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+				["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+				["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+			m2.append({"name": lu[0] + "_" + st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+		m2.append({"name": lu[0] + "_09_falling", "do": [["fell_lineup"]]})
+	for el in [["d", M2_ELITES_A], ["e", M2_ELITES_B], ["f", M2_ELITES_C]]:
+		m2.append({"do": [["lineup", el[1]]]})
+		m2.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
+		m2.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
+	# A fight in the species' own room, as M1's: the room's own foes cleared, the batch's set on the player at Level 1.
+	var m2_fights := []
+	for ft in [["12_fight_rapids_terraces", "wg_rapids_terraces", Vector2(32, 15), [["rapids_lizard", Vector2(4, 1)], ["rapids_lizard", Vector2(-4, 2)]]],
+			["13_fight_echo_cliffs", "wg_echo_cliffs", Vector2(26, 14), [["boulder_serpent", Vector2(4, 1)], ["mist_vulture", Vector2(-4, -1)]]],
+			["14_fight_serpents_shallows", "dw_serpents_shallows", Vector2(36, 9), [["riverbed_serpent", Vector2(0, 5)]]],
+			["15_fight_quarry_rim", "sq_quarry_rim", Vector2(31, 15), [["riverstone_ox", Vector2(4, 1)], ["riverstone_ox", Vector2(-4, 2)]]],
+			["16_fight_cliff_faces", "cc_cliff_faces", Vector2(36, 16), [["cloudwing_crane", Vector2(4, 0)], ["stormwing_hawk", Vector2(-4, -1)]]],
+			["17_fight_sky_ledges", "cc_sky_ledges", Vector2(29, 19), [["cliff_ape", Vector2(4, 1)], ["stormwing_hawk", Vector2(-4, -1)]]],
+			["18_fight_misty_slopes", "mp_misty_slopes", Vector2(38, 15), [["mist_wolf", Vector2(4, 1)], ["mist_wolf", Vector2(-4, 2)],
+				["mirror_wisp", Vector2(2, -2)], ["rogue_treasure_adept", Vector2(-3, -2)]]],
+			["19_fight_forgotten_monastery", "mp_forgotten_monastery", Vector2(37, 18), [["weeping_lantern", Vector2(3, -2)], ["jade_sentinel", Vector2(4, 1)],
+				["jade_sentinel", Vector2(-4, 1)]]],
+			["20_fight_windswept_ridge", "sr_windswept_ridge", Vector2(49, 15), [["hollow_stag", Vector2(4, 1)], ["cloudpeak_roc", Vector2(-4, -1)]]],
+			["21_fight_frozen_shrine", "sr_frozen_shrine", Vector2(27, 17), [["mirror_wisp", Vector2(3, -2)], ["cloudpeak_roc", Vector2(-4, 0)]]],
+			["22_fight_ascension_gate", "mp_ascension_gate", Vector2(36, 15), [["gate_guardian", Vector2(5, 0)]]],
+			["23_fight_boss_den", "mh_boss_den", Vector2(28, 14), [["big_toad_tan", Vector2(4, 0)], ["mudwater_bandit", Vector2(-3, 2)]]],
+			["24_fight_abbots_sanctum", "ds_abbots_sanctum", Vector2(30, 13), [["drowned_abbot", Vector2(5, 0)]]],
+			["25_fight_gus_warehouse", "si_gus_warehouse", Vector2(25, 12), [["elder_gu", Vector2(5, 0)]]]]:
+		m2_fights.append({"name": ft[0], "room": ft[1], "cell": ft[2], "wait": 60, "do": [["clear_enemies"], ["close_pages"], ["foes", ft[2], ft[3], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]})
+	s["monsters_m2"] = {"doc": "M2: the monster engine's second batch (the gorge's, the bend's, the quarry rim's, the crane cliffs', Mist Peak's and the summit's beasts and spirits, the gate guardian, the rogue mirror adept; Big Toad Tan, the Drowned Abbot and Elder Gu sculpted as bosses of their own build) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their own top-down rooms under the HUD (--tag=after)",
+		"out": "redesign/feedback/monsters/m2/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m2 + [
+		{"do": [["paused", false], ["hud", "visible", true]]}] + m2_fights}
+
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
 		"out": "redesign/feedback/hud/", "vars": {"tag": "after"}, "stage": hud_stage, "rows": [
@@ -896,6 +936,30 @@ const M1_ELITES_B := [["thornback_boar", Vector2(-7.5, -2.4), false], ["thornbac
 	["jade_carp", Vector2(3.0, -2.4), false], ["jade_carp", Vector2(7.0, -2.4), true],
 	["tide_crab", Vector2(-7.5, 2.2), true], ["mudwater_bandit", Vector2(-4.0, 2.2), false], ["mudwater_bandit", Vector2(3.0, 2.2), true],
 	["rogue_cultivator", Vector2(7.0, 2.2), true]]
+# M2: the monster engine's second batch, by where they live, beside drawn foes for scale (a Mudwater bandit, the reed rat,
+# the rock beetle), the tall ones on the near row so the shot holds them whole; and their elites beside them.
+const M2_LINEUP_A := [["rapids_lizard", Vector2(-7.5, -2.6), false], ["boulder_serpent", Vector2(-3.5, -2.6), false],
+	["mist_vulture", Vector2(2.5, -2.6), false], ["riverstone_ox", Vector2(7.0, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.4), false], ["reedtail_rat", Vector2(-4.0, 2.4), false], ["riverbed_serpent", Vector2(3.0, 1.8), false],
+	["rock_beetle", Vector2(7.5, 2.4), false]]
+const M2_LINEUP_B := [["cloudwing_crane", Vector2(-7.5, -2.6), false], ["stormwing_hawk", Vector2(-3.5, -2.6), false],
+	["mirror_wisp", Vector2(2.5, -2.6), false], ["weeping_lantern", Vector2(6.5, -2.6), false],
+	["cliff_ape", Vector2(-7.5, 2.4), false], ["mist_wolf", Vector2(-3.5, 2.4), false], ["jade_sentinel", Vector2(2.5, 2.4), false],
+	["rogue_treasure_adept", Vector2(6.5, 2.4), false]]
+const M2_LINEUP_C := [["hollow_stag", Vector2(-3.0, -2.6), false], ["cloudpeak_roc", Vector2(3.0, -2.6), false],
+	["mudwater_bandit", Vector2(7.5, -2.6), false],
+	["gate_guardian", Vector2(-7.0, 1.6), false], ["big_toad_tan", Vector2(-2.4, 1.6), false], ["drowned_abbot", Vector2(2.4, 1.6), false],
+	["elder_gu", Vector2(6.5, 1.6), false]]
+const M2_ELITES_A := [["rapids_lizard", Vector2(-7.5, -2.4), false], ["rapids_lizard", Vector2(-3.5, -2.4), true],
+	["boulder_serpent", Vector2(2.5, -2.4), false], ["boulder_serpent", Vector2(7.0, -2.4), true],
+	["cloudwing_crane", Vector2(-7.5, 2.2), false], ["cloudwing_crane", Vector2(-3.5, 2.2), true],
+	["stormwing_hawk", Vector2(3.0, 2.2), false], ["stormwing_hawk", Vector2(6.5, 2.2), true]]
+const M2_ELITES_B := [["mist_wolf", Vector2(-7.5, -2.4), false], ["mist_wolf", Vector2(-3.0, -2.4), true],
+	["mirror_wisp", Vector2(2.5, -2.4), false], ["mirror_wisp", Vector2(6.5, -2.4), true],
+	["weeping_lantern", Vector2(-7.5, 2.2), false], ["weeping_lantern", Vector2(-4.0, 2.2), true],
+	["rogue_treasure_adept", Vector2(3.0, 2.2), false], ["rogue_treasure_adept", Vector2(6.5, 2.2), true]]
+const M2_ELITES_C := [["hollow_stag", Vector2(-7.0, -2.4), false], ["hollow_stag", Vector2(-3.0, -2.4), true],
+	["cloudpeak_roc", Vector2(-5.5, 2.4), false], ["cloudpeak_roc", Vector2(4.5, 2.4), true]]
 
 ## The sand and snow sampler's paint (40 x 22 cells, the phone's view). West: meadow, a dirt path and a paved corner round
 ## a sand flat, its beach on the water and a jetty. East: a snow field on the meadow with a packed-snow path through it,

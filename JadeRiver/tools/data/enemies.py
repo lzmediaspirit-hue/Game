@@ -84,11 +84,9 @@ CLIMBERS = {"bamboo_monkey", "cliff_ape"}
 
 # The people's outfits (the side view's avatar; the top-down figure dresses them in the same). A species with a spec in
 # the monster engine says its own (content.monsters.person: the Mudwater bandits and archers, Lieutenant Kuai, Big Toad
-# Tan, the drowned acolytes and their abbot, the rogue cultivators, the gorge's bandit adepts).
+# Tan, the drowned acolytes and their abbot, the rogue cultivators and the rogue mirror adept, the gorge's bandit adepts, Elder
+# Gu).
 HUMAN = {
-    # S47 rogue cultivators: what they carry in the open is what they drop.
-    "rogue_treasure_adept": {"hair": "topknot", "hair_color": 4, "shirt": "scholar", "pants": "loose", "shoes": "slippers", "weapon": "none", "hat": "guan"},
-    "elder_gu": {"hair": "long_tied", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "none", "hat": "none"},
     "shen_lian": {"hair": "high_pony", "hair_color": 2, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "none", "hat": "none"},
     "wen_zhao": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "none"},
     "young_master": {"hair": "flowing", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "folded", "weapon": "sword", "hat": "guan",
@@ -170,7 +168,7 @@ NAMES = {"kuai_shan": "Kuai Shan", "tan_the_younger": "Tan the Younger", "gorge_
          "one_eye_pang": "One-Eye Pang", "ferryman_lou": "Ferryman Lou", "knife_hand_sui": "Knife-Hand Sui",
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
          "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
-         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "rogue_treasure_adept": "Rogue Mirror Adept", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
+         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "pirate_captain": "Comet Captain Rao", "nine_peaks_disciple": "Rogue Nine Peaks Disciple", "presence_phantom": "Presence of a Seat",
          "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "pirate_gunner": "Pirate Gunner", "admiral_voss": "Admiral Voss", "ironpine_warden": "Warden Dai Song",
          "blackreed_disciple": "Blackreed Disciple", "blackreed_warden": "Warden Qu Heng", "scarlet_kiln_disciple": "Scarlet Kiln Disciple",
          "scarlet_kiln_warden": "Warden Rong Yan"}
@@ -270,42 +268,22 @@ def build():
         spec_row("tide_crab"),
         spec_row("drowned_acolyte"),
         spec_row("paper_talisman_ghost"),
-        mob("rapids_lizard", (28, 31), "normal", "water", "gorge", [d("lizard_scale", 0.5), d("pearl", 0.1)],
-            [atk("tail_whip", 0.4, 60, 1.0, both_sides=True)], ai="melee", speed=130, width=26, height=22),
+        spec_row("rapids_lizard"),
         spec_row("gorge_bandit_adept"),
         # S47 rogue cultivators: elites whose visible weapon or treasure is a guaranteed drop, with a sealed pouch.
         spec_row("rogue_cultivator"),
-        mob("rogue_treasure_adept", (48, 50), "elite", "water", None, [d("bright_mirror", 1.0), d("sealed_storage_pouch", 1.0, (1, 2))],
-            [atk("palm_of_tides", 0.5, 70, 1.2), atk("mirror_flash", 0.8, 300, 1.2, damage_type="qi", projectile={"speed": 520, "art": "qi_arc"})],
-            ai="humanoid", art=human("rogue_treasure_adept"), race="human", energy="true_qi", width=18, height=90, guards=True),
-        mob("boulder_serpent", (32, 35), "normal", "earth", "gorge", [d("serpent_scale", 0.5), d("jadeiron", 0.2)],
-            [atk("boulder_roll", 0.6, 50, 1.2, dash=160)], ai="charger", speed=60, width=34, height=34),
-        mob("mist_vulture", (34, 36), "normal", "wind", "gorge", [d("vulture_plume", 0.5)],
-            [atk("dive", 0.6, 60, 1.2, dash=120)], ai="flyer", speed=100, flying=True, width=26, height=40),
-        mob("cloudwing_crane", (37, 40), "normal", "wind", "cliffs", [d("cloud_feather", 0.5)],
-            [atk("swoop", 0.5, 60, 1.0, dash=120)], ai="flyer", speed=110, flying=True, width=26, height=50),
-        mob("stormwing_hawk", (38, 43), "normal", "thunder", "cliffs", [d("storm_feather", 0.5)],
-            [atk("lightning_dive", 0.55, 60, 1.2, dash=140, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
-            ai="flyer", speed=140, flying=True, width=22, height=34,
-            pet_book={"item": "pet_book_thunder_roar", "chance": 0.25, "elite_only": True}),   # S46: only the elite
-        mob("cliff_ape", (41, 45), "normal", "earth", "cliffs", [d("ape_fur", 0.5), d("cloudtop_orchid", 0.05)],
-            [atk("smash", 0.5, 60, 1.2), atk("boulder_throw", 0.7, 320, 1.3, projectile={"speed": 360, "art": "boulder"})],
-            ai="humanoid", speed=90, width=28, height=56),
-        mob("mist_wolf", (46, 50), "normal", "water", "mist_peak", [d("mist_pelt", 0.5)], [atk("lunge", 0.4, 50, 1.0, dash=60)],
-            ai="melee", speed=150, pack=True, tameable=True, width=28, height=34, hidden_in_fog=True),
-        mob("mirror_wisp", (47, 51), "normal", "soul", "mist_peak", [d("mirror_dust", 0.5), d("soul_core_high", 0.02)],
-            [atk("soul_flash", 0.6, 240, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
-            ai="flyer_ranged", speed=70, flying=True, width=18, height=30),
-        mob("weeping_lantern", (50, 55), "normal", "soul", "mist_peak", [d("lantern_wick", 0.4), d("soul_wax", 0.4), d("soul_core_high", 0.03)],
-            [atk("flare", 0.7, 90, 1.0, damage_type="soul", depth=50, both_sides=True,
-                 status={"id": "confusion", "chance": 0.3, "power": 1, "duration_s": 2})], ai="flyer", speed=50, flying=True, width=18, height=44,
-            elite_first_defeat=["mist_lantern_flame"]),   # the valley's Heavenly Flame (Part 8): the monastery's elite lantern carries it
-        mob("jade_sentinel", (52, 56), "normal", "earth", "mist_peak", [d("jade_core", 0.08), d("formation_stone", 0.5)],
-            [atk("halberd_sweep", 0.6, 90, 1.2, depth=36)], ai="slow_melee", speed=50, width=26, height=64, linked=True),
-        mob("hollow_stag", (55, 59), "normal", "hollow_wood", "summit", [d("hollow_antler", 0.4), d("hollow_shard", 0.2)],
-            [atk("antler_charge", 0.5, 60, 1.2, dash=140)], ai="charger", speed=120, width=30, height=56, hollowing=5, cleansable=True),
-        mob("cloudpeak_roc", (58, 63), "normal", "wind", "summit", [d("roc_feather", 0.5), d("mystic_ore", 0.1)],
-            [atk("wing_gust", 0.7, 160, 1.0, depth=60, knockback=120)], ai="flyer", speed=110, flying=True, width=40, height=50),
+        spec_row("rogue_treasure_adept"),
+        spec_row("boulder_serpent"),
+        spec_row("mist_vulture"),
+        spec_row("cloudwing_crane"),
+        spec_row("stormwing_hawk"),
+        spec_row("cliff_ape"),
+        spec_row("mist_wolf"),
+        spec_row("mirror_wisp"),
+        spec_row("weeping_lantern"),
+        spec_row("jade_sentinel"),
+        spec_row("hollow_stag"),
+        spec_row("cloudpeak_roc"),
         # Azure Expanse (Act II) · Thunderhorn Plains
         mob("spark_weasel", (64, 66), "normal", "thunder", "azure", [d("spark_pelt", 0.45), d("storm_shard", 0.35)],
             [atk("static_bite", 0.35, 50, 1.0, dash=70),
@@ -488,9 +466,7 @@ def build():
             ai="duelist", art=human("ironroot_warden"), race="human", width=20, height=92, spar=True),
         # Bosses
         spec_row("big_toad_tan"),
-        mob("riverbed_serpent", 25, "field_boss", "water", "bend", [d("serpent_core", 1.0), d("serpent_scale", 1.0, (2, 4))],
-            [atk("bite", 0.6, 110, 1.3, depth=40), atk("tail_flood", 1.0, 260, 1.0, depth=80, both_sides=True)], ai="boss_serpent",
-            width=70, height=150, respawn_min=45, flying=True, phases=[{"below": 0.5, "action": "flood"}]),
+        spec_row("riverbed_serpent"),
         mob("thousand_eye_toad", 68, "field_boss", "water", "azure", [d("mirror_eye", 1.0), d("storm_shard", 1.0, (6, 10)),
                                                                     d("dragonet_scale", 1.0, (2, 3))],
             [atk("belly_slam", 0.8, 140, 1.4, depth=60, knockback=140, both_sides=True),
@@ -508,20 +484,14 @@ def build():
         mob("heart_demon", 36, "normal", "none", None, [], [atk("whisper_of_doubt", 0.5, 70, 0.8, damage_type="soul")],
             ai="duelist", art={"avatar": "player", "tint": "#b0283c"}, race="human", energy="primal_qi", width=18, height=90,
             name="Heart Demon", hp_mult=0.5),
-        mob("elder_gu", 53, "story_boss", "water", None, [d("smuggler_ledger", 1.0)], [atk("tide_palm", 0.5, 90, 1.2, damage_type="qi")],
-            ai="humanoid", art=human("elder_gu"), race="human", energy="true_qi", width=18, height=90, flees_after_s=60, invulnerable=True,
-            # P1: Gu cannot be beaten here, so his phases run on the clock: hired blades at 20 s, a cornered rat at 40 s.
-            phases=[{"after_s": 20, "action": "summon", "summon": "gorge_bandit_adept", "summon_level": 50},
-                    {"after_s": 40, "action": "enrage", "cooldown": 0.7, "damage": 1.25}]),
+        spec_row("elder_gu"),
         mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
             [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120, shatter=True), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
             ai="boss_behemoth", width=80, height=140, hollowing=8,
             # P1: the Behemoth sheds Hollowed boarlets at 60% and stampedes without pause below 30%.
             phases=[{"below": 0.6, "action": "summon", "summon": "hollowed_boarlet", "summon_level": 56},
                     {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}]),
-        mob("gate_guardian", 63, "story_boss", "earth", None, [], [atk("ring_sweep", 0.7, 180, 1.3, both_sides=True, depth=70, knockback=100),
-                                                                   atk("soul_gaze", 0.9, 320, 1.1, damage_type="soul", projectile={"speed": 500, "art": "soul_bolt"})],
-            ai="boss_guardian", width=60, height=180, phases=[{"below": 0.66, "action": "soul_phase"}, {"below": 0.33, "action": "flight_phase"}]),
+        spec_row("gate_guardian"),
         # Shen Lian's spar (Fish-Gutting Fists) is a lesson: he spars at the player's own Level (`spar_level` "match", as
         # the sparring disciples do), his fist winds up as long as Old Snapper's claw (a tell a thumb can read), and he
         # says what the spar teaches as it starts and as it ends (`spar_lines`, the HUD). A Level-4 double beat the
@@ -640,8 +610,7 @@ def build():
                  mob(pid, (19, 24), "normal", el, None, [], [atk("nip", 0.4, 36, 0.8)], ai="wild_pet", tameable=True, width=18, height=28,
                      passive=True))
     # S46: the Riverstone Ox grazes Quarry Rim from Cloud Stride 1; a mount-only spirit beast, tamed like the others.
-    M.append(mob("riverstone_ox", (37, 38), "normal", "earth", None, [], [atk("horn_toss", 0.5, 50, 0.9)], ai="wild_pet", tameable=True,
-                 width=30, height=46, passive=True))
+    M.append(spec_row("riverstone_ox"))
     # The species specs not placed above (a new species needs no row here): after the hand rows, in the specs' order.
     M += MON.rows({m["id"] for m in M}, mob, atk, d)
     beast_ranks(M)
