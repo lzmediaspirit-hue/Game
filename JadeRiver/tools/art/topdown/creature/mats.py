@@ -636,6 +636,22 @@ RAMPS.update({
     "om_fur": _s("fffaf0", "ece2cf", "c3b4bc", "8f809e"),
     "om_antenna": _s("fff3c8", "e6cc88", "b8955a", "7d6040"),
     "om_eye": _r("0A0614", "120C22", "1E1638", "2E2450", "5A4C88"),
+    # nebula eel: deep teal, its magenta nebula clouds, its translucent violet fins, its dark violet gape, its fangs
+    "neel_teal": _s("86ecd9", "2b9fa8", "1d6585", "223a6a"),
+    "neel_mag": _s("ffa8dd", "cf4fa0", "8b2f88", "4b2366"),
+    "neel_fin": _s("d9ceff", "8f80d8", "6d5ec2", "56499f"),
+    "neel_mouth": _r("140620", "2A0F33", "3E1848", "52205E", "6A2C78"),
+    "neel_fang": _s("fffaf0", "efe6cf", "c4b8a2", "8f846f"),
+    # Nebula Leviathan: deep indigo hide, its pale star-white belly, teal and magenta nebula bands, translucent violet
+    # veils, ivory baleen, its dark mouth, the void it breathes
+    "nlev_hide": _s("5c68c0", "3d4298", "2a2b6c", "1c1a48"),
+    "nlev_belly": _s("f4f0ff", "cbc4ee", "9a92ca", "6c64a2"),
+    "nlev_teal": _s("94f0dc", "36b2aa", "257c8a", "1e506e"),
+    "nlev_mag": _s("ffaade", "cb52a0", "8b3289", "502668"),
+    "nlev_veil": _s("e2d8ff", "8a7cd4", "7466c4", "5a4ea6"),
+    "nlev_baleen": _s("fff4d0", "e6d29a", "b69a6a", "7a6448"),
+    "nlev_mouth": _r("0C0618", "1A0C2A", "2A1440", "3A1C54", "4E2868"),
+    "nlev_void": _r("05020C", "10081C", "1C0E30", "35165A", "5A2A8A"),
 })
 PROPS.update({
     "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
@@ -648,6 +664,11 @@ PROPS.update({
     "hd_wing": {"hi": True, "thin": True}, "hd_ghost": {"thin": True},
     "om_wing": {"thin": True}, "om_fringe": {"hi": True, "thin": True, "weight": 1.2}, "om_fur": {"hi": True, "weight": 1.2},
     "om_antenna": {"hi": True, "line": True, "weight": 1.5}, "om_eye": {"glossy": True, "weight": 1.8},
+    "neel_teal": {"hi": True, "glossy": True}, "neel_mag": {"hi": True, "weight": 1.2}, "neel_fin": {"hi": True, "thin": True},
+    "neel_mouth": {"weight": 1.5}, "neel_fang": {"hi": True, "weight": 1.6},
+    "nlev_hide": {"glossy": True}, "nlev_belly": {"hi": True}, "nlev_teal": {"hi": True, "weight": 1.2}, "nlev_mag": {"hi": True, "weight": 1.2},
+    "nlev_veil": {"hi": True, "thin": True}, "nlev_baleen": {"hi": True, "line": True, "weight": 1.4}, "nlev_mouth": {"weight": 1.5},
+    "nlev_void": {"weight": 1.6},
 })
 # The void crab's stars and the rift its claw tears (white, violet, deep).
 STAR_W = c("FFFFFF")
@@ -679,3 +700,14 @@ MOTE_ARM = c("8FF2E2")
 MOTE_DIM2 = c("4FA8A8")
 MOTH_PUFF = c("FBF4FF", 200)
 MOTH_PUFF_DIM = c("B2A2CF", 160)
+# The nebula eel's cyan eye and its dark socket, the wisps it unravels into; the leviathan's gold eye, its constellations'
+# faint lines and dead stars, the void's violet rim.
+NEEL_EYE = c("8FFCFF")
+NEEL_SOCKET = c("141238")
+NEEL_WISP = c("86ECD9", 190)
+NEEL_WISP_MAG = c("FFA8DD", 170)
+LEVI_EYE = c("FFD66A")
+LEVI_CLINE = c("6F7FD0")
+LEVI_STAR_OFF = c("4A4F8E")
+LEVI_VOID_RIM = c("8B52D8")
+LEVI_VOID_HI = c("E8DCFF")
