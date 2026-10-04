@@ -171,18 +171,12 @@ ALSO = {
     "fortune_encounter": ("Relations", "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows."),
 }
 
-# S12a: events only the side view's movement solver emitted. On the grid nothing does (TopdownPlayer announces the
-# motor's wall kicks, arts, climbs and boardings, not its jumps, landings, falls or water), so their reactors wait:
-# the paths above (Achievement, a landing on a named side-view surface), the remount after a landing (Pets), a fall's
-# fade, fortune and Hidden Cave (main, Combat, Relations, living_world), the deep water's step (cues). contract_tests
-# checks a dormant event is named by none of its system's scripts.
-DORMANT = {
-    "jumped": "The top-down motor's jump stays in the world view (its sound); nothing announces it.",
-    "landed": "The top-down motor's landing stays in the world view (sound, dust); the paths above and the remount wait.",
-    "fell_out": "The grid has no fall out of the room; the fall's fade, fortune and Hidden Cave wait.",
-    "volume_entered": "The grid's water is its own cells (TopdownTraverse); no volume is entered.",
-    "volume_left": "The grid's water is its own cells (TopdownTraverse); no volume is left.",
-}
+# Events no script emits, each with the reason it cannot happen in the one world (S12a: the five only the side view's
+# movement solver emitted). contract_tests checks a dormant event is named by none of its system's scripts. S12c
+# restored all five on the grid (TopdownPlayer announces the motor's jumps, landings, falls out of a room and the
+# volumes it is in), so none is dormant: jumped, landed (the paths above, the remount), fell_out (the fade, the fall's
+# cost, its fortune and the Hidden Cave), volume_entered and volume_left (the water's step).
+DORMANT = {}
 
 # Reactors that read state every frame instead of listening, so no subscriber is required.
 POLLED = {
@@ -212,12 +206,12 @@ POLLED = {
     "residue_changed": "The Cultivation page's Heart tab reads residue.",
     "pill_resistance_changed": "Pill tooltips and the Heart tab read each family's count.",
     "foundation_changed": "The Heart tab and the risk preview read the foundation share.",
-    "jumped": "The player node plays its own jump pose and sound when the press succeeds.",
+    "jumped": "The world view plays the jump's push-off and sound from the motor's own event (TopdownWorld.feedback).",
     "climb_started": "The player node reads its climbing state for the climb pose.",
     "climb_finished": "The player node reads its climbing state for the climb pose.",
     "debt_recorded": "The Relations page's Karma tab lists debts; the callback is debt_called.",
     "mover_boarded": "The player node reads rider_of; movers carry their riders in the solver.",
-    "volume_left": "The player node reads the water state and volumes each frame.",
+    "volume_left": "ActorState.volumes_in holds the volumes a body is in; the water's step plays on entering, nothing on leaving.",
     "enemy_leashed": "Enemy views read the return state; the out-of-reach rule is the brain's own business.",
     "storehouse_changed": "The Roll-Call's Storehouse tab reads the account's store.",
     "snare_set": "The trail's object view reads the active character's snares.",

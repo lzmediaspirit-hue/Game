@@ -13,7 +13,8 @@ extends "res://tests/tutorial_order.gd"
 ##      entered on it;
 ##   2. each layout places every NPC, object, way and spawn of its side-view room, on a floor a body can stand on, and
 ##      everything is reached on foot (walking, stairs, drops, a jump a level up, a running jump over a tile) from
-##      every way into the room and from where a character wakes in it;
+##      every way into the room and from where a character wakes in it (S12c: but a thing on a path above, a ledge only
+##      its movement art climbs onto, which topdown_traversal lands on);
 ##   3. every spot the walk stands at in a room on the grid is reached on foot from where the character came in;
 ##   4. the top-down view builds each room of the walk (a live TopdownWorld, the character's own view, as main.gd
 ##      mounts it): a figure and a label for every person, every thing, and a mark and a plate for every way;
@@ -523,6 +524,7 @@ func _layouts() -> void:
 			for o in def.get("objects", []):
 				var at := Vector2(float(o.at[0]), float(o.at[1]))
 				if not str(o.get("type", "")) in ["fishing_spot", "rift_tear", "insect_swarm"] and not grid.standable(TopdownRoom.cell_of(at)): bad.append("%s on no floor" % o.id)
+				if grid.ledge_at(at, float(o.alt)) != "": continue   # S12c: on a path above, its movement art's (topdown_traversal)
 				var spot := TopdownRoom.cell_of(grid.spot_near(at, float(o.alt), at))
 				if not r.has(spot): bad.append("%s from %s" % [o.id, str(s)])
 			for p in def.get("portals", []):

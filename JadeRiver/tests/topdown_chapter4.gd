@@ -109,6 +109,8 @@ func _walks(rid: String) -> void:
 		for cell in TopdownRoute.reach(grid, s, true): seen[cell] = true
 		for o in def.get("objects", []):
 			if str(o.get("type", "")) == "decor" or not o.has("at"): continue
+			# S12c: a thing on a path above stands on a ledge only its movement art climbs onto (topdown_traversal lands there).
+			if grid.ledge_at(Vector2(float(o.at[0]), float(o.at[1])), float(o.get("alt", 0.0))) != "": continue
 			var at := Vector2(float(o.at[0]), float(o.at[1]))
 			var c0 := TopdownRoom.cell_of(at)
 			var alt := float(o.get("alt", 0.0))

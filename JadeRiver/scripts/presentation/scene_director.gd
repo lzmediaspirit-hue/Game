@@ -58,9 +58,14 @@ func _ready() -> void:
 	stage.director = self
 	cl.add_child(stage)
 
+## The world unmounted with a scene on the stage (back to the title or the selection, a test's next room): what the stage
+## held lets go with it, the simulation, the controls and (S12c) the music's dip under the scene (Audio's "scene" hold,
+## taken on scene_started). The scene itself is not ended: it resumes at its last checkpoint when the world is back.
 func _exit_tree() -> void:
 	if GameEvents.event.is_connected(_on_event): GameEvents.event.disconnect(_on_event)
-	if run != null: _end_mode()
+	if run != null:
+		_end_mode()
+		Audio.unduck("scene")
 
 func _process(delta: float) -> void:
 	advance(delta)

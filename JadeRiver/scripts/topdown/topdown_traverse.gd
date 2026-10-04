@@ -332,11 +332,40 @@ func flood_k(f: Dictionary) -> float:
 
 ## Is the floor at `p` (height `floor_z`) under a flood's water now?
 func flooded(p: Vector2, floor_z: float) -> bool:
+	return not flood_at(p, floor_z).is_empty()
+
+## S12c · the flood whose water stands over the floor at `p` (height `floor_z`) now ({} when none).
+func flood_at(p: Vector2, floor_z: float) -> Dictionary:
 	for f in floods:
 		if not (f.rect as Rect2).has_point(p): continue
 		var k := flood_k(f)
-		if k > 0.0 and lerpf(TopdownRoom.WATER_Z, float(f.top), k) > floor_z + 0.5: return true
-	return false
+		if k > 0.0 and lerpf(TopdownRoom.WATER_Z, float(f.top), k) > floor_z + 0.5: return f
+	return {}
+
+## S12c · the side view's volumes on this grid that hold a body at `p`, height `z`, over the floor at `floor_z`, as the
+## side view's volumes_at held one: within its rect and its height band (a floor's volume, a current, ice, a hazard,
+## boards, a bounce, within FLOOR_BAND over its floor; an updraft up to its top; the wind, a no-flight volume and a live
+## low-gravity volume at any height; a switched-off one holds none). {id, kind} each, the side-view volume's own id and
+## kind; a flood's water is the motor's to answer (TopdownMotor.volumes), as it holds a body only under its surface.
+const FLOOR_BAND := 20.0
+func volumes_at(p: Vector2, z: float, floor_z: float) -> Array:
+	var out: Array = []
+	var low := floor_z < INF and z - floor_z <= FLOOR_BAND
+	for u in updrafts:
+		if (u.rect as Rect2).has_point(p) and z >= float(u.lo) and z <= float(u.hi): out.append({"id": str(u.id), "kind": "updraft"})
+	for group in [currents, ices, hazards]:
+		for v in group:
+			if low and (v.rect as Rect2).has_point(p): out.append({"id": str(v.id), "kind": str(v.kind)})
+	for c in crumbles:
+		if (c.rect as Rect2).has_point(p) and absf(z - float(c.z)) <= FLOOR_BAND: out.append({"id": str(c.id), "kind": "crumble"})
+	for b in bounces:
+		if (b.rect as Rect2).has_point(p) and absf(z - float(b.z)) <= FLOOR_BAND: out.append({"id": str(b.id), "kind": "bounce"})
+	for group in [winds, no_flights]:
+		for v in group:
+			if (v.rect as Rect2).has_point(p): out.append({"id": str(v.id), "kind": str(v.kind)})
+	for v in lowgs:
+		if not bool(v.off) and (v.rect as Rect2).has_point(p): out.append({"id": str(v.id), "kind": "low_gravity"})
+	return out
 
 ## The bounce a body landing at `p` on the floor at `z` comes down on ({} when none).
 func bounce_at(p: Vector2, z: float) -> Dictionary:

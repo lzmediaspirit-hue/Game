@@ -591,8 +591,9 @@ func dodge(c, direction, facing: int, moves := true) -> Dictionary:
 	# Wind Blink (secret art, Spirit Awakening 5): a dodge in mid-air blinks 120 units along the wind
 	# and holds the body up for a breath, so a gap too wide to jump can be crossed.
 	var st: ActorState = game.actor_state(c.id)
-	# Shallow water drags at the feet: no dodging in it (S43 volumes).
-	if st != null and st.surface != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "water_shallow").is_empty():
+	# Shallow water drags at the feet: no dodging in it (S43 volumes). S12c: on the grid the body wades a floor under
+	# shallow water (ActorState.wading, from the motor; a Water Sphere's frozen ground is no water).
+	if st != null and st.surface != null and st.wading:
 		return fail("in_water")
 	# Decision 38: a dodge cancels a blow's anticipation or its late recovery, never its active window.
 	var rule := CombatFeel.dodge_cancel(tl, c)

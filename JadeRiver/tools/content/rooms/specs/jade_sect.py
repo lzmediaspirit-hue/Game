@@ -210,7 +210,9 @@ JA_HERB_TERRACES = room(
         ("peak_stair_head", (44, 0, 3, 9), dict(level=3, paint="s")),  # the peak stair's head, through the crags
         ("path", (44, 15, 3, 8), dict(paint="d")),
     ],
-    stairs=[(12, 18, 2, 2, 0, 1), (22, 13, 2, 2, 1, 2), (32, 7, 2, 2, 2, 3), (44, 9, 3, 6, 0, 3)],
+    # S12c: the flight up to the second terrace stands below its edge (its top row beside the first terrace, a step down
+    # either side), not cut into it: a body leaving its top row sideways meets no floor a full step up (room_sweep).
+    stairs=[(12, 18, 2, 2, 0, 1), (22, 15, 2, 2, 1, 2), (32, 7, 2, 2, 2, 3), (44, 9, 3, 6, 0, 3)],
     ways={"west": ("w", 24), "peak_path": ("n", 45)},
     spawn=(3, 24),
     anchors={

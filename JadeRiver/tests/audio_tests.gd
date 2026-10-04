@@ -38,17 +38,17 @@ func _main() -> void:
 	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}})
 	main.enter_world(1)
 	for i in 3: await get_tree().process_frame
-	# On the grid a new character's first room stages its scene as the world mounts (decision 39); the Listener skips it,
-	# as a player may, so its hold on the music (Audio's "scene") ends before the prototype room's checks.
-	var lc = Game.active()
-	for sid in lc.quests.scenes.keys():
-		if not lc.quests.scenes[sid].get("done", false): Game.submit({"type": "scene_end", "scene": str(sid), "skipped": true})
-	GameEvents.flush()
+	# On the grid a new character's first room stages its scene as the world mounts (decision 39), the music dipped under
+	# it (Audio's "scene" hold). S12c: the world unmounting mid-scene (into the prototype room below) lets it go with the
+	# stage (SceneDirector._exit_tree); the scene waits at its checkpoint, unended.
+	var staged: bool = main.scenes != null and main.scenes.run != null and Audio.holds.has("scene")
 	_ids()
 	_buses()
 	_surfaces()
 	main.enter_topdown_proto(false)
 	for i in 3: await get_tree().process_frame
+	check(staged, "the new character's first room stages its scene as the world mounts, the music dipped under it")
+	check(not Audio.holds.has("scene"), "the world unmounted mid-scene: the music's dip under it goes with the stage (holds %s)" % str(Audio.holds.keys()))
 	await _feet()
 	_hits()
 	_fight_music()
