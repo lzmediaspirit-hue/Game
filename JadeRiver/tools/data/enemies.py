@@ -370,16 +370,11 @@ def build():
             [atk("gravity_well", 1.0, 260, 0.6, depth=90, damage_type="qi", pull=150, both_sides=True),
              atk("orbit_slam", 1.1, 130, 1.6, depth=70, knockback=140, status={"id": "stun", "chance": 0.3, "power": 1.0, "duration_s": 0.8})],
             ai="slow_melee", speed=55, width=70, height=110, knockback_immune=True),
-        mob("orbit_moth", (88, 93), "normal", "star", "lantern", [d("moth_dust", 0.5), d("star_shard", 0.5, (1, 2))],
-            [atk("orbiting_motes", 0.7, 240, 1.1, damage_type="qi", projectile={"speed": 300, "art": "qi_arc", "count": 2}),
-             atk("dust_veil", 0.9, 120, 0.9, depth=60, status={"id": "confusion", "chance": 0.35, "power": 1.0, "duration_s": 2})],
-            ai="flyer_ranged", speed=90, flying=True, width=30, height=34, tameable=True),
+        spec_row("orbit_moth"),
         # v1.2 · Phase D: the Ashen Reach (the Ashborn legions) and the Tidebreak Front (the Hollow's drones).
         spec_row("ashborn_raider"),
         spec_row("ashborn_pyre_keeper"),
-        mob("hollow_drone", (88, 99), "normal", "hollow_metal", "lantern", [d("drone_shell", 0.5), d("hollow_shard", 0.3), d("star_shard", 0.4, (1, 2))],
-            [atk("needle_dive", 0.5, 70, 1.15, dash=160), atk("grey_sting", 0.6, 200, 1.0, damage_type="qi", projectile={"speed": 380, "art": "qi_arc"})],
-            ai="flyer_ranged", speed=130, flying=True, width=26, height=26, hollowing=4),
+        spec_row("hollow_drone"),
         # General Kharn: an enemy, not a villain. At a fifth of his health he kneels: spare him (the Ashborn remember it) or
         # finish him.
         mob("general_kharn", 92, "dungeon_boss", "fire", "lantern", [d("kharns_glaive_shard", 1.0), d("pyre_ember", 1.0, (2, 3)), d("star_shard", 1.0, (14, 20)),

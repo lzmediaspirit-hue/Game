@@ -625,6 +625,17 @@ RAMPS.update({
     "sj_bell": _s("b9a6f2", "7b63d2", "4f3ea2", "2f256c"),
     "sj_frill": _s("ffc9ef", "e47cca", "a94b9f", "6b2d70"),
     "sj_tentacle": _s("f1f4ff", "c3cbf4", "8e93d8", "5f5cab"),
+    # hollow drone: its gunmetal shell, the pale steel lance, its pale wings (and their ghost at the beat's far end)
+    "hd_shell": _s("b4bac6", "7e8594", "565b6c", "3a3d4d"),
+    "hd_lance": _s("f0f0f6", "b4b6c6", "7e8096", "50526a"),
+    "hd_wing": _s("f6f7fd", "d4d8ee", "a3a9cc", "7a80a6"),
+    "hd_ghost": _r("A3A9CC", "B9BED8", "C9CDE2", "D4D8EE", "E6E8F4"),
+    # orbit moth: its dusky indigo wings and their rose fringe, its pale fur, its gold antennae, its dark eyes
+    "om_wing": _r("181438", "231F54", "342F74", "4B4598", "6A64BE"),
+    "om_fringe": _s("c9a0dc", "9a70bf", "744f9c", "533975"),
+    "om_fur": _s("fffaf0", "ece2cf", "c3b4bc", "8f809e"),
+    "om_antenna": _s("fff3c8", "e6cc88", "b8955a", "7d6040"),
+    "om_eye": _r("0A0614", "120C22", "1E1638", "2E2450", "5A4C88"),
 })
 PROPS.update({
     "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
@@ -633,6 +644,10 @@ PROPS.update({
     "cs_breast": {"hi": True, "weight": 1.2}, "cs_flame_or": {"weight": 1.2}, "cs_flame_mg": {"weight": 1.1}, "cs_flame_vi": {},
     "cs_smoke": {"hi": True},
     "sj_bell": {"hi": True, "glossy": True}, "sj_frill": {"hi": True, "weight": 1.3}, "sj_tentacle": {"hi": True, "thin": True, "weight": 1.2},
+    "hd_shell": {"hi": True, "glossy": True}, "hd_lance": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "hd_wing": {"hi": True, "thin": True}, "hd_ghost": {"thin": True},
+    "om_wing": {"thin": True}, "om_fringe": {"hi": True, "thin": True, "weight": 1.2}, "om_fur": {"hi": True, "weight": 1.2},
+    "om_antenna": {"hi": True, "line": True, "weight": 1.5}, "om_eye": {"glossy": True, "weight": 1.8},
 })
 # The void crab's stars and the rift its claw tears (white, violet, deep).
 STAR_W = c("FFFFFF")
@@ -648,3 +663,19 @@ RIFT_D = c("5A2AA8", 200)
 SPARROW_EYE = c("1A0D14")
 COMET_CORE = c("FFFBE6")
 COMET_SPARK = c("FFD79A", 220)
+# The hollow drone's core (its light, its flare and the glow round it), the ash-white fissures and its speed streaks.
+DRONE_CORE = c("C08CF0")
+DRONE_CORE_HI = c("F6ECFF")
+DRONE_GLOW = c("C08CF0", 140)
+ASH_CRACK = c("EBE8DF")
+STREAK = c("9AA0B8", 200)
+# The orbit moth's star chart (its stars, the gold lines, the bright star), the glint in its eye, its motes and its dust.
+MOTH_STAR = c("FFE6A1")
+MOTH_LINE = c("BC9F62")
+MOTH_WHITE = c("FFFBE6")
+MOTH_GLINT = c("8F80C0")
+MOTE_CORE = c("FFFBE6")
+MOTE_ARM = c("8FF2E2")
+MOTE_DIM2 = c("4FA8A8")
+MOTH_PUFF = c("FBF4FF", 200)
+MOTH_PUFF_DIM = c("B2A2CF", 160)
