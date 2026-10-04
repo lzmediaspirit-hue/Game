@@ -1,0 +1,523 @@
+{
+ "schema_version": 1,
+ "id": "bm_blackmast_docks",
+ "name": "Blackmast Docks",
+ "size": [
+  64,
+  28
+ ],
+ "spawn": [
+  2,
+  11
+ ],
+ "levels": [
+  "4444444444444444444444444444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444444444444444444444444444",
+  "4444444444444444444444444444444444444444444444444444411111144444",
+  "1111111111111111111111111111111111122222111111111111111111111111",
+  "1111111111111111111111111111111111222222211111111111111111111111",
+  "1111111111111111111111111111111111222222211111111111111111111111",
+  "1111111111111111111111111111111111122222211111111111111111111111",
+  "1111111111111111111111111111111111112222111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "~~~~1111~~~~~~~22~~~~~~~~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~22~~~~~~~~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~22~~~~~~~~~~~111122222222222222~~~~~~~~~~1111~~~~",
+  "~~~~11113333222222222~~~~~~~11112222222222222222~~~~~~~~1111~~~~",
+  "~~~~1111333322222222222~~~~~1111222222222222222222~~~~~~1111~~~~",
+  "~~~~111133332222222222222~~~111122222222222222222222~~~~1111~~~~",
+  "~~~~111133332222222222222~~~1111222222222222222222~~~~~~1111~~~~",
+  "~~~~1111333322222222222~~~~~11112222222222222222~~~~~~~~1111~~~~",
+  "~~~~11113333222222222~~~~~~~111122222222222222~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1111~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~1111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwwwrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "~~~~wwww~~~~~~~ww~~~~~~~~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~ww~~~~~~~~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~ww~~~~~~~~~~~wwwwwwwwwwwwwwwwww~~~~~~~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwww~~~~~~~wwwwwwwwwwwwwwwwwwww~~~~~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwwwww~~~~~wwwwwwwwwwwwwwwwwwwwww~~~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwwwwwww~~~wwwwwwwwwwwwwwwwwwwwwwww~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwwwwwww~~~wwwwwwwwwwwwwwwwwwwwww~~~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwwwww~~~~~wwwwwwwwwwwwwwwwwwww~~~~~~~~wwww~~~~",
+  "~~~~wwwwwwwwwwwwwwwww~~~~~~~wwwwwwwwwwwwwwwwww~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwww~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~wwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 36,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "house",
+   "x": 19,
+   "y": 4,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "storehouse",
+   "x": 46,
+   "y": 4,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "lantern_red",
+   "x": 18,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 25,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 45,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 50,
+   "y": 8
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 7,
+   "y": 9
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 48,
+   "y": 9
+  },
+  {
+   "kind": "barrel",
+   "x": 26,
+   "y": 6
+  },
+  {
+   "kind": "barrel",
+   "x": 27,
+   "y": 7
+  },
+  {
+   "kind": "powder_keg",
+   "x": 31,
+   "y": 8
+  },
+  {
+   "kind": "powder_keg",
+   "x": 42,
+   "y": 8
+  },
+  {
+   "kind": "pirate_cannon",
+   "x": 52,
+   "y": 8
+  },
+  {
+   "kind": "crates",
+   "x": 2,
+   "y": 5
+  },
+  {
+   "kind": "sacks",
+   "x": 4,
+   "y": 5
+  },
+  {
+   "kind": "black_mast",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "kind": "black_mast",
+   "x": 37,
+   "y": 18
+  },
+  {
+   "kind": "black_mast",
+   "x": 43,
+   "y": 18
+  },
+  {
+   "kind": "post",
+   "x": 4,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 28,
+   "y": 21
+  },
+  {
+   "kind": "post",
+   "x": 31,
+   "y": 21
+  },
+  {
+   "kind": "post",
+   "x": 56,
+   "y": 25
+  },
+  {
+   "kind": "post",
+   "x": 59,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 35,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 35,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 7,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 15,
+   "y": 4
+  },
+  {
+   "kind": "dead_tree",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 39,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 55,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 63,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "kind": "log",
+   "x": 4,
+   "y": 6
+  },
+  {
+   "kind": "dead_tree",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 35,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 6
+  },
+  {
+   "kind": "tall_grass",
+   "x": 60,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 13,
+   "y": 8
+  },
+  {
+   "kind": "log",
+   "x": 19,
+   "y": 8
+  },
+  {
+   "kind": "dead_tree",
+   "x": 25,
+   "y": 9
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 8
+  },
+  {
+   "kind": "log",
+   "x": 55,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 58,
+   "y": 9
+  },
+  {
+   "kind": "dead_tree",
+   "x": 33,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 8
+  },
+  {
+   "kind": "rock_small",
+   "x": 22,
+   "y": 8
+  },
+  {
+   "kind": "stump",
+   "x": 33,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 43,
+   "y": 9
+  },
+  {
+   "kind": "stump",
+   "x": 49,
+   "y": 8
+  },
+  {
+   "kind": "cattails",
+   "x": 8,
+   "y": 15
+  },
+  {
+   "kind": "cattails",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "kind": "cattails",
+   "x": 36,
+   "y": 22
+  },
+  {
+   "kind": "cattails",
+   "x": 55,
+   "y": 16
+  }
+ ],
+ "place": {
+  "sign_bm": [
+   9,
+   9
+  ],
+  "shrine_bm_docks": [
+   12,
+   6
+  ],
+  "npc_deckhand_mo": [
+   5,
+   19
+  ],
+  "jar_1": [
+   16,
+   6
+  ],
+  "jar_2": [
+   10,
+   19
+  ],
+  "chest_ledge_mv_1": [
+   35,
+   3
+  ],
+  "chest_cloud_mv": [
+   39,
+   5
+  ],
+  "jar_3": [
+   41,
+   16
+  ],
+  "jar_4": [
+   55,
+   6
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    11
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    11
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    11
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    11
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    19,
+    7
+   ],
+   [
+    22,
+    7
+   ],
+   [
+    31,
+    14
+   ],
+   [
+    44,
+    8
+   ],
+   [
+    54,
+    8
+   ]
+  ],
+  [
+   [
+    25,
+    7
+   ],
+   [
+    33,
+    7
+   ],
+   [
+    50,
+    9
+   ]
+  ],
+  [
+   [
+    35,
+    15
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

@@ -1,5 +1,54 @@
 # Changelog
 
+## The sky-sea zones on the grid (R8)
+
+The room engine's batch R8 (`docs/architecture/room_engine.md`, "The sky-sea zones (R8)"). The twenty rooms of the late
+game's sky-sea zones are specs now, and a top-down character plays chapters 15 to 19 in them, from The Skyport Wreck to
+The Last Egg.
+
+- **Twenty rooms, 10 to 30 spec lines each.**
+  - The Skyport Wreck: the Broken Pier, the Pirate Deck, the Riven Peak and the Starsea Launch.
+  - Lanternfall Harbor: the Arrival Quay, the Harbor Market, the Star Chandlery and the Tidelight Inn.
+  - The Drifting Shoals: the Jellyfish Shallows, the Moored Hulks, the Sparrow Reefs and the Driftglass Bank.
+  - Blackmast Haven: the Blackmast Docks, the Gunners' Battery, the Smugglers' Cove and the Flagship Deck.
+  - The Wyrmnest Isles: the Nest Cliffs, the Eggshell Terraces, the Guardian's Crown and the Hatching Cave.
+
+  Every object and way of each side-view room has its spot.
+- **Looks.**
+  - Each zone is a floating island. The Wreck and the Isles fall away into the cloud sea; the harbours, the shoals and
+    the cove lie on the starsea's water.
+  - Five biomes: `sky_wreck`, `lantern_harbor`, `star_shoals`, `blackmast`, `wyrmnest`. The Wreck is R6's sky port in
+    ruin, so it has its own `sky_wreck` beside R6's `sky_port`.
+  - Nineteen props in `furnish.py`, the prop sheet rebuilt (the Launch's armillary is R6's):
+    - broken hulls and masts, an anchor, a ballista;
+    - star lanterns, Lanternfall's lantern stalls, a quay crane;
+    - driftglass, star crystals;
+    - black masts, cannons, powder kegs, black banners;
+    - rock spires, wyrm nests, skulls, ribs, bones and eggshells.
+  - Ships are decks: `specs/skysea.py`'s `hull()` gives a deck its pointed bow and its stern. The Shoals' islets are
+    sand round pale rock in R2's wading shallows.
+  - Vistas in `topdown_life.VISTAS`.
+- **Places.** Fourteen rows in `places.py` (55 places with R7's): six shrines, two teleport stones, the harbour's board,
+  storehouse and two stalls, the Chandlery's furnace and Old Bo's planters.
+- **No engine rule.** `engine.py` is unchanged; every older spec compiles byte for byte.
+- **The frontier.** The Arrival Quay's skiff to the Citadel and the Harbor Market's stair to the Lantern Heart lead to
+  rooms with no layout and are gated. The zones are reached only by the Starsea crossings, which have no layout; a
+  dock's `set_sail` is not closed by the prototype's gate.
+- **Tests.**
+  - A new suite, `topdown_skysea`, with 101 checks. It plays chapters 15 to 19's main quests on the grid. It walks
+    from the harbour through the Shoals to Blackmast Haven on foot, and it fights the pirates, jellyfish, sparrows,
+    gunners, Admiral Voss, the wyrmlings and the Brood Guardian. Each room is built by the view and walked by auto-path.
+  - The `room_engine` capture set has R8's views (`docs/architecture/room_engine/r8/`).
+  - `rules_tests`' route tour walks the twenty rooms too. No flight stands on a road or a wading way, since a body
+    steered across a flight from its side sticks on its cheek.
+  - `topdown_chapter3` sets the story done up to the prototype's end in at most 200 steps, not 60. With these zones
+    on the grid the story runs on to chapter 19 inside the prototype.
+  - The full run (merged with R6, E5 and T2): every gate and all 31 suites pass, about 72,300 checks with no failure and
+    no script error. `room_engine` has 445 checks; grid parity holds for 147 layouts and 441 starts; the route tour walks
+    148 rooms.
+- **Still to do.** Nine foe species of these rooms have no top-down sheet. The Starsea crossing and the Field's night
+  light have no grid part yet. Details are in the doc. (T2's wade slows the Shoals' shallows.)
+
 ## The side view's mechanics in the Act I rooms (T2)
 
 T1 built the grid's traversal and listed what was left (`docs/architecture/topdown_mechanics.md`). T2 did its items

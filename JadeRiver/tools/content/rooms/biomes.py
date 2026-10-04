@@ -272,6 +272,54 @@ BIOMES = {
                   "walk": ["tall_grass", "rock_small", "bush"],
                   "water": ["tree_willow", "tall_grass", "lotus_pads"]},
     },
+    # R8 ------------------------------------------------------------------------------------------------------------
+    # The sky-sea zones of the late game: floating islands over the Starsea. The props they draw from are R8's in
+    # tools/art/topdown/furnish.py (wrecks and masts, star lanterns, driftglass, rock spires, nests and bones).
+    # The Skyport Wreck: the broken sky-port on the Riven Peak's rock at the Expanse's edge, wind-scoured and bare, dead
+    # trees and boulders, a little grass in the lee of the stones; its broken decks and hulls are the rooms' own.
+    "sky_wreck": {
+        "base": "r", "stair": "s", "density": 0.24,
+        "flora": {"wall": ["dead_tree", "boulder", "rock_small", "rock_mossy"],
+                  "ground": ["dead_tree", "rock_small", "boulder", "tall_grass", "stump", "log", "rock_mossy"],
+                  "walk": ["rock_small", "tall_grass", "boulder"],
+                  "water": ["tall_grass", "rock_small"]},
+    },
+    # Lanternfall Harbor: a harbour town on a floating island, its streets paved, plum and camphor in its yards, potted
+    # plants at the doors, reeds and lotus where the starsea laps the quays.
+    "lantern_harbor": {
+        "base": "p", "stair": "s", "density": 0.22,
+        "flora": {"wall": ["tree_pine", "bush", "rock_mossy"],
+                  "ground": ["tree_plum", "tree_camphor", "bush", "bush_azalea", "tall_grass"],
+                  "walk": ["pot_bonsai", "pot_orchid", "rock_small"],
+                  "water": ["tall_grass", "cattails", "lotus_pads"]},
+    },
+    # The Drifting Shoals: low islets of pale rock and grit in shallows of starlight, driftglass set upright by the
+    # tides, star crystals grown out of the rock, tufts of grass, reeds in the shallows and lotus on the open pools.
+    "star_shoals": {
+        "base": "r", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["driftglass", "star_crystal", "rock_mossy", "rock_small"],
+                  "ground": ["driftglass", "rock_small", "tall_grass", "star_crystal", "rock_mossy", "driftglass"],
+                  "walk": ["rock_small", "driftglass", "tall_grass"],
+                  "water": ["driftglass", "tall_grass", "cattails", "lotus_pads"]},
+    },
+    # Blackmast Haven: the pirates' cove among black rock islands, timber docks and decks, dead trees and stumps where
+    # they felled the rest for their hulls, coarse grass in the cracks.
+    "blackmast": {
+        "base": "r", "stair": "w", "density": 0.22,
+        "flora": {"wall": ["dead_tree", "rock_small", "boulder"],
+                  "ground": ["dead_tree", "stump", "rock_small", "tall_grass", "boulder", "log"],
+                  "walk": ["rock_small", "stump"],
+                  "water": ["tall_grass", "cattails", "dead_tree"]},
+    },
+    # The Wyrmnest Isles: tall islands of pale eggshell rock, spires standing out of their turf, star crystals, the
+    # bones of old wyrms and the shells of their eggs strewn on the ledges.
+    "wyrmnest": {
+        "base": "g", "stair": "s", "density": 0.3,
+        "flora": {"wall": ["rock_spire", "star_crystal", "rock_mossy", "boulder"],
+                  "ground": ["rock_spire", "bone_pile", "rock_small", "tall_grass", "star_crystal", "eggshell", "bush"],
+                  "walk": ["bone_pile", "eggshell", "rock_small", "tall_grass"],
+                  "water": ["tall_grass", "rock_small"]},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,
