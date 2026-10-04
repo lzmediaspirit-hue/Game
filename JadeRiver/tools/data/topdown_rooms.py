@@ -868,9 +868,29 @@ def layouts():
                 raise SystemExit(str(e))
 
 
+def every_room_laid_out(made):
+    """S12a, the one world (decision 41's prototype gate went with the side view): every room tools/data/world.py writes
+    (data/rooms/, held to it by build_data --check) has a layout made here, and so has every room one of its ways leads
+    to, so no way leads off the grid. The failures, one a line."""
+    out = []
+    for f in sorted(os.listdir(ROOMS)):
+        if not f.endswith(".json"):
+            continue
+        rid = f[:-5]
+        if rid not in made:
+            out.append("%s: no layout (every room of the world is on the grid)" % rid)
+        for p in common.read(rid, ROOMS).get("portals", []):
+            to = p.get("to", "")
+            if to and to not in made:
+                out.append("%s:%s leads to %s, which has no layout" % (rid, p.get("id", "?"), to))
+    return out
+
+
 def build():
     failed = []
+    made = set()
     for lay in layouts():
+        made.add(lay.id)
         LIFE.dress(lay)            # decision 43 (tools/data/topdown_life.py): an interior's furnishings, a station's props
         d = lay.dict()
         LIFE.extend(lay.id, d)     # and the land past the room's edge the camera may show
@@ -882,6 +902,7 @@ def build():
         body = {"schema_version": 1}
         body.update(d)
         emit(os.path.join(OUT, lay.id + ".json"), json.dumps(body, indent=1, ensure_ascii=False) + "\n")
+    failed += every_room_laid_out(made)
     if failed:
         raise SystemExit("\n".join(failed))
     LIFE.build()                   # decision 43: data/topdown/life.json, its work spots checked on these layouts

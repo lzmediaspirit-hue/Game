@@ -6,7 +6,7 @@ extends "res://tests/prologue_run.gd"
 ##   1. no room with hostile foes is within reach, or entered, before the HP bar and the foes' HP bars are on the HUD;
 ##   2. every foe in a fight shows its HP bar, and the player's HP bar shows (the first fight: the Reed Shallows' crabs
 ##      and Reedtail Rats);
-##   3. every way into a building in the rooms within reach shows a door (PortalView.entrance);
+##   3. every way into a building in the rooms within reach shows a door (TopdownRoom.entrance);
 ##   4. taking or handing in a quest closes the conversation (decision 42: even when the same person has the next quest
 ##      to give or take back);
 ##   5. what a quest's steps ask the player to press or open is on the HUD once the quest is taken, and the control is
@@ -59,6 +59,7 @@ const CharacterPage = preload("res://scripts/ui/pages/character_page.gd")
 const CONTROLS := {"hud:quick_use": "quick:0", "hud:jump": "jump", "hud:guard": "guard", "hud:bag": "icon:bag", "hud:menu": "icon:menu",
 	"hud:map": "icon:map", "hud:cultivate": "meditate"}
 
+const BuildingWays = preload("res://tests/lib/building_ways.gd")
 var views := Node2D.new()     # the EnemyViews the watcher asks, never processed or drawn
 var hud_probe: Control        # the real HUD, bound to the character through a stand-in player; asked, never drawn
 var left_early: Array = []    # rooms left before the steps they hold you to were done
@@ -425,7 +426,7 @@ func leads_to_next(label: String) -> void:
 		if want != "": break
 		if c().quests.active.keys().any(func(q): return str(Game.quest.quest_def(c(), str(q)).get("kind", "")) in kinds): return   # under way here
 		for d in Game.quest.story_waiting(c(), kinds):
-			if not Game.quest.can_offer(c(), d) or Game.quest.beyond_prototype(c(), d): continue   # decision 41: none past the gate
+			if not Game.quest.can_offer(c(), d): continue
 			var giver := QuestAuthority.own_npc(c(), d.get("giver_any", d.get("giver", "")))
 			want = Game.quest.objective_room(c(), d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
 			why = "%s to take from %s" % [d.id, giver]
@@ -467,15 +468,12 @@ func invariants(label: String) -> void:
 				"%s: %s has foes, and is within reach only once the HP bar and the foes' HP bars are on the HUD" % [label, rid])
 		if doors_seen.has(rid): continue
 		doors_seen[rid] = true
-		# On the height grid (a top-down character's rooms that have a layout) every door stands in a building's doorway
-		# or an interior's wall (TopdownRoom.entrance); in the side view, as PortalView.entrance draws it.
-		var grid: TopdownRoom = Game.world.grid_for(c(), rid)
+		# On the height grid every way into a building (tests/lib/building_ways.gd) stands in its building's doorway
+		# (TopdownRoom.entrance).
+		var grid: TopdownRoom = Game.world.grid_for(rid)
 		for p in rd.get("portals", []):
-			if not p.get("facade", false) and PortalView.building_front(p, rd).is_empty(): continue
-			if grid != null:
-				check(grid.entrance(str(p.id)) == "building", "%s: the way into a building %s:%s shows a door on the grid (%s)" % [label, rid, p.id, grid.entrance(str(p.id))])
-			else:
-				check(PortalView.entrance(p, rd) in ["building", "decor"], "%s: the way into a building %s:%s shows a door" % [label, rid, p.id])
+			if not BuildingWays.into_building(p, rd): continue
+			check(grid.entrance(str(p.id)) == "building", "%s: the way into a building %s:%s shows a door on the grid (%s)" % [label, rid, p.id, grid.entrance(str(p.id))])
 	# Invariant 5, while the steps are open: the controls the steps still to do name are drawn; the healing slot stays
 	# drawn, at rest too, while it holds something to drink (Granny's tea).
 	var open: Array = []

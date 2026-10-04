@@ -70,7 +70,7 @@ A run goes in steps. Each step is a table of rows read in a fixed order:
 | Step | Table | Flags |
 |---|---|---|
 | Before `Game.boot` | `before_boot` | the preview saves, `--load=`, `--log-events` |
-| The screen | `OPEN`, `ROOM` | `--topdown-proto`, `--topdown`, `--topdown-tutorial`, `--preview-selection`, `--preview-create`; `--room=`, `--text-size=` |
+| The screen | `OPEN`, `ROOM` | `--topdown-proto`, `--topdown-tutorial`, `--preview-selection`, `--preview-create`; `--room=`, `--text-size=` |
 | The preview character | `_enter`, `PLACE` | `--preview-world`, `--load-slot` or a room: the character made (or the loaded one), placed (`--at=`, `--unlock-all`, `--debug-sect`), in the world |
 | The state shown | `STEPS` | the character and the room (`--give=`, `--foe=`, `--realm=` …), pages and talk (`--open-page=`, `--tap=`, `--talk=` …), riding and flight, powers, the HUD (`--toggle=`, `--fan=` …), the moments (`--moment=`, `--breakthrough`) |
 | The picture | `CAPTURE` | with `--capture`: `--auto-path=`, `--auto-hunt`, `--wait=`, `--hazard=`, then `../<shot>-preview.png` and quit |
@@ -94,10 +94,11 @@ in the flag's own spelling.
 `--learn=`, `--physique=`, `--set-piece=`, `--tribulation` and `--test-saves`. The last never did anything of its own,
 because any argument already chose the preview saves.
 
-**Side view only.** `--cast=` and `--fly` work only in the side view. `--capture` works in both views: its wait counts
-frames only when the side view's `FxLayer` has a fixed step (`--cast` with `--capture`), and the top-down FX view has
-none (fixed in F1; it used to stop with a script error before the picture). The capture registry
-(`tools/dev/capture/`) takes the review pictures.
+**Dropped in S12a, with the side view.** `--topdown` (every character plays on the grid now) and `--cast=` (it drew a
+cast through the side view's `World.preview_cast`; the Techniques page's preview, `--open-page=techniques` with
+`--preview-t=`, draws a cast now). `--fly` takes off on the grid, as a held jump does from Cloud Stride 1.
+`--capture` waits on the clock (2.5 s, or just past a moment's t). The capture registry (`tools/dev/capture/`) takes
+the review pictures.
 
 ## The side view in main.gd
 

@@ -1299,12 +1299,13 @@ func room_suite() -> void:
 		var room: Dictionary = ContentDB.room(rid2)
 		check(seen.has(rid2) or room.get("instanced", false), "room %s reachable from Lotus Ferry" % rid2)
 		var surfaces: Array = room.get("surfaces", [])
+		var grid2: TopdownRoom = Game.world.grid_for(rid2)
 		for p2 in room.get("portals", []):
-			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): the doorway
-			# its art draws, or a door placed at it (PortalView.entrance).
-			if p2.get("facade", false) or not PortalView.building_front(p2, room).is_empty():
-				check(PortalView.entrance(p2, room) in ["building", "decor"], "%s:%s, a way into a building, stands in a door the player can see (%s, doorway %s)" % [
-					rid2, p2.id, str(p2.get("at", [])), str(PortalView.building_front(p2, room).get("door", "none"))])
+			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): on the
+			# grid, the doorway of the building it is walked into (TopdownRoom.entrance).
+			if preload("res://tests/lib/building_ways.gd").into_building(p2, room):
+				check(grid2.entrance(str(p2.id)) == "building", "%s:%s, a way into a building, stands in a door the player can see (%s)" % [
+					rid2, p2.id, grid2.entrance(str(p2.id))])
 			var to2 := str(p2.get("to", ""))
 			if to2 == "": continue
 			var planned := ["ae_landing"]   # the Azure Expanse arrives with the next zone (v1.1)
@@ -2108,7 +2109,7 @@ func combat_feel_suite() -> void:
 	check(bad.is_empty(), "combat feel: every family's phases and smears, every form's sheets and the shared sheets are valid (%s)" % str(bad.slice(0, 6)))
 
 ## Top-down redesign, Phase 3 (decision 32): the real character's layers (tools/art/topdown/build_character.py,
-## data/topdown/character.json), held to AGENTS.md as the side view's are by Validate-Animations.ps1: every action is in
+## data/topdown/character.json), held to AGENTS.md (the one animation gate since S12a): every action is in
 ## every body, hair, shirt, trousers, shoes and weapon layer in every drawn facing, or explicitly hidden with a reason;
 ## the three combo stages of each family are distinct one-shots; every dye and hair colour has its sheet; every rect lies
 ## inside its sheet. Then the gate itself is shown to refuse broken manifests, as animation_contract_tests.ps1 does.

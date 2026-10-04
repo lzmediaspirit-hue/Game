@@ -17,14 +17,14 @@ extends "res://tests/prologue_run.gd"
 ##   4. the Siege of Two Sects (The Siege): the war gong on Gate Street; the Behemoth and the boarlets come out of the
 ##      grey north of the wall, on the grid's floor at the room's own cells; the wall held; back to Gate Street;
 ##   5. the Sect War (The Gate Holds): the pirates and the turncoats come down the junk's gangways at their cells, Comet
-##      Captain Rao drops at his, and falls; the way back to the Alliance Gate is gated while it has no layout;
+##      Captain Rao drops at his, and falls; the way back leads to the Alliance Gate, on the grid;
 ##   6. the Presence Trial: the phantoms at the court's west, east and south, the ninth Presence before the ninth seat;
 ##      borne to the end;
 ##   7. the Tidebreak Bastion (The Tide Breaks): its bell rung; on the wall's terrace the great lantern stands on its
 ##      dais, the Tide comes at both ends, a Warden beside the lantern relights it, the foes near it drain it; held to
 ##      the end, and back to the Bastion;
 ##   8. the grey fields: east through the Greyfall Breach and the Hollow Wake (Lu's journal page taken) to the Drone Hive
-##      (its chest on the hive mound's crown; its way east gated while the Nebula Deep has no layout), and back to the
+##      (its chest on the hive mound's crown; its way east leading on into the Nebula Deep), and back to the
 ##      Breach for Greyfall: Shen Lian in the breach, its bell rung, the stand's waves out of the grey north of the wall
 ##      on the room's own cells (TopdownRoom.grid_event), held.
 ## Run headless:  godot --headless --path . res://tests/topdown_story_rooms.tscn [-- --verbose]
@@ -40,7 +40,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("r5/")
 	_story_to(6)
 	GameEvents.event.connect(_on_room)
@@ -215,10 +214,10 @@ func _view(rid: String) -> void:
 	if not ok: view_misses.append("%s: npcs %d/%d things %d/%d figures %d ways %d/%d marks %d" % [rid, probe.npc_views.size(), shown.size(),
 		probe.object_views.size(), things.size(), figures.size(), probe.portal_views.size(), (def.get("portals", []) as Array).size(), marks.size()])
 
-## Is the way `pid` of the loaded room closed by the prototype's gate?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 # ------------------------------------------------------------------ 2: the Trial of Reflections
 func _reflections() -> void:
@@ -311,8 +310,8 @@ func _sect_war() -> void:
 	Game.quest.apply_flag(c().id, "ledger_burned")   # the Black Ledger's choice is Elder Zhong's, at the Gate
 	_done("the_gate_holds", "the Gate held")
 	_whole()
-	check(_gated("exit") == not TopdownRoom.has_layout("np_alliance_gate"),
-		"the way back to the Alliance Gate is closed by the prototype's gate while the Gate has no layout")
+	check(_leads_on("exit"),
+		"the way back leads to the Alliance Gate, on the grid")
 
 # ------------------------------------------------------------------ 6: the Presence Trial
 func _presence() -> void:
@@ -340,7 +339,7 @@ func _tide() -> void:
 	_realm("sphere_lord_1")
 	_take("the_tide_breaks")
 	check(_load("tf_tidebreak_bastion"), "at the Tidebreak Bastion on the grid (room %s)" % room())
-	check(_gated("skiff") == not TopdownRoom.has_layout("wc_citadel_gate"), "the skiff to the Citadel is closed by the prototype's gate while the Citadel has no layout")
+	check(_leads_on("skiff"), "the skiff leads to the Citadel, on the grid")
 	var began := interact("tide_horn")
 	GameEvents.flush()
 	place(Vector2(float(c().position.x), float(c().position.y)))
@@ -357,7 +356,7 @@ func _tide() -> void:
 	# The lantern: every foe near it drains it; a Warden beside it, not striking, with no foe near, relights it.
 	for e in Game.room_rt.living_enemies(): Game.enemies.release(e)
 	Game.room_rt.event.light = 50.0
-	place(grid.spot_near(lamp_at, float(lamp.get("alt", 0.0)), lamp_at + Vector2(0, 40)), float(lamp.get("alt", 0.0)))
+	place(grid.spot_near(lamp_at, float(lamp.get("alt", 0.0)), lamp_at + Vector2(0, 40)))
 	step(2.0)
 	var lit := float(Game.room_rt.event.get("light", 0.0))
 	check(lit > 50.0 and st.plane.distance_to(lamp_at) <= 120.0, "standing beside the lantern on its dais with no foe near relights it (light %.1f, %.0f from it)" % [lit, st.plane.distance_to(lamp_at)])
@@ -381,7 +380,7 @@ func _grey_fields() -> void:
 	var chest := interact("chest_5")
 	check(chest.get("ok", false) and float(Game.room_rt.object_def("chest_5").get("alt", 0.0)) >= 2.0 * TopdownRoom.LEVEL - 1.0,
 		"the hive mound climbed to the chest on its crown (%s)" % str(chest))
-	check(_gated("east") == not TopdownRoom.has_layout("nd_nebula_verge"), "the Hive's way east into the Nebula Deep is closed by the prototype's gate while it has no layout")
+	check(_leads_on("east"), "the Hive's way east leads on into the Nebula Deep, on the grid")
 	check(go("west") and room() == "tf_hollow_wake" and go("west") and room() == "tf_greyfall_breach", "back west through the Wake to the Breach (room %s)" % room())
 	_story_to(22)
 	_realm("sphere_lord_3")

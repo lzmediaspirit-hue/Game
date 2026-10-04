@@ -6,7 +6,7 @@ extends "res://tests/prologue_run.gd"
 ## House, Greyreed Hamlet, Behind the Falls). Test shortcuts carry a new character to chapter 4's door (the story
 ## before it done, a Jade Sect disciple at Qi Kindling 9, a sturdy body, so the fights are the rooms' and not the
 ## balance's). From there it is played through the World authority, as topdown_chapter3 plays chapter 3:
-##   1. each room is entered on the grid through its ways from the room before (no gate on the way), and the top-down
+##   1. each room is entered on the grid through its ways from the room before, and the top-down
 ##      view builds it: a figure for every person and thing, a mark for every way;
 ##   2. in each, auto-path (TopdownRoute.reach: a hop up a level, no running jump over a gap) reaches every NPC, object,
 ##      herb, place and way from the room's spawn and from every way in;
@@ -16,9 +16,8 @@ extends "res://tests/prologue_run.gd"
 ##   4. beside the road: the hermit's house up its boardwalk, Lu's journal page behind the falls (a hidden way shown),
 ##      and Greyreed Hamlet's Grey Roofs (the grey lanterns cleansed on the hall's and the granary's roofs, reached up
 ##      their crate stacks) and Cleansing the Well;
-##   5. past chapter 4 the story waits on The Shrine Surfaces, played past the prototype's gate while the Drowned Shrine
-##      has no layout, and the frontier: every way out of these rooms into a room with no layout yet is closed by the
-##      prototype's gate, every way between rooms on the grid is open.
+##   5. past chapter 4 the story waits on The Shrine Surfaces, played at the Drowned Shrine on the grid, and every way
+##      out of these rooms leads into a room laid out on the grid (decision 41's gate went in S12a).
 ## Run headless:  godot --headless --path . res://tests/topdown_chapter4.tscn [-- --verbose]
 
 const ROOMS := ["rm_grey_pools", "rm_sunken_causeway", "bg_whispering_bamboo", "bg_thicket_heart", "cf_falls_pool", "cp_pilgrim_stairs",
@@ -33,7 +32,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("ch4/")
 	_to_chapter4()
 	GameEvents.event.connect(_on_room)
@@ -164,8 +162,8 @@ func _leads(quest: String, target: String) -> bool:
 
 func _toward_cleansing_peak() -> void:
 	var waiting: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS)
-	check(not waiting.is_empty() and str(waiting[0].id) == "toward_cleansing_peak" and not Game.quest.beyond_prototype(c(), waiting[0]),
-		"chapter 4's first quest, Toward Cleansing Peak, waits on the grid, not past the prototype's gate (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
+	check(not waiting.is_empty() and str(waiting[0].id) == "toward_cleansing_peak" and TopdownRoom.has_layout(str(waiting[0].get("target_room", ""))),
+		"chapter 4's first quest, Toward Cleansing Peak, waits on the grid (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
 	accept("elder_hu", "toward_cleansing_peak")
 	check(_leads("toward_cleansing_peak", "cp_pilgrim_stairs"), "Toward Cleansing Peak leads to the Pilgrim Stairs, on the grid (%s)" % str(Game.quest.tracker(c()).slice(0, 1)))
 	# The road east, room by room: down from the sect to the Marsh Edge, through the Grey Pools and over the Sunken
@@ -244,22 +242,16 @@ func _the_rooms() -> void:
 	check(walk_misses.is_empty(), "in every room of chapter 4 auto-path reaches every thing and way from the spawn and every way in (%s)" % str(walk_misses.slice(0, 6)))
 	check(view_misses.is_empty(), "the top-down view built every room of chapter 4: a figure for each person and thing, a mark for each way (%s)" % str(view_misses.slice(0, 4)))
 
-# ------------------------------------------------------------------ 5: past chapter 4, the frontier
+# ------------------------------------------------------------------ 5: past chapter 4
 func _past_the_chapter() -> void:
 	var waiting: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS)
-	check(not waiting.is_empty() and str(waiting[0].id) == "the_shrine_surfaces"
-		and Game.quest.beyond_prototype(c(), waiting[0]) == not TopdownRoom.has_layout("ds_flooded_gate"),
-		"past chapter 4 the story waits on The Shrine Surfaces, past the prototype's gate exactly while the Drowned Shrine has no layout (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
-	# Every way out of these rooms: closed by the prototype's gate exactly when its room has no layout yet.
+	check(not waiting.is_empty() and str(waiting[0].id) == "the_shrine_surfaces" and TopdownRoom.has_layout("ds_flooded_gate"),
+		"past chapter 4 the story waits on The Shrine Surfaces, the Drowned Shrine on the grid (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
+	# Every way out of these rooms leads into a room laid out on the grid.
 	var wrong: Array = []
-	var gated: Array = []
 	for rid in ROOMS + ASIDE:
 		Game.world.load_room(c(), rid, "")
 		GameEvents.flush()
 		for p in Game.room_rt.def.get("portals", []):
-			var gs: Dictionary = Game.world.portal_state(c(), p)
-			var off_grid := not TopdownRoom.has_layout(str(p.get("to", "")))
-			var shut: bool = gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
-			if off_grid: gated.append("%s:%s" % [rid, str(p.id)])
-			if shut != off_grid: wrong.append("%s:%s %s" % [rid, str(p.id), str(gs)])
-	check(wrong.is_empty(), "every way out of chapter 4's rooms into a room with no layout is closed by the gate, every way on the grid is not (gated %s; wrong %s)" % [str(gated), str(wrong.slice(0, 4))])
+			if not TopdownRoom.has_layout(str(p.get("to", ""))): wrong.append("%s:%s" % [rid, str(p.id)])
+	check(wrong.is_empty(), "every way out of chapter 4's rooms leads into a room laid out on the grid (wrong %s)" % str(wrong.slice(0, 4)))

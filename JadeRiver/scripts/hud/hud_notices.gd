@@ -218,14 +218,14 @@ func age(delta: float) -> void:
 
 ## World news (the calendar's events, the seasons, the Heaven Ranking's shifts, a treasure born elsewhere) reaches the
 ## player only once the calendar is theirs (the World menu's unlock, after the Prologue), never while a staged scene
-## holds the stage, and only of a place they know: a room they have been in, and in the top-down world never one past
-## the prototype's gate. The prototype's QA found a late-game event's toast ("The Drowned Shrine Surfaces · Abbot's
-## Sanctum") over a brand-new player's village and the Hollow Night's timer.
+## holds the stage, and only of a place they know: a room they have been in. The prototype's QA found a late-game
+## event's toast ("The Drowned Shrine Surfaces · Abbot's Sanctum") over a brand-new player's village and the Hollow
+## Night's timer.
 func world_news(room := "") -> bool:
 	var c = Game.active()
 	if c == null or not Unlocks.is_unlocked(c.id, "world_menu"): return false
 	if hud.scene_lock or (hud.scenes != null and hud.scenes.get("run") != null): return false
-	if room != "" and (not Game.account.visited_rooms.has(room) or QuestAuthority.past_gate(c, room)): return false
+	if room != "" and not Game.account.visited_rooms.has(room): return false
 	return true
 
 ## A calendar event's own room (or the first of its rooms) for world_news: "" when it names none.
@@ -233,7 +233,7 @@ func _event_room(ev: Dictionary) -> String:
 	if str(ev.get("room", "")) != "": return str(ev.room)
 	var rooms: Array = ev.get("rooms", [])
 	for r in rooms:
-		if Game.account.visited_rooms.has(str(r)) and not QuestAuthority.past_gate(Game.active(), str(r)): return str(r)
+		if Game.account.visited_rooms.has(str(r)): return str(r)
 	return str(rooms[0]) if not rooms.is_empty() else ""
 
 func _pet_name(uid: String) -> String:

@@ -18,7 +18,6 @@ extends "res://tests/prologue_run.gd"
 
 func _main() -> void:
 	_every_scene_validates()
-	create_extra = {"view": "topdown"}
 	start_new("saves/")
 	_the_opening_in_view()
 	_resumes_after_a_reload()

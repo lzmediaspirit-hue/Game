@@ -343,7 +343,7 @@ func enemy_attack_release(e: EnemyState, attack: Dictionary) -> void:
 		e.ai.summon_cd = 12.0
 		for i in 2:
 			var off := Vector2((i * 2 - 1) * 120, rng.randf_range(-30, 30))
-			var at := game.room_rt.topdown.place_near(e.plane + off, e.altitude)   # beside the summoner on its own floor
+			var at: Vector2 = game.room_rt.topdown.place_near(e.plane + off, e.altitude)   # beside the summoner on its own floor
 			spawn_at(str(attack.summon), at, int(attack.get("summon_level", -1)))
 		emit("enemy_summoned", {"enemy": e.uid})
 		return

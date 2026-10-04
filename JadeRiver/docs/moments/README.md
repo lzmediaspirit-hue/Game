@@ -21,7 +21,7 @@ In-game captures of the moments system (`docs/moments_design.md`, roadmap P6), t
 | `rare_drop.png` | `rare_drop`, the strip naming the find in its colour | `ls6_end`: `--load-slot --moment=rare_drop:1.0` |
 | `story_beat.png` | `story_beat`, a chapter closing | `ls6_end`: `--load-slot --moment=story_beat:1.2` |
 | `trial_opens.png` | `trial_opens`, the band in pale gold | `ls6_end`: `--load-slot --moment=trial_opens:0.8` |
-| `escalation.png` | the escalation curve (§5): one technique per tier on three Wild Boarlets, Cursive Storm's rain and four stacked hits with their total, Flying Blades' three hits and total | `qk5`: `--load-slot --room=wp_east --at=180,760 --foe=wild_boarlet:3 --cast=<technique>:<t>` (t 0.02, the rain 0.3, the total 0.45) |
+| `escalation.png` | the escalation curve (§5): one technique per tier on three Wild Boarlets, Cursive Storm's rain and four stacked hits with their total, Flying Blades' three hits and total | `qk5`: `--load-slot --room=wp_east --at=180,760 --foe=wild_boarlet:3 --cast=<technique>:<t>` (t 0.02, the rain 0.3, the total 0.45; a side-view picture, the flag gone in S12a) |
 
 `--moment` plays a row with its sample payload; `--breakthrough`, `--defeat-foe` and the den's aggro are the real path;
 `--cast` draws a technique's cast and hits at its tier without submitting anything. The ink band reads faintly over the

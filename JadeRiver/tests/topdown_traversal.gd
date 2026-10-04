@@ -13,7 +13,7 @@ extends "res://tests/prologue_run.gd"
 ##   4. the rope up the falls ledge's east face and back down; a sealed climbable stays shut;
 ##   5. Skipping Stones: Water Skimming across the hermit's pond counts, the mist lotus picked, the hermit takes it;
 ##   6. Swallow Dart and the Cloud Ladder Step in the Falls Pool: three darts along the stick holding the height, three
-##      second jumps, each lesson's objectives done on the grid (their librarian waits in the library, past the gate);
+##      second jumps, each lesson's objectives done on the grid (their librarian waits in the library);
 ##   7. Wall-Step off the cliff's face and a bounce off a drum laid on the grid, each its art_used;
 ##   8. a lift laid at the cliff's foot carries its rider up to the top and goes back without it; rotten boards hold a
 ##      foot, give way into the water and come back;
@@ -43,7 +43,7 @@ extends "res://tests/prologue_run.gd"
 ##  26. Frostpine Climb's and Rimefrost Summit's ice;
 ##  27. no-flight: the rooms that forbid it, an interior and a dungeon glide; a flight into a no_flight volume comes down;
 ##  28. low gravity: a floor laid on the Falls Pool, its jade switch turned through the World authority, a jump higher;
-##  29. the Starsea's four docks: gated while a crossing or a port has no layout, the voyage played once both are laid;
+##  29. the Starsea's four docks: each voyage played on the grid, its crossing's deck and its port both laid out;
 ##      the Shipwrights' Yard's chart table and slipway open their pages;
 ##  30. the light of the late zones: the tomb and the Clan Hearth lamp-lit, the star field starlit, its star lanterns lit;
 ##  31. the Jellyfish Shallows' wade, and Spirit Sense showing the Smugglers' Cove's crack;
@@ -73,7 +73,6 @@ var struck: Dictionary = {}   # T3: hazard -> times hazard_struck was heard
 var motor_events: Array = []  # T3: what the body's motor did, frame by frame (frames())
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("traverse/")
 	GameEvents.event.connect(_heard)
 	_shortcut()
@@ -538,7 +537,7 @@ func _dart_and_ladder() -> void:
 # ------------------------------------------------------------------ 7: Wall-Step and a bounce
 func _wall_and_bounce() -> void:
 	var m := motor()
-	# The art as Between Two Walls teaches it (a test shortcut: that lesson is the Echo Cliffs', past the gate).
+	# The art as Between Two Walls teaches it (a test shortcut: that lesson is the Echo Cliffs').
 	Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "wall_step"}], "test")
 	check(Game.combat.knows_art(c(), "wall_step"), "Wall-Step learned")
 	var w0 := int(arts.get("wall_step", 0))
@@ -1421,11 +1420,8 @@ func _low_gravity() -> void:
 # ------------------------------------------------------------------ 29: the Starsea docks
 ## The Starsea's four docks on the grid (the Shipwrights' Yard's, R6's; the Broken Pier's, the Launch's and the Arrival
 ## Quay's, R8's): a top-down character with a vessel and the route's chart at Sage 3 sets sail with the dock's own call
-## (the context's interact). While a route's crossing deck or its far port has no layout, the prototype's gate holds the
-## dock as it holds a way (the side view is never entered); with both laid out the voyage plays on the grid: the
-## crossing's event for the vessel's time, its foes come aboard onto the deck's floors, and the port is made at the far
-## pier. With R9's crossings laid out, the gate's case is played with R9's rooms stood off the grid; then all four routes
-## are sailed.
+## (the context's interact). The voyage plays on the grid: the crossing's event for the vessel's time, its foes come
+## aboard onto the deck's floors, and the port is made at the far pier. All four routes are sailed.
 func _starsea() -> void:
 	Unlocks.force_unlock(c().id, "starsea")
 	for k in ["cloud_skiff", "star_chart_wreck", "star_chart_lantern"]:
@@ -1443,17 +1439,8 @@ func _starsea() -> void:
 		var pr := Game.submit({"type": "interact", "object": str(row[0])})
 		check(pr.get("ok", false) and str(pr.get("open_page", "")) == str(row[1]), "the yard's %s opens its page (%s) from the grid" % [row[0], str(pr)])
 	var foes_seen := false
-	# With R9's rooms laid out every crossing and port is on the grid: the gate's own case is checked with the last
-	# batch stood off it (tests/lib/off_grid.gd, as the world was before R9), the yard's dock refused, then all four sailed.
-	var off_grid = preload("res://tests/lib/off_grid.gd")
-	var stood_off: Array = off_grid.stand_off()
-	var rows: Array = [["ae_shipyard", "dock_cloudgate"]] if not stood_off.is_empty() else []
-	rows += [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]
-	for i in rows.size():
-		var row: Array = rows[i]
-		if not stood_off.is_empty() and i > 0:
-			off_grid.restore(stood_off)
-			stood_off = []
+	var rows: Array = [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]
+	for row in rows:
 		var rid := str(row[0])
 		check(enter(rid), "to %s's Starsea dock on the grid" % rid)
 		var dock: Dictionary = Game.room_rt.object_def(str(row[1]))
@@ -1462,13 +1449,8 @@ func _starsea() -> void:
 		var grid: TopdownRoom = Game.room_rt.topdown
 		var spot := grid.spot_near(at, float(dock.get("alt", 0.0)), at)
 		stand(Vector2(spot.x / TopdownRoom.TILE - 0.5, spot.y / TopdownRoom.TILE - 0.5))
-		var laid := TopdownRoom.has_layout(str(v.crossing)) and TopdownRoom.has_layout(str(v.to))
 		var r := Game.submit({"type": "interact", "object": str(row[1])})
 		GameEvents.flush()
-		if not laid:
-			check(not r.get("ok", false) and str(r.get("reason", "")) == "gate" and str(r.get("text", "")) == Tx.t("sim.world.road_being_drawn") and room() == rid,
-				"%s: while the crossing (%s) or the port (%s) has no layout the dock is gated as a way is (%s)" % [v.id, v.crossing, v.to, str(r)])
-			continue
 		st = w.player.state
 		_sync()
 		var secs := float(v.base_s) / float(ContentDB.item(Game.world.best_vessel(c())).get("vessel", {}).get("speed", 1.0))

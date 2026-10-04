@@ -27,7 +27,6 @@ const ONCE := 1
 ## The screen the preview opens on.
 var OPEN := [ONCE, [
 	["--topdown-proto", _topdown_proto],       # redesign Phase 1: the top-down prototype room, the real HUD
-	["--topdown", _topdown],                   # Phase 4: the preview character is a top-down one (decision 41)
 	["--topdown-tutorial", _topdown_tutorial], # Phase 4: the top-down game, as the title's hidden entry opens it
 	["--preview-selection", _selection],
 	["--preview-create", _creation],
@@ -75,7 +74,6 @@ var STEPS := [
 		["--defeat-foe[=]", _defeat_foe, ["room"]],
 		["--pick-up[=]", _pick_up, ["room"]],
 		["--equip=", _equip, ["active"]],
-		["--cast=", _cast, ["world", "room"]],
 		["--hold=", _hold, ["moments"]],
 		["--false-realm=", _false_realm, ["active"]],
 		["--vessel=", _vessel, ["active"]],
@@ -131,11 +129,10 @@ var CAPTURE := [
 var main               ## the shell (scripts/main.gd)
 var args: Array        ## the arguments after "--"
 var room := ""         ## --room=: the room the preview character starts in
-var preview_view := "" ## --topdown: "topdown", the preview character's view
 var shot := ""         ## --shot=: the picture's name (the screen's when none is given)
 var moment_t := -1.0   ## P6: with --capture, the picture is taken this many seconds after a moment starts
 
-## main's views, read at each use (a room entered in the other view swaps the world).
+## main's views, read at each use (the world view is remade when the world is entered again).
 var world:
 	get: return main.world
 var hud:
@@ -227,9 +224,6 @@ func _load(a: String) -> void:
 func _topdown_proto(_a: String) -> void:
 	main.enter_topdown_proto(false)
 
-func _topdown(_a: String) -> void:
-	preview_view = "topdown"
-
 func _topdown_tutorial(_a: String) -> void:
 	main.enter_topdown_tutorial(false)
 
@@ -251,9 +245,9 @@ func _text_size(a: String) -> void:
 func _enter() -> void:
 	var loaded := "--load-slot" in args   # --room= with it starts the loaded character in that room
 	if not loaded and Game.character("c1") == null:
-		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}, "view": preview_view})
+		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("main.preview"), "appearance": {"hair": "topknot", "shirt": "disciple"}})
 	if room != "" and Game.character("c1") != null:
-		Game.character("c1").position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
+		Game.character("c1").position = {"room": room, "portal": "", "x": 0.0, "y": 0.0, "facing": 1}
 		for stage in PLACE: await _run(stage)
 	main.enter_world(1)
 
@@ -403,7 +397,6 @@ func _wield(a: String) -> void:
 		c.inventory.equipped["weapon"] = c.inventory.bag[i]
 		c.inventory.bag[i] = was
 		Game.combat.refresh_stats(c.id)
-		_dress(c)
 
 ## --relic=item[:awake[:affinity]] holds a bound relic, its spirit asleep or awake, and has the spirit speak once (S47
 ## Artifact Spirit previews).
@@ -421,7 +414,6 @@ func _relic(a: String) -> void:
 	for fid in ["iron_jian", "iron_spear"]: Game.inventory.apply_add_equipment(c.id, fid, 10, "common", "debug")
 	Game.inventory.apply_add(c.id, str(ContentDB.item(ra[0]).get("spirit", {}).get("favourite", "refining_essence")), 3, "debug")
 	Game.combat.refresh_stats(c.id)
-	_dress(c)
 	Game.inventory.speak(c, inst, "awake" if str(inst.spirit) == "awake" else "gift", true)
 
 ## --awaken=item[:awake] holds that weapon at +10 with its Dao at Explanation and a Weapon Soul Crystal in the bag,
@@ -440,13 +432,6 @@ func _awaken(a: String) -> void:
 	Unlocks.force_unlock(c.id, "smithing")
 	Game.inventory.apply_add(c.id, "weapon_soul_crystal", 1, "debug")
 	Game.combat.refresh_stats(c.id)
-	_dress(c)
-
-## Side view: its avatar redrawn in the weapon just put in the hand (the top-down player has no avatar).
-func _dress(c) -> void:
-	if is_instance_valid(world) and world.player and world.player.get("avatar") != null:
-		world.player.avatar.outfit = InventoryAuthority.outfit_for(c)
-		world.player.avatar.last_key = ""
 
 ## --join=sect[:rank] joins a training sect at a rank with 2000 contribution (sect role previews).
 func _join(a: String) -> void:
@@ -492,19 +477,6 @@ func _equip(a: String) -> void:
 	for i in eb.size():
 		if eb[i] != null and str(eb[i].id) == _val(a) and (newest < 0 or int(eb[i].get("uid", 0)) > int(eb[newest].get("uid", 0))): newest = i
 	if newest >= 0: Game.submit({"type": "equip", "index": newest})
-
-## Side view: --cast=technique[:t] draws a technique's cast and its hits on the foes in reach at its tier
-## (World.preview_cast; nothing is submitted); with --capture, the picture t s after (default 0.15).
-func _cast(a: String) -> void:
-	var ca := _val(a).split(":")
-	await _after(2.0)   # past the arrival's spawn protection (1.5 s), so the caster is solid
-	# Decision 23: with --capture the cast's effects and pose step a sixtieth a frame, so the picture lands on the frame
-	# t names whatever the renderer's pace (the capture's wait counts frames too).
-	if "--capture" in args:
-		world.fx.fixed_step = 1.0 / 60.0
-		world.sim_frozen = true   # the foes hold still too: the picture is the effect on the pose
-	world.preview_cast(ca[0])
-	moment_t = float(ca[1]) if ca.size() > 1 else 0.15
 
 ## --hold=t[:row] holds the moment on screen (or only that row) once it reaches t s (pictures of real ones).
 func _hold(a: String) -> void:
@@ -615,16 +587,19 @@ func _ride(_a: String) -> void:
 	Game.submit({"type": "set_active_pet", "pet": mount_uid})
 	Game.submit({"type": "set_pet_role", "pet": mount_uid, "role": "mount"})
 
-## Side view: flight, with a filled Qi pool.
+## Flight (Cloud Stride), with a filled Qi pool: Combat takes it up as the player's held jump would, and the body
+## climbs for 0.9 s.
 func _fly(_a: String) -> void:
 	await _after(0.5)
 	var c = Game.active()
 	c.pools.max_qi = maxf(c.pools.max_qi, 400.0)
 	c.pools.qi = c.pools.max_qi
-	world.player.take_off()
+	Unlocks.force_unlock(c.id, "flight")
+	if not Game.submit({"type": "start_flight"}).get("ok", false) or not is_instance_valid(world.player): return
+	world.player.motor.fly(true)
 	world.player.fly_up = true
 	await _after(0.9)
-	world.player.fly_up = false
+	if is_instance_valid(world.player): world.player.fly_up = false
 
 ## --herb-ripe=object moves the clock to a rare herb's next ripening, in its season (S45).
 func _herb_ripe(a: String) -> void:
@@ -754,13 +729,7 @@ func _breakthrough(a: String) -> void:
 ## The picture: after 2.5 s, or just past the moment's t; then --auto-path= and --auto-hunt, --wait=s, --hazard=; saved
 ## as ../<shot>-preview.png beside the project, and the game quits.
 func _capture() -> void:
-	# Side view: a cast's fixed step (--cast with --capture) counts the wait in frames. The top-down FX view has none.
-	var fx = world.get("fx") if is_instance_valid(world) else null
-	var step: float = fx.fixed_step if fx != null and "fixed_step" in fx else 0.0
-	if step > 0.0:
-		for i in ceili((2.5 if moment_t < 0.0 else moment_t + 0.05) / step): await main.get_tree().process_frame
-	else:
-		await _after(2.5 if moment_t < 0.0 else moment_t + 0.05)
+	await _after(2.5 if moment_t < 0.0 else moment_t + 0.05)
 	for stage in CAPTURE: await _run(stage)
 	await RenderingServer.frame_post_draw
 	main.get_tree().root.get_texture().get_image().save_png("res://../" + (shot if shot != "" else main.screen) + "-preview.png")

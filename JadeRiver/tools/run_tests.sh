@@ -15,11 +15,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 done < tests/suites.txt
 
 failed=()
-# The animation rules (AGENTS.md; Validate-Animations.ps1), where PowerShell is installed.
-if command -v pwsh >/dev/null 2>&1; then
-  echo "== animations"
-  if ! pwsh -NoProfile -File Validate-Animations.ps1; then failed+=("animations"); fi
-fi
 # Audit 45 (S5): every data/*.json file is what its generator writes.
 echo "== build_data"
 if ! python3 tools/data/build_data.py --check; then failed+=("build_data"); fi

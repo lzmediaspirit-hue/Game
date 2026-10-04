@@ -127,6 +127,7 @@ func _main() -> void:
 	save_suite()
 	await topdown_suite()
 	await recipe_rename_suite()
+	side_view_save_suite()
 	await prototype_suite()
 	end_suite()
 
@@ -150,16 +151,13 @@ func topdown_suite() -> void:
 	await ls.run_view(self, get_tree())
 	print("topdown life measured: ", ls.measured)
 
-# ------------------------------------------------------------------ decision 41: the prototype's default and its gate
-## New games start in the top-down world; Settings keeps the classic side view as an off-by-default fallback; an intent
-## that names no view (the test walks) and every side-view save keep the side view. In a top-down character's game
-## every way from a room on the height grid into a room with no layout yet is closed by the prototype's gate: it says
-## "The road beyond is still being drawn." on the way's plate, on a touch and on the context button; no route, hop,
-## auto-path, teleport or tower climb goes through it; the view stands a barrier in the way. The tracker never leads
-## past it: a quest whose step is past it leads nowhere and says so, and once the story's next quest is past it (and no
-## lesson inside the prototype is on offer) its first entry is the prototype's end. On its own saves.
-## What the creator `cr` previews: its kind ("topdown", the top-down figure; "side", the side view's avatar) and, for the
-## top-down one, what a few seconds of it show: the facings it walks in, whether it walks and rests facing the camera,
+# ------------------------------------------------------------------ one world (S12a; decision 41's prototype before it)
+## Every game is the top-down one: the creator makes, previews and the selection shows every character on the grid,
+## and Settings offers no choice of view (S12a retired the side view and decision 41's gate at the prototype's end with
+## it). Then the prototype's QA fixes: world news, a moment's band, the HUD rects the labels keep off, the log, plates at
+## the screen's edges, the equip prompt, locked resource nodes, the transfer array's picker, a step in an instanced room,
+## Shen Lian's spar, the hunting grounds and the lessons first. On its own saves.
+## What the creator `cr` previews: its kind ("topdown", the top-down figure) and what a few seconds of it show: the facings it walks in, whether it walks and rests facing the camera,
 ## the dyes it wears, whether it follows a change of the look (the hair, the robe), and whether a tap turns it.
 func _creator_preview(cr) -> Dictionary:
 	var p = cr.preview
@@ -184,7 +182,7 @@ func _creator_preview(cr) -> Dictionary:
 		cr.on_action("turn", null)
 		return {"kind": "topdown", "missing": p.figure.missing.duplicate(), "rows": rows.keys(), "walks": walks, "rests": rests, "dyed": dyed,
 			"follows": follows, "turned": str(p.row) != before and p.held > 0.0}
-	return {"kind": "side" if p is Node2D and p.get_script() == ShellScreens.Avatar else "other"}
+	return {"kind": "other"}
 
 func prototype_suite() -> void:
 	var folder := run_root() + "prototype_suite/"
@@ -194,18 +192,14 @@ func prototype_suite() -> void:
 	Game.boot()
 	Game.autosave_enabled = false
 	Game.account.slots_unlocked = 4
-	var road := Tx.t("sim.world.road_being_drawn")
-	# The default: the creator (the new-game flow) makes a top-down character; the fallback setting a side-view one.
-	check(AccountAuthority.new_game_view({}) == "topdown" and AccountAuthority.new_game_view({"classic_side_view": true}) == "",
-		"prototype: a new game is top-down unless Settings keeps the classic side view")
+	var shut_line := Tx.t("sim.world.coming_soon")   # a shut way's line, for the log's checks
 	var settings_page: Page = load("res://scripts/ui/pages/settings_page.gd").new()
-	check("classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF and not settings_page.is_on("classic_side_view"),
-		"prototype: Settings' classic side view is a fallback, off by default (the old top-down toggle is gone)")
+	check(not "classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF,
+		"one world: Settings offers no choice of view (the classic side view and the old top-down toggle are gone)")
 	settings_page.free()
 	var made := {}
 	var previews := {}
 	for slot in [1, 2]:
-		if slot == 2: Game.account.settings["classic_side_view"] = true
 		var cr := ShellScreens.CreatorScreen.new()
 		add_child(cr)
 		cr.open({"slot": slot})
@@ -214,36 +208,29 @@ func prototype_suite() -> void:
 		cr.created.connect(func(s: int): made[s] = true)
 		cr.on_action("begin", null)
 		cr.queue_free()
-	# Decision 41: the creator shows the new character as its game draws it: the top-down figure (TopdownFigure, the
-	# layer sets under art/topdown/character/) walking in place and turning, in the starting garments' dyes, following
-	# every change of the look; the side view's avatar only with the classic side view on.
+	# The creator shows the new character as its game draws it: the top-down figure (TopdownFigure, the layer sets under
+	# art/topdown/character/) walking in place and turning, in the starting garments' dyes, following every change of
+	# the look.
 	var td_prev: Dictionary = previews[1]
 	check(str(td_prev.kind) == "topdown" and (td_prev.missing as Array).is_empty() and (td_prev.rows as Array).size() == 8 and td_prev.walks and td_prev.rests
 		and td_prev.dyed and td_prev.follows and td_prev.turned,
 		"prototype: the creator's preview is the top-down figure, fully drawn (missing %s), walking in place through all eight facings (%s) with a rest facing the camera, in the starting dyes, following the look's changes, and a tap turns it (%s)"
 		% [str(td_prev.missing), str(td_prev.rows), str(td_prev)])
-	check(str(previews[2].kind) == "side", "prototype: with the classic side view kept in Settings the creator shows the side view's avatar (%s)" % str(previews[2].kind))
-	Game.account.settings.erase("classic_side_view")
+	check(str(previews[2].kind) == "topdown", "one world: every slot's creator shows the top-down figure (%s)" % str(previews[2].kind))
 	var td = Game.character("c1")
-	var sv = Game.character("c2")
-	check(made.has(1) and td != null and td.view == "topdown" and str(td.position.room) == "lf_fishers_hut" and float(td.position.x) == 0.0,
-		"prototype: the character creator makes a top-down character by default, waking at its first room's own spawn (%s)" % (str(td.position) if td else "none"))
-	check(made.has(2) and sv != null and sv.view == "", "prototype: with the classic side view kept in Settings the creator makes a side-view one")
+	var second = Game.character("c2")
+	var spawned := func(ch) -> bool: return ch != null and str(ch.position.room) == "lf_fishers_hut" and float(ch.position.x) == 0.0 and not ch.position.has("surface")
+	check(made.has(1) and spawned.call(td),
+		"prototype: the character creator makes a character waking at its first room's own spawn on the grid (%s)" % (str(td.position) if td else "none"))
+	check(made.has(2) and spawned.call(second), "one world: the second slot's character wakes on the grid the same way (%s)" % (str(second.position) if second else "none"))
 	var sel := ShellScreens.SelectionScreen.new()
 	add_child(sel)
 	sel.open({})
-	check(sel.avatars.get(1) is ShellScreens.TopdownPreview and not sel.avatars.get(2) is ShellScreens.TopdownPreview and sel.avatars.get(2) != null,
-		"prototype: character selection shows each disciple as their own game draws them: a top-down one in the top-down style (%s)" % str(sel.avatars.keys()))
+	check(sel.avatars.get(1) is ShellScreens.TopdownPreview and sel.avatars.get(2) is ShellScreens.TopdownPreview,
+		"prototype: character selection shows every disciple in the top-down style (%s)" % str(sel.avatars.keys()))
 	sel.queue_free()
-	Game.submit({"type": "create_character", "slot": 3, "name": "No View"})
-	check(Game.character("c3") != null and Game.character("c3").view == "", "prototype: a create intent that names no view (the test walks) keeps the side view")
-	var snap: Dictionary = Game.character("c3").snapshot()
-	snap.erase("view")   # a save from before the views
-	var old := GameCharacter.new()
-	old.restore(snap)
-	var again := GameCharacter.new()
-	again.restore(td.snapshot())
-	check(old.view == "" and again.view == "topdown", "prototype: a side-view save (no view saved) keeps its side view, a top-down one its own")
+	var snap: Dictionary = td.snapshot()
+	check(not snap.has("view") and int(snap.get("minor", 0)) == GameCharacter.MINOR, "one world: a save holds no view, at the format's minor %d (%s)" % [GameCharacter.MINOR, str(snap.get("minor"))])
 	# World news (a calendar event, the season) never reaches a brand-new player, nor one in a staged scene, nor of a place
 	# they do not know: the late-game Drowned Shrine's toast was seen over the tutorial village.
 	Game.submit({"type": "enter_character", "slot": 1})
@@ -319,11 +306,11 @@ func prototype_suite() -> void:
 	check(quiet_rect.size.x == 0.0 and log_r.size.x > 0.0 and news.obstacle_rects().has(log_r) and log_r.end.x <= 20.0 + news.LOG_W + 0.5,
 		"prototype: the world's labels keep off the log's rows while they show, and not off an empty log (%s)" % str(log_r))
 	news.log_lines.clear()
-	# Walked into the gate again and again, its line is said once, by the way's own plate (lit at the way, below): none in
-	# the log (it was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
+	# Walked into a shut way again and again, its line is said once, by the way's own plate: none in the log (decision
+	# 41's gate was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
 	# in view logs it once while it repeats, and a line floating over the player stays whole on the screen.
 	news.log_lines.clear()
-	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": shut_line})
 	var plateless: int = news.log_lines.size()
 	var host_src := GDScript.new()
 	host_src.source_code = "extends Node2D\nvar portal_views := []\n"
@@ -334,7 +321,7 @@ func prototype_suite() -> void:
 	host.portal_views.append(gate_pv)
 	news.world = host
 	news.log_lines.clear()
-	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": shut_line})
 	var plated: int = news.log_lines.size()
 	news.world = null
 	gate_pv.free()
@@ -355,7 +342,7 @@ func prototype_suite() -> void:
 	var fx_probe := FxLayer.new()
 	add_child(fx_probe)
 	var vw := fx_probe.get_viewport_rect().size.x
-	var road_text := Tx.t("sim.world.road_being_drawn")
+	var road_text := shut_line
 	var road_at := fx_probe.on_screen(road_text, 18, Vector2(vw - 10.0, 300.0))
 	var road_half := UiKit.text_width(road_text, 18) * 0.5
 	check(plated == 0 and plateless == 1 and road_at.x + road_half <= vw and road_at.x - road_half >= 0.0,
@@ -388,98 +375,7 @@ func prototype_suite() -> void:
 		var nm := ContentDB.item_name(id)
 		if UiKit.text_width(nm, EquipPrompt.name_size(nm)) > 168.0: cut_names.append(nm)
 	check(cut_names.is_empty(), "prototype: the equip prompt names every early piece whole (%s)" % str(cut_names))
-	# The gate, on every way off the grid, for the top-down character only. With every room on the grid (R8, R9), the
-	# last batch's rooms stand off it while the gate is checked (tests/lib/off_grid.gd), back on at the suite's end.
-	var stood_off: Array = preload("res://tests/lib/off_grid.gd").stand_off()
 	var st := ActorState.new()
-	Game.bind_movement(td.id, st)
-	var gated: Array = []
-	var wrong: Array = []
-	for rid in ContentDB.rooms:
-		if not TopdownRoom.has_layout(str(rid)): continue
-		for p in ContentDB.room(str(rid)).get("portals", []):
-			if TopdownRoom.has_layout(str(p.get("to", ""))) or ContentDB.room(str(p.get("to", ""))).is_empty(): continue
-			Game.world.load_room(td, str(rid), "")
-			GameEvents.flush()
-			var way: Dictionary = Game.room_rt.portal_def(str(p.id))
-			var ps: Dictionary = Game.world.portal_state(td, way)
-			st.plane = Vector2(float(way.at[0]), float(way.at[1]))
-			st.altitude = float(way.get("alt", 0.0))
-			st.surface = null
-			var tried := Game.submit({"type": "use_portal", "portal": str(p.id), "crossing": true})
-			var ctx: Dictionary = Game.world.query_context(td)
-			var ok: bool = ps.get("gate", false) and not ps.open and str(ps.text) == road and not Game.world.portal_open(td, str(rid), way) \
-				and not tried.get("ok", false) and str(tried.get("text", "")) == road and Game.room_rt.room_id == str(rid) \
-				and Game.world.route(td, str(rid), str(p.to)).is_empty()
-			if str(ctx.get("portal", "")) == str(p.id): ok = ok and not ctx.get("ok", true) and str(ctx.get("text", "")) == road
-			gated.append("%s:%s" % [rid, p.id])
-			if not ok: wrong.append("%s:%s %s %s" % [rid, p.id, str(ps), str(tried)])
-	check(not gated.is_empty() and wrong.is_empty(),
-		"prototype: every way from a room on the grid into one without a layout (%d) is closed by the gate, and says the road beyond is still being drawn on its plate, a touch and the context button; no route through it (%s)" % [gated.size(), str(wrong.slice(0, 3))])
-	# A side-view character at the first of them is not gated; the room's ways into rooms on the grid are open.
-	var first: PackedStringArray = (str(gated[0]) if not gated.is_empty() else "rm_marsh_edge:east").split(":")
-	Game.world.load_room(td, first[0], "")
-	var on_grid: Array = (Game.room_rt.def.get("portals", []) as Array).filter(func(p): return TopdownRoom.has_layout(str(p.get("to", ""))))
-	check(not Game.world.portal_state(sv, Game.room_rt.portal_def(first[1])).get("gate", false) and not on_grid.is_empty()
-		and on_grid.all(func(p): return not Game.world.portal_state(td, p).get("gate", false)),
-		"prototype: the gate closes a top-down character's way off the grid only (a side-view character's is as before at %s; its ways on the grid are open)" % ":".join(first))
-	# No teleport, tower climb or auto-path past it (auto-path to the room past the first gate; the tower climb while the
-	# Trial Tower has no layout).
-	var gate_to := str(Game.room_rt.portal_def(first[1]).get("to", ""))
-	var far_stone := ""   # the first teleport stone in a room with no layout yet (R4 put the Hidden Vale's on the grid)
-	for s in ContentDB.all("teleport_stones"):
-		if far_stone == "" and not TopdownRoom.has_layout(str(s.get("room", ""))): far_stone = str(s.id)
-	Game.account.teleports[far_stone] = true
-	Game.inventory.apply_add(td.id, "spirit_stone_shard", 50, "prototype_suite")
-	Unlocks.force_unlock(td.id, "teleport_stones")
-	Game.world.load_room(td, "sf_market", "")
-	var tp := Game.submit({"type": "teleport", "stone": far_stone})
-	var ap := Game.submit({"type": "auto_path", "target": gate_to})
-	Game.world.load_room(td, "sf_fairground", "")
-	var tower_off := not TopdownRoom.has_layout("sf_trial_tower")
-	var tw: Dictionary = Game.world.climb_tower(td, 1) if tower_off else {}   # on the grid (R3), the climb is no gate's
-	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
-		and (not tower_off or (not tw.get("ok", false) and str(tw.get("text", "")) == road)),
-		"prototype: no teleport (a stone another character found), auto-path (to %s) or tower climb goes past the gate (%s; %s; %s)" % [gate_to, str(tp), str(ap), str(tw)])
-	# The view stands a barrier in each way past the gate and no other, in the room of the first one (the Caravan Road is
-	# on the grid since E1, the road east past the Marsh Edge since R1).
-	Game.world.load_room(td, first[0], "")
-	var want := {}
-	for p in Game.room_rt.def.get("portals", []):
-		var to := str(p.get("to", ""))
-		if to != "" and str(p.get("type", "")) != "hidden" and not ContentDB.room(to).is_empty() and not TopdownRoom.has_layout(to): want[str(p.id)] = true
-	var w := TopdownWorld.new()
-	w.live = true
-	w.sim_frozen = true
-	add_child(w)
-	await get_tree().process_frame
-	var gates := w.sorted.get_children().filter(func(n): return n is TopdownGate)
-	for g in gates: g._process(0.0)
-	var ways := {}
-	for g in gates: ways[str(g.def.id)] = true
-	var drawn: Array = ways.keys()
-	drawn.sort()
-	var wanted: Array = want.keys()
-	wanted.sort()
-	check(drawn == wanted and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
-		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s: %s)" % [first[0], str(drawn)])
-	# Walked into, the gate says its line once, where it is: the way's own plate lights up, and nothing floats over the
-	# player (the touch line replaces the label, not stacks under it).
-	var gate_def: Dictionary = Game.room_rt.portal_def(first[1])
-	st.plane = Vector2(float(gate_def.at[0]), float(gate_def.at[1]))
-	st.altitude = float(gate_def.get("alt", 0.0))
-	var walked := Game.submit({"type": "use_portal", "portal": first[1], "crossing": true})
-	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds the gate's room again)
-	var way_pv: PortalView = null
-	for pv in w.portal_views:
-		if str(pv.def.get("id", "")) == first[1]: way_pv = pv
-	var floats_before: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
-	w.transfer_cooldown = 0.0
-	WorldShared.request_portal(w, first[1], true)
-	var floats_after: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
-	check(way_pv != null and way_pv.touched > 0.0 and str(way_pv.state.get("text", "")) == road and floats_after == floats_before,
-		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [way_pv.touched if way_pv else -1.0, str(way_pv.state) if way_pv else "-", floats_after - floats_before, str(walked)])
-	w.free()
 	Game.bind_movement(td.id, st)
 	# A resource node not open yet (herb gathering before Bone Forging 4, the Temper drum before its body level) stays in
 	# the world but never takes the context button; open, it is offered (the Reed Shallows' herbs offered their locked
@@ -498,7 +394,7 @@ func prototype_suite() -> void:
 	var herb_open: bool = offered.call("lf_reed_shallows", "herb_6")
 	check(not herb_locked and not drum_locked and herb_open and WorldAuthority.resource_node(ContentDB.room("wp_west").objects.filter(func(o): return str(o.id) == "temper_copper_wp_west")[0]),
 		"prototype: a locked resource node (a herb before herb gathering, the Temper drum before its body level) never takes the context button, and is offered once open (herb %s, drum %s, herb open %s)" % [herb_locked, drum_locked, herb_open])
-	await _array_picker_checks(td, st, road)
+	await _array_picker_checks(td, st)
 	# In the instanced room a step is done in (the Siege of Two Sects, its way out held until it is won) the step leads
 	# there, not back to the street its rite was begun in (valley_run saw a daily done mid-siege send the player out).
 	var siege_def: Dictionary = Game.quest.quest_def(td, "the_siege")
@@ -547,24 +443,8 @@ func prototype_suite() -> void:
 	GameEvents.flush()
 	check(back_at_once and Game.room_rt.enemies.values().all(func(e): return not e.def.get("spar", false)),
 		"prototype: the spar over, his partner is gone at once and Shen Lian stands in the square again, to be talked to")
-	# A quest whose step is past the gate leads nowhere and says so: Stone and Sweat, at the quarry, while the quarry has
-	# no layout; else the first lesson or side quest whose room and steps all lie off the grid.
-	var off_q := "stone_and_sweat"
-	if TopdownRoom.has_layout("sq_quarry_rim"):
-		for q in ContentDB.all("quests"):
-			var tr_room := str(q.get("target_room", ""))
-			if str(q.get("kind", "")) in ["guided", "side"] and tr_room != "" and not ContentDB.room(tr_room).is_empty() and not TopdownRoom.has_layout(tr_room) \
-				and (q.get("objectives", []) as Array).all(func(o): return str(o.get("room", "")) == "" or not TopdownRoom.has_layout(str(o.room))):
-				off_q = str(q.id)
-				break
-	Game.quest.apply_start(td.id, off_q)
-	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == off_q)
-	check(not entry.is_empty() and entry[0].get("gate", false) and str(entry[0].target_room) == "" and (entry[0].lines as Array).any(func(l): return str(l.text) == road),
-		"prototype: a quest whose step is past the gate (%s) leads nowhere and says the road is still being drawn (%s)" % [off_q, str(entry)])
-	Game.quest.apply_drop(td.id, off_q, false)
-	# The story's end in the prototype: The First Current and chapter 3 done (on the grid since E1), no lesson inside the
-	# prototype on offer.
-	for ch in [td, sv]:
+	# The story to The First Current and chapter 3 done, no lesson on offer.
+	for ch in [td]:
 		ch.cultivator.realm_key = "bone_forging_7"
 		for q in ContentDB.all("quests"):
 			var kind := str(q.get("kind", ""))
@@ -572,54 +452,21 @@ func prototype_suite() -> void:
 				ch.quests.done[str(q.id)] = 1
 		ch.quests.active.clear()
 		ch.quests.offered.clear()
-	# ...and the story's quests on the grid past chapter 3 (chapter 4 since R1) done as they come, to the first one played
-	# past the gate (a test shortcut).
-	for i in 60:
-		var nx := Game.quest.story_next(td)
-		if nx.get("gate", false) or nx.is_empty() or str(nx.get("quest", "")) == "": break
-		for ch in [td, sv]:
-			ch.quests.offered.erase(str(nx.quest))
-			ch.quests.done[str(nx.quest)] = 1
 	var end := Game.quest.story_next(td)
-	var side_next := Game.quest.story_next(sv)
-	check(end.get("gate", false) and str(end.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(end.get("target_room", "x")) == ""
-		and (end.get("lines", []) as Array).any(func(l): return str(l.text) == road),
-		"prototype: with the story's next quest past the gate, the top-down tracker's Next is the prototype's end, leading nowhere (%s)" % str(end))
-	check(not side_next.get("gate", false) and str(side_next.get("quest", "")) != "" and str(side_next.get("target_room", "")) != "",
-		"prototype: a side-view character at the same point is led on as before (%s)" % str(side_next.get("name", "")))
+	check(str(end.get("quest", "")) != "" and TopdownRoom.has_layout(str(end.get("target_room", ""))),
+		"one world: past The First Current and chapter 3 the story's Next leads on, to a room on the grid (%s)" % str(end.get("name", "")))
 	var fields: Array = Game.quest.hunt_rooms(td)
-	var side_fields: Array = Game.quest.hunt_rooms(sv)
-	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0])))
-		and (side_fields.any(func(f): return not TopdownRoom.has_layout(str(f[0]))) or side_fields.map(func(f): return f[0]) == fields.map(func(f): return f[0])),
-		"prototype: a top-down character's hunting grounds are rooms on the grid (%s; the side view's %s)" % [str(fields), str(side_fields.map(func(f): return f[0]))])
-	# A lesson inside the prototype still comes first; one past the gate never does.
+	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0]))),
+		"prototype: the hunting grounds are rooms on the grid (%s)" % str(fields))
+	# A lesson on offer still comes first.
 	td.quests.done.erase("eyes_for_qi")
 	td.quests.offered["eyes_for_qi"] = true
-	td.quests.done.erase(off_q)   # the quest past the gate above (Stone and Sweat while the quarry was off the grid)
-	td.quests.offered[off_q] = true
 	Game.quest._story_cache = {}
 	var lesson := Game.quest.story_next(td)
-	check(str(lesson.get("quest", "")) == "eyes_for_qi" and not lesson.get("gate", false), "prototype: a lesson on offer inside the prototype comes before its end, one past the gate never (%s)" % str(lesson.get("name", "")))
+	check(str(lesson.get("quest", "")) == "eyes_for_qi", "prototype: a lesson on offer comes before the story's next quest (%s)" % str(lesson.get("name", "")))
 	td.quests.done["eyes_for_qi"] = 1
 	td.quests.offered.erase("eyes_for_qi")
 	Game.quest._story_cache = {}
-	# The Quests page reads the end on its Next slip, with no way to go.
-	var qp: Page = load(str(load("res://scripts/main.gd").PAGES.quests)).new()
-	qp.page_id = "quests"
-	qp.text_log = []
-	add_child(qp)
-	qp.open({})
-	qp.sel = "next"
-	qp.queue_redraw()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	var said: Array = qp.text_log.map(func(tx): return str(tx.get("s", "")))
-	var go_off: bool = qp._regions.any(func(r): return str(r.id) == "go" and not r.enabled and str(r.reason) == road)
-	check(said.has(Tx.t("sim.quest.tale_rests")) and said.any(func(s): return s.contains(road)) and go_off,
-		"prototype: the Quests page's Next slip is the prototype's end, its Go shut with why (%s)" % str(said.slice(0, 12)))
-	qp.queue_free()
-	await get_tree().process_frame
-	preload("res://tests/lib/off_grid.gd").restore(stood_off)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the
@@ -629,7 +476,7 @@ func prototype_suite() -> void:
 ## by the far room's name, for the arrays its token knows only (the watch post's keyed, the mentor's peak not yet, the
 ## other sect's never), and never one past the prototype's gate (a node of the network in a room off the grid, keyed,
 ## is not offered and cannot be taken); once the peak is keyed it joins.
-func _array_picker_checks(td, st: ActorState, road: String) -> void:
+func _array_picker_checks(td, st: ActorState) -> void:
 	var sect_was: Dictionary = td.training_sect.duplicate(true)
 	td.training_sect = {"id": "jade_sect", "rank": "outer_disciple", "contribution": 0, "reputation": {"jade_sect": 10}}
 	Unlocks.force_unlock(td.id, "transfer_array")
@@ -642,25 +489,13 @@ func _array_picker_checks(td, st: ActorState, road: String) -> void:
 	st.altitude = float(arr.get("alt", 0.0))
 	st.surface = null
 	var tap := Game.submit({"type": "interact", "object": "array_ja_gate"})
-	var nodes := WorldRules.array_nodes()
-	var shut := ""   # a room off the grid: a node of the sect's network there would lie past the gate
-	for rid in ContentDB.rooms:
-		if shut == "" and not TopdownRoom.has_layout(str(rid)) and str(ContentDB.room(str(rid)).get("region", "")) == "jade_sect": shut = str(rid)
-	for rid in ContentDB.rooms:   # every Jade Sect room on the grid (R3): any room off it
-		if shut == "" and not TopdownRoom.has_layout(str(rid)): shut = str(rid)
-	nodes["array_test_past_gate"] = {"id": "array_test_past_gate", "room": shut, "network": "jade_sect", "at": [0, 0]}
-	Game.quest.apply_flag(td.id, "array_array_test_past_gate")
-	var view: Dictionary = Game.world.array_view(td, "array_ja_gate")
 	var picker: Page = await _open_page(str(tap.get("open_page", "transfer_array")), tap.get("page_args", {"object": "array_ja_gate"}))
 	var buttons: Array = picker._regions.filter(func(g): return str(g.id) == "go").map(func(g): return str(g.data))
 	var words: Array = picker.text_log.map(func(l): return str(l.get("s", "")))
-	var past := Game.submit({"type": "array_travel", "from": "array_ja_gate", "to": "array_test_past_gate"})
-	nodes.erase("array_test_past_gate")
 	check(tap.get("ok", false) and str(tap.get("open_page", "")) == "transfer_array" and not tap.has("dialogue") and picker.title == str(arr.name)
-		and buttons == ["array_marsh"] and words.has(ContentDB.name_of("rooms", "rm_marsh_edge")) and shut != ""
-		and not past.get("ok", false) and str(past.get("text", "")) == road and Game.room_rt.room_id == "ja_gate_street",
-		"decision 42: the transfer array opens its own travel picker (%s), named for the array (%s), a button for each array the token knows by its room's name and no other (%s), none past the gate (%s: %s)"
-		% [str(tap.get("open_page", tap)), picker.title, str(buttons), shut, str(past)])
+		and buttons == ["array_marsh"] and words.has(ContentDB.name_of("rooms", "rm_marsh_edge")) and Game.room_rt.room_id == "ja_gate_street",
+		"decision 42: the transfer array opens its own travel picker (%s), named for the array (%s), a button for each array the token knows by its room's name and no other (%s)"
+		% [str(tap.get("open_page", tap)), picker.title, str(buttons)])
 	picker.queue_free()
 	Game.quest.apply_flag(td.id, "array_array_ja_peak")
 	var keyed: Array = Game.world.array_view(td, "array_ja_gate").destinations.map(func(d): return str(d.id))
@@ -2421,8 +2256,8 @@ func points_badges_suite() -> void:
 ## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, its form's marks,
 ## the rank badge). For a top-down character every picture draws the top-down figure at a whole scale: the HUD's
 ## buttons and the loadout bar a miniature of the card (the whole figure at x1 facing the camera), the tree's cards at
-## x2, the reading at x3; a companion's chip shows the top-down figure's head. A classic side-view character's pictures
-## are the side view's. Each slotted art is its picture at rest as in a fight, never the round emblem, and its states
+## x2, the reading at x3; a companion's chip shows the top-down figure's head. Each slotted art is its picture at rest
+## as in a fight, never the round emblem, and its states
 ## read on it: cooling (the sweep and its seconds),
 ## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
@@ -2432,8 +2267,6 @@ func technique_pictures_suite() -> void:
 	if c == null: return
 	var force_was: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
-	var view_was := str(c.view)
-	c.view = "topdown"
 	var party_was: Array = c.companions.active.duplicate()
 	c.companions.active = ["lan_yue"]
 	var slots_was: Array = c.cultivator.technique_slots.duplicate()
@@ -2499,9 +2332,9 @@ func technique_pictures_suite() -> void:
 	var hud_pics: Array = []   # each art once (a frame may draw the HUD twice)
 	for d in drawn["rest"].pics:
 		if str(d.get("where", "")) == "hud" and not hud_pics.any(func(e): return str(e.id) == str(d.id)): hud_pics.append(d)
-	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 1 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
+	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return int(d.scale) == 1 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
 		"decision 42: for a top-down character the HUD's pictures are the whole top-down figure at x1 facing the camera (a miniature of the card) with the art's rank, and a companion's chip its head (%s; face %s)"
-		% [str(hud_pics.map(func(d): return [d.id, d.top, d.scale, d.rank])), face_top])
+		% [str(hud_pics.map(func(d): return [d.id, d.scale, d.rank])), face_top])
 	# A miniature: the whole figure inside its picture, its head never cut by the frame (only a figure taller than the
 	# button loses its feet).
 	var cut_heads: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and (cl.spec.body as Rect2).position.y < 0.0).map(func(cl): return cl.key)
@@ -2512,7 +2345,7 @@ func technique_pictures_suite() -> void:
 	var margin := 99.0
 	var round_n := 0
 	for cl in TechniquePicture._cells.values():
-		if not (bool(cl.spec.small) and bool(cl.spec.top) and int(cl.spec.s) == int(hud.PICTURE)): continue
+		if not (bool(cl.spec.small) and int(cl.spec.s) == int(hud.PICTURE)): continue
 		round_n += 1
 		var b: Rect2 = cl.spec.body
 		var mid := Vector2(float(cl.spec.w), float(cl.spec.w)) * 0.5
@@ -2555,11 +2388,11 @@ func technique_pictures_suite() -> void:
 	var dock: Array = by_where.call("dock")
 	var dock_ids := {}
 	for d in dock:
-		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 1 and str(d.facing) == "s": dock_ids[str(d.id)] = true
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure and int(d.scale) == 1 and str(d.facing) == "s": dock_ids[str(d.id)] = true
 	var unpainted: Array = shown.filter(func(k): return not TechniquePicture.painted(k[0], c, look, k[1], k[2]))
 	# (A picture drawn before its turn came has no cell yet, scale 0: the plain ground stood in for it that frame.)
-	check(not cards.is_empty() and cards.all(func(d): return d.top and int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
-		and reading.all(func(d): return d.top and str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
+	check(not cards.is_empty() and cards.all(func(d): return int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
+		and reading.all(func(d): return str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
 		and arts.all(func(a): return dock_ids.has(a)) and unpainted.is_empty(),
 		"decision 42: on the Techniques page the tree's cards (%d, x2), the reading (x3) and the loadout bar (%s, x1) all draw the top-down figure, each painted (%s)"
 		% [cards.size(), str(dock_ids.keys()), str(unpainted.slice(0, 4))])
@@ -2567,20 +2400,12 @@ func technique_pictures_suite() -> void:
 	var in_frame := func(cl) -> bool:
 		var b: Rect2 = cl.spec.body
 		return b.position.x >= 0.0 and b.position.y >= 1.0 and b.end.x <= float(cl.spec.w) and b.end.y <= float(cl.spec.w) - 1.0
-	var small_top: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and bool(cl.spec.top))
+	var small_top: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small))
 	var small_sizes := {}
 	for cl in small_top: small_sizes[int(cl.spec.s)] = true
 	var cut: Array = small_top.filter(func(cl): return not in_frame.call(cl)).map(func(cl): return [cl.key, cl.spec.body, cl.spec.w])
-	check(cut.is_empty() and small_sizes.size() >= 2, "decision 42: at the HUD's and the loadout bar's size (%s px) the whole top-down figure stands inside its picture, a pixel clear of the top and the foot, nothing cut by the frame (%d pictures; a classic side-view one, taller than a button, loses only its feet) (%s)" % [str(small_sizes.keys()), small_top.size(), str(cut.slice(0, 3))])
+	check(cut.is_empty() and small_sizes.size() >= 2, "decision 42: at the HUD's and the loadout bar's size (%s px) the whole top-down figure stands inside its picture, a pixel clear of the top and the foot, nothing cut by the frame (%d pictures) (%s)" % [str(small_sizes.keys()), small_top.size(), str(cut.slice(0, 3))])
 	tp.queue_free()
-	# A classic side-view character keeps the side view's pictures (the fallback).
-	c.view = ""
-	TechniquePicture.draw_log = []
-	hud.queue_redraw()
-	await get_tree().process_frame
-	var side: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.has("top"))
-	check(not side.is_empty() and side.all(func(d): return not d.top), "decision 42: a classic side-view character's pictures are the side view's (%d)" % side.size())
-	c.view = "topdown"
 	# The game times each piece on the main thread's own clock (TechniquePicture._clock_us: on Linux, the time the thread
 	# stood in the run queue left out), so another process does not spend the budget and one building is read.
 	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us" % [TechniquePicture.build_us_max, TechniquePicture.build_worst, TechniquePicture.frame_us_max])
@@ -2596,7 +2421,6 @@ func technique_pictures_suite() -> void:
 	c.cultivator.technique_slots = slots_was
 	c.cultivator.techniques_known = known_was
 	c.companions.active = party_was
-	c.view = view_was
 	Unlocks.debug_force_all = force_was
 
 ## Decision 42: the pairs of the right-hand cluster's controls that touch in each of `states` ([in a fight, the fan
@@ -2848,7 +2672,7 @@ func labels_suite() -> void:
 	var plate := [mk.call("npc", "npc", Rect2(760, 600, 130, 42), Vector2(0, -180))]
 	var o3: Dictionary = WorldLabels.resolve(plate, [Rect2(700, 590, 300, 130)])
 	check(o3["npc"] == Vector2(0, -180), "G4: a plate under the feet with no room below goes over the head (%s)" % str(o3["npc"]))
-	# The real views in the room, laid out as world.gd lays them out.
+	# The real views in the room, laid out as the world view lays them out.
 	var c = Game.active()
 	if c == null or Game.room_rt == null or Game.actor_state(c.id) == null: return
 	var holder := Node2D.new()
@@ -3140,17 +2964,8 @@ func paths_above_suite() -> void:
 		check(named, "Paths Above row %s names a later ledge" % e.id)
 	check(ContentDB.has_entry("paths_above", "wp_west:pine_top") and ContentDB.has_entry("paths_above", "cf_behind_falls:shaft_top"),
 		"the catalogue's later ledges (Willow Path West's pine top, the falls' Wall-Step shaft) are rows")
-	# A cracked block (the Lower Pit slab over the shard) stops walking until a Plunge breaks it.
-	var pit := ZoneGeometry.new()
-	pit.configure(WorldAuthority.compile_geometry(ContentDB.room("sq_lower_pit")))
-	var slab: WalkSurface = pit.index.get("cracked_slab")
-	check(slab != null and slab.cracked and pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "the Lower Pit slab is a cracked block that stops you")
-	pit.break_surface("cracked_slab")
-	check(slab != null and slab.disabled and not pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "a broken slab no longer blocks")
-	# The Jade trial's planks rise with the room clock; the libraries' upper floors are sealed by rank.
-	var trial := ZoneGeometry.new()
-	trial.configure(WorldAuthority.compile_geometry(ContentDB.room("sf_trial_jade")))
-	check(trial.movers.size() == 2 and (trial.index.plank_1 as WalkSurface).moving, "the Jade trial has two moving planks")
+	# The libraries' upper floors are sealed by rank. (The Lower Pit's cracked slab and the Jade trial's planks are the
+	# grid's since S12a: topdown_traversal plays them.)
 	var sealed := 0
 	for cl in ContentDB.room("ja_library").get("climbables", []):
 		if cl.has("requires"): sealed += 1
@@ -3540,7 +3355,7 @@ func weapon_families_suite() -> void:
 	for fam_id in ["heavy_sabre", "fan", "flute"]:
 		var fam := ContentDB.entry("weapon_families", fam_id)
 		var look := str(fam.get("appearance", [""])[0])
-		check(not fam.is_empty() and Wardrobe.parts.weapon.has(look) and Wardrobe.parts._attack_by_weapon.has(look), "the %s family exists with its avatar weapon (%s)" % [fam_id, look])
+		check(not fam.is_empty() and (TopdownFigure.manifest().items.get("weapon", {}) as Dictionary).has(look), "the %s family exists with its drawn weapon (%s)" % [fam_id, look])
 		for grade in ["training", "iron", "jadeiron", "cloudsteel"]:
 			check(ContentDB.entry("artifacts", "%s_%s" % [grade, fam_id]).get("family", "") == fam_id, "%s %s is a %s" % [grade, fam_id, fam_id])
 	var heard := {"hits": {}, "arts": {}, "pulse": 0, "melody_off": ""}
@@ -10646,13 +10461,6 @@ func traversal_suite() -> void:
 	st = _trav_actor(z, "ground", Vector2(1000, 800))
 	MovementSolver.jump(st)
 	check(st.events.any(func(e): return e.name == "jumped"), "a jump records a jumped event")
-	# Room data reaches the room's geometry: blocks, climbables and the void (the World authority compiles it).
-	var echo := ZoneGeometry.new()
-	echo.configure(WorldAuthority.compile_geometry(ContentDB.room("wg_echo_cliffs")))
-	check(echo.index.has("shaft_west") and echo.wall_face_at(Vector2(1356, 690), 120.0, "ground"), "the Echo Cliffs shaft walls are in the room's geometry")
-	var ferry := ZoneGeometry.new()
-	ferry.configure(WorldAuthority.compile_geometry(ContentDB.room("lf_village")))
-	check(ferry.climbables.size() >= 1, "the Lotus Ferry hall ladder is in the room's geometry")
 
 # ------------------------------------------------------------------ S43 movement arts, volumes and movers (V2b)
 func _vol_zone() -> ZoneGeometry:
@@ -12162,6 +11970,69 @@ func save_suite() -> void:
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
 
+# ------------------------------------------------------------------ S12a: a side-view save comes into the one world
+## A save made by the side view before S12a retired it (tests/data/side_view_save: made by its own code, two classic
+## side-view characters, the account keeping the classic side view) loads into the top-down game with nothing lost: the
+## account forgets the view choice; each character keeps its look (body, hair and its colour, clothes), its gear and its
+## dyes, its bag, and wakes in its own room on the grid (the side view's point mapped onto the layout, TopdownRoom.
+## grid_event's rule) at the current format's minor; its last shrine is the room's shrine on the grid. Then it plays: it
+## enters the world on the grid, drawn whole in its outfit, and the world steps with it in it.
+func side_view_save_suite() -> void:
+	var folder := run_root() + "side_view_save/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	for f in ["account.json", "char_1.json", "char_2.json"]: DirAccess.copy_absolute("res://tests/data/side_view_save/" + f, folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	check(not Game.account.settings.has("classic_side_view"), "a side-view save: the account forgets the classic side view (%s)" % str(Game.account.settings.keys()))
+	var want := {"c1": {"name": "Lin Sideview", "room": "lf_village", "look": {"body": "light", "hair": "flowing", "hair_color": 3, "shirt": "scholar", "pants": "martial", "shoes": "slippers"}},
+		"c2": {"name": "Wen Classic", "room": "sf_fairground", "look": {"hair": "short_knot", "hair_color": 5, "shirt": "vneck", "pants": "straight", "shoes": "folded"}}}
+	for cid in want:
+		var c = Game.character(cid)
+		check(c != null and str(c.name) == str(want[cid].name), "a side-view save: %s loads (%s)" % [cid, str(c.name) if c else "none"])
+		if c == null: continue
+		var look_kept := true
+		for k in want[cid].look: look_kept = look_kept and str(c.appearance.get(k, "")) == str(want[cid].look[k])
+		check(look_kept, "a side-view save: %s keeps its look (%s)" % [c.name, str(c.appearance)])
+		var grid := TopdownRoom.load_room(str(want[cid].room))
+		var at := Vector2(float(c.position.x), float(c.position.y))
+		check(str(c.position.room) == str(want[cid].room) and grid.standable(TopdownRoom.cell_of(at)) and not c.position.has("surface"),
+			"a side-view save: %s wakes in its own room on the grid's floor (%s)" % [c.name, str(c.position)])
+		check(not c.snapshot().has("view") and int(c.snapshot().get("minor", 0)) == GameCharacter.MINOR, "a side-view save: %s is at the format's minor %d with no view" % [c.name, GameCharacter.MINOR])
+		var drawn := TopdownFigure.wearing(InventoryAuthority.outfit_for(c))
+		check(drawn.missing.is_empty(), "a side-view save: %s is drawn whole by the top-down figure (missing %s)" % [c.name, str(drawn.missing)])
+	var lin = Game.character("c1")
+	if lin == null: return
+	var outfit := InventoryAuthority.outfit_for(lin)
+	var weapon = lin.inventory.equipped.get("weapon")
+	check(weapon != null and str(weapon.id) == "training_jian" and str(outfit.get("weapon", "")) != "none" and str(outfit.get("shirt_dye", "")) == "jade"
+		and str(outfit.get("pants_dye", "")) == "indigo" and lin.inventory.count("herbal_tea") == 4,
+		"a side-view save: its gear, its dyes and its bag are kept (weapon %s, robe %s, trousers %s, tea %d)" % [str(weapon.id) if weapon else "none",
+			str(outfit.get("shirt_dye", "")), str(outfit.get("pants_dye", "")), lin.inventory.count("herbal_tea")])
+	var shrine := str(lin.last_shrine.get("object", ""))
+	var village := TopdownRoom.load_room("lf_village")
+	check(shrine != "" and str(lin.last_shrine.get("room", "")) == "lf_village" and village.def.get("place", {}).has(shrine)
+		and Vector2(float(lin.last_shrine.x), float(lin.last_shrine.y)).distance_to(TopdownRoom.cell_point(village.def.place[shrine])) < 1.0,
+		"a side-view save: its last shrine is the room's shrine on the grid (%s)" % str(lin.last_shrine))
+	# It plays: in the world on the grid, and the world steps with it there.
+	check(Game.submit({"type": "enter_character", "slot": 1}).get("ok", false) and Game.submit({"type": "enter_world"}).get("ok", false), "a side-view save: the character enters the world")
+	check(Game.room_rt != null and Game.room_rt.room_id == "lf_village" and Game.room_rt.topdown != null, "a side-view save: in its room, on the grid (%s)" % (Game.room_rt.room_id if Game.room_rt else "none"))
+	if Game.room_rt == null: return
+	var st := ActorState.new()
+	Game.bind_movement(lin.id, st)
+	st.plane = Vector2(float(lin.position.x), float(lin.position.y))
+	st.altitude = Game.room_rt.topdown.floor_at(st.plane)
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	for i in 30:
+		st.plane += Vector2(2, 0)
+		Game.tick(1.0 / 30.0)
+	GameEvents.flush()
+	var hit := Game.submit({"type": "basic_attack", "facing": 1})
+	check(Game.room_rt.room_id == "lf_village" and hit.get("ok", false) and Game.room_rt.topdown.standable(TopdownRoom.cell_of(Vector2(float(lin.position.x), float(lin.position.y)))),
+		"a side-view save: the world steps with it walking and striking on the grid (%s at %s)" % [str(hit), str(lin.position)])
+	Game.bind_movement(lin.id, null)
+
 # ------------------------------------------------------------------ BUG-01 (audit 45): a recipe renamed after the save
 ## A save that still names a recipe the data no longer has (renamed or removed since): the load drops it from the known
 ## recipes, the pages held and the auto-refine queue, and keeps the rest; the Crafts page draws a queue that holds one
@@ -13205,8 +13076,7 @@ func _technique_preview_suite(pg, c) -> void:
 		await get_tree().process_frame
 		await get_tree().process_frame
 		var t := ContentDB.entry("techniques", id)
-		var want_pose := str(t.vfx.get("pose", "idle"))
-		var pose_ok := st.pose == TechniquePreview.pose_of(t, c, st.caster.outfit) and (want_pose.begins_with("combo_") or st.pose == want_pose or st.pose == "idle")
+		var pose_ok := st.pose == TechniquePreview.top_pose(t, c)
 		var n_ok := st.foes.size() == int(cfg.foes[form])
 		st.restart()
 		while st.clock < st.impact + 0.12: st.advance(1.0 / 60.0)
@@ -13280,7 +13150,7 @@ func _technique_preview_suite(pg, c) -> void:
 	TechniquePreview.TopFoe._sheet = {}
 	TechniquePreview.TopFoe._task = -1
 	var early := TechniquePreview.new()
-	early.dress(st.caster.outfit, true)   # a top-down caster: the foes' index starts reading on a worker
+	early.dress(st.caster.outfit)   # made and dressed: the foes' index started reading on a worker as it was made
 	var started: bool = TechniquePreview.TopFoe._task >= 0
 	early.free()
 	check(started and TechniquePreview.TopFoe._task == -2 and not TechniquePreview.TopFoe._sheet.is_empty(),
@@ -13412,20 +13282,16 @@ func techniques_page_suite() -> void:
 ## that draws a figure draws the top-down one (TopdownDoll, at a whole scale, the side view's Avatar nowhere in it): the
 ## Techniques page's cards, reading and preview (the art's top-down pose against the top-down world's foes), the
 ## Character page and its friends' chips, the Bag, the dialogue strip's speaker, the Companions' gates, the merchant, the
-## Cultivation stair, the wanted poster, the sect hall, the Characters roster and the Roll-Call. A classic side-view
-## character keeps the side view's.
+## Cultivation stair, the wanted poster, the sect hall, the Characters roster and the Roll-Call (the side view's Avatar
+## went with it in S12a).
 func figures_suite() -> void:
 	var c = Game.active()
 	if c == null: return
-	var view_was := str(c.view)
 	var keep := {"companions": c.companions.duplicate(true), "training_sect": c.training_sect.duplicate(true)}
 	for cid in ["lan_yue", "tie_niu"]:
 		if not (c.companions.get("roster", []) as Array).has(cid): Game.companions.apply_add(c.id, cid)
 	if str(c.training_sect.get("id", "")) == "": Game.training.apply_join(c.id, "jade_sect")
-	var avatar_script = load("res://scripts/avatar.gd")
-	var sides := func(pg: Node) -> int: return pg.find_children("*", "", true, false).filter(func(n): return n.get_script() == avatar_script).size()
 	var whole := func(n: Node2D) -> bool: return is_equal_approx(n.scale.x, roundf(n.scale.x)) and n.scale.x >= 1.0
-	c.view = "topdown"
 	var talk: Dictionary = Game.submit({"type": "talk", "npc": "old_ma"}).get("dialogue", {})
 	TechniquePicture.draw_log = []
 	var seen := {}
@@ -13443,9 +13309,9 @@ func figures_suite() -> void:
 				var t := ContentDB.entry("techniques", "flowing_palm")
 				var cards: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "tree")
 				figs = [pg.pic, st.caster]
-				seen["techniques_preview"] = (st.top and st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
+				seen["techniques_preview"] = (st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
 					and not st.foes.is_empty() and st.foes.all(func(f): return f.sprite is TechniquePreview.TopFoe))
-				seen["techniques_cards"] = not cards.is_empty() and cards.all(func(d): return d.top)   # the cards' pictures: the top-down figure (TechniquePicture)
+				seen["techniques_cards"] = not cards.is_empty() and cards.all(func(d): return d.has("facing"))   # the cards' pictures: the figure, facing its way (TechniquePicture)
 			"character":
 				figs = [pg.doll] + pg.mates
 				seen["character_scale"] = whole.call(pg.doll) and pg.mates.size() >= 1
@@ -13454,25 +13320,13 @@ func figures_suite() -> void:
 			"companions": figs = pg.avatars.values()
 			"notice_board": figs = [pg.likeness] if pg.likeness != null else []
 			"training_sect": figs = pg.figs.values()
-			"characters": figs = [pg.figs.get(c.id)]   # each character as its own game draws it: this one top-down
+			"characters": figs = [pg.figs.get(c.id)]
 			"posts": figs = [pg.figs[c.id].doll] if pg.figs.has(c.id) else []
-		var alone: bool = str(spec[0]) in ["characters", "posts"] or sides.call(pg) == 0   # (other characters may be classic ones)
-		seen[spec[0]] = not figs.is_empty() and figs.all(func(f): return f is TopdownDoll) and alone
+		seen[spec[0]] = not figs.is_empty() and figs.all(func(f): return f is TopdownDoll)
 		pg.queue_free()
 		await get_tree().process_frame
-	check(seen.values().all(func(v): return v), "decision 42: every page draws a top-down character as the top-down figure, at a whole scale, and no side-view avatar (%s)" % str(seen))
+	check(seen.values().all(func(v): return v), "decision 42: every page draws the character as the top-down figure, at a whole scale (%s)" % str(seen))
 	TechniquePicture.draw_log = null
-	# A classic side-view character keeps the side view's figure.
-	c.view = ""
-	var classic := {}
-	for id in ["character", "techniques"]:
-		var pg2: Page = await _open_page(id, {"tab": "water"} if id == "techniques" else {})
-		for i in 3: await get_tree().process_frame
-		classic[id] = (pg2.doll if id == "character" else pg2.stage.caster).get_script() == avatar_script
-		pg2.queue_free()
-		await get_tree().process_frame
-	check(classic.values().all(func(v): return v), "a classic side-view character keeps the side view's figure (%s)" % str(classic))
-	c.view = view_was
 	c.companions = keep.companions
 	c.training_sect = keep.training_sect
 
