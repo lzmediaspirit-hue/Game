@@ -1,5 +1,91 @@
 # Changelog
 
+## The monster engine's third batch: Act II's foes, the Reflection, the Behemoth and the Tomb King (decision 45, M3)
+
+Twenty species drawn with the monster engine in story order (`docs/architecture/monster_engine.md`, "M3"): the heart
+trial's Reflection, the siege's Hollow Behemoth, R6's foes (the Thunderhorn Plains, Rimefrost Heights, Mirrorwater
+Lake), R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), the two spar opponents of Act II's posts, and
+the treasure births' guardian. Until now they stood in with their side-view sheets at half size. With M4's, every
+species of the game has its own top-down sheet.
+
+- **Twenty new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
+  every action in five drawn facings, an elite sheet where a room makes an elite (eleven of them). Their rows, loot and
+  voices are unchanged byte for byte; `foes.json` changes only in their blocks.
+  - the spark weasel: a golden weasel with a white-hot spark at its tail's tip that leaps to bite in sparks.
+  - the stormgrass stag: a storm-grey stag with slate storm-grass grown over its back and antlers (its own look, not
+    the Cloud Stag's that its side view borrows). It lowers its antlers and charges.
+  - the thunderhorn rhino: a slate-blue rhino in deep folds of hide, stone plates down its spine, two horns. It paws
+    the ground snorting, sparks crackling on its horn, and charges to toss.
+  - the frost lynx: a pale lynx under ice-blue rosettes, tufted ears, a cheek ruff, ice on its shoulders. It sinks
+    into a pounce crouch as frost gathers at its muzzle, pounces, and comes apart into mist.
+  - the snow ape: a snow-white ape in shaggy locks hung with icicles, tusks and frost-blue eyes. It hoists a block of
+    ice over its head and slams it down in a spray of snow.
+  - the azure carp dragonet: a carp halfway through the Dragon Gate, swimming in the air with a dragon's slender neck
+    and head (gold horns, whiskers and mane). It coils back as a water orb gathers before its jaws and spits it.
+  - the river sentinel: a river-stone guardian streaked with algae and crusted with barnacles, water trickling from
+    its joints. It raises its stone trident high as water spirals up the shaft and drives it down in a splash.
+  - the canyon brigand: a veiled brigand cast in the shared character body, as the people are.
+  - the wind kite: a wind spirit in a giant festival kite's shape, flying flat over its shadow: a swallow of crimson
+    silk on a bamboo frame, a gold bird-head prow with jade eyes, two banded streamers. It rears nose-up as the wind
+    spirals in at its prow, then dives, slashing a wind crescent; beaten, its spar snaps and it spirals down.
+  - the canyon harpy: a russet bird-woman with a pale human face, two long barred plumes arching from her crown, a
+    crimson sash and bone beads. She rears back with her talons forward and screeches, then dives to rake.
+  - the sandstorm scorpion: a scorpion fused with amber desert glass. Its tail climbs into a high arc over its back
+    as the telson glows, then stabs forward; beaten, it flips and pours out its sand.
+  - the dune worm: a ringed sand worm risen out of its mound, a lamprey mouth of glass teeth. It rears twice a
+    person's height, its mouth gaping, then slams down onto you in an explosion of sand.
+  - the terracotta warden: a fired-clay tomb soldier, lamellar laced in vermilion, molten amber eyes, sand trickling
+    from its joints. It hauls its bronze ge overhead and chops it down; beaten, it breaks into shards.
+  - the Alliance Champion and the Ironroot Warden: the spar opponents, cast in the shared character body in the
+    outfits of the people who stand at their posts.
+  - the Fruit-Guardian Boar, which wakes where a Spirit Fruit ripens: the thornback boar's build grown old and huge,
+    mossy, the fruit tree's vines over it, and the tree itself on its back, a gnarled sapling of jade leaves with golden
+    spirit fruits that blaze as it paws the ground and charges. Its row keeps the thornback boar's side-view sheet.
+- **The bosses**, each with a silhouette, a bulk, a posture, a prop and a colour of its own:
+  - the Reflection: the player's double, your size, cast in a disciple's first clothes under the side view's cold pale
+    tint, washed pale with a mirror's sheen streaked over it, ringed in cold mirror light. It cannot wear the player's
+    live outfit, as the side view's avatar does: a sheet is drawn once.
+  - the Hollow Behemoth: a giant boar of the Hollow's drones and plates over a dark void, twice a person at its spiked
+    ridge, great tusks, weak points of cold white light. It rears on its hind legs as they blaze and stampedes; beaten,
+    it breaks apart into drones and plates.
+  - the Thousand-Eye Toad: a huge lake-blue toad with dozens of mirror eyes over its back and a crown of lilies. Every
+    eye opens and glows violet as its throat swells, and it belly-slams in a wall of lake water; beaten, its eyes close
+    one by one as it sinks.
+  - the Tomb King: a sage-king kept by sand Qi, nearly twice a person's height, rising out of a swirling bell of sand
+    (a person of size, his body drawn and reviewed first), in a sun crown and a golden death mask, a ring of sun-fire
+    round him. He raises his crescent glaive of desert glass overhead as his crown blazes and the sand whirls, sweeps it
+    round him on both sides; beaten, he pours away as sand, his crown and glaive left on the heap.
+- **New plan kinds**, each optional, so every species drawn before draws byte for byte: `quadruped.behemoth` (and the
+  rhino's head, the rosettes, the ice crest, the stance on hind legs); `humanoid.king` (no legs: the sand bell, the
+  regalia, the glaive) and the snow ape's ice block and locks, the sentinels' river stone and clay, their trident and
+  ge; `fish.dragonet`; the toad's back of eyes; `spirit.kite`; `bird.harpy`; `crab.scorpion`; `serpent.worm`; the
+  person's `pale`; the ring's tones `mirror` and `sun`; the suid's `sapling`.
+- **Size.** The twenty sheets are 7,739 KB of PNG and 3,500 KB in the APK (3.42 MiB, the imported `.ctex`): the bases
+  2,068 KB, the eleven elite sheets 1,432 KB. Every species has `share`; an elite sheet is drawn only where a room makes
+  an elite; each creature is near its side-view share of a person. The engine doc lists every sheet's cost.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m3/`: the twenty side by side beside a Mudwater bandit, idle, in their tells, on
+    their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed; the
+    fruit's guardian beside the thornback boar.
+  - The capture set `monsters_m3` (`docs/redesign/feedback/monsters/m3/after/`): the lineups in every pose beside
+    drawn foes for scale, the elites, and live fights in nineteen of their own rooms.
+- **Still to draw:** none. With M4's batch every species the rooms and the valley's events spawn has its own top-down
+  sheet; a new species stands in with its side-view sheet until it is drawn.
+- **A test.** `topdown_suite`'s stand-in check drew the sandstorm scorpion as its foe without rows (the pebble imp and
+  the stone tortoise before it). No foe of the game is without rows now, so the check makes its own, as it makes its
+  spirit animal: a def that names a side-view creature sheet.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R9, E5b, T3 and M4.
+  - Every gate passed, `boot` among them (0 failing; grid parity on 168 layouts and 498 starts). `build_data` writes no
+    data file: the rows, loot and voices are byte-identical. The `monsters` gate has 2,732 checks (2,147 at M4); it
+    grows with the species, now 92, and is the only count M3 grows.
+  - All 34 suites passed with no SCRIPT ERROR: 78,199 checks, every other count as the merged branch has it
+    (`rules_tests` keeps its 2,722 with the stand-in check's own foe). `contract_tests` (1,112) finds no private
+    cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - After the merge `build_foes.py` rebuilt every sheet from both batches' code: M4's sheets and M3's came out byte for
+    byte as committed, and `foes.json` is M4's with M3's twenty blocks. `build_foes.py --check` built all 146 sheets
+    twice, byte for byte the same, and the same bytes as on disk.
+
 ## The monster engine's late-game batch: twenty foes and four people of size (decision 45, M4)
 
 The twenty species of the late game, drawn with the monster engine in story order (`docs/architecture/monster_engine.md`,

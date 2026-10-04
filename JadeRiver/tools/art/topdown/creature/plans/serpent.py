@@ -166,6 +166,8 @@ def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: flo
         return _ribbon(B, action, f, view)               # M4: the nebula eel
     if "leviathan" in B.parts:
         return _leviathan(B, action, f, view, k)         # M4: the Nebula Leviathan
+    if "mound" in B.parts:
+        return _worm(B, action, f, view)
     if "coil_share" in B.parts:
         return _viper(B, action, f, view)
     if B.variant == "leech" or "rest" in B.parts:
@@ -1753,3 +1755,200 @@ def _pleats(m, centre, jm):
         pleat = (np.abs(d[:, 1]) * 1.6) % 1.0 < 0.22
         return np.full(len(q), m.belly, dtype=object), np.where(pleat, -1, 0).astype(np.int16)
     return paint
+
+# ================================================================================================= the dune worm (M3)
+# The dune worm (`mound`): a giant burrowing sand worm of the Worm Sea, only ever seen rising out of the sand to strike
+# (the room view shows a travelling mound while it is under). Its body a tube out of a mound of sand through key control
+# points (its side-view sheet's): overlapping armour rings of dusky ochre, each flaring to a lit lip toward its head, dark
+# sand crust packed in the seams, the pale ridged underbelly down its front; no eyes, a few glassy sense pits on its head
+# plates; at its end the round lamprey mouth (an armoured lip collar, the deep red maw, a ring of clear desert-glass
+# teeth and a smaller ring inside it, the dark throat); sand pouring off it.
+#
+# Its styles give key poses (five control points (along, up) a frame, the first under the sand) or a kind: `sway` (the
+# idle, standing out of its mound swaying), `surge` (the walk, low, its front swinging as it ploughs on). Channels:
+# `gape` (the mouth, 0..1), `pits` (the sense pits' flare), `burst` (sand bursting round its mound), `blast` (the sand
+# explosion of its slam, the blow), `chips` (plate shards when struck), `sink` (0..1: sunk back into the sand), `fade`.
+_WI = ((0.0, -2.5), (0.2, 3.0), (0.2, 7.6), (1.5, 11.0), (3.3, 11.4))
+_WW = ((0.0, -2.5), (0.6, 2.2), (1.6, 5.4), (3.2, 7.2), (5.0, 7.4))
+_WR = ((0.0, -2.5), (-0.4, 4.0), (-1.0, 10.2), (-0.6, 15.5), (1.0, 18.4))
+_WH = ((0.0, -2.5), (-0.4, 3.0), (-1.4, 7.2), (-1.6, 11.0), (-0.6, 12.8))
+_WD = ((0.0, -2.5), (1.2, 2.0), (4.0, 3.2), (7.6, 2.6), (10.4, 1.4))
+WORM_STYLES = {
+    "worm_sway": {"kind": "sway", "gape": (0.35,) * 6},
+    "worm_surge": {"kind": "surge", "gape": (0.5,) * 8},
+    "worm_rear": {"keys": (((0.0, -2.5), (0.1, 3.4), (-0.2, 8.5), (0.6, 12.6), (2.4, 14.6)),
+                           ((0.0, -2.5), (-0.1, 3.8), (-0.6, 9.5), (-0.1, 14.2), (1.6, 16.6)),
+                           ((0.0, -2.5), (-0.3, 4.0), (-0.9, 10.0), (-0.5, 15.2), (1.1, 18.0)), _WR),
+                  "gape": (0.5, 0.75, 0.95, 1.0), "pits": (0.5, 1.0, 1.5, 2.0), "burst": (0.4, 0.7, 1.0, 1.0)},
+    "worm_slam": {"keys": (_WR, ((0.0, -2.5), (0.8, 4.0), (3.6, 8.0), (7.6, 8.2), (10.6, 3.6)),
+                           ((0.0, -2.5), (0.8, 4.0), (3.4, 7.8), (7.2, 7.8), (10.0, 3.4)),
+                           ((0.0, -2.5), (0.6, 3.8), (2.4, 8.4), (5.0, 10.0), (7.4, 8.8)),
+                           ((0.0, -2.5), (0.4, 3.4), (1.0, 8.0), (2.6, 11.0), (4.8, 11.8)), _WI),
+                  "gape": (1.0, 1.0, 0.7, 0.5, 0.4, 0.35), "blast": (0.0, 1.0, 0.6, 0.25, 0.0, 0.0), "pits": (2.0, 1.0, 0.0, 0.0, 0.0, 0.0)},
+    "worm_recoil": {"keys": (_WH, ((0.0, -2.5), (-0.2, 3.0), (-0.8, 7.4), (-0.4, 11.2), (1.0, 12.9)),
+                             ((0.0, -2.5), (0.1, 3.0), (-0.2, 7.5), (0.6, 11.2), (2.4, 12.9))),
+                    "gape": (0.8, 0.5, 0.4), "chips": (1.0, 0.6, 0.3), "burst": (0.6, 0.3, 0.0)},
+    "worm_sink": {"keys": (_WH, ((0.0, -2.5), (0.4, 3.0), (1.4, 7.0), (3.6, 9.6), (6.0, 10.0)),
+                           ((0.0, -2.5), (0.8, 2.6), (3.0, 5.6), (6.4, 6.4), (9.0, 5.0)), _WD, _WD, _WD, _WD, _WD),
+                  "gape": (0.8, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2), "sink": (0.0, 0.0, 0.0, 0.0, 0.25, 0.5, 0.75, 0.95),
+                  "burst": (0.0, 0.0, 0.0, 0.8, 0.5, 0.3, 0.1, 0.0), "fade": (0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.55, 0.85), "dark_from": 3},
+}
+STYLES.update(WORM_STYLES)
+WORM = {
+    "mound": {"r": (4.8, 4.6, 1.7)},
+    "body": {"r": (2.15, 1.85), "ring": 1.05, "n": 40},
+    "mouth": {"teeth": 9, "inner": 5},
+    "pits": 4,
+}
+VARIANTS["worm"] = {"parts": WORM, "mats": {"armour": "dw_armour", "belly": "dw_belly", "crust": "dw_crust", "sand": "dw_sand",
+                                            "glass": "dw_glass", "maw": "dw_maw"},
+                    "motion": {"idle": "worm_sway", "walk": "worm_surge", "windup": "worm_rear", "attack": "worm_slam",
+                               "hurt": "worm_recoil", "death": "worm_sink"}}
+
+
+def _worm(B, action: str, f: int, view: float) -> Pose:
+    """M3, the dune worm (see WORM_STYLES): standing out of its mound, swaying, sand pouring off it; low, its front swinging
+    as it ploughs on; in its tell it rears up tall (about twice a person), its mouth gaping to show its glass teeth, its
+    sense pits flaring cyan, the sand bursting round its mound; it lunges forward and down onto its foe in an explosion
+    of sand; struck, it recoils and its plates chip; beaten, it topples forward, goes slack and sinks back into the sand,
+    its mound collapsing."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    gape = B.pick("gape", action, f, 0.35)
+    pits = B.pick("pits", action, f)
+    burst = B.pick("burst", action, f)
+    blast = B.pick("blast", action, f)
+    chips = B.pick("chips", action, f)
+    sink = B.pick("sink", action, f)
+    fade = B.pick("fade", action, f)
+    dead = action == "death" and f >= st.get("dark_from", 99)
+    kind = st.get("kind")
+    yy = [0.0] * 5
+    if kind == "sway":
+        ph = f / 6.0 * math.tau
+        keys = [(x + 0.7 * math.sin(ph) * (i / 4.0) ** 1.5, z) for i, (x, z) in enumerate(_WI)]
+        yy = [0.6 * math.sin(ph + 1.2) * (i / 4.0) ** 1.5 for i in range(5)]
+    elif kind == "surge":
+        ph = f / 8.0 * math.tau
+        keys = [(x + 0.9 * math.sin(ph) * (i / 4.0), z + 0.6 * math.sin(ph + 1.0) * (i / 4.0)) for i, (x, z) in enumerate(_WW)]
+        yy = [1.4 * math.sin(ph + 0.6 * i) * (i / 4.0) for i in range(5)]
+    else:
+        keys = st["keys"][f]
+    pts = [v3(x, yy[i], z - 4.0 * sink * (i > 0)) for i, (x, z) in enumerate(keys)]
+    bd = p.body
+    spine = _spline(pts, bd.n)
+    # The tube: armour rings at every `ring` along the spine, each a band oriented along it; its tail end flared into a lit
+    # lip over the ring behind it, dark sand crust packed in the seam under the lip, the pale ridged underbelly down its
+    # front (the side its spine bends toward).
+    seg = [float(np.linalg.norm(spine[i + 1] - spine[i])) for i in range(len(spine) - 1)]
+    total = sum(seg)
+    rings = []
+    s_at, j, acc = 0.6, 0, 0.0
+    while s_at < total - 0.2:
+        while j < len(seg) - 1 and acc + seg[j] < s_at:
+            acc += seg[j]
+            j += 1
+        t = (s_at - acc) / (seg[j] or 1.0)
+        q = spine[j] + (spine[j + 1] - spine[j]) * t
+        T = spine[j + 1] - spine[j]
+        T = T / (float(np.linalg.norm(T)) or 1.0)
+        u = s_at / total
+        rings.append((q, T, bd.r[0] + (bd.r[1] - bd.r[0]) * u))
+        s_at += bd.ring
+    hl = bd.ring * 0.62
+
+    def under(qq):
+        return qq[:, 2] > -0.05
+
+    for i, (q, T, r) in enumerate(rings):
+        if q[2] + r < -0.2:
+            continue
+        side = v3(0.0, 1.0, 0.0)
+        Nv = np.cross(T, side)
+        Nv = Nv / (float(np.linalg.norm(Nv)) or 1.0)       # the belly's side: ahead of the spine, under it where it lies
+        if float(Nv @ v3(1.0, 0.0, 0.0)) < 0.0 and float(Nv @ v3(0.0, 0.0, -1.0)) < 0.3:
+            Nv = -Nv
+        mm = np.stack([T, side, np.cross(T, side)], axis=1)
+
+        def armour(qq, n, Nv=Nv, lit=0):
+            belly = (n @ Nv) > 0.5
+            names = np.where(belly, m.belly, m.armour).astype(object)
+            return names, np.where(belly, -1 + lit, lit - 1).astype(np.int16)
+
+        P.add(E(q, (hl, r, r), m.armour, "body", mm, armour, under))
+        P.add(E(q - T * hl * 0.72, (hl * 0.32, r * 1.15, r * 1.15), m.armour, "body", mm, lambda qq, n, Nv=Nv: armour(qq, n, Nv, 1), under))
+        P.add(E(q - T * hl * 1.02, (hl * 0.16, r * 1.0, r * 1.0), m.crust, "body", mm, None, under))
+    # The head: the last ring's end, the mouth facing along the spine: the armoured lip collar, the deep red maw filling
+    # it, glass teeth round it and a few inside, the dark throat.
+    q, T, r = rings[-1]
+    side = v3(0.0, 1.0, 0.0)
+    up = np.cross(T, side)
+    up = up / (float(np.linalg.norm(up)) or 1.0)
+    side = np.cross(up, T)
+    hm = np.stack([T, side, up], axis=1)
+    mc = q + T * hl
+    P.add(E(mc, (0.4, r * 1.12, r * 1.12), m.armour, "collar", hm))
+    g = 0.75 + 0.25 * gape
+    rm = r * 0.9 * g
+    P.add(E(mc + T * 0.3, (0.14, rm, rm), m.maw, "maw", hm, line=False))
+    P.add(E(mc + T * 0.34, (0.1, rm * 0.32, rm * 0.32), m.crust, "throat", hm, line=False))
+    mo = p.mouth
+    for ring_, nt, rr in ((0, mo.teeth, 0.72), (1, mo.inner, 0.45)):
+        for k in range(nt):
+            a = math.radians(k * 360.0 / nt + 20.0 * ring_)
+            tq = mc + T * 0.46 + hm @ v3(0.0, math.cos(a) * rm * rr, math.sin(a) * rm * rr)
+            P.mark(tq, M.DW_TOOTH if (k + ring_) % 2 == 0 or gape > 0.6 else M.DW_GLINT)
+    # The sense pits on its head plates: glassy, flaring cyan in its tell.
+    if not dead:
+        for k in range(p.pits):
+            a = math.radians(-50.0 + 33.0 * k)
+            pq = q - T * 0.2 + hm @ v3(0.0, math.sin(a) * r * 0.95, math.cos(a) * r * 0.95) * 1.04
+            P.mark(pq, M.DW_PIT_HOT if pits >= 1.0 else M.DW_PIT)
+            if pits >= 1.0:
+                P.glow.append((pq + up * 0.4, M.DW_PIT_GLOW))
+    # The mound it rises from (collapsing as it sinks), its ripples.
+    mr = p.mound.r
+    mrr = (mr[0], mr[1], mr[2] * (1.0 - 0.7 * sink))
+
+    def sand(qq, n):
+        rr_ = np.hypot(qq[:, 0], qq[:, 1])
+        ripple = ((rr_ * 1.3) % 1.0) < 0.2
+        return np.full(len(qq), m.sand, dtype=object), np.where(ripple & (n[:, 2] > 0.4), -1, 0).astype(np.int16)
+
+    P.add(E(v3(0.0, 0.0, 0.0), mrr, m.sand, "mound", None, sand))
+    # Sand pouring off it; bursting round its mound; the explosion of its slam; plate shards when struck.
+    if action in ("idle", "walk", "windup") or (action == "hurt"):
+        for k in range(8):
+            u = (k * 0.23 + f * 0.17) % 1.0
+            j = int((k * 7) % (len(rings) - 4)) + 3
+            rq, _, rr_ = rings[j]
+            sgn = 1.0 if k % 2 else -1.0
+            P.fx.append((rq + v3(0.0, sgn * (rr_ + 0.4), -u * 3.0), M.DW_SAND if u < 0.6 else M.DW_SAND_DIM))
+    if burst > 0.0:
+        for k in range(16):
+            a = math.radians(k * 22.5 + f * 11.0)
+            rr_ = mr[0] + 0.6 + 1.4 * burst * ((k % 3) / 2.0)
+            hz = 0.5 + 2.5 * burst * ((k * 5) % 4) / 3.0
+            P.fx.append((v3(math.cos(a) * rr_, math.sin(a) * rr_, hz), M.DW_SAND if k % 2 else M.DW_SAND_DIM))
+    if blast > 0.0:
+        hit = v3(pts[-1][0] + 0.6, 0.0, 0.0)
+        for k in range(24):
+            a = math.radians(k * 15.0)
+            rr_ = 1.8 + 3.2 * blast * (0.6 + 0.4 * ((k * 7) % 3) / 2.0)
+            hz = 0.4 + 3.0 * blast * ((k * 3) % 4) / 3.0
+            P.fx.append((hit + v3(math.cos(a) * rr_, math.sin(a) * rr_, hz), M.DW_SAND if k % 3 else M.DW_SAND_DIM))
+        for k in range(6):
+            a = math.radians(k * 60.0 + 30.0)
+            P.add(E(hit + v3(math.cos(a) * 2.2 * blast, math.sin(a) * 2.2 * blast, 0.3), (0.9, 0.8, 0.5 * blast + 0.2), m.sand, "blast", None))
+    if chips > 0.0:
+        for k in range(7):
+            j = len(rings) - 2 - k
+            rq, _, rr_ = rings[max(0, j)]
+            a = math.radians(k * 51.0)
+            P.fx.append((rq + v3(math.cos(a) * (rr_ + 1.0 + 1.5 * (1.0 - chips)), math.sin(a) * (rr_ + 1.0), 0.5), M.RAMPS[m.armour][4 if k % 2 else 3]))
+    if fade > 0.0:
+        P.dissolve = fade
+        P.dissolve_col = M.DW_SAND
+    return P
+
