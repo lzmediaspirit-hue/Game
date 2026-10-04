@@ -199,7 +199,7 @@ def check_sheets(C: Checks) -> None:
                 C.check(np.array_equal(one, two), "%s %s %s %d %s: drawn twice, the same" % (sid, look, a, f, d))
                 x, y = acts[a]["frames"][d][f]
                 cell = sheet[y:y + ch, x:x + cw]
-                x0, y0 = sculpt.FOOT[0] - fx, sculpt.FOOT[1] - fy
+                x0, y0 = creatures.foot_of(sid)[0] - fx, creatures.foot_of(sid)[1] - fy
                 # The frame in its cell (a cell may run past the working canvas by its margin: that part is empty).
                 drawn = np.zeros((ch, cw, 4), np.uint8)
                 part = one[y0:y0 + ch, x0:x0 + cw]
