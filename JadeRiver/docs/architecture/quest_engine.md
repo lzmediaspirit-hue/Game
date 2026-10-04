@@ -329,7 +329,8 @@ Fisher Gan is home only once the well runs clean (E3). His quest follows Cleansi
 and pays that quest's band. Each is one spec of five to seven lines. The data diff is their four rows, plus their
 rewards as sources in `docs/wiki/items.md`.
 
-**Engine size.** `spec.py` 212 lines, `bands.py` 87, `engine.py` 637, `tests.py` 204; the specs 353.
+**Engine size.** At E5: `spec.py` 212 lines, `bands.py` 87, `engine.py` 637, `tests.py` 204; the specs 353. At E5b:
+`spec.py` 217, `engine.py` 703, `tests.py` 235; the specs 381.
 
 ## Balance fixes (E5b)
 
@@ -378,7 +379,8 @@ The favours' template now does three things:
 The second companion joins at Heart Tempering 6 (Brothers in Arms). Their first two favours are then easy errands
 that pay their own band.
 
-The Act II story itself goes further past its rooms than these side quests did. That is outside the specs:
+The story of Acts II and III sends the player as far past its rooms as these side quests did, six to eight Levels
+over. That is outside the specs:
 - Frost and Silence: Sage 1 at the Rimefrost Summit (70-72);
 - The Canyon Toll: Sage 2 at the Canyon Mouth (73-75);
 - The Sealed Gate: Sage 3 in the Worm Sea (77-81);

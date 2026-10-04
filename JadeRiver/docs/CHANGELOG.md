@@ -55,8 +55,8 @@ the tier they open at. E5b fixed them in the quest specs (`tools/content/quests/
   - `topdown_chapter4` plays Grey Roofs as the roofs.
   - `valley_run` plays the moved Act II quests at their new realms, and first checks that each is not yet offered.
 - **Left for a later look.**
-  - The Act II story itself sends the player further past its rooms (The Sealed Gate: Sage 3 into the Worm Sea, 77
-    to 81).
+  - The story of Acts II and III sends the player as far past its rooms, six to eight Levels over (The Sealed Gate:
+    Sage 3 into the Worm Sea, 77 to 81).
   - The board has no gathering or mining job above Level 40: those nodes want an expert's rank.
 
 ## The side view's mechanics in the Act I rooms (T2)
