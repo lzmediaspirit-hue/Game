@@ -75,6 +75,16 @@ species of the game has its own top-down sheet.
 - **A test.** `topdown_suite`'s stand-in check drew the sandstorm scorpion as its foe without rows (the pebble imp and
   the stone tortoise before it). No foe of the game is without rows now, so the check makes its own, as it makes its
   spirit animal: a def that names a side-view creature sheet.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R9, E5b, T3 and M4.
+  - Every gate passed, `boot` among them (0 failing; grid parity on 168 layouts and 498 starts). `build_data` writes no
+    data file: the rows, loot and voices are byte-identical. The `monsters` gate has 2,732 checks (2,147 at M4); it
+    grows with the species, now 92, and is the only count M3 grows.
+  - All 34 suites passed with no SCRIPT ERROR: 78,199 checks, every other count as the merged branch has it
+    (`rules_tests` keeps its 2,722 with the stand-in check's own foe). `contract_tests` (1,112) finds no private
+    cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - After the merge `build_foes.py` rebuilt every sheet from both batches' code: M4's sheets and M3's came out byte for
+    byte as committed, and `foes.json` is M4's with M3's twenty blocks. `build_foes.py --check` built all 146 sheets
+    twice, byte for byte the same, and the same bytes as on disk.
 
 ## The monster engine's late-game batch: twenty foes and four people of size (decision 45, M4)
 
