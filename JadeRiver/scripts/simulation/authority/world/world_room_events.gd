@@ -19,7 +19,7 @@ func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
 	var st: ActorState = game.actor_state(actor_id)
 	if c == null or st == null: return
 	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"))
-	world.loot.drop_loot(c, drop, st.plane, 0.0, "rift")
+	world.loot.drop_loot(c, drop, st.plane, "rift")
 
 func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return
@@ -30,13 +30,13 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 		rt.event.active = false
 		rt.event.remaining = 0.0
 		if ev.get("leave") is Dictionary:
-			rt.event.leaving = _leave_after(rt, ev)
+			rt.event.leaving = float(ev.leave.get("after_s", 0.0))
 		return
 	rt.event = ev.duplicate(true)
-	# T1 (docs/architecture/topdown_mechanics.md): on the height grid every event's points go through the one rule,
-	# TopdownRoom.grid_event: the layout's cells for it, else the side view's points mapped across the room onto open
-	# ground the player walks to. Every room event starts here, so no caller maps its own.
-	if not WorldAuthority.side_view(rt): rt.event = rt.topdown.grid_event(rt.event, _player_at(c), rt.def.get("side_bounds", []))
+	# T1 (docs/architecture/topdown_mechanics.md): every event's points go through the one rule, TopdownRoom.grid_event:
+	# the layout's cells for it, else its authored points (the room data's side-view coordinates) mapped across the room
+	# onto open ground the player walks to. Every room event starts here, so no caller maps its own.
+	rt.event = rt.topdown.grid_event(rt.event, _player_at(c), rt.def.get("side_bounds", []))
 	ev = rt.event
 	rt.event.active = true
 	rt.event.remaining = float(ev.get("duration", 60))
@@ -78,7 +78,7 @@ func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	var demons := ProgressionRules.heart_demon_steps(c.cultivator) if str(ev.get("heart_demons", "")) != "" else 0
 	var at_demons: Array = []
 	for i in demons: at_demons.append([700.0 + 260.0 * i, 860.0])
-	if not at_demons.is_empty() and not WorldAuthority.side_view(rt): at_demons = rt.topdown.grid_points(at_demons, _player_at(c), rt.def.get("side_bounds", []))
+	if not at_demons.is_empty(): at_demons = rt.topdown.grid_points(at_demons, _player_at(c), rt.def.get("side_bounds", []))
 	for i in demons:
 		game.enemies.spawn_at(str(ev.heart_demons), Vector2(float(at_demons[i][0]), float(at_demons[i][1])), int(ev.get("level", -1)))
 	if demons > 0: emit("room_event_wave", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", "")), "enemy": str(ev.heart_demons),
@@ -144,9 +144,8 @@ func tick_event(c, rt: RoomRuntime, delta: float) -> void:
 		return
 	if ev.has("ground_grace_s"):
 		var st: ActorState = game.actor_state(c.id)
-		var grounded := st != null and st.mode() == "ground" and st.surface != null and not st.surface.is_block and st.surface.stratum == "ground"
-		# T1: on the height grid the ground is the room's floor at level 0; a pole's top, a roof or a terrace is off it.
-		if grounded and not WorldAuthority.side_view(rt): grounded = rt.topdown.floor_at(st.plane) <= 0.5
+		# T1: the ground is the room's floor at level 0; a pole's top, a roof or a terrace is off it.
+		var grounded := st != null and st.mode() == "ground" and st.surface != null and rt.topdown.floor_at(st.plane) <= 0.5
 		ev.ground_s = float(ev.ground_s) + delta if grounded and elapsed > float(ev.get("ground_free_s", 5.0)) else 0.0
 		if float(ev.ground_s) > float(ev.ground_grace_s):
 			end_event(c, rt, false, "ground")
@@ -170,7 +169,7 @@ func _part_since(c, ev: Dictionary, key: String, part: Dictionary, elapsed: floa
 		ev.opened = opened
 	return float(opened[key])
 
-## A won event's way on (the Hollow Night's: to Lu's boat), `leave` {after_s, grid_after_s, requires, effects}: its
+## A won event's way on (the Hollow Night's: to Lu's boat), `leave` {after_s, requires, effects}: its
 ## effects once its requirement holds (the scene after the fight has played) or its seconds of the room's time have
 ## passed, whichever comes first. The room keeps it while the event's cut holds the game still.
 func tick_leave(c, rt: RoomRuntime, delta: float) -> void:
@@ -220,12 +219,8 @@ func end_event(c, rt: RoomRuntime, won: bool, reason := "") -> void:
 	if won and int(ev.get("hits_taken", 0)) == 0 and not ev.get("on_flawless", []).is_empty():
 		emit("room_event_flawless", {"actor": c.id, "room": rt.room_id, "event": str(ev.get("id", ""))})
 		game.apply_effects(c.id, ev.on_flawless, "event:" + str(ev.get("id", "")) + ":flawless")
-	if won and ev.get("leave") is Dictionary and game.room_rt == rt: ev.leaving = _leave_after(rt, ev)
-
-## How long a won event's way on (`leave`) waits: on the height grid, where the scene after the fight plays (behind
-## whatever moments the win brings), longer (`grid_after_s`); in the side view, which stages no scenes, `after_s`.
-static func _leave_after(rt: RoomRuntime, ev: Dictionary) -> float:
-	return float(ev.leave.get("grid_after_s" if not WorldAuthority.side_view(rt) else "after_s", ev.leave.get("after_s", 0.0)))
+	# Its way on waits `after_s`, long enough for the scene after the fight (behind whatever moments the win brings).
+	if won and ev.get("leave") is Dictionary and game.room_rt == rt: ev.leaving = float(ev.leave.get("after_s", 0.0))
 
 ## A kill-to-win event ends the moment its foe falls.
 func event_kill(p: Dictionary) -> void:

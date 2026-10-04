@@ -24,7 +24,9 @@ and 0.5 s after the cast; the hit frame at 0.2 s), cropped round the caster at 2
 checkpoint `ls6_end` (Sphere Lord 3, Lv 98; a copy taken to `user://fxa_ls6_end` before a concurrent `valley_run`
 rewrote `valley_cp`, never the Max Tester save) on Willow Path East with two Wild Boarlets set in front; under
 `--capture` the effect and the pose step a sixtieth a frame and the simulation holds still from the cast, so the
-shot lands on the frame named and shows the effect on the pose (`main.gd`, `--cast`):
+shot lands on the frame named and shows the effect on the pose (`main.gd`, `--cast`). Historical: these are side-view
+pictures, and `--cast` went with the side view in S12a; the Techniques page's preview (`--open-page=techniques
+--preview-t=<t>`) draws a cast on the grid now:
 
 ```
 xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . -- \

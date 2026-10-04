@@ -13,12 +13,11 @@ const GATE_Y := 272.0        # the gates' centres
 const GATE_R := 110.0
 const THREAD_Y := 466.0
 const COLUMN := 256.0        # the chosen friend's actions under their gate
-const FIGURE_SCALE := 1.6
-const TOP_SCALE := 4          # decision 42: a friend in the top-down game's style (TopdownDoll), screen px an art px
+const TOP_SCALE := 4          # decision 42: a friend as the game draws them (TopdownDoll), screen px an art px
 const LIGHT_S := 0.2
 const TIE_S := 0.3
 
-var avatars: Dictionary = {}   # companion id -> Avatar standing in its gate
+var avatars: Dictionary = {}   # companion id -> the figure standing in its gate
 var chosen := ""
 var lit_at := {}               # companion id -> when their lantern was lit here
 var tie_at := {}               # companion id -> when their newest knot was tied here
@@ -45,9 +44,8 @@ func draw_title_mount(r: Rect2) -> void:
 
 func _portrait(cid: String, def: Dictionary) -> Node2D:
 	if avatars.has(cid) and is_instance_valid(avatars[cid]): return avatars[cid]
-	# Decision 42: each friend as the game draws them: the top-down figure in the top-down game, three-quarters toward
-	# the camera; the side view's for a classic side-view character.
-	var a := Figures.for_outfit(DialoguePageScript.full_outfit(def.get("outfit", {})), FIGURE_SCALE, TOP_SCALE)
+	# Decision 42: each friend as the game draws them, three-quarters toward the camera.
+	var a := Figures.for_outfit(DialoguePageScript.full_outfit(def.get("outfit", {})), TOP_SCALE)
 	a.set("facing", 1)
 	add_child(a)
 	a.play("idle")

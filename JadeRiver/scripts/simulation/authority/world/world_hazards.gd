@@ -16,27 +16,24 @@ func init_hazards(c, rt: RoomRuntime) -> void:
 		rt.hazards[str(hid)] = {"phase": "cooldown", "t": 0.0, "dur": rng.randf_range(2.0, 2.0 + HazardRules.duration(h, "cooldown")),
 			"spots": [], "dir": 1, "pulse": 0.0, "inside": false}
 
-## S43 hazard volumes (lava, spores, poison vents): status and damage each pulse while inside their rect and altitude.
+## S43 hazard volumes (spike pits): status and damage each pulse while a body is in one.
+## T2 (topdown_mechanics.md): a hazard volume stands on its layout's cells (a traverse `hazard` row: the Tunnels' spike
+## pits), and strikes a body down in them, under their floor (fallen into the pit where the boards gave way); its numbers
+## are the room's own volume's (data/rooms, `volumes`). T3: its cells no boards cover are the pit's open spikes beside
+## them: they strike a body standing in them too; whole boards over the rest keep a body on them clear.
 func tick_hazard_volumes(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
 	if game.combat.is_wounded(c.id) or c.pools.has_status("spawn_protection") or st == null: return
+	var tr := TopdownTraverse.of(rt.topdown)
+	if tr == null or tr.hazards.is_empty(): return
+	var rows := tr.hazards_at(st.plane)
+	if rows.is_empty(): return
+	var floor_z: float = rt.topdown.height_at(st.plane)
+	var fallen: bool = st.altitude < floor_z - 4.0
+	var on_spikes: bool = st.altitude <= floor_z + 4.0 and not tr.spikes_at(st.plane).is_empty()
+	if not fallen and not on_spikes: return
 	var vols: Array = []
-	if rt.topdown != null:
-		# T2 (topdown_mechanics.md): on the height grid a side-view hazard volume stands on its layout's cells (a traverse
-		# `hazard` row: the Tunnels' spike pits), and strikes a body down in them, under their floor (fallen into the pit
-		# where the boards gave way); its numbers are the side view's own volume's.
-		# T3: its cells no boards cover are the pit's open spikes beside them (the side view's pit floor round its planks):
-		# they strike a body standing in them too; whole boards over the rest keep a body on them clear.
-		var tr := TopdownTraverse.of(rt.topdown)
-		if tr == null or tr.hazards.is_empty(): return
-		var rows := tr.hazards_at(st.plane)
-		if rows.is_empty(): return
-		var floor_z: float = rt.topdown.height_at(st.plane)
-		var fallen: bool = st.altitude < floor_z - 4.0
-		var on_spikes: bool = st.altitude <= floor_z + 4.0 and not tr.spikes_at(st.plane).is_empty()
-		if not fallen and not on_spikes: return
-		for v in ContentDB.room(rt.room_id).get("volumes", []):
-			if rows.any(func(z): return str(z.id) == str(v.get("id", ""))): vols.append(v)
-	elif not rt.geometry.volumes.is_empty(): vols = rt.geometry.volumes_at(st.plane, st.altitude)
+	for v in ContentDB.room(rt.room_id).get("volumes", []):
+		if rows.any(func(z): return str(z.id) == str(v.get("id", ""))): vols.append(v)
 	for v in vols:
 		if str(v.kind) != "hazard": continue
 		var key := "hazard_vol:" + str(v.id)
@@ -100,8 +97,8 @@ func hazard_enter(c, rt: RoomRuntime, st: ActorState, h: Dictionary, hs: Diction
 			match str(h.kind):
 				"strike":
 					var r := float(h.get("radius", 60))
-					# A blow lands on its own floor: the side view's reach up and down, one level on the height grid.
-					var band := 90.0 if WorldAuthority.side_view(rt) else TopdownRoom.LEVEL
+					# A blow lands on its own floor: within one level of it.
+					var band := TopdownRoom.LEVEL
 					for sp in hs.spots:
 						var at := Vector2(float(sp[0]), float(sp[1]))
 						if st.plane.distance_to(at) <= r and absf(st.altitude - float(sp[2])) < band:
@@ -138,22 +135,15 @@ func hazard_spots(rt: RoomRuntime, st: ActorState, h: Dictionary, rng: RandomNum
 	var spread := float(h.get("spread", 0))
 	for i in int(h.get("count", 1)):
 		var reach := spread * (0.35 if i == 0 else 1.0)
-		if not WorldAuthority.side_view(rt):
-			# On the height grid the strikes fall all round on the plane, on floors inside the room, at the floor's height.
-			var q: Vector2 = st.plane + Vector2.from_angle(rng.randf() * TAU) * reach * sqrt(rng.randf())
-			var g := rt.topdown.nearest_standable(q.clamp(Vector2.ONE * TopdownRoom.TILE, Vector2(rt.topdown.w - 1, rt.topdown.h - 1) * TopdownRoom.TILE))
-			out.append([g.x, g.y, rt.topdown.floor_at(g)])
-			continue
-		var p := Vector2(clampf(st.plane.x + rng.randf_range(-reach, reach), 80.0, rt.width() - 80.0),
-			clampf(st.plane.y + rng.randf_range(-50.0, 50.0), 660.0, 940.0))
-		var s := world.ground_at(rt, p)
-		out.append([p.x, p.y, s.height_at(p) if s else 0.0])
+		# The strikes fall all round on the plane, on floors inside the room, at the floor's height.
+		var q: Vector2 = st.plane + Vector2.from_angle(rng.randf() * TAU) * reach * sqrt(rng.randf())
+		var g := rt.topdown.nearest_standable(q.clamp(Vector2.ONE * TopdownRoom.TILE, Vector2(rt.topdown.w - 1, rt.topdown.h - 1) * TopdownRoom.TILE))
+		out.append([g.x, g.y, rt.topdown.floor_at(g)])
 	return out
 
-## Is the character on the floor, within `tol` of it (not jumping over a pool or a current): the ground in the side
-## view, the floor under it on the height grid, so a pool on the square acts on a body on the terrace only on its own.
+## Is the character on the floor, within `tol` of it (not jumping over a pool or a current): the floor under it, so a
+## pool on the square acts on a body on the terrace only on its own.
 func _on_hazard_floor(rt: RoomRuntime, st: ActorState, tol: float) -> bool:
-	if WorldAuthority.side_view(rt): return st.altitude < tol
 	return absf(st.altitude - rt.topdown.floor_at(st.plane)) < tol
 
 ## Hazards that act for as long as they are active: gusts and currents push, pools pulse.

@@ -610,8 +610,9 @@ def account_rules():
     ]
     write("account_rules.json", {
         "slots": slots,
-        "new_start": {"room": "lf_fishers_hut", "x": 330, "y": 780},
-        "skip_start": {"room": "sf_fairground", "x": 3500, "y": 820, "realm": "bone_forging_2",
+        # A new character wakes at its start room's own spawn on the grid (the side view's points went in S12a).
+        "new_start": {"room": "lf_fishers_hut"},
+        "skip_start": {"room": "sf_fairground", "realm": "bone_forging_2",
                        "quests_done": ["morning_tide", "a_quiet_river", "the_runaway_kite", "mas_delivery", "grannys_remedy", "fists_first",
                                        "crab_trouble", "evening_on_the_river", "the_hollow_night", "the_river_token",
                                        "the_willow_path"],

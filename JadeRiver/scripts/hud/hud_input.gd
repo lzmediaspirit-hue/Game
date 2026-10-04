@@ -219,9 +219,9 @@ func _technique_said(r: Dictionary) -> void:
 	if not r.get("ok", false) and r.get("reason", "") in ["no_qi", "cooldown", "wrong_weapon", "sealed", "needs_flight"]:
 		hud.add_log({"no_qi": Tx.t("hud.not_enough_qi"), "cooldown": Tx.t("hud.not_ready"), "wrong_weapon": str(r.get("text", Tx.t("hud.wrong_weapon"))), "sealed": Tx.t("hud.your_qi_is_sealed"), "needs_flight": Tx.t("hud.only_in_flight")}[r.reason], UiKit.MIST)
 
-## The player aims on the plane (the top-down room, redesign Phase 2); the side view's facing is only left or right.
+## The player aims on the plane (redesign Phase 2), whenever there is a player.
 func aims() -> bool:
-	return is_instance_valid(hud.player) and hud.player.has_method("aim_attack")   # side view: no aiming
+	return is_instance_valid(hud.player)
 
 ## The drawn technique slot of the page nearest `p` (its aim starts from that button's centre).
 func _nearest_slot_center(p: Vector2) -> Vector2:
@@ -294,10 +294,9 @@ func _release_aim(info: Dictionary) -> void:
 			"tap": _technique_said(hud.player.use_technique(int(info.slot)))
 			"aim": _technique_said(hud.player.aim_technique(int(info.slot), g.dir(), g.reach_k()))
 
-## A tap of Dodge: the combat authority's dodge, or the top-down prototype's own dash (redesign Phase 1).
+## A tap of Dodge: the player's dash (TopdownPlayer.dodge, which asks the combat authority).
 func dodge() -> void:
-	if hud.player.has_method("dodge"): hud.player.dodge()
-	else: hud.side_view.dodge()   # side view
+	hud.player.dodge()
 
 ## Where each choice of the pet command wheel sits around the Pet button.
 func wheel_pos(i: int) -> Vector2:

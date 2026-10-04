@@ -1,6 +1,6 @@
 """Flute: a jade bamboo dizi in the right hand along the pose's `blade` line (or laid on the ground), from a set's spec
 (sets/weapon_flute.py). The side view holds it the same way, drawn along the short blade's grip
-(tools/art/bake_weapons.py flute_frame): a tube held near its end, dark bamboo joints, finger holes along its upper
+(the side view's weapon bake flute_frame): a tube held near its end, dark bamboo joints, finger holes along its upper
 face toward the far end, and a red tassel hanging from the hand's end. On a blow's hit frame and the one after, its
 note leaves the far end as ripples of pale jade light (kinds/sound.py): arcs opening along the flute, closing into
 rings when it points at the camera or away. Played at the lips (`flute_play`), the pose names the note's way (`note`

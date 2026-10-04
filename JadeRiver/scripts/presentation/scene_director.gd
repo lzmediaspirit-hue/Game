@@ -167,7 +167,7 @@ func matches(when: Dictionary, p: Dictionary) -> bool:
 ## plays as it stands. A scene cut short in another room is closed (seen).
 func _pick() -> Dictionary:
 	var c = Game.active()
-	if c == null or Game.room_rt == null or Game.room_rt.topdown == null or not _stage_free(): return {}
+	if c == null or Game.room_rt == null or not _stage_free(): return {}
 	var here: String = Game.room_rt.room_id
 	for id in c.quests.scenes:
 		var st: Dictionary = c.quests.scenes[id]
@@ -191,7 +191,7 @@ func _pick() -> Dictionary:
 ## A queued scene that holds the fight (`hold_fight`) and may play here now, first in the queue; {} when none.
 func _urgent() -> Dictionary:
 	var c = Game.active()
-	if c == null or Game.room_rt == null or Game.room_rt.topdown == null or not _stage_free(): return {}
+	if c == null or Game.room_rt == null or not _stage_free(): return {}
 	for id in queue:
 		var row := SceneRules.row(str(id))
 		if row.get("hold_fight", false) and _can_play(c, row, Game.room_rt.room_id): return row
@@ -600,7 +600,7 @@ func _route(a: Dictionary, goal: Vector2) -> Array:
 	return p if not p.is_empty() else [goal]
 
 func _floor(a: Dictionary) -> float:
-	if a.prop != "" or Game.room_rt == null or Game.room_rt.topdown == null: return float(a.alt)
+	if a.prop != "" or Game.room_rt == null: return float(a.alt)
 	return Game.room_rt.topdown.floor_at(a.pos)
 
 ## The people walk on, their emotes and poses run out; the player's body is placed where the script walks it.

@@ -223,7 +223,6 @@ func _story(ch, b: Dictionary) -> void:
 	var id := q if q != "" else "next"
 	RecordsKit.slip(self, r, sel == id)
 	var d := Game.quest.quest_def(ch, q) if q != "" else ContentDB.entry("quests", str(nx.quest))
-	if q == "" and nx.get("gate", false): d = {"name": str(nx.name)}   # decision 41: the prototype's tale rests here
 	RecordsKit.head(self, Rect2(r.position + Vector2(0, 4), Vector2(r.size.x, 26)), UiKit.BLOOD, _head(ch, q, d, true) if q != "" else Tx.t("ui.quest.head_next"))
 	RecordsKit.pin(self, Vector2(r.end.x - 18, r.position.y + 10), true)
 	var nm := str(d.get("name", q))
@@ -453,7 +452,6 @@ func _reading(ch) -> void:
 	var nx := _next(ch) if sel == "next" else {}
 	var q := str(nx.get("quest", "")) if sel == "next" else sel
 	var d := ContentDB.entry("quests", q) if sel == "next" else Game.quest.quest_def(ch, q)
-	if sel == "next" and nx.get("gate", false): d = {"name": str(nx.name)}   # decision 41: the prototype's tale rests here
 	var active: bool = sel != "next" and ch.quests.is_active(q)
 	var st: Dictionary = ch.quests.active.get(q, {}) if active else {}
 	var x := r.position.x + 16
@@ -493,10 +491,7 @@ func _reading(ch) -> void:
 		var by := r.end.y - 64
 		var abandon := active and str(d.get("kind", "")) in ["side", "daily", "mortal"]
 		var gw := 110.0 if abandon else 156.0
-		# Decision 41: nowhere past the prototype's gate to go, and the button says why.
-		var gated: bool = QuestAuthority.past_gate(ch, goal) or (sel == "next" and nx.get("gate", false))
-		btn(Rect2(x, by, gw, 52), Tx.t("ui.quest.go"), "go", goal, true, regions_away(ch, goal) > 0 and not gated,
-			Tx.t("sim.world.road_being_drawn") if gated else go_reason(ch, goal), 22)
+		btn(Rect2(x, by, gw, 52), Tx.t("ui.quest.go"), "go", goal, true, regions_away(ch, goal) > 0, go_reason(ch, goal), 22)
 		if active:
 			btn(Rect2(x + gw + 8, by + 2, (w - gw - 8) if not abandon else 100.0, 48), Tx.t("ui.quest.untrack") if ch.quests.tracked.has(q) else Tx.t("ui.quest.track"), "track", q, false, true, "", 20)
 		if abandon: btn(Rect2(r.end.x - 16 - 96, by + 2, 96, 48), Tx.t("ui.quest.abandon"), "abandon", q, false, true, "", 18)

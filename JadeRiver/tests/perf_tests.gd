@@ -329,12 +329,14 @@ func _crowd() -> void:
 		if i % 6 != 0: return
 		for tech in ["sword_swarm", "cursive_storm"]:
 			var t := ContentDB.entry("techniques", tech)
-			w._cast(tech, 1, UiKit.GOLD)   # side view: world.gd's own cast (the crowd stands in the side view)
+			# The cast and its hits as Combat announces them, played by the world view (TopdownWorld, CombatFx).
+			GameEvents.emit_event("attack_started", {"actor": c.id, "technique": tech, "facing": 1})
 			for e in Game.room_rt.living_enemies().slice(0, int(t.max_targets)):
 				for h in int(t.hits):
-					w._on_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,   # side view
+					GameEvents.emit_event("hit_landed", {"attacker": c.id, "target": str(e.uid), "target_kind": "enemy", "amount": 12400, "type": "qi", "crit": h == 1,
 						"element": str(t.element), "x": e.plane.x, "y": e.plane.y, "alt": 60.0, "source": "tech:" + tech})
-		spent[1] = maxi(spent[1], w.fx.fx.size())
+			GameEvents.flush()
+		spent[1] = maxi(spent[1], w.fx_layer().fx.size())
 	var per := INF
 	var per_m := INF
 	var per2 := INF
@@ -362,7 +364,7 @@ func _crowd() -> void:
 ## Frames, untimed, until the world's effects have played out (at most four seconds).
 func _fx_die_out(w) -> void:
 	for i in 240:
-		if w.fx.fx.is_empty(): return
+		if w.fx_layer().fx.is_empty(): return
 		Game.tick(1.0 / 60.0)
 		await get_tree().process_frame
 
@@ -450,9 +452,6 @@ func _techniques() -> void:
 ## before, cost 2.5-4 ms a frame here: about 15 on a phone). Each round times the world alone, then opens the page,
 ## casts and drags; each figure is the least of its rounds, each count the most.
 func _techniques_redraws(tree: String) -> void:
-	var ch = Game.active()
-	var view_was := str(ch.view)
-	ch.view = "topdown"
 	var base := INF
 	var casting := INF
 	var dragging := INF
@@ -516,7 +515,6 @@ func _techniques_redraws(tree: String) -> void:
 		press.call(false)
 		main.close_all_pages()
 		await get_tree().process_frame
-	ch.view = view_was
 	print("techniques page (top-down): %.2f ms a frame with the preview casting, %.2f dragged, %.2f the world alone; the page drawn %d times in 120 casting frames and %d dragged, %d layers casting, at most %d tiles a frame dragged; frames left out with the machine slow: %d, %d, %d; with a picture being made: %d, %d, %d"
 		% [casting, dragging, base, page_casting, page_drag, layers_casting, tiles_most, slow[1], slow[2], slow[0], making[1], making[2], making[0]])
 	check(top_ok and page_casting == 0 and layers_casting == 0 and casting - base < 1.5,

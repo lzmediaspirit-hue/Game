@@ -321,6 +321,10 @@ func s_sturdy() -> void:
 		e.pools.max_hp = 1.0e12
 		e.pools.hp = e.pools.max_hp
 
+## S12a: the Codex's collection (account level), each id met `n` times, so the bestiary's cards are drawn met.
+func s_collection(ids: Array, n: int) -> void:
+	for id in ids: Game.account.collection[str(id)] = n
+
 func s_clear_enemies() -> void:
 	Game.room_rt.enemies.clear()
 

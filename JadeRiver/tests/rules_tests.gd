@@ -9,6 +9,7 @@ extends "res://tests/lib/suite.gd"
 ##   Saves:   a damaged file is restored from its .bak; the migration stamps the version.
 ##   Hazards: the answer a room asks, the cycle, strikes, pushes, pools and shelter (S17).
 ## Run headless:  godot --headless --path . res://tests/rules_tests.tscn
+const PlayerStub = preload("res://tests/lib/player_stub.gd")
 
 func near(a: float, b: float, eps := 0.01) -> bool:
 	return absf(a - b) <= eps * maxf(1.0, absf(b))
@@ -28,11 +29,8 @@ func _main() -> void:
 	treasures_suite()
 	hazards_suite()
 	starsea_suite()
-	movement_suite()
 	g1_suite()
 	g2_suite()
-	traversal_suite()
-	arts_volumes_suite()
 	arts_combat_suite()
 	nav_suite()
 	paths_above_suite()
@@ -127,6 +125,7 @@ func _main() -> void:
 	save_suite()
 	await topdown_suite()
 	await recipe_rename_suite()
+	side_view_save_suite()
 	await prototype_suite()
 	end_suite()
 
@@ -150,16 +149,13 @@ func topdown_suite() -> void:
 	await ls.run_view(self, get_tree())
 	print("topdown life measured: ", ls.measured)
 
-# ------------------------------------------------------------------ decision 41: the prototype's default and its gate
-## New games start in the top-down world; Settings keeps the classic side view as an off-by-default fallback; an intent
-## that names no view (the test walks) and every side-view save keep the side view. In a top-down character's game
-## every way from a room on the height grid into a room with no layout yet is closed by the prototype's gate: it says
-## "The road beyond is still being drawn." on the way's plate, on a touch and on the context button; no route, hop,
-## auto-path, teleport or tower climb goes through it; the view stands a barrier in the way. The tracker never leads
-## past it: a quest whose step is past it leads nowhere and says so, and once the story's next quest is past it (and no
-## lesson inside the prototype is on offer) its first entry is the prototype's end. On its own saves.
-## What the creator `cr` previews: its kind ("topdown", the top-down figure; "side", the side view's avatar) and, for the
-## top-down one, what a few seconds of it show: the facings it walks in, whether it walks and rests facing the camera,
+# ------------------------------------------------------------------ one world (S12a; decision 41's prototype before it)
+## Every game is the top-down one: the creator makes, previews and the selection shows every character on the grid,
+## and Settings offers no choice of view (S12a retired the side view and decision 41's gate at the prototype's end with
+## it). Then the prototype's QA fixes: world news, a moment's band, the HUD rects the labels keep off, the log, plates at
+## the screen's edges, the equip prompt, locked resource nodes, the transfer array's picker, a step in an instanced room,
+## Shen Lian's spar, the hunting grounds and the lessons first. On its own saves.
+## What the creator `cr` previews: its kind ("topdown", the top-down figure) and what a few seconds of it show: the facings it walks in, whether it walks and rests facing the camera,
 ## the dyes it wears, whether it follows a change of the look (the hair, the robe), and whether a tap turns it.
 func _creator_preview(cr) -> Dictionary:
 	var p = cr.preview
@@ -184,7 +180,7 @@ func _creator_preview(cr) -> Dictionary:
 		cr.on_action("turn", null)
 		return {"kind": "topdown", "missing": p.figure.missing.duplicate(), "rows": rows.keys(), "walks": walks, "rests": rests, "dyed": dyed,
 			"follows": follows, "turned": str(p.row) != before and p.held > 0.0}
-	return {"kind": "side" if p is Node2D and p.get_script() == ShellScreens.Avatar else "other"}
+	return {"kind": "other"}
 
 func prototype_suite() -> void:
 	var folder := run_root() + "prototype_suite/"
@@ -194,18 +190,14 @@ func prototype_suite() -> void:
 	Game.boot()
 	Game.autosave_enabled = false
 	Game.account.slots_unlocked = 4
-	var road := Tx.t("sim.world.road_being_drawn")
-	# The default: the creator (the new-game flow) makes a top-down character; the fallback setting a side-view one.
-	check(AccountAuthority.new_game_view({}) == "topdown" and AccountAuthority.new_game_view({"classic_side_view": true}) == "",
-		"prototype: a new game is top-down unless Settings keeps the classic side view")
+	var shut_line := Tx.t("sim.world.coming_soon")   # a shut way's line, for the log's checks
 	var settings_page: Page = load("res://scripts/ui/pages/settings_page.gd").new()
-	check("classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF and not settings_page.is_on("classic_side_view"),
-		"prototype: Settings' classic side view is a fallback, off by default (the old top-down toggle is gone)")
+	check(not "classic_side_view" in settings_page.DEFAULT_OFF and not "topdown_world" in settings_page.DEFAULT_OFF,
+		"one world: Settings offers no choice of view (the classic side view and the old top-down toggle are gone)")
 	settings_page.free()
 	var made := {}
 	var previews := {}
 	for slot in [1, 2]:
-		if slot == 2: Game.account.settings["classic_side_view"] = true
 		var cr := ShellScreens.CreatorScreen.new()
 		add_child(cr)
 		cr.open({"slot": slot})
@@ -214,42 +206,33 @@ func prototype_suite() -> void:
 		cr.created.connect(func(s: int): made[s] = true)
 		cr.on_action("begin", null)
 		cr.queue_free()
-	# Decision 41: the creator shows the new character as its game draws it: the top-down figure (TopdownFigure, the
-	# layer sets under art/topdown/character/) walking in place and turning, in the starting garments' dyes, following
-	# every change of the look; the side view's avatar only with the classic side view on.
+	# The creator shows the new character as its game draws it: the top-down figure (TopdownFigure, the layer sets under
+	# art/topdown/character/) walking in place and turning, in the starting garments' dyes, following every change of
+	# the look.
 	var td_prev: Dictionary = previews[1]
 	check(str(td_prev.kind) == "topdown" and (td_prev.missing as Array).is_empty() and (td_prev.rows as Array).size() == 8 and td_prev.walks and td_prev.rests
 		and td_prev.dyed and td_prev.follows and td_prev.turned,
 		"prototype: the creator's preview is the top-down figure, fully drawn (missing %s), walking in place through all eight facings (%s) with a rest facing the camera, in the starting dyes, following the look's changes, and a tap turns it (%s)"
 		% [str(td_prev.missing), str(td_prev.rows), str(td_prev)])
-	check(str(previews[2].kind) == "side", "prototype: with the classic side view kept in Settings the creator shows the side view's avatar (%s)" % str(previews[2].kind))
-	Game.account.settings.erase("classic_side_view")
+	check(str(previews[2].kind) == "topdown", "one world: every slot's creator shows the top-down figure (%s)" % str(previews[2].kind))
 	var td = Game.character("c1")
-	var sv = Game.character("c2")
-	check(made.has(1) and td != null and td.view == "topdown" and str(td.position.room) == "lf_fishers_hut" and float(td.position.x) == 0.0,
-		"prototype: the character creator makes a top-down character by default, waking at its first room's own spawn (%s)" % (str(td.position) if td else "none"))
-	check(made.has(2) and sv != null and sv.view == "", "prototype: with the classic side view kept in Settings the creator makes a side-view one")
+	var second = Game.character("c2")
+	var spawned := func(ch) -> bool: return ch != null and str(ch.position.room) == "lf_fishers_hut" and float(ch.position.x) == 0.0 and not ch.position.has("surface")
+	check(made.has(1) and spawned.call(td),
+		"prototype: the character creator makes a character waking at its first room's own spawn on the grid (%s)" % (str(td.position) if td else "none"))
+	check(made.has(2) and spawned.call(second), "one world: the second slot's character wakes on the grid the same way (%s)" % (str(second.position) if second else "none"))
 	var sel := ShellScreens.SelectionScreen.new()
 	add_child(sel)
 	sel.open({})
-	check(sel.avatars.get(1) is ShellScreens.TopdownPreview and not sel.avatars.get(2) is ShellScreens.TopdownPreview and sel.avatars.get(2) != null,
-		"prototype: character selection shows each disciple as their own game draws them: a top-down one in the top-down style (%s)" % str(sel.avatars.keys()))
+	check(sel.avatars.get(1) is ShellScreens.TopdownPreview and sel.avatars.get(2) is ShellScreens.TopdownPreview,
+		"prototype: character selection shows every disciple in the top-down style (%s)" % str(sel.avatars.keys()))
 	sel.queue_free()
-	Game.submit({"type": "create_character", "slot": 3, "name": "No View"})
-	check(Game.character("c3") != null and Game.character("c3").view == "", "prototype: a create intent that names no view (the test walks) keeps the side view")
-	var snap: Dictionary = Game.character("c3").snapshot()
-	snap.erase("view")   # a save from before the views
-	var old := GameCharacter.new()
-	old.restore(snap)
-	var again := GameCharacter.new()
-	again.restore(td.snapshot())
-	check(old.view == "" and again.view == "topdown", "prototype: a side-view save (no view saved) keeps its side view, a top-down one its own")
+	var snap: Dictionary = td.snapshot()
+	check(not snap.has("view") and int(snap.get("minor", 0)) == GameCharacter.MINOR, "one world: a save holds no view, at the format's minor %d (%s)" % [GameCharacter.MINOR, str(snap.get("minor"))])
 	# World news (a calendar event, the season) never reaches a brand-new player, nor one in a staged scene, nor of a place
 	# they do not know: the late-game Drowned Shrine's toast was seen over the tutorial village.
 	Game.submit({"type": "enter_character", "slot": 1})
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var news = load("res://scripts/hud.gd").new()
 	news.visible = false
 	news.process_mode = Node.PROCESS_MODE_DISABLED
@@ -319,11 +302,11 @@ func prototype_suite() -> void:
 	check(quiet_rect.size.x == 0.0 and log_r.size.x > 0.0 and news.obstacle_rects().has(log_r) and log_r.end.x <= 20.0 + news.LOG_W + 0.5,
 		"prototype: the world's labels keep off the log's rows while they show, and not off an empty log (%s)" % str(log_r))
 	news.log_lines.clear()
-	# Walked into the gate again and again, its line is said once, by the way's own plate (lit at the way, below): none in
-	# the log (it was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
+	# Walked into a shut way again and again, its line is said once, by the way's own plate: none in the log (decision
+	# 41's gate was on the screen three times at once: the log, the plate and a line over the player). A way with no plate
 	# in view logs it once while it repeats, and a line floating over the player stays whole on the screen.
 	news.log_lines.clear()
-	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": shut_line})
 	var plateless: int = news.log_lines.size()
 	var host_src := GDScript.new()
 	host_src.source_code = "extends Node2D\nvar portal_views := []\n"
@@ -334,7 +317,7 @@ func prototype_suite() -> void:
 	host.portal_views.append(gate_pv)
 	news.world = host
 	news.log_lines.clear()
-	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": Tx.t("sim.world.road_being_drawn")})
+	for i in 5: news.on_event("portal_blocked", {"actor": str(td.id), "portal": "east", "text": shut_line})
 	var plated: int = news.log_lines.size()
 	news.world = null
 	gate_pv.free()
@@ -355,7 +338,7 @@ func prototype_suite() -> void:
 	var fx_probe := FxLayer.new()
 	add_child(fx_probe)
 	var vw := fx_probe.get_viewport_rect().size.x
-	var road_text := Tx.t("sim.world.road_being_drawn")
+	var road_text := shut_line
 	var road_at := fx_probe.on_screen(road_text, 18, Vector2(vw - 10.0, 300.0))
 	var road_half := UiKit.text_width(road_text, 18) * 0.5
 	check(plated == 0 and plateless == 1 and road_at.x + road_half <= vw and road_at.x - road_half >= 0.0,
@@ -388,98 +371,7 @@ func prototype_suite() -> void:
 		var nm := ContentDB.item_name(id)
 		if UiKit.text_width(nm, EquipPrompt.name_size(nm)) > 168.0: cut_names.append(nm)
 	check(cut_names.is_empty(), "prototype: the equip prompt names every early piece whole (%s)" % str(cut_names))
-	# The gate, on every way off the grid, for the top-down character only. With every room on the grid (R8, R9), the
-	# last batch's rooms stand off it while the gate is checked (tests/lib/off_grid.gd), back on at the suite's end.
-	var stood_off: Array = preload("res://tests/lib/off_grid.gd").stand_off()
 	var st := ActorState.new()
-	Game.bind_movement(td.id, st)
-	var gated: Array = []
-	var wrong: Array = []
-	for rid in ContentDB.rooms:
-		if not TopdownRoom.has_layout(str(rid)): continue
-		for p in ContentDB.room(str(rid)).get("portals", []):
-			if TopdownRoom.has_layout(str(p.get("to", ""))) or ContentDB.room(str(p.get("to", ""))).is_empty(): continue
-			Game.world.load_room(td, str(rid), "")
-			GameEvents.flush()
-			var way: Dictionary = Game.room_rt.portal_def(str(p.id))
-			var ps: Dictionary = Game.world.portal_state(td, way)
-			st.plane = Vector2(float(way.at[0]), float(way.at[1]))
-			st.altitude = float(way.get("alt", 0.0))
-			st.surface = null
-			var tried := Game.submit({"type": "use_portal", "portal": str(p.id), "crossing": true})
-			var ctx: Dictionary = Game.world.query_context(td)
-			var ok: bool = ps.get("gate", false) and not ps.open and str(ps.text) == road and not Game.world.portal_open(td, str(rid), way) \
-				and not tried.get("ok", false) and str(tried.get("text", "")) == road and Game.room_rt.room_id == str(rid) \
-				and Game.world.route(td, str(rid), str(p.to)).is_empty()
-			if str(ctx.get("portal", "")) == str(p.id): ok = ok and not ctx.get("ok", true) and str(ctx.get("text", "")) == road
-			gated.append("%s:%s" % [rid, p.id])
-			if not ok: wrong.append("%s:%s %s %s" % [rid, p.id, str(ps), str(tried)])
-	check(not gated.is_empty() and wrong.is_empty(),
-		"prototype: every way from a room on the grid into one without a layout (%d) is closed by the gate, and says the road beyond is still being drawn on its plate, a touch and the context button; no route through it (%s)" % [gated.size(), str(wrong.slice(0, 3))])
-	# A side-view character at the first of them is not gated; the room's ways into rooms on the grid are open.
-	var first: PackedStringArray = (str(gated[0]) if not gated.is_empty() else "rm_marsh_edge:east").split(":")
-	Game.world.load_room(td, first[0], "")
-	var on_grid: Array = (Game.room_rt.def.get("portals", []) as Array).filter(func(p): return TopdownRoom.has_layout(str(p.get("to", ""))))
-	check(not Game.world.portal_state(sv, Game.room_rt.portal_def(first[1])).get("gate", false) and not on_grid.is_empty()
-		and on_grid.all(func(p): return not Game.world.portal_state(td, p).get("gate", false)),
-		"prototype: the gate closes a top-down character's way off the grid only (a side-view character's is as before at %s; its ways on the grid are open)" % ":".join(first))
-	# No teleport, tower climb or auto-path past it (auto-path to the room past the first gate; the tower climb while the
-	# Trial Tower has no layout).
-	var gate_to := str(Game.room_rt.portal_def(first[1]).get("to", ""))
-	var far_stone := ""   # the first teleport stone in a room with no layout yet (R4 put the Hidden Vale's on the grid)
-	for s in ContentDB.all("teleport_stones"):
-		if far_stone == "" and not TopdownRoom.has_layout(str(s.get("room", ""))): far_stone = str(s.id)
-	Game.account.teleports[far_stone] = true
-	Game.inventory.apply_add(td.id, "spirit_stone_shard", 50, "prototype_suite")
-	Unlocks.force_unlock(td.id, "teleport_stones")
-	Game.world.load_room(td, "sf_market", "")
-	var tp := Game.submit({"type": "teleport", "stone": far_stone})
-	var ap := Game.submit({"type": "auto_path", "target": gate_to})
-	Game.world.load_room(td, "sf_fairground", "")
-	var tower_off := not TopdownRoom.has_layout("sf_trial_tower")
-	var tw: Dictionary = Game.world.climb_tower(td, 1) if tower_off else {}   # on the grid (R3), the climb is no gate's
-	check(not tp.get("ok", false) and str(tp.get("text", "")) == road and Game.room_rt.room_id == "sf_fairground" and not ap.get("ok", false)
-		and (not tower_off or (not tw.get("ok", false) and str(tw.get("text", "")) == road)),
-		"prototype: no teleport (a stone another character found), auto-path (to %s) or tower climb goes past the gate (%s; %s; %s)" % [gate_to, str(tp), str(ap), str(tw)])
-	# The view stands a barrier in each way past the gate and no other, in the room of the first one (the Caravan Road is
-	# on the grid since E1, the road east past the Marsh Edge since R1).
-	Game.world.load_room(td, first[0], "")
-	var want := {}
-	for p in Game.room_rt.def.get("portals", []):
-		var to := str(p.get("to", ""))
-		if to != "" and str(p.get("type", "")) != "hidden" and not ContentDB.room(to).is_empty() and not TopdownRoom.has_layout(to): want[str(p.id)] = true
-	var w := TopdownWorld.new()
-	w.live = true
-	w.sim_frozen = true
-	add_child(w)
-	await get_tree().process_frame
-	var gates := w.sorted.get_children().filter(func(n): return n is TopdownGate)
-	for g in gates: g._process(0.0)
-	var ways := {}
-	for g in gates: ways[str(g.def.id)] = true
-	var drawn: Array = ways.keys()
-	drawn.sort()
-	var wanted: Array = want.keys()
-	wanted.sort()
-	check(drawn == wanted and gates.all(func(g): return g.visible) and w.portal_views.size() == (Game.room_rt.def.portals as Array).size(),
-		"prototype: the view stands the gate's barrier in each way off the grid and no other (%s: %s)" % [first[0], str(drawn)])
-	# Walked into, the gate says its line once, where it is: the way's own plate lights up, and nothing floats over the
-	# player (the touch line replaces the label, not stacks under it).
-	var gate_def: Dictionary = Game.room_rt.portal_def(first[1])
-	st.plane = Vector2(float(gate_def.at[0]), float(gate_def.at[1]))
-	st.altitude = float(gate_def.get("alt", 0.0))
-	var walked := Game.submit({"type": "use_portal", "portal": first[1], "crossing": true})
-	GameEvents.flush()   # the rooms loaded above are entered in the view first (it builds the gate's room again)
-	var way_pv: PortalView = null
-	for pv in w.portal_views:
-		if str(pv.def.get("id", "")) == first[1]: way_pv = pv
-	var floats_before: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
-	w.transfer_cooldown = 0.0
-	WorldShared.request_portal(w, first[1], true)
-	var floats_after: int = w.effects.fx.filter(func(e): return str(e.get("kind", "")) == "text").size()
-	check(way_pv != null and way_pv.touched > 0.0 and str(way_pv.state.get("text", "")) == road and floats_after == floats_before,
-		"prototype: walked into, the gate's line is its own plate, lit at the way, and no line floats over the player (lit %.1f s, plate %s, floating %d; %s)" % [way_pv.touched if way_pv else -1.0, str(way_pv.state) if way_pv else "-", floats_after - floats_before, str(walked)])
-	w.free()
 	Game.bind_movement(td.id, st)
 	# A resource node not open yet (herb gathering before Bone Forging 4, the Temper drum before its body level) stays in
 	# the world but never takes the context button; open, it is offered (the Reed Shallows' herbs offered their locked
@@ -498,7 +390,7 @@ func prototype_suite() -> void:
 	var herb_open: bool = offered.call("lf_reed_shallows", "herb_6")
 	check(not herb_locked and not drum_locked and herb_open and WorldAuthority.resource_node(ContentDB.room("wp_west").objects.filter(func(o): return str(o.id) == "temper_copper_wp_west")[0]),
 		"prototype: a locked resource node (a herb before herb gathering, the Temper drum before its body level) never takes the context button, and is offered once open (herb %s, drum %s, herb open %s)" % [herb_locked, drum_locked, herb_open])
-	await _array_picker_checks(td, st, road)
+	await _array_picker_checks(td, st)
 	# In the instanced room a step is done in (the Siege of Two Sects, its way out held until it is won) the step leads
 	# there, not back to the street its rite was begun in (valley_run saw a daily done mid-siege send the player out).
 	var siege_def: Dictionary = Game.quest.quest_def(td, "the_siege")
@@ -547,24 +439,8 @@ func prototype_suite() -> void:
 	GameEvents.flush()
 	check(back_at_once and Game.room_rt.enemies.values().all(func(e): return not e.def.get("spar", false)),
 		"prototype: the spar over, his partner is gone at once and Shen Lian stands in the square again, to be talked to")
-	# A quest whose step is past the gate leads nowhere and says so: Stone and Sweat, at the quarry, while the quarry has
-	# no layout; else the first lesson or side quest whose room and steps all lie off the grid.
-	var off_q := "stone_and_sweat"
-	if TopdownRoom.has_layout("sq_quarry_rim"):
-		for q in ContentDB.all("quests"):
-			var tr_room := str(q.get("target_room", ""))
-			if str(q.get("kind", "")) in ["guided", "side"] and tr_room != "" and not ContentDB.room(tr_room).is_empty() and not TopdownRoom.has_layout(tr_room) \
-				and (q.get("objectives", []) as Array).all(func(o): return str(o.get("room", "")) == "" or not TopdownRoom.has_layout(str(o.room))):
-				off_q = str(q.id)
-				break
-	Game.quest.apply_start(td.id, off_q)
-	var entry: Array = Game.quest.tracker(td).filter(func(q): return str(q.get("quest", "")) == off_q)
-	check(not entry.is_empty() and entry[0].get("gate", false) and str(entry[0].target_room) == "" and (entry[0].lines as Array).any(func(l): return str(l.text) == road),
-		"prototype: a quest whose step is past the gate (%s) leads nowhere and says the road is still being drawn (%s)" % [off_q, str(entry)])
-	Game.quest.apply_drop(td.id, off_q, false)
-	# The story's end in the prototype: The First Current and chapter 3 done (on the grid since E1), no lesson inside the
-	# prototype on offer.
-	for ch in [td, sv]:
+	# The story to The First Current and chapter 3 done, no lesson on offer.
+	for ch in [td]:
 		ch.cultivator.realm_key = "bone_forging_7"
 		for q in ContentDB.all("quests"):
 			var kind := str(q.get("kind", ""))
@@ -572,54 +448,21 @@ func prototype_suite() -> void:
 				ch.quests.done[str(q.id)] = 1
 		ch.quests.active.clear()
 		ch.quests.offered.clear()
-	# ...and the story's quests on the grid past chapter 3 (chapter 4 since R1) done as they come, to the first one played
-	# past the gate (a test shortcut).
-	for i in 60:
-		var nx := Game.quest.story_next(td)
-		if nx.get("gate", false) or nx.is_empty() or str(nx.get("quest", "")) == "": break
-		for ch in [td, sv]:
-			ch.quests.offered.erase(str(nx.quest))
-			ch.quests.done[str(nx.quest)] = 1
 	var end := Game.quest.story_next(td)
-	var side_next := Game.quest.story_next(sv)
-	check(end.get("gate", false) and str(end.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(end.get("target_room", "x")) == ""
-		and (end.get("lines", []) as Array).any(func(l): return str(l.text) == road),
-		"prototype: with the story's next quest past the gate, the top-down tracker's Next is the prototype's end, leading nowhere (%s)" % str(end))
-	check(not side_next.get("gate", false) and str(side_next.get("quest", "")) != "" and str(side_next.get("target_room", "")) != "",
-		"prototype: a side-view character at the same point is led on as before (%s)" % str(side_next.get("name", "")))
+	check(str(end.get("quest", "")) != "" and TopdownRoom.has_layout(str(end.get("target_room", ""))),
+		"one world: past The First Current and chapter 3 the story's Next leads on, to a room on the grid (%s)" % str(end.get("name", "")))
 	var fields: Array = Game.quest.hunt_rooms(td)
-	var side_fields: Array = Game.quest.hunt_rooms(sv)
-	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0])))
-		and (side_fields.any(func(f): return not TopdownRoom.has_layout(str(f[0]))) or side_fields.map(func(f): return f[0]) == fields.map(func(f): return f[0])),
-		"prototype: a top-down character's hunting grounds are rooms on the grid (%s; the side view's %s)" % [str(fields), str(side_fields.map(func(f): return f[0]))])
-	# A lesson inside the prototype still comes first; one past the gate never does.
+	check(not fields.is_empty() and fields.all(func(f): return TopdownRoom.has_layout(str(f[0]))),
+		"prototype: the hunting grounds are rooms on the grid (%s)" % str(fields))
+	# A lesson on offer still comes first.
 	td.quests.done.erase("eyes_for_qi")
 	td.quests.offered["eyes_for_qi"] = true
-	td.quests.done.erase(off_q)   # the quest past the gate above (Stone and Sweat while the quarry was off the grid)
-	td.quests.offered[off_q] = true
 	Game.quest._story_cache = {}
 	var lesson := Game.quest.story_next(td)
-	check(str(lesson.get("quest", "")) == "eyes_for_qi" and not lesson.get("gate", false), "prototype: a lesson on offer inside the prototype comes before its end, one past the gate never (%s)" % str(lesson.get("name", "")))
+	check(str(lesson.get("quest", "")) == "eyes_for_qi", "prototype: a lesson on offer comes before the story's next quest (%s)" % str(lesson.get("name", "")))
 	td.quests.done["eyes_for_qi"] = 1
 	td.quests.offered.erase("eyes_for_qi")
 	Game.quest._story_cache = {}
-	# The Quests page reads the end on its Next slip, with no way to go.
-	var qp: Page = load(str(load("res://scripts/main.gd").PAGES.quests)).new()
-	qp.page_id = "quests"
-	qp.text_log = []
-	add_child(qp)
-	qp.open({})
-	qp.sel = "next"
-	qp.queue_redraw()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	var said: Array = qp.text_log.map(func(tx): return str(tx.get("s", "")))
-	var go_off: bool = qp._regions.any(func(r): return str(r.id) == "go" and not r.enabled and str(r.reason) == road)
-	check(said.has(Tx.t("sim.quest.tale_rests")) and said.any(func(s): return s.contains(road)) and go_off,
-		"prototype: the Quests page's Next slip is the prototype's end, its Go shut with why (%s)" % str(said.slice(0, 12)))
-	qp.queue_free()
-	await get_tree().process_frame
-	preload("res://tests/lib/off_grid.gd").restore(stood_off)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the
@@ -629,7 +472,7 @@ func prototype_suite() -> void:
 ## by the far room's name, for the arrays its token knows only (the watch post's keyed, the mentor's peak not yet, the
 ## other sect's never), and never one past the prototype's gate (a node of the network in a room off the grid, keyed,
 ## is not offered and cannot be taken); once the peak is keyed it joins.
-func _array_picker_checks(td, st: ActorState, road: String) -> void:
+func _array_picker_checks(td, st: ActorState) -> void:
 	var sect_was: Dictionary = td.training_sect.duplicate(true)
 	td.training_sect = {"id": "jade_sect", "rank": "outer_disciple", "contribution": 0, "reputation": {"jade_sect": 10}}
 	Unlocks.force_unlock(td.id, "transfer_array")
@@ -642,25 +485,13 @@ func _array_picker_checks(td, st: ActorState, road: String) -> void:
 	st.altitude = float(arr.get("alt", 0.0))
 	st.surface = null
 	var tap := Game.submit({"type": "interact", "object": "array_ja_gate"})
-	var nodes := WorldRules.array_nodes()
-	var shut := ""   # a room off the grid: a node of the sect's network there would lie past the gate
-	for rid in ContentDB.rooms:
-		if shut == "" and not TopdownRoom.has_layout(str(rid)) and str(ContentDB.room(str(rid)).get("region", "")) == "jade_sect": shut = str(rid)
-	for rid in ContentDB.rooms:   # every Jade Sect room on the grid (R3): any room off it
-		if shut == "" and not TopdownRoom.has_layout(str(rid)): shut = str(rid)
-	nodes["array_test_past_gate"] = {"id": "array_test_past_gate", "room": shut, "network": "jade_sect", "at": [0, 0]}
-	Game.quest.apply_flag(td.id, "array_array_test_past_gate")
-	var view: Dictionary = Game.world.array_view(td, "array_ja_gate")
 	var picker: Page = await _open_page(str(tap.get("open_page", "transfer_array")), tap.get("page_args", {"object": "array_ja_gate"}))
 	var buttons: Array = picker._regions.filter(func(g): return str(g.id) == "go").map(func(g): return str(g.data))
 	var words: Array = picker.text_log.map(func(l): return str(l.get("s", "")))
-	var past := Game.submit({"type": "array_travel", "from": "array_ja_gate", "to": "array_test_past_gate"})
-	nodes.erase("array_test_past_gate")
 	check(tap.get("ok", false) and str(tap.get("open_page", "")) == "transfer_array" and not tap.has("dialogue") and picker.title == str(arr.name)
-		and buttons == ["array_marsh"] and words.has(ContentDB.name_of("rooms", "rm_marsh_edge")) and shut != ""
-		and not past.get("ok", false) and str(past.get("text", "")) == road and Game.room_rt.room_id == "ja_gate_street",
-		"decision 42: the transfer array opens its own travel picker (%s), named for the array (%s), a button for each array the token knows by its room's name and no other (%s), none past the gate (%s: %s)"
-		% [str(tap.get("open_page", tap)), picker.title, str(buttons), shut, str(past)])
+		and buttons == ["array_marsh"] and words.has(ContentDB.name_of("rooms", "rm_marsh_edge")) and Game.room_rt.room_id == "ja_gate_street",
+		"decision 42: the transfer array opens its own travel picker (%s), named for the array (%s), a button for each array the token knows by its room's name and no other (%s)"
+		% [str(tap.get("open_page", tap)), picker.title, str(buttons)])
 	picker.queue_free()
 	Game.quest.apply_flag(td.id, "array_array_ja_peak")
 	var keyed: Array = Game.world.array_view(td, "array_ja_gate").destinations.map(func(d): return str(d.id))
@@ -672,6 +503,7 @@ func aggro_cap_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for i in 3: Game.tick(0.05)   # the arrival (and its spawn protection) lands first
 	for sid in ["stun", "slow", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
 	var engaged := func(list: Array) -> int:
@@ -1555,9 +1387,9 @@ func _post_checks() -> void:
 	var said: Array = rc.text_log.map(func(tx): return str(tx.get("s", "")))
 	check(posted.all(func(r): return said.has(UiKit.fmt(int(r.pouch))) and float(r.cap) > 0.0), "P5 Roll-Call: each vessel's tag says what its pouch holds")
 	var figs: Array = rc.figs.values()
-	var crisp := func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY and (f.doll as Node2D).scale == Vector2(1.5, 1.5) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()
+	var crisp := func(f): return (f.mask as CanvasItem).clip_children == CanvasItem.CLIP_CHILDREN_ONLY and f.doll is TopdownDoll and (f.doll as Node2D).scale == Vector2(4, 4) and (f.doll as Node2D).global_position == (f.doll as Node2D).global_position.round()
 	check(figs.size() == shown.size() and figs.all(crisp),
-		"P5 Roll-Call: each tablet shows its character's live figure at 3 px an art px on whole pixels, clipped to its window")
+		"P5 Roll-Call: each tablet shows its character's live figure (the top-down one) at 4 px an art px on whole pixels, clipped to its window")
 	_identity_view(rc, "posts board", dim, lost, {}, {})
 	rc.on_action("turn", str(rs[0].id))
 	rc.opened = 9.0
@@ -2202,9 +2034,7 @@ func hud_suite() -> void:
 	hud.toasts = toasts_was
 	# Bound to the character: an empty or locked technique slot, an empty healing slot or treasure and a swap with no
 	# spare are not drawn (G3); the techniques that are there keep their places.
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(Game.active_id)
 	hud.player = stub
@@ -2313,9 +2143,7 @@ func points_badges_suite() -> void:
 	if c == null: return
 	var hud = load("res://scripts/hud.gd").new()
 	add_child(hud)
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(Game.active_id)
 	hud.player = stub
@@ -2421,8 +2249,8 @@ func points_badges_suite() -> void:
 ## (TechniquePicture: the character large in the art's pose in its element's ink on a starry ground, its form's marks,
 ## the rank badge). For a top-down character every picture draws the top-down figure at a whole scale: the HUD's
 ## buttons and the loadout bar a miniature of the card (the whole figure at x1 facing the camera), the tree's cards at
-## x2, the reading at x3; a companion's chip shows the top-down figure's head. A classic side-view character's pictures
-## are the side view's. Each slotted art is its picture at rest as in a fight, never the round emblem, and its states
+## x2, the reading at x3; a companion's chip shows the top-down figure's head. Each slotted art is its picture at rest
+## as in a fight, never the round emblem, and its states
 ## read on it: cooling (the sweep and its seconds),
 ## short of Qi (dimmed, the Qi strip), closed by the weapon in hand (a slate frame, dim, a lock). No picture is built on
 ## the main thread past a small budget: its ground and marks are painted on a worker thread and the main thread only
@@ -2432,8 +2260,6 @@ func technique_pictures_suite() -> void:
 	if c == null: return
 	var force_was: bool = Unlocks.debug_force_all
 	Unlocks.debug_force_all = true
-	var view_was := str(c.view)
-	c.view = "topdown"
 	var party_was: Array = c.companions.active.duplicate()
 	c.companions.active = ["lan_yue"]
 	var slots_was: Array = c.cultivator.technique_slots.duplicate()
@@ -2451,9 +2277,7 @@ func technique_pictures_suite() -> void:
 	var look := InventoryAuthority.outfit_for(c)
 	TechniquePicture.build_us_max = 0
 	TechniquePicture.frame_us_max = 0
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(Game.active_id)
 	var hud = load("res://scripts/hud.gd").new()
@@ -2466,8 +2290,8 @@ func technique_pictures_suite() -> void:
 		hud.queue_redraw()
 		await get_tree().process_frame
 		waited = i
-		if arts.all(func(a): return TechniquePicture.painted(a, c, look, inner)) and (hud._faces.get("top|lan_yue") as TopdownFigure).loaded(): break
-	var face_top: bool = hud._faces.get("top|lan_yue") is TopdownFigure and not hud._faces.has("lan_yue")
+		if arts.all(func(a): return TechniquePicture.painted(a, c, look, inner)) and hud._faces.get("lan_yue") is TopdownFigure and (hud._faces.get("lan_yue") as TopdownFigure).loaded(): break
+	var face_top: bool = hud._faces.get("lan_yue") is TopdownFigure   # the one face there is: the top-down figure's (S12a)
 	# At rest, and then in a fight with the first art cooling and the second short of Qi.
 	var drawn := {}
 	for st in ["rest", "fight"]:
@@ -2499,9 +2323,9 @@ func technique_pictures_suite() -> void:
 	var hud_pics: Array = []   # each art once (a frame may draw the HUD twice)
 	for d in drawn["rest"].pics:
 		if str(d.get("where", "")) == "hud" and not hud_pics.any(func(e): return str(e.id) == str(d.id)): hud_pics.append(d)
-	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return d.top and int(d.scale) == 1 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
+	check(hud_pics.size() == arts.size() and hud_pics.all(func(d): return int(d.scale) == 1 and int(d.size) == inner and str(d.facing) == "s" and int(d.rank) >= 1) and face_top,
 		"decision 42: for a top-down character the HUD's pictures are the whole top-down figure at x1 facing the camera (a miniature of the card) with the art's rank, and a companion's chip its head (%s; face %s)"
-		% [str(hud_pics.map(func(d): return [d.id, d.top, d.scale, d.rank])), face_top])
+		% [str(hud_pics.map(func(d): return [d.id, d.scale, d.rank])), face_top])
 	# A miniature: the whole figure inside its picture, its head never cut by the frame (only a figure taller than the
 	# button loses its feet).
 	var cut_heads: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and (cl.spec.body as Rect2).position.y < 0.0).map(func(cl): return cl.key)
@@ -2512,7 +2336,7 @@ func technique_pictures_suite() -> void:
 	var margin := 99.0
 	var round_n := 0
 	for cl in TechniquePicture._cells.values():
-		if not (bool(cl.spec.small) and bool(cl.spec.top) and int(cl.spec.s) == int(hud.PICTURE)): continue
+		if not (bool(cl.spec.small) and int(cl.spec.s) == int(hud.PICTURE)): continue
 		round_n += 1
 		var b: Rect2 = cl.spec.body
 		var mid := Vector2(float(cl.spec.w), float(cl.spec.w)) * 0.5
@@ -2555,32 +2379,27 @@ func technique_pictures_suite() -> void:
 	var dock: Array = by_where.call("dock")
 	var dock_ids := {}
 	for d in dock:
-		if (d.rect as Rect2).position.y >= 656.0 and d.figure and d.top and int(d.scale) == 1 and str(d.facing) == "s": dock_ids[str(d.id)] = true
+		if (d.rect as Rect2).position.y >= 656.0 and d.figure and int(d.scale) == 1 and str(d.facing) == "s": dock_ids[str(d.id)] = true
 	var unpainted: Array = shown.filter(func(k): return not TechniquePicture.painted(k[0], c, look, k[1], k[2]))
 	# (A picture drawn before its turn came has no cell yet, scale 0: the plain ground stood in for it that frame.)
-	check(not cards.is_empty() and cards.all(func(d): return d.top and int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
-		and reading.all(func(d): return d.top and str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
+	check(not cards.is_empty() and cards.all(func(d): return int(d.size) == 72 and int(d.scale) in [0, 2]) and cards.any(func(d): return int(d.scale) == 2)
+		and reading.all(func(d): return str(d.id) == "flowing_palm") and reading.any(func(d): return d.figure and int(d.scale) == 3)
 		and arts.all(func(a): return dock_ids.has(a)) and unpainted.is_empty(),
 		"decision 42: on the Techniques page the tree's cards (%d, x2), the reading (x3) and the loadout bar (%s, x1) all draw the top-down figure, each painted (%s)"
 		% [cards.size(), str(dock_ids.keys()), str(unpainted.slice(0, 4))])
-	# The HUD's and the loadout bar's pictures (44 and 42 px inside their frames) hold the whole figure with a margin.
+	# The HUD's and the loadout bar's pictures (44 and 42 px inside their frames) hold the whole figure with a margin;
+	# only a figure taller than its picture (a blade raised over the 46 px body, S12a's arts on the grid: Sword Release's
+	# third cut at 42) loses its feet, as the miniature's rule below has it, never its head.
 	var in_frame := func(cl) -> bool:
 		var b: Rect2 = cl.spec.body
-		return b.position.x >= 0.0 and b.position.y >= 1.0 and b.end.x <= float(cl.spec.w) and b.end.y <= float(cl.spec.w) - 1.0
-	var small_top: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small) and bool(cl.spec.top))
+		var w := float(cl.spec.w)
+		return b.position.x >= 0.0 and b.position.y >= 1.0 and b.end.x <= w and (b.end.y <= w - 1.0 or b.size.y > w - 2.0)
+	var small_top: Array = TechniquePicture._cells.values().filter(func(cl): return bool(cl.spec.small))
 	var small_sizes := {}
 	for cl in small_top: small_sizes[int(cl.spec.s)] = true
 	var cut: Array = small_top.filter(func(cl): return not in_frame.call(cl)).map(func(cl): return [cl.key, cl.spec.body, cl.spec.w])
-	check(cut.is_empty() and small_sizes.size() >= 2, "decision 42: at the HUD's and the loadout bar's size (%s px) the whole top-down figure stands inside its picture, a pixel clear of the top and the foot, nothing cut by the frame (%d pictures; a classic side-view one, taller than a button, loses only its feet) (%s)" % [str(small_sizes.keys()), small_top.size(), str(cut.slice(0, 3))])
+	check(cut.is_empty() and small_sizes.size() >= 2, "decision 42: at the HUD's and the loadout bar's size (%s px) the whole top-down figure stands inside its picture, a pixel clear of the top and the foot, nothing cut by the frame (%d pictures) (%s)" % [str(small_sizes.keys()), small_top.size(), str(cut.slice(0, 3))])
 	tp.queue_free()
-	# A classic side-view character keeps the side view's pictures (the fallback).
-	c.view = ""
-	TechniquePicture.draw_log = []
-	hud.queue_redraw()
-	await get_tree().process_frame
-	var side: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "hud" and d.has("top"))
-	check(not side.is_empty() and side.all(func(d): return not d.top), "decision 42: a classic side-view character's pictures are the side view's (%d)" % side.size())
-	c.view = "topdown"
 	# The game times each piece on the main thread's own clock (TechniquePicture._clock_us: on Linux, the time the thread
 	# stood in the run queue left out), so another process does not spend the budget and one building is read.
 	print("technique pictures: the most one start, finish or paint took %d us on the main thread (%s), a frame's pictures %d us" % [TechniquePicture.build_us_max, TechniquePicture.build_worst, TechniquePicture.frame_us_max])
@@ -2596,7 +2415,6 @@ func technique_pictures_suite() -> void:
 	c.cultivator.technique_slots = slots_was
 	c.cultivator.techniques_known = known_was
 	c.companions.active = party_was
-	c.view = view_was
 	Unlocks.debug_force_all = force_was
 
 ## Decision 42: the pairs of the right-hand cluster's controls that touch in each of `states` ([in a fight, the fan
@@ -2642,9 +2460,7 @@ func equip_prompt_suite() -> void:
 	if c == null: return
 	var hud = load("res://scripts/hud.gd").new()
 	add_child(hud)
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(Game.active_id)
 	hud.player = stub
@@ -2758,11 +2574,9 @@ func attack_first_suite() -> void:
 		if node.is_empty() and str(o.type) == "herb_patch" and not o.has("ripen") and HerbRules.in_season(o, Clock.now_utc()): node = o
 	for uid in Game.room_rt.enemies.keys(): Game.room_rt.enemies.erase(uid)   # the shallows' crabs out of the way
 	Game.room_rt.objects[str(node.id)] = {"state": "ready", "timer": 0.0, "hits": 0}
-	var at := Vector2(float(node.at[0]) - 30.0, float(node.at[1]) + 10.0)
-	Game.actor_state(c.id).plane = at
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\nvar attacks := 0\nvar channel_time := 0.0\nvar channel_action := \"\"\nfunc attack() -> void:\n\tattacks += 1\n"
-	stub_src.reload()
+	_stand_at(Game.actor_state(c.id), Vector2(float(node.at[0]) - 30.0, float(node.at[1]) + 10.0))   # beside the herb, on its floor
+	var at: Vector2 = Game.actor_state(c.id).plane
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(c.id)
 	stub.plane = at
@@ -2848,7 +2662,7 @@ func labels_suite() -> void:
 	var plate := [mk.call("npc", "npc", Rect2(760, 600, 130, 42), Vector2(0, -180))]
 	var o3: Dictionary = WorldLabels.resolve(plate, [Rect2(700, 590, 300, 130)])
 	check(o3["npc"] == Vector2(0, -180), "G4: a plate under the feet with no room below goes over the head (%s)" % str(o3["npc"]))
-	# The real views in the room, laid out as world.gd lays them out.
+	# The real views in the room, laid out as the world view lays them out.
 	var c = Game.active()
 	if c == null or Game.room_rt == null or Game.actor_state(c.id) == null: return
 	var holder := Node2D.new()
@@ -2881,6 +2695,8 @@ func labels_suite() -> void:
 		foes.append(a)
 	for e in foes:
 		if e == null: continue
+		# In the fight (on the grid a foe's plate shows while it fights the player: EnemyView.plate_shown).
+		if e.team == "enemy": e.ai.state = "aggro"
 		var v := EnemyView.new()
 		v.setup(e)
 		v.set_process(false)
@@ -2888,6 +2704,7 @@ func labels_suite() -> void:
 		views.append({"id": "e%d" % e.uid, "view": v, "kind": v.label_kind, "near": absf(e.plane.x - base.x)})
 	for i in 2:
 		var nv := NpcView.new()
+		nv.head_lift = TopdownPlaces.HEAD_LIFT   # as the room's places stand them (TopdownPlaces)
 		nv.setup({"id": "probe_npc_%d" % i, "npc": ["elder_gu", "madam_hua"][i], "at": [base.x - 200.0, base.y]})
 		nv.set_process(false)
 		holder.add_child(nv)
@@ -3140,17 +2957,8 @@ func paths_above_suite() -> void:
 		check(named, "Paths Above row %s names a later ledge" % e.id)
 	check(ContentDB.has_entry("paths_above", "wp_west:pine_top") and ContentDB.has_entry("paths_above", "cf_behind_falls:shaft_top"),
 		"the catalogue's later ledges (Willow Path West's pine top, the falls' Wall-Step shaft) are rows")
-	# A cracked block (the Lower Pit slab over the shard) stops walking until a Plunge breaks it.
-	var pit := ZoneGeometry.new()
-	pit.configure(WorldAuthority.compile_geometry(ContentDB.room("sq_lower_pit")))
-	var slab: WalkSurface = pit.index.get("cracked_slab")
-	check(slab != null and slab.cracked and pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "the Lower Pit slab is a cracked block that stops you")
-	pit.break_surface("cracked_slab")
-	check(slab != null and slab.disabled and not pit.wall_face_at(Vector2(1900, 810), 10.0, "ground"), "a broken slab no longer blocks")
-	# The Jade trial's planks rise with the room clock; the libraries' upper floors are sealed by rank.
-	var trial := ZoneGeometry.new()
-	trial.configure(WorldAuthority.compile_geometry(ContentDB.room("sf_trial_jade")))
-	check(trial.movers.size() == 2 and (trial.index.plank_1 as WalkSurface).moving, "the Jade trial has two moving planks")
+	# The libraries' upper floors are sealed by rank. (The Lower Pit's cracked slab and the Jade trial's planks are the
+	# grid's since S12a: topdown_traversal plays them.)
 	var sealed := 0
 	for cl in ContentDB.room("ja_library").get("climbables", []):
 		if cl.has("requires"): sealed += 1
@@ -3158,6 +2966,7 @@ func paths_above_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	Game.account.paths_above.erase("wp_west:pine_top")
 	var heard := []
 	var listen := func(n: String, p: Dictionary):
@@ -3258,6 +3067,7 @@ func sword_loadout_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal"]: Game.combat.cure_status(c.id, sid)
 	Unlocks.force_unlock(c.id, "dao_tree")
 	# The Sword Dao's third tier teaches Sword Release.
@@ -3405,6 +3215,7 @@ func decision45_suite() -> void:
 	# In a fight: a basic first step against a full charge, the jian, one hit each on a foe that cannot fall.
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	Unlocks.force_unlock(c.id, "attack")
 	var held_before = _wield(c, "iron_jian")
@@ -3534,13 +3345,14 @@ func weapon_families_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	Unlocks.force_unlock(c.id, "attack")
 	Unlocks.force_unlock(c.id, "composure")
 	for fam_id in ["heavy_sabre", "fan", "flute"]:
 		var fam := ContentDB.entry("weapon_families", fam_id)
 		var look := str(fam.get("appearance", [""])[0])
-		check(not fam.is_empty() and Wardrobe.parts.weapon.has(look) and Wardrobe.parts._attack_by_weapon.has(look), "the %s family exists with its avatar weapon (%s)" % [fam_id, look])
+		check(not fam.is_empty() and (TopdownFigure.manifest().items.get("weapon", {}) as Dictionary).has(look), "the %s family exists with its drawn weapon (%s)" % [fam_id, look])
 		for grade in ["training", "iron", "jadeiron", "cloudsteel"]:
 			check(ContentDB.entry("artifacts", "%s_%s" % [grade, fam_id]).get("family", "") == fam_id, "%s %s is a %s" % [grade, fam_id, fam_id])
 	var heard := {"hits": {}, "arts": {}, "pulse": 0, "melody_off": ""}
@@ -3678,6 +3490,7 @@ func soul_poison_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear", "poison"]: Game.combat.cure_status(c.id, sid)
 	var meridians_before: Dictionary = c.cultivator.meridians.duplicate()
 	var known_before: Array = c.cultivator.techniques_known.duplicate()
@@ -3854,6 +3667,7 @@ func blood_buddhist_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	Unlocks.force_unlock(c.id, "vows")
 	var realm_before: String = c.cultivator.realm_key
@@ -4011,6 +3825,7 @@ func sect_roles_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	var ts_before: Dictionary = c.training_sect.duplicate(true)
 	var prof_before: Dictionary = c.professions.duplicate(true)
@@ -4091,6 +3906,7 @@ func swarm_array_puppet_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	var daos_before: Dictionary = c.cultivator.daos.duplicate(true)
 	var known_before: Array = c.cultivator.techniques_known.duplicate()
@@ -4245,6 +4061,7 @@ func swarm_array_puppet_suite() -> void:
 	c.active_pet = active_before
 	c.party_pets = party_before
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	GameEvents.event.disconnect(listen)
 	c.cultivator.daos = daos_before
 	c.cultivator.techniques_known = known_before
@@ -4259,6 +4076,7 @@ func artifact_spirit_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	GameEvents.flush()
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear"]: Game.combat.cure_status(c.id, sid)
 	var held = c.inventory.equipped.get("weapon")
@@ -4372,6 +4190,7 @@ func artifact_spirit_suite() -> void:
 	c.inventory.equipped["weapon"] = held
 	c.quests.flags = flags_before
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	GameEvents.flush()
 	Game.combat.refresh_stats(c.id)
 
@@ -4400,16 +4219,17 @@ func awaken_legend_suite() -> void:
 	c.cultivator.daos["sword"] = {"tier": 3, "insight": 0.0}
 	Game.world.apply_teleport(c.id, "sf_artisan_row")
 	GameEvents.flush()
-	st.plane = Vector2(700, 780)
+	var forge := _beside_and_beyond(["forge_anvil"], 200.0)   # on the grid: beside the row's forge, and out of its reach
+	_stand_at(st, forge[0])
 	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_plus10"), "only a weapon at +10 wakes")
 	jian.enhance = 10
 	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_dao") % ContentDB.name_of("daos", "sword"), "and only for a Sword Dao at Explanation")
 	c.cultivator.daos["sword"] = {"tier": 4, "insight": 0.0}
 	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.awaken_crystal"), "and it takes a Weapon Soul Crystal")
 	Game.inventory.apply_add(c.id, "weapon_soul_crystal", 1, "test")
-	st.plane = Vector2(2300, 820)
+	_stand_at(st, forge[1])
 	check(Game.crafting.awaken_check(c, jian) == Tx.t("sim.crafting.you_need_a") % "forge", "at a forge")
-	st.plane = Vector2(700, 780)
+	_stand_at(st, forge[0])
 	Game.inventory.apply_add_equipment(c.id, "jadeiron_jian", 27, "common", "test")
 	var earth: Dictionary = c.inventory.bag[c.inventory.first_index("jadeiron_jian")]
 	earth.enhance = 10
@@ -4481,6 +4301,7 @@ func awaken_legend_suite() -> void:
 	c.cultivator.daos = daos_before
 	c.quests.flags = flags_before
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	GameEvents.flush()
 	Game.combat.refresh_stats(c.id)
 
@@ -4994,6 +4815,7 @@ func body_path_suite() -> void:
 	check(c.stats.value("knockback_resistance") >= 0.10, "Iron Body: +10%% knockback resistance (%.2f)" % c.stats.value("knockback_resistance"))
 	# The trials themselves are room events: the HP floor fails one, a kill count wins another.
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	var sp := ContentDB.entry("set_pieces", "copper_body_trial")
 	Game.world.start_event(c, Game.room_rt, sp.room_event)
 	c.pools.hp = c.pools.max_hp * 0.4
@@ -5348,6 +5170,7 @@ func vows_suite() -> void:
 	var realm_was := cu.realm_key
 	c.inventory.bag.fill(null)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	Unlocks.force_unlock(c.id, "vows")
 	cu.vows.clear()
 	cu.heart_demon = 0.0
@@ -5608,7 +5431,7 @@ func herbs_suite() -> void:
 		"seasons turn weekly, and the pepper flowers only in Summer")
 	Game.world.load_room(c, "bg_thicket_heart", "")
 	Clock.override_utc = summer + 604800.0
-	var dormant: Dictionary = pick.call(pepper, 0.7)
+	var dormant: Dictionary = pick.call(Game.room_rt.object_def("rare_pepper_th"), 0.7)   # where the grid places it
 	check(not dormant.get("ok", false) and Game.account.codex.has("seasons"), "out of season it lies dormant, and the Codex learns the seasons")
 	# An older herb stands in for a younger one when the recipe's own runs short, and refines better.
 	for id in ["riverreed_ginseng_10", "riverreed_ginseng_100", "riverreed_ginseng_1000"]:
@@ -7501,8 +7324,8 @@ func territory_suite() -> void:
 	check(str(Game.submit({"type": "assault_mine", "mine": "lower_pit_seam"}).get("reason", "")) == "wrong_room", "you fight for a mine at the mine")
 	Game.world.load_room(c, "sq_lower_pit", "")
 	GameEvents.flush()
-	Game.actor_state(c.id).plane = Vector2(1100, 870)
-	Game.actor_state(c.id).altitude = 0.0
+	var vein: Dictionary = Game.room_rt.object_def("mine_lower_pit_seam")
+	_stand_at(Game.actor_state(c.id), Vector2(float(vein.at[0]), float(vein.at[1])))   # beside the vein, on the grid
 	var dlg: Dictionary = Game.world.interact(c, "mine_lower_pit_seam")
 	var offers := false
 	for choice in dlg.get("dialogue", {}).get("choices", []):
@@ -8029,8 +7852,8 @@ func rooftop_routes_suite() -> void:
 	var st: ActorState = Game.actor_state(c.id)
 	var th2: Dictionary = Game.room_rt.object_def("thief_sf")
 	c.cooldowns.erase("chase_thief_sf")
-	st.plane = Vector2(390, 800)
-	st.altitude = 0.0
+	var by_thief := Vector2(float(th2.at[0]), float(th2.at[1])) + Vector2(-30, 0)   # beside him in the street, on the grid
+	_stand_at(st, by_thief)
 	check(Game.world.object_visible(c, th2) and str(Game.world.query_context(c).get("label", "")) == Tx.t("sim.world.chase"),
 		"the thief loiters in the street: Chase! (%s, %s)" % [str(Game.world.object_visible(c, th2)), str(Game.world.query_context(c))])
 	var t0 := Game.economy.balance("silver_tael")
@@ -8053,12 +7876,11 @@ func rooftop_routes_suite() -> void:
 	check(not again.get("ok", false) and not Game.world.chases.has(c.id), "one chase a street a day (%s)" % str(again))
 	# The next day he runs again; left alone, he is over the wall and away with nothing paid.
 	Clock.override_utc = Clock.now_utc() + 86400.0
-	st.plane = Vector2(390, 800)
-	st.altitude = 0.0
+	_stand_at(st, by_thief)
 	var t1 := Game.economy.balance("silver_tael")
 	Game.submit({"type": "interact", "object": "thief_sf"})
 	Game.sim_time += WorldAuthority.chase_length(th2.chase.route, float(th2.chase.speed)) + 1.0
-	st.plane = Vector2(100, 900)
+	_stand_at(st, by_thief)
 	Game.world.tick_chase(c, Game.room_rt, st)
 	check(not Game.world.chases.has(c.id) and Game.economy.balance("silver_tael") == t1 and Game.world.chase_done_today(c, "thief_sf"),
 		"too slow: he is over the far wall, nothing paid")
@@ -8092,20 +7914,22 @@ func rooftop_routes_suite() -> void:
 	Game.world.load_room(c, "cm_cliff_stair", "")
 	GameEvents.flush()
 	st = Game.actor_state(c.id)
-	st.plane = Vector2(260, 830)
-	st.altitude = 0.0
+	# On the grid: the stone and the bell where the layout places them (the bell on the route_finish object).
+	var stone_here: Dictionary = Game.room_rt.object_def(str(stone.id))
+	var bell: Dictionary = stone_here.route.finish
+	var at_stone := Vector2(float(stone_here.at[0]), float(stone_here.at[1]))
+	_stand_at(st, at_stone)
 	var begun := Game.submit({"type": "interact", "object": "cloud_steps_stone"})
 	var t_start: float = Game.sim_time
 	Game.sim_time += 11.5
-	st.plane = Vector2(float(rt.finish.at[0]), float(rt.finish.at[1]))
-	st.altitude = 300.0
+	st.plane = Vector2(float(bell.at[0]), float(bell.at[1]))
+	st.altitude = float(bell.get("alt", Game.room_rt.topdown.floor_at(st.plane)))
 	var got: Array = []
 	GameEvents.subscribe("route_finished", func(pp): got.append(pp), 200)
 	Game.world.tick_run(c, Game.room_rt, st)
 	GameEvents.flush()
 	check(begun.get("ok", false) and got.size() == 1 and near(float(got[0].seconds), 11.5, 0.11) and got[0].finished, "at the bell: the run is timed (%s)" % str(got))
-	st.plane = Vector2(260, 830)
-	st.altitude = 0.0
+	_stand_at(st, at_stone)
 	Game.submit({"type": "interact", "object": "cloud_steps_stone"})
 	Game.sim_time += float(rt.limit_s) + 1.0
 	got.clear()
@@ -8778,11 +8602,13 @@ func sphere_suite() -> void:
 	# -- Gravity switches (the Inverted Hall).
 	Game.world.apply_teleport(c.id, "or_inverted_hall")
 	var st: ActorState = Game.actor_state(c.id)
-	var geo = Game.room_rt.geometry
-	var in_a := Vector2(1000, 800)
-	check(near(geo.gravity_at(in_a, 0.0), 1.0), "with its switch up the hall pulls as hard as anywhere")
-	st.plane = Vector2(700, 800)
-	st.altitude = 0.0
+	var geo = TopdownTraverse.of(Game.room_rt.topdown)   # the hall's low gravity on the grid (TopdownTraverse)
+	var hall_a: Array = geo.lowgs.filter(func(v): return str(v.switch) == "switch_hall_a") if geo != null else []
+	var in_a: Vector2 = (hall_a[0].rect as Rect2).get_center() if not hall_a.is_empty() else Vector2.ZERO
+	check(not hall_a.is_empty() and near(geo.gravity_at(in_a), 1.0), "with its switch up the hall pulls as hard as anywhere")
+	var switch_a: Dictionary = Game.room_rt.object_def("switch_hall_a")
+	st.plane = Vector2(float(switch_a.at[0]), float(switch_a.at[1]))
+	st.altitude = float(switch_a.get("alt", 0.0))
 	var heard := {"g": 0, "sphere": 0, "clash": ""}
 	var listen := func(n: String, p: Dictionary):
 		if n == "gravity_switched": heard.g = int(heard.g) + 1
@@ -8790,21 +8616,12 @@ func sphere_suite() -> void:
 		if n == "sphere_clash": heard.clash = str(p.get("winner", ""))
 	GameEvents.event.connect(listen)
 	var down := Game.submit({"type": "interact", "object": "switch_hall_a"})
-	check(down.get("ok", false) and near(geo.gravity_at(in_a, 0.0), 0.45) and int(heard.g) == 1 and str(Game.room_rt.objects.switch_hall_a.state) == "down",
+	check(down.get("ok", false) and near(geo.gravity_at(in_a), 0.45) and int(heard.g) == 1 and str(Game.room_rt.objects.switch_hall_a.state) == "down",
 		"press the jade switch down: the air lightens to 45%% (%s)" % str(down))
-	check(near(geo.gravity_at(Vector2(1600, 800), 0.0), 1.0), "only over its own half of the hall")
-	var g := MovementSolver.GRAVITY
-	var j := MovementSolver.JUMP_IMPULSE
-	var dj := MovementSolver.DOUBLE_JUMP_IMPULSE
-	var high := 0.0
-	var low := 0.0
-	for sf in Game.room_rt.def.surfaces:
-		if str(sf.id) == "gallery_high": high = float(sf.height)
-		if str(sf.id) == "gallery_low": low = float(sf.height)
-	check(low + j * j / (2.0 * g) + dj * dj / (2.0 * g) < high and j * j / (2.0 * g * 0.45) + dj * dj / (2.0 * g * 0.45) >= high,
-		"the high gallery (%.0f) is out of reach of any jump, even from the low one (%.0f), and within a light double jump from the floor" % [high, low])
+	var outside: Vector2 = Game.room_rt.topdown.spawn
+	check(not geo.lowgs.any(func(v): return (v.rect as Rect2).has_point(outside)) and near(geo.gravity_at(outside), 1.0), "only over its own half of the hall")
 	Game.submit({"type": "interact", "object": "switch_hall_a"})
-	check(near(geo.gravity_at(in_a, 0.0), 1.0) and str(Game.room_rt.objects.switch_hall_a.state) == "up", "press it again and the weight comes back")
+	check(near(geo.gravity_at(in_a), 1.0) and str(Game.room_rt.objects.switch_hall_a.state) == "up", "press it again and the weight comes back")
 	# -- The Sphere.
 	var realm0: String = c.cultivator.realm_key
 	var daos0: Dictionary = c.cultivator.daos.duplicate(true)
@@ -9083,42 +8900,10 @@ func lantern_heart_suite() -> void:
 	check(not sp.is_empty() and sp.room_event.on_complete.any(func(e): return str(e.get("flag", "")) == "shen_lian_taken"),
 		"the Greyfall stand ends with Shen Lian on the far side of the Tide")
 
+## The movers' rule (ZoneGeometry.mover_offset, which TopdownTraverse rides its rafts and lanterns on) and a ground
+## mount's ladder. (The ice and the mount's jump were the side solver's: on the grid, topdown_traversal plays the ice.)
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false}],
-		"volumes": [{"id": "glaze", "kind": "ice", "rect": [1000, 560, 1000, 400], "alt": [-10, 20], "traction": 380}]})
-	var dt := 1.0 / 120.0
-	# Off the ice the body answers at once; on it, speed only eases toward what it asks for.
-	var dry := _trav_actor(z, "ground", Vector2(300, 800))
-	MovementSolver.advance(dry, z, dt, Vector2(205, 0))
-	var ice := _trav_actor(z, "ground", Vector2(1200, 800))
-	_trav_run(ice, z, 0.1, Vector2(205, 0))
-	check(near(dry.velocity.x, 205.0, 1.0) and ice.velocity.x > 30.0 and ice.velocity.x < 45.0, "on ice a body gains speed slowly (%.0f after 0.1 s)" % ice.velocity.x)
-	_trav_run(ice, z, 1.0, Vector2(205, 0))
-	var x0: float = ice.plane.x
-	_trav_run(ice, z, 0.25, Vector2.ZERO)
-	check(ice.velocity.x > 80.0 and ice.plane.x - x0 > 25.0, "let go and it slides on (%.0f further, still %.0f a second)" % [ice.plane.x - x0, ice.velocity.x])
-	_trav_run(ice, z, 1.0, Vector2.ZERO)
-	check(ice.velocity.length() < 1.0, "and slides to a stop")
-	dry.plane = Vector2(300, 800)
-	_trav_run(dry, z, 0.5, Vector2(205, 0))
-	_trav_run(dry, z, dt, Vector2.ZERO)
-	check(dry.velocity.length() < 1.0, "off the ice it stops dead")
-	var air := _trav_actor(z, "ground", Vector2(1500, 800))
-	MovementSolver.jump(air)
-	MovementSolver.advance(air, z, dt, Vector2(205, 0))
-	check(near(air.velocity.x, 205.0, 1.0), "in the air over ice, control stays total")
-	# A ground mount's jump: the Cloud Stag's 600 reaches about 156 where a foot jump reaches 122.
-	var stag := _trav_actor(z, "ground", Vector2(300, 800))
-	stag.jump_impulse = 600.0
-	MovementSolver.jump(stag)
-	var peak := 0.0
-	while stag.surface == null or stag.vertical_speed > 0.0:
-		MovementSolver.advance(stag, z, dt, Vector2.ZERO)
-		peak = maxf(peak, stag.altitude)
-		if stag.surface != null: break
-	check(near(peak, 600.0 * 600.0 / 2300.0, 3.0), "a 600 impulse jumps to about 156 (%.0f)" % peak)
 	# The Hall of Lanterns' movers (Part 8): a swing on its rope and a circle, pure functions of the room clock.
 	var sw := {"mode": "swing", "length": 100, "amp_deg": 30, "period_s": 4.0}
 	var o0: Vector3 = z.mover_offset(sw, 0.0)
@@ -9130,19 +8915,18 @@ func ice_mount_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var mount_was := str(c.mount_pet)
 	var riding_was: bool = c.riding
-	check(near(Game.pets.mount_jump(c), 530.0) or not Game.pets.mount_of(c).is_empty(), "on foot a rider jumps 530")
 	Game.pets.apply_grant(c.id, "cloud_stag")
 	var sg: Dictionary = c.pets.back()
 	Unlocks.force_unlock(c.id, "mounts")
 	Game.pets.dismounted.erase(c.id)
 	Game.submit({"type": "set_mount", "pet": sg.uid})
 	Game.submit({"type": "set_mount", "on": true})
-	check(Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 600.0), "on the Cloud Stag: its own 600 jump")
+	check(Game.pets.ground_mounted(c), "on the Cloud Stag: a ground mount")
 	Game.pets.apply_grant(c.id, "jade_crane")
 	var cr: Dictionary = c.pets.back()
 	Game.submit({"type": "set_mount", "pet": cr.uid})
 	Game.submit({"type": "set_mount", "on": true})
-	check(not Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 530.0), "a flying mount's rider jumps as on foot (the crane flies instead)")
+	check(not Game.pets.ground_mounted(c), "the crane flies: no ground mount")
 	Game.submit({"type": "set_mount", "pet": sg.uid})
 	Game.submit({"type": "set_mount", "on": true})
 	# A ladder puts you down; stepping off at the top puts you back up.
@@ -9506,9 +9290,7 @@ func consumable_feedback_suite() -> void:
 	var realm_was: String = c.cultivator.realm_key
 	var hud = load("res://scripts/hud.gd").new()
 	add_child(hud)
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	var stub = stub_src.new()
 	stub.actor_id = str(Game.active_id)
 	hud.player = stub
@@ -9766,19 +9548,133 @@ func _hazard_step(hs: Dictionary) -> void:
 	hs.t = float(hs.dur) + 0.01
 	Game.tick(0.05)
 
+## In `room` on the grid, standing on the floor nearest `at` (Vector2.INF: where the room puts an arrival).
 func _hazard_room(c, room: String, at: Vector2) -> Dictionary:
 	Game.world.apply_teleport(c.id, room)
 	var st: ActorState = Game.actor_state(c.id)
-	for s in Game.room_rt.geometry.surfaces:
-		if s.stratum == "ground" and s.contains(at): st.surface = s
-	st.plane = at
-	st.altitude = 0.0
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	if at.is_finite(): _stand_at(st, at)
 	Game.combat.cure_status(c.id, "spawn_protection")
 	for s in ["stun", "slow", "shock", "bleed", "poison"]: Game.combat.cure_status(c.id, s)
 	c.pools.invulnerable = 0.0   # i-frames left over from the revival checks above
 	c.pools.hp = c.pools.max_hp
 	var hid: String = str(Game.room_rt.def.get("hazards", [""])[0])
 	return Game.room_rt.hazards.get(hid, {})
+
+## S12a: the active character's body on the grid of the room it is in, on an open lane of floor at one height: `east`
+## of clear floor ahead (a shot, a blow, a thrown fan flies along it) and `west` behind, `side` either side of the line,
+## out of every sanctuary (a shrine's: no foe turns on a player there), the lane nearest where the room put it; the
+## room's own foes are put away (on the grid they walk up to a body that never moves, and the suite brings its own),
+## and a body the last suite's foes left down stands again (each suite begins on its feet). Returns the body's point. (The side view's strips were all one long ground,
+## so the suites' foes a few strides off along x always stood on it; on the grid a room's walls and terraces are near.)
+func _open_lane(east := 260.0, west := 140.0, side := 40.0) -> Vector2:
+	var c = Game.active()
+	var st: ActorState = Game.actor_state(c.id)
+	var g: TopdownRoom = Game.room_rt.topdown
+	var from := Vector2(float(c.position.x), float(c.position.y))
+	var havens: Array = EnemyBrain.sanctuaries(Game.room_rt.def)
+	var best := Vector2.INF
+	var bd := INF
+	for y in g.h:
+		for x in g.w:
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+			if p.distance_to(from) >= bd or not g.standable(Vector2i(x, y)): continue
+			if havens.any(func(s): return p.distance_to(s[0]) <= float(s[1]) + west): continue
+			var z := g.floor_at(p)
+			var open := true
+			var dx := -west
+			while open and dx <= east:
+				var dy := -side
+				while open and dy <= side:
+					var q := p + Vector2(dx, dy)
+					open = g.standable(TopdownRoom.cell_of(q)) and absf(g.floor_at(q) - z) < 1.0
+					dy += side if side > 0.0 else 1.0
+				dx += TopdownRoom.TILE * 0.5
+			if open:
+				bd = p.distance_to(from)
+				best = p
+	if not best.is_finite(): best = g.nearest_standable(from)
+	for e in Game.room_rt.living_enemies():
+		if e.team == "enemy": e.alive = false
+	_on_feet(c)
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	_stand_at(st, best)
+	c.position.x = st.plane.x
+	c.position.y = st.plane.y
+	return st.plane
+
+## S12a: a body the last suite's foes left down stands again (on the grid a suite's foes reach the body they were
+## spawned beside; the side view's seldom did): each suite that fights begins on its feet.
+func _on_feet(c) -> void:
+	if Game.combat.wounded.has(c.id):
+		Game.combat.wounded.erase(c.id)
+		c.pools.hp = c.pools.max_hp
+
+## The body on the grid's floor nearest `at`.
+func _stand_at(st: ActorState, at: Vector2) -> void:
+	st.plane = Game.room_rt.topdown.nearest_standable(at)
+	st.altitude = Game.room_rt.topdown.floor_at(st.plane)
+	st.velocity = Vector2.ZERO
+
+## The room's own places for its hazard on the grid: [a floor cell's middle inside the first area it acts in (a
+## current, a pool), the nearest floor outside every one of them] (Vector2.INF where it has none).
+func _hazard_area_points() -> Array:
+	var rt: RoomRuntime = Game.room_rt
+	var g: TopdownRoom = rt.topdown
+	var h := ContentDB.entry("hazards", str(rt.def.get("hazards", [""])[0]))
+	var rects: Array = HazardRules.areas(h, rt.def).map(func(a): return HazardRules.rect(a))
+	var inside := Vector2.INF
+	for r in rects:
+		var mid: Vector2 = (r as Rect2).get_center()
+		var best := INF
+		for y in g.h:
+			for x in g.w:
+				var p := (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				if g.standable(Vector2i(x, y)) and (r as Rect2).has_point(p) and p.distance_to(mid) < best:
+					best = p.distance_to(mid)
+					inside = p
+		if inside.is_finite(): break
+	var outside := Vector2.INF
+	if inside.is_finite():
+		var best2 := INF
+		for y in g.h:
+			for x in g.w:
+				var q := (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				if g.standable(Vector2i(x, y)) and not rects.any(func(r): return (r as Rect2).has_point(q)) and q.distance_to(inside) < best2:
+					best2 = q.distance_to(inside)
+					outside = q
+	return [inside, outside]
+
+## The room's shelter from its hazard on the grid (a shrine): [the floor beside the nearest one, a floor cell in the
+## open beyond the shelter's reach of every one] (Vector2.INF where it has none).
+func _shelter_points() -> Array:
+	var rt: RoomRuntime = Game.room_rt
+	var g: TopdownRoom = rt.topdown
+	var h := ContentDB.entry("hazards", str(rt.def.get("hazards", [""])[0]))
+	var kinds: Array = h.get("shelter", [])
+	var spots: Array = rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) in kinds).map(func(o): return Vector2(float(o.at[0]), float(o.at[1])))
+	if spots.is_empty(): return [Vector2.INF, Vector2.INF]
+	var reach := float(ContentDB.stat_const("hazard.shelter_radius", 220)) + TopdownRoom.TILE
+	var open := Vector2.INF
+	for y in g.h:
+		for x in g.w:
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+			if open.is_finite(): break
+			if g.standable(Vector2i(x, y)) and spots.all(func(s): return p.distance_to(s) > reach): open = p
+	return [g.nearest_standable(spots[0]), open]
+
+## The room's objects of `types` on the grid (a forge, a shrine): [the floor beside the first, a floor cell farther than
+## `reach` from every one of them] (Vector2.INF where there is none).
+func _beside_and_beyond(types: Array, reach: float) -> Array:
+	var g: TopdownRoom = Game.room_rt.topdown
+	var spots: Array = Game.room_rt.def.get("objects", []).filter(func(o): return str(o.get("type", "")) in types).map(func(o): return Vector2(float(o.at[0]), float(o.at[1])))
+	if spots.is_empty(): return [Vector2.INF, Vector2.INF]
+	var beyond := Vector2.INF
+	for y in g.h:
+		for x in g.w:
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+			if not beyond.is_finite() and g.standable(Vector2i(x, y)) and spots.all(func(s): return p.distance_to(s) > reach): beyond = p
+	return [g.nearest_standable(spots[0]), beyond]
 
 ## Pin an attribute for a check (override), or release it (value < 0).
 func _answer(c, stat: String, value: float) -> void:
@@ -9790,7 +9686,7 @@ func _answer(c, stat: String, value: float) -> void:
 func _hazard_to_active(hs: Dictionary, on: Vector2 = Vector2.INF) -> void:
 	for i in 5:
 		_hazard_step(hs)
-		if hs.phase == "tell" and on.is_finite(): hs.spots = [[on.x, on.y, 0.0]] + hs.spots.slice(1)
+		if hs.phase == "tell" and on.is_finite(): hs.spots = [[on.x, on.y, Game.room_rt.topdown.floor_at(on)]] + hs.spots.slice(1)
 		if hs.phase == "active": return
 
 func hazards_suite() -> void:
@@ -9806,13 +9702,13 @@ func hazards_suite() -> void:
 	var grab := func(n, p): if str(n).begins_with("hazard_"): events.append([str(n), p])
 	GameEvents.event.connect(grab)
 	# Falling rocks: a quiet tell, a warning, then the strike on the marked spot.
-	var spot := Vector2(900, 820)
-	var hs := _hazard_room(c, "sq_quarry_rim", spot)
+	var hs := _hazard_room(c, "sq_quarry_rim", Vector2(900, 820))
+	var spot: Vector2 = Game.actor_state(c.id).plane
 	_answer(c, "body", 1.0)
 	check(hs.get("phase", "") == "cooldown", "hazards start in their cooldown: nothing falls on arrival")
 	_hazard_step(hs)
 	check(hs.phase == "tell" and hs.spots.size() == 2, "the quiet tell picks two spots")
-	hs.spots[0] = [spot.x, spot.y, 0.0]
+	hs.spots[0] = [spot.x, spot.y, Game.actor_state(c.id).altitude]
 	_hazard_step(hs)
 	GameEvents.flush()
 	check(hs.phase == "warn" and events.any(func(e): return e[0] == "hazard_warned"), "a warning comes before the strike")
@@ -9835,7 +9731,7 @@ func hazards_suite() -> void:
 	# A dodge through the strike avoids it.
 	c.pools.hp = c.pools.max_hp
 	hs.phase = "warn"
-	hs.spots = [[spot.x, spot.y, 0.0]]
+	hs.spots = [[spot.x, spot.y, Game.actor_state(c.id).altitude]]
 	Game.combat.timeline(c.id).dodge_t = 0.3
 	_hazard_step(hs)
 	check(near(c.pools.hp, c.pools.max_hp), "a dodge through the strike avoids it")
@@ -9850,28 +9746,33 @@ func hazards_suite() -> void:
 	Game.tick(0.05)
 	check(Game.world.hazard_drift(c.id) == Vector2.ZERO, "an answering Body holds its footing")
 	_answer(c, "body", 1.0)
-	# The rapids pull downstream in the shallows, harder in a surge.
-	hs = _hazard_room(c, "wg_rapids_terraces", Vector2(1500, 920))
+	# The rapids pull downstream in the shallows, harder in a surge (on the grid: inside the current's area).
+	hs = _hazard_room(c, "wg_rapids_terraces", Vector2.INF)
+	var shallows := _hazard_area_points()
+	_stand_at(Game.actor_state(c.id), shallows[0])
 	Game.tick(0.05)
 	var calm_pull := Game.world.hazard_drift(c.id).x
 	_hazard_to_active(hs)
 	var surge_pull := Game.world.hazard_drift(c.id).x
 	check(calm_pull < 0.0 and surge_pull < calm_pull * 2.0, "the shallows pull downstream, harder in a surge (%.0f, %.0f)" % [calm_pull, surge_pull])
-	Game.actor_state(c.id).plane = Vector2(1500, 700)
+	_stand_at(Game.actor_state(c.id), shallows[1])
 	Game.tick(0.05)
 	check(Game.world.hazard_drift(c.id) == Vector2.ZERO, "out of the water, no pull")
 	# Hollow puddles taint and slow whoever stands in them while they rise.
-	hs = _hazard_room(c, "rm_grey_pools", Vector2(600, 900))
+	hs = _hazard_room(c, "rm_grey_pools", Vector2.INF)
+	_stand_at(Game.actor_state(c.id), _hazard_area_points()[0])
 	_answer(c, "spirit", 1.0)
 	var hol: float = c.pools.hollowing
 	_hazard_to_active(hs)
 	check(c.pools.hollowing > hol and c.pools.has_status("slow"), "a Hollow puddle taints and slows")
 	_answer(c, "body", 1.0)
 	# Bitter cold slows in the open; a shrine shelters.
-	hs = _hazard_room(c, "rf_rimefrost_summit", Vector2(1600, 820))
+	hs = _hazard_room(c, "rf_rimefrost_summit", Vector2.INF)
+	var sheltered := _shelter_points()
+	_stand_at(Game.actor_state(c.id), sheltered[1])
 	_hazard_to_active(hs)
 	check(c.pools.has_status("slow"), "the freezing blast stiffens the limbs in the open")
-	hs = _hazard_room(c, "rf_rimefrost_summit", Vector2(360, 760))
+	hs = _hazard_room(c, "rf_rimefrost_summit", sheltered[0])
 	_hazard_to_active(hs)
 	check(not c.pools.has_status("slow"), "a shrine gives shelter from the cold")
 	# Safe rooms never carry hazards; the map lists what a room asks.
@@ -9987,90 +9888,6 @@ func starsea_suite() -> void:
 		Game.apply_effects(c.id, [{"kind": "upgrade_sect_token"}], "test")
 		check(fee > 0 and Game.world.teleport_fee(stone, c) == 0, "an Elder's token calls its bearer home for free")
 		Game.inventory.apply_remove(c.id, sid.replace("_sect", "") + "_elder_token", 1, "test")
-	Game.world.apply_teleport(c.id, back)
-
-# ------------------------------------------------------------------ world movement (S17, S30)
-## Run the real solver: the body leaves the ground with `jumps` presses (the second at the top of the
-## first) while drifting toward `toward`; returns the surface it comes to rest on.
-func _jump_to(geo: ZoneGeometry, from: Vector2, toward: Vector2, jumps: int) -> ActorState:
-	var st := ActorState.new()
-	st.plane = from
-	st.surface = geo.landing_target(from, 1.0, -1.0)
-	st.altitude = 0.0
-	MovementSolver.jump(st)
-	var pressed := 1
-	for i in 240:
-		var v := (toward - st.plane).limit_length(1.0) * 205.0 if st.plane.distance_to(toward) > 4.0 else Vector2.ZERO
-		MovementSolver.advance(st, geo, 1.0 / 60.0, v)
-		if pressed < jumps and st.surface == null and st.vertical_speed <= 0.0:
-			MovementSolver.jump(st)
-			pressed += 1
-		if st.surface != null and i > 5: break
-	return st
-
-func movement_suite() -> void:
-	var c = Game.active()
-	if c == null: return
-	var back := str(c.position.get("room", "lf_village"))
-	check(near(MovementSolver.JUMP_IMPULSE * MovementSolver.JUMP_IMPULSE / (2.0 * MovementSolver.GRAVITY), 122.1, 0.5),
-		"a single jump peaks at 122 units; Cloud Ladder Step adds 80 (about 202)")
-	# A field made climbable: a jump onto the low ledge, a double jump onto the high one (where the chest waits).
-	Game.world.apply_teleport(c.id, "tp_thunderhorn_flats")
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	var low: WalkSurface = geo.index.get("ledge_mv_0")
-	var high: WalkSurface = geo.index.get("ledge_mv_1")
-	check(low != null and high != null and geo.index.has("cloud_mv"), "the Thunderhorn Flats have ledges and a cloud ledge")
-	if low and high:
-		var under := Vector2(low.bounds.get_center().x, low.bounds.end.y + 30.0)
-		var st1 := _jump_to(geo, under, low.bounds.get_center(), 1)
-		check(st1.surface == low and near(st1.altitude, 100.0, 0.5), "one jump lands on the 100-unit ledge (%s)" % (st1.surface.id if st1.surface else "air"))
-		var st1b := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 1)
-		check(st1b.surface == null or st1b.surface != high, "one jump does not reach the 176-unit ledge")
-		var st2 := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 2)
-		check(st2.surface == high and near(st2.altitude, 176.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
-		var chest: Dictionary = Game.room_rt.object_def("chest_ledge_mv_1")
-		check(not chest.is_empty() and float(chest.get("alt", 0)) >= high.base - 1.0, "the chest waits up high (on the room's highest tier, S43)")
-		var cloud: WalkSurface = geo.index.get("cloud_mv")
-		var st3 := _jump_to(geo, Vector2(cloud.bounds.get_center().x, cloud.bounds.end.y + 30.0), cloud.bounds.get_center(), 2)
-		check(st3.surface != cloud, "the cloud ledge is above double-jump reach: it is for fliers")
-	# A standable crate on the Skydock's yard.
-	Game.world.apply_teleport(c.id, "ae_shipyard")
-	geo = Game.room_rt.geometry
-	var crate_top: WalkSurface = null
-	for srf in geo.surfaces:
-		if srf.kind == "support" and srf.id.begins_with("crate_"): crate_top = srf
-	check(crate_top != null, "a crate in the yard has a top to stand on")
-	if crate_top:
-		var st4 := _jump_to(geo, crate_top.bounds.get_center() + Vector2(0, 40), crate_top.bounds.get_center(), 1)
-		check(st4.surface == crate_top, "a jump lands on the crate (%s)" % (st4.surface.id if st4.surface else "air"))
-	# Wall-Step: in the air, pushing into a building's facade, there is a wall to kick off (S43).
-	Game.world.apply_teleport(c.id, "lf_village")
-	geo = Game.room_rt.geometry
-	var roof: WalkSurface = geo.index.get("old_ma_store")
-	if roof:
-		var st5 := ActorState.new()
-		st5.plane = Vector2(roof.bounds.position.x - 8.0, roof.bounds.end.y - 20.0)
-		st5.altitude = 60.0
-		st5.air_stratum = "ground"
-		st5.jumps_used = 2
-		var side := MovementSolver.wall_step(st5, geo, 1)
-		check(side == 1 and near(st5.vertical_speed, 450.0), "Wall-Step kicks off the store's facade (within 12 units, pushing in)")
-		check(MovementSolver.wall_step(st5, geo) == 0, "not without pushing into the wall")
-		var st6 := ActorState.new()
-		st6.plane = Vector2(roof.bounds.position.x - 200.0, roof.bounds.end.y - 20.0)
-		st6.altitude = 60.0
-		check(MovementSolver.wall_step(st6, geo, 1) == 0, "no wall, no kick")
-	# The rooms: count how many give the jump something to do.
-	var flat: Array = []
-	for rid in ContentDB.rooms:
-		var def: Dictionary = ContentDB.room(rid)
-		var up := false
-		for srf in def.get("surfaces", []):
-			if str(srf.get("stratum", "")) == "platform" or str(srf.get("kind", "")) in ["roof", "stairs", "ladder"]: up = true
-		for sc in def.get("scenery", []):
-			if sc.get("standable", false) or float(sc.get("height", 999)) <= 80.0: up = true
-		if not up and not str(def.get("type", "")) in ["interior", "insight", "home", "story", "event", "sect"]: flat.append(rid)
-	check(flat.size() <= 3, "fields, towns and dungeons all have something to climb %s" % str(flat))
 	Game.world.apply_teleport(c.id, back)
 
 # ------------------------------------------------------------------ what pills cost (gap report G1)
@@ -10312,7 +10129,7 @@ func g2_suite() -> void:
 	GameEvents.event.connect(grab)
 	Game.world.apply_teleport(c.id, "bg_whispering_bamboo")
 	for st_id in ["stun", "slow", "shock", "spawn_protection"]: Game.combat.cure_status(c.id, st_id)
-	var here: Vector2 = Game.actor_state(c.id).plane
+	var here: Vector2 = _open_lane(260.0, 140.0, 20.0)   # the foes stand along the line, the shots fly down it
 	Game.combat.timeline(c.id).facing = 1
 	var realm0: String = c.cultivator.realm_key
 	c.cultivator.realm_key = "heart_tempering_5"
@@ -10501,332 +10318,20 @@ func g2_suite() -> void:
 	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
 
-# ------------------------------------------------------------------ traversal (Build Prompt v2 S43)
-func _trav_zone() -> ZoneGeometry:
-	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false},
-		{"id": "deck", "rect": [200, 600, 400, 100], "height": 100, "kind": "roof", "stratum": "platform"},
-		{"id": "loft", "rect": [1150, 600, 200, 88], "height": 88, "kind": "roof", "stratum": "platform"}],
-		"blocks": [{"id": "crate", "rect": [800, 700, 60, 60], "base": 0, "top": 60, "kind": "crate"},
-			{"id": "wall", "rect": [1600, 560, 40, 400], "base": 0, "top": 300, "kind": "wall"}],
-		"climbables": [{"id": "ladder", "kind": "ladder", "at": [1250, 725], "top_at": [1250, 680], "bottom_alt": 0, "top_alt": 88, "bottom": "ground", "top": "loft"}]})
-	return z
+# ------------------------------------------------------------------ S43 movement arts (V2b), on the grid
+## The body lands as the top-down player lands it (TopdownPlayer: the motor's landing mirrored on the state): on the
+## grid's floor, a Plunge's landing left for Combat to strike round (its plunge_impact), and a glide let go (the
+## player's held jump asks Combat to end it once the feet are down). The side view's solver, which fell the body through
+## its surfaces, went with the side view in S12a.
+func _land(st: ActorState) -> void:
+	if st.plunging:
+		st.plunging = false
+		st.plunge_impact = {"x": st.plane.x, "y": st.plane.y, "alt": Game.room_rt.topdown.floor_at(st.plane), "surface": "grid"}
+	st.altitude = Game.room_rt.topdown.floor_at(st.plane)
+	st.vertical_speed = 0.0
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	if st.gliding: Game.submit({"type": "glide", "on": false})
 
-func _trav_actor(z: ZoneGeometry, sid: String, at: Vector2, arts := {}) -> ActorState:
-	var st := ActorState.new()
-	st.surface = z.index[sid]
-	st.plane = at
-	st.altitude = st.surface.height_at(at)
-	st.arts = {"double_jump": false, "wall_step": false, "drop_through": true, "mantle": true, "climb": true}
-	st.arts.merge(arts, true)
-	return st
-
-func _trav_run(st: ActorState, z: ZoneGeometry, secs: float, v: Vector2, dt := 1.0 / 120.0) -> void:
-	var t := 0.0
-	while t < secs - 0.0001:
-		MovementSolver.advance(st, z, dt, v)
-		t += dt
-
-func traversal_suite() -> void:
-	var z := _trav_zone()
-	# Rule 1: platform back edges are closed, the others open; a block top is open all round.
-	var d: WalkSurface = z.index.deck
-	check(d.edges == {"n": "closed", "s": "open", "e": "open", "w": "open"} and (z.index.ground as WalkSurface).edges.n == "closed"
-		and (z.index.crate as WalkSurface).edges.n == "open", "platforms close their back edge by default; blocks are open all round")
-	var st := _trav_actor(z, "deck", Vector2(400, 620))
-	_trav_run(st, z, 1.0, Vector2(0, -205))
-	check(st.surface == d and st.plane.y >= 600.0, "walking north off a roof is stopped by its closed back edge")
-	_trav_run(st, z, 1.5, Vector2(0, 205))
-	check(st.surface != null and st.surface.id == "ground", "walking south off it drops to the ground")
-	# Blocks stop walking, can be stood on, and a 60 block can be jumped over at walk speed.
-	st = _trav_actor(z, "ground", Vector2(760, 730))
-	_trav_run(st, z, 0.8, Vector2(205, 0))
-	check(st.plane.x < 800.0 and st.surface.id == "ground", "a crate stops a walker (x %.0f)" % st.plane.x)
-	st = _trav_actor(z, "ground", Vector2(700, 730))
-	MovementSolver.jump(st)
-	_trav_run(st, z, 1.4, Vector2(205, 0))
-	check(st.surface != null and st.surface.id == "ground" and st.plane.x > 866.0, "a 60 block is jumped over at walk speed (x %.0f)" % st.plane.x)
-	st = _trav_actor(z, "ground", Vector2(775, 730))
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.3, Vector2(205, 0))
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(st.surface != null and st.surface.id == "crate" and near(st.altitude, 60.0), "a crate can be stood on")
-	# Rule 2: coyote time, jump buffer and the fixed jump, at three frame rates.
-	for dt in [1.0 / 30.0, 1.0 / 60.0, 1.0 / 120.0]:
-		st = _trav_actor(z, "deck", Vector2(400, 690))
-		_trav_run(st, z, 0.1, Vector2(0, 205), dt)
-		var off := st.surface == null
-		var coy := MovementSolver.jump(st)
-		check(off and coy and near(st.vertical_speed, 530.0) and st.jumps_used == 1, "a jump just after walking off an edge is still a ground jump (dt %.3f)" % dt)
-		st = _trav_actor(z, "ground", Vector2(1000, 800))
-		MovementSolver.jump(st)
-		while st.vertical_speed > -480.0: MovementSolver.advance(st, z, 1.0 / 240.0, Vector2.ZERO)
-		var early := MovementSolver.jump(st)
-		st.events.clear()
-		_trav_run(st, z, 0.2, Vector2.ZERO, dt)
-		var names: Array = st.events.map(func(e): return e.name)
-		check(not early and names.find("landed") >= 0 and names.find("jumped", names.find("landed")) > 0,
-			"a jump pressed just before landing fires on landing (dt %.3f) %s" % [dt, str(names)])
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	var peak := 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		peak = maxf(peak, st.altitude)
-	check(near(peak, 122.1, 0.01), "the base jump peaks at 122 (%.1f)" % peak)
-	# Cloud Ladder Step: a second jump of +80 from where it is used; none without the art.
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-	check(not MovementSolver.jump(st), "no double jump without Cloud Ladder Step")
-	st = _trav_actor(z, "ground", Vector2(1000, 800), {"double_jump": true})
-	MovementSolver.jump(st)
-	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-	var from_h: float = st.altitude
-	check(MovementSolver.jump(st) and near(st.vertical_speed, 430.0), "Cloud Ladder Step jumps again at impulse 430")
-	peak = 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		peak = maxf(peak, st.altitude)
-	check(near(peak - from_h, 80.4, 0.02) and near(peak, 202.0, 0.02), "+80 from where it is used; about 202 from the ground (%.0f)" % peak)
-	# Wall-Step: push into a wall face within 12 and kick (vertical 450), three times per airtime.
-	st = _trav_actor(z, "ground", Vector2(1590, 800), {"wall_step": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.2, Vector2.ZERO)
-	check(MovementSolver.wall_step(st, z, 0) == 0, "no Wall-Step without pushing into the wall")
-	var kicks := 0
-	for i in 4:
-		if MovementSolver.wall_step(st, z, 1) != 0: kicks += 1
-	check(kicks == 3 and near(st.vertical_speed, 450.0), "three Wall-Step kicks per airtime at vertical speed 450 (%d)" % kicks)
-	# Rule 3: drop through a platform, never the ground or a block.
-	st = _trav_actor(z, "deck", Vector2(400, 650))
-	check(MovementSolver.drop_through(st), "drop through the deck")
-	_trav_run(st, z, 1.2, Vector2.ZERO)
-	check(st.surface != null and st.surface.id == "ground", "and land on the ground below it")
-	check(not MovementSolver.drop_through(st), "the ground cannot be dropped through")
-	st = _trav_actor(z, "crate", Vector2(830, 730))
-	check(not MovementSolver.drop_through(st), "nor a block")
-	# Rule 4: a just-missed ledge within 24 up and 16 across is mantled.
-	st = _trav_actor(z, "ground", Vector2(190, 650))
-	st.surface = null
-	st.altitude = 84.0
-	st.air_peak = 110.0
-	st.vertical_speed = -50.0
-	st.jumps_used = 1
-	MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(205, 0))
-	check(st.surface == d and near(st.altitude, 100.0), "a ledge 16 above is mantled")
-	# Rule 5: climb a ladder, stop, reach the top, come down, jump off, be knocked off.
-	st = _trav_actor(z, "ground", Vector2(1250, 740))
-	var ladder: Dictionary = z.climbable_near(st.plane, st.altitude)
-	check(not ladder.is_empty() and MovementSolver.start_climb(st, ladder, false), "the ladder is in reach and can be climbed")
-	_trav_run(st, z, 0.2, Vector2(0, -205))
-	var mid: float = st.altitude
-	_trav_run(st, z, 0.2, Vector2.ZERO)
-	check(near(mid, 32.0, 0.05) and near(st.altitude, mid), "climbing at 160 a second, and stopping on the rungs (%.0f)" % mid)
-	for i in 120:
-		if st.climbing.is_empty(): break
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, -205))
-	check(st.climbing.is_empty() and st.surface != null and st.surface.id == "loft", "the top step lands on the loft")
-	var down_from: Dictionary = z.climbable_near(st.plane, st.altitude)
-	check(not down_from.is_empty() and MovementSolver.start_climb(st, down_from, true), "climb back down from the top")
-	for i in 120:
-		if st.climbing.is_empty(): break
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, 205))
-	check(st.climbing.is_empty() and st.surface.id == "ground", "the foot steps onto the ground")
-	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
-	_trav_run(st, z, 0.2, Vector2(0, -205))
-	check(MovementSolver.release_climb(st, 1, true) and st.surface == null and st.vertical_speed > 0.0, "a jump lets go of the ladder")
-	st = _trav_actor(z, "ground", Vector2(1250, 740))
-	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
-	check(MovementSolver.release_climb(st, -1, false) and st.surface == null and near(st.vertical_speed, 0.0), "a hit knocks the climber off")
-	# Rule 6: the void lies 250 below the lowest surface.
-	check(near(z.void_altitude, -250.0), "void altitude defaults to 250 below the lowest surface")
-	# Traversal events are recorded for the authority to announce.
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	check(st.events.any(func(e): return e.name == "jumped"), "a jump records a jumped event")
-	# Room data reaches the room's geometry: blocks, climbables and the void (the World authority compiles it).
-	var echo := ZoneGeometry.new()
-	echo.configure(WorldAuthority.compile_geometry(ContentDB.room("wg_echo_cliffs")))
-	check(echo.index.has("shaft_west") and echo.wall_face_at(Vector2(1356, 690), 120.0, "ground"), "the Echo Cliffs shaft walls are in the room's geometry")
-	var ferry := ZoneGeometry.new()
-	ferry.configure(WorldAuthority.compile_geometry(ContentDB.room("lf_village")))
-	check(ferry.climbables.size() >= 1, "the Lotus Ferry hall ladder is in the room's geometry")
-
-# ------------------------------------------------------------------ S43 movement arts, volumes and movers (V2b)
-func _vol_zone() -> ZoneGeometry:
-	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 4000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 4000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false},
-		{"id": "raft", "rect": [2000, 700, 90, 40], "height": 10, "kind": "raft", "stratum": "platform"},
-		{"id": "boards", "rect": [2600, 650, 200, 70], "height": 100, "kind": "bridge", "stratum": "platform"},
-		{"id": "cracked", "rect": [3200, 650, 200, 70], "height": 100, "kind": "rock_ledge", "stratum": "platform", "cracked": true}],
-		"blocks": [{"id": "drum", "rect": [1900, 740, 60, 60], "base": 0, "top": 40, "kind": "drum"}],
-		"volumes": [
-			{"id": "shallow", "kind": "water_shallow", "rect": [100, 800, 300, 100], "alt": [-50, 10]},
-			{"id": "deep", "kind": "water_deep", "rect": [500, 800, 300, 100], "alt": [-100, 10]},
-			{"id": "drain", "kind": "current", "rect": [900, 800, 200, 100], "alt": [-50, 10], "push": [-80, 0]},
-			{"id": "draft", "kind": "updraft", "rect": [1200, 560, 150, 400], "alt": [0, 300]},
-			{"id": "gale", "kind": "wind", "rect": [1500, 560, 300, 400], "alt": [-50, 600], "push": [-100, 0]},
-			{"id": "pad", "kind": "bounce", "rect": [1900, 740, 60, 60], "alt": [30, 50]},
-			{"id": "rot", "kind": "crumble", "rect": [2600, 650, 200, 70], "surface": "boards"},
-			{"id": "flood", "kind": "rising_water", "rect": [3600, 560, 300, 400], "alt": [-100, -20],
-				"rise": [{"event": "boss_phase", "match": {"action": "flood"}, "to": 30, "over_s": 4.0, "hold_s": 2.0, "back_to": -20}]}],
-		"movers": [{"surface": "raft", "path": [[300, 0, 0]], "speed": 100, "wait_s": 1.0, "mode": "pingpong"}]})
-	return z
-
-func _fall_until_landed(st: ActorState, z: ZoneGeometry, v := Vector2.ZERO, limit := 4.0) -> float:
-	var t := 0.0
-	while st.surface == null and t < limit:
-		MovementSolver.advance(st, z, 1.0 / 120.0, v)
-		t += 1.0 / 120.0
-	return t
-
-func arts_volumes_suite() -> void:
-	var z := _vol_zone()
-	# Falling Leaf Glide: descent capped at 120/s, 10% faster across; from an apex jump about 1.5 s and 300 flat.
-	var st := _trav_actor(z, "ground", Vector2(2900, 900))
-	MovementSolver.jump(st)
-	check(not MovementSolver.glide(st, true), "no glide without Falling Leaf Glide")
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"glide": true})
-	var x0: float = st.plane.x
-	MovementSolver.jump(st)
-	var air := 0.0
-	while st.vertical_speed > 0.0:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(205, 0))
-		air += 1.0 / 120.0
-	check(MovementSolver.glide(st, true) and st.gliding, "Jump held while falling glides")
-	_trav_run(st, z, 0.3, Vector2(205, 0))
-	check(st.vertical_speed >= -120.01, "a glide falls no faster than 120 a second (%.1f)" % st.vertical_speed)
-	air += 0.3 + _fall_until_landed(st, z, Vector2(205, 0))
-	var flat: float = st.plane.x - x0
-	check(air > 1.4 and air < 1.7 and flat > 280.0 and flat < 360.0 and not st.gliding, "an apex glide lasts about 1.5 s and 300 units (%.2f s, %.0f)" % [air, flat])
-	# Swallow Dart: in the air the body holds its height for 0.25 s while it darts 140; once per airtime.
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"air_dash": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.3, Vector2.ZERO)
-	var alt0: float = st.altitude
-	x0 = st.plane.x
-	check(MovementSolver.air_dash(st), "Evade in the air darts")
-	_trav_run(st, z, 0.25, Vector2(560, 0))
-	check(near(st.altitude, alt0, 0.5) and near(st.plane.x - x0, 140.0, 1.0), "the dart holds the height and covers 140 (%.1f, %.0f)" % [st.altitude - alt0, st.plane.x - x0])
-	check(not MovementSolver.air_dash(st), "one dart per airtime")
-	_fall_until_landed(st, z)
-	check(not st.air_dash_used, "landing gives the dart back")
-	# Plunge: straight down at 900; the landing is left for Combat; a cracked floor breaks under it.
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"plunge": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.4, Vector2.ZERO)
-	x0 = st.plane.x
-	check(MovementSolver.plunge(st) and near(st.vertical_speed, -900.0), "Down + Attack in the air plunges at 900")
-	var drop := _fall_until_landed(st, z, Vector2(205, 0))
-	check(near(st.plane.x, x0, 0.5) and drop < 0.16 and not st.plunge_impact.is_empty() and not st.plunging, "a plunge drops straight and leaves an impact (%.2f s)" % drop)
-	st = _trav_actor(z, "ground", Vector2(3300, 690), {"plunge": true})
-	st.surface = null
-	st.altitude = 220.0
-	st.air_peak = 220.0
-	st.jumps_used = 1
-	MovementSolver.plunge(st)
-	_fall_until_landed(st, z)
-	check((z.index.cracked as WalkSurface).disabled and st.surface != null and st.surface.id == "ground", "a plunge breaks a cracked floor and falls through it")
-	# Shallow water: x0.7.
-	st = _trav_actor(z, "ground", Vector2(120, 850))
-	_trav_run(st, z, 1.0, Vector2(205, 0))
-	check(near(st.plane.x - 120.0, 143.5, 1.5), "shallow water slows walking to x0.7 (%.1f)" % (st.plane.x - 120.0))
-	# Deep water: sinks in 1 s without an art; Breath Control swims at x0.6; Water Skimming runs across while sprinting.
-	st = _trav_actor(z, "ground", Vector2(520, 850))
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(st.events.any(func(e): return e.name == "volume_entered" and str(e.volume) == "deep") and near(st.sink_depth, 20.0, 1.0) and not st.drowned,
-		"deep water pulls a body down (%.1f) and says so" % st.sink_depth)
-	check(not MovementSolver.jump(st), "a sinking body cannot jump out")
-	_trav_run(st, z, 0.6, Vector2.ZERO)
-	check(st.drowned and near(st.sink_depth, 40.0), "after 1 s it has sunk 40 and must be recovered")
-	st = _trav_actor(z, "ground", Vector2(520, 850), {"breath_control": true})
-	_trav_run(st, z, 1.0, Vector2(205, 0))
-	check(not st.drowned and st.mode() == "swim" and near(st.plane.x - 520.0, 123.0, 1.5), "Breath Control swims at x0.6 (%.1f)" % (st.plane.x - 520.0))
-	st = _trav_actor(z, "ground", Vector2(470, 850), {"water_skimming": true})
-	st.sprinting = true
-	_trav_run(st, z, 0.6, Vector2(348, 0))
-	check(not st.drowned and st.water.get("skimming", false) and st.sink_depth == 0.0 and st.events.any(func(e): return e.name == "art_used" and e.art == "water_skimming"),
-		"Water Skimming runs on deep water while sprinting")
-	_trav_run(st, z, 0.55, Vector2.ZERO)
-	check(not st.water.get("skimming", true), "stopping for half a second ends the skim")
-	_trav_run(st, z, 1.1, Vector2.ZERO)
-	check(st.drowned, "and then the water takes you")
-	# Current: pushes a body standing in it.
-	st = _trav_actor(z, "ground", Vector2(1050, 850))
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(near(st.plane.x - 1050.0, -80.0, 1.0), "a current pushes 80 a second (%.1f)" % (st.plane.x - 1050.0))
-	# Updraft: a fall turns into a rise toward +220.
-	st = _trav_actor(z, "ground", Vector2(1275, 800))
-	st.surface = null
-	st.altitude = 150.0
-	st.air_peak = 150.0
-	st.vertical_speed = -200.0
-	st.jumps_used = 1
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(st.surface == null and st.altitude > 150.0 and st.vertical_speed > 100.0, "an updraft lifts a falling body (alt %.0f, vz %.0f)" % [st.altitude, st.vertical_speed])
-	# Wind: strong for 1.5 s of every 4, a breeze (x0.3) the rest.
-	st = _trav_actor(z, "ground", Vector2(1650, 800))
-	z.time = 0.0
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	var gust: float = st.plane.x - 1650.0
-	z.time = 2.0
-	var x1: float = st.plane.x
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(near(gust, -50.0, 1.0) and near(st.plane.x - x1, -15.0, 1.0), "wind gusts at full push, then a breeze (%.1f, %.1f)" % [gust, st.plane.x - x1])
-	# Bounce: landing on the drum launches at 700 (apex about 213 above it).
-	st = _trav_actor(z, "ground", Vector2(1930, 770))
-	st.surface = null
-	st.altitude = 120.0
-	st.air_peak = 120.0
-	st.jumps_used = 1
-	_fall_until_landed(st, z)
-	var bounced := st.surface == null and near(st.vertical_speed, 700.0, 30.0)
-	var top := 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		top = maxf(top, st.altitude)
-	check(bounced and near(top, 40.0 + 213.0, 4.0), "a bounce pad throws you back up about 213 (%.0f)" % (top - 40.0))
-	# Crumble: the boards give way 0.8 s after a foot lands and come back 5 s later.
-	st = _trav_actor(z, "boards", Vector2(2700, 690))
-	for i in 60:
-		MovementSolver.advance(st, z, 1.0 / 60.0, Vector2.ZERO)
-		z.advance(1.0 / 60.0)
-	_fall_until_landed(st, z)
-	check((z.index.boards as WalkSurface).disabled and st.surface != null and st.surface.id == "ground", "crumbling boards drop whoever stands on them")
-	z.advance(5.1)
-	check(not (z.index.boards as WalkSurface).disabled, "and return after 5 s")
-	# Movers: the offset is a pure function of the room clock, and riders ride along.
-	var m: Dictionary = z.movers[0]
-	check(z.mover_offset(m, 0.5) == Vector3.ZERO and near(z.mover_offset(m, 2.0).x, 100.0) and near(z.mover_offset(m, 4.5).x, 300.0)
-		and near(z.mover_offset(m, 6.0).x, 200.0) and z.mover_offset(m, 8.0 + 0.5) == Vector3.ZERO, "a pingpong mover waits, travels, waits and returns")
-	var replay := func() -> Vector2:
-		var zz := _vol_zone()
-		var rider := _trav_actor(zz, "raft", Vector2(2040, 720))
-		for i in 150:
-			zz.advance(1.0 / 60.0)
-			MovementSolver.advance(rider, zz, 1.0 / 60.0, Vector2(20, 0) if i % 50 < 10 else Vector2.ZERO)
-		return rider.plane
-	var p1: Vector2 = replay.call()
-	var p2: Vector2 = replay.call()
-	check(p1 == p2 and p1.x > 2100.0, "a rider is carried by its mover, the same on every replay (%s)" % str(p1))
-	# Rising water follows its event, holds, then drains.
-	z.on_event("boss_phase", {"action": "flood"})
-	z.advance(4.0)
-	var flood: Dictionary = z.volumes[7]
-	var risen := near(float(flood.hi), 30.0)
-	z.advance(2.0 + 4.0 + 0.1)
-	check(risen and near(float(flood.hi), -20.0), "a boss phase floods the arena, and it drains after its hold")
-	st = _trav_actor(z, "ground", Vector2(3700, 800))
-	z.on_event("boss_phase", {"action": "flood"})
-	z.advance(4.0)
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(st.sink_depth > 0.0, "rising water is deep water while it stands")
-
-## Movement arts through the Game: Plunge strikes, glide costs QI, Swallow Dart shares the dodge cooldown,
-## sect grounds refuse flight and a climber cannot use techniques.
 func arts_combat_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
@@ -10836,15 +10341,12 @@ func arts_combat_suite() -> void:
 	check(str(Game.submit({"type": "plunge"}).get("reason", "")) == "locked", "Plunge must be learned")
 	for art in ["plunge", "falling_leaf_glide", "swallow_dart"]: Game.progression.apply_learn_secret_art(c.id, art)
 	check(Game.combat.knows_art(c, "plunge") and Game.combat.knows_art(c, "glide") and Game.combat.knows_art(c, "air_dash"), "learned arts are known by their movement name")
-	var geo: ZoneGeometry = Game.room_rt.geometry
 	var foe: EnemyState = Game.enemies.spawn_at("green_viper", st.plane + Vector2(30, 0), 12)
 	check(foe != null, "a foe to plunge on")
 	var here: Vector2 = st.plane
 	st.surface = null
 	st.altitude = 150.0
-	st.air_peak = 150.0
 	st.vertical_speed = 0.0
-	st.jumps_used = 1
 	var r := Game.submit({"type": "plunge"})
 	check(r.get("ok", false) and st.plunging, "Plunge in the air %s" % str(r))
 	check(str(Game.submit({"type": "plunge"}).get("reason", "")) in ["cooldown", "not_airborne"], "one Plunge at a time; then it rests 4 s")
@@ -10853,7 +10355,7 @@ func arts_combat_suite() -> void:
 		foe.plane = here + Vector2(30, 0)
 		foe.altitude = 0.0
 		hp0 = foe.pools.hp
-	_fall_until_landed(st, geo)
+	_land(st)
 	Game.tick(0.05)
 	check(st.plunge_impact.is_empty() and (foe == null or foe.pools.hp < hp0), "the Plunge lands a blow within 60")
 	check(foe == null or not foe.alive or foe.pools.has_status("stun"), "and stuns for half a second")
@@ -10866,7 +10368,7 @@ func arts_combat_suite() -> void:
 	var qi0: float = c.pools.qi
 	for i in 20: Game.tick(0.05)
 	check(r.get("ok", false) and Game.combat.is_gliding(c.id) and near(qi0 - c.pools.qi, 2.0, 0.3), "gliding drains 2 QI a second (%.2f)" % (qi0 - c.pools.qi))
-	_fall_until_landed(st, geo)
+	_land(st)
 	Game.tick(0.05)
 	check(not Game.combat.is_gliding(c.id), "landing ends the glide")
 	# Swallow Dart: an Evade tap in the air, once per airtime, on the dodge's cooldown.
@@ -10880,7 +10382,7 @@ func arts_combat_suite() -> void:
 	r = Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
 	check(r.get("air_dash", false) and st.air_dash_used and c.pools.cooldown("dodge") > 0.0, "Evade in the air is Swallow Dart %s" % str(r))
 	if not had_dodge: c.cultivator.unlocked.erase("dodge_dash")
-	_fall_until_landed(st, geo)
+	_land(st)
 	# Sect grounds refuse flight; techniques wait while climbing.
 	var room0: Dictionary = Game.room_rt.def
 	Game.room_rt.def = room0.duplicate()
@@ -10894,90 +10396,24 @@ func arts_combat_suite() -> void:
 	check(str(Game.submit({"type": "basic_attack", "facing": 1}).get("reason", "")) == "climbing", "and so do attacks")
 	st.climbing = {}
 
-# ------------------------------------------------------------------ S43 rules 10-12: bands, shots, navigation, allies (V2c)
+# ------------------------------------------------------------------ the bands, on the grid
+## A blow lands on feet within its band of the attacker's (TopdownAim.band, movement.json topdown.combat): on the ground
+## -12..+12, from the air down to 56 below. (The side view's rule 10, a melee band of -30..+60 of the attacker's height
+## and a Qi arc's -10..+80, went with it in S12a; rules 11 and 12's navigation graph, shots and ledges were its
+## surfaces too, and on the grid the brains walk the layout: TopdownBrain, AllyBrain, the topdown suites.)
 func nav_suite() -> void:
-	# Rule 10: the melee band is -30..+60 of the attacker's height, Qi arcs -10..+80.
 	var ground := {"x": 0.0, "y": 800.0, "alt": 0.0}
-	var melee := {"x": [0, 60], "depth": 30, "alt": ContentDB.movement("combat_bands.melee", [])}
-	var qi_arc := {"x": [0, 60], "depth": 30, "alt": ContentDB.movement("combat_bands.qi_arc", [])}
-	var on_roof := {"x": 30.0, "y": 800.0, "alt": 88.0, "half_width": 14.0, "height": 88.0}
-	var mid_jump := {"x": 30.0, "y": 800.0, "alt": 40.0, "half_width": 14.0, "height": 88.0}
-	check(not CombatAuthority.hit_test(ground, 1, melee, on_roof) and CombatAuthority.hit_test(ground, 1, melee, mid_jump),
-		"a ground fighter cannot strike a target on an 88 roof, but can strike it mid-jump")
-	check(CombatAuthority.hit_test(ground, 1, qi_arc, {"x": 30.0, "y": 800.0, "alt": 75.0, "half_width": 14.0, "height": 40.0})
-		and not CombatAuthority.hit_test(ground, 1, melee, {"x": 30.0, "y": 800.0, "alt": 75.0, "half_width": 14.0, "height": 40.0}), "a Qi arc reaches 80 up; a blow reaches 60")
+	var aloft := {"x": 0.0, "y": 800.0, "alt": 48.0, "band": TopdownAim.band(true)}
+	var blow := {"x": [0, 60], "depth": 30}
+	var level_up := {"x": 30.0, "y": 800.0, "alt": TopdownRoom.LEVEL, "half_width": 14.0}
+	var own_floor := {"x": 30.0, "y": 800.0, "alt": 8.0, "half_width": 14.0}
+	check(not CombatAuthority.hit_test(ground, 1, blow, level_up) and CombatAuthority.hit_test(ground, 1, blow, own_floor),
+		"a ground fighter cannot strike a target a level up (a terrace, a roof), but strikes one on its own floor")
+	check(CombatAuthority.hit_test(aloft, 1, blow, {"x": 30.0, "y": 800.0, "alt": 0.0, "half_width": 14.0})
+		and not CombatAuthority.hit_test(aloft, 1, blow, {"x": 30.0, "y": 800.0, "alt": -16.0, "half_width": 14.0}), "a blow from the air reaches 56 down, no further")
 	var jb: Array = ContentDB.entry("weapon_families", "jian").altitude
 	var vb: Array = ContentDB.entry("enemies", "green_viper").attacks[0].hitbox.alt
 	check(near(float(jb[0]), -30.0) and near(float(jb[1]), 60.0) and near(float(vb[0]), -30.0) and near(float(vb[1]), 60.0), "weapons and monsters strike in the melee band")
-	# Shots stop at blocks and walls, never at platform decks.
-	var z := _trav_zone()
-	check(z.stops_shot(Vector2(830, 730), 40.0) and not z.stops_shot(Vector2(830, 730), 70.0) and not z.stops_shot(Vector2(400, 650), 58.0),
-		"a shot stops at a crate below its top, flies over it, and passes a roof deck")
-	# Rule 11: the navigation graph, by species movement.
-	var jumper := {"jump": 530, "climb": false, "drop": true}
-	var g: Dictionary = z.nav_graph(jumper)
-	var kinds := func(from: String, to: String) -> Array:
-		return g.get(from, []).filter(func(e): return e.to == to).map(func(e): return e.kind)
-	check(kinds.call("ground", "deck") == ["jump"] and kinds.call("deck", "ground") == ["drop"] and kinds.call("ground", "crate") == ["jump"],
-		"a jumper can hop onto a 100 deck and a crate and drop back down")
-	check(kinds.call("ground", "wall").is_empty(), "a 300 wall is out of a 530 jump")
-	check(z.nav_graph({"jump": 0, "climb": false, "drop": true}).get("ground", []).filter(func(e): return e.to == "deck").is_empty(), "a species that cannot jump stays below")
-	var climber: Dictionary = z.nav_graph({"jump": 0, "climb": true, "drop": true})
-	check(climber.get("ground", []).any(func(e): return e.to == "loft" and e.kind == "climb"), "a climber takes the ladder to the loft")
-	var z2 := _trav_zone()
-	check(str(z2.nav_graph(jumper)) == str(g), "the graph is identical on two builds of the same room")
-	check(z.nav_path("ground", "deck", jumper).size() == 1 and z.nav_path("deck", "loft", {"jump": 0, "climb": true, "drop": true}).size() == 2,
-		"paths chain drop and climb edges")
-	# In a real room: a jumping monster follows the player onto a ledge; one that cannot jump gives up.
-	var c = Game.active()
-	if c == null or Game.actor_state(c.id) == null: return
-	var st: ActorState = Game.actor_state(c.id)
-	Game.world.apply_teleport(c.id, "wg_echo_cliffs")
-	for sid in ["stun", "slow", "shock", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	for e0 in Game.room_rt.living_enemies(): e0.alive = false
-	var ledge: WalkSurface = geo.index.get("ledge_0")
-	st.surface = ledge
-	st.plane = ledge.bounds.get_center()
-	st.altitude = ledge.height_at(st.plane)
-	st.vertical_speed = 0.0
-	c.pools.hp = c.pools.max_hp
-	var hunter: EnemyState = Game.enemies.spawn_at("mudwater_bandit", Vector2(ledge.bounds.get_center().x + 60, 860), 16)
-	var plodder: EnemyState = Game.enemies.spawn_at("stone_tortoise", Vector2(ledge.bounds.get_center().x - 60, 860), 5)
-	for e1 in [hunter, plodder]:
-		e1.ai.state = "aggro"
-		e1.ai.timer = 99.0
-		e1.threat[c.id] = 1.0
-	var on_ledge := false
-	var unreach := 0.0
-	for i in 240:
-		Game.tick(0.05)
-		c.pools.hp = c.pools.max_hp
-		if hunter.surface_id == "ledge_0": on_ledge = true
-		unreach = maxf(unreach, float(plodder.ai.get("unreach", 0.0)))
-		st.surface = ledge
-		st.altitude = ledge.height_at(st.plane)
-	check(on_ledge, "a bandit jumps up the ledge after you")
-	check(unreach >= 2.0, "a tortoise that cannot jump finds you out of reach (%.1f s)" % unreach)
-	check(str(plodder.ai.state) == "return" or bool(plodder.ai.get("leashed", false)) or plodder.surface_id == plodder.home_surface, "after 6 s it goes home to heal")
-	# Rule 12: an ally that cannot reach its owner blinks to them after 2 s.
-	var high: WalkSurface = geo.index.get("ledge_2")
-	st.surface = high
-	st.plane = high.bounds.get_center()
-	st.altitude = high.height_at(st.plane)
-	var pal := EnemyState.new()
-	pal.team = "ally"
-	pal.def = {"name": "Test", "movement": {"jump": 0, "climb": false, "fly": false, "drop": true}}
-	pal.plane = Vector2(st.plane.x - 100, 860)
-	pal.surface_id = "ground"
-	pal.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
-	for e2 in Game.room_rt.living_enemies(): e2.alive = false
-	for i in 50: AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
-	check(pal.surface_id == "ledge_2" and near(pal.altitude, 300.0), "an ally that cannot follow blinks to its owner after 2 s")
-	pal.plane = Vector2(st.plane.x + 900, 860)
-	pal.surface_id = "ground"
-	AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
-	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
 ## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached
@@ -11288,12 +10724,20 @@ func moments_suite() -> void:
 	var toad: EnemyState = null
 	for e in Game.room_rt.living_enemies():
 		if e.def_id == "big_toad_tan": toad = e
-	if toad == null: toad = Game.enemies.spawn_at("big_toad_tan", st2.plane + Vector2(160, 0), 18)
+	# His own spawn when the den has none of him up (his kill remembered): on the grid, on the den's floor.
+	if toad == null:
+		var den: Array = Game.room_rt.def.get("spawns", []).filter(func(sp): return str(sp.get("enemy", "")) == "big_toad_tan")
+		var at: Vector2 = Game.room_rt.topdown.spawn + Vector2(160, 0)
+		if not den.is_empty() and not (den[0].get("points", []) as Array).is_empty(): at = Vector2(float(den[0].points[0][0]), float(den[0].points[0][1]))
+		toad = Game.enemies.spawn_at("big_toad_tan", Game.room_rt.topdown.nearest_standable(at), 18)
 	fresh.call()
 	mv.advance(0.0)
 	c.pools.hp = c.pools.max_hp
 	for sid in ["stun", "slow", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
-	st2.plane = toad.plane + Vector2(-140, 0)
+	_on_feet(c)
+	st2.plane = Game.room_rt.topdown.place_near(toad.plane + Vector2(-70, 0), toad.altitude)   # in his sight (half of it with Concealment), on his floor
+	st2.altitude = Game.room_rt.topdown.floor_at(st2.plane)
+	st2.surface = Game.room_rt.geometry.index.get("grid")
 	for i in 40:
 		Game.tick(0.05)
 		c.pools.hp = c.pools.max_hp
@@ -11655,6 +11099,7 @@ func set_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var st: ActorState = Game.actor_state(c.id)
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 220.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on (the ringer 200 behind)
 	for sid in ["stun", "slow", "shock", "spawn_protection", "qi_seal", "confusion", "fear", "bleed", "poison", "burn"]: Game.combat.cure_status(c.id, sid)
 	var cu: CultivatorState = c.cultivator
 	var equipped_before: Dictionary = c.inventory.equipped.duplicate()
@@ -11888,24 +11333,36 @@ func set_suite() -> void:
 		"melody power +50%: Clear Heart Melody heals half again")
 	ally.alive = false
 	Game.combat.ally_hots.erase(ally.uid)
-	# The bell's ring carries further with melody power.
+	# The bell's ring carries further with melody power. (On the grid the earlier foes walk about: they go first, so the
+	# tap's soft lock does not turn the ring toward one of them.)
+	for e0 in Game.room_rt.living_enemies(): e0.alive = false
 	ContentDB.tables["artifacts"]["_lt_jian"].family = "bell"
 	wear.call(six)
 	var ringer: EnemyState = Game.enemies.spawn_at("wild_boarlet", st.plane + Vector2(-200, 0), 5)
 	ringer.pools.max_hp = 999999.0
 	ringer.stats["evasion"] = 0.0
+	# The ring's own blows on the ringer (on the grid the companion and the animals strike it too, credited to their owner).
+	var rung := {"amount": 0}
+	var by_bell := func(n: String, p: Dictionary):
+		if n == "hit_landed" and str(p.get("attacker", "")) == str(c.id) and str(p.get("target", "")) == str(ringer.uid) \
+				and not str(p.get("source", "")).begins_with("ally:"): rung.amount = int(rung.amount) + int(p.amount)
+	GameEvents.event.connect(by_bell)
 	var ring := func() -> float:
 		ringer.pools.hp = 999999.0
+		rung.amount = 0
 		_idle_hands(c)
 		Game.combat.basic_attack(c, 1)
 		for i in 14:
 			Game.tick(0.05)
 			ringer.plane = st.plane + Vector2(-200, 0)
-		return 999999.0 - ringer.pools.hp
+		GameEvents.flush()
+		return float(rung.amount)
 	var reached: float = ring.call()
 	c.remove_meta("extra_modifiers")
 	Game.combat.refresh_stats(c.id)
-	check(reached > 0.0 and ring.call() == 0.0, "melody power +50%: the bell's ring reaches a foe 200 behind; without it, not (reach 160)")
+	var unreached: float = ring.call()
+	check(reached > 0.0 and unreached == 0.0, "melody power +50%%: the bell's ring reaches a foe 200 behind; without it, not (reach 160: %.0f, %.0f)" % [reached, unreached])
+	GameEvents.event.disconnect(by_bell)
 	ringer.alive = false
 	# Put everything back.
 	ContentDB.tables["sets"].erase(set_id)
@@ -12162,6 +11619,70 @@ func save_suite() -> void:
 	var old: Dictionary = Saves.migrate_character({"name": "Old", "version": 2})
 	check(int(old.get("version", 0)) == Saves.VERSION, "an older character file is brought to the current version")
 
+# ------------------------------------------------------------------ S12a: a side-view save comes into the one world
+## A save made by the side view before S12a retired it (tests/data/side_view_save: made by its own code, two classic
+## side-view characters, the account keeping the classic side view) loads into the top-down game with nothing lost: the
+## account forgets the view choice; each character keeps its look (body, hair and its colour, clothes), its gear and its
+## dyes, its bag, and wakes in its own room on the grid (the side view's point mapped onto the layout, TopdownRoom.
+## grid_event's rule) at the current format's minor; its last shrine is the room's shrine on the grid. Then it plays: it
+## enters the world on the grid, drawn whole in its outfit, and the world steps with it in it.
+func side_view_save_suite() -> void:
+	var folder := run_root() + "side_view_save/"
+	DirAccess.make_dir_recursive_absolute(folder)
+	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
+	for f in ["account.json", "char_1.json", "char_2.json"]: DirAccess.copy_absolute("res://tests/data/side_view_save/" + f, folder + f)
+	Saves.use_folder(folder)
+	Game.boot()
+	Game.autosave_enabled = false
+	check(not Game.account.settings.has("classic_side_view"), "a side-view save: the account forgets the classic side view (%s)" % str(Game.account.settings.keys()))
+	var want := {"c1": {"name": "Lin Sideview", "room": "lf_village", "look": {"body": "light", "hair": "flowing", "hair_color": 3, "shirt": "scholar", "pants": "martial", "shoes": "slippers"}},
+		"c2": {"name": "Wen Classic", "room": "sf_fairground", "look": {"hair": "short_knot", "hair_color": 5, "shirt": "vneck", "pants": "straight", "shoes": "folded"}}}
+	for cid in want:
+		var c = Game.character(cid)
+		check(c != null and str(c.name) == str(want[cid].name), "a side-view save: %s loads (%s)" % [cid, str(c.name) if c else "none"])
+		if c == null: continue
+		var look_kept := true
+		for k in want[cid].look: look_kept = look_kept and str(c.appearance.get(k, "")) == str(want[cid].look[k])
+		check(look_kept, "a side-view save: %s keeps its look (%s)" % [c.name, str(c.appearance)])
+		var grid := TopdownRoom.load_room(str(want[cid].room))
+		var at := Vector2(float(c.position.x), float(c.position.y))
+		check(str(c.position.room) == str(want[cid].room) and grid.standable(TopdownRoom.cell_of(at)) and not c.position.has("surface"),
+			"a side-view save: %s wakes in its own room on the grid's floor (%s)" % [c.name, str(c.position)])
+		check(not c.snapshot().has("view") and int(c.snapshot().get("minor", 0)) == GameCharacter.MINOR, "a side-view save: %s is at the format's minor %d with no view" % [c.name, GameCharacter.MINOR])
+		var drawn := TopdownFigure.wearing(InventoryAuthority.outfit_for(c))
+		check(drawn.missing.is_empty(), "a side-view save: %s is drawn whole by the top-down figure (missing %s)" % [c.name, str(drawn.missing)])
+	var lin = Game.character("c1")
+	if lin == null: return
+	var outfit := InventoryAuthority.outfit_for(lin)
+	var weapon = lin.inventory.equipped.get("weapon")
+	check(weapon != null and str(weapon.id) == "training_jian" and str(outfit.get("weapon", "")) != "none" and str(outfit.get("shirt_dye", "")) == "jade"
+		and str(outfit.get("pants_dye", "")) == "indigo" and lin.inventory.count("herbal_tea") == 4,
+		"a side-view save: its gear, its dyes and its bag are kept (weapon %s, robe %s, trousers %s, tea %d)" % [str(weapon.id) if weapon else "none",
+			str(outfit.get("shirt_dye", "")), str(outfit.get("pants_dye", "")), lin.inventory.count("herbal_tea")])
+	var shrine := str(lin.last_shrine.get("object", ""))
+	var village := TopdownRoom.load_room("lf_village")
+	check(shrine != "" and str(lin.last_shrine.get("room", "")) == "lf_village" and village.def.get("place", {}).has(shrine)
+		and Vector2(float(lin.last_shrine.x), float(lin.last_shrine.y)).distance_to(TopdownRoom.cell_point(village.def.place[shrine])) < 1.0,
+		"a side-view save: its last shrine is the room's shrine on the grid (%s)" % str(lin.last_shrine))
+	# It plays: in the world on the grid, and the world steps with it there.
+	check(Game.submit({"type": "enter_character", "slot": 1}).get("ok", false) and Game.submit({"type": "enter_world"}).get("ok", false), "a side-view save: the character enters the world")
+	check(Game.room_rt != null and Game.room_rt.room_id == "lf_village" and Game.room_rt.topdown != null, "a side-view save: in its room, on the grid (%s)" % (Game.room_rt.room_id if Game.room_rt else "none"))
+	if Game.room_rt == null: return
+	var st := ActorState.new()
+	Game.bind_movement(lin.id, st)
+	st.plane = Vector2(float(lin.position.x), float(lin.position.y))
+	st.altitude = Game.room_rt.topdown.floor_at(st.plane)
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	for i in 30:
+		st.plane += Vector2(2, 0)
+		Game.tick(1.0 / 30.0)
+	GameEvents.flush()
+	Unlocks.force_unlock(lin.id, "attack")   # the fixture was saved before its Attack lesson
+	var hit := Game.submit({"type": "basic_attack", "facing": 1})
+	check(Game.room_rt.room_id == "lf_village" and hit.get("ok", false) and Game.room_rt.topdown.standable(TopdownRoom.cell_of(Vector2(float(lin.position.x), float(lin.position.y)))),
+		"a side-view save: the world steps with it walking and striking on the grid (%s at %s)" % [str(hit), str(lin.position)])
+	Game.bind_movement(lin.id, null)
+
 # ------------------------------------------------------------------ BUG-01 (audit 45): a recipe renamed after the save
 ## A save that still names a recipe the data no longer has (renamed or removed since): the load drops it from the known
 ## recipes, the pages held and the auto-refine queue, and keeps the rest; the Crafts page draws a queue that holds one
@@ -12388,6 +11909,7 @@ func _fix_fall(c) -> void:
 	GameEvents.flush()
 	check(near(c.pools.hp, c.pools.max_hp), "a fall in the Prologue's village costs nothing")
 	Game.world.apply_teleport(c.id, "wp_west")
+	_open_lane(240.0, 140.0, 20.0)   # on the grid: open floor along the line the suite's foes stand on
 	GameEvents.flush()
 	c.pools.hp = c.pools.max_hp
 	GameEvents.emit_event("fell_out", {"actor": c.id, "recovered_to": {}})
@@ -13205,8 +12727,7 @@ func _technique_preview_suite(pg, c) -> void:
 		await get_tree().process_frame
 		await get_tree().process_frame
 		var t := ContentDB.entry("techniques", id)
-		var want_pose := str(t.vfx.get("pose", "idle"))
-		var pose_ok := st.pose == TechniquePreview.pose_of(t, c, st.caster.outfit) and (want_pose.begins_with("combo_") or st.pose == want_pose or st.pose == "idle")
+		var pose_ok := st.pose == TechniquePreview.top_pose(t, c)
 		var n_ok := st.foes.size() == int(cfg.foes[form])
 		st.restart()
 		while st.clock < st.impact + 0.12: st.advance(1.0 / 60.0)
@@ -13280,7 +12801,7 @@ func _technique_preview_suite(pg, c) -> void:
 	TechniquePreview.TopFoe._sheet = {}
 	TechniquePreview.TopFoe._task = -1
 	var early := TechniquePreview.new()
-	early.dress(st.caster.outfit, true)   # a top-down caster: the foes' index starts reading on a worker
+	early.dress(st.caster.outfit)   # made and dressed: the foes' index started reading on a worker as it was made
 	var started: bool = TechniquePreview.TopFoe._task >= 0
 	early.free()
 	check(started and TechniquePreview.TopFoe._task == -2 and not TechniquePreview.TopFoe._sheet.is_empty(),
@@ -13412,20 +12933,16 @@ func techniques_page_suite() -> void:
 ## that draws a figure draws the top-down one (TopdownDoll, at a whole scale, the side view's Avatar nowhere in it): the
 ## Techniques page's cards, reading and preview (the art's top-down pose against the top-down world's foes), the
 ## Character page and its friends' chips, the Bag, the dialogue strip's speaker, the Companions' gates, the merchant, the
-## Cultivation stair, the wanted poster, the sect hall, the Characters roster and the Roll-Call. A classic side-view
-## character keeps the side view's.
+## Cultivation stair, the wanted poster, the sect hall, the Characters roster and the Roll-Call (the side view's Avatar
+## went with it in S12a).
 func figures_suite() -> void:
 	var c = Game.active()
 	if c == null: return
-	var view_was := str(c.view)
 	var keep := {"companions": c.companions.duplicate(true), "training_sect": c.training_sect.duplicate(true)}
 	for cid in ["lan_yue", "tie_niu"]:
 		if not (c.companions.get("roster", []) as Array).has(cid): Game.companions.apply_add(c.id, cid)
 	if str(c.training_sect.get("id", "")) == "": Game.training.apply_join(c.id, "jade_sect")
-	var avatar_script = load("res://scripts/avatar.gd")
-	var sides := func(pg: Node) -> int: return pg.find_children("*", "", true, false).filter(func(n): return n.get_script() == avatar_script).size()
 	var whole := func(n: Node2D) -> bool: return is_equal_approx(n.scale.x, roundf(n.scale.x)) and n.scale.x >= 1.0
-	c.view = "topdown"
 	var talk: Dictionary = Game.submit({"type": "talk", "npc": "old_ma"}).get("dialogue", {})
 	TechniquePicture.draw_log = []
 	var seen := {}
@@ -13443,9 +12960,9 @@ func figures_suite() -> void:
 				var t := ContentDB.entry("techniques", "flowing_palm")
 				var cards: Array = (TechniquePicture.draw_log as Array).filter(func(d): return str(d.get("where", "")) == "tree")
 				figs = [pg.pic, st.caster]
-				seen["techniques_preview"] = (st.top and st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
+				seen["techniques_preview"] = (st.caster is TopdownDoll and whole.call(st.stage) and st.pose == TechniquePreview.top_pose(t, c)
 					and not st.foes.is_empty() and st.foes.all(func(f): return f.sprite is TechniquePreview.TopFoe))
-				seen["techniques_cards"] = not cards.is_empty() and cards.all(func(d): return d.top)   # the cards' pictures: the top-down figure (TechniquePicture)
+				seen["techniques_cards"] = not cards.is_empty() and cards.all(func(d): return d.has("facing"))   # the cards' pictures: the figure, facing its way (TechniquePicture)
 			"character":
 				figs = [pg.doll] + pg.mates
 				seen["character_scale"] = whole.call(pg.doll) and pg.mates.size() >= 1
@@ -13454,25 +12971,13 @@ func figures_suite() -> void:
 			"companions": figs = pg.avatars.values()
 			"notice_board": figs = [pg.likeness] if pg.likeness != null else []
 			"training_sect": figs = pg.figs.values()
-			"characters": figs = [pg.figs.get(c.id)]   # each character as its own game draws it: this one top-down
+			"characters": figs = [pg.figs.get(c.id)]
 			"posts": figs = [pg.figs[c.id].doll] if pg.figs.has(c.id) else []
-		var alone: bool = str(spec[0]) in ["characters", "posts"] or sides.call(pg) == 0   # (other characters may be classic ones)
-		seen[spec[0]] = not figs.is_empty() and figs.all(func(f): return f is TopdownDoll) and alone
+		seen[spec[0]] = not figs.is_empty() and figs.all(func(f): return f is TopdownDoll)
 		pg.queue_free()
 		await get_tree().process_frame
-	check(seen.values().all(func(v): return v), "decision 42: every page draws a top-down character as the top-down figure, at a whole scale, and no side-view avatar (%s)" % str(seen))
+	check(seen.values().all(func(v): return v), "decision 42: every page draws the character as the top-down figure, at a whole scale (%s)" % str(seen))
 	TechniquePicture.draw_log = null
-	# A classic side-view character keeps the side view's figure.
-	c.view = ""
-	var classic := {}
-	for id in ["character", "techniques"]:
-		var pg2: Page = await _open_page(id, {"tab": "water"} if id == "techniques" else {})
-		for i in 3: await get_tree().process_frame
-		classic[id] = (pg2.doll if id == "character" else pg2.stage.caster).get_script() == avatar_script
-		pg2.queue_free()
-		await get_tree().process_frame
-	check(classic.values().all(func(v): return v), "a classic side-view character keeps the side view's figure (%s)" % str(classic))
-	c.view = view_was
 	c.companions = keep.companions
 	c.training_sect = keep.training_sect
 
@@ -13639,8 +13144,8 @@ func _sect_checks() -> void:
 	var cands: Array = ys._regions.filter(func(r): return r.id == "cand")
 	check(rec.size() == 1 and int(rec[0].data) == 1 and cands.size() == 2, "P5 Your Sect: a candidate tapped at the gate is the one Recruit takes")
 	var shown: Array = ys.figs.values().filter(func(f): return (f as Node2D).visible)
-	check(shown.size() == 5 and shown.all(func(f): return (f as Node2D).scale == Vector2(0.5, 0.5) and (f as Node2D).position == (f as Node2D).position.round()),
-		"P5 Your Sect: the three disciples at home in the yard and the two candidates at the gate, at an art pixel a pixel (%d)" % shown.size())
+	check(shown.size() == 5 and shown.all(func(f): return f is TopdownDoll and (f as Node2D).scale == Vector2(2, 2) and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Your Sect: the three disciples at home in the yard and the two candidates at the gate, top-down figures at 2 px an art px (%d)" % shown.size())
 	_identity_view(ys, "your_sect courtyard", dim, lost, {}, {})
 	ys.on_action("go_tab", "territory")
 	check(str(ys.tabs[ys.tab].id) == "territory", "P5 Your Sect: Territory beyond the walls opens its tab")
@@ -13673,8 +13178,8 @@ func _sect_checks() -> void:
 	check(chosen.size() == mini(cp.SHOWN, n) and is_equal_approx(cp.roll_w(), 22.0 + 5.0 * closed) and (gates == 0 or tagged == 1),
 		"P5 Characters: a stretch of the scroll for every open slot, the roll as thick as the %d still to come, the next gate on a tag" % closed)
 	var figs: Array = cp.figs.values().filter(func(f): return (f as Node2D).visible)
-	check(figs.size() == Game.characters.size() and figs.all(func(f): return (f as Node2D).scale == Vector2.ONE and (f as Node2D).position == (f as Node2D).position.round()),
-		"P5 Characters: each disciple painted as its live figure at 2 px an art px, on whole pixels")
+	check(figs.size() == Game.characters.size() and figs.all(func(f): return f is TopdownDoll and (f as Node2D).scale == Vector2.ONE * cp.FIG_PX and (f as Node2D).position == (f as Node2D).position.round()),
+		"P5 Characters: each disciple painted as its live figure (the top-down one) at %d px an art px, on whole pixels" % cp.FIG_PX)
 	check(cp._regions.filter(func(r): return r.id == "task" and (r.rect as Rect2).size.y >= Page.MIN_TAP).size() == 5, "P5 Characters: the one you play sets its task under the scroll")
 	_identity_view(cp, "characters", dim, lost, {}, {})
 	cp.queue_free()

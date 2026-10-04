@@ -2,16 +2,12 @@
 
 Every technique plays the effect animation of its form (one of the 24, drawn by tools/art/fx into art/fx and
 data/fx_art.json) on an existing body pose (AGENTS.md: a technique adds FX, never a pose). `add_animation`
-writes two fields into a row's `vfx` block:
+writes the form's animation id into a row's `vfx` block as `anim`: the row's `form` when P13's grammar has tagged it,
+else FORM_OF (the plan's table for today's arts, the same one the Style A emblems use). (The side view's `pose`, the
+avatar action the effect was timed to, went with the side view in S12a: the top-down figure casts in the pose its
+action resolves to, TechniquePreview.top_pose.)
 
-  anim   the form's animation id: the row's `form` when P13's grammar has tagged it, else FORM_OF (the plan's
-         table for today's arts, the same one the Style A emblems use)
-  pose   the catalogue action the effect is timed to: the row's `action` when it names one, `combo_1` for
-         `meditate_burst` (the wielded family's first combo step, as CombatAuthority resolves it) and `combo_3`
-         for a row with no action (its third)
-
-`data_validation` fails a row whose anim is not a built form or whose pose is neither a `parts.json` action nor
-an alias that resolves to one for every weapon family.
+`data_validation` fails a row whose anim is not a built form.
 """
 import json
 import os
@@ -40,8 +36,6 @@ FORM_OF = {
 # drawn with (tools/icons/emblem_atlas.py TEMPLATE_MARK), an Avatar or a Mirror the Ward's dome as today's Golden Body
 # and Phantom Double do.
 TEMPLATE_FORM = {"constructs": "swarm", "field": "domain", "finisher": "pillar", "procession": "chorus", "avatar": "ward", "mirror": "ward"}
-# The pose aliases the combat authority resolves at cast: the wielded family's combo step (0-based).
-POSE_ALIASES = {"combo_1": 0, "combo_2": 1, "combo_3": 2}
 
 
 def forms():
@@ -50,15 +44,6 @@ def forms():
     if os.path.exists(path):
         return sorted(json.load(open(path, encoding="utf-8"))["forms"])
     return sorted(set(FORM_OF.values()))
-
-
-def pose_of(t):
-    action = t.get("action")
-    if action in (None, "", "null"):
-        return "combo_3"
-    if action == "meditate_burst":
-        return "combo_1"
-    return str(action)
 
 
 def add_animation(T):
@@ -71,4 +56,3 @@ def add_animation(T):
             raise ValueError("technique_anim: technique %s has form %s, which tools/art/fx has not built" % (t["id"], form))
         t.setdefault("vfx", {})
         t["vfx"]["anim"] = form
-        t["vfx"]["pose"] = pose_of(t)

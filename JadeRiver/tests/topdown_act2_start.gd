@@ -19,8 +19,8 @@ extends "res://tests/prologue_run.gd"
 ##      horns from the Flats, past the Herders' Camp, to the alchemist in the Condensing Hall off the Skydock), Sage;
 ##   4. on past chapter 11: the Lightning Scar's way east opens to a Sage, up through Rimefrost Heights to the summit
 ##      and the hermit's ice cave (its hidden way found); the Skydock's lake ferry to Mirrorwater Lake, along the shore,
-##      the shallows (Toad's Hollow off them), the causeway to the Lake Shrine; the Nine Peaks ferry is the prototype's
-##      gate exactly while Nine Peaks has no layout, and once it has one (R7), the ferry over and back on the grid.
+##      the shallows (Toad's Hollow off them), the causeway to the Lake Shrine; the Nine Peaks ferry over and
+##      back on the grid (R7).
 ## Run headless:  godot --headless --path . res://tests/topdown_act2_start.tscn [-- --verbose]
 
 const PORT := ["ae_landing", "ae_port_market", "ae_wayfarers_inn", "ae_skydock", "ae_condensing_hall", "ae_shipyard"]
@@ -35,7 +35,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("act2/")
 	_to_the_gate()
 	_the_crossing()
@@ -97,10 +96,10 @@ func _whole() -> void:
 	c().pools.hp = c().pools.max_hp
 	Game.combat.wounded.erase(c().id)
 
-## Is the way `pid` of this room closed by the prototype's gate (its line said), as for a room with no layout?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 ## Is the way `pid` of this room open to walk through now?
 func _open(pid: String) -> bool:
@@ -194,7 +193,7 @@ func _view(rid: String) -> void:
 
 # ------------------------------------------------------------------ 1: the crossing
 func _the_crossing() -> void:
-	check(not _gated("ascend") and _open("ascend"), "the Ascension Gate's way up to the Azure Expanse is open to a top-down character, its room on the grid")
+	check(_leads_on("ascend") and _open("ascend"), "the Ascension Gate's way up to the Azure Expanse is open, its room on the grid")
 	_walk("ascend", "ae_landing", "up through the Ascension Gate onto Cloudgate's Arrival Terrace")
 	var grid: TopdownRoom = Game.room_rt.topdown
 	var gate: Dictionary = Game.room_rt.portal_def("gate")
@@ -286,16 +285,13 @@ func _beyond() -> void:
 	_walk("east", "ml_lake_shrine", "across the causeway to the Lake Shrine's island")
 	var mirror := interact("mirror_altar")
 	check(mirror.get("ok", false) and c().quests.has_flag("mirror_vision_seen"), "the shrine's bronze mirror looked into (%s)" % str(mirror))
-	# The frontier: the Nine Peaks ferry (its quest done: a shortcut) is the prototype's gate while Nine Peaks has no layout.
+	# The frontier: the Nine Peaks ferry (its quest done: a shortcut), over and back on the grid (R7 laid Nine Peaks out).
 	c().quests.done["the_mirror_remembers"] = 1
 	c().quests.active.erase("the_mirror_remembers")
 	check(travel("ae_skydock") and room() == "ae_skydock", "home by the ferry to the Skydock (room %s)" % room())
-	check(_gated("peaks_ferry") == not TopdownRoom.has_layout("np_alliance_gate"),
-		"the Nine Peaks ferry is closed by the prototype's gate exactly while Nine Peaks has no layout")
-	if TopdownRoom.has_layout("np_alliance_gate"):
-		# R7 laid Nine Peaks out: the ferry carries a top-down character over and back, on the grid both ways.
-		_walk("peaks_ferry", "np_alliance_gate", "aboard the Nine Peaks ferry and down at the Alliance Gate")
-		_walk("ferry", "ae_skydock", "the sky-ship back from the Alliance Gate to the Skydock")
+	check(_leads_on("peaks_ferry"), "the Nine Peaks ferry leads to Nine Peaks, on the grid")
+	_walk("peaks_ferry", "np_alliance_gate", "aboard the Nine Peaks ferry and down at the Alliance Gate")
+	_walk("ferry", "ae_skydock", "the sky-ship back from the Alliance Gate to the Skydock")
 
 # ------------------------------------------------------------------ 2: over the rooms
 func _the_rooms() -> void:

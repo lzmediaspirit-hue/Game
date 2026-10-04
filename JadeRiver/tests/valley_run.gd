@@ -778,9 +778,10 @@ func _furnace() -> void:
 	check(finish("flags_over_the_posts"), "Flags over the Posts done")
 
 ## P1 and M17: Uncle Guo's training dummy stands a stride from him. Beside the dummy the context button does not talk
-## (the attack button strikes it); beside Guo it talks. Between the two, with the dummy a step ahead and Guo within
-## talking reach behind, the context button talks to Guo and the attack button strikes the dummy, and only the dummy
-## (not Guo, not the stump behind); a blow never opens a conversation.
+## (the attack button strikes it); beside Guo it talks. Between the two, with the dummy a blow's reach ahead and Guo
+## within talking reach behind (on the grid: on the line from the dummy to Guo, the blow aimed at the dummy), the context
+## button talks to Guo and the attack button strikes the dummy, and only the dummy (not Guo, not the stump beside it); a
+## blow never opens a conversation.
 func _dummy_beside_npc() -> void:
 	check(travel("lf_village"), "back to the village square")
 	var dummies := objects_of("training_dummy")
@@ -793,8 +794,10 @@ func _dummy_beside_npc() -> void:
 	place(Vector2(float(guo[0].at[0]), float(guo[0].at[1]) + 10))
 	var at_guo: Dictionary = Game.world.query_context(c())
 	check(str(at_guo.get("type", "")) == "npc" and str(at_guo.get("npc", "")) == "uncle_guo", "beside Guo it talks (%s)" % str(at_guo.get("npc", "")))
-	var between := Vector2(float(dummies[0].at[0]) - 30, float(dummies[0].at[1]) - 20)
-	check(between.distance_to(Vector2(float(guo[0].at[0]), float(guo[0].at[1]))) < float(guo[0].get("radius", 110)), "the point between stands within Guo's reach")
+	var dummy_at := Vector2(float(dummies[0].at[0]), float(dummies[0].at[1]))
+	var guo_at := Vector2(float(guo[0].at[0]), float(guo[0].at[1]))
+	var between := dummy_at + (guo_at - dummy_at).normalized() * 55.0   # inside the fists' reach of the dummy (46 + its half width)
+	check(between.distance_to(guo_at) < Game.world.reach_of(guo[0]), "the point between stands within Guo's reach")
 	place(between)
 	var ctx: Dictionary = Game.world.query_context(c())
 	check(str(ctx.get("npc", "")) == "uncle_guo", "between them the context button talks to Guo (%s)" % str(ctx))
@@ -803,7 +806,7 @@ func _dummy_beside_npc() -> void:
 		if n == "npc_talked": heard.talked += 1
 		if n == "object_hit": heard.hit.append(str(p.get("object", "")))
 	GameEvents.event.connect(listen)
-	var hit := submit({"type": "basic_attack", "facing": 1})
+	var hit := submit({"type": "basic_attack", "facing": 1, "aim": (dummy_at - st.plane).normalized(), "aimed": true})
 	step(0.6)
 	GameEvents.event.disconnect(listen)
 	check(hit.get("ok", false) and heard.hit == [str(dummies[0].id)], "between them the attack button strikes the dummy, and only the dummy (%s)" % str(heard.hit))
@@ -2348,7 +2351,9 @@ func sec_ae6() -> void:
 	check(start("lus_last_page"), "Lu's Last Page accepted")
 	check(sail("wreck_run"), "sail to the Wreck")
 	check(travel("sw_riven_peak") and interact("journal_riven").get("ok", false), "Lu's last page on the Riven Peak")
-	# The Lantern Run's readings while the stars are clear.
+	# The Lantern Run's readings while the stars are clear. On the grid the Riven Peak's pirates walk up to the sights
+	# while you wait for clear stars: clear them first, as a player would.
+	fight("starsea_pirate", 2, 240.0, 0.3)
 	for i in 3:
 		if c().inventory.count("star_reading") >= 8: break
 		gather("star_reading", 8 - c().inventory.count("star_reading"), 25)
@@ -2666,7 +2671,9 @@ func sec_ls4() -> void:
 	check(_objective("the_orbit_ruins", 0) >= 1, "find the Orbit Hermit in the Orbit Garden")
 	place(obj_at("switch_garden") + Vector2(0, 30))
 	var sw := interact("switch_garden")
-	check(sw.get("ok", false) and Game.room_rt.geometry.gravity_at(obj_at("switch_garden") + Vector2(0, 60), 0.0) < 1.0,
+	var tr = TopdownTraverse.of(Game.room_rt.topdown)   # the garden's low gravity on the grid (TopdownTraverse)
+	var light: Array = tr.lowgs.filter(func(v): return str(v.switch) == "switch_garden") if tr != null else []
+	check(sw.get("ok", false) and not light.is_empty() and tr.gravity_at((light[0].rect as Rect2).get_center()) < 1.0,
 		"press a jade switch down: the air in the garden grows light")
 	interact("switch_garden")
 	check(travel("or_golem_foundry"), "on to the Golem Foundry")
@@ -2899,125 +2906,144 @@ func forge_with(recipe: String, offsets: Array) -> Dictionary:
 	strike_steps(recipe, "smithing", offsets)
 	return submit({"type": "forge", "recipe": recipe})
 
-## Cloud Stride flight through the real solver: Combat grants it and pays QI; the body climbs,
-## holds its altitude, then descends and lands on the ground.
-## S43 movement arts go through the body's own authority, so their art_used events reach the quests.
-func body_authority() -> LocalAuthority:
-	if st == null: place(Vector2(float(c().position.x), float(c().position.y)))
-	var la := LocalAuthority.new(st, Game.room_rt.geometry)
-	la.actor_id = c().id
-	# The body knows the movement arts its character has learned (the player node does this each frame).
-	for sa in c().cultivator.secret_arts:
-		var art := str(ContentDB.entry("secret_arts", str(sa)).get("movement_art", ""))
-		if art != "": st.arts[art] = true
-	return la
+## The movement arts on the grid (S12a: the side view's movement authority went with it): the character's own top-down
+## view, its player bound to the character as main.gd mounts it, stepped frame by frame as the world runs it (as
+## topdown_traversal does), so each art's events reach the quests as a player's do. Made for the arts and freed after;
+## the walk's own body (`st`) is bound again where the player stood.
+var arts_w: TopdownWorld = null
+var arts_heard := {}     # art -> times art_used was heard while the view was up
+func arts_begin():
+	arts_w = TopdownWorld.new()
+	arts_w.live = true
+	add_child(arts_w)
+	arts_w.set_physics_process(false)
+	arts_w.set_process(false)
+	arts_heard = {}
+	if not GameEvents.event.is_connected(_art_heard): GameEvents.event.connect(_art_heard)
+	return arts_w.player
 
-var body_seq := 0
-func body_step(la: LocalAuthority, seconds: float, axis := Vector2.ZERO, speed := 205.0) -> void:
-	var t := 0.0
-	while t < seconds - 0.0001:
-		body_seq += 1
-		la.move(body_seq, axis, 1.0 / 60.0, speed)
-		t += 1.0 / 60.0
-	GameEvents.flush()
+func _art_heard(n: String, p: Dictionary) -> void:
+	if n == "art_used" and str(p.get("actor", "")) == str(c().id): arts_heard[str(p.get("art", ""))] = int(arts_heard.get(str(p.get("art", "")), 0)) + 1
 
-## Jump from the room's spawn point and press again near the top: Cloud Ladder Step.
+func arts_end() -> void:
+	var at: Vector2 = arts_w.player.motor.pos
+	GameEvents.event.disconnect(_art_heard)
+	arts_w.free()
+	arts_w = null
+	Game.bind_movement(c().id, st)
+	place(at)
+
+## Frames of the game as the world runs them: the player's step under the stick (and Jump held), then the simulation;
+## `each` (optional) stops the run when it returns true.
+func arts_frames(p, n: int, axis := Vector2.ZERO, held := false, each := Callable()) -> int:
+	for i in n:
+		p.movement = axis
+		p.joystick_engaged = axis != Vector2.ZERO
+		p.jump_held = held
+		p.physics_step(1.0 / 60.0)
+		Game.tick(1.0 / 60.0)
+		GameEvents.flush()
+		if each.is_valid() and each.call(): return i + 1
+	p.movement = Vector2.ZERO
+	p.joystick_engaged = false
+	p.jump_held = false
+	return n
+
+## The player stood on the floor at `at` (the room's spawn by default), the view's frame stepped once.
+func arts_stand(p, at := Vector2.INF) -> void:
+	p.motor.place(Game.room_rt.topdown.spawn if at == Vector2.INF else Game.room_rt.topdown.nearest_standable(at))
+	p.physics_step(0.0001)
+	Game.tick(0.0001)
+
+## Jump, and press again near the top: the Cloud Ladder Step.
 func double_jumps(times: int) -> int:
-	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
-	var used := 0
+	var p = arts_begin()
 	for i in times:
-		place(Vector2(float(sp[0]), float(sp[1])))
-		var la := body_authority()
-		la.jump()
-		body_step(la, 0.4)
-		if la.jump() and st.jumps_used == 2: used += 1
-		for k in 120:
-			if st.surface != null: break
-			body_step(la, 1.0 / 60.0)
+		arts_stand(p)
+		p.jump()
+		arts_frames(p, 12)
+		p.jump()
+		arts_frames(p, 120, Vector2.ZERO, false, func(): return p.motor.grounded)
+	var used := int(arts_heard.get("double_jump", 0))
+	arts_end()
 	return used
 
-## The Echo Cliffs shaft: two rock walls 100 apart. Kick off one, drift across, kick off the other.
+## The Echo Cliffs shaft on the grid: two rock walls; a jump, then a kick off each face in turn, pushed into it and a
+## little north, up to the nest at its head (topdown_traversal's Between Two Walls).
 func wall_step_shaft() -> int:
-	place(Vector2(1368, 690))
-	var la := body_authority()
-	var kicks := 0
-	var side := -1
-	la.jump()
-	body_step(la, 0.25)
-	for i in 3:
-		if la.wall_step(side) != 0: kicks += 1
-		elif verbose: print("  no wall at x %.0f alt %.0f side %d" % [st.plane.x, st.altitude, side])
-		body_step(la, 0.2, Vector2(-side, 0), MovementSolver.WALL_KICK_SPEED)
-		body_step(la, 0.05)
-		side = -side
-	for k in 300:
-		if st.surface != null: break
-		body_step(la, 1.0 / 60.0)
+	var p = arts_begin()
+	arts_stand(p, TopdownRoom.cell_point([30.6, 4.8]))
+	arts_frames(p, 1, Vector2.LEFT)
+	p.jump()
+	var sides := [Vector2(-1, -0.4).normalized(), Vector2(1, -0.4).normalized(), Vector2(-1, -0.4).normalized()]
+	for side in sides:
+		arts_frames(p, 36, side, false, func(): return _near_wall(p.motor, Vector2(signf(side.x), 0.0)))
+		p.jump()
+		arts_frames(p, 1, side)
+	arts_frames(p, 120, Vector2.UP, false, func(): return p.motor.grounded)
+	var kicks := int(arts_heard.get("wall_step", 0))
+	if verbose: print("  shaft: kicks %d at %s z %.0f" % [kicks, str(TopdownRoom.cell_of(p.motor.pos)), p.motor.z])
+	arts_end()
 	return kicks
+
+## The body is within a Wall-Step's reach of the face along `side`.
+func _near_wall(m: TopdownMotor, side: Vector2) -> bool:
+	var probe := m.pos + side * (float(TopdownMotor.conf("traverse.wall_reach", 12.0)) + m.half.x - 2.0)
+	return Game.room_rt.topdown.floor_at(probe) > m.z + float(TopdownMotor.conf("mantle", 12.0))
 
 ## Jump and Plunge: Down + Attack in the air; the landing strikes (Combat resolves it on the next tick).
 func plunges(times: int) -> int:
-	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
+	var p = arts_begin()
 	var done := 0
 	for i in times:
 		c().pools.cooldowns.erase("plunge")
-		place(Vector2(float(sp[0]), float(sp[1])))
-		var la := body_authority()
-		la.jump()
-		body_step(la, 0.35)
-		if submit({"type": "plunge"}).get("ok", false): done += 1
-		for k in 120:
-			if st.surface != null: break
-			body_step(la, 1.0 / 60.0)
-		Game.tick(0.05)
+		arts_stand(p)
+		p.jump()
+		arts_frames(p, 21)
+		if p.plunge().get("ok", false): done += 1
+		arts_frames(p, 120, Vector2.ZERO, false, func(): return p.motor.grounded)
+		arts_frames(p, 3)
+	arts_end()
 	return done
 
 ## Jump, and once falling hold Jump: Falling Leaf Glide (2 QI a second).
 func glides(times: int) -> int:
-	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
-	var done := 0
+	var p = arts_begin()
 	for i in times:
 		c().pools.qi = c().pools.max_qi
-		place(Vector2(float(sp[0]), float(sp[1])))
-		var la := body_authority()
-		la.jump()
-		body_step(la, 0.5)
-		if submit({"type": "glide", "on": true}).get("ok", false): done += 1
-		for k in 240:
-			if st.surface != null: break
-			body_step(la, 1.0 / 60.0, Vector2(1, 0))
-			Game.tick(1.0 / 60.0)
+		arts_stand(p)
+		p.jump()
+		arts_frames(p, 240, Vector2(1, 0), true, func(): return p.motor.grounded)
+		arts_frames(p, 2)
+	var done := int(arts_heard.get("glide", 0))
+	arts_end()
 	return done
 
 ## Jump and tap Evade in the air: Swallow Dart, waiting out the dodge's cooldown between darts.
 func air_dashes(times: int) -> int:
-	var sp: Array = Game.room_rt.def.get("spawn_point", [700, 850])
-	var done := 0
+	var p = arts_begin()
 	for i in times:
 		c().pools.cooldowns.erase("dodge")
-		place(Vector2(float(sp[0]), float(sp[1])))
-		var la := body_authority()
-		la.jump()
-		body_step(la, 0.3)
-		if submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1}).get("air_dash", false): done += 1
-		for k in 120:
-			if st.surface != null: break
-			body_step(la, 1.0 / 60.0)
-			Game.tick(1.0 / 60.0)
+		arts_stand(p)
+		arts_frames(p, 1, Vector2.RIGHT)
+		p.jump()
+		arts_frames(p, 11, Vector2.RIGHT)
+		p.dodge()
+		arts_frames(p, 120, Vector2.RIGHT, false, func(): return p.motor.grounded)
+	var done := int(arts_heard.get("air_dash", 0))
+	arts_end()
 	return done
 
-## Sprint at the pond and keep running: Water Skimming over deep water to its far side.
+## Sprint at the hermit's pond and keep running: Water Skimming over the deep water (topdown_traversal's Skipping
+## Stones' run on the grid).
 func skim_the_pond() -> bool:
-	place(Vector2(560, 740))
-	var la := body_authority()
-	st.sprinting = true
-	var skimmed := false
-	for k in 150:
-		body_step(la, 1.0 / 60.0, Vector2(1, 0), 348.0)
-		if st.water.get("skimming", false): skimmed = true
-		if st.plane.x > 1090.0: break
-	st.sprinting = false
-	return skimmed and not st.drowned and st.plane.x > 1070.0
+	var p = arts_begin()
+	arts_stand(p, TopdownRoom.cell_point([9.4, 13.5]))
+	var sank := {"hit": false}
+	arts_frames(p, 72, Vector2.RIGHT, false, func(): sank.hit = bool(sank.hit) or p.motor.sink_t >= 0.0; return false)
+	var skimmed := int(arts_heard.get("water_skimming", 0)) > 0 and not bool(sank.hit)
+	arts_end()
+	return skimmed
 
 ## Set the Practice Bell in Treasure button 1 and ring it, waiting out its cooldown between rings.
 func ring_the_bell(times: int) -> int:
@@ -3032,35 +3058,30 @@ func ring_the_bell(times: int) -> int:
 	GameEvents.flush()
 	return rung
 
+## Cloud Stride flight on the grid: Jump held as the body comes down takes to the air (Combat grants it and pays QI);
+## the flier climbs past a jump, holds its height, and Evade held brings it down to land (topdown_traversal's flight).
 func take_to_the_air() -> void:
-	place(Vector2(700, 850))
 	c().pools.qi = c().pools.max_qi
-	var r := submit({"type": "start_flight"})
-	check(r.get("ok", false), "take to the air %s" % str(r.get("reason", "")))
-	if not r.get("ok", false): return
-	MovementSolver.start_flight(st, float(r.climb), float(r.ceiling))
-	var geo: ZoneGeometry = Game.room_rt.geometry
+	var p = arts_begin()
+	var m: TopdownMotor = p.motor
+	arts_stand(p)
 	var qi0: float = c().pools.qi
-	st.climb = 1.0
-	for i in 40:
-		MovementSolver.advance(st, geo, 0.05, Vector2(80, 0))
-		Game.tick(0.05)
-	var high: float = st.altitude
-	st.climb = 0.0
-	for i in 20:
-		MovementSolver.advance(st, geo, 0.05, Vector2.ZERO)
-		Game.tick(0.05)
-	var held := absf(st.altitude - high) < 0.5
-	st.climb = -1.0
-	for i in 100:
-		MovementSolver.advance(st, geo, 0.05, Vector2.ZERO)
-		Game.tick(0.05)
-		if not st.flying: break
-	submit({"type": "stop_flight", "reason": "landed"})
-	check(high > 150.0 and high <= float(r.ceiling) + 0.01, "flight climbs to at most the ceiling (%.0f px)" % high)
+	p.jump()
+	arts_frames(p, 96, Vector2.ZERO, true)
+	var high := m.z
+	var flew: bool = m.flying and Game.combat.is_flying(c().id)
+	var z0 := m.z
+	arts_frames(p, 30, Vector2.RIGHT)
+	var held := absf(m.z - z0) < 1.0
+	p.fly_down = true
+	arts_frames(p, 240, Vector2.ZERO, false, func(): return m.grounded)
+	p.fly_down = false
+	arts_frames(p, 2)
+	check(flew and high > m.apex() + 40.0, "take to the air: Jump held as the body comes down flies, past a jump (z %.0f)" % high)
 	check(held, "flight holds its altitude")
-	check(not st.flying and st.surface != null, "descending onto the ground lands")
+	check(m.grounded and not m.flying, "descending onto the ground lands")
 	check(c().pools.qi < qi0 and not Game.combat.is_flying(c().id), "flight costs QI and ends on landing")
+	arts_end()
 
 ## S14 binding: a found relic's power is sealed until bound; then its spirit can be challenged.
 func bind_the_blade() -> void:

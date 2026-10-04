@@ -22,7 +22,6 @@ const ROOMS := ["sf_market", "sf_gate", "sq_quarry_rim", "sq_lower_pit"]
 var entered := {}   # room -> on the grid when entered
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("e5/")
 	_past_chapter2()
 	GameEvents.event.connect(_on_room)

@@ -31,9 +31,7 @@ extends Control
 ##   - HudActions: what a control asks of the game (the context, a harvest, a place's pose, the quick slots...);
 ##   - HudNotices: the game's events as log lines, toasts and captions (rows of data/cues.json, and code for the rest);
 ##   - HudTours: the tutorial coach's anchors;
-##   - HudControls, HudPanels, HudMinimap, HudTopStack: the drawing, in that order of the screen's parts;
-##   - HudSideView: the side view's own answers (decision 41's frozen fallback), each called from one branch marked
-##     "side view", so retiring the side view deletes the file and those branches.
+##   - HudControls, HudPanels, HudMinimap, HudTopStack: the drawing, in that order of the screen's parts.
 
 var frame_style: StyleBox
 var player: Node2D
@@ -117,8 +115,7 @@ const TOP_STACK_BOSS := 184.0
 const LOG_FOOT := 451.0
 const LOG_W := 356.0
 
-## The party chips' face crop: this far above the feet on the idle frame, this big.
-const FACE_AT := Vector2(2, -80)
+## The party chips' face crop: this big.
 const FACE_BOX := 30.0
 
 ## Decision 42: a top-down companion's face, its figure at x2 and its face's middle this far under the top of its bare
@@ -202,7 +199,7 @@ const PET_WHEEL := ["follow", "stay", "attack", "passive", "ride", "bag"]
 var pulses: Dictionary = {}        # element -> seconds of reveal pulse
 var equip_prompt := EquipPrompt.new()   # a better piece picked up or received, offered at the right for 10 s
 var t := 0.0
-var _faces: Dictionary = {}        # companion id -> its idle frame's layers (a classic character's); "top|id" -> its TopdownFigure
+var _faces: Dictionary = {}        # companion id -> its TopdownFigure (the party chip's face)
 var _points_seen: Dictionary = {}  # points badge id -> HUD time it appeared (its pop)
 var _points_primed := false        # the badges showing when the HUD was bound pop but write no log line
 var points_override: Dictionary = {}   # tests and previews: points badge id -> the count to show in place of its getter
@@ -290,7 +287,6 @@ var controls: HudControls
 var panels: HudPanels
 var minimap: HudMinimap
 var top_stack: HudTopStack
-var side_view: HudSideView   # the side view's own answers (S12 deletes it with the side view)
 
 func _init() -> void:
 	layout = HudLayout.new(self)
@@ -302,7 +298,6 @@ func _init() -> void:
 	panels = HudPanels.new(self)
 	minimap = HudMinimap.new(self)
 	top_stack = HudTopStack.new(self)
-	side_view = HudSideView.new(self)
 
 func _ready() -> void:
 	frame_style = UiKit.style("minor_panel")
@@ -360,7 +355,7 @@ func set_blocked(value: bool) -> void:
 	if value and not blocked: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
 	blocked = value
 	# Decision 44: the page a place's pose opened has closed: the body rises (a pose still waiting for its page stays).
-	if not value and place_pending.is_empty() and is_instance_valid(player) and player.has_method("end_place_pose"): player.end_place_pose()   # side view: no place poses
+	if not value and place_pending.is_empty() and is_instance_valid(player): player.end_place_pose()
 
 func set_moment_lock(value: bool) -> void:
 	if value and not moment_lock: _notification(NOTIFICATION_APPLICATION_FOCUS_OUT)
@@ -391,7 +386,7 @@ func _input(event):
 		else: input.release(-1)
 	elif event is InputEventMouseMotion and mouse_down: input.drag(-1, event.position)
 	elif event is InputEventKey and not event.echo:
-		if not bound():   # the engine tests' bare side-view player (no character)
+		if not bound():   # a bare player with no character bound (the view tests)
 			if event.pressed:
 				match event.physical_keycode:
 					KEY_SPACE: player.jump()
@@ -471,7 +466,7 @@ func glyph(id: String, center: Vector2, size := 32.0, color := Color.WHITE) -> v
 
 func _draw():
 	if not is_instance_valid(player): return
-	if not bound():   # the engine tests' bare side-view player (no character)
+	if not bound():   # a bare player with no character bound (the view tests)
 		panels.draw_legacy()
 		return
 	var c = Game.active()

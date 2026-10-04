@@ -1580,7 +1580,7 @@ func _drops_and_prompt(tree: SceneTree) -> void:
 	tree.root.add_child(hud)
 	await tree.process_frame
 	fresh(spot)
-	Game.world.apply_loot_drop(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), "enemy")
 	var uid := -1
 	for l in Game.room_rt.loot: uid = int((l.instance as Dictionary).get("uid", -1))
 	frames(40)
@@ -1859,11 +1859,10 @@ func _view_rules() -> void:
 	# Out of view (a foe's respawn): the camera's rect on both axes, not the distance across alone.
 	var rt := RoomRuntime.new()
 	rt.topdown = room
-	var side := RoomRuntime.new()
 	var st := ActorState.new()
 	st.plane = mid
 	var south := mid + Vector2(0, 560)
-	t.check(rt.out_of_view(south, 0.0, st, 60.0) and not side.out_of_view(south, 0.0, st, 60.0) and not rt.out_of_view(mid + Vector2(300, 150), 0.0, st, 60.0)
+	t.check(rt.out_of_view(south, 0.0, st, 60.0) and not rt.out_of_view(mid + Vector2(300, 150), 0.0, st, 60.0)
 		and rt.out_of_view(mid + Vector2(760, 0), 0.0, st, 60.0),
 		"topdown view: a spot 17 tiles straight south is out of the camera's view (the side view's rule, across only, saw it), one 10 tiles off is in it, one 24 across is out")
 	# Flat marks: on a terrace over its row and under the bodies on it (the old rule put a decal 12 px up, under the row).
@@ -1900,9 +1899,9 @@ func _ally() -> EnemyState:
 
 ## A companion on the grid (AllyBrain steering by TopdownBrain): it comes in on the player's floor, follows onto the
 ## terrace by the grid's way (the stairs, or a hop a level up as the player jumps), blinks to a landing stage there is
-## no way onto on foot, strikes only a foe on its own height and is struck only on its own height. Its figure is the
-## stand-in (the side view's own avatar at half size), sorted with the room and standing on its floor; a spirit animal
-## and a foe the sheet does not draw get theirs too.
+## no way onto on foot, strikes only a foe on its own height and is struck only on its own height. Its figure is a
+## person in the top-down style in its outfit (TopdownPlaces.stand_in), sorted with the room and standing on its floor;
+## a spirit animal is its species' rows of the grid's foe sheet, as a foe is (S12b).
 func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	fresh(base)
 	var had: Array = c.companions.active.duplicate()
@@ -1958,9 +1957,8 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	a.altitude = 0.0
 	var above := foe("wild_boarlet", Vector2(26.5 * 32.0, 380.0))
 	var level := foe("wild_boarlet", a.plane + Vector2(30, 0))
-	t.check(above.altitude == 32.0 and not AllyBrain.in_reach(w.room, a, above, 60.0, 0.0, 26.0) and AllyBrain.in_reach(null, a, above, 60.0, 0.0, 26.0)
-		and AllyBrain.in_reach(w.room, a, level, 60.0, 0.0, 26.0),
-		"topdown allies: a foe on the terrace 12 units off is out of its reach (the side view's rule reached it), one on its level is in it")
+	t.check(above.altitude == 32.0 and not AllyBrain.in_reach(a, above, 60.0, 0.0) and AllyBrain.in_reach(a, level, 60.0, 0.0),
+		"topdown allies: a foe on the terrace 12 units off is out of its reach, one on its level is in it")
 	var biter := foe("wild_boarlet", Vector2(26.5, 12.5) * 32.0)
 	biter.aim = Vector2.UP
 	a.plane = biter.plane + Vector2(0, -29.0)
@@ -1980,34 +1978,23 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var prey := foe("wild_boarlet", a.plane + Vector2(90, 0))
 	frames(180)
 	t.check(hurt(prey), "topdown allies: the companion closes on a foe on its own level and strikes it (hp %.0f / %.0f)" % [prey.pools.hp, prey.pools.max_hp])
-	# A spirit animal and a foe the grid's sheet has no rows for get stand-ins too, not the crab; Old Snapper, drawn for the
-	# grid since, takes its own rows. Since M3 and M4 every foe of the game has its own rows (the pebble imp, the stone
-	# tortoise, the sandstorm scorpion and the fruit's guardian were this foe in turn), so the foe without rows is made here
-	# as the spirit animal is: a def of its own that names a side-view creature sheet.
+	# A spirit animal is its species' own rows of the grid's foe sheet (S12b: the side view's creature sheets that stood
+	# in for it, and for a foe with no rows, are gone), at its form's size; Old Snapper takes his own rows.
 	fresh(base)
 	var pet := EnemyState.new()
 	pet.uid = Game.room_rt.uid()
-	pet.def_id = "spirit_fox"
-	pet.def = {"name": "Fox", "art": {"creature": "wild_boarlet"}, "half_width": 16, "height": 30, "ally": true}
+	pet.def_id = "wild_boarlet"   # as PetAuthority makes one: the species it is
+	pet.def = {"name": "Boarlet", "art": {"creature": "wild_boarlet", "scale": 1.2}, "half_width": 16, "height": 30, "ally": true}
 	pet.team = "ally"
 	pet.plane = base + Vector2(-40, 0)
 	Game.room_rt.enemies[pet.uid] = pet
 	w.add_foe(pet)
-	var imp := EnemyState.new()
-	imp.uid = Game.room_rt.uid()
-	imp.def_id = "unsheeted_scorpion"
-	imp.def = {"name": "Scorpion", "art": {"creature": "sandstorm_scorpion"}, "half_width": 17, "height": 30}
-	imp.plane = base + Vector2(60, 0)
-	imp.altitude = w.room.height_at(imp.plane)
-	Game.room_rt.enemies[imp.uid] = imp
-	w.add_foe(imp)
 	var snapper := foe("old_snapper", base + Vector2(60, 60))
 	w.add_foe(snapper)
 	var pv = w.foe_views.get(pet.uid)
-	var iv = w.foe_views.get(imp.uid)
 	var sv = w.foe_views.get(snapper.uid)
-	t.check(pv != null and pv.art is EnemyView and pv.art.sprite != null and iv != null and iv.art is EnemyView and iv.art.sprite != null and iv.art.sprite.creature_id == "sandstorm_scorpion",
-		"topdown allies: a spirit animal and a foe with no rows in the grid's sheet are drawn by their own creature sheets as stand-ins")
+	t.check(pv != null and pv.art == null and pv.tex != null and not (pv.acts as Dictionary).is_empty() and is_equal_approx(pv.form_k, 1.2),
+		"topdown allies: a spirit animal is drawn by its species' own rows of the grid's foe sheet, at its form's size, no stand-in")
 	t.check(sv != null and sv.art == null and not (sv.acts as Dictionary).is_empty(), "topdown: Old Snapper is drawn by its own rows of the grid's foe sheet, not a stand-in")
 	fresh(base)
 	c.companions.active = had
@@ -2072,7 +2059,7 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var sorted_ok: bool = rings.size() == 2 and bolts.size() == 2 and ring_hi.size() == 1 and ring_lo.size() == 1 \
 		and ring_hi[0].position.y > row_key and ring_hi[0].position.y < w.room.sort_key(high, 32.0) and ring_lo[0].position.y < w.room.sort_key(low, 0.0) \
 		and bolts.all(func(pc): return pc.position.y == w.room.sort_key(pc.part.p, float(pc.part.z))) and pieces.all(func(pc): return pc.get_parent() == w.sorted)
-	t.check(sorted_ok and marks.size() == 2 and not hv.ground.visible and hv.air.z_index < WorldLabels.LABEL_Z and hv.get_parent() == w.overlay and hv.squash > 2.0,
+	t.check(sorted_ok and marks.size() == 2 and hv.air.z_index < WorldLabels.LABEL_Z and hv.get_parent() == w.overlay and HazardView.SQUASH > 2.0,
 		"topdown hazards: the rings sort with the room (over the terrace's row, under a body on it) and the bolts at their spots' keys; the washes and the two marks draw on the overlay under the names")
 	rt.hazards.erase("lightning")
 	var made: Array = hv.pieces.duplicate()
@@ -2081,8 +2068,8 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	t.check(made.all(func(pc): return not is_instance_valid(pc) or pc.is_queued_for_deletion()), "topdown hazards: the room's hazard view takes its sorted parts with it")
 	# The heavens' bolt strikes a circle on the grid (the side view's flattened strip missed a body 60 south of it).
 	fresh(base)
-	var res: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -60), 80.0, 45.0)
-	var res2: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -100), 80.0, 45.0)
+	var res: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -60), 80.0)
+	var res2: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -100), 80.0)
 	c.pools.hp = c.pools.max_hp
 	t.check(res.get("hit", false) and not res2.get("hit", false), "topdown hazards: a tribulation bolt 60 units north strikes within its ring of 80; one 100 off does not")
 	# Burning ground (a foe's blow) burns only on its own floor.
@@ -2127,13 +2114,13 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	t.check(not from_below and side_rule and Game.world.portal_near(c, door), "topdown audit: a way on the terrace is not taken from the square below its face (the old reach was), and is on the terrace")
 	# Pickups: a drop on the terrace's edge is not drawn in from the square below; a spill over a ledge stays on its floor.
 	fresh(Vector2(26.5, 12.4) * 32.0)
-	Game.world.apply_loot_drop(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, "enemy")
 	frames(40)
 	var left: bool = rt.loot.size() == 1 and float(rt.loot[0].alt) == 32.0
 	w.player.motor.place(Vector2(26.5, 11.4) * 32.0)
 	w.player.physics_step(0.0001)
 	frames(40)
-	var spill: Vector3 = WorldAuthority.loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 32.0, 0.0, 22.0)
+	var spill: Vector3 = WorldAuthority.loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 0.0, 22.0)
 	t.check(left and rt.loot.is_empty() and spill.z == 32.0 and spill.y < 12.0 * 32.0,
 		"topdown audit: a drop on the terrace's edge is not picked up from the square below (the old reach, 60 up, took it), and is on the terrace; a spill over the ledge lies on its own floor")
 	# Auto-path arrives only on the goal's own floor, not under it on the square below.
@@ -2149,7 +2136,7 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	var north := foe("wild_boarlet", base + Vector2(0, -150))
 	w.add_foe(north)
 	(w.label_views[north.uid] as EnemyView).sync(north, 0.0)
-	var mine: Array = WorldShared.label_views(w, w.player_feet(), Vector2.ONE).filter(func(v): return v.id == "e%d" % north.uid)
+	var mine: Array = WorldShared.label_views(w, w.player_feet()).filter(func(v): return v.id == "e%d" % north.uid)
 	t.check(not mine.is_empty() and absf(float(mine[0].near) - 150.0) < 4.0, "topdown audit: a foe's name straight north of the player is 150 off for the label order (across it was 0)")
 	# A foe picks its ranged or its close blow by the distance on the plane.
 	var rogue := foe("rogue_cultivator", base + Vector2(0, -300))
@@ -2717,7 +2704,6 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 	for i in 3: await tree.process_frame
 	var dl = lv.call(by_door)
 	var pv := PortalView.new()
-	pv.label_only = true
 	pv.setup({"id": "qa_door", "type": "door", "at": [0, 0], "to": ""}, {})
 	pv.position = dl.position
 	pv.door_top = (dl.label_box as Rect2).get_center().y + 7.0   # the chevron right over the crab's plate
@@ -2737,14 +2723,13 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 		"topdown labels: a plate keeps off a door's chevron (the arrow %s, the plate %s)" % [str(arrow), str(crab_rect)])
 	w.portal_views.erase(pv)
 	pv.free()
-	# A way at the room's edge with a long line (the prototype's gate: "The road beyond is still being drawn.") keeps
-	# its whole plate inside the room, so on the screen (it ran off the right edge at the Marsh Edge).
+	# A way at the room's edge with a long line keeps its whole plate inside the room, so on the screen (the old
+	# prototype gate's line ran off the right edge at the Marsh Edge).
 	var edge := PortalView.new()
-	edge.label_only = true
 	edge.setup({"id": "qa_edge", "type": "edge", "at": [2032, 400], "to": ""}, {"bounds": [0, 0, 2048, 900]})
 	tree.root.add_child(edge)
 	edge.set_process(false)   # after entering the tree (its _ready turns processing on): the state is the test's
-	edge.state = {"open": false, "text": Tx.t("sim.world.road_being_drawn")}
+	edge.state = {"open": false, "text": "The ferryman will not cast off until the night is over."}
 	edge.near = true
 	for i in 3:
 		edge.tag.queue_redraw()

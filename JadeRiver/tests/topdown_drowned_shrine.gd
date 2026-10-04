@@ -16,8 +16,8 @@ extends "res://tests/prologue_run.gd"
 ##      shaft down to the Drowned Grotto and back (Breath Control); The Drowned Abbot (his four bells rung, the Abbot
 ##      defeated) and up the Sanctum's stair to Bend Shore;
 ##   4. Whitewater Gorge, Bend Shore's way west: the Gorge Mouth, the Rapids Terraces, the cave behind their waterfall
-##      (its hidden way once found) and back, the Echo Cliffs, whose way west to Crane Cliffs stays closed by the
-##      prototype's gate while Crane Cliffs has no layout.
+##      (its hidden way once found) and back, the Echo Cliffs, whose way west leads on to Crane Cliffs on the
+##      grid.
 ## Run headless:  godot --headless --path . res://tests/topdown_drowned_shrine.tscn [-- --verbose]
 
 const ROOMS := ["dw_serpents_shallows", "ds_flooded_gate", "ds_hall_of_lanterns", "ds_scripture_well", "ds_drowned_grotto",
@@ -30,7 +30,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("r2/")
 	_to_the_bend()
 	GameEvents.event.connect(_on_room)
@@ -226,9 +225,7 @@ func _the_gorge() -> void:
 	check(go("entry") and room() == "wg_rapids_terraces", "out through the falls to the terraces (room %s)" % room())
 	check(go("west") and room() == "wg_echo_cliffs", "on to the Echo Cliffs (room %s)" % room())
 	var way: Dictionary = Game.room_rt.portal_def("west")
-	var gs: Dictionary = Game.world.portal_state(c(), way)
-	var gated: bool = gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
-	check(gated != TopdownRoom.has_layout("cc_cliff_faces"), "the Echo Cliffs' way west to Crane Cliffs is closed by the prototype's gate while Crane Cliffs has no layout (%s)" % str(gs))
+	check(str(way.get("to", "")) == "cc_cliff_faces" and TopdownRoom.has_layout("cc_cliff_faces"), "the Echo Cliffs' way west leads on to Crane Cliffs, on the grid (%s)" % str(way.get("to", "")))
 
 # ------------------------------------------------------------------ 1, over the ten rooms
 func _the_rooms() -> void:

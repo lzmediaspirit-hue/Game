@@ -1108,20 +1108,35 @@ def mob_stats(d, e, lv, mob, role=None):
     return "HP %d, Attack %d, Physical Defense %d, Accuracy %d" % (round(hp), round(atk), round(arm), round(acc))
 
 
+_FOES = None
+
+
+def foe_sheets():
+    """The top-down foes' index (data/topdown/foes.json, tools/art/topdown/build_foes.py), read once."""
+    global _FOES
+    if _FOES is None:
+        with open(os.path.join(DATA, "topdown", "foes.json")) as fh:
+            _FOES = json.load(fh).get("species", {})
+    return _FOES
+
+
 def sheet_text(d, e):
     art = e.get("art", {})
-    if art.get("creature"):
-        c = d.cfg("creature_art").get(art["creature"], {})
-        f = c.get("file", "")
-        path = f[len("res://"):] if f.startswith("res://") else f
-        return "creature sheet `%s` ([%s](../../%s), %s px cells%s)" % (art["creature"], path, path, c.get("cell", "?"), ", flying" if c.get("flying") else "") if path else "creature sheet `%s` (not in creature_art.json)" % art["creature"]
     if art.get("avatar"):
         av = art["avatar"]
         if not isinstance(av, dict):
             return "avatar `%s` (drawn with the %s's own parts)%s" % (av, av, "; tint %s" % art["tint"] if art.get("tint") else "")
         parts = ", ".join("%s %s" % (k.replace("_", " "), av[k]) for k in sorted(av) if k != "name")
         return "avatar parts (%s)%s" % (parts, "; tint %s" % art["tint"] if art.get("tint") else "")
-    return "none"
+    # A creature is drawn from its species' top-down sheet (decision 43; the side view's creature sheets went in S12b).
+    sp = foe_sheets().get(e["id"], {})
+    f = sp.get("atlas", "")
+    path = f[len("res://"):] if f.startswith("res://") else f
+    if not path:
+        return "no top-down sheet"
+    cell = sp.get("cell", ["?", "?"])
+    return "top-down sheet ([%s](../../%s), %sx%s px cells, %d actions%s)" % (path, path, cell[0], cell[1], len(sp.get("actions", {})),
+                                                                           ", an elite sheet" if sp.get("elite") else "")
 
 
 def enemy_entry(d, s, eid, seen, mob):

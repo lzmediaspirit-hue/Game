@@ -207,13 +207,15 @@ func technique_suite() -> void:
 	for t in ContentDB.all("techniques"):
 		if str(t.get("kind", "")) in ["", "keystone"] and T.home(str(t.id)).is_empty(): lost_route.append(str(t.id))
 	check(lost_route.is_empty(), "every art is on its tree and every node of Acts I-III is reachable from its sector's gate (%s)" % str(lost_route.slice(0, 4)))
-	# Every art's pose is one the character can play (meditate_burst plays the weapon's first stroke, none its third).
-	var acts: Dictionary = ContentDB.parts.get("_actions", {})
+	# Every art's pose is one the character can play: a drawn top-down action or one of the manifest's aliases
+	# (meditate_burst plays the cast, none the weapon's third stroke).
+	var man: Dictionary = TopdownFigure.manifest()
 	var poses: Array = []
 	for t in ContentDB.all("techniques"):
 		var a := str(t.get("action")) if t.get("action") != null else ""   # none: the weapon's third stroke
-		if a != "" and a != "meditate_burst" and not a in acts: poses.append("%s %s" % [t.id, a])
-	check(poses.is_empty(), "every art's pose is in the catalog (%s)" % str(poses.slice(0, 4)))
+		if a != "" and a != "meditate_burst" and not (man.get("actions", {}) as Dictionary).has(a) and not (man.get("aliases", {}) as Dictionary).has(a):
+			poses.append("%s %s" % [t.id, a])
+	check(poses.is_empty(), "every art's pose is in the top-down figure's catalog (%s)" % str(poses.slice(0, 4)))
 
 ## Levenshtein distance at most 2, on a band two wide either side of the diagonal (names are short).
 func _within_two(a: String, b: String) -> bool:
@@ -439,9 +441,8 @@ func moments_data_suite() -> void:
 
 ## Decision 23 (technique animations): every form's sheet in data/fx_art.json exists at the size its spec says (frames
 ## across, every band and element down), with a hit frame inside it and known anchor and size rules; and every
-## technique plays a built form (`vfx.anim`) on an existing pose (`vfx.pose`: a parts.json action, or a combo alias
-## that resolves to one for every weapon family, as the timeline resolves it).
-const POSE_ALIASES := {"combo_1": 0, "combo_2": 1, "combo_3": 2}
+## technique plays a built form (`vfx.anim`) on a pose the top-down figure draws (TechniquePreview.top_pose: its action
+## as the hands play it, the form's pose for a meditation or a leap, the hand seal's cast for an art with no action).
 func _fx_art_suite() -> void:
 	var fxa: Dictionary = ContentDB.config("fx_art")
 	var forms: Dictionary = fxa.get("forms", {})
@@ -458,16 +459,8 @@ func _fx_art_suite() -> void:
 	for t in ContentDB.all("techniques"):
 		var v: Dictionary = t.get("vfx", {})
 		check(forms.has(str(v.get("anim", ""))), "technique %s: its animation (%s) is a built form" % [t.id, v.get("anim", "")])
-		var pose := str(v.get("pose", ""))
-		var ok: bool = ContentDB.parts.get("_actions", {}).has(pose)
-		if not ok and POSE_ALIASES.has(pose):
-			ok = true
-			for fam in ContentDB.all("weapon_families"):
-				var combo: Array = fam.get("combo", [])
-				ok = ok and not combo.is_empty() and ContentDB.parts.get("_actions", {}).has(str(combo[mini(int(POSE_ALIASES[pose]), combo.size() - 1)].action))
-		check(ok, "technique %s: its pose (%s) is an existing pose" % [t.id, pose])
-		var action := str(t.get("action", ""))
-		check(pose == ("combo_1" if action == "meditate_burst" else ("combo_3" if action in ["", "null", "<null>"] else action)), "technique %s: its pose is its action's" % t.id)
+		var pose := TechniquePreview.top_pose(t, null)
+		check((TopdownFigure.manifest().get("actions", {}) as Dictionary).has(pose), "technique %s: it is cast in a pose the top-down figure draws (%s)" % [t.id, pose])
 
 ## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
 func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
@@ -643,15 +636,18 @@ func data_suite() -> void:
 			check(str(o.get("field_grade", "")) in garden.get("field_grades", []), "garden bed %s.%s has a field grade" % [rid, o.id])
 	check(bed_count >= 10, "garden beds in both sects and the cave abodes (%d)" % bed_count)
 	for fam in garden.get("families", {}): check(garden.get("grow_hours", {}).has(fam) and garden.get("props", {}).has(fam), "garden grows %s" % fam)
-	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop.
-	var creatures := ContentDB.config("creature_art")
-	for pe in ContentDB.all("pets"): check(creatures.has(str(pe.get("art", pe.id))), "pet %s has creature art" % pe.id)
-	# v1.2 Phase D: the Copperjaw swarm names its creature sheet and the Queen's, and both exist and fly.
+	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop. S12b: a pet is
+	# drawn from its species' top-down sheet (FoeSheets, the grid's foe sheet), the side view's creature sheets being
+	# gone; the few with none drawn yet are named in NO_TOP_SHEET_YET, and one gets off that list the day it is drawn.
+	for pe in ContentDB.all("pets"):
+		var art := str(pe.get("art", pe.id))
+		check(FoeSheets.has_sheet(art) != NO_TOP_SHEET_YET.has(art) and ResourceLoader.exists(FoeSheets.atlas(art)) == FoeSheets.has_sheet(art),
+			"pet %s has its top-down sheet (%s), or is on the list of those still to draw" % [pe.id, art])
+	# v1.2 Phase D: the Copperjaw swarm names its creature and the Queen's: their top-down sheets, or the list's.
 	var swarm_cfg: Dictionary = ContentDB.stat_const("swarm", {})
 	for key in ["art", "queen_art"]:
-		var sheet: Dictionary = creatures.get(str(swarm_cfg.get(key, "")), {})
-		check(not sheet.is_empty() and sheet.get("flying", false) and ResourceLoader.exists(str(sheet.get("file", ""))),
-			"the Copperjaw swarm's %s is a flying creature sheet (%s)" % [key, str(swarm_cfg.get(key, ""))])
+		var sw := str(swarm_cfg.get(key, ""))
+		check(sw != "" and FoeSheets.has_sheet(sw) != NO_TOP_SHEET_YET.has(sw), "the Copperjaw swarm's %s has its top-down sheet, or is on the list of those still to draw (%s)" % [key, sw])
 	for en in ContentDB.all("enemies"):
 		if en.get("tameable", false):
 			var sp := str(en.get("tame_species", en.id)).trim_suffix("_chick") if not ContentDB.has_entry("pets", str(en.get("tame_species", en.id))) else str(en.get("tame_species", en.id))
@@ -978,6 +974,10 @@ func data_suite() -> void:
 ## P7a (M37): every item and piece of equipment has a source in the data, or carries an explicit mark,
 ## `"source": "<mark>"` (a string, or a list holding one): story, system or later (see tools/dev/wiki.py).
 ## The channels are the ones tools/dev/wiki.py lists as an item's sources; keep the two in step.
+## S12b: the creatures a pet or the Copperjaw swarm is that have no top-down sheet drawn yet (the side view's creature
+## sheets that stood in for them went with it): in the room and on the pages they show nothing but a shadow or an empty
+## slot until the monster engine draws them (reported with S12b).
+const NO_TOP_SHEET_YET := ["cloud_stag", "hatchling_wyrm", "copperjaw_swarm", "copperjaw_queen"]
 const SOURCE_MARKS := ["story", "system", "later"]
 const TIDE_CORE_ELEMENTS := ["fire", "water", "wood", "earth", "wind", "thunder"]   # WorldAuthority.apply_tide_result
 const TIDE_CORE_TIERS := ["low", "mid", "high"]
@@ -1152,8 +1152,8 @@ func _system_reported(system: String) -> bool:
 			if src.contains("system_used") and src.contains('"%s"' % system): return true
 	for rid in ContentDB.rooms:
 		if JSON.stringify(ContentDB.room(rid)).contains('"system":"%s"' % system): return true
-	# S43 movement arts report as art_used from the solver.
-	if FileAccess.get_file_as_string("res://scripts/simulation/movement_solver.gd").contains('"art":"%s"' % system): return true
+	# The movement arts report as art_used from the top-down body (TopdownPlayer._announce, through LocalAuthority).
+	if FileAccess.get_file_as_string("res://scripts/topdown/topdown_player.gd").contains('"art": "%s"' % system): return true
 	return false
 
 ## P7b (docs/item_plan.md): named gear, sets, the banded ladders and the drop rules.
@@ -1299,12 +1299,13 @@ func room_suite() -> void:
 		var room: Dictionary = ContentDB.room(rid2)
 		check(seen.has(rid2) or room.get("instanced", false), "room %s reachable from Lotus Ferry" % rid2)
 		var surfaces: Array = room.get("surfaces", [])
+		var grid2: TopdownRoom = Game.world.grid_for(rid2)
 		for p2 in room.get("portals", []):
-			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): the doorway
-			# its art draws, or a door placed at it (PortalView.entrance).
-			if p2.get("facade", false) or not PortalView.building_front(p2, room).is_empty():
-				check(PortalView.entrance(p2, room) in ["building", "decor"], "%s:%s, a way into a building, stands in a door the player can see (%s, doorway %s)" % [
-					rid2, p2.id, str(p2.get("at", [])), str(PortalView.building_front(p2, room).get("door", "none"))])
+			# Every way into a building shows a door where it is (Old Ma's store showed a counter and no door): on the
+			# grid, the doorway of the building it is walked into (TopdownRoom.entrance).
+			if preload("res://tests/lib/building_ways.gd").into_building(p2, room):
+				check(grid2.entrance(str(p2.id)) == "building", "%s:%s, a way into a building, stands in a door the player can see (%s)" % [
+					rid2, p2.id, grid2.entrance(str(p2.id))])
 			var to2 := str(p2.get("to", ""))
 			if to2 == "": continue
 			var planned := ["ae_landing"]   # the Azure Expanse arrives with the next zone (v1.1)
@@ -1382,17 +1383,9 @@ func overlap_suite() -> void:
 const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice", "low_gravity"]
 
 func movement_suite() -> void:
-	# movement.json is the one table of traversal numbers: the solver's constants must match it.
-	var pairs := {"jump.impulse": MovementSolver.JUMP_IMPULSE, "jump.gravity": MovementSolver.GRAVITY, "jump.coyote_s": MovementSolver.COYOTE_S,
-		"jump.buffer_s": MovementSolver.BUFFER_S, "double_jump.impulse": MovementSolver.DOUBLE_JUMP_IMPULSE,
-		"wall_step.kick_speed": MovementSolver.WALL_KICK_SPEED, "wall_step.kicks": MovementSolver.WALL_KICKS, "wall_step.reach": MovementSolver.WALL_REACH,
-		"mantle.rise": MovementSolver.MANTLE_RISE, "mantle.reach": MovementSolver.MANTLE_REACH, "climb.speed": MovementSolver.CLIMB_SPEED,
-		"glide.fall": MovementSolver.GLIDE_FALL, "glide.drift": MovementSolver.GLIDE_DRIFT, "air_dash.hold_s": MovementSolver.AIR_DASH_HOLD,
-		"plunge.speed": MovementSolver.PLUNGE_SPEED, "water.shallow_factor": MovementSolver.SHALLOW_FACTOR, "water.swim_factor": MovementSolver.SWIM_FACTOR,
-		"water.sink_factor": MovementSolver.SINK_FACTOR, "water.sink_s": MovementSolver.SINK_S, "water.sink_depth": MovementSolver.SINK_DEPTH,
-		"water.swim_s": MovementSolver.SWIM_S, "water.skim_min_speed": MovementSolver.SKIM_MIN_SPEED, "water.skim_still_s": MovementSolver.SKIM_STILL_S,
-		"updraft.speed": MovementSolver.UPDRAFT_SPEED, "updraft.ease": MovementSolver.UPDRAFT_EASE, "bounce.speed": MovementSolver.BOUNCE_SPEED,
-		"wind.edge": MovementSolver.WIND_EDGE}
+	# movement.json is the one table of traversal numbers: the arts' constants Combat starts on a body must match it.
+	# (The side view's solver, which held the rest of its side numbers, went with it in S12a; room_lint reads them.)
+	var pairs := {"jump.gravity": MovementSolver.GRAVITY, "air_dash.hold_s": MovementSolver.AIR_DASH_HOLD, "plunge.speed": MovementSolver.PLUNGE_SPEED}
 	for path in pairs:
 		check(absf(float(ContentDB.movement(path, -999.0)) - float(pairs[path])) < 0.0001, "movement.json %s matches the solver (%s)" % [path, str(pairs[path])])
 	# Every movement art: a secret art with a how-to line, taught by a quest that learns it on acceptance.
@@ -2108,7 +2101,7 @@ func combat_feel_suite() -> void:
 	check(bad.is_empty(), "combat feel: every family's phases and smears, every form's sheets and the shared sheets are valid (%s)" % str(bad.slice(0, 6)))
 
 ## Top-down redesign, Phase 3 (decision 32): the real character's layers (tools/art/topdown/build_character.py,
-## data/topdown/character.json), held to AGENTS.md as the side view's are by Validate-Animations.ps1: every action is in
+## data/topdown/character.json), held to AGENTS.md (the one animation gate since S12a): every action is in
 ## every body, hair, shirt, trousers, shoes and weapon layer in every drawn facing, or explicitly hidden with a reason;
 ## the three combo stages of each family are distinct one-shots; every dye and hair colour has its sheet; every rect lies
 ## inside its sheet. Then the gate itself is shown to refuse broken manifests, as animation_contract_tests.ps1 does.

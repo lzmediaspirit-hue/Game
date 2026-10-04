@@ -38,6 +38,12 @@ func _main() -> void:
 	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}})
 	main.enter_world(1)
 	for i in 3: await get_tree().process_frame
+	# On the grid a new character's first room stages its scene as the world mounts (decision 39); the Listener skips it,
+	# as a player may, so its hold on the music (Audio's "scene") ends before the prototype room's checks.
+	var lc = Game.active()
+	for sid in lc.quests.scenes.keys():
+		if not lc.quests.scenes[sid].get("done", false): Game.submit({"type": "scene_end", "scene": str(sid), "skipped": true})
+	GameEvents.flush()
 	_ids()
 	_buses()
 	_surfaces()
@@ -91,7 +97,7 @@ func _ids() -> void:
 			var id := str(Audio.SFX_ALIAS.get(m.get_string(2), m.get_string(2)))
 			in_code.append(id)
 			if not _has(id): bad.append("%s in %s" % [id, path.get_file()])
-	check(bad.is_empty() and in_code.size() > 60, "every literal sound id in the code's Audio calls exists (%d calls; missing %s)" % [in_code.size(), bad])
+	check(bad.is_empty() and in_code.size() > 50, "every literal sound id in the code's Audio calls exists (%d calls; missing %s)" % [in_code.size(), bad])
 	# the rooms' music and beds
 	var moods: Array = []
 	var beds: Array = []

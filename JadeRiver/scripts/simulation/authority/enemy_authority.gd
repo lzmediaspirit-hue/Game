@@ -196,7 +196,7 @@ func tick(delta: float) -> void:
 			move_enemy(e, delta)
 			e.velocity = before
 			e.knockback -= step
-		if rt.topdown != null and e.hop.is_empty() and not bool(e.def.get("flying", false)): TopdownBrain.fall(rt.topdown, e, delta)
+		if e.hop.is_empty() and not bool(e.def.get("flying", false)): TopdownBrain.fall(rt.topdown, e, delta)
 		check_phases(e)
 		if e.def.get("ai", {}).get("profile", "") == "event_eel":
 			_eel(e, delta)
@@ -226,41 +226,35 @@ func tick(delta: float) -> void:
 				e.hover = 0.0
 				e.ai.erase("lifted")
 
-## A flyer's height over the ground, with a slow bob and a swoop as it strikes. The side view's fighter strikes an
-## altitude window up to +60 over its feet (S43), so there a flyer hovers inside it. On the height grid a blow lands only
-## between feet within the hit band (TopdownAim, movement.json topdown.combat.hit_band), so there it skims under the
-## band's top over the floor it hunts on (the target's in a fight, like the side view's flyers, else its home's): it
-## strikes and is struck. At the side view's 40-56 the Hollow Night's minnows were out of every blow's reach on the
-## grid, and their own blows out of the player's.
+## A flyer's height over the ground, with a slow bob and a swoop as it strikes. A blow lands only between feet within the
+## hit band (TopdownAim, movement.json topdown.combat.hit_band), so a flyer skims under the band's top over the floor it
+## hunts on (the target's in a fight, else its home's): it strikes and is struck. Higher (the old 40-56), the Hollow
+## Night's minnows were out of every blow's reach, and their own blows out of the player's.
 func _hover(rt: RoomRuntime, e: EnemyState, delta: float) -> void:
 	var bob := sin(game.sim_time * 2.0 + e.uid)
 	var striking: bool = e.ai.state in ["attack"]
-	if rt.topdown == null:
-		e.hover = 48.0 + bob * 8.0 - (32.0 if striking else 0.0)
-		return
 	var tgt := EnemyBrain.target_position(self, e) if e.in_fight() else {}
 	var ground := float(tgt.alt) if not tgt.is_empty() else rt.topdown.height_at(e.spawn_point)
 	if ground < INF: e.altitude = move_toward(e.altitude, ground, 120.0 * delta)
 	var top := float(TopdownAim.band(false)[1]) - 2.0
 	e.hover = clampf(top * 0.5 + bob * top * 0.35 - (top * 0.5 if striking else 0.0), 0.0, top)
 
-## Where a spawn point's foe appears: its own point, else another of its spawn's points out of the player's view
-## (stats.json respawn.offscreen_x: that far across in the side view, which is half the view and a margin; on the height
-## grid the camera's rect grown by the same margin, RoomRuntime.out_of_view). A foe coming back while the player is in
-## the room appears only out of view, so the room never refills before their eyes, unless it fills on entry or a kill
-## step asks for it; else it waits (INF). On the height grid another point is taken only while no foe stands on it, so a
-## pack is never piled onto the one point out of the camera's rect.
+## Where a spawn point's foe appears: its own point, else another of its spawn's points out of the player's view (the
+## camera's rect grown by a margin, stats.json respawn.offscreen_x less half the view; RoomRuntime.out_of_view). A foe
+## coming back while the player is in the room appears only out of view, so the room never refills before their eyes,
+## unless it fills on entry or a kill step asks for it; else it waits (INF). Another point is taken only while no foe
+## stands on it, so a pack is never piled onto the one point out of the camera's rect.
 func spawn_point(slot: Dictionary) -> Vector2:
 	var point: Vector2 = slot.point
 	var rt: RoomRuntime = game.room_rt
 	var st: ActorState = game.actor_state(game.active_id)
 	var margin := float(ContentDB.stat_const("respawn.offscreen_x", 700)) - RoomRuntime.HALF_VIEW.x
-	var hidden := func(p: Vector2) -> bool: return rt.out_of_view(p, rt.topdown.floor_at(p) if rt.topdown != null else 0.0, st, margin)
+	var hidden := func(p: Vector2) -> bool: return rt.out_of_view(p, rt.topdown.floor_at(p), st, margin)
 	var taken := func(p: Vector2) -> bool: return rt.living_enemies().any(func(e): return e.team == "enemy" and e.plane.distance_to(p) < 32.0)
 	if st == null or hidden.call(point): return point
 	for p in slot.spec.get("points", []):
 		var cand := Vector2(float(p[0]), float(p[1]))
-		if hidden.call(cand) and not (rt.topdown != null and taken.call(cand)): return cand
+		if hidden.call(cand) and not taken.call(cand): return cand
 	if slot.get("entry", false) or int(slot.index) < 0 or _quick(slot.spec, game.active()): return point
 	return Vector2.INF
 
@@ -301,8 +295,7 @@ func spawn(slot: Dictionary, point: Vector2) -> EnemyState:
 				break
 	e.surface_id = surf.id if surf else ""
 	e.home_surface = e.surface_id
-	e.altitude = surf.height_at(point) if surf else 0.0
-	if rt.topdown != null: e.altitude = rt.topdown.height_at(point)   # redesign Phase 2: the grid's floor
+	e.altitude = rt.topdown.height_at(point)   # redesign Phase 2: the grid's floor
 	e.facing = -1 if rng.randf() < 0.5 else 1
 	e.ai = {"state": "idle", "timer": rng.randf_range(0.5, 2.0), "target": "", "attack": 0, "patrol_x": point.x, "patrol_y": point.y,
 		"hit_done": false, "phase": -1, "dash_left": 0.0, "summon_cd": 8.0}
@@ -334,27 +327,9 @@ func spawn_at(def_id: String, point: Vector2, level := -1, extra := {}) -> Enemy
 		if extra.has("pet_owner"): e.pet_owner = str(extra.pet_owner)
 	return e
 
+## A foe moves on the grid (TopdownBrain.move: its floors, the water, the ways out).
 func move_enemy(e: EnemyState, delta: float) -> void:
-	var rt: RoomRuntime = game.room_rt
-	if rt.topdown != null:
-		TopdownBrain.move(self, e, delta)
-		return
-	var next := e.plane + e.velocity * delta
-	var b := rt.geometry.bounds
-	next = next.clamp(b.position + Vector2(16, 6), b.end - Vector2(16, 12))
-	if bool(e.def.get("flying", false)):
-		e.plane = next
-		return
-	var surf: WalkSurface = rt.geometry.index.get(e.surface_id)
-	if surf == null:
-		e.plane = next
-		return
-	var ok_next := func(p: Vector2) -> bool:
-		return surf.contains(p) and not rt.geometry.blocks_at(p, surf.height_at(p), surf.stratum) and not in_portal(p)
-	if ok_next.call(next): e.plane = next
-	elif ok_next.call(Vector2(next.x, e.plane.y)): e.plane = Vector2(next.x, e.plane.y)
-	elif ok_next.call(Vector2(e.plane.x, next.y)): e.plane = Vector2(e.plane.x, next.y)
-	e.altitude = surf.height_at(e.plane)
+	TopdownBrain.move(self, e, delta)
 
 func in_portal(p: Vector2) -> bool:
 	# Spawns and patrols never enter portal areas.
@@ -368,9 +343,7 @@ func enemy_attack_release(e: EnemyState, attack: Dictionary) -> void:
 		e.ai.summon_cd = 12.0
 		for i in 2:
 			var off := Vector2((i * 2 - 1) * 120, rng.randf_range(-30, 30))
-			var at := (e.plane + off).clamp(Vector2(60, 640), Vector2(game.room_rt.width() - 60, 940))
-			# On the height grid: beside the summoner on its own floor (the side view's walk strip means nothing there).
-			if game.room_rt.topdown != null: at = game.room_rt.topdown.place_near(e.plane + off, e.altitude)
+			var at: Vector2 = game.room_rt.topdown.place_near(e.plane + off, e.altitude)   # beside the summoner on its own floor
 			spawn_at(str(attack.summon), at, int(attack.get("summon_level", -1)))
 		emit("enemy_summoned", {"enemy": e.uid})
 		return
@@ -451,12 +424,11 @@ func _phase_summon(e: EnemyState, ph: Dictionary) -> String:
 ## blow of its takes the player under `overwhelm_hp` (hold_floor). The fight ends in the player overwhelmed: when a
 ## blow takes them to that floor, or `overwhelm_s` into the phase (the river rises over the bank). It then looms over
 ## them, still and unhurt, and the story's elders come (the scene `elders_come` slays it through its checkpoint,
-## QuestAuthority `slay_foe`); should none come (no scene on the stage: the side view), they slay it here after
+## QuestAuthority `slay_foe`); should none come (no scene on the stage: a headless walk), they slay it here after
 ## `rescue_s` of the simulation's time. Its flags (`flags`) carry the phase over a reload: a character whose eel woke
 ## meets it risen awake, and one it overwhelmed meets it overwhelming again, so the elders come.
-## Deterministic on the Enemies stream; the side view plays the same states along its walk strip. On the height grid
-## its feet are the floor under it: the water's surface in the river (out of any blow's band from the bank), the bank's
-## own floor once it is ashore (inside it).
+## Deterministic on the Enemies stream. Its feet are the floor under it: the water's surface in the river (out of any
+## blow's band from the bank), the bank's own floor once it is ashore (inside it).
 func _eel(e: EnemyState, delta: float) -> void:
 	var cfg: Dictionary = e.def.get("eel", {})
 	var aw: Dictionary = cfg.get("awake", {})
@@ -490,7 +462,7 @@ func _eel(e: EnemyState, delta: float) -> void:
 			# It has risen: its first sight of the player begins the fight (the boss's entrance), then it glides.
 			e.action = "idle"
 			e.invulnerable = true
-			_eel_depth(e, grid, 40.0)
+			_eel_depth(e, grid)
 			if tgt.is_empty(): return
 			ai.lane = e.plane
 			emit("enemy_aggro", {"enemy": e.uid, "target": str(tgt.id), "def": e.def_id})
@@ -499,9 +471,9 @@ func _eel(e: EnemyState, delta: float) -> void:
 			if _eel_flag(cfg, "awake"): e.pools.hp = minf(e.pools.hp, e.pools.max_hp * _eel_below(e))
 		"glide":
 			e.invulnerable = true
-			_eel_depth(e, grid, 40.0)
-			var lo: float = TopdownRoom.TILE * 3.0 if grid != null else 60.0
-			var hi: float = (float(grid.w) - 3.0) * TopdownRoom.TILE if grid != null else float(game.room_rt.width()) - 60.0
+			_eel_depth(e, grid)
+			var lo: float = TopdownRoom.TILE * 3.0
+			var hi: float = (float(grid.w) - 3.0) * TopdownRoom.TILE
 			var goal := Vector2(clampf(float(tgt.pos.x) if not tgt.is_empty() else lane.x, lo, hi), lane.y)
 			var was := e.plane
 			e.plane = e.plane.move_toward(goal, float(pace.get("glide_speed", 70)) * delta)
@@ -529,7 +501,7 @@ func _eel(e: EnemyState, delta: float) -> void:
 			var land: Vector2 = ai.get("land", e.plane)
 			e.plane = (ai.from as Vector2).lerp(land, k)
 			e.velocity = (land - (ai.from as Vector2)) / maxf(ls, 0.01)
-			_eel_depth(e, grid, 0.0)
+			_eel_depth(e, grid)
 			e.invulnerable = false
 			if float(ai.timer) <= 0.0:
 				e.plane = land
@@ -551,7 +523,7 @@ func _eel(e: EnemyState, delta: float) -> void:
 			e.velocity = Vector2.ZERO
 			e.action = "hurt"
 			e.invulnerable = false
-			_eel_depth(e, grid, 0.0)
+			_eel_depth(e, grid)
 			if float(ai.timer) <= 0.0:
 				if ai.get("thrash_next", false) and (e.def.attacks as Array).size() > 2:
 					ai.thrash_next = false
@@ -580,7 +552,7 @@ func _eel(e: EnemyState, delta: float) -> void:
 			var rearing: bool = str(ai.state) != "retreat" and k2 >= 1.0
 			e.action = "windup" if rearing else ("walk" if e.velocity.length() > 1.0 else "hurt")
 			e.invulnerable = k2 >= 0.5 or str(ai.state) != "retreat"
-			_eel_depth(e, grid, 40.0 if k2 >= 0.5 else 0.0)
+			_eel_depth(e, grid)
 			if float(ai.timer) <= 0.0:
 				e.plane = back
 				e.velocity = Vector2.ZERO
@@ -599,7 +571,7 @@ func _eel(e: EnemyState, delta: float) -> void:
 			e.velocity = Vector2.ZERO
 			e.action = "windup"
 			e.invulnerable = true
-			_eel_depth(e, grid, 0.0)
+			_eel_depth(e, grid)
 			ai.rescue_t = float(ai.get("rescue_t", 0.0)) - delta
 			if float(ai.rescue_t) <= 0.0: game.combat.slay(e, "elders")
 
@@ -647,13 +619,13 @@ func _eel_overwhelm(e: EnemyState, aw: Dictionary) -> void:
 		# come from their other side.
 		var lane: Vector2 = ai.get("lane", e.spawn_point)
 		var grid: TopdownRoom = game.room_rt.topdown
-		var wide := float(grid.w) * TopdownRoom.TILE if grid != null else lane.x * 2.0
+		var wide := float(grid.w) * TopdownRoom.TILE
 		var dx: float = e.plane.x - st.plane.x
 		var side := signf(dx) if absf(dx) > 8.0 and e.plane.distance_to(st.plane) <= 90.0 else (1.0 if st.plane.x <= wide * 0.5 else -1.0)
 		if st.plane.x + side * 46.0 < 40.0 or st.plane.x + side * 46.0 > wide - 40.0: side = -side   # not off the room's edge
 		var toward: Vector2 = Vector2(st.plane.x, lane.y) - st.plane
 		var at: Vector2 = st.plane + Vector2(side * 46.0, 0.0) + toward.limit_length(40.0)
-		e.plane = grid.nearest_standable(at) if grid != null and toward.length() > 60.0 else at
+		e.plane = grid.nearest_standable(at) if toward.length() > 60.0 else at
 		e.facing = 1 if st.plane.x >= e.plane.x else -1
 		e.aim = (st.plane - e.plane).normalized() if st.plane.distance_to(e.plane) > 0.5 else Vector2.UP
 	ai.state = "looming"
@@ -710,12 +682,8 @@ func _eel_rear(e: EnemyState, tgt: Dictionary, i: int, reach: float) -> void:
 	e.velocity = Vector2.ZERO
 	emit("attack_started", {"actor": str(e.uid), "enemy": true, "attack": str(a.id), "windup": float(a.windup_s), "facing": e.facing})
 
-## The eel's feet: on the height grid the floor under it (the water's surface in the river, the bank's floor ashore); in
-## the side view the walk strip's, lifted `side_hover` over the river (its old look there).
-func _eel_depth(e: EnemyState, grid: TopdownRoom, side_hover: float) -> void:
-	if grid == null:
-		e.hover = side_hover
-		return
+## The eel's feet: the floor under it (the water's surface in the river, the bank's floor ashore).
+func _eel_depth(e: EnemyState, grid: TopdownRoom) -> void:
 	var g := grid.height_at(e.plane)
 	if g < INF: e.altitude = g
 	e.hover = 0.0
@@ -759,7 +727,7 @@ func _flee(e: EnemyState) -> void:
 	var c = game.active()
 	if c != null:
 		var drop := LootRules.roll(str(e.def.get("loot", e.def_id)), Rng.stream(c.id, "loot"), e.level, 0.0, 0.0, {"no_equipment": true})
-		game.world.apply_loot_drop(c, drop, e.plane, e.altitude, "fled")
+		game.world.apply_loot_drop(c, drop, e.plane, "fled")
 	emit("boss_fled", {"enemy": e.uid, "def": e.def_id, "room": game.room_rt.room_id})
 	release(e)
 

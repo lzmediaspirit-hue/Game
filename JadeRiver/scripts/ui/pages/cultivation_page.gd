@@ -22,7 +22,7 @@ const SPEED_WAYS := [["place", "", ""], ["qi_gathering_incense", "", "bone_forgi
 	["guqin", "", "bone_forging_2"], ["spring", "qi_springs", "bone_forging_7"], ["deep_current_incense", "", "qi_kindling_1"], ["method", "", ""],
 	["qi_flow_pill", "", "qi_kindling_5"], ["vow", "vows", "heart_tempering_1"], ["streams_pill", "", "cloud_stride_1"],
 	["pet", "", "spirit_awakening_1"], ["paired", "", "sage_1"]]
-const TOP_SCALE := 2      # decision 42: a top-down character's seated figure (TopdownDoll), screen px an art px
+const TOP_SCALE := 2      # decision 42: the character's seated figure (TopdownDoll), screen px an art px
 var _seen_realm := ""      # the step the figure sat on at the last draw
 var _climb := {}           # {from: step index, at: page clock} while the figure climbs
 
@@ -45,9 +45,8 @@ func setup() -> void:
 		{"id": "dao", "label": Tx.t("ui.cultivation.dao"), "locked": "" if Unlocks.is_unlocked(ch.id, "dao_tree") else Unlocks.locked_text("dao_tree")},
 		{"id": "seclusion", "label": Tx.t("ui.cultivation.seclusion"), "locked": "" if Unlocks.is_unlocked(ch.id, "seclusion") else Unlocks.locked_text("seclusion")}]
 	if doll == null:
-		# Decision 42: the character as its game draws it, seated in meditation facing the camera: the top-down figure for
-		# a top-down character, the side view's for a classic one.
-		doll = Figures.for_character(ch)
+		# Decision 42: the character as the game draws it, seated in meditation facing the camera.
+		doll = Figures.for_character()
 		doll.visible = false
 		add_child(doll)
 	Figures.dress(doll, InventoryAuthority.outfit_for(ch))
@@ -272,7 +271,7 @@ func _stair(ch, steps: Array, here: int) -> Vector2:
 		feet = Vector2(fr.get_center().x, fr.position.y + 4).lerp(feet, k) + Vector2(0, -10.0 * sin(k * PI))
 		if k >= 1.0: _climb = {}
 	move()
-	Figures.draw_on(doll, self, feet + Vector2(0, lift - 24), TOP_SCALE, feet + Vector2(0, lift), 0.75)   # seated on the step's top
+	Figures.draw_on(doll, self, feet + Vector2(0, lift - 24), TOP_SCALE)   # seated on the step's top
 	# The bands under the steps, each with its chip.
 	var spans := {}
 	for i in n:

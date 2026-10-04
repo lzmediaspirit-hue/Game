@@ -96,14 +96,8 @@ func create_character(intent: Dictionary) -> Dictionary:
 	var skip = bool(intent.get("skip_prologue", false)) and ContentDB.config("account_rules").get("skip_prologue_allowed", true) and game.characters.size() > 1
 	c.skip_prologue = skip
 	var start: Dictionary = ContentDB.config("account_rules").get("skip_start" if skip else "new_start", {})
-	c.position = {"room": str(start.get("room", "lf_fishers_hut")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
-	# Redesign Phase 4: a new game in the top-down world starts at its first room's own spawn on the grid, its later
-	# spots saved in that view. Decision 41: the creator asks for it (new_game_view) unless Settings keeps the classic
-	# side view; an intent that names no view (the test walks, the debug characters) makes a side-view one.
-	if str(intent.get("view", "")) == "topdown":
-		c.view = "topdown"
-		c.position.x = 0.0
-		c.position.y = 0.0
+	# A new game starts at its first room's own spawn on the height grid (no spot saved yet: enter_world takes the spawn).
+	c.position = {"room": str(start.get("room", "lf_fishers_hut")), "portal": "", "x": 0.0, "y": 0.0, "facing": 1}
 	StatRules.rebuild(c, game.account)
 	c.pools.hp = c.pools.max_hp
 	game.account.characters[str(slot)] = summary(c)
@@ -113,11 +107,6 @@ func create_character(intent: Dictionary) -> Dictionary:
 	if skip: _apply_skip_prologue(c, start)
 	game.save_all()
 	return ok({"actor": c.id})
-
-## Decision 41: the view a new game is made in, as the character creator asks for it. The top-down world is the game;
-## Settings → Controls → "Classic side view (new games)" (off by default) keeps the side view as the fallback.
-static func new_game_view(settings: Dictionary) -> String:
-	return "" if bool(settings.get("classic_side_view", false)) else "topdown"
 
 func _apply_skip_prologue(c, start: Dictionary) -> void:
 	# Later characters may skip the Prologue: Bone Forging 2 in Stoneford (S23).
@@ -151,7 +140,7 @@ func create_max_character(slot: int, name: String) -> Dictionary:
 	c.skip_prologue = true
 	var start: Dictionary = ContentDB.config("account_rules").get("skip_start", {})
 	_apply_skip_prologue(c, start)
-	c.position = {"room": str(start.get("room", "sf_fairground")), "portal": "", "x": float(start.get("x", 0)), "y": float(start.get("y", 0)), "surface": "", "facing": 1}
+	c.position = {"room": str(start.get("room", "sf_fairground")), "portal": "", "x": 0.0, "y": 0.0, "facing": 1}
 	for entry in ContentDB.all("unlocks"): Unlocks.force_unlock(c.id, str(entry.id))
 	# The realm: the highest zone ceiling (Sphere Lord 3 in v1.2); realms above it have no zone to stand in yet.
 	var cu: CultivatorState = c.cultivator

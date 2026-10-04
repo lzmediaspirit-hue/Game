@@ -3,7 +3,8 @@ extends "res://tests/lib/suite.gd"
 ## (data/event_contract.json, built by tools/data/contract.py) is emitted only by
 ## the scripts of its system, and something reacts to it — a subscriber, a HUD or
 ## page handler, an achievement or quest rule — unless the contract says the
-## reactor reads state every frame instead. Strings: no player-facing text is
+## reactor reads state every frame instead; a dormant event (S12a: one only the side view emitted) is emitted
+## by no script. Strings: no player-facing text is
 ## written in the player-facing scripts; it comes from data/strings via Tx.t(key).
 ## Forbidden patterns: gameplay code takes randomness from named Rng streams and
 ## time from Clock.
@@ -24,6 +25,7 @@ func _main() -> void:
 		var owned := false
 		var foreign: Array = []
 		var consumed := false
+		var said: Array = []   # S12a: where a script emits it, or puts it on a body's events for LocalAuthority.announce
 		for name in sources:
 			var mine: bool = name in owners
 			var lines: Array = sources[name]
@@ -31,11 +33,14 @@ func _main() -> void:
 				var line: String = lines[i]
 				if not line.contains(q): continue
 				var emits := emit_re.search(line) != null
+				if emits or line.contains("\"name\": " + q) or line.contains("\"name\":" + q): said.append("%s:%d" % [name, i + 1])
 				if mine: owned = true
 				if emits and not mine: foreign.append("%s:%d" % [name, i + 1])
 				# An owner choosing between event names (`x := "a" if … else "b"`) is not a reaction.
 				if not emits and not (mine and line.contains(" if ") and line.contains(":=")): consumed = true
-		check(owned, "%s is emitted by %s (%s)" % [ev, row.get("system", "?"), ", ".join(owners)])
+		# S12a: a dormant event (only the side view emitted it) is emitted or announced by no script.
+		if row.has("dormant"): check(said.is_empty(), "%s stays dormant: no script emits or announces it (%s)" % [ev, ", ".join(said)])
+		else: check(owned, "%s is emitted by %s (%s)" % [ev, row.get("system", "?"), ", ".join(owners)])
 		check(foreign.is_empty(), "%s is emitted only by %s, not %s" % [ev, row.get("system", "?"), ", ".join(foreign)])
 		var by_data := data_text.contains("\"event\": " + q)
 		check(consumed or by_data or row.has("polled"), "%s has a reactor" % ev)
@@ -153,8 +158,8 @@ func _data_text() -> String:
 ## The same rules as tools/dev/extract_strings.py: a literal that reads like text is not
 ## allowed in the player-facing scripts unless it is an id, a technical token, a key,
 ## a comparison, a membership list, a const, a signature default or debug output.
-const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd", "res://scripts/world.gd",
-	"res://scripts/player.gd", "res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
+const STRING_SCOPE := ["res://scripts/ui/", "res://scripts/hud.gd", "res://scripts/hud/", "res://scripts/shell/", "res://scripts/main.gd",
+	"res://scripts/presentation/enemy_view.gd", "res://scripts/presentation/loot_view.gd",
 	"res://scripts/presentation/portal_view.gd", "res://scripts/presentation/npc_view.gd", "res://scripts/presentation/moment_view.gd",
 	"res://scripts/presentation/moment_rules.gd", "res://scripts/presentation/fx_layer.gd", "res://scripts/simulation/authority/",
 	"res://scripts/presentation/scene_director.gd", "res://scripts/presentation/scene_stage.gd",

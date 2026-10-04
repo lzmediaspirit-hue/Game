@@ -266,15 +266,14 @@ func step_now(c, def: Dictionary, st: Dictionary) -> int:
 var _hunt_cache := {}
 func hunt_rooms(c) -> Array:
 	var lv := ProgressionRules.level(c)
-	# Decision 41: a top-down character hunts only on the grid (the rooms past the prototype's gate are closed to it).
-	var key = lv if not (c != null and str(c.view) == "topdown") else "td%d" % lv
+	var key = lv
 	if _hunt_cache.has(key): return _hunt_cache[key]
 	var fit: Array = []
 	var outgrown: Array = []
 	for rid in ContentDB.rooms:
 		var room: Dictionary = ContentDB.room(rid)
 		var lr: Array = room.get("level_range", [0, 0])
-		if str(room.get("type", "")) != "field" or lr.size() < 2 or lv < int(lr[0]) or past_gate(c, str(rid)): continue
+		if str(room.get("type", "")) != "field" or lr.size() < 2 or lv < int(lr[0]): continue
 		(fit if lv <= int(lr[1]) else outgrown).append([str(rid), int(lr[0]), int(lr[1])])
 	var toughest := func(a, b): return int(a[2]) > int(b[2]) or (int(a[2]) == int(b[2]) and str(a[0]) < str(b[0]))
 	fit.sort_custom(toughest)
@@ -844,32 +843,9 @@ func tracker(c) -> Array:
 		var at := step_now(c, def, st) if st.state != "ready" else -1
 		# S49 auto-path: where the quest leads now (its current objective's room, the hand-in NPC's once it is ready).
 		var goal := quest_target(c, def, st)
-		var gate := past_gate(c, goal)
-		# Decision 41: a quest whose step lies past the prototype's gate keeps its steps and leads nowhere, saying so.
-		if gate: lines.append({"text": Tx.t("sim.world.road_being_drawn"), "have": 0, "need": 1, "done": false})
 		out.append({"quest": qid, "name": str(def.get("name", qid)), "kind": str(def.get("kind", "side")), "ready": st.state == "ready", "lines": lines,
-			"target_room": "" if gate else goal, "hunt": at >= 0 and str(def.objectives[at].get("kind", "")) == "reach_realm", "gate": gate})
+			"target_room": goal, "hunt": at >= 0 and str(def.objectives[at].get("kind", "")) == "reach_realm"})
 	return out
-
-## Decision 41, the end of the prototype: a room with no top-down layout yet is past the gate for a top-down
-## character (WorldAuthority.prototype_gate closes every way into one), and never where its tracker leads.
-static func past_gate(c, room_id: String) -> bool:
-	return c != null and str(c.view) == "topdown" and room_id != "" and not TopdownRoom.has_layout(room_id)
-
-## A quest of the story that is played past the gate: its own room, or every room its giver stands in, is.
-func beyond_prototype(c, d: Dictionary) -> bool:
-	if c == null or str(c.view) != "topdown" or d.is_empty(): return false
-	if past_gate(c, sect_room(c, d)): return true
-	var giver := own_npc(c, d.get("giver_any", d.get("giver", "")))
-	var rooms: Array = npc_rooms(c, giver) if giver != "" else []
-	return not rooms.is_empty() and rooms.all(func(r): return past_gate(c, str(r)))
-
-## The tracker's entry at the end of the prototype, in place of a Next entry that would lead past the gate: the tale
-## rests here, the road beyond is still being drawn, and the prototype ends here. It leads nowhere (no mark, no Go).
-func prototype_end() -> Dictionary:
-	return {"quest": "", "name": Tx.t("sim.quest.tale_rests"), "kind": "next", "ready": false, "hunt": false, "gate": true, "target_room": "",
-		"lines": [{"text": Tx.t("sim.world.road_being_drawn"), "have": 0, "need": 1, "done": false},
-			{"text": Tx.t("sim.quest.tale_rests_end"), "have": 0, "need": 1, "done": false}]}
 
 ## The kinds of quest the story is told in, and the tracker's "next" entry that stands for its next quest: the direction
 ## mark, the tracker and the map lead with them (P1: the main story first).
@@ -932,20 +908,15 @@ func _story_next(c) -> Dictionary:
 		var s := _story_step(c, d, 0)
 		if s.get("active", false): return {}
 		if not s.is_empty() and (best.is_empty() or [int(s.rank), int(s.get("realm_at", 0))] < [int(best.rank), int(best.get("realm_at", 0))]): best = s
-	# Decision 41: the story's next step is played past the prototype's gate. A lesson on offer inside the prototype still
-	# comes first; with none, the prototype's tale rests here.
-	var gated := not best.is_empty() and beyond_prototype(c, ContentDB.entry("quests", str(best.quest)))
 	# With no quest of the story to take now, the lesson its realm opens comes before the Level the story waits on next
 	# (at Bone Forging 3 the Weapon Hall, not the hunt for Bone Forging 4): under way, it leads the tracker itself; on
-	# offer, it is the next step, from its giver (never one past the gate).
-	if best.is_empty() or int(best.rank) > 0 or gated:
+	# offer, it is the next step, from its giver.
+	if best.is_empty() or int(best.rank) > 0:
 		if lesson: return {}
 		for d in story_waiting(c, ["guided"]):
-			if c.quests.offered.has(str(d.id)) and not beyond_prototype(c, d):
+			if c.quests.offered.has(str(d.id)):
 				best = {"quest": str(d.id), "rank": 0}
-				gated = false
 				break
-	if gated: return prototype_end()
 	if best.is_empty(): return {}
 	var d := ContentDB.entry("quests", str(best.quest))
 	var line := ""
@@ -972,7 +943,6 @@ func _story_next(c) -> Dictionary:
 		room = objective_room(c, d, {"kind": "talk_to", "npc": giver}) if giver != "" else str(d.get("target_room", ""))
 		line = str(best.get("text", ""))
 		if line == "": line = Tx.t("sim.quest.next_from") % ContentDB.name_of("npcs", giver)
-	if past_gate(c, room): return prototype_end()
 	return {"quest": str(best.quest), "name": Tx.t("sim.quest.next") % str(d.get("name", best.quest)), "kind": "next", "ready": false,
 		"hunt": best.has("realm") and room != "", "lines": [{"text": line, "have": 0, "need": 1, "done": false}] + more, "target_room": room}
 
@@ -1122,8 +1092,8 @@ func start_spar(c, opponent: String, level := -1, npc := "") -> Dictionary:
 			if str(o.get("type", "")) == "npc" and str(o.get("npc", "")) == npc and game.world.object_visible(c, o): person = o
 	if not person.is_empty(): at = Vector2(float(person.at[0]), float(person.at[1]))
 	at.x = clampf(at.x, 80, game.room_rt.width() - 80)
-	# On the height grid the partner steps up on the player's own floor, never into a wall or the water.
-	if game.room_rt.topdown != null and st != null: at = game.room_rt.topdown.place_near(at, st.altitude)
+	# The partner steps up on the player's own floor, never into a wall or the water.
+	if st != null: at = game.room_rt.topdown.place_near(at, st.altitude)
 	var lvl := level
 	if str(ContentDB.entry("enemies", opponent).get("spar_level", "")) == "match": lvl = maxi(1, ProgressionRules.level(c))
 	var e: EnemyState = game.enemies.start_spar(opponent, at, lvl)

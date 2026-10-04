@@ -21,16 +21,15 @@ static func array_mine(c, node: Dictionary) -> bool:
 	var net := str(node.get("network", ""))
 	return net == "" or (c != null and net == str(c.training_sect.get("id", "")))
 
-## May the character take the array at `from_id` (in `from_room`) to `to_id` now: the arrays opened to it, both nodes
-## its sect's and known to its token, and never past the prototype's gate.
-func array_open(c, from_room: String, from_id: String, to_id: String) -> bool:
+## May the character take the array at `from_id` to `to_id` now: the arrays opened to it, both nodes its sect's and
+## known to its token.
+func array_open(c, from_id: String, to_id: String) -> bool:
 	if c == null or not Unlocks.is_unlocked(c.id, "transfer_array"): return false
 	var nodes := WorldRules.array_nodes()
 	var a: Dictionary = nodes.get(from_id, {})
 	var b: Dictionary = nodes.get(to_id, {})
 	if a.is_empty() or b.is_empty() or not array_mine(c, a) or not array_mine(c, b): return false
-	if not array_attuned(c, from_id) or not array_attuned(c, to_id): return false
-	return not world.prototype_gate(c, from_room, str(b.room))
+	return array_attuned(c, from_id) and array_attuned(c, to_id)
 
 func attune_array(c, node_id: String) -> void:
 	if c == null or array_attuned(c, node_id) or not Unlocks.is_unlocked(c.id, "transfer_array"): return
@@ -40,12 +39,11 @@ func attune_array(c, node_id: String) -> void:
 
 ## Where the array at `node_id` can send the character now: [{id, room, network}] in data order.
 func array_destinations(c, node_id: String) -> Array:
-	var here := str(WorldRules.array_nodes().get(node_id, {}).get("room", ""))
-	return WorldRules.array_links(node_id).filter(func(n): return array_open(c, here, node_id, str(n.id)))
+	return WorldRules.array_links(node_id).filter(func(n): return array_open(c, node_id, str(n.id)))
 
 ## What the travel picker shows at the node `node_id` (decision 42: its own small page, not a talk): the array's name,
 ## the room it stands in, a line, and where the token can go from it ([{id, room, name}] in data order: the nodes of its
-## network the token knows, never one past the prototype's gate, array_destinations).
+## network the token knows, array_destinations).
 func array_view(c, node_id: String) -> Dictionary:
 	var node: Dictionary = WorldRules.array_nodes().get(node_id, {})
 	var here := str(node.get("room", ""))
@@ -78,18 +76,16 @@ func array_travel(c, from_id: String, to_id: String) -> Dictionary:
 	if st != null and st.plane.distance_to(Vector2(float(at[0]), float(at[1]))) > world.reach_of(o) + 20.0: return fail("too_far")
 	if game.combat.is_wounded(c.id): return fail("wounded")
 	attune_array(c, from_id)
-	if not array_open(c, game.room_rt.room_id, from_id, to_id):
-		var node: Dictionary = WorldRules.array_nodes().get(to_id, {})
-		var gate: bool = not node.is_empty() and world.prototype_gate(c, game.room_rt.room_id, str(node.room))
-		return fail("sealed", {"text": Tx.t("sim.world.road_being_drawn") if gate else Tx.t("sim.world.array_unknown")})
+	if not array_open(c, from_id, to_id): return fail("sealed", {"text": Tx.t("sim.world.array_unknown")})
 	var to: Dictionary = WorldRules.array_nodes()[to_id]
 	if c.cultivator.meditating: game.progression.stop_meditation(c, "portal")
 	emit("array_travelled", {"actor": c.id, "from": from_id, "to": to_id, "room": game.room_rt.room_id, "to_room": str(to.room)})
-	return world.load_room(c, str(to.room), "", _array_spot(c, to))
+	return world.load_room(c, str(to.room), "", _array_spot(to))
 
-## Where an array lands: on the far node, on the grid where its layout sets it; in the side view on its ground.
-func _array_spot(c, node: Dictionary) -> Vector2:
-	var grid := world.grid_for(c, str(node.room))
-	if grid != null and grid.def.get("place", {}).has(str(node.id)):
-		return TopdownRoom.cell_point(grid.def.place[str(node.id)])
-	return Vector2(float(node.at[0]), float(node.at[1]) + 20.0)
+## Where an array lands: on the far node, where its room's layout sets it (every node is placed: places.py's check).
+func _array_spot(node: Dictionary) -> Vector2:
+	var grid := world.grid_for(str(node.room))
+	if grid == null or not grid.def.get("place", {}).has(str(node.id)):
+		push_error("WorldArrays: the array %s is not placed on its room's layout" % str(node.id))
+		return Vector2.INF
+	return TopdownRoom.cell_point(grid.def.place[str(node.id)])

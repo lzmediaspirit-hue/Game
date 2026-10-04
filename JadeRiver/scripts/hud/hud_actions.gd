@@ -16,8 +16,7 @@ func use_context() -> void:
 		return
 	if hud.channel.object != "": return
 	if str(hud.context.get("type", "")) == "climbable":
-		if hud.player.has_method("climb_near"): hud.player.climb()   # T1: a climbable face on the grid
-		else: hud.side_view.climb()   # side view: a ladder or a rope in world.gd
+		hud.player.climb()   # T1: a climbable face on the grid
 		return
 	if hud.context.has("portal"):
 		hud.world.request_portal(str(hud.context.portal))
@@ -106,7 +105,7 @@ func place_pose_of(object_id: String) -> String:
 func _play_place_pose(pose: String, page: String, args: Dictionary) -> void:
 	hud.place_pending = {"page": page, "args": args, "t": Hud.PLACE_POSE_S}
 	var at = hud.player.get("plane") if is_instance_valid(hud.player) else null
-	if is_instance_valid(hud.player) and hud.player.has_method("play_place_pose"): hud.player.play_place_pose(pose)   # side view: no place poses
+	if is_instance_valid(hud.player): hud.player.play_place_pose(pose)
 	var p: Vector2 = at if at is Vector2 else Vector2.ZERO
 	# each id written out, so audio_tests finds it among the sounds
 	match pose:
@@ -126,7 +125,7 @@ func open_place_page() -> void:
 	var p := hud.place_pending
 	hud.place_pending = {}
 	hud.open_page.emit(str(p.page), p.args)
-	if not hud.blocked and is_instance_valid(hud.player) and hud.player.has_method("end_place_pose"): hud.player.end_place_pose()   # side view: no place poses
+	if not hud.blocked and is_instance_valid(hud.player): hud.player.end_place_pose()
 
 ## A tap on a points badge asks the shell for its system's page, on the tab where the points are spent.
 func open_points(id: String) -> void:

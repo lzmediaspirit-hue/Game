@@ -1,0 +1,558 @@
+{
+	"active_pet": "",
+	"appearance": {
+		"body": "light",
+		"hair": "flowing",
+		"hair_color": 3,
+		"pants": "martial",
+		"shirt": "scholar",
+		"shoes": "slippers"
+	},
+	"beast_arena": {
+
+	},
+	"buffs": {
+		"timed": []
+	},
+	"collection_first_kills": {
+
+	},
+	"companions": {
+		"active": [],
+		"bond": {
+
+		},
+		"downed": {
+
+		},
+		"roster": []
+	},
+	"cooldowns": {
+
+	},
+	"crafting": {
+		"auto_queue": [],
+		"formations": [],
+		"garden": {
+
+		},
+		"recipes": []
+	},
+	"created_utc": 1791081721.33197,
+	"cultivator": {
+		"active_title": "",
+		"aptitude": {
+			"comprehension": {
+				"revealed": false,
+				"value": 0.02
+			},
+			"element_earth": {
+				"revealed": false,
+				"value": -0.01
+			},
+			"element_fire": {
+				"revealed": false,
+				"value": 0.0
+			},
+			"element_metal": {
+				"revealed": false,
+				"value": -0.03
+			},
+			"element_water": {
+				"revealed": false,
+				"value": 0.12
+			},
+			"element_wind": {
+				"revealed": false,
+				"value": 0.08
+			},
+			"element_wood": {
+				"revealed": false,
+				"value": 0.01
+			},
+			"physique": {
+				"revealed": false,
+				"value": -0.06
+			},
+			"spirit_aptitude": {
+				"revealed": false,
+				"value": 0.01
+			}
+		},
+		"attunement": {
+
+		},
+		"attunement_jades": {
+
+		},
+		"body_baths": [],
+		"body_level": 1,
+		"body_tier": "mortal",
+		"body_trials": [],
+		"body_xp": 0.0,
+		"bottleneck_seconds": 0.0,
+		"breakthrough_cooldown": 0.0,
+		"consolidation_left": 0.0,
+		"consolidation_penalty": false,
+		"core_grade": 0,
+		"daos": {
+
+		},
+		"energy_type": "none",
+		"epiphany_cooldown": 0.0,
+		"events_passed": [],
+		"false_realm": "",
+		"fate_offer": [],
+		"fates": [],
+		"field_powers": {
+
+		},
+		"foundation": {
+
+		},
+		"heart_demon": 0.0,
+		"injuries": {
+
+		},
+		"inner_arts": [],
+		"inner_arts_known": [],
+		"inner_world": null,
+		"lifetime_stats": {
+
+		},
+		"longevity": 0,
+		"meridian_levels_granted": 0,
+		"meridians": {
+			"agility": 0,
+			"body": 0,
+			"essence": 0,
+			"insight": 0,
+			"spirit": 0
+		},
+		"method_id": "",
+		"methods_known": [],
+		"offered": {
+
+		},
+		"origin": "fishers_child",
+		"paths": {
+
+		},
+		"physiques": [],
+		"pill_resistance": {
+
+		},
+		"progress": 0.0,
+		"purity": 9,
+		"purity_points": 0.0,
+		"qp": 0.0,
+		"realm_key": "mortal",
+		"residue": 0.0,
+		"revealed": [
+			"hud:joystick",
+			"hud:context",
+			"hud:bag"
+		],
+		"secret_arts": [],
+		"soul_cultivation": 0.0,
+		"stability": "stable",
+		"stability_progress": 0.0,
+		"stances": {
+
+		},
+		"state": "accumulating",
+		"stored_qi": 0.0,
+		"support_failures": {
+
+		},
+		"techniques": {
+			"bars": {
+
+			},
+			"known": [],
+			"mastery": {
+
+			},
+			"slots": [
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			],
+			"use": {
+
+			}
+		},
+		"titles": [],
+		"toxicity": 0.0,
+		"treasure_uses": {
+
+		},
+		"tree": {
+			"pity": {
+
+			},
+			"realised": {
+
+			},
+			"resets": {
+
+			},
+			"v": 1
+		},
+		"unlocked": [
+			"move",
+			"talk",
+			"bag"
+		],
+		"unspent_meridian_points": 0,
+		"vows": []
+	},
+	"dungeon_lockouts": {
+
+	},
+	"eggs": [],
+	"id": "c1",
+	"idle_task": {
+
+	},
+	"inventory": {
+		"appearance_override": {
+
+		},
+		"bag": [
+			{
+				"count": 4,
+				"id": "herbal_tea"
+			},
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		"draught": null,
+		"equipped": {
+			"boots": {
+				"affixes": [],
+				"appearance": "slippers",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "straw_sandals",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 4
+			},
+			"cape": null,
+			"gourd": {
+				"affixes": [],
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "starter_gourd",
+				"ilv": 1,
+				"inlays": [],
+				"quality": "common",
+				"uid": 1
+			},
+			"hat": null,
+			"robe": {
+				"affixes": [],
+				"appearance": "scholar",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"dye": "jade",
+				"enhance": 0,
+				"id": "hemp_robe",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 2
+			},
+			"talisman": null,
+			"trousers": {
+				"affixes": [],
+				"appearance": "martial",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"dye": "indigo",
+				"enhance": 0,
+				"id": "hemp_trousers",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 3
+			},
+			"weapon": {
+				"affixes": [],
+				"blooded": true,
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "training_jian",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 5
+			}
+		},
+		"furnace": null,
+		"key_items": [],
+		"loadout": {
+			"active": "a",
+			"spare": null
+		},
+		"locked": [],
+		"next_uid": 6,
+		"quick": [
+			"",
+			"",
+			""
+		],
+		"quick_use": "",
+		"treasures": [
+			"",
+			""
+		],
+		"vessel": ""
+	},
+	"last_active_utc": 1791081722.06321,
+	"last_shrine": {
+		"room": "lf_village",
+		"x": 1450.0,
+		"y": 700.0
+	},
+	"last_town": "lf_village",
+	"loadouts": [],
+	"minor": 1,
+	"mount_pet": "",
+	"name": "Lin Sideview",
+	"origin": "fishers_child",
+	"party_pets": [],
+	"pet_bag": [],
+	"pets": [],
+	"pools": {
+		"composure": 100.0,
+		"hollowing": 0.0,
+		"hp": 74.73,
+		"qi": 0.0,
+		"soul": 0.0
+	},
+	"position": {
+		"facing": 1,
+		"portal": "",
+		"room": "lf_village",
+		"surface": "ground",
+		"x": 1290.0,
+		"y": 650.0
+	},
+	"posts": {
+		"crafts": {
+
+		},
+		"post": {
+
+		},
+		"pouch": {
+
+		}
+	},
+	"professions": {
+
+	},
+	"quests": {
+		"active": {
+			"morning_tide": {
+				"accepted_tick": 0,
+				"progress": [
+					0
+				],
+				"state": "active"
+			}
+		},
+		"board_day": -1,
+		"daily": {
+
+		},
+		"done": {
+
+		},
+		"flags": [],
+		"offered": [],
+		"scenes": {
+
+		},
+		"tracked": [
+			"morning_tide"
+		]
+	},
+	"relations": {
+		"affinity": {
+
+		},
+		"alignment": 0,
+		"bonds": {
+			"dao_companion": "",
+			"master": "",
+			"sworn": []
+		},
+		"bounties": [],
+		"debts": {
+
+		},
+		"deeds": {
+
+		},
+		"fame": 0,
+		"fortune": {
+			"meter": 0.0000925925925925926
+		},
+		"grudges": {
+
+		},
+		"hunters": [],
+		"ledger": [],
+		"merit": 0,
+		"merit_used": {
+
+		},
+		"mortal": {
+
+		},
+		"sin": 0
+	},
+	"riding": false,
+	"rng": {
+		"seed": "1791089640",
+		"streams": {
+			"affix": "-8158318167700896796",
+			"world": "1453307437007767816"
+		}
+	},
+	"rooms": {
+		"lf_fishers_hut": {
+			"broken": {
+
+			},
+			"nodes": {
+
+			},
+			"opened": {
+
+			},
+			"slain": {
+
+			}
+		},
+		"lf_village": {
+			"broken": {
+
+			},
+			"nodes": {
+
+			},
+			"opened": {
+
+			},
+			"slain": {
+
+			}
+		}
+	},
+	"seclusion": {
+
+	},
+	"skill_page": 0,
+	"skip_prologue": false,
+	"slot": 1,
+	"starter_drops": {
+
+	},
+	"statuses": [
+		{
+			"delay": 0.0,
+			"id": "spawn_protection",
+			"power": 1.0,
+			"remaining": 0.499999999999999
+		}
+	],
+	"swarm": {
+
+	},
+	"tower": {
+
+	},
+	"training_sect": {
+
+	},
+	"tutorials": {
+		"at": {
+
+		},
+		"guided": {
+
+		},
+		"queue": [],
+		"seen": {
+
+		},
+		"v": 2
+	},
+	"version": 3,
+	"view": ""
+}

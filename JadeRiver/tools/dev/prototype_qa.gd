@@ -731,7 +731,7 @@ func opening() -> void:
 		if main.screen == "world" and is_instance_valid(main.world): break
 		await frames(1)
 	var ch = c()
-	if ch == null or ch.view != "topdown": await find("the new game is not a top-down one (view %s)" % (str(ch.view) if ch else "none"), "not_topdown")
+	if ch == null: await find("no new game began", "no_game")
 	await wait_s(1.0)
 	await shot("opening_title", "the opening: %s" % scene_step())
 	await wait_s(3.0)

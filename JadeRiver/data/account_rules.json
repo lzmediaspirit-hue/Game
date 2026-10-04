@@ -124,14 +124,10 @@
   }
  ],
  "new_start": {
-  "room": "lf_fishers_hut",
-  "x": 330,
-  "y": 780
+  "room": "lf_fishers_hut"
  },
  "skip_start": {
   "room": "sf_fairground",
-  "x": 3500,
-  "y": 820,
   "realm": "bone_forging_2",
   "quests_done": [
    "morning_tide",

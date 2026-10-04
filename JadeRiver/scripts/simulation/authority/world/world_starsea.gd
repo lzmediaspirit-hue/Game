@@ -20,11 +20,6 @@ func set_sail(c, route_id: String) -> Dictionary:
 	var v := ContentDB.entry("voyages", route_id)
 	if v.is_empty(): return fail("unknown_route")
 	if game.room_rt == null or game.room_rt.room_id != str(v.get("from", "")): return fail("wrong_dock")
-	# T3 (topdown_mechanics.md): the prototype's gate (decision 41) holds a dock as it holds a way: a top-down character
-	# sails only when the crossing's deck and the far port are both on the grid, so the side view is never entered.
-	var here := str(game.room_rt.room_id)
-	if world.prototype_gate(c, here, str(v.get("crossing", ""))) or world.prototype_gate(c, here, str(v.get("to", ""))):
-		return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 	if v.get("planned", false): return fail("planned", {"text": str(v.get("planned_text", Tx.t("sim.world.this_route_is_not_charted_yet")))})
 	if not Unlocks.is_unlocked(c.id, "starsea"): return fail("locked", {"text": Unlocks.locked_text("starsea")})
 	var vessel := best_vessel(c)

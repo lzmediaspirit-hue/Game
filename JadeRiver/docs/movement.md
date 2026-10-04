@@ -1,5 +1,7 @@
 # World movement
 
+**Historical (S12a):** this is the side view's movement (its solver, surfaces, climbables and volumes), deleted with it. The top-down body moves by `TopdownMotor` on the height grid (`docs/architecture/topdown_mechanics.md`); `MovementSolver` keeps only the arts Combat starts on a body (air dash, Plunge, glide).
+
 How the body moves through Jade River's rooms, what it can stand on, and what every room gives
 the jump to do. Numbers live in `data/movement.json` (built by `tools/data/stats.py`); the solver's constants
 in `scripts/simulation/movement_solver.gd` must match it, and `data_validation` checks that they do.

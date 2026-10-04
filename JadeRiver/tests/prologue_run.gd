@@ -16,11 +16,9 @@ var st: ActorState
 ## a thumb on the joystick (a portal's far side is where the walk out ends); a look round each room the first time;
 ## and the time to read each line of dialogue and tap on.
 var play_s := 0.0
-## Extra fields of the new character's create_character intent (topdown_tutorial: {"view": "topdown"}).
-var create_extra := {}
 var _clock_room := ""
 var _rooms_seen := {}
-const WALK_SPEED := 150.0    # player.gd runs at 205; a thumb on the joystick weaves
+const WALK_SPEED := 150.0    # a thumb on the joystick weaves
 const LOOK_S := 15.0         # a room seen for the first time
 const READ_S := 3.0          # a line of dialogue, read
 const TAP_S := 1.5           # a tap on the dialogue page
@@ -161,10 +159,6 @@ func story_guidance() -> void:
 		check(not tr.is_empty(), "story guidance (%s): the tracker is not empty" % at)
 	for e in tr:
 		var t := str(e.get("target_room", ""))
-		# Decision 41: past the prototype's gate a top-down character's tracker leads nowhere, and says so.
-		if e.get("gate", false):
-			check(t == "" and str(c().view) == "topdown" and _story_past_gate(), "story guidance (%s): '%s' leads nowhere only at the prototype's end" % [at, e.name])
-			continue
 		# At a bottleneck one breakthrough short of the Level the story waits on, the Next entry is the breakthrough: it
 		# names no room (there is nowhere to go), only what to tap.
 		if str(e.kind) == "next" and t == "" and _breakthrough_entry(e):
@@ -173,7 +167,7 @@ func story_guidance() -> void:
 		if str(e.kind) == "next": check(t != "", "story guidance (%s): the next entry '%s' names where to go" % [at, e.name])
 		if t == "": continue
 		check(not ContentDB.room(t).is_empty() and _walks_to_room(t), "story guidance (%s): '%s' leads to %s, a room the character can walk to" % [at, e.name, t])
-	if not tr.is_empty() and str(tr[0].kind) == "next" and not tr[0].get("gate", false) and not (str(tr[0].target_room) == "" and _breakthrough_entry(tr[0])):
+	if not tr.is_empty() and str(tr[0].kind) == "next" and not (str(tr[0].target_room) == "" and _breakthrough_entry(tr[0])):
 		var nx: Dictionary = tr[0]
 		var t0 := str(nx.target_room)
 		if nx.get("hunt", false):
@@ -199,17 +193,6 @@ func story_guidance() -> void:
 			"story guidance: right after the sect choice its first quest leads the tracker with its target and the mark (%s)" % str(first))
 		_sect_chosen = ""
 
-## Decision 41: the story's next quest (the first of the story waiting, what holds it followed back) is played past the
-## prototype's gate: its own room, or every room its giver stands in, has no top-down layout yet.
-func _story_past_gate() -> bool:
-	var waiting: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS)
-	if waiting.is_empty(): return false
-	var first: Dictionary = waiting[0]
-	for r in first.get("requires", {}).get("all", []):
-		var sub := ContentDB.entry("quests", str(r.get("quest", ""))) if str(r.get("kind", "")) == "quest_done" else {}
-		if not sub.is_empty() and not c().quests.is_done(str(sub.id)): first = sub
-	return Game.quest.beyond_prototype(c(), first)
-
 ## The character can walk there from where it stands: a route through the ways open to it, or as far as the room that
 ## hides the way (Spirit Sense shows it there); a story instance entered by its event counts as there.
 func _walks_to_room(target: String) -> bool:
@@ -224,8 +207,9 @@ func c():
 func room() -> String:
 	return Game.room_rt.room_id if Game.room_rt else ""
 
-## Put the player's movement state at a ground point in the loaded room.
-func place(p: Vector2, alt := 0.0) -> void:
+## Put the player's movement state at a point in the loaded room: the nearest spot a body can stand on, at its floor's
+## height, on the room's stand-in surface (TopdownRoom.geometry_def), so Combat tells ground from air.
+func place(p: Vector2) -> void:
 	if st == null:
 		st = ActorState.new()
 		Game.bind_movement(Game.active_id, st)
@@ -234,29 +218,17 @@ func place(p: Vector2, alt := 0.0) -> void:
 	if not _rooms_seen.has(room()):
 		_rooms_seen[room()] = true
 		play_s += LOOK_S
-	var best: WalkSurface = null
-	for s in Game.room_rt.geometry.surfaces:
-		if s.contains(p) and absf(s.height_at(p) - alt) < 10.0: best = s
-	if best == null:
-		for s in Game.room_rt.geometry.surfaces:
-			if s.stratum == "ground" and s.contains(p): best = s
-	st.surface = best
-	st.plane = p
-	st.altitude = best.height_at(p) if best else alt
+	var grid: TopdownRoom = Game.room_rt.topdown
+	st.surface = Game.room_rt.geometry.index.get("grid")
+	st.plane = grid.nearest_standable(p)
+	st.altitude = grid.floor_at(st.plane)
 	st.velocity = Vector2.ZERO
-	var grid: TopdownRoom = Game.room_rt.topdown
-	if grid != null:
-		# On the height grid (redesign Phase 4, a top-down character): a spot a body can stand on, at its floor's height.
-		st.plane = grid.nearest_standable(p)
-		st.altitude = grid.floor_at(st.plane)
 
-## Stand beside a thing to reach it: `off` from it in the side view (at `side_alt`); on the height grid the nearest
-## spot at the thing's own height (TopdownRoom.spot_near).
-func stand_by(o: Dictionary, off: Vector2, side_alt: float) -> void:
+## Stand beside a thing to reach it: the nearest spot at the thing's own height, toward `off` from it
+## (TopdownRoom.spot_near).
+func stand_by(o: Dictionary, off: Vector2) -> void:
 	var at := Vector2(float(o.at[0]), float(o.at[1]))
-	var grid: TopdownRoom = Game.room_rt.topdown
-	if grid != null: place(grid.spot_near(at, float(o.get("alt", 0.0)), at + off), float(o.get("alt", 0.0)))
-	else: place(at + off, side_alt)
+	place(Game.room_rt.topdown.spot_near(at, float(o.get("alt", 0.0)), at + off))
 
 func obj_at(id: String) -> Vector2:
 	var o: Dictionary = Game.room_rt.object_def(id)
@@ -283,7 +255,6 @@ func routes() -> Dictionary:
 			var to := str(p.get("to", ""))
 			if to == "" or prev.has(to) or ContentDB.room(to).is_empty() or ContentDB.room(to).get("instanced", false): continue
 			if p.has("requires") and not RequirementRules.passes(p.requires, Game.ctx()): continue
-			if Game.world.prototype_gate(c(), r, to): continue   # decision 41: a top-down character's gate at the prototype's end
 			prev[to] = [r, str(p.id)]
 			queue.append(to)
 	return prev
@@ -312,7 +283,7 @@ func talk(npc: String) -> Dictionary:
 	if o.is_empty():
 		print("  no visible npc ", npc, " in ", room())
 		return {}
-	stand_by(o, Vector2(-50, 20), 0.0)
+	stand_by(o, Vector2(-50, 20))
 	var r := submit({"type": "interact", "object": str(o.id)})
 	play_s += READ_S * maxf(1.0, float((r.get("dialogue", {}).get("lines", []) as Array).size()))
 	return r.get("dialogue", {})
@@ -335,35 +306,28 @@ func hand_in(npc: String, quest: String) -> void:
 	var ok := talk_choose(npc, "hand_in", quest)
 	check(ok and c().quests.is_done(quest), "hand in %s to %s" % [quest, npc])
 
-## The nearest point off shallow water, a step away from a foe (S43 volumes; on the height grid, any floor).
+## A floor a step away from a foe, off the water (the grid stands no body in it).
 func _dry_ground_near(p: Vector2) -> Vector2:
-	if Game.room_rt.topdown != null: return Game.room_rt.topdown.nearest_standable(p + Vector2(-34, -60))
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	for dy in [-60, -100, -140, -180, -220, 60, 100]:
-		var q := Vector2(p.x - 34.0, p.y + dy)
-		if geo.volume_at(q, 0.0, "water_shallow").is_empty() and geo.volume_at(q, 0.0, "water_deep").is_empty() and geo.ground_contains(q) and not geo.blocks_at(q, 0.0, "ground"):
-			return q
-	return p + Vector2(-34, 0)
+	return Game.room_rt.topdown.nearest_standable(p + Vector2(-34, -60))
 
 func interact(id: String) -> Dictionary:
 	var o: Dictionary = Game.room_rt.object_def(id)
 	if o.is_empty(): return {"ok": false, "reason": "no_object", "text": "no %s in %s" % [id, room()]}
-	stand_by(o, Vector2(-30, 10), float(o.get("alt", 0.0)))
+	stand_by(o, Vector2(-30, 10))
 	play_s += USE_S
 	return submit({"type": "interact", "object": id})
 
 func hit_object(id: String, times: int) -> void:
 	var o: Dictionary = Game.room_rt.object_def(id)
-	stand_by(o, Vector2(-30, 10), float(o.get("alt", 0.0)))
+	stand_by(o, Vector2(-30, 10))
 	play_s += HIT_S * times
 	for i in times: Game.world.apply_object_hit(c().id, o)
 	GameEvents.flush()
 
-## Where a blow at a foe standing at `p` aims: on the height grid the stick points at it, as a player's thumb does (the
-## top-down view turns the body to the stick; the walk has no view, so it says so in the intent); none in the side
-## view, where the facing is enough.
+## Where a blow at a foe standing at `p` aims: the stick points at it, as a player's thumb does (the view turns the body
+## to the stick; the walk has no view, so it says so in the intent).
 func aim_at(p: Vector2) -> Vector2:
-	if Game.room_rt == null or Game.room_rt.topdown == null or st == null or p.distance_to(st.plane) <= 0.5: return Vector2.ZERO
+	if Game.room_rt == null or st == null or p.distance_to(st.plane) <= 0.5: return Vector2.ZERO
 	return (p - st.plane).normalized()
 
 ## Fight `count` enemies of one kind with the basic combo, standing beside each.
@@ -440,9 +404,9 @@ func fight(def_id: String, count: int, limit_s := 240.0, retreat_below := 0.0, a
 			continue
 		var side := -34.0 if st == null or st.plane.x <= target.plane.x else 34.0
 		place(target.plane + Vector2(side, 0))
-		# On the height grid a player stands beside the foe on its own floor: not up a flight of stairs or a ledge beside
-		# it (a tree, a rock or a hedge beside the foe can put the first spot there).
-		if Game.room_rt.topdown != null and absf(st.altitude - target.altitude) > 8.0:
+		# A player stands beside the foe on its own floor: not up a flight of stairs or a ledge beside it (a tree, a rock
+		# or a hedge beside the foe can put the first spot there).
+		if absf(st.altitude - target.altitude) > 8.0:
 			for off in [Vector2(-side, 0), Vector2(0, 34), Vector2(0, -34)]:
 				place(target.plane + off)
 				if absf(st.altitude - target.altitude) <= 8.0: break
@@ -544,9 +508,7 @@ func start_new(folder: String) -> void:
 	GameEvents.event.connect(func(n, p):
 		if n == "hud_element_revealed": reveal_log.append(str(p.element))
 		if n in ["quest_accepted", "quest_completed", "system_unlocked", "realm_changed", "room_entered", "quest_failed"]: events.append([n, p]))
-	var made := {"type": "create_character", "slot": 1, "name": "Tester", "appearance": {"hair": "topknot"}}
-	made.merge(create_extra)
-	var r := submit(made)
+	var r := submit({"type": "create_character", "slot": 1, "name": "Tester", "appearance": {"hair": "topknot"}})
 	check(r.ok, "create character")
 	check(submit({"type": "enter_character", "slot": 1}).ok, "enter character")
 	check(submit({"type": "enter_world"}).ok and room() == "lf_fishers_hut", "starts in the Fisher's Hut")
@@ -566,13 +528,8 @@ func step_morning_tide() -> void:
 	# The hut must show its way out and its tea plainly (a player stuck in the hut could not see the door, and took
 	# the jar props for clods of earth).
 	var hut: Dictionary = Game.room_rt.def
-	if Game.room_rt.topdown != null:   # on the height grid: a doorway in the hut's front wall (TopdownRoom.entrance)
-		check(Game.room_rt.topdown.entrance("exit") == "wall", "the hut's exit is a doorway in its front wall (%s)" % Game.room_rt.topdown.entrance("exit"))
-	else:
-		var exit_view := PortalView.new()
-		exit_view.setup(Game.room_rt.portal_def("exit"), hut)
-		check(exit_view.wall_y != INF and not SpriteCache.prop("door").is_empty(), "the hut's exit draws a door on the back wall")
-		exit_view.free()
+	# A doorway in the hut's front wall (TopdownRoom.entrance).
+	check(Game.room_rt.topdown.entrance("exit") == "wall", "the hut's exit is a doorway in its front wall (%s)" % Game.room_rt.topdown.entrance("exit"))
 	for o in hut.get("objects", []):
 		if str(o.get("item", "")) == "herbal_tea" and Game.world.object_visible(c(), o):
 			check(str(o.get("prop", "")) == "none" and SpriteCache.icon("herbal_tea") != null, "tea %s shows as its icon" % o.id)
@@ -716,7 +673,7 @@ func step_night() -> void:
 	for npc in ["old_ma", "granny_liu", "little_dou"]:
 		var o := npc_object(npc)
 		if o.is_empty(): continue
-		stand_by(o, Vector2(-40, 30), 0.0)
+		stand_by(o, Vector2(-40, 30))
 		fight("hollow_minnow", 2, 40.0, 0.0, false, false)
 		talk_choose(npc, "effects")
 	check(c().quests.has_flag("dou_safe") and c().quests.has_flag("granny_safe") and c().quests.has_flag("ma_safe"), "villagers guided to the hut through the minnows")
@@ -810,7 +767,7 @@ func fight_eel(limit_s: float) -> Dictionary:
 			elif st.plane.distance_to(e.plane) > 120.0:
 				# The bank above it, within its reach (it rears only at a foe it can reach).
 				var bank := Vector2(e.plane.x, e.plane.y - 96.0)
-				place(Game.room_rt.topdown.nearest_standable(bank) if Game.room_rt.topdown != null else bank)
+				place(bank)
 		if not r.overwhelmed and c().pools.hp < c().pools.max_hp * 0.4 and Unlocks.is_unlocked(c().id, "quick_use") and c().inventory.count("herbal_tea") > 0:
 			submit({"type": "use_item", "index": c().inventory.first_index("herbal_tea"), "confirm": true})
 		step(step_s)

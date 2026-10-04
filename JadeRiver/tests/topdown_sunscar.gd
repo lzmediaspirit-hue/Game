@@ -7,8 +7,8 @@ extends "res://tests/prologue_run.gd"
 ## the Scorpion Flats, the Oasis of Bones, the Worm Sea) and the Tomb of Sunscar (the Sealed Gate, the Hall of Sand
 ## Kings, the Mirror Crypt, the Throne of the Tomb King). Test shortcuts carry a new character there (the story before
 ## chapter 13 done, Sage 2, a sturdy body with a scholar's Insight, so the fights are the rooms' and not the balance's)
-## and set it down off the sky-ship at the Alliance Gate (that way open exactly when Cloudgate Port's Skydock is on the
-## grid). From there it is played through the World authority, as topdown_peaks plays the peaks:
+## and set it down off the sky-ship at the Alliance Gate (that way open, Cloudgate Port's Skydock on the grid). From
+## there it is played through the World authority, as topdown_peaks plays the peaks:
 ##   1. each room is entered on the grid through its ways from the room before, and the top-down view builds it: a
 ##      figure for every person and thing, a mark for every way;
 ##   2. in each, auto-path (TopdownRoute.reach: a hop up a level, no running jump over a gap) reaches every NPC, object,
@@ -38,7 +38,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("sunscar/")
 	_to_nine_peaks()
 	_nine_peaks()
@@ -83,8 +82,8 @@ func _to_nine_peaks() -> void:
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(room() == "np_alliance_gate" and Game.room_rt.topdown != null and ProgressionRules.at_least(c().cultivator.realm_key, "sage_2"),
 		"off the sky-ship at the Alliance Gate, on the grid, Sage 2 (room %s, realm %s)" % [room(), c().cultivator.realm_key])
-	check(_gated("ferry") == not TopdownRoom.has_layout("ae_skydock"),
-		"the Alliance Gate's sky-ship back to Cloudgate Port is gated exactly while the Skydock has no layout")
+	check(_leads_on("ferry"),
+		"the Alliance Gate's sky-ship leads back to Cloudgate Port's Skydock, on the grid")
 
 ## A realm set outright (a test shortcut), its unlocks and offers evaluated.
 func _realm(key: String) -> void:
@@ -174,14 +173,13 @@ func _start(q: String) -> void:
 ## The tracker's entry for `quest` leads to `target`, a room on the grid.
 func _leads(quest: String, target: String) -> bool:
 	for e in Game.quest.tracker(c()):
-		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target) and not e.get("gate", false)
+		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target)
 	return false
 
-## Is the way `pid` of this room closed by the prototype's gate (its line said), and is that because its room has no
-## layout yet?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 ## Walk room by room to `target`; the rooms passed, in order.
 func _walk(target: String) -> Array:
@@ -298,7 +296,7 @@ func _the_tomb() -> void:
 	GameEvents.flush()
 	var down := go("tomb")
 	check(down and room() == "ts_sealed_gate" and Game.room_rt.topdown != null, "down the portal half drowned in the Worm Sea's sand into the Sealed Gate, on the grid (room %s)" % room())
-	var sealed: bool = _gated("east") or not Game.world.portal_state(c(), Game.room_rt.portal_def("east")).get("open", true)
+	var sealed: bool = not Game.world.portal_state(c(), Game.room_rt.portal_def("east")).get("open", true)
 	var gate := interact("tomb_gate")
 	GameEvents.flush()
 	check(sealed and gate.get("ok", false) and c().quests.has_flag("tomb_gate_opened") and Game.world.portal_state(c(), Game.room_rt.portal_def("east")).get("open", false),

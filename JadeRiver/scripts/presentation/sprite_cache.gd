@@ -1,6 +1,6 @@
 class_name SpriteCache
 extends RefCounted
-## Shared texture cache and drawing helpers for props, creatures and icons.
+## Shared texture cache and drawing helpers for props and icons (a creature's sheet: FoeSheets).
 ## All art is authored at native pixel scale 2 and drawn at 1× with nearest filtering.
 
 static var _textures: Dictionary = {}
@@ -44,9 +44,6 @@ static func loading(path: String) -> bool:
 
 static func prop(id: String) -> Dictionary:
 	return ContentDB.config("prop_art").get(id, {})
-
-static func creature(id: String) -> Dictionary:
-	return ContentDB.config("creature_art").get(id, {})
 
 ## An item without its own drawing borrows the one named by its `icon` field.
 static func icon_key(id: String) -> String:
@@ -187,28 +184,6 @@ static func prop_rect(id: String, pos: Vector2) -> Rect2:
 static func prop_size(id: String) -> Vector2:
 	var e := prop(id)
 	return Vector2(float(e.frame[0]), float(e.frame[1])) if not e.is_empty() else Vector2.ZERO
-
-## Tile a repeating prop/tile texture over `rect` (frame `col`).
-static func draw_tiled(ci: CanvasItem, id: String, rect: Rect2, t := 0.0, modulate := Color.WHITE) -> bool:
-	var e := prop(id)
-	if e.is_empty(): return false
-	var texture := tex(str(e.file))
-	if texture == null: return false
-	var fw := float(e.frame[0])
-	var fh := float(e.frame[1])
-	var st: Dictionary = e.get("states", {}).values()[0] if not e.get("states", {}).is_empty() else {}
-	var frames := int(st.get("frames", 1))
-	var col := int(st.get("col", 0)) + (int(t * float(st.get("fps", 5))) % frames if frames > 1 else 0)
-	var y := rect.position.y
-	while y < rect.end.y - 0.01:
-		var h := minf(fh, rect.end.y - y)
-		var x := rect.position.x
-		while x < rect.end.x - 0.01:
-			var w := minf(fw, rect.end.x - x)
-			ci.draw_texture_rect_region(texture, Rect2(x, y, w, h), Rect2(col * fw, 0, w, h), modulate)
-			x += fw
-		y += fh
-	return true
 
 static func flash_material() -> ShaderMaterial:
 	if _flash_material == null:

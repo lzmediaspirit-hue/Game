@@ -1,5 +1,7 @@
 # v0.6 generated environment assets
 
+**Historical (S12a):** the side view's art these prompts made (`art/environment/`, `art/backdrops/`, the avatar's parts) is deleted with it.
+
 Generated using the built-in image-generation tool. Character art remains unchanged.
 
 - `art/environment/platforms-v6.png`: transparent branch, cloud and stone-ledge atlas. Alpha was checked and the runtime uses explicit atlas regions.

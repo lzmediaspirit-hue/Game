@@ -118,7 +118,7 @@ _r('starsilk', ['#141A30', '#222C4E', '#39467A', '#6A74A8', '#B4BAE0'], '#070A16
 # v1.3 · the Star Frontier (Sphere grade): orchardsteel, a dusk-violet steel with rose-gold fittings
 _r('orchardsteel', ['#241A3A', '#3E2E66', '#6552A0', '#9A88D2', '#DCD2FA'], '#0E0A1A')
 _r('rosegold', ['#4A2420', '#7E4234', '#BC7458', '#E6A888', '#FCDCC4'], '#200E0C')
-# The garment dyes of the layered avatar (tools/art/bake_dyes.py DYES, data/parts.json "_dyes"), the 4-stop dye ramps
+# The garment dyes (tools/art/topdown/figure/palettes.py DYES, data/parts.json "_dyes"), the 4-stop dye ramps
 # with a step added between the base and the light, so a robe or trousers icon is the cloth the figure wears.
 _r('dye_jade',    ['#0D2F2C', '#155C52', '#2C9E8F', '#5EBFAC', '#8FE0C8'])
 _r('dye_cloud',   ['#2C3A4A', '#6F8599', '#C3D3DD', '#DAE4E8', '#F2F5F2'])

@@ -1,0 +1,578 @@
+{
+	"active_pet": "",
+	"appearance": {
+		"body": "light",
+		"hair": "short_knot",
+		"hair_color": 5,
+		"pants": "straight",
+		"shirt": "vneck",
+		"shoes": "folded"
+	},
+	"beast_arena": {
+
+	},
+	"buffs": {
+		"timed": []
+	},
+	"collection_first_kills": {
+
+	},
+	"companions": {
+		"active": [],
+		"bond": {
+
+		},
+		"downed": {
+
+		},
+		"roster": []
+	},
+	"cooldowns": {
+
+	},
+	"crafting": {
+		"auto_queue": [],
+		"formations": [],
+		"garden": [],
+		"recipes": []
+	},
+	"created_utc": 1791081721.38726,
+	"cultivator": {
+		"active_title": "",
+		"aptitude": {
+			"comprehension": {
+				"revealed": false,
+				"value": -0.04
+			},
+			"element_earth": {
+				"revealed": false,
+				"value": 0.07
+			},
+			"element_fire": {
+				"revealed": false,
+				"value": 0.01
+			},
+			"element_metal": {
+				"revealed": false,
+				"value": -0.05
+			},
+			"element_water": {
+				"revealed": false,
+				"value": 0.14
+			},
+			"element_wind": {
+				"revealed": false,
+				"value": -0.02
+			},
+			"element_wood": {
+				"revealed": false,
+				"value": -0.04
+			},
+			"physique": {
+				"revealed": false,
+				"value": 0.05
+			},
+			"spirit_aptitude": {
+				"revealed": false,
+				"value": -0.09
+			}
+		},
+		"attunement": {
+
+		},
+		"attunement_jades": {
+
+		},
+		"body_baths": [],
+		"body_level": 1,
+		"body_tier": "mortal",
+		"body_trials": [],
+		"body_xp": 0.0,
+		"bottleneck_seconds": 0.0,
+		"breakthrough_cooldown": 0.0,
+		"consolidation_left": 0.0,
+		"consolidation_penalty": false,
+		"core_grade": 0,
+		"daos": {
+
+		},
+		"energy_type": "none",
+		"epiphany_cooldown": 0.0,
+		"events_passed": [],
+		"false_realm": "",
+		"fate_offer": [],
+		"fates": [],
+		"field_powers": {
+
+		},
+		"foundation": {
+
+		},
+		"heart_demon": 0.0,
+		"injuries": {
+
+		},
+		"inner_arts": [],
+		"inner_arts_known": [],
+		"inner_world": null,
+		"lifetime_stats": {
+
+		},
+		"longevity": 0,
+		"meridian_levels_granted": 2,
+		"meridians": {
+			"agility": 0,
+			"body": 0,
+			"essence": 0,
+			"insight": 0,
+			"spirit": 0
+		},
+		"method_id": "riverbreath_fragment",
+		"methods_known": [
+			"riverbreath_fragment"
+		],
+		"offered": {
+
+		},
+		"origin": "fishers_child",
+		"paths": {
+
+		},
+		"physiques": [],
+		"pill_resistance": {
+
+		},
+		"progress": 0.0,
+		"purity": 9,
+		"purity_points": 0.0,
+		"qp": 0.0,
+		"realm_key": "bone_forging_2",
+		"residue": 0.0,
+		"revealed": [
+			"hud:joystick",
+			"hud:context",
+			"hud:bag",
+			"hud:room_banner",
+			"hud:minimap",
+			"hud:quest_tracker",
+			"hud:jump",
+			"hud:currency",
+			"hud:quick_use",
+			"hud:hp_bar",
+			"hud:player_panel",
+			"hud:attack",
+			"hud:damage_numbers",
+			"hud:system_log",
+			"hud:enemy_hp_bars",
+			"hud:elite_marker",
+			"page:equipment",
+			"hud:menu",
+			"hud:cultivate",
+			"hud:progress_bar",
+			"hud:realm_badge",
+			"page:cultivation",
+			"page:codex"
+		],
+		"secret_arts": [],
+		"soul_cultivation": 0.0,
+		"stability": "stable",
+		"stability_progress": 0.0,
+		"stances": {
+
+		},
+		"state": "accumulating",
+		"stored_qi": 0.0,
+		"support_failures": {
+
+		},
+		"techniques": {
+			"bars": {
+
+			},
+			"known": [
+				"flowing_palm"
+			],
+			"mastery": {
+				"flowing_palm": {
+					"points": 0.0,
+					"tier": 1
+				}
+			},
+			"slots": [
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			],
+			"use": {
+
+			}
+		},
+		"titles": [],
+		"toxicity": 0.0,
+		"treasure_uses": {
+
+		},
+		"tree": {
+			"pity": {
+
+			},
+			"realised": {
+
+			},
+			"resets": {
+
+			},
+			"v": 1
+		},
+		"unlocked": [
+			"move",
+			"talk",
+			"bag",
+			"navigation",
+			"jump",
+			"shop",
+			"quick_use",
+			"shrines",
+			"sprint",
+			"attack",
+			"weapons",
+			"loot",
+			"equipment",
+			"menu",
+			"cultivate",
+			"cultivation",
+			"breakthrough",
+			"codex"
+		],
+		"unspent_meridian_points": 4,
+		"vows": []
+	},
+	"dungeon_lockouts": {
+
+	},
+	"eggs": [],
+	"id": "c2",
+	"idle_task": {
+
+	},
+	"inventory": {
+		"appearance_override": {
+
+		},
+		"bag": [
+			{
+				"affixes": [],
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "plain_straw_hat",
+				"ilv": 1,
+				"inlays": [],
+				"quality": "common",
+				"uid": 5
+			},
+			{
+				"count": 1,
+				"id": "boar_bone_broth"
+			},
+			{
+				"count": 5,
+				"id": "herbal_tea"
+			},
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null
+		],
+		"draught": null,
+		"equipped": {
+			"boots": {
+				"affixes": [],
+				"appearance": "folded",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "straw_sandals",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 4
+			},
+			"cape": null,
+			"gourd": {
+				"affixes": [],
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "starter_gourd",
+				"ilv": 1,
+				"inlays": [],
+				"quality": "common",
+				"uid": 1
+			},
+			"hat": null,
+			"robe": {
+				"affixes": [],
+				"appearance": "vneck",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "hemp_robe",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 2
+			},
+			"talisman": null,
+			"trousers": {
+				"affixes": [],
+				"appearance": "straight",
+				"bound": false,
+				"count": 1,
+				"durability": 100,
+				"enhance": 0,
+				"id": "hemp_trousers",
+				"ilv": 5,
+				"inlays": [],
+				"quality": "common",
+				"uid": 3
+			},
+			"weapon": null
+		},
+		"furnace": null,
+		"key_items": [
+			{
+				"count": 1,
+				"id": "river_token"
+			}
+		],
+		"loadout": {
+			"active": "a",
+			"spare": null
+		},
+		"locked": [],
+		"next_uid": 6,
+		"quick": [
+			"",
+			"",
+			""
+		],
+		"quick_use": "",
+		"treasures": [
+			"",
+			""
+		],
+		"vessel": ""
+	},
+	"last_active_utc": 0.0,
+	"last_shrine": {
+
+	},
+	"last_town": "",
+	"loadouts": [],
+	"minor": 1,
+	"mount_pet": "",
+	"name": "Wen Classic",
+	"origin": "fishers_child",
+	"party_pets": [],
+	"pet_bag": [],
+	"pets": [],
+	"pools": {
+		"composure": 100.0,
+		"hollowing": 0.0,
+		"hp": 136.16637888,
+		"qi": 41.42,
+		"soul": 0.0
+	},
+	"position": {
+		"facing": 1,
+		"portal": "",
+		"room": "sf_fairground",
+		"surface": "",
+		"x": 3500.0,
+		"y": 820.0
+	},
+	"posts": {
+
+	},
+	"professions": {
+
+	},
+	"quests": {
+		"active": {
+
+		},
+		"board_day": -1,
+		"daily": {
+
+		},
+		"done": {
+			"a_quiet_river": 1,
+			"crab_trouble": 1,
+			"evening_on_the_river": 1,
+			"fists_first": 1,
+			"grannys_remedy": 1,
+			"mas_delivery": 1,
+			"morning_tide": 1,
+			"the_hollow_night": 1,
+			"the_river_token": 1,
+			"the_runaway_kite": 1,
+			"the_willow_path": 1
+		},
+		"flags": [
+			"night_survived",
+			"prologue_done",
+			"dou_safe",
+			"granny_safe",
+			"ma_safe"
+		],
+		"offered": [],
+		"scenes": {
+
+		},
+		"tracked": []
+	},
+	"relations": {
+		"affinity": {
+
+		},
+		"alignment": 0,
+		"bonds": {
+			"dao_companion": "",
+			"master": "",
+			"sworn": []
+		},
+		"bounties": [],
+		"debts": {
+
+		},
+		"deeds": {
+
+		},
+		"fame": 0,
+		"fortune": {
+
+		},
+		"grudges": {
+
+		},
+		"hunters": [],
+		"ledger": [],
+		"merit": 0,
+		"merit_used": {
+
+		},
+		"mortal": {
+
+		},
+		"sin": 0
+	},
+	"riding": false,
+	"rng": {
+		"seed": "1791097559",
+		"streams": {
+			"world": "-8241119954354194224"
+		}
+	},
+	"rooms": {
+
+	},
+	"seclusion": {
+
+	},
+	"skill_page": 0,
+	"skip_prologue": true,
+	"slot": 2,
+	"starter_drops": {
+
+	},
+	"statuses": [],
+	"swarm": {
+
+	},
+	"tower": {
+
+	},
+	"training_sect": {
+
+	},
+	"tutorials": {
+		"at": {
+
+		},
+		"guided": {
+			"bag": 1,
+			"codex": 1,
+			"cultivate": 1,
+			"cultivation": 1,
+			"gear": 1,
+			"menu": 1,
+			"quests": 1
+		},
+		"queue": [],
+		"seen": {
+			"bag": 1,
+			"codex": 1,
+			"cultivate": 1,
+			"cultivation": 1,
+			"gear": 1,
+			"menu": 1,
+			"quests": 1
+		},
+		"v": 2
+	},
+	"version": 3,
+	"view": ""
+}

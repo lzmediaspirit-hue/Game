@@ -1,7 +1,8 @@
 # Jade River — the Complete Valley (Act I), the Azure Expanse (Act II) and the Lantern Star Field (Act III)
 
-A 2.5D side-scrolling wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility,
-1280×720, touch-first with full keyboard support). You begin as a fisher's child in Lotus Ferry
+A top-down wuxia/xianxia cultivation RPG built in Godot 4.5.1 (GL Compatibility, 1280×720,
+touch-first with full keyboard support): every room is a height grid of floors, terraces, stairs
+and water seen from above (the side view it began in was retired in S12a). You begin as a fisher's child in Lotus Ferry
 with bare fists and no Qi. The Prologue teaches one thing at a time: talking, carrying, jumping,
 money, healing, fighting. After a night the village will not forget, you step onto the cultivation
 ladder. Act I climbs from Bone Forging through Qi Kindling, Qi Unfurling, Heart Tempering, Cloud
@@ -60,8 +61,7 @@ weapon. Every HUD button is revealed by the system that introduces it.
 
 | Action | Touch | Keyboard |
 |---|---|---|
-| Move (horizontal and depth) | Left joystick | WASD / arrows |
-| Sprint | Keep moving sideways for 2 s | Hold Shift |
+| Move (eight ways on the plane) | Left joystick: a light touch tiptoes, pushed past its band it runs | WASD / arrows |
 | Jump / double jump | Jump | Space |
 | Fly (Cloud Stride 1): take off, climb, descend | Jump again at the top of a double jump; hold Jump to climb, hold Guard to descend | Space; hold Space / K |
 | Attack / context action (talk, gather, pray, travel) | Attack button (changes with context) | J / Enter, F for the context |
@@ -104,10 +104,10 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 
 | Suite | What it proves |
 |---|---|
-| `engine_tests` | Movement, avatar, surfaces, saves (3,660 checks) |
+| `engine_tests` | Every look drawn by the top-down figure, the motor's walk, stairs, jumps and solids on a room's grid, the HUD's touches, saves and the creator (898 checks) |
 | `data_validation` | Every ID resolves, known effect and requirement kinds, appearances, dyes and icons exist, every room reachable, portals link both ways, spawns on surfaces and clear of portals, no interactable hides another or a door, every guided and main quest's giver, direction marks and hand-in reachable where the story offers it |
-| `room_sweep` | Every room walked with the real movement solver: every door and interactable reached from every way in, the route between every pair walked without a snag, no solid footprint without art |
-| `visibility_suite` | Every room: every way (open and shut), object, person and solid prop draws art that exists, stands in the room where the camera shows it, and is not hidden by a layer drawn after it (the real draw order); a door in a building's front shows its doorway; an open way's plate names a room on screen |
+| `room_sweep` | Every room walked on its grid by the top-down motor: every way, context and training object reached from every way in, each leg of the grid's route walked cell by cell without a snag, every tile-set prop drawn over its footprint |
+| `visibility_suite` | Every room on the grid: every person drawn whole in the top-down style, every thing's prop, icon or light drawn, every way with its plate and floor mark (a way into a building in its doorway), no anchor inside a solid prop |
 | `rules_tests` | Formulas at the spec's sample values (damage, attunement, mastery, risk), same-seed replay, offline caps, no offline breakthroughs, spirit animal stage gates, the weekly mission, save recovery from `.bak` |
 | `balance_sim` | A rate-based bot plays the data to Heaven Glimpse 3 with the real rules and meets the pacing table (±15%); the next gear upgrade is affordable after 1–2 hours at Levels 15 and 25 (`data/balance.json`) |
 | `perf_tests` | Every room loads in under 0.3 s, every page opens in under 0.15 s, a frame with fifteen monsters fits 60 fps (CPU, headless) |
@@ -119,7 +119,9 @@ tools/run_tests.sh                 # Linux/macOS (GODOT=/path/to/godot)
 `valley_run` saves a checkpoint at the start of each section, so one part can be replayed:
 `godot --headless --path . res://tests/valley_run.tscn -- --from=ht5 --only --verbose`.
 
-The art rules in `AGENTS.md` still apply to every new item and animation (`Validate-Animations.ps1`).
+The art rules in `AGENTS.md` still apply to every new item and animation; the top-down figure's coverage is checked by
+`data_validation` and seen in `tests/topdown_figure_gallery.tscn` (the side view's `Validate-Animations.ps1` went with
+it in S12a).
 
 ## Preview and debug arguments
 
@@ -134,7 +136,7 @@ every system, `--debug-sect` gives a founded sect with all buildings, `--fly` ta
 `data/moments.json` row with its sample payload and holds it at t seconds (with `--capture`, the shot is taken at t),
 `--breakthrough[=t]` takes the character over its next step for real, `--hold=t[:row]` holds a real moment at t,
 `--foe=enemy[:count[:hp]]` sets foes in front of you, `--defeat-foe[=s]` defeats the first foe with its real drop,
-`--cast=<technique>[:t]` draws a technique's cast and hits at its tier (nothing is submitted), `--log-events`
+`--log-events`
 prints the event stream, `--capture` saves `../<shot>-preview.png`. `--room=` and `--at=` also work with `--load-slot`.
 `--max-character` makes the Max Test character (below) in an empty save and opens every way; add `--load-slot` to enter as them.
 `scripts/dev/debug_args.gd` reads every flag but `--max-character`, which is the Max Test build's own (`main.gd`). The
@@ -160,7 +162,7 @@ game loads that script only when it is given arguments (`docs/architecture/shell
 
 ## Art and credits
 
-Characters use the layered avatar engine (body, hair, garments in ten dyes, shoes, weapons, hats,
-capes) with pose-registered sheets; enemies and NPCs are drawn with the same engine or with the
-creature sheets in `art/creatures/`. Backdrops, props, UI and audio are original to this project.
+Characters, villagers and person foes are the layered top-down figure (body, hair, garments in ten dyes, shoes,
+weapons, hats, capes; `art/topdown/character/`); every creature is its species' top-down sheet (`art/topdown/foes/`,
+the monster engine's). Tiles, props, UI and audio are original to this project.
 Character attribution: `data/LPC-CREDITS.txt`. Font licences: `art/fonts/OFL.txt` (Cormorant Garamond), `art/fonts/SourceSerif4-OFL.txt`, `art/fonts/PixelifySans-OFL.txt` and `art/fonts/JadeRiverSymbols-LICENSE.txt` (a renamed DejaVu Sans symbol subset).

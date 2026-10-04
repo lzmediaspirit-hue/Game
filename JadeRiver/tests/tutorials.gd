@@ -137,7 +137,7 @@ func fresh(but: Array) -> void:
 	Game.boot()
 	Game.autosave_enabled = false
 	for s in Game.characters.keys(): Game.submit({"type": "delete_character", "slot": int(str(s).trim_prefix("c"))})
-	Game.submit({"type": "create_character", "slot": 1, "name": "Tutee", "appearance": {"hair": "topknot"}, "view": "topdown"})
+	Game.submit({"type": "create_character", "slot": 1, "name": "Tutee", "appearance": {"hair": "topknot"}})
 	var ch = Game.character("c1")
 	for row in ContentDB.all("scenes"): ch.quests.scenes[str(row.id)] = {"done": true}
 	know_all_but(ch, but)

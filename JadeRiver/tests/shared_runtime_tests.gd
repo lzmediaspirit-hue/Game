@@ -210,28 +210,23 @@ func _fx_cap() -> void:
 	fx.clear()
 	w.queue_free()
 
-# ------------------------------------------------------------------ Figures (DUP-03)
+# ------------------------------------------------------------------ Figures (DUP-03; one figure since S12a)
 func _figures() -> void:
-	var top := {"view": "topdown"}
-	var side := {"view": "side"}
 	var o := {"body": "light", "hair": "topknot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}
-	check(Figures.top_down(top) and not Figures.top_down(side), "Figures tells a top-down character from a side-view one")
-	var d := Figures.for_character(top)
-	var a := Figures.for_character(side)
-	check(d is TopdownDoll and a.get_script() == load("res://scripts/avatar.gd"), "each view gets its own figure")
-	var d2 := Figures.for_outfit(o, 2.5, 5, top, "s")
-	var a2 := Figures.for_outfit(o, 2.5, 5, side)
-	check(d2 is TopdownDoll and d2.scale == Vector2.ONE * 5 and (d2 as TopdownDoll).row == "s" and a2.scale == Vector2.ONE * 2.5 and a2.outfit == o,
-		"a dressed figure at each view's scale")
-	a2.set("last_key", "x")
-	Figures.dress(a2, o)
-	check(a2.get("last_key") == "", "dressing the side view's avatar asks its layers again")
-	check(Figures.pick(d2, 1, 2) == 1 and Figures.pick(a2, 1, 2) == 2, "a value picked by the figure's kind")
-	var chip := Figures.chip(null, Rect2(-14, -40, 28, 30), Vector2(26, 30), top)
-	check(chip is TopdownDoll and (chip as TopdownDoll).clip == Rect2(-14, -40, 28, 30), "a chip's head and shoulders")
+	var d := Figures.for_character()
+	check(d is TopdownDoll and d.scale == Vector2.ONE, "a character's figure is the top-down one, undressed, at its own scale")
+	var d2 := Figures.for_outfit(o, 5, "s")
+	var d3 := Figures.for_outfit(o, 3)
+	check(d2.scale == Vector2.ONE * 5 and d2.row == "s" and d3.scale == Vector2.ONE * 3 and d3.row == TopdownDoll.PORTRAIT_ROW,
+		"a dressed figure at a whole scale, facing the row asked (the portrait's when none is)")
+	var other := {"body": "light", "hair": "short_knot", "shirt": "scholar", "pants": "martial", "shoes": "boots"}
+	Figures.dress(d, other)
+	check(d.outfit == other, "dressing a figure puts on the outfit")
+	var chip := Figures.chip(null, Rect2(-14, -40, 28, 30))
+	check(chip is TopdownDoll and chip.clip == Rect2(-14, -40, 28, 30), "a chip's head and shoulders")
 	var ci := Node2D.new()
-	Figures.draw_on(null, ci, Vector2.ZERO, 1.0, Vector2.ZERO, 1.0)   # no figure: nothing, and no error
-	for f in [d, a, d2, a2, chip, ci]: f.free()
+	Figures.draw_on(null, ci, Vector2.ZERO, 1.0)   # no figure: nothing, and no error
+	for f in [d, d2, d3, chip, ci]: f.free()
 
 # ------------------------------------------------------------------ ContentDB (BUG-11)
 ## Every table, group and index as a boot that read everything found them: read here afresh, as the old load_all did.

@@ -1,4 +1,4 @@
-"""The fan family (weapon_families.json `fan`; parts.json weapon `fan`): the iron fan (tools/art/bake_weapons.py
+"""The fan family (weapon_families.json `fan`; parts.json weapon `fan`): the iron fan (the side view's weapon bake
 `fan_frame`), cream paper pleated over brown ribs, a band of teal ink along its rim and a gold rivet, cast by
 figure/kinds/fan.py. It opens in the blows (the family's swings, and every thrust, punch, the guard and the plunge's
 dive, the charged wind-up, the dash and air strikes and the parry) and folds at rest; its third step throws it

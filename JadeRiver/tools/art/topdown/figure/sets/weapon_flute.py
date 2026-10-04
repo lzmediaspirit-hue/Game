@@ -1,5 +1,5 @@
 """The flute family (weapon_families.json `flute`; parts.json weapon `flute`): the jade flute, a green bamboo dizi with
-dark joints, finger holes and a red tassel (the side view's colours, tools/art/bake_weapons.py FLUTE), its notes
+dark joints, finger holes and a red tassel (the side view's colours, the side view's weapon bake FLUTE), its notes
 ripples of pale jade light, cast by figure/kinds/flute.py."""
 from __future__ import annotations
 

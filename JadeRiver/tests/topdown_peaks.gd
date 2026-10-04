@@ -14,7 +14,7 @@ extends "res://tests/prologue_run.gd"
 ##   3. the story on the peaks: Above the Mist's five Stormwing Hawks on the Sky Ledges; A Wider Sky's meditation by
 ##      the heaven insight stone in the Forgotten Monastery, its hidden stair shown by Spirit Sense and taken; Beyond the
 ##      Valley to the Frozen Shrine, Lu's journal page there; The Ascension Gate's Gate Guardian on the summit arena,
-##      Act I's end, and the way up to the Azure Expanse closed by the prototype's gate while it has no layout;
+##      Act I's end, and the way up to the Azure Expanse leading on to its room on the grid;
 ##   4. the Hidden Vale: its teleport stone sets a body down on the grid; a sect founded, the Sect Grounds' raid comes
 ##      in on the grid's floor; the Back Mountain opened by the sect's level; the Hidden Grotto's rope back up to Crane
 ##      Falls.
@@ -31,7 +31,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("peaks/")
 	_to_the_peaks()
 	_the_climb()
@@ -73,8 +72,8 @@ func _to_the_peaks() -> void:
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(room() == "cc_cliff_faces" and Game.room_rt.topdown != null and ProgressionRules.at_least(c().cultivator.realm_key, "heaven_glimpse_3"),
 		"at the peaks' door: the Cliff Faces on the grid, Heaven Glimpse 3 (room %s, realm %s)" % [room(), c().cultivator.realm_key])
-	check(_gated("east") == not TopdownRoom.has_layout("wg_echo_cliffs"),
-		"the Cliff Faces' way east down to the Echo Cliffs is gated exactly while the Echo Cliffs has no layout")
+	check(_leads_on("east"),
+		"the Cliff Faces' way east leads down to the Echo Cliffs, on the grid")
 
 ## A realm set outright (a test shortcut), its unlocks and offers evaluated.
 func _realm(key: String) -> void:
@@ -159,14 +158,13 @@ func _steps_done(q: String) -> bool:
 ## The tracker's entry for `quest` leads to `target`, a room on the grid.
 func _leads(quest: String, target: String) -> bool:
 	for e in Game.quest.tracker(c()):
-		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target) and not e.get("gate", false)
+		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target)
 	return false
 
-## Is the way `pid` of this room closed by the prototype's gate (its line said), and is that because its room has no
-## layout yet?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 func _the_climb() -> void:
 	# Above the Mist: the Sky Ledges' hawks.
@@ -192,7 +190,7 @@ func _the_climb() -> void:
 	check(rooms == ["cc_sky_ledges", "mp_misty_slopes", "mp_forgotten_monastery"], "up through the Misty Slopes to the Forgotten Monastery, room by room on the grid (%s)" % str(rooms))
 	# A Wider Sky: meditate by the heaven insight stone.
 	var stone: Dictionary = Game.room_rt.object_def("heaven_insight")
-	stand_by(stone, Vector2(-30, 10), 0.0)
+	stand_by(stone, Vector2(-30, 10))
 	Game.room_rt.enemies.clear()   # a test shortcut: the monastery's lanterns and sentinels are not the point here
 	var guard := 0
 	while (Game.combat.is_stunned(c().id) or Game.combat.is_busy(c().id)) and guard < 60:
@@ -247,8 +245,8 @@ func _the_gate() -> void:
 	check(fight("gate_guardian", 1, 300.0, 0.0, true) >= 1, "the Gate Guardian defeated on the summit's arena")
 	GameEvents.flush()
 	check(c().quests.is_done("the_ascension_gate"), "Act I complete on the grid: the Ascension Gate")
-	check(_gated("ascend") == not TopdownRoom.has_layout("ae_landing"),
-		"the way up through the cliff to the Azure Expanse is closed by the prototype's gate exactly while Cloudgate Port has no layout")
+	check(_leads_on("ascend"),
+		"the way up through the cliff leads to the Azure Expanse's Cloudgate Port, on the grid")
 
 # ------------------------------------------------------------------ 4: the Hidden Vale and the Grotto
 func _the_vale() -> void:
@@ -260,7 +258,7 @@ func _the_vale() -> void:
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(tp.get("ok", false) and room() == "hv_vale_gate" and Game.room_rt.topdown != null and Game.room_rt.topdown.standable(TopdownRoom.cell_of(st.plane)),
 		"the Hidden Vale's teleport stone sets a body down on the Vale Gate's grid (%s; room %s)" % [str(tp), room()])
-	check(_gated("path") == not TopdownRoom.has_layout("cf_falls_pool"), "the Vale Gate's road west to Crane Falls is gated exactly while the Falls Pool has no layout")
+	check(_leads_on("path"), "the Vale Gate's road west leads to Crane Falls' Falls Pool, on the grid")
 	# A sect founded and grown (a test shortcut), its raid on the Sect Grounds comes in on the grid's floor.
 	var made := submit({"type": "found_sect", "name": "Peak Test Sect", "emblem": [0, 0]})
 	Game.account.sect["level"] = 6
@@ -287,10 +285,7 @@ func _the_vale() -> void:
 	st = null
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(room() == "hg_hidden_grotto" and Game.room_rt.topdown != null, "in the Hidden Grotto, on the grid (room %s)" % room())
-	if TopdownRoom.has_layout("cf_behind_falls"):
-		check(go("way_up") and room() == "cf_behind_falls" and Game.room_rt.topdown != null, "up the rope out of the grotto to behind Crane Falls, on the grid (room %s)" % room())
-	else:
-		check(_gated("way_up"), "the grotto's rope up to Crane Falls is gated while Behind the Falls has no layout")
+	check(go("way_up") and room() == "cf_behind_falls" and Game.room_rt.topdown != null, "up the rope out of the grotto to behind Crane Falls, on the grid (room %s)" % room())
 
 # ------------------------------------------------------------------ 1, 2: over the rooms
 func _the_rooms() -> void:

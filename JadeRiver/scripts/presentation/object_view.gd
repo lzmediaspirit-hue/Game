@@ -31,18 +31,18 @@ var label_box := Rect2()
 var label_offset := Vector2.ZERO
 ## The top-down view (redesign Phase 4) draws an object twice: "art" in its pixel viewport (the prop, its glow and
 ## motes, no words) and "label" on its overlay at the HUD's resolution (the verb plate, a pickup's badge, a sensed
-## herb's time). "" draws both, as the side view does.
-var mode := ""
+## herb's time).
+var mode := "art"
 
-func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
+func setup(o: Dictionary) -> void:
 	def = o
 	object_id = str(o.id)
 	prop_id = prop_of(o)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
-	z_index = depth(o, geo)
-	if str(o.type) == "pickup" and mode != "art":
+	z_index = depth(o)
+	if str(o.type) == "pickup" and mode == "label":
 		badge = Node2D.new()
 		badge.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		badge.z_index = 1
@@ -53,18 +53,14 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 static func prop_of(o: Dictionary) -> String:
 	return str(o.get("prop", DEFAULT_PROP.get(str(o.get("type", "")), "")))
 
-## The depth an object draws at: by its foot, over the roof, deck or terrace it is set on (ZoneGeometry.depth_at), or
-## behind everything with `z_back`. A flat decal (a ripple, a circle, a patch) lies under the figures standing on it:
-## on the ground 60 behind its foot, on a raised surface just over that surface's art. Only a decal prop is flat (a
-## notice board or a mat that is inspected stands like any thing).
-static func depth(o: Dictionary, geo: ZoneGeometry = null) -> int:
+## The depth a label draws at on the overlay: by its foot, or behind everything with `z_back`; a flat decal's (a
+## ripple, a circle, a patch) 60 behind its foot, under the figures standing on it. Only a decal prop is flat (a notice
+## board or a mat that is inspected stands like any thing).
+static func depth(o: Dictionary) -> int:
 	if o.get("z_back", false): return -1500
 	var at: Array = o.get("at", [0, 0])
-	var plane := Vector2(float(at[0]), float(at[1]))
-	var foot := 1500 + int(plane.y)
-	var z := geo.depth_at(plane, float(o.get("alt", 0))) if geo else foot
-	if not bool(SpriteCache.prop(prop_of(o)).get("decal", false)): return z
-	return foot - 60 if z == foot else z - 1
+	var foot := 1500 + int(float(at[1]))
+	return foot - 60 if bool(SpriteCache.prop(prop_of(o)).get("decal", false)) else foot
 
 func state_name() -> String:
 	var rt: RoomRuntime = Game.room_rt
@@ -175,7 +171,6 @@ func _draw() -> void:
 				draw_circle(Vector2(cos(a) * r, -60.0 + sin(a) * r * 0.7), 2.2, Color(0.85, 0.7, 1.0, 0.9))
 		drawn = SpriteCache.draw_prop(self, current_prop(), st, t, Vector2.ZERO, bool(def.get("flip", false)))
 		if rare and not ripe and st == "ready": draw_circle(Vector2(0, -14), 22.0, Color(0.05, 0.1, 0.1, 0.25))   # still growing
-	if def.type == "herb_patch" and def.has("ripen") and mode == "": _draw_sensed()
 	if def.type == "insect_swarm" and st == "ready": _draw_swarm()
 	_draw_post_flag()
 	if not drawn and def.type != "pickup":
@@ -183,7 +178,6 @@ func _draw() -> void:
 	if def.type == "earth_vent": _draw_earth_fire()
 	if def.type == "spirit_mine": _draw_mine()
 	if def.type == "garden_bed": _draw_bed_herb()
-	if mode == "": _draw_plate()
 
 ## The verb plate over the context target (a pickup's plate is its badge's).
 func _draw_plate() -> void:

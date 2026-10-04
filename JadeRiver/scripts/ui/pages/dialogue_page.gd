@@ -13,7 +13,7 @@ var convo: Dictionary = {}
 var line := 0
 var shown_chars := 0.0
 var portrait: Node2D
-const TOP_SCALE := 4      # a top-down speaker's portrait (TopdownDoll), screen px an art px
+const TOP_SCALE := 4      # the speaker's portrait (TopdownDoll), screen px an art px
 var card_at := INF                         # when the offered quest's card began to unroll (INF: not yet)
 
 const CARD := Rect2(880, 264, 336, 212)    # the offered quest, pinned above the choices
@@ -42,10 +42,9 @@ func setup() -> void:
 	portrait = null
 	var outfit: Dictionary = convo.get("portrait", {})
 	if not outfit.is_empty():
-		# Decision 42: the speaker as the game draws them: in the top-down game the top-down figure, at 4 px an art px,
-		# three-quarters toward the camera; a classic side-view character's talks keep the side view's portrait.
-		portrait = Figures.for_outfit(full_outfit(outfit), 1.35, TOP_SCALE)
-		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - Figures.pick(portrait, 24, 12))
+		# Decision 42: the speaker as the game draws them, at 4 px an art px, three-quarters toward the camera.
+		portrait = Figures.for_outfit(full_outfit(outfit), TOP_SCALE)
+		portrait.position = Vector2(frame_rect.position.x + 104, frame_rect.end.y - 24)
 		portrait.set("facing", 1)
 		add_child(portrait)
 		portrait.play("idle")

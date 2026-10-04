@@ -27,12 +27,10 @@ func flight_allowed(actor_id: String) -> bool:
 	if room.get("no_flight", false) or str(room.get("type", "")) in ContentDB.stat_const("flight.no_flight_types", ["interior"]): return false
 	var st: ActorState = game.actor_state(actor_id)
 	if st == null or game.room_rt == null: return true
-	# T3 (topdown_mechanics.md): on the height grid a no_flight volume stands on its layout's cells (a traverse
-	# `no_flight` row), at every height over them; the stand-in geometry holds none of the side view's.
-	if game.room_rt.topdown != null:
-		var tr := TopdownTraverse.of(game.room_rt.topdown)
-		return tr == null or tr.no_flights.is_empty() or tr.no_flight_at(st.plane).is_empty()
-	return game.room_rt.geometry.volume_at(st.plane, st.altitude, "no_flight").is_empty()
+	# T3 (topdown_mechanics.md): a no_flight volume stands on its layout's cells (a traverse `no_flight` row), at every
+	# height over them.
+	var tr := TopdownTraverse.of(game.room_rt.topdown)
+	return tr == null or tr.no_flights.is_empty() or tr.no_flight_at(st.plane).is_empty()
 
 func stop_flight(actor_id: String, reason: String) -> void:
 	if not combat.flying.has(actor_id): return
@@ -68,14 +66,12 @@ func tick_flight(c, delta: float) -> void:
 	combat.apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
 	_air_distance(c, delta)
 
-## The ground covered in the air counts toward Cloud Lung (S48). T2: on the height grid the body's velocity is the
-## plane's (x, and depth y), so a flight north or south counts as one east or west does; in the side view its y is the
-## climb and only x is ground covered.
+## The ground covered in the air counts toward Cloud Lung (S48). T2: the body's velocity is the plane's (x, and depth
+## y), so a flight north or south counts as one east or west does.
 func _air_distance(c, delta: float) -> void:
 	var st: ActorState = game.actor_state(c.id)
 	if st == null: return
-	var ground: float = st.velocity.length() if combat.grid() != null else absf(st.velocity.x)
-	game.progression.add_air_distance(c.id, ground * delta)
+	game.progression.add_air_distance(c.id, st.velocity.length() * delta)
 
 # ------------------------------------------------------------------ movement arts (S43)
 ## The movement art a secret art grants (secret_arts.json `movement_art`), known to this character.

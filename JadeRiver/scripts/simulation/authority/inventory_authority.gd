@@ -806,7 +806,7 @@ static func next_gourd(c) -> Dictionary:
 		if n > holds and (best.is_empty() or n < int(best.gourd.bag)): best = a
 	return best
 
-## Avatar outfit from the creator look plus equipped appearances (S14).
+## The figure's outfit from the creator look plus equipped appearances (S14).
 static func outfit_for(c) -> Dictionary:
 	var a: Dictionary = c.appearance
 	var o := {"name": c.name, "body": str(a.get("body", "light")), "hair": str(a.get("hair", "topknot")), "hair_color": int(a.get("hair_color", 0)),

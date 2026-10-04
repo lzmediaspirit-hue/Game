@@ -23,9 +23,6 @@ function Invoke-Native([string]$exe, [string[]]$argv) {
     return [pscustomobject]@{ Lines = $lines; Code = $code }
 }
 
-# The animation rules (AGENTS.md).
-Write-Host '== animations'
-try { & (Join-Path $PSScriptRoot 'Validate-Animations.ps1') } catch { Write-Host $_.Exception.Message; $failed.Add('animations') }
 # The data gates, each run as tools/run_tests.sh runs it:
 #   build_data     audit 45 (S5): every data/*.json file is what its generator writes;
 #   room_lint      S43 room lint and reach contract over the built rooms (Part 7);

@@ -736,10 +736,10 @@ func hd_tex(asset: String, state := "normal") -> Texture2D:
 	if tx == null: _waiting = true
 	return tx
 
-## One creature-sheet frame fitted into `rect`, feet on its bottom edge. `action`
-## loops with the page clock. Returns false when the creature has no sheet.
+## One frame of a creature's top-down sheet fitted into `rect`, feet on its bottom edge (UiKit.draw_creature). `action`
+## loops with the page clock. Returns false when the creature has no top-down sheet.
 func creature_at(rect: Rect2, creature_id: String, action := "idle", modulate := Color.WHITE) -> bool:
-	var file := str(SpriteCache.creature(creature_id).get("file", ""))
+	var file := FoeSheets.atlas(creature_id)
 	if first_draw() and SpriteCache.loading(file) and SpriteCache.tex_async(file) == null:   # still loading: the slot waits
 		_waiting = true
 		return true

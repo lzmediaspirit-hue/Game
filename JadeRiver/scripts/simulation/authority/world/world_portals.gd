@@ -1,8 +1,7 @@
 class_name WorldPortals
 extends WorldPart
 ## WorldAuthority's part: the ways out of a room: portals and hidden ways (Spirit Sense, the Wandering Eye), which of
-## them are open and the shortest route through them, the prototype's gate (decision 41), teleport stones and the shrine
-## a fall wakes you at. Every way ends in the authority's load_room.
+## them are open and the shortest route through them, teleport stones and the shrine a fall wakes you at. Every way ends in the authority's load_room.
 
 const PORTAL_RADIUS := Vector2(64, 44)
 
@@ -34,21 +33,10 @@ func portal_near(c, portal: Dictionary) -> bool:
 static func seen_flag(room_id: String, portal_id: String) -> String:
 	return "seen_" + room_id + "_" + portal_id
 
-## Decision 41, the end of the prototype: in a top-down character's game, a way from a room on the height grid into a
-## room with no top-down layout yet is closed by a gate ("The road beyond is still being drawn."), so the side view is
-## never entered mid-game. A way out of a side-view room (a save from before the gate) stays open, back onto the grid.
-func prototype_gate(c, from_room: String, to_room: String) -> bool:
-	return c != null and str(c.view) == "topdown" and to_room != "" and TopdownRoom.has_layout(from_room) and not TopdownRoom.has_layout(to_room)
-
 func portal_state(c, portal: Dictionary) -> Dictionary:
 	var target := str(portal.get("to", ""))
 	if ContentDB.room(target).is_empty():
 		return {"open": false, "text": Tx.t("sim.world.coming_soon")}
-	# The prototype's gate comes before every other lock (the debug tools' too): a way never shown yet stays hidden.
-	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, target):
-		if portal.get("type", "") == "hidden" and not c.quests.has_flag(seen_flag(game.room_rt.room_id, str(portal.id))):
-			return {"open": false, "text": "", "hidden": true}
-		return {"open": false, "text": Tx.t("sim.world.road_being_drawn"), "gate": true}
 	if world.debug_open_ways: return {"open": true, "text": ContentDB.name_of("rooms", target)}
 	if portal.has("requires") and not RequirementRules.passes(portal.requires, game.ctx(c)):
 		return {"open": false, "text": str(portal.get("locked_text", RequirementRules.first_failure_text(portal.requires, game.ctx(c))))}
@@ -62,8 +50,7 @@ func portal_state(c, portal: Dictionary) -> Dictionary:
 ## Is this portal open to this character, seen from its own room (requirements, hidden ways found)?
 func portal_open(c, room_id: String, p: Dictionary) -> bool:
 	if ContentDB.room(str(p.get("to", ""))).is_empty(): return false
-	if p.has("array"): return world.array_open(c, room_id, str(p.id), str(p.array))   # decision 42: a transfer array's link
-	if prototype_gate(c, room_id, str(p.get("to", ""))): return false   # decision 41: no route, mark or hop past the gate
+	if p.has("array"): return world.array_open(c, str(p.id), str(p.array))   # decision 42: a transfer array's link
 	if p.has("requires") and not RequirementRules.passes(p.requires, game.ctx(c)): return false
 	if str(p.get("type", "")) == "hidden" and not c.quests.has_flag(seen_flag(room_id, str(p.id))): return false
 	return true
@@ -142,24 +129,21 @@ func teleport(c, stone_id: String) -> Dictionary:
 	if not game.account.teleports.has(stone_id): return fail("undiscovered")
 	var stone := ContentDB.entry("teleport_stones", stone_id)
 	if stone.is_empty(): return fail("unknown_stone")
-	# Decision 41: a stone another character found off the top-down map is past the prototype's gate.
-	if game.room_rt != null and prototype_gate(c, game.room_rt.room_id, str(stone.get("room", ""))):
-		return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 	var fee := teleport_fee(stone_id, c)
 	if c.inventory.count("spirit_stone_shard") < fee: return fail("no_fee", {"text": Tx.plural("sim.world.needs_spirit_stone_shard", fee) % fee})
 	game.inventory.apply_remove(c.id, "spirit_stone_shard", fee, "teleport")
 	emit("teleported", {"actor": c.id, "stone": stone_id})
-	return world.load_room(c, str(stone.room), "", _stone_spot(c, stone, stone_id))
+	return world.load_room(c, str(stone.room), "", _stone_spot(stone, stone_id))
 
-## Where a teleport lands: beside its stone, the side view's spot, or on the grid in front of the stone where the
-## room's layout sets it.
-func _stone_spot(c, stone: Dictionary, stone_id: String) -> Vector2:
-	var grid := world.grid_for(c, str(stone.room))
+## Where a teleport lands: in front of the stone, where the room's layout sets it (every stone is placed: places.py).
+func _stone_spot(stone: Dictionary, stone_id: String) -> Vector2:
+	var grid := world.grid_for(str(stone.room))
 	if grid != null:
 		for o in ContentDB.room(str(stone.room)).get("objects", []):
 			if str(o.get("type", "")) == "teleport_stone" and str(o.get("stone", o.id)) == stone_id and grid.def.get("place", {}).has(str(o.id)):
 				return TopdownRoom.cell_point(grid.def.place[str(o.id)]) + Vector2(0, TopdownRoom.TILE)
-	return Vector2(float(stone.at[0]) + 60, float(stone.at[1]) + 10)
+	push_error("WorldPortals: the teleport stone %s is not placed on its room's layout" % stone_id)
+	return Vector2.INF
 
 ## Spirit Sense (S17, SA1/SA2): a soul pulse that reveals hidden portals and
 ## fog-hidden monsters within the sense radius.

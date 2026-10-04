@@ -38,7 +38,6 @@ var page_misses: Array = []  # a thing that did not open its page
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("sect_halls/")
 	_past_chapter3()
 	GameEvents.event.connect(_on_room)
@@ -115,15 +114,14 @@ func _enter(rid: String) -> bool:
 	if not INSTANCED.has(rid) or room() == rid: return travel(rid)
 	return travel(str(INSTANCED[rid][0])) and go(str(INSTANCED[rid][1])) and room() == rid
 
-## Every way of the room opens (no gate) onto a room on the grid, and its way back returns here.
+## Every way of the room opens onto a room on the grid, and its way back returns here.
 func _ways(rid: String) -> void:
 	if room() != rid: return
 	var shut: Array = []
 	for p in ContentDB.room(rid).get("portals", []):
 		var to := str(p.get("to", ""))
-		var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(str(p.id)))
-		if gs.get("gate", false) or not TopdownRoom.has_layout(to):
-			shut.append("%s (gate)" % str(p.id))
+		if not TopdownRoom.has_layout(to):
+			shut.append("%s (no layout)" % str(p.id))
 			continue
 		if not go(str(p.id)) or room() != to or Game.room_rt.topdown == null:
 			shut.append("%s -> %s" % [str(p.id), room()])
@@ -131,7 +129,7 @@ func _ways(rid: String) -> void:
 			continue
 		if not go(str(p.get("to_portal", ""))) or room() != rid: shut.append("%s back (%s)" % [str(p.id), room()])
 		if room() != rid: travel(rid)
-	check(shut.is_empty(), "%s: every way leads onto the grid, ungated, and back (%s)" % [rid, str(shut)])
+	check(shut.is_empty(), "%s: every way leads onto the grid and back (%s)" % [rid, str(shut)])
 
 # ------------------------------------------------------------------ 2, 3: each room as it is entered
 func _on_room(n: String, p: Dictionary) -> void:
@@ -315,8 +313,8 @@ func _stone_and_sweat() -> void:
 	Game.quest.apply_start(c().id, "stone_and_sweat")
 	GameEvents.flush()
 	var entry: Array = Game.quest.tracker(c()).filter(func(q): return str(q.get("quest", "")) == "stone_and_sweat")
-	check(not entry.is_empty() and not entry[0].get("gate", false) and str(entry[0].get("target_room", "")) == "sq_quarry_rim",
-		"Stone and Sweat leads to the Quarry Rim, inside the prototype now (%s)" % str(entry.slice(0, 1)))
+	check(not entry.is_empty() and str(entry[0].get("target_room", "")) == "sq_quarry_rim",
+		"Stone and Sweat leads to the Quarry Rim, on the grid (%s)" % str(entry.slice(0, 1)))
 	check(travel("sq_quarry_rim") and Game.room_rt.topdown != null, "up the Quarry Road to the rim on the grid (room %s)" % room())
 	var got := 0
 	var tries := 0

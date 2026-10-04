@@ -306,11 +306,10 @@ FAMILY_COMBO = {}
 
 
 def form_defaults():
-    from technique_anim import pose_of
     out = {}
     for f, F in G.FORMS.items():
         dtype = F["dtype"] if F["dtype"] != "qi*" else "qi"
-        # The pose most of the form's families take (a row of another family keeps its own), and the FX's pose with it.
+        # The pose most of the form's families take (a row of another family keeps its own).
         takes = {}
         for fam in G.SECTORS:
             if fam in F["fams"] and fam not in G.LATER_FAMILIES:
@@ -320,7 +319,7 @@ def form_defaults():
                   "windup_s": 0.2, "active_s": 0.2, "soul_cost": 0, "composure_cost": 0,
                   "mult": [0, 0] if F["mult"][0] == 0 else list(F["mult"]),
                   "hitbox": {"depth": F["extra"].get("depth", 30), "alt": [-10, 80] if dtype in ("qi", "soul") else [-30, 60]},
-                  "action": action, "vfx": {"shape": F["shape"], "anim": f, "pose": pose_of({"action": action})}}   # the form's FX
+                  "action": action, "vfx": {"shape": F["shape"], "anim": f}}   # the form's FX
     # (technique_anim); no icon: the emblem is composed from its id
     return out
 

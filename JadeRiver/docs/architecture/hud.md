@@ -2,7 +2,7 @@
 
 Roadmap decision 45, phase 2, slice S6 (`docs/architecture/audit_45.md` §2.2, §6.6 and §7). `scripts/hud.gd` had 3,302
 lines, 170 functions and a 615-line `match` with 234 arms. It now keeps the HUD's state, its frame and its input, and
-its work is done by ten parts under `scripts/hud/`. The game's events reach the player as rows of the cue table, the
+its work is done by nine parts under `scripts/hud/` (a tenth, the side view's answers, went with the side view in S12a). The game's events reach the player as rows of the cue table, the
 same table the world views read (`docs/architecture/cues.md`). Callers use the HUD as before.
 
 | File | Lines | What it holds |
@@ -18,7 +18,6 @@ same table the world views read (`docs/architecture/cues.md`). Callers use the H
 | `hud/hud_panels.gd` (`HudPanels`) | 390 | Drawing the plates: the player panel, the points badges, the party chips, the tracker, the icon row, the purse, the progress edge, the log, the unbound player's plain panel |
 | `hud/hud_minimap.gd` (`HudMinimap`) | 162 | The minimap and what a tap on it opens |
 | `hud/hud_top_stack.gd` (`HudTopStack`) | 280 | The top centre (a run's seconds, the room's name, a room event, a tribulation, a fortune card, the toasts, a caption) and the boss bar |
-| `hud/hud_side_view.gd` (`HudSideView`) | 79 | The side view's own answers (below) |
 
 ## How a part works
 
@@ -104,22 +103,15 @@ Then `python3 tools/data/cues.py` (or `build_data.py`). It fails on an event the
 that does not exist, a step the HUD does not play, a toast style it does not know, or a row after an open one. Then run
 `cue_tests`: it plays every HUD row once through the HUD's own `_on_event`.
 
-## The side view
+## The side view (retired in S12a)
 
-The side view is decision 41's frozen fallback (`audit_45.md` §2.4). Its code on the HUD is grouped so that retiring it
-is quick: `HudSideView` (`scripts/hud/hud_side_view.gd`) holds its answers, and each place that calls them or guards
-against its body is marked `# side view` (or, for the engine tests' bare player, `# the engine tests' bare side-view
-player`). Retiring the side view deletes the file and these branches:
-
-| Where | What the side view gets |
-|---|---|
-| `HudInput.dodge` | A body with no dash of its own: `HudSideView.dodge`, the combat authority's dodge along its facing |
-| `HudInput.aims` | No aiming: Attack and the techniques act on a tap (it gates the aims in `press`, `tick_aims`, `armed`, `Hud._notification` and the drag moves' drawing) |
-| `HudActions.use_context` | A ladder or a rope in reach (`"climbable"`, which only `world.gd` offers): `HudSideView.climb` |
-| `HudActions._play_place_pose`, `open_place_page`, `Hud.set_blocked` | No place poses (`has_method("play_place_pose")`, `"end_place_pose"`) |
-| `HudPanels._draw_face` | A classic character's companions, cut from their avatar's idle frame: `HudSideView.draw_face` (and `Hud._faces` keeps them by id) |
-| `HudMinimap.draw` | A room with no height grid: `HudSideView.minimap_projection`, `draw_minimap_surfaces` and `draw_minimap_ladders`; the quest's chevron and the player's arrow along x; every shrine as a square |
-| `Hud._input`, `HudPanels.draw_legacy` | The engine tests' bare player (no character bound): its four keys and a plain panel |
+The side view was decision 41's frozen fallback (`audit_45.md` §2.4). S12a retired it: `HudSideView`
+(`scripts/hud/hud_side_view.gd`) is gone with the branches that called it, and the HUD drives the top-down player
+alone. It always aims on the plane (`HudInput.aims` is true whenever there is a player), a tap of Evade is the player's
+dash (`TopdownPlayer.dodge`), a ladder or a face in reach is the grid's climb (`TopdownPlayer.climb`), the companions'
+faces are the top-down figure's head (`Hud._faces`, by id) and the minimap is the grid's. A HUD in the tests that has no
+real player takes `tests/lib/player_stub.gd`, the top-down player's shape. `HudPanels.draw_legacy` stays for a HUD with
+no character bound (a bare player in the view tests).
 
 ## The swap and the context's label
 
@@ -130,7 +122,7 @@ fight clears it too. `tests/hud_tests.gd` checks it right- and left-handed, with
 
 ## Checks
 
-- `tests/hud_tests.gd` (new; S2's runners take it): the HUD's 82 names, its ten parts on `new()`, the swap and the label.
+- `tests/hud_tests.gd` (new; S2's runners take it): the HUD's 82 names, its nine parts on `new()` (ten before S12a), the swap and the label.
 - `tests/cue_tests.gd`: the HUD's rows against the game and the HUD's code, its conditions and texts, every row played.
 - `rules_tests`' HUD suites, `tutorials`, `topdown_tutorial`, `tutorial_order`, `prologue_run`, `hollow_night` and
   `contract_tests` guard the move. Their check counts are as before.

@@ -1,5 +1,5 @@
 """The brush family (weapon_families.json `brush`; parts.json weapon `brush`): the calligraphy brush
-(tools/art/bake_weapons.py `brush_frame`), a jointed bamboo shaft, a lacquered collar and cap, and a tuft pale at the
+(the side view's weapon bake `brush_frame`), a jointed bamboo shaft, a lacquered collar and cap, and a tuft pale at the
 root and soaked black to its point, cast by figure/kinds/brush.py. Its cuts leave an ink stroke, broad at the brush and
 thinning behind it, run dry and broken at its tail."""
 from __future__ import annotations

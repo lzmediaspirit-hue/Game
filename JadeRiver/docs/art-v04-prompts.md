@@ -1,5 +1,7 @@
 # Version 0.4 environment art
 
+**Historical (S12a):** the side view's art these prompts made (`art/environment/`, `art/backdrops/`, the avatar's parts) is deleted with it.
+
 All assets below were generated with the built-in image-generation tool and copied into the project. The supplied image-1.png was used only as a style reference. Character art was not regenerated or edited.
 
 ## wuxia-props-v4.png

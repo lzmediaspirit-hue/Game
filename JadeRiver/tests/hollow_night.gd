@@ -35,7 +35,6 @@ const EEL := "hollowed_eel"
 var beats: Array = []   # [sim seconds into the night, what]
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	_new_director()
 	tick_watch = func():
 		scene_director.advance(0.05)

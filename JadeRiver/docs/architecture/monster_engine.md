@@ -141,7 +141,8 @@ Toad Tan and the Drowned Abbot read as ordinary villagers. So the three bosses w
 - **Face kind `human`:** brows, eyes (glowing for the drowned), a nose, a mouth (a toad's grin, open in a roar), ears;
   `hair` (`topknot`, `tail`, `loose`) and `beard` (`stubble`, `moustache`).
 
-Their rows keep `art=person(...)`: the side view still dresses its avatar in it.
+Their rows keep `art=person(...)`: the room's person stand-in and the spec's figure dress in it (the side view's
+avatar did too, until S12a).
 
 | Boss | Build | Tell (held) and blow |
 |---|---|---|
@@ -231,8 +232,9 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
 1. **Pick the plan and variant** nearest the creature. Read the variant's parts in `plans/<plan>.py`.
    - If no part kind fits, add one to the plan (a head kind, a leg kind). Keep the existing kinds' code unchanged, so
      the species already drawn stay byte-identical (`--check` proves it).
-2. **Add its ramps** to `mats.py`, from its side-view sheet's materials (`tools/art/creatures/<id>.py`), five steps:
-   deep, shadow, base, light, highlight.
+2. **Add its ramps** to `mats.py`, five steps: deep, shadow, base, light, highlight. (The species before S12b took
+   theirs from their side-view sheets' materials, `tools/art/creatures/<id>.py`; S12b deleted those, and the blocks in
+   `mats.py` keep what they took.)
 3. **Write the spec** in its region's file. If the species has a hand row in `enemies.py`, move the row into
    `data` (same values, same field order) and put `spec_row("id")` in its place. Otherwise the engine appends the row.
 4. **Build:** `python3 tools/content/monsters/build.py`. It runs `build_data.py` (rows, loot, sound, the wiki) and
@@ -408,7 +410,7 @@ and live fights in fourteen of the species' own top-down rooms.
 Twenty species, in story order: the Reflection and the Hollow Behemoth, then R6's foes (the Thunderhorn Plains,
 Rimefrost Heights, Mirrorwater Lake) and R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), the two spar
 opponents of Act II's posts, and the treasure births' guardian (the Fruit-Guardian Boar, which borrowed the thornback
-boar's side-view sheet). Each is one spec; its rows moved in unchanged (`spec_row`; the three people's outfits moved out
+boar's side-view sheet, a field S12b dropped). Each is one spec; its rows moved in unchanged (`spec_row`; the three people's outfits moved out
 of `HUMAN` into their specs). `enemies.json`, `loot_tables.json` and `sound.json` are byte-identical, and the only
 change to `foes.json` is the twenty new blocks. Every species before draws byte for byte.
 
@@ -563,6 +565,13 @@ own top-down rooms.
 
 ## Still to draw
 
-None. Every species the top-down rooms and the valley's events spawn has its own top-down sheet: M4 drew the late
-game's, and M3 the last of Act II's and the treasure births' guardian. A foe the sheet has no rows for is still drawn by
-its side-view creature sheet at half size (`TopdownPlaces.stand_in`), so a new species stands in until it is drawn.
+No foe. Every species the top-down rooms and the valley's events spawn has its own top-down sheet: M4 drew the late
+game's, and M3 the last of Act II's and the treasure births' guardian. S12b then deleted the side view's creature
+sheets that had stood in for a species with none (`art/creatures`, `CreatureSprite`, EnemyView's art mode): a creature
+the sheet has no rows for now shows only its shadow in the room and an empty slot on a page, so a new species is drawn
+before it is spawned. A spirit animal is its species' sheet too (`TopdownWorld.FoeView`, its form's size and tint), and
+so are the pages' creatures (`FoeSheets`: the bestiary, the pets, the beast pages, a bounty's target, the party chip).
+
+Four creatures that are not foes have no sheet yet (`data_validation`'s `NO_TOP_SHEET_YET`): the **cloud stag** (a pet
+and a mount), the **hatchling wyrm** (a pet), and the **Copperjaw swarm** and its **queen** (the beetle swarm's tab and
+its release). They are the next to draw.

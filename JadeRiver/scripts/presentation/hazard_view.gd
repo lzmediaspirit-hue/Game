@@ -4,18 +4,16 @@ extends Node2D
 ## a warning (a broken amber border and a "!" mark, so it reads without colour), the active
 ## blow and the cooldown. Presentation only: nothing here changes game state.
 ##
-## What it draws comes in three kinds, and each view puts them where they belong:
+## What it draws comes in three kinds:
 ##   - the screen's washes and weather (rain, fog, snow, a gust's lines, a storm's flash, the chill, the Presence's dark
-##     edges) and the warning marks: on `air`, over the room and under the HUD (the side view's own layer; on the
-##     top-down overlay under the names, the aim and the effects);
+##     edges) and the warning marks: on `air`, the top-down view's overlay, under the names, the aim and the effects;
 ##   - parts lying flat on the ground at a spot (a strike's ring, a scorch, rubble, a pool, a current, a shelter's warm
 ##     ring, a boss's blast ring);
 ##   - parts standing up from a spot (a falling rock, a bolt, springing spikes, a dust cloud).
-## The side view draws the flat parts on `ground` (under everyone) and the upright ones on `air`. The top-down view
-## (redesign Phase 4) sorts each part with the room in its pixel viewport (`sorted_layer`): a flat part just over the
-## floor it lies on and under whoever stands on it (TopdownRoom.decal_key), an upright one at its spot's own key, so a
-## wall or a terrace in front hides it and a body in front stands over it. There the ground is seen whole, so a ring
-## is drawn as the circle it strikes (`squash`), where the side view flattens it into its strip.
+## The top-down view (redesign Phase 4) sorts each part tied to a spot with the room in its pixel viewport
+## (`sorted_layer`): a flat part just over the floor it lies on and under whoever stands on it (TopdownRoom.decal_key),
+## an upright one at its spot's own key, so a wall or a terrace in front hides it and a body in front stands over it.
+## The ground is seen whole, so a ring is drawn as the circle it strikes (SQUASH).
 
 const AMBER := Color("e8a33c")
 const DUST := Color("b39a78")
@@ -29,33 +27,24 @@ const HOLLOW_GREY := Color("a3aab0")
 const GAS := Color("b7c95a")
 
 var world
-var ground := Node2D.new()   # on the ground, under everyone standing in it
-var air := Node2D.new()      # over the room
+var air := Node2D.new()      # over the room, under the names
 var t := 0.0
 var impacts: Array = []      # {kind, pos (lifted), p (on the plane), z, t, dur}: dust, rubble and scorch left behind
 var last_phase: Dictionary = {}
-## Redesign Phase 4, set by the top-down view before it adds this: its room and the Y-sorted layer of its pixel
-## viewport, where each part tied to a spot is one node (`pieces`) at its sort key.
+## Set by the top-down view before it adds this: its room and the Y-sorted layer of its pixel viewport, where each part
+## tied to a spot is one node (`pieces`) at its sort key.
 var room: TopdownRoom = null
 var sorted_layer: Node2D = null
 var pieces: Array = []
-## A ring's depth for its width: the side view's walk strip flattens rings on the ground to 0.42 of their width (and
-## the rest to their own shares); the top-down plane is seen whole, so they are drawn round (1 / 0.42).
-var squash := 1.0
+## A ring's depth for its width, as a share of the old flattened ring's (0.42 of its width): the plane is seen whole, so
+## rings are drawn round.
+const SQUASH := 1.0 / 0.42
 
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	ground.z_as_relative = false
-	ground.z_index = -1850
 	air.z_as_relative = false
-	air.z_index = 3900
-	if sorted_layer != null:
-		ground.visible = false   # its parts sort in the viewport
-		air.z_index = WorldLabels.LABEL_Z - 150   # over the room, under the names, the aim, the effects and the HUD
-		squash = 1.0 / 0.42
-	add_child(ground)
+	air.z_index = WorldLabels.LABEL_Z - 150   # over the room, under the names, the aim, the effects and the HUD
 	add_child(air)
-	ground.draw.connect(_draw_ground)
 	air.draw.connect(_draw_air)
 
 func _exit_tree() -> void:
@@ -63,9 +52,9 @@ func _exit_tree() -> void:
 		if is_instance_valid(pc): pc.queue_free()
 	pieces.clear()
 
-## A ring's depth: `k` of its width `r` in the side view's strip, the whole circle on the top-down plane.
+## A ring's depth: the whole circle of width `r` (`k`: its old share of the width).
 func _ry(r: float, k: float) -> float:
-	return r * minf(1.0, k * squash)
+	return r * minf(1.0, k * SQUASH)
 
 func _process(delta: float) -> void:
 	t += delta
@@ -84,7 +73,6 @@ func _process(delta: float) -> void:
 	# A room without hazards draws only while a tribulation is under way (or its scorch marks fade).
 	var busy := not rt.hazards.is_empty() or not impacts.is_empty() or not _trib_state().is_empty() or _detonating(rt)
 	if busy or drawn:
-		ground.queue_redraw()
 		air.queue_redraw()
 		if sorted_layer != null: _place_pieces(rt)
 	drawn = busy
@@ -141,7 +129,7 @@ func _trib_state() -> Dictionary:
 		return {"phase": "active", "t": float(trib_strike.t), "dur": 0.35, "spots": [_trib_spot(float(trib_strike.x), float(trib_strike.y))], "radius": 80.0}
 	return {}
 
-## A bolt's spot [x, y, height]: on the ground in the side view, on the grid's floor there.
+## A bolt's spot [x, y, height], on the grid's floor there.
 func _trib_spot(x: float, y: float) -> Array:
 	return [x, y, room.floor_at(Vector2(x, y)) if room != null else 0.0]
 
@@ -219,19 +207,18 @@ func _player_pos() -> Vector2:
 	return world.feet() if world and world.player else Vector2.ZERO
 
 # ------------------------------------------------------------------ the parts tied to a spot
-## Every part of the room's hazards tied to a spot on the ground, in the order the side view draws them: {kind, p (on
-## the plane), z (the floor under it), flat (lies on the floor, else stands up from it), half (a flat part's depth in
-## world units), side ("ground" or "air": the side view's layer), mark (a warning mark: always on `air`)} and what it
-## draws (the hazard, its phase state, the spot or area, the impact).
+## Every part of the room's hazards tied to a spot on the ground: {kind, p (on the plane), z (the floor under it), flat
+## (lies on the floor, else stands up from it), half (a flat part's depth in world units), mark (a warning mark: always
+## on `air`)} and what it draws (the hazard, its phase state, the spot or area, the impact).
 func parts(rt: RoomRuntime) -> Array:
 	var out: Array = []
-	var add := func(kind: String, p: Vector2, z: float, flat: bool, half: float, side: String, extra: Dictionary) -> void:
-		var part := {"kind": kind, "p": p, "z": z, "flat": flat, "half": half, "side": side, "mark": kind == "mark"}
+	var add := func(kind: String, p: Vector2, z: float, flat: bool, half: float, extra: Dictionary) -> void:
+		var part := {"kind": kind, "p": p, "z": z, "flat": flat, "half": half, "mark": kind == "mark"}
 		part.merge(extra)
 		out.append(part)
 	for im in impacts:
 		var flat: bool = str(im.kind) in ["rubble", "scorch"]
-		add.call("impact", im.p, float(im.z), flat, 20.0, "air" if im.kind == "dust" else "ground", {"im": im})
+		add.call("impact", im.p, float(im.z), flat, 20.0, {"im": im})
 	for hid in rt.hazards:
 		var h := ContentDB.entry("hazards", str(hid))
 		var hs: Dictionary = rt.hazards[hid]
@@ -240,31 +227,31 @@ func parts(rt: RoomRuntime) -> Array:
 				var r := float(h.get("radius", 60))
 				for sp in hs.spots:
 					var p := Vector2(float(sp[0]), float(sp[1]))
-					add.call("strike", p, float(sp[2]), true, _ry(r, 0.42), "ground", {"hid": str(hid), "h": h, "hs": hs, "sp": sp})
-					if hid == "spike_traps" and hs.phase == "active": add.call("spikes", p, float(sp[2]), false, 0.0, "ground", {"hs": hs, "sp": sp, "r": r})
+					add.call("strike", p, float(sp[2]), true, _ry(r, 0.42), {"hid": str(hid), "h": h, "hs": hs, "sp": sp})
+					if hid == "spike_traps" and hs.phase == "active": add.call("spikes", p, float(sp[2]), false, 0.0, {"hs": hs, "sp": sp, "r": r})
 			"flow", "pool":
 				var areas := HazardRules.areas(h, rt.def)
 				for ai in areas.size():
 					var c := HazardRules.rect(areas[ai]).get_center()
-					add.call(str(h.kind), c, _floor(c), true, HazardRules.rect(areas[ai]).size.y * 0.5, "ground", {"hid": str(hid), "h": h, "hs": hs, "a": areas[ai], "ai": ai})
+					add.call(str(h.kind), c, _floor(c), true, HazardRules.rect(areas[ai]).size.y * 0.5, {"hid": str(hid), "h": h, "hs": hs, "a": areas[ai], "ai": ai})
 			"aura":
 				if hid == "cold" and hs.phase in ["warn", "active"]:
 					for o in rt.def.get("objects", []):
 						if not str(o.get("type", "")) in h.get("shelter", []): continue
 						var at := Vector2(float(o.at[0]), float(o.at[1]))
-						add.call("shelter", at, _floor(at), true, _ry(_shelter_r(), 0.4), "ground", {})
+						add.call("shelter", at, _floor(at), true, _ry(_shelter_r(), 0.4), {})
 	var ts := _trib_state()
 	if not ts.is_empty():
 		var sp0: Array = ts.spots[0]
 		var tp := Vector2(float(sp0[0]), float(sp0[1]))
-		add.call("strike", tp, float(sp0[2]), true, _ry(float(ts.radius), 0.42), "ground", {"hid": "lightning", "h": {"radius": float(ts.radius)}, "hs": ts, "sp": sp0})
+		add.call("strike", tp, float(sp0[2]), true, _ry(float(ts.radius), 0.42), {"hid": "lightning", "h": {"radius": float(ts.radius)}, "hs": ts, "sp": sp0})
 	# S48: a boss burning its nascent soul shows the ring of the coming blast.
 	for e in rt.living_enemies():
 		if str(e.ai.get("state", "")) != "detonating": continue
 		var rad := float(e.ai.get("detonation", {}).get("radius", 280))
-		add.call("detonation", e.plane, _floor(e.plane), true, _ry(rad, 0.42), "ground", {"rad": rad})
-	# Standing up from the ground (the side view's air layer), and the warning marks over their spots.
-	if not ts.is_empty(): add.call("bolt", Vector2(float(ts.spots[0][0]), float(ts.spots[0][1])), float(ts.spots[0][2]), false, 0.0, "air", {"hs": ts, "sp": ts.spots[0]})
+		add.call("detonation", e.plane, _floor(e.plane), true, _ry(rad, 0.42), {"rad": rad})
+	# Standing up from the ground, and the warning marks over their spots.
+	if not ts.is_empty(): add.call("bolt", Vector2(float(ts.spots[0][0]), float(ts.spots[0][1])), float(ts.spots[0][2]), false, 0.0, {"hs": ts, "sp": ts.spots[0]})
 	for hid in rt.hazards:
 		var h := ContentDB.entry("hazards", str(hid))
 		var hs: Dictionary = rt.hazards[hid]
@@ -272,20 +259,20 @@ func parts(rt: RoomRuntime) -> Array:
 			var sp: Array = hs.spots[si]
 			var p := Vector2(float(sp[0]), float(sp[1]))
 			match str(hid):
-				"falling_rocks": add.call("rock", p, float(sp[2]), false, 0.0, "air", {"hs": hs, "sp": sp, "si": si})
-				"lightning": add.call("bolt", p, float(sp[2]), false, 0.0, "air", {"hs": hs, "sp": sp})
+				"falling_rocks": add.call("rock", p, float(sp[2]), false, 0.0, {"hs": hs, "sp": sp, "si": si})
+				"lightning": add.call("bolt", p, float(sp[2]), false, 0.0, {"hs": hs, "sp": sp})
 			if hs.phase == "warn" and str(hid) in ["falling_rocks", "lightning", "spike_traps"]:
-				add.call("mark", p, float(sp[2]), false, 0.0, "air", {"hid": str(hid), "at": Vector2(p.x, p.y - float(sp[2])) + Vector2(0, -128)})
+				add.call("mark", p, float(sp[2]), false, 0.0, {"hid": str(hid), "at": Vector2(p.x, p.y - float(sp[2])) + Vector2(0, -128)})
 		if str(h.get("kind", "")) == "pool" and hs.phase == "warn":
 			for a in HazardRules.areas(h, rt.def):
 				var c := HazardRules.rect(a).get_center()
-				add.call("mark", c, _floor(c), false, 0.0, "air", {"at": Vector2(c.x, c.y - _floor(c)) + Vector2(0, -96)})
+				add.call("mark", c, _floor(c), false, 0.0, {"at": Vector2(c.x, c.y - _floor(c)) + Vector2(0, -96)})
 	if ts.get("phase", "") == "warn":
 		var sp1: Array = ts.spots[0]
-		add.call("mark", Vector2(float(sp1[0]), float(sp1[1])), float(sp1[2]), false, 0.0, "air", {"hid": "lightning", "at": Vector2(float(sp1[0]), float(sp1[1]) - float(sp1[2])) + Vector2(0, -128)})
+		add.call("mark", Vector2(float(sp1[0]), float(sp1[1])), float(sp1[2]), false, 0.0, {"hid": "lightning", "at": Vector2(float(sp1[0]), float(sp1[1]) - float(sp1[2])) + Vector2(0, -128)})
 	return out
 
-## The floor under a point: the ground in the side view, the grid's floor on the height grid.
+## The floor under a point, the grid's.
 func _floor(p: Vector2) -> float:
 	return room.floor_at(p) if room != null else 0.0
 
@@ -317,7 +304,7 @@ func _draw_part(ci: CanvasItem, part: Dictionary) -> void:
 
 # ------------------------------------------------------------------ the top-down view: parts sorted with the room
 ## One part in the top-down view's pixel viewport: a node at its sort key (x on the spot's art px) holding a canvas at
-## half scale placed back so it draws in world units, as the side view's layers do.
+## half scale placed back so it draws in world units.
 class Piece extends Node2D:
 	var view
 	var part: Dictionary = {}
@@ -352,13 +339,7 @@ func _place_pieces(rt: RoomRuntime) -> void:
 		var key := room.decal_key(pt.p, float(pt.z), float(pt.half) / TopdownRoom.ART) if pt.flat else room.sort_key(pt.p, float(pt.z))
 		pc.show_part(pt, key)
 
-# ------------------------------------------------------------------ ground layer (the side view)
-func _draw_ground() -> void:
-	var rt: RoomRuntime = Game.room_rt
-	if rt == null or sorted_layer != null: return
-	for part in parts(rt):
-		if part.side == "ground": _draw_part(ground, part)
-
+# ------------------------------------------------------------------ the parts' drawing
 ## What a blow left behind: dust rising, rubble, spikes sinking back, a scorch.
 func _draw_impact(ci: CanvasItem, im: Dictionary) -> void:
 	var k := float(im.t) / float(im.dur)
@@ -501,8 +482,7 @@ func _ground_pool(ci: CanvasItem, hid: String, hs: Dictionary, a: Dictionary, ai
 				_dashed(ci, c, r.size.x * 0.55, r.size.y * 0.6, Color(AMBER, 0.55 + 0.45 * sin(t * 12.0)), -t * 1.5, 12, 3.0, true)
 
 # ------------------------------------------------------------------ air layer
-## The screen's washes and weather (both views), then the parts standing up from a spot (the side view: the top-down
-## view sorts them with the room) and the warning marks over them (both).
+## The screen's washes and weather, then the warning marks over their spots (the parts themselves sort with the room).
 func _draw_air() -> void:
 	var rt: RoomRuntime = Game.room_rt
 	if rt == null: return
@@ -524,7 +504,7 @@ func _draw_air() -> void:
 			"deep_water": _air_deep_water(rt, hs, view)
 			"presence": _air_presence(hs, view)
 	for part in parts(rt):
-		if part.side == "air" and (part.mark or sorted_layer == null): _draw_part(air, part)
+		if part.mark: _draw_part(air, part)
 
 ## A falling rock over its spot: grit trickling in the tell, the rock shaking high up in the warning, its fall.
 func _rock_spot(ci: CanvasItem, hs: Dictionary, sp: Array, si: int) -> void:

@@ -1,7 +1,7 @@
 """Beast parts (HD, Style A): every hide, scale, horn, fang, claw, feather, shell, vial, pouch, shard and core a beast
 leaves, at 64 art px shown 1:1 in the 76 px slot, with a native @32 render for the HUD item ring and the small slots.
 
-Each part is drawn as the material it is, in the colour of the beast it came from (art/creatures): fur in strands
+Each part is drawn as the material it is, in the colour of the beast it came from (its creature sheet): fur in strands
 lying down the pelt, scales overlapping with their growth ridges, keratin and horn with a sheen band, bone grained
 along its length, glass and jade through-lit with the light pooling on the far side. The kinds share one drawing each
 (`hide_hd`, `scale_hd`, `fang_hd`, `feather_hd`, `vial_hd`, `pouch_hd`, `heap_hd`, `shard_hd`, `core_hd`) and the

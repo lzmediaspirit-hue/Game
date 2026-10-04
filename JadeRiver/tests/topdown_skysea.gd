@@ -17,9 +17,9 @@ extends "res://tests/prologue_run.gd"
 ##   3. Lu's Last Page and Stars Beyond (ch 16): up to the Riven Peak, Lu's page on its knoll, a star reading at the stone
 ##      on the highest crag, the page shown to Trial Master Wen in the Trial Hall; back on the peak and on to the
 ##      Starsea Launch, Warden He and the launch ring on its dais;
-##   4. The Lantern Run and Crystal and Jade (ch 17): the Arrival Quay (the Wardens' skiff gated while the Citadel has no
-##      layout), the Harbor Market's exchange, the Star Chandlery's furnace and the Tidelight Inn through their doors, the
-##      stair to the Lantern Heart gated while it has no layout;
+##   4. The Lantern Run and Crystal and Jade (ch 17): the Arrival Quay (the Wardens' skiff leading on to the
+##      Citadel), the Harbor Market's exchange, the Star Chandlery's furnace and the Tidelight Inn through their doors, the
+##      stair up to the Lantern Heart;
 ##   5. Salt of the Stars, Will Manifest and A Presence of One's Own (ch 17): the star jellyfish thinned wading the
 ##      Jellyfish Shallows, Old Bo's planters on his hulk's deck, the comet sparrows hunted on the Sparrow Reefs, the
 ##      insight stone on the Driftglass Bank;
@@ -48,7 +48,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("r8/")
 	_story_to(15)
 	GameEvents.event.connect(_on_room)
@@ -157,10 +156,10 @@ func _cell(oid: String) -> Vector2i:
 	var o: Dictionary = Game.room_rt.object_def(oid)
 	return TopdownRoom.cell_of(Vector2(float(o.at[0]), float(o.at[1]))) if o.has("at") else Vector2i(-1, -1)
 
-## Is the way `pid` of the loaded room closed by the prototype's gate?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 # ------------------------------------------------------------------ 1: each room as it is entered
 func _on_room(n: String, p: Dictionary) -> void:
@@ -289,16 +288,16 @@ func _lanternfall() -> void:
 	GameEvents.flush()
 	check(c().quests.is_done("the_lantern_run"), "The Lantern Run: reported to the harbourmaster on the quay, done")
 	_take("crystal_and_jade")
-	check(_gated("warden_skiff") == not TopdownRoom.has_layout("wc_citadel_gate"),
-		"the Wardens' skiff to the Citadel is closed by the prototype's gate while the Citadel has no layout")
+	check(_leads_on("warden_skiff"),
+		"the Wardens' skiff leads to the Citadel, on the grid")
 	check(go("east") and room() == "lh_harbor_market", "east along the quay to the Harbor Market (room %s)" % room())
 	talk("clerk_yu")
 	Unlocks.force_unlock(c().id, "currency_exchange")
 	var ex := interact("exchange_lh")
 	check(str(ex.get("open_page", "")) == "exchange", "the exchange counter by Clerk Yu opens the exchange (%s)" % str(ex))
 	_used("exchange")   # the exchange's page is the HUD's
-	check(_gated("lantern_stair") == not TopdownRoom.has_layout("lt_wick_gate"),
-		"the stair to the Lantern Heart is closed by the prototype's gate while it has no layout")
+	check(_leads_on("lantern_stair"),
+		"the stair leads up to the Lantern Heart, on the grid")
 	check(go("chandlery_door") and room() == "lh_star_chandlery", "in through the Star Chandlery's door (room %s)" % room())
 	Unlocks.force_unlock(c().id, "alchemy")
 	var furnace := interact("furnace_lh")

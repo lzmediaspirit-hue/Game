@@ -5,7 +5,9 @@ extends RefCounted
 ## groups the state objects and converts them to and from the v3 save shape.
 
 const VERSION := 3
-const MINOR := 1   # P12 Might: saves before it kept absolute health (SaveService.migrate_character)
+## SaveService.migrate_character runs each step once: 1, P12 Might (saves before it kept absolute health); 2, one world
+## (S12a: a side-view character placed on the height grid, `view` dropped).
+const MINOR := 2
 
 var id := ""
 var slot := 1
@@ -20,7 +22,7 @@ var quests := QuestState.new()
 var professions: Dictionary = {}     # craft -> {rank, xp}
 var crafting: Dictionary = {"recipes": [], "auto_queue": [], "garden": [], "formations": []}
 var training_sect: Dictionary = {}   # {id, rank, contribution, reputation, missions}
-var position: Dictionary = {"room": "", "portal": "", "x": 0.0, "y": 0.0, "surface": "", "facing": 1}
+var position: Dictionary = {"room": "", "portal": "", "x": 0.0, "y": 0.0, "facing": 1}
 var last_shrine: Dictionary = {}     # {room, x, y}
 var last_town := ""
 var seclusion: Dictionary = {}
@@ -40,9 +42,6 @@ var cooldowns: Dictionary = {}       # key -> utc until
 var rooms: Dictionary = {}           # room id -> {nodes: {obj: utc}, opened: {obj: true}, broken: {obj: utc}, slain: {spawn key: utc of the kill}}
 var skill_page := 0
 var skip_prologue := false
-## The world this character plays in (redesign Phase 4): "" the side view, "topdown" every room that has a layout on
-## the height grid (the others stay side-view). Chosen when the character is made; its saved spots are in that view.
-var view := ""
 var created_utc := 0.0
 var last_active_utc := 0.0
 var rng_seed := 0
@@ -74,7 +73,7 @@ func snapshot() -> Dictionary:
 		"companions": companions.duplicate(true), "pets": pets.duplicate(true), "eggs": eggs.duplicate(true), "active_pet": active_pet,
 		"party_pets": party_pets.duplicate(), "pet_bag": pet_bag.duplicate(), "mount_pet": mount_pet, "riding": riding, "beast_arena": beast_arena.duplicate(true), "tower": tower.duplicate(true),
 		"cooldowns": cooldowns.duplicate(true), "rooms": rooms.duplicate(true), "skill_page": skill_page,
-		"skip_prologue": skip_prologue, "view": view, "created_utc": created_utc, "last_active_utc": last_active_utc,
+		"skip_prologue": skip_prologue, "created_utc": created_utc, "last_active_utc": last_active_utc,
 		"statuses": pools.statuses.duplicate(true), "loadouts": loadouts.duplicate(true),
 		"collection_first_kills": collection_first_kills.duplicate(), "starter_drops": starter_drops.duplicate(), "dungeon_lockouts": dungeon_lockouts.duplicate(),
 		"swarm": swarm.duplicate(true), "tutorials": tutorials.duplicate(true), "rng": {"seed": str(rng_seed), "streams": rng_state.get("streams", {})}}
@@ -117,7 +116,6 @@ func restore(d: Dictionary) -> void:
 	rooms = d.get("rooms", {}).duplicate(true)
 	skill_page = clampi(int(d.get("skill_page", 0)), 0, 1)
 	skip_prologue = bool(d.get("skip_prologue", false))
-	view = str(d.get("view", ""))
 	created_utc = float(d.get("created_utc", 0.0))
 	last_active_utc = float(d.get("last_active_utc", 0.0))
 	loadouts = d.get("loadouts", []).duplicate(true)

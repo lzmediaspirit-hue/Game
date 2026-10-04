@@ -51,7 +51,7 @@ added by the build. Keep the impact frame the strongest, fade from the tail, and
 own on the form.
 
 Review with `--review` and look at `forms_band2_2x.png` (every form × element), the `strip_<form>.png` motion strips
-and `bolts_2x.png` before calling a form done; the in-game look is `--cast=<technique>:<t>` (docs/mockups/fx).
+and `bolts_2x.png` before calling a form done; the in-game look is the Techniques page's preview (`--open-page=techniques --preview-t=<t>`).
 
 ## The top-down sheets (decision 38)
 

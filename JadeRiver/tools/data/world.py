@@ -605,7 +605,7 @@ def lotus_ferry():
                                     {"kind": "set_flag", "flag": "ma_safe"}, {"kind": "set_flag", "flag": "night_held"},
                                     {"kind": "grant_title", "title": "ferry_guardian"}],
                     "on_flawless": [{"kind": "grant_item", "item": "herbal_tea", "count": 2}],
-                    "leave": {"after_s": 6.0, "grid_after_s": 30.0, "requires": all_of(flag("lu_on_the_bank")),
+                    "leave": {"after_s": 30.0, "requires": all_of(flag("lu_on_the_bank")),
                               "effects": [{"kind": "set_flag", "flag": "night_survived"}, {"kind": "clear_flag", "flag": "night_active"},
                                           {"kind": "teleport", "target": "lf_lu_boat", "portal": "deck"}]},
                     "requires": all_of(noflag("night_survived"))})

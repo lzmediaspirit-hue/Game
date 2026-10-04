@@ -1,11 +1,15 @@
 # Prop, building and tile generators
 
 Deterministic Python (3.11 + Pillow + numpy) pixel-art generators for world props,
-interactables, village buildings, interior tiles and water tiles.
+interactables, village buildings and the few tiles still drawn (water, ladder, rope, window).
+The top-down game draws a room object's prop in `ObjectView`'s "art" mode; the buildings' sizes
+(`roof_split`, `door`) also shape the rooms tools/data/world.py builds. S12a removed the props
+only the side view drew (its scenery and decor: trees, fences, walls and floors, the yurt, the
+tents...).
 
 ```
 python3 tools/props/build_props.py            # everything -> art/props, art/tiles, data/prop_art.json
-python3 tools/props/build_props.py --only well,shrine   # quick iteration (no manifest write)
+python3 tools/props/build_props.py --only lantern_post,shrine   # quick iteration (no manifest write)
 ```
 
 Contact sheets are written to `--review-dir` (default: the session scratchpad `art_review/`).
@@ -43,9 +47,7 @@ Optional keys:
 
 * `"tile": true` - tiles (`art/tiles/`) plus the vertical `ladder`/`rope` strips.
   `"repeat": "x" | "y" | "xy"` tells how the image wraps seamlessly. Repeating tiles
-  use `anchor [0, 0]` (top-left); `hanging_lantern` anchors at its hook (top centre).
-  Walls wrap horizontally, floors and water wrap both ways, water/shallow_water have
-  4 looping frames.
+  use `anchor [0, 0]` (top-left); water wraps both ways.
 * `"decal": true` - flat ground decals drawn under actors (`rite_circle`, `grey_patch`,
   `hollow_puddle`, `fishing_ripple`).
 * `"building": true, "roof_split": f` - village buildings. `f` is the fraction of the
@@ -54,7 +56,7 @@ Optional keys:
 * `"door": [x0, x1]` - a building's doorway in sheet px from the frame's left edge
   (`@building(..., door=(x0, x1))` in art px). A building that can be entered must draw
   one: the room builder stands its door portal in the middle (`Room.building`), and
-  `data_validation` checks every way into a building shows a door (`PortalView.entrance`).
+  `data_validation` checks every way into a building shows a door (tests/lib/building_ways.gd).
 
 ## Adding a prop
 

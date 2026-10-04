@@ -37,8 +37,8 @@ func tick_rare_herbs(c, rt: RoomRuntime, delta: float) -> void:
 func guardian_wakes(o: Dictionary, st: ActorState) -> bool:
 	var g: Dictionary = ContentDB.config("garden").get("guardian", {})
 	var at: Array = o.get("at", [0, 0])
-	# The side view measures across; on the height grid the approach is on the plane, from any side.
-	var d: float = absf(st.plane.x - float(at[0])) if WorldAuthority.side_view(game.room_rt) else st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
+	# The approach is on the plane, from any side.
+	var d: float = st.plane.distance_to(Vector2(float(at[0]), float(at[1])))
 	return d <= float(g.get("wake_px", 480)) and st.altitude >= float(o.get("alt", 0)) - float(g.get("wake_below", 60))
 
 ## The guardian rises once per ripening (S45): an elite of the room's roster, on the ground under the node.
@@ -51,8 +51,7 @@ func wake_guardian(c, o: Dictionary, window: int) -> EnemyState:
 	if int(mem.guardians.get(str(o.id), -999)) == window: return null
 	mem.guardians[str(o.id)] = window
 	var at: Array = o.get("at", [0, 0])
-	var under := Vector2(float(at[0]), 840.0)
-	if not WorldAuthority.side_view(rt): under = rt.topdown.place_near(Vector2(float(at[0]), float(at[1])), 0.0, 6)   # the ground below the node, on the grid
+	var under := rt.topdown.place_near(Vector2(float(at[0]), float(at[1])), 0.0, 6)   # the ground below the node
 	var e: EnemyState = game.enemies.spawn_at(str(gd.enemy), under, int(gd.get("level", -1)), {"elite": gd.get("elite", true)})
 	if e == null: return null
 	rt.guardians[str(o.id)] = e.uid

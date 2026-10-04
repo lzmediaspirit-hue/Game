@@ -1,13 +1,13 @@
 class_name TopdownPlaces
 extends RefCounted
 ## Redesign Phase 4: the people, things and ways of a room of the world on the height grid, for TopdownWorld. Each is
-## drawn twice, as the side view's own views split in two:
+## drawn twice:
 ##   - in the pixel viewport, sorted with the room (Figure), its feet on the floor it stands on: a villager drawn in the
 ##     top-down style (Person: TopdownFigure, decision 32, in their own outfit), or the thing's prop (an ObjectView in
-##     "art" mode), the side view's art at half size (2 world units per art px, one art px per viewport px);
-##   - on the overlay at the HUD's resolution (world units, following the camera): the side view's NpcView, ObjectView
-##     and PortalView in their label modes, so markers, barks, verb plates, a pickup's badge and a way's plate read
-##     crisp, placed by WorldLabels as in the side view.
+##     "art" mode, art/props at half size: 2 world units per art px, one art px per viewport px);
+##   - on the overlay at the HUD's resolution (world units, following the camera): NpcView, ObjectView (its "label"
+##     mode) and PortalView, so markers, barks, verb plates, a pickup's badge and a way's plate read crisp, placed by
+##     WorldLabels.
 ## The label views are the ones the shared room presentation works on (WorldShared: focus, flashes, names), and each
 ## figure follows its label twin. A way out draws as a mark on the floor (WayMark) where the layout sets it.
 
@@ -16,7 +16,7 @@ extends RefCounted
 const HEAD_LIFT := -16.0
 
 ## One villager or thing in the sorted layer: a node at its sort key (TopdownRoom.sort_key) holding its drawing (a
-## Person, or the side view's ObjectView at half size), drawn back to its screen row.
+## Person, or an ObjectView at half size), drawn back to its screen row.
 class Figure extends Node2D:
 	var rects: Array = []   ## what it covers for the silhouette test: people and small things never hide the body
 	var art: Node2D         ## a Person, or an ObjectView in "art" mode
@@ -169,10 +169,10 @@ class Person extends Node2D:
 		if tool_down != "": TopdownLife.draw_tool_down(self, tool_down, row)
 		figure.draw(self, Vector2.ZERO, action, row, f, tint)
 
-## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
-## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is the side view's own
-## figure at half size (EnemyView in its art mode: the creature sheet, its action, facing and flash). FoeView places it
-## on its floor and draws its shadow there.
+## Redesign Phase 4: the person a foe or an ally is, drawn in the top-down style: a sparring villager in their own
+## clothes, a companion (or a bandit) in its outfit (the player's for a reflection). Null for a creature, which is its
+## species' top-down sheet (TopdownWorld.FoeView; S12b retired the side view's creature sheets that stood in for one
+## with none). FoeView places a person on its floor and draws its shadow there.
 static func stand_in(e: EnemyState) -> Node2D:
 	var art: Dictionary = e.def.get("art", {})
 	# A person sparring with the player (QuestAuthority.start_spar) is that person, in their own clothes, while their
@@ -187,11 +187,7 @@ static func stand_in(e: EnemyState) -> Node2D:
 		var person := Person.new({"outfit": outfit, "facing": e.facing})
 		person.shadow = false
 		return person
-	var v := EnemyView.new()
-	v.art_only = true
-	v.setup(e)
-	v.scale = Vector2(0.5, 0.5)
-	return v
+	return null
 
 ## A stand-in's pose from its state, each frame (an EnemyView poses itself): a Person turns to where it walks or aims,
 ## one of the eight rows, and plays its action (a wind-up and its blow as its weapon family's first step, as that family
@@ -205,8 +201,8 @@ static func pose(art: Node2D, e: EnemyState) -> void:
 	art.play(TopdownFigure.resolve(str({"walk": "walk", "windup": strike, "attack": strike, "hurt": "hurt", "death": "knockdown"}.get(str(e.action), "idle"))))
 
 ## A way out on the floor where the layout sets it: jade marks walking out through an edge, a lit threshold before a
-## door (a building's doorway or the gap in an interior's wall), grey and still when it is shut. The side view's
-## PortalView, label only, names it on the overlay.
+## door (a building's doorway or the gap in an interior's wall), grey and still when it is shut. PortalView names it on
+## the overlay.
 class WayMark extends Node2D:
 	var def: Dictionary
 	var at := Vector2.ZERO    ## the mark's centre in art px
@@ -250,7 +246,7 @@ class WayMark extends Node2D:
 				draw_rect(Rect2(q + dir, Vector2(1, 1)), Color(col, col.a * 0.5))
 
 ## Build the room's people, things and ways: figures into `sorted`, marks into `floor_layer`, label views onto
-## `overlay`. Returns {npc_views, object_views, portal_views} (the label views by id, as the side view keeps them)
+## `overlay`. Returns {npc_views, object_views, portal_views} (the label views by id)
 ## and `nodes`: everything made, for the next room to clear.
 static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_layer: Node2D, overlay: Node2D, player: Node2D = null) -> Dictionary:
 	var out := {"npc_views": {}, "object_views": {}, "portal_views": [], "figures": {}, "nodes": []}
@@ -274,7 +270,7 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 				art = ObjectView.new()
 				art.mode = "art"
 				art.setup(o)
-				# The Figure sorts it with the room: the side view's depth (ObjectView.depth, 1500 and more) as its z drew
+				# The Figure sorts it with the room: the label's depth (ObjectView.depth, 1500 and more) as its z drew
 				# every thing over every body, a notice board over the head of one standing in front of it (decision 43's
 				# review).
 				art.z_index = 0
@@ -292,7 +288,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			out.nodes.append_array([lv, fig])
 	for p in def.get("portals", []):
 		var pv := PortalView.new()
-		pv.label_only = true
 		pv.setup(p, def)
 		pv.position.y -= float(p.get("alt", 0.0))
 		# A door's plate stands over the building's front (three tiles of wall and the eaves), an edge's over the way.
@@ -302,11 +297,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		var mark := WayMark.new(p)
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
-		# Decision 41: a way past the prototype's gate is closed by a barrier standing in it (TopdownGate).
-		if Game.active() != null and Game.world.prototype_gate(Game.active(), str(def.get("id", Game.room_rt.room_id if Game.room_rt else "")), str(p.get("to", ""))):
-			for g in TopdownGate.make(room, p):
-				sorted.add_child(g)
-				out.nodes.append(g)
 	# Decision 43: the room's places (data/places.json): the sights round them and what each shows.
 	out.nodes.append_array(TopdownPlaceArt.build(room, str(def.get("id", "")), sorted, out.figures))
 	return out
@@ -315,7 +305,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 ## (a room's villager, or one a staged scene brings on).
 static func person(room: TopdownRoom, o: Dictionary, sorted: Node2D, overlay: Node2D, player: Node2D = null) -> Array:
 	var nv := NpcView.new()
-	nv.label_only = true
 	nv.head_lift = HEAD_LIFT
 	nv.setup(o)
 	overlay.add_child(nv)

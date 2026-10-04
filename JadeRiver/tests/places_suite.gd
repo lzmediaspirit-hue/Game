@@ -26,7 +26,7 @@ func run_all(suite, tree: SceneTree) -> void:
 	Saves.use_folder(folder)
 	Game.boot()
 	Game.autosave_enabled = false
-	Game.submit({"type": "create_character", "slot": 1, "name": "Places", "view": "topdown"})
+	Game.submit({"type": "create_character", "slot": 1, "name": "Places"})
 	c = Game.character("c1")
 	Game.active_id = c.id
 	Unlocks.grant_prologue(c.id)

@@ -70,7 +70,7 @@ A run goes in steps. Each step is a table of rows read in a fixed order:
 | Step | Table | Flags |
 |---|---|---|
 | Before `Game.boot` | `before_boot` | the preview saves, `--load=`, `--log-events` |
-| The screen | `OPEN`, `ROOM` | `--topdown-proto`, `--topdown`, `--topdown-tutorial`, `--preview-selection`, `--preview-create`; `--room=`, `--text-size=` |
+| The screen | `OPEN`, `ROOM` | `--topdown-proto`, `--topdown-tutorial`, `--preview-selection`, `--preview-create`; `--room=`, `--text-size=` |
 | The preview character | `_enter`, `PLACE` | `--preview-world`, `--load-slot` or a room: the character made (or the loaded one), placed (`--at=`, `--unlock-all`, `--debug-sect`), in the world |
 | The state shown | `STEPS` | the character and the room (`--give=`, `--foe=`, `--realm=` …), pages and talk (`--open-page=`, `--tap=`, `--talk=` …), riding and flight, powers, the HUD (`--toggle=`, `--fan=` …), the moments (`--moment=`, `--breakthrough`) |
 | The picture | `CAPTURE` | with `--capture`: `--auto-path=`, `--auto-hunt`, `--wait=`, `--hazard=`, then `../<shot>-preview.png` and quit |
@@ -94,22 +94,17 @@ in the flag's own spelling.
 `--learn=`, `--physique=`, `--set-piece=`, `--tribulation` and `--test-saves`. The last never did anything of its own,
 because any argument already chose the preview saves.
 
-**Side view only.** `--cast=` and `--fly` work only in the side view. `--capture` works in both views: its wait counts
-frames only when the side view's `FxLayer` has a fixed step (`--cast` with `--capture`), and the top-down FX view has
-none (fixed in F1; it used to stop with a script error before the picture). The capture registry
-(`tools/dev/capture/`) takes the review pictures.
+**Dropped in S12a, with the side view.** `--topdown` (every character plays on the grid now) and `--cast=` (it drew a
+cast through the side view's `World.preview_cast`; the Techniques page's preview, `--open-page=techniques` with
+`--preview-t=`, draws a cast now). `--fly` takes off on the grid, as a held jump does from Cloud Stride 1.
+`--capture` waits on the clock (2.5 s, or just past a moment's t). The capture registry (`tools/dev/capture/`) takes
+the review pictures.
 
-## The side view in main.gd
+## One world (S12a)
 
-The side view is retiring (decision 45). `main.gd` keeps what it does for it in its last section, "side view
-(retiring)". Its calls elsewhere carry a `# side view` mark:
-- `const World`, the side view's script;
-- `_side_view()`, which `_add_world_view` mounts when the room has no top-down layout;
-- `_backdrop_follows_world()`, which shows the river backdrop behind the side view and hides it under the top-down
-  view. `unmount_world` clears it.
-- `_swap_world_view()`, which `_on_game_event` calls on `room_entered` to swap the view when a character walks into a
-  room of the other kind.
-
-`_add_backdrop()` is in the same section. The backdrop is also the title screens' sky, so it stays until those screens
-have one of their own. In `debug_args.gd`, `_dress` (the avatar's outfit), `_cast`, `_fly` and `--capture`'s frame
-count are side-view only and marked so.
+The side view is gone. `main.gd` mounts the top-down world alone (`_add_world_view`: a room of the world on its grid,
+or the prototype square), with no swap between views; its section "side view (retiring)" (`World`, `_side_view`,
+`_backdrop_follows_world`, `_swap_world_view`, `_add_backdrop`) is deleted. The title screens draw their own sky
+(`ShellSky`, `_add_sky`), hidden while a world is mounted. Settings offers no choice of view, the creator makes every
+character for the grid, and `debug_args.gd`'s `_dress` and `_cast` went with the side view; `--fly` takes off on the
+grid (Combat's flight, the motor's), and `--capture` waits on the clock alone.

@@ -93,7 +93,7 @@ func s_places_stage() -> void:
 	for i in 3600:
 		if main.PAGES.values().all(func(q): return ResourceLoader.load_threaded_get_status(str(q)) != ResourceLoader.THREAD_LOAD_IN_PROGRESS): break
 		await get_tree().process_frame
-	Game.submit({"type": "create_character", "slot": 1, "name": "Lin Places", "appearance": {"hair": "topknot"}, "view": "topdown"})
+	Game.submit({"type": "create_character", "slot": 1, "name": "Lin Places", "appearance": {"hair": "topknot"}})
 	var c = Game.character("c1")
 	for sc in ContentDB.all("scenes"): c.quests.scenes[str(sc.id)] = {"done": true, "skipped": true}
 	c.quests.flags["prologue_done"] = true   # the village's notice board goes up once the prologue is done

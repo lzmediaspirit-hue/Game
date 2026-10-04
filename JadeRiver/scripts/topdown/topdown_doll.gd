@@ -1,17 +1,15 @@
 class_name TopdownDoll
 extends Node2D
-## Decision 42 ("no old side-view character is left anywhere in the top-down game"): the top-down character as a page
-## shows it, in place of the side view's layered Avatar: the Techniques page's caster and pictures, the Character page's
-## and the Bag's figure, a speaker in the dialogue strip, a friend in a moon gate, a merchant behind the counter.
+## Decision 42 ("no old side-view character is left anywhere in the top-down game"): the character as a page shows it:
+## the Techniques page's caster and pictures, the Character page's and the Bag's figure, a speaker in the dialogue strip,
+## a friend in a moon gate, a merchant behind the counter.
 ## TopdownFigure draws it (the layer sets under art/topdown/character/, the full set in every action): one action in one
 ## of the eight facings on the doll's own clock, its feet at the node's origin. Pixels stay nearest-neighbour at a whole
 ## scale: the node's own (a page keeps it whole), or the `px` a page passes to draw_on when it draws the doll among its
 ## own layers. Its sheets load on threads, so no page waits on them (the doll appears the frame they are in), and it
 ## redraws only when its drawn frame changes (an idle's four frames a second), never every frame for nothing.
 ##
-## Figures says which figure a page draws and makes it (Figures.for_character, for_outfit): this one whenever the
-## character shown plays the top-down game (the active one, or the one a card is for); the side view's Avatar only for a
-## classic side-view character (decision 41's fallback setting).
+## Figures makes it for the pages (Figures.for_character, for_outfit).
 
 ## A portrait's facing: three-quarters toward the camera, turned to the right.
 const PORTRAIT_ROW := "se"
@@ -38,7 +36,7 @@ var outfit: Dictionary:
 		_drawn = -1
 		queue_redraw()
 
-## The side view's facing (1 right, -1 left), as a row three-quarters toward the camera.
+## A facing of 1 (right) or -1 (left), as a row three-quarters toward the camera.
 var facing: int:
 	get: return -1 if row in ["sw", "w", "nw"] else 1
 	set(f):

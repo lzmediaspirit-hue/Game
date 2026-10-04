@@ -618,48 +618,6 @@ def hollow_puddle(state, f):
 THORN = ramp("#1e0e10", "#3a1a1a", "#5a2a24", "#7c3e2e", "#9e5a3e", "#c2835e")
 
 
-@prop("thorn_thicket", 64, 34, ground=2)
-def thorn_thicket(state, f):
-    """A low dome of old thorn canes (the Thicket Heart hazard): arching red-brown canes, darker ones
-    behind, set with pale hooked thorns, and dark leaves low in the tangle."""
-    W, H = 64, 34
-    cv = Canvas(W, H)
-    g = rng("thorn_thicket")
-    gy = 31
-    ground_shadow(cv, 32, gy, 30, 1.6)
-    canes = []
-    for i in range(15):
-        x0 = 6 + i * 3.7 + g.uniform(-1.5, 1.5)
-        dome = 1.0 - abs(x0 - 32) / 34.0
-        top = gy - 9 - 17 * dome - g.uniform(0, 3)
-        side = 1 if (i % 2 == 0) == (x0 < 32) else -1
-        tip = (min(W - 3, max(2, x0 + side * g.uniform(9, 15))), gy - 2 - g.uniform(0, 7))
-        mid = ((x0 + tip[0]) / 2 - side * 2, top)
-        canes.append(([(x0, gy - 1), mid, tip], i % 3 == 1))
-    for pts, back in sorted(canes, key=lambda c: not c[1]):
-        m = m_curve(W, H, pts)
-        cv.fill(m, THORN[1] if back else THORN[3])
-        if not back:
-            cv.fill(m & top_edge(m | (cv.a > 0.5)), THORN[4])
-    for (x, y, dx) in ((13, 27, -1), (21, 24, 1), (29, 27, -1), (38, 24, 1), (46, 27, 1), (53, 28, -1)):
-        leaf(cv, x, y, dx, -0.7, 4, pal=LEAF, width=1.2)
-    # thorns: one pale hook with a dark base, a few along each front cane
-    for k, (pts, back) in enumerate(canes):
-        if back:
-            continue
-        (ax, ay), (bx, by), (cx_, cy_) = pts
-        for j, t in enumerate((0.3, 0.55, 0.8)):
-            x = (1 - t) ** 2 * ax + 2 * (1 - t) * t * bx + t * t * cx_
-            y = (1 - t) ** 2 * ay + 2 * (1 - t) * t * by + t * t * cy_
-            if (j + k) % 2:
-                continue
-            side = -1 if k % 2 else 1
-            cv.put(int(round(x)) + side, int(round(y)) - 1, BONE[4])
-            cv.put(int(round(x)) + 2 * side, int(round(y)) - 2, BONE[2])
-    outline(cv)
-    return cv
-
-
 @prop("gas_vent", 40, 16, states=(("idle", 3, 4),), ground=1, decal=True)
 def gas_vent(state, f):
     """A crack in the tunnel floor that breathes marsh gas: a ring of heaved stone, a black mouth and a

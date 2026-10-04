@@ -18,12 +18,11 @@ extends Node2D
 ## and each prop's floor shadow cut to the floor it stands on. Plants sway and lotus bob in their own frames, and the
 ## foes are the eight-facing sheets (art/topdown/foes/, a sheet a species).
 ##
-## Phase 4 (`live`): the world view of a character's own game in every room of the world that has a layout on the grid
-## (WorldAuthority.grid_for; main.gd mounts world.gd for the others). The room is Game.room_rt's and the view rebuilds
-## as each room is entered: its people, things and ways (TopdownPlaces), the ways walked into or taken with the
-## context button, the context's offer, the names over the world and the events' effects as the side view plays them
-## (WorldShared), a night room's tint and the room's hazards and weather (HazardView), and moments (MomentView reads
-## the same anchors of either view).
+## Phase 4 (`live`): the world view of a character's own game, in every room of the world (each has its layout on the
+## grid: WorldAuthority.grid_for). The room is Game.room_rt's and the view rebuilds as each room is entered: its people,
+## things and ways (TopdownPlaces), the ways walked into or taken with the context button, the context's offer, the
+## names over the world and the events' effects (WorldShared), a night room's tint and the room's hazards and weather
+## (HazardView), and moments (MomentView reads its anchors).
 ##
 ## Decision 40 (runtime light, docs/redesign/art_bible.md "Terrain v2 · Runtime light"): each room's cast shadows are
 ## baked once as it is built (TopdownShadows) and laid on the water, the ground floor and each raised row's tops; the
@@ -108,7 +107,7 @@ var life: TopdownLife       ## decision 43: the room's critters, work, smoke, th
 func _ready() -> void:
 	if preset != null:
 		room = preset
-	elif live and Game.room_rt != null and Game.room_rt.topdown != null:
+	elif live and Game.room_rt != null:
 		room = Game.room_rt.topdown
 	# Phase 2: a character enters the prototype room through the World authority; its RoomRuntime carries the grid.
 	elif Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
@@ -255,7 +254,7 @@ func build_room() -> void:
 		var pv := PropView.new(self, p)
 		sorted.add_child(pv)
 		_room_nodes.append(pv)
-	# T1: the side view's traversal on the grid: rafts, climbable faces, updrafts' spray (TopdownTraverseView).
+	# T1: the traversal on the grid: rafts, climbable faces, updrafts' spray (TopdownTraverseView).
 	for tv in TopdownTraverseView.build(self):
 		sorted.add_child(tv)
 		_room_nodes.append(tv)
@@ -466,11 +465,11 @@ func request_portal(portal_id: String, crossing := false) -> void:
 	WorldShared.request_portal(self, portal_id, crossing)
 
 func update_context() -> void:
-	# T1: a climbable face in reach offers Climb when nothing else is offered, as the side view's ladder does.
+	# T1: a climbable face in reach offers Climb when nothing else is offered.
 	var near: Dictionary = player.climb_near() if player.motor.climbing.is_empty() else {}
 	var climb := {"type": "climbable", "climbable": str(near.climb.id), "label": Tx.t("hud.climb")} if not near.is_empty() else {}
 	var ctx := WorldShared.context(Game.active(), player.motor.pos, climb)
-	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
+	WorldShared.mark_focus(ctx, object_views, npc_views)
 	if ctx.hash() != context.hash(): context = ctx
 
 ## WorldShared's and MomentView's host: the effects layer, the player's feet in its units, the facing, the loot's
@@ -564,8 +563,7 @@ func add_foe(e: EnemyState) -> void:
 	sorted.add_child(v)
 	foe_views[e.uid] = v
 	var lv := EnemyView.new()
-	lv.label_only = true
-	lv.figure_top = v.figure_top(e)   # the label on the top-down figure's head, not at the side view's height
+	lv.figure_top = v.figure_top(e)   # the label on the figure's head
 	lv.setup(e)
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
@@ -612,13 +610,13 @@ func layout_labels() -> Dictionary:
 	var arrows: Array = []
 	for pv in portal_views:
 		if is_instance_valid(pv) and pv.visible and pv.arrow_box.size.x > 0.0: arrows.append(Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size))
-	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), xf, label_obstacles + [body] + arrows)
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet()), xf, label_obstacles + [body] + arrows)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
 		"room_entered":
-			# Phase 4: the next room on the grid (a room without a layout is world.gd's; main.gd swaps the views).
-			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null and Game.room_rt.topdown != null:
+			# Phase 4: the next room, on its grid.
+			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null:
 				room = Game.room_rt.topdown
 				build_room()
 				place_player()
@@ -1022,7 +1020,7 @@ class FxView extends Sorted:
 				draw_rect(Rect2(a.x + s * roundf(spread * 0.5) - 1, a.y - 2 - roundf(5.0 * t), 1, 1), col)
 			draw_arc(a, spread, 0, TAU, 12, col, 1.0)
 
-## The body drawn flat in jade over whatever covers it (the side-view game's occlusion outline, redone for the grid).
+## The body drawn flat in jade over whatever covers it (the occlusion outline).
 class Silhouette extends Node2D:
 	var world
 	func _init(w) -> void:
@@ -1050,9 +1048,9 @@ class Caption extends Control:
 ## degrees nearer. Each action plays at its own rate from the manifest; a strike, a flinch and a death play once and
 ## hold their last frame. An elite takes its species' elite sheet where there is one: larger, darker, gold-eyed, in a
 ## ring of Qi.
-## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
-## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
-## figure at half size), placed, sorted and shadowed here the same way.
+## Phase 4: a person (a companion, a sparring villager, a bandit in an outfit) is drawn by TopdownPlaces.stand_in in
+## the top-down style, placed, sorted and shadowed here the same way; a spirit animal is its species' sheet as a foe is
+## (S12b), larger and tinted by its form.
 class FoeView extends Sorted:
 	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
@@ -1072,7 +1070,9 @@ class FoeView extends Sorted:
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
-	var art: Node2D = null   ## the stand-in's drawing (no rows in the foe sheet), its feet at its origin
+	var art: Node2D = null   ## a person's figure (a companion, a sparring villager, a bandit in an outfit), its feet at its origin
+	var form_k := 1.0        ## S46 form change: an animal at 90 purity stands larger (its art's `scale`) and in its lineage's
+	var form_tint := Color.WHITE   ## colour (its art's `tint`)
 	# Decision 38: the struck body flashes white, then tinted; a knockback hops it over the floor and leaves a skid.
 	var white := 0.0
 	var kb0 := 0.0
@@ -1088,9 +1088,17 @@ class FoeView extends Sorted:
 		uid = e.uid
 		add_child(FoeShadow.new(self))   # under the sprite, outside its flash
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
-		if e.team == "ally" or not (sheet.get("species", {}) as Dictionary).has(e.def_id):
-			art = TopdownPlaces.stand_in(e)
+		art = TopdownPlaces.stand_in(e)
+		if art != null:
 			add_child(art)
+			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
+			return
+		# A creature, a foe's or a spirit animal's (S12b: the pets too), is its species' sheet; one with none (the
+		# Copperjaw swarm, the cloud stag and the hatchling wyrm, S12b's report) shows its shadow alone.
+		var form: Dictionary = e.def.get("art", {})
+		if form.has("scale"): form_k = float(form.scale)
+		if form.has("tint"): form_tint = Color(str(form.tint))
+		if not (sheet.get("species", {}) as Dictionary).has(e.def_id):
 			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
 			return
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
@@ -1111,15 +1119,15 @@ class FoeView extends Sorted:
 		foot = Vector2(float(f[0]), float(f[1]))
 		tex = w.foe_sheet(str(look.get("atlas", "")))
 		top = float(look.get("top", -1))
-		shadow_rx = float(look.get("shadow", [8, 3])[0])
+		shadow_rx = float(look.get("shadow", [8, 3])[0]) * form_k
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
-	## idle frame facing the camera, tools/art/topdown/build_foes.py); a stand-in's is the side view's height at half size,
-	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
-	## (decision 43, TopdownPlaces.HEAD_LIFT).
+	## idle frame facing the camera, tools/art/topdown/build_foes.py, by its form's size); a person's (a companion, a
+	## bandit in their outfit) lifted as the villagers' marks are over the 46 px figure (decision 43,
+	## TopdownPlaces.HEAD_LIFT).
 	func figure_top(e: EnemyState) -> float:
 		if art is TopdownPlaces.Person: return e.height() - TopdownPlaces.HEAD_LIFT
-		if art != null or top < 0.0: return e.height()
-		return top * TopdownRoom.ART
+		if top < 0.0: return e.height()
+		return top * TopdownRoom.ART * form_k
 	func sync(delta: float) -> void:
 		var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
 		if e == null:
@@ -1199,9 +1207,9 @@ class FoeView extends Sorted:
 		queue_redraw()
 		get_child(0).queue_redraw()
 	func _draw() -> void:
-		if art != null: return   # the stand-in draws itself; its shadow is the FoeShadow child
-		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-		draw_texture_rect_region(tex, Rect2(-foot, cell), src, tint)
+		if art != null or tex == null: return   # a person draws itself; its shadow is the FoeShadow child
+		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-form_k if flip else form_k, form_k))
+		draw_texture_rect_region(tex, Rect2(-foot, cell), src, tint * form_tint)
 		draw_set_transform(Vector2.ZERO)
 
 ## A foe's blob shadow on the floor, drawn behind its figure and outside the figure's hurt flash.

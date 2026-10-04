@@ -66,10 +66,10 @@ func object_visible(c, o: Dictionary) -> bool:
 	if str(o.get("type", "")) == "egg_nest" and world.nest_closes(str(o.get("king", ""))) <= Clock.now_utc(): return false   # S46: only while open
 	# S43 rule 15: a rooftop thief is on his street until you have chased him today (caught or not).
 	if o.has("chase") and c != null and world.chase_done_today(c, str(o.id)) and str(world.chases.get(c.id, {}).get("object", "")) != str(o.id): return false
-	# T3 (topdown_mechanics.md): on the grid a thing of this room sealed under a whole cracked slab (the Lower Pit's
-	# shards) is hidden until a Plunge breaks it, as the side view's slab covers it.
+	# T3 (topdown_mechanics.md): a thing of this room sealed under a whole cracked slab (the Lower Pit's shards) is
+	# hidden until a Plunge breaks it.
 	var rt: RoomRuntime = game.room_rt
-	var tr: TopdownTraverse = TopdownTraverse.of(rt.topdown) if rt != null and rt.topdown != null else null
+	var tr: TopdownTraverse = TopdownTraverse.of(rt.topdown) if rt != null else null
 	if tr != null and not tr.cracks.is_empty():
 		var at: Array = o.get("at", [0, 0])
 		if tr.sealed(Vector2(float(at[0]), float(at[1]))) and not rt.object_def(str(o.get("id", ""))).is_empty(): return false
@@ -143,7 +143,7 @@ func apply_object_hit(actor_id: String, o: Dictionary) -> void:
 		world.room_mem(c, game.room_rt.room_id).broken[id] = Clock.now_utc() + st.timer
 		var drop := LootRules.roll(str(o.get("loot", "jar_valley_low")), Rng.stream(actor_id, "loot"), int(o.get("level", 1)),
 			c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "jar")
+		world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), "jar")
 		emit("object_broken", {"actor": actor_id, "object": id, "type": o.type})
 
 ## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).
@@ -153,12 +153,9 @@ func toggle_gravity(c, object_id: String) -> Dictionary:
 	var on := str(st.get("state", "up")) != "down"
 	st["state"] = "down" if on else "up"
 	game.room_rt.objects[object_id] = st
-	game.room_rt.geometry.set_switch(object_id, on)
-	# T3 (topdown_mechanics.md): on the grid the switch holds its layout's low-gravity volumes (the stand-in geometry has
-	# none of the side view's).
-	if game.room_rt.topdown != null:
-		var tr := TopdownTraverse.of(game.room_rt.topdown)
-		if tr != null: tr.set_switch(object_id, on)
+	# T3 (topdown_mechanics.md): the switch holds its layout's low-gravity volumes.
+	var tr := TopdownTraverse.of(game.room_rt.topdown)
+	if tr != null: tr.set_switch(object_id, on)
 	emit("gravity_switched", {"actor": c.id, "room": str(game.room_rt.room_id), "switch": object_id, "on": on})
 	emit("system_used", {"actor": c.id, "system": "gravity_switch"})
 	return ok({"on": on, "text": world.t("sim.world.gravity_on") if on else world.t("sim.world.gravity_off")})

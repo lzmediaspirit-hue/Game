@@ -139,12 +139,8 @@ def main():
             if c.startswith("tools/data/"):
                 imported_by[c].add("tools/data/build_data.py (MODULES)")
                 dyn[c] = "build_data.MODULES"
-    # tools/art/pixel.py loads tools/art/creatures/<id>.py by path; creatures.py loads creature.<module>;
-    # figure/sets/__init__.py loads every module in the folder.
+    # creatures.py loads creature.<module>; figure/sets/__init__.py loads every module in the folder.
     for c in mods:
-        if c.startswith("tools/art/creatures/"):
-            imported_by[c].add("tools/art/pixel.py (spec_from_file_location)")
-            dyn[c] = "pixel.py creature loader"
         if c.startswith("tools/art/topdown/figure/sets/") and not c.endswith("__init__.py"):
             imported_by[c].add("tools/art/topdown/figure/sets/__init__.py (pkgutil)")
             dyn[c] = "figure.sets auto-import"

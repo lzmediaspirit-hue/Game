@@ -42,7 +42,6 @@ var view_misses: Array = []  # what the view did not build, by room
 var probe: TopdownWorld = null
 
 func _main() -> void:
-	create_extra = {"view": "topdown"}
 	start_new("starfield/")
 	_to_the_field()
 	_crossings()
@@ -195,14 +194,13 @@ func _done(q: String) -> void:
 ## The tracker's entry for `quest` leads to `target`, a room on the grid.
 func _leads(quest: String, target: String) -> bool:
 	for e in Game.quest.tracker(c()):
-		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target) and not e.get("gate", false)
+		if str(e.get("quest", "")) == quest: return str(e.get("target_room", "")) == target and TopdownRoom.has_layout(target)
 	return false
 
-## Is the way `pid` of this room closed by the prototype's gate (its line said), and is that because its room has no
-## layout yet?
-func _gated(pid: String) -> bool:
-	var gs: Dictionary = Game.world.portal_state(c(), Game.room_rt.portal_def(pid))
-	return gs.get("gate", false) and not gs.get("open", true) and str(gs.get("text", "")) == Tx.t("sim.world.road_being_drawn")
+## The way `pid` of this room leads into a room laid out on the grid, as every room is (decision 41's gate, which shut a
+## way into a room with no layout yet, went in S12a).
+func _leads_on(pid: String) -> bool:
+	return TopdownRoom.has_layout(str(Game.room_rt.portal_def(pid).get("to", "")))
 
 ## Fight `def_id` across `rooms` (each walked into on the grid) until `count` have fallen; the tally.
 func _hunt(def_id: String, count: int, rooms: Array, per_room_s := 120.0) -> int:
@@ -278,8 +276,8 @@ func _citadel() -> void:
 	_start("the_citadel")
 	check(go("warden_skiff") and room() == "wc_citadel_gate" and Game.room_rt.topdown != null,
 		"the Wardens' skiff from the Arrival Quay to the Citadel Gate, on the grid (room %s)" % room())
-	check(_gated("skiff") == not TopdownRoom.has_layout("lh_arrival_quay"),
-		"the Citadel's skiff back to Lanternfall is gated exactly while the Arrival Quay has no layout")
+	check(_leads_on("skiff"),
+		"the Citadel's skiff leads back to Lanternfall's Arrival Quay, on the grid")
 	var into := go("hall_door")
 	var yao := talk("warden_commander_yao")
 	GameEvents.flush()
@@ -392,7 +390,7 @@ func _ashen_reach() -> void:
 	_start("the_tide_breaks")
 	check(travel("wc_citadel_gate") and go("tide_skiff") and room() == "tf_tidebreak_bastion" and Game.room_rt.topdown != null,
 		"the Wardens' skiff from the Citadel Gate to the Tidebreak Bastion, on the grid (room %s)" % room())
-	check(not _gated("skiff") and go("skiff") and room() == "wc_citadel_gate", "and the Bastion's skiff back to the Citadel, open on the grid (room %s)" % room())
+	check(_leads_on("skiff") and go("skiff") and room() == "wc_citadel_gate", "and the Bastion's skiff back to the Citadel, open on the grid (room %s)" % room())
 	for q in ["the_tide_breaks", "star_warden"]: _done(q)
 	_realm("sphere_lord_2")
 
@@ -400,7 +398,7 @@ func _ashen_reach() -> void:
 func _nebula_deep() -> void:
 	_start("lus_lantern")
 	check(go("tide_skiff") and travel("tf_drone_hive") and room() == "tf_drone_hive", "back over the grey fields to the Drone Hive (room %s)" % room())
-	check(not _gated("east"), "the Hive's way east into the Nebula Deep is open on the grid")
+	check(_leads_on("east"), "the Hive's way east into the Nebula Deep is open on the grid")
 	var rooms := [room()]
 	for rid in ["nd_nebula_verge", "nd_eel_currents", "nd_crab_grottoes"]:
 		_whole()
@@ -430,15 +428,15 @@ func _nebula_deep() -> void:
 	_done("the_leviathans_maw")
 
 func _lantern_heart() -> void:
-	# Up the stair above the harbour (the Harbor Market is the side view's while it has no layout).
+	# Up the stair above the harbour.
 	Game.world.apply_teleport(c().id, "lh_harbor_market")
 	GameEvents.flush()
 	st = null
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	check(go("lantern_stair") and room() == "lt_wick_gate" and Game.room_rt.topdown != null,
 		"up the stair above the harbour to the Wick Gate, on the grid (room %s)" % room())
-	check(_gated("stair") == not TopdownRoom.has_layout("lh_harbor_market"),
-		"the Wick Gate's stair down to the Harbor Market is gated exactly while the market has no layout")
+	check(_leads_on("stair"),
+		"the Wick Gate's stair leads down to the Harbor Market, on the grid")
 	var rooms := [room()]
 	for rid in ["lt_hall_of_burning_stars", "lt_flame_heart"]:
 		_whole()

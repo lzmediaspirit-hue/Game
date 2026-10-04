@@ -1,7 +1,7 @@
 class_name HudMinimap
 extends HudPart
-## The minimap: the room in its frame (the height grid's level map, or the side view's surfaces), its ways, people, foes
-## and places, the way to the tracked quest, and what a tap on it opens.
+## The minimap: the room in its frame (the height grid's level map), its ways, people, foes and places, the way to the
+## tracked quest, and what a tap on it opens.
 ## A part of the HUD (audit 45, S6): HudPart says how a part works.
 
 func draw(c) -> void:
@@ -11,18 +11,13 @@ func draw(c) -> void:
 	UiKit.draw_text(hud, str(room.get("name", "")), r.position + Vector2(12, 19), 14, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 24, true, true)
 	var inner := Rect2(r.position + Vector2(8, 26), r.size - Vector2(16, 34))
 	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
-	var to_map := Callable()
-	if grid == null:   # side view: the room projected from its surfaces
-		to_map = hud.side_view.minimap_projection(inner, room)
-	else:
-		# Redesign Phase 4: a room on the height grid is drawn as its level map, the whole room fitted in the frame
-		# (the plane seen from above); the ways, marks, people and foes below take the same projection.
-		var k := minf(inner.size.x / (grid.w * TopdownRoom.TILE), inner.size.y / (grid.h * TopdownRoom.TILE))
-		var at0 := inner.position + (inner.size - Vector2(grid.w, grid.h) * TopdownRoom.TILE * k) * 0.5
-		to_map = func(pos: Vector2, _alt: float) -> Vector2: return at0 + pos * k
-		hud.draw_texture_rect(_grid_map(grid), Rect2(at0, Vector2(grid.w, grid.h) * TopdownRoom.TILE * k), false)
-	if grid == null: hud.side_view.draw_minimap_surfaces(to_map)   # side view
-	hud.side_view.draw_minimap_ladders(to_map)   # side view: ladders and ropes (a room on the height grid has none)
+	if grid == null: return
+	# Redesign Phase 4: the room is drawn as its level map, the whole room fitted in the frame (the plane seen from
+	# above); the ways, marks, people and foes below take the same projection.
+	var k := minf(inner.size.x / (grid.w * TopdownRoom.TILE), inner.size.y / (grid.h * TopdownRoom.TILE))
+	var at0 := inner.position + (inner.size - Vector2(grid.w, grid.h) * TopdownRoom.TILE * k) * 0.5
+	var to_map := func(pos: Vector2, _alt: float) -> Vector2: return at0 + pos * k
+	hud.draw_texture_rect(_grid_map(grid), Rect2(at0, Vector2(grid.w, grid.h) * TopdownRoom.TILE * k), false)
 	for p in room.get("portals", []):
 		var at: Array = p.at
 		var st: Dictionary = WorldShared.portal_state(c, p)
@@ -35,16 +30,9 @@ func draw(c) -> void:
 		var gp: Vector2 = to_map.call(Vector2(float(gs.x), float(gs.y)), 0.0)
 		hud.draw_arc(gp, 7.0 + sin(hud.t * 5.0) * 1.5, 0, TAU, 14, UiKit.GOLD, 2.0)
 		var me: ActorState = Game.actor_state(c.id)
-		var dir := signf(float(gs.x) - (me.plane.x if me != null else 0.0))
-		if dir == 0.0: dir = 1.0
-		var ex := r.end.x - 7.0 if dir > 0.0 else r.position.x + 7.0
-		var ey := clampf(gp.y, inner.position.y + 8.0, inner.end.y - 8.0)
-		var way := Vector2(dir, 0.0)   # side view: along x (the height grid's below)
-		var tip := Vector2(ex, ey)
-		if grid != null and me != null:
-			# On the height grid the way may lie north or south too: the chevron sits on the frame's edge the way points.
-			way = way_toward(to_map.call(me.plane, 0.0), gp)
-			tip = edge_point(inner.grow(-8.0), inner.get_center(), way)
+		# The way may lie any way round: the chevron sits on the frame's edge the way points.
+		var way := way_toward(to_map.call(me.plane, 0.0), gp) if me != null else Vector2.RIGHT
+		var tip := edge_point(inner.grow(-8.0), inner.get_center(), way)
 		tip += way * sin(hud.t * 4.0) * 2.0
 		var side := Vector2(-way.y, way.x)
 		var chev := PackedVector2Array([tip, tip - way * 9.0 - side * 7.0, tip - way * 9.0 + side * 7.0])
@@ -58,7 +46,7 @@ func draw(c) -> void:
 			var mk: String = WorldShared.npc_marker(c, str(o.npc))
 			hud.draw_circle(mp, 3, UiKit.GOLD if mk in ["main", "ready"] else (UiKit.BRIGHT_JADE if mk == "again" else UiKit.PALE_GOLD))
 			if QuestAuthority.marker_calls(mk): hud.draw_arc(mp, 6 + sin(hud.t * 4.0) * 1.5, 0, TAU, 12, UiKit.BRIGHT_JADE if mk == "again" else UiKit.GOLD, 1)
-		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and (grid == null or PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty()):   # side view: every shrine
+		elif o.type in ["shrine", "qi_spring", "teleport_stone"] and PlaceRules.at_object(Game.room_rt.room_id, str(o.id)).is_empty():   # a place draws its own glyph
 			hud.draw_rect(Rect2(mp - Vector2(3, 3), Vector2(6, 6)), UiKit.BRIGHT_JADE)
 		elif o.type == "treasure_birth":
 			# S45: a Spirit Fruit ripening here stands up as a pillar of light on the minimap.
@@ -86,9 +74,9 @@ func draw(c) -> void:
 	# one opens the world map's Places on it, whose card offers the walk there.
 	# The marks are worked out twice a second, or as the room changes (the room's map stays put in between).
 	hud._place_look -= hud.get_process_delta_time()
-	var mark_room := str(Game.room_rt.room_id) if grid != null else ""
+	var mark_room := str(Game.room_rt.room_id)
 	if hud._place_look <= 0.0 or mark_room != hud._place_room:
-		hud.minimap_places = place_marks(c, mark_room, to_map, inner.position.y + 6.0) if grid != null else []
+		hud.minimap_places = place_marks(c, mark_room, to_map, inner.position.y + 6.0)
 		hud._place_room = mark_room
 		hud._place_look = 0.5
 	for mk in hud.minimap_places: TopdownPlaceArt.glyph(hud, (mk.at as Vector2).round(), str(mk.kind), bool(mk.wait), hud.t)
@@ -99,8 +87,8 @@ func draw(c) -> void:
 			var col = UiKit.SKY if e.team == "ally" else (UiKit.GOLD if e.elite or e.is_boss() else UiKit.RED)
 			hud.draw_circle(ep, 2.5, col)
 	var pp: Vector2 = to_map.call(hud.player.plane, hud.player.altitude)
-	# The arrow points the way the body faces: along x in the side view, any of eight ways on the height grid.
-	var fv := Vector2(hud.player.facing, 0) if grid == null or hud.player.get("motor") == null else (hud.player.motor.dir as Vector2).normalized()   # side view: along x
+	# The arrow points the way the body faces, any of eight ways.
+	var fv := (hud.player.motor.dir as Vector2).normalized() if hud.player.get("motor") != null else Vector2(hud.player.facing, 0)
 	var fs := Vector2(-fv.y, fv.x)
 	hud.draw_colored_polygon(PackedVector2Array([pp + fv * 5.0, pp - fv * 3.0 - fs * 4.0, pp - fv * 3.0 + fs * 4.0]), Color.WHITE)
 

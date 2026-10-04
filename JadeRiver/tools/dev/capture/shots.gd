@@ -1005,6 +1005,29 @@ static func sets() -> Dictionary:
 		{"name": "sprint_strip", "do": [["gear", "weapon", null], ["refresh"], ["arena", BASE + Vector2(-140, -40), []]], "take": [["strip", "*", Vector2.RIGHT, 48, [], [], [0, 12, 24, 36, 48]]]},
 		{"name": "walk_light_touch_strip", "do": [["arena", BASE + Vector2(-140, -40), []]], "take": [["strip", "*", Vector2(0.5, 0), 48, [], [], [0, 12, 24, 36, 48]]],
 			"then": [["hud", "visible", true]]}]}
+
+	# S12a/S12b: the one world. Every page of the registry opened over the grid on a character with a companion and its
+	# animals (the pets' creatures, the bestiary's and the beast pages' from their top-down sheets: S12b), and the HUD at
+	# rest and in a fight; at 1280x720, and with -screen 0 2400x1080x24 --resolution 2400x1080 the HUD's shots as a
+	# 20:9 phone's (the _phone shots; the pages are 1280x720's alone).
+	var s12a_unlocks: Array = ContentDB.all("unlocks").map(func(u): return str(u.id))
+	var s12a_pets: Array = ["reed_otter", "ember_fox", "jade_crane", "mist_wolf", "riverstone_ox", "comet_sparrow", "hatchling_wyrm", "cloud_stag"]
+	var s12a_stage: Array = hud_stage.slice(0, 4) + [["companion", "lan_yue"]] + hud_stage.slice(4) + [["know_all"], ["unlock", s12a_unlocks],
+		["effects", s12a_pets.map(func(sp): return {"kind": "grant_pet", "species": sp})], ["give", "copperjaw_box", 1],
+		["collection", ["mudshell_crab", "reedtail_rat", "old_snapper", "hollow_minnow", "wild_boarlet", "reed_frog", "marsh_leech",
+			"mossback_toad", "green_viper", "bamboo_monkey", "hollowed_eel", "big_toad_tan"], 12], ["flush"], ["frames", 20]]
+	var s12a_args := {"shop": {"shop": "old_ma", "npc": "old_ma"}, "library": {"shop": "library"}, "gift": {"npc": "granny_liu"},
+		"spirit_animals": {}, "codex": {"tab": "codex"}}
+	var s12a_skip := ["dialogue", "revival", "welcome", "fishing", "teleport", "mercy", "transfer_array"]   # a page that needs its moment
+	var s12a_rows: Array = [{"name": "hud_rest{sfx}", "do": hud_rest}, {"name": "hud_fight{sfx}", "do": hud_fight, "then": hud_fight_end}]
+	for pid in preload("res://scripts/shell/page_registry.gd").PAGES:
+		if str(pid) in s12a_skip: continue
+		s12a_rows.append({"name": "page_%s" % pid, "if": "!phone", "do": [["open_page", str(pid), s12a_args.get(pid, {})], ["frames", 30], ["coach_off"], ["frames", 60]],
+			"then": [["close_pages"], ["frames", 10]]})
+	s12a_rows.append({"name": "page_spirit_animals_swarm", "if": "!phone", "do": [["open_page", "spirit_animals", {"tab": "swarm"}], ["frames", 30], ["coach_off"],
+		["frames", 60]], "then": [["close_pages"], ["frames", 10]]})
+	s["s12a"] = {"doc": "S12a/S12b: the one world: every page over the grid (the creatures from their top-down sheets) and the HUD at rest and in a fight, at 1280x720 and on a 20:9 phone (the _phone shots)",
+		"out": "redesign/feedback/s12a/", "stage": s12a_stage, "rows": s12a_rows}
 	return s
 
 ## The lineups of the monsters' review: [def, offset from SPOT in cells, elite].

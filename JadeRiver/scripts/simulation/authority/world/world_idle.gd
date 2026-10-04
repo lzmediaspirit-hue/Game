@@ -73,8 +73,8 @@ func start_auto_path(c, target: String, place := "") -> Dictionary:
 	emit("auto_path_started", {"actor": c.id, "target": target, "rooms": r.size(), "place": place, "name": str(goal.get("name", ""))})
 	return ok({"route": r, "place": place})
 
-## Where auto-path is heading in this room: the portal to take ({portal, x, y, press_up}), in the place's own room the
-## cell its user stands on ({place, x, y}), or {}.
+## Where auto-path is heading in this room: the portal to take ({portal, x, y}) or the dock to sail from ({dock, x, y}),
+## in the place's own room the cell its user stands on ({place, object, x, y}), or {}.
 func auto_path_step(c) -> Dictionary:
 	var ap: Dictionary = world.auto_paths.get(c.id, {}) if c != null else {}
 	if ap.is_empty() or game.room_rt == null: return {}
@@ -82,18 +82,13 @@ func auto_path_step(c) -> Dictionary:
 		if str(s.room) != game.room_rt.room_id: continue
 		var at := _step_point(s)
 		if at.is_empty(): return {}
-		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": false, "surface": ""}
-		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y), "press_up": bool(at.p.get("press_up", false)), "surface": str(at.p.get("surface", ""))}
+		if s.get("dock", false): return {"dock": str(s.portal), "x": float(at.x), "y": float(at.y)}
+		return {"portal": str(s.portal), "x": float(at.x), "y": float(at.y)}
 	if ap.has("place") and game.room_rt.room_id == str(ap.target):
 		var pl := PlaceRules.get_place(str(ap.place))
-		var sp := PlaceRules.stand_point(pl) if not WorldAuthority.side_view(game.room_rt) else _side_place_point(pl)
+		var sp := PlaceRules.stand_point(pl)
 		return {"place": str(ap.place), "object": str(pl.get("object", "")), "x": sp.x, "y": sp.y}
 	return {}
-
-## A side-view room: the place's object where the side view has it (the place's own point without one).
-func _side_place_point(pl: Dictionary) -> Vector2:
-	var o: Dictionary = game.room_rt.object_def(str(pl.get("object", "")))
-	return Vector2(float(o.at[0]), float(o.at[1])) if not o.is_empty() else PlaceRules.point(pl)
 
 ## Decision 43: the walk to a place ends at its user's cell.
 func auto_path_arrive(c) -> void:

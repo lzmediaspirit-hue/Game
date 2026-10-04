@@ -2,7 +2,7 @@
 @32 render for the HUD item ring and the small slots.
 
 Each critter is the living animal, drawn with care in its species' colours and after its sprite where it has one
-(art/creatures: the reed frog's green and gold eye, the ember fox's white chest and sail ears): the body built from a
+(their creature sheets: the reed frog's green and gold eye, the ember fox's white chest and sail ears): the body built from a
 spine of overlapping discs so it keeps one bold silhouette, fur in strands lying down it (beast_parts.fur_hd), the
 face with its eyes (ring, iris, pupil and catch-light), nose and whiskers, ears with their pink inside, paws with
 their toes, and the species' own mark (the frog's gold eyes, the hare's misty ear tips, the marmot's cloud tail, the
