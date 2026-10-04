@@ -673,6 +673,30 @@ RAMPS.update({
     "tet_lily": _s("b8e38c", "66ad6a", "3a7b62", "25524f"),
     "tet_lotus": _s("fff0f5", "f5a6c3", "d56d9a", "9d4577"),
     "tet_glow": _s("fbf3ff", "d2b1ff", "a37ce6", "6a48b8"),
+    # the wind kite: crimson silk, gold (its rims, ribs, prow and streamer bands), ink clouds, pale bamboo, its jade eye
+    "wk_silk": _s("f7865a", "d8343f", "9b2150", "5b1b50"),
+    "wk_gold": _s("fff1ae", "f0bf48", "c47a38", "7e3a4c"),
+    "wk_ink": _s("3e2c4c", "281a33", "1c1128", "130b1c"),
+    "wk_bamboo": _s("fbf4d8", "eadcae", "cdb98e", "a8916f"),
+    "wk_jade": _s("dcfff2", "67d6bd", "2c9e8f", "15514f"),
+    # the canyon harpy: russet plumage, her darker flight feathers, the pale sandstone of her front and face, slate (her
+    # beak of a nose, her talons), the faded crimson silk of her sash, bone beads
+    "ch_plume": _s("f4be78", "c77440", "8a442f", "522735"),
+    "ch_flight": _s("c47c4a", "8c4830", "5f2e2d", "3b1c2b"),
+    "ch_under": _s("fcebc6", "e5c696", "bb9170", "80605c"),
+    "ch_slate": _s("8e92a2", "5f6174", "3f3f53", "28273a"),
+    "ch_sash": _s("d9857a", "a84b48", "77313f", "4a2034"),
+    "ch_bone": _s("fbf4dc", "e9dcb8", "bfae88", "8a7b5e"),
+    "ch_face": _s("fff8ec", "f3dcc4", "c9a48c", "8a6466"),
+    # the sandstorm scorpion: sun-bleached sand gold, its legs, amber desert glass, dark umber (joints, tips, barb), a bone
+    # belly, its venom, sand
+    "ssc_sand": _s("fdf0c4", "dcb46e", "a97d62", "6c4c5c"),
+    "ssc_leg": _s("e8c286", "bb8c58", "86604e", "553c4a"),
+    "ssc_glass": _s("ffe7a2", "f2a843", "c46c37", "823c3e"),
+    "ssc_umber": _s("8a6654", "5c3e38", "40292e", "2a1a22"),
+    "ssc_belly": _s("fffaea", "f0e4c8", "cbb59c", "98828a"),
+    "ssc_venom": _s("fff4b8", "ffc444", "ef8a2c", "b2562e"),
+    "ssc_grain": _s("fdf3d6", "ead3a0", "c9a878", "9c7c62"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
@@ -697,6 +721,13 @@ PROPS.update({
     "acd_mouth": {"weight": 1.4},
     "tet_skin": {"hi": True, "glossy": True}, "tet_belly": {"hi": True, "weight": 1.2}, "tet_sclera": {"hi": True, "glossy": True, "weight": 1.5},
     "tet_lily": {"hi": True, "weight": 1.3}, "tet_lotus": {"hi": True, "weight": 1.5}, "tet_glow": {"hi": True, "weight": 1.5},
+    "wk_silk": {"hi": True},"wk_gold": {"hi": True, "glossy": True, "weight": 1.4}, "wk_ink": {"weight": 1.3},
+    "wk_bamboo": {"hi": True, "line": True, "weight": 1.5}, "wk_jade": {"hi": True, "glossy": True, "weight": 1.5},
+    "ch_plume": {"hi": True}, "ch_flight": {"hi": True}, "ch_under": {"hi": True, "weight": 1.2}, "ch_slate": {"hi": True, "weight": 1.5},
+    "ch_sash": {"hi": True, "weight": 1.3}, "ch_bone": {"hi": True, "weight": 1.5}, "ch_face": {"hi": True, "weight": 1.4},
+    "ssc_sand": {"hi": True}, "ssc_leg": {"hi": True, "weight": 1.2}, "ssc_glass": {"hi": True, "glossy": True, "weight": 1.3},
+    "ssc_umber": {"hi": True, "weight": 1.4}, "ssc_belly": {"hi": True, "weight": 1.2}, "ssc_venom": {"hi": True, "glossy": True, "weight": 1.5},
+    "ssc_grain": {"hi": True, "weight": 1.1},
 })
 # The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
 SW_EYE = c("7FD4FF")
@@ -742,3 +773,25 @@ HB_GLOW = c("FFFFFF")
 HB_GLOW_EDGE = c("BFEAF5")
 HB_GLOW_DIM = c("8FA3AB")
 HB_HALO = c("BFEAF5", 150)
+# The wind kite's painted jade eye and its glow, the wind off it, the white edge of the crescent it slashes with.
+WK_EYE = c("A8FFE6")
+WK_EYE_GLOW = c("67D6BD", 150)
+WK_WIND = c("E4F2F8", 210)
+WK_WIND_DIM = c("A9C6DC", 160)
+WK_CRESCENT = c("FFFFFF")
+# The canyon harpy's burning amber eyes and their glow, her dark brows, the rings of her screech, the rake of her talons.
+CH_EYE = c("FFB52E")
+CH_GLOW = c("FFDF7A", 150)
+CH_BROW = c("321827")
+CH_RING = c("E4F2F8", 210)
+CH_RING_DIM = c("8FB4C8", 160)
+CH_RAKE = c("FFF4DC")
+CH_RAKE_DIM = c("C8A878", 180)
+# The sandstorm scorpion's dark eyes, the glint on its glass, its venom's glow (and its hot core), the sand off its back.
+SSC_EYE = c("2A1A22")
+SSC_GLINT = c("FFF8DA")
+SSC_VENOM = c("FFC444", 200)
+SSC_VENOM_HOT = c("FFFCE6")
+SSC_VENOM_GLOW = c("FFF0A0", 150)
+SSC_SAND = c("EAD3A0", 200)
+SSC_SAND_DIM = c("C9A878", 150)
