@@ -120,6 +120,23 @@ Every generated value can be pinned in the spec. A tweak never goes into the JSO
 | `"add": [(kind, x, y)]` | more pieces after the scatter |
 | `"drop": [(x, y)]` | a scattered piece taken out where it covers the cell |
 
+## The paths above (S12c)
+
+A side-view surface with `later` is an optional ledge only a later movement art reaches (S43's "Paths Above",
+`data/paths_above.json`). Its room's spec gives it a raised shape of the same name: a feature (`("pine_top", rect,
+dict(level=2))`) or a named prop with a top (`("house", 40, 5, "workshop_chimney")`); a room whose spec has none stops
+the build with the surface's name. The engine:
+
+- lays no flight onto it and grows nothing on it;
+- places what stands on it (its chest, its jars) without a walk to it;
+- writes it to the layout as `above`: `{surface: {rect, level, art}}` (the game's `TopdownRoom.ledge_at`; a landing
+  there finds the path).
+
+The shape is the spec's to make right: two levels over the floor beside it for the double jump; three at the head of a
+shaft two wide between faces five high for Wall-Step (the Echo Cliffs' nest). It must keep clear of anything a walk or
+a jump would cross onto it from. `topdown_rooms.py check_above` holds it; `test_engine.py`'s `paths above` checks the
+marking.
+
 ## The checks
 
 - `python3 tools/data/topdown_rooms.py --check` (or `tools/content/rooms/build.py --check`): every layout current; each

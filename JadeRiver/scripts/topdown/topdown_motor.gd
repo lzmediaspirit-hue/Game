@@ -43,6 +43,9 @@ var row := "s"             ## the drawn facing: s, se, e, ne, n, or nw, w, sw (d
 var peak := 0.0            ## the highest z of this airtime
 var land_t := 0.0          ## landing squash left
 var sink_t := -1.0         ## >= 0 while a splash plays, then back to the safe spot
+## S12c: what the sink under way ends in: "water" (open water, the side view's deep water) or "pit" (a pit under gone
+## boards); a `reset` carries it, or "brink" for a fall out of the room past a brink (TopdownPlayer: fell_out).
+var sink_cause := ""
 var safe := Vector2.ZERO
 var safe_z := 0.0
 var events: Array = []     ## {type: jumped | landed | dashed | fell | splashed | reset, ...}, drained by the view
@@ -265,6 +268,7 @@ func traverse() -> TopdownTraverse:
 ## one floats there now (T1).
 func floor_at(p: Vector2) -> float:
 	var h := room.height_at(p)
+	if h == INF and room.brink_at(p): return -INF   # S12c: past a brink there is no floor (a fall out of the room)
 	var tr := traverse()
 	if tr != null:
 		# T1: a raft's deck over the water, a lift's over the floor under it; whole boards over a pit; a flood's water.
@@ -342,16 +346,43 @@ func wind_push() -> Vector2:
 ## `flood`, the side view's water_shallow), and a swimmer goes at the swim's pace.
 func _pace() -> float:
 	if swimming: return swim_factor * (1.0 + swim_surge * cos(TAU * stroke_t / maxf(0.1, swim_stroke)))   # T3: the stroke's surge
-	if wade_free or not grounded: return 1.0
+	return shallow_factor if wading() else 1.0
+
+## S12c · the shallows drag at the feet: the body stands on a wading floor at its height (not on a deck, not swimming,
+## not on a Water Sphere's frozen ground). The walk wades at `shallow_factor`, and no dodge goes (Combat reads it on
+## ActorState.wading: the side view's "no dodging in shallow water").
+func wading() -> bool:
+	if wade_free or not grounded or swimming or ride != "" or sink_t >= 0.0: return false
+	return wading_floor(pos) and absf(z - room.height_at(pos)) < 0.5
+
+## S12c · the side view's volumes the body is in now, {id, kind} each (TopdownPlayer announces volume_entered and
+## volume_left as the set changes): open water (`water_deep`: the grid's own, the side view's deep water, or a hole's
+## under gone boards) and a flood's risen water (`rising_water`, its side-view id) while the body is at or under the
+## surface, as the side view's band held it (a skimmer on it too, not a jump over it, nor a deck on it); a wading floor
+## (`water_shallow`) underfoot; and the traversal's rows where they hold it (TopdownTraverse.volumes_at).
+func volumes() -> Array:
+	var out: Array = []
+	var floor_z := room.height_at(pos)
+	var tr := traverse()
+	if z <= 0.5 and _hole_at(pos) != "pit" and floor_z < INF:
+		var fl: Dictionary = tr.flood_at(pos, floor_z) if tr != null and not tr.floods.is_empty() and not water_walk else {}
+		if not fl.is_empty(): out.append({"id": str(fl.id), "kind": "rising_water"})
+		elif _water_at(pos) or (water_walk and floor_z == TopdownRoom.WATER_Z and _raft_under(pos).is_empty()): out.append({"id": "water", "kind": "water_deep"})
+	if floor_z < INF and z - floor_z <= TopdownTraverse.FLOOR_BAND and ride == "" and wading_floor(pos): out.append({"id": "shallows", "kind": "water_shallow"})
+	if tr != null: out.append_array(tr.volumes_at(pos, z, floor_z))
+	return out
+
+## A floor under shallow water at a ground point: a paint the tile set marks `flood` (the side view's water_shallow).
+func wading_floor(p: Vector2) -> bool:
 	if _wading_room != room:
 		_wading_room = room
 		_wading = {}
 		var paints: Dictionary = room.tileset.get("paint", {})
 		for mark in paints:
 			if bool((paints[mark] as Dictionary).get("flood", false)): _wading[str(mark)] = true
-	if _wading.is_empty() or ride != "": return 1.0
-	var cp := TopdownRoom.cell_of(pos)
-	return shallow_factor if _wading.has(room.paint_at(cp.x, cp.y)) and absf(z - room.height_at(pos)) < 0.5 else 1.0
+	if _wading.is_empty(): return false
+	var cp := TopdownRoom.cell_of(p)
+	return _wading.has(room.paint_at(cp.x, cp.y))
 
 ## The nearest spot to `p` a body stands on dry: `p` itself unless the water has come over it (a flood risen over the last
 ## safe spot sends the body to the nearest dry floor instead). T2: within a level of the safe spot's floor where there is
@@ -453,8 +484,11 @@ func _substep(h: float, axis: Vector2) -> void:
 		sink_t += h
 		z -= 60.0 * h
 		if sink_t >= reset_s:
+			var cause := sink_cause
+			push_t = 0.0
+			dash_t = 0.0
 			place(_dry(safe))
-			events.append({"type": "reset"})
+			events.append({"type": "reset", "cause": cause})
 		return
 	# T2 · Breath Control: a swimmer's breath runs out over `swim_s`; then it sinks, as a body without the art does at once.
 	if swimming:
@@ -463,6 +497,7 @@ func _substep(h: float, axis: Vector2) -> void:
 			if swim_left <= 0.0:
 				swimming = false
 				sink_t = 0.0
+				sink_cause = "water"
 				vel = Vector2.ZERO
 				events.append({"type": "splashed", "fall": 0.0, "plunge": false, "breath": true})
 				return
@@ -574,7 +609,7 @@ func _wall_kick(axis: Vector2) -> bool:
 	var reach := float(conf("traverse.wall_reach", 12.0)) + (half.x if side.x != 0.0 else half.y)
 	var probe := pos + side * reach
 	var cp := TopdownRoom.cell_of(probe)
-	if not (room.level(cp.x, cp.y) == TopdownRoom.SOLID or floor_at(probe) > z + mantle): return false
+	if not ((room.level(cp.x, cp.y) == TopdownRoom.SOLID and not room.brink_at(probe)) or floor_at(probe) > z + mantle): return false
 	wall_kicks += 1
 	vz = float(conf("traverse.wall_kick_speed", 340.0))
 	peak = maxf(peak, z)
@@ -726,10 +761,10 @@ func _vertical(h: float) -> void:
 		else:
 			z = ground   # stairs and small steps follow the floor
 			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2),
-			# nor a pit's open spikes (T3).
+			# nor a pit's open spikes (T3), nor within BRINK_MARGIN of a brink (S12c, the side view's 24 from an open edge).
 			var trs := traverse()
 			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()) \
-					and (trs == null or trs.hazards.is_empty() or trs.spikes_at(pos).is_empty()):
+					and (trs == null or trs.hazards.is_empty() or trs.spikes_at(pos).is_empty()) and not _near_brink(pos):
 				safe = pos
 				safe_z = z
 			# T1 · Water Skimming: stepping out onto the water's surface is the art's use, announced once an outing.
@@ -772,6 +807,9 @@ func _vertical(h: float) -> void:
 	peak = maxf(peak, z)
 	_push_out()
 	ground = floor_at(pos)
+	if ground == -INF and z < room.void_z():
+		_fall_out()
+		return
 	if z <= ground:
 		z = ground
 		if vz <= 0.0: _land()
@@ -803,6 +841,9 @@ func _fly_step(h: float) -> void:
 	peak = maxf(peak, z)
 	_push_out()
 	under = floor_at(pos)
+	if under == -INF and z < room.void_z():
+		_fall_out()
+		return
 	if z <= under and fly_input < 0.0:
 		z = under
 		flying = false
@@ -815,6 +856,24 @@ func _fly_step(h: float) -> void:
 func gravity_k() -> float:
 	var tr := traverse()
 	return 1.0 if tr == null or tr.lowgs.is_empty() else tr.gravity_at(pos)
+
+# ------------------------------------------------------------------ S12c: brinks, and falling out of the room
+## How near a brink no safe spot is kept (the side view's: 24 units from an open edge).
+const BRINK_MARGIN := 24.0
+
+## Within BRINK_MARGIN of a brink (TopdownRoom.brink_at) south of the foot box.
+func _near_brink(p: Vector2) -> bool:
+	var y := p.y + half.y + BRINK_MARGIN
+	return room.brink_at(Vector2(p.x - half.x, y)) or room.brink_at(Vector2(p.x + half.x, y))
+
+## Off a brink, past every floor: a body under the room's void (TopdownRoom.void_z, the side view's void altitude) has
+## fallen out of the room and is back on its last safe spot (the side view's recover_to_safe); `reset` says so, its
+## cause "brink" (TopdownPlayer announces fell_out: the short fade, the fall's cost, its fortune).
+func _fall_out() -> void:
+	push_t = 0.0
+	dash_t = 0.0
+	place(_dry(safe))
+	events.append({"type": "reset", "cause": "brink"})
 
 ## T1: the updraft the body is in, in the air ({} when none, or the room has none, or it plunges).
 func updraft_here() -> Dictionary:
@@ -850,6 +909,7 @@ func _land() -> void:
 			events.append({"type": "swam", "fall": fall, "plunge": plunged})
 			return
 		sink_t = 0.0
+		sink_cause = "pit" if _hole_at(pos) == "pit" else "water"
 		vel = Vector2.ZERO
 		# T2: a pit under boards that gave way swallows the body without a splash (its spikes are the World authority's).
 		events.append({"type": "pitfall" if _hole_at(pos) == "pit" else "splashed", "fall": fall, "plunge": plunged})
@@ -861,7 +921,7 @@ func _land() -> void:
 	var assisted := magnet_used
 	if assisted or z >= takeoff_z + step_up or (crossed_low and z >= takeoff_z - 0.5): land_hold = magnet_hold_s
 	magnet_used = false
-	events.append({"type": "landed", "fall": fall, "plunge": plunged, "assisted": assisted})
+	events.append({"type": "landed", "fall": fall, "plunge": plunged, "assisted": assisted, "at": pos, "z": z})
 	# T1 · a bounce (the Fairground's drum, a lily pad, the bent bamboo) launches the body straight back up.
 	var tr := traverse()
 	var b: Dictionary = tr.bounce_at(pos, z) if tr != null and not tr.bounces.is_empty() and not plunged else {}
@@ -888,7 +948,7 @@ func _corners(p: Vector2) -> Array:
 ## over water), or a floor above the body's reach: one step (8) on the ground, the mantle (12) in the air.
 func _corner_blocks(c: Vector2) -> bool:
 	var cp := TopdownRoom.cell_of(c)
-	if room.level(cp.x, cp.y) == TopdownRoom.SOLID: return true
+	if room.level(cp.x, cp.y) == TopdownRoom.SOLID and not room.brink_at(c): return true   # S12c: a brink is open
 	if grounded and not water_walk and _water_at(c) and not _swims_at(c): return true   # T1: a raft's deck is a floor, and whole boards
 	var tr := traverse()
 	if tr != null and not tr.hatches.is_empty() and not tr.hatch_at(c).is_empty(): return true   # T2: a sealed hatch
@@ -932,7 +992,7 @@ func _push_out() -> void:
 		var moved := false
 		for c in _corners(pos):
 			var cp := TopdownRoom.cell_of(c)
-			if not (room.level(cp.x, cp.y) == TopdownRoom.SOLID or floor_at(c) > z + mantle): continue
+			if not ((room.level(cp.x, cp.y) == TopdownRoom.SOLID and not room.brink_at(c)) or floor_at(c) > z + mantle): continue
 			var cell := Rect2(Vector2(cp) * TopdownRoom.TILE, Vector2.ONE * TopdownRoom.TILE)
 			var px: float = (cell.position.x - c.x - 0.01) if c.x > pos.x else (cell.end.x - c.x + 0.01)
 			var py: float = (cell.position.y - c.y - 0.01) if c.y > pos.y else (cell.end.y - c.y + 0.01)

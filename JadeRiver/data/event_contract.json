@@ -3967,8 +3967,7 @@
     "movement_solver",
     "topdown_player"
    ],
-   "polled": "The player node plays its own jump pose and sound when the press succeeds.",
-   "dormant": "The top-down motor's jump stays in the world view (its sound); nothing announces it."
+   "polled": "The world view plays the jump's push-off and sound from the motor's own event (TopdownWorld.feedback)."
   },
   "landed": {
    "system": "Movement",
@@ -3976,8 +3975,7 @@
     "local_authority",
     "movement_solver",
     "topdown_player"
-   ],
-   "dormant": "The top-down motor's landing stays in the world view (sound, dust); the paths above and the remount wait."
+   ]
   },
   "wall_kicked": {
    "system": "Movement",
@@ -4019,8 +4017,7 @@
     "local_authority",
     "movement_solver",
     "topdown_player"
-   ],
-   "dormant": "The grid has no fall out of the room; the fall's fade, fortune and Hidden Cave wait."
+   ]
   },
   "mover_boarded": {
    "system": "Movement",
@@ -4037,8 +4034,7 @@
     "local_authority",
     "movement_solver",
     "topdown_player"
-   ],
-   "dormant": "The grid's water is its own cells (TopdownTraverse); no volume is entered."
+   ]
   },
   "volume_left": {
    "system": "Movement",
@@ -4047,8 +4043,7 @@
     "movement_solver",
     "topdown_player"
    ],
-   "polled": "The player node reads the water state and volumes each frame.",
-   "dormant": "The grid's water is its own cells (TopdownTraverse); no volume is left."
+   "polled": "ActorState.volumes_in holds the volumes a body is in; the water's step plays on entering, nothing on leaving."
   },
   "world_event_scheduled": {
    "system": "Calendar",

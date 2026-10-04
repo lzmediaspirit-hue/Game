@@ -1,5 +1,50 @@
 # Changelog
 
+## What the side view carried, on the grid (decision 45, S12c)
+
+S12a deleted the side view; a few features lived only in its player and solver and went quiet with it. S12c restores
+each on the height grid (`docs/architecture/topdown_mechanics.md`, "S12c"; `docs/architecture/audit_45.md` §7, "Status
+(phase 3, S12c)"). No event of the contract is dormant any more.
+
+- **Jumps and landings announced.** `TopdownPlayer` puts the motor's `jumped` (`jumps` 1, or 2 for the Cloud Ladder
+  Step's second) and `landed` (`surface`, `fall_height`, `plunge`) on the event bus, as the side view's solver did. A
+  mount's rider who stepped down to climb is back on when a jump off the face lands (PetAuthority's remount).
+- **The Paths Above, art-gated again.** Each of the six rows (`data/paths_above.json`, keyed by a side-view surface) is
+  a raised shape of its room named for that surface, which the room engine marks on the layout (`above`: rect, level,
+  art) and never climbs onto with a flight. All six map: four the double jump's (two levels up: Willow Path West's pine
+  top, Artisan Row's workshop roof, the Whispering Bamboo's culms, the Flooded Gate's ledge), two Wall-Step's (three
+  levels up at the head of a two-wide shaft between faces five high, as the Echo Cliffs' nest: Behind the Falls' shaft
+  top, the Sunken Causeway's broken pillar). Landing on one finds it (`landed`'s surface, `TopdownRoom.ledge_at`). The
+  rooms' crates and steps that had made them a walk are gone; `topdown_rooms.py` (`check_above`) holds that no walk or
+  lesser art reaches each, its own art does from every way in, and what stood on the surface stands on it.
+- **Falling out of a room.** By the side view's rule 6: a room whose south edge falls into the sea of cloud or the
+  star field's void (its vista's drop: 51 rooms) has a brink there, open to walk, jump, be blown or knocked off,
+  with no floor past it; a body under the room's void (250 under its lowest floor, the side view's void altitude) is
+  out. Sinking in open water (the side view's deep water) is a fall out too; a pit's floor is not. Either way the body
+  is back on its last safe spot (none within 24 of a brink) with `fell_out`: main.gd's short fade, Combat's 5% (not in
+  towns, safe rooms or the Prologue), the "fell" text, the camera there at once, and the Fortune check. The Hidden
+  Cave (`hg_hidden_grotto`) can be drawn again.
+- **Volumes.** `volume_entered` and `volume_left` again, each side-view volume kind at the side view's heights: open
+  water and risen floods (at or under the surface), the wading floors, and the traversal rows (updraft, current, wind,
+  ice, hazard, boards, bounce, no-flight, live low gravity). The water's step plays stepping into deep or risen water.
+- **No dodge in the shallows**, as the side view's rule: Combat reads `ActorState.wading` (the motor's wading floor; a
+  Water Sphere's frozen ground is no water). `ZoneGeometry` loses its last volume query.
+- **The fame greeting**: from Noted the nearest townsfolk greet a famous name as a town is entered
+  (`TopdownWorld.fame_greeting`), its four strings back in `ui_strings.json`.
+- **The music under a scene.** A world unmounted mid-scene let go of Audio's "scene" hold only through a workaround in
+  `audio_tests`; `SceneDirector._exit_tree` now releases it with the stage, and the workaround is gone.
+- **Two stuck legs fixed.** The Herb Terraces' second bed stands at the head of its flight (the walk leaves the flight's
+  top row northward), and the Rapids Terraces' middle flight is laid by the engine's `flights` (its cheeks clear), so
+  `room_sweep` walks to bed_1 and herb_1 and keeps no known stick.
+- **No new art.** A fall off a brink plays the jump's falling frame; AGENTS.md rule 10 holds character art.
+- **Review:** the capture set `s12c` (`docs/architecture/topdown_mechanics/s12c/world/`): the six paths above with the
+  body at each one's foot, and the two re-laid spots.
+- **Checks.** `tools/run_tests.sh` on the tree merged with the latest branch: every gate passed (`boot`, `room_engine`
+  515 checks with the paths above, 508 before; `topdown_rooms` with grid parity on 168 layouts and 498 starts; `places`,
+  `npc_engine`, `item_engine`, `quest_engine`, `monsters`), and all 32 suites with no SCRIPT ERROR: 79,466 checks (79,423
+  before). `topdown_traversal` 346 to 393 (parts 40 to 44), `audio_tests` 56 to 58, `cue_tests` 35 to 36; `room_sweep`
+  15,724 to 15,717 (the six things on the paths above left to their arts); every other count as it was.
+
 ## One world: the side view retired, and its creature sheets with it (decision 45, S12a and S12b)
 
 Every room has its layout on the height grid, and every species its top-down sheet, so the side view goes

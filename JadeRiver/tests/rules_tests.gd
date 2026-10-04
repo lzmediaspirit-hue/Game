@@ -11879,12 +11879,11 @@ func _fix_wind_step(c) -> void:
 	Unlocks.force_unlock(c.id, "dodge_dash")
 	c.pools.cooldowns["dodge"] = 5.0
 	Game.combat.treasure_fx[c.id] = {"free_dodge": 1.0}
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	geo.volumes.append({"id": "test_shallows", "kind": "water_shallow", "rect": Rect2(st.plane - Vector2(50, 50), Vector2(100, 100)), "lo": -20.0, "hi": 20.0})
+	st.wading = true   # S12c: the motor's wading floor, mirrored (TopdownPlayer)
 	var r := Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
 	check(str(r.get("reason", "")) == "in_water" and float(Game.combat.treasure_fx[c.id].get("free_dodge", 0.0)) > 0.0,
 		"a dodge refused in shallow water keeps the Wind Step charge (%s)" % str(r))
-	geo.volumes.pop_back()
+	st.wading = false
 	check(Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1}).get("ok", false) and not Game.combat.treasure_fx[c.id].has("free_dodge"),
 		"on dry ground the charge is spent on the dodge")
 	c.pools.cooldowns.clear()

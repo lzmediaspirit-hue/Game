@@ -39,7 +39,9 @@ WG_GORGE_MOUTH = room(
 WG_RAPIDS_TERRACES = room(
     "wg_rapids_terraces", size=(72, 28), biome="gorge",
     bands=[("upper", 3, 6, dict(level=2, paint="g")),
-           ("middle", 8, 4, dict(level=1, paint="g", wavy=True)),
+           # S12c: its flight laid by `flights` (cheeks clear: no terrace beside its top row a full step up), so the walk up
+           # it to the herb and the jar leaves it sideways onto nothing it must climb (room_sweep).
+           ("middle", 8, 4, dict(level=1, paint="g", wavy=True, flights=[20])),
            ("cliff", 0, 4, CLIFF_FOOT),
            ("road", 14, 3, dict(level=0, paint="d", walk=True)),
            ("strand", 17, 2, dict(level=0, paint="a", wavy=True)),

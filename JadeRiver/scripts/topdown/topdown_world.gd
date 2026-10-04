@@ -437,6 +437,10 @@ func feedback(e: Dictionary) -> void:
 			tfx.dust("land", m.pos, 0.0)
 			sound.landed(float(e.get("fall", 0.0)) + 32.0)
 		"stroked": fx.wake(m.pos)   # T3: the swim's pull leaves its ring on the water
+		"reset":
+			# S12c: back on the last safe spot out of the water or off a brink (fell_out: main.gd's short fade covers it),
+			# the camera there at once.
+			if str(e.get("cause", "")) in ["water", "brink"]: settle_camera()
 		"cracked":
 			# T3: a Plunge breaks the cracked slab (the Lower Pit's): its dust and a crack of stone, the body falling on
 			# through to strike on the floor under it.
@@ -621,6 +625,7 @@ func _on_event(name: String, p: Dictionary) -> void:
 				build_room()
 				place_player()
 				settle_camera()
+				fame_greeting()
 				# Decision 42: come out of a transfer array in a column of the sect's light.
 				if _array_glow != Color.TRANSPARENT:
 					effects.add("pillar", player_feet(), {"color": _array_glow, "radius": 18.0, "height": 300.0, "dur": 0.9})
@@ -680,6 +685,29 @@ func _on_event(name: String, p: Dictionary) -> void:
 			WorldShared.play(self, name, p)
 		_:
 			WorldShared.play(self, name, p)
+
+## S49 Fame, on the grid since S12c (the side view's world.gd alone drew it): from Noted, the townsfolk know your name
+## when you walk into a town: the nearest person in view within FAME_REACH of the body says so over their head, for
+## FAME_S, in the words of your fame's tier.
+const FAME_REACH := 900.0   ## world units (the side view's)
+const FAME_S := 4.0
+func fame_greeting() -> void:
+	var c = Game.active()
+	if c == null or Game.room_rt == null or str(Game.room_rt.def.get("type", "")) != "town": return
+	var tier := str(Game.relations.fame_tier(c).get("id", "unknown"))
+	if tier in ["", "unknown"]: return
+	var best = null
+	var best_d := FAME_REACH
+	for id in npc_views:
+		var nv = npc_views[id]
+		if not is_instance_valid(nv) or not nv.visible: continue
+		var dd: float = nv.position.distance_to(player_feet())
+		if dd < best_d:
+			best = nv
+			best_d = dd
+	if best == null: return
+	best.bark = Tx.t("world_view.fame_greet_" + tier) % c.name
+	best.bark_time = FAME_S
 
 ## World units on the ground plane at height z to the viewport's art px.
 static func to_screen(p: Vector2, z: float) -> Vector2:

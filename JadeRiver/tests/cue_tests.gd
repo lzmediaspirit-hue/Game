@@ -11,6 +11,8 @@ extends "res://tests/lib/suite.gd"
 ##   4. (S6) the HUD's rows (`to: "hud"`): each step a log line with its colour or a toast with one of the HUD's styles;
 ##      no event both a row and an arm of HudNotices.handle; the HUD's conditions and text sources; every row played
 ##      once through the HUD's own _on_event: it is the row the table picks, and it writes its lines and toasts.
+##   5. (S12c) a fall out of a room, the active character's `fell_out`, brings main.gd's short fade as the body is put
+##      back (the "fell" text is the world row's); another body's leaves the screen be.
 ## Run headless:  godot --headless --path . res://tests/cue_tests.tscn
 
 var main: Node
@@ -35,6 +37,7 @@ func _main() -> void:
 	_hud_rows()
 	_hud_conditions()
 	_play_every_hud_row()
+	_fell_out_fade()
 	main.return_to_selection()
 	await get_tree().process_frame
 	for f in DirAccess.get_files_at(folder): DirAccess.remove_absolute(folder + f)
@@ -306,3 +309,15 @@ func _play_every_hud_row() -> void:
 	hud.log_lines = []
 	hud.toasts = []
 	check(played >= 200 and wrong.is_empty(), "every HUD row plays as it is written, once each, through the HUD (%d rows; %s)" % [played, wrong.slice(0, 8)])
+
+# ------------------------------------------------------------------ 5. a fall out of a room (S12c)
+## The active character's fell_out dims the screen a moment (main.gd's short fade, 0.85 and down over a third of a
+## second) while the body is put back on its last safe spot; another body's fall leaves it be.
+func _fell_out_fade() -> void:
+	main.fade = 0.0
+	GameEvents.emit_event("fell_out", {"actor": "someone_else", "cause": "brink", "recovered_to": {}})
+	GameEvents.flush()
+	var other: float = main.fade
+	GameEvents.emit_event("fell_out", {"actor": Game.active_id, "cause": "brink", "recovered_to": {}})
+	GameEvents.flush()
+	check(other == 0.0 and main.fade >= 0.85, "a fall out of a room brings the short fade (%.2f), another body's none (%.2f)" % [main.fade, other])

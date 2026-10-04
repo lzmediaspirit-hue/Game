@@ -18,8 +18,10 @@ an old save are mapped across: `TopdownRoom.grid_event`), and the side geometry 
 layouts from. `MovementSolver` keeps only the arts Combat starts on a body (air dash, Plunge, glide) and the numbers the
 brains read; `LocalAuthority` only announces a body's events; `ZoneGeometry` is the stand-in ground under the grid and
 the rafts' clock. The events only the side view's solver emitted (`jumped`, `landed`, `fell_out`, `volume_entered`,
-`volume_left`) are dormant in the event contract (`tools/data/contract.py` `DORMANT`); their reactors wait. Below, "the
-side view's" names where a number or a rule came from.
+`volume_left`) were dormant in the event contract after S12a; **S12c** announces each from the grid's motor again, with
+what waited on them (the paths above, the remount, a fall out of a room and its fortune, the water's step), and the
+fame greeting and the shallows' dodge rule besides (below, "S12c: what the side view carried"). Below, "the side
+view's" names where a number or a rule came from.
 
 The rule throughout: **the authorities keep their rules; the grid only says where things stand.** A raft rides the side
 view's own mover function on the room's clock, a glide spends Combat's QI, a climb asks the World authority whether it
@@ -151,6 +153,70 @@ frame through the glide.
   north and south of the track (the side view's pit lies round its planks): a body standing on the spikes is struck by
   the pit's own hazard, the planks over the rest keep a body on them clear, and no safe spot is ever on the spikes. The
   wind looks for a drop along the diagonals too.
+
+## S12c: what the side view carried
+
+S12a's deletion left a few features that lived only in the side view's player and solver silent on the grid. S12c
+restores each; no event of the contract is dormant now (`tools/data/contract.py` `DORMANT` is empty).
+
+**The movement events.** `TopdownPlayer._announce` puts on the body's state, for `LocalAuthority.announce`, what the
+side view's solver did:
+
+| Event | When on the grid | Payload | Who listens |
+|---|---|---|---|
+| `jumped` | the motor's jump, and the Cloud Ladder Step's second | `jumps` (1, 2) | polled: the world view plays the push-off from the motor's own event |
+| `landed` | the motor comes down on a floor (a bounce's and a Plunge's landings too) | `surface` (the Paths Above ledge it came down on, else `grid`), `fall_height`, `plunge` | the Achievement authority (the paths above), the Pet authority (a mount's remount) |
+| `fell_out` | the body is back on its last safe spot out of open water or off a brink | `cause` (`water`, `brink`), `recovered_to` | main.gd (the short fade), Combat (the fall's 5%), the cue (the "fell" text), Relations (the Fortune check), the world view (the camera there at once) |
+| `volume_entered`, `volume_left` | the side view's volumes the body is in change | `volume`, `kind` | the cue (the water's step into `water_deep` or `rising_water`) |
+
+**The paths above (S43).** The six rows of `data/paths_above.json` are keyed by side-view surfaces with `later` (an
+optional ledge only a later movement art reaches). Each is now a raised shape of its room's spec named for that surface
+(a feature, or a named prop's top): the room engine marks it on the layout (`above`: `{rect, level, art}`), lays no
+flight onto it, grows nothing on it, and places what stood on the surface on it without a walk to it. The
+landing on it finds it (`TopdownRoom.ledge_at`). All six map:
+
+| Row | Art | On the grid |
+|---|---|---|
+| `wp_west:pine_top` | double jump | the rock pillar, two levels over the meadow, three rows clear of the rock band (no crates or step up to it) |
+| `sf_artisan_row:workshop_chimney` | double jump | the roof of the house the gear was lost on, two levels up (its crates gone) |
+| `bg_whispering_bamboo:bamboo_top` | double jump | a stand of culms cut level, two levels over the grove (the east knoll keeps its bent culm) |
+| `ds_flooded_gate:ledge_mv_1` | double jump | the north-east ledge, two levels over the walk (its flight gone) |
+| `cf_behind_falls:shaft_top` | Wall-Step | three levels up at the head of a shaft two wide between rock five high (the lotus has a shelf of its own) |
+| `rm_sunken_causeway:broken_pillar` | Wall-Step | a stump three levels up in a ring of standing pillars five high, the gap below it a shaft two wide |
+
+`tools/data/topdown_rooms.py` `check_above` holds each layout to it: every `later` surface has its ledge, of its art; no
+walk reaches it from any way in (nor the double jump a Wall-Step ledge); its art does, from a floor walked to beside it
+(the double jump two levels, from the motor's numbers; Wall-Step three, between two faces higher than the ledge within
+two cells either side, the Echo Cliffs' rule); what stood on the surface stands on it. The reach checks of the engine,
+the places, `room_sweep` and the chapter suites leave a thing on a ledge to its art.
+
+**Falling out of a room.** The side view's rule 6 recovered a body that fell below the room's void altitude (250 under
+its lowest surface) or sank in deep water, to its last safe spot, with `fell_out`. On the grid:
+
+- **A brink** is the south edge of a room whose vista is a drop (the sea of cloud, or past the Lantern Star Field the
+  starry void): 51 rooms, 2,774 columns (not over water, not a way's lane). `TopdownRoom.brink_at` says a point past it
+  has no floor, as deep as the vista shows; the motor treats it as open (no wall, no face to kick off), so a body walks,
+  jumps, glides, is blown (the wind's edge factor counts the drop) or knocked off it. Under `TopdownRoom.void_z` it is out
+  of the room. A flier over the void holds its height; coming down, it falls out too.
+- **Open water** (the side view's deep water): a body without Breath Control (or out of breath) sinks and is out. A pit
+  under gone boards is not: its floor holds the body (the side view's pit had one), and the spikes strike as before.
+- The body is back on its last safe spot (`TopdownMotor`: never within 24 of a brink, the side view's margin from an
+  open edge), and `reset` carries the cause; `fell_out` follows. The fall's Fortune check may draw the Hidden Cave, the
+  only way into `hg_hidden_grotto`, whose way up leaves the body where it fell.
+- No new pose: a fall plays the jump's falling frame (character art is on hold, AGENTS.md rule 10).
+
+**Volumes.** `TopdownMotor.volumes` (and `TopdownTraverse.volumes_at`) name the side view's volumes a body is in, at the
+side view's heights: open water (`water_deep`, id `water`) and a risen flood (`rising_water`, its side-view id) at or
+under the surface (a skimmer on it too, not a jump over it, nor a deck); a wading floor (`water_shallow`, `shallows`)
+underfoot; a current, ice, a hazard, boards and a bounce within 20 of their floor; an updraft to its top; the wind, a
+no-flight volume and a live low-gravity volume at any height. A new room starts afresh.
+
+**The shallows' dodge.** The side view refused a dodge in shallow water. On the grid a body that wades a floor under
+shallow water (`TopdownMotor.wading`, mirrored to `ActorState.wading`) is refused (`in_water`); a Water Sphere's frozen
+ground is no water, and the dodge goes. `ZoneGeometry` lost its last volume query.
+
+**The fame greeting** (S49): from Noted, as a town is entered, the nearest person in view within 900 of the body greets
+the name in its tier's words for four seconds (`TopdownWorld.fame_greeting`; world.gd's alone until S12c).
 
 ## One rule for a room event's points
 
@@ -325,6 +391,20 @@ T3's parts (the low gravity's floor and a no-flight volume are laid on the Falls
     and caged stars lit; the Tumbling Stair's brink over the void; the Nebula Verge's star-water; the crossing's streaks
     and star-water; the Falls Pool's water still the river's.
 
+S12c's parts:
+
+40. a jump and the Cloud Ladder Step's second announced, the landing with its fall's height; on the ox, off it to climb
+    the rope, a jump off the face lands and the rider is back on;
+41. the Paths Above: each of the six rows entered, landed on by its own art (four double jumps, two Wall-Step climbs up
+    their shafts), announced on its ledge and found for the account;
+42. off the Cliff Faces' brink to the void and back on the last safe spot with `fell_out` (5% of max HP, the "fell"
+    text); with a full meter and the fortune stream seeded, the fall draws the Hidden Cave, the grotto's chest waits, and
+    its way up leaves the body where it fell; a jump into the Willow Path's pond: the deep water entered, sunk, back on
+    the bank with `fell_out`, the water left, the water's step its cue;
+43. the Flooded Gate's shallows and drain entered and left; no dodge in the shallows, on frozen ground and dry ground it
+    goes;
+44. the fame greeting: unknown, nobody; Noted to Legendary, one of the village's people in each tier's words.
+
 Pictures: `tools/dev/capture/capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`:
 
 - `01_raft_grey_pools.png`, plus the world view of each row under `world/`: the rafts, the vine, the glide over the
@@ -363,6 +443,11 @@ its own room:
 - `14_star_water_nebula_verge`: the nebula's star-water;
 - `15_crossing_deck_starsea`: the crossing's deck in the Starsea, its water streaming past;
 - `16_warden_lamps_citadel_gate`: the Citadel Gate's Warden lamps lit at the story's night.
+
+S12c's set, `capture.tscn -- s12c`, writes `docs/architecture/topdown_mechanics/s12c/world/`: each of the six paths
+above at x2 with the body at its foot (the pine top, the workshop roof, the bamboo top, the Flooded Gate's ledge, the
+shaft top behind the falls, the broken pillar), and the Herb Terraces' second bed at the head of its flight and the
+Rapids Terraces' middle flight between its boulders.
 
 ## To do, in order
 
@@ -414,3 +499,6 @@ swim rows (item 18).
 18. **The late foes' swim** (art, the late monster batch). The Nebula Leviathan is the side view's flier and crosses its
     lagoon on the grid (T3), drawn as a stand-in. Its sheet should have a `swim` row, so decision 44's rule plays it
     over the water, as the marsh leech's does. No mechanic waits on it.
+19. ~~**What the side view carried**~~ (S12c): the jumps, landings, falls out of a room and volumes announced, the paths
+    above art-gated, the Hidden Cave drawn again, the shallows' dodge rule, the fame greeting. The only gap is art (a
+    falling pose; the jump's falling frame stands in), on hold with all character art (AGENTS.md rule 10).

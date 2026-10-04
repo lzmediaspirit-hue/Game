@@ -563,11 +563,28 @@ func _climb_hold(c, move: Vector2, delta: float) -> void:
 
 ## T1 · what the motor did that the side view's movement authority announces (LocalAuthority.announce: art_used for the
 ## arts the quests and lessons count, mover_boarded, the climb's start and end, a wall kick), on the body's state.
+## S12c: and the rest of the side view's movement events: `jumped` (a jump, `jumps` 1, or the Cloud Ladder Step's
+## second, 2); `landed` (`surface`: the Paths Above ledge it came down on, TopdownRoom.ledge_at, else the grid's
+## stand-in ground; `fall_height`; `plunge`): the paths above and a mount's remount; `fell_out` when the body is back
+## on its last safe spot out of open water (the side view's deep water) or off a brink (the side view's recover_to_safe:
+## the short fade, the fall's cost, its fortune; a pit's floor keeps it in the room); and `volume_entered` /
+## `volume_left` as the side view's volumes it is in change (TopdownMotor.volumes: the water's step).
 func _announce(events: Array) -> void:
+	_track_volumes()
 	for e in events:
 		match str(e.type):
 			"boarded": state.events.append({"name": "mover_boarded", "mover": str(e.raft)})
-			"double_jumped": state.events.append({"name": "art_used", "art": "double_jump"})
+			"jumped": state.events.append({"name": "jumped", "jumps": 1})
+			"double_jumped":
+				state.events.append({"name": "art_used", "art": "double_jump"})
+				state.events.append({"name": "jumped", "jumps": 2})
+			"landed":
+				var at: Vector2 = e.get("at", motor.pos)
+				var on: String = world.room.ledge_at(at, float(e.get("z", motor.z)))
+				state.events.append({"name": "landed", "surface": on if on != "" else ground.id, "fall_height": float(e.fall), "plunge": bool(e.plunge)})
+			"reset":
+				if str(e.get("cause", "")) in ["water", "brink"]:
+					state.events.append({"name": "fell_out", "cause": str(e.cause), "recovered_to": {"x": motor.pos.x, "y": motor.pos.y, "surface": ground.id}})
 			"wall_kicked":
 				state.events.append({"name": "wall_kicked", "side": int(signf((e.side as Vector2).x + (e.side as Vector2).y)), "kicks": int(e.kicks)})
 				state.events.append({"name": "art_used", "art": "wall_step"})
@@ -576,6 +593,23 @@ func _announce(events: Array) -> void:
 			"climb_started": state.events.append({"name": "climb_started", "climbable": str(e.climbable)})
 			"climb_finished": state.events.append({"name": "climb_finished", "climbable": str(e.climbable), "end": str(e.end)})
 	if not state.events.is_empty(): LocalAuthority.announce(state, actor_id)
+
+## S12c · volume_entered and volume_left as the side view's volumes the body is in change (a new room starts afresh: its
+## ways set the body down, it walks into nothing).
+var _volumes_room: TopdownRoom = null
+func _track_volumes() -> void:
+	var now := motor.volumes()
+	if _volumes_room != world.room:
+		_volumes_room = world.room
+		state.volumes_in = now
+		return
+	var ids: Array = now.map(func(v): return str(v.id))
+	var was: Array = state.volumes_in.map(func(v): return str(v.id))
+	for v in now:
+		if not was.has(str(v.id)): state.events.append({"name": "volume_entered", "volume": str(v.id), "kind": str(v.kind)})
+	for v in state.volumes_in:
+		if not ids.has(str(v.id)): state.events.append({"name": "volume_left", "volume": str(v.id), "kind": str(v.kind)})
+	state.volumes_in = now
 
 ## The authorities' view of the body: where it is, how high, and whether it stands on the grid.
 func _mirror() -> void:
@@ -587,6 +621,7 @@ func _mirror() -> void:
 	# T1: on a climbable face (Combat refuses blows and arts there), and a dart's once an airtime ends with the airtime.
 	state.climbing = {"id": str(motor.climbing.id), "kind": str(motor.climbing.kind)} if not motor.climbing.is_empty() else {}
 	state.flying = motor.flying
+	state.wading = motor.wading()   # S12c: Combat refuses a dodge in the shallows
 	if motor.grounded: state.air_dash_used = false
 
 ## Pick the action and frame from the motor and Combat's timeline, then place the node: x on whole art px, y at the

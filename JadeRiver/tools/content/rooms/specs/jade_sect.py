@@ -214,7 +214,9 @@ JA_HERB_TERRACES = room(
     ways={"west": ("w", 24), "peak_path": ("n", 45)},
     spawn=(3, 24),
     anchors={
-        "bed_0": (18, 17), "bed_1": (28, 12), "bed_2": (36, 6), "herb_1": (11, 17), "herb_2": (30, 5),
+        # S12c: the second terrace's bed at the head of its flight, so the walk to it leaves the flight's top row
+        # northward (sideways the terrace stands a full step over that row's middle, which the motor's corner refuses).
+        "bed_0": (18, 17), "bed_1": (22, 11), "bed_2": (36, 6), "herb_1": (11, 17), "herb_2": (30, 5),
         "npc_jade_gardener": (20, 24),
     },
     pins={"props": [   # hand-placed, piece by piece

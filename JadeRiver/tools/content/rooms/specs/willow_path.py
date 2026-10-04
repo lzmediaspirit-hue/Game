@@ -42,8 +42,9 @@ WP_EAST = room(
 
 
 # Willow Path West: the road on to Stoneford past the training stumps and lifting stones, the pine ridge where the
-# toads sit, a rock pillar with a chest on top (crates, a step, the pillar), the shrine and the Spirit Fruit tree by
-# the western end, and a lotus pond to the south.
+# toads sit, a rock pillar with a chest on top, the shrine and the Spirit Fruit tree by the western end, and a lotus pond
+# to the south. S12c: the pillar is the side view's pine top, a path above (S43): two levels over the meadow, no crates
+# or step up to it, so only the Cloud Ladder Step's second jump climbs onto it.
 WP_WEST = room(
     "wp_west", size=(64, 30),
     bands=[
@@ -53,8 +54,7 @@ WP_WEST = room(
     ],
     features=[
         ("pine_ridge", (0, 3, 26, 6), dict(level=1, paint="g")),  # the pine ridge
-        ("rock_pillar", (42, 4, 3, 3), dict(level=3, paint="r")),  # the rock pillar
-        ("step", (40, 5, 2, 2), dict(level=2, paint="r")),  # its step
+        ("pine_top", (40, 6, 3, 3), dict(level=2, paint="r")),  # the rock pillar, a path above (the double jump's)
         ("training_ground", (14, 18, 12, 4), dict(level=0, paint="d")),  # the training ground
     ],
     stairs=[(8, 9, 3, 2, 0, 1)],
@@ -64,14 +64,13 @@ WP_WEST = room(
         "herb_1": (4, 6), "herb_2": (48, 23), "jar_3": (9, 4), "jar_4": (14, 4), "jar_5": (32, 12), "jar_6": (43, 24),
         "jar_7": (57, 18), "stump_0": (17, 19), "stump_1": (20, 20), "stump_2": (23, 19), "lift_1": (30, 19),
         "lift_2": (33, 22), "shrine_wp": (58, 12), "sign_wpw": (3, 12), "temper_copper_wp_west": (39, 21),
-        "chest_pine_top": (43, 5), "rift_tear": (35, 17), "first_fruit_tree": (52, 11), "swarm_glowfly": (44, 20),
+        "chest_pine_top": (41, 7), "rift_tear": (35, 17), "first_fruit_tree": (52, 11), "swarm_glowfly": (44, 20),
         "trail_mist_hare": (19, 23),
     },
     foes=[[(22, 17), (18, 23), (28, 17), (37, 18), (45, 17), (42, 22)], [(15, 5), (17, 6), (19, 5)], [(4, 21)]],
     ground={"sand": [(12, 25, 26, 1), (14, 24, 8, 1), (40, 25, 8, 1)]},
     pins={"props": [   # hand-placed, piece by piece
-        # up to the step
-        ("crates", 38, 6), ("bamboo", 3, 4), ("bamboo", 21, 4), ("willow", 30, 8), ("willow", 50, 8),
+        ("bamboo", 3, 4), ("bamboo", 21, 4), ("willow", 30, 8), ("willow", 50, 8),
         ("willow", 60, 8), ("shrub", 12, 5), ("lantern", 56, 11), ("lotus", 10, 27), ("lotus", 36, 28),
         ("reeds", 2, 25), ("reeds", 20, 25), ("reeds", 44, 25), ("reeds", 58, 25), ("tree_pine", 6, 4),
         ("tree_pine", 23, 7), ("tree_pine", 1, 7), ("tree_maple", 35, 10), ("tree_camphor", 46, 9), ("bush", 4, 8),

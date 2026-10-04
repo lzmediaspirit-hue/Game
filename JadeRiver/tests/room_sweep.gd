@@ -6,7 +6,8 @@ extends "res://tests/lib/suite.gd"
 ##           stairs, drops, a hop a level up, a running jump over a tile) reaches every way out (its cell) and every
 ##           thing the context button offers or a training post (a cell within three tiles of it whose floor is within
 ##           the button's 48 of the thing's height), and every arrival reaches a way out (a story instance with no way
-##           ends by its event).
+##           ends by its event). A thing on a path above (S12c: a ledge only a movement art climbs onto) is its art's,
+##           landed on in topdown_traversal.
 ##   Walks:  TopdownMotor walks the grid's own way (TopdownRoute.find, auto-path's: no running jump) from the spawn to
 ##           each of them, the stick held toward each next cell, Jump where the way hops a level up; a body that gets
 ##           no nearer the next cell for STUCK_FRAMES frames is stuck, one that falls in the water is lost. (Auto-path's
@@ -16,11 +17,12 @@ extends "res://tests/lib/suite.gd"
 ## Run headless:  godot --headless --path . res://tests/room_sweep.tscn [-- --room=<id>]
 
 const DT := 1.0 / 60.0
-## Legs the motor does not walk though the grid's way takes them (found by this sweep in S12a, a top-down matter for a
-## later slice): off a stair's top row sideways onto the floor a full step (8) above the stair's middle, the motor's
-## corner test meets 64 against a body at 55.9999 and refuses it, where TopdownRoute.step_rise and topdown_rooms.py's
-## Grid take the step at the cells' edge. Each must still stick: one that walks is taken off this list.
-const KNOWN_STICKS := ["ja_herb_terraces: bed_1", "wg_rapids_terraces: herb_1"]
+## Legs the motor does not walk though the grid's way takes them. Each must still stick: one that walks is taken off this
+## list. S12a found two, off a stair's top row sideways onto the floor a full step (8) above the stair's middle (the
+## motor's corner test meets 64 against a body at 55.9999 and refuses it, where TopdownRoute.step_rise and
+## topdown_rooms.py's Grid take the step at the cells' edge); S12c fixed both rooms' specs (the Herb Terraces' second bed
+## at the head of its flight, the Rapids Terraces' flight laid by the engine's `flights`, its cheeks clear): none is left.
+const KNOWN_STICKS: Array = []
 const STUCK_FRAMES := 90        # 1.5 s of held input without getting nearer
 const ART_SLACK := 4            # art px a solid footprint may stand past its art's opaque columns
 const Reach = preload("res://tests/topdown_tutorial.gd")   # its reach: the motor's rules, as topdown_rooms.py's Grid checks them
@@ -61,6 +63,9 @@ func sweep(rid: String) -> void:
 		targets.append({"what": "%s %s" % [str(p.get("type", "edge")), p.id], "at": _at(p, "at"), "alt": float(p.get("alt", 0.0)), "way_out": true})
 	for o in def.get("objects", []):
 		if not o.has("at") or not (str(o.type) in WorldAuthority.TRAINING or WorldAuthority.offers_context(o)): continue
+		# S12c: a thing on a path above (a ledge only a movement art climbs onto) is its art's to reach, not a walk's
+		# (topdown_traversal lands on every one; tools/data/topdown_rooms.py check_above holds its reach).
+		if grid.ledge_at(_at(o, "at"), grid.height_at(_at(o, "at"))) != "": continue
 		targets.append({"what": str(o.id), "at": _at(o, "at"), "alt": float(o.get("alt", 0.0)), "way_out": false,
 			"reach": 0.0 if str(o.type) in WorldAuthority.TRAINING else float(o.get("radius", 110))})   # a post: its spot
 	for e in entries:

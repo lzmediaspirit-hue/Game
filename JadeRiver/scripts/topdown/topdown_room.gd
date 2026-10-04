@@ -661,3 +661,59 @@ func merge_def(side: Dictionary) -> Dictionary:
 			o.alt = floor_at(Vector2(float(o.at[0]), float(o.at[1])))
 			out.objects.append(o)
 	return out
+
+# ------------------------------------------------------------------ S12c: the paths above, and the brinks
+## The Paths Above ledge (S43) whose top a body stands on at `p`, height `z`: its side-view surface id (the layout's
+## `above`, tools/content/rooms/engine.py: the raised shape named for it, only its movement art climbs onto), "" when
+## none. The Achievement authority finds it when a body lands there (`landed`'s surface).
+func ledge_at(p: Vector2, z: float) -> String:
+	var above: Dictionary = def.get("above", {})
+	if above.is_empty(): return ""
+	var c := cell_of(p)
+	for sid in above:
+		var a: Dictionary = above[sid]
+		var r: Array = a.rect
+		if Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3])).has_point(c) and absf(z - float(a.level) * LEVEL) < 0.5 \
+				and absf(height_at(p) - z) < 0.5: return str(sid)
+	return ""
+
+## How far under the room's lowest floor a fall out of it ends (the side view's void altitude, 250 under its lowest
+## surface: S43 rule 6).
+const VOID_DROP := 250.0
+var _brinks = null           ## the columns whose south edge is a brink (1), found once
+var _brink_depth := 0.0      ## world units past the south edge the void runs (the vista's drop)
+var _void_z := INF
+
+## Is the ground point `p` past a brink: south of the room's last row, in a column whose edge falls away into the sea
+## of cloud or the star field's void (the layout's south vista `cloud_sea`, which TopdownVista draws), off the lanes of
+## the ways that leave by that edge, as far as the vista shows? No floor is there: a body falls out of the room
+## (TopdownMotor). The room's own queries (height_at, find_path, standable) never count it: outside the room is its edge.
+func brink_at(p: Vector2) -> bool:
+	if p.y < float(h) * TILE or p.x < 0.0 or p.x >= float(w) * TILE: return false
+	if _brinks == null: _find_brinks()
+	return p.y < float(h) * TILE + _brink_depth and (_brinks as PackedByteArray)[floori(p.x / TILE)] == 1
+
+## The height at which a body past a brink has fallen out of the room: VOID_DROP under its lowest floor.
+func void_z() -> float:
+	if _void_z == INF:
+		var low := INF
+		for i in levels.size(): low = minf(low, WATER_Z if levels[i] == WATER else float(levels[i]) * LEVEL)
+		_void_z = (low if low < INF else 0.0) - VOID_DROP
+	return _void_z
+
+func _find_brinks() -> void:
+	var b := PackedByteArray()
+	b.resize(w)
+	_brinks = b
+	for v in def.get("vista", []):
+		if str(v.get("edge", "")) == "s" and str(v.get("kind", "")) == "cloud_sea": _brink_depth = maxf(TILE * 2.0, float(v.get("pad", 0)) * ART)
+	if _brink_depth <= 0.0: return
+	var lanes := {}
+	var ways: Dictionary = def.get("portals", {})
+	for pid in ways:
+		if str((ways[pid] as Dictionary).get("dir", "")) != "s": continue
+		for c in TopdownFoliage.portal_lane(ways[pid]): lanes[c.x] = true
+	for x in w:
+		var l := level(x, h - 1)
+		if l != SOLID and l != WATER and not lanes.has(x): b[x] = 1
+	_brinks = b

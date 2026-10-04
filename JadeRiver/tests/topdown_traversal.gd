@@ -57,6 +57,17 @@ extends "res://tests/prologue_run.gd"
 ##  39. the star field's end (R9's rooms): the Orbit Ruins' low-gravity rows under their switches, the Inverted Hall's
 ##      switch turned with its own interact and its high gallery climbed in the light air; the Nebula Leviathan crossing
 ##      its lagoon; the starlit areas, the Wardens' lamps lit, the void under the brinks, star-water, the crossing's deck.
+## S12c, what the side view carried, restored on the grid (docs/architecture/topdown_mechanics.md, "S12c"):
+##  40. the jumps and landings announced (jumped, the second jump's; landed with its fall's height), and a mount's rider,
+##      stepped down to climb the rope, back on the ox when a jump off the face lands;
+##  41. the Paths Above: every row of data/paths_above.json is its room's ledge, landed on by its own art (the double
+##      jump's four, Wall-Step's two) from the floor beside it, and found for the account;
+##  42. falls out of a room: off the Cliff Faces' brink into the sea of cloud and into the Willow Path's pond, each back
+##      on the last safe spot with fell_out (the fall's cost, its "fell" text); a full Fortune meter and a seeded draw turn
+##      up the Hidden Cave, the grotto entered, and its way up leaves the body where it fell;
+##  43. the volumes entered and left: the pond's deep water (the water's step), an updraft, the Flooded Gate's shallows;
+##      no dodge in the shallows (a Water Sphere's frozen ground and dry ground let it go);
+##  44. the fame greeting: from Noted the nearest townsfolk know the name as the town is entered, in its tier's words.
 ## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose] [-- --only=<part>]
 
 const BEFORE := ["prologue", "main"]
@@ -71,6 +82,7 @@ var systems: Dictionary = {}  # T3: system -> times system_used was heard
 var flight_ends: Array = []   # T3: the reasons flight_ended was heard with
 var struck: Dictionary = {}   # T3: hazard -> times hazard_struck was heard
 var motor_events: Array = []  # T3: what the body's motor did, frame by frame (frames())
+var moved: Array = []         # S12c: [event, payload] of the movement events restored on the grid, and what they turn up
 
 func _main() -> void:
 	start_new("traverse/")
@@ -84,15 +96,21 @@ func _main() -> void:
 			_peaks, _swim, _shallows, _chases,
 			# T3: Act II onward, and T2's leftovers
 			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _late_light, _sky_sea_leftovers, _swim_stroke,
-			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals, _flier_over_crowns, _star_field]:
+			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals, _flier_over_crowns, _star_field,
+			# S12c: what the side view carried
+			_jumps_and_landings, _paths_above, _falls_out, _volumes, _fame_greeting]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
 
-## `-- --only=<text>`: only the parts whose name holds the text (a part's checks need none of the others').
+## `-- --only=<text>[,<text>...]`: only the parts whose name holds one of the texts (a part's checks need none of the
+## others').
 func _wanted(part: String) -> bool:
 	for a in OS.get_cmdline_user_args():
-		if str(a).begins_with("--only="): return part.contains(str(a).trim_prefix("--only="))
+		if str(a).begins_with("--only="):
+			for f in str(a).trim_prefix("--only=").split(","):
+				if part.contains(f): return true
+			return false
 	return true
 
 func _heard(n: String, p: Dictionary) -> void:
@@ -105,6 +123,7 @@ func _heard(n: String, p: Dictionary) -> void:
 		"system_used": systems[str(p.get("system", ""))] = int(systems.get(str(p.get("system", "")), 0)) + 1
 		"flight_ended": flight_ends.append(str(p.get("reason", "")))
 		"hazard_struck": struck[str(p.get("hazard", ""))] = int(struck.get(str(p.get("hazard", "")), 0)) + 1
+		"jumped", "landed", "fell_out", "volume_entered", "volume_left", "path_above_found", "fortune_encounter": moved.append([n, p])
 
 # ------------------------------------------------------------------ the shortcut and the view
 ## The story before chapter 4 done (its lessons too, but the ones played here), a Jade Sect disciple at Qi Kindling 9
@@ -1812,3 +1831,287 @@ func _star_field() -> void:
 		"the crossing's water streams past the hull (%d streaks) and is star-water, the Starsea glinting all round" % [sv[1].streaks.size() if sv[1] else 0])
 	check(_falls_pool(), "back to the Falls Pool")
 	check(star_water.call()[0] == null and not w.life.vista.void_sky, "the Falls Pool's water is the river's own")
+
+# ------------------------------------------------------------------ S12c: what the side view carried, on the grid
+## The payloads heard of a restored movement event (or of what it turned up) since `moved` was last cleared.
+func _moved(n: String) -> Array:
+	return moved.filter(func(e): return str(e[0]) == n).map(func(e): return e[1])
+
+## The room's foes let go (no defeat, no loot), so a climb or a fall is the body's own and no blow knocks it off.
+func _quiet() -> void:
+	for e in Game.room_rt.living_enemies():
+		if str(e.team) == "enemy": Game.enemies.release(e)
+	GameEvents.flush()
+
+## 40. The motor's jumps and landings on the event bus, as the side view's solver put them: a jump (`jumps` 1), the
+## Cloud Ladder Step's second (2), the landing on the grid's ground with its fall's height. A mount's rider stepped down
+## to climb is back on when a jump off the face lands (PetAuthority's remount waited on `landed` since S12a).
+func _jumps_and_landings() -> void:
+	check(_falls_pool(), "to the Falls Pool for the jumps")
+	_quiet()
+	var m := motor()
+	if not Game.combat.knows_art(c(), "double_jump"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "cloud_ladder_step"}], "test")
+	stand(Vector2(40, 22))
+	moved.clear()
+	w.player.jump()
+	frames(int(0.2 / DT))
+	w.player.jump()
+	frames(int(1.5 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	frames(2)
+	var jumps: Array = _moved("jumped").map(func(p): return int(p.jumps))
+	var landed: Array = _moved("landed")
+	check(jumps == [1, 2] and landed.size() == 1 and str(landed[0].surface) == "grid" and float(landed[0].fall_height) > m.apex() and not bool(landed[0].plunge),
+		"a jump and the Cloud Ladder Step's second announced (jumps %s), then the landing on the grid's ground with its fall (%s)" % [str(jumps), str(landed)])
+	# The rope again, on the ox: the rider steps down to climb it, lets go partway up with a hop back off the face, and
+	# the landing at its foot puts the rider back on the ox.
+	c().cultivator.unlocked["mounts"] = true
+	var ox = null
+	for pp in c().pets:
+		if str(pp.species) == "riverstone_ox": ox = pp
+	if ox == null:
+		Game.pets.apply_grant(c().id, "riverstone_ox")
+		ox = c().pets.back()
+	check(Game.submit({"type": "set_mount", "pet": ox.uid}).get("ok", false) and c().riding, "the Riverstone Ox ridden to the rope")
+	stand(Vector2(14.4, 7.0))
+	frames(int(0.6 / DT), Vector2.LEFT, false, func(): return not m.climbing.is_empty())
+	frames(int(0.3 / DT), Vector2.LEFT)
+	var stepped_down: bool = not m.climbing.is_empty() and Game.pets.mount_of(c()).is_empty()
+	moved.clear()
+	w.player.jump()
+	frames(int(1.5 / DT), Vector2.ZERO, false, func(): return m.grounded and m.climbing.is_empty())
+	frames(2)
+	check(stepped_down and not _moved("landed").is_empty() and not Game.pets.mount_of(c()).is_empty(),
+		"off the ox to climb the rope, a jump off the face lands at its foot and the rider is back on the ox (landed %s)" % str(_moved("landed")))
+	Game.submit({"type": "set_mount", "on": false})
+	c().cultivator.unlocked.erase("mounts")
+
+## 41. The Paths Above on the grid: every row of data/paths_above.json is its room's ledge (the layout's `above`, the
+## raised shape named for its side-view surface); its own art lands the body on it from the floor beside it (the double
+## jump's second jump from a jump's apex; Wall-Step's three kicks up a shaft, as Between Two Walls climbs the Echo Cliffs'),
+## the landing is announced on that ledge, and the Achievement authority finds it for the account.
+func _paths_above() -> void:
+	var m := motor()
+	var rows: Array = ContentDB.all("paths_above")
+	for art in ["cloud_ladder_step", "wall_step"]:
+		if not c().cultivator.secret_arts.has(art): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": art}], "test")
+	Game.account.paths_above.clear()
+	var mapped := 0
+	var by_art := {}
+	for row in rows:
+		var rid := str(row.room)
+		var sid := str(row.surface)
+		check(enter(rid), "to %s on the grid for its path above" % rid)
+		_quiet()
+		var a: Dictionary = Game.room_rt.topdown.def.get("above", {}).get(sid, {})
+		check(not a.is_empty() and str(a.get("art", "")) == str(row.art), "%s: the path above %s is its layout's ledge, the %s's (%s)" % [rid, sid, row.art, str(a)])
+		if a.is_empty(): continue
+		mapped += 1
+		moved.clear()
+		var top := _climb_above(a)
+		frames(2)
+		var on: Array = _moved("landed").filter(func(p): return str(p.surface) == sid)
+		var found: Array = _moved("path_above_found").filter(func(p): return str(p.id) == str(row.id))
+		var ok: bool = not on.is_empty() and not found.is_empty() and Game.account.paths_above.has(str(row.id)) \
+			and absf(m.z - float(a.level) * TopdownRoom.LEVEL) < 0.5
+		check(ok, "%s: %s lands the body on %s (z %.0f, its top %.0f, the climb's highest %.0f) and the path above is found (%s)"
+			% [rid, row.art, sid, m.z, float(a.level) * TopdownRoom.LEVEL, top, str(found)])
+		if ok: by_art[str(row.art)] = int(by_art.get(str(row.art), 0)) + 1
+	check(rows.size() == 6 and mapped == rows.size() and int(by_art.get("double_jump", 0)) == 4 and int(by_art.get("wall_step", 0)) == 2,
+		"the Paths Above: %d rows, %d on the grid, found by their arts (%s)" % [rows.size(), mapped, str(by_art)])
+	check(Game.account.paths_above.size() == rows.size(), "every path above found for the account (%d of %d)" % [Game.account.paths_above.size(), rows.size()])
+
+## Onto a path above by its art; the highest the body rose.
+func _climb_above(a: Dictionary) -> float:
+	var m := motor()
+	var r: Array = a.rect
+	var top := {"z": m.z}
+	var high := func():
+		top.z = maxf(float(top.z), m.z)
+		return m.grounded
+	if str(a.art) == "wall_step":
+		# Between Two Walls' climb (part 20): in the shaft's last row under the ledge, nearer its west face, a jump and
+		# three kicks off each face in turn, pushed into and a little toward the ledge, then onto it.
+		stand(Vector2(float(r[0]) + 0.6, float(r[1]) + float(r[3]) - 0.2))
+		frames(1, Vector2.LEFT)
+		w.player.jump()
+		var sides := [Vector2(-1, -0.4).normalized(), Vector2(1, -0.4).normalized(), Vector2(-1, -0.4).normalized()]
+		for i in 3:
+			var side: Vector2 = sides[i]
+			frames(int(0.6 / DT), side, false, func(): return _near_wall(Vector2(signf(side.x), 0.0)))
+			w.player.jump()
+			frames(1, side)
+		frames(int(2.0 / DT), Vector2.UP, false, high)
+	else:
+		# Under the middle of the ledge's south face: a jump toward it, the second at its apex (the stick let go for that
+		# press, so it is the Cloud Ladder Step and no Wall-Step kick off the face), then on over the edge.
+		stand(Vector2(float(r[0]) + float(r[2]) * 0.5 - 0.5, float(r[1]) + float(r[3]) + 0.1))
+		frames(1, Vector2.UP)
+		w.player.jump()
+		frames(int(0.6 / DT), Vector2.UP, false, func(): return m.vz <= 0.0)
+		w.player.jump()
+		frames(1)
+		frames(int(1.5 / DT), Vector2.UP, false, high)
+	return float(top.z)
+
+## 42. Out of a room, as the side view's rule 6 recovers a body: off the Cliff Faces' south brink (its sea of cloud: no
+## floor past the edge) the body falls to the room's void and is back on its last safe spot, clear of the brink; into the
+## Willow Path's pond (the side view's deep water) it sinks and is back on the bank. Each is fell_out: the fall's cost
+## (Combat), the "fell" text (the cue). With a full Fortune meter and the fortune stream seeded so its first draw turns
+## a card up, the fall draws the Hidden Cave: the grotto, and its way up leaves the body where it fell.
+func _falls_out() -> void:
+	var m := motor()
+	check(enter("cc_cliff_faces"), "to the Cliff Faces on the grid")
+	_quiet()
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var x := _brink_column(grid)
+	check(x >= 0 and not grid.standable(Vector2i(x, grid.h)), "the Cliff Faces' south edge is a brink over the sea of cloud, no floor past it (column %d)" % x)
+	if x < 0: return
+	var edge := float(grid.h) * TopdownRoom.TILE
+	var fall := func() -> Dictionary:
+		var seen := {"low": m.z, "out": false}
+		stand(Vector2(x, grid.h - 4))
+		frames(int(0.4 / DT))
+		moved.clear()
+		frames(int(4.0 / DT), Vector2.DOWN, false, func():
+			seen.low = minf(float(seen.low), m.z)
+			if m.pos.y > edge: seen.out = true
+			return not _moved("fell_out").is_empty() or room() != "cc_cliff_faces")
+		return seen
+	_whole()
+	var hp0: float = c().pools.hp
+	var seen: Dictionary = fall.call()
+	var fell: Array = _moved("fell_out")
+	check(bool(seen.out) and float(seen.low) < grid.void_z() + 1.0 and fell.size() == 1 and str(fell[0].get("cause", "")) == "brink",
+		"walked off the brink, the body falls past the edge to the room's void (lowest z %.0f, the void %.0f): fell_out (%s)" % [float(seen.low), grid.void_z(), str(fell)])
+	check(m.grounded and m.sink_t < 0.0 and m.pos.y < edge - TopdownMotor.BRINK_MARGIN and absf(m.z - grid.height_at(m.pos)) < 0.5,
+		"back on its last safe spot, clear of the brink (%s, z %.0f)" % [str(m.pos.round()), m.z])
+	check(c().pools.hp <= hp0 - 0.04 * c().pools.max_hp, "the fall costs 5%% of max HP on the Cliff Faces (%.0f of %.0f)" % [c().pools.hp, hp0])
+	check(w.effects.fx.any(func(f): return str(f.get("kind", "")) == "text" and str(f.get("text", "")) == Tx.t("hud.fell")),
+		"the fall's words over the body: \"%s\"" % Tx.t("hud.fell"))
+	# The Hidden Cave: the meter full, the fortune stream seeded so its first draw turns a card up (the fall's only card).
+	c().relations.fortune["meter"] = 1.0
+	var chance := float(Game.relations.fortune_cfg().get("chance", {}).get("fell_out", 0.35))
+	var probe := RandomNumberGenerator.new()
+	var seed_v := 1
+	probe.seed = seed_v
+	while probe.randf() >= chance * 0.9:
+		seed_v += 1
+		probe.seed = seed_v
+	Rng.stream(c().id, "fortune").seed = seed_v
+	_whole()
+	fall.call()
+	GameEvents.flush()
+	var card: Array = _moved("fortune_encounter")
+	var back: Dictionary = c().cooldowns.get("grotto_return", {})
+	check(room() == "hg_hidden_grotto" and w.room == Game.room_rt.topdown and card.size() == 1 and str(card[0].card) == "hidden_cave"
+		and str(card[0].trigger) == "fell_out", "the fall draws the Hidden Cave (seed %d): in the Hidden Grotto on the grid (%s, %s)" % [seed_v, room(), str(card)])
+	var chest: Dictionary = Game.room_rt.object_def("grotto_chest")
+	check(not chest.is_empty() and Game.world.object_available(c(), chest).get("ok", false), "an old chest waits in the grotto")
+	var at := Vector2(float(back.get("x", 0.0)), float(back.get("y", 0.0)))
+	check(Game.world.use_portal(c(), "way_up", true).get("ok", false), "the way up taken")
+	GameEvents.flush()
+	_sync()
+	check(room() == "cc_cliff_faces" and w.room == Game.room_rt.topdown and m.pos.distance_to(at) < 60.0 and grid.standable(TopdownRoom.cell_of(m.pos)),
+		"the way up leaves the body where it fell, on the Cliff Faces' grid (%s, the fall's spot %s)" % [str(m.pos.round()), str(at.round())])
+	# The pond: a jump off the bank into the deep water, sunk and back on the bank.
+	check(enter("wp_west", "east"), "to Willow Path West on the grid")
+	_quiet()
+	var skim := _unskim()
+	var pond := _bank(Game.room_rt.topdown)
+	check(pond.x >= 0, "a bank over the Willow Path's pond (%s)" % str(pond))
+	stand(Vector2(pond.x, pond.y - 1))
+	frames(int(0.4 / DT), Vector2.DOWN)
+	moved.clear()
+	w.player.jump()
+	frames(int(3.0 / DT), Vector2.DOWN, false, func(): return not _moved("fell_out").is_empty())
+	frames(1)
+	var wet: Array = moved.map(func(e): return str(e[0]) + ":" + str(e[1].get("kind", e[1].get("cause", ""))))
+	check(wet.has("volume_entered:water_deep") and wet.has("volume_left:water_deep") and wet.has("fell_out:water")
+		and wet.find("volume_entered:water_deep") < wet.find("fell_out:water") and m.grounded and Game.room_rt.topdown.standable(TopdownRoom.cell_of(m.pos)),
+		"into the pond off the bank: the deep water entered, sunk, back on dry ground with fell_out, the water left (%s)" % str(wet))
+	var step := Cues.pick("world", "volume_entered", _moved("volume_entered")[0] if not _moved("volume_entered").is_empty() else {})
+	check(str(step.get("do", [{}])[0].get("sound", "")) == "water_step", "stepping into the deep water plays the water's step (%s)" % str(step))
+	for a in skim: c().cultivator.secret_arts.append(a)
+
+## A column of the room's south edge that is a brink, its last rows open floor at one level (-1 when none).
+func _brink_column(grid: TopdownRoom) -> int:
+	var T := TopdownRoom.TILE
+	for x in range(grid.w / 4, grid.w - 2):
+		var ok := true
+		for dx in [-1, 0, 1]:
+			ok = ok and grid.brink_at(Vector2((x + dx + 0.5) * T, grid.h * T + 4.0))
+			for y in range(grid.h - 6, grid.h):
+				ok = ok and grid.standable(Vector2i(x + dx, y)) and grid.level(x + dx, y) == grid.level(x, grid.h - 1)
+		if ok: return x
+	return -1
+
+## A cell of dry floor whose next two cells south are open water, as are its neighbours' ((-1, -1) when none).
+func _bank(grid: TopdownRoom) -> Vector2i:
+	for y in range(grid.h - 3, 1, -1):
+		for x in range(2, grid.w - 2):
+			var ok := true
+			for dx in [-1, 0, 1]:
+				ok = ok and grid.standable(Vector2i(x + dx, y)) and grid.standable(Vector2i(x + dx, y - 1)) \
+					and grid.is_water(x + dx, y + 1) and grid.is_water(x + dx, y + 2)
+			if ok: return Vector2i(x, y)
+	return Vector2i(-1, -1)
+
+## 43. The volumes the body is in, entered and left as the side view announced them: the Flooded Gate's shallows (the
+## court's wading floor) and its drain's current along the south rows; on dry ground neither. In the shallows no dodge
+## goes (the side view's rule), on a Water Sphere's frozen ground and on dry ground it does.
+func _volumes() -> void:
+	check(enter("ds_flooded_gate", "west"), "to the Flooded Gate's court on the grid")
+	_quiet()
+	var m := motor()
+	var kinds := func(n: String) -> Array: return _moved(n).map(func(p): return str(p.kind) + ":" + str(p.volume))
+	stand(Vector2(4, 9))
+	moved.clear()
+	stand(Vector2(36, 15))
+	var wade: Array = kinds.call("volume_entered")
+	stand(Vector2(10, 23))
+	var drain: Array = kinds.call("volume_entered")
+	stand(Vector2(4, 9))
+	var left: Array = kinds.call("volume_left")
+	check(wade == ["water_shallow:shallows"] and drain.has("current:gate_drain") and left.has("water_shallow:shallows") and left.has("current:gate_drain"),
+		"the court's shallows entered, the drain's current along its south rows, both left on the dry walk (%s; %s; left %s)" % [str(wade), str(drain), str(left)])
+	Unlocks.force_unlock(c().id, "dodge_dash")
+	var dodge := func() -> Dictionary:
+		c().pools.cooldowns.erase("dodge")
+		c().pools.cooldowns.erase("dodge_2")
+		var r := Game.submit({"type": "dodge", "direction": Vector2.RIGHT, "facing": 1, "moves": false})
+		Game.combat.timeline(c().id).forced_t = 0.0
+		frames(int(0.4 / DT))
+		return r
+	stand(Vector2(36, 15))
+	var waded: bool = m.wading() and w.player.state.wading
+	var wet: Dictionary = dodge.call()
+	w.player.state.frozen_ground = true
+	stand(Vector2(36, 15))
+	var frozen: Dictionary = dodge.call()
+	w.player.state.frozen_ground = false
+	stand(Vector2(4, 9))
+	var dry: Dictionary = dodge.call()
+	check(waded and str(wet.get("reason", "")) == "in_water" and frozen.get("ok", false) and dry.get("ok", false),
+		"no dodge in the court's shallows (%s); on a Water Sphere's frozen ground (%s) and on the dry walk (%s) it goes" % [str(wet), str(frozen), str(dry)])
+
+## 44. The fame greeting (S49, world.gd's alone until S12c): from Noted the nearest townsfolk know the name as the town is
+## entered, in the words of the fame's tier; an unknown name walks in unremarked.
+func _fame_greeting() -> void:
+	var fame0: int = c().relations.fame
+	var tiers: Array = Game.relations.cfg().get("fame_tiers", [])
+	var greeted := func(tier: String) -> int:
+		var line := Tx.t("world_view.fame_greet_" + tier) % c().name
+		return w.npc_views.values().filter(func(nv): return is_instance_valid(nv) and str(nv.bark) == line and float(nv.bark_time) > 0.0).size()
+	c().relations.fame = 0
+	check(enter("lf_village"), "to the village on the grid, unknown")
+	var unknown := 0
+	for t in tiers: unknown += greeted.call(str(t.id)) if str(t.id) != "unknown" else 0
+	var said := {}
+	for t in tiers:
+		if str(t.id) == "unknown": continue
+		c().relations.fame = int(t.get("min", 0))
+		check(enter("lf_village"), "to the village on the grid, %s" % str(t.id))
+		said[str(t.id)] = greeted.call(str(t.id))
+	c().relations.fame = fame0
+	check(unknown == 0 and said.size() == 4 and said.values().all(func(n): return int(n) == 1),
+		"an unknown name walks in unremarked; from Noted one of the townsfolk greets it by name, in its tier's words (%s)" % str(said))

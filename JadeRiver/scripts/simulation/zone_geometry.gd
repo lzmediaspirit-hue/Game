@@ -2,18 +2,17 @@ class_name ZoneGeometry
 extends RefCounted
 ## A room's surfaces for the shared simulation: on the grid one stand-in ground the size of the room
 ## (TopdownRoom.geometry_def), so the authorities' ActorState tells ground from air; the room's clock, which the grid's
-## rafts, lifts and lanterns ride (TopdownTraverse.time); and the movers' rule they ride by (mover_offset). Combat asks
-## it for shallow water before a dodge (volume_at). The side view's solids, ladders, volumes, movers, crumbling floors,
-## rising water and navigation graph went with the side view in S12a.
+## rafts, lifts and lanterns ride (TopdownTraverse.time); and the movers' rule they ride by (mover_offset). The side
+## view's solids, ladders, volumes, movers, crumbling floors, rising water and navigation graph went with the side view
+## in S12a; S12c retired its last volume query (Combat's shallow water before a dodge reads ActorState.wading, from the
+## motor's wading floors).
 var surfaces: Array[WalkSurface]=[]
 var index: Dictionary={}
 var bounds: Rect2
-var volumes: Array=[]                    # {id, kind, rect: Rect2, lo, hi, ...}: none on the grid (its water is the motor's)
 var time=0.0                             # the room's clock
 func configure(data: Dictionary):
 	surfaces.clear()
 	index.clear()
-	volumes.clear()
 	time=0.0
 	var r=data.bounds
 	bounds=Rect2(r[0],r[1],r[2],r[3])
@@ -22,13 +21,6 @@ func configure(data: Dictionary):
 		assert(not index.has(surface.id),"Duplicate surface ID")
 		surfaces.append(surface)
 		index[surface.id]=surface
-## The first volume of a kind holding this point at this altitude, or {}.
-func volume_at(point: Vector2,altitude: float,kind: String) -> Dictionary:
-	for v in volumes:
-		if v.get("off",false): continue
-		if str(v.kind)!=kind and not (kind=="water_deep" and str(v.kind)=="rising_water"): continue
-		if (v.rect as Rect2).has_point(point) and altitude>=float(v.lo)-0.5 and altitude<=float(v.hi)+0.5: return v
-	return {}
 ## Advance the room's clock.
 func advance(dt: float) -> void:
 	time+=dt
