@@ -1163,9 +1163,10 @@ flight R5's `stair_with_cheeks`.
   guardian and the hollowed wyrmling.
 - Mechanics with no top-down counterpart yet (T3's, `topdown_mechanics.md`):
   - **The Starsea crossing.** The three docks (the Broken Pier's, the Launch's, the Arrival Quay's) set sail into
-    `ss_starsea_crossing` and `ss_lantern_crossing`. T3: the prototype's gate now holds a dock's `set_sail` while its
-    crossing or its port has no layout, and the voyage plays on the grid once both are laid. The suite loads the far
-    room as the voyage would.
+    `ss_starsea_crossing` and `ss_lantern_crossing`. T3: the prototype's gate holds a dock's `set_sail` as it holds a
+    way while its crossing or its port has no layout, and the voyage plays on the grid once both are laid. (R9 laid both
+    crossings out, and `topdown_starfield` sails all four routes from their docks on the grid: "The star field's end
+    (R9)" below. T3: on the crossing the star-water streams past the hull.)
   - ~~**The Field's light.**~~ T3: the zones' backdrops (`skyport_wreck`, `lantern_harbor`, `star_shoals`,
     `blackmast_haven`, `wyrmnest_isles`) are the story's night on the grid whatever the clock says (`STARLIT`), and the
     star lanterns give their starlight.
@@ -1182,11 +1183,190 @@ flight R5's `stair_with_cheeks`.
 **The frontier now** (R8): the sky-sea zones join each other on the grid, by ways and the hulks' skiff. Two ways out
 lead to rooms with no layout and are gated: the Arrival Quay's skiff to the Citadel, and the Harbor Market's stair to
 the Lantern Heart. The Wreck is reached from Cloudgate's Shipwrights' Yard, and the Field from the Launch, only by the
-Starsea crossings (above).
+Starsea crossings (above). With R9 merged, both ways are open and the crossings are on the grid (R9's frontier below).
+
+## The star field's end (R9)
+
+The twenty-one rooms of the Lantern Star Field's last zones, now on the grid: the Starsea's two crossings, the Star
+Warden Citadel, the Orbit Ruins, the Ashen Reach, the Nebula Deep and the Lantern Heart. They hold Act III's chapters 20
+to 22, and the voyages of chapters 16 and 17. `topdown_starfield` plays them by test shortcuts, a top-down character
+whose story before chapter 17 is done, its realm set as each chapter asks:
+- the Wreck Run and the Lantern Run sailed both ways, each from its dock used on the grid (R6's Shipwrights' Yard, R8's
+  Broken Pier, Starsea Launch and Arrival Quay): each crossing's deck on the grid, its waves boarding over the bow onto
+  the deck's own cells (the layout's `event`), the vessel making port; The Lantern Run's first step;
+- The Citadel: the Wardens' skiff from the Arrival Quay to the Citadel Gate, Warden-Commander Yao in his hall behind
+  its door;
+- The Aspirant: Shen Lian's spar on the Presence Court's round floor, handed in to Yao;
+- The Observatory: the great scope on its dais looked into, Stargazer Ming told; Sphere Lord;
+- The Orbit Ruins: past the Warden line over the Tumbling Stair to the Orbit Garden, the hermit found, a jade gravity
+  switch pressed, three gravity golems broken, the Inverted Hall entered through the door sunk in the Foundry's house,
+  its high gallery's chest reached up its flight;
+- Cinder Fields: the ash skiff from the Citadel Gate, six raiders driven back across the plain and the palisade,
+  Warden Hu Jin at the landing;
+- Kharn's Pyre: through the palisade's gate to the War Camp, the envoy heard on the parley ground, Kharn kneeling on his
+  pyre's floor and spared;
+- the tide skiff to the Tidebreak Bastion (R5) and back, both ways on the grid now;
+- Lu's Lantern: back over the grey fields to the Drone Hive, east into the Nebula Deep (that way open now), along the
+  Verge and over the Eel Currents' causeways to the Crab Grottoes, Lu's star notes in their shell; up the stair above
+  the harbour to the Wick Gate, through the Hall of Burning Stars to the Flame Heart and its flame, the Flame Heart's
+  ledge chest;
+- The Leviathan's Maw: the Leviathan surfacing on the shoal in its lagoon, brought down there.
+
+In each room it checks the walks and the view as `topdown_sunscar` does: 77 checks. The route tour in `rules_tests`
+(`topdown_suite._route_rooms`) walks the twenty-one rooms too, as it walks every layout.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r9/`) |
+|---|---|---|---|
+| `ss_starsea_crossing` | 7 (+ the hull's helpers, 41) | `starsea` | `01_starsea_crossing`, `rooms/ss_starsea_crossing` |
+| `ss_lantern_crossing` | 9 | `starsea` | `02_lantern_crossing`, `rooms/ss_lantern_crossing` |
+| `wc_citadel_gate` | 38 | `citadel` | `03_citadel_gate_court`, `04_citadel_gate_piers`, `rooms/wc_citadel_gate` |
+| `wc_wardens_hall` | 11 | (interior) | `05_wardens_hall`, `rooms/wc_wardens_hall` |
+| `wc_observatory` | 12 | (interior) | `06_observatory`, `rooms/wc_observatory` |
+| `wc_presence_court` | 23 | `citadel` | `07_presence_court`, `rooms/wc_presence_court` |
+| `or_tumbling_stair` | 24 | `orbit_ruins` | `08_tumbling_stair`, `rooms/or_tumbling_stair` |
+| `or_orbit_garden` | 22 | `orbit_ruins` | `09_orbit_garden`, `rooms/or_orbit_garden` |
+| `or_golem_foundry` | 22 | `orbit_ruins` | `10_golem_foundry`, `rooms/or_golem_foundry` |
+| `or_inverted_hall` | 16 | `orbit_ruins` | `11_inverted_hall`, `rooms/or_inverted_hall` |
+| `ar_cinder_fields` | 20 | `ashen` | `12_cinder_fields_landing`, `13_cinder_fields_camp`, `rooms/ar_cinder_fields` |
+| `ar_ashborn_palisade` | 25 | `ashen` | `14_ashborn_palisade`, `rooms/ar_ashborn_palisade` |
+| `ar_war_camp` | 22 | `ashen` | `15_war_camp`, `rooms/ar_war_camp` |
+| `ar_kharns_pyre` | 18 | `ashen` | `16_kharns_pyre`, `rooms/ar_kharns_pyre` |
+| `nd_nebula_verge` | 22 | `nebula` | `17_nebula_verge`, `rooms/nd_nebula_verge` |
+| `nd_eel_currents` | 22 | `nebula` | `18_eel_currents`, `rooms/nd_eel_currents` |
+| `nd_crab_grottoes` | 24 | `nebula` | `19_crab_grottoes`, `rooms/nd_crab_grottoes` |
+| `nd_leviathans_maw` | 17 | `nebula` | `20_leviathans_maw`, `rooms/nd_leviathans_maw` |
+| `lt_wick_gate` | 17 | `lantern_heart` | `21_wick_gate`, `rooms/lt_wick_gate` |
+| `lt_hall_of_burning_stars` | 19 | `lantern_heart` | `22_hall_of_burning_stars`, `rooms/lt_hall_of_burning_stars` |
+| `lt_flame_heart` | 17 | `lantern_heart` | `23_flame_heart`, `rooms/lt_flame_heart` |
+
+The line counts take in the anchors and the props written out; the Citadel Gate, with its hall, its tower, its three
+piers and their lanterns and posts, is the longest. As R4's, the capture's x2 copies of the world alone are not kept.
+The specs: `specs/starsea.py` (with `deck()`, a skiff's hull column by column), `lantern_crossing.py`,
+`warden_citadel.py`, `orbit_ruins.py`, `ashen_reach.py`, `nebula_deep.py`, `lantern_heart.py`, in `ZONES`' R9 line in
+the story's order.
+
+**The looks.** What was reused: R5's Wardens (`bastion`'s granite and flagstones are the Citadel's, and the Tidebreak
+Front's cloud sea under its islands' brinks lies under the Citadel's, the Ruins' and the Reach's); R7's tomb walls of
+sand for the Lantern Heart's golden sandstone, R7's `earth` ground rule for the burnt plain, R7's brazier and its
+`ground` `-name`; R5's `stair_with_cheeks()` for the halls' daises, R4's `flights` for every raised shape, R4's
+`shape="round"` and R2's water. R6's and R8's looks were not on the branch while R9 was laid out; both were merged in at
+the end. R6's `armillary` (Cloudgate's) and the Observatory's `star_globe` are two pieces under two names. R8 drew a
+`star_lantern` (a lantern hung from an indigo post) and a `star_crystal` (one tall violet crystal) under the names R9's
+kit had used for other pieces, so R9's are renamed: `warden_lamp` (the Wardens' bronze post lamp) and
+`crystal_cluster` (a clump of pale gold crystals). Each batch's rooms keep their own; neither replaces the other in the
+sheet.
+- **The Citadel** (`citadel`): the Wardens' white granite and flagstones, the great wall along the north edge between
+  its towers, gardens kept in beds (pines, plum, hedges, azaleas); a flight's cheeks lined with Warden lamps. The
+  Citadel Gate's court holds the Wardens' Hall (a `hall`, its door down a granite walk to the road), a fallen star in
+  its cage on a dais, stone Wardens either side of each door, and the Observatory: a tower of roof paint out from the
+  wall, so its face is a building's (plaster, timber and lit windows), its door sunk in its foot. The road runs between
+  two bastions with their ballistae (the Warden line) east to the Ruins; three piers run out over the cloud sea for the
+  skiffs. The Presence Court is a round floor of granite with the three pressure pillars on its north rim, a terrace
+  with a stone Warden looking down on it.
+- **The Orbit Ruins** (`orbit_ruins`): the first Wardens' floors and broken rings of granite on the island's grey rock,
+  gold crystals grown out of it; masonry floating over its rune rings (`orbit_stone`, a little island of the temple on a
+  cone of rock, bobbing); each jade switch in a ring of stone (`ring()`, the module's helper: an annulus by row runs,
+  broken by angle) on a paved floor, gravity plates round it. The Tumbling Stair is the grand stair broken into three
+  landings; the Garden a lawn inside a great broken ring; the Foundry a paved floor under the rock with forges, the
+  flame basin and golem husks, a casting gallery three levels up; the Inverted Hall a granite hall with two galleries,
+  pillars and masonry hanging in its air.
+- **The Ashen Reach** (`ashen`): dark earth over all (R7's `earth`), dunes of grey ash (rock) rising from it, ash
+  drifts and ember beds scattered, charred trees and boulders; the trodden track in sand's paint, kept out of the earth
+  (`-road`). The Ashborn's war tents of dark hide, their ember-red banners, pyres; the palisade a wall of planks across
+  the plain with a gate between two gate towers (the Mudwater stockade's timber); the camp's parley ground of scorched
+  stone; Kharn's pyre a group of five on a granite dais over a round floor.
+- **The Nebula Deep** (`nebula`): reefs of dark rock round the nebula's water, the way pale sand; coral trees with pink
+  and cyan crowns (the side view's islands'), nebula coral, gold crystals, void crabs' shells; islets of coral out on the
+  water (`islets()`). The Eel Currents' three channels are crossed by the way laid over them as causeways; the Crab
+  Grottoes are round hollows cut into the reef cliff, sand-floored; the Maw a round lagoon with a shoal in its middle,
+  the way running out to it.
+- **The Lantern Heart** (`lantern_heart`): halls of warm flagstones in walls of golden sandstone, bronze wick pillars
+  burning down their aisles (`wicks()`), great flame basins, gold crystals on beds of the old rock; the Wick Gate's two
+  sandstone towers with a beacon basin on each; the Flame Heart a round chamber, the first lantern's star in its cage
+  on a granite dais between two basins, a ring of wick pillars round it.
+- **The crossings** (`starsea`): a skiff's hull of planks on the sea (`deck()`), its bulwark a level up all round (its
+  face a rail inboard on the north, the hull's side over the sea on the south), the bow tapering a row a column to its
+  point, the stern's corners cut, a quarterdeck at the stern with the deckhouse on it and a flight with barrel cheeks;
+  masts, cargo, Warden lamps; the Lantern Run's skiff carries a caged star amidships. The vista is the water all
+  round, as Lu's boat's.
+- **The prop kit** (`tools/art/topdown/starfield.py`, joined through `furnish.py`'s R9 block; the prop sheet rebuilt with
+  `build_tiles.py`): a Warden lamp (`warden_lamp`), a lantern cage, a Warden statue, a Warden banner, a ballista, a
+  star chart table, the armillary (`star_globe`), a pressure pillar, the floating `orbit_stone`, a clump of gold
+  crystals (`crystal_cluster`), a gravity plate (flat,
+  walk-through), a golem husk, an Ashborn pyre, a war tent (4 x 2), an Ashborn banner, embers and an ash drift (both
+  flat, walk-through), a charred tree, nebula coral, a coral tree, a void crab's shell, a wick pillar, a flame basin
+  and a mast. The lit ones carry four frames (flames, a star's pulse, glyphs breathing, the stone's bob). None is of
+  the foliage kit, so a ground laid after the scatter runs under every one.
+- Vistas: the cloud sea under the Citadel's, the Ruins' and the Reach's south brinks; the water all round the decks.
+
+**How the side view's verticality came down.** The platforms of the fields (100 to 300 units) are dunes, rises,
+landings, galleries, ledges and lookout platforms a level to three up, each with its flight; the Inverted Hall's high
+gallery (400 units, past any jump until a switch lightens the air) is a gallery three levels up its own flight. No room
+of the twenty-one has a mover. Its 69 ropes, vines and ladders each reach a ledge or a branch route and none is sealed,
+so each is a flight of stairs or gone, as R7's were; T1's rows have nothing to carry here.
+
+**What the pictures and the checks taught** (no engine rule changed; `engine.py` is as R7 left it):
+- A cliff only a level over a raised shape that touches it is a hop: the game's auto-path climbed the Cinder Fields' ash
+  cliff from the crest's corner, where the Grid's did not, and grid parity failed. Every R9 cliff and wall now stands
+  two levels or more over what touches it; a scan of every R9 room finds no `wall` top a body reaches.
+- R7's `earth` is never laid under a plant of the foliage kit, so a `rock_small` scattered on an earth plain keeps a
+  tuft of meadow round it. The `ashen` biome's pools hold none of the kit.
+- A feature with no `level` is paint over what lies under it: a lawn laid over a cliff's edge stays on the cliff (the
+  Orbit Garden's first draft grew a flight up to a herb there). A ring laid after a lawn takes the lawn's cells it
+  covers, so an anchor resolved on the lawn may land on a ring's run; the ring's anchors are pinned inside.
+- A plain block reads as a wall, not a building: the Observatory's tower is roof paint, the Jade Sect's heaven
+  pavilion's way, so it shows a building's face.
+- R7's lesson again, from `rules_tests`' route tour: a flight that runs down onto the road slows auto-path crossing its
+  foot to a careful walk, and the leg across the room ran out of time (the Tumbling Stair's second landing, the
+  Foundry's gallery, the Palisade's lookout, the Verge's and the Currents' rises). Each raised shape now stands far
+  enough from its walk that its flight ends at the road's edge, and a scan of every R9 flight finds none on a walk. The
+  Observatory's dais flight has its cheeks two levels over the dais, not one: a body hopped onto a cheek beside the
+  great scope's spot and stalled coming off it. The tour's legs over the twenty-one rooms all arrive, none stalls.
+
+**Places.** Seven rows join `places.py` (62 in all with R8's): the Citadel Gate's teleport stone and shrine, and the
+shrines of the Tumbling Stair, the Wardens' landing on the Cinder Fields, the War Camp, the Nebula Verge and the Wick
+Gate.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; M-batches): the starsea pirate, wind kite, comet sparrow,
+  star jellyfish, orbit moth, gravity golem, Ashborn raider, Ashborn pyre keeper, General Kharn, hollow drone, hollowed
+  wyrmling, nebula eel, void crab and the Nebula Leviathan.
+- Mechanics with no top-down counterpart yet (another batch's):
+  - **Gravity switches and low gravity.** A switch turns and counts on the grid (`gravity_switched`, the quest's
+    `use_system`), and its plates mark where its volume lies, but the air does not lighten: the side view's
+    `low_gravity` volumes (`lowg_stair`, `lowg_garden`, `lowg_hall_a`, `lowg_hall_b`) have no grid rows. The Inverted
+    Hall's high gallery is a flight here, where the side view asks for the light air.
+  - **The Starsea crossing.** Its event plays on the grid by the one rule (the waves at the layout's cells, the voyage
+    making port: `topdown_starfield`), but the vessel does not move: no sky scrolling past, no star-water. The star
+    wind is a room hazard and blows on the grid.
+  - **The Leviathan's arena.** The Leviathan surfaces and dives in the side view's nebula; on the grid it stands and
+    fights on the shoal. The eels walk the reefs. A swimmer's floor (deep water a foe moves in) is the mechanic.
+  - **No-flight rooms** (the Inverted Hall, the Maw, both crossings) hold on the grid (`flight_allowed` reads the room);
+    no room here has a no-flight volume.
+- Light and art the kit does not have: the star field's backdrops have no TopdownLight area, so these rooms follow the
+  day's clock where the side view's sky is always night; the new lit props give no light at night (`PROP_LIGHTS`); the
+  nebula and the Starsea draw as the river's water, the void under the islands as the cloud sea. A star-field area, a
+  star-water paint and a void vista are game code and terrain art, outside a room batch.
+
+**The frontier now** (R9, with R8 merged): there is none. Every way out of an R9 room leads to a room on the grid. The
+Citadel Gate's skiff to Lanternfall's Arrival Quay and the Wick Gate's stair down to the Harbor Market are open, and so
+are R8's two ways the other way (the Arrival Quay's skiff to the Citadel, the Harbor Market's stair to the Lantern
+Heart); each suite checks its ways against `has_layout`, so the checks follow. The Tidebreak Bastion's skiff to the
+Citadel and the Drone Hive's way east into the Nebula Deep (gated in R5's frontier) are open; `topdown_story_rooms`
+checks them the same way. R8's note that a dock's `set_sail` is not closed by the prototype's gate no longer matters:
+all four docks (R6's Shipwrights' Yard, R8's Broken Pier, Starsea Launch and Arrival Quay) sail into a crossing on the
+grid, and `topdown_starfield` sails all four routes from their docks.
+
+With no room off the grid, decision 41's gate has nothing left to close in the game. Its checks still need a way off
+the grid: `rules_tests`' prototype suite and `topdown_tutorial`'s end of the prototype stand R9's rooms off it while
+they run (`tests/lib/off_grid.gd`, a test shortcut over `TopdownRoom.has_layout`'s cache), as the world was before R9.
+While a real way off the grid is left, they stand nothing off. `topdown_chapter3`'s story walk now runs on to the
+story's built end with nothing past the gate, and checks that, in place of the prototype's end.
 
 ## The rooms left, and the pace
 
-21 side-view rooms remain, by zone (`region`); the struck ones are done:
+No side-view room remains without a layout: all 168 are on the grid (grid parity: 168 layouts). By zone (`region`),
+struck when done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -1216,7 +1396,8 @@ Starsea crossings (above).
   - `tidebreak_front`: ~~`si_tide_battle`~~, ~~`tf_drone_hive`~~, ~~`tf_greyfall_breach`~~, ~~`tf_hollow_wake`~~,
     ~~`tf_tidebreak_bastion`~~.
 - **Act II and after** (R6 the first four: "Act II's first zones (R6)" above; R7 the next five: "Nine Peaks to the
-  Tomb of Sunscar (R7)" above; R8 the sky-sea five: "The sky-sea zones (R8)" above):
+  Tomb of Sunscar (R7)" above; R8 the sky-sea five: "The sky-sea zones (R8)" above; R9 the last seven: "The
+  star field's end (R9)" above):
   - `cloudgate_port`: ~~`ae_landing`~~, ~~`ae_port_market`~~, ~~`ae_wayfarers_inn`~~, ~~`ae_skydock`~~,
     ~~`ae_condensing_hall`~~, ~~`ae_shipyard`~~;
   - `thunderhorn_plains`: ~~`tp_stormgrass_verge`~~, ~~`tp_herders_camp`~~, ~~`tp_thunderhorn_flats`~~,
@@ -1233,9 +1414,9 @@ Starsea crossings (above).
   - ~~`drifting_shoals`: `dr_jellyfish_shallows`, `dr_moored_hulks`, `dr_sparrow_reefs`, `dr_driftglass_bank`~~ (R8);
   - ~~`blackmast_haven`: `bm_blackmast_docks`, `bm_gunners_battery`, `bm_smugglers_cove`, `bm_flagship_deck`~~ (R8);
   - ~~`wyrmnest_isles`: `wn_nest_cliffs`, `wn_eggshell_terraces`, `wn_guardians_crown`, `wn_hatching_cave`~~ (R8);
-  - `warden_citadel`, `orbit_ruins`, `ashen_reach` (4, 4, 4);
-  - `nebula_deep`, `lantern_heart` (4, 3);
-  - `starsea`, `lantern_crossing` (1, 1).
+  - ~~`warden_citadel`, `orbit_ruins`, `ashen_reach` (4, 4, 4)~~ (R9);
+  - ~~`nebula_deep`, `lantern_heart` (4, 3)~~ (R9);
+  - ~~`starsea`, `lantern_crossing` (1, 1)~~ (R9).
 
 **The pace.** Once a zone's look is settled, a spec takes 10 to 15 minutes:
 - writing it from `--new`;

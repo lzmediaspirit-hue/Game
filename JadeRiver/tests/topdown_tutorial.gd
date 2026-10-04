@@ -74,7 +74,11 @@ func _main() -> void:
 	_layouts()
 	run()
 	_chapter2()
+	# With every room on the grid (R8, R9), the last batch's rooms stand off it while the gate is checked
+	# (tests/lib/off_grid.gd).
+	var stood_off: Array = preload("res://tests/lib/off_grid.gd").stand_off()
 	_to_the_gate()
+	preload("res://tests/lib/off_grid.gd").restore(stood_off)
 	_scenes_played()
 	_save_on_the_grid()
 	_walk_on_the_grid()

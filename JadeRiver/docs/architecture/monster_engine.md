@@ -381,7 +381,7 @@ and live fights in fourteen of the species' own top-down rooms.
 
 ## Still to draw
 
-The species the top-down rooms spawn that still stand in with their side-view sheet (R5's to R8's rooms, the Tidebreak
+The species the top-down rooms spawn that still stand in with their side-view sheet (R5's to R9's rooms, the Tidebreak
 Front's), by level. The Trial Tower has none left.
 
 | Species | Where | Start from |
@@ -397,20 +397,28 @@ Front's), by level. The Trial Tower has none left.
 | thousand_eye_toad | Toad's Hollow (68) | `amphibian.toad` |
 | river_sentinel | the Sentinel Causeway (70-75) | `humanoid.sentinel` |
 | canyon_brigand | Gale Canyons: the Canyon Mouth, the Windbridge (73-76) | `person.fighter` |
-| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge, the Riven Peak (73-76) | `bird.hawk` or a `spirit` of paper |
+| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge, the Riven Peak, the Starsea Crossing (73-76) | `bird.hawk` or a `spirit` of paper |
 | sandstorm_scorpion | the Sunscar Desert, the Sealed Gate (73-78) | `crab.mud` (a tail kind) |
 | canyon_harpy | the Harpy Roosts, the Kite Winds, the Windbridge (74-78) | `bird` flyer with a `humanoid` head |
 | nine_peaks_disciple | the Sect War, the Broken Pier, the Pirate Deck (76-78) | `person.fighter` |
 | dune_worm | the Worm Sea (77-81) | `serpent.boulder` (it rises out of the sand) |
 | terracotta_warden | the Tomb of Sunscar (77) | `humanoid.sentinel` in terracotta |
 | tomb_king | the Throne (boss, 77) | `humanoid` of size |
-| starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War (79-81) | `person.fighter` |
+| starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War, the Starsea Crossing (79-81) | `person.fighter` |
 | pirate_captain | the Sect War (story boss, 80) | `humanoid` of size |
 | presence_phantom, ninth_presence | the Presence Trial (81) | `spirit`; the Ninth of size |
-| comet_sparrow | the Driftglass Bank, the Sparrow Reefs, the Jellyfish Shallows, the Nest Cliffs (82-87) | `bird.hawk`, small |
-| star_jellyfish | the Driftglass Bank, the Jellyfish Shallows, the Sparrow Reefs (82-87) | `spirit.lantern` (a bell trailing tendrils) |
+| comet_sparrow | the Driftglass Bank, the Sparrow Reefs, the Jellyfish Shallows, the Nest Cliffs, the Lantern Run (82-87) | `bird.hawk`, small |
+| star_jellyfish | the Driftglass Bank, the Jellyfish Shallows, the Sparrow Reefs, the Lantern Run (82-87) | `spirit.lantern` (a bell trailing tendrils) |
 | nest_guardian | the Nest Cliffs, the Eggshell Terraces, the Hatching Cave, the Guardian's Crown (85-93) | `quadruped` or `humanoid.sentinel` |
 | pirate_gunner | the Blackmast Docks, the Gunners' Battery (85-90) | `person.archer` |
-| hollow_drone | the Tidebreak Front (88-99) | `spirit` or `bird`, `hollowed` |
-| hollowed_wyrmling | the Tidebreak Front, the Eggshell Terraces, the Guardian's Crown (88-96) | `serpent.dragon`, `hollowed` |
+| hollow_drone | the Tidebreak Front, the Cinder Fields, the Wick Gate, the Hall of Burning Stars (88-99) | `spirit` or `bird`, `hollowed` |
+| hollowed_wyrmling | the Tidebreak Front, the Eggshell Terraces, the Guardian's Crown, the Wick Gate, the Hall of Burning Stars (88-99) | `serpent.dragon`, `hollowed` |
+| orbit_moth | the Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry, the Inverted Hall (88-93) | `spirit.wisp` with a moth's wings |
+| gravity_golem | the Tumbling Stair, the Golem Foundry, the Inverted Hall (88-93) | `humanoid.sentinel` of rune-cut stone |
+| ashborn_raider | the Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp (88-93) | `person.fighter` |
 | admiral_voss | the Flagship Deck (dungeon boss, 90) | `humanoid` of size |
+| ashborn_pyre_keeper | the Ashborn Palisade, the War Camp (91-94) | `person`, a caster lit by embers |
+| general_kharn | Kharn's Pyre (story boss, 92) | `humanoid` of size |
+| nebula_eel | the Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes (94-97) | `serpent` (the hollowed eel's build) |
+| void_crab | the Nebula Verge, the Crab Grottoes (94-98) | `crab.mud` |
+| nebula_leviathan | the Leviathan's Maw (boss, 99) | `serpent.dragon` of size |

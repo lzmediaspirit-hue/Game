@@ -2176,6 +2176,251 @@
    "menu": "",
    "sect": "",
    "remote": {}
+  },
+  {
+   "id": "wc_teleport_stone",
+   "system": "teleport_stones",
+   "page": "teleport",
+   "page_args": {},
+   "room": "wc_citadel_gate",
+   "object": "stone_star_citadel",
+   "kind": "teleport_stone",
+   "rule": "place",
+   "name": "the Citadel Gate Teleport Stone",
+   "state": "attuned",
+   "added": false,
+   "cell": [
+    55,
+    19
+   ],
+   "stand": [
+    55,
+    20
+   ],
+   "at": [
+    1776.0,
+    624.0
+   ],
+   "verb": "sim.world.travel",
+   "icon": "teleport_marker",
+   "kind_name": "Teleport Stone",
+   "pose": "",
+   "where": "At the Citadel Gate Teleport Stone",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "wc_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "wc_citadel_gate",
+   "object": "shrine_wc_gate",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Citadel Gate Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    39,
+    9
+   ],
+   "stand": [
+    39,
+    10
+   ],
+   "at": [
+    1264.0,
+    304.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Citadel Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "or_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "or_tumbling_stair",
+   "object": "shrine_or_stair",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Tumbling Stair Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    8,
+    16
+   ],
+   "stand": [
+    8,
+    17
+   ],
+   "at": [
+    272.0,
+    528.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Tumbling Stair Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "ar_fields_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "ar_cinder_fields",
+   "object": "shrine_ar_fields",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Wardens' Landing Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    9,
+    19
+   ],
+   "stand": [
+    10,
+    19
+   ],
+   "at": [
+    304.0,
+    624.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Wardens' Landing Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "ar_camp_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "ar_war_camp",
+   "object": "shrine_ar_camp",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the War Camp Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    7,
+    17
+   ],
+   "stand": [
+    7,
+    18
+   ],
+   "at": [
+    240.0,
+    560.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the War Camp Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "nd_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "nd_nebula_verge",
+   "object": "shrine_nd_verge",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Nebula Verge Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    11,
+    15
+   ],
+   "stand": [
+    11,
+    16
+   ],
+   "at": [
+    368.0,
+    496.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Nebula Verge Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
+  },
+  {
+   "id": "lt_shrine",
+   "system": "shrines",
+   "page": "",
+   "page_args": {},
+   "room": "lt_wick_gate",
+   "object": "shrine_lt_gate",
+   "kind": "shrine",
+   "rule": "place",
+   "name": "the Wick Gate Shrine",
+   "state": "lit",
+   "added": false,
+   "cell": [
+    8,
+    10
+   ],
+   "stand": [
+    8,
+    11
+   ],
+   "at": [
+    272.0,
+    336.0
+   ],
+   "verb": "sim.world.pray",
+   "icon": "shrine_marker",
+   "kind_name": "Shrine",
+   "pose": "",
+   "where": "At the Wick Gate Shrine",
+   "home": false,
+   "tutorial": false,
+   "menu": "",
+   "sect": "",
+   "remote": {}
   }
  ],
  "kinds": {

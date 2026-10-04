@@ -1,0 +1,170 @@
+{
+ "schema_version": 1,
+ "id": "wc_observatory",
+ "name": "Observatory",
+ "size": [
+  28,
+  16
+ ],
+ "spawn": [
+  14,
+  14
+ ],
+ "levels": [
+  "5555555555555555555555555555",
+  "5000000111111111111110000005",
+  "5000000111111111111110000005",
+  "5000000111111111111110000005",
+  "5000000111111111111110000005",
+  "5000000111111111111110000005",
+  "5000000000003003000000000005",
+  "5000000000003003000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "1111111111111001111111111111"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssss",
+  "sppppppsssssssssssssspppppps",
+  "sppppppsssssssssssssssppppps",
+  "spppppssssssssssssssssspppps",
+  "sppppsssssssssssssssssspppps",
+  "spppssssssssssssssssssssppps",
+  "spppssssssssssssssssssssspps",
+  "spppssssssssssssssssssssspps",
+  "sppsssssssssssssssssssssspps",
+  "sppsssssssssssssssssssssppps",
+  "spppssssssssssssssssssssppps",
+  "sppppsssssssssssssssssspppps",
+  "spppppssssssssssssssssppppps",
+  "spppppppssssssssssssppppppps",
+  "spppppppppssssssssppppppppps",
+  "sssssssssssssppsssssssssssss"
+ ],
+ "stairs": [
+  {
+   "x": 13,
+   "y": 6,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "star_globe",
+   "x": 9,
+   "y": 3
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "star_chart_table",
+   "x": 4,
+   "y": 9
+  },
+  {
+   "kind": "star_chart_table",
+   "x": 18,
+   "y": 10
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 22,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 24,
+   "y": 1
+  },
+  {
+   "kind": "desk",
+   "x": 1,
+   "y": 5
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 9,
+   "y": 7
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 18,
+   "y": 7
+  },
+  {
+   "kind": "warden_banner",
+   "x": 9,
+   "y": 14
+  },
+  {
+   "kind": "warden_banner",
+   "x": 18,
+   "y": 14
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 25,
+   "y": 6
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 1,
+   "y": 13
+  }
+ ],
+ "place": {
+  "great_scope": [
+   15,
+   3
+  ],
+  "npc_stargazer_ming": [
+   9,
+   10
+  ],
+  "lost_lens_of_far_seeing": [
+   23,
+   10
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    13.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    13.5,
+    13.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

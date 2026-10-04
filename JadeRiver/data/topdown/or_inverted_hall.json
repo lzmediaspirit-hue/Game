@@ -1,0 +1,299 @@
+{
+ "schema_version": 1,
+ "id": "or_inverted_hall",
+ "name": "Inverted Hall",
+ "size": [
+  56,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "55555555555555555555555555555555555555555555555555555555",
+  "50000000000000011111111110000003333333333300000000000005",
+  "50000000000000011111111110000003333333333300000000000005",
+  "50000000000000011111111110000003333333333300000000000005",
+  "50000000000000011111111110000003333333333300000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000005000000030000000500000005000000020000000500000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "00000000000000000000000000000000000000000000000000000005",
+  "00000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000005000011051100000400000005000000050110011300000005",
+  "50000000000010000100000000000000000000000100001000000005",
+  "50000000000110000110000000000000000000001100001100000005",
+  "50000000000110000110000000000000000000001100001100000005",
+  "50000000000010000100000000000000000000000100001000000005",
+  "50000000000011111100000000000000000000000111111000000005",
+  "50000000000000110000000000000000000000000001100000000005",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "sppppppppppppppssssssssssppppppsssssssssssppppppppppppps",
+  "sppppppppppppppssssssssssppppppsssssssssssppppppppppppps",
+  "sppppppppppppppssssssssssppppppsssssssssssppppppppppppps",
+  "sppppppppppppppssssssssssppppppsssssssssssppppppppppppps",
+  "sppppppppppppppppppssspppppppppppppsssppppppppppppppppps",
+  "sppppppppppppppppppssspppppppppppppsssppppppppppppppppps",
+  "sppppppppppppppppppppppppppppppppppsssppppppppppppppppps",
+  "sppppppspppppppspppppppspppppppspppssspspppppppsppppppps",
+  "sppppppppppppppppppppppppppppppppppsssppppppppppppppppps",
+  "sppppppppppppppppppppppppppppppppppsssppppppppppppppppps",
+  "psssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "psssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "spppppppppppppppppppppppppppppppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppppppppppppppppppppppppppppppps",
+  "sppppppsppppsspssspppppspppppppspppppppspssppsssppppppps",
+  "spppppppppppsppppspppppppppppppppppppppppsppppspppppppps",
+  "sppppppppppssppppsspppppppppppppppppppppssppppssppppppps",
+  "sppppppppppssppppsspppppppppppppppppppppssppppssppppppps",
+  "spppppppppppsppppspppppppppppppppppppppppsppppspppppppps",
+  "spppppppppppsssssspppppppppppppppppppppppsssssspppppppps",
+  "spppppppppppppsspppppppppppppppppppppppppppsspppppppppps",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 5,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 35,
+   "y": 5,
+   "w": 3,
+   "h": 6,
+   "from": 0,
+   "to": 3
+  }
+ ],
+ "props": [
+  {
+   "kind": "gravity_plate",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 16,
+   "y": 19
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 15,
+   "y": 18
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 15,
+   "y": 20
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 43,
+   "y": 19
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 45,
+   "y": 19
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 44,
+   "y": 18
+  },
+  {
+   "kind": "gravity_plate",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "orbit_stone",
+   "x": 23,
+   "y": 5
+  },
+  {
+   "kind": "orbit_stone",
+   "x": 28,
+   "y": 18
+  },
+  {
+   "kind": "orbit_stone",
+   "x": 48,
+   "y": 5
+  },
+  {
+   "kind": "orbit_stone",
+   "x": 5,
+   "y": 18
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 2,
+   "y": 15
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 53,
+   "y": 2
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "boulder",
+   "x": 18,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 18,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 10
+  }
+ ],
+ "place": {
+  "switch_hall_a": [
+   15,
+   19
+  ],
+  "switch_hall_b": [
+   44,
+   19
+  ],
+  "chest_gallery": [
+   37,
+   3
+  ],
+  "lost_upside_down_staff": [
+   19,
+   10
+  ],
+  "lost_gravity_knot": [
+   25,
+   14
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    12
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    33,
+    9
+   ]
+  ],
+  [
+   [
+    16,
+    16
+   ],
+   [
+    39,
+    10
+   ]
+  ]
+ ]
+}

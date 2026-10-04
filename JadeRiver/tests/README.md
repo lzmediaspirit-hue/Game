@@ -48,6 +48,11 @@ Every suite extends it (`extends "res://tests/lib/suite.gd"`), puts its body in 
   - `now_us()` reads a file each call (about 20 µs), so microsecond timings keep the wall clock: the coach's cost in
     `tutorials` is a median of 120.
 
+`tests/lib/off_grid.gd` is for decision 41's gate (the prototype's end). Since R8 and R9, every side-view room has a
+top-down layout, so no way leads off the grid. While a suite checks the gate, `stand_off()` stands R9's rooms off it
+(`rules_tests`' prototype suite, `topdown_tutorial`'s end of the prototype), and `restore()` puts them back. It does
+nothing while a real way off the grid is left.
+
 A new suite needs three things:
 1. a scene with one `Node` that holds its script;
 2. a line in `tests/suites.txt`;

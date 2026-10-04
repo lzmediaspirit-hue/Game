@@ -4,8 +4,8 @@ import traceback
 
 from . import engine as E
 from . import bands as B
-from .spec import (AUTO, DROP, PAY, SpecError, side, daily, job, clear, fetch, deliver, gather, talk, spar, escort, reach,
-                   step, item, fx, taels, stones)
+from .spec import (AUTO, DROP, PAY, ROOM, SpecError, side, daily, job, clear, fetch, deliver, gather, talk, spar, escort,
+                   reach, step, item, fx, taels, stones)
 
 
 def _world():
@@ -100,6 +100,12 @@ def t_realm_and_requires():
         {"kind": "unlock", "system": "s"}]}
     assert req(realm=None) is None and req(requires={"any": []}) == {"any": []}
     assert _row(side("q", reach("town"), giver="farmer"), w).get("requires") is None, "a town has no band"
+    # E5b: realm=ROOM is the room's realm also for a quest that follows another (it opens at the later of the two).
+    assert req(realm=ROOM) == req(), "ROOM is AUTO's realm for a quest that follows none"
+    assert req(after="p", realm=ROOM) == {"all": [{"kind": "quest_done", "quest": "p"}, {"kind": "realm_at_least", "realm": "qi_kindling_3"}]}
+    assert _row(side("q", reach("town"), giver="farmer", after="p", realm=ROOM), w).get("requires") == \
+        {"all": [{"kind": "quest_done", "quest": "p"}]}, "a room with no band gives none"
+    assert E.derive(side("q", clear("wolf"), giver="elder", after="p", realm=ROOM), w)["realm"] == "qi_kindling_3"
 
 
 def t_pay_and_keys():
@@ -156,6 +162,12 @@ def t_errors():
     errs = E.check_specs([], st, w)
     assert any("no person nobody" in e for e in errs) and any("no enemy ghost" in e for e in errs) \
         and any("gives no item air" in e for e in errs) and any("nothing leads" in e for e in errs), errs
+    # E5b: a pinned pay, or a job's pinned Levels, says why.
+    st = E.State([("s", [side("a", clear("rat"), giver="elder", pay=7), side("b", clear("rat"), giver="elder", pay=None),
+                         side("c", clear("rat"), giver="elder", pay=7, why="a tiny errand"), side("d", clear("rat"), giver="elder")])],
+                 [daily("hunt", "Hunt", job("Rats", clear("rat", 8), levels=(1, 2)), job("Wolves", clear("wolf", 6), levels=(9, 17), why="x"))])
+    errs = E.check_specs([], st, w)
+    assert sorted(e.split(":")[0] for e in errs) == ["a", "b", "daily hunt 'Rats'"], errs
     try:
         E.State([("s", [side("q", clear("rat"), giver="elder")]), ("t", [side("q", clear("rat"), giver="elder")])], [])
         raise AssertionError("a quest written twice was taken")
@@ -168,15 +180,33 @@ def t_errors():
         pass
 
 
+def t_far():
+    """E5b: a quest whose room lies more than four Levels over its tier or eight under it is far from it; so is a daily
+    job posted far from its foe's Levels (or from its nodes' fields)."""
+    w = _world()
+    st = E.State([("s", [side("wolves", clear("wolf"), giver="elder", after="p"), side("rats", clear("rat"), giver="elder", after="p"),
+                         side("talk", talk("elder"), giver="farmer")])], [])
+    tiers = {"wolves": "bone_forging_3", "rats": "qi_kindling_9", "talk": "mortal"}
+    assert [r[0] for r in E.far_rooms(st, w, tiers=tiers)] == ["wolves", "rats"], "10-14 at Level 3; 4-8 at Level 18"
+    tiers = {"wolves": "bone_forging_6", "rats": "qi_kindling_7", "talk": "mortal"}
+    assert E.far_rooms(st, w, tiers=tiers) == [], "10 is four over Level 6, and 8 is eight under Level 16"
+    st = E.State([], [daily("hunt", "Hunt", job("Rats", clear("rat", 8)), job("Wolves", clear("wolf", 6), levels=(6, 21)),
+                            job("Late wolves", clear("wolf", 6), levels=(6, 30), why="x")),
+                      daily("gather", "Gather", job("Moss", gather("moss", 5)), job("Iron", gather("iron", 4), levels=(10, 40), why="x"))])
+    assert [(r[1], r[2]) for r in E.far_jobs(st, w)] == [("Late wolves", (6, 30)), ("Iron", (10, 40))], E.far_jobs(st, w)
+
+
 def t_todays_specs():
-    """E5's own quests derive their room, realm and pay (no pins); every engine quest pays the band at its tier or says
-    otherwise in its spec; the companions' favours are their template's."""
+    """E5's own quests derive their room, realm and pay (no pins); every pinned pay says why; the companions' favours are
+    their template's; no quest is pitched far from its room and no job far from its foe (E5b)."""
     st = E.state()
     new = dict(st.sections)["act1"][-4:]
     for q in new:
         assert q["target_room"] is AUTO and q["realm"] is AUTO and q["pay"] is AUTO and q["requires"] is AUTO, q["id"]
     favours = [q for q in st.quests if q["keys"].get("chapter") == "companion"]
-    assert len(favours) == 12 and all(q["pay"] == 80 and q["target_room"] is None for q in favours)
+    assert len(favours) == 12 and all(q["pay"] is AUTO and q["realm"] is ROOM for q in favours)
+    assert all(q.get("why") for q in st.quests if q["pay"] is not AUTO)
+    assert not E.far_rooms() and not E.far_jobs()
     w = E.world()
     for q in st.quests:
         r = E.compile_quest(q, w)
@@ -190,7 +220,8 @@ def json_dump(st, w):
     return json.dumps([[E.compile_quest(q, w) for q in st.quests], E.missions(st, w)], sort_keys=True)
 
 
-TESTS = [t_row_layout, t_templates, t_rooms, t_realm_and_requires, t_pay_and_keys, t_bands, t_board, t_errors, t_todays_specs]
+TESTS = [t_row_layout, t_templates, t_rooms, t_realm_and_requires, t_pay_and_keys, t_bands, t_board, t_errors, t_far,
+         t_todays_specs]
 
 
 def run():

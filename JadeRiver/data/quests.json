@@ -6684,7 +6684,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 100
+     "amount": 90
     },
     {
      "kind": "grant_item",
@@ -6729,7 +6729,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 90
     },
     {
      "kind": "grant_item",
@@ -6777,7 +6777,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 150
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -6823,7 +6823,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 250
+     "amount": 200
     },
     {
      "kind": "grant_item",
@@ -6908,7 +6908,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 300
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -7119,7 +7119,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 50
+     "amount": 40
     },
     {
      "kind": "deed",
@@ -7194,12 +7194,6 @@
    "marker": "blue",
    "objectives": [
     {
-     "kind": "kill",
-     "text": "Clear the Hollowed from the Grey Pools",
-     "count": 10,
-     "enemy": "hollowed_boarlet"
-    },
-    {
      "kind": "set_flag",
      "text": "Cleanse the grey lantern on the hall roof",
      "count": 1,
@@ -7216,7 +7210,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 120
+     "amount": 200
     },
     {
      "kind": "deed",
@@ -7224,7 +7218,7 @@
     }
    ],
    "offer_text": [
-    "The grey came up from the pools and settled on our roofs. Clear the Hollowed from the pools, and wipe the grey from the lanterns on the hall and the granary. Then we can walk home."
+    "The grey came up from the pools and settled on our roofs. Wipe it from the lanterns on the hall and the granary, and they will burn again. Then we can walk home."
    ],
    "complete_text": [
     "The lanterns burn and the road home is open."
@@ -7237,7 +7231,7 @@
      }
     ]
    },
-   "target_room": "rm_grey_pools",
+   "target_room": "gh_hamlet_square",
    "tier": "heart_tempering_1",
    "cultivation": 670
   },
@@ -7260,7 +7254,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 150
+     "amount": 200
     },
     {
      "kind": "deed",
@@ -7474,7 +7468,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -7486,13 +7480,22 @@
    "requires": {
     "all": [
      {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_3"
+     },
+     {
+      "kind": "unlock",
+      "system": "companions"
+     },
+     {
       "kind": "companion_owned",
       "companion": "lan_yue"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_1",
+   "target_room": "bg_whispering_bamboo",
+   "tier": "qi_kindling_5",
    "cultivation": 530
   },
   {
@@ -7519,7 +7522,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -7537,7 +7540,7 @@
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_1",
+   "tier": "qi_kindling_5",
    "cultivation": 530
   },
   {
@@ -7563,7 +7566,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -7577,12 +7580,17 @@
      {
       "kind": "quest_done",
       "quest": "a_cure_for_stoneford"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "qi_unfurling_6"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_1",
-   "cultivation": 530
+   "target_room": "ds_flooded_gate",
+   "tier": "qi_unfurling_6",
+   "cultivation": 470
   },
   {
    "id": "iron_oxs_debt",
@@ -7608,7 +7616,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -7620,14 +7628,23 @@
    "requires": {
     "all": [
      {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_5"
+     },
+     {
+      "kind": "unlock",
+      "system": "companions"
+     },
+     {
       "kind": "companion_owned",
       "companion": "tie_niu"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "bone_forging_1",
-   "cultivation": 60
+   "target_room": "sq_quarry_rim",
+   "tier": "qi_kindling_5",
+   "cultivation": 530
   },
   {
    "id": "the_quarry_fight",
@@ -7652,7 +7669,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -7666,12 +7683,17 @@
      {
       "kind": "quest_done",
       "quest": "iron_oxs_debt"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "bone_forging_6"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "bone_forging_1",
-   "cultivation": 60
+   "target_room": "sq_lower_pit",
+   "tier": "qi_kindling_5",
+   "cultivation": 530
   },
   {
    "id": "stronger_than_stone",
@@ -7696,7 +7718,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -7710,12 +7732,17 @@
      {
       "kind": "quest_done",
       "quest": "the_quarry_fight"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_7"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "bone_forging_1",
-   "cultivation": 60
+   "target_room": "wg_echo_cliffs",
+   "tier": "heart_tempering_7",
+   "cultivation": 670
   },
   {
    "id": "the_missing_hunter",
@@ -7740,7 +7767,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -7752,13 +7779,22 @@
    "requires": {
     "all": [
      {
+      "kind": "realm_at_least",
+      "realm": "qi_kindling_4"
+     },
+     {
+      "kind": "unlock",
+      "system": "companions"
+     },
+     {
       "kind": "companion_owned",
       "companion": "qiu_feng"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_2",
+   "target_room": "bg_thicket_heart",
+   "tier": "qi_kindling_5",
    "cultivation": 530
   },
   {
@@ -7784,7 +7820,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 120
     },
     {
      "kind": "grant_item",
@@ -7807,7 +7843,8 @@
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_2",
+   "target_room": "cf_falls_pool",
+   "tier": "qi_kindling_5",
    "cultivation": 530
   },
   {
@@ -7833,7 +7870,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -7847,12 +7884,17 @@
      {
       "kind": "quest_done",
       "quest": "crane_falls_at_dawn"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "heart_tempering_7"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_kindling_2",
-   "cultivation": 530
+   "target_room": "wg_echo_cliffs",
+   "tier": "heart_tempering_7",
+   "cultivation": 670
   },
   {
    "id": "lines_on_the_floor",
@@ -7878,7 +7920,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 300
     }
    ],
    "offer_text": [
@@ -7890,14 +7932,23 @@
    "requires": {
     "all": [
      {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_8"
+     },
+     {
+      "kind": "unlock",
+      "system": "companions"
+     },
+     {
       "kind": "companion_owned",
       "companion": "bai_ling"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_unfurling_1",
-   "cultivation": 470
+   "target_room": "mp_forgotten_monastery",
+   "tier": "spirit_awakening_8",
+   "cultivation": 870
   },
   {
    "id": "the_broken_array",
@@ -7922,7 +7973,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 300
     }
    ],
    "offer_text": [
@@ -7936,12 +7987,17 @@
      {
       "kind": "quest_done",
       "quest": "lines_on_the_floor"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_8"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_unfurling_1",
-   "cultivation": 470
+   "target_room": "mp_forgotten_monastery",
+   "tier": "spirit_awakening_8",
+   "cultivation": 870
   },
   {
    "id": "bai_lings_formation",
@@ -7967,7 +8023,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 80
+     "amount": 300
     },
     {
      "kind": "grant_item",
@@ -7986,12 +8042,17 @@
      {
       "kind": "quest_done",
       "quest": "the_broken_array"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "spirit_awakening_8"
      }
     ]
    },
    "chapter": "companion",
-   "tier": "qi_unfurling_1",
-   "cultivation": 470
+   "target_room": "mp_forgotten_monastery",
+   "tier": "spirit_awakening_8",
+   "cultivation": 870
   },
   {
    "id": "a_hall_of_our_own",
@@ -8012,7 +8073,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 300
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -8077,7 +8138,7 @@
     {
      "kind": "grant_currency",
      "currency": "silver_tael",
-     "amount": 400
+     "amount": 200
     }
    ],
    "offer_text": [
@@ -9823,7 +9884,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 70
+     "amount": 90
     },
     {
      "kind": "grant_item",
@@ -9933,7 +9994,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 80
+     "amount": 120
     },
     {
      "kind": "grant_item",
@@ -9956,14 +10017,14 @@
      },
      {
       "kind": "realm_at_least",
-      "realm": "sage_2"
+      "realm": "sage_sovereign_1"
      }
     ]
    },
    "target_room": "gc_kite_winds",
    "qp": "act2_side",
-   "tier": "sage_2",
-   "cultivation": 13000
+   "tier": "sage_sovereign_1",
+   "cultivation": 2400
   },
   {
    "id": "plumes_for_the_bellows",
@@ -9985,7 +10046,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 90
+     "amount": 120
     },
     {
      "kind": "grant_item",
@@ -10005,13 +10066,17 @@
      {
       "kind": "quest_done",
       "quest": "ironroot_blood"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
      }
     ]
    },
    "target_room": "gc_harpy_roosts",
    "qp": "act2_side",
-   "tier": "sage_2",
-   "cultivation": 13000
+   "tier": "sage_sovereign_2",
+   "cultivation": 2400
   },
   {
    "id": "cactus_water",
@@ -10081,7 +10146,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 110
+     "amount": 120
     },
     {
      "kind": "grant_item",
@@ -10101,13 +10166,17 @@
      {
       "kind": "quest_done",
       "quest": "glass_and_bone"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
      }
     ]
    },
    "target_room": "sd_worm_sea",
    "qp": "act2_side",
-   "tier": "sage_3",
-   "cultivation": 13000
+   "tier": "sage_sovereign_3",
+   "cultivation": 2400
   },
   {
    "id": "stingers_for_the_hold",
@@ -10153,13 +10222,17 @@
      {
       "kind": "quest_done",
       "quest": "plumes_for_the_bellows"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_2"
      }
     ]
    },
    "target_room": "sd_scorpion_flats",
    "qp": "act2_side",
-   "tier": "sage_3",
-   "cultivation": 13000
+   "tier": "sage_sovereign_2",
+   "cultivation": 2400
   },
   {
    "id": "a_chart_of_ones_own",
@@ -10314,7 +10387,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 160
+     "amount": 120
     },
     {
      "kind": "grant_item",
@@ -10362,7 +10435,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 150
+     "amount": 120
     },
     {
      "kind": "learn_recipe",
@@ -10385,12 +10458,16 @@
      {
       "kind": "quest_done",
       "quest": "gus_ledger"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
      }
     ]
    },
    "target_room": "sw_pirate_deck",
    "qp": "act2_side",
-   "tier": "sage_sovereign_1",
+   "tier": "sage_sovereign_3",
    "cultivation": 2400
   },
   {
@@ -10433,12 +10510,16 @@
      {
       "kind": "quest_done",
       "quest": "the_skyport_wreck"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sage_sovereign_3"
      }
     ]
    },
    "target_room": "sw_riven_peak",
    "qp": "act2_side",
-   "tier": "sage_sovereign_1",
+   "tier": "sage_sovereign_3",
    "cultivation": 2400
   },
   {
@@ -10474,7 +10555,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 100
+     "amount": 90
     }
    ],
    "offer_text": [
@@ -10521,7 +10602,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 100
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -10572,7 +10653,7 @@
     {
      "kind": "grant_currency",
      "currency": "spirit_stone",
-     "amount": 100
+     "amount": 120
     }
    ],
    "offer_text": [
@@ -12212,13 +12293,17 @@
      {
       "kind": "quest_done",
       "quest": "star_warden"
+     },
+     {
+      "kind": "realm_at_least",
+      "realm": "sphere_lord_3"
      }
     ]
    },
    "chapter": "22",
    "target_room": "nd_leviathans_maw",
    "qp": "act2_side",
-   "tier": "sphere_lord_1",
+   "tier": "sphere_lord_3",
    "cultivation": 4000
   },
   {
