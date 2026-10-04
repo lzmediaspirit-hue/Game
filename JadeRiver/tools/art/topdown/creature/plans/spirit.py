@@ -116,6 +116,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         return _wisp(B, action, f, view)
     if "globe" in B.parts:
         return _lantern(B, action, f, view)
+    if "bell" in B.parts:
+        return _jelly(B, action, f, view)                # M4: the star jellyfish
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
@@ -463,4 +465,179 @@ def _lantern(B, action: str, f: int, view: float) -> Pose:
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, z))
+    return P
+
+
+# ================================================================================================= the star jellyfish (M4)
+# A drifting jellyfish of starlight (`bell`): a translucent indigo-violet bell (a dome over a flat underside, radial canals,
+# a glassy highlight arc) with a pale-gold star glowing in it, a magenta frill of scallops round its rim, two short magenta
+# oral arms and four long pale tentacles with stars twinkling down them. Channels: `bob`, `lunge`, `tilt`, `pulse` (the
+# bell contracting: taller and narrower, + ; relaxed, wider: -), `curl` (the tentacles curled up and forward, 0..1),
+# `lash` (thrown forward in a stinging arc, 0..1), `trail` (streaming back), `star` (its light: 0 dark .. 2 flaring),
+# `ring` (the double ring of star glow round it, its reach), `sting` (the spark burst at the tips), `sag` (deflating as it
+# dies), `drop` (sunk to the floor), `squint`.
+JELLY_STYLES = {
+    "pulse_drift": {"pulse": (0.0, 0.25, 0.45, 0.3, 0.0, -0.2), "bob": (0.0, 0.3, 0.5, 0.4, 0.1, -0.2), "star": (1.0,) * 6},
+    "pulse_swim": {"pulse": (0.0, 0.3, 0.5, 0.3, 0.0, -0.25, -0.35, -0.2), "bob": (0.0, 0.2, 0.5, 0.6, 0.4, 0.1, -0.1, -0.1),
+                   "tilt": (-10.0,) * 8, "trail": (0.4, 0.6, 0.8, 0.7, 0.5, 0.4, 0.3, 0.3), "lunge": (0.0, 0.2, 0.5, 0.6, 0.5, 0.3, 0.1, 0.0),
+                   "star": (1.0,) * 8},
+    "clench_glow": {"pulse": (0.4, 0.8, 1.0, 1.0), "bob": (0.3, 0.6, 0.8, 0.8), "lunge": (-0.3, -0.6, -0.9, -1.0), "tilt": (6.0, 10.0, 12.0, 12.0),
+                    "curl": (0.3, 0.6, 0.9, 1.0), "star": (1.4, 1.8, 2.0, 2.0), "ring": (0.4, 0.8, 1.0, 1.1)},
+    "lash_sting": {"pulse": (-0.6, -0.5, -0.3, -0.1, 0.0, 0.0), "lunge": (0.4, 1.6, 1.6, 1.0, 0.4, 0.0), "tilt": (-10.0, -16.0, -12.0, -6.0, -2.0, 0.0),
+                   "lash": (0.5, 1.0, 0.9, 0.6, 0.3, 0.1), "curl": (0.4, 0.0, 0.0, 0.0, 0.0, 0.0), "star": (2.0, 1.6, 1.2, 1.0, 1.0, 1.0),
+                   "sting": (1, 2), "bob": (0.6, 0.2, 0.1, 0.0, 0.0, 0.0)},
+    "dent_flicker": {"pulse": (-0.7, -0.3, 0.0), "lunge": (-2.0, -1.2, -0.4), "tilt": (16.0, 8.0, 2.0), "trail": (-0.6, -0.3, 0.0),
+                     "star": (0.3, 0.7, 1.0), "squint": True},
+    "deflate_sink": {"sag": (0.0, 0.15, 0.3, 0.5, 0.7, 0.85, 0.95, 1.0), "drop": (0.0, 0.1, 0.25, 0.45, 0.65, 0.8, 0.9, 1.0),
+                     "star": (0.6, 0.4, 0.2, 0.1, 0.0, 0.0, 0.0, 0.0), "tilt": (8.0, 12.0, 16.0, 18.0, 18.0, 18.0, 18.0, 18.0),
+                     "dissolve": (0.0, 0.0, 0.0, 0.0, 0.15, 0.35, 0.6, 0.85)},
+}
+STYLES.update(JELLY_STYLES)
+JELLY = {"Z": 12.0, "bell": {"r": (4.4, 4.4, 3.5), "cut": 0.3, "canals": 8}, "frill": 14,
+         "tentacles": {"n": 4, "length": 10.0, "r": (0.5, 0.18), "segs": 9, "ring": 0.78},
+         "arms": {"n": 2, "length": 5.5, "r": (0.75, 0.3), "segs": 6}}
+VARIANTS["jelly"] = {"parts": JELLY, "mats": {"bell": "sj_bell", "frill": "sj_frill", "tentacle": "sj_tentacle"},
+                     "motion": {"idle": "pulse_drift", "walk": "pulse_swim", "windup": "clench_glow", "attack": "lash_sting", "hurt": "dent_flicker",
+                                "death": "deflate_sink"}}
+
+
+def _strand(P, root, length, segs, r, mat, group, heading, wave, ph, side, line=True):
+    """A hanging strand from `root`: it heads down (heading -90 degrees in the plane of `side`'s normal and up), turning by
+    `heading(t)` (degrees at t along it), waving across by `wave` (its amplitude, growing toward its tip); returns its
+    points."""
+    pts = [np.asarray(root, float)]
+    q = np.asarray(root, float)
+    fwd, up = np.asarray(side[0], float), v3(0.0, 0.0, 1.0)
+    across = np.asarray(side[1], float)
+    step = length / segs
+    for i in range(segs):
+        t = (i + 0.5) / segs
+        h = math.radians(heading(t))
+        d = fwd * math.cos(h) + up * math.sin(h)
+        q = q + d * step + across * (wave * math.cos(ph + t * 4.0) * step * 0.6 * t)
+        pts.append(q.copy())
+    for i in range(segs):
+        r0 = r[0] + (r[1] - r[0]) * i / segs
+        r1 = r[0] + (r[1] - r[0]) * (i + 1) / segs
+        P.add(L(pts[i], pts[i + 1], r0, r1, mat, group, line=line, caps=i == 0 or i == segs - 1))
+    return pts
+
+
+def _jelly(B, action: str, f: int, view: float) -> Pose:
+    """M4, the star jellyfish (see JELLY_STYLES): it drifts and pulses, its tentacles swaying; in its tell its bell
+    clenches, its star flares and a double ring of star glow opens round it as its tentacles curl up and forward; it lashes
+    them forward in a stinging arc (sparks bursting at their tips); struck, its bell dents and its star flickers; beaten,
+    it deflates, its star gutters out and it sinks, fading."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    lunge = B.pick("lunge", action, f)
+    bob = B.pick("bob", action, f)
+    tilt = B.pick("tilt", action, f)
+    pulse = B.pick("pulse", action, f)
+    curl = B.pick("curl", action, f)
+    lash = B.pick("lash", action, f)
+    trail = B.pick("trail", action, f)
+    star = B.pick("star", action, f, 1.0)
+    ring = B.pick("ring", action, f)
+    sag = B.pick("sag", action, f)
+    drop = B.pick("drop", action, f)
+    bl = p.bell
+    R, H = bl.r[0] * (1.0 - 0.14 * pulse + 0.2 * sag), bl.r[2] * (1.0 + 0.22 * pulse - 0.45 * sag)
+    z = (p.Z + bob) * (1.0 - drop) + drop * (H * 0.5 + 0.6)
+    C = v3(lunge, 0.0, z)
+    bm = rot("b", -tilt)
+    cut = -bl.cut * H
+
+    def bell(q, n):
+        """The bell: its canals a step dark down it, a glassy arc lit over its front, a step lit round its crown (the
+        star's halo inside it), its lower rim a step dark."""
+        loc = (q - C) @ bm
+        ang = np.arctan2(loc[:, 1], loc[:, 0])
+        canal = ((ang / math.tau * bl.canals) % 1.0) < 0.12
+        zz = loc[:, 2] / H
+        halo = (zz > 0.55) & (np.hypot(loc[:, 0], loc[:, 1]) < R * 0.55)
+        arc = (np.abs(np.hypot(loc[:, 0] - R * 0.15, loc[:, 1] + R * 0.2) - R * 0.62) < 0.35) & (zz > 0.2) & (loc[:, 0] > 0.0)
+        low = zz < 0.0
+        bias = np.where(arc, 2, np.where(halo, 1, np.where(canal | low, -1, 0)))
+        return np.full(len(q), m.bell, dtype=object), bias.astype(np.int16)
+
+    P.add(E(C, (R, R, H), m.bell, "bell", bm, bell, clip=lambda qs, c_=C, b_=bm: ((qs - c_) @ b_)[:, 2] > cut))
+    rr = R * math.sqrt(max(0.0, 1.0 - bl.cut ** 2))
+    P.add(E(C + bm @ v3(0.0, 0.0, cut + 0.05), (rr * 0.97, rr * 0.97, 0.3), m.bell, "under", bm, line=False))
+    # The frill: magenta scallops round the rim, swaying.
+    for k in range(p.frill):
+        ang = math.radians(k * 360.0 / p.frill + f * 6.0)
+        q = C + bm @ v3(math.cos(ang) * rr * 0.98, math.sin(ang) * rr * 0.98, cut - 0.35 - 0.15 * math.sin(f + k))
+        P.add(S(q, 0.75, m.frill, "frill", line=False))
+    # The tentacles and the oral arms: hanging from under the bell, swaying; streaming back as it swims; curled up and
+    # forward in the tell; lashed forward in the sting.
+    fwd = bm @ v3(1.0, 0.0, 0.0)
+    fwd = fwd / float(np.linalg.norm(fwd))
+    left = v3(0.0, 1.0, 0.0)
+    ph = f / 6.0 * math.tau if action == "idle" else f * 0.9
+    tips = []
+    tn = p.tentacles
+    for k in range(tn.n):
+        ang = math.radians(45.0 + k * 360.0 / tn.n)
+        root = C + bm @ v3(math.cos(ang) * rr * tn.ring, math.sin(ang) * rr * tn.ring, cut - 0.2)
+        front = math.cos(ang)
+
+        def heading(t, front=front):
+            h = -90.0 - 40.0 * trail * t + curl * (60.0 + 150.0 * t) * (0.7 + 0.3 * front) + lash * (95.0 * t ** 0.6)
+            h -= sag * 20.0 * t
+            return h
+
+        ln = tn.length * (1.0 - 0.25 * curl) * (1.0 - 0.6 * drop * min(1.0, f / 4.0) if action == "death" else 1.0)
+        pts = _strand(P, root, ln, tn.segs, tn.r, m.tentacle, "tentacle%d" % k, heading, 1.2 + 0.8 * (1.0 - curl),
+                      ph + k * 1.6, (fwd, left))
+        tips.append(pts[-1])
+        if star > 0.2 and action != "death":
+            for j in range(2, len(pts), 2):
+                if (j + f + k) % 3 == 0:
+                    P.glow.append((pts[j] + v3(0.0, 0.0, 0.2), M.STAR_W if (j + f) % 2 else M.STAR_G))
+    am = p.arms
+    for k in range(am.n):
+        side = 1.0 if k else -1.0
+        root = C + bm @ v3(0.3, side * 0.9, cut - 0.25)
+
+        def heading(t, side=side):
+            return -90.0 - 30.0 * trail * t + curl * 80.0 * t + lash * 50.0 * t
+
+        _strand(P, root, am.length * (1.0 - 0.3 * sag), am.segs, am.r, m.frill, "arm%d" % k, heading, 2.2, ph * 1.2 + k * 2.0, (fwd, left),
+                line=False)
+    # The star in its bell: a pale-gold star of light over its crown's front, flaring in the tell (rays), dim when struck,
+    # going out as it dies.
+    sc = C + bm @ v3(R * 0.2, 0.0, H * 1.02)
+    if star > 0.05:
+        # Seen through the crown from every side: light laid over it, a centre and five points.
+        P.eye(sc, M.STAR_W if star >= 1.0 else M.STAR_G)
+        P.glow.append((sc, M.STAR_W if star >= 1.0 else M.STAR_G))
+        g, o = (M.STAR_G, M.STAR_O) if star >= 0.6 else (M.STAR_DIM, M.STAR_DIM)
+        for d, col in (((0.0, 0.45, 0.0), g), ((0.0, -0.45, 0.0), g), ((0.0, 0.0, 0.5), g), ((0.0, 0.0, -0.45), g),
+                       ((0.0, 0.9, 0.1), o), ((0.0, -0.9, 0.1), o), ((0.0, 0.0, 1.0), o), ((0.0, 0.55, -0.8), o), ((0.0, -0.55, -0.8), o)):
+            P.glow.append((sc + v3(*d), col))
+        if star >= 1.5:
+            for d in ((0.0, 1.5, 0.15), (0.0, -1.5, 0.15), (0.0, 0.0, 1.6), (0.0, 0.9, -1.3), (0.0, -0.9, -1.3)):
+                P.glow.append((sc + v3(*d), M.STAR_W))
+    # The double ring of star glow opening round it in the tell.
+    if ring > 0.0:
+        for j, (rad, col) in enumerate(((R + 1.6 + 2.4 * ring, M.GHOST_GLOW_HI), (R + 3.2 + 3.4 * ring, M.GHOST_GLOW))):
+            n = 22 + 6 * j
+            for k in range(n):
+                ang = math.radians(k * 360.0 / n + f * 9.0 * (1 if j else -1))
+                if (k + j) % 4 == 3:
+                    continue
+                P.glow.append((C + v3(math.cos(ang) * rad, math.sin(ang) * rad, math.sin(ang) * rad * 0.3 + 0.4), col))
+    # The sting: sparks bursting at the tentacles' tips.
+    if f in st.get("sting", ()):
+        for tip in tips:
+            for k in range(6):
+                ang = math.radians(k * 60.0 + f * 25.0)
+                rr2 = 0.9 + 0.7 * (f - 1)
+                P.glow.append((tip + v3(math.cos(ang) * rr2, math.sin(ang) * rr2, 0.5 * math.sin(ang)), M.STAR_W if k % 2 else M.SPARK))
+    d = B.pick("dissolve", action, f)
+    if d > 0.0:
+        P.dissolve = d
+        P.dissolve_col = M.STAR_V
     return P

@@ -344,13 +344,8 @@ def build():
                                                   {"below": 0.12, "action": "self_detonate", "windup": 3.0, "radius": 280, "damage": 0.6}],
             first_defeat=["comet_tail_flame"]),
         # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md) · Phase A: the Drifting Shoals.
-        mob("star_jellyfish", (82, 87), "normal", "star", "lantern", [d("jelly_silk", 0.45), d("star_shard", 0.4, (1, 2)), d("star_lotus", 0.05)],
-            [atk("star_sting", 0.6, 90, 1.2, depth=40, status={"id": "confusion", "chance": 0.25, "power": 1.0, "duration_s": 2}),
-             atk("spark_trail", 0.8, 260, 1.05, damage_type="qi", projectile={"speed": 320, "art": "qi_arc"})],
-            ai="flyer_ranged", speed=70, flying=True, width=28, height=40),
-        mob("comet_sparrow", (82, 87), "normal", "fire", "lantern", [d("comet_plume", 0.45), d("star_shard", 0.4, (1, 2))],
-            [atk("comet_dive", 0.5, 110, 1.3, dash=160, status={"id": "burn", "chance": 0.3, "power": 0.01, "duration_s": 3})],
-            ai="flyer", speed=160, flying=True, pack=True, width=22, height=22, tameable=True),
+        spec_row("star_jellyfish"),
+        spec_row("comet_sparrow"),
         # v1.2 · Phase B: Blackmast Haven and the Wyrmnest Isles.
         spec_row("pirate_gunner"),
         mob("nest_guardian", (85, 93), "normal", "earth", "lantern", [d("guardian_scale", 0.45), d("star_shard", 0.6, (1, 3))],

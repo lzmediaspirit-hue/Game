@@ -611,10 +611,28 @@ RAMPS.update({
     "vc_void": _r("06030C", "0E0819", "140B22", "1C1030", "2A1648"),
     "vc_nebula": _r("1A0E30", "2A1648", "5A2A82", "8A3F96", "B868B8"),
     "vc_eye": _s("fcf8ff", "e4d6ff", "c4a6ff", "8a6cd0"),
+    # comet sparrow: russet feathers, dark flight feathers, gold (its tips, brow and beak), a white-hot breast; its comet's
+    # fire (orange, magenta, violet: light, drawn flat) and the smoke it gutters into
+    "cs_feather": _s("e0935a", "a8532e", "763627", "4b2027"),
+    "cs_flight": _s("9a5236", "71352a", "522427", "381a24"),
+    "cs_gold": _s("fff2ae", "f4c24e", "cf8a34", "8e4f2a"),
+    "cs_breast": _s("ffffff", "fff3d2", "ffd690", "f29a4c"),
+    "cs_flame_or": _r("D8562C", "F5832F", "FFA23E", "FFBD4F", "FFE08A"),
+    "cs_flame_mg": _r("A8347E", "C83E88", "E2559A", "F2649C", "FF8EBE"),
+    "cs_flame_vi": _r("4E3488", "6F48BA", "8A5CD2", "9D6EE2", "B896F0"),
+    "cs_smoke": _s("b8aecb", "8a7fa3", "655c80", "463f5e"),
+    # star jellyfish: the indigo-violet bell, its magenta frill and oral arms, its pale star-lit tentacles
+    "sj_bell": _s("b9a6f2", "7b63d2", "4f3ea2", "2f256c"),
+    "sj_frill": _s("ffc9ef", "e47cca", "a94b9f", "6b2d70"),
+    "sj_tentacle": _s("f1f4ff", "c3cbf4", "8e93d8", "5f5cab"),
 })
 PROPS.update({
     "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
     "vc_void": {"weight": 1.6}, "vc_nebula": {"weight": 1.4}, "vc_eye": {"hi": True, "glossy": True, "weight": 1.8},
+    "cs_feather": {"hi": True}, "cs_flight": {"hi": True}, "cs_gold": {"hi": True, "glossy": True, "weight": 1.4},
+    "cs_breast": {"hi": True, "weight": 1.2}, "cs_flame_or": {"weight": 1.2}, "cs_flame_mg": {"weight": 1.1}, "cs_flame_vi": {},
+    "cs_smoke": {"hi": True},
+    "sj_bell": {"hi": True, "glossy": True}, "sj_frill": {"hi": True, "weight": 1.3}, "sj_tentacle": {"hi": True, "thin": True, "weight": 1.2},
 })
 # The void crab's stars and the rift its claw tears (white, violet, deep).
 STAR_W = c("FFFFFF")
@@ -622,6 +640,11 @@ STAR_V = c("D8C8FF")
 STAR_C = c("A8ECFF")
 STAR_G = c("FFE6A1")
 STAR_DIM = c("6A5E8C")
+STAR_O = c("F2BF55")
 RIFT_W = c("FFFFFF")
 RIFT_V = c("B58CFF")
 RIFT_D = c("5A2AA8", 200)
+# The comet sparrow's dark eye, its comet's white-hot core and its sparks.
+SPARROW_EYE = c("1A0D14")
+COMET_CORE = c("FFFBE6")
+COMET_SPARK = c("FFD79A", 220)
