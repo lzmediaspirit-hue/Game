@@ -71,6 +71,9 @@ OR_TUMBLING_STAIR = room(
              "crate_4": "verge.n@63"},
     props=plates(30, 21) + stones((4, 19), (16, 20), (42, 20), (21, 7), (63, 7), (67, 24), (45, 25), (9, 25)),
     flora={"cliff": dict(density=0.45), "brink": dict(density=0.45), "plaza": [], "density": 0.28},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's lightened air over the middle of the room, live while
+    # the switch in its ring holds it (its volume's span east to west, the room's whole depth).
+    traverse=[("low_gravity", "lowg_stair", dict(rect=(24, 3, 27, 25)))],
     foes="auto")
 
 
@@ -99,6 +102,9 @@ OR_ORBIT_GARDEN = room(
           + stones((3, 19), (12, 20), (38, 6), (38, 20), (66, 7), (68, 19), (31, 24), (8, 25)),
     flora={"garden": {"kinds": ["tree_plum", "bush_azalea", "tall_grass", "ferns", "crystal_cluster", "tree_plum"], "density": 0.7},
            "cliff": dict(density=0.45), "brink": dict(density=0.45), "plaza": [], "density": 0.28},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's lightened air over the east of the garden, the raised
+    # floor and the second switch's ring, live while that switch holds it.
+    traverse=[("low_gravity", "lowg_garden", dict(rect=(49, 3, 17, 25)))],
     foes="auto")
 
 
@@ -153,6 +159,11 @@ OR_INVERTED_HALL = room(
     props=plates(15, 19, 1) + plates(44, 19, 1) + stones((23, 5), (28, 18), (48, 5), (5, 18))
           + [("warden_lamp", 2, 9), ("warden_lamp", 2, 15), ("crystal_cluster", 53, 2), ("crystal_cluster", 1, 1)],
     flora={"density": 0.2},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's two volumes of light air, the west half's and the east
+    # half's (the high gallery's), each live while its own switch holds it; with the east one live a standing jump
+    # climbs onto the high gallery, as the side view's does.
+    traverse=[("low_gravity", "lowg_hall_a", dict(rect=(9, 1, 19, 22))),
+              ("low_gravity", "lowg_hall_b", dict(rect=(28, 1, 22, 22)))],
     foes="auto")
 
 ROOMS = [OR_TUMBLING_STAIR, OR_ORBIT_GARDEN, OR_GOLEM_FOUNDRY, OR_INVERTED_HALL]

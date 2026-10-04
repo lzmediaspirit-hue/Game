@@ -53,7 +53,10 @@ extends "res://tests/prologue_run.gd"
 ##  35. the monastery's rotten floor stays gone over a body under it, and comes back once it steps out;
 ##  36. the Tunnels' pits open beside their planks: the spikes strike, the planks do not;
 ##  37. the wind pushes harder by a drop on a diagonal;
-##  38. a flier high over its floor is drawn over the crowns south of it.
+##  38. a flier high over its floor is drawn over the crowns south of it;
+##  39. the star field's end (R9's rooms): the Orbit Ruins' low-gravity rows under their switches, the Inverted Hall's
+##      switch turned with its own interact and its high gallery climbed in the light air; the Nebula Leviathan crossing
+##      its lagoon; the starlit areas, the Wardens' lamps lit, the void under the brinks, star-water, the crossing's deck.
 ## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose] [-- --only=<part>]
 
 const BEFORE := ["prologue", "main"]
@@ -82,7 +85,7 @@ func _main() -> void:
 			_peaks, _swim, _shallows, _chases,
 			# T3: Act II onward, and T2's leftovers
 			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _late_light, _sky_sea_leftovers, _swim_stroke,
-			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals, _flier_over_crowns]:
+			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals, _flier_over_crowns, _star_field]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -1345,7 +1348,8 @@ func _no_flight() -> void:
 	if not Game.combat.knows_art(c(), "glide"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "falling_leaf_glide"}], "test")
 	if not Unlocks.is_unlocked(c().id, "flight"): Unlocks.force_unlock(c().id, "flight")
 	var m := motor()
-	for rid in ["gc_windbridge", "lf_old_ma_store", "mh_tunnels"]:
+	# R9's no-flight rooms beside them: the Inverted Hall, the Leviathan's Maw and the Starsea's crossing.
+	for rid in ["gc_windbridge", "lf_old_ma_store", "mh_tunnels", "or_inverted_hall", "nd_leviathans_maw", "ss_starsea_crossing"]:
 		check(enter(rid), "to %s on the grid" % rid)
 		_whole()
 		w.player.jump()
@@ -1420,7 +1424,8 @@ func _low_gravity() -> void:
 ## (the context's interact). While a route's crossing deck or its far port has no layout, the prototype's gate holds the
 ## dock as it holds a way (the side view is never entered); with both laid out the voyage plays on the grid: the
 ## crossing's event for the vessel's time, its foes come aboard onto the deck's floors, and the port is made at the far
-## pier.
+## pier. With R9's crossings laid out, the gate's case is played with R9's rooms stood off the grid; then all four routes
+## are sailed.
 func _starsea() -> void:
 	Unlocks.force_unlock(c().id, "starsea")
 	for k in ["cloud_skiff", "star_chart_wreck", "star_chart_lantern"]:
@@ -1438,7 +1443,17 @@ func _starsea() -> void:
 		var pr := Game.submit({"type": "interact", "object": str(row[0])})
 		check(pr.get("ok", false) and str(pr.get("open_page", "")) == str(row[1]), "the yard's %s opens its page (%s) from the grid" % [row[0], str(pr)])
 	var foes_seen := false
-	for row in [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]:
+	# With R9's rooms laid out every crossing and port is on the grid: the gate's own case is checked with the last
+	# batch stood off it (tests/lib/off_grid.gd, as the world was before R9), the yard's dock refused, then all four sailed.
+	var off_grid = preload("res://tests/lib/off_grid.gd")
+	var stood_off: Array = off_grid.stand_off()
+	var rows: Array = [["ae_shipyard", "dock_cloudgate"]] if not stood_off.is_empty() else []
+	rows += [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]
+	for i in rows.size():
+		var row: Array = rows[i]
+		if not stood_off.is_empty() and i > 0:
+			off_grid.restore(stood_off)
+			stood_off = []
 		var rid := str(row[0])
 		check(enter(rid), "to %s's Starsea dock on the grid" % rid)
 		var dock: Dictionary = Game.room_rt.object_def(str(row[1]))
@@ -1707,3 +1722,111 @@ func _flier_over_crowns() -> void:
 	frames(2)
 	w.player.sync(DT)
 	check(m.grounded and absf(w.player.position.y - grid.sort_key(m.pos, m.z)) < 0.01, "landed, it is keyed at its feet again")
+
+# ------------------------------------------------------------------ 39: the star field's end (R9's rooms)
+## R9's rooms on the grid: the Orbit Ruins' four low-gravity rows, each the side view's volume under its own jade
+## switch; in the Inverted Hall the east switch turned with its own interact, so a standing jump at the high gallery's
+## foot climbs onto it, which it cannot in the heavy air; the Nebula Leviathan (a flier, as in the side view) crosses its
+## lagoon's water to a body on an islet; and the star field's light: starlit at noon, the Wardens' lamps and caged stars
+## lit, the islands' brinks over the void, the nebula's and the Starsea's water star-water, the crossing's streaks.
+func _star_field() -> void:
+	for row in [["or_tumbling_stair", "west", ["lowg_stair"]], ["or_orbit_garden", "west", ["lowg_garden"]],
+			["or_inverted_hall", "entry", ["lowg_hall_a", "lowg_hall_b"]]]:
+		check(enter(str(row[0]), str(row[1])), "to %s on the grid" % row[0])
+		var tr := trav()
+		var ids: Array = tr.lowgs.map(func(g): return str(g.id))
+		var sw: Array = tr.lowgs.map(func(g): return str(g.switch))
+		var objs: Array = sw.filter(func(s): return not Game.room_rt.object_def(s).is_empty())
+		check(ids == row[2] and tr.lowgs.all(func(g): return bool(g.off) and absf(float(g.gravity) - 0.45) < 0.001) and objs.size() == sw.size(),
+			"%s: its low-gravity rows %s, each off under its own jade switch (%s)" % [row[0], str(ids), str(sw)])
+		if str(row[0]) == "or_tumbling_stair":
+			check(w.life.vista.void_sky and w.life.vista.edges.any(func(e): return str(e.kind) == "cloud_sea"),
+				"the Tumbling Stair's brink falls into the starry void (its cloud_sea edge, in a void area)")
+	# The Inverted Hall: the high gallery three levels up the back wall (31-41, 1-4), its stair at 35-37. At its foot
+	# west of the stair a standing jump pressed north falls back in the heavy air and climbs onto it in the light.
+	var m := motor()
+	var tr2 := trav()
+	var leap := func() -> float:
+		_whole()
+		stand(Vector2(32, 5))
+		w.player.jump()
+		frames(int(1.8 / DT), Vector2.UP, false, func(): return m.grounded and m.vz <= 0.0 and m.z > 1.0)
+		frames(int(0.3 / DT))
+		return m.z
+	var heavy: float = leap.call()
+	var o: Dictionary = Game.room_rt.object_def("switch_hall_b")
+	var oat := Vector2(float(o.at[0]), float(o.at[1]))
+	var sp := Game.room_rt.topdown.spot_near(oat, float(o.get("alt", 0.0)), oat)
+	stand(Vector2(sp.x / TopdownRoom.TILE - 0.5, sp.y / TopdownRoom.TILE - 0.5))
+	var n0 := int(systems.get("gravity_switch", 0))
+	var r := Game.submit({"type": "interact", "object": "switch_hall_b"})
+	GameEvents.flush()
+	check(r.get("ok", false) and absf(tr2.gravity_at(Vector2(32.5, 5.5) * TopdownRoom.TILE) - 0.45) < 0.001 and int(systems.get("gravity_switch", 0)) == n0 + 1,
+		"the Inverted Hall's east switch turned from the grid with its own interact: the air over the hall's east half is light (%s)" % str(r))
+	var light: float = leap.call()
+	check(heavy < TopdownRoom.LEVEL * 3.0 - 0.5 and absf(light - TopdownRoom.LEVEL * 3.0) < 0.5,
+		"a standing jump at the high gallery's foot falls back in the heavy air (z %.0f) and climbs onto it in the light (z %.0f)" % [heavy, light])
+	stand(Vector2(sp.x / TopdownRoom.TILE - 0.5, sp.y / TopdownRoom.TILE - 0.5))
+	Game.submit({"type": "interact", "object": "switch_hall_b"})
+	GameEvents.flush()
+	check(absf(tr2.gravity_at(Vector2(32.5, 5.5) * TopdownRoom.TILE) - 1.0) < 0.001, "turned back, the air is heavy again")
+	# The Leviathan's Maw: the Leviathan (the side view's flier) goes straight over its lagoon's water.
+	if not Unlocks.is_unlocked(c().id, "field_bosses"): Unlocks.force_unlock(c().id, "field_bosses")   # a test shortcut
+	check(enter("nd_leviathans_maw", "west"), "to the Leviathan's Maw on the grid")
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var boss: EnemyState = null
+	frames(int(10.0 / DT), Vector2.ZERO, false, func(): return Game.room_rt.living_enemies().any(func(e): return e.def_id == "nebula_leviathan"))
+	for e in Game.room_rt.living_enemies(): if e.def_id == "nebula_leviathan": boss = e
+	check(boss != null, "the Nebula Leviathan is in its lagoon")
+	if boss != null:
+		# It turns on the body standing on the shoal; then, set over the lagoon (a test shortcut, as `stand` is) with the
+		# body veiled from it, it gives up and flies home to the shoal straight over the water, frame by frame.
+		Game.combat.cure_status(c().id, "spawn_protection")   # the room's welcome, which no foe sees through
+		stand(Vector2(44, 12))
+		frames(int(1.0 / DT), Vector2.ZERO, false, func():
+			_whole()
+			c().pools.invulnerable = 5.0   # a test shortcut: its blows are not what is watched
+			return str(boss.ai.state) != "idle")
+		var fought := str(boss.ai.state) != "idle"
+		stand(Vector2(8, 13))   # back along the causeway, out of its reach
+		Game.combat.apply_status(c().id, "veiled", 30.0, 1.0)
+		boss.plane = Vector2(47.5, 22.5) * TopdownRoom.TILE   # over the lagoon south of the shoal
+		var trail := {"wet": 0, "step": 0.0, "last": boss.plane}
+		var home := frames(int(10.0 / DT), Vector2.ZERO, false, func():
+			_whole()
+			var bc := TopdownRoom.cell_of(boss.plane)
+			if grid.inside(bc.x, bc.y) and grid.is_water(bc.x, bc.y): trail.wet = int(trail.wet) + 1
+			trail.step = maxf(float(trail.step), boss.plane.distance_to(trail.last))
+			trail.last = boss.plane
+			return boss.plane.distance_to(boss.spawn_point) < 12.0)
+		c().pools.invulnerable = 0.0
+		Game.combat.cure_status(c().id, "veiled")
+		check(fought and int(trail.wet) * DT > 1.0 and float(trail.step) < 4.0 and boss.plane.distance_to(boss.spawn_point) < 12.0,
+			"the Leviathan (a flier, as in the side view) flies over its lagoon's water to its shoal: %.1f s over the water, %.1f s in all, never more than %.1f units a frame" % [int(trail.wet) * DT, home * DT, trail.step])
+	# The star field's light and water.
+	for row in [["wc_citadel_gate", "night_story", true], ["or_tumbling_stair", "night_story", true], ["ar_war_camp", "night_story", true],
+			["nd_nebula_verge", "night_story", true], ["ss_starsea_crossing", "night_story", true], ["lt_wick_gate", "lamplit", false]]:
+		var def: Dictionary = ContentDB.room(str(row[0]))
+		check(str(TopdownLight.look(def, 0.375).hour) == str(row[1]) and bool(TopdownLight.area_of(def).get("void", false)) == bool(row[2]),
+			"%s at noon: %s (%s), %s" % [row[0], row[1], TopdownLight.look(def, 0.375).hour, "past the star field's edge" if row[2] else "lamp-lit inside"])
+	check(enter("wc_citadel_gate"), "to the Citadel Gate on the grid")
+	var lamps: int = Game.room_rt.topdown.props.filter(func(p): return str(p.kind) in ["warden_lamp", "lantern_cage"]).size()
+	var lit: int = w.atmosphere.lights.filter(func(l): return str(l[0]) == "star").size()
+	check(lamps > 0 and lit == lamps, "the Citadel Gate's %d Warden lamps and caged stars each give their starlight (%d)" % [lamps, lit])
+	var star_water := func() -> Array:
+		var out := [null, null]
+		for n in w.sorted.get_children():
+			if n.is_queued_for_deletion(): continue   # the last room's, let go at the frame's end
+			if n is TopdownTraverseView.StarWaterView: out[0] = n
+			if n is TopdownTraverseView.VoyageView: out[1] = n
+		return out
+	check(enter("nd_nebula_verge"), "to the Nebula Verge on the grid")
+	var nv: Array = star_water.call()
+	check(nv[0] != null and not nv[0].runs.is_empty() and nv[0].stars.size() > 10 and nv[1] == null,
+		"the nebula's water is star-water: its wash over %d runs, %d stars in it" % [nv[0].runs.size() if nv[0] else 0, nv[0].stars.size() if nv[0] else 0])
+	check(enter("ss_starsea_crossing"), "to the Starsea crossing's deck on the grid")
+	var sv: Array = star_water.call()
+	check(sv[0] != null and sv[1] != null and not sv[1].streaks.is_empty() and w.life.vista.void_sky,
+		"the crossing's water streams past the hull (%d streaks) and is star-water, the Starsea glinting all round" % [sv[1].streaks.size() if sv[1] else 0])
+	check(_falls_pool(), "back to the Falls Pool")
+	check(star_water.call()[0] == null and not w.life.vista.void_sky, "the Falls Pool's water is the river's own")
