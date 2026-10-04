@@ -296,14 +296,7 @@ def build():
         spec_row("sandstorm_scorpion"),
         spec_row("dune_worm"),
         spec_row("terracotta_warden"),
-        mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
-                                                                d("sunglass_ore", 1.0, (3, 5))],
-            [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True, shatter=True),   # S47: breaks a natal weapon
-             atk("sand_crescent", 0.9, 380, 1.2, damage_type="qi", projectile={"speed": 460, "art": "sand_crescent"}),
-             atk("sun_flare", 1.1, 260, 1.5, damage_type="qi", depth=90, status={"id": "burn", "chance": 0.5, "power": 0.01, "duration_s": 4})],
-            ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, hp_mult=0.35, attack_mult=0.8,
-            phases=[{"below": 0.6, "action": "summon", "summon": "terracotta_warden", "summon_level": 74},
-                    {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}], first_defeat=["sunscar_throne_ember"]),
+        spec_row("tomb_king"),
         spec_row("canyon_brigand"),
         # Act II · Phase E: the Skyport Wreck and the Starsea.
         mob("starsea_pirate", (79, 81), "normal", "metal", "azure", [d("comet_iron", 0.4), d("storm_shard", 0.55, (1, 2)),

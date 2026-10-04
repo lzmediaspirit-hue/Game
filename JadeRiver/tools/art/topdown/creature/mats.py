@@ -705,6 +705,16 @@ RAMPS.update({
     "dw_sand": _s("fff2c8", "eccb8c", "c69c6c", "8e6a5c"),
     "dw_glass": _s("ffffff", "e2f6f3", "9ed4d9", "5a98ad"),
     "dw_maw": _s("e2646e", "a8283e", "6a1432", "3a0822"),
+    # the Tomb King: old gold, faded vermilion, robe umber (his hood, the slots of his mask, his glaive's shaft), sand,
+    # desert glass, jade; his body's parchment skin and white hair (the body reviewed bare)
+    "tk_gold": _s("ffe7a3", "d8a646", "9a6334", "5a3638"),
+    "tk_vermilion": _s("df846a", "ae4a3d", "782c3b", "481d36"),
+    "tk_umber": _s("8b6b5a", "5e4339", "3f2b31", "291a2a"),
+    "tk_sand": _s("fbeabb", "e1bf84", "b98f63", "87645b"),
+    "tk_glass": _s("ffffff", "d9f5f3", "9dd3dc", "6697b2"),
+    "tk_jade": _s("b6f0d4", "4fb394", "2d7a6c", "1b4a4b"),
+    "tk_skin": _s("e3c9a6", "a8896c", "73584a", "4a3638"),
+    "tk_hair": _s("fbf8f0", "d8d2c4", "a39b8c", "6c6458"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
@@ -738,6 +748,9 @@ PROPS.update({
     "ssc_grain": {"hi": True, "weight": 1.1},
     "dw_armour": {"hi": True}, "dw_belly": {"hi": True, "weight": 1.2}, "dw_crust": {"hi": True, "weight": 1.2}, "dw_sand": {"hi": True},
     "dw_glass": {"hi": True, "glossy": True, "weight": 1.6}, "dw_maw": {"weight": 1.4},
+    "tk_gold": {"hi": True, "glossy": True, "weight": 1.3}, "tk_vermilion": {"hi": True}, "tk_umber": {"hi": True, "weight": 1.2},
+    "tk_sand": {"hi": True}, "tk_glass": {"hi": True, "glossy": True, "weight": 1.5}, "tk_jade": {"hi": True, "glossy": True, "weight": 1.5},
+    "tk_skin": {"hi": True}, "tk_hair": {"hi": True, "weight": 1.2},
 })
 # The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
 SW_EYE = c("7FD4FF")
@@ -813,3 +826,13 @@ DW_GLINT = c("BFFFFF")
 DW_TOOTH = c("F2FFFC")
 DW_SAND = c("ECCB8C", 210)
 DW_SAND_DIM = c("C69C6C", 160)
+# The Tomb King's molten amber eye slits (dim, and their glow), the glint on his gold and glass, his crown's rays and halo
+# as it blazes, the sand round him.
+TK_EYE = c("FFF6C8")
+TK_EYE_DIM = c("F08B2C")
+TK_EYE_GLOW = c("FFC14F", 150)
+TK_GLINT = c("FFFFFF")
+TK_RAY = c("FFC14F", 200)
+TK_HALO = c("FFE7A3", 140)
+TK_SAND = c("E1BF84", 210)
+TK_SAND_DIM = c("B98F63", 160)

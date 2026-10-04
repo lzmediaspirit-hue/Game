@@ -588,9 +588,10 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     elif p.paint.kind in M3_PAINTS:
         grain = limb = M3_PAINTS[p.paint.kind](m, hip, tm, p.paint, int(B.opts.get("seed", 0)))
 
-    # Legs: a stride in the march, planted apart otherwise; knees folding as it sinks.
+    # Legs: a stride in the march, planted apart otherwise; knees folding as it sinks (M3: none, `legs.none`: the Tomb
+    # King rises out of a bell of sand).
     g = p.legs
-    for s in (1, -1):
+    for s in ((1, -1) if not g.get("none") else ()):
         ph = f / 8.0 * math.tau + (0.0 if s > 0 else math.pi)
         stride = st.stride * math.sin(ph) if march else 0.0
         lift = st.lift * max(0.0, math.cos(ph)) if march else 0.0
@@ -713,6 +714,11 @@ def _finish(P, B, action: str, f: int, step: float) -> None:
     crumble = B.pick("crumble", action, f)
     if crumble > 0.0:
         collapse(P, crumble, int(B.opts.get("seed", 0)))
+    if B.pick("pour", action, f) > 0.0:
+        # M3: a body of sand Qi pouring away (the Tomb King's): its heap all sand, fading.
+        for part in P.parts:
+            part.mat, part.paint = B.mats.sand, None
+        P.dissolve, P.dissolve_col = B.pick("fade", action, f), M.RAMPS[B.mats.sand][4]
     P.parts += getattr(P, "after", [])          # M3: what lies beside the heap, not in it (a dropped polearm)
     sq = st.get("squash", {}).get(f)
     if sq is not None:
@@ -1908,3 +1914,311 @@ STYLES.update({
     # Beaten, it comes apart into a heap (kit.collapse), its glow dark from the third frame; its polearm drops beside it.
     "pole_crumble": dict(IMP_STYLES["crumble"], right=_POLE_REST["right"] * 2, left=_POLE_REST["left"] * 2),
 })
+
+
+# ================================================================================================= the Tomb King (M3)
+# The Tomb King of Sunscar (`king`, a person of size): an ancient sage-king who sealed himself in his tomb and was kept by
+# sand Qi, about 1.85 times a person's height. His body (`opts.bare`, reviewed first): a gaunt old king, parchment skin,
+# long white hair and a drooping moustache, amber eyes burning; no legs: below his belt he rises out of a slowly swirling
+# bell of sand (`bell`) that pools on the floor, so he half-glides. Dressed (`regalia`): a faded vermilion robe over the
+# bell (its ragged hem breaking into sand), a gold lamellar tasset before it, a gold belt with a jade plaque, a gilded
+# lamellar cuirass with a heart mirror of desert glass, layered gold pauldrons over wide vermilion sleeves, gold
+# gauntlets; a dark hood and its drape; a golden death mask over his face (molten amber eye slits in dark slots); the sun
+# crown on his brow (gold spikes radiating round a jade disc); his crescent glaive (`held` kind "glaive": a long umber
+# shaft shod in gold, a great crescent blade of clear desert glass).
+#
+# Styles: idle `king_stand` (a regal sway, the glaive planted at his side), walk `king_glide`, windup `glaive_raise` (the
+# glaive raised high overhead in both hands, the crown blazing, the sand gathering into a whirl round him: held), attack
+# `glaive_sweep` (a wide sweep on both sides that flings a crescent of sand: the blow on frame 1), hurt `king_recoil` (a
+# crack flickering across his mask), death `pour_away` (he sinks onto his glaive, slumps and pours away as sand, his crown
+# and glaive left lying on the heap). Channels besides the body's: `glow` (the crown's blaze), `whirl` (the sand gathering
+# round him), `crescent` (the sand crescent flung by the sweep), `crack` (the mask's), `pour` (his body gone to sand),
+# `fade`; `one_hand` (a style: the glaive planted in his right hand, else held in both).
+_KING_REST = {"right": ((2.0, -4.3, -1.2),), "left": ((2.4, 2.4, -3.6),)}
+STYLES.update({
+    "king_stand": {"sway_amp": 0.12, "one_hand": True, "right": _KING_REST["right"] * 6, "left": _KING_REST["left"] * 6},
+    "king_glide": {"one_hand": True, "glide": True, "lean": (5.0,) * 8, "sink": (0.0, 0.15, 0.3, 0.15, 0.0, -0.15, -0.3, -0.15),
+                   "right": _KING_REST["right"] * 8, "left": _KING_REST["left"] * 8},
+    "glaive_raise": {"lean": (-3.0, -6.0, -8.0, -8.0), "sink": (0.2, 0.3, 0.3, 0.3), "glow": (0.4, 0.8, 1.0, 1.0), "whirl": (0.3, 0.6, 0.9, 1.0),
+                     "glare": True,
+                     "right": ((1.4, -3.6, 2.4), (0.4, -3.6, 4.4), (-0.4, -3.4, 5.8), (-0.6, -3.3, 6.2)),
+                     "left": ((2.2, 1.0, 0.4), (1.6, 0.0, 2.4), (1.0, -0.8, 3.8), (0.8, -1.0, 4.2))},
+    "glaive_sweep": {"lean": (2.0, 12.0, 12.0, 8.0, 3.0, 0.0), "twist": (-30.0, 34.0, 40.0, 30.0, 12.0, 0.0), "step": (0.2, 1.2, 1.4, 1.0, 0.4, 0.1),
+                     "sink": (0.4, 0.8, 0.8, 0.6, 0.3, 0.1), "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "glare": True,
+                     "crescent": (0.0, 1.0, 0.6, 0.25, 0.0, 0.0), "squash": {1: (1.02, 1.0, 0.98)},
+                     "right": ((-0.6, -3.3, 6.2), (5.6, 2.0, -2.2), (5.0, 3.4, -2.6), (4.0, 1.4, -2.2), (3.0, -1.8, -1.0), (2.0, -4.3, -1.2)),
+                     "left": ((0.8, -1.0, 4.2), (3.0, -0.4, -0.6), (2.6, 1.2, -1.2), (2.6, 0.4, -1.8), (2.4, 1.6, -2.8), (2.4, 2.4, -3.6))},
+    "king_recoil": {"lean": (-12.0, -6.0, -2.0), "twist": (8.0, -4.0, 0.0), "step": (-1.6, -0.9, -0.3), "droop": (-14.0, -4.0, 0.0),
+                    "crack": (1.0, 0.6, 0.0), "one_hand": True, "squint": True,
+                    "right": ((1.6, -4.6, -0.4), (1.8, -4.4, -0.8), (2.0, -4.3, -1.2)), "left": ((1.6, 3.4, -1.6), (2.0, 2.8, -2.8), (2.4, 2.4, -3.6))},
+    "pour_away": {"lean": (-4.0, 8.0, 16.0, 20.0, 20.0, 20.0, 20.0, 20.0), "sink": (0.0, 1.4, 3.0, 4.2, 4.6, 4.8, 4.8, 4.8),
+                  "droop": (0.0, 12.0, 22.0, 28.0, 28.0, 28.0, 28.0, 28.0), "crumble": (0.0, 0.0, 0.0, 0.3, 0.55, 0.8, 0.95, 1.0),
+                  "pour": (0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0), "fade": (0.0, 0.0, 0.0, 0.0, 0.15, 0.4, 0.65, 0.85),
+                  "crack": (0.6, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0), "one_hand": True, "dark_from": 3,
+                  "right": ((2.4, -4.0, -0.8), (3.0, -3.6, -1.2), (3.4, -3.2, -1.8), (3.6, -3.0, -2.2), (3.6, -3.0, -2.2), (3.6, -3.0, -2.2),
+                            (3.6, -3.0, -2.2), (3.6, -3.0, -2.2)),
+                  "left": ((2.0, 3.0, -2.6), (2.4, 3.4, -3.6), (2.6, 3.6, -4.4), (2.6, 3.8, -4.8), (2.6, 3.8, -4.8), (2.6, 3.8, -4.8),
+                           (2.6, 3.8, -4.8), (2.6, 3.8, -4.8))},
+})
+KING = {
+    "hip": 8.8,
+    "legs": dict(SENTINEL["legs"], none=True),
+    "trunk": [{"at": (0.0, 0.0, 0.6), "r": (2.2, 3.0, 1.8), "paint": True}, {"at": (0.0, 0.0, 2.7), "r": (1.9, 2.7, 1.25), "paint": True},
+              {"at": (0.2, 0.0, 5.2), "r": (2.5, 3.7, 2.7), "paint": True}],
+    "neck": ((0.3, 0.0, 7.8), 1.05),
+    "head": {"at": ((0.5, 0.0, 8.1), 2.1), "r": (1.95, 1.85, 2.15)},
+    "face": {"kind": "human", "eyes": (1.72, 0.68, 0.3), "brow": (0.35, 0.62, 0.22), "brow_tilt": -6.0, "nose": (1.6, 0.0, -0.2),
+             "mouth": (1.75, 0.45, -0.9), "ears": (-0.1, 1.78, 0.0), "hair": "loose", "glow": "amber"},
+    "arms": {"shoulder": (3.8, 6.6), "bones": (3.6, 3.4), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (1.15, 1.05), "elbow": None,
+             "lower": (1.05, 0.95), "wrap": None, "fist": (0.95, 0.9, 0.9), "guard": (2.6, 4.0, -4.0), "limp": (0.8, 4.6, -5.4, 0.3)},
+    "paint": {"kind": "clothes", "zones": [{"mat": "trim", "z": (2.0, 3.3)}, {"mat": "cuirass", "z": (3.3, 8.4), "front": -0.25},
+                                           {"mat": "robe", "folds": 1.2}]},
+    "dress": True,
+    "sleeves": {"r": (1.35, 2.2), "over": 0.6, "trim": True},
+    "bell": {"top": 0.4, "r": (2.7, 5.6), "bands": 3, "pool": 6.4},
+    "regalia": {"skirt": {"top": 1.6, "hem": -3.6, "r": (2.9, 3.9)}, "tasset": ((2.5, 0.0, -1.2), (0.45, 2.0, 2.4)),
+                "plaque": ((2.05, 0.0, 2.6), 0.55), "mirror": ((2.55, 0.0, 5.6), 0.85), "rows": (3.6, 7.6, 0.75),
+                "pauldrons": ((0.0, 3.9, 6.9), (1.9, 1.75, 1.15)), "hood": ((-0.45, 0.0, 0.25), (2.25, 2.2, 2.45), 0.85),
+                "drape": ((-1.4, 0.0, 6.6), (1.6, 2.2)), "mask": ((0.72, 0.0, -0.1), (1.5, 1.8, 2.05), 0.92),
+                "slots": (1.98, 0.68, 0.32), "crown": {"at": (0.75, 0.0, 2.25), "disc": 0.72, "spikes": 9, "len": 2.5, "band": 1.45}},
+    "held": {"kind": "glaive", "shaft": (5.6, 8.0), "r": 0.36, "blade": 3.4, "length": 24.0},
+}
+VARIANTS["king"] = {"parts": KING, "mats": {"body": "tk_skin", "limb": "tk_skin", "dark": "tk_umber", "joint": "tk_skin", "neck": "tk_skin",
+                                            "skin": "tk_skin", "hand": "tk_skin", "hair": "tk_hair", "cord": "tk_vermilion", "sash": "tk_vermilion",
+                                            "robe": "tk_vermilion", "trim": "tk_gold", "cuirass": "tk_gold", "sand": "tk_sand", "glass": "tk_glass",
+                                            "jade": "tk_jade", "shaft": "tk_umber", "hood": "tk_umber", "maw": "maw"},
+                    "motion": {"idle": "king_stand", "walk": "king_glide", "windup": "glaive_raise", "attack": "glaive_sweep",
+                               "hurt": "king_recoil", "death": "pour_away"}}
+
+
+def _bell(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: dict) -> None:
+    """M3, the Tomb King's lower body (his body's, drawn bare too): a bell of sand from below his belt to the floor,
+    swirling in helical bands, pooled round its foot, trailing a stream of sand behind him as he glides, gathering into a
+    whirl round him in his tell; it slumps and spreads as he sinks."""
+    bl, m, st = B.parts.bell, B.mats, B.style(action)
+    sink = B.pick("sink", action, f)
+    top = up((0.0, 0.0, bl.top))
+    bot = v3(hip[0] * 0.5, 0.0, 0.3)
+    spread = 1.0 + 0.12 * max(0.0, sink)
+    r0, r1 = bl.r[0], bl.r[1] * spread
+    spin = f * (0.9 if action in ("idle", "walk") else 1.6)
+    axis = (bot - top) / max(1e-6, float(np.linalg.norm(bot - top)))
+
+    def swirl(q, n):
+        rel = q - top
+        along = rel @ axis
+        ang = np.arctan2(rel[:, 1], rel[:, 0])
+        band = (((ang / math.tau) * bl.bands + along * 0.32 - spin * 0.12) % 1.0)
+        dark = band < 0.22
+        lit = (band > 0.5) & (band < 0.6)
+        return np.full(len(q), m.sand, dtype=object), np.where(dark, -1, np.where(lit, 1, 0)).astype(np.int16)
+
+    P.add(L(top, bot, r0, r1, m.sand, "bell", swirl, caps=False))
+    P.add(E(v3(bot[0], 0.0, 0.2), (bl.pool * spread, bl.pool * 0.92 * spread, 0.5), m.sand, "pool", None, swirl))
+    if st.get("glide"):
+        # The stream of sand trailing behind him along the floor.
+        for k in range(4):
+            P.add(E(v3(bot[0] - 5.4 - 1.7 * k, 0.5 * math.sin(f * 0.8 + k * 0.7), 0.15), (2.4 - 0.4 * k, 1.9 - 0.35 * k, 0.3), m.sand, "stream", None))
+    whirl = B.pick("whirl", action, f)
+    if action != "death":
+        for k in range(10 + int(18 * whirl)):
+            a = math.radians(k * 37.0 + f * 41.0)
+            rr = bl.r[1] + 0.8 + (k % 3) * 0.6 + 2.0 * whirl
+            hz = (k * 1.3 + f * 0.7) % (3.0 + 9.0 * whirl)
+            P.fx.append((v3(bot[0] + math.cos(a) * rr * 0.9, math.sin(a) * rr, 0.4 + hz), M.TK_SAND if k % 2 else M.TK_SAND_DIM))
+
+
+def _regalia(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: dict) -> None:
+    """M3, the Tomb King dressed over his body (none of it when `opts.bare`): his robe's skirt over the bell (its ragged
+    hem breaking into sand), the gold tasset, the jade plaque on his belt, the cuirass's lamellar rows and its heart mirror,
+    the layered pauldrons and the upper sleeves, gold gauntlets, the dark hood and its drape, the golden death mask (eye
+    slots, molten amber slits; a crack across it when struck), the sun crown (a jade disc, a gold band, gold spikes
+    radiating, blazing in his tell)."""
+    if B.opts.get("bare"):
+        return
+    rg, m, st = B.parts.regalia, B.mats, B.style(action)
+    dark = action == "death" and f >= st.get("dark_from", 99)
+    sk = rg.skirt
+    top, bot = up((0.1, 0.0, sk.top)), up((0.35, 0.0, sk.hem))
+    axis = (bot - top) / max(1e-6, float(np.linalg.norm(bot - top)))
+    ln = float(np.linalg.norm(bot - top))
+
+    def ragged(q):
+        rel = q - top
+        ang = np.arctan2(rel[:, 1], rel[:, 0])
+        return rel @ axis < ln - 0.55 - 0.55 * np.sin(ang * 7.0 + 1.3) * np.cos(ang * 3.0)
+
+    def folds(q, n):
+        ang = np.arctan2((q - top)[:, 1], (q - top)[:, 0])
+        return np.full(len(q), m.robe, dtype=object), np.where(((ang * 2.6) % 1.0) < 0.22, -1, 0).astype(np.int16)
+
+    P.add(L(top, bot, sk.r[0], sk.r[1], m.robe, "skirt", folds, ragged, caps=False))
+    for k in range(7):                                     # the hem breaking into sand
+        a = math.radians(k * 51.0 + 10.0)
+        P.mark(bot + tm @ v3(math.cos(a) * sk.r[1] * 0.98, math.sin(a) * sk.r[1] * 0.98, -0.6 - 0.4 * (k % 2)), M.TK_SAND)
+    (ta, tr) = rg.tasset
+    P.add(E(up(ta), tr, m.trim, "tasset", tm, lambda q, n: (np.full(len(q), m.trim, dtype=object),
+                                                             np.where(((((q - up(ta)) @ tm)[:, 2]) % 0.8) < 0.22, -1, 0).astype(np.int16))))
+    pa, pr = rg.plaque
+    P.add(S(up(pa), pr, m.jade, "plaque", line=False))
+    # The cuirass's lamellar rows across his chest, the heart mirror at its middle.
+    z0, z1, dz = rg.rows
+    z = z0
+    while z <= z1:
+        w_ = math.sqrt(max(0.0, 1.0 - ((z - 5.2) / 2.7) ** 2))      # the chest's girth at that height
+        for k in range(-4, 5):
+            u = math.radians(k * 13.0 + (6.0 if int(z / dz) % 2 else 0.0))
+            P.mark(up((0.2 + (2.5 * w_ + 0.12) * math.cos(u), (3.7 * w_ + 0.12) * math.sin(u), z)), M.RAMPS[m.trim][1])
+        z += dz
+    ma, mr = rg.mirror
+    P.add(E(up(ma), (0.25, mr, mr), m.glass, "mirror", tm, line=False))
+    if not dark:
+        P.mark(up(ma) + tm @ v3(0.3, -0.3, 0.35), M.TK_GLINT)
+    # Pauldrons in two layers, the upper sleeves under them, gold gauntlets over his fists.
+    (pa_, pb_, pc_), prr = rg.pauldrons
+    for s in (1, -1):
+        sh = up((pa_, s * pb_, pc_))
+        P.add(E(sh, prr, m.trim, "pauldron%d" % s, tm), E(sh + tm @ v3(0.1, s * 0.45, -0.8), tuple(r * 0.85 for r in prr), m.trim, "pauldron%d" % s, tm))
+        P.add(L(up((0.0, s * 3.8, 6.6)), elbows[s], 1.4, 1.5, m.robe, "upper%d" % s))
+        P.add(E(ends[s], (1.15, 1.1, 1.1), m.trim, "gauntlet%d" % s, tm))
+    # The hood (open at his face) and its drape down his back.
+    (ha, hr_, hcut) = rg.hood
+    hq = hc + hm @ v3(ha)
+    P.add(E(hq, hr_, m.hood, "hood", hm, None, lambda q, hq=hq: ((q - hq) @ hm)[:, 0] < hcut))
+    (da, dr) = rg.drape
+    P.add(L(hc + hm @ v3(-1.2, 0.0, -0.4), up(da) + tm @ v3(-0.4, 0.0, -3.4), dr[0], dr[1], m.hood, "drape", caps=False))
+    # The golden death mask over his face: eye slots with molten amber slits (dark as he dies), a crack across it when
+    # struck.
+    (mka, mkr, mcut) = rg.mask
+    mq = hc + hm @ v3(mka)
+    crack = B.pick("crack", action, f)
+
+    def mask(q, n, mq=mq):
+        loc = (q - mq) @ hm
+        names = np.full(len(q), m.trim, dtype=object)
+        brow = np.abs(loc[:, 2] - 0.62) < 0.12
+        ridge = (np.abs(loc[:, 1]) < 0.14) & (loc[:, 2] > -0.6) & (loc[:, 2] < 0.5)
+        cr = np.zeros(len(q), dtype=bool)
+        if crack > 0.0 and (f % 2 == 0 or action == "death"):
+            cr = np.abs(loc[:, 2] - 0.9 + 0.6 * loc[:, 1] - 0.25 * np.sin(loc[:, 1] * 5.0)) < 0.09 * (0.6 + crack)
+        names = np.where(cr, m.dark, names).astype(object)
+        return names, np.where(brow | ridge, 0, 1).astype(np.int16)              # polished: a step over the cuirass's gold
+
+    P.add(E(mq, mkr, m.trim, "mask", hm, mask, lambda q, mq=mq: ((q - mq) @ hm)[:, 0] > mcut))
+    sa, sb, sc = rg.slots
+    for s in (1, -1):
+        slot = hc + hm @ v3(sa, s * sb, sc)
+        P.add(E(slot, (0.2, 0.45, 0.2), m.dark, "slot%d" % s, hm, line=False))
+        if not dark and not st.get("squint"):
+            P.eye(slot + hm @ v3(0.2, 0.0, 0.0), M.TK_EYE)
+            P.mark(slot + hm @ v3(0.2, s * 0.25, 0.0), M.TK_EYE_DIM)
+            if st.get("glare"):
+                P.glow.append((slot + hm @ v3(0.5, 0.0, 0.3), M.TK_EYE_GLOW))
+    P.mark(hc + hm @ v3(2.02, 0.0, -0.95), M.RAMPS[m.dark][0])            # the mouth's slot
+    # The sun crown: a gold band round his brow, a jade disc at its front, gold spikes radiating round it (blazing in his
+    # tell, a glint running over it as he stands).
+    cw = rg.crown
+    glow = B.pick("glow", action, f)
+    P.add(E(hc + hm @ v3(-0.1, 0.0, cw.band), (2.05, 1.95, 0.42), m.trim, "crown", hm))
+    cq = hc + hm @ v3(cw.at)
+    P.add(E(cq, (0.28, cw.disc, cw.disc), m.jade, "crown_disc", hm))
+    for k in range(cw.spikes):
+        a = math.radians(-80.0 + 160.0 * k / (cw.spikes - 1))
+        ln_ = cw.len * (1.0 if k % 2 == 0 else 0.68)
+        d = hm @ v3(-0.15, math.sin(a), math.cos(a))
+        b0 = cq + d * cw.disc * 0.8 + hm @ v3(-0.2, 0.0, 0.0)
+        P.add(L(b0, b0 + d * ln_, 0.34, 0.07, m.trim, "spikes", line=k % 2 == 0))
+        if glow >= 1.0 and not dark and k % 2 == 0:
+            for t in (1.2, 1.6):
+                P.glow.append((b0 + d * ln_ * t, M.TK_RAY))
+    if not dark:
+        gk = int((f * 1.5) % cw.spikes) if action == "idle" else cw.spikes // 2
+        a = math.radians(-80.0 + 160.0 * gk / (cw.spikes - 1))
+        P.mark(cq + hm @ v3(-0.1, math.sin(a), math.cos(a)) * (cw.disc + 1.0), M.TK_GLINT)
+        P.mark(cq + hm @ v3(0.3, -0.25, 0.3), M.TK_GLINT)
+    if glow >= 1.0 and not dark:
+        for k in range(12):
+            a = math.radians(k * 30.0 + f * 9.0)
+            P.glow.append((cq + hm @ v3(0.3, math.sin(a) * (cw.disc + 0.5), math.cos(a) * (cw.disc + 0.5)), M.TK_HALO))
+
+
+def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """M3, the Tomb King's crescent glaive (none when `opts.bare`): a long umber shaft shod in gold, a great crescent blade
+    of clear desert glass off its head, its edge bright. Planted at his side in his right hand (`one_hand`), else in both
+    hands; its sweep throws a crescent of sand round him; beaten, it lies on the floor by his heap with his crown."""
+    if B.opts.get("bare"):
+        return
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    r_, l_ = ends[-1], ends[1]
+    out = P.parts
+    if action == "death" and f >= 3:
+        d = v3(0.92, -0.39, 0.0)
+        butt = v3(-4.0, 4.4, h.r + 0.1)
+        head = butt + d * h.length
+        P.after = []
+        out = P.after
+        # His crown, fallen on the heap.
+        cq = v3(0.6, -0.4, 6.6)
+        out.append(E(cq, (2.0, 1.9, 0.42), m.trim, "crown", rot("a", 20.0)))
+        for k in range(5):
+            a = math.radians(-60.0 + 30.0 * k)
+            dd = rot("a", 20.0) @ v3(-0.2, math.sin(a), math.cos(a))
+            out.append(L(cq + dd * 1.6, cq + dd * 3.0, 0.3, 0.07, m.trim, "spikes"))
+        out.append(E(cq + v3(1.6, 0.0, 0.5), (0.28, 0.7, 0.7), m.jade, "crown_disc", rot("b", -20.0)))
+    elif st.get("one_hand"):
+        d = v3(0.12, -0.08, 1.0)
+        d = d / float(np.linalg.norm(d))
+        butt = r_ - d * max(0.5, (r_[2] - 0.3) / d[2])
+        head = butt + d * h.length
+    else:
+        d = r_ - l_
+        d = d / max(1e-6, float(np.linalg.norm(d)))
+        butt = l_ - d * h.shaft[0]
+        head = r_ + d * h.shaft[1]
+    if st.get("one_hand") and not (action == "death" and f >= 3):
+        # Planted, its blade turned out from his side and a little ahead, so it shows broad to the room.
+        flat = tm @ v3(0.7, -0.7, 0.0)
+        flat = flat - d * float(flat @ d)
+        flat = flat / float(np.linalg.norm(flat))
+        side = np.cross(d, flat)
+    else:
+        side = np.cross(d, v3(0.0, 0.0, 1.0))
+        if float(np.linalg.norm(side)) < 0.2:
+            side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
+        side = side / float(np.linalg.norm(side))
+        flat = np.cross(side, d)
+    out.append(L(butt, head, h.r, h.r, m.shaft, "shaft"))
+    out.append(S(butt, h.r + 0.18, m.trim, "shoe", line=False))
+    out.append(L(head - d * 0.9, head, h.r + 0.22, h.r + 0.22, m.trim, "collar"))
+    # The crescent: a disc of glass in the plane of the shaft and its edge's way (`flat`, ahead of his sweep), less a disc
+    # taken out of its shaft side: a moon's crescent standing off the head, its points along the shaft.
+    R = h.blade
+    bc = head + flat * (R * 0.55) - d * 0.3
+    inner = bc - flat * (R * 0.62)
+    mm = np.stack([d, flat, side], axis=1)
+
+    def crescent(q, bc=bc, inner=inner):
+        return (np.linalg.norm(q - bc, axis=1) <= R) & (np.linalg.norm(q - inner, axis=1) >= R * 0.92)
+
+    def edge(q, n, bc=bc):
+        rim = np.linalg.norm(q - bc, axis=1) > R * 0.84
+        return np.full(len(q), m.glass, dtype=object), np.where(rim, 1, 0).astype(np.int16)
+
+    out.append(E(bc, (R, R, 0.2), m.glass, "blade", mm, edge, crescent))
+    if action != "death":
+        P.mark(bc + flat * R * 0.85 + d * 0.3, M.TK_GLINT)
+    if action == "attack":
+        cres = B.pick("crescent", action, f)
+        if cres > 0.0:
+            # The sweep's trail and the crescent of sand it flings, on both sides of him.
+            for k in range(25):
+                a = math.radians(-120.0 + k * 10.0)
+                for t in range(3):
+                    rr = 9.0 + 3.0 * cres + t * 0.9
+                    q = v3(math.cos(a) * rr, math.sin(a) * rr * 1.1, 2.0 + 1.6 * math.sin(a * 0.5) + t * 0.3)
+                    P.fx.append((q, M.TK_SAND if t else (M.TK_GLINT if k % 3 == 0 else M.TK_SAND_DIM)))
+
+
+M3_PARTS["bell"] = _bell
+M3_PARTS["regalia"] = _regalia
+M3_HELD["glaive"] = _glaive

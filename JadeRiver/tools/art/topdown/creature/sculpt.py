@@ -440,7 +440,10 @@ AURA = {"gold": {"bright": (255, 244, 196), "main": (255, 214, 110), "faint": (2
                    "mote": (255, 140, 110)},
         # M3: the Reflection's pale mirror light (the side view's cold pale tint, as light).
         "mirror": {"bright": (246, 252, 255), "main": (176, 212, 246), "faint": (150, 188, 232), "tongue": (204, 230, 252),
-                   "mote": (232, 246, 255)}}
+                   "mote": (232, 246, 255)},
+        # M3: the Tomb King's sun halo: molten amber burning to deep orange, motes of sand-gold.
+        "sun": {"bright": (255, 246, 200), "main": (255, 172, 64), "faint": (232, 128, 52), "tongue": (255, 200, 96),
+                "mote": (250, 226, 160)}}
 
 
 def _aura(rgba: np.ndarray, f: int, tone: str = "gold", lean: bool = False) -> None:

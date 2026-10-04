@@ -28,3 +28,25 @@ species("terracotta_warden", plan="humanoid.sentinel", share=True, size=2.5, eli
                   attacks=[("ge_chop", 0.8, 96, 1.3, dict(depth=36, knockback=90))],
                   ai="slow_melee", speed=70, width=22, height=100, race="construct"),
         sound=dict(body="wood"))
+
+# M3. The Tomb King of Sunscar (the Throne's dungeon boss): an ancient sage-king who sealed himself in his tomb and was kept
+# by sand Qi, about 1.85 times a person's height, the only foe with no legs: below his belt he rises out of a slowly
+# swirling bell of sand pooled on the floor, so he half-glides. A faded vermilion robe over it, a gold tasset, a gilded
+# lamellar cuirass with a heart mirror of desert glass, layered gold pauldrons over wide vermilion sleeves, a dark hood, a
+# golden death mask with molten amber eye slits, the sun crown on his brow (gold spikes round a jade disc); his crescent
+# glaive (a great moon of clear desert glass on a long shaft); a ring of sun-fire round him (`aura` "sun"). He raises the
+# glaive high overhead as his crown blazes and the sand gathers into a whirl round him (the tell, held), and sweeps it
+# wide round him on both sides, flinging a crescent of sand; struck, a crack flickers across his mask; beaten, he sinks
+# onto his glaive and pours away as sand, his crown and glaive left lying on the heap.
+species("tomb_king", plan="humanoid.king", share=True, size=3.7, elite=False, aura="sun", shadow=(22, 7), cycle=12.0, view=True,
+        canvas=(224, 204),
+        palette=["tk_gold", "tk_vermilion", "tk_umber", "tk_sand", "tk_glass", "tk_jade", "tk_skin", "tk_hair", "maw"],
+        data=dict(level=77, role="dungeon_boss", element="earth", page="azure",
+                  drops=[("sun_crown_fragment", 1.0, (2, 3)), ("storm_shard", 1.0, (12, 18)), ("sunglass_ore", 1.0, (3, 5))],
+                  attacks=[("glaive_sweep", 0.75, 190, 1.35, dict(depth=70, knockback=120, both_sides=True, shatter=True)),   # S47: breaks a natal weapon
+                           ("sand_crescent", 0.9, 380, 1.2, dict(damage_type="qi", projectile={"speed": 460, "art": "sand_crescent"})),
+                           ("sun_flare", 1.1, 260, 1.5, dict(damage_type="qi", depth=90,
+                                                             status={"id": "burn", "chance": 0.5, "power": 0.01, "duration_s": 4}))],
+                  ai="boss_king", race="undead", energy="sage_qi", width=40, height=170, hp_mult=0.35, attack_mult=0.8,
+                  phases=[{"below": 0.6, "action": "summon", "summon": "terracotta_warden", "summon_level": 74},
+                          {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}], first_defeat=["sunscar_throne_ember"]))
