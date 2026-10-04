@@ -1,4 +1,4 @@
-# The monster engine (audit 45 §6.2, E2, M1, M2)
+# The monster engine (audit 45 §6.2, E2, M1, M2, M3)
 
 A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
 already existed:
@@ -76,6 +76,28 @@ M2 added these. Again each new part kind is optional, so every species drawn bef
 | `humanoid` | `sentinel`, `gate` | the jade sentinel, the gate guardian | `armor` paint (rows of plates, a belt), a `helm` face (dome, brim, crest, mask, glowing eyes), pauldrons, tassets, gold runes, a held halberd; the gate guardian's horned crown, bronze chest plate and two jade bi rings orbiting it (`rings`) |
 | `humanoid` | `chief`, `abbot`, `elder` | Big Toad Tan, the Drowned Abbot, Elder Gu | the people of size (below) |
 
+M3 added these. Each new part kind is optional again (a new key, or a hook table each plan reads: `M3_HEADS`,
+`M3_TAILS`, `M3_COATS`, `M3_CRESTS` in `quadruped`; `M3_PARTS`, `M3_HELD`, `M3_PAINTS` in `humanoid`; `M3_PARTS` in
+`amphibian`), so every species drawn before draws byte for byte.
+
+| Plan | Variant or kind (M3) | Made for | What it adds |
+|---|---|---|---|
+| `quadruped` | `behemoth` | the Hollow Behemoth | a giant boar assembled out of the Hollow's drones and plates over a dark void (`coat` `void`): square-cut armour `plates` over its back, hump, flanks and hips, a `ridge` of spiked drones and a `swarm` in its belly, a plated skull with tusks (`head` `behemoth`), glowing `weak` points; it rears on its hind legs (`legs.stance`), stampedes, and breaks apart into drones and plates; styles `loom`, `stampede_trot`, `rear_flare`, `charge_toss`, `stumble`, `break_apart` |
+| `quadruped` | (`mustelid` parts) | the spark weasel | a `spark` at its tail's tip, sparks at its nose on the blow (`zap`) |
+| `quadruped` | (`cervid` parts) | the stormgrass stag | storm-grass tufts on its antlers (`antlers.tufts`), its eyes' own colour, `mist` off |
+| `quadruped` | (`bovid` parts), `head` `rhino` | the thunderhorn rhino | a rhino's head (two horns, ears, a lip, sparks on its charge), `coat` `folds` (its hide's deep folds), `crest` `pebbles` as plates down its spine; styles `arch_charge` |
+| `quadruped` | (`canine` parts), `coat` `rosettes`, `crest` `ice` | the frost lynx | a cat's ear tufts, cheek `ruff`, eye rims, frost `breath` in its tell; rosettes over its fur, ice crystals on its shoulders |
+| `humanoid` | (`ape` parts), `held` `block`, `shag` | the snow ape | a faceted block of ice hoisted and slammed (snow spraying), shaggy locks over its shoulders and forearms with frost and icicles, tusks, glowing eyes |
+| `humanoid` | (`sentinel` parts), `paint` `riverstone`, `clay`; `held` `trident`, `ge`; `trickle` | the river sentinel, the terracotta warden | river stone streaked with algae, barnacles and a bronze trim; fired clay in a lamellar vest laced in vermilion, a malachite collar and puttees (with a `human` face, eyes glowing amber); a polearm in both hands (a stone trident, a bronze ge) that lies beside the heap when it crumbles; water or sand trickling from its joints; styles `pole_rest`, `pole_march`, `trident_raise`, `trident_drive`, `ge_raise`, `ge_chop`, `pole_rock`, `pole_crumble` |
+| `humanoid` | `king` | the Tomb King | a person of size with no legs (`legs.none`) rising out of a swirling `bell` of sand (his body's, drawn bare too), his `regalia` (below) and a crescent `glaive`; `_finish` pours a body of sand Qi away (`pour`) |
+| `fish` | `dragonet` | the azure carp dragonet | a carp swimming in the air with a dragon's slender rising `neck` and head (horns, whiskers, a gold fin mane, a pearl eye), a ring of water turning under it; it coils back and spits a water orb; styles `hover_sway`, `air_swim`, `coil_orb`, `spit_orb`, `jolt_back`, `drop_flop` |
+| `amphibian` | (`toad` parts), `eyes_back`, `crown`, `slam_water` | the Thousand-Eye Toad | rows of mirror eyes over its back (each its own, lidded, glowing violet in its tell, shut one by one as it sinks), a crown of lily pads and lotus, a wall of lake water on its belly slam; styles `swell_breathe`, `swell_glare`, `belly_slam`, `squeeze_shut`, `sink_close` |
+| `spirit` | `kite` | the wind kite | a swallow-shaped silk sail in two halves (cut to its outline, a dihedral between them), its bamboo frame, a gold bird-head prow, two banded streamers, wind trails; styles `kite_hover`, `kite_glide`, `kite_rear`, `kite_dive`, `kite_tear`, `kite_crumple` |
+| `bird` | `harpy` | the canyon harpy | an upright bird-woman: a pale human face held level as she leans, a hair cap and long hair, two long barred plumes arching from her crown, a bone-bead necklace, barred wings for arms, a tail fan, feathered thighs and slate talons, a sash streaming back (`_ribbon`); styles `harpy_hover`, `harpy_fly`, `rear_screech`, `talon_dive`, `feather_burst`, `tumble_land` |
+| `crab` | `scorpion` | the sandstorm scorpion | a scorpion walking the way it faces (not `sideways`): a prosoma and abdomen of glass-plated segments, four legs a side, pincers, a tail of five segments to a venom telson (`tail`: each segment's angle a frame); styles `sting_ready`, `skitter`, `tail_arc`, `tail_stab`, `chip_recoil`, `flip_pour` |
+| `serpent` | `worm` | the dune worm | a tube of armour rings at even steps along a spine out of a sand `mound`, each ring's lip flared over the next, crust in its seams, a pale belly, a lamprey mouth ringed with glass teeth, sense pits; styles `worm_sway`, `worm_surge`, `worm_rear`, `worm_slam`, `worm_recoil`, `worm_sink` |
+| `person` | (`outfit` fields) | the Reflection | `pale` (the picture washed toward a cold grey and lifted, a mirror's sheen streaked over it) and a `tint` with alpha; `aura` names a ring's tone (`mirror`, `sun`: `sculpt.AURA`, `sculpt.tone_of`) |
+
 ### People (`person`, M1)
 
 A human foe is drawn as the player and the villagers are. Its spec gives its outfit with `person(name, hair=...,
@@ -125,6 +147,7 @@ Their rows keep `art=person(...)`: the side view still dresses its avatar in it.
 | Big Toad Tan (`chief`) | a head and a half taller than his men and twice as broad: a great bare belly under an open leather vest, a red sash, baggy trousers wrapped at the shin, a small head with a topknot and a toad's grin, a wine gourd | the Mudwater Cleaver (nine brass rings on its spine) raised over his head in both hands as he roars; slammed down in dust (also the tell of his call for his bandits) |
 | the Drowned Abbot (`abbot`) | tall, gaunt and stooped, pale with the river: a waterlogged robe with weed at its hem, a faded kasaya, long white hair under a wide straw hat that drips, prayer beads | the ringed staff raised high in his right hand, its bronze bell over his hat, his eyes glowing cold; struck down in both hands as the bell tolls rings of sound and water (also the tell of his ghosts) |
 | Elder Gu (`elder`) | portly and stately: a crimson robe trimmed in gold with wide sleeves, a black sash, a dark teal cape, grey hair tied back, a drooping moustache and goatee | the river's tide gathering into an orb over his drawn-back palm; thrown as a palm strike that bursts in a crescent wave |
+| the Tomb King (`king`, M3) | about 1.85 times a person: a gaunt old sage-king (parchment skin, long white hair, amber eyes) with no legs, rising out of a swirling bell of sand pooled on the floor (his body); dressed in a faded vermilion robe with a ragged hem breaking into sand, a gold tasset, a gilded lamellar cuirass with a heart mirror, layered gold pauldrons over wide vermilion sleeves, a dark hood, a golden death mask with amber eye slits, the sun crown (gold spikes round a jade disc); a ring of sun-fire round him (`aura` "sun") | the crescent glaive (a great moon of clear desert glass) raised high overhead in both hands as his crown blazes and the sand whirls round him; swept wide round him on both sides, flinging a crescent of sand; beaten, he pours away as sand, his crown and glaive left lying on the heap |
 
 ### Parts
 
@@ -220,7 +243,7 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
    and elite:
    - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
      (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
-   - **In the game:** the capture set `monsters_e2`, `monsters_m1` or `monsters_m2` (or a set of your own beside them
+   - **In the game:** the capture set `monsters_e2`, `monsters_m1`, `monsters_m2` or `monsters_m3` (or a set of your own beside them
      in `tools/dev/capture/shots.gd`):
      `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_m1`.
      It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
@@ -379,31 +402,71 @@ three people of size's bodies beside them dressed); and the capture set `monster
 (`docs/redesign/feedback/monsters/m2/after/`): the lineups held in every pose beside drawn foes for scale, the elites,
 and live fights in fourteen of the species' own top-down rooms.
 
+## M3: Act II's zones (R6, R7), the heart trial and the siege
+
+Nineteen species, in story order: the Reflection and the Hollow Behemoth, then R6's foes (the Thunderhorn Plains,
+Rimefrost Heights, Mirrorwater Lake) and R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), and the two
+spar opponents of Act II's posts. Each is one spec; its rows moved in unchanged (`spec_row`; the three people's
+outfits moved out of `HUMAN` into their specs). `enemies.json`, `loot_tables.json` and `sound.json` are byte-identical,
+and the only change to `foes.json` is the nineteen new blocks. Every species before draws byte for byte.
+
+| Species | Where it is first met | Plan | PNG KB (base / elite) | APK KB (base / elite) |
+|---|---|---|---|---|
+| the_reflection | the Trial of Reflections (story boss, 36) | `person.fighter` (`pale`, `aura` "mirror") | 169 | 89 |
+| hollow_behemoth | the Siege (story boss, 58) | `quadruped.behemoth` | 661 | 273 |
+| spark_weasel | the Thunderhorn Plains: the Stormgrass Verge, the Lightning Scar (64-67) | `quadruped.mustelid` | 75 / 144 | 40 / 74 |
+| stormgrass_stag | the Stormgrass Verge, the Thunderhorn Flats (64-68) | `quadruped.cervid` | 187 / 357 | 89 / 160 |
+| thunderhorn_rhino | the Lightning Scar, the Thunderhorn Flats (65-69) | `quadruped.bovid` (`rhino` head) | 158 / 288 | 76 / 136 |
+| frost_lynx | Rimefrost Heights: the Frostpine Climb, the Snow Ape Ledges (67-70) | `quadruped.canine` (misty) | 111 / 214 | 51 / 94 |
+| azure_carp_dragonet | Mirrorwater Lake: the Reedless Shore, the Mirror Shallows, the Sentinel Causeway (68-73) | `fish.dragonet` | 113 / 234 | 65 / 122 |
+| snow_ape | the Snow Ape Ledges, the Rimefrost Summit (68-72) | `humanoid.ape` | 174 / 304 | 79 / 135 |
+| thousand_eye_toad | Toad's Hollow (field boss, 68) | `amphibian.toad` | 575 | 219 |
+| river_sentinel | the Sentinel Causeway (70-75) | `humanoid.sentinel` (`riverstone`, trident) | 217 / 378 | 91 / 155 |
+| canyon_brigand | the Gale Canyons: the Canyon Mouth, the Windbridge (73-78) | `person.fighter` | 98 | 54 |
+| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge, the Riven Peak (73-78) | `spirit.kite` | 128 / 271 | 76 / 135 |
+| canyon_harpy | the Harpy Roosts, the Kite Winds, the Windbridge (74-78) | `bird.harpy` | 181 / 347 | 83 / 143 |
+| sandstorm_scorpion | the Sunscar Desert: the Glass Dunes, the Scorpion Flats, the Worm Sea; the Sealed Gate (73-78) | `crab.scorpion` | 182 / 335 | 81 / 140 |
+| dune_worm | the Worm Sea (77-81) | `serpent.worm` | 166 / 327 | 70 / 139 |
+| terracotta_warden | the Tomb of Sunscar: the Sealed Gate, the Hall of Sand Kings, the Mirror Crypt (77) | `humanoid.sentinel` (`clay`, ge) | 178 | 76 |
+| tomb_king | the Throne (dungeon boss, 77) | `humanoid.king` | 640 | 305 |
+| alliance_champion | the Nine Peaks' Presence Terrace (spar, 72) | `person.fighter` | 124 | 66 |
+| ironroot_warden | the Ironroot Hold's gate (spar, 70) | `person.brute` | 111 | 58 |
+
+All nineteen: 7,446 KB of PNG, 3,372 KB in the APK (3.29 MiB): the bases 1,940 KB, the eleven elite sheets 1,432 KB.
+Every one has `share`. An elite sheet is drawn only where a room makes an elite (the eleven above); the rest have
+`elite=False`. Each creature is near its side-view sheet's share of a person (side-view px x ~0.42).
+
+- **The bosses**, each with a silhouette, a bulk, a posture, a prop and a colour of its own:
+  - **The Reflection** is the player's double: a person, your size, cast in the clothes a disciple starts in under the
+    side view's cold pale tint, washed pale with a mirror's sheen streaked over it, ringed in cold mirror light. A sheet
+    is drawn once, so it cannot wear the player's live outfit as the side view's avatar does; it reads as a pale
+    double of a disciple, not as the player's own clothes. (To wear them, the room view would cast the live Person as
+    its stand-in with the tint, as it would for the heart demons: `TopdownPlaces`, not the engine.)
+  - **The Hollow Behemoth** is a giant boar of the Hollow's drones and plates, twice a person at its spiked ridge, its
+    weak points cracks of cold white light; it rears on its hind legs as they blaze, stampedes, and breaks apart.
+  - **The Thousand-Eye Toad** is a squat lake-blue toad four times a person's width with dozens of mirror eyes over its
+    back and a crown of lilies; every eye opens and glows violet in its tell, and they close one by one as it sinks.
+  - **The Tomb King** (a person of size, above) rises out of a bell of sand in a sun crown and a golden death mask, a
+    crescent glaive of desert glass in his hand, a ring of sun-fire round him.
+- **Big canvases:** the Behemoth (232 x 184), the toad (204 x 156), the river sentinel (156 x 150), the dune worm
+  (196 x 176) and the Tomb King (224 x 204).
+- **The dune worm** is a burrower: under the sand the room view shows its travelling mound (`enemy_view.gd`), so its
+  sheet is what surfaces to strike, risen out of its own mound.
+
+Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
+`docs/redesign/feedback/monsters/m3/` (the nineteen side by side facing SE beside a Mudwater bandit, idle, in their
+tells, on their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed);
+and the capture set `monsters_m3` (`docs/redesign/feedback/monsters/m3/after/`): the lineups held in every pose beside
+drawn foes for scale, the elites, and live fights in eighteen of the species' own top-down rooms.
+
 ## Still to draw
 
-The species the top-down rooms spawn that still stand in with their side-view sheet (R5's to R8's rooms, the Tidebreak
-Front's), by level. The Trial Tower has none left.
+The species the top-down rooms spawn that still stand in with their side-view sheet (the rest of Act II's rooms, the
+Starsea's, the Tidebreak Front's), by level. The Trial Tower, the heart trial, the siege, R6 and R7 have none left.
 
 | Species | Where | Start from |
 |---|---|---|
-| the_reflection | the Trial of Reflections (36) | `person` (the player's own outfit, its tint) |
-| hollow_behemoth | the Siege (story boss, 58) | `humanoid.gate`'s build, `hollowed` |
-| spark_weasel | the Azure Expanse: the Thunder Plains (64-66) | `quadruped.mustelid` |
-| stormgrass_stag | the Stormgrass Verge, the Thunderhorn Flats (64-68) | `quadruped.cervid` |
-| thunderhorn_rhino | the Lightning Scar, the Thunderhorn Flats (64-69) | `quadruped.bovid` |
-| frost_lynx | Rimefrost: the Frostpine Climb, the Snow Ape Ledges (67-70) | `quadruped.canine` (a cat's head) |
-| azure_carp_dragonet | Mirror Lake: the Mirror Shallows, the Reedless Shore, the Sentinel Causeway (68-72) | `fish.minnow` with the dragon's horns |
-| snow_ape | the Snow Ape Ledges, the Rimefrost Summit (68-72) | `humanoid.ape` |
-| thousand_eye_toad | Toad's Hollow (68) | `amphibian.toad` |
-| river_sentinel | the Sentinel Causeway (70-75) | `humanoid.sentinel` |
-| canyon_brigand | Gale Canyons: the Canyon Mouth, the Windbridge (73-76) | `person.fighter` |
-| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge, the Riven Peak (73-76) | `bird.hawk` or a `spirit` of paper |
-| sandstorm_scorpion | the Sunscar Desert, the Sealed Gate (73-78) | `crab.mud` (a tail kind) |
-| canyon_harpy | the Harpy Roosts, the Kite Winds, the Windbridge (74-78) | `bird` flyer with a `humanoid` head |
 | nine_peaks_disciple | the Sect War, the Broken Pier, the Pirate Deck (76-78) | `person.fighter` |
-| dune_worm | the Worm Sea (77-81) | `serpent.boulder` (it rises out of the sand) |
-| terracotta_warden | the Tomb of Sunscar (77) | `humanoid.sentinel` in terracotta |
-| tomb_king | the Throne (boss, 77) | `humanoid` of size |
 | starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War (79-81) | `person.fighter` |
 | pirate_captain | the Sect War (story boss, 80) | `humanoid` of size |
 | presence_phantom, ninth_presence | the Presence Trial (81) | `spirit`; the Ninth of size |

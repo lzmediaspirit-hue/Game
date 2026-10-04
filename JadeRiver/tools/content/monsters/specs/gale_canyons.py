@@ -35,7 +35,7 @@ species("wind_kite", plan="spirit.kite", share=True, size=2.3,
 # that is left of the cultivator she once was. She rears back, wings high and talons forward, and screeches (the tell,
 # held: her rake's and her screech's), and dives to rake with her talons; struck, feathers burst off her; beaten, she
 # tumbles out of the air, lands on her back and fades.
-species("canyon_harpy", plan="bird.harpy", share=True, size=2.6,
+species("canyon_harpy", plan="bird.harpy", share=True, size=2.9,
         palette=["ch_plume", "ch_flight", "ch_under", "ch_face", "ch_slate", "ch_sash", "ch_bone", "maw"], accents=("ch_sash",), shadow=(10, 3),
         cycle=14.0, view=True,
         data=dict(level=(74, 78), role="normal", element="wind", page="azure", drops=[("harpy_plume", 0.45), ("storm_shard", 0.55, (1, 2))],
