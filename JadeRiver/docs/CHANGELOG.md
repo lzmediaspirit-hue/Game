@@ -37,6 +37,13 @@ each on the height grid (`docs/architecture/topdown_mechanics.md`, "S12c"; `docs
   top row northward), and the Rapids Terraces' middle flight is laid by the engine's `flights` (its cheeks clear), so
   `room_sweep` walks to bed_1 and herb_1 and keeps no known stick.
 - **No new art.** A fall off a brink plays the jump's falling frame; AGENTS.md rule 10 holds character art.
+- **Review:** the capture set `s12c` (`docs/architecture/topdown_mechanics/s12c/world/`): the six paths above with the
+  body at each one's foot, and the two re-laid spots.
+- **Checks.** `tools/run_tests.sh` on the tree merged with the latest branch: every gate passed (`boot`, `room_engine`
+  515 checks with the paths above, 508 before; `topdown_rooms` with grid parity on 168 layouts and 498 starts; `places`,
+  `npc_engine`, `item_engine`, `quest_engine`, `monsters`), and all 32 suites with no SCRIPT ERROR: 79,466 checks (79,423
+  before). `topdown_traversal` 346 to 393 (parts 40 to 44), `audio_tests` 56 to 58, `cue_tests` 35 to 36; `room_sweep`
+  15,724 to 15,717 (the six things on the paths above left to their arts); every other count as it was.
 
 ## One world: the side view retired, and its creature sheets with it (decision 45, S12a and S12b)
 

@@ -444,6 +444,11 @@ its own room:
 - `15_crossing_deck_starsea`: the crossing's deck in the Starsea, its water streaming past;
 - `16_warden_lamps_citadel_gate`: the Citadel Gate's Warden lamps lit at the story's night.
 
+S12c's set, `capture.tscn -- s12c`, writes `docs/architecture/topdown_mechanics/s12c/world/`: each of the six paths
+above at x2 with the body at its foot (the pine top, the workshop roof, the bamboo top, the Flooded Gate's ledge, the
+shaft top behind the falls, the broken pillar), and the Herb Terraces' second bed at the head of its flight and the
+Rapids Terraces' middle flight between its boulders.
+
 ## To do, in order
 
 T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act II on. Every mechanic is on the grid;

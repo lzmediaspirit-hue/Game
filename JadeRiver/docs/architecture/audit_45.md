@@ -1148,6 +1148,9 @@ body is and what it did, the authorities keep their rules (`docs/architecture/to
   checks it and its workaround is gone.
 - **`DORMANT` is empty.** All five events it held happen on the grid; `jumped` and `volume_left` stay in `POLLED`
   (the world view plays the jump from the motor; nothing waits on leaving a volume), with their reasons rewritten.
+- **Checks:** every gate and all 32 suites green on the merged tree, no SCRIPT ERROR, 79,466 checks (79,423 before:
+  `topdown_traversal` +47, `audio_tests` +2, `cue_tests` +1, `room_sweep` −7 for the things on the paths above);
+  `room_engine` 508 to 515.
 
 ### Status (phase 3, S12a and S12b): the side view deleted, done
 

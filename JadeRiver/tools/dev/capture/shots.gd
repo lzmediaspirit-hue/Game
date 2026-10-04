@@ -884,6 +884,18 @@ static func sets() -> Dictionary:
 	s["room_engine"] = {"doc": "E1, the room engine: each room it converted from the side view under the HUD at a spot that shows it, the world alone x2 there, and every such room whole",
 		"out": "architecture/room_engine/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]], "rows": e1_rows}
 
+	# S12c (docs/architecture/topdown_mechanics.md, "S12c"): the six paths above as the room engine lays them now (each a
+	# ledge only its movement art climbs onto, the body at its foot), and the two flights' rooms room_sweep walks again.
+	var s12c_rows := []
+	for v in [["01_pine_top_willow_path_west", "wp_west", Vector2(41, 10)], ["02_workshop_roof_artisan_row", "sf_artisan_row", Vector2(43, 9)],
+			["03_bamboo_top_whispering_bamboo", "bg_whispering_bamboo", Vector2(49.5, 8)], ["04_ledge_flooded_gate", "ds_flooded_gate", Vector2(50.5, 6.5)],
+			["05_shaft_top_behind_falls", "cf_behind_falls", Vector2(29.5, 9)], ["06_broken_pillar_sunken_causeway", "rm_sunken_causeway", Vector2(47.5, 10)],
+			["07_herb_terraces_second_bed", "ja_herb_terraces", Vector2(22.5, 16)], ["08_rapids_terraces_middle_flight", "wg_rapids_terraces", Vector2(10, 15)]]:
+		s12c_rows.append({"name": str(v[0]), "room": v[1], "cell": v[2], "wait": 90, "take": [["world", "world/" + str(v[0])]]})
+	s["s12c"] = {"doc": "S12c: the six paths above on the grid (each ledge only its art climbs, the body at its foot), and the Herb and Rapids Terraces' flights",
+		"out": "architecture/topdown_mechanics/s12c/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360], ["keep_whole", true]],
+		"rows": s12c_rows}
+
 	# E3, the NPC engine (docs/architecture/npc_engine.md): its first new people, Greyreed Hamlet's three villagers come
 	# home once the well runs clean, each one spec placed and set to work by anchors.
 	s["npc_engine"] = {"doc": "E3, the NPC engine: Greyreed Hamlet's square before the well runs clean and after, its three villagers home and at work (each worker up close), a word with one, and the square whole",
