@@ -30,7 +30,7 @@ import numpy as np
 
 from .. import mats as M
 from ..motion import wave
-from ..sculpt import E, Pose, chain, rot, v3
+from ..sculpt import E, L, Pose, S, chain, rot, v3
 
 STYLES = {
     "hang": {"bob": (0.0, -0.4, -0.7, -0.6, -0.3, 0.0), "swish": (8.0, 14.0, 8.0, -4.0, -10.0, -2.0), "flap": True, "trail": "wave"},
@@ -107,6 +107,8 @@ VARIANTS = {
 def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     if "pool" in B.parts:
         return _lurker(B, action, f)
+    if "neck" in B.parts:
+        return _dragonet(B, action, f)
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
@@ -344,3 +346,188 @@ def _pool(p, C, yaw: float, depth: float, rings: float, wake: bool, f: int):
         return M.PUDDLE
 
     return water
+
+
+# ================================================================================================= the dragonet (M3)
+# M3, the azure carp dragonet (Mirrorwater Lake): a carp halfway through the Dragon Gate, swimming through the air over a
+# faint turning ring of water. Its styles' channels: `dart`, `bob`, `swish`, `nose`, `roll`, `neck` (0 its neck raised,
+# 1 coiled back in its tell, under 0 thrust out in its spit), `gape`, `orb` (the water orb gathering before its jaws),
+# `spit` (the frames its orb bursts off its jaws), `drop` (0..1, falling out of the air), `splash` (frames it lands in
+# a splash), `mist` (coming apart), `whisk` (its whiskers' wave), `dull` (its eye).
+DRAGONET_STYLES = {
+    "hover_sway": {"bob": (0.0, 0.3, 0.5, 0.3, 0.0, -0.2), "swish": (10.0, 16.0, 8.0, -4.0, -10.0, -2.0), "whisk": 1.0},
+    "air_swim": {"kind": "swim", "bob_amp": 0.4, "swish_amp": 24.0, "whisk": 1.4},
+    "coil_orb": {"dart": (-0.4, -0.9, -1.3, -1.5), "swish": (14.0, 22.0, 28.0, 30.0), "neck": (0.3, 0.65, 0.9, 1.0), "gape": (0.3, 0.6, 0.9, 1.0),
+                 "orb": (0.3, 0.55, 0.85, 1.0), "nose": (4.0, 8.0, 10.0, 10.0), "whisk": 0.6},
+    "spit_orb": {"dart": (-1.0, 2.6, 3.0, 2.2, 1.0, 0.3), "swish": (30.0, -14.0, -6.0, 8.0, 4.0, 0.0), "neck": (0.9, -0.6, -0.5, -0.2, 0.1, 0.0),
+                 "gape": (0.3, 1.0, 0.8, 0.4, 0.2, 0.0), "orb": (0.7, 0.0, 0.0, 0.0, 0.0, 0.0), "spit": (1, 2), "nose": (8.0, -6.0, -4.0, 0.0, 0.0, 0.0),
+                 "whisk": 1.8},
+    "jolt_back": {"dart": (-2.4, -1.4, -0.4), "swish": (24.0, 10.0, 2.0), "nose": (14.0, 6.0, 0.0), "roll": (24.0, 12.0, 4.0), "neck": (0.6, 0.3, 0.0),
+                  "gape": (0.5, 0.2, 0.0), "dull": True, "whisk": 1.6},
+    "drop_flop": {"drop": (0.0, 0.25, 0.6, 0.92, 1.0, 1.0, 1.0, 1.0), "nose": (16.0, -24.0, -40.0, -12.0, 0.0, 0.0, 0.0, 0.0),
+                  "roll": (0.0, 10.0, 40.0, 80.0, 90.0, 90.0, 90.0, 90.0), "neck": (0.4, 0.2, 0.0, -0.2, -0.2, -0.2, -0.2, -0.2),
+                  "gape": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3), "splash": (3, 4), "mist": (0.0, 0.0, 0.0, 0.0, 0.12, 0.35, 0.6, 0.82),
+                  "dull": True, "whisk": 0.4},
+}
+STYLES.update(DRAGONET_STYLES)
+DRAGONET = {
+    "Z": 8.0,
+    "trunk": ((0.0, 0.0, 0.0), (4.4, 1.9, 2.4)),
+    "tail": {"pivot": -3.4, "seg": ((-1.5, 0.0, 0.0), (2.2, 1.0, 1.4)), "lobe": (-4.2, 1.0, (2.2, 0.35, 0.9), 40.0)},
+    "dorsal": {"plates": ((-2.2, 1.0), (-1.2, 1.5), (-0.2, 1.7), (0.8, 1.4), (1.7, 0.9)), "base": 2.0, "r": (0.6, 0.3)},
+    "pecs": {"at": (1.4, 1.6, -0.9), "r": (1.4, 1.0, 0.3)},
+    "neck": {"base": (2.8, 0.0, 0.9), "up": ((4.2, 0.0, 2.8), (4.9, 0.0, 4.9), (5.6, 0.0, 6.4)),
+             "coil": ((3.9, 0.0, 3.0), (3.2, 0.0, 5.2), (3.9, 0.0, 6.8)), "out": ((5.0, 0.0, 2.2), (6.6, 0.0, 3.2), (7.9, 0.0, 3.6)), "r": (1.3, 0.8)},
+    "head": {"skull": (1.75, 1.3, 1.25), "eye": (0.7, 1.12, 0.4)},
+    "ring": 6.6,
+}
+VARIANTS["dragonet"] = {"parts": DRAGONET,
+                        "mats": {"skin": "acd_scale", "back": "acd_scale", "belly": "acd_belly", "fin": "acd_fin", "gold": "acd_gold",
+                                 "orb": "acd_orb", "mouth": "acd_mouth"},
+                        "motion": {"idle": "hover_sway", "walk": "air_swim", "windup": "coil_orb", "attack": "spit_orb", "hurt": "jolt_back",
+                                   "death": "drop_flop"}}
+
+
+def _dragonet(B, action: str, f: int) -> Pose:
+    """M3, the azure carp dragonet: a deep azure carp's body (rows of scales, a silver-white belly, a long dorsal fin, gold-
+    tipped fins, a fish's forked tail) whose front has stretched into a slender neck rising to a small dragon head (two
+    short antler horns, long gold whiskers flowing back, a gold fin mane down its neck, a glowing pearl eye), swimming
+    through the air over a faint turning ring of water, dripping from its tail. Its tell coils its neck back, jaws open,
+    as a water orb gathers before them (held); it lunges and spits the orb in a burst of water; struck, it jolts back;
+    beaten, it drops nose-first out of the air and flops onto the water, and fades."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    dart, bob = B.pick("dart", action, f), B.pick("bob", action, f)
+    swish = B.pick("swish", action, f)
+    if st.get("kind") == "swim":
+        bob = st.bob_amp * wave(action, f)
+        swish = st.swish_amp * math.sin(f / 8.0 * math.tau)
+    nose, roll, drop = B.pick("nose", action, f), B.pick("roll", action, f), B.pick("drop", action, f)
+    neck, gape, orb = B.pick("neck", action, f), B.pick("gape", action, f), B.pick("orb", action, f)
+    whisk = st.get("whisk", 1.0)
+    z = (p.Z + bob) * (1.0 - drop) + 2.0 * drop
+    body_m = rot("a", roll) @ rot("b", nose) @ rot("c", -swish * 0.25)
+    C = v3(dart, 0.0, z)
+    at = lambda q: C + body_m @ v3(q)
+
+    def scales(q, n):
+        """Deep azure scales in rows (a step lit every other half-row), the silver-white belly, the lateral line."""
+        loc = (q - C) @ body_m
+        nz = (n @ body_m)[:, 2]
+        belly = nz < -0.3
+        scale = ((np.floor(loc[:, 0] * 0.9) + np.floor((loc[:, 2] + 3.0) * 1.2)) % 2 == 0) & ~belly
+        lateral = np.abs(loc[:, 2] - 0.2) < 0.22
+        return np.where(belly, m.belly, m.skin).astype(object), np.where(lateral & ~belly, -1, np.where(scale, 1, 0)).astype(np.int16)
+
+    P.add(E(at(p.trunk[0]), p.trunk[1], m.skin, "body", body_m, scales))
+    t = p.tail
+    tm = body_m @ rot("c", swish)
+    piv = at((t.pivot, 0.0, 0.0))
+    P.add(E(piv + tm @ v3(t.seg[0]), t.seg[1], m.skin, "body", tm, scales))
+    la, lc, lr, lspread = t.lobe
+    for s in (1, -1):
+        lm = tm @ rot("b", -s * lspread)
+        P.add(E(piv + tm @ v3(la, 0.0, s * lc), lr, m.fin, "tail", lm))
+        P.mark(piv + tm @ v3(la, 0.0, s * lc) + lm @ v3(-lr[0] * 0.9, 0.0, 0.0), M.RAMPS[m.gold][3])
+    d = p.dorsal
+    for a, h in d.plates:
+        P.add(E(at((a, 0.0, d.base + h * 0.5)), (d.r[0], d.r[1], h), m.fin, "dorsal", body_m))
+        P.mark(at((a, 0.0, d.base + h * 1.4)), M.RAMPS[m.gold][3])
+    flap = -10.0 - 20.0 * max(0.0, math.sin(f * 1.3))
+    for s in (1, -1):
+        P.add(E(at((p.pecs.at[0], s * p.pecs.at[1], p.pecs.at[2])), p.pecs.r, m.fin, "pec%d" % s, body_m @ rot("a", s * flap)))
+        P.add(E(at((-1.6, s * 1.2, -2.0)), (1.0, 0.7, 0.25), m.fin, "pelvic%d" % s, body_m @ rot("a", s * -30.0)))
+    # The neck: rising from its front (coiled back in its tell, thrust out as it spits), a gold fin mane down its back.
+    nk = p.neck
+    key = nk.coil if neck >= 0.0 else nk.out
+    u = abs(neck)
+    pts = [at(nk.base)] + [at(tuple(a0 + (a1 - a0) * u for a0, a1 in zip(q0, q1))) for q0, q1 in zip(nk.up, key)]
+    for i in range(3):
+        r0 = nk.r[0] + (nk.r[1] - nk.r[0]) * i / 3.0
+        r1 = nk.r[0] + (nk.r[1] - nk.r[0]) * (i + 1) / 3.0
+        P.add(L(pts[i], pts[i + 1], r0, r1, m.skin, "neck", scales))
+        mid = (pts[i] + pts[i + 1]) * 0.5
+        seg = pts[i + 1] - pts[i]
+        seg = seg / max(1e-6, float(np.linalg.norm(seg)))
+        back = np.cross(seg, body_m @ v3(0.0, 1.0, 0.0))
+        back = back / max(1e-6, float(np.linalg.norm(back)))
+        if back[0] > 0.0:
+            back = -back
+        P.add(E(mid + back * (r1 + 0.4), (0.5, 0.25, 1.0), m.gold, "mane", np.stack([seg, np.cross(back, seg), back], axis=1), line=False))
+    # The head: forward off the neck's end, pitched with the gape.
+    hd = p.head
+    H = pts[-1]
+    hm = body_m @ rot("b", 6.0 - 6.0 * neck)
+    hp = lambda q: H + hm @ v3(q)
+    P.add(E(H + hm @ v3(0.4, 0.0, 0.0), hd.skull, m.skin, "head", hm, scales))
+    P.add(L(hp((1.0, 0.0, -0.15)), hp((2.7, 0.0, -0.45)), 0.85, 0.55, m.skin, "head", scales))
+    hinge = hp((0.6, 0.0, -0.75))
+    jm = hm @ rot("b", -gape * 32.0)
+    if gape > 0.25:
+        P.add(E(hinge + hm @ rot("b", -gape * 16.0) @ v3(1.3, 0.0, -0.05), (1.1, 0.6, 0.3), m.mouth, "mouth", hm, line=False))
+    P.add(L(hinge, hinge + jm @ v3(2.1, 0.0, -0.05), 0.6, 0.35, m.belly, "jaw"))
+    dull = st.get("dull", False)
+    ea, eb, ec = hd.eye
+    for s in (1, -1):
+        hb = hp((-0.3, s * 0.55, 0.85))
+        tip = hp((-1.3, s * 1.0, 2.3))
+        P.add(L(hb, tip, 0.35, 0.12, m.gold, "horn%d" % s), L((hb + tip) * 0.5, (hb + tip) * 0.5 + hm @ v3(0.5, s * 0.25, 0.6), 0.22, 0.08,
+                                                                 m.gold, "horn%d" % s))
+        P.add(E(hp((-0.5, s * 1.05, -0.2)), (0.7, 0.2, 0.55), m.fin, "cheek%d" % s, hm @ rot("a", s * -40.0), line=False))
+        eye = hp((ea + 0.4, s * eb, ec))
+        if dull:
+            P.mark(eye, M.RAMPS[m.skin][0])
+        else:
+            P.eye(eye, M.ACD_PEARL)
+            P.mark(eye + hm @ v3(0.0, s * 0.3, -0.3), M.ACD_PEARL_SH)
+            if action == "windup":
+                P.glow.append((eye + hm @ v3(0.3, s * 0.3, 0.4), M.ACD_GLOW))
+        # Long gold whiskers from its snout, flowing back and down, waving.
+        wp = [hp((2.4, s * 0.55, -0.3))]
+        for j in range(1, 7):
+            uu = j / 6.0
+            wav = math.sin(f * 1.3 + j * 0.9 + (0.0 if s > 0 else 1.4)) * 0.6 * whisk * uu
+            wp.append(wp[0] + hm @ v3(-j * 0.75, s * (0.4 + j * 0.3), -j * 0.45 + wav))
+        for i in range(6):
+            P.add(L(wp[i], wp[i + 1], 0.26 - 0.025 * i, 0.24 - 0.025 * i, m.gold, "whisker%d" % s, line=False))
+    # The water orb gathering before its open jaws (held), and its burst as it spits.
+    if orb > 0.0:
+        oc = hp((3.5 + orb * 0.6, 0.0, -0.4))
+        r = 0.6 + 1.1 * orb
+        P.add(S(oc, r, m.orb, "orb", line=False))
+        P.glow.append((oc + v3(0.0, 0.0, r * 0.55) + hm @ v3(-r * 0.3, 0.0, 0.0), M.RS_ORB_GLINT))
+        for j in range(10):
+            uu = ((j * 0.097 + f * 0.23) % 1.0)
+            ang = uu * 3.0 * math.tau + j
+            rr = r + 0.8 + 3.0 * (1.0 - uu)
+            P.fx.append((oc + v3(math.cos(ang) * rr * 0.6, math.sin(ang) * rr, -(1.0 - uu) * 3.0 * orb), M.SPLASH if j % 3 else M.SPLASH_DIM))
+    if action == "attack" and f in st.get("spit", ()):
+        oc = hp((4.4 + 2.0 * (f - 1), 0.0, -0.4))
+        if f == 1:
+            P.add(S(oc, 1.5, m.orb, "orb", line=False))
+            P.glow.append((oc + v3(0.0, 0.0, 0.8), M.RS_ORB_GLINT))
+        for j in range(14):
+            ang = math.radians(j * 26.0 + f * 31.0)
+            rr = 1.8 + (f - 1) * 1.6 + (j % 3) * 0.5
+            P.fx.append((oc + hm @ v3(-0.6, math.cos(ang) * rr, math.sin(ang) * rr * 0.8), M.SPLASH if j % 2 else M.SPLASH_DIM))
+    # The water ring turning under it, and drops falling off its tail; the splash where it lands.
+    if action != "death":
+        for k in range(22):
+            ang = math.radians(k * 360.0 / 22.0 + f * 9.0)
+            if (k + f) % 7 == 0:
+                continue
+            P.fx.append((v3(dart * 0.5 + math.cos(ang) * p.ring, math.sin(ang) * p.ring * 0.9, 0.15), M.ACD_RING if k % 3 else M.ACD_RING_DIM))
+        for k in range(3):
+            uu = (f * 0.31 + k * 0.33) % 1.0
+            P.fx.append((piv + tm @ v3(-2.0 - k * 0.8, 0.0, -0.5) + v3(0.0, 0.0, -uu * z * 0.8), M.DRIP))
+    if f in st.get("splash", ()):
+        for k in range(18):
+            ang = math.radians(k * 20.0 + f * 9.0)
+            rr = 3.0 + (f - 3) * 2.0 + (k % 3) * 0.6
+            P.fx.append((v3(dart + 3.0 + math.cos(ang) * rr, math.sin(ang) * rr * 0.8, 0.5 + (k % 4) * 0.7), M.SPLASH if k % 2 else M.FOAM))
+    mist = B.pick("mist", action, f)
+    if mist:
+        P.dissolve = mist
+        P.dissolve_col = M.SPLASH_DIM
+    return P

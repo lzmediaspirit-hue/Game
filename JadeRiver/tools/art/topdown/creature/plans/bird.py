@@ -20,6 +20,11 @@ M2's flyers (`wings.seg`): `vulture`, `crane`, `hawk` and `roc`, jointed wings o
 painted, drawn in the air over their feet. Styles: idle `soar`, walk `flap`, hurt `tumble_back`, death `fold_fall`; the
 tells `rise_fold` (the vulture), `rise_coil` (the crane), `mantle` (the hawk), `gather_wind` (the roc); the blows
 `dive_rake`, `swoop_peck`, `lightning_dive`, `wing_gust`.
+M4: `sparrow` (the comet sparrow), a small big-headed flyer with a forked tail, a gold brow, a flame crest and a comet's
+tail of fire streaming behind it (`fx` "comet": gold-white at its root through orange and magenta to violet, flickering,
+sparks off it; flaring wide in the tell, stretched long in the dive, guttering into smoke as it falls). Styles: the tell
+`comet_flare` (it pulls up and back, nose down, wings swept, the comet flaring), the blow `comet_dive` (a streaking dive,
+a burning crescent on the blow).
 """
 from __future__ import annotations
 
@@ -72,6 +77,8 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
+    if "sash" in B.parts:
+        return _harpy(B, action, f, view)
     if "seg" in B.parts.wings:
         return _flyer(B, action, f, view)
     P = Pose()
@@ -531,7 +538,399 @@ def _flyer(B, action: str, f: int, view: float) -> Pose:
         for k in range(5):
             u = (k * 0.23 + f * 0.11) % 1.0
             P.fx.append((C + v3(-4.0 - 6.0 * u, (k - 2.0) * 2.4, 0.5 - u), M.CLOUD_WISP if k % 2 else M.CLOUD_WISP_DIM))
+    if p.fx == "comet":
+        _comet(P, B, action, f, at, bd)                  # M4: the comet sparrow's tail of fire
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, z))
     return P
+
+
+# ================================================================================================= the comet sparrow (M4)
+SPARROW_STYLES = {
+    "comet_flare": {"rise": (1.0, 2.0, 2.6, 2.8), "lunge": (-0.4, -0.9, -1.2, -1.3), "pitch": (8.0, 2.0, -10.0, -16.0),
+                    "el": (34.0, 52.0, 62.0, 64.0), "sweep": (10.0, 24.0, 34.0, 38.0), "flare": (0.3, 0.6, 0.9, 1.0), "glare": True,
+                    "head": (4.0, 0.0, -6.0, -10.0)},
+    "comet_dive": {"lunge": (2.6, 6.0, 6.4, 5.0, 2.6, 0.8), "rise": (-1.5, -5.0, -4.6, -2.6, -1.0, 0.0), "pitch": (-24.0, -10.0, 2.0, 6.0, 3.0, 0.0),
+                   "el": (10.0, 40.0, 50.0, 40.0, 26.0, 14.0), "sweep": (36.0, 4.0, 0.0, 0.0, 0.0, 0.0), "fold": (0.45, 0.0, 0.0, 0.0, 0.0, 0.0),
+                   "head": (-10.0, 4.0, 4.0, 2.0, 0.0, 0.0), "streaks": (0, 1), "stretch": (1.4, 1.6, 1.2, 1.0, 1.0, 1.0),
+                   "crescent": (1, 2), "squash": {1: (1.05, 1.0, 0.95)}},
+}
+STYLES.update(SPARROW_STYLES)
+SPARROW = _bird(HAWK, Z=9.0, body={"r": (2.2, 1.65, 1.55), "breast": -0.1, "bars": False},
+                neck={"kind": "short", "base": (1.6, 0.0, 0.5), "head": (2.7, 0.0, 1.4), "r": (1.2, 1.1), "ruff": None},
+                head={"r": (1.55, 1.4, 1.4), "eye": (0.75, 0.95, 0.35), "beak": (1.0, 0.75, 0.45, 0.25), "hook": 0.0, "cere": False, "brow": True,
+                      "crest": ((-0.4, 0.0, 1.1), 3, 1.5)},
+                wings={"at": (0.6, 1.4, 0.6), "seg": (1.9, 2.3, 2.7), "chord": (2.9, 2.7, 2.1), "fingers": 4, "finger": 1.5, "tip": 0.35,
+                       "bolt": False},
+                tail={"at": (-2.2, 0.0, 0.1), "length": 2.4, "spread": 1.5, "bands": 0, "tip": 0.3},
+                legs={"kind": "tucked", "at": (-0.4, 0.7, -1.2), "r": (0.32, 0.25), "talon": 0.6},
+                fx="comet", iris="SPARROW_EYE", comet={"length": 9.5, "r": 1.25, "n": 11})
+VARIANTS["sparrow"] = {"parts": SPARROW, "mats": {"body": "cs_feather", "covert": "cs_feather", "flight": "cs_flight", "tip": "cs_gold",
+                                                  "skin": "cs_feather", "beak": "cs_gold", "leg": "cs_flight", "breast": "cs_breast",
+                                                  "crest": "cs_flame_or", "flame": "cs_flame_or", "flame_mid": "cs_flame_mg",
+                                                  "flame_tip": "cs_flame_vi", "smoke": "cs_smoke"},
+                       "motion": dict(_FLY, windup="comet_flare", attack="comet_dive")}
+
+
+def _comet(P, B, action: str, f: int, at, bd) -> None:
+    """The comet's tail of fire: a ribbon of flame streaming back from under its tail (balls of light shrinking toward
+    its tip, gold-white at the root through orange and magenta to violet), waving and flickering, sparks of star fire
+    shed off it; drooping as it hovers, streaming straight back as it flies, flaring wide in the tell (`flare`),
+    stretched long in the dive (`stretch`) with a burning crescent on the blow (`crescent`); guttering into smoke as it
+    falls."""
+    cm, m, st = B.parts.comet, B.mats, B.style(action)
+    flare = B.pick("flare", action, f)
+    stretch = B.pick("stretch", action, f, 1.0)
+    dying = action == "death"
+    n = cm.n
+    length = cm.length * stretch * (1.0 + 0.25 * flare) * (max(0.15, 1.0 - f / 6.0) if dying else 1.0)
+    droop = 0.35 if action == "idle" else (0.1 if action in ("walk", "attack") else 0.2)
+    root = at((-bd.r[0] - 0.6, 0.0, 0.1))
+    for i in range(n):
+        t = (i + 0.5) / n
+        wv = math.sin(f * 1.3 + t * 5.0) * (0.7 + 0.5 * flare) * t
+        q = root + at((-length * t, wv, -droop * length * t * t + 0.4 * math.sin(f * 0.9 + t * 4.0) * t)) - at((0.0, 0.0, 0.0))
+        r = (cm.r * (1.0 - 0.8 * t) + 0.25) * (1.0 + 0.45 * flare)
+        if dying:
+            if f >= 2:
+                P.add(S(q, r * (1.0 - 0.1 * f), m.smoke, "comet", line=False))
+                continue
+        mat = m.flame if t < 0.38 else (m.flame_mid if t < 0.72 else m.flame_tip)
+        P.add(S(q, r, mat, "comet", line=False))
+        if i % 3 == 1 and not dying:
+            side = 1.0 if (i + f) % 2 else -1.0
+            P.add(S(q + at((0.2, side * r * 0.9, r * 0.5)) - at((0.0, 0.0, 0.0)), r * 0.5, mat, "comet", line=False))
+    if not dying:
+        P.glow.append((root + at((-0.6, 0.0, 0.2)) - at((0.0, 0.0, 0.0)), M.COMET_CORE))
+        ns = 4 + int(6 * flare)
+        for k in range(ns):
+            u = ((k * 0.37 + f * 0.21) % 1.0)
+            q = root + at((-length * (0.3 + 0.8 * u), ((k % 3) - 1) * (1.4 + 1.6 * flare), 0.8 * math.sin(k + f) + 0.6)) - at((0.0, 0.0, 0.0))
+            P.glow.append((q, M.SPARK if k % 2 else M.COMET_SPARK))
+    if action == "attack" and f in st.get("crescent", ()):
+        c = at((bd.r[0] + 2.4 + (f - 1) * 1.2, 0.0, -0.4))
+        for j in range(13):
+            ang = math.radians(-70.0 + j * 140.0 / 12.0)
+            rr = 2.6 + 0.6 * (f - 1)
+            P.glow.append((c + v3(math.cos(ang) * rr * 0.4 - rr * 0.4, math.sin(ang) * rr, 0.3 * math.cos(ang)),
+                           M.COMET_CORE if j % 3 == 1 else M.FLAME))
+
+# ================================================================================================= the canyon harpy (M3)
+# The canyon harpy (`sash`): a russet bird-woman spirit of the Gale Canyons, "a human face on a bird's body" out of the
+# old bestiaries, hovering upright over her shadow: a lean feathered body (russet over the back, barred, a pale sandstone
+# front) leaning into her flight, a pale human face (a hair cap of russet plumes, a hooked slate beak of a nose, amber
+# eyes under angry brows) held level as she leans, two long barred plumes arching back from her crown like a warrior's
+# pheasant feathers (a bone clasp at their root, shorter plumes between), a plume mane, a necklace of bone beads, broad
+# barred wings in place of arms beating, a barred tail fan, shaggy feathered thighs over scaly sandstone shanks and
+# hooked slate talons hanging under her, a tattered crimson sash across her body, its ends streaming back.
+#
+# Channels: `lunge`, `rise`, `lean` (+ forward, degrees), `roll`, `head` (its pitch), `el`, `sweep`, `fold` (the wings, as
+# the flyers'), `talons` (0..1: thrust forward), `jaw` (0..1: the screech), `glow` (the eyes'), `rings` (the screech's
+# rings, how many), `flow` (0..1: the sash and plumes streaming back), `streaks`, `rake` (the talons' rake on the ground,
+# the blow), `burst` (feathers thrown off when struck), `drop` (0..1: fallen to the floor), `dust`, `fade`.
+HARPY_STYLES = {
+    "harpy_hover": {"kind": "beat", "amp": 30.0, "base": 20.0, "bob": 0.6, "lean": 12.0, "flow": 0.25},
+    "harpy_fly": {"kind": "beat", "amp": 36.0, "base": 12.0, "bob": 0.8, "lean": 30.0, "flow": 1.0},
+    "rear_screech": {"lean": (2.0, -8.0, -14.0, -16.0), "rise": (0.6, 1.4, 1.9, 2.0), "lunge": (-0.4, -0.9, -1.2, -1.3),
+                     "el": (50.0, 66.0, 74.0, 76.0), "sweep": (8.0, 16.0, 22.0, 24.0), "talons": (0.3, 0.6, 0.9, 1.0),
+                     "jaw": (0.3, 0.7, 1.0, 1.0), "glow": (0.5, 1.0, 1.5, 2.0), "rings": (0.0, 1.0, 2.0, 3.0), "flow": (0.4,) * 4,
+                     "head": (4.0, 8.0, 12.0, 12.0)},
+    "talon_dive": {"lunge": (3.0, 6.4, 6.6, 5.0, 2.6, 0.8), "rise": (-2.0, -5.6, -5.2, -3.2, -1.4, 0.0), "lean": (40.0, 18.0, 6.0, 4.0, 8.0, 12.0),
+                   "el": (70.0, 40.0, 30.0, 34.0, 28.0, 22.0), "sweep": (30.0, -10.0, -14.0, -4.0, 0.0, 0.0), "talons": (0.8, 1.0, 1.0, 0.6, 0.3, 0.0),
+                   "flow": (1.0, 1.0, 0.8, 0.5, 0.3, 0.2), "streaks": (1.0, 1.0, 0.4, 0.0, 0.0, 0.0), "rake": (0.0, 1.0, 0.6, 0.0, 0.0, 0.0),
+                   "jaw": (0.4, 0.6, 0.3, 0.0, 0.0, 0.0), "glow": (1.0, 0.6, 0.0, 0.0, 0.0, 0.0), "squash": {1: (1.03, 1.0, 0.97)}},
+    "feather_burst": {"lunge": (-2.4, -1.4, -0.4), "rise": (0.8, 0.5, 0.2), "lean": (-14.0, -6.0, 4.0), "roll": (12.0, 6.0, 0.0),
+                      "el": (70.0, 50.0, 30.0), "burst": (1.0, 0.6, 0.3), "squint": True, "jaw": (0.6, 0.3, 0.0), "head": (-10.0, -4.0, 0.0),
+                      "flow": (0.6, 0.5, 0.3)},
+    "tumble_land": {"drop": (0.0, 0.15, 0.35, 0.6, 0.85, 1.0, 1.0, 1.0), "lean": (-10.0, -30.0, -55.0, -75.0, -88.0, -90.0, -90.0, -90.0),
+                    "roll": (8.0, 18.0, 24.0, 16.0, 8.0, 6.0, 6.0, 6.0), "el": (60.0, 40.0, 20.0, 0.0, -6.0, -8.0, -8.0, -8.0),
+                    "fold": (0.0, 0.2, 0.4, 0.55, 0.6, 0.6, 0.6, 0.6), "dust": (0.0, 0.0, 0.0, 0.0, 1.0, 0.6, 0.3, 0.0),
+                    "fade": (0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.5, 0.8), "talons": (0.3, 0.3, 0.2, 0.1, 0.0, 0.0, 0.0, 0.0),
+                    "jaw": (0.6, 0.4, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2), "flow": (0.6, 0.8, 0.8, 0.6, 0.3, 0.2, 0.2, 0.2), "dead_from": 2},
+}
+STYLES.update(HARPY_STYLES)
+HARPY = {
+    "Z": 7.8,                                      # the torso's middle over the floor
+    "torso": {"r": (1.55, 1.5, 2.4), "front": 0.25, "sash": (0.55, -0.2, 0.36)},
+    "head": {"at": (0.35, 0.0, 3.85), "r": (1.45, 1.3, 1.5), "eye": (1.34, 0.52, 0.22), "nose": (1.3, 0.5, 0.26), "cap": 1.15},
+    "crest": {"plumes": 2, "length": 5.4, "tufts": 3, "r": 0.3},
+    "mane": {"at": (0.0, 0.0, 2.15), "r": (1.15, 1.35, 0.75)},
+    "beads": {"at": (0.15, 0.0, 1.8), "ring": 1.15, "n": 9, "r": 0.24},
+    "wings": {"at": (-0.1, 1.3, 1.6), "seg": (2.2, 2.6, 3.0), "chord": (3.4, 3.1, 2.4), "fingers": 5, "finger": 2.0, "covert": 0.45,
+              "tip": 0.0, "feathers": 4, "bars": 1.3},
+    "tail": {"at": (-0.7, 0.0, -2.0), "length": 3.2, "spread": 1.3, "bands": 3},
+    "legs": {"hip": (-0.1, 0.65, -1.9), "thigh": (0.85, 0.8, 1.15), "shank": 1.7, "r": 0.3, "talon": 0.9},
+    "sash": {"at": (-1.1, 0.0, -1.0), "length": 6.0, "n": 5, "width": 0.7},
+}
+VARIANTS.update({
+    "harpy": {"parts": HARPY, "mats": {"body": "ch_plume", "covert": "ch_plume", "flight": "ch_flight", "tip": "ch_flight",
+                                       "under": "ch_under", "face": "ch_face", "slate": "ch_slate", "sash": "ch_sash", "bone": "ch_bone",
+                                       "maw": "maw"},
+              "motion": {"idle": "harpy_hover", "walk": "harpy_fly", "windup": "rear_screech", "attack": "talon_dive",
+                         "hurt": "feather_burst", "death": "tumble_land"}},
+})
+
+
+def _ribbon(P, pts, width, mat, group, paint=None, fork=True):
+    """A flat ribbon through the points `pts`: a thin plate per span, cut square, lying flat to the floor along its run
+    (its face up), narrowing toward its end, its end cut in a swallowtail (`fork`)."""
+    n = len(pts) - 1
+    s0 = 0.0
+    for i in range(n):
+        a_, b_ = pts[i], pts[i + 1]
+        seg = b_ - a_
+        ln = float(np.linalg.norm(seg)) or 1e-6
+        ax = seg / ln
+        side = np.cross(v3(0.0, 0.0, 1.0), ax)
+        side = side / (float(np.linalg.norm(side)) or 1.0)
+        mm = np.stack([ax, side, np.cross(ax, side)], axis=1)
+        mid = (a_ + b_) * 0.5
+        hl, hw = ln * 0.5 + 0.15, width * 0.5 * (1.0 - 0.35 * i / n)
+
+        def clip(q, mid=mid, ax=ax, side=side, hl=hl, hw=hw, last=i == n - 1):
+            rel = q - mid
+            u, v = rel @ ax, rel @ side
+            keep = (np.abs(u) <= hl) & (np.abs(v) <= hw)
+            if last and fork:
+                keep &= u <= hl - 0.7 * (1.0 - np.abs(v) / max(hw, 1e-6))
+            return keep
+
+        P.add(E(mid, (hl * 1.42, hw * 1.42, 0.16), mat, group, mm, paint(mid, ax, hl, s0) if paint else None, clip))
+        s0 += ln
+
+
+def _harpy(B, action: str, f: int, view: float) -> Pose:
+    """M3, the canyon harpy (see HARPY_STYLES): hovering upright on slow beats, leaning into her flight; in her tell she
+    rears back, wings high, talons thrust forward, and screeches (rings of sound from her open mouth, her amber eyes
+    burning); she dives and rakes with her talons, three slashes torn in the ground; struck, feathers burst off her;
+    beaten, she tumbles out of the air with her wings folding, lands on her back and fades."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    fr, bk = headon(view)
+    lunge = B.pick("lunge", action, f)
+    rise = B.pick("rise", action, f)
+    lean = B.pick("lean", action, f, st.get("lean", 12.0))
+    roll = B.pick("roll", action, f)
+    hpitch = B.pick("head", action, f)
+    sweep = B.pick("sweep", action, f)
+    fold = B.pick("fold", action, f)
+    talons = B.pick("talons", action, f)
+    jaw = B.pick("jaw", action, f)
+    glow = B.pick("glow", action, f)
+    rings = int(B.pick("rings", action, f))
+    flow = B.pick("flow", action, f, st.get("flow", 0.2))
+    streaks = B.pick("streaks", action, f)
+    rake = B.pick("rake", action, f)
+    burst = B.pick("burst", action, f)
+    drop = B.pick("drop", action, f)
+    dust = B.pick("dust", action, f)
+    fade = B.pick("fade", action, f)
+    bob = 0.0
+    if st.get("kind") == "beat":
+        n = 6 if action == "idle" else 8
+        ph = f / n * math.tau
+        el = st.base + st.amp * math.sin(ph)
+        lag = st.amp * 0.45 * math.sin(ph - 1.3)
+        bob = -st.bob * math.sin(ph)
+    else:
+        ph = f * 1.1
+        el = B.pick("el", action, f, 20.0)
+        lag = 0.0
+    to = p.torso
+    z = (p.Z + rise + bob) * (1.0 - drop) + drop * (to.r[0] + 0.1)
+    C = v3(lunge, 0.0, z)
+    bm = rot("a", roll)
+    tm = bm @ rot("b", -lean)
+    at = lambda q: C + tm @ v3(q)
+    dead = action == "death" and f >= st.get("dead_from", 99)
+
+    def plumage(q, n):
+        """Russet over her back and sides, barred; the pale sandstone of her front; the crimson sash across her."""
+        loc = (q - C) @ tm
+        nl = n @ tm
+        front = nl[:, 0] > to.front
+        sa, sb, sw = to.sash
+        sash = np.abs(loc[:, 2] - sa * loc[:, 1] - sb) < sw
+        bars = ~front & (((loc[:, 2] * 1.5 + loc[:, 0] * 0.3) % 1.0) < 0.22)
+        names = np.where(sash, m.sash, np.where(front, m.under, m.body)).astype(object)
+        return names, np.where(bars & ~sash, -1, 0).astype(np.int16)
+
+    # The sash's ends streaming back from her waist (lifted and straight behind as she flies, hanging as she hovers).
+    sh = p.sash
+    for s in (1, -1):
+        root = at((sh.at[0], s * 0.35, sh.at[2]))
+        pts = [root]
+        for i in range(1, sh.n + 1):
+            t = i / sh.n
+            wv = math.sin(ph + t * 3.4 + (0.8 if s > 0 else 0.0)) * (0.5 + 0.6 * (1.0 - flow)) * t
+            pts.append(root + bm @ v3(-sh.length * t * (0.45 + 0.55 * flow), s * (0.5 * t) + wv, -sh.length * t * (1.0 - flow) * 0.55 + 0.3 * wv))
+        _ribbon(P, pts, sh.width, m.sash, "sash%d" % s)
+    P.add(E(C, to.r, m.body, "torso", tm, plumage))
+    # The tail fan, down and back from under her, barred.
+    t = p.tail
+    ta = tm @ np.array((-0.45, 0.0, -1.0)) / math.hypot(0.45, 1.0)
+    tb = tm @ v3(0.0, 1.0, 0.0)
+    tmm = np.stack([ta, tb, np.cross(ta, tb)], axis=1)
+    tc = at(t.at) + ta * t.length * 0.5
+
+    def tailp(q, n):
+        u = ((q - tc) @ ta) / t.length + 0.5
+        band = (u * 2.0 * t.bands) % 1.0 < 0.3
+        line = (((q - tc) @ tb) * 2.2 % 1.0) < 0.2
+        return np.full(len(q), m.flight, dtype=object), np.where(band, -2, np.where(line, -1, 0)).astype(np.int16)
+
+    P.add(E(tc, (t.length * 0.6, t.spread * (1.0 + 0.3 * (action in ("windup", "attack"))), 0.32), m.flight, "tail", tmm, tailp))
+    # The legs: shaggy feathered thighs, scaly sandstone shanks, hooked slate talons; hanging under her, thrust forward in
+    # her tell and her rake, along her as she lies.
+    g = p.legs
+    lm = tm if action == "death" else bm @ rot("b", -lean * 0.35)
+    for s in (1, -1):
+        hip = at((g.hip[0], s * g.hip[1], g.hip[2]))
+        knee = hip + lm @ v3(0.55 + 1.3 * talons, s * 0.15, -1.45 + 0.35 * talons)
+        ankle = knee + lm @ v3(-0.35 + 1.4 * talons, s * 0.05, -g.shank + 0.7 * talons)
+        P.add(E((hip + knee) * 0.5, g.thigh, m.body, "thigh%d" % s, lm))
+        P.add(L(knee, ankle, g.r, g.r * 0.85, m.under, "shank%d" % s))
+        spread = 0.3 + 0.7 * talons
+        for tt in (-28.0, 0.0, 28.0, 180.0):
+            a = math.radians(tt * (0.6 + 0.4 * spread)) if tt != 180.0 else math.pi
+            d = lm @ v3(math.cos(a) * (0.9 if tt != 180.0 else 0.6), math.sin(a) * 0.8, -0.35 - 0.4 * (1.0 - talons))
+            tipq = ankle + d * g.talon
+            P.add(L(ankle, tipq, 0.22, 0.12, m.slate, "talon%d" % s, line=False))
+            P.add(L(tipq, tipq + lm @ v3(0.0, 0.0, -0.35), 0.12, 0.08, m.slate, "talon%d" % s, line=False))
+    # The wings: her arms, from her shoulders; three panels and the fingered primaries, barred across the flight feathers.
+    w = p.wings
+    wm = bm @ rot("b", -lean * 0.5)
+    for s in (1, -1):
+        root = at((w.at[0], s * w.at[1], w.at[2]))
+        segs = [L_ * (1.0 - 0.55 * fold) for L_ in w.seg]
+        prev = root
+        for i, (ln, ch) in enumerate(zip(segs, w.chord)):
+            e_ = el + (lag if i == 2 else lag * 0.4 if i == 1 else 0.0)
+            e_ = e_ * (1.0 - fold) - 8.0 * fold
+            sw = sweep + (8.0 + 18.0 * i) * (1.0 if i else 0.4) + 70.0 * fold * (i + 1) / 3.0
+            sp = wm @ v3(-math.sin(math.radians(sw)), s * math.cos(math.radians(sw)) * math.cos(math.radians(e_)),
+                         math.cos(math.radians(sw)) * math.sin(math.radians(e_)))
+            sp = sp / float(np.linalg.norm(sp))
+            cd = wm @ v3(-1.0, 0.0, 0.0)
+            cd = cd - sp * float(cd @ sp)
+            cd = cd / max(1e-6, float(np.linalg.norm(cd)))
+            nm = np.cross(sp, cd)
+            end = prev + sp * ln
+            centre = (prev + end) * 0.5 + cd * (ch * 0.3)
+            hs, hc_ = ln * 0.62, ch * 0.55 * (1.0 - 0.3 * fold)
+            base = _wing_paint(m, centre, sp, cd, hs, hc_, i == 2, w)
+
+            def barred(q, n, base=base, centre=centre, sp=sp, cd=cd, hc_=hc_):
+                names, bias = base(q, n)
+                v = ((q - centre) @ cd) / max(0.1, hc_)
+                bar = (v > w.covert * 2.0 - 1.0) & ((((q - centre) @ sp) * w.bars % 1.0) < 0.3)
+                return names, np.where(bar, bias - 1, bias).astype(np.int16)
+
+            P.add(E(centre, (hs, hc_, 0.42), m.covert, "wing%d" % s, np.stack([sp, cd, nm], axis=1), barred))
+            prev = end
+        for j in range(w.fingers):
+            ang = math.radians(-8.0 + 16.0 * j) * (1.0 - 0.6 * fold)
+            d = sp * math.cos(ang) + cd * math.sin(ang)
+            base = prev - sp * 0.6 + cd * (j * 0.35)
+            P.add(L(base, base + d * w.finger * (1.0 - 0.15 * abs(j - w.fingers / 2.0) / w.fingers), 0.42, 0.22, m.flight, "wing%d" % s,
+                    line=False))
+    # The mane and the bone beads round her neck.
+    mn = p.mane
+    P.add(E(at(mn.at), mn.r, m.body, "mane", tm))
+    bd = p.beads
+    for k in range(bd.n):
+        a = math.radians(-100.0 + 200.0 * k / (bd.n - 1))
+        P.add(S(at((bd.at[0] + bd.ring * math.cos(a), bd.ring * math.sin(a), bd.at[2] - 0.25 * abs(math.sin(a)))), bd.r, m.bone, "beads",
+                line=False))
+    # The head: held level as she leans (lying back as she dies), her face pale, a cap of russet plumes over its crown and
+    # back, her beak of a nose, her eyes, the screech's open mouth.
+    hd = p.head
+    hc = at(hd.at)
+    hm = (tm if action == "death" else bm) @ rot("b", hpitch - 4.0 + 8.0 * fr)
+    P.add(L(at((0.1, 0.0, 2.0)), hc + hm @ v3(-0.1, 0.0, -0.6), 0.75, 0.65, m.face, "neck"))
+    cap = hd.cap
+
+    def face(q, n):
+        loc = (q - hc) @ hm
+        hair = (loc[:, 2] > cap - 0.2 * loc[:, 0]) | (loc[:, 0] < -0.25)
+        return np.where(hair, m.flight, m.face).astype(object), np.zeros(len(q), dtype=np.int16)
+
+    P.add(E(hc, hd.r, m.face, "head", hm, face))
+    P.add(E(hc + hm @ v3(-0.75, 0.0, -0.7), (0.95, 1.15, 1.7), m.flight, "hair", hm))      # her long hair down her back
+    hp = lambda q: hc + hm @ v3(q)
+    na, nl_, nr = hd.nose
+    nq = hp((na, 0.0, 0.1))
+    ntip = nq + hm @ v3(nl_, 0.0, -0.2)
+    P.add(L(nq, ntip, nr, 0.16, m.slate, "nose"), L(ntip, ntip + hm @ v3(0.0, 0.0, -0.4), 0.16, 0.1, m.slate, "nose"))
+    if jaw > 0.25:
+        P.add(E(hp((hd.r[0] * 0.78, 0.0, -0.6)), (0.3, 0.38, 0.12 + 0.28 * jaw), m.maw, "mouth", hm, line=False))
+    ea, eb, ec = hd.eye
+    for s in (1, -1):
+        eye = hp((ea, s * eb, ec))
+        P.mark(hp((ea + 0.05, s * (eb - 0.15), ec + 0.38)), M.CH_BROW)
+        P.mark(hp((ea - 0.05, s * (eb + 0.2), ec + 0.48)), M.CH_BROW)
+        if dead or st.get("squint"):
+            P.mark(eye, M.CH_BROW)
+            continue
+        P.eye(eye, M.CH_EYE)
+        if glow >= 1.0:
+            for dd in ((0.25, s * 0.15, 0.25), (0.25, s * 0.35, -0.15), (0.1, s * 0.6, 0.15)):
+                P.glow.append((eye + hm @ v3(*dd), M.CH_GLOW))
+    # The crest: two long barred plumes arching back from her crown (streaming back as she flies), shorter tufts between,
+    # a bone clasp at their root.
+    cr = p.crest
+    crown = hp((-0.25, 0.0, hd.r[2] * 0.85))
+    P.add(S(crown, 0.42, m.bone, "clasp", line=False))
+    for j in range(cr.plumes + cr.tufts):
+        long_ = j < cr.plumes
+        sd = (1 if j % 2 == 0 else -1) * (0.35 if long_ else 0.15 * (j - cr.plumes))
+        ln = cr.length if long_ else cr.length * 0.32
+        sway = 0.3 * math.sin(ph + j * 0.7)
+        pts = [crown + hm @ v3(0.0, sd * 0.6, 0.0)]
+        for k, (dx, dz) in enumerate(((-0.22, 0.2), (-0.32, 0.06), (-0.3, -0.08), (-0.24, -0.2))):
+            dz = dz * (1.0 - 0.6 * flow) - 0.06 * flow
+            pts.append(pts[-1] + hm @ v3(dx * ln, sd * (1.2 + 0.6 * k) + sway * k * 0.3, dz * ln))
+        for k in range(len(pts) - 1):
+            r0 = (cr.r if long_ else cr.r * 0.9) * (1.0 - k * 0.2)
+            P.add(L(pts[k], pts[k + 1], r0, r0 * 0.8, m.body, "crest%d" % j, line=k == 0))
+            if long_:
+                P.mark((pts[k] + pts[k + 1]) * 0.5 + v3(0.0, 0.0, 0.3), M.RAMPS[m.flight][1])
+    # Her screech: rings of sound from her open mouth; the dive's streaks; the rake torn in the ground; feathers thrown
+    # off; the dust of her landing.
+    mouth = hp((hd.r[0] + 0.6, 0.0, -0.5))
+    for k in range(1, rings + 1):
+        rr = 1.2 + 1.3 * k
+        for j in range(25):
+            a = math.radians(-120.0 + 10.0 * j)
+            P.fx.append((mouth + bm @ v3(1.0 * k, math.sin(a) * rr, math.cos(a) * rr * 0.8), M.CH_RING if k % 2 else M.CH_RING_DIM))
+    if streaks > 0.0:
+        for j in range(4):
+            yy = (j - 1.5) * 1.8
+            for d in range(3):
+                P.fx.append((C + bm @ v3(-3.0 - d * 1.3, yy, 2.0 + d * 0.9), M.WK_WIND if d < 2 else M.WK_WIND_DIM))
+    if rake > 0.0:
+        for j in (-1, 0, 1):
+            for d in range(7):
+                u = d / 6.0
+                q = v3(lunge + 2.0 + 3.2 * u, j * 0.9 + 1.2 * u - 0.6, 0.2)
+                P.glow.append((q, M.CH_RAKE if 1 <= d <= 5 else M.CH_RAKE_DIM))
+    if burst > 0.0:
+        for k in range(9):
+            a = math.radians(k * 40.0 + 15.0)
+            rr = 2.4 + 2.6 * (1.0 - burst) + (k % 3) * 0.5
+            P.fx.append((C + v3(math.cos(a) * rr * 0.7, math.sin(a) * rr, 0.8 + (k % 4) * 0.7), M.RAMPS[m.body][3 if k % 2 else 4]))
+    if dust > 0.0:
+        for k in range(10):
+            a = math.radians(k * 36.0)
+            rr = 3.0 + 2.0 * (1.0 - dust)
+            P.fx.append((v3(lunge + math.cos(a) * rr, math.sin(a) * rr * 1.2, 0.3 + (k % 2) * 0.4), M.DUST if k % 2 else M.DUST_DIM))
+    if fade > 0.0:
+        P.dissolve = fade
+        P.dissolve_col = M.RAMPS[m.body][4]
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, z))
+    return P
+

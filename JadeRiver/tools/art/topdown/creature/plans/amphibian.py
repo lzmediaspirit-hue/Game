@@ -141,6 +141,9 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         _throat(P, B, c)
         _legs_squat(P, B, c)
         _tongue(P, B, c)
+    for key, fn in M3_PARTS.items():
+        if p.get(key):
+            fn(P, B, c)                        # M3's kinds (the Thousand-Eye Toad's eyes, its crown, its slam)
     if f in st.get("dust", ()):
         for k in range(4):
             ang = math.radians(k * 90.0 + 45.0)
@@ -287,6 +290,7 @@ def _legs_squat(P, B, c) -> None:
     """The thick hind legs folded at its sides, trailing in a hop; short front legs propping the chest."""
     m, at, ahead, z, hop, bk = B.mats, c.at, c.ahead, c.z, c.hop, c.bk
     air = hop > 1.2
+    th = B.parts.legs.get("thick", 1.0)          # M3: a heavier toad's legs (the Thousand-Eye Toad's)
     for s in (1, -1):
         if air:
             hip, knee, foot = v3(ahead - 4.2, s * 3.8, z - 1.0), v3(ahead - 7.4, s * 4.8, z - 1.8), v3(ahead - 10.2, s * 4.4, z - 2.4)
@@ -294,10 +298,10 @@ def _legs_squat(P, B, c) -> None:
             hip, knee = v3(ahead - 4.0, s * 4.6, z - 1.6), v3(ahead + 0.4, s * (6.8 + 1.4 * bk), 2.2)
             foot = v3(ahead - 3.0 - 0.6 * bk, s * (7.0 + 1.6 * bk), 0.6)
         P.add(E(hip + v3(0.6, 0.0, 0.0), (3.2, 2.2, 2.3), m.skin, "hind%d" % s, rot("c", s * 20.0), c.paint),
-              L(hip, knee, 1.8, 1.4, m.leg, "hind%d" % s), L(knee, foot, 1.3, 1.0, m.leg, "hind%d" % s),
-              E(foot + v3(-0.8 if air else 1.0, 0.0, 0.0), (2.1, 1.5, 0.55), m.leg, "hind%d" % s))
+              L(hip, knee, 1.8 * th, 1.4 * th, m.leg, "hind%d" % s), L(knee, foot, 1.3 * th, 1.0 * th, m.leg, "hind%d" % s),
+              E(foot + v3(-0.8 if air else 1.0, 0.0, 0.0), (2.1 * th, 1.5 * th, 0.55 * th), m.leg, "hind%d" % s))
         hand = v3(ahead + 5.4 + (1.8 if air else 0.0), s * 4.8, 0.6 + (hop * 0.5 if air else 0.0))
-        P.add(L(at((3.8, s * 3.6, -2.2)), hand, 1.25, 1.0, m.leg, "arm%d" % s), E(hand, (1.3, 1.1, 0.5), m.leg, "arm%d" % s))
+        P.add(L(at((3.8, s * 3.6, -2.2)), hand, 1.25 * th, 1.0 * th, m.leg, "arm%d" % s), E(hand, (1.3 * th, 1.1 * th, 0.5 * th), m.leg, "arm%d" % s))
 
 
 def _tongue(P, B, c) -> None:
@@ -316,3 +320,155 @@ def _tongue(P, B, c) -> None:
         if f == 1:
             for d in ((1.9, 0.0, 1.6), (2.5, 0.0, 2.2), (1.3, 0.0, 2.2), (1.9, 0.0, 2.8)):
                 P.glow.append((tip + v3(*d), M.GLINT))
+
+
+# ================================================================================================= M3
+# M3's kinds, each optional (a species names them), so every species drawn before draws byte for byte: the parts the
+# pose lays on by the key that names them (M3_PARTS).
+M3_PARTS: dict = {}
+
+# M3, the Thousand-Eye Toad (Mirrorwater Lake's field boss): its channels besides the toad's: `stare` (0..1, every eye on
+# its back opening wide and glowing violet), `slam` (the frames its belly slam throws a wall of lake water), `shut`
+# (its back's eyes squeezed shut), `close` (closing one by one as it dies: how many a frame), `sink` (0..1, fading
+# into the lake).
+STYLES.update({
+    "swell_breathe": {"sq": (1.0, 1.02, 1.03, 1.02, 1.01, 1.0), "puff": (0.0, 0.2, 0.35, 0.25, 0.1, 0.0), "sway": 0.5,
+                      "stare": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0), "blink": (2, 4)},
+    "swell_glare": {"ahead": (-0.3, -0.6, -0.8, -0.9), "sq": (1.02, 1.05, 1.08, 1.08), "tilt": (-4.0, -8.0, -10.0, -10.0),
+                    "puff": (0.5, 1.1, 1.6, 1.8), "stare": (0.4, 0.8, 1.0, 1.0), "glare": 1, "maw": 3, "sway": 0.3},
+    "belly_slam": {"hop": (4.2, 0.0, 0.0, 0.0, 0.0, 0.0), "ahead": (2.0, 4.4, 4.6, 4.2, 3.0, 1.4), "tilt": (10.0, -4.0, -2.0, 0.0, 0.0, 0.0),
+                   "sq": (1.12, 0.74, 0.8, 0.92, 1.0, 1.0), "stretch": (1.0, 0.2, 0.0, 0.0, 0.0, 0.0), "puff": (0.6, 0.0, 0.0, 0.1, 0.2, 0.1),
+                   "stare": (1.0, 0.8, 0.5, 0.3, 0.1, 0.0), "slam": (1, 2, 3)},
+    "squeeze_shut": {"ahead": (-2.0, -1.2, -0.4), "sq": (0.82, 1.04, 1.0), "tilt": (-8.0, -3.0, 0.0), "puff": (0.0, 0.1, 0.0),
+                     "shut": (0, 1)},
+    "sink_close": {"sq": (1.0, 0.96, 0.92, 0.87, 0.83, 0.8, 0.78, 0.76), "puff": (0.6, 0.4, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0),
+                   "hop": (0.0, -0.2, -0.5, -0.8, -1.1, -1.4, -1.6, -1.8), "close": 4, "sink": (0.0, 0.0, 0.0, 0.1, 0.25, 0.45, 0.65, 0.85),
+                   "ring": (2, 3, 4, 5, 6)},
+})
+
+
+def _frame_n(n) -> np.ndarray:
+    """Axes for a part laid on a surface with outward normal `n` (its third axis)."""
+    a = np.cross(v3(0.0, 0.0, 1.0), n)
+    if float(np.linalg.norm(a)) < 0.2:
+        a = np.cross(v3(1.0, 0.0, 0.0), n)
+    a = a / float(np.linalg.norm(a))
+    return np.stack([a, np.cross(n, a), n], axis=1)
+
+
+def _eyes_back(P, B, c) -> None:
+    """M3, the Thousand-Eye Toad: dozens of round mirror eyes of different sizes over its back and flanks, each a silver-
+    white ball with a dark pupil (a ring of iris round the larger ones), a few half-lidded; in its tell every one opens
+    wide and glows violet; struck, they squeeze shut; beaten, they close one by one."""
+    eb, m, a, f = B.parts.eyes_back, B.mats, c.action, c.f
+    st = B.style(a)
+    seed = int(B.opts.get("seed", 0))
+    from ..motion import h01
+    rx, ry, rz = B.parts.body[0].r
+    radii = np.array((rx, ry, rz * c.sq))
+    stare = B.pick("stare", a, f)
+    shut_all = f in st.get("shut", ())
+    closed_n = int(st.get("close", 0) * f)
+    blink = f in st.get("blink", ())
+    k = 0
+    for v, count in eb.rows:
+        for i in range(count):
+            u = eb.u[0] + (eb.u[1] - eb.u[0]) * (i + 0.5) / count + (h01(k, 3, seed % 97) - 0.5) * 14.0
+            vv = v + (h01(k, 5, seed % 89) - 0.5) * 8.0
+            r = eb.r[0] + (eb.r[1] - eb.r[0]) * h01(k, 7, seed % 83)
+            lidded = h01(k, 11, seed % 79) > 0.72
+            cu, su = math.cos(math.radians(u)), math.sin(math.radians(u))
+            cv, sv = math.cos(math.radians(vv)), math.sin(math.radians(vv))
+            local = np.array((radii[0] * cv * cu, radii[1] * cv * su, radii[2] * sv))
+            nl = local / radii ** 2
+            n = c.tm @ (nl / float(np.linalg.norm(nl)))
+            base = c.C + c.tm @ local + n * (r * 0.45)
+            fm = _frame_n(n)
+            P.add(S(base, r, m.sclera_glow if stare > 0.5 else m.sclera, "eye_b%d" % k))
+            closed = shut_all or k < closed_n or (blink and k % 5 == f % 5)
+            if closed:
+                P.add(E(base + n * (r * 0.25), (r * 1.08, r * 1.08, r * 0.8), m.skin, "lid_b%d" % k, fm, line=False))
+            else:
+                pupil = base + n * r
+                if stare > 0.5:
+                    P.eye(pupil, M.TET_GLOW_CORE)
+                    for d in ((0.45, 0.0), (-0.45, 0.0), (0.0, 0.45), (0.0, -0.45)):
+                        P.mark(pupil + fm @ v3(d[0] * r * 1.4, d[1] * r * 1.4, -0.1), M.TET_IRIS)
+                    P.glow.append((pupil + n * 0.7, M.TET_HALO))
+                else:
+                    P.eye(pupil, M.TET_PUPIL)
+                    if r > 0.85:
+                        for d in ((0.5, 0.0), (-0.5, 0.0), (0.0, 0.5), (0.0, -0.5)):
+                            P.mark(pupil + fm @ v3(d[0] * r, d[1] * r, -0.1), M.TET_SILVER)
+                    if lidded:
+                        up = v3(0.0, 0.0, 1.0) - n * float(n[2])
+                        up = up / max(1e-6, float(np.linalg.norm(up)))
+                        P.add(E(base + n * (r * 0.2) + up * (r * 0.55), (r * 1.05, r * 0.7, r * 0.6), m.skin, "lid_b%d" % (k % 4), fm,
+                                line=False))
+            k += 1
+    sink = B.pick("sink", a, f)
+    if sink > 0.0:
+        P.dissolve = sink
+        P.dissolve_col = M.SPLASH_DIM
+
+
+M3_PARTS["eyes_back"] = _eyes_back
+
+
+def _lily_crown(P, B, c) -> None:
+    """M3, the Thousand-Eye Toad: a crown of water-lily pads on its head (each notched, its veins a step dark), lotus buds
+    standing among them and an open lotus, pink, its heart gold."""
+    cr, m, at, f = B.parts.crown, B.mats, c.at, c.f
+    for k, (a0, b0, z0, rr, tilt) in enumerate(cr.pads):
+        q = at((a0, b0, z0 * c.sq))
+        mm = c.tm @ rot("c", k * 70.0) @ rot("a", tilt)
+
+        def veins(qs, n, q=q, mm=mm, rr=rr):
+            loc = (qs - q) @ mm
+            ang = np.arctan2(loc[:, 1], loc[:, 0])
+            vein = ((ang * 3.0 / math.pi) % 1.0) < 0.18
+            notch = (np.abs(ang) < 0.25) & (np.hypot(loc[:, 0], loc[:, 1]) > rr * 0.35)
+            return np.full(len(qs), m.lily, dtype=object), np.where(notch, -2, np.where(vein, -1, 0)).astype(np.int16)
+        P.add(E(q, (rr, rr, 0.22), m.lily, "pad%d" % k, mm, veins))
+    for k, (a0, b0, z0) in enumerate(cr.buds):
+        base = at((a0, b0, z0 * c.sq - 0.6))
+        top = base + v3(0.1, 0.0, 1.2 + 0.1 * math.sin(f + k))
+        P.add(L(base, top, 0.22, 0.2, m.lily, "stem%d" % k, line=False), E(top, (0.5, 0.5, 0.75), m.lotus, "bud%d" % k))
+    lc = at(cr.lotus)
+    for j in range(7):
+        ang = math.radians(j * 360.0 / 7.0 + 10.0)
+        pm = c.tm @ rot("c", math.degrees(ang)) @ rot("b", -38.0)
+        P.add(E(lc + pm @ v3(0.75, 0.0, 0.3), (0.8, 0.38, 0.28), m.lotus, "lotus", pm, line=False))
+    P.add(S(lc + v3(0.0, 0.0, 0.25), 0.42, m.lotus, "lotus"))
+    P.mark(lc + v3(0.0, 0.0, 0.7), M.TET_LOTUS_HEART)
+
+
+M3_PARTS["crown"] = _lily_crown
+
+
+def _slam_water(P, B, c) -> None:
+    """M3, the Thousand-Eye Toad: the wall of lake water its belly slam throws up before it and round it (it lands on the
+    blow), the ripple ring spreading; and the rings as it sinks into the lake."""
+    a, f = c.action, c.f
+    st = B.style(a)
+    if a == "attack" and f in st.get("slam", ()):
+        k0 = f - 1
+        front = c.ahead + 8.0 + k0 * 2.4
+        for j in range(26):
+            ang = math.radians(-70.0 + j * 140.0 / 25.0)
+            rr = front
+            q = v3(math.cos(ang) * rr * 0.6 + c.ahead * 0.4, math.sin(ang) * rr, 0.6 + (3.0 - k0) * 1.4 * (0.6 + 0.4 * math.cos(ang * 3.0 + j)))
+            P.fx.append((q, M.SPLASH if j % 2 else M.FOAM))
+            P.fx.append((v3(q[0], q[1], q[2] * 0.5), M.SPLASH_DIM))
+        for j in range(30):
+            ang = math.radians(j * 12.0 + f * 7.0)
+            rr = 9.0 + k0 * 3.0
+            P.fx.append((v3(c.ahead + math.cos(ang) * rr * 0.9, math.sin(ang) * rr, 0.2), M.SPLASH_DIM if j % 2 else M.FOAM))
+    if a == "death" and f in st.get("ring", ()):
+        for j in range(26):
+            ang = math.radians(j * 360.0 / 26.0 + f * 11.0)
+            rr = 8.0 + (f - 2) * 1.8
+            P.fx.append((v3(math.cos(ang) * rr, math.sin(ang) * rr * 0.9, 0.2), M.SPLASH_DIM if j % 2 else M.FOAM))
+
+
+M3_PARTS["slam_water"] = _slam_water

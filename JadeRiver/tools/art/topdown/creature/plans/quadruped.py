@@ -48,6 +48,10 @@ tail, a `river` coat; styles idle `bask`, walk `scurry`, windup `tail_curl`, att
 `cracked` coat under a crest of `pebbles`) and `cervid` (the hollow stag: antlers, hollow eyes and mist, a `saddle` coat,
 `hackles`; the Hollow's look without its strands, `strands` False). The mist wolf is the canine with `opts.misty` (its
 fall comes apart into mist) and a `mist` brush tail.
+
+M4's `wyrm` (the hollowed wyrmling): the saurian made a dragonet, an `ash` coat cracked with violet light, a `wyrm` head
+(horns, empty violet eyes, ember in its throat, the fire it spits), torn `wings`, `stub` legs that leave the ground as it
+rears, a `coil` tail; styles idle `coil_twitch`, windup `rear_breath`, attack `spit_fire`, death `crumble_ash`.
 """
 from __future__ import annotations
 
@@ -60,7 +64,7 @@ from figure.geom import ik2
 from .. import mats as M
 from ..motion import gait, h01v, headon, wave
 from ..sculpt import E, L, Pose, S, chain, on, rot, v3
-from .kit import colour, lin, shut, topple
+from .kit import collapse, colour, lin, shut, topple
 
 # ------------------------------------------------------------------------------------------------ motion styles
 STYLES = {
@@ -367,16 +371,22 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     _body(P, B, c)
     if "crest" in p:
         _crest(P, B, c)
-    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
-     "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid}[p.head.kind](P, B, c)
+    dict({"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
+          "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid, "wyrm": _head_wyrm}, **M3_HEADS)[p.head.kind](P, B, c)
     {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig,
-     "sprawl": _legs_sprawl}[p.legs.kind](P, B, c)
-    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
-     "fin": _tail_fin}[p.tail.kind](P, B, c)
+     "sprawl": _legs_sprawl, "stub": _legs_stub}[p.legs.kind](P, B, c)
+    dict({"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
+          "fin": _tail_fin, "coil": _tail_coil}, **M3_TAILS)[p.tail.kind](P, B, c)
     if B.opts.get("hollowed") and action != "death" and p.get("strands", True):
         _strands(P, B, c)
     if p.get("dust"):
         _dust(P, B, c)
+    if p.get("wings"):
+        _wyrm_finish(P, B, c)                            # M4: the wyrmling's wings, its glowing cracks, its fall into ash
+    if p.get("plates"):
+        _behemoth(P, B, c)                     # M3, the Hollow Behemoth: its plates, drones, weak points and mist
+    if p.get("sapling"):
+        _sapling(P, B, c)                      # M3, the fruit's guardian: the spirit fruit's sapling on its back
     _finish(P, B, c)
     return P
 
@@ -412,6 +422,8 @@ def _motion(B, c) -> None:
     if a == "idle" and "breathe" in st:
         c.sc = 1.0 + st.breathe * wave(a, f)
     c.curl = B.pick("curl", a, f)
+    if B.has("arch", a):
+        c.arch = B.pick("arch", a, f)          # M3: a tell that arches the back (the spark weasel's), held
     c.z = B.parts.Z + c.bob
     if kind != "scurry":
         c.wig = 0.0
@@ -437,6 +449,10 @@ def _frame(B, c) -> None:
 def _coat(B, c):
     co, m = B.parts.coat, B.mats
     hips, bm = c.hips, c.bm
+    if co.kind == "ash":
+        return _coat_ash(B, c)                           # M4: the hollowed wyrmling
+    if co.kind in M3_COATS:
+        return M3_COATS[co.kind](B, c)
     if co.kind == "streak":
         def coat(q, n):
             """The pale belly underneath; darker streaks over the back."""
@@ -594,6 +610,8 @@ def _crest(P, B, c) -> None:
     a, f, at, bm = c.action, c.f, c.at, c.bm
     angry = B.style(a).get("angry", False)
     cr = B.parts.crest
+    if cr.get("kind") in M3_CRESTS:
+        return M3_CRESTS[cr.kind](P, B, c)
     if cr.get("kind") == "hackles":
         # M2, the mist wolf: a ruff of fur down its nape and over its shoulders, lying flat, raised in anger (its tell).
         up_ = 1.0 if angry else 0.0
@@ -720,6 +738,9 @@ def _head_snout(P, B, c) -> None:
         w = h.whiskers
         for k in range(w.get("n", 0)):
             P.mark(hp((w.at[0] + k * w.step[0], s * (w.at[1] + k * w.step[1]), w.at[2] + k * w.step[2])), M.RAMPS[m.pale][4])
+    if f in st.get("zap", ()):
+        # M3, the spark weasel: its bite discharges, lightning jumping off its jaws.
+        _spark(P, hp(h.nose.at) + hm @ v3(1.0, 0.0, -0.6), 1.5, f + 3)
 
 
 def _head_suid(P, B, c) -> None:
@@ -848,6 +869,16 @@ def _head_canine(P, B, c) -> None:
             P.mark(tip, M.RAMPS[m.sock][1])
         if torn:
             P.mark(tip, M.RAMPS[m.coat][0])
+        if e.get("tuft"):
+            # M3, the frost lynx: a dark tuft standing up off each ear's tip.
+            P.add(L(tip, tip + (tip - base) / max(1e-6, float(np.linalg.norm(tip - base))) * e.tuft, 0.28, 0.1, m.tuft, "tuft%d" % s,
+                    line=False))
+        if h.get("ruff"):
+            # M3, the frost lynx: the cheek ruff flaring down and out round its face, rimed.
+            (ra, rb, rc), rr = h.ruff
+            for j in range(3):
+                q = hp((ra - 0.3 * j, s * (rb + 0.25 * j), rc - 0.45 * j))
+                P.add(E(q, rr, m.ruff, "ruff%d" % s, hm @ rot("a", s * (-30.0 - 12.0 * j)), line=False))
         ey = h.eyes
         closed = shut(ey, a, f)
         eye = hp((ey.at[0], s * ey.at[1], ey.at[2]))
@@ -856,6 +887,17 @@ def _head_canine(P, B, c) -> None:
         else:
             P.eye(eye, colour(ey.colour))
             P.mark(hp((ey.at[0] - 0.35, s * (ey.at[1] + 0.05), ey.at[2] + 0.25)), M.INKY if angry else M.RAMPS[m.coat][0])
+            if ey.get("rim"):
+                # M3, the frost lynx: a dark rim round the glowing eye, running down its cheek in a tear line.
+                for d in ((0.0, 0.0, -0.4), (0.35, 0.0, -0.35), (-0.2, 0.3, -0.75)):
+                    P.mark(hp((ey.at[0] + d[0], s * (ey.at[1] + d[1]), ey.at[2] + d[2])), colour(ey.rim))
+    if a == "windup" and f in st.get("breath", ()):
+        # M3, the frost lynx: frost breath gathering at its muzzle as it crouches.
+        tip = hp(h.nose[0])
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 30.0)
+            rr = 0.8 + 0.25 * f + (k % 2) * 0.5
+            P.fx.append((tip + hm @ v3(0.9 + 0.3 * f, math.cos(ang) * rr, math.sin(ang) * rr * 0.7), M.FROST_BREATH if k % 2 else M.FROST_BREATH_DIM))
     if a == "windup" and f in st.get("barks", ()):
         # The bark: short lines thrown off its open jaws.
         tip = hp(h.nose[0])
@@ -906,6 +948,10 @@ def _head_cervid(P, B, c) -> None:
         eye = hp((h.eyes.at[0], s * h.eyes.at[1], h.eyes.at[2]))
         if shut(h.eyes, a, f):
             P.mark(eye, M.RAMPS[m.hide][0])
+        elif h.eyes.get("colour"):
+            # M3: a living stag's eye (the stormgrass stag's): dark, a glint over it.
+            P.eye(eye, colour(h.eyes.colour))
+            P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.GLINT)
         else:
             P.eye(eye, M.HOLLOW_EYE)
             P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.EYE_HALO)
@@ -921,8 +967,17 @@ def _head_cervid(P, B, c) -> None:
             P.add(L(beam[i], tip, an.r[0] * 0.7, an.r[1] if short == 1.0 else an.r[0] * 0.5, m.antler, "antler%d" % s))
             if short < 1.0:
                 P.mark(tip, M.RAMPS[m.antler][0])
+            if an.get("tufts"):
+                # M3: storm-grass caught in its tines, a tuft of blades at each tip, stirring.
+                for t_ in range(3):
+                    sw = 0.3 * math.sin(f * 1.1 + j + t_)
+                    P.add(L(tip, tip + hm @ v3(-0.5 + 0.4 * t_ - 0.4, s * (0.3 + sw), 0.9 - 0.25 * t_), 0.32, 0.1, m.grass, "tuft%d" % s, line=False))
+        if an.get("tufts"):
+            tipb = beam[-1]
+            for t_ in range(3):
+                P.add(L(tipb, tipb + hm @ v3(-0.6 + 0.3 * t_, s * 0.4, 0.9 - 0.2 * t_), 0.32, 0.1, m.grass, "tuft%d" % s, line=False))
     # Grey mist seeping off it.
-    if a != "death":
+    if a != "death" and h.get("mist", True):
         for k in range(5):
             u = (k * 0.29 + f * 0.13) % 1.0
             q = at((-3.0 + k * 1.8, (k % 3 - 1) * 1.2, 3.4 + u * 4.0))
@@ -1109,11 +1164,20 @@ def _legs_hoof(P, B, c) -> None:
     st = B.style(a)
     fb, hb = 2.5 + 1.3 * fr + 0.5 * bk, 2.7 + 0.5 * fr + 1.2 * bk        # the stance: apart where it is seen head-on
     legs = (("fl", 3.8, fb, 0.0), ("fr", 3.8, -fb, 0.5), ("hl", -5.0 + 1.3 * fr, hb, 0.5), ("hr", -5.0 + 1.3 * fr, -hb, 0.0))
+    stance = B.parts.legs.get("stance")
+    if stance:
+        # M3: a body of its own size places its legs (fore and hind along it, their spread, the gait's lift and stride).
+        fa, ha, fw, hw, glift, gstride = stance
+        fb, hb = fw + 1.3 * fr + 0.5 * bk, hw + 0.5 * fr + 1.2 * bk
+        legs = (("fl", fa, fb, 0.0), ("fr", fa, -fb, 0.5), ("hl", ha + 1.3 * fr, hb, 0.5), ("hr", ha + 1.3 * fr, -hb, 0.0))
     for name, a0, b0, off in legs:
         front = name[0] == "f"
-        lift, stride = gait(a, f, off, 2.0 + 0.9 * (fr + bk), 2.2)
+        lift, stride = gait(a, f, off, 2.0 + 0.9 * (fr + bk), 2.2) if not stance else gait(a, f, off, glift + 0.9 * (fr + bk), gstride)
         top = at((a0 + 1.4 if front else a0 + 0.8, b0 * (0.92 - 0.12 * (fr + bk)), -2.4 if front else -1.8))
         foot = v3(lunge + a0 + stride + (0.8 * fr if front else 0.0), b0, 0.9 + lift)
+        if stance and front and st.get("reared"):
+            # M3: rearing up on its hind legs, its forelegs lift off the ground, bent under its chest.
+            foot = top + c.bm @ v3(2.6, 0.0, -5.2)
         if "paw" in st and name == "fr":
             foot = foot + v3(*st.paw[f])
         if "brace" in st and not front:
@@ -1269,6 +1333,8 @@ def _tail_brush(P, B, c) -> None:
             P.glow.append((q, M.FLAME_CORE if k < 3 else (M.FLAME if k < 7 else M.FLAME_DEEP)))
         for k in range(4):
             P.glow.append((tip + v3(0.2 * k - 0.3, 0.3 * (k - 1.5), 2.0 * flare + k * 0.7 + (f % 2) * 0.5), M.FLAME_GLOW))
+    if t.get("spark"):
+        _spark(P, pts[-1], B.pick("charge", a, f), f)
 
 
 def _tail_fin(P, B, c) -> None:
@@ -1432,6 +1498,11 @@ def _finish(P, B, c) -> None:
             rr = 9.0 + (k % 3) * 1.5
             P.fx.append((v3(c.lunge + B.parts.get("mid", 0.0) + math.cos(ang) * rr, math.sin(ang) * rr, 0.5 + (k % 2) * 0.6),
                          M.DUST if k % 2 else M.DUST_DIM))
+    crumble = B.pick("crumble", a, f)
+    if crumble > 0.0 and B.parts.get("plates"):
+        # M3, the Hollow Behemoth: its plates and drones come apart and fall into a heap (kit.collapse). (M4's wyrmling
+        # crumbles into ash in its own finish.)
+        collapse(P, crumble, int(B.opts.get("seed", 0)))
     if a == "death" and B.opts.get("hollowed"):
         P.dissolve = B.pick("dissolve", a, f)
         P.dissolve_col = M.MOTE
@@ -1441,3 +1512,710 @@ def _finish(P, B, c) -> None:
         P.dissolve_col = M.MIST_PUFF
     if c.sa != 1.0 or c.sc != 1.0:
         P.squash(c.sa, 1.0 / math.sqrt(c.sa * c.sc), c.sc, (c.lunge, 0.0, 0.0))
+
+
+# ================================================================================================= the hollowed wyrmling (M4)
+# A young wyrm of the star-sea nests corrupted by the Hollow (`wyrm`): the saurian's long low body made a serpentine little
+# dragonet, its grey-violet ashen scales split by ash-white cracks leaking a sickly violet glow (`coat` "ash"), pale ash
+# spines down its back, a dragonet's head (`head` "wyrm": the saurian's wedge with swept-back ash horns, empty glowing
+# violet eyes, dull ember fire in its throat), small torn wings on its back (`wings`: bony fingers, a holed membrane with a
+# ragged edge; flared in the tell), stubby sprawling legs that leave the ground as it rears (`legs` "stub"), and its tail
+# coiled into a spiral behind it (`tail` "coil"). It rears up on its hind legs as its wings flare and its throat swells
+# with fire (the tell, held: `rear_breath`), lunges and spits a short cone of grey-violet fire (the blow: `spit_fire`);
+# beaten, it crumbles into a heap of ash that drifts away (`crumble_ash`). Channels besides the saurian's: `rearup` (the
+# forefeet off the ground), `wingflare`, `throat` (the fire swelling in it), `fire` (the spat cone's reach), `crumble`.
+WYRM_STYLES = {
+    "coil_twitch": {"head": (0.0, -3.0, 2.0, 4.0, -2.0, 0.0), "yaw": (0.0, 8.0, 12.0, 4.0, -8.0, -4.0), "bob_amp": 0.08, "pulse": True},
+    "rear_breath": {"lunge": (-0.3, -0.7, -1.0, -1.1), "pitch": (10.0, 22.0, 33.0, 37.0), "head": (-6.0, -14.0, -22.0, -25.0),
+                    "gape": (0.3, 0.5, 0.7, 0.8), "rearup": (0.3, 0.65, 0.95, 1.0), "wingflare": (0.3, 0.7, 1.0, 1.0),
+                    "throat": (0.3, 0.6, 0.9, 1.0), "angry": True},
+    "spit_fire": {"lunge": (0.4, 2.0, 2.2, 1.6, 0.8, 0.2), "pitch": (16.0, -2.0, -4.0, -2.0, 0.0, 0.0), "head": (-8.0, 4.0, 4.0, 2.0, 0.0, 0.0),
+                  "gape": (1.0, 1.0, 0.85, 0.5, 0.2, 0.0), "rearup": (0.5, 0.0, 0.0, 0.0, 0.0, 0.0), "wingflare": (1.0, 0.8, 0.6, 0.3, 0.1, 0.0),
+                  "fire": (0.0, 1.0, 1.6, 2.0, 0.0, 0.0), "angry": True, "squash": ((1.0, 1.0), (1.04, 0.96), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0))},
+    "crumble_ash": {"lunge": (-0.6, -0.8, -0.8, -0.8, -0.8, -0.8, -0.8, -0.8), "head": (14.0, 6.0, 0.0, -6.0, -8.0, -8.0, -8.0, -8.0),
+                    "gape": (0.7, 0.5, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2), "crumble": (0.0, 0.12, 0.3, 0.5, 0.7, 0.85, 1.0, 1.0),
+                    "dissolve": (0.0, 0.0, 0.0, 0.1, 0.25, 0.45, 0.65, 0.85)},
+}
+STYLES.update(WYRM_STYLES)
+WYRM = {
+    "Z": 2.9, "hips": (-2.6, 0.0), "pivot": (-2.6, 0.0, 0.0), "side": 1.9, "mid": -0.4, "strands": False,
+    "body": [{"at": ((-2.8, 0.8), 0.0), "r": ((2.5, 0.0, 0.0), (1.9, 0.0, 0.3), (1.55, 0.0, 0.1))},
+             {"at": ((-0.2, 0.4), 0.2), "r": ((3.0, -0.8, 0.0), (2.1, 0.2, 0.0), (1.75, 0.0, 0.0))},
+             {"at": ((2.3, 0.0), 0.45), "r": ((2.2, 0.0, 0.0), (1.85, 0.2, 0.0), (1.7, 0.0, 0.0))}],
+    "coat": {"kind": "ash", "belly": -0.35, "crack": 0.8},
+    "crest": {"kind": "fin", "from": 3.6, "to": -4.8, "n": 7, "height": 1.0, "r": 0.32},
+    "head": {"kind": "wyrm", "at": ((5.4, 0.6), (1.2, 0.9, 0.2)), "pitch": (-2.0, 16.0), "neck": ((3.4, 0.0, 0.7), 1.4, 1.2),
+             "skull": (1.95, 1.6, 1.35), "snout": ((0.8, 0.0, -0.1), (3.2, 0.0, -0.4), 1.25, 0.6),
+             "jaw": {"at": (0.2, 0.0, -0.8), "to": (2.9, 0.0, 0.0), "r": (0.85, 0.42), "turn": 36.0},
+             "eyes": {"at": (0.95, 1.12, 0.7), "colour": "WYRM_EYE", "shut": {"hurt": 0, "death": 2}},
+             "cheek": {"at": (-0.6, 1.4, 0.0), "n": 0, "length": 1.0},
+             "horns": ((-0.4, 0.9, 1.0), (-2.8, 1.6, 2.4), 0.55)},
+    "wings": {"at": (1.2, 1.0, 1.4), "span": 6.2, "fingers": 3, "rest": 38.0},
+    "legs": {"kind": "stub", "fore": 2.2, "hind": -2.8, "top": -0.3, "out": 3.2, "elbow": 1.7, "reach": 3.7, "r": (0.85, 0.7, 0.5),
+             "toe": 0.8, "lift": 1.0, "stride": 1.4},
+    "tail": {"kind": "coil", "root": (-5.0, 0.3), "n": 12, "length": 11.0, "r": (1.3, 0.25), "coil": 1.6},
+}
+VARIANTS["wyrm"] = {"parts": WYRM, "mats": {"coat": "hw_scale", "pale": "hw_belly", "fin": "hw_horn", "maw": "hw_mouth", "wing": "hw_wing",
+                                            "horn": "hw_horn", "fire": "hw_fire_gv", "fire_hot": "hw_fire_v", "ember": "hw_ember"},
+                    "motion": {"idle": "coil_twitch", "walk": "scurry", "windup": "rear_breath", "attack": "spit_fire", "hurt": "knock_squash",
+                               "death": "crumble_ash"}}
+
+
+def _coat_ash(B, c):
+    """The wyrmling's ash: grey-violet scales in rows, the pale ash belly; the ash-white cracks over its back and flanks
+    (by its seed) a step lit, leaking violet (their marks are `_ash_glow`'s)."""
+    co, m = B.parts.coat, B.mats
+    hips, bm = c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def ash(q, n):
+        loc = (q - hips) @ bm
+        nz = (n @ bm)[:, 2]
+        belly = nz < co.belly
+        h = h01v(np.floor(loc[:, 0] * 1.1 + np.abs(loc[:, 1]) * 0.6 + 40), np.floor(loc[:, 2] * 1.3 + 40), seed % 97 + 1)
+        crack = (h > co.crack) & ~belly
+        row = ((loc[:, 0] * 1.3 + np.abs(loc[:, 1]) * 0.8) % 1.2 < 0.2) & ~belly & ~crack
+        return np.where(belly, m.pale, m.coat).astype(object), np.where(crack, 2, np.where(row, -1, 0)).astype(np.int16)
+    return ash
+
+
+def _head_wyrm(P, B, c) -> None:
+    """The dragonet's head: the saurian's wedge (its jaw, its brow, its eyes: empty and glowing violet, the Hollow's), two
+    swept-back ash horns, and dull ember fire in its throat, swelling and glowing through its open jaws in the tell."""
+    _head_saurian(P, B, c)
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.5 * fr)
+    hm = bm @ rot("c", yaw - 0.6 * c.wig) @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), hz = h.at
+    hc = at((ha + hf * fr, 0.0, lin(hz, fr, bk)))
+    hp = lambda q: hc + hm @ v3(q)
+    h0, h1, hr = h.horns
+    for s in (1, -1):
+        r0 = hp((h0[0], s * h0[1], h0[2]))
+        r1 = hp((h1[0], s * h1[1], h1[2]))
+        mid = (r0 + r1) * 0.5 + hm @ v3(0.0, s * 0.3, 0.5)
+        P.add(L(r0, mid, hr, hr * 0.7, m.horn, "horn%d" % s), L(mid, r1, hr * 0.7, 0.12, m.horn, "horn%d" % s))
+    # The ember in its throat: a glow over the jaw's hinge, through its open jaws; swelling in the tell.
+    th = B.pick("throat", a, f)
+    gape = B.pick("gape", a, f)
+    if a != "death" and (th > 0.0 or gape > 0.5):
+        q = hp((1.6, 0.0, -0.6))
+        n = 3 + int(6 * th)
+        for k in range(n):
+            ang = math.radians(k * 360.0 / max(1, n) + f * 40.0)
+            rr = 0.25 + 0.55 * th
+            P.glow.append((q + hm @ v3(0.2, math.cos(ang) * rr, math.sin(ang) * rr * 0.6), M.WYRM_EMBER if k % 2 else M.WYRM_EMBER_HI))
+        if th >= 0.6:
+            for k in range(4):
+                P.glow.append((q + hm @ v3(0.8 + 0.4 * k, ((k % 3) - 1) * 0.5, 0.6 + 0.3 * k), M.WYRM_FIRE_V))
+    # The spat fire: a short cone of grey-violet fire balls ahead of its jaws, a hot core, embers at its edge.
+    fire = B.pick("fire", a, f)
+    if fire > 0.0:
+        fwd = hm @ v3(1.0, 0.0, -0.15)
+        base = hp(h.snout[1]) + hm @ v3(0.4, 0.0, -0.2)
+        for k in range(6):
+            t = k / 5.0
+            if t > fire / 2.0 + 0.2:
+                break
+            q = base + fwd * (0.6 + 4.4 * t * min(1.0, fire))
+            r = 0.55 + 1.1 * t
+            P.add(S(q, r, m.fire_hot if k < 2 else m.fire, "fire", line=False))
+            for j in range(3):
+                ang = math.radians(j * 120.0 + k * 40.0 + f * 30.0)
+                P.glow.append((q + hm @ v3(0.0, math.cos(ang) * r * 1.1, math.sin(ang) * r * 0.9), M.WYRM_EMBER if (j + k) % 2 else M.WYRM_FIRE_V))
+
+
+def _ash_glow(P, B, c) -> None:
+    """The violet glow leaking from its cracks: points of light down its back, pulsing (brighter in the tell)."""
+    a, f, at = c.action, c.f, c.at
+    if a == "death" and f >= 2:
+        return
+    th = B.pick("throat", a, f)
+    pulse = (f % 3 == 0) if B.style(a).get("pulse") else True
+    for k, (a0, b0) in enumerate(((2.0, 0.6), (0.6, -0.9), (-0.8, 0.8), (-2.2, -0.5), (-3.4, 0.4))):
+        top = _top_of(B, a0)
+        q = at((a0, b0, top + 0.1))
+        bright = pulse and (k + f) % 2 == 0 or th >= 0.6
+        P.glow.append((q, M.WYRM_GLOW_HI if bright else M.WYRM_GLOW))
+
+
+def _wings_torn(P, B, c) -> None:
+    """Small torn wings on its back: three bony fingers fanning from a wrist, a dark holed membrane between them with a
+    ragged trailing edge; folded along its back, flared up and out in the tell."""
+    w, m = B.parts.wings, B.mats
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    flare = B.pick("wingflare", a, f)
+    if a == "death" and B.pick("crumble", a, f) > 0.6:
+        return
+    flick = 4.0 * math.sin(f * 1.3) if a in ("idle", "walk") else 0.0
+    for s in (1, -1):
+        root = at((w.at[0], s * w.at[1], _top_of(B, w.at[0]) - 0.3))
+        el = w.rest + 45.0 * flare + flick
+        sw = 70.0 - 35.0 * flare
+        wm = bm @ rot("c", s * (90.0 + sw)) @ rot("b", el)
+        wrist = root + wm @ v3(w.span * 0.45, 0.0, 0.0)
+        P.add(L(root, wrist, 0.32, 0.25, m.horn, "wingarm%d" % s, line=False))
+        tips = []
+        for k in range(w.fingers):
+            ang = math.radians(-10.0 - k * 32.0)
+            d = wm @ v3(math.cos(ang), 0.0, math.sin(ang) * 0.35) + bm @ v3(-0.35 * k, 0.0, 0.0)
+            d = d / float(np.linalg.norm(d))
+            tip = wrist + d * w.span * (0.75 - 0.12 * k)
+            tips.append(tip)
+            P.add(L(wrist, tip, 0.22, 0.1, m.horn, "wingfinger%d" % s, line=False))
+        # The membrane: plates between the fingers and back to the body, holed (a gap in the middle panel), ragged.
+        for k, (p0, p1) in enumerate(zip([root] + tips[:-1], tips)):
+            if k == 1 and (f + s) % 2 == 0:
+                continue
+            c0 = (wrist + p0 + p1) / 3.0
+            span = p1 - p0
+            ln = float(np.linalg.norm(span)) or 1.0
+            ax = span / ln
+            nm = np.cross(ax, wrist - p0)
+            nm = nm / max(1e-6, float(np.linalg.norm(nm)))
+            mm = np.stack([ax, np.cross(nm, ax), nm], axis=1)
+            P.add(E(c0, (ln * 0.48, float(np.linalg.norm(wrist - (p0 + p1) * 0.5)) * 0.42, 0.12), m.wing, "wing%d" % s, mm, line=False))
+
+
+def _legs_stub(P, B, c) -> None:
+    """Stubby sprawling legs (the saurian's, shorter): a trot in diagonal pairs; the forefeet off the ground and drawn up
+    under its chest as it rears (`rearup`); folded under it as it crumbles."""
+    g = B.parts.legs
+    a, f, fr, bk, at, lunge = c.action, c.f, c.fr, c.bk, c.at, c.lunge
+    rearup = B.pick("rearup", a, f)
+    for name, a0, s, off in (("fl", g.fore, 1, 0.0), ("fr", g.fore, -1, 0.5), ("hl", g.hind, 1, 0.5), ("hr", g.hind, -1, 0.0)):
+        front = name[0] == "f"
+        lift, stride = gait(a, f, off, g.lift, g.stride)
+        top = at((a0, s * 1.4, g.top))
+        out = g.out * (1.0 + 0.1 * (fr + bk))
+        elbow = v3(top[0] + (0.5 if front else -0.5) + stride * 0.5, s * out, g.elbow + lift * 0.7)
+        foot = v3(lunge + a0 + stride + (0.8 if front else -0.6), s * g.reach * (1.0 + 0.1 * (fr + bk)), 0.35 + lift)
+        if front and rearup > 0.0:
+            # Reared: the forefeet hang drawn up before its raised chest, claws out.
+            hang_e = top + c.bm @ v3(0.6, s * 1.2, -1.2)
+            hang_f = top + c.bm @ v3(1.6, s * 1.0, -2.2)
+            elbow = elbow + (hang_e - elbow) * rearup
+            foot = foot + (hang_f - foot) * rearup
+        r0, r1, r2 = g.r
+        P.add(L(top, elbow, r0, r1, _skin(B), "leg_" + name, c.paint), L(elbow, foot, r1, r2, _skin(B), "leg_" + name))
+        for t in (-30.0, 0.0, 30.0):
+            ang = math.radians(t)
+            d = v3(math.cos(ang) * (1.0 if front else 0.6), s * abs(math.sin(ang)) * 0.6 + math.sin(ang) * 0.5, -0.1)
+            P.add(L(foot, foot + d * g.toe, 0.26, 0.14, B.mats.horn, "toe_" + name, line=False))
+
+
+def _tail_coil(P, B, c) -> None:
+    """A tail tapering from its rump that coils into a spiral at its end, lying on the ground behind it (the coil opening
+    out and swinging as it scurries, curling tighter in the tell, straightening behind its lunge)."""
+    t = B.parts.tail
+    a, f, fr, bk, at = c.action, c.f, c.fr, c.bk, c.at
+    root = at((t.root[0], 0.0, t.root[1]))
+    pts = [root]
+    step = t.length / t.n
+    ph = f / (6.0 if a == "idle" else 8.0) * math.tau
+    swing = {"idle": 0.15, "walk": 0.45}.get(a, 0.0) * math.sin(ph)
+    tight = t.coil * (1.0 + 0.4 * B.pick("rearup", a, f) - 0.6 * min(1.0, B.pick("fire", a, f)))
+    heading = math.pi + swing + 0.6 * fr - 0.3 * bk
+    q = np.array(root, float)
+    for k in range(1, t.n + 1):
+        u = k / float(t.n)
+        heading += tight * max(0.0, u - 0.35) * 1.15
+        q = q + v3(math.cos(heading) * step, math.sin(heading) * step, 0.0)
+        q[2] = max(0.45 + 0.6 * (1.0 - u) * (root[2] - 0.45), 0.45)
+        pts.append(q.copy())
+    for k in range(t.n):
+        r0 = t.r[0] + (t.r[1] - t.r[0]) * k / t.n
+        r1 = t.r[0] + (t.r[1] - t.r[0]) * (k + 1) / t.n
+        P.add(L(pts[k], pts[k + 1], r0, r1, _skin(B), "tail", c.paint, caps=k == 0))
+        if k % 2 == 0 and k < t.n - 3:
+            mid = (pts[k] + pts[k + 1]) * 0.5
+            P.add(L(mid + v3(0.0, 0.0, r0 * 0.7), mid + v3(-0.2, 0.0, r0 + 0.55), 0.22, 0.08, B.mats.horn, "tailspine", line=False))
+
+
+def _wyrm_finish(P, B, c) -> None:
+    """The wyrmling's extras over the saurian's body: its wings, the violet glow of its cracks, and its fall into ash."""
+    _wings_torn(P, B, c)
+    _ash_glow(P, B, c)
+    cr = B.pick("crumble", c.action, c.f)
+    if cr > 0.0:
+        from .kit import collapse
+        collapse(P, cr, int(B.opts.get("seed", 0)))
+        P.dissolve = B.pick("dissolve", c.action, c.f)
+        P.dissolve_col = M.WYRM_ASH
+
+# ================================================================================================= M3
+# M3's kinds, each optional (a species names them), so every species drawn before draws byte for byte. The pose's
+# dispatch reads M3_HEADS, M3_TAILS and M3_COATS beside its own kinds.
+M3_HEADS: dict = {}
+M3_TAILS: dict = {}
+M3_COATS: dict = {}
+M3_CRESTS: dict = {}
+
+
+# ------------------------------------------------------------------------------------------------ the frost lynx
+def _coat_rosettes(B, c):
+    """M3, the frost lynx: pale fur with faint blue-grey rosettes over its back and flanks (a ring of the spot's material
+    round a paler middle, by its seed), the throat, chest and belly cream."""
+    co, m, hips, bm = B.parts.coat, B.mats, c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def rosettes(q, n):
+        loc = (q - hips) @ bm
+        nl = n @ bm
+        pale = ((nl[:, 2] < co.chest[0]) & (loc[:, 0] > co.chest[1])) | (nl[:, 2] < co.belly)
+        u = loc[:, 0] * co.spots + 0.5 * np.floor(loc[:, 2] * co.spots)
+        w = loc[:, 2] * co.spots + np.abs(loc[:, 1]) * 0.6
+        fu, fw = u - np.floor(u) - 0.5, w - np.floor(w) - 0.5
+        d = np.hypot(fu, fw)
+        on_ = h01v(np.floor(u) + 40, np.floor(w) + 40, seed % 97 + 5) > 0.35
+        ring = on_ & (d > 0.16) & (d < 0.34) & ~pale & (nl[:, 2] > -0.3)
+        names = np.where(pale, m.pale, np.where(ring, m.spot, m.coat)).astype(object)
+        return names, np.zeros(len(q), dtype=np.int16)
+    return rosettes
+
+
+M3_COATS["rosettes"] = _coat_rosettes
+
+
+def _crest_ice(P, B, c) -> None:
+    """M3, the frost lynx: ice crystals grown on its shoulders and nape, small clear shards standing off its fur."""
+    cr, at, bm = B.parts.crest, c.at, c.bm
+    for k, (a0, b0, ln, lean) in enumerate(cr.shards):
+        base = at((a0, b0, _top_of(B, a0) - 0.5 - 0.2 * abs(b0)))
+        tip = base + bm @ v3(-lean, b0 * 0.35, ln)
+        P.add(L(base, tip, 0.5, 0.08, B.mats.ice, "ice%d" % (k % 2), line=False))
+        P.mark(base + (tip - base) * 0.4, M.RAMPS[B.mats.ice][4])
+
+
+M3_CRESTS["ice"] = _crest_ice
+
+
+def _spark(P, tip, charge: float, f: int) -> None:
+    """Lightning crackling at a point (the spark weasel's tail tip, its bite): a white-hot core in a blue glow, arcs
+    jumping off it in zig-zags, more and longer as it charges (`charge` 0..1; past 1, discharging)."""
+    for d in ((0.0, 0.0, 0.0), (0.35, 0.0, 0.0), (-0.35, 0.0, 0.0), (0.0, 0.35, 0.0), (0.0, -0.35, 0.0), (0.0, 0.0, 0.35)):
+        P.glow.append((tip + v3(*d), M.SPARK_CORE))
+    for k in range(6):
+        ang = math.radians(k * 60.0 + f * 37.0)
+        P.glow.append((tip + v3(math.cos(ang) * 0.8, math.sin(ang) * 0.8, 0.3 * math.sin(ang * 2.0)), M.SPARK_HALO))
+    n = 2 + int(round(3 * min(charge, 1.0))) + (2 if charge > 1.0 else 0)
+    for k in range(n):
+        ang = math.radians(k * 137.0 + f * 61.0)
+        el = math.radians(20.0 + (k * 53 + f * 29) % 60)
+        d = v3(math.cos(ang) * math.cos(el), math.sin(ang) * math.cos(el), math.sin(el))
+        side = v3(-math.sin(ang), math.cos(ang), 0.0)
+        q = np.array(tip, float)
+        for j in range(3 + int(2 * min(charge, 1.5))):
+            q = q + d * 0.75 + side * (0.45 if (j + k + f) % 2 else -0.45)
+            P.glow.append((q, M.SPARK_CORE if j < 2 else M.SPARK_ARC))
+
+
+# ------------------------------------------------------------------------------------------------ the thunderhorn rhino
+def _coat_folds(B, c):
+    """M3, the thunderhorn rhino: a slate hide hanging in deep folds (grooves across it behind its shoulders and before its
+    hips, a step dark, a second step at their bottoms), paler underneath, its grain in faint wrinkles."""
+    co, m, hips, bm = B.parts.coat, B.mats, c.hips, c.bm
+
+    def folds(q, n):
+        loc = (q - hips) @ bm
+        nz = (n @ bm)[:, 2]
+        belly = nz < co.belly
+        groove = np.zeros(len(q), dtype=bool)
+        for a0 in co.at:
+            groove |= np.abs(loc[:, 0] - a0 - 0.25 * loc[:, 2]) < 0.32
+        deep = groove & (nz < 0.2)
+        wrinkle = ((loc[:, 0] * 1.7 + np.abs(loc[:, 1]) * 0.6) % 1.6) < 0.18
+        names = np.where(groove, m.fold, m.hide).astype(object)
+        return names, np.where(belly, 1, np.where(deep, -1, np.where(wrinkle & ~groove, -1, 0))).astype(np.int16)
+    return folds
+
+
+M3_COATS["folds"] = _coat_folds
+
+
+def _head_rhino(P, B, c) -> None:
+    """M3, the thunderhorn rhino: a long heavy head carried low on a thick neck, a hooked upper lip, a great nasal horn
+    curving up and back from its snout with a second behind it, small ears upright, small eyes (gold in anger); its horn
+    stores lightning: arcs crawl up it as it lowers its head in its tell, steam snorted from its nostrils, and it
+    discharges at the horn's tip on the hit."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    angry = st.get("angry", False)
+    hm = bm @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    sniff = st.sniff[0] * wave(a, f, st.sniff[1]) if a == "idle" and "sniff" in st else 0.0
+    (ha, hf), (hz, hzf) = h.at
+    hc = at((ha + sniff + hf * fr, 0.0, hz + hzf * fr))
+    hp = lambda q: hc + hm @ v3(q)
+    P.add(L(at((5.6, 0.0, 1.4)), hc + hm @ v3(-1.6, 0.0, 0.4), 3.7, 3.0, m.hide, "neck", c.paint))
+    P.add(E(hc, h.skull, m.hide, "head", hm, c.paint))
+    P.add(L(hp((1.4, 0.0, -0.6)), hp((4.8, 0.0, -1.5)), 2.5, 2.0, m.hide, "snout", c.paint))
+    P.add(E(hp((5.4, 0.0, -1.9)), (1.1, 1.7, 1.25), m.lip, "lip", hm))
+    for s in (1, -1):
+        P.mark(hp((6.3, s * 0.7, -1.6)), M.RAMPS[m.lip][0])
+    # The horns: the great nasal horn curving up and back off its snout, a second smaller one behind it.
+    horn = [hp(q) for q in h.horn]
+    hr = h.horn_r
+    for i in range(len(horn) - 1):
+        P.add(L(horn[i], horn[i + 1], hr[i], hr[i + 1], m.horn, "horn"))
+    horn2 = [hp(q) for q in h.horn2]
+    for i in range(len(horn2) - 1):
+        P.add(L(horn2[i], horn2[i + 1], hr[i + 1], hr[i + 2], m.horn, "horn2"))
+    for s in (1, -1):
+        (ea, eb, ec), er = h.ears
+        flick = 16.0 if a == "idle" and f in (2, 3) and s > 0 else 0.0
+        P.add(E(hp((ea, s * eb, ec)), er, m.hide, "ear%d" % s, hm @ rot("a", s * (-14.0 + flick))))
+        eye = on(hc, h.skull, hm, s * 58.0, 6.0)
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.TR_EYE if angry else M.INKY)
+            P.mark(on(hc, h.skull, hm, s * 50.0, 16.0), M.RAMPS[m.fold][0])
+    # Lightning stored in the horn: crawling up it as it charges, discharging off its tip on the hit.
+    charge = B.pick("charge", a, f)
+    if charge > 0.0:
+        for i in range(1, len(horn)):
+            if i / (len(horn) - 1.0) <= charge + 0.01:
+                _spark(P, horn[i], charge * 0.5, f + i)
+    if f in st.get("zap", ()):
+        _spark(P, horn[-1], 1.6, f + 5)
+    if a == "windup" and f in st.get("snort", ()):
+        nose = hp((6.4, 0.0, -1.6))
+        for k in range(6):
+            d = hm @ v3(0.8 + 0.3 * k, (k % 3 - 1) * 0.8, -0.3 + 0.25 * k)
+            P.fx.append((nose + d * (1.0 + 0.4 * k), M.STEAM if k % 2 else M.STEAM_DIM))
+
+
+M3_HEADS["rhino"] = _head_rhino
+
+
+# M3, the spark weasel: its tell arches its back, its tail raised as the spark at its tip charges (held).
+STYLES["arch_charge"] = {"lunge": (-0.3, -0.6, -0.9, -1.0), "arch": (5.0, 10.0, 14.0, 15.0), "head": (-4.0, -8.0, -10.0, -10.0),
+                         "gape": (0.2, 0.4, 0.6, 0.7), "tail": (0.5, 0.9, 1.1, 1.2), "charge": (0.3, 0.6, 0.9, 1.0), "angry": True}
+
+
+def _surface(B, c, a0: float, ang: float):
+    """A point on the body's skin at `a0` along it, `ang` degrees round from its top toward its left (+b), and the outward
+    normal there, in the body's own frame (c.at's): the outermost of its pieces that way."""
+    fr, bk = c.fr, c.bk
+    s_, c_ = math.sin(math.radians(ang)), math.cos(math.radians(ang))
+    best = None
+    # Head-on the pieces close up along it: a point past the body's ends keeps to the nearest end.
+    lo = min(p_.at[0][0] + p_.at[0][1] * fr - lin(p_.r[0], fr, bk) * 0.95 for p_ in B.parts.body)
+    hi = max(p_.at[0][0] + p_.at[0][1] * fr + lin(p_.r[0], fr, bk) * 0.95 for p_ in B.parts.body)
+    a0 = min(hi, max(lo, a0))
+    for piece in B.parts.body:
+        (pa, kf), h = piece.at
+        pa = pa + kf * fr
+        ra, rb, rc = (lin(x, fr, bk) for x in piece.r)
+        h = lin(h, fr, bk)
+        t = (a0 - pa) / ra
+        if abs(t) >= 0.98:
+            continue
+        s = math.sqrt(1.0 - t * t)
+        y, z = rb * s * s_, rc * s * c_
+        score = y * s_ + (h + z) * c_
+        if best is None or score > best[0]:
+            n = v3((a0 - pa) / ra ** 2, y / rb ** 2, z / rc ** 2)
+            best = (score, v3(a0, y, h + z), n / float(np.linalg.norm(n)))
+    return best[1], best[2]
+
+
+def _frame_on(n, tilt: float = 0.0) -> np.ndarray:
+    """A plate's axes on the skin: along the body, across it, and out along the normal `n`, turned `tilt` degrees about n."""
+    along = v3(1.0, 0.0, 0.0) - n * float(n[0])
+    if float(np.linalg.norm(along)) < 0.2:
+        along = v3(0.0, 0.0, 1.0) - n * float(n[2])
+    along = along / float(np.linalg.norm(along))
+    across = np.cross(n, along)
+    t = math.radians(tilt)
+    a2 = along * math.cos(t) + across * math.sin(t)
+    return np.stack([a2, np.cross(n, a2), n], axis=1)
+
+
+# ------------------------------------------------------------------------------------------------ the Hollow Behemoth
+# M3, the Hollow Behemoth (the Siege's story boss): a giant boar assembled out of the Hollow's grey-white drones and
+# armour plates over a dark void: rows of overlapping plates over its back, hump, flanks and hips, a ridge of spiked
+# drones down its spine, a swarm of drones filling its belly, a plated skull with a snout disc and great curved tusks,
+# empty white eyes; the weak points are jagged white cracks on its flank plates and its skull plate, glowing cold, and
+# mist pours off it. It rears up on its hind legs as its weak points blaze (the tell, held: its stampede's and its drone
+# burst's) and stampedes; struck, its weak points flicker; beaten, it breaks apart into drones and a heap of plates.
+BEHEMOTH_STYLES = {
+    "loom": {"head": (0.0, 2.0, 4.0, 2.0, 0.0, -1.0), "bob_amp": 0.25, "breathe": 0.02, "flare": (0.5, 0.6, 0.8, 0.6, 0.5, 0.4)},
+    "stampede_trot": {"kind": "trot", "bob_wave": (-0.3, 0.6), "pitch_wave": (1.6, 0.6), "head_wave": (-4.0, 4.0, 1.4),
+                      "flare": (0.5,) * 8},
+    "rear_flare": {"lunge": (0.3, 0.8, 1.2, 1.3), "pitch": (8.0, 17.0, 24.0, 26.0), "head": (4.0, 9.0, 13.0, 14.0),
+                   "gape": (0.2, 0.5, 0.75, 0.8), "flare": (0.7, 1.0, 1.0, 1.0), "reared": True, "angry": True},
+    "break_apart": {"lunge": (-0.6, -1.0, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2), "pitch": (10.0, 4.0, 0.0, -2.0, -2.0, -2.0, -2.0, -2.0),
+                    "bob": (0.0, -0.4, -1.6, -3.2, -4.6, -5.4, -5.6, -5.6),
+                    "head": (14.0, 6.0, -6.0, -12.0, -14.0, -14.0, -14.0, -14.0), "gape": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3),
+                    "flare": (1.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0), "scatter": (0.0, 0.0, 0.25, 0.5, 0.75, 0.92, 1.0, 1.0),
+                    "fold_front": (0.0, 0.4, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0), "fold_hind": (0.0, 0.2, 0.5, 0.8, 1.0, 1.0, 1.0, 1.0),
+                    "shrink": (0.0, 0.0, 0.08, 0.22, 0.42, 0.62, 0.8, 0.9),
+                    "dissolve": (0.0, 0.0, 0.04, 0.12, 0.24, 0.34, 0.42, 0.48), "burst": (2, 3, 4)},
+}
+STYLES.update(BEHEMOTH_STYLES)
+BEHEMOTH = {
+    "Z": 11.0, "hips": (-6.4, 0.0), "pivot": (-6.4, 0.0, 0.0), "side": 6.4,
+    "body": [{"at": ((5.0, 0.0), 1.8), "r": ((5.8, 0.0, 0.0), (5.6, 1.0, 0.0), (6.6, 0.0, 0.0))},
+             {"at": ((-0.2, 0.5), 0.6), "r": ((7.4, -1.4, 0.0), (6.0, 0.6, 0.4), (6.0, 0.0, 0.0))},
+             {"at": ((-6.4, 1.6), 0.8), "r": ((5.0, 0.0, 0.0), (5.6, 0.0, 0.9), (5.6, 0.0, 0.5))}],
+    "coat": {"kind": "void"},
+    "head": {"kind": "behemoth", "at": ((11.6, -0.8), (0.8, 1.2)), "rest": -4.0, "pitch": (-2.0, 10.0), "skull": (4.4, 4.2, 4.0),
+             "eyes": {"shut": {"hurt": 0, "death": 4}}},
+    "legs": {"kind": "hoof", "thick": 2.0, "bones": ((4.2, 4.0), (4.3, 4.1)), "stance": (5.6, -6.6, 3.4, 3.6, 2.6, 3.0)},
+    "tail": {"kind": "stub", "root": (-11.2, 1.4), "tip": (-12.8, 0.2), "r": (1.3, 0.7)},
+    # The plates: (along, round from the top, length, width, thickness); the weak points are on `weak` (their indices).
+    "plates": [(8.6, 0.0, 2.8, 3.2, 1.2), (4.4, 0.0, 3.0, 3.4, 1.2), (0.2, 0.0, 3.0, 3.2, 1.2), (-4.0, 0.0, 3.0, 3.2, 1.2),
+               (-8.2, 0.0, 2.8, 3.0, 1.1),
+               (6.6, 52.0, 2.6, 2.8, 1.1), (2.4, 52.0, 2.8, 2.8, 1.1), (-1.8, 52.0, 2.8, 2.8, 1.1), (-6.0, 52.0, 2.6, 2.8, 1.1),
+               (5.4, 98.0, 2.6, 2.6, 1.0), (1.0, 98.0, 3.2, 3.0, 1.0), (-3.4, 98.0, 2.6, 2.6, 1.0), (-7.6, 98.0, 2.4, 2.4, 1.0),
+               (-10.0, 34.0, 2.0, 2.6, 1.0), (9.6, 118.0, 2.0, 2.4, 0.9)],
+    "weak": (10,),
+    "ridge": (10.4, 6.4, 2.2, -2.0, -6.0, -9.6),
+    "swarm": ((4.0, 1.6, -6.2), (1.2, 3.2, -5.6), (-1.6, 0.0, -6.8), (-4.0, 2.4, -6.0), (0.2, 1.0, -7.2)),
+    "strands": False, "dust": False,
+}
+VARIANTS["behemoth"] = {"parts": BEHEMOTH,
+                        "mats": {"hide": "hb_void", "head": "hb_void", "hoof": "hb_void", "plate": "hb_plate", "drone": "hb_drone",
+                                 "tusk": "hb_tusk", "coat": "hb_void"},
+                        "opts": {"hollowed": True},
+                        "motion": {"idle": "loom", "walk": "stampede_trot", "windup": "rear_flare",
+                                   "attack": ("charge_toss", {"flare": (1.0, 1.0, 1.0, 0.7, 0.5, 0.5)}),
+                                   "hurt": ("stumble", {"flare": (0.0, 1.0, 0.2)}), "death": "break_apart"}}
+
+
+def _coat_void(B, c):
+    """The dark void between its plates: drone shells packed in it (a step lit in a hash of small ovals), its grain a
+    step dark."""
+    m, hips, bm = B.mats, c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def void(q, n):
+        loc = (q - hips) @ bm
+        h = h01v(np.floor(loc[:, 0] * 0.9 + 40), np.floor(loc[:, 2] * 0.9 + np.abs(loc[:, 1]) * 0.7 + 40), seed % 97 + 1)
+        shell = h > 0.72
+        pit = h < 0.1
+        return np.full(len(q), m.hide, dtype=object), np.where(shell, 1, np.where(pit, -1, 0)).astype(np.int16)
+    return void
+
+
+M3_COATS["void"] = _coat_void
+
+
+def _plate_paint(m, centre, mm, radii):
+    """An armour plate: grey-white, its rim a step dark where it turns away (a bevel), chips a step lit."""
+    def paint(q, n):
+        loc = (q - centre) @ mm
+        u = np.maximum(np.abs(loc[:, 0]) / radii[0], np.abs(loc[:, 1]) / radii[1])
+        rim = u > 0.66
+        chip = h01v(np.floor(loc[:, 0] * 1.4 + 30), np.floor(loc[:, 1] * 1.4 + 30), 7) > 0.88
+        return np.full(len(q), m.plate, dtype=object), np.where(rim, -1, np.where(chip, 1, 0)).astype(np.int16)
+    return paint
+
+
+def _crack(P, centre, mm, radii, flare: float, facing: bool, scale: float = 1.0) -> None:
+    """A weak point: a jagged crack across a plate (on its face), white and glowing cold, a halo off it as it flares; dim
+    as it flickers out."""
+    path = ((-0.8, 0.45), (-0.4, 0.0), (0.0, 0.42), (0.36, -0.12), (0.74, 0.3))
+    pts = [centre + mm @ v3(u * radii[0] * 0.8 * scale, v * radii[1] * 0.8 * scale, radii[2] * 0.95) for u, v in path]
+    pts.append(centre + mm @ v3(0.15 * radii[0], 0.85 * radii[1] * 0.8 * scale, radii[2] * 0.9))
+    segs = list(zip(pts[:5], pts[1:5])) + [(pts[2], pts[5])]
+    core = M.HB_GLOW if flare >= 0.8 else (M.HB_GLOW_EDGE if flare >= 0.3 else M.HB_GLOW_DIM)
+    for a, b in segs:
+        for k in range(4):
+            q = a + (b - a) * (k / 4.0)
+            P.mark(q, core if k % 2 == 0 else (M.HB_GLOW_EDGE if flare >= 0.3 else M.HB_GLOW_DIM))
+            if flare >= 0.8 and facing:
+                P.glow.append((q + mm @ v3(0.0, 0.0, 0.8), M.HB_HALO))
+
+
+def _head_behemoth(P, B, c) -> None:
+    """Its head: a skull of void under a great plate over the brow and crown, cheek plates, a plated snout to a pale disc
+    with its nostrils, a lower jaw that drops on the charge, great tusks curving out, forward and up from it, empty white
+    eyes under the plate's rim, small plated ears; a weak point cracked across the skull plate."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    hm = bm @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), (hz, hzf) = h.at
+    hc = at((ha + hf * fr, 0.0, hz + hzf * fr))
+    hp = lambda q: hc + hm @ v3(q)
+    sk = h.skull
+    P.add(L(at((7.2, 0.0, 1.0)), hc + hm @ v3(-1.8, 0.0, 0.2), 4.6, 4.0, m.hide, "neck", c.paint))
+    P.add(E(hc, sk, m.hide, "head", hm, c.paint))
+    gape = B.pick("gape", a, f)
+    jm = hm @ rot("b", -gape * 16.0)
+    P.add(E(hp((1.2, 0.0, -2.4)) + jm @ v3(1.6, 0.0, -0.2), (3.4, 3.0, 1.6), m.hide, "jaw", jm, c.paint))
+    # The snout: plated, to a pale disc.
+    P.add(L(hp((2.4, 0.0, -0.8)), hp((5.8, 0.0, -1.5)), 2.7, 2.3, m.plate, "snout"))
+    P.add(E(hp((6.3, 0.0, -1.6)), (0.85, 2.3, 2.0), m.drone, "disc", hm))
+    for s in (1, -1):
+        P.mark(hp((7.15, s * 0.8, -1.5)), M.RAMPS[m.hide][0])
+    # The skull plate over the brow and crown, and a plate on each cheek.
+    sp_c, sp_m, sp_r = hp((0.4, 0.0, sk[2] * 0.62)), hm @ rot("b", -16.0), (3.6, sk[1] * 1.04, 1.3)
+    P.add(E(sp_c, sp_r, m.plate, "skullplate", sp_m, _plate_paint(m, sp_c, sp_m, sp_r)))
+    for s in (1, -1):
+        cc = hp((0.6, s * sk[1] * 0.78, -0.6))
+        cm = hm @ rot("a", s * -62.0)
+        P.add(E(cc, (2.4, 2.2, 0.8), m.plate, "cheek%d" % s, cm, _plate_paint(m, cc, cm, (2.4, 2.2, 0.8))))
+        # Great tusks from the lower jaw, curving out, forward and up.
+        t0 = hp((3.6, s * 2.2, -2.8))
+        t1 = hp((5.6, s * (3.2 + 0.8 * fr), -2.4))
+        t2 = hp((7.0, s * (3.9 + 1.0 * fr), -0.8))
+        t3 = hp((6.9, s * (3.7 + 1.0 * fr), 1.2))
+        P.add(L(t0, t1, 0.95, 0.8, m.tusk, "tusk%d" % s), L(t1, t2, 0.8, 0.55, m.tusk, "tusk%d" % s), L(t2, t3, 0.55, 0.18, m.tusk, "tusk%d" % s))
+        # Small plated ears, laid back.
+        P.add(E(hp((-2.2, s * 3.2, 2.4)), (1.4, 0.6, 1.8), m.plate, "ear%d" % s, hm @ rot("a", s * -30.0) @ rot("b", 20.0)))
+        eye = on(hc, sk, hm, s * 46.0, 18.0)
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.HOLLOW_EYE)
+            P.eye(eye + hm @ v3(0.0, s * 0.45, 0.0), M.HOLLOW_EYE)
+            P.mark(eye + hm @ v3(-0.1, 0.0, 0.55), M.EYE_HALO)
+    _crack(P, sp_c, sp_m, sp_r, B.pick("flare", a, f, 0.5) if a != "death" or f < 3 else 0.0, True, 0.8)
+
+
+M3_HEADS["behemoth"] = _head_behemoth
+
+
+def _behemoth(P, B, c) -> None:
+    """The Behemoth's armour and its Hollow: the plates over its body (each its own, so a line shows between them), the
+    weak points on its flank plates, the ridge of spiked drones down its spine, the swarm of drones in its belly, the mist
+    pouring off it and drones drifting round it; the dust of its stampede."""
+    p, m = B.parts, B.mats
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    flare = B.pick("flare", a, f, 0.5)
+    scatter = B.pick("scatter", a, f)
+    shrink = B.pick("shrink", a, f)
+    if shrink > 0.0:
+        # Breaking apart, the void under its plates (its body, head, legs and tail, drawn before them) shrinks away into
+        # motes as its plates fall, so a heap of plates is what is left.
+        mid = at((0.0, 0.0, -4.0))
+        k_ = 1.0 - shrink
+        for part in P.parts:
+            g = part.geo
+            if part.kind == "limb":
+                g["p0"], g["p1"] = mid + (g["p0"] - mid) * k_, mid + (g["p1"] - mid) * k_
+                g["r0"], g["r1"] = g["r0"] * k_, g["r1"] * k_
+            else:
+                g["at"] = mid + (g["at"] - mid) * k_
+                if part.kind == "sph":
+                    g["r"] = g["r"] * k_
+                else:
+                    g["radii"] = g["radii"] * k_
+        P.marks, P.eyes = [], []
+    for k, (a0, ang, la, lt, th) in enumerate(p.plates):
+        for s in ((1,) if ang == 0.0 else (1, -1)):
+            q, n = _surface(B, c, a0, s * ang)
+            mm = bm @ _frame_on(n, ((k * 23) % 30 - 15.0) * s)
+            centre = at(q + n * (th * 0.3))
+            if scatter > 0.0:
+                # Breaking apart: each plate thrown off along its normal, falling flat onto the ground round it.
+                out = bm @ n * (scatter * (5.0 + (k % 3) * 1.5))
+                centre = centre + out
+                centre = v3(centre[0], centre[1], centre[2] + (th * 0.5 - centre[2]) * min(1.0, scatter * 1.2))
+                up = v3(0.0, 0.0, 1.0)
+                nn = bm @ n
+                nn = nn + (up - nn) * min(1.0, scatter * 1.3)
+                mm = _frame_on(nn / float(np.linalg.norm(nn)), ((k * 23) % 30 - 15.0) * s)
+            r = (la, lt, th)
+
+            def square(qs, centre=centre, mm=mm, r=r):
+                loc = (qs - centre) @ mm
+                return (np.abs(loc[:, 0]) <= r[0] * 0.8) & (np.abs(loc[:, 1]) <= r[1] * 0.8)
+            P.add(E(centre, r, m.plate, "plate%d%d" % (k, s), mm, _plate_paint(m, centre, mm, r), square))
+            if k in p.weak and scatter < 0.5:
+                _crack(P, centre, mm, r, flare, True)
+    # The ridge: drone shells along its spine between the plates, each with a spike and one empty white eye.
+    for k, a0 in enumerate(p.ridge if scatter < 0.4 else ()):
+        q, n = _surface(B, c, a0, 0.0)
+        shell = at(q + n * 0.9)
+        P.add(S(shell, 1.0, m.drone, "ridge%d" % k))
+        tip = shell + bm @ (n * 2.6 + v3(-0.9, 0.0, 0.0))
+        P.add(L(shell + bm @ (n * 0.6), tip, 0.55, 0.08, m.drone, "ridge%d" % k, line=False))
+        P.mark(shell + bm @ v3(0.95, 0.0, 0.2), M.HOLLOW_EYE)
+    # The swarm in its belly: drone shells packed under it between its legs, their eyes open.
+    for k, (sa, sb, sc) in enumerate(p.swarm):
+        for s in ((1,) if sb == 0.0 else (1, -1)):
+            q = at((sa, s * sb, sc))
+            P.add(S(q, 1.1 - 0.1 * (k % 2), m.drone, "swarm%d" % k))
+            P.mark(q + bm @ v3(1.0, s * 0.2, -0.1), M.HOLLOW_EYE)
+    if a != "death":
+        # Mist pouring off its back and pooling under its belly; drones drifting round it.
+        for k in range(6):
+            u = (k * 0.19 + f * 0.12) % 1.0
+            P.fx.append((at((-8.0 + k * 3.2, (k % 3 - 1) * 2.4, 7.0 + u * 5.0)), M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
+            P.fx.append((at((-6.0 + k * 2.4, (k % 2) * 4.0 - 2.0, -8.6 - u * 1.2)), M.MIST_PUFF_DIM))
+        for k in range(3):
+            ang = math.radians(f * 40.0 + k * 120.0)
+            q = at((math.cos(ang) * 13.0, math.sin(ang) * 10.0, 4.0 + k * 2.6))
+            P.fx.append((q, M.RAMPS[m.drone][1]))
+            P.fx.append((q + v3(0.3, 0.0, 0.0), M.HOLLOW_EYE))
+    if a == "attack" and f in (1, 2, 3):
+        # The stampede's dust thrown up round its forefeet.
+        for k in range(14):
+            ang = math.radians(k * 26.0 + f * 20.0)
+            rr = 3.0 + f * 1.6 + (k % 3) * 0.9
+            P.fx.append((v3(c.lunge + 7.0 + math.cos(ang) * rr * 0.6, math.sin(ang) * rr, 0.4 + (k % 3) * 0.7), M.DUST if k % 2 else M.DUST_DIM))
+    if a == "death" and f in B.style(a).get("burst", ()):
+        # It breaks apart: drones bursting out of it.
+        for k in range(12):
+            ang = math.radians(k * 30.0 + f * 17.0)
+            rr = 6.0 + (f - 2) * 3.0 + (k % 3) * 1.4
+            q = v3(c.lunge + math.cos(ang) * rr, math.sin(ang) * rr * 0.8, 6.0 + (k % 4) * 2.0 + (f - 2) * 1.5)
+            P.fx.append((q, M.RAMPS[m.drone][1]))
+            P.fx.append((q + v3(0.3, 0.0, 0.0), M.HOLLOW_EYE))
+
+
+# ================================================================================================= the fruit's guardian (M3)
+# The boar that guards a Spirit Fruit (the treasure births'): the thornback boar's build grown old and huge, moss over its
+# hide, the fruit tree's bark-brown vines winding over it, and on its back the tree itself, a gnarled sapling rooted in it
+# (`sapling`): a trunk leaning back, branches with clusters of jade leaves, golden spirit fruits hanging under them that
+# glow, blossoms among its vines. Its fruits blaze as it paws the ground (its tell) and as it charges; struck, the
+# sapling shakes; it keeps the sapling as it falls.
+def _sapling(P, B, c) -> None:
+    sp, m = B.parts.sapling, B.mats
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    a0, b0 = sp.at
+    sway = 0.25 * math.sin(f * 0.9) + (0.6 if a == "hurt" and f == 0 else 0.0) - (0.4 if a == "walk" else 0.0)
+    base = at((a0, b0, _top_of(B, a0) - 0.35))
+    up_ = bm @ v3(-0.25 + sway * 0.3, sway * 0.4, 1.0)
+    up_ = up_ / float(np.linalg.norm(up_))
+    tip = base + up_ * sp.height
+    P.add(L(base, tip, sp.r[0], sp.r[1], m.bark, "sapling"))
+    blaze = a in ("windup", "attack") and not (a == "attack" and f >= 3)
+    dead = a == "death" and f >= 3
+    clusters = [(tip, sp.leaves * 1.15)]
+    for k, (ang, ln) in enumerate(sp.branches):
+        r = math.radians(ang)
+        root = base + up_ * sp.height * 0.62
+        d = bm @ v3(math.cos(r) * 0.85, math.sin(r) * 0.85, 0.55)
+        d = d / float(np.linalg.norm(d))
+        end = root + d * ln + v3(0.0, 0.0, 0.15 * math.sin(f * 0.9 + k))
+        P.add(L(root, end, sp.r[1] * 1.1, sp.r[1] * 0.6, m.bark, "sapling"))
+        clusters.append((end, sp.leaves))
+    for k, (q, rr) in enumerate(clusters):
+        P.add(E(q + v3(0.0, 0.0, rr * 0.25), (rr, rr * 0.95, rr * 0.7), m.leaf, "leaves%d" % k, None))
+        P.mark(q + v3(0.2, -0.3, rr * 0.9), M.RAMPS[m.leaf][4])
+        if k == 0:
+            continue
+        # A spirit fruit hanging at the cluster's outer edge (so it shows from above): golden, a glint on it, its glow
+        # (blazing in the tell and the charge).
+        out = q - tip
+        out = v3(out[0], out[1], 0.0)
+        out = out / (float(np.linalg.norm(out)) or 1.0)
+        fq = q + out * (rr * 0.85) + v3(0.0, 0.0, -rr * 0.15)
+        P.add(S(fq, sp.fruit, m.fruit, "fruit%d" % k, line=False))
+        if not dead:
+            P.mark(fq + v3(0.15, -0.2, sp.fruit * 0.85), M.FG_GLINT)
+            n = 10 if blaze else 3
+            for j in range(n):
+                ang = math.radians(j * 360.0 / n + f * 23.0 + k * 40.0)
+                rr2 = sp.fruit + (1.0 if blaze else 0.5)
+                P.glow.append((fq + v3(math.cos(ang) * rr2, math.sin(ang) * rr2, 0.3 * math.sin(ang * 2.0)), M.FG_GLOW))
+    # Blossoms among its vines.
+    for k, (ba, bb) in enumerate(sp.blossoms):
+        q = at((ba, bb, _top_of(B, ba) - 0.2 - 0.25 * abs(bb)))
+        P.mark(q, M.FG_BLOSSOM if k % 2 == 0 else M.FG_BLOSSOM_DIM)

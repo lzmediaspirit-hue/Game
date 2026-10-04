@@ -629,6 +629,97 @@ static func sets() -> Dictionary:
 		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m2 + [
 		{"do": [["paused", false], ["hud", "visible", true]]}] + m2_fights}
 
+	# M4: the monster engine's late-game batch (tools/content/monsters/specs/): the Sect War's, the Presence Trial's and
+	# Blackmast's people and their bosses (a), the sky-sea's beasts (b), the Ashen Reach's and the Nebula Deep's (c), lined
+	# up on the Reed Shallows beside drawn foes for scale; every pose of the E2 set, their elites, and live fights in the
+	# top-down rooms they live in.
+	var m4 := []
+	for lu in [["a", M4_LINEUP_A], ["b", M4_LINEUP_B], ["c", M4_LINEUP_C]]:
+		m4.append({"do": [["lineup", lu[1]]]})
+		for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+				["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+				["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+			m4.append({"name": lu[0] + "_" + st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+		m4.append({"name": lu[0] + "_09_falling", "do": [["fell_lineup"]]})
+	for el in [["d", M4_ELITES_A], ["e", M4_ELITES_B], ["f", M4_ELITES_C]]:
+		m4.append({"do": [["lineup", el[1]]]})
+		m4.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
+		m4.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
+	# A fight in the species' own room, as M2's: the room's own foes cleared, the batch's set on the player at Level 1.
+	var m4_fights := []
+	for ft in [["12_fight_sect_war", "si_sect_war", Vector2(30, 18), [["nine_peaks_disciple", Vector2(4, 1)], ["starsea_pirate", Vector2(-4, 1)],
+				["starsea_pirate", Vector2(3, -2)]]],
+			["13_fight_sect_war_captain", "si_sect_war", Vector2(30, 18), [["pirate_captain", Vector2(5, 0)], ["starsea_pirate", Vector2(-3, 2)]]],
+			["14_fight_presence_trial", "si_presence_trial", Vector2(20, 13), [["presence_phantom", Vector2(4, 1)], ["presence_phantom", Vector2(-4, 1)]]],
+			["15_fight_ninth_seat", "si_presence_trial", Vector2(20, 13), [["ninth_presence", Vector2(5, 0)]]],
+			["16_fight_gunners_battery", "bm_gunners_battery", Vector2(27, 12), [["pirate_gunner", Vector2(4, 1)], ["pirate_gunner", Vector2(-4, 1)],
+				["starsea_pirate", Vector2(3, -2)]]],
+			["17_fight_flagship_deck", "bm_flagship_deck", Vector2(27, 12), [["admiral_voss", Vector2(5, 0)]]],
+			["18_fight_sparrow_reefs", "dr_sparrow_reefs", Vector2(30, 17), [["comet_sparrow", Vector2(4, 1)], ["comet_sparrow", Vector2(-4, -1)],
+				["star_jellyfish", Vector2(2, -3)]]],
+			["19_fight_jellyfish_shallows", "dr_jellyfish_shallows", Vector2(32, 17), [["star_jellyfish", Vector2(4, 1)], ["star_jellyfish", Vector2(-4, 1)]]],
+			["20_fight_guardians_crown", "wn_guardians_crown", Vector2(30, 17), [["nest_guardian", Vector2(5, 0)], ["hollowed_wyrmling", Vector2(-4, 1)]]],
+			["21_fight_drone_hive", "tf_drone_hive", Vector2(31, 18), [["hollow_drone", Vector2(4, 0)], ["hollow_drone", Vector2(-4, 1)]]],
+			["22_fight_orbit_garden", "or_orbit_garden", Vector2(36, 15), [["orbit_moth", Vector2(4, 0)], ["orbit_moth", Vector2(-4, 1)]]],
+			["23_fight_golem_foundry", "or_golem_foundry", Vector2(34, 13), [["gravity_golem", Vector2(5, 0)], ["orbit_moth", Vector2(-4, 1)]]],
+			["24_fight_war_camp", "ar_war_camp", Vector2(36, 14), [["ashborn_raider", Vector2(4, 1)], ["ashborn_raider", Vector2(-4, 1)],
+				["ashborn_pyre_keeper", Vector2(2, -2)]]],
+			["25_fight_kharns_pyre", "ar_kharns_pyre", Vector2(28, 14), [["general_kharn", Vector2(5, 0)]]],
+			["26_fight_eel_currents", "nd_eel_currents", Vector2(36, 14), [["nebula_eel", Vector2(4, 0)], ["nebula_eel", Vector2(-4, 1)]]],
+			["27_fight_crab_grottoes", "nd_crab_grottoes", Vector2(36, 15), [["void_crab", Vector2(4, 1)], ["void_crab", Vector2(-4, 1)]]],
+			["28_fight_leviathans_maw", "nd_leviathans_maw", Vector2(36, 14), [["nebula_leviathan", Vector2(6, 0)]]]]:
+		m4_fights.append({"name": ft[0], "room": ft[1], "cell": ft[2], "wait": 60, "do": [["clear_enemies"], ["close_pages"], ["foes", ft[2], ft[3], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]})
+	s["monsters_m4"] = {"doc": "M4: the monster engine's late-game batch (the Sect War's and the Presence Trial's people, the sky-sea's beasts, Blackmast's gunners, the Tidebreak Front's drones, the Orbit Ruins', the Ashen Reach's and the Nebula Deep's foes; Comet Captain Rao, Admiral Voss, General Kharn and the Ninth Presence sculpted as people of size, the nest guardian and the Nebula Leviathan) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their own top-down rooms under the HUD (--tag=after)",
+		"out": "redesign/feedback/monsters/m4/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m4 + [
+		{"do": [["paused", false], ["hud", "visible", true]]}] + m4_fights}
+
+	# M3: the monster engine's third batch (tools/content/monsters/specs/): the Thunderhorn Plains' and Rimefrost Heights'
+	# beasts (a), Mirrorwater Lake's and the Gale Canyons' (b), the Sunscar Desert's, the Tomb's, the spar posts' and the
+	# fruit's guardian (c),
+	# the bosses (g: the Reflection, the Hollow Behemoth, the Thousand-Eye Toad, the Tomb King), lined up on the Reed
+	# Shallows beside drawn foes for scale; every pose of the E2 set, their elites, and live fights in their own rooms.
+	var m3 := []
+	for lu in [["a", M3_LINEUP_A], ["b", M3_LINEUP_B], ["c", M3_LINEUP_C], ["g", M3_LINEUP_BOSSES]]:
+		m3.append({"do": [["lineup", lu[1]]]})
+		for st in [["01_head_on", "idle", 0, Vector2.DOWN], ["02_walk", "walk", 2, Vector2(1, 1)], ["03_tells", "windup", -1, Vector2(1, 1)],
+				["04_strikes", "attack", 1, Vector2(1, 1)], ["05_struck", "hurt", 0, Vector2(1, 1)], ["06_side", "idle", 0, Vector2.RIGHT],
+				["07_tail_on", "walk", 2, Vector2.UP], ["08_tail_on_tells", "windup", -1, Vector2.UP]]:
+			m3.append({"name": lu[0] + "_" + st[0], "do": [["pose_lineup", st[1], st[2], st[3]]]})
+		m3.append({"name": lu[0] + "_09_falling", "do": [["fell_lineup"]]})
+	for el in [["d", M3_ELITES_A], ["e", M3_ELITES_B], ["f", M3_ELITES_C]]:
+		m3.append({"do": [["lineup", el[1]]]})
+		m3.append({"name": el[0] + "_10_elites", "do": [["pose_lineup", "idle", 0, Vector2(1, 1)]]})
+		m3.append({"name": el[0] + "_11_elites_tells", "do": [["pose_lineup", "windup", -1, Vector2(1, 1)]]})
+	var m3_fights := []
+	for ft in [["12_fight_stormgrass_verge", "tp_stormgrass_verge", Vector2(40, 16), [["spark_weasel", Vector2(4, 1)], ["spark_weasel", Vector2(-4, 1)],
+				["stormgrass_stag", Vector2(3, -3)]]],
+			["13_fight_lightning_scar", "tp_lightning_scar", Vector2(40, 15), [["thunderhorn_rhino", Vector2(4, 0)], ["spark_weasel", Vector2(-4, 1)]]],
+			["14_fight_frostpine_climb", "rf_frostpine_climb", Vector2(40, 18), [["frost_lynx", Vector2(4, 0)], ["frost_lynx", Vector2(-4, 1)]]],
+			["15_fight_snow_ape_ledges", "rf_snow_ape_ledges", Vector2(36, 16), [["snow_ape", Vector2(4, 0)], ["frost_lynx", Vector2(-4, 0)]]],
+			["16_fight_mirror_shallows", "ml_mirror_shallows", Vector2(41, 13), [["azure_carp_dragonet", Vector2(4, -1)], ["azure_carp_dragonet", Vector2(-4, 0)]]],
+			["17_fight_sentinel_causeway", "ml_sentinel_causeway", Vector2(42, 12), [["river_sentinel", Vector2(4, 0)], ["azure_carp_dragonet", Vector2(-4, -1)]]],
+			["18_fight_toads_hollow", "ml_toads_hollow", Vector2(29, 14), [["thousand_eye_toad", Vector2(6, 0)]]],
+			["19_fight_canyon_mouth", "gc_canyon_mouth", Vector2(37, 12), [["canyon_brigand", Vector2(4, 0)], ["wind_kite", Vector2(-4, -1)]]],
+			["20_fight_kite_winds", "gc_kite_winds", Vector2(41, 13), [["wind_kite", Vector2(4, 0)], ["canyon_harpy", Vector2(-4, -1)]]],
+			["21_fight_harpy_roosts", "gc_harpy_roosts", Vector2(37, 14), [["canyon_harpy", Vector2(4, 0)], ["canyon_harpy", Vector2(-4, 1)]]],
+			["22_fight_glass_dunes", "sd_glass_dunes", Vector2(41, 12), [["sandstorm_scorpion", Vector2(4, 1)], ["sandstorm_scorpion", Vector2(-4, 1)]]],
+			["23_fight_worm_sea", "sd_worm_sea", Vector2(36, 13), [["dune_worm", Vector2(5, 3)], ["sandstorm_scorpion", Vector2(-4, 1)]]],
+			["24_fight_hall_of_sand_kings", "ts_hall_of_sand_kings", Vector2(30, 17), [["terracotta_warden", Vector2(4, 0)], ["terracotta_warden", Vector2(-4, 0)]]],
+			["25_fight_throne", "ts_throne", Vector2(30, 12), [["tomb_king", Vector2(6, 0)]]],
+			["26_fight_siege", "si_siege", Vector2(28, 24), [["hollow_behemoth", Vector2(0, -7)]]],
+			["27_fight_trial_of_reflections", "si_trial_of_reflections", Vector2(14, 12), [["the_reflection", Vector2(4, 0)]]],
+			["28_fight_presence_terrace", "np_presence_terrace", Vector2(24, 15), [["alliance_champion", Vector2(4, 0)]]],
+			["29_fight_hold_gate", "ir_hold_gate", Vector2(24, 15), [["ironroot_warden", Vector2(4, 0)]]],
+			["30_fight_spirit_fruit", "bg_whispering_bamboo", Vector2(30, 14), [["fruit_guardian", Vector2(5, 0)], ["rogue_cultivator", Vector2(-4, 1)]]]]:
+		m3_fights.append({"name": ft[0], "room": ft[1], "cell": ft[2], "wait": 60, "do": [["clear_enemies"], ["close_pages"], ["foes", ft[2], ft[3], true],
+			["tick", 150], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]})
+	s["monsters_m3"] = {"doc": "M3: the monster engine's third batch (the Thunderhorn Plains', Rimefrost Heights', Mirrorwater Lake's, the Gale Canyons', the Sunscar Desert's and the Tomb's foes, the spar posts' people, the fruit's guardian; the Reflection, the Hollow Behemoth, the Thousand-Eye Toad and the Tomb King) beside drawn foes for scale on the Reed Shallows, held still (head-on, walking, tell, strike, struck, side, tail-on, falling), their elites, and live fights in their own top-down rooms under the HUD (the fruit's guardian where a Spirit Fruit ripens) (--tag=after)",
+		"out": "redesign/feedback/monsters/m3/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m3 + [
+		{"do": [["paused", false], ["hud", "visible", true]]}] + m3_fights}
+
 	# ------------------------------------------------------------------------------------------------ the HUD and the pages
 	s["hud"] = {"doc": "Decision 42, the prototype's feedback: the HUD at rest and in a fight, the Techniques page and its loadout bar, Old Ma's shop, Aunt Ping's offer and the screen once it is taken (--tag=before|after)",
 		"out": "redesign/feedback/hud/", "vars": {"tag": "after"}, "stage": hud_stage, "rows": [
@@ -984,6 +1075,60 @@ const M2_ELITES_B := [["mist_wolf", Vector2(-7.5, -2.4), false], ["mist_wolf", V
 	["rogue_treasure_adept", Vector2(3.0, 2.2), false], ["rogue_treasure_adept", Vector2(6.5, 2.2), true]]
 const M2_ELITES_C := [["hollow_stag", Vector2(-7.0, -2.4), false], ["hollow_stag", Vector2(-3.0, -2.4), true],
 	["cloudpeak_roc", Vector2(-5.5, 2.4), false], ["cloudpeak_roc", Vector2(4.5, 2.4), true]]
+# M4: the monster engine's late-game batch, by where they live, beside a Mudwater bandit for scale, the tall ones on the
+# near row so the shot holds them whole; and their elites beside them.
+const M4_LINEUP_A := [["nine_peaks_disciple", Vector2(-7.5, -2.6), false], ["starsea_pirate", Vector2(-4.0, -2.6), false],
+	["presence_phantom", Vector2(-0.5, -2.6), false], ["pirate_gunner", Vector2(3.0, -2.6), false], ["mudwater_bandit", Vector2(7.0, -2.6), false],
+	["pirate_captain", Vector2(-6.5, 1.8), false], ["ninth_presence", Vector2(-1.5, 1.8), false], ["admiral_voss", Vector2(3.5, 1.8), false]]
+const M4_LINEUP_B := [["comet_sparrow", Vector2(-7.5, -2.6), false], ["star_jellyfish", Vector2(-3.5, -2.6), false],
+	["hollowed_wyrmling", Vector2(1.0, -2.6), false], ["hollow_drone", Vector2(5.0, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.0), false], ["nest_guardian", Vector2(-3.5, 1.8), false], ["orbit_moth", Vector2(1.5, 1.8), false],
+	["gravity_golem", Vector2(6.0, 1.8), false]]
+const M4_LINEUP_C := [["ashborn_raider", Vector2(-7.5, -2.6), false], ["ashborn_pyre_keeper", Vector2(-4.0, -2.6), false],
+	["nebula_eel", Vector2(0.5, -2.6), false], ["void_crab", Vector2(5.0, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.0), false], ["general_kharn", Vector2(-4.0, 1.8), false], ["nebula_leviathan", Vector2(3.5, 1.4), false]]
+const M4_ELITES_A := [["nine_peaks_disciple", Vector2(-7.5, -2.4), false], ["nine_peaks_disciple", Vector2(-4.0, -2.4), true],
+	["starsea_pirate", Vector2(2.5, -2.4), false], ["starsea_pirate", Vector2(6.0, -2.4), true],
+	["pirate_gunner", Vector2(-7.5, 2.2), false], ["pirate_gunner", Vector2(-4.0, 2.2), true],
+	["comet_sparrow", Vector2(2.5, 2.2), false], ["comet_sparrow", Vector2(6.0, 2.2), true]]
+const M4_ELITES_B := [["star_jellyfish", Vector2(-7.5, -2.4), false], ["star_jellyfish", Vector2(-3.5, -2.4), true],
+	["hollow_drone", Vector2(2.5, -2.4), false], ["hollow_drone", Vector2(6.5, -2.4), true],
+	["nest_guardian", Vector2(-7.0, 2.2), false], ["nest_guardian", Vector2(-2.5, 2.2), true],
+	["hollowed_wyrmling", Vector2(2.5, 2.2), false], ["hollowed_wyrmling", Vector2(6.5, 2.2), true]]
+const M4_ELITES_C := [["orbit_moth", Vector2(-7.5, -2.4), false], ["orbit_moth", Vector2(-3.5, -2.4), true],
+	["gravity_golem", Vector2(1.5, -2.4), false], ["gravity_golem", Vector2(6.0, -2.4), true],
+	["ashborn_raider", Vector2(-8.0, 2.2), false], ["ashborn_raider", Vector2(-5.5, 2.2), true],
+	["nebula_eel", Vector2(-2.0, 2.2), false], ["nebula_eel", Vector2(2.0, 2.2), true],
+	["void_crab", Vector2(5.0, 2.2), false], ["void_crab", Vector2(7.5, 2.2), true]]
+# M3: the monster engine's third batch, by where they live, beside drawn foes for scale (a Mudwater bandit, the reed rat,
+# the rock beetle), the tall ones on the near row so the shot holds them whole; the bosses on their own; and the elites
+# beside their species. The dune worm stands past its aggro range from the player, as the mole does (a burrower that
+# took the player for prey would go under before the lineup is held).
+const M3_LINEUP_A := [["spark_weasel", Vector2(-7.5, -2.6), false], ["stormgrass_stag", Vector2(-3.0, -2.6), false],
+	["thunderhorn_rhino", Vector2(2.5, -2.6), false], ["frost_lynx", Vector2(7.0, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.4), false], ["snow_ape", Vector2(-3.5, 2.4), false], ["reedtail_rat", Vector2(2.5, 2.4), false],
+	["rock_beetle", Vector2(6.5, 2.4), false]]
+const M3_LINEUP_B := [["azure_carp_dragonet", Vector2(-7.5, -2.6), false], ["wind_kite", Vector2(-3.0, -2.6), false],
+	["canyon_harpy", Vector2(2.5, -2.6), false], ["reedtail_rat", Vector2(7.0, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.4), false], ["canyon_brigand", Vector2(-4.0, 2.4), false], ["river_sentinel", Vector2(2.5, 2.4), false],
+	["rock_beetle", Vector2(6.5, 2.4), false]]
+const M3_LINEUP_C := [["sandstorm_scorpion", Vector2(-7.5, -2.6), false], ["fruit_guardian", Vector2(-3.0, -2.6), false],
+	["alliance_champion", Vector2(2.5, -2.6), false], ["ironroot_warden", Vector2(6.5, -2.6), false],
+	["mudwater_bandit", Vector2(-7.5, 2.4), false], ["terracotta_warden", Vector2(-3.5, 2.4), false], ["rock_beetle", Vector2(2.0, 2.4), false],
+	["dune_worm", Vector2(7.5, 2.4), false]]
+const M3_LINEUP_BOSSES := [["hollow_behemoth", Vector2(-4.5, -2.4), false], ["thousand_eye_toad", Vector2(4.5, -2.4), false],
+	["the_reflection", Vector2(-7.5, 2.4), false], ["mudwater_bandit", Vector2(-4.5, 2.4), false], ["tomb_king", Vector2(4.5, 2.2), false]]
+const M3_ELITES_A := [["spark_weasel", Vector2(-7.5, -2.4), false], ["spark_weasel", Vector2(-4.0, -2.4), true],
+	["stormgrass_stag", Vector2(2.0, -2.4), false], ["stormgrass_stag", Vector2(6.5, -2.4), true],
+	["thunderhorn_rhino", Vector2(-7.0, 2.2), false], ["thunderhorn_rhino", Vector2(-2.5, 2.2), true],
+	["frost_lynx", Vector2(3.0, 2.2), false], ["frost_lynx", Vector2(6.5, 2.2), true]]
+const M3_ELITES_B := [["azure_carp_dragonet", Vector2(-7.5, -2.4), false], ["azure_carp_dragonet", Vector2(-3.5, -2.4), true],
+	["wind_kite", Vector2(2.0, -2.4), false], ["wind_kite", Vector2(6.5, -2.4), true],
+	["snow_ape", Vector2(-7.5, 2.2), false], ["snow_ape", Vector2(-4.0, 2.2), true],
+	["river_sentinel", Vector2(3.0, 2.2), false], ["river_sentinel", Vector2(6.5, 2.2), true]]
+const M3_ELITES_C := [["canyon_harpy", Vector2(-7.5, -2.4), false], ["canyon_harpy", Vector2(-3.5, -2.4), true],
+	["sandstorm_scorpion", Vector2(2.5, -2.4), false], ["sandstorm_scorpion", Vector2(6.5, -2.4), true],
+	["dune_worm", Vector2(-7.5, 2.4), false], ["dune_worm", Vector2(7.5, 2.4), true]]
 
 ## The sand and snow sampler's paint (40 x 22 cells, the phone's view). West: meadow, a dirt path and a paved corner round
 ## a sand flat, its beach on the water and a jetty. East: a snow field on the meadow with a packed-snow path through it,

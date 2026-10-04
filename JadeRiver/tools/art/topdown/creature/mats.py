@@ -598,3 +598,520 @@ def palette(*names) -> dict:
 
 def props(*names) -> dict:
     return {n: PROPS.get(n, {}) for n in names}
+
+
+# ================================================================================================= M4
+# The late game's foes (M4), from their side-view sheets' materials (tools/art/creatures/<id>.py), each block its own.
+RAMPS.update({
+    # void crab: black-violet chitin, its silver rim and tips, the pale violet underside; the void in its shell's window, a
+    # nebula swirl in it, and its glowing white-violet eyes
+    "vc_chitin": _s("9584cc", "5a4a94", "3b2f6c", "261d48"),
+    "vc_silver": _s("f6f4ff", "c6c2e0", "8e8ab2", "5b5784"),
+    "vc_under": _s("d2c8ee", "a497cc", "776a9f", "4f4574"),
+    "vc_void": _r("06030C", "0E0819", "140B22", "1C1030", "2A1648"),
+    "vc_nebula": _r("1A0E30", "2A1648", "5A2A82", "8A3F96", "B868B8"),
+    "vc_eye": _s("fcf8ff", "e4d6ff", "c4a6ff", "8a6cd0"),
+    # comet sparrow: russet feathers, dark flight feathers, gold (its tips, brow and beak), a white-hot breast; its comet's
+    # fire (orange, magenta, violet: light, drawn flat) and the smoke it gutters into
+    "cs_feather": _s("e0935a", "a8532e", "763627", "4b2027"),
+    "cs_flight": _s("9a5236", "71352a", "522427", "381a24"),
+    "cs_gold": _s("fff2ae", "f4c24e", "cf8a34", "8e4f2a"),
+    "cs_breast": _s("ffffff", "fff3d2", "ffd690", "f29a4c"),
+    "cs_flame_or": _r("D8562C", "F5832F", "FFA23E", "FFBD4F", "FFE08A"),
+    "cs_flame_mg": _r("A8347E", "C83E88", "E2559A", "F2649C", "FF8EBE"),
+    "cs_flame_vi": _r("4E3488", "6F48BA", "8A5CD2", "9D6EE2", "B896F0"),
+    "cs_smoke": _s("b8aecb", "8a7fa3", "655c80", "463f5e"),
+    # star jellyfish: the indigo-violet bell, its magenta frill and oral arms, its pale star-lit tentacles
+    "sj_bell": _s("b9a6f2", "7b63d2", "4f3ea2", "2f256c"),
+    "sj_frill": _s("ffc9ef", "e47cca", "a94b9f", "6b2d70"),
+    "sj_tentacle": _s("f1f4ff", "c3cbf4", "8e93d8", "5f5cab"),
+    # hollow drone: its gunmetal shell, the pale steel lance, its pale wings (and their ghost at the beat's far end)
+    "hd_shell": _s("b4bac6", "7e8594", "565b6c", "3a3d4d"),
+    "hd_lance": _s("f0f0f6", "b4b6c6", "7e8096", "50526a"),
+    "hd_wing": _s("f6f7fd", "d4d8ee", "a3a9cc", "7a80a6"),
+    "hd_ghost": _r("A3A9CC", "B9BED8", "C9CDE2", "D4D8EE", "E6E8F4"),
+    # orbit moth: its dusky indigo wings and their rose fringe, its pale fur, its gold antennae, its dark eyes
+    "om_wing": _r("181438", "231F54", "342F74", "4B4598", "6A64BE"),
+    "om_fringe": _s("c9a0dc", "9a70bf", "744f9c", "533975"),
+    "om_fur": _s("fffaf0", "ece2cf", "c3b4bc", "8f809e"),
+    "om_antenna": _s("fff3c8", "e6cc88", "b8955a", "7d6040"),
+    "om_eye": _r("0A0614", "120C22", "1E1638", "2E2450", "5A4C88"),
+    # nebula eel: deep teal, its magenta nebula clouds, its translucent violet fins, its dark violet gape, its fangs
+    "neel_teal": _s("86ecd9", "2b9fa8", "1d6585", "223a6a"),
+    "neel_mag": _s("ffa8dd", "cf4fa0", "8b2f88", "4b2366"),
+    "neel_fin": _s("d9ceff", "8f80d8", "6d5ec2", "56499f"),
+    "neel_mouth": _r("140620", "2A0F33", "3E1848", "52205E", "6A2C78"),
+    "neel_fang": _s("fffaf0", "efe6cf", "c4b8a2", "8f846f"),
+    # Nebula Leviathan: deep indigo hide, its pale star-white belly, teal and magenta nebula bands, translucent violet
+    # veils, ivory baleen, its dark mouth, the void it breathes
+    "nlev_hide": _s("5c68c0", "3d4298", "2a2b6c", "1c1a48"),
+    "nlev_belly": _s("f4f0ff", "cbc4ee", "9a92ca", "6c64a2"),
+    "nlev_teal": _s("94f0dc", "36b2aa", "257c8a", "1e506e"),
+    "nlev_mag": _s("ffaade", "cb52a0", "8b3289", "502668"),
+    "nlev_veil": _s("e2d8ff", "8a7cd4", "7466c4", "5a4ea6"),
+    "nlev_baleen": _s("fff4d0", "e6d29a", "b69a6a", "7a6448"),
+    "nlev_mouth": _r("0C0618", "1A0C2A", "2A1440", "3A1C54", "4E2868"),
+    "nlev_void": _r("05020C", "10081C", "1C0E30", "35165A", "5A2A8A"),
+    # hollowed wyrmling: grey-violet ashen scales, its pale ash belly, its torn wings, its ash horns and spines, its mouth,
+    # the grey-violet fire it spits (light: its hot violet core, its grey-violet edge)
+    "hw_scale": _s("c7c0d3", "918aa3", "676079", "443e56"),
+    "hw_belly": _s("e8e3ea", "c2bbc9", "978fa5", "6d6580"),
+    "hw_wing": _r("2A2240", "3D335A", "584C7C", "6E6194", "8A7CAE"),
+    "hw_horn": _s("f0ecf2", "cdc6d4", "9d95aa", "6e667f"),
+    "hw_mouth": _r("140A1A", "26122E", "3A1C44", "4E2858", "62346C"),
+    "hw_fire_gv": _r("76659A", "9F8CC0", "B8A8D6", "D6C8EA", "ECE4F6"),
+    "hw_fire_v": _r("9A68DC", "C79BFF", "D8B8FF", "F0DCFF", "FAF2FF"),
+    # nest guardian: a slate-indigo hide, dark bronze plates (and their darker rim and club knobs), a pale sand belly, its
+    # horns, its star crystals (a pale-gold lit facet, a teal one) and the dead crystals' grey
+    "ng_hide": _s("a3a8d2", "6d72a3", "4a4e7c", "2f3158"),
+    "ng_bronze": _s("c98f4c", "85572d", "5a3a24", "39241e"),
+    "ng_rim": _s("9c6a3a", "6a4426", "4a2f20", "2e1d18"),
+    "ng_belly": _s("f2e2b4", "d4b983", "a88c62", "75604a"),
+    "ng_horn": _s("f6ecc8", "d2bf8e", "9c8a64", "675a45"),
+    "ng_crystal": _r("2A6A78", "3F8F9E", "8FDCDC", "FFF0B8", "FFFFFF"),
+    "ng_crystal_dim": _s("b4bcc6", "7e8a98", "58626f", "3a414c"),
+    # gravity golem: dark basalt, the pale stones of its ring, its violet singularity
+    "grav_basalt": _s("9994b2", "65607f", "46415f", "2d2943"),
+    "grav_ring": _s("e2dbea", "aca5c0", "777094", "4d476b"),
+    "grav_sing": _r("1A0838", "351A70", "7444D4", "B27CFF", "F3E4FF"),
+})
+PROPS.update({
+    "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
+    "vc_void": {"weight": 1.6}, "vc_nebula": {"weight": 1.4}, "vc_eye": {"hi": True, "glossy": True, "weight": 1.8},
+    "cs_feather": {"hi": True}, "cs_flight": {"hi": True}, "cs_gold": {"hi": True, "glossy": True, "weight": 1.4},
+    "cs_breast": {"hi": True, "weight": 1.2}, "cs_flame_or": {"weight": 1.2}, "cs_flame_mg": {"weight": 1.1}, "cs_flame_vi": {},
+    "cs_smoke": {"hi": True},
+    "sj_bell": {"hi": True, "glossy": True}, "sj_frill": {"hi": True, "weight": 1.3}, "sj_tentacle": {"hi": True, "thin": True, "weight": 1.2},
+    "hd_shell": {"hi": True, "glossy": True}, "hd_lance": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "hd_wing": {"hi": True, "thin": True}, "hd_ghost": {"thin": True},
+    "om_wing": {"thin": True}, "om_fringe": {"hi": True, "thin": True, "weight": 1.2}, "om_fur": {"hi": True, "weight": 1.2},
+    "om_antenna": {"hi": True, "line": True, "weight": 1.5}, "om_eye": {"glossy": True, "weight": 1.8},
+    "neel_teal": {"hi": True, "glossy": True}, "neel_mag": {"hi": True, "weight": 1.2}, "neel_fin": {"hi": True, "thin": True},
+    "neel_mouth": {"weight": 1.5}, "neel_fang": {"hi": True, "weight": 1.6},
+    "nlev_hide": {"glossy": True}, "nlev_belly": {"hi": True}, "nlev_teal": {"hi": True, "weight": 1.2}, "nlev_mag": {"hi": True, "weight": 1.2},
+    "nlev_veil": {"hi": True, "thin": True}, "nlev_baleen": {"hi": True, "line": True, "weight": 1.4}, "nlev_mouth": {"weight": 1.5},
+    "nlev_void": {"weight": 1.6},
+    "hw_scale": {"hi": True}, "hw_belly": {"hi": True, "weight": 1.2}, "hw_wing": {"hi": True, "thin": True}, "hw_horn": {"hi": True, "weight": 1.4},
+    "hw_mouth": {"weight": 1.4}, "hw_fire_gv": {}, "hw_fire_v": {"weight": 1.2},
+    "ng_hide": {"hi": True}, "ng_bronze": {"hi": True, "glossy": True}, "ng_rim": {"hi": True, "glossy": True, "weight": 1.2},
+    "ng_belly": {"hi": True}, "ng_horn": {"hi": True, "weight": 1.4}, "ng_crystal": {"hi": True, "glossy": True, "weight": 1.4},
+    "ng_crystal_dim": {"hi": True, "weight": 1.3},
+    "grav_basalt": {"hi": True}, "grav_ring": {"hi": True, "weight": 1.3}, "grav_sing": {"weight": 1.6},
+})
+# The void crab's stars and the rift its claw tears (white, violet, deep).
+STAR_W = c("FFFFFF")
+STAR_V = c("D8C8FF")
+STAR_C = c("A8ECFF")
+STAR_G = c("FFE6A1")
+STAR_DIM = c("6A5E8C")
+STAR_O = c("F2BF55")
+RIFT_W = c("FFFFFF")
+RIFT_V = c("B58CFF")
+RIFT_D = c("5A2AA8", 200)
+# The comet sparrow's dark eye, its comet's white-hot core and its sparks.
+SPARROW_EYE = c("1A0D14")
+COMET_CORE = c("FFFBE6")
+COMET_SPARK = c("FFD79A", 220)
+# The hollow drone's core (its light, its flare and the glow round it), the ash-white fissures and its speed streaks.
+DRONE_CORE = c("C08CF0")
+DRONE_CORE_HI = c("F6ECFF")
+DRONE_GLOW = c("C08CF0", 140)
+ASH_CRACK = c("EBE8DF")
+STREAK = c("9AA0B8", 200)
+# The orbit moth's star chart (its stars, the gold lines, the bright star), the glint in its eye, its motes and its dust.
+MOTH_STAR = c("FFE6A1")
+MOTH_LINE = c("BC9F62")
+MOTH_WHITE = c("FFFBE6")
+MOTH_GLINT = c("8F80C0")
+MOTE_CORE = c("FFFBE6")
+MOTE_ARM = c("8FF2E2")
+MOTE_DIM2 = c("4FA8A8")
+MOTH_PUFF = c("FBF4FF", 200)
+MOTH_PUFF_DIM = c("B2A2CF", 160)
+# The nebula eel's cyan eye and its dark socket, the wisps it unravels into; the leviathan's gold eye, its constellations'
+# faint lines and dead stars, the void's violet rim.
+NEEL_EYE = c("8FFCFF")
+NEEL_SOCKET = c("141238")
+NEEL_WISP = c("86ECD9", 190)
+NEEL_WISP_MAG = c("FFA8DD", 170)
+LEVI_EYE = c("FFD66A")
+LEVI_CLINE = c("6F7FD0")
+LEVI_STAR_OFF = c("4A4F8E")
+LEVI_VOID_RIM = c("8B52D8")
+LEVI_VOID_HI = c("E8DCFF")
+# Its swim in the star-water: the foam where it breaks the water, the wake's ripples, the dark wash over its body under
+# the surface and the stars glinting in it.
+LEVI_FOAM = c("DCDCFF", 235)
+LEVI_RIPPLE = c("A9A4F0", 215)
+LEVI_RIPPLE_DIM = c("7068C8", 170)
+LEVI_WASH = c("15123C", 150)
+LEVI_GLINT = c("F4F0FF", 220)
+# The hollowed wyrmling's empty violet eyes, the ember in its throat, its fire's violet, the glow of its cracks, its ash.
+WYRM_EYE = c("E6D2FF")
+WYRM_EMBER = c("F09A48")
+WYRM_EMBER_HI = c("FFD79A")
+WYRM_FIRE_V = c("C79BFF")
+WYRM_GLOW = c("9A78C8")
+WYRM_GLOW_HI = c("EFDCFF")
+WYRM_ASH = c("BAB3C4")
+# The nest guardian's crystals' twinkle and glow, its rivets, its gold eye, the star specks on its hide.
+NG_TWINKLE = c("FFFBE6")
+NG_GLOW = c("8FDCDC", 170)
+NG_RIVET = c("E8C27A")
+NG_EYE = c("FFC84A")
+NG_EYE_HI = c("FFF2C0")
+NG_SPECK = c("D8DCF6")
+# The gravity golem's visor groove, the bonds in its gaps (dim, and the dash travelling round them), its singularity's
+# light and dark heart, the lines it draws in, its ring's star notches, the shockwave of its slam.
+GOLEM_VISOR = c("1A1530")
+GOLEM_BOND = c("6A62E0", 150)
+GOLEM_BOND_HI = c("C4B2FF", 210)
+GOLEM_CORE_HI = c("F3E4FF")
+GOLEM_CORE_DARK = c("0D0620")
+GOLEM_PULL_DARK = c("30257A", 220)
+GOLEM_PULL_LIGHT = c("A184FF", 220)
+GOLEM_NOTCH = c("FFE6A1")
+GOLEM_SHOCK = c("8A74EA", 200)
+GOLEM_SHOCK_HI = c("FBF6FF", 230)
+# ------------------------------------------------------------------------------------------- M4, the people of size
+# They have no side-view sheet of their own (their side view is the avatar in their row's outfit), so their colours
+# come from it: the side view's garment dyes (tools/art/bake_dyes.py: crimson, indigo, ink, white), hair colours and
+# the figure's skin, gold and cloth (figure/palettes.py), the Ashborn's and the Trial Hall's tints.
+RAMPS.update({
+    # Comet Captain Rao: a crimson coat, a pale linen shirt, ink trousers, a leather belt, dark boots, a tattered cape of
+    # the comet sails' dark navy, ash-black hair, a jade headband; his anchor's blue-black comet iron
+    "capt_coat": _r("3E0E18", "6A1A28", "9C2A36", "C4483E", "E77A68"),
+    "capt_shirt": _r("8E8670", "B8AE92", "DCD3B8", "F0EAD6", "FBF8EE"),
+    "capt_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "capt_belt": _r("2E1C10", "4E3220", "6E4A2C", "8E6640", "B08A5C"),
+    "capt_boot": _r("161210", "2A2018", "3E3024", "58463A", "78665A"),
+    "capt_cape": _r("0E1018", "171A26", "222638", "30364C", "465068"),
+    "capt_hair": _r("111419", "1A1E24", "262B33", "353B45", "4B525E"),
+    "capt_band": _r("023A36", "04525A", "02645F", "2A8A80", "58B0A4"),
+    "comet_iron": _r("10141E", "1E2636", "2E3A52", "4A5E80", "8AA8D0"),
+    # Admiral Voss: an indigo greatcoat, gold, ink trousers, black boots, a black cape and a black lacquered winged hat,
+    # raven hair; his sabre's starsteel and his cannon's brass
+    "adm_coat": _r("0C1030", "1A2258", "2C3C86", "4A62B0", "7E9AD8"),
+    "adm_gold": _r("6E4A1C", "A8772F", "D1A64D", "E5B84C", "FFE6A1"),
+    "adm_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "adm_boot": _r("0C0C10", "16171D", "22242C", "343844", "505666"),
+    "adm_cape": _r("0A0A0E", "14141A", "202028", "2E2E3A", "464656"),
+    "adm_hat": _r("08080C", "121218", "1C1C26", "2C2C3A", "484A5E"),
+    "adm_hair": _r("1B1F25", "2A2E37", "3D424E", "565C6A", "7A8291"),
+    "starsteel": _r("3A5A8A", "6A90C4", "A8C8EE", "D6E8FF", "F6FBFF"),
+    "adm_brass": _r("3A2810", "6A4A1C", "A07830", "D0A850", "F2DC90"),
+    # General Kharn: the Ashborn's ash-grey skin, crimson lamellae and cape, dark iron, ink trousers, raven hair, a crimson
+    # plume; the Cinder Glaive's dark blade
+    "ash_skin": _r("4A3A3A", "6E5C58", "95807A", "B8A49C", "D6C6BE"),
+    "gen_crimson": _r("2A0B12", "5E1624", "9C2A36", "C4483E", "E77A68"),
+    "gen_plate": _r("16161C", "26262E", "3C3C46", "5C5E6A", "8A8C98"),
+    "gen_iron": _r("101014", "1C1C22", "2C2C34", "464852", "6C707C"),
+    "gen_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "gen_hair": _r("1B1F25", "2A2E37", "3D424E", "565C6A", "7A8291"),
+    "gen_plume": _r("4A0A10", "7E1420", "B8202C", "E04A3E", "FF8A6E"),
+    "cinder_blade": _r("16141A", "2A262E", "463E46", "6E6268", "A8969A"),
+    # the Ninth Presence: the Trial Hall's violet over its skin, its white robe, its white hair, gold trim, a violet sash, a
+    # violet cape, its staff's white jade, its guan's jade
+    "pres_skin": _r("3A2C6A", "584896", "7A6AC0", "A090DC", "C8BCF2"),
+    "pres_robe": _r("6A6490", "9C96C0", "CCC6E6", "EAE6F8", "FFFFFF"),
+    "pres_hair": _r("8A86B0", "B4B0D6", "DCDAF0", "F2F0FA", "FFFFFF"),
+    "pres_gold": _r("6E4A1C", "A8772F", "D1A64D", "E5B84C", "FFE6A1"),
+    "pres_sash": _r("2A1850", "3E2878", "5A3CA8", "7E5CD0", "AA8CF0"),
+    "pres_cape": _r("2A1E50", "3E2E70", "5A4696", "7A66B8", "A090D8"),
+    "pres_jade": _r("4A7A70", "7AB0A0", "B4E0D0", "DDF6EC", "F6FFFB"),
+    "pres_cap": _r("0E4A42", "125E56", "2C9E8F", "5CC4B0", "8AE6CC"),
+})
+PROPS.update({
+    "capt_coat": {"hi": True}, "capt_shirt": {"hi": True}, "capt_trousers": {"hi": True}, "capt_belt": {"hi": True, "weight": 1.3},
+    "capt_boot": {"hi": True, "weight": 1.3}, "capt_cape": {"hi": True}, "capt_hair": {"hi": True, "weight": 1.3},
+    "capt_band": {"hi": True, "weight": 1.3}, "comet_iron": {"hi": True, "glossy": True, "weight": 1.4},
+    "adm_coat": {"hi": True}, "adm_gold": {"hi": True, "glossy": True, "weight": 1.4}, "adm_trousers": {"hi": True},
+    "adm_boot": {"hi": True, "glossy": True, "weight": 1.3}, "adm_cape": {"hi": True}, "adm_hat": {"hi": True, "glossy": True, "weight": 1.3},
+    "adm_hair": {"hi": True, "weight": 1.3}, "starsteel": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "adm_brass": {"hi": True, "glossy": True, "weight": 1.4},
+    "ash_skin": {"hi": True}, "gen_crimson": {"hi": True}, "gen_iron": {"hi": True, "glossy": True, "weight": 1.3}, "gen_plate": {"hi": True, "glossy": True}, "gen_trousers": {"hi": True},
+    "gen_hair": {"hi": True, "weight": 1.3}, "gen_plume": {"hi": True, "weight": 1.3}, "cinder_blade": {"hi": True, "glossy": True, "weight": 1.5},
+    "pres_skin": {"hi": True}, "pres_robe": {"hi": True}, "pres_hair": {"hi": True, "weight": 1.2}, "pres_gold": {"hi": True, "glossy": True, "weight": 1.3},
+    "pres_sash": {"hi": True, "weight": 1.2}, "pres_cape": {"hi": True}, "pres_jade": {"hi": True, "glossy": True, "line": True, "weight": 1.4},
+    "pres_cap": {"hi": True, "glossy": True, "weight": 1.3},
+})
+# Rao's scar and his anchor's comet fire; Voss's starsteel light and his cannon's smoke; Kharn's ember cracks; the
+# Presence's mist, its nine lights and the gold ring they stand on, its eyes.
+SCAR = c("8A4A40")
+COMET_BLUE = c("7FD4FF")
+COMET_BLUE_HI = c("E6FAFF")
+STARSTEEL = c("BFE4FF")
+STARSTEEL_HI = c("F4FBFF")
+SMOKE = c("B8B4AE", 200)
+SMOKE_DIM = c("8A8680", 150)
+EMBER_CRACK = c("FF8A3A")
+EMBER_CRACK_HI = c("FFD27A")
+PRES_MIST = c("D8D0FF", 170)
+PRES_MIST_DIM = c("A89CE0", 120)
+PRES_LIGHT = c("C8B4FF")
+PRES_LIGHT_HI = c("FFFFFF")
+PRES_RING = c("E8C46A", 200)
+PRES_EYE = c("FFF6D0")
+PRES_EYE_DIM = c("C8A0FF")
+PRES_GLOW = c("E0C8FF", 150)
+
+# ================================================================================================= M3
+# M3's species (the Act I leftovers, R6's and R7's foes): their ramps from their side-view sheets' materials
+# (tools/art/creatures/<id>.py), how each takes the light, and their single colours.
+RAMPS.update({
+    # the Hollow Behemoth: grey-white plates over a dark void, its drones, its tusks
+    "hb_plate": _s("f1f4f1", "bcc5c7", "8b979d", "5f6a72"),
+    "hb_void": _s("6a757c", "4c565d", "394249", "283036"),
+    "hb_drone": _s("d9dfdf", "9ba6aa", "707c83", "4d575e"),
+    "hb_tusk": _s("ffffff", "e6ebe8", "b8c1c0", "848f92"),
+    # the spark weasel: golden fur, a white bib, slate socks, the white-hot spark at its tail's tip
+    "sw_fur": _s("fff0a0", "e8bd3c", "a8792a", "5e4424"),
+    "sw_white": _s("fffdf0", "f1ead0", "c8bea0", "8c8266"),
+    "sw_sock": _s("4e5b78", "34405a", "252e44", "18202f"),
+    "sw_spark": _s("f4fbff", "a8d4ff", "5b8cff", "3a5cc8"),
+    # the stormgrass stag: a pale storm-grey hide, the slate storm-grass grown over its back and mane, a white belly, bone
+    # antlers, dark hooves (its own look; its row borrows the Cloud Stag's side-view sheet, the mount's)
+    "ss_hide": _s("eef0f4", "c2c8d4", "8d94a8", "5c6278"),
+    "ss_grass": _s("8fb0c0", "5b7c92", "3e566a", "263646"),
+    "ss_pale": _s("ffffff", "eef2f6", "c4ccd8", "8e98aa"),
+    "ss_antler": _s("fff8e4", "e8d8b0", "bca47a", "8a7454"),
+    "ss_hoof": _s("6e7488", "4a4f62", "343848", "22252f"),
+    # the thunderhorn rhino: a slate-blue hide, its deep folds, the plates down its spine, its horns, its lip, its hooves
+    "tr_hide": _s("aab4c6", "77829a", "4f586f", "31374a"),
+    "tr_fold": _s("5b6680", "434c63", "30374a", "20253a"),
+    "tr_plate": _s("d6dde8", "a2adc2", "6f7b95", "48516a"),
+    "tr_horn": _s("fff6d8", "e0d0a0", "a8946a", "6c5c44"),
+    "tr_lip": _s("8c96ac", "646e86", "454d62", "2c3244"),
+    "tr_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
+    # the frost lynx: pale blue-white fur, its cream belly, its blue-grey rosettes, the dark tips of its ears and tail, ice
+    # crystals and rime
+    "fl_fur": _s("e8eef6", "b4c2d8", "8592b4", "5c6690"),
+    "fl_belly": _s("fffcef", "f1e9d5", "c7c1cb", "9690b0"),
+    "fl_spot": _s("8e9cbc", "6d78a2", "4e5583", "343a62"),
+    "fl_tip": _s("6a7092", "464b6a", "30344e", "212438"),
+    "fl_ice": _s("f6ffff", "c2eefa", "82c6e6", "4f8cc2"),
+    "fl_rime": _s("f2fbff", "c6e4f4", "8cb6dc", "5f7fba"),
+    # the snow ape: snow-white fur shaded cool, a slate face, hands and feet, clear ice, snow, its tusks
+    "sa_fur": _s("fffaec", "e3e6ef", "aab0cd", "757ba1"),
+    "sa_skin": _s("aebbcc", "7a869e", "535d76", "363d55"),
+    "sa_ice": _s("e8fbff", "92d6f0", "4f9ac8", "2e5f96"),
+    "sa_snow": _s("ffffff", "deebf4", "adc2d6", "8093b0"),
+    "sa_tusk": _s("fffcf0", "f4eedb", "c8bea0", "8c8266"),
+    # the river sentinel: blue-grey river stone (and its darker carving), green algae, bronze, barnacle shell
+    "rsn_stone": _s("c4c9b4", "93a7ad", "62808b", "3a5961"),
+    "rsn_stone_dark": _s("a2b1ad", "6e8891", "4b6a75", "2d4a52"),
+    "rsn_algae": _s("a9c46a", "6f9a48", "4a7541", "2e5237"),
+    "rsn_bronze": _s("d9b276", "a0703d", "6f4c2f", "483322"),
+    "rsn_shell": _s("fffaee", "efe6cf", "a99c80", "6e6450"),
+    # the terracotta warden: fired clay (and its darker), the vest's plates, faded vermilion, malachite, the ge's bronze and
+    # verdigris, sand
+    "tw_clay": _s("efbf8f", "c47c4e", "8f5040", "5c3039"),
+    "tw_clay_dark": _s("c68a5f", "9b5b3f", "713d37", "48262f"),
+    "tw_plate": _s("ecc9a0", "bb8c6b", "8a5c4f", "5a3845"),
+    "tw_vermilion": _s("ea967a", "c9624f", "96434a", "612a3a"),
+    "tw_malachite": _s("aad4a7", "72a88b", "4c7b6f", "30524e"),
+    "tw_shaft": _s("a8604a", "6e3a30", "4c2826", "301a1c"),
+    "tw_verdigris": _s("a8e6c9", "62b99d", "3d8a7a", "275859"),
+    "tw_sand": _s("f7e4b4", "e2c286", "b99460", "8b6a48"),
+    # the azure carp dragonet: deep azure scales, a silver-white belly, pale fins, gold (fin tips, horns, whiskers, mane),
+    # its water orb, its mouth
+    "acd_scale": _s("9fe2ee", "46acdf", "2b70b2", "2d3a80"),
+    "acd_belly": _s("ffffff", "eef4fa", "c3d0ea", "8391c4"),
+    "acd_fin": _s("f2ffff", "b4f0f6", "62b8d6", "2e5e9a"),
+    "acd_gold": _s("fff3b4", "f1c253", "c08a34", "7c5628"),
+    "acd_orb": _s("ffffff", "c4f6ff", "62cbea", "2f86c2"),
+    "acd_mouth": _s("f4909e", "c24c68", "7c2a4c", "461832"),
+    # the Thousand-Eye Toad: deep lake-blue skin, a pearl belly and throat, silver-white mirror eyes, lily pads, lotus
+    "tet_skin": _s("6cb6cc", "3b6ca8", "35468b", "2b2562"),
+    "tet_belly": _s("fbfaf3", "e2e0ec", "b4b0d3", "8079ab"),
+    "tet_sclera": _s("ffffff", "eef0fb", "a9acd6", "6e70a8"),
+    "tet_lily": _s("b8e38c", "66ad6a", "3a7b62", "25524f"),
+    "tet_lotus": _s("fff0f5", "f5a6c3", "d56d9a", "9d4577"),
+    "tet_glow": _s("fbf3ff", "d2b1ff", "a37ce6", "6a48b8"),
+    # the wind kite: crimson silk, gold (its rims, ribs, prow and streamer bands), ink clouds, pale bamboo, its jade eye
+    "wk_silk": _s("f7865a", "d8343f", "9b2150", "5b1b50"),
+    "wk_gold": _s("fff1ae", "f0bf48", "c47a38", "7e3a4c"),
+    "wk_ink": _s("3e2c4c", "281a33", "1c1128", "130b1c"),
+    "wk_bamboo": _s("fbf4d8", "eadcae", "cdb98e", "a8916f"),
+    "wk_jade": _s("dcfff2", "67d6bd", "2c9e8f", "15514f"),
+    # the canyon harpy: russet plumage, her darker flight feathers, the pale sandstone of her front and face, slate (her
+    # beak of a nose, her talons), the faded crimson silk of her sash, bone beads
+    "ch_plume": _s("f4be78", "c77440", "8a442f", "522735"),
+    "ch_flight": _s("c47c4a", "8c4830", "5f2e2d", "3b1c2b"),
+    "ch_under": _s("fcebc6", "e5c696", "bb9170", "80605c"),
+    "ch_slate": _s("8e92a2", "5f6174", "3f3f53", "28273a"),
+    "ch_sash": _s("d9857a", "a84b48", "77313f", "4a2034"),
+    "ch_bone": _s("fbf4dc", "e9dcb8", "bfae88", "8a7b5e"),
+    "ch_face": _s("fff8ec", "f3dcc4", "c9a48c", "8a6466"),
+    # the sandstorm scorpion: sun-bleached sand gold, its legs, amber desert glass, dark umber (joints, tips, barb), a bone
+    # belly, its venom, sand
+    "ssc_sand": _s("fdf0c4", "dcb46e", "a97d62", "6c4c5c"),
+    "ssc_leg": _s("e8c286", "bb8c58", "86604e", "553c4a"),
+    "ssc_glass": _s("ffe7a2", "f2a843", "c46c37", "823c3e"),
+    "ssc_umber": _s("8a6654", "5c3e38", "40292e", "2a1a22"),
+    "ssc_belly": _s("fffaea", "f0e4c8", "cbb59c", "98828a"),
+    "ssc_venom": _s("fff4b8", "ffc444", "ef8a2c", "b2562e"),
+    "ssc_grain": _s("fdf3d6", "ead3a0", "c9a878", "9c7c62"),
+    # the dune worm: dusky ochre armour rings, its pale ridged underbelly, the dark sand crust in its seams, sand, clear
+    # desert-glass teeth, its deep red maw
+    "dw_armour": _s("f0cf8a", "b9843f", "7f5344", "4d3246"),
+    "dw_belly": _s("fff6dc", "f2dcae", "d4b28c", "a8856f"),
+    "dw_crust": _s("8e6c54", "664a44", "4a3442", "2e2032"),
+    "dw_sand": _s("fff2c8", "eccb8c", "c69c6c", "8e6a5c"),
+    "dw_glass": _s("ffffff", "e2f6f3", "9ed4d9", "5a98ad"),
+    "dw_maw": _s("e2646e", "a8283e", "6a1432", "3a0822"),
+    # the Tomb King: old gold, faded vermilion, robe umber (his hood, the slots of his mask, his glaive's shaft), sand,
+    # desert glass, jade; his body's parchment skin and white hair (the body reviewed bare)
+    "tk_gold": _s("ffe7a3", "d8a646", "9a6334", "5a3638"),
+    "tk_vermilion": _s("df846a", "ae4a3d", "782c3b", "481d36"),
+    "tk_umber": _s("8b6b5a", "5e4339", "3f2b31", "291a2a"),
+    "tk_sand": _s("fbeabb", "e1bf84", "b98f63", "87645b"),
+    "tk_glass": _s("ffffff", "d9f5f3", "9dd3dc", "6697b2"),
+    "tk_jade": _s("b6f0d4", "4fb394", "2d7a6c", "1b4a4b"),
+    "tk_skin": _s("e3c9a6", "a8896c", "73584a", "4a3638"),
+    "tk_hair": _s("fbf8f0", "d8d2c4", "a39b8c", "6c6458"),
+})
+PROPS.update({
+    "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
+    "hb_tusk": {"hi": True, "glossy": True, "weight": 1.6},
+    "sw_fur": {"hi": True}, "sw_white": {"hi": True, "weight": 1.2}, "sw_sock": {"hi": True, "weight": 1.3},
+    "sw_spark": {"hi": True, "weight": 1.5},
+    "ss_hide": {"hi": True}, "ss_grass": {"hi": True, "weight": 1.3}, "ss_pale": {"hi": True, "weight": 1.2},
+    "ss_antler": {"hi": True, "weight": 1.4}, "ss_hoof": {"hi": True, "weight": 1.3},
+    "tr_hide": {"hi": True}, "tr_fold": {"hi": True, "weight": 1.2}, "tr_plate": {"hi": True, "glossy": True, "weight": 1.3},
+    "tr_horn": {"hi": True, "glossy": True, "weight": 1.6}, "tr_lip": {"hi": True, "weight": 1.3}, "tr_hoof": {"hi": True, "weight": 1.3},
+    "fl_fur": {"hi": True}, "fl_belly": {"hi": True, "weight": 1.2}, "fl_spot": {"hi": True, "weight": 1.2}, "fl_tip": {"hi": True, "weight": 1.4},
+    "fl_ice": {"hi": True, "glossy": True, "weight": 1.5}, "fl_rime": {"hi": True, "weight": 1.2},
+    "sa_fur": {"hi": True}, "sa_skin": {"hi": True, "weight": 1.3}, "sa_ice": {"hi": True, "glossy": True, "weight": 1.3},
+    "sa_snow": {"hi": True, "weight": 1.2}, "sa_tusk": {"hi": True, "weight": 1.6},
+    "rsn_stone": {"hi": True}, "rsn_stone_dark": {"hi": True}, "rsn_algae": {"hi": True, "weight": 1.2},
+    "rsn_bronze": {"hi": True, "glossy": True, "weight": 1.3}, "rsn_shell": {"hi": True, "weight": 1.4},
+    "tw_clay": {"hi": True}, "tw_clay_dark": {"hi": True}, "tw_plate": {"hi": True}, "tw_vermilion": {"hi": True, "weight": 1.3},
+    "tw_malachite": {"hi": True, "weight": 1.3}, "tw_shaft": {"hi": True, "line": True, "weight": 1.5},
+    "tw_verdigris": {"hi": True, "glossy": True, "weight": 1.5}, "tw_sand": {"hi": True, "weight": 1.2},
+    "acd_scale": {"hi": True, "glossy": True}, "acd_belly": {"hi": True, "weight": 1.2}, "acd_fin": {"hi": True, "thin": True},
+    "acd_gold": {"hi": True, "glossy": True, "line": True, "weight": 1.4}, "acd_orb": {"hi": True, "glossy": True, "weight": 1.4},
+    "acd_mouth": {"weight": 1.4},
+    "tet_skin": {"hi": True, "glossy": True}, "tet_belly": {"hi": True, "weight": 1.2}, "tet_sclera": {"hi": True, "glossy": True, "weight": 1.5},
+    "tet_lily": {"hi": True, "weight": 1.3}, "tet_lotus": {"hi": True, "weight": 1.5}, "tet_glow": {"hi": True, "weight": 1.5},
+    "wk_silk": {"hi": True},"wk_gold": {"hi": True, "glossy": True, "weight": 1.4}, "wk_ink": {"weight": 1.3},
+    "wk_bamboo": {"hi": True, "line": True, "weight": 1.5}, "wk_jade": {"hi": True, "glossy": True, "weight": 1.5},
+    "ch_plume": {"hi": True}, "ch_flight": {"hi": True}, "ch_under": {"hi": True, "weight": 1.2}, "ch_slate": {"hi": True, "weight": 1.5},
+    "ch_sash": {"hi": True, "weight": 1.3}, "ch_bone": {"hi": True, "weight": 1.5}, "ch_face": {"hi": True, "weight": 1.4},
+    "ssc_sand": {"hi": True}, "ssc_leg": {"hi": True, "weight": 1.2}, "ssc_glass": {"hi": True, "glossy": True, "weight": 1.3},
+    "ssc_umber": {"hi": True, "weight": 1.4}, "ssc_belly": {"hi": True, "weight": 1.2}, "ssc_venom": {"hi": True, "glossy": True, "weight": 1.5},
+    "ssc_grain": {"hi": True, "weight": 1.1},
+    "dw_armour": {"hi": True}, "dw_belly": {"hi": True, "weight": 1.2}, "dw_crust": {"hi": True, "weight": 1.2}, "dw_sand": {"hi": True},
+    "dw_glass": {"hi": True, "glossy": True, "weight": 1.6}, "dw_maw": {"weight": 1.4},
+    "tk_gold": {"hi": True, "glossy": True, "weight": 1.3}, "tk_vermilion": {"hi": True}, "tk_umber": {"hi": True, "weight": 1.2},
+    "tk_sand": {"hi": True}, "tk_glass": {"hi": True, "glossy": True, "weight": 1.5}, "tk_jade": {"hi": True, "glossy": True, "weight": 1.5},
+    "tk_skin": {"hi": True}, "tk_hair": {"hi": True, "weight": 1.2},
+})
+# The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
+SW_EYE = c("7FD4FF")
+SPARK_CORE = c("F4FBFF")
+SPARK_ARC = c("A8D4FF")
+SPARK_HALO = c("6AA8FF", 140)
+# The thunderhorn rhino's eye in anger.
+TR_EYE = c("FFD45A")
+# The frost lynx's glowing ice-blue eye and the frost breath it gathers.
+LYNX_EYE = c("8FF0FF")
+FROST_BREATH = c("E8F8FF", 210)
+FROST_BREATH_DIM = c("A8D8F0", 160)
+# The snow ape's frost-blue eyes and their glow, the glint on its ice, the snow its slam throws up.
+SA_EYE = c("86ECFF")
+SA_EYE_GLOW = c("86ECFF", 140)
+SA_GLINT = c("E8FCFF", 200)
+SNOW_SPRAY = c("F4FAFF", 220)
+SNOW_SPRAY_DIM = c("C8DCEC", 170)
+# The river sentinel's pale aquamarine eye slit, the terracotta warden's molten amber eyes: (core, main, dim, glow).
+RSN_EYE_CORE = c("EFFFFA")
+RSN_EYE = c("9FF0DC")
+RSN_EYE_DIM = c("4FC4B4")
+RSN_EYE_GLOW = c("9FF0DC", 130)
+TW_EYE_CORE = c("FFF1B6")
+TW_EYE = c("FFB347")
+TW_EYE_DIM = c("C07A30")
+TW_EYE_GLOW = c("FFB347", 130)
+# The azure carp dragonet's pearl eye (its shade, its glow) and the ring of water turning under it.
+ACD_PEARL = c("F6FBFF")
+ACD_PEARL_SH = c("B4CDF2")
+ACD_GLOW = c("8AF2FF", 140)
+ACD_RING = c("BCEAF2", 170)
+ACD_RING_DIM = c("7FC4D8", 120)
+# The Thousand-Eye Toad's mirror eyes: their pupils and silver iris, and in its tell their violet glow; its lotus's heart.
+TET_PUPIL = c("1D1846")
+TET_SILVER = c("A9ACD6")
+TET_IRIS = c("8F68D6")
+TET_GLOW_CORE = c("FBF3FF")
+TET_HALO = c("B58AF2", 150)
+TET_LOTUS_HEART = c("FFE48A")
+# The Behemoth's weak points (a white crack, its cold edge, dimmed) and their glow.
+HB_GLOW = c("FFFFFF")
+HB_GLOW_EDGE = c("BFEAF5")
+HB_GLOW_DIM = c("8FA3AB")
+HB_HALO = c("BFEAF5", 150)
+# The wind kite's painted jade eye and its glow, the wind off it, the white edge of the crescent it slashes with.
+WK_EYE = c("A8FFE6")
+WK_EYE_GLOW = c("67D6BD", 150)
+WK_WIND = c("E4F2F8", 210)
+WK_WIND_DIM = c("A9C6DC", 160)
+WK_CRESCENT = c("FFFFFF")
+# The canyon harpy's burning amber eyes and their glow, her dark brows, the rings of her screech, the rake of her talons.
+CH_EYE = c("FFB52E")
+CH_GLOW = c("FFDF7A", 150)
+CH_BROW = c("321827")
+CH_RING = c("E4F2F8", 210)
+CH_RING_DIM = c("8FB4C8", 160)
+CH_RAKE = c("FFF4DC")
+CH_RAKE_DIM = c("C8A878", 180)
+# The sandstorm scorpion's dark eyes, the glint on its glass, its venom's glow (and its hot core), the sand off its back.
+SSC_EYE = c("2A1A22")
+SSC_GLINT = c("FFF8DA")
+SSC_VENOM = c("FFC444", 200)
+SSC_VENOM_HOT = c("FFFCE6")
+SSC_VENOM_GLOW = c("FFF0A0", 150)
+SSC_SAND = c("EAD3A0", 200)
+SSC_SAND_DIM = c("C9A878", 150)
+# The dune worm's glassy sense pits (and flaring cyan in its tell, their glow), the glint on its teeth, the sand off it.
+DW_PIT = c("9ED4D9")
+DW_PIT_HOT = c("E8FFFF")
+DW_PIT_GLOW = c("7FF4FF", 150)
+DW_GLINT = c("BFFFFF")
+DW_TOOTH = c("F2FFFC")
+DW_SAND = c("ECCB8C", 210)
+DW_SAND_DIM = c("C69C6C", 160)
+# The Tomb King's molten amber eye slits (dim, and their glow), the glint on his gold and glass, his crown's rays and halo
+# as it blazes, the sand round him.
+TK_EYE = c("FFF6C8")
+TK_EYE_DIM = c("F08B2C")
+TK_EYE_GLOW = c("FFC14F", 150)
+TK_GLINT = c("FFFFFF")
+TK_RAY = c("FFC14F", 200)
+TK_HALO = c("FFE7A3", 140)
+TK_SAND = c("E1BF84", 210)
+TK_SAND_DIM = c("B98F63", 160)
+# The fruit's guardian (M3): an old boar's olive-grey hide under moss, its mossy bristles, the fruit tree's bark-brown vines
+# and its bark, jade leaves, pale bark thorns, its snout and hooves, the golden spirit fruits; its jade eyes, the fruits'
+# glint and glow, the blossoms among its vines.
+RAMPS.update({
+    "fg_hide": _s("9a9470", "605c46", "3e3d32", "262620"),
+    "fg_mane": _s("8fae5a", "5c7a3c", "3d5430", "26362a"),
+    "fg_vine": _s("e0c290", "ac8a5c", "735a40", "4a382c"),
+    "fg_leaf": _s("d8ffb0", "8ad66a", "4c9a52", "2c6045"),
+    "fg_thorn": _s("efe2c0", "c2ad86", "8a785c", "584c3e"),
+    "fg_snout": _s("c99a86", "9a6c60", "6c4846", "442e30"),
+    "fg_hoof": _s("5a5046", "3c342e", "2a2422", "1c1817"),
+    "fg_fruit": _s("fff3c4", "ffc46a", "f08a4a", "b4524a"),
+})
+PROPS.update({
+    "fg_hide": {"hi": True}, "fg_mane": {"hi": True, "weight": 1.2}, "fg_vine": {"hi": True, "weight": 1.3},
+    "fg_leaf": {"hi": True, "weight": 1.4}, "fg_thorn": {"hi": True, "line": True, "weight": 1.5}, "fg_snout": {"hi": True, "weight": 1.3},
+    "fg_hoof": {"hi": True, "weight": 1.3}, "fg_fruit": {"hi": True, "glossy": True, "weight": 1.6},
+})
+FG_EYE = c("B8FF9A")
+FG_EYE_DARK = c("3C8A3E")
+FG_GLINT = c("FFFDF0")
+FG_GLOW = c("FFE08A", 190)
+FG_BLOSSOM = c("FFD6E6")
+FG_BLOSSOM_DIM = c("E89AB8")
