@@ -73,12 +73,12 @@
    "y": 1
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 10,
    "y": 3
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 17,
    "y": 3
   },
@@ -118,12 +118,12 @@
    "y": 9
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 9,
    "y": 14
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 18,
    "y": 14
   },

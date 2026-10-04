@@ -7,9 +7,9 @@ from content.rooms.specs.starsea import deck
 
 SS_LANTERN_CROSSING = deck(
     "ss_lantern_crossing",
-    props=[("storehouse", 7, 6), ("mast", 24, 11), ("lantern_cage", 34, 11), ("mast", 44, 11), ("star_lantern", 14, 6),
-           ("star_lantern", 6, 16), ("star_lantern", 30, 6), ("star_lantern", 30, 17), ("star_lantern", 39, 6),
-           ("star_lantern", 39, 17), ("star_lantern", 53, 7), ("star_lantern", 53, 16), ("crates", 18, 16),
+    props=[("storehouse", 7, 6), ("mast", 24, 11), ("lantern_cage", 34, 11), ("mast", 44, 11), ("warden_lamp", 14, 6),
+           ("warden_lamp", 6, 16), ("warden_lamp", 30, 6), ("warden_lamp", 30, 17), ("warden_lamp", 39, 6),
+           ("warden_lamp", 39, 17), ("warden_lamp", 53, 7), ("warden_lamp", 53, 16), ("crates", 18, 16),
            ("barrel", 20, 16), ("sacks", 21, 6), ("barrel", 22, 6), ("crates", 46, 6), ("sacks", 48, 16),
            ("barrel", 49, 16)],
     waves=[[(54, 11), (53, 13)],                                       # the comet sparrows

@@ -11,8 +11,9 @@ extends "res://tests/prologue_run.gd"
 ##   1. each room is entered on the grid through its ways from the room before (or by the voyage, for a crossing), and
 ##      the top-down view builds it: a figure for every person and thing, a mark for every way;
 ##   2. in each, auto-path (TopdownRoute.reach) reaches every NPC, object and way from the room's spawn and every way in;
-##   3. the Starsea's crossings: the Wreck Run and the Lantern Run sailed, the waves boarding over the bow onto the deck's
-##      own cells, the vessel making port; The Lantern Run's first step;
+##   3. the Starsea's crossings: the Wreck Run and the Lantern Run sailed both ways, each from its dock on the grid (R6's
+##      Shipwrights' Yard, R8's Broken Pier, Starsea Launch and Arrival Quay), the waves boarding over the bow onto the
+##      deck's own cells, the vessel making port; The Lantern Run's first step;
 ##   4. chapter 20: The Citadel (the Wardens' skiff from the Arrival Quay, Warden-Commander Yao in his hall), The Aspirant
 ##      (Shen Lian's spar in the Presence Court), The Observatory (the great scope, Stargazer Ming), Sphere Lord, The
 ##      Orbit Ruins (the hermit, a jade gravity switch, three gravity golems, the Inverted Hall);
@@ -229,18 +230,23 @@ func _foes(def_id: String, wait_s := 10.0) -> Array:
 	return out
 
 # ------------------------------------------------------------------ 3: the Starsea's crossings
-## A voyage sailed from its dock: the crossing's deck on the grid, its waves boarding onto the deck's own cells (the
-## layout's event), the vessel making port when the crossing's time runs out.
-func _sail(dock_room: String, route: String, crossing: String, foe: String, port: String) -> void:
+## A voyage sailed from its dock: the dock used on the grid of its room, the crossing's deck on the grid, its waves
+## boarding onto the deck's own cells (the layout's event), the vessel making port when the crossing's time runs out.
+func _sail(dock_room: String, dock: String, route: String, crossing: String, foe: String, port: String) -> void:
 	Game.world.apply_teleport(c().id, dock_room)
 	GameEvents.flush()
-	var r := Game.world.set_sail(c(), route)
+	st = null
+	place(Vector2(float(c().position.x), float(c().position.y)))
+	var o: Dictionary = Game.room_rt.object_def(dock)
+	check(Game.room_rt.topdown != null and str(o.get("route", "")) == route,
+		"%s: %s's dock on the grid, charted for the %s (room %s)" % [route, dock_room, route, room()])
+	var r := interact(dock)
 	GameEvents.flush()
 	st = null
 	place(Vector2(float(c().position.x), float(c().position.y)))
 	var grid: TopdownRoom = Game.room_rt.topdown if Game.room_rt else null
 	check(r.get("ok", false) and room() == crossing and grid != null and Game.room_rt.event.get("active", false),
-		"%s sailed: the crossing's deck on the grid, the voyage under way (%s; room %s)" % [route, str(r), room()])
+		"%s sailed from the dock: the crossing's deck on the grid, the voyage under way (%s; room %s)" % [route, str(r), room()])
 	if grid == null: return
 	var spawn: Vector2 = grid.spawn
 	check(grid.standable(TopdownRoom.cell_of(spawn)) and grid.floor_at(spawn) >= 0.0, "%s: the body set down on the deck" % crossing)
@@ -255,9 +261,12 @@ func _sail(dock_room: String, route: String, crossing: String, foe: String, port
 	check(room() == port and not Game.world.voyages.has(c().id), "%s: the vessel makes port at %s (room %s)" % [crossing, port, room()])
 
 func _crossings() -> void:
-	_sail("ae_shipyard", "wreck_run", "ss_starsea_crossing", "starsea_pirate", "sw_broken_pier")
+	# Every dock of the Starsea: R6's Shipwrights' Yard and R8's Broken Pier, Starsea Launch and Arrival Quay.
+	_sail("ae_shipyard", "dock_cloudgate", "wreck_run", "ss_starsea_crossing", "starsea_pirate", "sw_broken_pier")
+	_sail("sw_broken_pier", "dock_wreck", "wreck_run_home", "ss_starsea_crossing", "starsea_pirate", "ae_shipyard")
+	_sail("lh_arrival_quay", "dock_lantern", "lantern_run_home", "ss_lantern_crossing", "comet_sparrow", "sw_starsea_launch")
 	_start("the_lantern_run")
-	_sail("sw_starsea_launch", "lantern_run", "ss_lantern_crossing", "comet_sparrow", "lh_arrival_quay")
+	_sail("sw_starsea_launch", "dock_launch", "lantern_run", "ss_lantern_crossing", "comet_sparrow", "lh_arrival_quay")
 	GameEvents.flush()
 	check(_objective("the_lantern_run", 0) >= 1, "The Lantern Run: sailed from the Starsea Launch to the Arrival Quay (%s)" % str(c().quests.active.get("the_lantern_run", {})))
 	_done("the_lantern_run")

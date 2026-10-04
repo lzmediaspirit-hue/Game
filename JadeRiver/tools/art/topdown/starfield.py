@@ -93,7 +93,7 @@ def _flame(s: Img, cx: int, by: int, w: int, h: int, f: int, pal=LANTERN) -> Non
 
 
 # ============================================================================================================ the Citadel
-def star_lantern(s: Img, f: int = 0) -> None:
+def warden_lamp(s: Img, f: int = 0) -> None:
     """A Warden's street lantern, as Lanternfall's and the Citadel's: a bronze post on a granite foot, a six-sided lamp
     of glass panes under a small pagoda cap with a jade finial, a little fallen star burning inside; four frames of its
     pulse. Footprint 1 x 1. 16 x 44; corner (0, 42)."""
@@ -402,7 +402,7 @@ def orbit_stone(s: Img, f: int = 0) -> None:
     s.outline()
 
 
-def star_crystal(s: Img, f: int = 0) -> None:
+def crystal_cluster(s: Img, f: int = 0) -> None:
     """A clump of star crystals grown out of a rock, footprint 1 x 1: long pale gold prisms, lit on their west faces,
     their tips white; a glint runs up one of them frame by frame. 24 x 34; corner (4, 32)."""
     s.ellipse(12, 29, 10, 3.6, c("3A3A44"), (c("5A5A66"), c("24242C")))   # the rock they grow from
@@ -789,7 +789,7 @@ def mast(s: Img) -> None:
 
 # kind: (draw, w, h, footprint w, h, origin, solid, shadow [dx, dy, rx, ry]) as props.PROPS
 PROPS = {
-    "star_lantern": (star_lantern, 16, 44, 1, 1, [0, 42], True, [10, -2, 6, 3]),
+    "warden_lamp": (warden_lamp, 16, 44, 1, 1, [0, 42], True, [10, -2, 6, 3]),
     "lantern_cage": (lantern_cage, 32, 62, 2, 1, [0, 60], True, [20, -2, 15, 3]),
     "warden_statue": (warden_statue, 24, 58, 1, 1, [4, 56], True, [12, -2, 10, 3]),
     "warden_banner": (warden_banner, 16, 62, 1, 1, [0, 60], True, [10, -2, 6, 3]),
@@ -798,7 +798,7 @@ PROPS = {
     "star_globe": (star_globe, 32, 46, 2, 1, [0, 44], True, [16, -2, 13, 3]),
     "pressure_pillar": (pressure_pillar, 16, 64, 1, 1, [0, 62], True, [10, -2, 7, 3]),
     "orbit_stone": (orbit_stone, 32, 52, 2, 1, [0, 50], True, None),
-    "star_crystal": (star_crystal, 24, 34, 1, 1, [4, 32], True, [12, -2, 9, 3]),
+    "crystal_cluster": (crystal_cluster, 24, 34, 1, 1, [4, 32], True, [12, -2, 9, 3]),
     "gravity_plate": (gravity_plate, 16, 16, 1, 1, [0, 16], False, None),
     "golem_husk": (golem_husk, 32, 28, 2, 1, [0, 26], True, [18, -2, 15, 3]),
     "ash_pyre": (ash_pyre, 32, 48, 2, 1, [0, 46], True, [18, -2, 15, 3]),
@@ -816,7 +816,7 @@ PROPS = {
 }
 # The lit pieces' four frames: a flame licks (160 ms, as R7's brazier), a star or a glyph breathes slower, a banner
 # stirs on the wind (the sects' banners' 450 ms), the floating stone bobs slowest.
-ANIM = {"star_lantern": (4, 400), "lantern_cage": (4, 320), "warden_banner": (4, 450), "pressure_pillar": (4, 380),
-        "orbit_stone": (4, 600), "star_crystal": (4, 340), "gravity_plate": (4, 360), "ash_pyre": (4, 160),
+ANIM = {"warden_lamp": (4, 400), "lantern_cage": (4, 320), "warden_banner": (4, 450), "pressure_pillar": (4, 380),
+        "orbit_stone": (4, 600), "crystal_cluster": (4, 340), "gravity_plate": (4, 360), "ash_pyre": (4, 160),
         "ashborn_banner": (4, 450), "embers": (4, 300), "nebula_coral": (4, 420), "coral_tree": (4, 520), "wick_pillar": (4, 160),
         "flame_basin": (4, 160)}

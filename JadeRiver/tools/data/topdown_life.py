@@ -308,6 +308,27 @@ VISTAS = {
     "ml_sentinel_causeway": [{"edge": "n", "kind": "hills", "pad": 40}, {"edge": "s", "kind": "river", "pad": 32}],
     "ml_lake_shrine": [{"edge": "all", "kind": "water", "pad": 32}],
     "ml_toads_hollow": [{"edge": "n", "kind": "hills", "pad": 40}],
+    # R8: the sky-sea zones. The Skyport Wreck's peaks over the cloud sea at the Expanse's edge.
+    "sw_broken_pier": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_pirate_deck": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_riven_peak": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "sw_starsea_launch": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # Lanternfall Harbor's quays: the starsea's water going on past the harbour, other islands far off.
+    "lh_arrival_quay": [{"edge": "s", "kind": "river", "pad": 32}],
+    "lh_harbor_market": [{"edge": "s", "kind": "river", "pad": 32}],
+    # The Drifting Shoals: the starsea's water going on past the shallows' south edge.
+    "dr_jellyfish_shallows": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_moored_hulks": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_sparrow_reefs": [{"edge": "s", "kind": "river", "pad": 32}],
+    "dr_driftglass_bank": [{"edge": "s", "kind": "river", "pad": 32}],
+    # Blackmast Haven: the cove's water and the lanes going on; the flagship at anchor with water all round it.
+    "bm_blackmast_docks": [{"edge": "s", "kind": "river", "pad": 32}],
+    "bm_gunners_battery": [{"edge": "s", "kind": "river", "pad": 32}],
+    "bm_flagship_deck": [{"edge": "all", "kind": "water", "pad": 0}],
+    # The Wyrmnest Isles: the cliff islands' peaks behind, the cloud sea under their brinks.
+    "wn_nest_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wn_eggshell_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wn_guardians_crown": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     # R9: the star field's end. The crossings' decks have the Starsea all round them; the islands' brinks fall away to
     # the cloud sea under them, as R5's Tidebreak Front's do.
     "ss_starsea_crossing": [{"edge": "all", "kind": "water", "pad": 0}],

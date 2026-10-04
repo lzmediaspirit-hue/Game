@@ -1,0 +1,341 @@
+{
+ "schema_version": 1,
+ "id": "wn_hatching_cave",
+ "name": "Hatching Cave",
+ "size": [
+  44,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "44444444444444444444444444444444444444444444",
+  "44444444444444444444444444444444444444444444",
+  "44444444444400000044004444444444444444444444",
+  "44444444441111110000000000000000000444444444",
+  "44444444411111111000000001111111000004444444",
+  "44444444411111111000000011111111110000444444",
+  "44444440011111111000000111111111111000044444",
+  "44444000001111110000001111111111111000004444",
+  "44440000000000000000001111111111111100000444",
+  "44400000000000000000000111111111111100000444",
+  "44400000000000000000000111111111111000000044",
+  "00000000000000000000000011111111110000000044",
+  "00000000000000000000000000111111100000000044",
+  "00000000000000000000000000000000000000000044",
+  "44440000000000000000000000000000000000000044",
+  "11111000000000000000000000000000000000000111",
+  "11111100000000000000000000000000000000011111",
+  "11111110000000000000000000000000000000111111",
+  "11111111000000000000000000000000000011111111",
+  "11111111111100000000000000000001111111111111",
+  "11111111111110001111000000110011111111111111",
+  "11111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111",
+  "11111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrdrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddddddrrrrrrrddrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrdddddddrrrrrrrrrrddrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrddddddrrrrrrrrrrrrddrrrrrrr",
+  "rrrrrrrrddrrrrrrddddddrrrrrrrrrrrrrdddrrrrrr",
+  "rrrrrrdddddsssddddddddrrrrrrrrrrrrrrdddrrrrr",
+  "rrrrrddddddsssdddddddddrrrrrrrrrrrrrddddrrrr",
+  "rrrrdddddddddddddddddddrrrrrrrrrrrrdddddrrrr",
+  "ddddddddddddddddddddddddrrrrrrrrrrdddddddrrr",
+  "ddddddddddddddddddddddddddrrrrrrrddddddddrrr",
+  "dddddddddddddddddddddddddddsssdddddddddddrrr",
+  "rrrrrddddddddddddddddddddddsssdddddddddddrrr",
+  "rrrrrddddddddddddddddddddddddddddddddddddrrr",
+  "rrrrrrdddddddddddddddddddddddddddddddddrrrrr",
+  "rrrrrrrdddddddddddddddddddddddddddddddrrrrrr",
+  "rrrrrrrrddddddddddddddddddddddddddddrrrrrrrr",
+  "rrrrrrrrrrrrdddddddddddddddddddrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddrrrrddddddrrddrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 27,
+   "y": 13,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 11,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "wyrm_nest",
+   "x": 28,
+   "y": 7
+  },
+  {
+   "kind": "star_crystal",
+   "x": 5,
+   "y": 4
+  },
+  {
+   "kind": "star_crystal",
+   "x": 38,
+   "y": 5
+  },
+  {
+   "kind": "star_crystal",
+   "x": 20,
+   "y": 3
+  },
+  {
+   "kind": "star_crystal",
+   "x": 39,
+   "y": 13
+  },
+  {
+   "kind": "eggshell",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "eggshell",
+   "x": 36,
+   "y": 14
+  },
+  {
+   "kind": "bone_pile",
+   "x": 14,
+   "y": 16
+  },
+  {
+   "kind": "wyrm_skull",
+   "x": 30,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 10,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "eggshell",
+   "x": 5,
+   "y": 7
+  },
+  {
+   "kind": "eggshell",
+   "x": 8,
+   "y": 3
+  },
+  {
+   "kind": "bone_pile",
+   "x": 19,
+   "y": 2
+  },
+  {
+   "kind": "bone_pile",
+   "x": 24,
+   "y": 7
+  },
+  {
+   "kind": "eggshell",
+   "x": 28,
+   "y": 3
+  },
+  {
+   "kind": "bone_pile",
+   "x": 5,
+   "y": 19
+  },
+  {
+   "kind": "bone_pile",
+   "x": 9,
+   "y": 19
+  },
+  {
+   "kind": "bone_pile",
+   "x": 17,
+   "y": 20
+  },
+  {
+   "kind": "star_crystal",
+   "x": 26,
+   "y": 20
+  },
+  {
+   "kind": "star_crystal",
+   "x": 33,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 36,
+   "y": 19
+  },
+  {
+   "kind": "rock_small",
+   "x": 10,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 15,
+   "y": 6
+  },
+  {
+   "kind": "rock_small",
+   "x": 27,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 11
+  },
+  {
+   "kind": "ferns",
+   "x": 31,
+   "y": 12
+  },
+  {
+   "kind": "rock_small",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "kind": "ferns",
+   "x": 12,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 22,
+   "y": 21
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 21
+  },
+  {
+   "kind": "rock_small",
+   "x": 39,
+   "y": 20
+  },
+  {
+   "kind": "ferns",
+   "x": 7,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 14,
+   "y": 22
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 32,
+   "y": 23
+  },
+  {
+   "kind": "ferns",
+   "x": 35,
+   "y": 23
+  }
+ ],
+ "place": {
+  "chest_ledge_mv_1": [
+   12,
+   5
+  ],
+  "lost_wyrm_egg": [
+   17,
+   13
+  ],
+  "last_egg": [
+   32,
+   7
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    12
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    33,
+    15
+   ]
+  ]
+ ]
+}

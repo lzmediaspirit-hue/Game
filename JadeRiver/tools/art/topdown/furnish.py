@@ -1134,6 +1134,561 @@ PROPS.update({
 PROPS.update(_mirror_props())
 ANIM.update({"cook_fire": (4, 160), "lotus_lantern": (4, 250)})
 
+# ================================================================================================================== R8
+# The sky-sea zones of the late game (E1's batch R8): the Skyport Wreck's broken hulls, masts, anchor and ballista (the
+# Launch's armillary is R6's); Lanternfall Harbor's star lanterns, lantern stalls and quay crane; the Drifting Shoals'
+# driftglass and star crystals; Blackmast Haven's black masts, cannons, powder kegs and black banners; the Wyrmnest
+# Isles' rock spires, nests, skulls, ribs, bones and eggshells. Each drawn as the kit's props are: the §14 ramps, lit
+# from the north-west, outlined, a floor shadow; a coordinate hash for every speck, so the build stays byte-identical.
+import math  # noqa: E402
+
+from palette import RED2, ROCK, SAND2, STONE2, TIMBER2, WOOD, WOOD2  # noqa: E402
+
+IRON = [c("14141B"), c("23232D"), c("363643"), c("51515E"), c("777784")]          # black cast iron, cold lit edge
+RUST = [c("4A2418"), c("7A3C20"), c("A85A2C")]
+SAILBLACK = [c("110E15"), c("1E1823"), c("2E2534"), c("43384A"), c("5C5064")]     # the Blackmast sails, tarred silk
+CANVAS = [c("5E5A54"), c("8A857A"), c("B6AF9F"), c("D8D1BE"), c("EEE8D6")]        # a sky ship's sailcloth, weathered
+BONE = [c("5E5242"), c("8C7C62"), c("B9A786"), c("DCCDAA"), c("F3EAD2")]          # old bone, sun-bleached on top
+GLASS = [c("26305C"), c("3A5894"), c("5F9DCC"), c("A3D9EA"), c("E6FAFF")]         # driftglass: deep blue to a glint
+CRYSTAL = [c("2A2256"), c("473B8E"), c("7766CC"), c("B0A3EE"), c("EAE4FF")]       # a star crystal, violet to white
+STARLIGHT = c("F4F8FF")
+CLEAR_PX = (0, 0, 0, 0)
+
+
+def _line(s: Img, x0: int, y0: int, x1: int, y1: int, col) -> None:
+    """A 1 px line between two points (no anti-aliasing)."""
+    n = max(abs(x1 - x0), abs(y1 - y0), 1)
+    for k in range(n + 1):
+        s.put(x0 + round((x1 - x0) * k / n), y0 + round((y1 - y0) * k / n), col)
+
+
+def _star(s: Img, x: int, y: int, col, glow=None) -> None:
+    """A four-pointed star a pixel across its heart, its points a pixel long (a lit lamp's or a crystal's sparkle)."""
+    for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+        s.put(x + dx, y + dy, col)
+    if glow is not None:
+        for dx, dy in ((2, 0), (-2, 0), (0, 2), (0, -2)):
+            s.put(x + dx, y + dy, glow)
+
+
+# ------------------------------------------------------------------------------------------------- the Skyport Wreck
+def hull_ribs(s: Img) -> None:
+    """A sky ship's hull broken on the rock: its keel half sunk in the ground, the west half still planked in dark strakes
+    up to a gunwale, the planks torn off the east half so its curved ribs stand bare, a jagged break between. Footprint
+    3 x 1. 48 x 40; corner (0, 38)."""
+    for x in range(1, 47):                                          # the keel along the ground
+        s.put(x, 37, DARKWOOD[1])
+        s.put(x, 36, DARKWOOD[2] if x % 6 else DARKWOOD[1])
+        s.put(x, 35, DARKWOOD[3])
+    for x in range(2, 25):                                          # the planked half: strakes over a curved belly
+        top = 8 + int(abs(x - 13) * 0.35)
+        broke = 25 - x <= 4 and h01(x, 1, 811) < 0.6
+        for y in range(top + (6 if broke else 0), 35):
+            k = (y - top) % 5
+            col = TIMBER2[3] if k == 0 else TIMBER2[2] if k < 4 else TIMBER2[1]
+            if x <= 3:
+                col = TIMBER2[4] if k == 0 else TIMBER2[3]
+            elif x >= 22:
+                col = TIMBER2[1] if k else TIMBER2[2]
+            s.put(x, y, col)
+        if not broke:
+            s.put(x, top, WOOD2[5])                                 # the gunwale's lit rail
+            s.put(x, top + 1, WOOD2[3])
+    for k, x in enumerate((27, 32, 37, 42, 46)):                    # the bare ribs, each a curved timber
+        top = 6 + int(h01(k, 2, 812) * 10) + k
+        for y in range(top, 35):
+            bend = int(((35 - y) / 29.0) ** 2 * 4)
+            s.put(x - bend, y, WOOD2[4] if y < top + 2 else WOOD2[3])
+            s.put(x - bend + 1, y, WOOD2[2])
+    for k in range(5):                                              # splinters at the break
+        y = 12 + k * 5
+        s.put(25 + k % 2, y, WOOD2[5])
+        s.put(26, y + 1, WOOD2[4])
+    for x in range(26, 47):                                         # the lower strakes still on the ribs
+        if h01(x, 3, 813) < 0.75:
+            s.put(x, 33, TIMBER2[2])
+            s.put(x, 34, TIMBER2[1])
+    s.outline()
+
+
+def broken_mast(s: Img) -> None:
+    """A sky ship's mast snapped off half its height, its yard fallen across it, a torn sail of weathered canvas hanging
+    from the yard, a loose line trailing to the ground. Footprint 1 x 1. 24 x 64; corner (4, 62)."""
+    s.ellipse(10, 60, 8, 2.5, DARKWOOD[1])
+    for x in range(3, 21):                                          # the torn sail hanging from the yard, behind the mast
+        top = 23 + (x - 1) * 12 // 21
+        drop = 10 + int(h01(x, 1, 821) * 12) - abs(x - 11) // 2
+        for y in range(top + 1, top + drop):
+            k = (y - top) / float(drop)
+            col = CANVAS[3] if k < 0.3 else CANVAS[2] if k < 0.7 else CANVAS[1]
+            if x in (3, 4):
+                col = CANVAS[4]
+            s.put(x, y, col)
+    for y in range(18, 61):                                         # the mast, its top torn in splinters
+        s.rect(8, y, 5, 1, WOOD2[3])
+        s.put(8, y, WOOD2[5])
+        s.put(9, y, WOOD2[4])
+        s.put(12, y, WOOD2[1])
+    for i, dy in enumerate((0, -3, -1, -5, 0)):
+        s.vline(8 + i, 18 + dy, -dy + 1, WOOD2[4] if i < 2 else WOOD2[2])
+    for y in (30, 44):                                              # iron bands
+        s.hline(8, y, 5, IRON[2])
+        s.put(8, y, IRON[4])
+    _line(s, 1, 22, 22, 34, DARKWOOD[3])                            # the yard fallen across it
+    _line(s, 1, 23, 22, 35, DARKWOOD[1])
+    for y in range(36, 61):                                         # a loose line to the ground
+        s.put(19 + (y // 6) % 2, y, CANVAS[1])
+    s.outline()
+
+
+def starsea_anchor(s: Img) -> None:
+    """The great iron anchor of a Starsea ship lying on its side: the ring at the west, the shank, the stock across it,
+    the two flukes curling up at the east, rust in its joints, a length of chain. Footprint 2 x 1. 32 x 24; corner
+    (0, 22)."""
+    s.ellipse(4, 13, 3.5, 3.5, IRON[3])                              # the ring
+    s.ellipse(4, 13, 1.6, 1.6, CLEAR_PX)
+    s.rect(7, 12, 18, 3, IRON[2])                                   # the shank
+    s.hline(7, 12, 18, IRON[4])
+    s.hline(7, 14, 18, IRON[1])
+    s.rect(9, 6, 3, 13, IRON[2])                                    # the stock
+    s.vline(9, 6, 13, IRON[4])
+    for k in range(9):                                              # the flukes
+        s.put(24 + k // 2, 12 - k, IRON[3])
+        s.put(25 + k // 2, 12 - k, IRON[1])
+        s.put(24 + k // 2, 15 + k // 2, IRON[2])
+        s.put(25 + k // 2, 15 + k // 2, IRON[1])
+    for x, y in ((28, 3), (29, 3), (28, 4), (28, 19), (29, 19)):
+        s.put(x, y, IRON[4])
+    for x, y in ((12, 14), (23, 13), (10, 17), (24, 11)):
+        s.put(x, y, RUST[1])
+    for k in range(5):                                              # the chain
+        s.ellipse(1.5 + k * 2.2, 19 + (k % 2), 1.2, 1.0, IRON[3] if k % 2 else IRON[2])
+    s.outline()
+
+
+def star_ballista(s: Img) -> None:
+    """A star ballista on a timber trestle, aimed east: the stock, its great bow of laminated horn bent across the front,
+    the string drawn back, and a bolt with a star-steel head that holds a cold light. Footprint 2 x 1. 32 x 34; corner
+    (0, 32)."""
+    for x0 in (8, 18):                                              # the trestle's legs
+        _line(s, x0, 18, x0 - 4, 31, DARKWOOD[3])
+        _line(s, x0 + 1, 18, x0 + 5, 31, DARKWOOD[2])
+    s.rect(4, 30, 22, 2, DARKWOOD[1])
+    s.rect(4, 13, 20, 5, WOOD2[3])                                  # the stock
+    s.hline(4, 13, 20, WOOD2[5])
+    s.hline(4, 17, 20, WOOD2[1])
+    _line(s, 23, 2, 12, 14, PAPER)                                  # the string, drawn back
+    _line(s, 12, 15, 23, 29, PLASTER2[2])
+    for y in range(2, 30):                                          # the bow across its front
+        x = 22 + int(abs(y - 15.5) ** 2 / 34.0)
+        s.put(x, y, BRONZER[4] if y < 15 else BRONZER[3])
+        s.put(x + 1, y, BRONZER[2])
+    s.rect(9, 12, 19, 1, WOOD2[5])                                  # the bolt
+    for k in range(4):
+        s.put(27 + k, 12, STONE2[5] if k < 3 else STARLIGHT)
+        s.put(27 + k // 2, 11, STONE2[4])
+        s.put(27 + k // 2, 13, STONE2[3])
+    _star(s, 30, 12, STARLIGHT)
+    s.outline()
+
+
+# ---------------------------------------------------------------------------------------------- Lanternfall Harbor
+def star_lantern(s: Img) -> None:
+    """A star lantern of Lanternfall on its post: an indigo-lacquered post with a gilt crook, the six-sided lamp of glass
+    hung from it, a starlight burning pale blue-white inside. Footprint 1 x 1. 16 x 48; corner (0, 46)."""
+    s.rect(2, 43, 9, 3, STONE2[3])
+    s.hline(2, 43, 9, STONE2[5])
+    s.rect(5, 6, 3, 37, INDIGO[1])
+    s.vline(5, 6, 37, INDIGO[3])
+    s.vline(7, 6, 37, INDIGO[0])
+    s.rect(4, 4, 5, 2, GOLDR[2])
+    s.hline(8, 6, 4, GOLDR[2])                                       # the crook
+    s.put(11, 7, GOLDR[1])
+    s.put(11, 8, GOLDR[2])
+    for j in range(10, 22):                                          # the lamp's glass, its glow
+        half = 2 if j in (10, 21) else 3
+        for i in range(11 - half, 11 + half + 1):
+            col = GLASS[3] if abs(i - 11) < 2 and 12 < j < 20 else GLASS[2]
+            if abs(i - 11) == half:
+                col = GOLDR[1]
+            s.put(i, j, col)
+    s.hline(8, 9, 7, GOLDR[2])
+    s.hline(8, 22, 7, GOLDR[1])
+    s.put(11, 23, GOLDR[2])
+    _star(s, 11, 15, STARLIGHT, GLASS[4])
+    s.outline()
+
+
+def lantern_stall(s: Img) -> None:
+    """A Lanternfall market stall (R6's `market_stall` is the Alliance's): a counter of boards under an awning striped
+    in red and cream on two posts, paper lanterns hung from its rail, the wares on the counter: jars, bolts of silk, a
+    tray of little star lamps. Footprint 3 x 1. 48 x 40; corner (0, 38)."""
+    for x in (3, 43):                                                # the posts
+        s.rect(x, 6, 2, 26, DARKWOOD[3])
+        s.vline(x, 6, 26, WOOD2[4])
+    _box(s, 2, 24, 44, 6, 8, WOOD2, DARKWOOD + [WOOD2[3]])          # the counter
+    for i in range(0, 48):                                           # the awning, scalloped
+        stripe = (i // 6) % 2
+        for j in range(2, 10):
+            col = (RED2[3] if stripe else PLASTER2[4]) if j < 8 else (RED2[2] if stripe else PLASTER2[2])
+            if j == 2:
+                col = RED2[4] if stripe else PLASTER2[5]
+            s.put(i, j, col)
+        if i % 6 in (2, 3):
+            s.put(i, 10, RED2[2] if stripe else PLASTER2[2])
+    for k, x in enumerate((10, 23, 36)):                             # paper lanterns under the awning (a star lamp in the middle)
+        lit = (GLASS[3], GLASS[4], GLASS[1]) if k == 1 else (LANTERN[3], LANTERN[4], LANTERN[1])
+        s.put(x, 11, DARKWOOD[1])
+        s.ellipse(x, 14.5, 2.6, 3, lit[0], (lit[1], lit[2]))
+    for k in range(6):                                               # the wares
+        x = 6 + k * 6
+        kind = k % 3
+        if kind == 0:
+            s.rect(x, 20, 3, 5, JADE)
+            s.put(x, 20, c("7FD8C6"))
+        elif kind == 1:
+            s.rect(x, 22, 5, 3, INDIGO[3] if k == 1 else RED2[3])
+            s.hline(x, 22, 5, INDIGO[4] if k == 1 else RED2[5])
+        else:
+            for i in range(3):
+                s.put(x + i * 2, 23, GLASS[3])
+                s.put(x + i * 2, 24, GOLDR[1])
+    s.outline()
+
+
+def harbor_crane(s: Img) -> None:
+    """A quay crane of timber: a braced post, its jib reaching out east over the water, a rope from its tip to a hook
+    with a cargo net of crates. Footprint 2 x 1. 48 x 72; corner (4, 70)."""
+    s.rect(4, 64, 26, 6, DARKWOOD[2])                                # the footing
+    s.hline(4, 64, 26, WOOD2[4])
+    _line(s, 5, 64, 10, 44, WOOD2[2])                                # braces
+    _line(s, 26, 64, 13, 44, WOOD2[2])
+    s.rect(9, 10, 5, 54, WOOD2[3])                                   # the post
+    s.vline(9, 10, 54, WOOD2[5])
+    s.vline(13, 10, 54, WOOD2[1])
+    for k in range(3):                                               # the jib
+        _line(s, 11, 14 + k, 45, 4 + k, WOOD2[4 - k])
+    _line(s, 11, 30, 40, 7, DARKWOOD[3])                             # its stay
+    s.rect(7, 22, 9, 6, DARKWOOD[2])                                 # the winch drum
+    s.ellipse(11.5, 25, 3, 3, IRON[3], (IRON[4], IRON[1]))
+    for y in range(8, 42):                                           # the rope down to the load
+        s.put(44, y, CANVAS[2])
+    s.put(43, 42, IRON[4])
+    s.put(45, 42, IRON[3])
+    for j in range(43, 54):                                          # the net of crates
+        for i in range(37, 48):
+            col = WOOD[4] if (i - 37) % 6 < 5 and (j - 43) % 6 < 5 else DARKWOOD[1]
+            if (i + j) % 4 == 0:
+                col = CANVAS[1]
+            s.put(i, j, col)
+    s.outline()
+
+
+# ------------------------------------------------------------------------------------------------ the Drifting Shoals
+def driftglass(s: Img) -> None:
+    """A cluster of driftglass: three shards of sea-worn glass the starsea has set upright in the sand, blue to a cold
+    glint, a ring of grit at their foot. Footprint 1 x 1. 16 x 22; corner (0, 20)."""
+    s.ellipse(8, 19, 6.5, 2, SAND2[2])
+    for cx, top, w, lean in ((5, 7, 2.5, -1), (10, 2, 3, 1), (13, 11, 2, 0)):
+        for j in range(top, 19):
+            half = max(0.6, w * (j - top + 2) / (19 - top + 2))
+            off = lean * (19 - j) // 8
+            for i in range(int(cx + off - half), int(cx + off + half) + 1):
+                u = (i - (cx + off - half)) / (2 * half + 0.01)
+                col = GLASS[3] if u < 0.35 else GLASS[2] if u < 0.75 else GLASS[1]
+                if j == top:
+                    col = GLASS[4]
+                s.put(i, j, col)
+    s.put(11, 4, STARLIGHT)
+    s.put(4, 9, GLASS[4])
+    s.outline()
+
+
+def star_crystal(s: Img) -> None:
+    """A star crystal grown out of the rock: a tall six-faced spire of violet glass with two smaller ones at its side,
+    the light caught inside them, a stone foot. Footprint 1 x 1. 20 x 44; corner (2, 42)."""
+    s.ellipse(10, 40, 8, 3, ROCK[3], (ROCK[5], ROCK[1]))
+    for cx, top, half in ((10, 3, 3.6), (5, 22, 2.4), (15, 26, 2.2)):
+        for j in range(top, 40):
+            h = half if j > top + half * 2 else (j - top) / 2.0 + 0.5
+            for i in range(int(cx - h), int(cx + h) + 1):
+                u = (i - (cx - h)) / (2 * h + 0.01)
+                col = CRYSTAL[3] if u < 0.3 else CRYSTAL[2] if u < 0.65 else CRYSTAL[1]
+                s.put(i, j, col)
+    s.vline(9, 8, 26, CRYSTAL[4])
+    _star(s, 10, 16, STARLIGHT, CRYSTAL[4])
+    s.put(4, 27, CRYSTAL[4])
+    s.outline()
+
+
+# --------------------------------------------------------------------------------------------------- Blackmast Haven
+def black_mast(s: Img) -> None:
+    """A mast of Blackmast Haven: a tarred pole over its step, a crow's nest, two yards with their sails of black silk
+    hanging tattered, a bone-white star painted on the lower one, lines to the deck. Footprint 1 x 1. 40 x 88; corner
+    (12, 86)."""
+    _line(s, 2, 44, 15, 84, CANVAS[1])                               # the lines to the deck
+    _line(s, 38, 44, 25, 84, CANVAS[1])
+    s.rect(14, 82, 12, 4, DARKWOOD[2])                               # the step
+    s.hline(14, 82, 12, WOOD2[3])
+    for y in range(4, 83):                                           # the pole
+        s.rect(18, y, 4, 1, SAILBLACK[2])
+        s.put(18, y, SAILBLACK[4])
+        s.put(21, y, SAILBLACK[0])
+    s.rect(14, 10, 12, 4, DARKWOOD[2])                               # the crow's nest
+    s.hline(14, 10, 12, WOOD2[3])
+    s.put(20, 2, RED2[3])
+    s.put(20, 3, RED2[2])
+
+    def sail(top: int, half: int, depth: int, salt: int) -> None:
+        s.rect(20 - half - 1, top, 2 * half + 3, 2, DARKWOOD[3])     # the yard
+        s.hline(20 - half - 1, top, 2 * half + 3, WOOD2[4])
+        for i in range(20 - half, 20 + half + 1):
+            d = depth - int(abs(i - 20) * 0.25) - int(h01(i, salt, 851) * 4)
+            for j in range(top + 2, top + 2 + d):
+                u = (i - (20 - half)) / (2.0 * half)
+                col = SAILBLACK[3] if u < 0.2 else SAILBLACK[2] if u < 0.7 else SAILBLACK[1]
+                if (j - top) % 7 == 0:
+                    col = SAILBLACK[1]
+                s.put(i, j, col)
+    sail(18, 13, 16, 1)
+    sail(42, 18, 22, 2)
+    for dx, dy in ((0, -3), (0, -2), (1, -1), (3, 0), (2, 0), (1, 1), (0, 3), (0, 2), (-1, 1), (-3, 0), (-2, 0), (-1, -1), (0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+        s.put(20 + dx, 53 + dy, BONE[4])                             # the white star on the lower sail
+    s.outline()
+
+
+def pirate_cannon(s: Img) -> None:
+    """A Blackmast cannon of black iron on a red-brown carriage, aimed east: the barrel ringed at its muzzle and
+    breech, the knob of its cascabel, two iron-shod wheels. Footprint 2 x 1. 32 x 24; corner (0, 22)."""
+    _box(s, 3, 11, 20, 4, 5, RED2, [RED2[0], RED2[1], RED2[1], RED2[2]])     # the carriage
+    for y in range(5, 12):                                           # the barrel
+        w = 27 if y not in (5, 11) else 26
+        for x in range(4, 4 + w):
+            col = IRON[3] if y < 7 else IRON[2] if y < 10 else IRON[1]
+            s.put(x, y, col)
+    for x in (9, 26):                                                # its rings
+        s.vline(x, 4, 9, IRON[4])
+    s.rect(30, 4, 2, 9, IRON[2])                                     # the muzzle
+    s.put(31, 8, c("06060A"))
+    s.ellipse(3, 8, 1.8, 1.8, IRON[3])                               # the cascabel
+    for wx in (7, 19):                                               # the wheels
+        s.ellipse(wx, 18, 3.6, 3.6, IRON[2], (IRON[4], IRON[0]))
+        s.ellipse(wx, 18, 1.4, 1.4, RED2[2])
+    s.outline()
+
+
+def powder_keg(s: Img) -> None:
+    """A powder keg of the Blackmast gunners: tarred staves, a red band round its belly, a white cross daubed on it and a
+    short fuse out of its bung. Footprint 1 x 1. 16 x 20; corner (0, 18)."""
+    s.ellipse(8, 15, 6, 3.5, SAILBLACK[1])
+    s.rect(2, 7, 12, 9, SAILBLACK[2])
+    s.rect(2, 7, 2, 9, SAILBLACK[4])
+    s.rect(12, 7, 2, 9, SAILBLACK[1])
+    s.ellipse(8, 7, 6, 2.4, SAILBLACK[3])
+    s.ellipse(8, 7, 3.5, 1.3, SAILBLACK[1])
+    s.hline(2, 11, 12, RED2[3])
+    s.hline(2, 12, 12, RED2[2])
+    for k in range(3):
+        s.put(6 + k, 13 + k // 2, PAPER)
+        s.put(8 - k, 13 + k // 2, PAPER)
+    s.put(9, 5, DIRT[3])
+    s.put(10, 4, DIRT[4])
+    s.put(11, 3, LANTERN[4])
+    s.outline()
+
+
+def pirate_banner(s: Img, f: int = 0) -> None:
+    """A Blackmast banner on a tarred pole: a long black silk with a bone-white star over two crossed bones, its
+    swallow tail stirring a pixel over four frames. Footprint 1 x 1. 16 x 60; corner (0, 58)."""
+    sway = (0, 1, 1, 0)[f]
+    s.rect(3, 54, 10, 4, STONE2[2])
+    s.hline(3, 54, 10, STONE2[4])
+    s.rect(5, 6, 2, 49, SAILBLACK[2])
+    s.vline(5, 6, 49, SAILBLACK[4])
+    s.rect(4, 3, 4, 3, BONE[3])
+    s.rect(5, 7, 9, 2, DARKWOOD[2])
+    s.hline(5, 7, 9, DARKWOOD[4])
+    for j in range(9, 40):
+        tail = sway if j > 30 else 0
+        s.rect(7 + tail, j, 6, 1, SAILBLACK[2])
+        s.put(7 + tail, j, SAILBLACK[4])
+        s.put(12 + tail, j, SAILBLACK[0])
+    for k in range(3):
+        s.put(8 + k + sway, 40 + k, SAILBLACK[2])
+        s.put(12 - k + sway, 40 + k, SAILBLACK[2])
+    for dx, dy in ((0, -2), (0, -1), (-1, 0), (0, 0), (1, 0), (-2, 0), (2, 0), (0, 1), (-1, 2), (1, 2)):
+        s.put(10 + dx, 16 + dy, BONE[4])                             # the star
+    for k in range(5):                                               # the crossed bones
+        s.put(8 + k, 22 + k, BONE[3])
+        s.put(12 - k, 22 + k, BONE[3])
+    s.outline()
+
+
+# --------------------------------------------------------------------------------------------------- the Wyrmnest Isles
+def rock_spire(s: Img) -> None:
+    """A spire of the Wyrmnest Isles: a tall pinnacle of pale limestone in courses, lit on its west face, a nest of
+    twigs lodged on its crown where a star-wyrm once slept. Footprint 1 x 1. 24 x 60; corner (4, 58)."""
+    s.ellipse(12, 56, 10, 3, ROCK[2])
+    for j in range(9, 57):
+        t = (j - 9) / 47.0
+        mid = 12 + int((1 - t) * 3)                                 # it leans a little east toward its crown
+        wob = (h01(j // 4, 1, 862) - 0.5) * 2.2                     # its faces weathered unevenly, course by course
+        lo = mid - (2.0 + t * 6.0 + wob)
+        hi = mid + (1.5 + t * 5.5 - wob * 0.6)
+        for i in range(int(lo), int(hi) + 1):
+            u = (i - lo) / (hi - lo + 0.01)
+            col = ROCK[5] if u < 0.22 else ROCK[4] if u < 0.5 else ROCK[3] if u < 0.78 else ROCK[2]
+            if h01(i, j // 3, 863) < 0.06:
+                col = ROCK[2]
+            s.put(i, j, col)
+        if j % 9 == 4:                                              # a ledge of its strata
+            s.put(int(hi), j, ROCK[1])
+            s.put(int(lo) + 1, j, ROCK[6])
+    for k in range(5):                                              # cracks
+        x = 10 + int(h01(k, 1, 861) * 5)
+        y = 16 + k * 8
+        s.put(x, y, ROCK[1])
+        s.put(x + 1, y + 1, ROCK[1])
+        s.put(x + 1, y + 2, ROCK[2])
+    for i in range(10, 21):                                         # the old nest on its crown
+        s.put(i, 8, WOOD[3] if i % 3 else WOOD[2])
+        s.put(i, 9, WOOD[2])
+    s.hline(11, 7, 9, WOOD[4])
+    s.put(13, 6, BONE[4])
+    s.put(17, 6, BONE[3])
+    s.outline()
+
+
+def wyrm_nest(s: Img) -> None:
+    """A star-wyrm's nest: a wide ring of branches, driftwood and old bones woven together, its rim lit, the hollow
+    inside lined with down, three pale eggs flecked with star-blue in it, one cracked open. Footprint 3 x 1. 48 x 28;
+    corner (0, 26)."""
+    s.ellipse(24, 16, 23, 10, WOOD[2])
+    s.ellipse(24, 15, 22, 9, WOOD[3], (WOOD[5], WOOD[1]))
+    for k in range(40):                                             # the woven sticks
+        x = 3 + int(h01(k, 1, 871) * 42)
+        y = 8 + int(h01(k, 2, 871) * 14)
+        if s.get(x, y)[3]:
+            for d in range(4):
+                s.put(x + d, y + (d // 2) * (1 if k % 2 else -1), WOOD[4] if k % 3 else DARKWOOD[2])
+    s.ellipse(24, 13, 15, 5.5, DARKWOOD[1])                         # the hollow
+    s.ellipse(24, 13.5, 13, 4.5, CANVAS[2])
+    for k, (x, y) in enumerate(((17, 12), (24, 11), (31, 13))):      # the eggs
+        s.ellipse(x, y, 3.2, 4, BONE[4] if k != 2 else BONE[3], (STARLIGHT, BONE[2]))
+        s.put(x - 1, y, GLASS[2])
+        s.put(x + 1, y + 2, GLASS[2])
+    for i in range(29, 34):                                         # one cracked open
+        s.put(i, 10 + (i % 2), BONE[1])
+    for x, y in ((6, 9), (40, 8), (44, 16)):                         # bones in the weave
+        s.hline(x, y, 4, BONE[4])
+        s.put(x, y - 1, BONE[3])
+        s.put(x + 3, y + 1, BONE[3])
+    s.outline()
+
+
+def wyrm_skull(s: Img) -> None:
+    """The skull of a star-wyrm long dead, lying on its jaw facing east: a long bleached snout, the dark socket of an
+    eye, a row of teeth, a horn sweeping back over it. Footprint 2 x 1. 32 x 26; corner (0, 24)."""
+    for i in range(2, 31):                                          # the skull's mass, tapering to the snout
+        top = 9 + int(max(0, i - 12) * 0.32)
+        bot = 22 - int(max(0, i - 22) * 0.4)
+        for j in range(top, bot):
+            u = (j - top) / float(max(1, bot - top))
+            col = BONE[4] if u < 0.25 else BONE[3] if u < 0.6 else BONE[2]
+            s.put(i, j, col)
+    s.ellipse(12, 13, 2.6, 2.2, BONE[0])                            # the eye socket
+    s.put(11, 12, c("1A1612"))
+    s.ellipse(27, 14, 1.2, 0.9, BONE[1])                            # a nostril
+    for i in range(14, 30, 3):                                      # the teeth
+        s.put(i, 18, BONE[4])
+        s.put(i, 19, BONE[3])
+    s.hline(13, 17, 16, BONE[1])
+    for k in range(14):                                             # the horn sweeping back
+        x = 9 - k // 2
+        y = 9 - int((k / 13.0) ** 0.8 * 7)
+        s.put(x, y, BONE[3])
+        s.put(x + 1, y, BONE[2])
+        s.put(x, y + 1, BONE[2])
+    s.outline()
+
+
+def wyrm_ribs(s: Img) -> None:
+    """The ribs of a star-wyrm half sunk in the rock: its spine a row of knuckled vertebrae, five ribs arching from it to
+    the ground, shorter toward the tail. Footprint 3 x 1. 48 x 36; corner (0, 34)."""
+    spine = [(3 + k * 7, 6 + k * 3) for k in range(6)]              # the spine, falling toward the tail
+    for k, (x0, y0) in enumerate(spine):
+        h = 33 - y0
+        for j in range(y0 + 2, 34):                                 # each rib a bow from the spine down to the ground
+            t = (j - y0 - 2) / float(h)
+            dx = int(round(math.sin(t * math.pi) * (6 - k * 0.6)))  # swelling out, then in to the ground
+            s.put(x0 + 3 + dx, j, BONE[3] if t < 0.45 else BONE[2])
+            s.put(x0 + 4 + dx, j, BONE[1])
+        s.put(x0 + 3, 33, BONE[2])
+    for k in range(len(spine) - 1):                                 # the spine between the vertebrae
+        _line(s, spine[k][0] + 3, spine[k][1] + 1, spine[k + 1][0] + 1, spine[k + 1][1] + 1, BONE[3])
+        _line(s, spine[k][0] + 3, spine[k][1] + 2, spine[k + 1][0] + 1, spine[k + 1][1] + 2, BONE[1])
+    for x0, y0 in spine:                                            # the vertebrae, knuckled
+        s.rect(x0, y0, 5, 3, BONE[3])
+        s.hline(x0, y0, 5, BONE[4])
+        s.put(x0 + 2, y0 - 1, BONE[4])
+    s.outline()
+
+
+def bone_pile(s: Img) -> None:
+    """Old bones scattered on the rock: two long bones crossed and a knuckle. Footprint 1 x 1, flat. 16 x 12; corner
+    (0, 10)."""
+    for k in range(10):
+        s.put(2 + k, 3 + k // 2, BONE[3])
+        s.put(2 + k, 4 + k // 2, BONE[1])
+        s.put(13 - k, 4 + k // 3, BONE[4])
+    for x, y in ((1, 2), (2, 2), (13, 3), (14, 4), (12, 8), (13, 8)):
+        s.put(x, y, BONE[4])
+    s.ellipse(5, 9, 1.5, 1.2, BONE[2])
+    s.outline()
+
+
+def eggshell(s: Img) -> None:
+    """The broken shell of a star-wyrm's egg, fallen in two halves, flecked star-blue, its inside pale. Footprint 1 x 1,
+    flat. 16 x 10; corner (0, 8)."""
+    s.ellipse(5, 5, 4, 3, BONE[4], (STARLIGHT, BONE[2]))
+    s.ellipse(5, 4.5, 2.6, 1.6, BONE[2])
+    s.ellipse(11.5, 6, 3, 2.4, BONE[3], (BONE[4], BONE[1]))
+    for x, y in ((3, 6), (7, 5), (12, 7)):
+        s.put(x, y, GLASS[2])
+    for i in range(2, 9):
+        s.put(i, 3 + (i % 2), BONE[1])
+    s.outline()
+
+
+PROPS.update({
+    # the Skyport Wreck
+    "hull_ribs": (hull_ribs, 48, 40, 3, 1, [0, 38], True, [26, -2, 22, 3]),
+    "broken_mast": (broken_mast, 24, 64, 1, 1, [4, 62], True, [12, -2, 10, 3]),
+    "starsea_anchor": (starsea_anchor, 32, 24, 2, 1, [0, 22], True, [17, -2, 14, 3]),
+    "star_ballista": (star_ballista, 32, 34, 2, 1, [0, 32], True, [17, -2, 14, 3]),
+    # Lanternfall Harbor
+    "star_lantern": (star_lantern, 16, 48, 1, 1, [0, 46], True, [10, -2, 6, 3]),
+    "lantern_stall": (lantern_stall, 48, 40, 3, 1, [0, 38], True, [26, -2, 22, 3]),
+    "harbor_crane": (harbor_crane, 48, 72, 2, 1, [4, 70], True, [17, -2, 14, 3]),
+    # the Drifting Shoals
+    "driftglass": (driftglass, 16, 22, 1, 1, [0, 20], True, [9, -2, 6, 2]),
+    "star_crystal": (star_crystal, 20, 44, 1, 1, [2, 42], True, [10, -2, 7, 3]),
+    # Blackmast Haven
+    "black_mast": (black_mast, 40, 88, 1, 1, [12, 86], True, [10, -2, 9, 3]),
+    "pirate_cannon": (pirate_cannon, 32, 24, 2, 1, [0, 22], True, [17, -2, 14, 3]),
+    "powder_keg": (powder_keg, 16, 20, 1, 1, [0, 18], True, [10, -2, 6, 3]),
+    "pirate_banner": (pirate_banner, 16, 60, 1, 1, [0, 58], True, [10, -2, 6, 3]),
+    # the Wyrmnest Isles
+    "rock_spire": (rock_spire, 24, 60, 1, 1, [4, 58], True, [12, -2, 10, 3]),
+    "wyrm_nest": (wyrm_nest, 48, 28, 3, 1, [0, 26], True, [26, -2, 22, 3]),
+    "wyrm_skull": (wyrm_skull, 32, 26, 2, 1, [0, 24], True, [17, -2, 14, 3]),
+    "wyrm_ribs": (wyrm_ribs, 48, 36, 3, 1, [0, 34], True, [26, -2, 22, 3]),
+    "bone_pile": (bone_pile, 16, 12, 1, 1, [0, 10], False, None),
+    "eggshell": (eggshell, 16, 10, 1, 1, [0, 8], False, None),
+})
+# The Blackmast banners stir on the wind as the sects' do.
+ANIM.update({"pirate_banner": (4, 450)})
+
 # R9: the star field's end (E1's last batch): the Citadel's lanterns, caged star, statues, banners, ballistae, chart
 # tables and pressure pillars, the Orbit Ruins' floating stones, crystals, gravity plates and golem husks, the Ashen
 # Reach's pyres, tents, banners, embers, ash and charred trees, the Nebula Deep's coral and shells, the Lantern Heart's

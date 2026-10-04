@@ -97,7 +97,7 @@ OR_ORBIT_GARDEN = room(
              "crate_6": "verge.n@64"},
     props=[("mat", 21, 12), ("tea_table", 27, 12)] + plates(57, 22)
           + stones((3, 19), (12, 20), (38, 6), (38, 20), (66, 7), (68, 19), (31, 24), (8, 25)),
-    flora={"garden": {"kinds": ["tree_plum", "bush_azalea", "tall_grass", "ferns", "star_crystal", "tree_plum"], "density": 0.7},
+    flora={"garden": {"kinds": ["tree_plum", "bush_azalea", "tall_grass", "ferns", "crystal_cluster", "tree_plum"], "density": 0.7},
            "cliff": dict(density=0.45), "brink": dict(density=0.45), "plaza": [], "density": 0.28},
     foes="auto")
 
@@ -124,7 +124,7 @@ OR_GOLEM_FOUNDRY = room(
              "journal_foundry": "verge.s@47", "ore_2": "wall_foot@54", "crate_6": "verge.s@63"},
     props=[("flame_basin", 29, 11), ("forge", 5, 6), ("forge", 46, 6), ("anvil", 8, 7), ("anvil", 49, 7),
            ("golem_husk", 22, 11), ("golem_husk", 51, 11), ("golem_husk", 9, 19), ("golem_husk", 40, 20),
-           ("star_lantern", 62, 11), ("star_lantern", 67, 11), ("crates", 56, 6), ("barrel", 58, 7)]
+           ("warden_lamp", 62, 11), ("warden_lamp", 67, 11), ("crates", 56, 6), ("barrel", 58, 7)]
           + stones((14, 20), (31, 21), (56, 20), (4, 24), (66, 24)),
     flora={"floor": dict(density=0.1), "cliff": dict(density=0.45), "brink": dict(density=0.45), "density": 0.28},
     foes="auto")
@@ -151,7 +151,7 @@ OR_INVERTED_HALL = room(
     anchors={"switch_hall_a": (15, 19), "switch_hall_b": (44, 19), "chest_gallery": "gallery_high@37",
              "lost_upside_down_staff": "aisle.n@19", "lost_gravity_knot": "aisle.s@25"},
     props=plates(15, 19, 1) + plates(44, 19, 1) + stones((23, 5), (28, 18), (48, 5), (5, 18))
-          + [("star_lantern", 2, 9), ("star_lantern", 2, 15), ("star_crystal", 53, 2), ("star_crystal", 1, 1)],
+          + [("warden_lamp", 2, 9), ("warden_lamp", 2, 15), ("crystal_cluster", 53, 2), ("crystal_cluster", 1, 1)],
     flora={"density": 0.2},
     foes="auto")
 

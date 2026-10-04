@@ -17,27 +17,31 @@ and the Starsea's voyages on the grid.
   Every NPC, object, herb, jar and way of each side-view room has its spot. The fields' platforms are dunes, rises,
   landings, galleries and lookouts with their flights; the Inverted Hall's high gallery is a flight.
 - **Looks.**
-  - Six biomes: `citadel` (the Wardens' granite and flagstones, kept gardens, lantern-lined stairs), `orbit_ruins`
-    (granite floors and broken rings on grey rock, star crystals), `ashen` (dark earth, ash dunes, ash drifts and
+  - Six biomes: `citadel` (the Wardens' granite and flagstones, kept gardens, lamp-lined stairs), `orbit_ruins`
+    (granite floors and broken rings on grey rock, gold crystals), `ashen` (dark earth, ash dunes, ash drifts and
     embers, charred trees), `nebula` (reefs round the nebula's water, coral trees, islets), `lantern_heart` (golden
     sandstone halls, wick pillars, flame basins) and `starsea` (a deck on the sea). R5's Wardens' stone and cloud sea,
     R7's tomb walls, `earth` rule and brazier are reused.
   - Twenty-four props (`tools/art/topdown/starfield.py`, joined through `furnish.py`'s R9 block; the prop sheet rebuilt
-    with `build_tiles.py`): a star lantern, a lantern cage, a Warden statue and banner, a ballista, a star chart table,
-    an armillary, a pressure pillar, a floating orbit stone, star crystals, a gravity plate, a golem husk, an Ashborn
-    pyre, tent and banner, embers, an ash drift, a charred tree, nebula coral, a coral tree, a void crab's shell, a wick
-    pillar, a flame basin and a mast.
+    with `build_tiles.py`): a Warden lamp, a lantern cage, a Warden statue and banner, a ballista, a star chart table,
+    an armillary, a pressure pillar, a floating orbit stone, a clump of gold crystals, a gravity plate, a golem husk,
+    an Ashborn pyre, tent and banner, embers, an ash drift, a charred tree, nebula coral, a coral tree, a void crab's
+    shell, a wick pillar, a flame basin and a mast.
+  - R8 landed first with its own `star_lantern` and `star_crystal`, which are different pieces. So R9's two are renamed
+    `warden_lamp` and `crystal_cluster`, and both batches' props are in the sheet (159 in all).
   - The vistas (the cloud sea under the islands' brinks, the sea round the decks) are in `topdown_life.VISTAS`.
 - **No engine rule changed**: `engine.py` is as R7 left it. The specs' own helpers lay the rings (`ring()`), the hull
   (`deck()`), the dunes, the islets and the wick pillars' rows.
-- **Places.** Seven rows join `places.py` (48 in all): the Citadel Gate's teleport stone and shrine, and the shrines of
-  the Tumbling Stair, the Wardens' landing, the War Camp, the Nebula Verge and the Wick Gate.
-- **The frontier.** The Citadel's skiff to Lanternfall and the Wick Gate's stair to the Harbor Market are gated exactly
-  while Lanternfall Harbor has no layout (R8). The Tidebreak Bastion's skiff to the Citadel and the Drone Hive's way
-  into the Nebula Deep are open now. 20 rooms remain without a layout, all R8's.
+- **Places.** Seven rows join `places.py` (62 in all with R8's): the Citadel Gate's teleport stone and shrine, and the
+  shrines of the Tumbling Stair, the Wardens' landing, the War Camp, the Nebula Verge and the Wick Gate.
+- **The frontier is gone.** With R8 merged, every side-view room has a layout (168). The Citadel's skiff to Lanternfall,
+  the Wick Gate's stair to the Harbor Market and R8's two ways back are open. The Tidebreak Bastion's skiff to the
+  Citadel and the Drone Hive's way into the Nebula Deep are open too. All four Starsea docks sail into a crossing on
+  the grid.
 - **Tests.**
-  - A new suite, `topdown_starfield` (in `tests/suites.txt` after `topdown_sunscar`), 65 checks. It sails both
-    crossings (the waves boarding onto the deck's cells, the vessel making port), and plays The Citadel, The Aspirant,
+  - A new suite, `topdown_starfield` (in `tests/suites.txt` after `topdown_sunscar`), 77 checks. It sails both
+    crossings both ways, each from its dock on the grid (R6's Shipwrights' Yard, R8's Broken Pier, Starsea Launch and
+    Arrival Quay). The waves board onto the deck's cells and the vessel makes port. It plays The Citadel, The Aspirant,
     The Observatory, The Orbit Ruins, Cinder Fields, Kharn's Pyre, Lu's Lantern and The Leviathan's Maw room by room on
     the grid, checking every room's walks and view.
   - `room_engine` holds the twenty-one new specs; `rules_tests`' route tour walks them with auto-path.
@@ -47,6 +51,55 @@ and the Starsea's voyages on the grid.
 - **Checks.** The full run (merged with R6, E5 and T2): all 33 suites pass, 76,159 checks with 0 failures and no
   SCRIPT ERROR, `topdown_starfield`'s 65 among them; `room_engine` 448. Grid parity holds for 148 layouts and 440
   starts (R9's twenty-one layouts and 57 starts more), and `places` reaches all 48.
+
+## The sky-sea zones on the grid (R8)
+
+The room engine's batch R8 (`docs/architecture/room_engine.md`, "The sky-sea zones (R8)"). The twenty rooms of the late
+game's sky-sea zones are specs now, and a top-down character plays chapters 15 to 19 in them, from The Skyport Wreck to
+The Last Egg.
+
+- **Twenty rooms, 10 to 30 spec lines each.**
+  - The Skyport Wreck: the Broken Pier, the Pirate Deck, the Riven Peak and the Starsea Launch.
+  - Lanternfall Harbor: the Arrival Quay, the Harbor Market, the Star Chandlery and the Tidelight Inn.
+  - The Drifting Shoals: the Jellyfish Shallows, the Moored Hulks, the Sparrow Reefs and the Driftglass Bank.
+  - Blackmast Haven: the Blackmast Docks, the Gunners' Battery, the Smugglers' Cove and the Flagship Deck.
+  - The Wyrmnest Isles: the Nest Cliffs, the Eggshell Terraces, the Guardian's Crown and the Hatching Cave.
+
+  Every object and way of each side-view room has its spot.
+- **Looks.**
+  - Each zone is a floating island. The Wreck and the Isles fall away into the cloud sea; the harbours, the shoals and
+    the cove lie on the starsea's water.
+  - Five biomes: `sky_wreck`, `lantern_harbor`, `star_shoals`, `blackmast`, `wyrmnest`. The Wreck is R6's sky port in
+    ruin, so it has its own `sky_wreck` beside R6's `sky_port`.
+  - Nineteen props in `furnish.py`, the prop sheet rebuilt (the Launch's armillary is R6's):
+    - broken hulls and masts, an anchor, a ballista;
+    - star lanterns, Lanternfall's lantern stalls, a quay crane;
+    - driftglass, star crystals;
+    - black masts, cannons, powder kegs, black banners;
+    - rock spires, wyrm nests, skulls, ribs, bones and eggshells.
+  - Ships are decks: `specs/skysea.py`'s `hull()` gives a deck its pointed bow and its stern. The Shoals' islets are
+    sand round pale rock in R2's wading shallows.
+  - Vistas in `topdown_life.VISTAS`.
+- **Places.** Fourteen rows in `places.py` (55 places with R7's): six shrines, two teleport stones, the harbour's board,
+  storehouse and two stalls, the Chandlery's furnace and Old Bo's planters.
+- **No engine rule.** `engine.py` is unchanged; every older spec compiles byte for byte.
+- **The frontier.** The Arrival Quay's skiff to the Citadel and the Harbor Market's stair to the Lantern Heart lead to
+  rooms with no layout and are gated. The zones are reached only by the Starsea crossings, which have no layout; a
+  dock's `set_sail` is not closed by the prototype's gate.
+- **Tests.**
+  - A new suite, `topdown_skysea`, with 101 checks. It plays chapters 15 to 19's main quests on the grid. It walks
+    from the harbour through the Shoals to Blackmast Haven on foot, and it fights the pirates, jellyfish, sparrows,
+    gunners, Admiral Voss, the wyrmlings and the Brood Guardian. Each room is built by the view and walked by auto-path.
+  - The `room_engine` capture set has R8's views (`docs/architecture/room_engine/r8/`).
+  - `rules_tests`' route tour walks the twenty rooms too. No flight stands on a road or a wading way, since a body
+    steered across a flight from its side sticks on its cheek.
+  - `topdown_chapter3` sets the story done up to the prototype's end in at most 200 steps, not 60. With these zones
+    on the grid the story runs on to chapter 19 inside the prototype.
+  - The full run (merged with R6, E5 and T2): every gate and all 31 suites pass, about 72,300 checks with no failure and
+    no script error. `room_engine` has 445 checks; grid parity holds for 147 layouts and 441 starts; the route tour walks
+    148 rooms.
+- **Still to do.** Nine foe species of these rooms have no top-down sheet. The Starsea crossing and the Field's night
+  light have no grid part yet. Details are in the doc. (T2's wade slows the Shoals' shallows.)
 
 ## The side view's mechanics in the Act I rooms (T2)
 

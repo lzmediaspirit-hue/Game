@@ -253,17 +253,17 @@
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 13,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 18,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 21,
    "y": 4
   },
@@ -303,7 +303,7 @@
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 56,
    "y": 4
   },
@@ -313,22 +313,22 @@
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 64,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 68,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 71,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 5,
    "y": 17
   },
@@ -343,12 +343,12 @@
    "y": 16
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 46,
    "y": 11
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 51,
    "y": 17
   },
@@ -373,7 +373,7 @@
    "y": 24
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 13,
    "y": 25
   },
@@ -383,7 +383,7 @@
    "y": 25
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 23,
    "y": 25
   },
@@ -398,17 +398,17 @@
    "y": 23
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 43,
    "y": 24
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 46,
    "y": 23
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 49,
    "y": 23
   },
@@ -438,7 +438,7 @@
    "y": 23
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 3,
    "y": 27
   },
@@ -488,7 +488,7 @@
    "y": 26
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 54,
    "y": 26
   },

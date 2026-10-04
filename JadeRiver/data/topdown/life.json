@@ -714,6 +714,33 @@
     }
    ]
   },
+  "bm_blackmast_docks": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "bm_flagship_deck": {
+   "vista": [
+    {
+     "edge": "all",
+     "kind": "water",
+     "pad": 0
+    }
+   ]
+  },
+  "bm_gunners_battery": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "cc_cliff_faces": {
    "vista": [
     {
@@ -1195,6 +1222,42 @@
      "kind": "hills",
      "pad": 40
     },
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_driftglass_bank": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_jellyfish_shallows": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_moored_hulks": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "dr_sparrow_reefs": {
+   "vista": [
     {
      "edge": "s",
      "kind": "river",
@@ -2306,6 +2369,24 @@
     }
    ]
   },
+  "lh_arrival_quay": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
+  "lh_harbor_market": {
+   "vista": [
+    {
+     "edge": "s",
+     "kind": "river",
+     "pad": 32
+    }
+   ]
+  },
   "mh_stockade": {
    "vista": [
     {
@@ -3268,6 +3349,62 @@
     }
    ]
   },
+  "sw_broken_pier": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "sw_pirate_deck": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "sw_riven_peak": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "sw_starsea_launch": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
   "tf_drone_hive": {
    "vista": [
     {
@@ -3412,6 +3549,48 @@
      "edge": "s",
      "kind": "river",
      "pad": 32
+    }
+   ]
+  },
+  "wn_eggshell_terraces": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "wn_guardians_crown": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
+    }
+   ]
+  },
+  "wn_nest_cliffs": {
+   "vista": [
+    {
+     "edge": "n",
+     "kind": "peaks",
+     "pad": 56
+    },
+    {
+     "edge": "s",
+     "kind": "cloud_sea",
+     "pad": 88
     }
    ]
   },

@@ -112,32 +112,32 @@
    "y": 5
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 3,
    "y": 8
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 8,
    "y": 8
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 15,
    "y": 19
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 38,
    "y": 19
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 44,
    "y": 13
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 44,
    "y": 17
   },
@@ -152,42 +152,42 @@
    "y": 18
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 3,
    "y": 16
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 16
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 3,
    "y": 17
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 17
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 3,
    "y": 18
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 18
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 3,
    "y": 19
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 19
   },
@@ -257,7 +257,7 @@
    "y": 24
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 6,
    "y": 22
   },
@@ -287,7 +287,7 @@
    "y": 24
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 38,
    "y": 24
   },
@@ -302,7 +302,7 @@
    "y": 25
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 52,
    "y": 25
   },
@@ -312,7 +312,7 @@
    "y": 26
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 7,
    "y": 27
   },
@@ -327,7 +327,7 @@
    "y": 27
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 24,
    "y": 27
   },
@@ -347,7 +347,7 @@
    "y": 27
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 41,
    "y": 27
   },

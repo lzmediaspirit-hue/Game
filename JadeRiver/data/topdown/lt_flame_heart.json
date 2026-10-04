@@ -137,12 +137,12 @@
    "y": 21
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 2,
    "y": 9
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 2,
    "y": 15
   },
@@ -202,47 +202,47 @@
    "y": 9
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 51,
    "y": 1
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 54,
    "y": 3
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 51,
    "y": 4
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 2,
    "y": 19
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 6,
    "y": 20
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 1,
    "y": 22
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 48,
    "y": 20
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 51,
    "y": 20
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 54,
    "y": 20
   }

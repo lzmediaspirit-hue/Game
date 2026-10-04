@@ -65,8 +65,8 @@ def deck(rid, props, waves, spawn=(22, 12)):
 # the bow; the wind kites ride the wind down onto the forward waist.
 SS_STARSEA_CROSSING = deck(
     "ss_starsea_crossing",
-    props=[("storehouse", 7, 6), ("mast", 27, 11), ("mast", 43, 11), ("star_lantern", 14, 6), ("star_lantern", 6, 16),
-           ("star_lantern", 53, 7), ("star_lantern", 53, 16), ("crates", 18, 6), ("barrel", 20, 6), ("crates", 33, 16),
+    props=[("storehouse", 7, 6), ("mast", 27, 11), ("mast", 43, 11), ("warden_lamp", 14, 6), ("warden_lamp", 6, 16),
+           ("warden_lamp", 53, 7), ("warden_lamp", 53, 16), ("crates", 18, 6), ("barrel", 20, 6), ("crates", 33, 16),
            ("barrel", 35, 16), ("sacks", 22, 16), ("barrel", 23, 16), ("crates", 46, 6), ("sacks", 48, 6)],
     waves=[[(54, 11), (53, 13)],                                       # the starsea pirates, over the bow
            [(47, 9), (49, 14)]])                                      # the wind kites, onto the forward waist

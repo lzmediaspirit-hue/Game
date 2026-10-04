@@ -63,12 +63,12 @@
    "y": 3
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 1
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 20,
    "y": 1
   },
@@ -108,12 +108,12 @@
    "y": 5
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 9,
    "y": 7
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 18,
    "y": 7
   },
@@ -128,7 +128,7 @@
    "y": 14
   },
   {
-   "kind": "star_crystal",
+   "kind": "crystal_cluster",
    "x": 25,
    "y": 6
   },

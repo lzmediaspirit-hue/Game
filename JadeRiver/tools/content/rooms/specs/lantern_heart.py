@@ -30,9 +30,9 @@ LT_WICK_GATE = room(
     spawn="stair",
     anchors={"shrine_lt_gate": "way.n@8", "jar_1": "gallery@20", "crate_2": "way.s@28", "jar_3": "way.s2@47"},
     props=wicks((12, 18, 24, 30), 9, 15) + [("flame_basin", 35, 9), ("flame_basin", 35, 15), ("flame_basin", 43, 9),
-                                            ("flame_basin", 43, 15), ("star_lantern", 2, 9), ("star_lantern", 2, 15),
+                                            ("flame_basin", 43, 15), ("warden_lamp", 2, 9), ("warden_lamp", 2, 15),
                                             ("flame_basin", 38, 8), ("flame_basin", 38, 17)],          # the towers' beacons
-    flora={"bed": ["star_crystal"], "bed_2": ["star_crystal"], "gallery": [], "density": 0.6},
+    flora={"bed": ["crystal_cluster"], "bed_2": ["crystal_cluster"], "gallery": [], "density": 0.6},
     foes="auto")
 
 
@@ -54,9 +54,9 @@ LT_HALL_OF_BURNING_STARS = room(
     anchors={"jar_1": "gallery@19", "crate_2": "aisle.s2@34", "chest_4": "gallery_2@42", "lost_burning_star_bell": "aisle.n@53",
              "jar_3": "aisle.s@59"},
     props=wicks(range(8, 68, 8), 9, 15) + [("flame_basin", 26, 16), ("flame_basin", 52, 16), ("flame_basin", 26, 6),
-                                          ("flame_basin", 56, 6), ("star_lantern", 2, 9), ("star_lantern", 2, 15),
-                                          ("star_lantern", 69, 9), ("star_lantern", 69, 15)],
-    flora={"bed": ["star_crystal"], "bed_2": ["star_crystal"], "gallery": [], "gallery_2": [], "density": 0.6},
+                                          ("flame_basin", 56, 6), ("warden_lamp", 2, 9), ("warden_lamp", 2, 15),
+                                          ("warden_lamp", 69, 9), ("warden_lamp", 69, 15)],
+    flora={"bed": ["crystal_cluster"], "bed_2": ["crystal_cluster"], "gallery": [], "gallery_2": [], "density": 0.6},
     foes="auto")
 
 
@@ -78,8 +78,8 @@ LT_FLAME_HEART = room(
     anchors={"heart_flame": (28, 15), "chest_ledge_mv_1": "ledge@6"},
     props=[("lantern_cage", 27, 9), ("flame_basin", 22, 9), ("flame_basin", 32, 9)]
           + [("wick_pillar", x, y) for x, y in ((14, 4), (41, 4), (11, 11), (44, 11), (14, 18), (41, 18), (20, 21), (35, 21))]
-          + [("star_lantern", 2, 9), ("star_lantern", 2, 15)],
-    flora={"bed": ["star_crystal"], "bed_2": ["star_crystal"], "bed_3": ["star_crystal"], "ledge": [], "chamber": [],
+          + [("warden_lamp", 2, 9), ("warden_lamp", 2, 15)],
+    flora={"bed": ["crystal_cluster"], "bed_2": ["crystal_cluster"], "bed_3": ["crystal_cluster"], "ledge": [], "chamber": [],
            "dais": [], "density": 0.7})
 
 ROOMS = [LT_WICK_GATE, LT_HALL_OF_BURNING_STARS, LT_FLAME_HEART]

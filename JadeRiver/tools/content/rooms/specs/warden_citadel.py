@@ -46,16 +46,16 @@ WC_CITADEL_GATE = room(
     anchors={"sign_wc": "walk.n@14", "shrine_wc_gate": "court@39", "stone_star_citadel": "plaza@55"},
     props=[("hall", 22, 5, "wardens_hall"), ("lantern_cage", 34, 7), ("warden_statue", 23, 9), ("warden_statue", 28, 9),
            ("warden_statue", 42, 9), ("warden_statue", 47, 9), ("warden_banner", 12, 5), ("warden_banner", 18, 5),
-           ("warden_banner", 52, 5), ("warden_banner", 56, 5), ("star_lantern", 32, 10), ("star_lantern", 37, 10),
-           {"kind": "star_lantern", "along": "road", "every": 9, "row": 12, "start": 4},
-           {"kind": "star_lantern", "along": "road", "every": 9, "row": 17, "start": 8},
-           ("ballista", 59, 9), ("ballista", 59, 18), ("star_lantern", 8, 21), ("star_lantern", 12, 21),
-           ("star_lantern", 26, 21), ("star_lantern", 30, 21), ("star_lantern", 34, 21), ("star_lantern", 38, 21),
+           ("warden_banner", 52, 5), ("warden_banner", 56, 5), ("warden_lamp", 32, 10), ("warden_lamp", 37, 10),
+           {"kind": "warden_lamp", "along": "road", "every": 9, "row": 12, "start": 4},
+           {"kind": "warden_lamp", "along": "road", "every": 9, "row": 17, "start": 8},
+           ("ballista", 59, 9), ("ballista", 59, 18), ("warden_lamp", 8, 21), ("warden_lamp", 12, 21),
+           ("warden_lamp", 26, 21), ("warden_lamp", 30, 21), ("warden_lamp", 34, 21), ("warden_lamp", 38, 21),
            ("post", 9, 27), ("post", 11, 27), ("post", 27, 27), ("post", 29, 27), ("post", 35, 27), ("post", 37, 27),
            ("crates", 5, 18), ("barrel", 7, 19), ("sacks", 31, 18), ("barrel", 32, 19), ("crates", 64, 18),
            ("weapon_rack", 64, 9), ("barrel", 67, 10)],
     flora={"court": dict(density=0.1), "plaza": dict(density=0.1), "garden": dict(density=0.9),
-           "garden_2": dict(density=0.9), "rim": {"kinds": ["rock_mossy", "star_crystal", "rock_small", "bush"], "density": 0.4}})
+           "garden_2": dict(density=0.9), "rim": {"kinds": ["rock_mossy", "crystal_cluster", "rock_small", "bush"], "density": 0.4}})
 
 
 # The Wardens' Hall: the Commander's hall of granite under the wall. Warden-Commander Yao stands at the great chart
@@ -70,10 +70,10 @@ WC_WARDENS_HALL = room(
     ways={"entry": ("s", 13.5)},
     spawn="entry",
     anchors={"npc_warden_commander_yao": (16, 9)},
-    props=[("trial_seat", 13, 2), ("warden_banner", 7, 1), ("warden_banner", 20, 1), ("star_lantern", 10, 3),
-           ("star_lantern", 17, 3), ("star_chart_table", 12, 9), ("warden_statue", 1, 2), ("scroll_shelf", 24, 3),
+    props=[("trial_seat", 13, 2), ("warden_banner", 7, 1), ("warden_banner", 20, 1), ("warden_lamp", 10, 3),
+           ("warden_lamp", 17, 3), ("star_chart_table", 12, 9), ("warden_statue", 1, 2), ("scroll_shelf", 24, 3),
            ("scroll_shelf", 24, 6), ("desk", 24, 10), ("weapon_rack", 1, 6), ("weapon_rack", 1, 9),
-           ("star_lantern", 9, 14), ("star_lantern", 18, 14), ("mat", 3, 12), ("pot_bonsai", 26, 13)])
+           ("warden_lamp", 9, 14), ("warden_lamp", 18, 14), ("mat", 3, 12), ("pot_bonsai", 26, 13)])
 
 
 # The Observatory: a round hall of granite under the open dome, the great scope's dais against the back wall, the
@@ -92,10 +92,10 @@ WC_OBSERVATORY = room(
     ways={"entry": ("s", 13.5)},
     spawn="entry",
     anchors={"great_scope": (15, 3), "npc_stargazer_ming": (9, 10), "lost_lens_of_far_seeing": (23, 10)},
-    props=[("star_globe", 9, 3), ("star_lantern", 7, 1), ("star_lantern", 20, 1), ("star_chart_table", 4, 9),
+    props=[("star_globe", 9, 3), ("warden_lamp", 7, 1), ("warden_lamp", 20, 1), ("star_chart_table", 4, 9),
            ("star_chart_table", 18, 10), ("scroll_shelf", 1, 1), ("scroll_shelf", 3, 1), ("scroll_shelf", 22, 1),
-           ("scroll_shelf", 24, 1), ("desk", 1, 5), ("star_lantern", 9, 7), ("star_lantern", 18, 7),
-           ("warden_banner", 9, 14), ("warden_banner", 18, 14), ("star_crystal", 25, 6), ("pot_orchid", 1, 13)])
+           ("scroll_shelf", 24, 1), ("desk", 1, 5), ("warden_lamp", 9, 7), ("warden_lamp", 18, 7),
+           ("warden_banner", 9, 14), ("warden_banner", 18, 14), ("crystal_cluster", 25, 6), ("pot_orchid", 1, 13)])
 
 
 # The Presence Court: the Citadel's west end, where the Wardens spar with their Presence held. A round court of granite
@@ -120,11 +120,11 @@ WC_PRESENCE_COURT = room(
     spawn="east",
     anchors={"npc_presence_master_ruo": (17, 13), "npc_shen_lian_warden": (27, 14), "sign_wc_court": "walk.n@52"},
     props=[("pressure_pillar", 18, 8), ("pressure_pillar", 27, 6), ("pressure_pillar", 36, 8), ("warden_statue", 5, 8),
-           ("warden_banner", 11, 5), ("warden_banner", 40, 5), ("star_lantern", 3, 8), ("star_lantern", 8, 8),
-           ("star_lantern", 15, 19), ("star_lantern", 38, 19), ("star_lantern", 44, 13), ("star_lantern", 44, 17),
+           ("warden_banner", 11, 5), ("warden_banner", 40, 5), ("warden_lamp", 3, 8), ("warden_lamp", 8, 8),
+           ("warden_lamp", 15, 19), ("warden_lamp", 38, 19), ("warden_lamp", 44, 13), ("warden_lamp", 44, 17),
            ("weapon_rack", 12, 18), ("mat", 31, 18)],
     flora={"court": dict(density=0.08), "garden": dict(density=0.9), "garden_2": dict(density=0.9),
            "garden_3": dict(density=0.9), "terrace": [],
-           "rim": {"kinds": ["rock_mossy", "star_crystal", "rock_small", "bush"], "density": 0.4}})
+           "rim": {"kinds": ["rock_mossy", "crystal_cluster", "rock_small", "bush"], "density": 0.4}})
 
 ROOMS = [WC_CITADEL_GATE, WC_WARDENS_HALL, WC_OBSERVATORY, WC_PRESENCE_COURT]

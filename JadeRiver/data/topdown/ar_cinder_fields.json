@@ -118,12 +118,12 @@
    "y": 16
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 2,
    "y": 21
   },
   {
-   "kind": "star_lantern",
+   "kind": "warden_lamp",
    "x": 7,
    "y": 21
   },
