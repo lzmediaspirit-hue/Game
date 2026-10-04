@@ -45,12 +45,10 @@ func load_slots():
 	for i in mini(3,data.slots.size()):
 		if data.slots[i] is Dictionary: slots[i]=validate(data.slots[i])
 func texture(path: String) -> Texture2D:
-	path=path.replace("art_v12/","res://art/")
 	if not textures.has(path): textures[path]=load(path)
 	return textures[path]
 ## A sheet loaded on a loading thread: null while it loads (asked for on the first call), then the sheet.
 func texture_async(path: String) -> Texture2D:
-	path=path.replace("art_v12/","res://art/")
 	if textures.has(path): return textures[path]
 	match ResourceLoader.load_threaded_get_status(path):
 		ResourceLoader.THREAD_LOAD_LOADED:

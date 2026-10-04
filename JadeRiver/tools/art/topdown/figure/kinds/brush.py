@@ -1,5 +1,5 @@
 """Brush: a calligraphy brush held in the right hand along the pose's `blade` line (or laid on the ground), from a
-set's spec (sets/weapon_brush.py), after the side view's brush (tools/art/bake_weapons.py `brush_frame`): a jointed
+set's spec (sets/weapon_brush.py), after the side view's brush (the side view's weapon bake `brush_frame`): a jointed
 bamboo shaft with a lacquered end cap, a lacquered collar and a tuft of hair, pale grey at the root and soaked black
 to its point; pieces along the ground's depth are stretched as a blade's are (figure/weapons.py).
 

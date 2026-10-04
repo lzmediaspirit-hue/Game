@@ -1,8 +1,9 @@
 """The figure's colours: five-step ramps (deep, shadow, base, light, highlight) per material, taken from the side-view
 character so the top-down figure is the same person: the skin, eyes and hair of the body and head sheets, the
 disciple tunic's navy and gold, the silk trousers' teal, the cloth shoes' browns, the weapons' jade steel, gold guard
-and hilts, and the gauntlets' steel and bronze (tools/art/bake_gauntlets.py). Garment dyes are the side view's own
-four-stop ramps (tools/art/bake_dyes.py DYES), hair colours follow the creator's six (parts.json `_colors.hair`).
+and hilts, and the gauntlets' steel and bronze (the side view's gauntlet bake drew them first). Garment
+dyes are the side view's own four-stop ramps (DYES, kept here since S12a deleted tools/art/bake_dyes.py with the side
+view), hair colours follow the creator's six (parts.json `_colors.hair`).
 """
 from __future__ import annotations
 
@@ -12,7 +13,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))   # tools/art
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # tools/art/topdown
 
-from bake_dyes import DYES  # noqa: E402  the side view's garment dyes, one source for both views
+# The garment dyes (data/parts.json "_dyes" names them, in this order): deep, shadow, base, light.
+DYES = {
+    "jade":    ["#0d2f2c", "#155c52", "#2c9e8f", "#8fe0c8"],
+    "cloud":   ["#2c3a4a", "#6f8599", "#c3d3dd", "#f2f5f2"],
+    "earth":   ["#2a1a10", "#5a3a22", "#8c6a44", "#c9a878"],
+    "ink":     ["#0b0d12", "#1d222c", "#353d4a", "#5f6878"],
+    "crimson": ["#2a0b12", "#5e1624", "#9c2a36", "#dc6a5c"],
+    "grey":    ["#23262a", "#4a5056", "#7d858a", "#b9c0c2"],
+    "indigo":  ["#10143a", "#232f6e", "#3f55a8", "#8ea8e0"],
+    "ochre":   ["#2e1e08", "#6b4a14", "#b0812a", "#ecc56a"],
+    "rose":    ["#2e1020", "#6a2a44", "#b25a78", "#eeb0c0"],
+    "white":   ["#4a4f55", "#9aa0a2", "#dcddd6", "#fbfaf2"],
+}
 
 from palette import LINE, LINE_SOFT, c  # noqa: E402  tools/art/topdown/palette.py
 

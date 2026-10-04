@@ -35,7 +35,9 @@ func _main() -> void:
 	Game.boot()
 	Game.autosave_enabled = false
 	Unlocks.debug_force_all = true
-	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}})
+	# The Listener skips the Prologue: its opening scene would start as the world mounts and hold the music ducked
+	# (Audio's "scene" hold) past the prototype room's own mounting, under the stingers' checks.
+	Game.submit({"type": "create_character", "slot": 1, "name": "Listener", "appearance": {"hair": "topknot"}, "skip_prologue": true})
 	main.enter_world(1)
 	for i in 3: await get_tree().process_frame
 	_ids()
@@ -91,7 +93,7 @@ func _ids() -> void:
 			var id := str(Audio.SFX_ALIAS.get(m.get_string(2), m.get_string(2)))
 			in_code.append(id)
 			if not _has(id): bad.append("%s in %s" % [id, path.get_file()])
-	check(bad.is_empty() and in_code.size() > 60, "every literal sound id in the code's Audio calls exists (%d calls; missing %s)" % [in_code.size(), bad])
+	check(bad.is_empty() and in_code.size() > 50, "every literal sound id in the code's Audio calls exists (%d calls; missing %s)" % [in_code.size(), bad])
 	# the rooms' music and beds
 	var moods: Array = []
 	var beds: Array = []

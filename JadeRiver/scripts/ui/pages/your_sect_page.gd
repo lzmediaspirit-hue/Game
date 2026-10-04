@@ -20,7 +20,9 @@ const DEPTH_BACK := 640.0
 const DEPTH_FRONT := 900.0
 const DEPTH_PX := 58.0
 const HORIZON := 70.0      # the courtyard's back wall line, above the painting's foot
-const LAYER_K := 0.5       # the backdrop's layers, halved
+## The far peaks behind the courtyard's wall, back to front: [vista strip (TopdownLife's vistas, the strips the grid lays
+## past a room's edge), its foot above the wall line in page px, how far each copy is slid]. One page px an art px.
+const VISTA := [["peaks_far", 10.0, 173.0], ["peaks_mid", 0.0, 61.0]]
 const CARD_Y := 470.0
 const CARD_H := 194.0
 const RAISE_S := 0.3       # a building begun fills its scaffold over this long
@@ -143,21 +145,22 @@ static func prop_rect(prop: String, at: Vector2) -> Rect2:
 	return Rect2((Vector2(_x(at.x), _foot(at.y)) - Vector2(float(e.anchor[0]), float(e.anchor[1])) * k).round(), (Vector2(float(e.frame[0]), float(e.frame[1])) * k).round())
 
 func _courtyard(ch, s: Dictionary, live: Dictionary) -> void:
-	# The sky and the backdrop's layers, halved and tiled, behind the courtyard's wall.
-	var bd: Dictionary = ContentDB.config("backdrops").get(str(ContentDB.room(ROOM).get("backdrop", "sect_jade")), {})
+	# The sky and the far peaks, tiled behind the courtyard's wall: the top-down world's own vista strips (the side
+	# view's backdrops went with it in S12a).
 	var horizon := PANO.end.y - HORIZON
-	vshade(Rect2(PANO.position, Vector2(PANO.size.x, horizon - PANO.position.y)), Color(str(bd.get("sky", UiKit.MIST.to_html()))), Color(str(bd.get("horizon", UiKit.PAPER.to_html()))))
-	var layers: Array = bd.get("layers", [])
-	for li in range(1, layers.size()):
-		var l: Dictionary = layers[li]
-		var tex := SectKit.scaled(SpriteCache.tex(str(l.file)), Rect2i(), LAYER_K)
-		if tex == null: continue
-		var w := tex.get_width()
-		var bottom := horizon + (float(l.get("bottom", 720)) - 720.0) * 0.25 + 6.0
-		var x := PANO.position.x - fmod(float(li) * 173.0, float(w))
+	# The sect's sky over the peaks (mist), warming to the horizon (paper): tokens, as every page's colours are.
+	vshade(Rect2(PANO.position, Vector2(PANO.size.x, horizon - PANO.position.y)), UiKit.MIST, UiKit.PAPER)
+	var a := TopdownLife.art()
+	var strips: Dictionary = a.get("vistas", {})
+	var sheet := SpriteCache.tex(str(a.get("vista_sheet", "")))
+	for v in VISTA:
+		if sheet == null or not strips.has(str(v[0])): continue
+		var r: Array = strips[str(v[0])]
+		var src := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+		var x := PANO.position.x - fmod(float(v[2]), src.size.x)
 		while x < PANO.end.x:
-			_blit(tex, Rect2(x, bottom - tex.get_height(), w, tex.get_height()))
-			x += w
+			_blit(sheet, Rect2(Vector2(x, horizon - float(v[1]) - src.size.y), src.size), Color.WHITE, src)
+			x += src.size.x
 	# The courtyard's stone floor, its paving lines receding.
 	var yard := Rect2(PANO.position.x, horizon, PANO.size.x, PANO.end.y - horizon)
 	vshade(yard, UiKit.SURFACE.stone.lerp(UiKit.SURFACE.sand, 0.35), UiKit.SURFACE.stone.lerp(UiKit.SURFACE.sand, 0.15))

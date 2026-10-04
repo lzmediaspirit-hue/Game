@@ -568,8 +568,7 @@
    }
   ],
   "leave": {
-   "after_s": 6.0,
-   "grid_after_s": 30.0,
+   "after_s": 30.0,
    "requires": {
     "all": [
      {

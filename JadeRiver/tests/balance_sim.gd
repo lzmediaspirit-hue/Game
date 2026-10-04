@@ -252,8 +252,6 @@ const DUEL_SEEDS := [11, 22, 33, 44]
 const TAP_S := 0.35      ## a thumb's tap on Attack (or a technique), about three a second
 const WALK_UPS := 150.0  ## the body's walk on the grid, units a second (movement.json topdown.walk)
 func _story_duels(c) -> void:
-	var was_view: String = c.view
-	c.view = "topdown"
 	Game.autosave_enabled = false
 	if not Game.in_world: Game.submit({"type": "enter_world"})
 	Unlocks.grant_prologue(c.id)
@@ -319,7 +317,6 @@ func _story_duels(c) -> void:
 		print("story night: %s (Level 0): first phase won %d of %d, lowest HP %d%%, the longest night %.0f s" % [k[0], won, DUEL_SEEDS.size(), int(100.0 * lowest), longest])
 		check(won == DUEL_SEEDS.size() and lowest >= float(k[4]), "story night: %s at the story's Level 0, its first phase won every time (the eel woken by the player's blows; awake it has them down, never a fall, and the elders slay it) with HP never under %d%% before it wakes (%d of %d; lowest HP %d%%)"
 			% [k[0], int(100.0 * float(k[4])), won, DUEL_SEEDS.size(), int(100.0 * lowest)])
-	c.view = was_view
 
 ## The Hollow Night whole on `seed` (world.py lf_village_night, its event): the villagers nearest first, each one's
 ## minnows fought and the villager sent in (their flag, as the talk sets it), then whatever is in the fight nearest,

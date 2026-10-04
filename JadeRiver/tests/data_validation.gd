@@ -207,13 +207,15 @@ func technique_suite() -> void:
 	for t in ContentDB.all("techniques"):
 		if str(t.get("kind", "")) in ["", "keystone"] and T.home(str(t.id)).is_empty(): lost_route.append(str(t.id))
 	check(lost_route.is_empty(), "every art is on its tree and every node of Acts I-III is reachable from its sector's gate (%s)" % str(lost_route.slice(0, 4)))
-	# Every art's pose is one the character can play (meditate_burst plays the weapon's first stroke, none its third).
-	var acts: Dictionary = ContentDB.parts.get("_actions", {})
+	# Every art's pose is one the character can play: a drawn top-down action or one of the manifest's aliases
+	# (meditate_burst plays the cast, none the weapon's third stroke).
+	var man: Dictionary = TopdownFigure.manifest()
 	var poses: Array = []
 	for t in ContentDB.all("techniques"):
 		var a := str(t.get("action")) if t.get("action") != null else ""   # none: the weapon's third stroke
-		if a != "" and a != "meditate_burst" and not a in acts: poses.append("%s %s" % [t.id, a])
-	check(poses.is_empty(), "every art's pose is in the catalog (%s)" % str(poses.slice(0, 4)))
+		if a != "" and a != "meditate_burst" and not (man.get("actions", {}) as Dictionary).has(a) and not (man.get("aliases", {}) as Dictionary).has(a):
+			poses.append("%s %s" % [t.id, a])
+	check(poses.is_empty(), "every art's pose is in the top-down figure's catalog (%s)" % str(poses.slice(0, 4)))
 
 ## Levenshtein distance at most 2, on a band two wide either side of the diagonal (names are short).
 func _within_two(a: String, b: String) -> bool:
@@ -439,9 +441,8 @@ func moments_data_suite() -> void:
 
 ## Decision 23 (technique animations): every form's sheet in data/fx_art.json exists at the size its spec says (frames
 ## across, every band and element down), with a hit frame inside it and known anchor and size rules; and every
-## technique plays a built form (`vfx.anim`) on an existing pose (`vfx.pose`: a parts.json action, or a combo alias
-## that resolves to one for every weapon family, as the timeline resolves it).
-const POSE_ALIASES := {"combo_1": 0, "combo_2": 1, "combo_3": 2}
+## technique plays a built form (`vfx.anim`) on a pose the top-down figure draws (TechniquePreview.top_pose: its action
+## as the hands play it, the form's pose for a meditation or a leap, the hand seal's cast for an art with no action).
 func _fx_art_suite() -> void:
 	var fxa: Dictionary = ContentDB.config("fx_art")
 	var forms: Dictionary = fxa.get("forms", {})
@@ -458,16 +459,8 @@ func _fx_art_suite() -> void:
 	for t in ContentDB.all("techniques"):
 		var v: Dictionary = t.get("vfx", {})
 		check(forms.has(str(v.get("anim", ""))), "technique %s: its animation (%s) is a built form" % [t.id, v.get("anim", "")])
-		var pose := str(v.get("pose", ""))
-		var ok: bool = ContentDB.parts.get("_actions", {}).has(pose)
-		if not ok and POSE_ALIASES.has(pose):
-			ok = true
-			for fam in ContentDB.all("weapon_families"):
-				var combo: Array = fam.get("combo", [])
-				ok = ok and not combo.is_empty() and ContentDB.parts.get("_actions", {}).has(str(combo[mini(int(POSE_ALIASES[pose]), combo.size() - 1)].action))
-		check(ok, "technique %s: its pose (%s) is an existing pose" % [t.id, pose])
-		var action := str(t.get("action", ""))
-		check(pose == ("combo_1" if action == "meditate_burst" else ("combo_3" if action in ["", "null", "<null>"] else action)), "technique %s: its pose is its action's" % t.id)
+		var pose := TechniquePreview.top_pose(t, null)
+		check((TopdownFigure.manifest().get("actions", {}) as Dictionary).has(pose), "technique %s: it is cast in a pose the top-down figure draws (%s)" % [t.id, pose])
 
 ## Every reference ("payload.x", "slot.x.y", "item.x"), colour and string-key text source inside a moments node.
 func _moment_walk(node, refs: Array, colours := [], texts := [], sample := {}) -> void:
@@ -1152,8 +1145,8 @@ func _system_reported(system: String) -> bool:
 			if src.contains("system_used") and src.contains('"%s"' % system): return true
 	for rid in ContentDB.rooms:
 		if JSON.stringify(ContentDB.room(rid)).contains('"system":"%s"' % system): return true
-	# S43 movement arts report as art_used from the solver.
-	if FileAccess.get_file_as_string("res://scripts/simulation/movement_solver.gd").contains('"art":"%s"' % system): return true
+	# The movement arts report as art_used from the top-down body (TopdownPlayer._announce, through LocalAuthority).
+	if FileAccess.get_file_as_string("res://scripts/topdown/topdown_player.gd").contains('"art": "%s"' % system): return true
 	return false
 
 ## P7b (docs/item_plan.md): named gear, sets, the banded ladders and the drop rules.

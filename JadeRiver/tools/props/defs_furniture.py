@@ -169,41 +169,6 @@ def shelf(state, f):
     return cv
 
 
-@prop("herb_drawers", 48, 48)
-def herb_drawers(state, f):
-    W, H = 48, 48
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    ground_shadow(cv, 24, 46, 23, 1.3)
-    body = m_rect(W, H, 2, 10, 45, 45)
-    shade(cv, body, WOOD, contour=True, R=1, base=0.4, gain=0.8)
-    for r in range(5):
-        for c in range(5):
-            x0, y0 = 4 + c * 8, 12 + r * 6
-            d = m_rect(W, H, x0, y0, x0 + 6, y0 + 4)
-            shade(cv, d, WOOD, R=1, base=0.55 - 0.03 * r, gain=1.0)
-            cv.fill(top_edge(d), WOOD[5])
-            cv.fill(bottom_edge(d) | right_edge(d), WOOD[2])
-            cv.fill(m_rect(W, H, x0 + 1, y0 + 1, x0 + 3, y0 + 2), PAPER_R[3] if (r + c) % 3 else PAPER_R[2])
-            cv.fill(m_rect(W, H, x0 + 1, y0 + 2, x0 + 2 + (r + c) % 2, y0 + 2), PAPER_R[1])
-            cv.put(x0 + 5, y0 + 2, BRONZE[5])
-    plank_h(cv, 1, 8, 46, 10, WOOD, grain=False, base=0.65)
-    cv.fill(m_rect(W, H, 3, 43, 44, 45), WOOD[1])
-    # jars and a scale on top
-    for (jx, pal) in ((8, POTTERY), (15, GLAZE_DARK), (21, CLOTH_BLUE)):
-        v = lathe(W, H, jx, [(1, 1.5), (2, 2.5), (4, 3), (7, 3)])
-        shade(cv, v, pal, contour=True, mode="cyl")
-        cv.fill(m_rect(W, H, jx - 1, 4, jx + 1, 5), PAPER_R[4])
-    cv.fill(m_rect(W, H, 34, 2, 34, 7), BRONZE[4])
-    cv.fill(m_rect(W, H, 29, 2, 39, 2), BRONZE[5])
-    for px in (29, 39):
-        cv.fill(m_line(W, H, [(px, 3), (px - 2, 5)]) | m_line(W, H, [(px, 3), (px + 2, 5)]), BRONZE[3])
-        cv.fill(m_rect(W, H, px - 2, 5, px + 2, 5), BRONZE[4])
-    cv.fill(m_rect(W, H, 32, 7, 36, 7), BRONZE[3])
-    outline(cv)
-    return cv
-
-
 @prop("stove", 40, 40)
 def stove(state, f):
     W, H = 40, 40

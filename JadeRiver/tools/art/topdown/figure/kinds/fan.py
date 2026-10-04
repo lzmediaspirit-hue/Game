@@ -1,5 +1,5 @@
 """Fan: a folding war fan held in the right hand along the pose's `blade` line (or laid on the ground), from a set's
-spec (sets/weapon_fan.py), after the side view's iron fan (tools/art/bake_weapons.py `fan_frame`): brown ribs gathered
+spec (sets/weapon_fan.py), after the side view's iron fan (the side view's weapon bake `fan_frame`): brown ribs gathered
 at a gold rivet under the fist and a pleated paper leaf with a band of teal ink along its rim.
 
 It opens in the blows the spec names (`open`) and folds at rest, as the side view opens it in the strikes. A pose

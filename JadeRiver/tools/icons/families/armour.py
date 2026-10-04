@@ -4,7 +4,7 @@ slot, with a native @32 render for the small slots and the HUD item ring.
 Every icon is one drawing `draw(p)` in a 64 x 64 icon space (tools/icons/README.md, "HD drawing model"), the object
 inside the 4-px margin; the same description renders at 64 and at 32. Each piece is shown as it is worn: its cut and
 its dye are read from the item's row in data/artifacts.json (the `appearance` the layered avatar draws from
-data/parts.json, and the garment dye of tools/art/bake_dyes.py, palette `dye_*`), so the icon in the slot is the
+data/parts.json, and the garment dye of tools/art/topdown/figure/palettes.py, palette `dye_*`), so the icon in the slot is the
 piece on the figure beside it: a straw douli, a jade circlet, a tied silk band, a gold crown with its jade pin or a
 veiled hat; a sleeveless vest, a scoop-necked tunic, an open sect robe with crossed lapels, a cloud tunic with its
 pale V or a scholar's buttoned coat; loose, straight, martial (shins wrapped), cuffed or scholar trousers; leather

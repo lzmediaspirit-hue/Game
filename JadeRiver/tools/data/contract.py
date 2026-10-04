@@ -141,7 +141,7 @@ SYSTEMS = {
     "Crafting": ["crafting_authority", "workshop_authority"], "TrainingSect": ["training_sect_authority"],
     "Achievement": ["achievement_authority"], "Economy": ["economy_authority"], "Unlocks": ["unlock_service"],
     "Mail": ["mail_authority"], "Companion": ["companion_authority"], "Notifier": ["notifier"],
-    "Movement": ["local_authority", "movement_solver"], "Relations": ["relations_authority"],
+    "Movement": ["local_authority", "movement_solver", "topdown_player"], "Relations": ["relations_authority"],
     "Calendar": ["calendar_authority"], "Field": ["field_authority", "field_rules"],
     "Posts": ["post_authority", "post_rules"],
 }
@@ -169,6 +169,19 @@ ALSO = {
     "attack_started": ("Enemies", "Enemy wind-ups are started by the Enemies system that runs the brain; Combat announces the player's."),
     # v2 lists fortune_encounter under Calendar, and Part 4 routes the check to Relations, which owns the meter.
     "fortune_encounter": ("Relations", "Relations owns the Fortune meter (S49) and draws the card when a room, a harvest or a fall allows."),
+}
+
+# S12a: events only the side view's movement solver emitted. On the grid nothing does (TopdownPlayer announces the
+# motor's wall kicks, arts, climbs and boardings, not its jumps, landings, falls or water), so their reactors wait:
+# the paths above (Achievement, a landing on a named side-view surface), the remount after a landing (Pets), a fall's
+# fade, fortune and Hidden Cave (main, Combat, Relations, living_world), the deep water's step (cues). contract_tests
+# checks a dormant event is named by none of its system's scripts.
+DORMANT = {
+    "jumped": "The top-down motor's jump stays in the world view (its sound); nothing announces it.",
+    "landed": "The top-down motor's landing stays in the world view (sound, dust); the paths above and the remount wait.",
+    "fell_out": "The grid has no fall out of the room; the fall's fade, fortune and Hidden Cave wait.",
+    "volume_entered": "The grid's water is its own cells (TopdownTraverse); no volume is entered.",
+    "volume_left": "The grid's water is its own cells (TopdownTraverse); no volume is left.",
 }
 
 # Reactors that read state every frame instead of listening, so no subscriber is required.
@@ -280,6 +293,8 @@ def build():
                 row["note"] = ALSO[n][1]
             if n in POLLED:
                 row["polled"] = POLLED[n]
+            if n in DORMANT:
+                row["dormant"] = DORMANT[n]
             if n in PAYLOAD:
                 row["payload"] = PAYLOAD[n]
             events[n] = row

@@ -1,5 +1,5 @@
 """The bell family (weapon_families.json `bell`; parts.json weapon `bell`): the warden's hand-bell, a bronze bell with a
-dark rim and a clapper on a short dark-wood handle with a red cord (the side view's colours, tools/art/bake_weapons.py
+dark rim and a clapper on a short dark-wood handle with a red cord (the side view's colours, the side view's weapon bake
 BELL, WOOD, CORD), its blows ringing out rings of pale-gold qi (the side view's CHIME), cast by figure/kinds/bell.py."""
 from __future__ import annotations
 

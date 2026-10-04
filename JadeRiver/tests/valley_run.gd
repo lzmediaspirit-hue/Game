@@ -778,9 +778,10 @@ func _furnace() -> void:
 	check(finish("flags_over_the_posts"), "Flags over the Posts done")
 
 ## P1 and M17: Uncle Guo's training dummy stands a stride from him. Beside the dummy the context button does not talk
-## (the attack button strikes it); beside Guo it talks. Between the two, with the dummy a step ahead and Guo within
-## talking reach behind, the context button talks to Guo and the attack button strikes the dummy, and only the dummy
-## (not Guo, not the stump behind); a blow never opens a conversation.
+## (the attack button strikes it); beside Guo it talks. Between the two, with the dummy a blow's reach ahead and Guo
+## within talking reach behind (on the grid: on the line from the dummy to Guo, the blow aimed at the dummy), the context
+## button talks to Guo and the attack button strikes the dummy, and only the dummy (not Guo, not the stump beside it); a
+## blow never opens a conversation.
 func _dummy_beside_npc() -> void:
 	check(travel("lf_village"), "back to the village square")
 	var dummies := objects_of("training_dummy")
@@ -793,8 +794,10 @@ func _dummy_beside_npc() -> void:
 	place(Vector2(float(guo[0].at[0]), float(guo[0].at[1]) + 10))
 	var at_guo: Dictionary = Game.world.query_context(c())
 	check(str(at_guo.get("type", "")) == "npc" and str(at_guo.get("npc", "")) == "uncle_guo", "beside Guo it talks (%s)" % str(at_guo.get("npc", "")))
-	var between := Vector2(float(dummies[0].at[0]) - 30, float(dummies[0].at[1]) - 20)
-	check(between.distance_to(Vector2(float(guo[0].at[0]), float(guo[0].at[1]))) < float(guo[0].get("radius", 110)), "the point between stands within Guo's reach")
+	var dummy_at := Vector2(float(dummies[0].at[0]), float(dummies[0].at[1]))
+	var guo_at := Vector2(float(guo[0].at[0]), float(guo[0].at[1]))
+	var between := dummy_at + (guo_at - dummy_at).normalized() * 55.0   # inside the fists' reach of the dummy (46 + its half width)
+	check(between.distance_to(guo_at) < Game.world.reach_of(guo[0]), "the point between stands within Guo's reach")
 	place(between)
 	var ctx: Dictionary = Game.world.query_context(c())
 	check(str(ctx.get("npc", "")) == "uncle_guo", "between them the context button talks to Guo (%s)" % str(ctx))
@@ -803,7 +806,7 @@ func _dummy_beside_npc() -> void:
 		if n == "npc_talked": heard.talked += 1
 		if n == "object_hit": heard.hit.append(str(p.get("object", "")))
 	GameEvents.event.connect(listen)
-	var hit := submit({"type": "basic_attack", "facing": 1})
+	var hit := submit({"type": "basic_attack", "facing": 1, "aim": (dummy_at - st.plane).normalized(), "aimed": true})
 	step(0.6)
 	GameEvents.event.disconnect(listen)
 	check(hit.get("ok", false) and heard.hit == [str(dummies[0].id)], "between them the attack button strikes the dummy, and only the dummy (%s)" % str(heard.hit))
@@ -2348,7 +2351,9 @@ func sec_ae6() -> void:
 	check(start("lus_last_page"), "Lu's Last Page accepted")
 	check(sail("wreck_run"), "sail to the Wreck")
 	check(travel("sw_riven_peak") and interact("journal_riven").get("ok", false), "Lu's last page on the Riven Peak")
-	# The Lantern Run's readings while the stars are clear.
+	# The Lantern Run's readings while the stars are clear. On the grid the Riven Peak's pirates walk up to the sights
+	# while you wait for clear stars: clear them first, as a player would.
+	fight("starsea_pirate", 2, 240.0, 0.3)
 	for i in 3:
 		if c().inventory.count("star_reading") >= 8: break
 		gather("star_reading", 8 - c().inventory.count("star_reading"), 25)
@@ -2666,7 +2671,7 @@ func sec_ls4() -> void:
 	check(_objective("the_orbit_ruins", 0) >= 1, "find the Orbit Hermit in the Orbit Garden")
 	place(obj_at("switch_garden") + Vector2(0, 30))
 	var sw := interact("switch_garden")
-	var tr = Game.room_rt.topdown.traverse   # the garden's low gravity on the grid (TopdownTraverse)
+	var tr = TopdownTraverse.of(Game.room_rt.topdown)   # the garden's low gravity on the grid (TopdownTraverse)
 	var light: Array = tr.lowgs.filter(func(v): return str(v.switch) == "switch_garden") if tr != null else []
 	check(sw.get("ok", false) and not light.is_empty() and tr.gravity_at((light[0].rect as Rect2).get_center()) < 1.0,
 		"press a jade switch down: the air in the garden grows light")

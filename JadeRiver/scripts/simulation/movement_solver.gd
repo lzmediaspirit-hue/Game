@@ -1,7 +1,7 @@
 class_name MovementSolver
 extends RefCounted
 ## The movement arts Combat starts on a body's state (ActorState: the authorities' mirror of the top-down motor), and
-## the numbers the brains and the pets still read. The side view's solver (walking, jumping, climbing and landing on
+## the numbers the enemy brains still read. The side view's solver (walking, jumping, climbing and landing on
 ## its surfaces, its water and its volumes) went with the side view in S12a: the TopdownMotor moves the body on the grid.
 const GRAVITY=1150.0                 # a hop's fall where no grid gives its own (EnemyBrain.start_hop)
 const AIR_DASH_HOLD=0.25             # Swallow Dart: the height held while darting 140

@@ -10,7 +10,7 @@ from ..raster import cone, sphere
 
 
 def solids(sk, spec: dict | None = None) -> list:
-    """The training gauntlets (tools/art/bake_gauntlets.py): a steel fist over each hand and a bronze-banded steel cuff
+    """The training gauntlets (the side view's gauntlet bake): a steel fist over each hand and a bronze-banded steel cuff
     round the wrist."""
     bands = arm_bands(sk)
     S = []

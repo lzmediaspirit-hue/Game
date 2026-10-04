@@ -29,9 +29,9 @@ func _facade() -> void:
 	var hud = load("res://scripts/hud.gd").new()
 	var gone: Array = API.filter(func(m): return not hud.has_method(m))
 	check(gone.is_empty(), "every method the HUD had before its split is still the HUD's (%s)" % [gone])
-	var parts := ["layout", "tours", "input", "actions", "notices", "controls", "panels", "minimap", "top_stack", "side_view"]
+	var parts := ["layout", "tours", "input", "actions", "notices", "controls", "panels", "minimap", "top_stack"]   # S12a: side_view gone
 	var missing: Array = parts.filter(func(k): return not (hud.get(k) is HudPart) or hud.get(k).hud != hud)
-	check(missing.is_empty(), "a HUD made with new() has its ten parts, each its own (%s)" % [missing])
+	check(missing.is_empty(), "a HUD made with new() has its nine parts, each its own (%s)" % [missing])
 	hud.free()
 
 ## Ring 2 with the context out (Talk) and a crowd round it, right- and left-handed: no circle of ring 2 (26 px) touches

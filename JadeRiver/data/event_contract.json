@@ -3964,36 +3964,43 @@
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ],
-   "polled": "The player node plays its own jump pose and sound when the press succeeds."
+   "polled": "The player node plays its own jump pose and sound when the press succeeds.",
+   "dormant": "The top-down motor's jump stays in the world view (its sound); nothing announces it."
   },
   "landed": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
-   ]
+    "movement_solver",
+    "topdown_player"
+   ],
+   "dormant": "The top-down motor's landing stays in the world view (sound, dust); the paths above and the remount wait."
   },
   "wall_kicked": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ]
   },
   "art_used": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ]
   },
   "climb_started": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ],
    "polled": "The player node reads its climbing state for the climb pose."
   },
@@ -4001,7 +4008,8 @@
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ],
    "polled": "The player node reads its climbing state for the climb pose."
   },
@@ -4009,14 +4017,17 @@
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
-   ]
+    "movement_solver",
+    "topdown_player"
+   ],
+   "dormant": "The grid has no fall out of the room; the fall's fade, fortune and Hidden Cave wait."
   },
   "mover_boarded": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ],
    "polled": "The player node reads rider_of; movers carry their riders in the solver."
   },
@@ -4024,16 +4035,20 @@
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
-   ]
+    "movement_solver",
+    "topdown_player"
+   ],
+   "dormant": "The grid's water is its own cells (TopdownTraverse); no volume is entered."
   },
   "volume_left": {
    "system": "Movement",
    "files": [
     "local_authority",
-    "movement_solver"
+    "movement_solver",
+    "topdown_player"
    ],
-   "polled": "The player node reads the water state and volumes each frame."
+   "polled": "The player node reads the water state and volumes each frame.",
+   "dormant": "The grid's water is its own cells (TopdownTraverse); no volume is left."
   },
   "world_event_scheduled": {
    "system": "Calendar",

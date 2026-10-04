@@ -452,9 +452,6 @@ func _techniques() -> void:
 ## before, cost 2.5-4 ms a frame here: about 15 on a phone). Each round times the world alone, then opens the page,
 ## casts and drags; each figure is the least of its rounds, each count the most.
 func _techniques_redraws(tree: String) -> void:
-	var ch = Game.active()
-	var view_was := str(ch.view)
-	ch.view = "topdown"
 	var base := INF
 	var casting := INF
 	var dragging := INF
@@ -518,7 +515,6 @@ func _techniques_redraws(tree: String) -> void:
 		press.call(false)
 		main.close_all_pages()
 		await get_tree().process_frame
-	ch.view = view_was
 	print("techniques page (top-down): %.2f ms a frame with the preview casting, %.2f dragged, %.2f the world alone; the page drawn %d times in 120 casting frames and %d dragged, %d layers casting, at most %d tiles a frame dragged; frames left out with the machine slow: %d, %d, %d; with a picture being made: %d, %d, %d"
 		% [casting, dragging, base, page_casting, page_drag, layers_casting, tiles_most, slow[1], slow[2], slow[0], making[1], making[2], making[0]])
 	check(top_ok and page_casting == 0 and layers_casting == 0 and casting - base < 1.5,

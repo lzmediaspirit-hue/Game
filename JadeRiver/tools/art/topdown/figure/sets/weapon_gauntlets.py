@@ -1,5 +1,5 @@
 """The gauntlets family (weapon_families.json `gauntlets`; parts.json weapon `gauntlets`): the training gauntlets
-(tools/art/bake_gauntlets.py), a steel fist over each hand and a bronze-banded steel cuff round the wrist, cast by
+(the side view's gauntlet bake), a steel fist over each hand and a bronze-banded steel cuff round the wrist, cast by
 figure/kinds/hands.py."""
 from __future__ import annotations
 

@@ -666,5 +666,5 @@ func _save_on_the_grid() -> void:
 	check(submit({"type": "enter_character", "slot": 1}).ok and submit({"type": "enter_world"}).ok, "the character enters the world again from its save")
 	st = null
 	place(Vector2(float(c().position.x), float(c().position.y)))
-	check(c().view == "topdown" and room() == here and Game.room_rt.topdown != null and Vector2(float(c().position.x), float(c().position.y)).distance_to(at) < 20.0,
+	check(room() == here and Game.room_rt.topdown != null and Vector2(float(c().position.x), float(c().position.y)).distance_to(at) < 20.0,
 		"a save taken on the grid resumes on the grid at the same spot (%s at %s; saved %s)" % [room(), str(Vector2(float(c().position.x), float(c().position.y))), str(saved)])

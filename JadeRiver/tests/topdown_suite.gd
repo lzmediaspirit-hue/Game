@@ -1859,11 +1859,10 @@ func _view_rules() -> void:
 	# Out of view (a foe's respawn): the camera's rect on both axes, not the distance across alone.
 	var rt := RoomRuntime.new()
 	rt.topdown = room
-	var side := RoomRuntime.new()
 	var st := ActorState.new()
 	st.plane = mid
 	var south := mid + Vector2(0, 560)
-	t.check(rt.out_of_view(south, 0.0, st, 60.0) and not side.out_of_view(south, 0.0, st, 60.0) and not rt.out_of_view(mid + Vector2(300, 150), 0.0, st, 60.0)
+	t.check(rt.out_of_view(south, 0.0, st, 60.0) and not rt.out_of_view(mid + Vector2(300, 150), 0.0, st, 60.0)
 		and rt.out_of_view(mid + Vector2(760, 0), 0.0, st, 60.0),
 		"topdown view: a spot 17 tiles straight south is out of the camera's view (the side view's rule, across only, saw it), one 10 tiles off is in it, one 24 across is out")
 	# Flat marks: on a terrace over its row and under the bodies on it (the old rule put a decal 12 px up, under the row).

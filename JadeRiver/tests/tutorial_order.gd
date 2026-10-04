@@ -43,6 +43,7 @@ extends "res://tests/prologue_run.gd"
 ## --keep saves the character as it stands after the named steps (the labels below, e.g. "A Quiet River"), or at the
 ## points inside them prologue_run names ("Morning Tide teas", "Granny's Remedy taken", "Both recruiters met"), to
 ## user://tutorial_cp/<step>/, for screenshots from a brand-new character (main.gd --load=... --load-slot).
+const PlayerStub = preload("res://tests/lib/player_stub.gd")
 
 ## What each kind of step asks the player to press or open (invariant 5). A page or a system named by the step is
 ## looked up in PAGE_NEEDS and SYSTEM_NEEDS; QUEST_NEEDS adds what a step's kind does not say.
@@ -368,9 +369,7 @@ func _controls_drawn(what: String, need: Array) -> void:
 ## The real HUD, bound to the character through a stand-in for the player (as the hud_suite binds it): asked what it
 ## draws, never processed or drawn itself.
 func _bind_hud_probe() -> void:
-	var stub_src := GDScript.new()
-	stub_src.source_code = "extends Node2D\nvar actor_id := \"\"\nvar plane := Vector2.ZERO\nvar facing := 1\nvar altitude := 0.0\n"
-	stub_src.reload()
+	var stub_src: GDScript = PlayerStub   # the top-down player's shape (tests/lib/player_stub.gd)
 	hud_probe = load("res://scripts/hud.gd").new()
 	hud_probe.visible = false
 	hud_probe.process_mode = Node.PROCESS_MODE_DISABLED

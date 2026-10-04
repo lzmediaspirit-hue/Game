@@ -13,8 +13,9 @@ extends Node
 ## order, the same errors. Reading `tables`, `lists`, `configs` or `load_errors` whole reads every table first.
 
 const DATA_DIR := "res://data/"
-## Files that belong to the v0.13 engine and keep their original shape.
-const LEGACY_FILES := ["parts.json", "poses.json", "world.json", "map_themes.json", "surface_masks.json", "movement_contracts.json"]
+## Files that keep their own shape outside the tables: the looks' catalogue (parts.json, ContentDB.parts) and the v0.13
+## street tools/data/world.py builds Gate Street from (world.json).
+const LEGACY_FILES := ["parts.json", "world.json"]
 ## The tables boot reads: the ladder's and the recipes' indexes are built from them (realm_order, used_in).
 const AT_BOOT := ["realms", "recipes"]
 ## The groups read whole, beside the tables (named so that no data file can be).

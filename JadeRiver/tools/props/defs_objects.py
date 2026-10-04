@@ -373,34 +373,6 @@ def forge_anvil(state, f):
     return cv
 
 
-@prop("incense_burner", 20, 24, states=(("idle", 2, 4),))
-def incense_burner(state, f):
-    W, H = 20, 24
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    ground_shadow(cv, 10, 22, 8, 1.3)
-    for lx in (5, 13):
-        cv.fill(m_rect(W, H, lx, 18, lx + 1, 21), BRONZE[3])
-        cv.put(lx + (0 if lx < 10 else 1), 21, BRONZE[5])
-    body = lathe(W, H, 10, [(11, 5), (12, 7), (15, 7.5), (18, 6), (19, 4)])
-    shade(cv, body, BRONZE, contour=True, mode="cyl", base=0.55, gain=1.3)
-    pat = body & (vnoise(W, H, 2, 12) > 0.72) & (yy > 14)
-    cv.fill(pat, PATINA[3])
-    cv.fill(body & (yy == 14) & (xx % 2 == 1), BRONZE[6])
-    lid = lathe(W, H, 10, [(6, 1.5), (8, 3.5), (10, 5.5), (11, 6)])
-    shade(cv, lid, BRONZE, contour=True, mode="cyl", base=0.6, top=0.2)
-    cv.fill(lid & (yy == 9) & (xx % 2 == 0), INK)
-    knob = m_ellipse(W, H, 10, 5, 1.3, 1.3)
-    shade(cv, knob, GOLD, mode="sphere")
-    for ex in (3, 16):
-        cv.fill(m_rect(W, H, ex, 12, ex + 1, 14) & ~m_rect(W, H, ex + (1 if ex < 10 else 0), 13, ex + (1 if ex < 10 else 0), 13), BRONZE[3])
-    outline(cv)
-    wisp(cv, 10, 3, f, 2, height=4, seed=0.5, alpha=0.7, amp=0.8)
-    smoke(cv, 10, 2, f, 2, height=3, seed=4, count=1, size=1.1, alpha=0.5)
-    wisp(cv, 8, 9, f, 2, height=3, seed=2.0, alpha=0.5, amp=0.6)
-    return cv
-
-
 @prop("small_bell", 12, 16, states=(("idle", 1, 0), ("ringing", 2, 8)))
 def small_bell(state, f):
     W, H = 12, 16
@@ -682,74 +654,6 @@ def formation_node(state, f):
         ring = m_ellipse(W, H, 8, 18, 7, 2) & ~m_ellipse(W, H, 8, 18, 6, 1.2)
         cv.fill(ring & (xx % 3 == f % 3), BRIGHT_JADE, 0.8)
         sparkle(cv, [5, 11, 8][f], [4, 7, 1][f], 1, WHITE_HOT, BRIGHT_JADE)
-    return cv
-
-
-@prop("fishing_net_rack", 48, 40)
-def fishing_net_rack(state, f):
-    W, H = 48, 40
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    ground_shadow(cv, 24, 38, 22, 1.4)
-    # A-frame poles
-    for (a, b) in (((4, 37), (9, 4)), ((13, 37), (8, 4)), ((35, 37), (40, 4)), ((44, 37), (39, 4))):
-        lm = m_line(W, H, [a, b], 2)
-        shade(cv, lm, WOOD_GREY, contour=True, R=1, base=0.5)
-    plank_h(cv, 5, 5, 43, 6, WOOD_GREY, grain=False, base=0.6)
-    # net draped
-    net = m_poly(W, H, [(9, 7), (40, 7), (38, 22), (32, 30), (24, 27), (16, 31), (10, 22)])
-    mesh = net & (((xx + yy) % 3 == 0) | ((xx - yy) % 3 == 0))
-    cv.fill(mesh, ROPE[2])
-    cv.fill(mesh & (yy < 14), ROPE[4])
-    cv.fill(border(net) & (yy > 8), ROPE[1])
-    # floats
-    for (fx, fy) in ((12, 23), (20, 28), (29, 28), (36, 22)):
-        fl = m_ellipse(W, H, fx, fy, 1.6, 1.3)
-        shade(cv, fl, CLOTH_RED, mode="sphere", base=0.55)
-    # drying fish
-    for i, fx in enumerate((17, 25, 32)):
-        cv.fill(m_rect(W, H, fx, 7, fx, 9), ROPE[3])
-        fish = m_poly(W, H, [(fx - 1, 10), (fx + 1, 10), (fx + 2, 14), (fx, 17), (fx - 2, 14)])
-        shade(cv, fish, CLOTH_WHITE, contour=True, R=1, base=0.45)
-        cv.fill(m_poly(W, H, [(fx - 1, 17), (fx + 1, 17), (fx, 18)]), CLOTH_WHITE[2])
-        cv.put(fx, 11, INK)
-    # basket at base
-    bas = lathe(W, H, 24, [(32, 6), (34, 6.5), (37, 5.5)])
-    shade(cv, bas, STRAW, contour=True, mode="cyl", base=0.5)
-    cv.fill(bas & (xx % 2 == 0) & (yy > 32), STRAW[2])
-    outline(cv)
-    return cv
-
-
-@prop("well", 32, 40)
-def well(state, f):
-    W, H = 32, 40
-    cv = Canvas(W, H)
-    xx, yy = grid(W, H)
-    ground_shadow(cv, 16, 38, 15, 1.5)
-    # posts (behind well lip)
-    for px in (5, 25):
-        plank_v(cv, px, 10, px + 1, 30, WOOD, seed=("wp", px))
-    # crank beam + rope + bucket
-    plank_h(cv, 4, 14, 27, 15, WOOD, grain=False, base=0.55)
-    cv.fill(m_rect(W, H, 26, 13, 28, 16), WOOD[2])
-    cv.fill(m_rect(W, H, 28, 15, 29, 15), IRON[4])
-    cv.fill(m_rect(W, H, 12, 14, 18, 15) & True, ROPE[3])
-    cv.fill(m_rect(W, H, 15, 16, 15, 21), ROPE[2])
-    buck = lathe(W, H, 15.5, [(21, 3), (25, 2.5)])
-    shade(cv, buck, WOOD, contour=True, mode="cyl", base=0.5)
-    cv.fill(m_rect(W, H, 13, 22, 17, 22), IRON[4])
-    # roof
-    roof_side(cv, 2, 29, 4, 10, "well_roof", curl=2, finials=False, top_frac=0.25)
-    # stone well drum
-    drum = lathe(W, H, 16, [(24, 13), (37, 13)])
-    stone_block(cv, 3, 25, 28, 37, "well_drum", course=4, joint=6, moss=0.35)
-    cv.fill(m_rect(W, H, 3, 24, 28, 25), STONE[5])
-    cv.fill(m_rect(W, H, 4, 25, 27, 25), STONE[3])
-    cv.fill(m_ellipse(W, H, 16, 25, 11, 0.6), INK)
-    grass_tuft(cv, 2, 37, "wg1", h=4, n=3)
-    grass_tuft(cv, 29, 37, "wg2", h=5, n=3)
-    outline(cv)
     return cv
 
 

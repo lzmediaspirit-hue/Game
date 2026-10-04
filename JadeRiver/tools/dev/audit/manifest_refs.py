@@ -42,7 +42,6 @@ MANIFESTS = {
     "prop_art": _entries,
     "creature_art": _entries,
     "fx_art": lambda d: _entries(d.get("fx", {})) if isinstance(d.get("fx"), dict) else {},
-    "backdrops": _entries,
     "ui_assets": _entries,
     "ui_assets_hd": _entries,
 }

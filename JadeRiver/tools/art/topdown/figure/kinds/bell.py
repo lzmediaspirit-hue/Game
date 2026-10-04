@@ -1,6 +1,6 @@
 """Bell: a bronze hand-bell on a short dark-wood handle in the right hand along the pose's `blade` line (or laid on its
 side on the ground), from a set's spec (sets/weapon_bell.py). The side view holds it the same way, drawn along the
-short blade's grip (tools/art/bake_weapons.py bell_frame): the handle in the fist with a red cord at its end, the bell
+short blade's grip (the side view's weapon bake bell_frame): the handle in the fist with a red cord at its end, the bell
 past the hand with its mouth along the line, a domed crown, a band under it, a flared lip with a dark rim, and the
 clapper in the mouth (its inside a shadowed bronze, so a bell turned to the camera reads as a bronze cup, not a hole).
 On a blow's hit frame and the one after, it rings out rings of pale-gold qi round the mouth (kinds/sound.py), fainter
