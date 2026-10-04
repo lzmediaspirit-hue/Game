@@ -1,5 +1,64 @@
 # Changelog
 
+## Side quests at their rooms' tiers, and every pin with a reason (decision 45, E5b)
+
+E5's migration kept the hand quests' balance as it was. It pinned 35 sums and kept 14 quests whose rooms lie far from
+the tier they open at. E5b fixed them in the quest specs (`tools/content/quests/`, `docs/architecture/quest_engine.md`,
+"Balance fixes (E5b)"). Every quest still pays a number of cultivation points, its band's at its tier.
+
+- **No room far over or under its tier.** 14 quests were pitched more than four Levels under their room, or eight over
+  it. Each now opens where its room is a fair fight:
+  - Tie Niu's and Qiu Feng's last favours wait for the Echo Cliffs (Heart Tempering 7). Tie Niu's used to be pitched
+    at Bone Forging 1.
+  - Lan Yue's Oath waits for the Flooded Gate (Qi Unfurling 6).
+  - Bai Ling's three favours wait for the Forgotten Monastery (Spirit Awakening 8). They used to sit at Qi Unfurling 1.
+  - In Act II, Silk on the Wind opens at Sage Sovereign 1, Plumes for the Bellows and Stingers for the Hold at 2, and
+    Glass Teeth, Iron from a Comet and Clear Skies over the Peak at 3. They used to sit at Sage 2 and 3 and Sage
+    Sovereign 1.
+  - The Leviathan's Maw opens at Sphere Lord 3, the Maw's own realm.
+  - Grey Roofs dropped the Grey Pools' fight (Levels 7 to 12). It now asks for the two grey lanterns on the hamlet's
+    roofs, as its design had it. The hamlet's door opens at Heart Tempering 1.
+- **`realm=ROOM`** (additive, `spec.py`). A quest that follows another can also wait for its room's realm, the middle
+  of its band. The derivation still decides it, so it follows a room whose band moves.
+- **The companions' favours.** Their template now leads each favour to its room. The first favour asks for the
+  Companions unlock, so its chain is pitched at Qi Kindling 5, when a companion first joins. Each favour pays its
+  band beside the bond, not a flat 80 taels.
+- **Each pin with its reason.** A pinned pay now needs `why="..."` (a big favour, a tiny errand, a title or goods
+  instead of money). `--check` fails a pin without one, and `--diffs` prints them all. 11 quests keep a pin:
+  - Guo's Old Wound, a tiny errand;
+  - three titles, from Wen Zhao, Uncle Guo and Dou;
+  - goods instead of money, from Trader Min and Old Pan (three errands);
+  - Snow for the Cabinet, paid in pills;
+  - A-Lan's Herd, paid in spirit stones;
+  - The Leviathan's Maw, a world boss.
+
+  The other 31 pins had no reason, so those quests pay their band. 46 of the 57 quests pay their band now; 15 did.
+- **The daily board at its bands.** Every hunt follows its foe's Levels. Mist Lotus and Copper follow their nodes, and
+  so does Ember Peppers. Wolves in the mist and Mist Lotus used to run to Level 70. Two new hunts take the late Act I
+  Levels with foes of their own: Stags on the ridge (54 to 63) and Rocs over the shrine (57 to 67). Jadeiron keeps
+  Level 12 with its reason (an adept's vein) and stops at 40. 21 jobs, 20 derived.
+- **New checks in `quest_engine`.** No quest may sit far from its room (`far_rooms`). No job may be posted far from its
+  foe or its nodes (`far_jobs`). Every pin needs its reason. `tests.py` has 10 tests now (`t_far` is new).
+- **Pacing (balance_sim).** Act I moved earlier and stays within ±15%. The sim had counted Tie Niu's 30 minutes of
+  favours at Bone Forging 1.
+  - Qi Kindling 1: 4.9 h to 4.5 (target 5).
+  - Qi Unfurling 1: 12.5 to 11.7 (13).
+  - Heart Tempering 1: 19.8 to 18.8 (20).
+  - Cloud Stride 1: 30.6 to 29.6 (30).
+  - Spirit Awakening 1: 43.8 to 42.9 (42).
+  - Heaven Glimpse 1: 56.8 to 56.1 (55).
+  - The act's end: 65.0 to 64.4 (65).
+  - Sage Sovereign 1: 106.2 to 105.5 (110).
+
+  Both pay-an-hour checks hold. In taels, Bone Forging is 1.18× the session's hour and Qi Kindling 0.85×.
+- **Tests that play them.**
+  - `topdown_chapter4` plays Grey Roofs as the roofs.
+  - `valley_run` plays the moved Act II quests at their new realms, and first checks that each is not yet offered.
+- **Left for a later look.**
+  - The Act II story itself sends the player further past its rooms (The Sealed Gate: Sage 3 into the Worm Sea, 77
+    to 81).
+  - The board has no gathering or mining job above Level 40: those nodes want an expert's rank.
+
 ## The side view's mechanics in the Act I rooms (T2)
 
 T1 built the grid's traversal and listed what was left (`docs/architecture/topdown_mechanics.md`). T2 did its items
