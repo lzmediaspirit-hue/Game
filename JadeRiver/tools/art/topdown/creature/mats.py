@@ -609,11 +609,43 @@ RAMPS.update({
     "hb_void": _s("6a757c", "4c565d", "394249", "283036"),
     "hb_drone": _s("d9dfdf", "9ba6aa", "707c83", "4d575e"),
     "hb_tusk": _s("ffffff", "e6ebe8", "b8c1c0", "848f92"),
+    # the spark weasel: golden fur, a white bib, slate socks, the white-hot spark at its tail's tip
+    "sw_fur": _s("fff0a0", "e8bd3c", "a8792a", "5e4424"),
+    "sw_white": _s("fffdf0", "f1ead0", "c8bea0", "8c8266"),
+    "sw_sock": _s("4e5b78", "34405a", "252e44", "18202f"),
+    "sw_spark": _s("f4fbff", "a8d4ff", "5b8cff", "3a5cc8"),
+    # the stormgrass stag: a pale storm-grey hide, the slate storm-grass grown over its back and mane, a white belly, bone
+    # antlers, dark hooves (its own look; its row borrows the Cloud Stag's side-view sheet, the mount's)
+    "ss_hide": _s("eef0f4", "c2c8d4", "8d94a8", "5c6278"),
+    "ss_grass": _s("8fb0c0", "5b7c92", "3e566a", "263646"),
+    "ss_pale": _s("ffffff", "eef2f6", "c4ccd8", "8e98aa"),
+    "ss_antler": _s("fff8e4", "e8d8b0", "bca47a", "8a7454"),
+    "ss_hoof": _s("6e7488", "4a4f62", "343848", "22252f"),
+    # the thunderhorn rhino: a slate-blue hide, its deep folds, the plates down its spine, its horns, its lip, its hooves
+    "tr_hide": _s("aab4c6", "77829a", "4f586f", "31374a"),
+    "tr_fold": _s("5b6680", "434c63", "30374a", "20253a"),
+    "tr_plate": _s("d6dde8", "a2adc2", "6f7b95", "48516a"),
+    "tr_horn": _s("fff6d8", "e0d0a0", "a8946a", "6c5c44"),
+    "tr_lip": _s("8c96ac", "646e86", "454d62", "2c3244"),
+    "tr_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
     "hb_tusk": {"hi": True, "glossy": True, "weight": 1.6},
+    "sw_fur": {"hi": True}, "sw_white": {"hi": True, "weight": 1.2}, "sw_sock": {"hi": True, "weight": 1.3},
+    "sw_spark": {"hi": True, "weight": 1.5},
+    "ss_hide": {"hi": True}, "ss_grass": {"hi": True, "weight": 1.3}, "ss_pale": {"hi": True, "weight": 1.2},
+    "ss_antler": {"hi": True, "weight": 1.4}, "ss_hoof": {"hi": True, "weight": 1.3},
+    "tr_hide": {"hi": True}, "tr_fold": {"hi": True, "weight": 1.2}, "tr_plate": {"hi": True, "glossy": True, "weight": 1.3},
+    "tr_horn": {"hi": True, "glossy": True, "weight": 1.6}, "tr_lip": {"hi": True, "weight": 1.3}, "tr_hoof": {"hi": True, "weight": 1.3},
 })
+# The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
+SW_EYE = c("7FD4FF")
+SPARK_CORE = c("F4FBFF")
+SPARK_ARC = c("A8D4FF")
+SPARK_HALO = c("6AA8FF", 140)
+# The thunderhorn rhino's eye in anger.
+TR_EYE = c("FFD45A")
 # The Behemoth's weak points (a white crack, its cold edge, dimmed) and their glow.
 HB_GLOW = c("FFFFFF")
 HB_GLOW_EDGE = c("BFEAF5")

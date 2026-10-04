@@ -279,18 +279,11 @@ def build():
         spec_row("hollow_stag"),
         spec_row("cloudpeak_roc"),
         # Azure Expanse (Act II) · Thunderhorn Plains
-        mob("spark_weasel", (64, 66), "normal", "thunder", "azure", [d("spark_pelt", 0.45), d("storm_shard", 0.35)],
-            [atk("static_bite", 0.35, 50, 1.0, dash=70),
-             atk("spark_bolt", 0.55, 260, 1.1, damage_type="qi", projectile={"speed": 560, "art": "qi_arc"},
-                 status={"id": "shock", "chance": 0.2, "power": 0.15, "duration_s": 2})],
-            ai="leaper", speed=170, pack=True, width=24, height=22, tameable=False),
-        mob("thunderhorn_rhino", (64, 69), "normal", "thunder", "azure", [d("thunder_horn", 0.4), d("storm_shard", 0.5, (1, 2)), d("tough_meat", 0.4)],
-            [atk("thunder_charge", 0.7, 60, 1.35, dash=160, knockback=120, status={"id": "shock", "chance": 0.3, "power": 0.2, "duration_s": 3})],
-            ai="charger", speed=95, width=40, height=50),
-        # P7b (item_plan §2.10, §5.3): the Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's sheet; a wood beast
-        # of rank 8, its core roll gives the peak wood core.
-        mob("stormgrass_stag", (64, 68), "normal", "wood", "azure", [d("tough_meat", 0.45), d("storm_shard", 0.5, (1, 2)), d("cloudtop_orchid", 0.05)],
-            [atk("antler_charge", 0.5, 60, 1.25, dash=140, knockback=80)], ai="charger", speed=120, width=30, height=56, art={"creature": "cloud_stag"}),
+        spec_row("spark_weasel"),
+        spec_row("thunderhorn_rhino"),
+        # P7b (item_plan §2.10, §5.3): the Stormgrass Stag grazes the Thunderhorn Plains on the Cloud Stag's side-view sheet
+        # (M3: on the grid it has its own); a wood beast of rank 8, its core roll gives the peak wood core.
+        spec_row("stormgrass_stag"),
         # Azure Expanse (Act II) · Rimefrost Heights and Mirrorwater Lake
         mob("frost_lynx", (67, 70), "normal", "water", "azure", [d("rime_fang", 0.4), d("storm_shard", 0.45), d("frost_lotus", 0.08)],
             [atk("rime_pounce", 0.45, 70, 1.15, dash=120, status={"id": "slow", "chance": 0.35, "power": 0.3, "duration_s": 3})],

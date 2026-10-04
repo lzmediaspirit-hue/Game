@@ -414,6 +414,8 @@ def _motion(B, c) -> None:
     if a == "idle" and "breathe" in st:
         c.sc = 1.0 + st.breathe * wave(a, f)
     c.curl = B.pick("curl", a, f)
+    if B.has("arch", a):
+        c.arch = B.pick("arch", a, f)          # M3: a tell that arches the back (the spark weasel's), held
     c.z = B.parts.Z + c.bob
     if kind != "scurry":
         c.wig = 0.0
@@ -724,6 +726,9 @@ def _head_snout(P, B, c) -> None:
         w = h.whiskers
         for k in range(w.get("n", 0)):
             P.mark(hp((w.at[0] + k * w.step[0], s * (w.at[1] + k * w.step[1]), w.at[2] + k * w.step[2])), M.RAMPS[m.pale][4])
+    if f in st.get("zap", ()):
+        # M3, the spark weasel: its bite discharges, lightning jumping off its jaws.
+        _spark(P, hp(h.nose.at) + hm @ v3(1.0, 0.0, -0.6), 1.5, f + 3)
 
 
 def _head_suid(P, B, c) -> None:
@@ -910,6 +915,10 @@ def _head_cervid(P, B, c) -> None:
         eye = hp((h.eyes.at[0], s * h.eyes.at[1], h.eyes.at[2]))
         if shut(h.eyes, a, f):
             P.mark(eye, M.RAMPS[m.hide][0])
+        elif h.eyes.get("colour"):
+            # M3: a living stag's eye (the stormgrass stag's): dark, a glint over it.
+            P.eye(eye, colour(h.eyes.colour))
+            P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.GLINT)
         else:
             P.eye(eye, M.HOLLOW_EYE)
             P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.EYE_HALO)
@@ -925,8 +934,17 @@ def _head_cervid(P, B, c) -> None:
             P.add(L(beam[i], tip, an.r[0] * 0.7, an.r[1] if short == 1.0 else an.r[0] * 0.5, m.antler, "antler%d" % s))
             if short < 1.0:
                 P.mark(tip, M.RAMPS[m.antler][0])
+            if an.get("tufts"):
+                # M3: storm-grass caught in its tines, a tuft of blades at each tip, stirring.
+                for t_ in range(3):
+                    sw = 0.3 * math.sin(f * 1.1 + j + t_)
+                    P.add(L(tip, tip + hm @ v3(-0.5 + 0.4 * t_ - 0.4, s * (0.3 + sw), 0.9 - 0.25 * t_), 0.32, 0.1, m.grass, "tuft%d" % s, line=False))
+        if an.get("tufts"):
+            tipb = beam[-1]
+            for t_ in range(3):
+                P.add(L(tipb, tipb + hm @ v3(-0.6 + 0.3 * t_, s * 0.4, 0.9 - 0.2 * t_), 0.32, 0.1, m.grass, "tuft%d" % s, line=False))
     # Grey mist seeping off it.
-    if a != "death":
+    if a != "death" and h.get("mist", True):
         for k in range(5):
             u = (k * 0.29 + f * 0.13) % 1.0
             q = at((-3.0 + k * 1.8, (k % 3 - 1) * 1.2, 3.4 + u * 4.0))
@@ -1282,6 +1300,8 @@ def _tail_brush(P, B, c) -> None:
             P.glow.append((q, M.FLAME_CORE if k < 3 else (M.FLAME if k < 7 else M.FLAME_DEEP)))
         for k in range(4):
             P.glow.append((tip + v3(0.2 * k - 0.3, 0.3 * (k - 1.5), 2.0 * flare + k * 0.7 + (f % 2) * 0.5), M.FLAME_GLOW))
+    if t.get("spark"):
+        _spark(P, pts[-1], B.pick("charge", a, f), f)
 
 
 def _tail_fin(P, B, c) -> None:
@@ -1466,6 +1486,110 @@ def _finish(P, B, c) -> None:
 M3_HEADS: dict = {}
 M3_TAILS: dict = {}
 M3_COATS: dict = {}
+
+
+def _spark(P, tip, charge: float, f: int) -> None:
+    """Lightning crackling at a point (the spark weasel's tail tip, its bite): a white-hot core in a blue glow, arcs
+    jumping off it in zig-zags, more and longer as it charges (`charge` 0..1; past 1, discharging)."""
+    for d in ((0.0, 0.0, 0.0), (0.35, 0.0, 0.0), (-0.35, 0.0, 0.0), (0.0, 0.35, 0.0), (0.0, -0.35, 0.0), (0.0, 0.0, 0.35)):
+        P.glow.append((tip + v3(*d), M.SPARK_CORE))
+    for k in range(6):
+        ang = math.radians(k * 60.0 + f * 37.0)
+        P.glow.append((tip + v3(math.cos(ang) * 0.8, math.sin(ang) * 0.8, 0.3 * math.sin(ang * 2.0)), M.SPARK_HALO))
+    n = 2 + int(round(3 * min(charge, 1.0))) + (2 if charge > 1.0 else 0)
+    for k in range(n):
+        ang = math.radians(k * 137.0 + f * 61.0)
+        el = math.radians(20.0 + (k * 53 + f * 29) % 60)
+        d = v3(math.cos(ang) * math.cos(el), math.sin(ang) * math.cos(el), math.sin(el))
+        side = v3(-math.sin(ang), math.cos(ang), 0.0)
+        q = np.array(tip, float)
+        for j in range(3 + int(2 * min(charge, 1.5))):
+            q = q + d * 0.75 + side * (0.45 if (j + k + f) % 2 else -0.45)
+            P.glow.append((q, M.SPARK_CORE if j < 2 else M.SPARK_ARC))
+
+
+# ------------------------------------------------------------------------------------------------ the thunderhorn rhino
+def _coat_folds(B, c):
+    """M3, the thunderhorn rhino: a slate hide hanging in deep folds (grooves across it behind its shoulders and before its
+    hips, a step dark, a second step at their bottoms), paler underneath, its grain in faint wrinkles."""
+    co, m, hips, bm = B.parts.coat, B.mats, c.hips, c.bm
+
+    def folds(q, n):
+        loc = (q - hips) @ bm
+        nz = (n @ bm)[:, 2]
+        belly = nz < co.belly
+        groove = np.zeros(len(q), dtype=bool)
+        for a0 in co.at:
+            groove |= np.abs(loc[:, 0] - a0 - 0.25 * loc[:, 2]) < 0.32
+        deep = groove & (nz < 0.2)
+        wrinkle = ((loc[:, 0] * 1.7 + np.abs(loc[:, 1]) * 0.6) % 1.6) < 0.18
+        names = np.where(groove, m.fold, m.hide).astype(object)
+        return names, np.where(belly, 1, np.where(deep, -1, np.where(wrinkle & ~groove, -1, 0))).astype(np.int16)
+    return folds
+
+
+M3_COATS["folds"] = _coat_folds
+
+
+def _head_rhino(P, B, c) -> None:
+    """M3, the thunderhorn rhino: a long heavy head carried low on a thick neck, a hooked upper lip, a great nasal horn
+    curving up and back from its snout with a second behind it, small ears upright, small eyes (gold in anger); its horn
+    stores lightning: arcs crawl up it as it lowers its head in its tell, steam snorted from its nostrils, and it
+    discharges at the horn's tip on the hit."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    st = B.style(a)
+    angry = st.get("angry", False)
+    hm = bm @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    sniff = st.sniff[0] * wave(a, f, st.sniff[1]) if a == "idle" and "sniff" in st else 0.0
+    (ha, hf), (hz, hzf) = h.at
+    hc = at((ha + sniff + hf * fr, 0.0, hz + hzf * fr))
+    hp = lambda q: hc + hm @ v3(q)
+    P.add(L(at((5.6, 0.0, 1.4)), hc + hm @ v3(-1.6, 0.0, 0.4), 3.7, 3.0, m.hide, "neck", c.paint))
+    P.add(E(hc, h.skull, m.hide, "head", hm, c.paint))
+    P.add(L(hp((1.4, 0.0, -0.6)), hp((4.8, 0.0, -1.5)), 2.5, 2.0, m.hide, "snout", c.paint))
+    P.add(E(hp((5.4, 0.0, -1.9)), (1.1, 1.7, 1.25), m.lip, "lip", hm))
+    for s in (1, -1):
+        P.mark(hp((6.3, s * 0.7, -1.6)), M.RAMPS[m.lip][0])
+    # The horns: the great nasal horn curving up and back off its snout, a second smaller one behind it.
+    horn = [hp(q) for q in h.horn]
+    hr = h.horn_r
+    for i in range(len(horn) - 1):
+        P.add(L(horn[i], horn[i + 1], hr[i], hr[i + 1], m.horn, "horn"))
+    horn2 = [hp(q) for q in h.horn2]
+    for i in range(len(horn2) - 1):
+        P.add(L(horn2[i], horn2[i + 1], hr[i + 1], hr[i + 2], m.horn, "horn2"))
+    for s in (1, -1):
+        (ea, eb, ec), er = h.ears
+        flick = 16.0 if a == "idle" and f in (2, 3) and s > 0 else 0.0
+        P.add(E(hp((ea, s * eb, ec)), er, m.hide, "ear%d" % s, hm @ rot("a", s * (-14.0 + flick))))
+        eye = on(hc, h.skull, hm, s * 58.0, 6.0)
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.TR_EYE if angry else M.INKY)
+            P.mark(on(hc, h.skull, hm, s * 50.0, 16.0), M.RAMPS[m.fold][0])
+    # Lightning stored in the horn: crawling up it as it charges, discharging off its tip on the hit.
+    charge = B.pick("charge", a, f)
+    if charge > 0.0:
+        for i in range(1, len(horn)):
+            if i / (len(horn) - 1.0) <= charge + 0.01:
+                _spark(P, horn[i], charge * 0.5, f + i)
+    if f in st.get("zap", ()):
+        _spark(P, horn[-1], 1.6, f + 5)
+    if a == "windup" and f in st.get("snort", ()):
+        nose = hp((6.4, 0.0, -1.6))
+        for k in range(6):
+            d = hm @ v3(0.8 + 0.3 * k, (k % 3 - 1) * 0.8, -0.3 + 0.25 * k)
+            P.fx.append((nose + d * (1.0 + 0.4 * k), M.STEAM if k % 2 else M.STEAM_DIM))
+
+
+M3_HEADS["rhino"] = _head_rhino
+
+
+# M3, the spark weasel: its tell arches its back, its tail raised as the spark at its tip charges (held).
+STYLES["arch_charge"] = {"lunge": (-0.3, -0.6, -0.9, -1.0), "arch": (5.0, 10.0, 14.0, 15.0), "head": (-4.0, -8.0, -10.0, -10.0),
+                         "gape": (0.2, 0.4, 0.6, 0.7), "tail": (0.5, 0.9, 1.1, 1.2), "charge": (0.3, 0.6, 0.9, 1.0), "angry": True}
 
 
 def _surface(B, c, a0: float, ang: float):
