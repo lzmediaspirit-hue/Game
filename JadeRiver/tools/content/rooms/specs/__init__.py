@@ -18,6 +18,9 @@ ZONES += ["nine_peaks", "gale_canyons", "ironroot_hold", "sunscar_desert", "tomb
 ZONES += ["cloudgate_port", "thunderhorn_plains", "rimefrost_heights", "mirrorwater_lake"]
 # R8: the sky-sea zones of the late game, in the story's order.
 ZONES += ["skyport_wreck", "lanternfall_harbor", "drifting_shoals", "blackmast_haven", "wyrmnest_isles"]
+# R9: the star field's end, in the story's order: the Starsea's crossings, the Star Warden Citadel, the Orbit Ruins, the
+# Ashen Reach, the Nebula Deep and the Lantern Heart.
+ZONES += ["starsea", "lantern_crossing", "warden_citadel", "orbit_ruins", "ashen_reach", "nebula_deep", "lantern_heart"]
 
 
 def all_specs():

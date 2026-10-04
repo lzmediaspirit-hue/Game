@@ -388,7 +388,9 @@ func prototype_suite() -> void:
 		var nm := ContentDB.item_name(id)
 		if UiKit.text_width(nm, EquipPrompt.name_size(nm)) > 168.0: cut_names.append(nm)
 	check(cut_names.is_empty(), "prototype: the equip prompt names every early piece whole (%s)" % str(cut_names))
-	# The gate, on every way off the grid, for the top-down character only.
+	# The gate, on every way off the grid, for the top-down character only. With every room on the grid (R8, R9), the
+	# last batch's rooms stand off it while the gate is checked (tests/lib/off_grid.gd), back on at the suite's end.
+	var stood_off: Array = preload("res://tests/lib/off_grid.gd").stand_off()
 	var st := ActorState.new()
 	Game.bind_movement(td.id, st)
 	var gated: Array = []
@@ -617,6 +619,7 @@ func prototype_suite() -> void:
 		"prototype: the Quests page's Next slip is the prototype's end, its Go shut with why (%s)" % str(said.slice(0, 12)))
 	qp.queue_free()
 	await get_tree().process_frame
+	preload("res://tests/lib/off_grid.gd").restore(stood_off)
 
 # ------------------------------------------------------------------ crowd cap on sight aggro
 ## Sight aggro stops at a crowd: with two ordinary foes on the player the rest hold back, and with an elite on the

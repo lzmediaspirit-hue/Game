@@ -1,0 +1,628 @@
+{
+ "schema_version": 1,
+ "id": "ar_cinder_fields",
+ "name": "Cinder Fields",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  4,
+  23
+ ],
+ "levels": [
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555555555555555555555555555555555555555555555555555555555",
+  "555555555555555555500055555555555550055511111100555555555555555555555555",
+  "555500000000000001111115555550000000001122222111000055555555555000000000",
+  "000000000000000111111111100000000000011222222211100000000000000000000000",
+  "000000000000001111111111110000000000111222222211110000000000000000000000",
+  "000000000000001111111111110000000000111222222111110000000000000000000000",
+  "000000000000000111111111110000000000111122221111100000000000000000000000",
+  "000000000000000011111111100000000000011111111110000000000000000000000000",
+  "000000000000000000111110000000000000000011111100000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000011111110000000000",
+  "000000000000000000000001111111100000000000000000000001111111111000000000",
+  "000000000000000000000011111111110000000000000000000011111111111000000000",
+  "000000000000000000000011111111110000000000000000000011111111111000000000",
+  "000000000000000000000001111111110000000000000000000001111111110000000000",
+  "000000000000000000000000111111100000000000000000000000001111000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrdddrrrrrrrrrrrrrddrrrrrrrrrddrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrdddddddddddddrrrrrrrrrrrrdddddddddrrrrrrrrrrddddrrrrrrrrrrrddddddddd",
+  "dddddddddddddddrrrrrrrrrrddddddddddddrrrrrrrrrrrrddddddddddddddddddddddd",
+  "ddddddddddddddrrrrrrrrrrrrddddddddddrrrrrrrrrrrrrrdddddddddddddddddddddd",
+  "ddddddddddddddrrrrrrrrrrrrddddddddddrrrrrrrrrrrrrrdddddddddddddddddddddd",
+  "dddddddddddddddrrrrrrrrrrrddddddddddrrrrrrrrrrrrrddddddddddddddddddddddd",
+  "ddddddddddddddddrrrrrrrrrddddddddddddrrrrssrrrrddddddddddddddddddddddddd",
+  "ddddddddddddddddddrrrrrdddddddddddddddddrssrrrdddddddddddddddddddddddddd",
+  "ddddddddddddddddddsssddddddddddddddddddddsssdddddddddddddddddddddddddddd",
+  "ddddddddddddddddddsssddddddddddddddddddddsssdddddddddddddddddddddddddddd",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dssssssssssssddddddddddddddddddddddddddddddddddddddddddrrrrrrrdddddddddd",
+  "dssssssssssssddddddddddrrrrrrrrddddddddddddddddddddddrrrrrrrrrrddddddddd",
+  "dssssssssssssdddddddddrrrrrrrrrrddddddddddddddddddddrrrrrrrrrrrddddddddd",
+  "dssssssssssssdddddddddrrrrrrrrrrddddddddddddddddddddrrrrrrrrrrrddddddddd",
+  "dssssssssssssddddddddddrrrrrrrrrdddddddddddddddddddddrrrrrrrrrdddddddddd",
+  "dsswwwsssssssdddddddddddrrrrrrrdddddddddddddddddddddddddrrrrdddddddddddd",
+  "dddwwwdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddwwwdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddwwwdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddwwwdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddwwwdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "stairs": [
+  {
+   "x": 18,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 41,
+   "y": 11,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 41,
+   "y": 9,
+   "w": 2,
+   "h": 2,
+   "from": 1,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "crates",
+   "x": 13,
+   "y": 17
+  },
+  {
+   "kind": "barrel",
+   "x": 13,
+   "y": 18
+  },
+  {
+   "kind": "crates",
+   "x": 13,
+   "y": 20
+  },
+  {
+   "kind": "barrel",
+   "x": 1,
+   "y": 16
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 2,
+   "y": 21
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 21
+  },
+  {
+   "kind": "warden_banner",
+   "x": 11,
+   "y": 16
+  },
+  {
+   "kind": "post",
+   "x": 3,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 5,
+   "y": 27
+  },
+  {
+   "kind": "ash_pyre",
+   "x": 29,
+   "y": 9
+  },
+  {
+   "kind": "cinder_tent",
+   "x": 54,
+   "y": 4
+  },
+  {
+   "kind": "cinder_tent",
+   "x": 63,
+   "y": 7
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 52,
+   "y": 9
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 60,
+   "y": 11
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 68,
+   "y": 4
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 48,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 4,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 5
+  },
+  {
+   "kind": "charred_tree",
+   "x": 28,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 5
+  },
+  {
+   "kind": "charred_tree",
+   "x": 36,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "ash_drift",
+   "x": 44,
+   "y": 5
+  },
+  {
+   "kind": "charred_tree",
+   "x": 46,
+   "y": 4
+  },
+  {
+   "kind": "charred_tree",
+   "x": 49,
+   "y": 4
+  },
+  {
+   "kind": "charred_tree",
+   "x": 59,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 66,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 70,
+   "y": 4
+  },
+  {
+   "kind": "charred_tree",
+   "x": 37,
+   "y": 8
+  },
+  {
+   "kind": "ash_drift",
+   "x": 45,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 49,
+   "y": 8
+  },
+  {
+   "kind": "ash_drift",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "ash_drift",
+   "x": 39,
+   "y": 9
+  },
+  {
+   "kind": "ash_drift",
+   "x": 47,
+   "y": 10
+  },
+  {
+   "kind": "embers",
+   "x": 14,
+   "y": 6
+  },
+  {
+   "kind": "embers",
+   "x": 18,
+   "y": 8
+  },
+  {
+   "kind": "ash_drift",
+   "x": 24,
+   "y": 7
+  },
+  {
+   "kind": "boulder",
+   "x": 14,
+   "y": 9
+  },
+  {
+   "kind": "embers",
+   "x": 21,
+   "y": 9
+  },
+  {
+   "kind": "charred_tree",
+   "x": 25,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 16
+  },
+  {
+   "kind": "embers",
+   "x": 7,
+   "y": 11
+  },
+  {
+   "kind": "embers",
+   "x": 14,
+   "y": 12
+  },
+  {
+   "kind": "ash_drift",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 29,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 34,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 38,
+   "y": 17
+  },
+  {
+   "kind": "ash_drift",
+   "x": 51,
+   "y": 11
+  },
+  {
+   "kind": "ash_drift",
+   "x": 56,
+   "y": 16
+  },
+  {
+   "kind": "embers",
+   "x": 59,
+   "y": 17
+  },
+  {
+   "kind": "charred_tree",
+   "x": 54,
+   "y": 18
+  },
+  {
+   "kind": "ash_drift",
+   "x": 59,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 53,
+   "y": 21
+  },
+  {
+   "kind": "embers",
+   "x": 56,
+   "y": 22
+  },
+  {
+   "kind": "embers",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 20
+  },
+  {
+   "kind": "ash_drift",
+   "x": 24,
+   "y": 22
+  },
+  {
+   "kind": "ash_drift",
+   "x": 26,
+   "y": 21
+  },
+  {
+   "kind": "boulder",
+   "x": 0,
+   "y": 24
+  },
+  {
+   "kind": "ash_drift",
+   "x": 9,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 24
+  },
+  {
+   "kind": "embers",
+   "x": 19,
+   "y": 24
+  },
+  {
+   "kind": "ash_drift",
+   "x": 29,
+   "y": 24
+  },
+  {
+   "kind": "ash_drift",
+   "x": 32,
+   "y": 23
+  },
+  {
+   "kind": "ash_drift",
+   "x": 39,
+   "y": 23
+  },
+  {
+   "kind": "boulder",
+   "x": 48,
+   "y": 24
+  },
+  {
+   "kind": "ash_drift",
+   "x": 54,
+   "y": 25
+  },
+  {
+   "kind": "ash_drift",
+   "x": 57,
+   "y": 25
+  },
+  {
+   "kind": "charred_tree",
+   "x": 63,
+   "y": 24
+  },
+  {
+   "kind": "embers",
+   "x": 70,
+   "y": 23
+  },
+  {
+   "kind": "charred_tree",
+   "x": 0,
+   "y": 27
+  },
+  {
+   "kind": "embers",
+   "x": 11,
+   "y": 26
+  },
+  {
+   "kind": "ash_drift",
+   "x": 20,
+   "y": 26
+  },
+  {
+   "kind": "embers",
+   "x": 24,
+   "y": 26
+  },
+  {
+   "kind": "ash_drift",
+   "x": 28,
+   "y": 26
+  },
+  {
+   "kind": "charred_tree",
+   "x": 35,
+   "y": 27
+  },
+  {
+   "kind": "embers",
+   "x": 42,
+   "y": 27
+  },
+  {
+   "kind": "charred_tree",
+   "x": 52,
+   "y": 27
+  },
+  {
+   "kind": "ash_drift",
+   "x": 60,
+   "y": 27
+  },
+  {
+   "kind": "embers",
+   "x": 62,
+   "y": 26
+  }
+ ],
+ "place": {
+  "shrine_ar_fields": [
+   9,
+   19
+  ],
+  "npc_warden_hu_jin": [
+   6,
+   17
+  ],
+  "jar_2": [
+   19,
+   10
+  ],
+  "journal_cinders": [
+   31,
+   16
+  ],
+  "ore_1": [
+   34,
+   5
+  ],
+  "crate_3": [
+   42,
+   8
+  ],
+  "jar_4": [
+   45,
+   16
+  ],
+  "crate_5": [
+   63,
+   12
+  ]
+ },
+ "portals": {
+  "skiff": {
+   "at": [
+    4,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    4,
+    23
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    14
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    19,
+    17
+   ],
+   [
+    24,
+    16
+   ],
+   [
+    35,
+    17
+   ],
+   [
+    50,
+    11
+   ],
+   [
+    62,
+    18
+   ]
+  ],
+  [
+   [
+    22,
+    12
+   ],
+   [
+    52,
+    17
+   ]
+  ],
+  [
+   [
+    40,
+    17
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 80
+  }
+ ]
+}

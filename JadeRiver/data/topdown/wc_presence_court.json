@@ -1,0 +1,396 @@
+{
+ "schema_version": 1,
+ "id": "wc_presence_court",
+ "name": "Presence Court",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  53,
+  15
+ ],
+ "levels": [
+  "66666666655555555555555555555555555555555555555555555555",
+  "66666666655555555555555555555555555555555555555555555555",
+  "66666666655555555555555555555555555555555555555555555555",
+  "66666666655555555555555555555555555555555555555555555555",
+  "66666666655555555555555555555555555555555555555555555555",
+  "66666666600000000000000000000000000000000000000000000000",
+  "66666666600000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "02222222220000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+  "ssssssssspppppppppppppppppppppppppppppppppgggggggggggggp",
+  "sssssssssppppppppppppppsspppssssppppppppppgggggggggggggp",
+  "pssssssssspppppppppppsssssssssssssppppppppgggggggggggggp",
+  "psssssssssppppppppssssssssssssssssssppppppgggggggggggggp",
+  "pssssssssspppppppsssssssssssssssssssspppppgggggggggggggp",
+  "psssssssssppppppsssssssssssssssssssssssppppppppppppppggp",
+  "pssssssssspppppssssssssssssssssssssssssspppppppppppppppp",
+  "pssssssssspppppssssssssssssssssssssssssspppppppppppppppp",
+  "psssssssssppppsssssssssssssssssssssssssspppppppppppppppp",
+  "psssssssssppppssssssssssssssssssssssssssssssssssssssssss",
+  "psssssssssppppssssssssssssssssssssssssspssssssssssssssss",
+  "ppppssspppppppssssssssssssssssssssssssppssssssssssssssss",
+  "ppppsssppppppppssssssssssssssssssssssppppppppppppppppppp",
+  "ppggsssgggggppppppssssssssssssssssssppppppggggggggggggpp",
+  "ppggsssgggggppppppppssssssssssssssspppppppggggggggggggpp",
+  "ppggggggggggpppppppppsssssssssssssppppppppggggggggggggpp",
+  "rrggggggggggppppppppppprrrrpppppppppppppppggggggggggggrr",
+  "rrrrrrrrrrrrrppppprrrrrrrrrrrppppppppppppprrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 4,
+   "y": 16,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "pressure_pillar",
+   "x": 18,
+   "y": 8
+  },
+  {
+   "kind": "pressure_pillar",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "pressure_pillar",
+   "x": 36,
+   "y": 8
+  },
+  {
+   "kind": "warden_statue",
+   "x": 5,
+   "y": 8
+  },
+  {
+   "kind": "warden_banner",
+   "x": 11,
+   "y": 5
+  },
+  {
+   "kind": "warden_banner",
+   "x": 40,
+   "y": 5
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 3,
+   "y": 8
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 8,
+   "y": 8
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 15,
+   "y": 19
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 38,
+   "y": 19
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 44,
+   "y": 13
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "mat",
+   "x": 31,
+   "y": 18
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 3,
+   "y": 16
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 16
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 3,
+   "y": 17
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 17
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 3,
+   "y": 18
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 18
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 3,
+   "y": 19
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 42,
+   "y": 5
+  },
+  {
+   "kind": "bush",
+   "x": 49,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 43,
+   "y": 19
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 3,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 52,
+   "y": 21
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 45,
+   "y": 5
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 46,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 49,
+   "y": 8
+  },
+  {
+   "kind": "bush_azalea",
+   "x": 54,
+   "y": 5
+  },
+  {
+   "kind": "hedge_2",
+   "x": 53,
+   "y": 9
+  },
+  {
+   "kind": "bush",
+   "x": 8,
+   "y": 19
+  },
+  {
+   "kind": "tree_pine",
+   "x": 48,
+   "y": 19
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 0,
+   "y": 24
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 6,
+   "y": 22
+  },
+  {
+   "kind": "bush",
+   "x": 10,
+   "y": 23
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 13,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 18,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 25,
+   "y": 22
+  },
+  {
+   "kind": "rock_small",
+   "x": 33,
+   "y": 24
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 38,
+   "y": 24
+  },
+  {
+   "kind": "bush",
+   "x": 44,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 49,
+   "y": 25
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 52,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 4,
+   "y": 26
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 13,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 27
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 24,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 27,
+   "y": 26
+  },
+  {
+   "kind": "bush",
+   "x": 35,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 38,
+   "y": 27
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 41,
+   "y": 27
+  },
+  {
+   "kind": "bush",
+   "x": 55,
+   "y": 27
+  }
+ ],
+ "place": {
+  "npc_presence_master_ruo": [
+   17,
+   13
+  ],
+  "npc_shen_lian_warden": [
+   27,
+   14
+  ],
+  "sign_wc_court": [
+   51,
+   13
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    55,
+    15
+   ],
+   "dir": "e",
+   "arrive": [
+    53,
+    15
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}

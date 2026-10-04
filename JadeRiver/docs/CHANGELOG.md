@@ -1,5 +1,62 @@
 # Changelog
 
+## The star field's end on the grid (R9)
+
+The room engine's last batch (`docs/architecture/room_engine.md`, "The star field's end (R9)"). The twenty-one side-view
+rooms of the Lantern Star Field's last zones are specs now, and a top-down character plays Act III's chapters 20 to 22
+and the Starsea's voyages on the grid.
+
+- **Twenty-one rooms, 7 to 38 spec lines each, anchors included.**
+  - The Starsea's crossings: the Wreck Run's and the Lantern Run's decks (one `deck()` helper, a skiff's hull).
+  - The Star Warden Citadel: the Citadel Gate, the Wardens' Hall, the Observatory and the Presence Court.
+  - The Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry and the Inverted Hall.
+  - The Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp and Kharn's Pyre.
+  - The Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes and the Leviathan's Maw.
+  - The Lantern Heart: the Wick Gate, the Hall of Burning Stars and the Flame Heart.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The fields' platforms are dunes, rises,
+  landings, galleries and lookouts with their flights; the Inverted Hall's high gallery is a flight.
+- **Looks.**
+  - Six biomes: `citadel` (the Wardens' granite and flagstones, kept gardens, lamp-lined stairs), `orbit_ruins`
+    (granite floors and broken rings on grey rock, gold crystals), `ashen` (dark earth, ash dunes, ash drifts and
+    embers, charred trees), `nebula` (reefs round the nebula's water, coral trees, islets), `lantern_heart` (golden
+    sandstone halls, wick pillars, flame basins) and `starsea` (a deck on the sea). R5's Wardens' stone and cloud sea,
+    R7's tomb walls, `earth` rule and brazier are reused.
+  - Twenty-four props (`tools/art/topdown/starfield.py`, joined through `furnish.py`'s R9 block; the prop sheet rebuilt
+    with `build_tiles.py`): a Warden lamp, a lantern cage, a Warden statue and banner, a ballista, a star chart table,
+    an armillary, a pressure pillar, a floating orbit stone, a clump of gold crystals, a gravity plate, a golem husk,
+    an Ashborn pyre, tent and banner, embers, an ash drift, a charred tree, nebula coral, a coral tree, a void crab's
+    shell, a wick pillar, a flame basin and a mast.
+  - R8 landed first with its own `star_lantern` and `star_crystal`, which are different pieces. So R9's two are renamed
+    `warden_lamp` and `crystal_cluster`, and both batches' props are in the sheet (159 in all).
+  - The vistas (the cloud sea under the islands' brinks, the sea round the decks) are in `topdown_life.VISTAS`.
+- **No engine rule changed**: `engine.py` is as R7 left it. The specs' own helpers lay the rings (`ring()`), the hull
+  (`deck()`), the dunes, the islets and the wick pillars' rows.
+- **Places.** Seven rows join `places.py` (62 in all with R8's): the Citadel Gate's teleport stone and shrine, and the
+  shrines of the Tumbling Stair, the Wardens' landing, the War Camp, the Nebula Verge and the Wick Gate.
+- **The frontier is gone.** With R8 merged, every side-view room has a layout (168). The Citadel's skiff to Lanternfall,
+  the Wick Gate's stair to the Harbor Market and R8's two ways back are open. The Tidebreak Bastion's skiff to the
+  Citadel and the Drone Hive's way into the Nebula Deep are open too. All four Starsea docks sail into a crossing on
+  the grid.
+- **Tests.**
+  - A new suite, `topdown_starfield` (in `tests/suites.txt` after `topdown_sunscar`), 77 checks. It sails both
+    crossings both ways, each from its dock on the grid (R6's Shipwrights' Yard, R8's Broken Pier, Starsea Launch and
+    Arrival Quay). The waves board onto the deck's cells and the vessel makes port. It plays The Citadel, The Aspirant,
+    The Observatory, The Orbit Ruins, Cinder Fields, Kharn's Pyre, Lu's Lantern and The Leviathan's Maw room by room on
+    the grid, checking every room's walks and view.
+  - `room_engine` holds the twenty-one new specs; `rules_tests`' route tour walks them with auto-path.
+  - With every room on the grid, decision 41's gate has no real way to close. `rules_tests`' prototype suite and
+    `topdown_tutorial`'s end of the prototype stand R9's rooms off the grid while they check it (`tests/lib/off_grid.gd`;
+    nothing is stood off while a real way off the grid is left). `topdown_chapter3`'s story walk runs on to the
+    story's built end and checks that nothing waits past the gate.
+- **Still to do** (room_engine.md lists it): top-down sheets for fourteen species (the starsea pirate to the Nebula
+  Leviathan); the gravity switches' low gravity, the crossing's moving vessel and the Leviathan's swim on the grid; a
+  star-field TopdownLight area, the lit props' light at night, a star-water paint and a void vista.
+- **Checks.** The full run (merged with R6, E5, T2, R8 and M2): all 34 suites pass, 76,849 checks with 0 failures and
+  no SCRIPT ERROR. `topdown_starfield` has 77 of them, `topdown_skysea` 101 and `room_engine` 508. Grid parity holds for
+  168 layouts (every side-view room) and 498 starts, and `places` reaches all 62. The R8 and R9 views, captured again
+  after the merge, match their committed pictures pixel for pixel.
+
 ## The monster engine's second batch: the Act I zones' foes, and bosses of their own build (decision 45, M2)
 
 The seventeen species M1 left, drawn with the monster engine in story order (`docs/architecture/monster_engine.md`,

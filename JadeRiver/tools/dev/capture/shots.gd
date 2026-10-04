@@ -106,7 +106,22 @@ const E1_VIEWS := [
 	["r8/17_smugglers_cove", "bm_smugglers_cove", Vector2(22, 9), true], ["r8/18_flagship_deck", "bm_flagship_deck", Vector2(24, 13), true],
 	["r8/19_nest_cliffs", "wn_nest_cliffs", Vector2(12, 19), true], ["r8/20_eggshell_terraces", "wn_eggshell_terraces", Vector2(24, 15), true],
 	["r8/21_guardians_crown", "wn_guardians_crown", Vector2(30, 14), true], ["r8/22_crown_cave_mouth", "wn_guardians_crown", Vector2(52, 12), false],
-	["r8/23_hatching_cave", "wn_hatching_cave", Vector2(24, 12), true]]
+	["r8/23_hatching_cave", "wn_hatching_cave", Vector2(24, 12), true],
+	# R9: the star field's end, the Starsea's crossings to the Lantern Heart (their pictures under r9/).
+	["r9/01_starsea_crossing", "ss_starsea_crossing", Vector2(30, 12), true], ["r9/02_lantern_crossing", "ss_lantern_crossing", Vector2(30, 12), true],
+	["r9/03_citadel_gate_court", "wc_citadel_gate", Vector2(34, 13), true], ["r9/04_citadel_gate_piers", "wc_citadel_gate", Vector2(30, 20), false],
+	["r9/05_wardens_hall", "wc_wardens_hall", Vector2(13.5, 11), true], ["r9/06_observatory", "wc_observatory", Vector2(13.5, 11), true],
+	["r9/07_presence_court", "wc_presence_court", Vector2(27, 17), true],
+	["r9/08_tumbling_stair", "or_tumbling_stair", Vector2(30, 15), true], ["r9/09_orbit_garden", "or_orbit_garden", Vector2(25, 15), true],
+	["r9/10_golem_foundry", "or_golem_foundry", Vector2(34, 13), true], ["r9/11_inverted_hall", "or_inverted_hall", Vector2(30, 12), true],
+	["r9/12_cinder_fields_landing", "ar_cinder_fields", Vector2(14, 15), true], ["r9/13_cinder_fields_camp", "ar_cinder_fields", Vector2(52, 14), false],
+	["r9/14_ashborn_palisade", "ar_ashborn_palisade", Vector2(31, 15), true], ["r9/15_war_camp", "ar_war_camp", Vector2(30, 14), true],
+	["r9/16_kharns_pyre", "ar_kharns_pyre", Vector2(28, 13), true],
+	["r9/17_nebula_verge", "nd_nebula_verge", Vector2(30, 13), true], ["r9/18_eel_currents", "nd_eel_currents", Vector2(38, 13), true],
+	["r9/19_crab_grottoes", "nd_crab_grottoes", Vector2(46, 12), true], ["r9/20_leviathans_maw", "nd_leviathans_maw", Vector2(42, 13), true],
+	["r9/21_wick_gate", "lt_wick_gate", Vector2(30, 12), true], ["r9/22_hall_of_burning_stars", "lt_hall_of_burning_stars", Vector2(36, 12), true],
+	["r9/23_flame_heart", "lt_flame_heart", Vector2(28, 17), true],
+]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
