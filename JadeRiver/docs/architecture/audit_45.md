@@ -1132,7 +1132,7 @@ body is and what it did, the authorities keep their rules (`docs/architecture/to
   room's void (250 under its lowest floor), or sunk in open water (the side view's deep water; a pit's floor keeps the
   body in). Back on the last safe spot (none within 24 of a brink), the fade, the 5%, the "fell" text, the Fortune check:
   the Hidden Cave can be drawn again. Tested: part 42 (a brink fall, a seeded draw into the grotto and out by its way up
-  where the body fell, a fall into a pond).
+  where the body fell, a fall into a pond), `cue_tests` (the fade).
 - **`volume_entered` and `volume_left`** for every side-view volume kind at its heights (`TopdownMotor.volumes`); the
   water's step cue was their only listener (no achievement, quest, tutorial or moment reads them). Tested: part 42 (the
   pond, its cue) and 43 (the Flooded Gate's shallows and drain).
