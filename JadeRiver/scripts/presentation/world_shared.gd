@@ -1,12 +1,11 @@
 class_name WorldShared
 extends RefCounted
-## The room presentation both world views share (redesign Phase 4, one code path per concern): the side view
-## (world.gd) and the top-down view (topdown/topdown_world.gd) play the game's events as the same effects, offer the
-## same thing on the context button, place the names over the world the same way and ask for a way out the same way.
-## Presentation only: it reads state and submits intents.
+## The room presentation the world view hands its concerns to (redesign Phase 4, one code path per concern; the side
+## view shared it until S12a retired it): the game's events as effects, what the context button offers, the names over
+## the world and a way out asked for. Presentation only: it reads state and submits intents.
 ##
 ## A view hands itself in as `host`, which offers:
-##   fx_layer()    the effects layer (FxLayer), in world units with y lifted by height (the side view's own space)
+##   fx_layer()    the effects layer (FxLayer), in world units with y lifted by height
 ##   combat_fx     CombatFx round it
 ##   object_views  {object id: view} (a `position` in fx units, a `hit_flash` and a `focus`), npc_views,
 ##                 enemy_views {uid: view}, portal_views [view]

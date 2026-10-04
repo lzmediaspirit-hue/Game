@@ -4,8 +4,7 @@ extends RefCounted
 ## an art's picture, one look wherever it shows (the Techniques tree's cards and its reading, the HUD's technique
 ## buttons, the Techniques page's loadout bar). A square of deep starry ground in the art's element's ink; the character
 ## large in the art's pose, drawn in that one ink (the top-down figure, TopdownFigure, at a whole scale, in the frames
-## cast for the pictures at the 38 px they were approved at, decision 43, while the world's people are 46; the side view's
-## Avatar only for a classic side-view character); a few marks of the art's form round it in the same ink (a palm's
+## cast for the pictures at the 38 px they were approved at, decision 43, while the world's people are 46); a few marks of the art's form round it in the same ink (a palm's
 ## crescents, a ward's dome, a domain's ring, a pillar's springs, a seal's square); the frame; and a small rank badge
 ## (the art's mastery tier) when the character knows it. A card shows the figure from the head to about the ankles, the
 ## reading whole on its floor. A button (under 60 px: the HUD's, the loadout bar's) is a miniature of its card: the
@@ -38,8 +37,8 @@ const STARTS_A_FRAME := 6         ## pictures begun a frame at most (each hands 
 const SEATED := ["ward", "domain", "chorus", "pillar", "rain", "release"]
 ## The forms whose marks stand before the hand: the figure stands back a little to leave them room.
 const AHEAD := ["strike", "flurry", "echo", "thrust", "arc", "counter", "return", "seal", "seeker", "snare", "swarm", "volley", "wave", "lunge"]
-## The side view's figure (a classic character), in art px from its feet (its sheets are drawn at x2).
-const SIDE_BOX := Rect2(-12, -48, 26, 48)
+## The box a figure is placed by while its frame has no pixels yet, in art px from its feet.
+const NO_BOX := Rect2(-12, -48, 26, 48)
 ## The modulates that tell the ink shader how to read what is drawn: a painted image's lightness as it is (red 0); the
 ## figure's layers are drawn white (their lightness pressed toward the dark); its rim with green 0 (the light).
 const PAINTED := Color(0, 1, 1, 1)
@@ -52,12 +51,12 @@ static var _holder: Node
 static var _sheets: Array = []        # [{vp, tex, s, side, cols, slots: [key or ""], used}]
 static var _cells: Dictionary = {}    # key -> {key, sheet, slot, rect, spec, state, task, node, back, front}
 static var _pending: Array = []       # keys still being painted or waiting on the figure's sheets
-static var _figs: Dictionary = {}     # "t|<outfit>" -> TopdownFigure; "s|<outfit>" -> Avatar (a classic character)
+static var _figs: Dictionary = {}     # outfit hash -> TopdownFigure
 static var _mats: Dictionary = {}     # ramp key -> ShaderMaterial
 static var _ramps: Dictionary = {}    # ramp key -> [deep, mid, light]
 static var _boxes: Dictionary = {}    # radius -> {colour -> StyleBoxFlat}
 static var _looks: Dictionary = {}    # outfit hash|family -> [family, the outfit the art is pictured in] (art_look)
-static var _look_memo: Dictionary = {}   # art|size|muted|top -> [the outfit, the character, its look] (_look)
+static var _look_memo: Dictionary = {}   # art|size|muted -> [the outfit, its look] (_look)
 static var _frame := -1               # the frame the budget below is for
 static var _schedstat := -1           # 1 where the system counts the run queue per thread (desktop Linux), else 0; -1 unasked
 static var _spent_us := 0
@@ -68,12 +67,12 @@ static var generation := 0
 static var build_us_max := 0
 static var build_worst := ""           ## which piece took build_us_max
 static var frame_us_max := 0
-## Tests: each picture drawn, [{id, rect, where, figure, top, facing, frame, k, size, scale, rank, muted}] (null: off).
+## Tests: each picture drawn, [{id, rect, where, figure, facing, frame, k, size, scale, rank, muted}] (null: off).
 static var draw_log = null
 
 # ------------------------------------------------------------------ drawing a picture
 ## Technique `tid`'s picture filling `r`, its frame included. `who` is the character (the pose its weapon family casts
-## the art in, whether it plays the top-down game, its rank in the art), `outfit` its look; `frame` the frame's colour,
+## the art in, its rank in the art), `outfit` its look; `frame` the frame's colour,
 ## `k` the picture's brightness (a closed or short art is dimmed), `a` the opacity (a page turn's fade); `muted` a grey
 ## ink (a locked art on the tree); `rank` the badge's number (-1: the art's mastery tier when `who` knows it, 0: none).
 ## `where` names the caller in the draw log. True once its cell is in a sheet (drawn as it is painted, with no draw
@@ -86,7 +85,7 @@ static func draw(ci: CanvasItem, r: Rect2, tid: String, who, outfit: Dictionary,
 	var p := r.grow(-3.0)
 	rounded(ci, p, 3.0, Color(UiKit.INK, a))
 	if t.is_empty():   # an art no longer in the book: the empty frame
-		if draw_log != null: draw_log.append({"id": tid, "rect": r, "where": where, "figure": false, "top": false, "frame": frame, "k": k})
+		if draw_log != null: draw_log.append({"id": tid, "rect": r, "where": where, "figure": false, "frame": frame, "k": k})
 		return true
 	var s := int(minf(p.size.x, p.size.y))
 	var sq := Rect2((p.position + (p.size - Vector2(s, s)) * 0.5).round(), Vector2(s, s))
@@ -105,7 +104,7 @@ static func draw(ci: CanvasItem, r: Rect2, tid: String, who, outfit: Dictionary,
 	if rank > 0: _badge(ci, sq, rank, a)
 	if draw_log != null:
 		draw_log.append({"id": tid, "rect": r, "where": where, "figure": not cell.is_empty() and str(cell.state) == "ready",
-			"top": bool(look[1]), "facing": str(look[2][1]), "frame": frame, "k": k, "size": s,
+			"facing": str(look[1][1]), "frame": frame, "k": k, "size": s,
 			"scale": int(cell.spec.k) if not cell.is_empty() else 0, "rank": rank, "muted": muted})
 	return not cell.is_empty()
 
@@ -149,7 +148,7 @@ static func draw_round(ci: CanvasItem, center: Vector2, radius: float, tid: Stri
 		var e := {"id": tid, "rect": Rect2(c - Vector2(radius, radius), Vector2(radius, radius) * 2.0), "where": where, "round": true, "radius": radius,
 			"picture": pr, "frame": frame, "k": k, "figure": not cell.is_empty() and str(cell.state) == "ready", "rank": rank}
 		if not look.is_empty():
-			e.merge({"top": bool(look[1]), "facing": str(look[2][1]), "size": s, "scale": int(cell.spec.k) if not cell.is_empty() else 0, "muted": false})
+			e.merge({"facing": str(look[1][1]), "size": s, "scale": int(cell.spec.k) if not cell.is_empty() else 0, "muted": false})
 		draw_log.append(e)
 	return not cell.is_empty()
 
@@ -233,35 +232,27 @@ static func _badge(ci: CanvasItem, p: Rect2, rank: int, a: float) -> void:
 	UiKit.draw_text(ci, str(rank), Vector2(c.x - 10.0, c.y + fs * 0.36), fs, Color(UiKit.PALE_GOLD, a), HORIZONTAL_ALIGNMENT_CENTER, 20.0, false)
 
 # ------------------------------------------------------------------ the cells
-## What a picture is kept by, [key, top, pose, outfit]: the art, the look, which figure draws it (top-down or the side
-## view's), its pose [action, facing, frame], the size and the ink. For a top-down character the figure wears the art's
-## look (art_look), and its pose depends on the art, that look and the size alone; a classic side-view character keeps
-## its own look, in the pose its side view casts the art in with the weapon in its hand. Found once and remembered while
-## the look it was found for is worn (a HUD draws its buttons every frame: this is a lookup and a comparison then).
+## What a picture is kept by, [key, pose, outfit]: the art, the look, its pose [action, facing, frame], the size and the
+## ink. The figure wears the art's look (art_look), and its pose depends on the art, that look and the size alone.
+## Found once and remembered while the look it was found for is worn (a HUD draws its buttons every frame: this is a
+## lookup and a comparison then).
 static func _look(tid: String, t: Dictionary, who, outfit: Dictionary, s: int, muted: bool) -> Array:
-	var top := Figures.top_down(who)
-	var mk := "%s|%d|%d|%d" % [tid, s, int(muted), int(top)]
+	var mk := "%s|%d|%d" % [tid, s, int(muted)]
 	var m = _look_memo.get(mk)
-	if m != null and m[0] == outfit and (top or is_same(m[1], who)): return m[2]
-	var pose: Array
-	var o := outfit
-	if top:
-		var al := art_look(t, outfit)
-		o = al[1]
-		pose = top_pose(t, who, al[0], s <= SMALL)
-	else:
-		pose = [TechniquePreview.pose_of(t, who, outfit), "e", 0]
-	var look := ["%s|%d|%s|%s,%s,%d|%d|%d" % [tid, hash(o), "t" if top else "s", pose[0], pose[1], pose[2], s, int(muted)], top, pose, o]
+	if m != null and m[0] == outfit: return m[1]
+	var al := art_look(t, outfit)
+	var o: Dictionary = al[1]
+	var pose := top_pose(t, who, al[0], s <= SMALL)
+	var look := ["%s|%d|%s,%s,%d|%d|%d" % [tid, hash(o), pose[0], pose[1], pose[2], s, int(muted)], pose, o]
 	if _look_memo.size() >= 512: _look_memo.clear()
-	_look_memo[mk] = [outfit.duplicate(), who, look]
+	_look_memo[mk] = [outfit.duplicate(), look]
 	return look
 
 ## `tid`'s cell for this look and size: kept, or begun now when the frame's budget allows ({} when it must wait).
 static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bool) -> Dictionary:
 	var key: String = look[0]
-	var top: bool = look[1]
-	var pose: Array = look[2]
-	var worn: Dictionary = look[3]
+	var pose: Array = look[1]
+	var worn: Dictionary = look[2]
 	var cell: Dictionary = _cells.get(key, {})
 	if not cell.is_empty(): return cell
 	_budget_frame()
@@ -271,18 +262,18 @@ static func _cell_for(tid: String, t: Dictionary, look: Array, s: int, muted: bo
 	if at.is_empty(): return {}
 	var sheet: Dictionary = at[0]
 	var slot: int = at[1]
-	var fig = _figure(worn, top)
+	var fig := _figure(worn)
 	var kb := _scale_for(s)
 	var K: int = kb[0]
 	var w := ceili(float(s) / K)
-	var box: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "", true) if top else SIDE_BOX
-	if box.size.x <= 0.0: box = SIDE_BOX
+	var box: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "", true)
+	if box.size.x <= 0.0: box = NO_BOX
 	var form := str(t.get("vfx", {}).get("anim", ""))
-	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body", true) if top and bool(kb[1]) else Rect2()
+	var bare: Rect2 = fig.bounds(str(pose[0]), str(pose[1]), int(pose[2]), "body", true) if bool(kb[1]) else Rect2()
 	var feet := _place(box, w, bool(kb[1]), form, bare)
 	var spec := {"w": w, "k": K, "s": s, "small": kb[1], "feet": feet, "body": Rect2(Vector2(feet) + box.position, box.size), "form": form,
-		"seated": str(pose[0]) == "meditate", "seed": hash(tid), "top": top, "action": str(pose[0]), "row": str(pose[1]), "at": int(pose[2]),
-		"fig": _fig_key(worn, top), "mat": _material(str(t.get("element", "none")), muted), "bare": Rect2(Vector2(feet) + bare.position, bare.size)}
+		"seated": str(pose[0]) == "meditate", "seed": hash(tid), "action": str(pose[0]), "row": str(pose[1]), "at": int(pose[2]),
+		"fig": _fig_key(worn), "mat": _material(str(t.get("element", "none")), muted), "bare": Rect2(Vector2(feet) + bare.position, bare.size)}
 	var cols: int = sheet.cols
 	cell = {"key": key, "sheet": sheet, "slot": slot, "rect": Rect2(Vector2(slot % cols, slot / cols) * s, Vector2(s, s)), "spec": spec, "state": "painting",
 		"out": {}}
@@ -510,46 +501,26 @@ static func _draw_cell(node: Node2D, cell: Dictionary) -> void:
 	node.draw_texture_rect_region(cell.back, dst, src, PAINTED)
 	if _figure_in(sp):
 		var feet := Vector2(sp.feet) * K
-		var f = _figs[sp.fig]
-		if not bool(sp.top):
-			f.play(str(sp.action))
-			f.elapsed = 0.3
-			f.facing = 1
+		var f: TopdownFigure = _figs[sp.fig]
 		for d in RIM + [Vector2.ZERO]:
 			var tint := RIM_INK if d != Vector2.ZERO else Color.WHITE
-			if bool(sp.top): (f as TopdownFigure).draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst, true)
-			else: f.draw_on(node, feet + d * K, K * 0.5, tint)
+			f.draw(node, feet + d * K, str(sp.action), str(sp.row), int(sp.at), tint, K, dst, true)
 	node.draw_texture_rect_region(cell.front, dst, src, PAINTED)
 	_spend(t0, "paint " + str(cell.key))
 
 # ------------------------------------------------------------------ the figure and the ink
-static func _fig_key(outfit: Dictionary, top: bool) -> String:
-	return ("t|" if top else "s|") + str(hash(outfit))
+static func _fig_key(outfit: Dictionary) -> String:
+	return str(hash(outfit))
 
-## The figure a look is drawn with: a TopdownFigure (its sheets loading on threads) for a top-down character, the side
-## view's Avatar (lazy too, kept under the host) for a classic one. Kept by the look.
-static func _figure(outfit: Dictionary, top: bool):
-	var fk := _fig_key(outfit, top)
-	if not _figs.has(fk):
-		if top:
-			_figs[fk] = TopdownFigure.wearing(outfit, true)
-		else:
-			var av = Figures.side_avatar(outfit.duplicate())
-			av.lazy_sheets = true
-			av.externally_timed = true
-			av.visible = false
-			av.process_mode = Node.PROCESS_MODE_DISABLED
-			_host().add_child(av)
-			_figs[fk] = av
+## The figure a look is drawn with: a TopdownFigure, its sheets loading on threads. Kept by the look.
+static func _figure(outfit: Dictionary) -> TopdownFigure:
+	var fk := _fig_key(outfit)
+	if not _figs.has(fk): _figs[fk] = TopdownFigure.wearing(outfit, true)
 	return _figs[fk]
 
 static func _figure_in(sp: Dictionary) -> bool:
-	var f = _figs.get(sp.fig)
-	if f == null: return false
-	if bool(sp.top): return (f as TopdownFigure).loaded()
-	f.play(str(sp.action))
-	f.refresh_entries()
-	return not (f.entries as Array).is_empty()
+	var f: TopdownFigure = _figs.get(sp.fig)
+	return f != null and f.loaded()
 
 ## An element's ramp [deep, mid, light] (a pixel's lightness 0, 0.4 and 1): its colour darkened for the ground, lightened
 ## for the figure's light; grey for a muted (locked) picture.

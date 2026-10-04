@@ -31,7 +31,6 @@ const BENCH_Y := 508.0      # the Bench's plaque
 const BENCH_TOP := Rect2(872, 612, 360, 20)
 const TURN_S := 0.25
 ## The figure in a window: 3 screen px an art px (the sheets are 2 px an art px), the feet below the window's foot.
-const FIG_SCALE := 1.5
 const FIG_FEET := Vector2(62, 142)
 ## The vessel a category's goods are kept in.
 const VESSEL := {"fish": "creel", "insect": "cage", "critter": "cage", "wisp": "cage"}
@@ -534,7 +533,7 @@ func _first_note(i: int) -> void:
 		text(Vector2(x + 68, y + 20), Tx.t("ui.posts.first_step%d" % (s + 1)), 16, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100)
 		text(Vector2(x + 68, y + 41), Tx.t("ui.posts.first_step%d_sub" % (s + 1)), 14, UiKit.PAPER_INK, HORIZONTAL_ALIGNMENT_LEFT, r.size.x - 100)
 
-## The figures in the tablets' windows: the live Avatar of each character shown, clipped to its window's arch and
+## The figures in the tablets' windows: the live figure of each character shown, clipped to its window's arch and
 ## turned with its tablet, standing while played and seated at rest (the registered idle and meditate poses).
 class Mask extends Node2D:
 	var poly := PackedVector2Array()
@@ -575,9 +574,8 @@ func _figure(id: String) -> Dictionary:
 	var m := Mask.new()
 	m.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
 	add_child(m)
-	# Decision 42: each character as its own game draws it: the top-down figure (4 px an art px) for a top-down one.
-	var who = Game.character(id)
-	var d := Figures.for_outfit(InventoryAuthority.outfit_for(who), FIG_SCALE, 4, who)
+	# Decision 42: each character as the game draws it (4 px an art px).
+	var d := Figures.for_outfit(InventoryAuthority.outfit_for(Game.character(id)), 4)
 	m.add_child(d)
 	return {"mask": m, "doll": d}
 

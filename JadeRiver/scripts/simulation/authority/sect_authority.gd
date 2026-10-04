@@ -238,9 +238,9 @@ func start_defence(c) -> Dictionary:
 	var waves: Array = cfg.get("waves", [])
 	var tier := clampi(int(sect().get("defences_won", 0)) / 2, 0, waves.size() - 1)
 	var wave: Dictionary = waves[tier].duplicate(true)
-	# The side view's points (one past its east edge); on the height grid the World authority sets them on the open floor
-	# inside the room as it starts the event (TopdownRoom.grid_event, T1: one rule for every room event), so no raider
-	# stands outside the room or in the lawn's pond.
+	# The room's authored points (one past its old east edge): the World authority sets them on the open floor inside the
+	# room as it starts the event (TopdownRoom.grid_event, T1: one rule for every room event), so no raider stands outside
+	# the room or in the lawn's pond.
 	wave["points"] = cfg.get("points", [[400, 860]])
 	var ev := {"id": "sect_defence", "duration": float(cfg.get("duration", 60)), "wave": wave,
 		"on_complete": [{"kind": "sect_defence_result", "won": true}]}

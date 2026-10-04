@@ -8,9 +8,8 @@ extends Page
 ## its motif on a gilt boss and its gift inscribed in gold, the worn one in a gilded frame. Aptitude, Attunement and
 ## Wardrobe are written on the same slips.
 
-## The figure at a whole number of screen px per art px (sheets are 2 px per art px, so 2.5 is 5 each), feet on the slips.
-const FIGURE_SCALE := 2.5
-## Decision 42: a top-down character's figure (TopdownDoll) at 6 screen px an art px, and a friend's face in a chip at 1.
+## Decision 42: the character's figure (TopdownDoll) at TOP_SCALE screen px an art px, its feet on the slips, and a
+## friend's face in a chip at 1.
 const TOP_SCALE := 5      # decision 43: the 46 px figure at x5 stands as tall as the 38 px one did at x6
 const FEET := Vector2(278, 528)
 ## The worn slots down the slips either side of the figure (each 76 px slot's top-left).
@@ -51,14 +50,13 @@ func content_rect() -> Rect2:
 	return Rect2(96, 112, 1088, 552)
 
 func setup() -> void:
-	# Decision 42: the character as its game draws it: the top-down figure for a top-down character, three-quarters
-	# toward the camera; the side view's for a classic one.
-	doll = Figures.for_outfit(InventoryAuthority.outfit_for(c()), FIGURE_SCALE, TOP_SCALE)
+	# Decision 42: the character as the game draws it, three-quarters toward the camera.
+	doll = Figures.for_outfit(InventoryAuthority.outfit_for(c()), TOP_SCALE)
 	doll.position = FEET
 	add_child(doll)
 	for cid in (c().companions.get("active", []) as Array):
 		var out = ContentDB.entry("companions", str(cid)).get("outfit")
-		var m := Figures.chip(out, Rect2(-14, -40, 28, 30), Vector2(26, 30))   # the head and shoulders, inside the chip
+		var m := Figures.chip(out, Rect2(-14, -40, 28, 30))   # the head and shoulders, inside the chip
 		add_child(m)
 		mates.append(m)
 
@@ -222,7 +220,7 @@ func _party(ch) -> void:
 			creature_at(Rect2(cen - Vector2(14, 14), Vector2(28, 28)), str(ContentDB.entry("pets", str(pet.species)).get("art", pet.species)))
 		else:
 			var mi := i - (0 if pet.is_empty() else 1)
-			if mi < mates.size() and is_instance_valid(mates[mi]): mates[mi].position = cen + Figures.pick(mates[mi], Vector2(0, 28), Vector2(0, 2))
+			if mi < mates.size() and is_instance_valid(mates[mi]): mates[mi].position = cen + Vector2(0, 28)
 	text(Vector2(184, 616), " · ".join(names), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 212)
 
 ## The register written across the slips: name, realm and Level with its stage pips, sect, rank and worn title, origin,

@@ -2,7 +2,7 @@ extends RefCounted
 ## P5 · The sect family's shared pieces (docs/page_identity.md §2, "The sect": red-lacquered pillars and dark timber,
 ## bronze and red paper): the Menu, Your Sect, the Sect and the Characters pages draw their own layouts from these. Every
 ## piece draws on the page it is given, from tokens, and names the ground its words sit on (Page.ground), so the
-## ui_suite measures them. The figures (sect disciples, your characters) are the live Avatar at whole art pixels.
+## ui_suite measures them. The figures (sect disciples, your characters) are the live TopdownDoll at whole art pixels.
 
 const DialoguePage = preload("res://scripts/ui/pages/dialogue_page.gd")
 
@@ -43,14 +43,12 @@ static func timber(pg: Page, r: Rect2, pitch := 88.0) -> void:
 	PostKit.planks(pg, r, pitch, true, UiKit.SURFACE.wood_dark)
 	pg.ground(r, UiKit.SURFACE.wood_dark)
 
-## A figure kept on the page: the live figure for `key`, made once with `outfit` at `scale` (whole art pixels: the side
-## view's sheets are 2 screen px an art px, so 0.5 draws 1 px an art px and 1.0 draws 2). Decision 42: drawn as the game
-## of `who` (the active character by default) draws it: the top-down figure (TopdownDoll) at `top_scale` (2 for 0.5, 3
-## for 1.0 unless given) for a top-down character, the side view's Avatar for a classic one. Show it standing at `feet`
-## with `show`; hide the ones not shown this frame with `hide_rest`.
-static func figure(pg: Page, figs: Dictionary, key: String, outfit: Dictionary, scale: float, who = null, top_scale := 0) -> Node2D:
+## A figure kept on the page: the live figure for `key`, made once wearing `outfit` at `px` screen px an art px (a whole
+## number), as the game draws it (decision 42: TopdownDoll). Show it standing at `feet` with `show`; hide the ones not
+## shown this frame with `hide_rest`.
+static func figure(pg: Page, figs: Dictionary, key: String, outfit: Dictionary, px: int) -> Node2D:
 	if not figs.has(key):
-		var d := Figures.for_outfit(DialoguePage.full_outfit(outfit), scale, top_scale if top_scale > 0 else maxi(1, roundi(scale * 3.0)), who)
+		var d := Figures.for_outfit(DialoguePage.full_outfit(outfit), px)
 		pg.add_child(d)
 		d.play("idle")
 		figs[key] = d

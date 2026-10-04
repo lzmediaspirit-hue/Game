@@ -1036,7 +1036,7 @@ func _combo_after(c, pv: Dictionary, facing: int, cfx: Dictionary, struck: Array
 			for e in struck:
 				if e.alive: apply_status_to_enemy(e, {"id": "bleed", "power": float(cfx.get("power", 0.02)), "remaining": float(cfx.get("duration_s", 4)), "source": c.id})
 
-## Targets nearest first: along x in the side view, on the plane top-down.
+## Targets nearest first, on the plane.
 func _nearest_first(targets: Array, pv: Dictionary) -> void:
 	var o := Vector2(float(pv.x), float(pv.y))
 	targets.sort_custom(func(a, b): return a.plane.distance_to(o) < b.plane.distance_to(o))

@@ -262,7 +262,7 @@ static func visible(c, r: Dictionary) -> bool:
 	var o := _object(r)
 	return o.is_empty() or c == null or Game.world == null or Game.world.object_visible(c, o)
 
-## The room's own definition of a place's object (the side view's, or the one this table adds).
+## The room's own definition of a place's object (data/rooms', or the one this table adds).
 static func _object(r: Dictionary) -> Dictionary:
 	if r.get("added", false): return r.get("object_def", {})
 	for o in ContentDB.room(str(r.room)).get("objects", []):

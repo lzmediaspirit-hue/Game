@@ -25,7 +25,7 @@ func climb_tower(c, f: int) -> Dictionary:
 		if not moved.get("ok", false): return moved
 	var lv := int(row.level)
 	var foes: Array = row.get("foes", [])
-	var points := [[900, 860], [1300, 820], [1700, 860], [2100, 840]]   # the side view's; on the grid start_event sets them (T1)
+	var points := [[900, 860], [1300, 820], [1700, 860], [2100, 840]]   # the room's authored points; start_event sets them on the grid (T1)
 	var ev := {"id": "tower_floor", "floor": f, "clear_room": true, "duration": float(row.get("time_s", 60)),
 		"on_complete": [{"kind": "tower_clear", "floor": f}]}
 	match str(row.kind):

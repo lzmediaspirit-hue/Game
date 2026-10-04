@@ -157,15 +157,14 @@ func _poster(ch, b: Dictionary, r: Rect2, big: bool, tap := true) -> void:
 		var ok_realm := ProgressionRules.at_least(ch.cultivator.realm_key, str(b.get("realm", "")))
 		btn(strip, Tx.t("ui.notice.take_bounty"), "bounty", str(b.id), true, ok_realm, Tx.t("req.reach") % ContentDB.name_of("realms", str(b.get("realm", ""))), 20)
 
-## The target's own figure standing in the chosen poster's picture, at a whole scale: in the top-down game the top-down
-## figure (TopdownDoll, 3 px an art px, facing the reader), as the world draws such a foe; the side view's at 1 (2 px an
-## art px) for a classic side-view character (decision 42).
+## The target's own figure standing in the chosen poster's picture, at a whole scale (TopdownDoll, 3 px an art px,
+## facing the reader), as the world draws such a foe (decision 42).
 func _likeness(outfit: Dictionary, feet: Vector2) -> void:
 	var o: Dictionary = Wardrobe.defaults().duplicate()
 	o.merge(outfit, true)
 	o.erase("name")
 	if likeness == null:
-		likeness = Figures.for_outfit(o, 1.0, 3, null, "s")
+		likeness = Figures.for_outfit(o, 3, "s")
 		add_child(likeness)
 		likeness.play("idle")
 	if likeness.outfit != o: Figures.dress(likeness, o)

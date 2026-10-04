@@ -12,16 +12,12 @@ extends Control
 ## saver steps it at 30 fps with a longer pause (and FxLayer plays the middle band at most). It lives and draws only
 ## while its page is open. Presentation only: nothing here reads or changes a fight.
 ##
-## Decision 42: a top-down character casts as the top-down game draws it: the character is a TopdownDoll playing the
-## art's top-down pose toward its foes (the pose a fight plays, TechniquePreview.top_pose), the foes are the top-down
-## world's own (art/topdown/foes/, `top_foe`), all at a whole `top_scale` screen px an art px, and the form plays at
-## the top-down world's proportion to the body (2 world units an art px). A classic side-view character keeps the side
-## view's avatar against pebble imps. Only the pieces that moved are drawn again: the caster when its frame changes, a
+## Decision 42: the character casts as the top-down game draws it: a TopdownDoll playing the art's top-down pose toward
+## its foes (the pose a fight plays, TechniquePreview.top_pose), the foes the top-down world's own (art/topdown/foes/,
+## `top_foe`), all at a whole `top_scale` screen px an art px, and the form plays at the top-down world's proportion to
+## the body (2 world units an art px). Only the pieces that moved are drawn again: the caster when its frame changes, a
 ## foe while it moves or its frame changes, the effects while any are alive.
 
-const GROUND := 136.0         # the feet, in room px from the stage's top
-const CASTER_X := 28.0        # the caster's feet, in room px from the stage's left
-const PACK := {1: [[104.0, 0.0]], 2: [[98.0, 2.0], [128.0, -4.0]], 3: [[90.0, 2.0], [116.0, -6.0], [142.0, 4.0]]}   # foes' feet: x, depth
 ## The top-down stage, in art px: the feet's line, the caster's feet and the foes' (x, depth), and the rows they face.
 const TOP_GROUND := 52.0
 const TOP_CASTER_X := 13.0
@@ -36,7 +32,6 @@ var form := ""                # its form (vfx.anim): the sheet it plays
 var pose := "idle"            # the body pose it is cast in
 var plays := "hit"            # how the foes meet it: hit, ward, counter or bind
 var still := false            # Reduce motion: one frame at the impact, held
-var top := false              # the top-down character (decision 42), else the side view's
 var clock := 0.0              # seconds into the loop
 var lead := 0.0               # when the cast begins
 var impact := 0.0             # when its blow lands
@@ -44,10 +39,10 @@ var length := 0.0             # the loop, its pause included
 var amount := 0.0             # a hit's number
 var stage: Node2D             # the room in miniature, `scale` screen px a stage px: the pack, the caster, the effects
 var pack: Node2D              # the foes, the farther drawn first
-var caster: Node2D            # the side view's Avatar, or a TopdownDoll
+var caster: TopdownDoll
 var fx: FxLayer
 var foes: Array = []          # [{sprite, home, push, vel, hurt, flash, bound}]
-var units := 1.0              # the effects' units a stage px (the top-down world's 2 world units an art px)
+const UNITS := 2.0            # the effects' units a stage px (the top-down world's 2 world units an art px)
 var _fired := {}
 var _acc := 0.0
 var _who = null
@@ -66,7 +61,7 @@ func _init() -> void:
 	fx.world = false
 	fx.lazy_sheets = true
 	stage.add_child(fx)
-	_build(false)
+	_build()
 
 ## Layered by the order of its pieces alone, never by z (the page's own drawing and any page over it stay in order).
 func _ready() -> void:
@@ -76,32 +71,22 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_EXIT_TREE or what == NOTIFICATION_PREDELETE: TopFoe.settle()
 
-## The caster and the stage's scale for the side view or the top-down character (a new caster when the view changes).
-func _build(top_down: bool) -> void:
-	top = top_down
-	if is_instance_valid(caster): caster.free()
-	units = 2.0 if top else 1.0
-	stage.scale = Vector2.ONE * (float(cfg.get("top_scale", 3)) if top else float(cfg.get("scale", 1.25)))
-	fx.scale = Vector2.ONE / units
-	fx.number_scale = 0.8 / (stage.scale.x / units)
-	if top:
-		TopFoe.texture(str(cfg.get("top_foe", "mudshell_crab")))   # the foe's sheet and index start loading now, ahead of the first art chosen
-		caster = TopdownDoll.new()
-		caster.externally_timed = true
-		caster.position = Vector2(TOP_CASTER_X, TOP_GROUND)
-		caster.shadow = true
-	else:
-		caster = Figures.side_avatar()
-		caster.externally_timed = true
-		caster.position = Vector2(CASTER_X, GROUND)
+## The caster and the stage's scale.
+func _build() -> void:
+	stage.scale = Vector2.ONE * float(cfg.get("top_scale", 3))
+	fx.scale = Vector2.ONE / UNITS
+	fx.number_scale = 0.8 / (stage.scale.x / UNITS)
+	TopFoe.texture(str(cfg.get("top_foe", "mudshell_crab")))   # the foe's sheet and index start loading now, ahead of the first art chosen
+	caster = TopdownDoll.new()
+	caster.externally_timed = true
+	caster.position = Vector2(TOP_CASTER_X, TOP_GROUND)
+	caster.shadow = true
 	stage.add_child(caster)
 	stage.move_child(caster, 1)   # over the pack, under the effects
 
-## The character's outfit (the page dresses it again when the equipment changes), and which view draws it.
-func dress(outfit: Dictionary, top_down := false) -> void:
-	if top_down != top or caster == null: _build(top_down)
+## The character's outfit (the page dresses it again when the equipment changes).
+func dress(outfit: Dictionary) -> void:
 	caster.outfit = outfit
-	if not top: caster.last_key = ""
 
 ## Show `id` cast by `who` (a technique the page may show; "" for none): from its beginning when it is another art.
 func show_art(id: String, who) -> void:
@@ -116,21 +101,14 @@ func restart() -> void:
 	tech = ContentDB.entry("techniques", art) if art != "" else {}
 	form = str(tech.get("vfx", {}).get("anim", ""))
 	if tech.is_empty(): pose = "idle"
-	else: pose = top_pose(tech, _who) if top else pose_of(tech, _who, caster.outfit)
+	else: pose = top_pose(tech, _who)
 	plays = str(cfg.get("plays", {}).get(form, "hit"))
 	var n := int(cfg.get("foes", {}).get(form, 1)) if not tech.is_empty() else 0
 	for f in foes: f.sprite.queue_free()
 	foes.clear()
-	for spot in (TOP_PACK if top else PACK).get(n, []):   # the nearest first: a single-target art lands on it
-		var s: Node2D
-		if top:
-			s = TopFoe.new(str(cfg.get("top_foe", "mudshell_crab")), FOE_ROW)
-		else:
-			s = CreatureSprite.new()
-			s.creature_id = str(cfg.get("foe", "pebble_imp"))
-			s.scale = Vector2.ONE * float(cfg.get("foe_scale", 0.75))
-			s.facing = -1
-		foes.append({"sprite": s, "home": Vector2(float(spot[0]), (TOP_GROUND if top else GROUND) + float(spot[1]))})
+	for spot in TOP_PACK.get(n, []):   # the nearest first: a single-target art lands on it
+		var s := TopFoe.new(str(cfg.get("top_foe", "mudshell_crab")), FOE_ROW)
+		foes.append({"sprite": s, "home": Vector2(float(spot[0]), TOP_GROUND + float(spot[1]))})
 	var deep := foes.duplicate()
 	deep.sort_custom(func(a, b): return float(a.home.y) < float(b.home.y))
 	for f in deep:
@@ -167,12 +145,8 @@ func _loop() -> void:
 	fx.stacks.clear()
 	fx.queue_redraw()
 	caster.play("idle")
-	if top:
-		caster.row = CASTER_ROW if not tech.is_empty() else TopdownDoll.PORTRAIT_ROW
-		caster.position.x = TOP_CASTER_X if not tech.is_empty() else roundf(size.x / stage.scale.x * 0.5)
-	else:
-		caster.facing = 1
-		caster.position.x = CASTER_X if not tech.is_empty() else roundf(size.x / stage.scale.x * 0.5)   # alone, it stands centred
+	caster.row = CASTER_ROW if not tech.is_empty() else TopdownDoll.PORTRAIT_ROW
+	caster.position.x = TOP_CASTER_X if not tech.is_empty() else roundf(size.x / stage.scale.x * 0.5)   # alone, it stands centred
 	caster.queue_redraw()
 	for f in foes:
 		f.merge({"push": 0.0, "vel": 0.0, "hurt": 0.0, "flash": 0.0, "bound": false}, true)
@@ -184,24 +158,9 @@ func _loop() -> void:
 func feet() -> Vector2:
 	return position + stage.position + caster.position * stage.scale
 
-## A stage point (room px, or the top-down art px) in the effects' units.
+## A stage point (art px) in the effects' units.
 func _u(p: Vector2) -> Vector2:
-	return p * units
-
-## The body pose an art is shown in: its `vfx.pose`, a combo step `combo_<n>` taken from the family's combo (the free
-## hand's, of the weapon in hand), when every layer the character wears has it; else the idle stance.
-static func pose_of(t: Dictionary, who, outfit: Dictionary) -> String:
-	var p := str(t.get("vfx", {}).get("pose", t.get("action", "idle")))
-	if p.begins_with("combo_"):
-		var fam := str(t.get("family", "any"))
-		if fam == "any": fam = str(StatRules.family(who).get("id", "fists")) if who != null else "fists"
-		var combo: Array = ContentDB.entry("weapon_families", fam).get("combo", [])
-		p = str(combo[mini(int(p.right(1)) - 1, combo.size() - 1)].action) if not combo.is_empty() else "idle"
-	for cat in outfit:
-		var item: Dictionary = Wardrobe.parts.get(cat, {}).get(str(outfit[cat]), {}) if cat in Wardrobe.CATEGORIES else {}
-		for layer in item.get("layers", []):
-			if not layer.animations.has(p): return "idle"
-	return p
+	return p * UNITS
 
 ## The top-down pose an art is cast in, as a fight plays it (TopdownPlayer._strike_pose on Combat's action for it):
 ## the art's own action as the weapon in hand plays it (the heavy sabre's two-handed cuts, the bell's toll, the bow's
@@ -240,15 +199,10 @@ func advance(dt: float) -> void:
 		if clock >= length:
 			_loop()
 		_beats()
-	if top:
-		caster.step(dt)
-		if str(caster.action) != "idle" and clock > impact + 0.55 and not still:
-			caster.play("idle")
-			caster.row = CASTER_ROW if not tech.is_empty() else TopdownDoll.PORTRAIT_ROW
-	else:
-		caster.elapsed += dt
-		if str(caster.action) != "idle" and clock > impact + 0.55 and not still: caster.play("idle")
-		caster.queue_redraw()
+	caster.step(dt)
+	if str(caster.action) != "idle" and clock > impact + 0.55 and not still:
+		caster.play("idle")
+		caster.row = CASTER_ROW if not tech.is_empty() else TopdownDoll.PORTRAIT_ROW
 	for f in foes:
 		var s: Node2D = f.sprite
 		s.t += dt
@@ -257,27 +211,22 @@ func advance(dt: float) -> void:
 		f.flash = maxf(0.0, float(f.flash) - dt)
 		f.push = float(f.push) + float(f.vel) * dt
 		f.vel = float(f.vel) * maxf(0.0, 1.0 - dt * 7.0)
-		if absf(float(f.vel)) < 12.0 / units: f.push = move_toward(float(f.push), 0.0, 36.0 / units * dt)
-		if size.x > 0.0: f.push = minf(float(f.push), size.x / stage.scale.x - 12.0 / units - float(f.home.x))   # knocked back, never out of the frame
+		if absf(float(f.vel)) < 12.0 / UNITS: f.push = move_toward(float(f.push), 0.0, 36.0 / UNITS * dt)
+		if size.x > 0.0: f.push = minf(float(f.push), size.x / stage.scale.x - 12.0 / UNITS - float(f.home.x))   # knocked back, never out of the frame
 		if s.action == "hurt" and float(f.hurt) <= 0.0: s.play("walk" if f.bound else "idle", true)
 		elif s.action == "attack" and s.t > 0.4: s.play("idle", true)
 		var at: Vector2 = (f.home + Vector2(float(f.push), 0.0)).round()
-		if top:
-			var moved: bool = at != s.position or was_flash != float(f.flash)
-			s.position = at
-			s.set_flash(float(f.flash) / 0.12)
-			if moved or s.changed(): s.queue_redraw()
-		else:
-			s.position = at
-			s.set_flash(float(f.flash) / 0.12)
-			s.queue_redraw()
+		var moved: bool = at != s.position or was_flash != float(f.flash)
+		s.position = at
+		s.set_flash(float(f.flash) / 0.12)
+		if moved or s.changed(): s.queue_redraw()
 	fx.step(dt)
 
 func _beats() -> void:
 	var feet: Vector2 = caster.position
 	var col := SpriteCache.element_color(str(tech.get("element", "none")))
 	var first: Dictionary = foes[0] if not foes.is_empty() else {}
-	var back := 1.0 / units   # a stage px of the side view's velocities
+	var back := 1.0 / UNITS   # a stage px of the effects' velocities
 	match plays:
 		"counter":   # the foe winds up first and strikes into the parry
 			if _beat("windup", 0.05): first.sprite.play("windup", true)
@@ -295,13 +244,12 @@ func _beats() -> void:
 				first.flash = 0.12
 	if _beat("cast", lead):
 		caster.play(pose)
-		if top: caster.t = 0.0
-		else: caster.elapsed = 0.0
-		var far := TOP_CASTER_X if top else CASTER_X
+		caster.t = 0.0
+		var far := TOP_CASTER_X
 		for f in foes: far = maxf(far, f.home.x)
-		var target: Vector2 = first.home if not first.is_empty() else feet + Vector2(60, 0) / units
-		var reach := minf(float(tech.get("hitbox", {}).get("x", [0, 80])[1]), (far - feet.x) * units + 20.0)
-		fx.cast(tech, _u(feet), 1, col, _u(target), float(tech.get("windup_s", 0.2)), reach, Vector2.RIGHT if top else Vector2.ZERO)
+		var target: Vector2 = first.home if not first.is_empty() else feet + Vector2(60, 0) / UNITS
+		var reach := minf(float(tech.get("hitbox", {}).get("x", [0, 80])[1]), (far - feet.x) * UNITS + 20.0)
+		fx.cast(tech, _u(feet), 1, col, _u(target), float(tech.get("windup_s", 0.2)), reach, Vector2.RIGHT)
 	if plays == "ward": return
 	if plays == "counter" and _beat("parry", impact): fx.parry(_u(feet), 1)
 	for i in foes.size():
@@ -320,8 +268,8 @@ func _strike(i: int) -> void:
 	f.hurt = 0.3
 	f.flash = 0.12
 	f.bound = plays == "bind"
-	if not f.bound: f.vel = (150.0 + 30.0 * i) / units
-	var at: Vector2 = _u(f.home + Vector2(float(f.push), 0.0)) + Vector2(0, -(f.sprite.top() * units + 8.0 if top else 40.0))
+	if not f.bound: f.vel = (150.0 + 30.0 * i) / UNITS
+	var at: Vector2 = _u(f.home + Vector2(float(f.push), 0.0)) + Vector2(0, -(f.sprite.top() * UNITS + 8.0))
 	var src := "tech:" + art
 	if mine <= 0:
 		fx.hit(at, 0.0, src, str(tech.get("element", "none")), str(tech.get("damage_type", "")), false, "", false)

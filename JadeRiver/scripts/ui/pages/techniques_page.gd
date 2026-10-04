@@ -22,9 +22,9 @@ extends Page
 ## painted into its place with no draw again, TechniquePicture). The cards' words (each written only while wholly inside
 ## the chart) and the ring numerals at the chart's edge are layers of their own, drawn again only when what they write
 ## changes. The trees' shapes are laid out a family at a time in the frames the page stands idle (ShapeJob), so a tab
-## opens on a shape already made. A top-down character is drawn as the top-down game draws it (decision 42): the cards'
-## and the reading's pictures (TechniquePicture, the look the HUD's buttons and the loadout bar share) and the preview's
-## caster (TopdownDoll); the side view's avatar only for a classic side-view character.
+## opens on a shape already made. The character is drawn as the game draws it (decision 42): the cards' and the
+## reading's pictures (TechniquePicture, the look the HUD's buttons and the loadout bar share) and the preview's caster
+## (TopdownDoll).
 
 const LEFT := Rect2(12, 70, 216, 580)
 const MID := Rect2(236, 70, 660, 580)
@@ -53,7 +53,7 @@ var lost_act := 1             # the Lost Arts leaf shown (0: the lineages)
 var drawer := false           # the reading shows the Inner Arts and stances
 var picked_art := ""          # an Inner Art chosen to wear: tap a slot
 var stage: TechniquePreview  # under the chooser: the character casting the chosen art at a pack of imps
-var pic: Node2D               # the character in the chosen art's pose
+var pic: TopdownDoll          # the character in the chosen art's pose
 var _laid := ""               # the tree laid out in _items
 var _rz := {}                 # the Realisations pool: {total, spent, free}
 var _realised_here := 0       # nodes realised on this tree
@@ -67,7 +67,6 @@ var _pan := false
 var _learned_i := -1
 var _fam := {}                # the weapon family in hand (StatRules.family), found once a dressing
 var _pic_gen := -1            # TechniquePicture.generation the tiles were drawn in (a sheet started again: draw them again)
-var top := false              # the character is a top-down one: its pictures are the top-down figure (decision 42)
 ## The chart apart from the page (decision 42): the page's ground behind everything, the chart's clip over MID and its
 ## three sheets of tiles, and the ring numerals' strip.
 const TILE := Vector2(300, 278)          # a tile: half a family's column (FAM_W), two rings deep
@@ -113,11 +112,8 @@ func setup() -> void:
 	tabs.append({"id": "lost", "label": Tx.t("ui.techniques.lost_arts")})
 	tabs.append({"id": "secret", "label": Tx.t("ui.techniques.secret_arts")})
 	_layers()
-	if pic == null or top != Figures.top_down(ch):
-		if pic != null: pic.queue_free()
-		top = Figures.top_down(ch)
-		pic = Figures.for_view(top)
-		pic.externally_timed = not top   # the side view's avatar is posed by the page (_pose_pic), the doll plays
+	if pic == null:
+		pic = Figures.for_character()
 		pic.visible = false
 		add_child(pic)
 	_dress()
@@ -133,7 +129,7 @@ func _dress() -> void:
 	_stale_tiles()
 	queue_redraw()
 	if stage == null: return
-	stage.dress(pic.outfit.duplicate(), top)
+	stage.dress(pic.outfit.duplicate())
 	stage.restart()
 
 ## The ground behind the page and the chart's window with its sheets and the rings' strip, made once.
@@ -1124,15 +1120,10 @@ func _picture(t: Dictionary, action := "") -> void:
 	glow(Rect2(r.position + Vector2(-10, 10), Vector2(170, 150)), Color(ec, 0.35))
 	draw_line(Vector2(r.position.x + 6, r.end.y - 16), Vector2(r.end.x - 6, r.end.y - 16), Color(ec, 0.6), 1.5)
 	pic.play(action if action != "" else _pose(t))
-	if top:
-		# Decision 42: the top-down figure at a whole PIC_K; a stroke stands back to keep its reach in the frame.
-		_pose_pic(str(pic.action))
-		if not pic.figure.loaded(): _waiting = true   # its sheets are still coming in from their loading threads
-		pic.draw_on(self, Vector2(r.position.x + (75.0 if pic.hold == 0 else 58.0), r.end.y - 14), PIC_K)
-	else:
-		pic.elapsed = 0.3
-		# A stroke reaches forward, so its figure stands back to keep the blade in the frame; a still one stands centred.
-		pic.draw_on(self, Vector2(r.position.x + (75.0 if str(pic.action) in ["idle", "meditate"] else 44.0), r.end.y - 18), 1.0)
+	# Decision 42: the figure at a whole PIC_K; a stroke stands back to keep its reach in the frame.
+	_pose_pic(str(pic.action))
+	if not pic.figure.loaded(): _waiting = true   # its sheets are still coming in from their loading threads
+	pic.draw_on(self, Vector2(r.position.x + (75.0 if pic.hold == 0 else 58.0), r.end.y - 14), PIC_K)
 	if action == "": _form_still(t, r.grow(-4), 1.0, 0.85, true)
 
 ## The top-down picture's pose: a blow held on the frame it lands, in profile toward the right as the preview casts it;
@@ -1143,11 +1134,10 @@ func _pose_pic(pose: String) -> void:
 	pic.row = "se" if still else "e"
 	pic.hold = 0 if still else maxi(1, TopdownFigure.hit_frame(str(pic.action)))
 
-## The body pose an art is shown in: the top-down pose a fight casts it in (TechniquePreview.top_pose) for a top-down
-## character, the side view's (TechniquePreview.pose_of) for a classic one.
+## The body pose an art is shown in: the top-down pose a fight casts it in (TechniquePreview.top_pose).
 func _pose(t: Dictionary) -> String:
 	if _fam.is_empty(): _fam = StatRules.family(c())
-	return TechniquePreview.top_pose(t, c(), _fam) if top else TechniquePreview.pose_of(t, c(), pic.outfit)
+	return TechniquePreview.top_pose(t, c(), _fam)
 
 ## The facts beside the picture: the emblem, its form and element or family, then the numbers.
 func _facts(id: String, t: Dictionary, lines: Array) -> void:

@@ -22,7 +22,7 @@ const PAPER_H := 344.0
 const STRETCH := 184.0      # one disciple's stretch of the scroll
 const MARGIN := 20.0        # the paper before the first and after the last
 const SHOWN := 5            # stretches unrolled at once; more are a turn of the scroll away
-const FIG_SCALE := 1.0      # 2 screen px an art px
+const FIG_PX := 3          # the figures, screen px an art px
 const TAGS := 3             # the gates hung from the roll
 const TAG := Vector2(200, 48)
 const BELOW := Rect2(104, 488, 856, 184)   # the chosen disciple's tasks and Switch, under the scroll
@@ -118,7 +118,7 @@ func _stretch(ch, slot: int, r: Rect2, a: float, live: Dictionary, open: bool) -
 			para(Rect2(r.position.x + 16, r.position.y + 202, r.size.x - 32, 60), Tx.t("ui.characters.slot_empty_create_from_the") % slot, 14, RecordsKit.BROWN, 3)
 		region(r, "choose", slot)
 		return
-	var fig := SectKit.figure(self, figs, str(other.id), InventoryAuthority.outfit_for(other), FIG_SCALE, other)   # each as its own game draws it
+	var fig := SectKit.figure(self, figs, str(other.id), InventoryAuthority.outfit_for(other), FIG_PX)   # each as the game draws them
 	SectKit.show(fig, feet, live, str(other.id), a, "idle" if other == ch else "meditate" if str(other.idle_task.get("task", "")) in ["seclusion", "rest"] else "idle")
 	var sign := _sign(other)
 	if sign != "" and other != ch: icon_at(Rect2(feet + Vector2(26, -32), Vector2(32, 32)), sign, Color(1, 1, 1, a))

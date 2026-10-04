@@ -2064,7 +2064,7 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var sorted_ok: bool = rings.size() == 2 and bolts.size() == 2 and ring_hi.size() == 1 and ring_lo.size() == 1 \
 		and ring_hi[0].position.y > row_key and ring_hi[0].position.y < w.room.sort_key(high, 32.0) and ring_lo[0].position.y < w.room.sort_key(low, 0.0) \
 		and bolts.all(func(pc): return pc.position.y == w.room.sort_key(pc.part.p, float(pc.part.z))) and pieces.all(func(pc): return pc.get_parent() == w.sorted)
-	t.check(sorted_ok and marks.size() == 2 and not hv.ground.visible and hv.air.z_index < WorldLabels.LABEL_Z and hv.get_parent() == w.overlay and hv.squash > 2.0,
+	t.check(sorted_ok and marks.size() == 2 and hv.air.z_index < WorldLabels.LABEL_Z and hv.get_parent() == w.overlay and HazardView.SQUASH > 2.0,
 		"topdown hazards: the rings sort with the room (over the terrace's row, under a body on it) and the bolts at their spots' keys; the washes and the two marks draw on the overlay under the names")
 	rt.hazards.erase("lightning")
 	var made: Array = hv.pieces.duplicate()

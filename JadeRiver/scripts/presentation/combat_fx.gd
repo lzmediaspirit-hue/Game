@@ -1,7 +1,7 @@
 class_name CombatFx
 extends RefCounted
-## The fight's effects from the combat events, for both world views (the side view's world.gd and the top-down room of
-## the redesign, Phase 2). The effects layer draws them (FxLayer.cast, FxLayer.hit); this is the view's part around
+## The fight's effects from the combat events, for the world view (TopdownWorld; redesign Phase 2). The effects layer
+## draws them (FxLayer.cast, FxLayer.hit); this is the view's part around
 ## them: the first hit of a Heaven-grade cast shakes once (P6e), a heavy blow on the player or a crit shakes, the
 ## sound, and the words a blow that did not land leaves. `host` is the view that shakes its camera (add_shake).
 

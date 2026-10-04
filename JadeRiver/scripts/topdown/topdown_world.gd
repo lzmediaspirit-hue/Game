@@ -18,12 +18,11 @@ extends Node2D
 ## and each prop's floor shadow cut to the floor it stands on. Plants sway and lotus bob in their own frames, and the
 ## foes are the eight-facing sheets (art/topdown/foes/, a sheet a species).
 ##
-## Phase 4 (`live`): the world view of a character's own game in every room of the world that has a layout on the grid
-## (WorldAuthority.grid_for; main.gd mounts world.gd for the others). The room is Game.room_rt's and the view rebuilds
-## as each room is entered: its people, things and ways (TopdownPlaces), the ways walked into or taken with the
-## context button, the context's offer, the names over the world and the events' effects as the side view plays them
-## (WorldShared), a night room's tint and the room's hazards and weather (HazardView), and moments (MomentView reads
-## the same anchors of either view).
+## Phase 4 (`live`): the world view of a character's own game, in every room of the world (each has its layout on the
+## grid: WorldAuthority.grid_for). The room is Game.room_rt's and the view rebuilds as each room is entered: its people,
+## things and ways (TopdownPlaces), the ways walked into or taken with the context button, the context's offer, the
+## names over the world and the events' effects (WorldShared), a night room's tint and the room's hazards and weather
+## (HazardView), and moments (MomentView reads its anchors).
 ##
 ## Decision 40 (runtime light, docs/redesign/art_bible.md "Terrain v2 · Runtime light"): each room's cast shadows are
 ## baked once as it is built (TopdownShadows) and laid on the water, the ground floor and each raised row's tops; the
@@ -108,7 +107,7 @@ var life: TopdownLife       ## decision 43: the room's critters, work, smoke, th
 func _ready() -> void:
 	if preset != null:
 		room = preset
-	elif live and Game.room_rt != null and Game.room_rt.topdown != null:
+	elif live and Game.room_rt != null:
 		room = Game.room_rt.topdown
 	# Phase 2: a character enters the prototype room through the World authority; its RoomRuntime carries the grid.
 	elif Game.active() != null and Game.submit({"type": "enter_grid_room", "room": room_id}).get("ok", false):
@@ -255,7 +254,7 @@ func build_room() -> void:
 		var pv := PropView.new(self, p)
 		sorted.add_child(pv)
 		_room_nodes.append(pv)
-	# T1: the side view's traversal on the grid: rafts, climbable faces, updrafts' spray (TopdownTraverseView).
+	# T1: the traversal on the grid: rafts, climbable faces, updrafts' spray (TopdownTraverseView).
 	for tv in TopdownTraverseView.build(self):
 		sorted.add_child(tv)
 		_room_nodes.append(tv)
@@ -466,7 +465,7 @@ func request_portal(portal_id: String, crossing := false) -> void:
 	WorldShared.request_portal(self, portal_id, crossing)
 
 func update_context() -> void:
-	# T1: a climbable face in reach offers Climb when nothing else is offered, as the side view's ladder does.
+	# T1: a climbable face in reach offers Climb when nothing else is offered.
 	var near: Dictionary = player.climb_near() if player.motor.climbing.is_empty() else {}
 	var climb := {"type": "climbable", "climbable": str(near.climb.id), "label": Tx.t("hud.climb")} if not near.is_empty() else {}
 	var ctx := WorldShared.context(Game.active(), player.motor.pos, climb)
@@ -616,8 +615,8 @@ func layout_labels() -> Dictionary:
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:
 		"room_entered":
-			# Phase 4: the next room on the grid (a room without a layout is world.gd's; main.gd swaps the views).
-			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null and Game.room_rt.topdown != null:
+			# Phase 4: the next room, on its grid.
+			if live and str(p.get("actor", "")) == Game.active_id and Game.room_rt != null:
 				room = Game.room_rt.topdown
 				build_room()
 				place_player()
@@ -1021,7 +1020,7 @@ class FxView extends Sorted:
 				draw_rect(Rect2(a.x + s * roundf(spread * 0.5) - 1, a.y - 2 - roundf(5.0 * t), 1, 1), col)
 			draw_arc(a, spread, 0, TAU, 12, col, 1.0)
 
-## The body drawn flat in jade over whatever covers it (the side-view game's occlusion outline, redone for the grid).
+## The body drawn flat in jade over whatever covers it (the occlusion outline).
 class Silhouette extends Node2D:
 	var world
 	func _init(w) -> void:
@@ -1050,8 +1049,8 @@ class Caption extends Control:
 ## hold their last frame. An elite takes its species' elite sheet where there is one: larger, darker, gold-eyed, in a
 ## ring of Qi.
 ## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
-## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe as the side view's own
-## figure at half size), placed, sorted and shadowed here the same way.
+## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe its creature sheet
+## at half size until its species has a top-down sheet, S12b), placed, sorted and shadowed here the same way.
 class FoeView extends Sorted:
 	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
@@ -1112,7 +1111,7 @@ class FoeView extends Sorted:
 		top = float(look.get("top", -1))
 		shadow_rx = float(look.get("shadow", [8, 3])[0])
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
-	## idle frame facing the camera, tools/art/topdown/build_foes.py); a stand-in's is the side view's height at half size,
+	## idle frame facing the camera, tools/art/topdown/build_foes.py); a creature stand-in's is its height at half size,
 	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
 	## (decision 43, TopdownPlaces.HEAD_LIFT).
 	func figure_top(e: EnemyState) -> float:

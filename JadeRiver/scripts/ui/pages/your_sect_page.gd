@@ -283,7 +283,7 @@ func _figures(s: Dictionary, live: Dictionary) -> Array:
 		var x := 760.0 + home * 80.0
 		var feet := Vector2(_x(x), _foot(740.0 + (home % 2) * 50.0))
 		var key := "d%d" % i
-		SectKit.show(SectKit.figure(self, figs, key, SectKit.disciple_outfit(str(ds[i].get("name", ""))), 0.5), feet, live, key, 1.0, "idle", 1 if home % 2 == 0 else -1)
+		SectKit.show(SectKit.figure(self, figs, key, SectKit.disciple_outfit(str(ds[i].get("name", ""))), 2), feet, live, key, 1.0, "idle", 1 if home % 2 == 0 else -1)
 		inked(feet + Vector2(-40, 18), str(ds[i].get("name", "")), 14, UiKit.PAPER, HORIZONTAL_ALIGNMENT_CENTER, 80, false)
 		taken.append(Rect2(feet - Vector2(20, 46), Vector2(40, 68)))
 		home += 1
@@ -291,7 +291,7 @@ func _figures(s: Dictionary, live: Dictionary) -> Array:
 	for i in cands.size():
 		var feet := Vector2(_x(GATE_X + i * 60.0), _foot(GATE_Y))
 		var key := "c%d_%s" % [i, str(cands[i].get("name", ""))]
-		SectKit.show(SectKit.figure(self, figs, key, SectKit.disciple_outfit(str(cands[i].get("name", "")) + "*"), 0.5), feet, live, key, 1.0 if i == cand else 0.8, "idle", -1)
+		SectKit.show(SectKit.figure(self, figs, key, SectKit.disciple_outfit(str(cands[i].get("name", "")) + "*"), 2), feet, live, key, 1.0 if i == cand else 0.8, "idle", -1)
 		if i == cand: draw_arc(feet + Vector2(0, -2), 14.0, 0.0, TAU, 20, Color(UiKit.BRIGHT_JADE, 0.8), 2.0, true)
 		region(Rect2(feet - Vector2(16, 40), Vector2(32, 44)), "cand", i)
 		taken.append(Rect2(feet - Vector2(18, 46), Vector2(36, 52)))

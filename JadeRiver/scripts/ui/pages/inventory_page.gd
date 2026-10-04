@@ -23,8 +23,7 @@ const WORN := {"hat": Vector2(113, 192), "weapon": Vector2(279, 192), "robe": Ve
 const ORBIT := Vector2(234, 406)
 const ORBIT_R := Vector2(134, 224)
 const FEET := Vector2(228, 598)
-const FIGURE_SCALE := 2.5
-const TOP_SCALE := 5      # a top-down character's figure (TopdownDoll), screen px an art px (decision 43: 46 px at x5)
+const TOP_SCALE := 5      # the character's figure (TopdownDoll), screen px an art px (decision 43: 46 px at x5)
 const CARD_W := 312.0
 const CARD_IN := CARD_W - 28.0
 const KINDS := ["all", "gear", "pills", "materials", "other"]
@@ -40,7 +39,7 @@ var sel := {}          # {"bag": index} | {"slot": name} | {"key": index}
 var kind := "all"      # the kind the grid shows
 var more := false      # the card's "···" actions shown
 var sort_by := "type"
-var doll: Node2D       # the figure, drawn among the page's own layers (Avatar.draw_on), under the card
+var doll: TopdownDoll  # the figure, drawn among the page's own layers (Figures.draw_on), under the card
 var tier := 0          # how far up the gourd ladder: the sky grows with it
 var stars: Array = []  # [position, radius, colour, bright]
 var anchor := Rect2()  # the chosen thing's space as drawn this frame
@@ -58,9 +57,9 @@ func content_rect() -> Rect2:
 
 func setup() -> void:
 	var ch = c()
-	# Decision 42: the character as its game draws it (the top-down figure for a top-down character).
+	# Decision 42: the character as the game draws it.
 	if not is_instance_valid(doll):
-		doll = Figures.for_character(ch)
+		doll = Figures.for_character()
 		doll.visible = false
 		add_child(doll)
 	if ch == null: return
@@ -262,7 +261,7 @@ func draw_page() -> void:
 	_purses(ch)
 	# The figure on its island, then the worn slots riding in along the orbit as the page opens.
 	glow(Rect2(FEET + Vector2(-64, -10), Vector2(128, 22)), Color(UiKit.INK, 0.45))
-	Figures.draw_on(doll, self, FEET, TOP_SCALE, FEET, FIGURE_SCALE)
+	Figures.draw_on(doll, self, FEET, TOP_SCALE)
 	var ringed := str(sel.get("slot", ""))
 	var chosen = selected_item()
 	if sel.has("bag") and chosen != null: ringed = str(ContentDB.item(str(chosen.id)).get("slot", ""))
