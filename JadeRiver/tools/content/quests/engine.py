@@ -37,7 +37,7 @@ if __name__ == "__main__" and not __package__:
     from content.quests import engine as _engine
     raise SystemExit(_engine.main())
 
-from .spec import AUTO, DROP, ORDER, PAY, SpecError  # noqa: E402
+from .spec import AUTO, DROP, ORDER, PAY, ROOM, SpecError  # noqa: E402
 from . import bands as B  # noqa: E402
 
 NODES = ("herb_patch", "ore_vein", "insect_swarm", "star_sight")   # the room objects a template's item comes from
@@ -299,10 +299,13 @@ def derive(q, w):
             break
     target = lead if q["target_room"] is AUTO else q["target_room"]
     rk = q["realm"]
-    if rk is AUTO:
+    if rk is AUTO or rk is ROOM:
+        # The room's realm: AUTO for a quest that follows no other, ROOM also for one that does (E5b: it then opens at
+        # the later of the two, for a room that lies past where the story leaves you).
+        room_realm = rk is ROOM
         rk = None
         band = w.band(target) if target else None
-        if band and not q["after"]:
+        if band and (room_realm or not q["after"]):
             rk = R.key_at_level((band[0] + band[1]) // 2)
     if q["requires"] is not AUTO:
         req = q["requires"]
@@ -438,12 +441,28 @@ def check_specs(errs, st=None, w=None):
         tr = q["target_room"]
         if tr not in (AUTO, None) and tr not in w.rooms:
             errs.append("%s: no room %s" % (who, tr))
+        if q["pay"] is not AUTO and not q.get("why"):
+            errs.append("%s: its pay is pinned (%r) with no reason: give why=\"...\" (the story's), or let it pay its band" % (who, q["pay"]))
     for d in st.dailies:
         for j in d["jobs"]:
             s = j["step"]
             for key, table in (("enemy", w.enemies), ("item", w.items)):
                 if key in s and s[key] not in table:
                     errs.append("daily %s %r: no %s %s" % (d["id"], j["name"], key, s[key]))
+            if j["levels"] is not AUTO and not j.get("why"):
+                errs.append("daily %s %r: its Levels are pinned %r with no reason: give why=\"...\", or let them follow its band" % (
+                    d["id"], j["name"], j["levels"]))
+    return errs
+
+
+def check_rooms(errs, st=None, w=None):
+    """E5b: no quest is pitched far from its room (far_rooms), and no daily job is posted far from its foe's or its
+    node's band (far_jobs)."""
+    for qid, tier, lv, room, band in far_rooms(st, w):
+        errs.append("%s: its room %s (Levels %s) is far from its tier %s (Level %d): move its target, or let it open later "
+                    "(realm=ROOM)" % (qid, room, band, tier, lv))
+    for did, name, lv, what, band in far_jobs(st, w):
+        errs.append("daily %s %r: posted at Levels %d-%d, far from %s (Levels %s)" % (did, name, lv[0], lv[1], what, band))
     return errs
 
 
@@ -519,8 +538,9 @@ def deterministic(errs):
 
 # ------------------------------------------------------------------------------------------------ what it paid
 def differences(st=None, w=None):
-    """[(quest, band, what the band pays, what the quest pays)] for every quest whose pay is pinned otherwise, or
-    whose cultivation is not its band's (a quest of Act II's sections at an Act I tier pays Act II's share)."""
+    """[(quest, band, tier, what the band pays, what the quest pays, why)] for every quest whose pay is pinned otherwise,
+    or whose cultivation is not its band's (a quest of Act II's sections at an Act I tier pays Act II's share); `why` is
+    its spec's reason."""
     st, w = st or state(), w or world()
     built = {r["id"]: r for r in _read("quests.json")["entries"]}
     out = []
@@ -535,17 +555,20 @@ def differences(st=None, w=None):
         pay_s = lambda e: "%d %s" % (e["amount"], {"silver_tael": "taels", "spirit_stone": "spirit stones", "sage_crystal": "sage crystals"}.get(e["currency"], e["currency"]))
         if [want] != got or exp != exp_band:
             out.append((q["id"], band[0], b["tier"], "%s, +%d" % (pay_s(want), exp_band),
-                        "%s, +%d" % (", ".join(pay_s(e) for e in got) or "no money", exp)))
+                        "%s, +%d" % (", ".join(pay_s(e) for e in got) or "no money", exp), q.get("why") or ""))
     return out
 
 
-def far_rooms(st=None, w=None, above=4, below=8):
+def far_rooms(st=None, w=None, above=4, below=8, tiers=None):
     """[(quest, tier, Level, room, band)] for every quest whose room (its target, or where its first step leads when it
     names none) lies more than `above` Levels over its tier (the kill gap's full-credit band, stats.json) or `below`
-    under it: a quest pitched at a tier its fights do not match."""
+    under it: a quest pitched at a tier its fights do not match. `tiers` (quest -> tier) stands for the built data's."""
     import realms as R
     st, w = st or state(), w or world()
-    built = {r["id"]: r for r in _read("quests.json")["entries"]}
+    if tiers is not None:
+        built = {k: {"tier": t} for k, t in tiers.items()}
+    else:
+        built = {r["id"]: r for r in _read("quests.json")["entries"]}
     out = []
     for q in st.quests:
         b = built.get(q["id"])
@@ -557,6 +580,35 @@ def far_rooms(st=None, w=None, above=4, below=8):
         lv = next((int(r["level"]) for r in R.ladder() if r["key"] == b["tier"]), 0)
         if band and (band[0] > lv + above or band[1] < lv - below):
             out.append((q["id"], b["tier"], lv, room, "%d-%d" % band))
+    return out
+
+
+def far_jobs(st=None, w=None, above=4, below=8, node_below=20):
+    """[(template, job, (lo, hi), what, band)] for every daily job posted far from what it asks (E5b): a hunt whose foe's
+    first Level is more than `above` over the job's lowest Level, or whose last is more than `below` under its highest
+    (the quests' bounds); a gathering whose first field band starts more than `above` over its lowest Level, or whose
+    last field band tops out more than `node_below` under its highest (job_levels' own reach of twenty)."""
+    st, w = st or state(), w or world()
+    out = []
+    for d in st.dailies:
+        for j in d["jobs"]:
+            s = j["step"]
+            lo, hi = job_levels(s, w) if j["levels"] is AUTO else j["levels"]
+            if s["kind"] == "kill" and s["enemy"] in w.enemies:
+                lv = w.enemies[s["enemy"]].get("level") or [0, 0]
+                first, last, slack = int(lv[0]), int(lv[-1]), below
+                what = w.name("enemy", s["enemy"])
+            elif s["kind"] == "gather_node":
+                bands = [w.band(rid) for rid in w.rooms if w.band(rid) and any(
+                    ob.get("type") in NODES and ob.get("item") == s["item"] for ob in w.rooms[rid].get("objects", []))]
+                if not bands:
+                    continue
+                first, last, slack = min(b[0] for b in bands), max(b[1] for b in bands), node_below
+                what = w.name("item", s["item"])
+            else:
+                continue
+            if first > lo + above or last < hi - slack:
+                out.append((d["id"], j["name"], (lo, hi), what, "%d-%d" % (first, last)))
     return out
 
 
@@ -588,18 +640,28 @@ def main(argv=None):
             print("%-18s %-9s %-8d +%-11d %d %s" % (b[0], "%d-%d" % (lv[0], lv[-1]), R.need_at_level(b[1]), B.experience(b), b[3], b[2]))
         return 0
     if args.diffs:
-        print("pay: the quests that pay otherwise than the band at their tier")
+        print("pay: the quests that pay otherwise than the band at their tier, and why")
         for row in differences(st, w):
-            print("  %-28s %-16s %-18s band: %-28s quest: %s" % row)
+            print("  %-28s %-16s %-18s band: %-28s quest: %s\n  %28s why: %s" % (row[:5] + ("", row[5] or "(no reason given)")))
         print("rooms: the quests whose room's Levels are far from their tier")
         for row in far_rooms(st, w):
             print("  %-28s %-18s Level %-4d %-24s Levels %s" % row)
+        print("board: the daily jobs posted far from their foe's or node's Levels")
+        for did, name, lv, what, band in far_jobs(st, w):
+            print("  %-8s %-26s Levels %d-%d  %s, Levels %s" % (did, name, lv[0], lv[1], what, band))
+        print("board pins: the jobs whose Levels are pinned, and why")
+        for d in st.dailies:
+            for j in d["jobs"]:
+                if j["levels"] is not AUTO:
+                    print("  %-8s %-26s Levels %d-%d (derived %d-%d)  why: %s" % ((d["id"], j["name"]) + tuple(j["levels"]) +
+                                                                            job_levels(j["step"], w) + (j.get("why") or "(no reason given)",)))
         return 0
     errs = []
     deterministic(errs)
     check_specs(errs)
     check_built(errs)
     check_bands(errs)
+    check_rooms(errs)
     from . import tests
     ran, failed = tests.run()
     errs += failed
@@ -609,10 +671,10 @@ def main(argv=None):
     st = state()
     band = sum(1 for q in st.quests if q["pay"] is AUTO)
     none = sum(1 for q in st.quests if q["pay"] is None)
-    print("quest engine: %d quests in %d sections (%d pay their band, %d a pinned sum, %d no money), %d daily templates with "
-          "%d jobs; %d tests; the specs, determinism, the built data and the bands hold" % (
-              len(st.quests), len(st.sections), band, len(st.quests) - band - none, none, len(st.dailies),
-              sum(len(d["jobs"]) for d in st.dailies), ran))
+    print("quest engine: %d quests in %d sections (%d pay their band, %d a pinned sum, %d no money, each pin with its reason), "
+          "%d daily templates with %d jobs; %d tests; the specs, determinism, the built data, the bands, the rooms and the "
+          "board hold" % (len(st.quests), len(st.sections), band, len(st.quests) - band - none, none, len(st.dailies),
+                          sum(len(d["jobs"]) for d in st.dailies), ran))
     return 0
 
 
@@ -629,9 +691,9 @@ def show(qid, st, w):
     print(json.dumps(r, indent=1, ensure_ascii=False))
     print("section %s; target room %s%s; realm %s%s" % (st.section_of[qid], d["target_room"], " (pinned; derived %s)" % d["derived_room"]
                                                        if q["target_room"] is not AUTO else " (derived)", d["realm"],
-                                                       " (pinned)" if q["realm"] is not AUTO else " (derived)"))
+                                                       " (derived)" if q["realm"] is AUTO else " (its room's)" if q["realm"] is ROOM else " (pinned)"))
     if built:
         band = band_of_tier(built["tier"])
         print("tier %s, band %s: +%d cultivation, %d %s; this quest pays %s" % (built["tier"], band[0], B.experience(band), band[3], band[2],
-                                                                                "the band's" if q["pay"] is AUTO else "pinned: %r" % (q["pay"],)))
+                                                                                "the band's" if q["pay"] is AUTO else "pinned: %r (%s)" % (q["pay"], q.get("why"))))
     return 0
