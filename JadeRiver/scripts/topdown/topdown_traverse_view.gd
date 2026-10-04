@@ -37,8 +37,13 @@ static func build(world) -> Array:
 	if sheet() == null: return out
 	# T3: a Starsea crossing's room (its side-view definition's `crossing`) is a vessel under way: the star-water streams
 	# past its hull.
-	if world.get("live") == true and Game.room_rt != null and Game.room_rt.topdown == world.room and bool(Game.room_rt.def.get("crossing", false)):
+	var live: bool = world.get("live") == true and Game.room_rt != null and Game.room_rt.topdown == world.room
+	if live and bool(Game.room_rt.def.get("crossing", false)):
 		out.append(VoyageView.new(world))
+	# T3: past the Lantern Star Field (TopdownLight's `void` areas) the water is the Starsea's and the nebula's: star-water.
+	if live and bool(TopdownLight.area_of(Game.room_rt.def).get("void", false)):
+		var sw := StarWaterView.new(world)
+		if not sw.runs.is_empty(): out.append(sw)
 	if tr == null or tr.is_empty(): return out
 	for r in tr.rafts: out.append(LanternView.new(world, tr, r) if str(r.kind) == "lantern" else RaftView.new(world, tr, r))
 	for c in tr.climbs: out.append(ClimbView.new(world, c))
@@ -617,6 +622,55 @@ class VoyageView extends TopdownWorld.Sorted:
 			var tail := Vector2i(int((x + r.size.x) / T), c.y)
 			if not room.inside(c.x, c.y) or not room.is_water(c.x, c.y) or not room.inside(tail.x, tail.y) or not room.is_water(tail.x, tail.y): continue   # never over the deck
 			draw_texture_rect_region(tex, Rect2(Vector2(roundf(x), float(s[1])) - position, r.size), r)
+
+## T3 · star-water (the Starsea's and the Nebula Deep's, past the Lantern Star Field): over the room's own water (the
+## river's paint, the kit has no other) an indigo wash, and stars glinting in it, a few twinkling on the water's clock.
+## Flat on the water, at the back of the sorted layer as the crossing's streaks are.
+class StarWaterView extends TopdownWorld.Sorted:
+	const WASH := Color(0.22, 0.14, 0.46, 0.3)
+	var runs: Array = []    ## [Rect2] the water's rows, run by run (art px, at the water's line)
+	var stars: Array = []   ## [Vector2 at, kind (0 pale, 1 warm, 2 bright), twinkle phase]
+	var _f := -1
+	func _init(w) -> void:
+		super(w)
+		var room: TopdownRoom = w.room
+		var dz := -TopdownRoom.WATER_Z / TopdownRoom.ART
+		for y in room.h:
+			# A run is cut where the row under it turns from water to land: over land the water's line ends at the cell's
+			# foot, so the wash stops there and never tints the bank.
+			var x0 := -1
+			var open := false
+			for x in room.w + 1:
+				var wet := x < room.w and room.is_water(x, y)
+				var under := wet and y + 1 < room.h and room.is_water(x, y + 1)
+				if x0 >= 0 and (not wet or under != open):
+					runs.append(Rect2(float(x0) * T, float(y) * T + dz, float(x - x0) * T, T if open else T - dz))
+					x0 = -1
+				if wet and x0 < 0:
+					x0 = x
+					open = under
+				if not wet: continue
+				var h := posmod((x * 73856093) ^ (y * 19349663), 1009)
+				if h % 3 != 0: continue
+				stars.append([Vector2(float(x) * T + float(h % 13) + 1.0, float(y) * T + dz + float((h >> 4) % 6) + 1.0), (h >> 2) % 5 % 3, (h >> 3) % 4])
+		key(0.0)
+		rects.clear()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		var f := int(Time.get_ticks_msec() / 250) % 4
+		if f != _f:
+			_f = f
+			queue_redraw()
+	func _draw() -> void:
+		for r in runs: draw_rect(Rect2((r as Rect2).position - position, (r as Rect2).size), WASH)
+		for s in stars:
+			var a := 0.4 if int(s[2]) == _f else 0.85
+			var c := Color(1.0, 0.9, 0.72, a) if int(s[1]) == 1 else Color(0.86, 0.93, 1.0, a)
+			var p: Vector2 = (s[0] as Vector2) - position
+			draw_rect(Rect2(p, Vector2.ONE), c)
+			if int(s[1]) == 2:
+				for d in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]: draw_rect(Rect2(p + d, Vector2.ONE), Color(c, a * 0.45))
 
 ## A low-gravity floor (TopdownTraverse.lowgs, the Orbit Ruins'): while its jade switch holds it, violet motes rising slowly
 ## off the floor over its cells and fading as they go (the side view's VolumeView); while it is off, a faint ring of
