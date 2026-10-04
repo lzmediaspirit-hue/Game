@@ -877,7 +877,7 @@ static func sets() -> Dictionary:
 	# planks, an open hatch, a lantern going round upright, the swim's wake, and the light of the late zones (the tomb,
 	# the Clan Hearth's cavern, Lanternfall's star lanterns under the star field's night). The bounces' give is in the
 	# art's review sheet (traverse_x4.png): it lasts a few frames.
-	s["traversal_t3"] = {"doc": "T3: Act II onward and T2's leftovers on the grid: the cracked slab, Rimefrost's ice, open spikes, an open hatch, an upright lantern, the swim's wake, and the late zones' light",
+	s["traversal_t3"] = {"doc": "T3: Act II onward and T2's leftovers on the grid: the cracked slab, Rimefrost's ice, open spikes, an open hatch, an upright lantern, the swim's wake, the late zones' light, and the star field's end (low gravity, the void, star-water, the crossing, the Wardens' lamps)",
 		"out": "architecture/topdown_mechanics/t3/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
 			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"],
 			["secret_art", "plunge"]], "rows": [
@@ -893,7 +893,16 @@ static func sets() -> Dictionary:
 			["move", Vector2.DOWN], ["frames", 16], ["move", Vector2.RIGHT], ["frames", 20], ["stop"]]),
 		t2.call("09_star_lanterns_arrival_quay", "lh_arrival_quay", Vector2(20, 12), [["frames", 30]]),
 		t2.call("10_tomb_lamplit", "ts_hall_of_sand_kings", Vector2(30, 13), [["frames", 30]]),
-		t2.call("11_clan_hearth_lamplit", "ir_clan_hearth", Vector2(28, 11), [["frames", 30]])]}
+		t2.call("11_clan_hearth_lamplit", "ir_clan_hearth", Vector2(28, 11), [["frames", 30]]),
+		# R9's rooms: the Inverted Hall's east switch turned (the light air's motes over the hall's east half, the high
+		# gallery over them), a brink over the void, the nebula's star-water, the crossing's deck under way, the Wardens'
+		# lamps and caged stars.
+		t2.call("12_low_gravity_inverted_hall", "or_inverted_hall", Vector2(44, 16), [["beside", "switch_hall_b"],
+			["submit", {"type": "interact", "object": "switch_hall_b"}], ["stand_cell", [33, 7]], ["face", Vector2.UP], ["frames", 90]]),
+		t2.call("13_void_tumbling_stair", "or_tumbling_stair", Vector2(19, 25), [["face", Vector2.DOWN], ["frames", 30]]),
+		t2.call("14_star_water_nebula_verge", "nd_nebula_verge", Vector2(26, 17), [["face", Vector2.DOWN], ["frames", 30]]),
+		t2.call("15_crossing_deck_starsea", "ss_starsea_crossing", Vector2(22, 12), [["frames", 40]]),
+		t2.call("16_warden_lamps_citadel_gate", "wc_citadel_gate", Vector2(30, 19), [["frames", 30]])]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

@@ -27,7 +27,7 @@ const CLOUD_DRIFT := 2.5
 ## a sea of cloud: these bands, darker down, the stars over them on a lattice of STAR px sliding by STAR_K, a nebula's
 ## haze across; the Starsea's water past a crossing's deck has the same stars glinting in it.
 const VOID := [Color("1d1a46"), Color("17143c"), Color("110f32"), Color("0c0b26"), Color("08071b")]
-const NEBULA := Color(0.48, 0.32, 0.72, 0.16)
+const NEBULA := Color(0.48, 0.32, 0.72, 0.08)
 const STAR := 12
 const STAR_K := 0.2
 
@@ -150,11 +150,14 @@ func _south(kind: String, view: Rect2) -> void:
 			var y := bottom
 			if void_sky:
 				# T3: past the star field's edge the brink falls into the void: dark bands, a nebula's haze, the stars.
-				var band := ceilf((view.end.y - bottom) / VOID.size())
-				for i in VOID.size():
-					draw_rect(Rect2(view.position.x, y, view.size.x, band + 1.0), VOID[i])
-					y += band
-				draw_rect(Rect2(view.position.x, bottom + pad * 0.45, view.size.x, pad * 0.3), NEBULA)
+				# Its dark deepening down from the cliff's foot in steps of 4 px (fixed to the room, so the steps hold still as
+				# the camera pans), the nebula's haze across it, densest in its middle.
+				var deep := pad + T * 2.0
+				while y < view.end.y:
+					var k := clampf((y - bottom) / deep, 0.0, 1.0) * (VOID.size() - 1)
+					draw_rect(Rect2(view.position.x, y, view.size.x, 4.0), (VOID[int(k)] as Color).lerp(VOID[mini(int(k) + 1, VOID.size() - 1)], k - floorf(k)))
+					y += 4.0
+				for i in 3: draw_rect(Rect2(view.position.x, bottom + pad * (0.35 + 0.1 * i), view.size.x, pad * (0.5 - 0.2 * i)), NEBULA)
 				_stars(Rect2(view.position.x, bottom + T, view.size.x, view.end.y - bottom - T))
 			else:
 				for i in SKY.size():

@@ -724,4 +724,5 @@ class LowGravityView extends TopdownWorld.Sorted:
 			var k := fposmod(t * float(m[3]) + float(m[2]), 1.0)
 			var s := TopdownTraverseView.src("mote", i % 3)
 			var at := TopdownWorld.to_screen(p, maxf(fz, 0.0) + RISE * k).round() - position - Vector2(2, 2)
-			draw_texture_rect_region(tex, Rect2(at, s.size), s, Color(1, 1, 1, sin(k * PI) * 0.9))
+			# Brighter than the sheet, so they glow under the night.
+			draw_texture_rect_region(tex, Rect2(at, s.size), s, Color(1.3, 1.25, 1.5, sin(k * PI)))
