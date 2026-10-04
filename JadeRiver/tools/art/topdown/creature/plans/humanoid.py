@@ -41,10 +41,22 @@ and two jade bi rings orbiting it (`rings`). Styles: the sentinel's idle `halber
 `halberd_back`, attack `halberd_sweep`, hurt `armor_rock`, death `topple_crack`; the gate's idle `ring_orbit`, walk
 `ring_stomp`, windup `rings_rise`, attack `ring_sweep`, hurt `ring_wobble`, death `kneel_crack`.
 
+`golem` (M4, the gravity golem): a body of separate chamfered basalt blocks floating apart, held by gravity (indigo
+ripples in its gaps), a faceless hunched head, a violet singularity in its chest, a ring of pale stones orbiting it; it
+takes the guardian's moves with its own styles: idle `orbit_bob`, walk `stomp`, windup `gravity_raise` (the singularity
+swelling, drawing in lines and pebbles), attack `orbit_slam` (a shockwave ring), hurt `gravity_jolt` (its blocks jolted
+apart), death `gravity_fails` (its blocks dropping into a heap).
+
 `chief`, `abbot` and `elder` (M2, the people of size: Big Toad Tan, the Drowned Abbot, Elder Gu): see "the people of
 size" below. Their styles: Tan's `chief_idle`, `chief_waddle`, `cleaver_raise`, `cleaver_slam`, `chief_rock`,
 `chief_fall`; the Abbot's `abbot_sway`, `abbot_glide`, `staff_raise`, `staff_slam`, `abbot_rock`, `abbot_collapse`;
 Gu's `elder_stand`, `elder_walk`, `tide_draw`, `tide_strike`, `elder_rock`, `elder_fall`.
+
+`captain`, `admiral`, `general` and `presence` (M4, the late game's people of size: Comet Captain Rao, Admiral Voss,
+General Kharn, the Ninth Presence): see "the people of size (M4)" below. Their styles: Rao's `capt_idle`, `capt_stride`,
+`anchor_raise`, `anchor_slam`, `capt_rock`, `capt_fall`; Voss's `adm_stand`, `adm_walk`, `cannon_aim`, `broadside_cut`,
+`adm_rock`, `adm_fall`; Kharn's `gen_stand`, `gen_march`, `glaive_raise`, `glaive_cleave`, `gen_rock`, `gen_fall`; the
+Presence's `pres_hover`, `pres_glide`, `crown_gather`, `seat_palm`, `pres_rock`, `pres_fade`.
 """
 from __future__ import annotations
 
@@ -546,6 +558,8 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
+    if B.parts.get("golem"):
+        return _golem(B, action, f, view)                # M4: the gravity golem
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
@@ -585,6 +599,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         grain = limb = _armor(m, hip, tm, p.paint)
     elif p.paint.kind == "clothes":
         grain = limb = _clothes(m, hip, tm, p.paint, bool(B.opts.get("bare")))
+    elif p.paint.kind == "lamellar":
+        grain = limb = _lamellar(m, hip, tm, p.paint, bool(B.opts.get("bare")))     # M4: General Kharn's armour
     elif p.paint.kind in M3_PAINTS:
         grain = limb = M3_PAINTS[p.paint.kind](m, hip, tm, p.paint, int(B.opts.get("seed", 0)))
 
@@ -610,7 +626,7 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     if p.get("hunch"):
         hm = hm @ rot("b", p.hunch * 0.85)          # a hunched body holds its head up, its face to the front
     hc = up(p.head.at[0]) + hm @ v3(0.0, 0.0, p.head.at[1])
-    P.add(E(hc, p.head.r, m.body, "head", hm, None if p.paint.kind in ("fur", "clothes") else grain))   # a face wears no clothes
+    P.add(E(hc, p.head.r, m.body, "head", hm, None if p.paint.kind in ("fur", "clothes", "lamellar") else grain))   # a face wears no clothes
     fc = p.face
     if fc.kind == "grin":
         _grin(P, B, action, f, hc, hm, grain, math.sin(math.radians(view)) > -0.5)
@@ -1174,7 +1190,7 @@ def _human_face(P, B, action: str, f: int, hc, hm) -> None:
         P.add(E(hc + hm @ v3(ea - 0.25, s * eb, ec + 0.55), fc.brow, m.hair, "brow%d" % s, hm @ rot("a", s * fc.get("brow_tilt", 0.0)), line=False))
         if dark or st.get("squint"):
             P.mark(eye, M.RAMPS[m.skin][0])
-        elif isinstance(fc.get("glow"), str):
+        elif isinstance(fc.get("glow"), str) and fc.glow in GLOW_EYES:
             # M3: eyes glowing in a colour of their own (the terracotta warden's molten amber, the tomb king's).
             core, main, dim, glow = GLOW_EYES[fc.glow]
             P.eye(eye, core)
@@ -1182,10 +1198,11 @@ def _human_face(P, B, action: str, f: int, hc, hm) -> None:
             if st.get("glare"):
                 P.glow.append((eye + hm @ v3(0.4, 0.0, 0.4), glow))
         elif fc.get("glow"):
-            P.eye(eye, M.DROWNED_EYE)
-            P.mark(eye + hm @ v3(0.0, s * 0.35, 0.0), M.DROWNED_EYE_DIM)
+            eye_c, dim_c, glow_c = (M.DROWNED_EYE, M.DROWNED_EYE_DIM, M.DROWNED_GLOW) if fc.glow is True else FACE_GLOWS[fc.glow]
+            P.eye(eye, eye_c)
+            P.mark(eye + hm @ v3(0.0, s * 0.35, 0.0), dim_c)
             if st.get("glare"):
-                P.glow.append((eye + hm @ v3(0.4, 0.0, 0.4), M.DROWNED_GLOW))
+                P.glow.append((eye + hm @ v3(0.4, 0.0, 0.4), glow_c))
         else:
             P.eye(eye, M.INKY)
             P.mark(eye + hm @ v3(0.0, 0.0, 0.4), M.RAMPS[m.skin][4])
@@ -1239,6 +1256,10 @@ def _human_face(P, B, action: str, f: int, hc, hm) -> None:
             P.add(L(p0, p1, 0.5, 0.42, m.hair, "locks", line=False), L(p1, p2, 0.42, 0.18, m.hair, "locks", line=False))
 
 
+# M4: a face's glowing eyes by name (`face.glow`; True is the drowned's): the eye, the mark beside it, the glare.
+FACE_GLOWS = {"presence": (M.PRES_EYE, M.PRES_EYE_DIM, M.PRES_GLOW)}
+
+
 def _robe(P, B, action: str, f: int, hip, tm, bare: bool) -> None:
     """A long robe's skirt from the waist to the floor over the legs (a bell, swaying as he walks, flattening into a heap
     as he collapses), its hem trimmed, weed hanging off it (the drowned's), and its sleeves are the arms' (`_sleeves`)."""
@@ -1249,7 +1270,7 @@ def _robe(P, B, action: str, f: int, hip, tm, bare: bool) -> None:
     heap = B.pick("heap", action, f)
     sw = 0.6 * math.sin(f / 8.0 * math.tau) if st.get("kind") == "march" else 0.0
     top = hip + tm @ v3(0.2, 0.0, rb.top)
-    bot = v3(hip[0] * 0.6 + sw * 0.6 + rb.lead, 0.0, 0.3)
+    bot = v3(hip[0] * 0.6 + sw * 0.6 + rb.lead, 0.0, rb.get("hem", 0.3))
     bot = bot + (v3(hip[0], 0.0, 0.2) - bot) * heap
     r0, r1 = rb.r[0], rb.r[1] * (1.0 + 0.5 * heap)
     if heap > 0.0:
@@ -1289,7 +1310,7 @@ def _sleeves(P, B, action: str, f: int, ends: dict, elbows: dict, bare: bool) ->
         d = w - e
         ln = float(np.linalg.norm(d)) or 1.0
         over = sl.over
-        if s < 0 and sl.get("palm") and action in ("windup", "attack"):
+        if s == (1 if sl.get("palm") == "left" else -1) and sl.get("palm") and action in ("windup", "attack"):
             over = -1.3                                     # the sleeve pushed back off the palm that throws the tide
         cuff = e + d * (1.0 + over / ln)
         P.add(L(e, cuff, sl.r[0], sl.r[1], m.robe, "sleeve%d" % s))
@@ -1508,6 +1529,8 @@ def _dress(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: d
     _hat(P, B, action, f, hc, hm, bare)
     if bare:
         return
+    if p.get("m4"):
+        _m4_wear(P, B, action, f, up, tm, hip, hc, hm, ends, elbows)       # M4: what the late game's people of size wear
     _beads(P, B, up, tm)
     _gourd(P, B, up, tm)
     _abacus(P, B, up, tm)
@@ -1518,6 +1541,8 @@ def _dress(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: d
         _staff(P, B, action, f, ends, tm)
     elif pr and pr.kind == "tide":
         _tide(P, B, action, f, ends, tm)
+    elif pr and pr.kind in M4_PROPS:
+        M4_PROPS[pr.kind](P, B, action, f, ends, tm)
     if p.get("cape"):
         # A cape over his shoulders and down his back.
         cp = p.cape
@@ -1649,6 +1674,938 @@ def _shoot(P, B, end, tm, action: str, f: int) -> None:
         P.mark(a + (b - a) * t, M.RAMPS[m.node][3])
     P.add(L(b, b + d * 1.0 + tm @ v3(0.4, 0.3, 0.2), 0.35, 0.1, m.leaf, "shoot", line=False))
 
+
+# ================================================================================================= the gravity golem (M4)
+# A construct of dark basalt blocks held together by gravity alone (`golem`): every part of its body a separate chamfered
+# block floating a little off its neighbours (the faces of each lit or shaded by their turn, `_basalt`), a faint indigo
+# ripple of gravity in the gaps between them (its bonds), a hunched faceless head with a visor groove, a violet singularity
+# for an eye in its chest, a ring of pale stones with star notches orbiting it. Its blocks bob out of step with each
+# other; in its tell it hauls both arms overhead as the singularity swells and dark lines and pebbles spiral into it
+# (held); it slams both fists down before it, a shockwave ring racing out along the ground on the blow; struck, its blocks
+# jolt apart and the singularity pinches; beaten, gravity fails and its blocks drop into a heap. It takes the stone
+# guardian's styles (stand, stomp, fists_up, double_slam, knock, crumble) and its own channels: `jolt` (the gaps opening),
+# `well` (the singularity swelling and drawing in, 0..1), `shock` (the ring racing out on the blow).
+GOLEM_STYLES = {
+    "orbit_bob": {"sway_amp": 0.15, "guard": 0.2, "bob": True},
+    "gravity_raise": dict(GUARDIAN_STYLES["fists_up"], well=(0.3, 0.6, 0.9, 1.0),
+                          right=((1.6, -4.6, 3.0), (-0.2, -3.8, 8.0), (-1.0, -3.4, 9.6), (-1.2, -3.4, 9.8)),
+                          left=((1.6, 4.6, 3.0), (-0.2, 3.8, 8.0), (-1.0, 3.4, 9.6), (-1.2, 3.4, 9.8))),
+    "orbit_slam": dict(GUARDIAN_STYLES["double_slam"], well=(1.0, 0.4, 0.2, 0.0, 0.0, 0.0), shock=(0.0, 1.0, 1.7, 2.4, 0.0, 0.0),
+                       right=((2.8, -3.0, 9.0), (8.6, -2.6, -7.4), (8.6, -2.6, -7.4), (6.4, -3.4, -5.0), (4.6, -4.2, -3.6), (3.8, -4.8, -4.4)),
+                       left=((2.8, 3.0, 9.0), (8.6, 2.6, -7.4), (8.6, 2.6, -7.4), (6.4, 3.4, -5.0), (4.6, 4.2, -3.6), (3.8, 4.8, -4.4))),
+    "gravity_jolt": dict(STYLES["knock"], jolt=(1.0, 0.5, 0.15)),
+    "gravity_fails": {"lean": (-6.0, 2.0, 6.0, 8.0, 8.0, 8.0, 8.0, 8.0), "sink": (0.0, 0.5, 1.4, 2.4, 3.0, 3.2, 3.2, 3.2),
+                      "crumble": (0.0, 0.1, 0.25, 0.45, 0.65, 0.85, 1.0, 1.0), "jolt": (0.6, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+                      "limp": True, "dark_from": 1},
+}
+STYLES.update(GOLEM_STYLES)
+GOLEM = {
+    "golem": True, "hip": 6.6, "hunch": 16.0,
+    "legs": {"top": (2.3, -0.6), "foot": (3.1, 1.1, 0.7), "bones": (3.4, 3.3), "thigh": (1.8, 1.7), "shin": (1.7, 1.6),
+             "boot": ((1.0, 0.0, -0.1), (2.3, 1.7, 1.0)), "plant": (1.0, -1.2)},
+    "trunk": [{"at": (0.0, 0.0, 0.7), "r": (2.4, 3.4, 1.6)}, {"at": (0.5, 0.0, 4.9), "r": (2.9, 4.4, 3.3)}],
+    "head": {"at": (1.8, 0.0, 9.0), "r": (1.9, 2.1, 1.65)},
+    "arms": {"shoulder": (5.4, 7.2), "bones": (4.2, 4.0), "hint": (-0.6, 1.0, -1.0), "pad": (2.0, 1.9, 1.7), "upper": (1.5, 1.4, 1.4),
+             "lower": (1.6, 1.5, 1.5), "fist": (2.3, 2.1, 2.0), "guard": (3.2, 5.6, -6.0), "limp": (1.0, 6.4, -6.4, 0.4)},
+    "core": {"at": (3.2, 0.0, 5.0), "r": 1.15},
+    "ring": {"n": 16, "orbit": 8.2, "z": 5.4, "tilt": 20.0, "r": (0.85, 0.6, 0.5)},
+    "gap": 0.45,
+}
+VARIANTS["golem"] = {"parts": GOLEM, "mats": {"body": "grav_basalt", "ring": "grav_ring", "core": "grav_sing"},
+                     "motion": {"idle": "orbit_bob", "walk": "stomp", "windup": "gravity_raise", "attack": "orbit_slam", "hurt": "gravity_jolt",
+                                "death": "gravity_fails"}}
+
+
+def _basalt(m, centre, Mb):
+    """A chamfered basalt block: its faces by the turn of its surface in its own frame (the dominant axis of its normal:
+    the faces flat, lit or shaded as they turn), the chamfers where two faces meet a step lit along its top edges and a
+    step dark below, columnar seams down its front."""
+    def paint(q, n):
+        nl = n @ Mb
+        a = np.abs(nl)
+        srt = np.sort(a, axis=1)
+        chamfer = srt[:, 1] > srt[:, 2] * 0.72
+        loc = (q - centre) @ Mb
+        seam = (np.abs(nl[:, 0]) > 0.7) & ((np.abs(loc[:, 1]) * 1.4) % 1.0 < 0.16)
+        bias = np.where(chamfer, np.where(nl[:, 2] > 0.2, 1, -1), np.where(seam, -1, 0))
+        return np.full(len(q), m.body, dtype=object), bias.astype(np.int16)
+    return paint
+
+
+def _bone_block(P, m, a, b, radii, group: str, gap: float, lift) -> tuple:
+    """A block along the bone from `a` to `b`, shrunk off both ends by `gap` (so it floats apart from its neighbours),
+    `radii` (along it at its full length's half less the gap, across, down)."""
+    d = b - a
+    ln = float(np.linalg.norm(d)) or 1e-6
+    ax = d / ln
+    side = np.cross(ax, v3(0.0, 0.0, 1.0))
+    if float(np.linalg.norm(side)) < 0.2:
+        side = np.cross(ax, v3(1.0, 0.0, 0.0))
+    side = side / float(np.linalg.norm(side))
+    Mb = np.stack([ax, side, np.cross(ax, side)], axis=1)
+    c = (a + b) * 0.5 + v3(0.0, 0.0, lift)
+    half = max(0.6, ln * 0.5 - gap)
+    rr = (radii[1] + radii[2]) * 0.5
+    # A short column of basalt: its sides straight, its ends flat lids with a chamfered rim.
+    p0, p1 = c - ax * half, c + ax * half
+    P.add(L(p0 + ax * 0.15, p1 - ax * 0.15, rr, rr * 0.94, m.body, group, _basalt(m, c, Mb), caps=False))
+    for q, rad in ((p0 + ax * 0.15, rr), (p1 - ax * 0.15, rr * 0.94)):
+        P.add(E(q, (0.32, rad * 0.97, rad * 0.97), m.body, group, Mb, _basalt(m, c, Mb)))
+    return c, Mb
+
+
+def _golem(B, action: str, f: int, view: float) -> Pose:
+    """M4, the gravity golem (see GOLEM_STYLES)."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    lean = B.pick("lean", action, f) + p.hunch
+    twist = B.pick("twist", action, f)
+    step = B.pick("step", action, f)
+    sink = B.pick("sink", action, f)
+    sway = st.sway_amp * wave(action, f) if "sway_amp" in st else 0.0
+    march = st.get("kind") == "march"
+    bounce = st.bounce * abs(math.sin(f / 8.0 * math.tau)) if march else 0.0
+    if march:
+        twist = st.twist_amp * math.sin(f / 8.0 * math.tau)
+    jolt = B.pick("jolt", action, f)
+    gap = p.gap * (1.0 + 2.2 * jolt)
+    hip = v3(step, sway, p.hip - sink + bounce)
+    tm = rot("c", twist) @ rot("b", -lean) @ rot("a", sway * 3.0)
+    up = lambda q: hip + tm @ v3(q)
+    k_ = [0]
+
+    def bob():
+        """Each block's own drift, out of step with the others (idle), jolted when struck."""
+        k_[0] += 1
+        k = k_[0]
+        if st.get("bob"):
+            return 0.25 * math.sin(f / 6.0 * math.tau + k * 1.7)
+        return 0.35 * jolt * math.sin(k * 2.3)
+
+    bonds = []
+    # Legs: a thigh block, a shin block, a foot block each side, by two-bone IK as the humanoid's.
+    g = p.legs
+    for s in (1, -1):
+        ph = f / 8.0 * math.tau + (0.0 if s > 0 else math.pi)
+        stride = st.stride * math.sin(ph) if march else 0.0
+        lift = st.lift * max(0.0, math.cos(ph)) if march else 0.0
+        plant = (g.plant[0] if s > 0 else g.plant[1]) if st.get("plant") else 0.0
+        foot = v3(stride + plant + g.foot[2] + (step if s > 0 else step * 0.5), s * g.foot[0], g.foot[1] + lift)
+        top = hip + rot("c", twist * 0.4) @ v3(0.0, s * g.top[0], g.top[1])
+        knee, end = ik2(top, foot, g.bones[0], g.bones[1], v3(1.0, 0.0, 0.0))
+        _bone_block(P, m, top, knee, (0.0, g.thigh[0], g.thigh[1]), "leg%d" % s, gap, bob())
+        _bone_block(P, m, knee, end, (0.0, g.shin[0], g.shin[1]), "leg%d" % s, gap, bob())
+        fc = end + v3(g.boot[0]) + v3(0.0, 0.0, bob() * 0.3)
+        P.add(E(fc, g.boot[1], m.body, "foot%d" % s, rot("c", twist * 0.4), _basalt(m, fc, rot("c", twist * 0.4))))
+        bonds += [top, knee, end]
+    # The pelvis and the torso, the hunched head with its visor groove.
+    pieces = []
+    for t in p.trunk:
+        c = up(t.at) + v3(0.0, 0.0, bob())
+        P.add(E(c, t.r, m.body, "body", tm, _basalt(m, c, tm)))
+        pieces.append(c)
+    bonds.append((pieces[0] + pieces[1]) * 0.5)
+    hm = tm @ rot("b", p.hunch * 0.8 - B.pick("droop", action, f))
+    hc = up(p.head.at) + v3(0.0, 0.0, bob() + gap * 0.6)
+    P.add(E(hc, p.head.r, m.body, "head", hm, _basalt(m, hc, hm)))
+    for k in range(5):
+        P.mark(hc + hm @ v3(p.head.r[0] + 0.05, -1.0 + 0.5 * k, 0.1), M.GOLEM_VISOR)
+    bonds.append((hc + pieces[1]) * 0.5)
+    # Arms: a shoulder block, an upper arm, a forearm and a great fist each side; their hands reach the frame's targets.
+    a_ = p.arms
+    sw = st.swing * math.sin(f / 8.0 * math.tau) if march else 0.0
+    guard = st.guard * wave(action, f, 0.25) if "guard" in st else 0.0
+    fists = []
+    for s in (1, -1):
+        sh = up((0.0, s * a_.shoulder[0], a_.shoulder[1]))
+        if s < 0 and B.has("right", action):
+            rel = B.pick("right", action, f)
+        elif s > 0 and B.has("left", action):
+            rel = B.pick("left", action, f)
+        elif st.get("limp"):
+            rel = (a_.limp[0], s * a_.limp[1], a_.limp[2] - min(f, 3) * a_.limp[3])
+        else:
+            rel = (a_.guard[0] + sw * s, s * a_.guard[1], a_.guard[2] + guard)
+        fist = up((rel[0], rel[1], a_.shoulder[1] + rel[2]))
+        elbow, end = ik2(sh, fist, a_.bones[0], a_.bones[1], tm @ v3(a_.hint[0], s * a_.hint[1], a_.hint[2]))
+        pc = sh + v3(0.0, 0.0, bob() + 0.4)
+        P.add(E(pc, a_.pad, m.body, "pad%d" % s, tm @ rot("a", s * 18.0), _basalt(m, pc, tm @ rot("a", s * 18.0))))
+        _bone_block(P, m, sh, elbow, (0.0,) + tuple(a_.upper[1:]), "arm%d" % s, gap, bob())
+        _bone_block(P, m, elbow, end, (0.0,) + tuple(a_.lower[1:]), "arm%d" % s, gap, bob())
+        fc = end + (end - elbow) / max(1e-6, float(np.linalg.norm(end - elbow))) * (a_.fist[0] * 0.6 + gap)
+        P.add(E(fc, a_.fist, m.body, "fist%d" % s, tm, _basalt(m, fc, tm)))
+        fists.append(fc)
+        bonds += [sh, elbow, end]
+    # The gravity in its gaps: a faint indigo ripple at each bond, a bright dash travelling round it frame to frame.
+    dead = action == "death" and f >= st.get("dark_from", 99)
+    if not dead:
+        for k, q in enumerate(bonds):
+            ang = math.radians(k * 47.0 + f * 60.0)
+            P.glow.append((q + v3(math.cos(ang) * 0.9, math.sin(ang) * 0.9, 0.3), M.GOLEM_BOND_HI if (k + f) % 3 == 0 else M.GOLEM_BOND))
+    # The singularity in its chest: a violet orb with a dark heart, swelling as it draws the world in (its tell), pinched
+    # when struck, dark as it dies.
+    cr = p.core
+    cc = up(cr.at)
+    well = B.pick("well", action, f)
+    if not dead:
+        r = cr.r * (1.0 + 0.5 * well) * (0.6 if jolt > 0.4 else 1.0)
+        P.add(S(cc, r, m.core, "core", line=False))
+        P.eye(cc + tm @ v3(r * 0.8, 0.0, 0.0), M.GOLEM_CORE_HI)
+        P.mark(cc + tm @ v3(r * 0.95, 0.0, 0.0), M.GOLEM_CORE_DARK)
+        if well > 0.0:
+            for arm in range(3):
+                for k in range(6):
+                    t = k / 5.0
+                    ang = math.radians(arm * 120.0 + f * 45.0 + t * 220.0)
+                    rr = r + 0.6 + (1.0 - t) * 5.5 * well
+                    q = cc + tm @ v3(0.8 + 0.3 * (1.0 - t), math.cos(ang) * rr, math.sin(ang) * rr)
+                    P.glow.append((q, M.GOLEM_PULL_LIGHT if k % 2 else M.GOLEM_PULL_DARK))
+            for k in range(4):
+                ang = math.radians(k * 90.0 + f * 70.0)
+                rr = 2.2 + 3.0 * (1.0 - ((f * 0.25 + k * 0.3) % 1.0))
+                P.add(S(cc + tm @ v3(1.2, math.cos(ang) * rr, math.sin(ang) * rr), 0.42, m.ring, "pebble", line=False))
+    # The ring of pale stones orbiting it, tilted, turning; dropping as gravity fails.
+    rg = p.ring
+    crumble = B.pick("crumble", action, f)
+    spin = f * (360.0 / rg.n / 2.0) + (40.0 * well if action in ("windup", "attack") else 0.0)
+    for k in range(rg.n):
+        ang = math.radians(k * 360.0 / rg.n + spin)
+        q = rot("a", rg.tilt) @ v3(math.cos(ang) * rg.orbit, math.sin(ang) * rg.orbit, 0.0) + v3(hip[0] * 0.4, 0.0, rg.z)
+        if crumble > 0.0:
+            q = q + (v3(q[0] * 1.2, q[1] * 1.2, rg.r[2]) - q) * min(1.0, crumble * 1.4)
+        mm = rot("c", math.degrees(ang) + 90.0)
+        P.add(E(q, rg.r, m.ring, "ring", mm))
+        if k % 3 == 0 and crumble < 0.5:
+            P.mark(q + v3(0.0, 0.0, rg.r[2] + 0.1), M.GOLEM_NOTCH)
+    # The slam's shockwave racing out along the ground before it.
+    shock = B.pick("shock", action, f)
+    if shock > 0.0:
+        cx = (fists[0][0] + fists[1][0]) * 0.5
+        rr = 3.0 + 2.7 * shock
+        for k in range(36):
+            ang = math.radians(k * 10.0 + shock * 11.0)
+            for dd, col in ((0.0, M.GOLEM_SHOCK_HI), (1.0, M.GOLEM_SHOCK)):
+                P.fx.append((v3(cx + math.cos(ang) * (rr + dd), math.sin(ang) * (rr + dd) * 0.95, 0.25), col))
+        for k in range(8):
+            ang = math.radians(k * 45.0 + 10.0)
+            P.fx.append((v3(cx + math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.6 + 0.8 * (k % 2)), M.DUST))
+    if crumble > 0.0:
+        collapse(P, crumble, int(B.opts.get("seed", 0)))
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], (step, 0.0, 0.0))
+    return P
+
+
+# ================================================================================================= the people of size (M4)
+# The late game's bosses who are people: Comet Captain Rao (`captain`), Admiral Voss (`admiral`), General Kharn
+# (`general`) and the Ninth Presence (`presence`), sculpted on this plan's body as M2's were (the body first, `opts.bare`;
+# then dressed). What they wear past M2's robe, sleeves and paint (`m4`, `_m4_wear`): a coat's tails to the knee, a
+# tattered or solid cape, a headband, an admiral's winged hat, a plumed war helm, a scholar's guan, epaulettes, pauldrons,
+# a full or a long beard, a scar, the Ashborn's ember cracks, the Presence's crown of nine lights and its hem of mist; and
+# their props (`M4_PROPS`): the captain's comet anchor on its chain, the admiral's starsteel sabre and brass hand cannon,
+# the general's Cinder Glaive, the Presence's staff of nine.
+def _turn(a, b, t):
+    return tuple(x + (y - x) * t for x, y in zip(a, b))
+
+
+M4_FOLK_STYLES = {
+    # Comet Captain Rao: his anchor on his shoulder (`anchor`: the shank's direction from his grip, in the trunk's frame),
+    # raised over his head in both hands as comet fire runs along its flukes (`comet`), slammed down before him in a burst
+    # of comet sparks (`impact`).
+    "capt_idle": {"sway_amp": 0.3, "guard": 0.15, "right": ((2.7, -3.2, -0.6),) * 6, "left": ((1.8, 3.8, -4.0),) * 6,
+                  "lean": (0.0, -0.5, -0.8, -0.5, 0.0, 0.3), "anchor": ((-0.62, -0.25, 0.74),) * 6},
+    "capt_stride": {"kind": "march", "bounce": 0.6, "twist_amp": 8.0, "stride": 2.3, "lift": 1.4, "swing": 0.9,
+                    "right": ((2.7, -3.2, -0.6),) * 8, "anchor": ((-0.62, -0.25, 0.74),) * 8},
+    "anchor_raise": dict(FOLK_STYLES["cleaver_raise"], anchor=((-0.4, -0.2, 0.9), (-0.8, 0.0, 0.6), (-0.95, 0.0, 0.3), (-1.0, 0.0, 0.2)),
+                         comet=(0.3, 0.6, 0.9, 1.0)),
+    "anchor_slam": dict(FOLK_STYLES["cleaver_slam"], anchor=((-1.0, 0.0, 0.2), (0.75, 0.0, -0.65), (0.75, 0.0, -0.68), (0.5, -0.2, 0.0),
+                                                              (-0.2, -0.25, 0.7), (-0.62, -0.25, 0.74)),
+                        comet=(1.0, 1.0, 0.6, 0.2, 0.0, 0.0), impact=(1, 2, 3), dust=()),
+    "capt_rock": dict(FOLK_STYLES["chief_rock"], anchor=((-0.3, -0.4, 0.86),) * 3),
+    "capt_fall": dict(FOLK_STYLES["chief_fall"], anchor=((-0.62, -0.25, 0.74),) * 8),
+    # Admiral Voss: his starsteel sabre in his right hand (`sabre`: its direction), his brass hand cannon in his left
+    # (`cannon`, its barrel's), levelled at you as its fuse sparks and the sabre is drawn back (`fuse`), fired as he cuts
+    # (`flash`: the muzzle's flash and smoke; `arc`: the sabre's starsteel arc).
+    "adm_stand": {"sway_amp": 0.15, "guard": 0.0, "right": ((1.6, -3.9, -3.6),) * 6, "left": ((2.0, 3.4, -3.4),) * 6,
+                  "sabre": ((0.45, -0.25, -0.86),) * 6, "cannon": ((0.8, 0.2, -0.55),) * 6},
+    "adm_walk": {"kind": "march", "bounce": 0.3, "twist_amp": 3.0, "stride": 1.9, "lift": 0.9, "swing": 0.5,
+                 "right": ((1.6, -3.9, -3.6),) * 8, "left": ((2.0, 3.4, -3.4),) * 8, "sabre": ((0.45, -0.25, -0.86),) * 8,
+                 "cannon": ((0.8, 0.2, -0.55),) * 8},
+    "cannon_aim": {"lean": (-2.0, -4.0, -5.0, -5.0), "twist": (10.0, 18.0, 24.0, 26.0), "step": (-0.2, -0.5, -0.7, -0.8),
+                   "sink": (0.2, 0.4, 0.5, 0.5), "plant": True, "glare": True, "fuse": (0.3, 0.6, 0.9, 1.0),
+                   "left": ((3.8, 2.2, -0.6), (5.6, 1.4, 0.2), (6.4, 1.0, 0.6), (6.6, 0.9, 0.6)),
+                   "right": ((1.0, -3.8, 1.2), (0.0, -3.6, 3.4), (-0.8, -3.4, 4.6), (-1.0, -3.4, 4.8)),
+                   "sabre": ((0.2, -0.3, 0.93), (-0.3, -0.3, 0.9), (-0.6, -0.2, 0.77), (-0.66, -0.2, 0.72)),
+                   "cannon": ((1.0, 0.0, -0.1), (1.0, -0.1, 0.0), (1.0, -0.15, 0.05), (1.0, -0.15, 0.05))},
+    "broadside_cut": {"lean": (4.0, 12.0, 12.0, 8.0, 4.0, 0.0), "twist": (26.0, -18.0, -24.0, -16.0, -6.0, 0.0),
+                      "step": (0.6, 2.4, 2.6, 2.0, 1.0, 0.3), "sink": (0.4, 1.0, 1.0, 0.7, 0.3, 0.1), "plant": True,
+                      "right": ((-1.0, -3.4, 4.8), (6.6, -0.4, -1.2), (6.2, 1.6, -2.2), (4.6, 0.8, -3.0), (3.0, -2.0, -3.4), (1.8, -3.6, -3.6)),
+                      "sabre": ((-0.66, -0.2, 0.72), (0.9, 0.35, -0.25), (0.7, 0.7, -0.35), (0.5, 0.45, -0.74), (0.45, 0.0, -0.89), (0.45, -0.25, -0.86)),
+                      "left": ((6.6, 0.9, 0.6), (5.4, 1.6, 0.8), (4.2, 2.4, 0.2), (3.2, 2.9, -1.4), (2.6, 3.2, -2.6), (2.0, 3.4, -3.4)),
+                      "cannon": ((1.0, -0.15, 0.05), (0.9, 0.0, 0.4), (0.9, 0.1, 0.3), (0.85, 0.2, -0.2), (0.8, 0.2, -0.5), (0.8, 0.2, -0.55)),
+                      "flash": (0.0, 1.0, 0.6, 0.0, 0.0, 0.0), "smoke": (1, 2, 3, 4), "arc": (1, 2), "squash": {1: (1.03, 1.0, 0.97)}},
+    "adm_rock": {"lean": (-12.0, -6.0, -2.0), "twist": (8.0, -4.0, 0.0), "step": (-2.0, -1.2, -0.4), "sink": (0.4, 0.2, 0.0),
+                 "droop": (-14.0, -4.0, 0.0), "squint": True,
+                 "right": ((1.2, -4.4, -1.4), (1.4, -4.2, -2.6), (1.6, -3.9, -3.6)), "left": ((1.6, 4.2, -1.0), (1.8, 3.8, -2.4), (2.0, 3.4, -3.4)),
+                 "sabre": ((0.3, -0.6, -0.74),) * 3, "cannon": ((0.6, 0.6, -0.5),) * 3},
+    "adm_fall": dict(FOLK_STYLES["elder_fall"], sabre=((0.45, -0.25, -0.86),) * 8, cannon=((0.8, 0.2, -0.55),) * 8),
+    # General Kharn: the Cinder Glaive in both hands (`glaive`: the pole's direction from his right hand toward the
+    # blade), upright at his side, raised high over his head as its blade bursts into flame (`flame`), brought down in a
+    # leaping cleave that sets the ground alight (`fire`).
+    "gen_stand": {"sway_amp": 0.2, "guard": 0.0, "right": ((2.6, -4.6, -0.8),) * 6, "left": ((2.4, 4.4, -3.4),) * 6,
+                  "glaive": ((0.08, -0.05, 1.0),) * 6},
+    "gen_march": {"kind": "march", "bounce": 0.5, "twist_amp": 6.0, "stride": 2.4, "lift": 1.5, "swing": 0.8,
+                  "right": ((2.6, -4.6, -0.8),) * 8, "glaive": ((0.08, -0.05, 1.0),) * 8},
+    "glaive_raise": {"lean": (-4.0, -10.0, -14.0, -16.0), "step": (-0.2, -0.5, -0.7, -0.8), "sink": (0.4, 0.2, -0.2, -0.3), "plant": True,
+                     "roar": (0.3, 0.8, 1.0, 1.0), "glare": True, "flame": (0.3, 0.6, 0.9, 1.0),
+                     "right": ((2.0, -3.0, 1.6), (1.0, -2.0, 4.6), (0.4, -1.4, 6.2), (0.2, -1.4, 6.6)),
+                     "left": ((2.6, 0.8, 0.6), (1.6, 0.4, 3.8), (0.8, 0.2, 5.4), (0.6, 0.2, 5.8)),
+                     "glaive": ((-0.3, -0.1, 0.95), (-0.7, 0.0, 0.7), (-0.95, 0.0, 0.32), (-1.0, 0.0, 0.18))},
+    "glaive_cleave": {"lean": (-14.0, 16.0, 18.0, 10.0, 4.0, 0.0), "step": (0.8, 3.2, 3.4, 2.6, 1.2, 0.4), "sink": (-0.8, 1.6, 1.6, 0.8, 0.2, 0.0),
+                      "plant": True, "roar": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "flame": (1.0, 1.0, 0.6, 0.3, 0.0, 0.0), "fire": (0.0, 1.0, 1.4, 1.8, 0.0, 0.0),
+                      "squash": {1: (1.03, 1.04, 0.95)},
+                      "right": ((0.2, -1.4, 6.6), (6.2, -0.6, -3.8), (6.2, -0.6, -4.0), (5.0, -1.6, -2.8), (3.6, -3.2, -1.6), (2.6, -4.6, -0.8)),
+                      "left": ((0.6, 0.2, 5.8), (4.6, 0.8, -2.6), (4.6, 0.8, -2.8), (3.6, 2.0, -3.0), (2.8, 3.6, -3.2), (2.4, 4.4, -3.4)),
+                      "glaive": ((-1.0, 0.0, 0.18), (0.82, 0.0, -0.57), (0.82, 0.0, -0.6), (0.5, -0.1, 0.2), (0.15, -0.05, 0.8), (0.08, -0.05, 1.0))},
+    "gen_rock": dict(FOLK_STYLES["chief_rock"], right=((2.0, -4.8, 0.4), (2.4, -4.7, -0.2), (2.6, -4.6, -0.8)),
+                     left=((1.6, 4.8, -2.0), (2.0, 4.6, -2.8), (2.4, 4.4, -3.4)), glaive=((-0.2, -0.3, 0.93),) * 3),
+    "gen_fall": dict(FOLK_STYLES["chief_fall"], glaive=((0.08, -0.05, 1.0),) * 8),
+    # The Ninth Presence: floating (its `sink` below zero), its staff of nine in its right hand (`staff`), its crown of nine
+    # lights behind its head (`halo`: gathering into a blazing crown over its head, 0..1), thrown out round it on both
+    # sides on the blow (`burst`) with its palm's ring (`palm`).
+    "pres_hover": {"sway_amp": 0.2, "guard": 0.0, "sink": (0.0, -0.3, -0.5, -0.3, 0.0, 0.2),
+                   "right": ((2.0, -3.6, -2.6),) * 6, "left": ((2.4, 2.2, -3.8),) * 6},
+    "pres_glide": {"kind": "march", "bounce": 0.2, "twist_amp": 3.0, "stride": 1.2, "lift": 0.6, "swing": 0.4,
+                   "right": ((2.0, -3.6, -2.6),) * 8, "left": ((2.4, 2.2, -3.8),) * 8},
+    "crown_gather": {"lean": (-2.0, -4.0, -6.0, -6.0), "sink": (-0.3, -0.6, -0.9, -1.0), "plant": True, "glare": True,
+                     "halo": (0.3, 0.6, 0.9, 1.0),
+                     "right": ((1.8, -3.6, 2.0), (1.2, -3.8, 4.6), (0.8, -3.8, 6.2), (0.7, -3.8, 6.6)),
+                     "left": ((2.4, 2.2, -1.2), (1.6, 2.8, -0.6), (1.0, 3.0, -0.2), (0.8, 3.0, 0.0))},
+    "seat_palm": {"lean": (4.0, 12.0, 12.0, 8.0, 4.0, 0.0), "twist": (-14.0, 22.0, 26.0, 18.0, 8.0, 0.0), "step": (0.6, 2.4, 2.6, 2.0, 1.0, 0.3),
+                  "sink": (-1.0, -0.4, -0.4, -0.2, 0.0, 0.0), "plant": True, "glare": True, "halo": (1.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                  "burst": (0.0, 1.0, 1.6, 2.2, 0.0, 0.0), "palm": (0.0, 1.0, 1.6, 0.0, 0.0, 0.0), "squash": {1: (1.03, 1.0, 0.97)},
+                  "right": ((0.7, -3.8, 6.6), (2.4, -3.8, 1.6), (2.4, -3.6, 0.6), (2.3, -3.6, -0.8), (2.1, -3.6, -1.8), (2.0, -3.6, -2.6)),
+                  "left": ((0.8, 3.0, 0.0), (7.2, 0.6, -0.4), (7.4, 0.6, -0.4), (6.0, 1.0, -1.0), (4.2, 1.6, -2.4), (2.4, 2.2, -3.8))},
+    "pres_rock": {"lean": (-12.0, -6.0, -2.0), "twist": (8.0, -4.0, 0.0), "step": (-2.0, -1.2, -0.4), "sink": (0.0, -0.2, -0.3),
+                  "droop": (-14.0, -4.0, 0.0), "squint": True,
+                  "right": ((1.6, -3.8, -1.2), (1.8, -3.7, -2.0), (2.0, -3.6, -2.6)), "left": ((1.8, 2.8, -1.6), (2.1, 2.5, -2.8), (2.4, 2.2, -3.8))},
+    "pres_fade": {"lean": (-6.0, -2.0, 2.0, 4.0, 4.0, 4.0, 4.0, 4.0), "sink": (0.0, 0.4, 1.0, 1.6, 2.0, 2.2, 2.2, 2.2),
+                  "droop": (0.0, 10.0, 18.0, 22.0, 24.0, 24.0, 24.0, 24.0), "dark_from": 3,
+                  "fade": (0.0, 0.08, 0.2, 0.35, 0.52, 0.7, 0.86, 1.0),
+                  "right": ((2.4, -3.6, -2.0),) * 8, "left": ((2.6, 1.6, -3.4),) * 8},
+}
+STYLES.update(M4_FOLK_STYLES)
+
+# Comet Captain Rao (`captain`): the pirates' captain from the comet sails, burly and barrel-chested, a head over his men
+# and broad as two: a crimson coat open over a pale linen shirt, its tails to his knees, gold trim and a wide leather belt,
+# dark cuffed trousers in high boots, a tattered black cape, his dark hair tied back under a jade headband, a short full
+# beard and a scar across his eye; his comet anchor of blue-black comet iron on its chain over his shoulder.
+CAPTAIN = {
+    "hip": 7.6,
+    "legs": {"top": (2.1, -0.6), "foot": (2.7, 1.0, 0.7), "bones": (4.0, 3.9), "thigh": (1.75, 1.5), "shin": (1.45, 1.3), "knee": None,
+             "boot": ((0.9, 0.0, -0.3), (2.0, 1.3, 1.05)), "plant": (1.2, -1.4)},
+    "trunk": [{"at": (0.0, 0.0, 0.8), "r": (2.6, 3.4, 2.0), "paint": True}, {"at": (0.7, 0.0, 3.5), "r": (3.0, 3.7, 2.7), "paint": True},
+              {"at": (0.4, 0.0, 6.6), "r": (3.0, 4.9, 2.7), "paint": True}],
+    "neck": ((0.6, 0.0, 8.4), 1.45),
+    "head": {"at": ((0.9, 0.0, 8.6), 2.3), "r": (2.2, 2.15, 2.3)},
+    "face": {"kind": "human", "eyes": (1.95, 0.75, 0.35), "brow": (0.4, 0.72, 0.26), "brow_tilt": -16.0, "nose": (2.3, 0.0, -0.15),
+             "mouth": (2.0, 0.75, -0.95), "grin": 0.7, "ears": (-0.1, 2.15, 0.0), "hair": "tail"},
+    "arms": {"shoulder": (4.5, 7.1), "bones": (3.8, 3.6), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (1.5, 1.35), "elbow": None,
+             "lower": (1.35, 1.2), "wrap": None, "fist": (1.05, 1.0, 1.0), "guard": (2.4, 4.8, -3.6), "limp": (1.0, 5.2, -5.4, 0.4)},
+    "paint": {"kind": "clothes", "zones": [{"mat": "belt", "z": (1.5, 2.6), "inner": 4.2},
+                                           {"mat": "boot", "z": (-30.0, -4.0)},
+                                           {"mat": "trousers", "z": (-30.0, 1.5), "inner": 4.4, "folds": 1.4},
+                                           {"mat": "shirt", "z": (2.6, 8.0), "front": 0.62, "inner": 1.4},
+                                           {"mat": "trim", "z": (2.6, 8.4), "front": 0.45, "inner": 1.9},
+                                           {"mat": "coat", "z": (2.6, 30.0), "folds": 1.6}]},
+    "dress": True,
+    "prop": {"kind": "anchor", "shank": 8.6, "r": 0.5, "stock": 4.0, "fluke": 2.9, "ring": 0.65},
+    "m4": {"tails": {"top": 2.6, "hem": 3.2, "r": (3.2, 3.9), "lead": 0.2, "split": 0.9}, "cape": {"top": 7.4, "bottom": 1.4, "back": 3.0,
+                                                                                                 "r": (3.4, 4.3), "tatter": True},
+           "band": (0.1, 1.35, 2.25), "beard": "full", "scar": True},
+}
+# Admiral Voss (`admiral`): the master of Blackmast Haven, tall, lean and imperious: a long indigo greatcoat to his knees
+# with gold trim, gold buttons and a high collar, gold epaulettes, a black cape, dark trousers in tall boots, a black
+# winged official's hat whose long wings stand out to both sides, his black hair tied back, a thin drooping moustache; a
+# starsteel sabre of pale blue light in his right hand and a brass hand cannon with a dragon's mouth in his left.
+ADMIRAL = {
+    "hip": 9.2,
+    "legs": {"top": (1.5, -0.5), "foot": (1.9, 1.0, 0.6), "bones": (4.5, 4.4), "thigh": (1.25, 1.05), "shin": (1.05, 0.9), "knee": None,
+             "boot": ((0.8, 0.0, -0.3), (1.75, 1.0, 0.95)), "plant": (1.0, -1.2)},
+    "trunk": [{"at": (0.0, 0.0, 0.6), "r": (2.0, 2.8, 1.7), "paint": True}, {"at": (0.2, 0.0, 3.0), "r": (1.8, 2.6, 1.8), "paint": True},
+              {"at": (0.2, 0.0, 5.6), "r": (2.2, 3.4, 2.4), "paint": True}],
+    "neck": ((0.3, 0.0, 7.6), 0.95),
+    "head": {"at": ((0.6, 0.0, 7.9), 2.0), "r": (1.85, 1.75, 2.05)},
+    "face": {"kind": "human", "eyes": (1.7, 0.65, 0.3), "brow": (0.36, 0.6, 0.2), "brow_tilt": -20.0, "nose": (2.05, 0.0, -0.2),
+             "mouth": (1.8, 0.5, -0.9), "ears": (-0.1, 1.75, 0.0), "beard": "moustache", "hair": "tail"},
+    "arms": {"shoulder": (3.4, 6.0), "bones": (3.6, 3.4), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (0.95, 0.85), "elbow": None,
+             "lower": (0.85, 0.78), "wrap": None, "fist": (0.75, 0.7, 0.7), "guard": (2.4, 3.6, -3.6), "limp": (0.8, 4.0, -5.2, 0.3)},
+    "paint": {"kind": "clothes", "zones": [{"mat": "trim", "z": (7.1, 7.9), "inner": 2.4},
+                                           {"mat": "belt", "z": (2.2, 3.0)},
+                                           {"mat": "boot", "z": (-30.0, -3.8)},
+                                           {"mat": "trousers", "z": (-30.0, 2.2), "inner": 4.0},
+                                           {"mat": "trim", "z": (3.0, 6.8), "front": 0.6, "inner": 0.45},
+                                           {"mat": "coat", "z": (2.2, 30.0), "folds": 1.5}]},
+    "dress": True,
+    "prop": {"kind": "sabre_cannon", "blade": 5.4, "barrel": 3.0},
+    "m4": {"tails": {"top": 2.4, "hem": 4.0, "r": (2.4, 3.1), "lead": 0.3, "split": 0.6, "trim": 0.5},
+           "cape": {"top": 6.6, "bottom": 3.0, "back": 2.4, "r": (2.9, 3.4)}, "hat": "winged", "epaulettes": (0.0, 3.4, 6.3), "buttons": 5},
+}
+# General Kharn (`general`): the Ashborn's general, massive, his ash-grey skin cracked with embers: lamellar armour of dark
+# steel laced in crimson over his chest, arms and thighs (`lamellar` paint), great iron pauldrons, a crimson cape, dark
+# trousers in iron-shod boots, a war helm of dark iron with cheek guards and a crimson plume sweeping back, his black hair
+# tied back, a full black beard; the Cinder Glaive, a great guandao taller than he is, its curved blade glowing with
+# embers along its edge.
+GENERAL = {
+    "hip": 8.2,
+    "legs": {"top": (2.2, -0.6), "foot": (2.8, 1.0, 0.7), "bones": (4.2, 4.1), "thigh": (1.9, 1.65), "shin": (1.6, 1.4), "knee": None,
+             "boot": ((1.0, 0.0, -0.3), (2.2, 1.45, 1.1)), "plant": (1.3, -1.5)},
+    "trunk": [{"at": (0.0, 0.0, 0.8), "r": (2.8, 3.8, 2.2), "paint": True}, {"at": (0.4, 0.0, 3.6), "r": (2.7, 3.7, 2.6), "paint": True},
+              {"at": (0.4, 0.0, 6.6), "r": (3.2, 5.1, 3.0), "paint": True}],
+    "neck": ((0.6, 0.0, 8.8), 1.5),
+    "head": {"at": ((0.9, 0.0, 9.0), 2.3), "r": (2.15, 2.1, 2.3)},
+    "face": {"kind": "human", "eyes": (1.9, 0.75, 0.35), "brow": (0.42, 0.75, 0.28), "brow_tilt": -22.0, "nose": (2.25, 0.0, -0.15),
+             "mouth": (1.95, 0.7, -1.0), "ears": (-0.1, 2.1, 0.0), "hair": "tail"},
+    "arms": {"shoulder": (4.8, 7.4), "bones": (4.0, 3.8), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (1.7, 1.5), "elbow": None,
+             "lower": (1.5, 1.35), "wrap": None, "fist": (1.15, 1.1, 1.1), "guard": (2.6, 4.6, -3.4), "limp": (1.0, 5.6, -5.6, 0.4)},
+    "paint": {"kind": "lamellar", "zones": [{"mat": "belt", "z": (2.4, 3.4), "inner": 5.0},
+                                            {"mat": "boot", "z": (-30.0, -4.0)},
+                                            {"mat": "armour", "z": (-2.2, 2.4), "inner": 5.0},
+                                            {"mat": "trousers", "z": (-30.0, -2.2), "inner": 5.0, "folds": 1.4},
+                                            {"mat": "armour", "z": (3.4, 30.0)}], "rows": 1.15},
+    "dress": True,
+    "prop": {"kind": "glaive", "below": 5.6, "above": 8.4, "r": 0.5, "blade": (5.6, 2.2)},
+    "m4": {"cape": {"top": 7.6, "bottom": 2.6, "back": 3.2, "r": (3.4, 4.2)}, "helm": True, "beard": "full", "pauldrons": (0.0, 5.4, 8.0),
+           "embers": True},
+}
+# The Ninth Presence (`presence`): the ninth seat of the Trial Hall filled by your own Presence grown old: a towering
+# spectral sage, pale violet with the hall's light, in a scholar's long white robe with wide sleeves and a pale cape, a
+# guan on its long white hair, a long white beard, its eyes glowing; floating, its hem thinning into mist; a staff of white
+# jade crowned with nine lights in its right hand, and the crown of nine lights behind its head.
+PRESENCE = {
+    "hip": 10.0,
+    "legs": {"top": (1.3, -0.5), "foot": (1.6, 1.0, 0.6), "bones": (4.9, 4.8), "thigh": (1.1, 0.95), "shin": (0.95, 0.8), "knee": None,
+             "boot": ((0.7, 0.0, -0.3), (1.5, 0.9, 0.6)), "plant": (0.8, -1.0)},
+    "trunk": [{"at": (0.0, 0.0, 0.6), "r": (2.0, 2.8, 1.6), "paint": True}, {"at": (0.2, 0.0, 3.0), "r": (1.7, 2.5, 1.7), "paint": True},
+              {"at": (0.2, 0.0, 5.6), "r": (2.1, 3.2, 2.3), "paint": True}],
+    "neck": ((0.4, 0.0, 7.5), 0.95),
+    "head": {"at": ((0.8, 0.0, 7.8), 2.2), "r": (2.1, 2.0, 2.35)},
+    "face": {"kind": "human", "eyes": (1.95, 0.72, 0.3), "brow": (0.4, 0.7, 0.24), "brow_tilt": 10.0, "nose": (2.25, 0.0, -0.2),
+             "mouth": (2.0, 0.5, -1.0), "ears": (-0.1, 2.0, 0.0), "beard": "moustache", "hair": "loose", "glow": "presence"},
+    "arms": {"shoulder": (3.2, 6.0), "bones": (3.7, 3.5), "hint": (-0.6, 1.0, -1.0), "ball": None, "upper": (0.9, 0.82), "elbow": None,
+             "lower": (0.82, 0.76), "wrap": None, "fist": (0.75, 0.7, 0.7), "guard": (2.4, 3.2, -3.4), "limp": (0.8, 3.8, -5.2, 0.3)},
+    "paint": {"kind": "clothes", "zones": [{"mat": "trim", "z": (6.9, 7.6)}, {"mat": "sash", "z": (2.4, 3.3)}, {"mat": "robe", "folds": 1.3}]},
+    "dress": True,
+    "robe": {"top": 2.0, "r": (2.8, 4.4), "lead": 0.4, "trim_w": 0.6, "hem": 1.6},
+    "sleeves": {"r": (0.95, 1.65), "over": 0.6, "trim": True, "palm": "left"},
+    "prop": {"kind": "nine_staff", "below": 9.0, "above": 6.4, "r": 0.34, "ring": 1.3},
+    "m4": {"cape": {"top": 6.4, "bottom": 2.0, "back": 2.4, "r": (3.2, 4.0)}, "guan": True, "beard": "long", "halo": {"n": 9, "r": 3.2},
+           "mist": True},
+}
+_SKIN = {"body": "folk_skin", "limb": "folk_skin", "joint": "folk_skin", "neck": "folk_skin", "skin": "folk_skin", "hand": "folk_skin"}
+VARIANTS.update({
+    "captain": {"parts": CAPTAIN, "mats": dict(_SKIN, dark="capt_boot", hair="capt_hair", cord="capt_band", band="capt_band", coat="capt_coat",
+                                               shirt="capt_shirt", trousers="capt_trousers", belt="capt_belt", boot="capt_boot", trim="brass",
+                                               cape="capt_cape", iron="comet_iron", maw="maw"),
+                "motion": {"idle": "capt_idle", "walk": "capt_stride", "windup": "anchor_raise", "attack": "anchor_slam", "hurt": "capt_rock",
+                           "death": "capt_fall"}},
+    "admiral": {"parts": ADMIRAL, "mats": dict(_SKIN, dark="adm_boot", hair="adm_hair", cord="adm_gold", coat="adm_coat", trousers="adm_trousers",
+                                               belt="adm_boot", boot="adm_boot", trim="adm_gold", cape="adm_cape", hat="adm_hat", steel="starsteel",
+                                               brass="adm_brass", grip="halberd_shaft", maw="maw"),
+                "motion": {"idle": "adm_stand", "walk": "adm_walk", "windup": "cannon_aim", "attack": "broadside_cut", "hurt": "adm_rock",
+                           "death": "adm_fall"}},
+    "general": {"parts": GENERAL, "mats": {"body": "ash_skin", "limb": "ash_skin", "joint": "ash_skin", "neck": "ash_skin", "skin": "ash_skin",
+                                           "hand": "ash_skin", "dark": "gen_iron", "hair": "gen_hair", "cord": "gen_crimson", "armour": "gen_plate",
+                                           "trousers": "gen_trousers", "belt": "gen_iron", "boot": "gen_iron", "trim": "brass", "cape": "gen_crimson",
+                                           "iron": "gen_iron", "plume": "gen_plume", "shaft": "halberd_shaft", "blade": "cinder_blade", "maw": "maw"},
+                "motion": {"idle": "gen_stand", "walk": "gen_march", "windup": "glaive_raise", "attack": "glaive_cleave", "hurt": "gen_rock",
+                           "death": "gen_fall"}},
+    "presence": {"parts": PRESENCE, "mats": {"body": "pres_skin", "limb": "pres_skin", "joint": "pres_skin", "neck": "pres_skin", "skin": "pres_skin",
+                                             "hand": "pres_skin", "dark": "pres_robe", "hair": "pres_hair", "robe": "pres_robe", "trim": "pres_gold",
+                                             "sash": "pres_sash", "cape": "pres_cape", "staff": "pres_jade", "hat": "pres_cap", "maw": "maw"},
+                 "motion": {"idle": "pres_hover", "walk": "pres_glide", "windup": "crown_gather", "attack": "seat_palm", "hurt": "pres_rock",
+                            "death": "pres_fade"}},
+})
+
+
+def _lamellar(m, hip, tm, c, bare: bool):
+    """M4, the general's armour: the clothes' zones (`_clothes`), the armour's lamellae in rows round his chest and arms
+    (laced in a band of `cord` every `rows`, the row's lower edge a step lit, the plates' seams a step dark), his skin
+    bare where no zone holds."""
+    base = _clothes(m, hip, tm, c, bare)
+    rows = c.get("rows", 1.0)
+
+    def paint(q, n):
+        names, bias = base(q, n)
+        if bare:
+            return names, bias
+        loc = (q - hip) @ tm
+        arm = names == m.armour
+        u = (loc[:, 2] % rows) / rows
+        lace = arm & (u < 0.15)
+        lit = arm & (u > 0.8)
+        col = arm & ((loc[:, 1] * 1.5) % 1.0 < 0.15) & ~lace
+        names = np.where(lace, m.cord, names).astype(object)
+        return names, np.where(col, -1, np.where(lit, 1, bias)).astype(np.int16)
+    return paint
+
+
+def _m4_wear(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: dict) -> None:
+    """What the M4 people of size wear past the robe and the sleeves (see the module's note)."""
+    w, m, st = B.parts.m4, B.mats, B.style(action)
+    hr = B.parts.head.r
+    dead = action == "death" and f >= st.get("dark_from", 99)
+    if w.get("tails"):
+        _coat_tails(P, B, action, f, hip, tm, w.tails)
+    if w.get("cape"):
+        _cape4(P, B, action, f, up, tm, hip, w.cape)
+    if w.get("band"):
+        # A cloth band round his brow, its ends tied behind and trailing.
+        b0, b1, rr = w.band
+        q = hc + hm @ v3(b0, 0.0, b1)
+        P.add(E(q, (hr[0] * 1.03, hr[1] * 1.04, 0.42), m.band, "band", hm, line=False))
+        knot = hc + hm @ v3(-hr[0] * 0.95, 0.0, b1)
+        sw = 0.4 * math.sin(f * 0.9) if action in ("idle", "walk") else -0.3
+        for s in (1, -1):
+            t1 = knot + hm @ v3(-1.3, s * 0.5 + sw * 0.3, -0.9)
+            P.add(L(knot, t1, 0.32, 0.18, m.band, "band_tie", line=False))
+    if w.get("hat") == "winged":
+        # The official's winged hat: a black cap over his crown, a taller lobe behind, two long thin wings standing out to
+        # either side from its back, tipped in gold.
+        cap = hc + hm @ v3(-0.15, 0.0, hr[2] * 0.55)
+        P.add(E(cap, (hr[0] * 1.02, hr[1] * 1.03, hr[2] * 0.62), m.hat, "hat", hm))
+        lobe = hc + hm @ v3(-0.9, 0.0, hr[2] * 0.95)
+        P.add(E(lobe, (0.95, hr[1] * 0.8, 1.05), m.hat, "hat", hm))
+        P.add(E(cap + hm @ v3(0.0, 0.0, -hr[2] * 0.42), (hr[0] * 1.06, hr[1] * 1.07, 0.3), m.trim, "hatband", hm, line=False))
+        flap = 3.0 * math.sin(f * 0.8) if action in ("idle", "walk") else 0.0
+        for s in (1, -1):
+            root = lobe + hm @ v3(-0.3, s * 0.6, -0.2)
+            wm = hm @ rot("a", s * (6.0 + flap))
+            tip = root + wm @ v3(-0.2, s * 4.6, 0.25)
+            P.add(E((root + tip) * 0.5, (0.4, 2.35, 0.2), m.hat, "hatwing%d" % s, wm))
+            P.mark(tip, M.RAMPS[m.trim][3])
+    if w.get("helm"):
+        # The war helm: a dark iron dome over his head, a crimson band, cheek guards, a gold brow plate and a tall crimson
+        # plume rising from its crown and sweeping back.
+        dome = hc + hm @ v3(-0.2, 0.0, hr[2] * 0.78)
+        P.add(E(dome, (hr[0] * 1.06, hr[1] * 1.08, hr[2] * 0.56), m.iron, "helm", hm))
+        P.add(E(dome + hm @ v3(0.0, 0.0, -hr[2] * 0.36), (hr[0] * 1.1, hr[1] * 1.1, 0.34), m.cord, "helmband", hm, line=False))
+        P.add(E(hc + hm @ v3(hr[0] * 0.8, 0.0, hr[2] * 0.62), (0.4, 0.9, 0.5), m.trim, "browplate", hm))
+        P.add(S(hc + hm @ v3(-0.2, 0.0, hr[2] * 1.32), 0.45, m.trim, "helmknob"))
+        for s in (1, -1):
+            P.add(E(hc + hm @ v3(0.4, s * hr[1] * 0.95, -0.4), (1.1, 0.35, 1.2), m.iron, "cheekguard%d" % s, hm @ rot("a", s * 14.0)))
+        base = hc + hm @ v3(-0.2, 0.0, hr[2] * 1.4)
+        sway = 0.5 * math.sin(f * 0.9) if action in ("idle", "walk") else (-0.8 if action == "attack" and f in (1, 2) else 0.0)
+        pts = [base, base + hm @ v3(-0.5, 0.0, 1.0), base + hm @ v3(-1.6, sway * 0.3, 1.4), base + hm @ v3(-2.8, sway * 0.6, 0.6),
+               base + hm @ v3(-3.5, sway, -0.9)]
+        for i in range(len(pts) - 1):
+            P.add(L(pts[i], pts[i + 1], 0.8 - 0.1 * i, 0.7 - 0.12 * i, m.plume, "plume", line=False))
+    if w.get("guan"):
+        # The scholar's guan: a small cap over its topknot, a pin through it.
+        q = hc + hm @ v3(-0.3, 0.0, hr[2] * 1.02)
+        P.add(E(q, (0.95, 0.75, 0.7), m.hat, "guan", hm))
+        P.add(L(q + hm @ v3(0.0, -1.2, 0.2), q + hm @ v3(0.0, 1.2, 0.2), 0.14, 0.14, m.trim, "pin", line=False))
+    if w.get("epaulettes"):
+        ea, eb, ec = w.epaulettes
+        for s in (1, -1):
+            q = up((ea, s * eb, ec))
+            P.add(E(q, (1.05, 0.95, 0.42), m.trim, "epaulette%d" % s, tm @ rot("a", s * 20.0)))
+            for k in range(3):
+                P.mark(q + tm @ v3(-0.6 + 0.6 * k, s * 0.8, -0.5), M.RAMPS[m.trim][4])
+    if w.get("buttons"):
+        for k in range(w.buttons):
+            P.mark(up((2.2 - 0.05 * k, 0.0, 6.3 - k * 0.8)), M.RAMPS[m.trim][4])
+    if w.get("pauldrons"):
+        pa, pb, pc = w.pauldrons
+        for s in (1, -1):
+            q = up((pa, s * pb, pc))
+            mm = tm @ rot("a", s * 24.0)
+            P.add(E(q, (2.2, 1.9, 1.3), m.iron, "pauldron%d" % s, mm))
+            P.add(E(q + mm @ v3(0.0, s * 0.3, -0.85), (2.25, 1.95, 0.32), m.cord, "pauldron%d" % s, mm, line=False))
+            P.mark(q + mm @ v3(0.7, 0.0, 1.2), M.RAMPS[m.trim][3])
+    if w.get("beard") == "full":
+        # A short full beard round his jaw and chin, a moustache over it.
+        P.add(E(hc + hm @ v3(hr[0] * 0.55, 0.0, -hr[2] * 0.55), (hr[0] * 0.62, hr[1] * 0.92, hr[2] * 0.45), m.hair, "beard", hm, line=False))
+        fc = B.parts.face
+        ma, mb, mc = fc.mouth
+        for s in (1, -1):
+            P.add(L(hc + hm @ v3(ma + 0.15, s * 0.2, mc + 0.35), hc + hm @ v3(ma, s * (mb + 0.3), mc - 0.1), 0.26, 0.2, m.hair, "moustache", line=False))
+    if w.get("beard") == "long":
+        # A long white beard from its chin down over its chest.
+        fc = B.parts.face
+        ma, mb, mc = fc.mouth
+        c0 = hc + hm @ v3(ma - 0.1, 0.0, mc - 0.4)
+        sw = 0.2 * math.sin(f * 0.8)
+        c1 = c0 + tm @ v3(0.5, sw, -2.4)
+        c2 = c1 + tm @ v3(0.2, sw * 1.5, -2.2)
+        P.add(L(c0, c1, 0.6, 0.48, m.hair, "longbeard", line=False), L(c1, c2, 0.48, 0.15, m.hair, "longbeard", line=False))
+    if w.get("scar"):
+        # A scar across his left eye.
+        ea, eb, ec = B.parts.face.eyes
+        for t in (-0.55, 0.0, 0.55):
+            P.mark(hc + hm @ v3(ea + 0.05, eb + t * 0.4, ec + t), M.SCAR)
+    if w.get("embers") and not dead:
+        # The Ashborn's ember cracks: glowing seams in the ash of his face and down his forearms.
+        for k, (u, v) in enumerate(((40.0, 10.0), (-35.0, 25.0), (55.0, -20.0))):
+            P.mark(on(hc, hr, hm, u, v, 0.1), M.EMBER_CRACK if (k + f) % 3 else M.EMBER_CRACK_HI)
+        for s in (1, -1):
+            e, h_ = elbows[s], ends[s]
+            for t in (0.25, 0.5, 0.75):
+                P.mark(e + (h_ - e) * t + v3(0.0, 0.0, 0.9), M.EMBER_CRACK if t != 0.5 else M.EMBER_CRACK_HI)
+    if w.get("halo"):
+        _halo(P, B, action, f, hc, hm, tm, w.halo, ends[1])
+    if w.get("mist"):
+        # Fading, it comes apart into motes of the hall's light, from its hem up.
+        fade = B.pick("fade", action, f)
+        if fade > 0.0:
+            P.dissolve = fade * 0.95
+            P.dissolve_col = M.PRES_LIGHT
+    if w.get("mist") and not dead:
+        # Its hem thinning into mist: wisps under the robe, drifting.
+        rb = B.parts.robe
+        for k in range(16):
+            ang = math.radians(k * 22.5 + f * 12.0)
+            rr = rb.r[1] * (0.6 + 0.35 * ((k * 7) % 3) / 2.0)
+            z = rb.get("hem", 0.3) - 0.4 - ((f * 0.4 + k * 0.37) % 1.4)
+            q = v3(hip[0] * 0.6 + rb.lead + math.cos(ang) * rr, math.sin(ang) * rr, max(0.2, z))
+            P.fx.append((q, M.PRES_MIST if k % 2 else M.PRES_MIST_DIM))
+            P.fx.append((q + v3(0.0, 0.5, 0.0), M.PRES_MIST_DIM))
+
+
+def _coat_tails(P, B, action: str, f: int, hip, tm, t) -> None:
+    """A long coat's skirt from the waist to the knee (a cone, swinging as he walks), split up its front over the legs, its
+    hem trimmed."""
+    m, st = B.mats, B.style(action)
+    sw = 0.5 * math.sin(f / 8.0 * math.tau) if st.get("kind") == "march" else 0.0
+    top = hip + tm @ v3(0.15, 0.0, t.top)
+    bot = v3(hip[0] * 0.7 + sw * 0.5 + t.lead, 0.0, t.hem)
+    if action == "death" and B.pick("roll", action, f) > 30.0:
+        bot = hip + tm @ v3(0.0, 0.0, t.top - 4.0)
+    axis = (bot - top) / max(1e-6, float(np.linalg.norm(bot - top)))
+    trim = t.get("trim", 0.45)
+    lng = float(np.linalg.norm(bot - top))
+
+    def paint(q, n, top=top, axis=axis):
+        rel = q - top
+        along = rel @ axis
+        hem = along > lng - trim
+        fold = ((np.arctan2(rel[:, 1], rel[:, 0]) * 2.4) % 1.0) < 0.2
+        return np.where(hem, m.trim, m.coat).astype(object), np.where(fold & ~hem, -1, 0).astype(np.int16)
+
+    split = t.split
+    P.add(L(top, bot, t.r[0], t.r[1], m.coat, "tails", paint, caps=False,
+            clip=lambda qs, c_=hip, s_=split: ~((((qs - c_) @ tm)[:, 0] > 0.6) & (np.abs(((qs - c_) @ tm)[:, 1]) < s_))))
+
+
+def _cape4(P, B, action: str, f: int, up, tm, hip, cp) -> None:
+    """A cape over his shoulders and down his back to `bottom`, billowing as he moves; a tattered one's hem torn ragged."""
+    m, st = B.mats, B.style(action)
+    sw = 0.5 * math.sin(f / 8.0 * math.tau) if st.get("kind") == "march" else 0.25 * math.sin(f * 0.9)
+    top = up((-0.6, 0.0, cp.top))
+    bot = v3(hip[0] - cp.back - 0.4 * abs(sw), sw * 0.6, cp.bottom)
+    if action == "death" and B.pick("roll", action, f) > 30.0:
+        bot = up((-cp.back, 0.0, cp.top - 5.0))
+    axis = (bot - top) / max(1e-6, float(np.linalg.norm(bot - top)))
+    lng = float(np.linalg.norm(bot - top))
+    tatter = bool(cp.get("tatter"))
+
+    def clip(qs, c_=hip, top=top, axis=axis):
+        keep = (qs - c_)[:, 0] < -0.6
+        if tatter:
+            rel = qs - top
+            along = rel @ axis
+            ang = np.arctan2(rel[:, 1], rel[:, 0])
+            keep &= along < lng - 0.9 - 0.9 * np.abs(np.sin(ang * 5.0 + f * 0.6))
+        return keep
+
+    def paint(q, n, top=top, axis=axis):
+        rel = q - top
+        fold = ((np.arctan2(rel[:, 1], rel[:, 0]) * 2.0) % 1.0) < 0.18
+        return np.full(len(q), m.cape, dtype=object), np.where(fold, -1, 0).astype(np.int16)
+
+    P.add(L(top, bot, cp.r[0], cp.r[1], m.cape, "cape", paint, caps=False, clip=clip))
+
+
+def _halo(P, B, action: str, f: int, hc, hm, tm, h, hand) -> None:
+    """The Ninth Presence's crown of nine lights: nine motes on an arc of gold standing behind its head and over it (an
+    aureole: its lower half would cross its face, the lights being drawn over the body), swaying; gathered up into a
+    blazing crown over its head in the tell (`halo`), thrown out round it on both sides on the blow (`burst`); going out
+    one by one as it fades."""
+    g = B.pick("halo", action, f)
+    burst = B.pick("burst", action, f)
+    fade = B.pick("fade", action, f)
+    lit = int(round(h.n * (1.0 - fade)))
+    a0, a1 = -25.0, 205.0
+    if burst <= 0.0 and g < 0.5 and lit:
+        # The arc the nine lights stand on: a thin line of gold light behind its head.
+        for k in range(31):
+            ang = math.radians(a0 + (a1 - a0) * k / 30.0)
+            P.glow.append((hc + tm @ v3(-1.4, math.cos(ang) * h.r, math.sin(ang) * h.r + 0.9), M.PRES_RING))
+    for k in range(lit):
+        if burst > 0.0:
+            ang = math.radians(k * 360.0 / h.n + f * 8.0)
+            rr = h.r + 4.0 * burst
+            q = v3(hc[0] - 1.0 + math.cos(ang) * rr * 0.9, math.sin(ang) * rr, hc[2] * 0.55)
+        else:
+            ang = math.radians(a0 + (a1 - a0) * k / (h.n - 1) + 5.0 * math.sin(f * 0.8))
+            behind = hc + tm @ v3(-1.4, math.cos(ang) * h.r, math.sin(ang) * h.r + 0.9)
+            crown = hc + v3(math.cos(ang) * 1.8, math.sin(ang) * 1.8, 3.4)
+            q = behind + (crown - behind) * g
+        P.glow.append((q, M.PRES_LIGHT_HI))
+        for d in ((0.0, 0.45, 0.0), (0.0, -0.45, 0.0), (0.0, 0.0, 0.5), (0.0, 0.0, -0.5)):
+            P.glow.append((q + v3(*d), M.PRES_LIGHT if (k + f) % 3 or g >= 0.8 or burst > 0.0 else M.PRES_RING))
+    pm = B.pick("palm", action, f)
+    if pm > 0.0:
+        # The palm's ring: before its left hand.
+        c = hand + tm @ v3(1.0 + pm * 0.6, 0.0, 0.0)
+        for k in range(14):
+            ang = math.radians(k * 360.0 / 14.0)
+            rr = 1.0 + 1.2 * pm
+            P.glow.append((c + tm @ v3(0.0, math.cos(ang) * rr, math.sin(ang) * rr), M.PRES_LIGHT_HI if k % 2 else M.PRES_LIGHT))
+
+
+def _anchor(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """Comet Captain Rao's anchor of comet iron: a long shank in his right hand (a ring at its top, a stock across it), its
+    crown and two curved flukes with spade palms at its far end, a chain from its ring to his left hand; over his shoulder
+    at rest, raised high in both hands as comet fire runs along its flukes (`comet`), slammed down before him in a burst
+    of comet sparks and dust (`impact`); still in his hand, lying along him, as he falls."""
+    h, m, st = B.parts.prop, B.mats, B.style(action)
+    hand = ends[-1]
+    d = v3(B.pick("anchor", action, f, (-0.62, -0.25, 0.74)))
+    d = tm @ (d / float(np.linalg.norm(d)))
+    if action == "death" and f >= 3:
+        d = _u(v3(0.25, 0.0, 1.0))      # held upright beside him as he topples, to lie along him (_finish rolls the pose)
+    side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
+    if float(np.linalg.norm(side)) < 0.25:
+        side = np.cross(d, v3(0.0, 0.0, 1.0))
+    side = side / float(np.linalg.norm(side))
+    nrm = np.cross(d, side)
+    top = hand - d * 1.0
+    crown = hand + d * h.shank
+    P.add(L(top, crown, h.r, h.r * 1.15, m.iron, "shank"))
+    rc = top - d * h.ring * 1.1
+    for k in range(8):
+        t = math.radians(k * 45.0)
+        P.add(S(rc + (d * math.cos(t) + nrm * math.sin(t)) * h.ring, 0.24, m.iron, "ring", line=False))
+    s0 = hand + d * 0.9
+    P.add(L(s0 - nrm * h.stock * 0.5, s0 + nrm * h.stock * 0.5, 0.3, 0.3, m.iron, "stock"))
+    P.add(S(crown, 0.85, m.iron, "crown"))
+    tips = []
+    fl = h.fluke
+    for s in (1, -1):
+        a1 = crown + side * s * fl * 0.65 - d * 0.2
+        a2 = crown + side * s * fl * 0.95 - d * fl * 0.75
+        P.add(L(crown, a1, 0.62, 0.56, m.iron, "fluke%d" % s), L(a1, a2, 0.56, 0.4, m.iron, "fluke%d" % s))
+        palm = a2 - d * 0.1 + side * s * 0.2
+        P.add(E(palm, (1.15, 0.8, 0.25), m.iron, "palm%d" % s, np.stack([_u(a2 - a1), side * s, nrm], axis=1)))
+        tips.append(a2 + _u(a2 - a1) * 0.8)
+        P.mark(a2 + _u(a2 - a1) * 0.85, M.RAMPS[m.iron][4])
+    # The chain from its ring to his left hand, sagging.
+    lh = ends[1]
+    n = 8
+    for k in range(1, n):
+        t = k / n
+        q = rc + (lh - rc) * t - v3(0.0, 0.0, 1.3 * math.sin(math.pi * t))
+        P.add(S(q, 0.26, m.iron, "chain", line=False))
+    comet = B.pick("comet", action, f)
+    if comet > 0.0:
+        pts = [crown] + tips + [crown + (tips[0] - crown) * 0.5, crown + (tips[1] - crown) * 0.5]
+        nfl = 6 + int(10 * comet)
+        for k in range(nfl):
+            base = pts[k % len(pts)]
+            q = base + side * (0.4 * math.sin(k * 2.1 + f)) + nrm * (0.4 * math.cos(k * 1.7 + f)) - d * (0.3 * (k % 3))
+            P.glow.append((q, M.COMET_BLUE_HI if k % 3 == 0 else M.COMET_BLUE))
+        for k in range(int(5 * comet)):
+            q = crown + d * (0.8 + 0.7 * k) + side * (0.6 * math.sin(f + k)) + v3(0.0, 0.0, 0.3 * k)
+            P.glow.append((q, M.COMET_BLUE))
+    if action == "attack" and f in st.get("impact", ()):
+        k0 = f - min(st.get("impact", (1,)))
+        foot = v3(crown[0], crown[1], 0.3)
+        rr = 2.6 + 1.9 * k0
+        for k in range(24):
+            ang = math.radians(k * 15.0 + f * 9.0)
+            P.fx.append((foot + v3(math.cos(ang) * rr, math.sin(ang) * rr * 0.95, 0.2 + 0.4 * (k % 3 == 0)), M.DUST if k % 2 else M.DUST_DIM))
+        for k in range(10):
+            ang = math.radians(k * 36.0 + 10.0)
+            q = foot + v3(math.cos(ang) * (1.2 + k0), math.sin(ang) * (1.2 + k0), 1.0 + 1.6 * (2 - k0) * (k % 2))
+            P.glow.append((q, M.COMET_BLUE_HI if k % 2 else M.COMET_BLUE))
+
+
+def _u(v):
+    return v / max(1e-9, float(np.linalg.norm(v)))
+
+
+def _sabre_cannon(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """Admiral Voss's arms: a starsteel sabre in his right hand (a long faintly curved blade of pale blue light, a gold
+    guard), its arc of starsteel trailing it on the cut (`arc`); a brass hand cannon in his left (a short barrel banded in
+    gold, a dragon's mouth at its muzzle, its fuse sparking at the breech in the tell, `fuse`), firing in a flash and a
+    cloud of smoke on the blow (`flash`, `smoke`)."""
+    h, m, st = B.parts.prop, B.mats, B.style(action)
+    rh, lh = ends[-1], ends[1]
+    d = v3(B.pick("sabre", action, f, (0.45, -0.25, -0.86)))
+    d = tm @ (d / float(np.linalg.norm(d)))
+    if action == "death" and f >= 3:
+        d = _u(v3(0.3, 0.0, -1.0))      # down along his legs as he topples, to lie along him (_finish rolls the pose)
+    side = np.cross(d, v3(0.0, 0.0, 1.0))
+    if float(np.linalg.norm(side)) < 0.2:
+        side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
+    side = _u(side)
+    P.add(L(rh - d * 0.9, rh + d * 0.3, 0.28, 0.28, m.grip, "grip"))
+    P.add(E(rh + d * 0.45, (0.25, 0.85, 0.6), m.trim, "guard", np.stack([d, side, np.cross(d, side)], axis=1)))
+    mid = rh + d * (h.blade * 0.5 + 0.5) + side * 0.25
+    tip = rh + d * (h.blade + 0.6) + side * 0.65
+    P.add(L(rh + d * 0.55, mid, 0.34, 0.3, m.steel, "sabre"), L(mid, tip, 0.3, 0.1, m.steel, "sabre"))
+    P.mark(tip, M.STARSTEEL_HI)
+    for t in (0.3, 0.6, 0.85):
+        P.glow.append((rh + d * (h.blade * t + 0.6) + side * (0.25 + 0.4 * t) + v3(0.0, 0.0, 0.25), M.STARSTEEL))
+    if action == "attack" and f in st.get("arc", ()):
+        for k in range(14):
+            ang = math.radians(-60.0 + k * 10.0 + (f - 1) * 25.0)
+            rr = h.blade + 1.0
+            q = rh + tm @ v3(math.cos(ang) * rr * 0.6 - 1.0, math.sin(ang) * rr * 0.8, -0.8 + 0.1 * k)
+            P.fx.append((q, M.STARSTEEL if k % 2 else M.STARSTEEL_HI))
+    # The hand cannon.
+    b = v3(B.pick("cannon", action, f, (0.8, 0.2, -0.55)))
+    b = tm @ (b / float(np.linalg.norm(b)))
+    if action == "death" and f >= 3:
+        b = _u(v3(0.5, 0.0, -1.0))
+    breech = lh - b * 0.9
+    muzzle = lh + b * h.barrel
+    P.add(L(breech, muzzle, 0.55, 0.5, m.brass, "cannon"), S(breech, 0.62, m.brass, "cannon"))
+    bs = _u(np.cross(b, v3(0.0, 0.0, 1.0)) if float(np.linalg.norm(np.cross(b, v3(0.0, 0.0, 1.0)))) > 0.2 else np.cross(b, v3(0.0, 1.0, 0.0)))
+    bm = np.stack([b, bs, np.cross(b, bs)], axis=1)
+    P.add(E(muzzle + b * 0.35, (0.5, 0.85, 0.8), m.brass, "muzzle", bm))
+    for t in (0.25, 0.65):
+        P.add(E(breech + (muzzle - breech) * t, (0.18, 0.62, 0.62), m.trim, "band", bm, line=False))
+    for s in (1, -1):
+        P.mark(muzzle + b * 0.75 + bs * s * 0.45, M.RAMPS[m.trim][4])     # the dragon's teeth at its lips
+    fuse = B.pick("fuse", action, f)
+    if fuse > 0.0:
+        q = breech + v3(0.0, 0.0, 0.8)
+        P.glow.append((q, M.SPARK))
+        for k in range(1 + int(4 * fuse)):
+            ang = math.radians(k * 72.0 + f * 50.0)
+            P.glow.append((q + v3(math.cos(ang) * 0.6, math.sin(ang) * 0.6, 0.3 + 0.3 * (k % 2)), M.FLAME if k % 2 else M.SPARK_DIM))
+        P.glow.append((muzzle + b * 1.0, M.FLAME))
+    flash = B.pick("flash", action, f)
+    if flash > 0.0:
+        # The muzzle's flash: a star of fire, a white-hot heart.
+        c = muzzle + b * (1.6 + 0.8 * flash)
+        for k in range(16):
+            ang = math.radians(k * 22.5)
+            for rr, col in ((1.0 + 2.2 * flash * (1.0 if k % 2 else 0.6), M.FLAME), (0.6 + 1.0 * flash, M.FLAME_CORE)):
+                P.glow.append((c + b * (0.8 * rr * (k % 2)) + bm @ v3(0.0, math.cos(ang) * rr, math.sin(ang) * rr), col))
+        for t in (0.0, 0.5, 1.0, 1.5):
+            P.glow.append((c + b * t, M.FLAME_CORE))
+    if action == "attack" and f in st.get("smoke", ()):
+        k0 = f - 1
+        for k in range(14):
+            ang = math.radians(k * 51.0)
+            rr = 0.6 + 0.5 * k0
+            q = muzzle + b * (2.2 + 0.9 * k0 + 0.25 * (k % 4)) + v3(0.0, 0.0, 0.5 + 0.5 * k0) + bm @ v3(0.0, math.cos(ang) * rr, math.sin(ang) * rr)
+            P.fx.append((q, M.SMOKE if k % 2 else M.SMOKE_DIM))
+
+
+def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """General Kharn's Cinder Glaive: a long dark pole through both hands (an iron butt-spike below, a crimson tassel under
+    its head), a great curved blade at its head with a back spike, its edge glowing with embers; bursting into flame up
+    its blade as he raises it (`flame`), the ground set alight where it lands on the blow (`fire`)."""
+    h, m, st = B.parts.prop, B.mats, B.style(action)
+    hand = ends[-1]
+    d = v3(B.pick("glaive", action, f, (0.08, -0.05, 1.0)))
+    d = tm @ (d / float(np.linalg.norm(d)))
+    if action == "death" and f >= 3:
+        d = _u(v3(0.25, 0.0, 1.0))      # held upright beside him as he topples, to lie along him (_finish rolls the pose)
+    butt = hand - d * h.below
+    head = hand + d * h.above
+    P.add(L(butt, head, h.r, h.r, m.shaft, "pole"))
+    P.add(L(butt - d * 0.8, butt, 0.1, h.r, m.iron, "spike"))
+    for t in (0.35, 0.7):
+        P.add(E(hand + d * (h.above * t), (0.3, h.r * 1.25, h.r * 1.25), m.cord, "wrap", np.stack([d, _u(np.cross(d, v3(0.0, 0.0, 1.0)) if abs(d[2]) < 0.95 else v3(0.0, 1.0, 0.0)), np.cross(d, _u(np.cross(d, v3(0.0, 0.0, 1.0)) if abs(d[2]) < 0.95 else v3(0.0, 1.0, 0.0)))], axis=1), line=False))
+    # The blade: a broad curved crescent forward of the head, its edge on the far side, a back spike behind it.
+    # Its edge forward as it cuts; standing upright at his side, turned out to his right as well, so its broad blade shows
+    # from the front.
+    fwd = tm @ v3(1.0, 0.0, 0.0) + tm @ v3(0.0, -1.0, 0.0) * max(0.0, (abs(float(d[2])) - 0.5) * 2.0)
+    side = _u(np.cross(d, v3(0.0, 0.0, 1.0)) if float(np.linalg.norm(np.cross(d, v3(0.0, 0.0, 1.0)))) > 0.2 else np.cross(d, fwd))
+    edge = _u(fwd - d * float(fwd @ d)) if float(np.linalg.norm(fwd - d * float(fwd @ d))) > 0.2 else side
+    bl, bw = h.blade
+    bm = np.stack([d, edge, np.cross(d, edge)], axis=1)
+    bc = head + d * (bl * 0.45) + edge * (bw * 0.6)
+    P.add(E(bc, (bl * 0.6, bw, 0.26), m.blade, "blade", bm, _cinder_paint(m, bc, edge, bw)))
+    P.add(E(head + d * (bl * 0.98) + edge * (bw * 1.0), (1.2, 0.7, 0.24), m.blade, "blade", bm @ rot("c", 30.0), _cinder_paint(m, bc, edge, bw)))
+    P.add(L(head + d * 0.3 - edge * 0.2, head + d * 0.9 - edge * 1.8, 0.36, 0.1, m.iron, "backspike"))
+    P.add(S(head, 0.55, m.trim, "collar"))
+    sw = 0.3 * math.sin(f * 1.1)
+    P.add(L(head - d * 0.2, head - d * 0.2 + v3(sw, 0.0, -1.6), 0.38, 0.5, m.cord, "tassel", line=False))
+    # The embers along its edge; its flames.
+    flame = B.pick("flame", action, f)
+    for k in range(9):
+        t = (k + 0.5) / 9.0
+        q = head + d * (bl * (0.05 + 1.0 * t)) + edge * (bw * (1.5 - 0.6 * abs(t - 0.5)))
+        P.glow.append((q, M.EMBER_CRACK_HI if (k + f) % 3 == 0 or flame > 0.5 else M.EMBER_CRACK))
+    if flame > 0.0:
+        # Flame licking up the blade: tongues rising off its edge.
+        nf = 6 + int(12 * flame)
+        for k in range(nf):
+            t = ((k * 0.37 + f * 0.11) % 1.0)
+            q = head + d * (bl * t) + edge * (bw * (1.3 + 0.3 * math.sin(k)))
+            for j in range(1 + int(3 * flame)):
+                P.glow.append((q + v3(0.0, 0.0, 0.4 + 0.7 * j), M.FLAME_CORE if j == 0 else (M.FLAME if j < 2 else M.FLAME_DEEP)))
+    fire = B.pick("fire", action, f)
+    if fire > 0.0:
+        # The ground alight where it lands: a ring of flame tongues spreading out.
+        c = v3(head[0] + d[0] * bl * 0.5, head[1] + d[1] * bl * 0.5, 0.3)
+        rr = 2.0 + 2.2 * fire
+        tall = 3.4 * (2.2 - fire) / 2.2 + 0.8
+        for k in range(16):
+            ang = math.radians(k * 22.5 + fire * 17.0)
+            q = c + v3(math.cos(ang) * rr, math.sin(ang) * rr * 0.95, 0.2)
+            h_ = tall * (0.45 + 0.55 * ((k * 7) % 3) / 2.0)
+            side = v3(-math.sin(ang), math.cos(ang), 0.0) * 0.35
+            for j in range(1 + int(h_ / 0.5)):
+                z = 0.5 * j
+                col = M.FLAME_CORE if z < h_ * 0.3 else (M.FLAME if z < h_ * 0.7 else M.FLAME_DEEP)
+                P.glow.append((q + v3(0.0, 0.0, z), col))
+                if z < h_ * 0.5:
+                    P.glow.append((q + side + v3(0.0, 0.0, z), M.FLAME))
+                    P.glow.append((q - side + v3(0.0, 0.0, z), M.FLAME_DEEP))
+
+
+def _cinder_paint(m, c, edge, bw):
+    """The glaive's blade: dark iron, its edge a step lit along its far side (the embers are its glow)."""
+    def paint(q, n):
+        v = (q - c) @ edge
+        return np.full(len(q), m.blade, dtype=object), np.where(v > bw * 0.55, 2, np.where(v < -bw * 0.5, -1, 0)).astype(np.int16)
+    return paint
+
+
+def _nine_staff(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """The Ninth Presence's staff of white jade: tall in its right hand, a ring at its head holding nine small lights."""
+    h, m, st = B.parts.prop, B.mats, B.style(action)
+    hand = ends[-1]
+    d = v3(0.05, -0.05, 1.0)
+    d = tm @ (d / float(np.linalg.norm(d)))
+    fade = B.pick("fade", action, f)
+    if action == "death" and f >= 4:
+        hand = v3(hand[0] + 1.6, hand[1] - 2.0, 0.4)
+        d = _u(v3(0.9, -0.4, 0.0))
+    butt = hand - d * h.below
+    head = hand + d * h.above
+    P.add(L(butt, head, h.r, h.r, m.staff, "staff"))
+    side = _u(np.cross(d, v3(0.0, 0.0, 1.0)) if float(np.linalg.norm(np.cross(d, v3(0.0, 0.0, 1.0)))) > 0.2 else np.cross(d, tm @ v3(1.0, 0.0, 0.0)))
+    ring = head + d * h.ring
+    for k in range(12):
+        t = math.radians(k * 30.0)
+        P.add(S(ring + (d * math.cos(t) + side * math.sin(t)) * h.ring, 0.28, m.staff, "staffring", line=False))
+    lit = int(round(9 * (1.0 - fade)))
+    for k in range(lit):
+        t = math.radians(k * 40.0 + f * 10.0)
+        P.glow.append((ring + (d * math.cos(t) + side * math.sin(t)) * h.ring + v3(0.0, 0.0, 0.2), M.PRES_LIGHT_HI if k % 3 == 0 else M.PRES_LIGHT))
+
+
+M4_PROPS = {"anchor": _anchor, "sabre_cannon": _sabre_cannon, "glaive": _glaive, "nine_staff": _nine_staff}
 
 # ================================================================================================= M3
 # M3's kinds, each optional (a species names them), so every species drawn before draws byte for byte: what a body holds
@@ -1927,9 +2884,9 @@ STYLES.update({
 # crown on his brow (gold spikes radiating round a jade disc); his crescent glaive (`held` kind "glaive": a long umber
 # shaft shod in gold, a great crescent blade of clear desert glass).
 #
-# Styles: idle `king_stand` (a regal sway, the glaive planted at his side), walk `king_glide`, windup `glaive_raise` (the
+# Styles: idle `king_stand` (a regal sway, the glaive planted at his side), walk `king_glide`, windup `king_raise` (the
 # glaive raised high overhead in both hands, the crown blazing, the sand gathering into a whirl round him: held), attack
-# `glaive_sweep` (a wide sweep on both sides that flings a crescent of sand: the blow on frame 1), hurt `king_recoil` (a
+# `king_sweep` (a wide sweep on both sides that flings a crescent of sand: the blow on frame 1), hurt `king_recoil` (a
 # crack flickering across his mask), death `pour_away` (he sinks onto his glaive, slumps and pours away as sand, his crown
 # and glaive left lying on the heap). Channels besides the body's: `glow` (the crown's blaze), `whirl` (the sand gathering
 # round him), `crescent` (the sand crescent flung by the sweep), `crack` (the mask's), `pour` (his body gone to sand),
@@ -1939,11 +2896,11 @@ STYLES.update({
     "king_stand": {"sway_amp": 0.12, "one_hand": True, "right": _KING_REST["right"] * 6, "left": _KING_REST["left"] * 6},
     "king_glide": {"one_hand": True, "glide": True, "lean": (5.0,) * 8, "sink": (0.0, 0.15, 0.3, 0.15, 0.0, -0.15, -0.3, -0.15),
                    "right": _KING_REST["right"] * 8, "left": _KING_REST["left"] * 8},
-    "glaive_raise": {"lean": (-3.0, -6.0, -8.0, -8.0), "sink": (0.2, 0.3, 0.3, 0.3), "glow": (0.4, 0.8, 1.0, 1.0), "whirl": (0.3, 0.6, 0.9, 1.0),
+    "king_raise": {"lean": (-3.0, -6.0, -8.0, -8.0), "sink": (0.2, 0.3, 0.3, 0.3), "glow": (0.4, 0.8, 1.0, 1.0), "whirl": (0.3, 0.6, 0.9, 1.0),
                      "glare": True,
                      "right": ((1.4, -3.6, 2.4), (0.4, -3.6, 4.4), (-0.4, -3.4, 5.8), (-0.6, -3.3, 6.2)),
                      "left": ((2.2, 1.0, 0.4), (1.6, 0.0, 2.4), (1.0, -0.8, 3.8), (0.8, -1.0, 4.2))},
-    "glaive_sweep": {"lean": (2.0, 12.0, 12.0, 8.0, 3.0, 0.0), "twist": (-30.0, 34.0, 40.0, 30.0, 12.0, 0.0), "step": (0.2, 1.2, 1.4, 1.0, 0.4, 0.1),
+    "king_sweep": {"lean": (2.0, 12.0, 12.0, 8.0, 3.0, 0.0), "twist": (-30.0, 34.0, 40.0, 30.0, 12.0, 0.0), "step": (0.2, 1.2, 1.4, 1.0, 0.4, 0.1),
                      "sink": (0.4, 0.8, 0.8, 0.6, 0.3, 0.1), "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "glare": True,
                      "crescent": (0.0, 1.0, 0.6, 0.25, 0.0, 0.0), "squash": {1: (1.02, 1.0, 0.98)},
                      "right": ((-0.6, -3.3, 6.2), (5.6, 2.0, -2.2), (5.0, 3.4, -2.6), (4.0, 1.4, -2.2), (3.0, -1.8, -1.0), (2.0, -4.3, -1.2)),
@@ -1987,7 +2944,7 @@ VARIANTS["king"] = {"parts": KING, "mats": {"body": "tk_skin", "limb": "tk_skin"
                                             "skin": "tk_skin", "hand": "tk_skin", "hair": "tk_hair", "cord": "tk_vermilion", "sash": "tk_vermilion",
                                             "robe": "tk_vermilion", "trim": "tk_gold", "cuirass": "tk_gold", "sand": "tk_sand", "glass": "tk_glass",
                                             "jade": "tk_jade", "shaft": "tk_umber", "hood": "tk_umber", "maw": "maw"},
-                    "motion": {"idle": "king_stand", "walk": "king_glide", "windup": "glaive_raise", "attack": "glaive_sweep",
+                    "motion": {"idle": "king_stand", "walk": "king_glide", "windup": "king_raise", "attack": "king_sweep",
                                "hurt": "king_recoil", "death": "pour_away"}}
 
 
@@ -2142,7 +3099,7 @@ def _regalia(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows:
             P.glow.append((cq + hm @ v3(0.3, math.sin(a) * (cw.disc + 0.5), math.cos(a) * (cw.disc + 0.5)), M.TK_HALO))
 
 
-def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
+def _king_glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
     """M3, the Tomb King's crescent glaive (none when `opts.bare`): a long umber shaft shod in gold, a great crescent blade
     of clear desert glass off its head, its edge bright. Planted at his side in his right hand (`one_hand`), else in both
     hands; its sweep throws a crescent of sand round him; beaten, it lies on the floor by his heap with his crown."""
@@ -2221,4 +3178,5 @@ def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
 
 M3_PARTS["bell"] = _bell
 M3_PARTS["regalia"] = _regalia
-M3_HELD["glaive"] = _glaive
+M3_HELD["glaive"] = _king_glaive
+

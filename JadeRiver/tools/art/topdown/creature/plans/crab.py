@@ -10,6 +10,9 @@ own frame, and the lunge, the stride and the struck side's claw follow it.
   claws  the rest pose (ahead, out, up, yaw in, pitch, open) and the materials of the arm and the tips; M1: `scale`, each
          claw's size (its left's, its right's: the tide crab's great shield claw)
   shell  M1: `pearls`, pearls grown on the carapace (along, across)
+  shell  M4: `void`, the void crab's carapace a window onto the void (its centre and radii on top: a black-violet sky with
+         a nebula swirl and stars in it, a silver bevel round it); `claws.rift`, a tear in space shimmering round the
+         raised claws in the tell and flashing at the pinch on the blow (`void`, the variant)
 
 The motion styles (STYLES): idle `snap`, walk `scuttle`, windup `claws_high`, attack `slam_drag`, hurt `flung`,
 death `flip_curl`. A claw's channel `claw` is (ahead, out, up, yaw in, pitch up, open) a frame.
@@ -105,6 +108,9 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0), view=None) -> Pose:
         bias = np.where(groove & ~blotch & ~belly | belly & (np.abs(b) % 2.2 < 0.35), -1, 0).astype(np.int16)
         return names, bias
 
+    if sh.get("void"):
+        shell = _void_paint(shell, C, bm, sh.void, m)        # M4: the window onto the void
+
     def rim(q, n):
         nz = (n @ bm)[:, 2]
         return np.where(nz < -0.4, m.pale, m.rim).astype(object), np.zeros(len(nz), dtype=np.int16)
@@ -182,6 +188,8 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0), view=None) -> Pose:
         P.add(E(hinge + dm @ v3(2.0 * k, 0.0, 0.2 * k), (1.9 * k, 0.95 * k, 0.85 * k), m.claw, "dactyl%d" % s, dm),
               E(hinge + dm @ v3(3.6 * k, 0.0, 0.1 * k), (1.1 * k, 0.75 * k, 0.7 * k), m.tip, "dactyl%d" % s, dm))
         P.mark(palm + cm @ v3(1.0 * k, 0.0, 2.3 * k), M.RAMPS[m.claw][4])
+        if cl.get("rift"):
+            _rift(P, action, f, palm + cm @ v3(3.4 * k, 0.0, 0.4 * k), cm, k, s)
         if k > 1.0 and m.get("pearl"):
             for t in (-0.5, 0.4):        # the shield claw's crusted rim, a pearl in it
                 P.mark(palm + cm @ v3(t * 2.2 * k, -0.9 * k, 1.9 * k), M.RAMPS[m.pearl][3])
@@ -191,6 +199,8 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0), view=None) -> Pose:
                 ang = math.radians(k * 72.0 + f * 30.0)
                 P.fx.append((v3(tipp[0] + math.cos(ang) * (1.6 + f), tipp[1] + math.sin(ang) * (1.6 + f), 0.3 + (k % 2) * 0.6),
                              M.DUST if k % 2 else M.DUST_DIM))
+    if sh.get("void"):
+        _void_stars(P, B, action, f, at, shell_r)
     roll = B.pick("roll", action, f)
     if roll:
         edge, back = st.edge
@@ -204,6 +214,79 @@ def pose(B, action: str, f: int, aim=(1.0, 0.0), view=None) -> Pose:
         P.squash(sq[0], sq[1], sq[2], (0.0, 0.0, 0.0))
     return P
 
+
+# ================================================================================================= the void crab (M4)
+# The mud crab's body with its carapace a window onto the void: the top of the shell inside `void` (its centre and radii
+# along and across) is a black-violet sky, a nebula swirl drifting through it and stars in it, a silver bevel round it;
+# its big claw tears space in its tell (a rift of violet light round the raised claws) and flashes at the pinch.
+VOID = dict(MUD, shell=dict(MUD["shell"], void=((0.6, 0.0), (4.6, 6.2)), blotches=()), claws=dict(MUD["claws"], scale=(1.4, 0.9), rift=True))
+VARIANTS["void"] = {"parts": VOID, "mats": {"shell": "vc_chitin", "rim": "vc_silver", "pale": "vc_under", "leg": "vc_chitin", "claw": "vc_chitin",
+                                            "tip": "vc_silver", "eye": "vc_eye", "void": "vc_void", "nebula": "vc_nebula"},
+                    "motion": {"idle": "snap", "walk": "scuttle", "windup": "claws_high", "attack": "slam_drag", "hurt": "flung",
+                               "death": "flip_curl"}}
+
+
+def _void_paint(shell, C, bm, void, m):
+    """The carapace's top inside the window: the void (a step lit where the nebula drifts through it, in a swirl), and a
+    silver bevel round the window's edge; the shell's own paint outside it."""
+    (va, vb), (ra, rb) = void
+
+    def paint(q, n):
+        names, bias = shell(q, n)
+        loc = (q - C) @ bm
+        nz = (n @ bm)[:, 2]
+        u = ((loc[:, 0] - va) / ra) ** 2 + ((loc[:, 1] - vb) / rb) ** 2
+        inside = (u < 1.0) & (nz > 0.3)
+        bevel = (u >= 1.0) & (u < 1.32) & (nz > 0.25)
+        ang = np.arctan2(loc[:, 1] - vb, loc[:, 0] - va)
+        swirl = inside & (np.abs(((ang * 1.2 + np.sqrt(u) * 4.2) % math.tau) - 2.4) < 0.75)
+        names = np.where(swirl, m.nebula, np.where(inside, m.void, np.where(bevel, m.rim, names))).astype(object)
+        bias = np.where(inside, np.where(swirl & (u < 0.4), 1, 0), np.where(bevel, 1, bias)).astype(np.int16)
+        return names, bias
+    return paint
+
+
+def _void_stars(P, B, action: str, f: int, at, shell_r) -> None:
+    """Stars in the window, twinkling in turn (the tell's brightest; a white flash through it when struck; going out one
+    by one as it dies, its window fading to black)."""
+    (va, vb), (ra, rb) = B.parts.shell.void
+    sz = shell_r[2]
+    out = int(B.pick("roll", action, f) > 60.0) * 99 if action == "death" else 0
+    lit = 6 - min(6, max(0, f - 1)) if action == "death" else 6
+    for k in range(9):
+        a0 = va + ra * 0.8 * math.cos(k * 2.4 + 0.6) * (0.35 + 0.6 * ((k * 37) % 10) / 10.0)
+        b0 = vb + rb * 0.8 * math.sin(k * 2.4 + 0.6) * (0.35 + 0.6 * ((k * 53) % 10) / 10.0)
+        top = sz * math.sqrt(max(0.0, 1.0 - (a0 / shell_r[0]) ** 2 - (b0 / shell_r[1]) ** 2))
+        q = at((a0, b0, top + 0.2))
+        if out or k >= lit:
+            continue
+        tw = (k + f) % 4 == 0
+        col = (M.STAR_W if tw or action == "windup" else (M.STAR_V, M.STAR_C, M.STAR_G, M.STAR_DIM)[k % 4])
+        P.mark(q, col)
+    if action == "hurt" and f == 0:
+        for k in range(10):
+            ang = math.radians(k * 36.0)
+            P.glow.append((at((va + math.cos(ang) * ra * 0.6, vb + math.sin(ang) * rb * 0.6, sz + 0.4)), M.STAR_W))
+
+
+def _rift(P, action: str, f: int, tip, cm, k: float, s: int) -> None:
+    """A tear in space round the claw's tip: a jagged line of violet light about it in the tell (wider as it holds), a
+    burst of white and violet at the pinch on the blow."""
+    if action == "windup" and f >= 1:
+        n = 4 + 2 * f
+        for j in range(n):
+            ang = math.radians(j * 360.0 / n + f * 23.0 + (40.0 if s > 0 else 0.0))
+            rr = (1.8 + 0.5 * f + (0.6 if j % 2 else 0.0)) * k
+            q = tip + cm @ v3(0.4 * math.sin(ang * 2.0), math.cos(ang) * rr, math.sin(ang) * rr)
+            P.glow.append((q, M.RIFT_V if j % 3 else M.RIFT_W))
+        for j in range(3):
+            P.fx.append((tip + cm @ v3(0.0, (j - 1) * 1.2 * k, (2.6 + 0.6 * f) * k), M.RIFT_D))
+    if action == "attack" and f in (1, 2) and s > 0:
+        rr = (1.6 if f == 1 else 2.8) * k
+        for j in range(10):
+            ang = math.radians(j * 36.0)
+            P.glow.append((tip + cm @ v3(0.6, math.cos(ang) * rr, math.sin(ang) * rr * 0.8), M.RIFT_W if j % 2 else M.RIFT_V))
+        P.glow.append((tip, M.RIFT_W))
 
 # ================================================================================================= the sandstorm scorpion (M3)
 # The sandstorm scorpion (`tail`): a dog-sized desert scorpion whose carapace has fused with wind-blown sand into plates
@@ -435,3 +518,4 @@ def _scorpion(B, action: str, f: int) -> Pose:
         P.dissolve = fade
         P.dissolve_col = M.SSC_SAND
     return P
+

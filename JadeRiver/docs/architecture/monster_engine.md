@@ -1,4 +1,4 @@
-# The monster engine (audit 45 §6.2, E2, M1, M2, M3)
+# The monster engine (audit 45 §6.2, E2, M1, M2, M3, M4)
 
 A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
 already existed:
@@ -90,6 +90,7 @@ M3 added these. Each new part kind is optional again (a new key, or a hook table
 | `humanoid` | (`ape` parts), `held` `block`, `shag` | the snow ape | a faceted block of ice hoisted and slammed (snow spraying), shaggy locks over its shoulders and forearms with frost and icicles, tusks, glowing eyes |
 | `humanoid` | (`sentinel` parts), `paint` `riverstone`, `clay`; `held` `trident`, `ge`; `trickle` | the river sentinel, the terracotta warden | river stone streaked with algae, barnacles and a bronze trim; fired clay in a lamellar vest laced in vermilion, a malachite collar and puttees (with a `human` face, eyes glowing amber); a polearm in both hands (a stone trident, a bronze ge) that lies beside the heap when it crumbles; water or sand trickling from its joints; styles `pole_rest`, `pole_march`, `trident_raise`, `trident_drive`, `ge_raise`, `ge_chop`, `pole_rock`, `pole_crumble` |
 | `humanoid` | `king` | the Tomb King | a person of size with no legs (`legs.none`) rising out of a swirling `bell` of sand (his body's, drawn bare too), his `regalia` (below) and a crescent `glaive`; `_finish` pours a body of sand Qi away (`pour`) |
+| `quadruped` | (`suid` parts), `sapling` | the fruit's guardian | the thornback boar's build grown old and huge, mossy, the fruit tree's bark vines; on its back the tree itself: a gnarled sapling, jade leaf clusters, golden spirit fruits at their edges glowing (blazing in its tell and its charge), blossoms among its vines |
 | `fish` | `dragonet` | the azure carp dragonet | a carp swimming in the air with a dragon's slender rising `neck` and head (horns, whiskers, a gold fin mane, a pearl eye), a ring of water turning under it; it coils back and spits a water orb; styles `hover_sway`, `air_swim`, `coil_orb`, `spit_orb`, `jolt_back`, `drop_flop` |
 | `amphibian` | (`toad` parts), `eyes_back`, `crown`, `slam_water` | the Thousand-Eye Toad | rows of mirror eyes over its back (each its own, lidded, glowing violet in its tell, shut one by one as it sinks), a crown of lily pads and lotus, a wall of lake water on its belly slam; styles `swell_breathe`, `swell_glare`, `belly_slam`, `squeeze_shut`, `sink_close` |
 | `spirit` | `kite` | the wind kite | a swallow-shaped silk sail in two halves (cut to its outline, a dihedral between them), its bamboo frame, a gold bird-head prow, two banded streamers, wind trails; styles `kite_hover`, `kite_glide`, `kite_rear`, `kite_dive`, `kite_tear`, `kite_crumple` |
@@ -160,7 +161,7 @@ boarlet is the boarlet's body with the `h_*` ramps and `opts=dict(hollowed=True)
 ### Motion styles
 
 Every species draws the same catalogue (`motion.py`): idle 6, walk 8, windup 4, attack 6 (the blow on frame 1),
-hurt 3, death 8, and any extras (the leech's swim 8). A spec names one style for each action:
+hurt 3, death 8, and any extras (the swim, 8: the leech's, the Nebula Leviathan's). A spec names one style for each action:
 
 ```python
 motion={"idle": "sniff", "walk": "bound", "windup": "rear", "attack": "lunge_bite", "hurt": "knock_squash",
@@ -211,7 +212,7 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `aura` | it wears the ring of Qi in its own look (a boss's presence) |
 | `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
-| `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel posed at its size; actions past the catalogue; a boss's second look |
+| `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel (and the Nebula Leviathan, against its swim's water) posed at its size; actions past the catalogue; a boss's second look |
 | `canvas` | (M2) the working canvas `(w, h)` a big species is drawn on, its feet at `(w // 2, h - 40)` (`creatures.foot_of`); the default is the sculpture's 136 x 124. `creatures.build` refuses a frame that runs off its canvas's top or left edge (its cell would wrap round) |
 | `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring is lean: it flickers by its pose (`sculpt.ring_seed`), so its held poses share too, and its alphas come in steps of 32 (`sculpt._aura`'s `lean`; the ring was half an elite sheet's cost). Every M1 species has it; the species before keep their sheets byte for byte |
 | `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
@@ -243,8 +244,8 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
    and elite:
    - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
      (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
-   - **In the game:** the capture set `monsters_e2`, `monsters_m1`, `monsters_m2` or `monsters_m3` (or a set of your own beside them
-     in `tools/dev/capture/shots.gd`):
+   - **In the game:** the capture set `monsters_e2`, `monsters_m1`, `monsters_m2`, `monsters_m3` or `monsters_m4` (or a set
+     of your own beside them in `tools/dev/capture/shots.gd`):
      `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_m1`.
      It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
      struck, side-on, tail-on, falling, the elites, and a live fight. It plays on its own saves, never the Max Tester.
@@ -404,11 +405,12 @@ and live fights in fourteen of the species' own top-down rooms.
 
 ## M3: Act II's zones (R6, R7), the heart trial and the siege
 
-Nineteen species, in story order: the Reflection and the Hollow Behemoth, then R6's foes (the Thunderhorn Plains,
-Rimefrost Heights, Mirrorwater Lake) and R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), and the two
-spar opponents of Act II's posts. Each is one spec; its rows moved in unchanged (`spec_row`; the three people's
-outfits moved out of `HUMAN` into their specs). `enemies.json`, `loot_tables.json` and `sound.json` are byte-identical,
-and the only change to `foes.json` is the nineteen new blocks. Every species before draws byte for byte.
+Twenty species, in story order: the Reflection and the Hollow Behemoth, then R6's foes (the Thunderhorn Plains,
+Rimefrost Heights, Mirrorwater Lake) and R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), the two spar
+opponents of Act II's posts, and the treasure births' guardian (the Fruit-Guardian Boar, which borrowed the thornback
+boar's side-view sheet). Each is one spec; its rows moved in unchanged (`spec_row`; the three people's outfits moved out
+of `HUMAN` into their specs). `enemies.json`, `loot_tables.json` and `sound.json` are byte-identical, and the only
+change to `foes.json` is the twenty new blocks. Every species before draws byte for byte.
 
 | Species | Where it is first met | Plan | PNG KB (base / elite) | APK KB (base / elite) |
 |---|---|---|---|---|
@@ -431,8 +433,9 @@ and the only change to `foes.json` is the nineteen new blocks. Every species bef
 | tomb_king | the Throne (dungeon boss, 77) | `humanoid.king` | 640 | 305 |
 | alliance_champion | the Nine Peaks' Presence Terrace (spar, 72) | `person.fighter` | 124 | 66 |
 | ironroot_warden | the Ironroot Hold's gate (spar, 70) | `person.brute` | 111 | 58 |
+| fruit_guardian | a treasure birth: a Spirit Fruit ripening in a valley field room every fourth day (20; the room's level +2) | `quadruped.suid` (`sapling`) | 293 | 128 |
 
-All nineteen: 7,446 KB of PNG, 3,372 KB in the APK (3.29 MiB): the bases 1,940 KB, the eleven elite sheets 1,432 KB.
+All twenty: 7,739 KB of PNG, 3,500 KB in the APK (3.42 MiB): the bases 2,068 KB, the eleven elite sheets 1,432 KB.
 Every one has `share`. An elite sheet is drawn only where a room makes an elite (the eleven above); the rest have
 `elite=False`. Each creature is near its side-view sheet's share of a person (side-view px x ~0.42).
 
@@ -454,35 +457,112 @@ Every one has `share`. An elite sheet is drawn only where a room makes an elite 
   sheet is what surfaces to strike, risen out of its own mound.
 
 Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
-`docs/redesign/feedback/monsters/m3/` (the nineteen side by side facing SE beside a Mudwater bandit, idle, in their
-tells, on their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed);
-and the capture set `monsters_m3` (`docs/redesign/feedback/monsters/m3/after/`): the lineups held in every pose beside
-drawn foes for scale, the elites, and live fights in eighteen of the species' own top-down rooms.
+`docs/redesign/feedback/monsters/m3/` (the twenty side by side facing SE beside a Mudwater bandit, idle, in their tells,
+on their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed; the
+fruit's guardian beside the thornback boar); and the capture set `monsters_m3`
+(`docs/redesign/feedback/monsters/m3/after/`): the lineups held in every pose beside drawn foes for scale, the elites, and
+live fights in nineteen of the species' own top-down rooms (the guardian's where a Spirit Fruit ripens).
+
+## M4: the late game's foes, and its bosses of their own build
+
+The twenty species of the late game, in story order: the Sect War's and the Presence Trial's, R8's sky-sea zones', the
+Tidebreak Front's and R9's star field's. Each is one spec (`starsea.py`, `presence_court.py`, `blackmast_haven.py`,
+`drifting_shoals.py`, `wyrmnest_isles.py`, `tidebreak_front.py`, `orbit_ruins.py`, `ashen_reach.py`, `nebula_deep.py`);
+its rows moved in unchanged (`spec_row`). `enemies.json`, `loot_tables.json` and `sound.json` are byte-identical, and
+`foes.json` changes only in their twenty blocks. Every species before draws byte for byte. A species that has a voice
+of its own in `sound.py`'s lists (a shell's, a slime's, the water's tell) names it in its spec (`sound`), so its voice
+stays as it was.
+
+| Plan | Variant (M4) | Made for | What it adds |
+|---|---|---|---|
+| `person` | `thrower` | the pirate gunner | the brute's overhead `swing_3` with a powder bomb in the hand (`held: bomb`: an iron ball, its fuse sparking, lifted over the head in the tell and gone at the release) |
+| `person` | (`parts.phantom`) | the presence phantom | its lower third dissolving into violet mist and motes |
+| `crab` | `void` | the void crab | a black-violet shell with a window onto the void (a nebula swirl, stars), a silver rim, one great claw, glowing eyes; space tears round its raised claws in its tell (`rift`), and they slam shut with a flash; beaten, its stars go out |
+| `bird` | `sparrow` | the comet sparrow | a small flyer trailing a comet's tail of fire (gold-white, orange, magenta, violet: drawn flat as light, `comet`); it pulls up as its comet flares in its tell and streaks down in a burning dive; beaten, its fire gutters to smoke |
+| `spirit` | `jelly` | the star jellyfish | a translucent bell (a dome over a flat underside, canals, a frill) with a star at its crown, trailing tentacles and oral arms; it pulses, clenches as rings of star glow open round it in its tell, and lashes its stinging tentacles; beaten, it deflates and sinks |
+| `insect` (new) | `drone`, `moth` | the hollow drone, the orbit moth | `drone`: a gunmetal spindle shell with a lance, vanes, wings beating to a blur (their ghost at the beat's far end), a violet core glowing through its seams, the Hollow's eye; it comes apart into flakes. `moth`: a fuzzy body, feathered antennae, fore and hind wings painted as a star chart, three motes orbiting it that gather into a knot before its head in its tell and burst as its wings snap down |
+| `serpent` | `ribbon`, `leviathan` | the nebula eel, the Nebula Leviathan | flyers: a long body swimming the air on a travelling wave. `ribbon`: a teal eel in magenta clouds with violet fins and a hinged jaw; it coils into a tight S and lunges to bite, and unravels into wisps. `leviathan`: a sky whale-serpent, a whale's head with ivory baleen and a pleated jaw on an indigo body with a star-white belly, nebula bands and violet veils; it rears back as the void gathers in its mouth and breathes it out in a cone of stars |
+| `quadruped` | `wyrm` | the hollowed wyrmling | an ashen dragonling: grey-violet scales split by glowing cracks, torn wings, ash horns and spines, stubby legs, a coiled tail; it rears as its throat swells with fire and spits grey-violet fire, and crumbles to ash |
+| `shell` | `guardian` | the nest guardian | a six-legged lizard-tortoise: five bronze plates with star crystals along their ridge, a horned bronze helm, a club tail; it rears with its club raised as its crystals flare, and stomps; beaten, its legs buckle |
+| `humanoid` | `golem` | the gravity golem | a body of separate basalt blocks floating apart, held by gravity (indigo ripples in its gaps), a violet singularity in its chest, a ring of stones orbiting it; it hauls up its arms as the singularity swells and draws things in, and slams; its blocks drop into a heap as gravity fails |
+| `humanoid` | `captain`, `admiral`, `general`, `presence` | Comet Captain Rao, Admiral Voss, General Kharn, the Ninth Presence | the people of size (below) |
+
+### The people of size (M4)
+
+The late game's four bosses who are people are sculpted on the humanoid plan's body as M2's were: the body first
+(`opts.bare`, reviewed in every action and facing: `docs/redesign/feedback/monsters/m4/<id>_body_x4.png`), then
+dressed. What they wear past M2's robe, sleeves and paint is `parts.m4` (`_m4_wear`): a coat's tails to the knee, a
+tattered or solid cape, a headband, an official's winged hat, a plumed war helm, a guan, epaulettes, gold buttons,
+pauldrons, a full or a long beard, a scar, the Ashborn's ember cracks, the Presence's aureole and hem of mist. Paint kind
+`lamellar` lays rows of plates laced in a band of colour over the clothes' zones. A face's glow takes a name
+(`face.glow: "presence"`), the drowned's staying `True`. Their props are `M4_PROPS`.
+
+| Boss | Build | Tell (held) and blow |
+|---|---|---|
+| Comet Captain Rao (`captain`) | burly and barrel-chested, a head over his men: a crimson coat open over a linen shirt, its tails to his knees, a tattered navy cape, a jade headband, a short beard and a scar; a comet anchor of blue-black iron on a chain over his shoulder | the anchor raised high in both hands as comet fire runs along its flukes; slammed down before him in a burst of comet sparks and dust (also the tell of his anchor throw) |
+| Admiral Voss (`admiral`) | tall, lean and imperious: a long indigo greatcoat trimmed and buttoned in gold, gold epaulettes, a black cape, a black lacquered official's hat whose long wings stand out to both sides, a thin moustache | his brass hand cannon levelled at you, its fuse sparking, his starsteel sabre drawn back; he fires (a star of flame, a cloud of smoke) as the sabre cuts in a pale blue arc (also the tell of his broadside) |
+| General Kharn (`general`) | massive, his ash-grey skin cracked with embers: dark steel lamellae laced in crimson over his chest, arms and thighs, iron pauldrons, a crimson cape, a dark helm with cheek guards and a crimson plume, a black beard | the Cinder Glaive, a guandao taller than he is, raised over his head as flame runs up its blade; brought down in a leaping cleave that rings the ground in fire (also the tell of his pyre rings) |
+| the Ninth Presence (`presence`) | a towering spectral sage, violet with the hall's light: a long white robe with wide sleeves, a violet cape, a jade guan on white hair, a long white beard, glowing eyes, floating on a hem of mist, a staff of white jade crowned with nine lights | its aureole of nine lights gathered into a blazing crown over its head; its palm strikes as the nine lights are thrown out round it (also the tell of its crown of nine); beaten, it comes apart into motes of light |
+
+The nest guardian and the Nebula Leviathan are the batch's beasts of size: the guardian low and broad under its bronze
+plates and crystals, its club tail high in its tell; the leviathan the biggest thing the engine has drawn (`canvas`
+280 x 230), a whale-headed serpent of the nebula.
+
+| Species | Where it is first met | Plan | PNG KB (base / elite) | APK KB (base / elite) |
+|---|---|---|---|---|
+| nine_peaks_disciple | the Sect War, the Broken Pier, the Pirate Deck (76-78) | `person.fighter` | 122 / 221 | 67 / 111 |
+| starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War, the Starsea Crossing (79-81) | `person.fighter` | 110 / 202 | 61 / 100 |
+| pirate_captain | the Sect War (story boss, 80) | `humanoid.captain` | 255 | 107 |
+| presence_phantom | the Presence Trial (81) | `person.fighter` (`phantom`) | 96 | 63 |
+| ninth_presence | the Presence Trial (81) | `humanoid.presence` | 215 | 121 |
+| comet_sparrow | the Driftglass Bank, the Sparrow Reefs, the Jellyfish Shallows, the Nest Cliffs, the Lantern Run (82-87) | `bird.sparrow` | 65 / 136 | 36 / 66 |
+| star_jellyfish | the Driftglass Bank, the Jellyfish Shallows, the Sparrow Reefs, the Lantern Run (82-87) | `spirit.jelly` | 137 / 265 | 68 / 122 |
+| pirate_gunner | the Blackmast Docks, the Gunners' Battery (85-90) | `person.thrower` | 96 / 170 | 52 / 86 |
+| nest_guardian | the Nest Cliffs, the Eggshell Terraces, the Hatching Cave, the Guardian's Crown (85-93) | `shell.guardian` | 224 / 392 | 99 / 169 |
+| hollowed_wyrmling | the Tidebreak Front, the Eggshell Terraces, the Guardian's Crown, the Wick Gate, the Hall of Burning Stars (88-96) | `quadruped.wyrm` | 81 / 162 | 42 / 78 |
+| hollow_drone | the Tidebreak Front, the Cinder Fields, the Wick Gate, the Hall of Burning Stars (88-99) | `insect.drone` | 66 / 140 | 35 / 67 |
+| orbit_moth | the Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry, the Inverted Hall (88-93) | `insect.moth` | 76 / 164 | 42 / 79 |
+| gravity_golem | the Tumbling Stair, the Golem Foundry, the Inverted Hall (88-93) | `humanoid.golem` | 312 / 596 | 138 / 248 |
+| ashborn_raider | the Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp (88-96) | `person.fighter` | 113 / 203 | 62 / 100 |
+| admiral_voss | the Flagship Deck (dungeon boss, 90) | `humanoid.admiral` | 201 | 86 |
+| ashborn_pyre_keeper | the Ashborn Palisade, the War Camp (91-96) | `person.brute` | 119 | 63 |
+| general_kharn | Kharn's Pyre (dungeon boss, 92) | `humanoid.general` | 333 | 131 |
+| nebula_eel | the Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes (94-99) | `serpent.ribbon` | 83 / 171 | 46 / 86 |
+| void_crab | the Nebula Verge, the Crab Grottoes (94-99) | `crab.void` | 107 / 203 | 50 / 92 |
+| nebula_leviathan | the Leviathan's Maw (field boss, 99) | `serpent.leviathan` (and its swim) | 378 | 169 |
+
+All twenty: 6,212 KB of PNG, 2,942 KB in the APK (2.87 MiB): the bases 1,538 KB, the thirteen elite sheets 1,404 KB.
+Every one has `share`. An elite sheet is drawn only where a room makes an elite (the thirteen above); the rest have
+`elite=False` (the presence phantom, the pyre keeper and the six bosses). Each creature is near its side-view sheet's
+share of a person (side-view px x ~0.45): the people of size stand 53 to 63 px to a person's 46, General Kharn and the
+Ninth Presence the tallest. The gravity golem is the costliest sheet (its ring of stones and its slam's shockwave set its
+cell); the Nebula Leviathan the biggest creature.
+
+- **The leviathan's swim.** The side view's Nebula Leviathan is a flier; on the grid it crosses its lagoon in the
+  Leviathan's Maw (T3), and decision 44's rule plays a sheet's `swim` row wherever its foe is over water. Its spec has
+  `extra=("swim",)` and `sized=True`; `levi_swim` lays the body a little under the water's line (`parts.swim`: the
+  line about the flier's hover under its feet, the neck's height against it, the body's dip, a shorter visible
+  length), clips every part at the surface and drops the lights and marks under it, and paints the star-water round it
+  (`P.water_fx`): a dark wash over the body under the surface with stars glinting in it, foam where its head and the
+  loops of its back break the water, a wake spreading back in a V and a ring ahead of it. Its row costs the sheet 55 KB
+  of PNG. The body is reviewed first (`docs/redesign/feedback/monsters/m4/nebula_leviathan_swim_x4.png`: the swim's
+  pose with nothing cut away, then in the water).
+- **The bosses** keep their phases and tells: each one's raised weapon (the anchor, the levelled cannon, the glaive, the
+  gathered crown) is the tell of all its attacks, its summons' too. Their props stay in their hands as they fall
+  (`_finish` rolls the pose, so a prop held along the body lies along it).
+- **Canvases.** Captain Rao and Admiral Voss 170 x 160, General Kharn 176 x 168, the Ninth Presence 170 x 170, the nest
+  guardian 176 x 140, the gravity golem 172 x 150 (its elite ran off the sculpture's 136 x 124, and `creatures.build`
+  refused it), the Nebula Leviathan 280 x 230.
+
+Review: `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`; the gallery in
+`docs/redesign/feedback/monsters/m4/` (the twenty side by side facing SE beside a Mudwater bandit, idle, in their tells
+and on their blows; the elites' tells beside their bases; the four people of size's bodies beside them dressed, in
+every facing; the leviathan's swim); and the capture set `monsters_m4` (`docs/redesign/feedback/monsters/m4/after/`):
+the lineups held in every pose beside drawn foes for scale, the elites, and live fights in seventeen of the species'
+own top-down rooms.
 
 ## Still to draw
 
-The species the top-down rooms spawn that still stand in with their side-view sheet (the rest of Act II's rooms, the
-Starsea's, R9's, the Tidebreak Front's), by level. The Trial Tower, the heart trial, the siege, R6 and R7 have none
-left.
-
-| Species | Where | Start from |
-|---|---|---|
-| nine_peaks_disciple | the Sect War, the Broken Pier, the Pirate Deck (76-78) | `person.fighter` |
-| starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War, the Starsea Crossing (79-81) | `person.fighter` |
-| pirate_captain | the Sect War (story boss, 80) | `humanoid` of size |
-| presence_phantom, ninth_presence | the Presence Trial (81) | `spirit`; the Ninth of size |
-| comet_sparrow | the Driftglass Bank, the Sparrow Reefs, the Jellyfish Shallows, the Nest Cliffs, the Lantern Run (82-87) | `bird.hawk`, small |
-| star_jellyfish | the Driftglass Bank, the Jellyfish Shallows, the Sparrow Reefs, the Lantern Run (82-87) | `spirit.lantern` (a bell trailing tendrils) |
-| nest_guardian | the Nest Cliffs, the Eggshell Terraces, the Hatching Cave, the Guardian's Crown (85-93) | `quadruped` or `humanoid.sentinel` |
-| pirate_gunner | the Blackmast Docks, the Gunners' Battery (85-90) | `person.archer` |
-| hollow_drone | the Tidebreak Front, the Cinder Fields, the Wick Gate, the Hall of Burning Stars (88-99) | `spirit` or `bird`, `hollowed` |
-| hollowed_wyrmling | the Tidebreak Front, the Eggshell Terraces, the Guardian's Crown, the Wick Gate, the Hall of Burning Stars (88-99) | `serpent.dragon`, `hollowed` |
-| orbit_moth | the Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry, the Inverted Hall (88-93) | `spirit.wisp` with a moth's wings |
-| gravity_golem | the Tumbling Stair, the Golem Foundry, the Inverted Hall (88-93) | `humanoid.sentinel` of rune-cut stone |
-| ashborn_raider | the Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp (88-93) | `person.fighter` |
-| admiral_voss | the Flagship Deck (dungeon boss, 90) | `humanoid` of size |
-| ashborn_pyre_keeper | the Ashborn Palisade, the War Camp (91-94) | `person`, a caster lit by embers |
-| general_kharn | Kharn's Pyre (story boss, 92) | `humanoid` of size |
-| nebula_eel | the Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes (94-97) | `serpent` (the hollowed eel's build) |
-| void_crab | the Nebula Verge, the Crab Grottoes (94-98) | `crab.mud` |
-| nebula_leviathan | the Leviathan's Maw (boss, 99) | `serpent.dragon` of size |
+None. Every species the top-down rooms and the valley's events spawn has its own top-down sheet: M4 drew the late
+game's, and M3 the last of Act II's and the treasure births' guardian. A foe the sheet has no rows for is still drawn by
+its side-view creature sheet at half size (`TopdownPlaces.stand_in`), so a new species stands in until it is drawn.

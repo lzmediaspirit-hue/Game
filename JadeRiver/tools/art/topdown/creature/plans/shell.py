@@ -21,6 +21,11 @@ stamps down on the blow in a ring of dust (`stomp`); struck, it pulls in; beaten
 mountain cracks (`withdraw_crack`). Its styles: idle `breathe_snap`, walk `lumber`, windup `rear_up`, attack `stomp`,
 hurt `pull_in`, death `withdraw_crack`.
 
+`guardian` (the nest guardian, M4): a six-legged lizard-tortoise, the shell a banded carapace of bronze plates (`paint`
+"plates", riveted) with star `crystals` along its ridge, a `helm` head (a horned bronze helm, a gold eye), six pillar legs
+in tripods (`legs.phase`), a `club` tail; it rears, its club raised, as its crystals flare (`rear_club`), stomps in a burst
+of star light and crystal shards (`crystal_stomp`), recoils (`guard_recoil`) and buckles onto its belly (`buckle_belly`).
+
 `beetle` (the rock beetle, E2): elytra, a pronotum and a chitin underside (shell `kind` "beetle": rocky plates, lichen
 and flecks by the species' seed, lumps breaking the line), a horned head with clubbed antennae, six jointed legs in
 tripods; `ball` curls it into a stone ball and `spin` rolls it. Its styles: idle `twitch`, walk `tripod`, windup
@@ -173,10 +178,12 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     C, bm = c.C, c.bm
     c.at = lambda q: C + bm @ v3(q)
     _shell(P, B, c)
-    {"beaked": _head_beaked}[p.head.kind](P, B, c)
+    if p.shell.get("crystals"):
+        _crystals(P, B, c)                               # M4: the nest guardian's star crystals
+    {"beaked": _head_beaked, "helm": _head_helm}[p.head.kind](P, B, c)
     {"pillar": _legs_pillar}[p.legs.kind](P, B, c)
     if "tail" in p:
-        {"saw": _tail_saw}[p.tail.kind](P, B, c)
+        {"saw": _tail_saw, "club": _tail_club}[p.tail.kind](P, B, c)
     if "claw" in p:
         {"crusher": _crusher}[p.claw.kind](P, B, c)
     if B.has("ring", action) or B.has("crack", action) or "dust" in st:
@@ -260,6 +267,8 @@ def _shell(P, B, c) -> None:
     (da, db, dc), (ra, rb, rc) = sh.dome
     if sh.get("paint") == "crag":
         carapace = crag
+    elif sh.get("paint") == "plates":
+        carapace = _plates_paint(m, C, bm, sh)           # M4: the nest guardian's bronze plates
     P.add(E(rim_c, rim_r, rim_mat, "shell", bm, rim),
           E(at(sh.plastron[0]), sh.plastron[1], m.belly, "shell", bm, plastron),
           E(at(sh.dome[0]), sh.dome[1], m.shell, "shell", bm, carapace))
@@ -349,7 +358,7 @@ def _legs_pillar(P, B, c) -> None:
     withdraw = B.pick("withdraw", a_, f)
     paw = st.get("paw")
     for k, (a, b) in enumerate(g.at):
-        up, stride = gait(a_, f, 0.0 if k in (0, 3) else 0.5, g.lift, g.stride)
+        up, stride = gait(a_, f, g.phase[k] if "phase" in g else (0.0 if k in (0, 3) else 0.5), g.lift, g.stride)
         hip = at((a * 0.85, b * 0.78, -2.8))
         out = 1.0 - 0.4 * curl - 0.3 * tuck
         paw_wave = 0.6 * math.sin(f * 1.7 + k) * (1.0 if paw is not None and paw[0] <= f <= paw[1] else 0.0)
@@ -359,6 +368,9 @@ def _legs_pillar(P, B, c) -> None:
             foot = foot + (hip + v3(1.6, b * 0.1, -3.2) - foot) * reared
         if withdraw > 0.0:
             foot = foot + (hip + v3(0.0, b * 0.12, -1.2) - foot) * withdraw
+        splay = B.pick("splay", a_, f)
+        if splay > 0.0:
+            foot = foot + v3(0.0, b * 0.32 * splay, 0.0)       # M4: buckling, its feet sliding out as it sinks
         pad = foot + v3(0.8 if a > 0 else -0.5, 0.0, -0.2)
         P.add(L(hip, foot, 2.4, 2.1, m.skin, "leg%d" % k), E(pad, (2.4, 2.1, 1.1), m.skin, "leg%d" % k))
         if a > 0:
@@ -628,3 +640,204 @@ def _beetle_legs(P, B, c) -> None:
                 foot = _lerp(foot, at((a0 * 0.3 + 1.0, s * R * 0.3, -R * 0.84)), ball)
             r = g.r
             P.add(L(hip, knee, r[0][0], r[0][1], m.chitin, "leg%d%d" % (s, k)), L(knee, foot, r[1][0], r[1][1], m.chitin, "leg%d%d" % (s, k)))
+
+
+# ================================================================================================= the nest guardian (M4)
+# The guardian beast of the wyrm nests (`guardian`): a stocky six-legged lizard-tortoise, a low slate-indigo hide speckled
+# with star scales, a banded carapace of five dark bronze plates down its back, each riding over the one behind, a
+# scalloped and riveted rim (`paint` "plates"), clusters of glowing star crystals along its ridge (`crystals`: a lit facet
+# and a teal one each, flaring in its tell, dark as it dies), a blunt head under a horned bronze helm (`head` "helm": a
+# forward brow horn, swept cheek horns, a glowing gold eye, a hinged jaw), six pillar legs walking in tripods
+# (`legs.phase`), and a thick tail ending in a bronze club (`tail` "club"). It rears its front up on its hind legs, the
+# club raised high behind it and its jaws open as its crystals flare (the tell, held: its club tail's too) and slams its
+# forelegs down in a stomp (a burst of star light, crystal shards flying and a ring of dust on the blow); struck, it
+# recoils; beaten, its legs buckle and it sinks onto its belly as its crystals go dark (`buckle_belly`).
+GUARDIAN_STYLES = {
+    "guard_breathe": {"breathe": (0.0, 0.25, 0.4, 0.35, 0.15, 0.0), "gape": (0.0, 0.0, 0.08, 0.12, 0.04, 0.0), "bob_amp": 0.2, "wag_amp": 0.4,
+                      "twinkle": True},
+    "guard_lumber": {"kind": "lumber", "rock_amp": 2.4, "sway_amp": 1.0, "bob_step": 0.35, "swing": 0.8, "wag_amp": 1.2},
+    "rear_club": {"lunge": (-0.4, -0.9, -1.3, -1.5), "rear": (6.0, 13.0, 19.0, 22.0), "neck": (1.1, 1.2, 1.3, 1.3),
+                  "hpitch": (6.0, 12.0, 16.0, 18.0), "gape": (0.3, 0.55, 0.8, 0.9), "reared": (0.3, 0.6, 0.9, 1.0),
+                  "club": (0.3, 0.6, 0.9, 1.0), "flare": (0.4, 0.8, 1.0, 1.0)},
+    "crystal_stomp": {"lunge": (0.6, 1.6, 1.6, 1.2, 0.6, 0.2), "rear": (10.0, -3.0, -2.0, -0.8, 0.0, 0.0), "sink": (0.0, 0.8, 0.6, 0.2, 0.0, 0.0),
+                      "hpitch": (10.0, -10.0, -8.0, -4.0, -1.0, 0.0), "gape": (0.8, 0.4, 0.2, 0.1, 0.0, 0.0), "reared": (0.5, 0.0, 0.0, 0.0, 0.0, 0.0),
+                      "club": (0.8, 0.3, 0.1, 0.0, 0.0, 0.0), "flare": (1.0, 1.0, 0.6, 0.3, 0.0, 0.0), "ring": (0.0, 1.0, 1.7, 2.4, 0.0, 0.0),
+                      "burst": (0.0, 1.0, 1.6, 0.0, 0.0, 0.0), "squash": {1: (1.03, 1.03, 0.93)}},
+    "guard_recoil": {"lunge": (-1.8, -1.0, -0.3), "rear": (-3.0, -1.0, 0.0), "sink": (0.4, 0.2, 0.0), "neck": (0.7, 0.85, 1.0),
+                     "gape": (0.5, 0.2, 0.0), "hpitch": (14.0, 6.0, 0.0), "shut": True, "flicker": True},
+    "buckle_belly": {"rear": (4.0, -2.0, -3.0, -3.0, -3.0, -3.0, -3.0, -3.0), "sink": (0.0, 0.8, 1.8, 2.8, 3.4, 3.6, 3.6, 3.6),
+                     "neck": (1.0, 0.9, 0.8, 0.7, 0.65, 0.6, 0.6, 0.6), "hpitch": (10.0, -4.0, -10.0, -16.0, -20.0, -22.0, -22.0, -22.0),
+                     "gape": (0.6, 0.5, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3), "splay": (0.0, 0.2, 0.45, 0.7, 0.85, 0.9, 0.9, 0.9), "shut_from": 3,
+                     "dark_from": 2, "dust": (3, 4)},
+}
+STYLES.update(GUARDIAN_STYLES)
+GUARDIAN = {
+    "Z": 5.6,
+    "shell": {"rim": ((0.0, 0.0, -2.2), (11.2, 8.8, 2.0)), "plastron": ((0.4, 0.0, -3.2), (9.8, 7.6, 1.8)),
+              "dome": ((0.0, 0.0, -0.7), (10.6, 8.2, 5.4)), "paint": "plates", "plates": (-6.2, -2.6, 1.0, 4.6), "rivets": 14,
+              "crystals": ((5.6, 0.0, 1.9, 1.15), (2.0, 0.8, 2.6, 1.35), (-1.6, -0.6, 2.8, 1.4), (-5.0, 0.5, 2.3, 1.2), (-7.8, -0.2, 1.4, 0.95),
+                           (0.4, -3.6, 1.0, 0.8), (-3.4, 3.4, 1.0, 0.8))},
+    "head": {"kind": "helm", "neck": ((7.2, 0.0, -1.0), (10.6, 3.2, 0.2), (2.8, 2.6)), "skull": (3.9, 3.4, 2.8),
+             "snout": ((3.0, 0.0, -0.7), (2.5, 2.5, 1.8)), "helm": ((-0.3, 0.0, 1.8), (3.8, 3.5, 1.5)),
+             "brow_horn": ((2.4, 0.0, 2.4), (5.0, 0.0, 5.0), 0.95), "cheek_horn": ((-0.8, 2.8, 0.8), (-4.6, 4.2, 2.4), 0.75),
+             "eye": (2.1, 2.65, 0.6), "jaw": ((0.6, 0.0, -1.7), (3.4, 2.6, 1.0)), "shut_from": 3},
+    "legs": {"kind": "pillar", "at": ((5.6, 7.4), (5.6, -7.4), (-0.2, 8.0), (-0.2, -8.0), (-5.8, 7.2), (-5.8, -7.2)),
+             "phase": (0.0, 0.5, 0.5, 0.0, 0.0, 0.5), "lift": 1.2, "stride": 1.4},
+    "tail": {"kind": "club", "root": (-9.8, 0.0, -2.2), "tip": (-17.6, 0.8), "r": (2.3, 1.2), "club": 2.6, "knobs": 7},
+}
+VARIANTS["guardian"] = {"parts": GUARDIAN, "mats": {"shell": "ng_bronze", "rim": "ng_rim", "skin": "ng_hide", "belly": "ng_belly",
+                                                    "horn": "ng_horn", "crystal": "ng_crystal", "crystal_dim": "ng_crystal_dim", "maw": "maw",
+                                                    "eye": "snap_eye", "beak": "ng_horn"},
+                        "motion": {"idle": "guard_breathe", "walk": "guard_lumber", "windup": "rear_club", "attack": "crystal_stomp",
+                                   "hurt": "guard_recoil", "death": "buckle_belly"}}
+
+
+def _plates_paint(m, C, bm, sh):
+    """The guardian's carapace: five domed bronze plates down its back, each riding over the one behind (the seam a step
+    dark, the plate's edge before it a step lit), the pale sand plastron under it."""
+    seams = np.array(sh.plates)
+
+    def paint(q, n):
+        loc = (q - C) @ bm
+        nl = n @ bm
+        a = loc[:, 0]
+        belly = nl[:, 2] < -0.25
+        d = a[:, None] - seams[None, :]
+        near = np.min(np.abs(d), axis=1)
+        seam = (near < 0.35) & ~belly
+        lip = (np.min(np.where(d > 0.0, d, 99.0), axis=1) < 0.9) & ~seam & ~belly
+        names = np.where(belly, m.belly, m.shell).astype(object)
+        return names, np.where(seam, -2, np.where(lip, 1, 0)).astype(np.int16)
+    return paint
+
+
+def _crystals(P, B, c) -> None:
+    """The star crystals growing along its ridge: clusters of faceted spikes (a lit facet and a teal one), twinkling in
+    turn; flaring in its tell (light round each), flickering when struck, dark as it dies; the rivets round its rim."""
+    sh, m, st = B.parts.shell, B.mats, c.st
+    a_, f, at, bm = c.action, c.f, c.at, c.bm
+    (da, db, dc), (ra, rb, rc) = sh.dome
+    flare = B.pick("flare", a_, f)
+    dark = a_ == "death" and f >= st.get("dark_from", 99)
+    flicker = st.get("flicker") and f == 0
+    mat = m.crystal_dim if (dark or flicker) else m.crystal
+    for k, (a0, b0, rise, r) in enumerate(sh.crystals):
+        top = dc + rc * math.sqrt(max(0.0, 1.0 - (a0 / ra) ** 2 - (b0 / rb) ** 2))
+        base = at((a0, b0, top - 0.4))
+        for j, (lean_a, lean_b, hh) in enumerate(((0.0, 0.0, 1.0), (0.5, 0.6, 0.7), (-0.4, -0.55, 0.62))):
+            if j and r < 1.0 and j == 2:
+                continue
+            tip = base + bm @ v3(lean_a * r, (lean_b + 0.15 * b0) * r, (rise + 0.6) * hh + r * 0.4)
+            axis = tip - base
+            ln = float(np.linalg.norm(axis))
+            ax = axis / ln
+            side = np.cross(ax, v3(0.0, 0.0, 1.0))
+            if float(np.linalg.norm(side)) < 0.1:
+                side = v3(0.0, 1.0, 0.0)
+            side = side / float(np.linalg.norm(side))
+            mm = np.stack([ax, side, np.cross(ax, side)], axis=1)
+            ctr = (base + tip) * 0.5
+
+            def facet(q, n, ctr=ctr, side=side, mat=mat):
+                return np.full(len(q), mat, dtype=object), np.where((q - ctr) @ side > 0.0, 1, -1).astype(np.int16)
+            P.add(E(ctr, (ln * 0.55, r * (0.55 - 0.1 * j), r * (0.45 - 0.08 * j)), mat, "crystal%d" % k, mm, facet))
+            if not dark and not flicker and ((k + f) % 4 == 0 or flare >= 0.8) and j == 0:
+                P.glow.append((tip + v3(0.0, 0.0, 0.3), M.NG_TWINKLE))
+        if flare >= 0.8 and not dark:
+            for j in range(4):
+                ang = math.radians(j * 90.0 + f * 25.0 + k * 40.0)
+                P.glow.append((base + bm @ v3(math.cos(ang) * r * 1.4, math.sin(ang) * r * 1.4, rise * 0.6 + 0.5), M.NG_GLOW))
+    rim_c, rim_r = at(sh.rim[0]), sh.rim[1]
+    for k in range(sh.get("rivets", 0)):
+        ang = math.radians(k * 360.0 / sh.rivets + 12.0)
+        P.mark(rim_c + bm @ v3(rim_r[0] * 1.01 * math.cos(ang), rim_r[1] * 1.01 * math.sin(ang), rim_r[2] * 0.35), M.NG_RIVET)
+    # The stomp's burst: star light and crystal shards flying up off it.
+    burst = B.pick("burst", a_, f)
+    if burst > 0.0:
+        cx = c.lunge + 9.0
+        for k in range(14):
+            ang = math.radians(k * 360.0 / 14.0 + f * 13.0)
+            rr = 2.0 + 2.6 * burst
+            P.glow.append((v3(cx + math.cos(ang) * rr * 0.6, math.sin(ang) * rr, 0.6 + (k % 3) * 0.8 * (2.0 - burst)), M.NG_TWINKLE if k % 2 else M.NG_GLOW))
+        for k in range(6):
+            ang = math.radians(k * 60.0 + 20.0)
+            q = v3(cx + math.cos(ang) * (1.4 + burst * 2.4), math.sin(ang) * (1.4 + burst * 2.4), 1.0 + 2.4 * burst * (0.5 + 0.5 * (k % 2)))
+            P.add(S(q, 0.45, mat, "shard", line=False))
+
+
+def _head_helm(P, B, c) -> None:
+    """The guardian's blunt head on its thick neck: a horned bronze helm over its crown (a forward brow horn, a cheek horn
+    swept back each side), a short snout, a hinged jaw on its maw, a glowing gold eye; pulled back when struck, sinking
+    as it dies."""
+    h, m, st = B.parts.head, B.mats, c.st
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    neck = B.pick("neck", a, f, 1.0)
+    bob = st.bob_amp * wave(a, f) if "bob_amp" in st else (st.bob_step * abs(math.sin(f / 8.0 * math.tau)) if "bob_step" in st else 0.0)
+    hm = bm @ rot("b", B.pick("hpitch", a, f))
+    (n0, (ha, hreach, hz), (r0, r1)) = h.neck
+    hc = at((ha + hreach * neck, 0.0, hz + bob))
+    gape = B.pick("gape", a, f)
+    P.add(L(at(n0), hc, r0, r1, m.skin, "neck"), E(hc, h.skull, m.skin, "head", hm))
+    P.add(E(hc + hm @ v3(h.snout[0]), h.snout[1], m.skin, "head", hm))
+    hel_c = hc + hm @ v3(h.helm[0])
+    P.add(E(hel_c, h.helm[1], m.shell, "helm", hm, _helm_paint(m, hel_c, hm)))
+    b0, b1, br = h.brow_horn
+    P.add(L(hc + hm @ v3(b0), hc + hm @ v3(b1), br, 0.15, m.horn, "horn"))
+    c0, c1, cr = h.cheek_horn
+    for s in (1, -1):
+        p0 = hc + hm @ v3(c0[0], s * c0[1], c0[2])
+        p1 = hc + hm @ v3(c1[0], s * c1[1], c1[2])
+        P.add(L(p0, p1, cr, 0.12, m.horn, "horn%d" % s))
+    if gape > 0.05:
+        jm = hm @ rot("b", -gape * 30.0)
+        hinge = hc + hm @ v3(h.jaw[0])
+        P.add(E(hinge + jm @ v3(h.jaw[1][0] * 0.8, 0.0, -0.2), h.jaw[1], m.skin, "jaw", jm))
+        if gape > 0.3:
+            P.add(E(hinge + hm @ v3(2.4, 0.0, 0.2), (2.0, 1.7, 0.5), m.maw, "maw", hm, line=False))
+    for s in (1, -1):
+        eye = hc + hm @ v3(h.eye[0], s * h.eye[1], h.eye[2])
+        closed = st.get("shut", False) or a == "death" and f >= st.get("shut_from", 99)
+        if closed:
+            P.mark(eye, M.RAMPS[m.skin][0])
+        else:
+            P.eye(eye, M.NG_EYE)
+            P.mark(eye + hm @ v3(0.3, 0.0, 0.4), M.NG_EYE_HI)
+    from ..sculpt import on
+    for u, v in ((140.0, 40.0), (-150.0, 30.0), (110.0, -10.0), (-120.0, 0.0)):
+        P.mark(on(hc, h.skull, hm, u, v, 0.1), M.NG_SPECK)
+
+
+def _helm_paint(m, centre, hm):
+    def paint(q, n):
+        loc = (q - centre) @ hm
+        ridge = np.abs(loc[:, 1]) < 0.35
+        rim = loc[:, 2] < -0.55
+        return np.full(len(q), m.shell, dtype=object), np.where(ridge, 1, np.where(rim, -1, 0)).astype(np.int16)
+    return paint
+
+
+def _tail_club(P, B, c) -> None:
+    """The thick tail ending in a bronze club (a knobbed ball), swinging behind it; raised high behind it in the tell
+    (`club`), swung round on the blow."""
+    t, m, st = B.parts.tail, B.mats, c.st
+    wag = st.wag_amp * wave(c.action, c.f) if "wag_amp" in st else 0.0
+    up = B.pick("club", c.action, c.f)
+    root = c.at(t.root)
+    mid = root + v3((t.tip[0] - t.root[0]) * 0.5, wag * 0.8, 0.6 + 3.0 * up)
+    tip = v3(c.lunge + t.tip[0] * (1.0 - 0.2 * up), wag * 2.0, t.tip[1] + 7.0 * up)
+    P.add(L(root, mid, t.r[0], (t.r[0] + t.r[1]) * 0.5, m.skin, "tail"), L(mid, tip, (t.r[0] + t.r[1]) * 0.5, t.r[1], m.skin, "tail"))
+    for u in (0.2, 0.45, 0.7):
+        q = root + (mid - root) * (u * 2.0) if u < 0.5 else mid + (tip - mid) * ((u - 0.5) * 2.0)
+        P.add(E(q + v3(0.0, 0.0, t.r[0] * (1.0 - u) * 0.8 + 0.3), (0.9, 0.8, 0.5), m.shell, "tailplate", line=False))
+    cl = tip + _unit(tip - mid) * t.club * 0.6
+    P.add(S(cl, t.club, m.shell, "club"))
+    for k in range(t.knobs):
+        ang = math.radians(k * 360.0 / t.knobs + 15.0)
+        P.add(S(cl + v3(math.cos(ang) * t.club * 0.9, math.sin(ang) * t.club * 0.9, (0.4 if k % 2 else -0.3) * t.club), t.club * 0.38, m.rim, "club",
+                line=False))
+    P.mark(cl + v3(-0.4, -0.6, t.club * 0.95), M.NG_EYE_HI)
+
+
+def _unit(v):
+    return v / max(1e-9, float(np.linalg.norm(v)))
+

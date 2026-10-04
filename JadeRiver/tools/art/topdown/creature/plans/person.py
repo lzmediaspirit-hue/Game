@@ -31,6 +31,13 @@ in the ring of Qi (sculpt._aura); `aura` gives a boss the ring in its own colour
 pallor) multiplies the picture as the side view's and the villagers' tint does.
 
 Variants: `fighter` (charge, strike), `archer` (draw, loose), `brute` (raise, strike with the overhead `swing_3`).
+
+M4: `thrower` (the pirate gunner): an overhand lob, its tell the heavy cut's wind-up held high (`raise`: the hand over
+its head), its blow the release on frame 1 (`swing_3` from the frame before its blow); `held` "bomb" lays a powder bomb in
+its right hand (a small iron ball, its fuse sparking in the tell) where the character's hand is in that frame (behind
+the figure where the hand is behind it, but for the tell's, held up where it shows), gone from the release on (the room
+view throws it). `phantom` (the Presence Trial's phantoms): the figure's lower body
+thins into mist from the knees down, its motes rising (`_phantom`).
 """
 from __future__ import annotations
 
@@ -110,9 +117,10 @@ class Figure(Pose):
     items (a frame always has its body); `picture` casts it in a facing and look (creatures.draw calls it in place of
     the sculpture's renderer)."""
 
-    def __init__(self, action: str, index: int, outfit: dict):
+    def __init__(self, action: str, index: int, outfit: dict, held=None, phantom=False):
         super().__init__()
         self.action, self.index, self.outfit = action, index, outfit
+        self.held, self.phantom = held, phantom          # M4: a bomb in the right hand; a phantom's misty lower body
         items = _items()
         self.items = [items[("body", str(outfit.get("body", "light")))]]
         for cat in CATS[1:]:
@@ -151,6 +159,7 @@ class Figure(Pose):
         geom.SCALE = geom.WORLD_SCALE * self.k
         try:
             cast = cast_all(A.poses(self.action)[self.index], facing, self.items)
+            hold = _hand(A.poses(self.action)[self.index], facing) if self.held else None
         finally:
             geom.SCALE = geom.WORLD_SCALE
         stack = []
@@ -188,6 +197,10 @@ class Figure(Pose):
                 # M3: a tint with an alpha (the Reflection's, the side view's modulate) fades the figure as it does there.
                 a = int(str(tint).lstrip("#")[6:8], 16) / 255.0
                 rgba[..., 3] = np.round(rgba[..., 3] * a).astype(np.uint8)
+        if hold is not None and self.held == "bomb":
+            rgba = _bomb(rgba, hold, self.k, self.action, self.index, elite)
+        if self.phantom:
+            _phantom(rgba, frame_no)
         # The figure's anchor is the sculpture's feet (raster AX, AY == sculpt.FOOT).
         if elite or aura:
             sculpt._aura(rgba, sculpt.ring_seed(rgba) if lean_ring else frame_no, sculpt.tone_of(aura), lean_ring)
@@ -213,4 +226,107 @@ def frames(B, action: str) -> list:
 
 def pose(B, action: str, f: int, **_facing) -> Figure:
     a, i = frames(B, action)[f]
+    if B.parts.get("held") or B.parts.get("phantom"):
+        return Figure(a, min(i, len(A.poses(a)) - 1), dict(B.parts.outfit), B.parts.get("held"), bool(B.parts.get("phantom")))
     return Figure(a, min(i, len(A.poses(a)) - 1), dict(B.parts.outfit))
+
+
+# ================================================================================================= M4
+# The pirate gunner (`thrower`): the overhand lob's wind-up held high (its tell), the release on the blow; a powder bomb in
+# its hand.
+VARIANTS["thrower"] = {"parts": {"strike": "swing_3", "held": "bomb"}, "mats": {}, "motion": dict(_MOTION, windup="raise")}
+# The bomb: iron (outline, deep, base, light, glint), its fuse, and the fuse's spark (core, flame).
+BOMB = {"line": (18, 16, 24), "deep": (34, 34, 44), "base": (58, 60, 74), "light": (98, 104, 124), "glint": (196, 204, 220),
+        "fuse": (150, 112, 62), "spark": (255, 246, 196), "flame": (255, 166, 58)}
+# A phantom's mist (the Presence Trial's tint, lit) and its motes.
+MIST = ((222, 214, 255), (178, 160, 236))
+
+
+def _hand(p: dict, facing: str):
+    """The right hand's place on the canvas (the figure's anchor is raster AX, AY) and whether it is behind the body."""
+    from figure.skeleton import Skeleton
+    sk = Skeleton(p, facing)
+    x, y = geom.project(sk.hand_r)
+    behind = geom.depth(sk.hand_r) < geom.depth(sk.chest) - 0.6
+    return raster.AX + x, raster.AY + y, behind
+
+
+def _bomb(rgba: np.ndarray, hold, k: float, action: str, index: int, elite: bool) -> np.ndarray:
+    """A powder bomb in the right hand (M4, the pirate gunner): a small iron ball lit from the upper left, a short fuse
+    rising off it, sparking in the tell; none from the throw's release on, nor once it falls. Laid behind the figure
+    where its hand is behind the body."""
+    if action == "knockdown" or (action in ("fan_throw", "swing_3") and index >= A.CATALOG[action][3]):
+        return rgba
+    cx, cy, behind = hold
+    lit = action in ("fan_throw", "swing_3", "charge_hold")
+    behind = behind and not lit                        # the tell's bomb is held up where it shows
+    r = 2.6 * k
+    cx, cy = cx + 0.6 * k, cy - (1.8 if lit else 0.4) * k        # held up on its fingertips over its head in the tell
+    lay = np.zeros_like(rgba)
+    Hh, Ww = rgba.shape[:2]
+    x0, x1 = int(math.floor(cx - r - 1)), int(math.ceil(cx + r + 1))
+    y0, y1 = int(math.floor(cy - r - 1)), int(math.ceil(cy + r + 1))
+    for y in range(max(0, y0), min(Hh, y1 + 1)):
+        for x in range(max(0, x0), min(Ww, x1 + 1)):
+            dx, dy = x + 0.5 - cx, y + 0.5 - cy
+            d = math.hypot(dx, dy)
+            if d > r + 0.75:
+                continue
+            if d > r - 0.25:
+                col = BOMB["line"]
+            else:
+                lit = (-dx - dy) / max(0.5, r)
+                col = BOMB["light"] if lit > 0.75 else (BOMB["base"] if lit > -0.35 else BOMB["deep"])
+                if -0.9 * r < dx < -0.2 * r and -0.9 * r < dy < -0.3 * r and d < r * 0.62:
+                    col = BOMB["glint"] if d < r * 0.45 and dx < -0.35 * r else BOMB["light"]
+            if elite and col in (BOMB["base"], BOMB["light"]):
+                col = _darken(col + (255,), 0.25)[:3]
+            lay[y, x] = col + (255,)
+    # The fuse: two px up and to the right off its top, its tip sparking (brighter and wider in the tell).
+    fx, fy = int(math.floor(cx + 0.35 * r)), int(math.floor(cy - r - 0.5))
+    pts = [(fx, fy), (fx + 1, fy - 1)]
+    for x, y in pts:
+        if 0 <= x < Ww and 0 <= y < Hh:
+            lay[y, x] = BOMB["fuse"] + (255,)
+    tx, ty = fx + 1, fy - 2
+    sparks = [(tx, ty, BOMB["spark"])] + ([(tx + 1, ty, BOMB["flame"]), (tx, ty - 1, BOMB["flame"]), (tx - 1 + index % 2, ty - 2, BOMB["spark"])]
+                                          if lit else [(tx + (index % 2), ty - 1, BOMB["flame"])])
+    for x, y, col in sparks:
+        if 0 <= x < Ww and 0 <= y < Hh:
+            lay[y, x] = col + (255,)
+    a, b = (Image.fromarray(lay, "RGBA"), Image.fromarray(rgba, "RGBA")) if behind else (Image.fromarray(rgba, "RGBA"), Image.fromarray(lay, "RGBA"))
+    a.alpha_composite(b)
+    return np.array(a)
+
+
+def _phantom(rgba: np.ndarray, frame_no: int) -> None:
+    """A phantom's lower body thinning into mist (M4, the Presence Trial's phantoms): from the knees down its pixels go by
+    an ordered hash, more toward the floor, those left paling into the mist's violet, and motes of it drift up round its
+    hem. Nothing random: the hash is of the pixel's place."""
+    a = rgba[..., 3] > 0
+    if not a.any():
+        return
+    ys, xs = np.nonzero(a)
+    top, bot = int(ys.min()), int(ys.max())
+    span = max(1, bot - top)
+    start = bot - 0.34 * span
+    sel = ys > start
+    t = (ys[sel] - start) / (bot - start + 1e-6)                     # 0 at the knees .. 1 at the floor
+    h = ((xs[sel] * 73856093) ^ (ys[sel] * 19349663)) % 997 / 997.0
+    gone = h < t * 0.95
+    yy, xx = ys[sel], xs[sel]
+    rgba[yy[gone], xx[gone]] = 0
+    keep = ~gone
+    pale = keep & (h > 1.0 - t * 0.9)
+    dim = keep & ~pale & (t > 0.45)
+    for sel_, col, w in ((pale, MIST[0], 0.65), (dim, MIST[1], 0.5)):
+        for c in range(3):
+            rgba[yy[sel_], xx[sel_], c] = np.round(rgba[yy[sel_], xx[sel_], c].astype(float) * (1.0 - w) + col[c] * w).astype(np.uint8)
+    # Motes drifting up round its hem.
+    cx = int(round(xs.mean()))
+    w = max(4, int((xs.max() - xs.min()) * 0.5))
+    for k in range(6):
+        x = cx - w + (k * 2 * w) // 5 + (k * 3 + frame_no) % 2
+        y = int(bot - 2 - ((frame_no * 2 + k * 5) % 11))
+        if 0 <= x < rgba.shape[1] and 0 <= y < rgba.shape[0] and rgba[y, x, 3] == 0:
+            rgba[y, x] = MIST[k % 2] + (200 if k % 2 else 150,)

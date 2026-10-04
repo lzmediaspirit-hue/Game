@@ -2,12 +2,13 @@
 
 ## The monster engine's third batch: Act II's foes, the Reflection, the Behemoth and the Tomb King (decision 45, M3)
 
-Nineteen species drawn with the monster engine in story order (`docs/architecture/monster_engine.md`, "M3"): the heart
+Twenty species drawn with the monster engine in story order (`docs/architecture/monster_engine.md`, "M3"): the heart
 trial's Reflection, the siege's Hollow Behemoth, R6's foes (the Thunderhorn Plains, Rimefrost Heights, Mirrorwater
-Lake), R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar) and the two spar opponents of Act II's posts.
-Until now they stood in with their side-view sheets at half size.
+Lake), R7's (the Gale Canyons, the Sunscar Desert, the Tomb of Sunscar), the two spar opponents of Act II's posts, and
+the treasure births' guardian. Until now they stood in with their side-view sheets at half size. With M4's, every
+species of the game has its own top-down sheet.
 
-- **Nineteen new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
+- **Twenty new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
   every action in five drawn facings, an elite sheet where a room makes an elite (eleven of them). Their rows, loot and
   voices are unchanged byte for byte; `foes.json` changes only in their blocks.
   - the spark weasel: a golden weasel with a white-hot spark at its tail's tip that leaps to bite in sparks.
@@ -37,6 +38,9 @@ Until now they stood in with their side-view sheets at half size.
     from its joints. It hauls its bronze ge overhead and chops it down; beaten, it breaks into shards.
   - the Alliance Champion and the Ironroot Warden: the spar opponents, cast in the shared character body in the
     outfits of the people who stand at their posts.
+  - the Fruit-Guardian Boar, which wakes where a Spirit Fruit ripens: the thornback boar's build grown old and huge,
+    mossy, the fruit tree's vines over it, and the tree itself on its back, a gnarled sapling of jade leaves with golden
+    spirit fruits that blaze as it paws the ground and charges. Its row keeps the thornback boar's side-view sheet.
 - **The bosses**, each with a silhouette, a bulk, a posture, a prop and a colour of its own:
   - the Reflection: the player's double, your size, cast in a disciple's first clothes under the side view's cold pale
     tint, washed pale with a mirror's sheen streaked over it, ringed in cold mirror light. It cannot wear the player's
@@ -55,18 +59,100 @@ Until now they stood in with their side-view sheets at half size.
   rhino's head, the rosettes, the ice crest, the stance on hind legs); `humanoid.king` (no legs: the sand bell, the
   regalia, the glaive) and the snow ape's ice block and locks, the sentinels' river stone and clay, their trident and
   ge; `fish.dragonet`; the toad's back of eyes; `spirit.kite`; `bird.harpy`; `crab.scorpion`; `serpent.worm`; the
-  person's `pale`; the ring's tones `mirror` and `sun`.
-- **Size.** The nineteen sheets are 7,446 KB of PNG and 3,372 KB in the APK (3.29 MiB, the imported `.ctex`): the bases
-  1,940 KB, the eleven elite sheets 1,432 KB. Every species has `share`; an elite sheet is drawn only where a room makes
+  person's `pale`; the ring's tones `mirror` and `sun`; the suid's `sapling`.
+- **Size.** The twenty sheets are 7,739 KB of PNG and 3,500 KB in the APK (3.42 MiB, the imported `.ctex`): the bases
+  2,068 KB, the eleven elite sheets 1,432 KB. Every species has `share`; an elite sheet is drawn only where a room makes
   an elite; each creature is near its side-view share of a person. The engine doc lists every sheet's cost.
 - **Review:**
   - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
-  - `docs/redesign/feedback/monsters/m3/`: the nineteen side by side beside a Mudwater bandit, idle, in their tells, on
-    their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed.
+  - `docs/redesign/feedback/monsters/m3/`: the twenty side by side beside a Mudwater bandit, idle, in their tells, on
+    their blows and falling; the bosses on their own; the elites' tells; the Tomb King's body bare and dressed; the
+    fruit's guardian beside the thornback boar.
   - The capture set `monsters_m3` (`docs/redesign/feedback/monsters/m3/after/`): the lineups in every pose beside
-    drawn foes for scale, the elites, and live fights in eighteen of their own rooms.
-- **Still to draw:** the rest of Act II's, the Starsea's, R9's and the Tidebreak Front's species, listed by level in the
-  engine doc. The heart trial, the siege, R6 and R7 have none left.
+    drawn foes for scale, the elites, and live fights in nineteen of their own rooms.
+- **Still to draw:** none. With M4's batch every species the rooms and the valley's events spawn has its own top-down
+  sheet; a new species stands in with its side-view sheet until it is drawn.
+- **A test.** `topdown_suite`'s stand-in check drew the sandstorm scorpion as its foe without rows (the pebble imp and
+  the stone tortoise before it). No foe of the game is without rows now, so the check makes its own, as it makes its
+  spirit animal: a def that names a side-view creature sheet.
+
+## The monster engine's late-game batch: twenty foes and four people of size (decision 45, M4)
+
+The twenty species of the late game, drawn with the monster engine in story order (`docs/architecture/monster_engine.md`,
+"M4"): the Sect War's and the Presence Trial's, R8's sky-sea zones', the Tidebreak Front's and R9's star field's. Until
+now they stood in with their side-view sheets at half size. Their bosses were given a silhouette and a presence of their
+own, as M2's were.
+
+- **Twenty new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet: every
+  action in five drawn facings, an elite sheet where a room makes an elite (thirteen of them). Their rows, loot and
+  voices are unchanged byte for byte; `foes.json` changes only in their blocks.
+  - the rogue Nine Peaks disciple, the starsea pirate, the pirate gunner and the Ashborn raider and pyre keeper: cast in
+    the shared character body, as M1's people are. The gunner lifts a powder bomb over his head, its fuse sparking,
+    and lobs it (`person.thrower`).
+  - the presence phantom: an old scholar's phantom in white, violet with the Trial Hall's light, its lower body thinning
+    into mist.
+  - the comet sparrow: a small fierce sparrow trailing a comet's tail of fire. It pulls up as its comet flares and
+    streaks down in a burning dive.
+  - the star jellyfish: a translucent indigo bell with a star at its crown, trailing tentacles that twinkle. It clenches
+    as rings of star glow open round it, and lashes its stinging tentacles.
+  - the hollowed wyrmling: an ashen dragonling split by violet-glowing cracks, with torn wings. It rears and spits
+    grey-violet fire, and crumbles to ash.
+  - the nest guardian: a six-legged lizard-tortoise under bronze plates set with star crystals, a horned helm and a
+    club tail. It rears with its club high as its crystals flare, and stomps.
+  - the hollow drone: a gunmetal spindle with a lance, wings beating to a blur and a violet core glowing through its
+    seams. It levels its lance as its core flares, and thrusts; beaten, it comes apart into flakes.
+  - the orbit moth: a soft moth whose wings are a map of the night sky, three motes orbiting it. They gather into a
+    glowing knot before its head, and burst as its wings snap down.
+  - the gravity golem: separate blocks of basalt held together by gravity alone, a violet singularity in its chest. It
+    hauls its arms up as the singularity swells and draws things in, and slams; beaten, its blocks drop into a heap.
+  - the nebula eel: a teal ribbon swimming the air in magenta clouds. It coils into a tight S as its jaws gape, and
+    lunges.
+  - the void crab: a crab whose shell is a window onto the void. Space tears round its raised claws, and they slam shut.
+  - the Nebula Leviathan (the Nebula Deep's field boss): a whale-headed serpent of the nebula, the biggest thing the
+    engine has drawn. It rears back as the void gathers in its mouth and breathes it out in a cone of stars.
+- **The people of size.** Comet Captain Rao, Admiral Voss, General Kharn and the Ninth Presence are sculpted on the
+  humanoid plan's body as M2's were, the body drawn and reviewed first (`opts.bare`), then dressed. Their rows keep their
+  outfits for the side view.
+  - Comet Captain Rao: burly in a crimson coat with tails to his knees, a tattered navy cape, a jade headband, a beard and
+    a scar. His comet anchor rides his shoulder on its chain; raised high as comet fire runs along its flukes, held, and
+    slammed down in a burst of comet sparks.
+  - Admiral Voss: tall and imperious in an indigo greatcoat trimmed in gold, epaulettes, a black cape and an official's
+    winged hat. His brass hand cannon is levelled at you as its fuse sparks, held, and fired as his starsteel sabre cuts.
+  - General Kharn: massive, his ash-grey skin cracked with embers, in dark steel lamellae laced in crimson, a plumed helm
+    and a crimson cape. The Cinder Glaive is raised over his head as flame runs up its blade, held, and brought down in
+    a leaping cleave that rings the ground in fire.
+  - the Ninth Presence: a towering spectral sage in white, violet with the hall's light, floating on a hem of mist, an
+    aureole of nine lights behind its head and a staff of white jade. The nine lights gather into a blazing crown over
+    its head, held, and are thrown out round it as its palm strikes; beaten, it comes apart into motes of light.
+- **New plan kinds**, each optional, so every species drawn before draws byte for byte: the `insect` plan (`drone`,
+  `moth`); `person.thrower` and `parts.phantom`; `crab.void`; `bird.sparrow`; `spirit.jelly`; `serpent.ribbon` and
+  `serpent.leviathan` (flyers on a travelling wave); `quadruped.wyrm`; `shell.guardian`; `humanoid.golem`, `captain`,
+  `admiral`, `general` and `presence`, with the people of size's new wear (`parts.m4`), `lamellar` paint and a named
+  face glow.
+- **The Nebula Leviathan swims.** On the grid it crosses its lagoon in the Leviathan's Maw (T3), and its sheet now has
+  the `swim` row decision 44's rule plays wherever a foe is over water (T3's item 18): its body mostly under the
+  star-water, its head's dome, the loops of its back and its veil breaking the surface, a wake spreading behind it.
+- **Size.** The thirty-three sheets are 6,212 KB of PNG and 2,942 KB in the APK (the imported `.ctex`): the bases
+  1,538 KB, the thirteen elite sheets 1,404 KB (2.87 MiB in all; the leviathan's swim row is 55 KB of PNG of it). Every
+  species has `share`; an elite sheet is drawn only where a room makes an elite; each creature is near its side-view
+  share of a person. The engine doc lists every sheet's cost.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m4/`: the twenty side by side beside a Mudwater bandit, idle, in their tells and on
+    their blows; the elites' tells beside their bases; the four people of size's bodies beside them dressed, in every
+    facing; the leviathan's swim, its body first.
+  - The capture set `monsters_m4` (`docs/redesign/feedback/monsters/m4/after/`): the lineups in every pose beside drawn
+    foes for scale, the elites, and live fights in seventeen of their own rooms.
+- **Still to draw:** the seventeen species of M3's batch (R6's and R7's rooms, the Trial of Reflections, the Siege) and
+  the treasure births' fruit guardian, listed in the engine doc. The late game has none left.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R9, E5b and T3.
+  - Every gate passed, `boot` among them (0 failing; grid parity on 168 layouts and 498 starts). `build_data` writes no
+    data file: the rows, loot and voices are byte-identical. The `monsters` gate has 2,147 checks (1,538 at M2); it
+    grows with the species, now 72, and is the only count M4 grows.
+  - All 34 suites passed with no SCRIPT ERROR: 77,614 checks, every other count as the merged branch has it
+    (`topdown_traversal` 348 and `room_engine` 508 are T3's and R9's). `contract_tests` (1,112) finds no private
+    cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as on disk.
 
 ## The side view's mechanics from Act II on, and what T2 left (T3)
 
