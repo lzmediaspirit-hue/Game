@@ -1,0 +1,166 @@
+{
+ "schema_version": 1,
+ "id": "lh_star_chandlery",
+ "name": "Star Chandlery",
+ "size": [
+  24,
+  14
+ ],
+ "spawn": [
+  4,
+  12
+ ],
+ "levels": [
+  "444444444444444444444444",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "400000000000000000000004",
+  "111001111111111111111111"
+ ],
+ "paint": [
+  "llllllllllllllllllllllll",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lwwwwwwwwwwwwwwwwwwwwwwl",
+  "lllwwlllllllllllllllllll"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "scroll_shelf",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 3,
+   "y": 1
+  },
+  {
+   "kind": "apothecary",
+   "x": 11,
+   "y": 1
+  },
+  {
+   "kind": "apothecary",
+   "x": 13,
+   "y": 1
+  },
+  {
+   "kind": "cabinet",
+   "x": 21,
+   "y": 1
+  },
+  {
+   "kind": "star_lantern",
+   "x": 9,
+   "y": 2
+  },
+  {
+   "kind": "star_lantern",
+   "x": 16,
+   "y": 2
+  },
+  {
+   "kind": "desk",
+   "x": 11,
+   "y": 5
+  },
+  {
+   "kind": "desk",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "water_jar",
+   "x": 21,
+   "y": 6
+  },
+  {
+   "kind": "sacks",
+   "x": 22,
+   "y": 9
+  },
+  {
+   "kind": "sacks",
+   "x": 22,
+   "y": 10
+  },
+  {
+   "kind": "lantern_red",
+   "x": 1,
+   "y": 12
+  },
+  {
+   "kind": "lantern_red",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "herb_baskets",
+   "x": 17,
+   "y": 9
+  },
+  {
+   "kind": "mortar",
+   "x": 19,
+   "y": 9
+  }
+ ],
+ "place": {
+  "furnace_lh": [
+   18.5,
+   5
+  ],
+  "npc_chandler_shu": [
+   14,
+   7
+  ],
+  "npc_lanternwright_han": [
+   8,
+   7
+  ],
+  "ancestral_altar": [
+   5,
+   10
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    3.5,
+    13
+   ],
+   "dir": "s",
+   "arrive": [
+    3.5,
+    11.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

@@ -223,8 +223,9 @@ func _past_the_chapter() -> void:
 		and Game.quest.beyond_prototype(c(), waiting[0]) == not TopdownRoom.has_layout(str(waiting[0].get("target_room", ""))),
 		"past chapter 3 the story's next quest is Toward Cleansing Peak, past the prototype's gate exactly while the Pilgrim Stairs have no layout (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
 	# The lessons and the story inside the prototype (a test shortcut: done as they come, and those under way), then the
-	# prototype's end.
-	for i in 60:
+	# prototype's end. (R8: with the sky-sea zones on the grid the story runs on to chapter 19 inside the prototype, past
+	# sixty quests.)
+	for i in 200:
 		for q in c().quests.active.keys().duplicate():
 			if str(Game.quest.quest_def(c(), str(q)).get("kind", "")) == "guided":
 				c().quests.active.erase(q)
