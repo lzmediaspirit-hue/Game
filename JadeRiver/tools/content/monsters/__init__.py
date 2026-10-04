@@ -16,6 +16,10 @@ checks every spec, its round trip through the data and its sheets.
 Escape hatch: `pose="creature.rat:rat"` draws a species with a hand-written pose module (tools/art/topdown/creature/)
 in place of a plan, so a species a plan cannot draw well keeps its own.
 
+M5: a creature that is not a foe (a pet's, a mount's, the Copperjaw swarm's: pets.json and stats.swarm name it by its
+`art`) is a spec with no `data`. It is drawn alone, its sheets and its foes.json block: it has no enemies.json row, no
+loot table and no voice.
+
 docs/architecture/monster_engine.md: the plans, the spec format, how to add a species and the review steps.
 """
 from __future__ import annotations
@@ -54,6 +58,12 @@ class Species:
         self.id, self.plan, self.pose = id, plan, pose
         self.parts, self.mats, self.motion, self.opts = dict(parts or {}), dict(mats or {}), dict(motion or {}), dict(opts or {})
         self.data, self.loot, self.sound, self.art, self.source = dict(data or {}), dict(loot or {}), sound, art, source
+
+    @property
+    def foe(self) -> bool:
+        """Whether it is a foe, with an enemies.json row (`data`); M5: a creature with none (a pet's, a mount's, the
+        Copperjaw swarm's) is drawn alone."""
+        return bool(self.data)
 
     @property
     def seed(self) -> int:
@@ -126,8 +136,8 @@ def _attack(atk, a):
 
 def rows(placed, mob, atk, drop) -> list:
     """The rows of the specs enemies.py has not placed by hand (a new species' row needs no other file): after the
-    others, in the specs' order."""
-    return [row(i, mob, atk, drop) for i in ids() if i not in placed]
+    others, in the specs' order. A creature that is not a foe (M5) has none."""
+    return [row(i, mob, atk, drop) for i in ids() if i not in placed and get(i).foe]
 
 
 def loot(id: str) -> dict:
@@ -138,9 +148,12 @@ def loot(id: str) -> dict:
 
 
 def voices() -> dict:
-    """id -> {"body": "shell" | "slime" | "wood", "tell": "tell_water"} for every spec (an empty dict: its race's voice)."""
+    """id -> {"body": "shell" | "slime" | "wood", "tell": "tell_water"} for every foe's spec (an empty dict: its race's
+    voice); a creature that is not a foe (M5) has none."""
     out = {}
     for i, sp in load().items():
+        if not sp.foe:
+            continue
         v = {} if sp.sound in (None, "race") else dict(sp.sound)
         if v.get("body") and v["body"] not in BODIES:
             raise ValueError("species %s: sound body %r is not one of %s" % (i, v["body"], ", ".join(BODIES)))

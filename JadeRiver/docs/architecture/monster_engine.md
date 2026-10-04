@@ -1,4 +1,4 @@
-# The monster engine (audit 45 §6.2, E2, M1, M2, M3, M4)
+# The monster engine (audit 45 §6.2, E2, M1, M2, M3, M4, M5)
 
 A species is one `species(...)` spec. The engine makes everything the species is from it, through the generators that
 already existed:
@@ -14,13 +14,18 @@ already existed:
 
 Nothing else names a species: a new spec needs no edit to `enemies.py`, `creatures.py` or `sound.py`.
 
+A creature that is not a foe (M5: a pet's, a mount's, the Copperjaw swarm's, which `pets.json` and `stats.swarm` name by
+their `art`) is a spec with no `data`. It is drawn alone: its sheets and its `foes.json` block, no `enemies.json` row, no
+loot table and no voice (`Species.foe`).
+
 ## Files
 
 ```
 tools/content/monsters/__init__.py      the engine: species(), and what each generator asks of it (row, rows,
                                         loot, voices, art)
 tools/content/monsters/build.py         the command line: build, --check, --list, --review ID, --update ID[,ID]
-tools/content/monsters/specs/*.py       the specs, one file a region (sorted by name when read)
+tools/content/monsters/specs/*.py       the specs, one file a region (sorted by name when read); companions.py (M5)
+                                        the creatures that are not foes
 tools/art/topdown/creature/plans/       the body plans: kit.py (what they share), and one module a plan
 tools/art/topdown/creature/sculpt.py    the sculpture and the renderer (unchanged)
 tools/art/topdown/creature/motion.py    the action catalogue, frames and HIT_FRAME (unchanged)
@@ -211,12 +216,12 @@ species("rock_beetle", plan="shell.beetle", size=1.6,
 | `palette` | its ramps (`mats.RAMPS`); `accents` keep their colour on an elite, `gold` turn gold |
 | `elite` | it has an elite sheet (default True). Give one to every species a room can make an elite. |
 | `aura` | it wears the ring of Qi in its own look (a boss's presence) |
-| `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate) |
+| `shadow`, `cycle` | the blob shadow (rx, ry art px); how far one walk cycle carries it (art px at size 1: the walk's rate). A creature with no row is timed at the engine's default pace (60), so its `cycle` sets its walk's rate outright (M5) |
 | `view` | its pose is told the facing's turn (head-on and tail-on poses, decision 44) |
 | `sideways`, `sized`, `extra`, `awakened` | the crab's side-on stance; the eel (and the Nebula Leviathan, against its swim's water) posed at its size; actions past the catalogue; a boss's second look |
 | `canvas` | (M2) the working canvas `(w, h)` a big species is drawn on, its feet at `(w // 2, h - 40)` (`creatures.foot_of`); the default is the sculpture's 136 x 124. `creatures.build` refuses a frame that runs off its canvas's top or left edge (its cell would wrap round) |
 | `share` | (M1) identical frames of a facing share one cell of the sheet, and an elite's ring is lean: it flickers by its pose (`sculpt.ring_seed`), so its held poses share too, and its alphas come in steps of 32 (`sculpt._aura`'s `lean`; the ring was half an elite sheet's cost). Every M1 species has it; the species before keep their sheets byte for byte |
-| `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order |
+| `data` | the row: `level`, `role`, `element`, `page` (the codex page), `drops` (`(item, chance[, count[, weight]])`), `attacks` (`(id, windup, reach[, mult][, {extras}])`), then any `mob()` field in order. None for a creature that is not a foe (M5) |
 | `loot` | `starter=True` (the first rooms' starter gear), `finds="early"` or rare rows, `quest=[...]` (drops while a quest wants them) |
 | `sound` | `"race"` (default: its race's and nature's voice), or `dict(body="shell" \| "slime" \| "wood", tell="water")` |
 
@@ -237,6 +242,7 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
    `mats.py` keep what they took.)
 3. **Write the spec** in its region's file. If the species has a hand row in `enemies.py`, move the row into
    `data` (same values, same field order) and put `spec_row("id")` in its place. Otherwise the engine appends the row.
+   A creature that is not a foe (a pet's, a mount's) goes in `specs/companions.py` with no `data`.
 4. **Build:** `python3 tools/content/monsters/build.py`. It runs `build_data.py` (rows, loot, sound, the wiki) and
    `build_foes.py --jobs 2` (sheets, `foes.json`). `--update ID[,ID]` builds only those species' sheets and merges
    their blocks into `foes.json`, leaving the rest as they are (the blocks are independent; a full build gives the same
@@ -246,7 +252,7 @@ imp's stone grain, a heap's spread) hashes `opts.seed`, which is the id's crc32.
    and elite:
    - `python3 tools/content/monsters/build.py --review ID` writes `docs/redesign/feedback/monsters/sheets/<ID>_x3.png`
      (every frame, five facings, both looks) and `<ID>_se.gif` (the catalogue at the game's rates).
-   - **In the game:** the capture set `monsters_e2`, `monsters_m1`, `monsters_m2`, `monsters_m3` or `monsters_m4` (or a set
+   - **In the game:** the capture set `monsters_e2`, `monsters_m1` to `monsters_m4`, or `monsters_m5` (or a set
      of your own beside them in `tools/dev/capture/shots.gd`):
      `xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --path . res://tools/dev/capture/capture.tscn -- monsters_m1`.
      It shows the lineup on the Reed Shallows beside drawn foes for scale: head-on, walking, the tell, the strike,
@@ -272,7 +278,7 @@ paths are the same. `--check` proves the hatch works with a stand-in module.
 |---|---|
 | specs | Every spec resolves: its plan, variant and motion styles; its palette ramps, accents and gold; its voice; a hand module loads |
 | poses | Every species poses every action and frame in the five drawn facings and each of its looks; the catalogue's counts and `HIT_FRAME` are 1 |
-| data | Every spec's `enemies.json` row is the row its spec makes (after `enemies.py`'s passes); its loot table has its starter mark, finds and quest drops; `sound.json` gives it its spec's voice |
+| data | Every spec's `enemies.json` row is the row its spec makes (after `enemies.py`'s passes); its loot table has its starter mark, finds and quest drops; `sound.json` gives it its spec's voice. A creature that is not a foe has no row, loot table or voice, and a pet, a mount or the Copperjaw swarm draws it (M5) |
 | sheets | `foes.json` has every spec's block and looks, every action's frames, the blow on frame 1; the sheets are on disk; sampled frames drawn twice are identical and equal to the sheet's cell |
 | elite | An elite is larger and wears the ring of Qi; its species' own look does not |
 | hatch | A spec's hand module draws the species; every seed differs |
@@ -563,15 +569,68 @@ every facing; the leviathan's swim); and the capture set `monsters_m4` (`docs/re
 the lineups held in every pose beside drawn foes for scale, the elites, and live fights in seventeen of the species'
 own top-down rooms.
 
+## M5: the creatures that are not foes
+
+The four creatures a pet, a mount and the Copperjaw swarm draw from. None has an `enemies.json` row: `pets.json` names a
+pet's sheet and its mount's by their `art`, and `stats.swarm` names the swarm's and its Queen's. Each is a spec with no
+`data` in `specs/companions.py` (above: drawn alone, no row, loot or voice). `enemies.json`, `loot_tables.json` and
+`sound.json` are byte-identical, and the only change to `foes.json` is the four new blocks. Every species before draws
+byte for byte.
+
+| Plan | Variant or kind (M5) | Made for | What it adds |
+|---|---|---|---|
+| `insect` | `swarm` (`queen`) | the Copperjaw swarm and its Queen | Not one insect but a cloud of them (`beetles`: each one's place, size and loop phase). Eleven small sculpted beetles of three sizes: copper wing cases with a dark seam, a dark chitin pronotum and head, pale-gold jaws, a glint in a big one's eye; their cases part and their wings blur (faint pale points) from beetle to beetle. `queen` adds a large gold-cased Queen in a pale-gold crown at its heart, leading its lance (`regal`). Styles `hang`, `stream` (stretched out on the wing, copper specks trailing it), `ball_up` (balled up, jaws open, a copper ring closing round it, held), `lance` (a spearhead, a spark at its tip on the blow), `scatter`, `rain` (the beetles tumble down onto their backs, legs in the air, and fade) |
+| `quadruped` | `hatchling` | the hatchling wyrm | A baby star dragonet: a plump body (`coat` `pearl`: pearl scales in soft rows over a blue-violet belly with plates across it), pale-gold `nubs` down its spine, a long curved neck to a big round head (`head` `hatch`: a short snout, big star-blue eyes, a gold star on its brow, gold horns swept back, a jaw on its mouth), stubby `nub` legs with gold claws, a `star` tail curling up to a small star that twinkles, and `hatch`: stub wings (gold spars, an indigo membrane flecked with stars), its chest's glow and the stars it breathes. Styles `peek`, `waddle`, `puff_glow` (it puffs up, its head reared back, wings flared, chest glowing, held), `star_breath`, `squeak` (eyes squeezed shut), `curl_nap` (a pet knocked out: it curls up asleep, its tail round it, its lights dimmed) |
+| `quadruped` | (`cervid` parts): `coat` `cloud`, `crest` `clouds`, `antlers.clouds`, `legs.stance` | the cloud stag | A cloud-white hide shaded sky blue with faint dapples, whole antlers with small clouds caught on them, soft clouds (loose points, `_puff`) trailing off its back and under its hooves; `legs.stance` (set to the cervid's own stance) lifts its forelegs when it rears. Styles `rear_cloud` (onto its hind legs as clouds gather under its forehooves, held) and `cloud_stamp` (it stamps down in a ring of cloud and wind); beaten, `opts.misty` (it comes apart into cloud) |
+
+**Body first.** Every new kind takes `opts.bare`: the creature's body alone, without its clouds, glows, stars, crown,
+ring, sparks or dust (the hatchling keeps its wing stubs, which are its anatomy). That look was drawn and reviewed in
+every facing and pose before the finished one (`docs/redesign/feedback/monsters/m5/<id>_body_x4.png`).
+
+| Species | What draws it | Plan | PNG KB | APK KB |
+|---|---|---|---|---|
+| copperjaw_swarm | the Copperjaw swarm (`stats.swarm.art`): the Spirit Animals page's Swarm tab | `insect.swarm` | 84 | 54 |
+| copperjaw_queen | the swarm once its Queen has risen (`stats.swarm.queen_art`) | `insect.swarm` (`queen`) | 102 | 58 |
+| hatchling_wyrm | the Primordial Beast pet (the star-wyrm egg): the room, the stable, the party chips, the arena | `quadruped.hatchling` | 65 | 33 |
+| cloud_stag | the mount-only pet (the Beast Tide's egg) and its mount (`mount.art`): beside you when a blow throws you from its saddle, the stable, the mount chip | `quadruped.cervid` (M5's kinds) | 171 | 87 |
+
+All four: 422 KB of PNG, 232 KB in the APK (0.23 MiB). Every one has `share` (a held tell's frames draw the same, so they
+share a cell). None has an elite sheet, because no room makes one. Each creature is near its side-view sheet's share of
+a person: the stag stands as the hollow stag does (`size` 2.2, its frame), the hatchling knee-high to a person, the
+swarm's cloud about half a person wide.
+
+- **Walk rates.** A creature with no row is timed at the engine's default pace, so each spec's `cycle` sets its walk's
+  rate outright: the stag's trot plays at 16 fps and the hatchling's waddle at 15, near a following pet's pace.
+- **Forms.** A pet's lineage form (90 purity, `form_change`) is the same sheet at its form's size and tint, in the room
+  (`TopdownWorld.FoeView`) and on the stable's leaf (the tint half way). Growth stages, rarities and the 1% colour
+  variant draw no differently. The swarm's tab draws the Queen's sheet once she rises (`PetAuthority.swarm_art`).
+- **Not drawn here.** The cloud stag's rider and any riding sheet are on hold (the user's decision, AGENTS.md's
+  character rules); this is the creature's own sheet.
+
+Review:
+- `docs/redesign/feedback/monsters/sheets/<id>_x3.png` and `<id>_se.gif`.
+- The gallery in `docs/redesign/feedback/monsters/m5/`:
+  - the four beside a Mudwater bandit, the hollow stag, the hollowed wyrmling, the reed otter and the hollow drone, in
+    six poses (`idle`, `walk`, `tell`, `blow`, `struck`, `fallen`);
+  - each one in every facing and pose (`<id>_facings_x4.png`);
+  - each body bare, then finished (`<id>_body_x4.png`);
+  - the pets' lineage forms as the room and the page draw them (`lineage_forms_x4.png`);
+  - the swarm beside its Queen (`swarm_and_queen_x4.png`).
+- The capture set `monsters_m5` (`docs/redesign/feedback/monsters/m5/after/`):
+  - on the Reed Shallows beside drawn foes for scale: the wyrm (the active animal) and the stag (thrown from its
+    saddle) arriving at your side, following you, and the wyrm in its lineage form;
+  - live fights at your side, with the party sent to attack: the stag and the wyrm on the Thunderhorn Plains (the
+    Stormgrass Verge), the wyrm in the Wyrmnest Isles (the Guardian's Crown). Also as a 20:9 phone's (`_phone`);
+  - the pages that draw them: the Spirit Animals stable, the Swarm tab with its swarm and then its Queen, and the
+    character page's chip.
+
 ## Still to draw
 
-No foe. Every species the top-down rooms and the valley's events spawn has its own top-down sheet: M4 drew the late
-game's, and M3 the last of Act II's and the treasure births' guardian. S12b then deleted the side view's creature
-sheets that had stood in for a species with none (`art/creatures`, `CreatureSprite`, EnemyView's art mode): a creature
-the sheet has no rows for now shows only its shadow in the room and an empty slot on a page, so a new species is drawn
-before it is spawned. A spirit animal is its species' sheet too (`TopdownWorld.FoeView`, its form's size and tint), and
-so are the pages' creatures (`FoeSheets`: the bestiary, the pets, the beast pages, a bounty's target, the party chip).
-
-Four creatures that are not foes have no sheet yet (`data_validation`'s `NO_TOP_SHEET_YET`): the **cloud stag** (a pet
-and a mount), the **hatchling wyrm** (a pet), and the **Copperjaw swarm** and its **queen** (the beetle swarm's tab and
-its release). They are the next to draw.
+None. Every creature has its own top-down sheet: M4 drew the late game's foes, M3 the last of Act II's and the
+treasure births' guardian, and M5 the four creatures that are not foes (the cloud stag, the hatchling wyrm, the Copperjaw
+swarm and its Queen). `data_validation`'s `NO_TOP_SHEET_YET` is empty. S12b deleted the side view's creature sheets that
+had stood in for a species with none (`art/creatures`, `CreatureSprite`, EnemyView's art mode), so a creature the sheet
+has no rows for shows only its shadow in the room and an empty slot on a page: a new species, or a new pet or mount's
+creature, is drawn before it is spawned (its spec in `specs/`, or `specs/companions.py` with no `data`). A spirit animal
+is its species' sheet too (`TopdownWorld.FoeView`, its form's size and tint), and so are the pages' creatures
+(`FoeSheets`: the bestiary, the pets, the beast pages, a bounty's target, the party chip).

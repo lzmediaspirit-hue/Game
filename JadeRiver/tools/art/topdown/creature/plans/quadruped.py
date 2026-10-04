@@ -52,6 +52,12 @@ fall comes apart into mist) and a `mist` brush tail.
 M4's `wyrm` (the hollowed wyrmling): the saurian made a dragonet, an `ash` coat cracked with violet light, a `wyrm` head
 (horns, empty violet eyes, ember in its throat, the fire it spits), torn `wings`, `stub` legs that leave the ground as it
 rears, a `coil` tail; styles idle `coil_twitch`, windup `rear_breath`, attack `spit_fire`, death `crumble_ash`.
+
+M5's (the creatures that are not foes): `hatchling` (the hatchling wyrm: a baby dragonet, a `pearl` coat, `nubs` down its
+spine, a big round `hatch` head on a curved neck, `nub` legs, a `star` tail, its wing stubs and lights in `hatch`; styles
+idle `peek`, walk `waddle`, windup `puff_glow`, attack `star_breath`, hurt `squeak`, death `curl_nap`), and for the cloud
+stag the cervid's `cloud` coat, `clouds` crest, `antlers.clouds` and `legs.stance` (styles windup `rear_cloud`, attack
+`cloud_stamp`). Each takes `opts.bare` (its body alone, reviewed first: no clouds, glow or stars).
 """
 from __future__ import annotations
 
@@ -374,7 +380,7 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     dict({"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
           "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid, "wyrm": _head_wyrm}, **M3_HEADS)[p.head.kind](P, B, c)
     {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig,
-     "sprawl": _legs_sprawl, "stub": _legs_stub}[p.legs.kind](P, B, c)
+     "sprawl": _legs_sprawl, "stub": _legs_stub, "nub": _legs_nub}[p.legs.kind](P, B, c)
     dict({"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
           "fin": _tail_fin, "coil": _tail_coil}, **M3_TAILS)[p.tail.kind](P, B, c)
     if B.opts.get("hollowed") and action != "death" and p.get("strands", True):
@@ -387,6 +393,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         _behemoth(P, B, c)                     # M3, the Hollow Behemoth: its plates, drones, weak points and mist
     if p.get("sapling"):
         _sapling(P, B, c)                      # M3, the fruit's guardian: the spirit fruit's sapling on its back
+    if p.get("hatch"):
+        _hatch(P, B, c)                        # M5, the hatchling wyrm: its wing stubs, its glow, its star breath
     _finish(P, B, c)
     return P
 
@@ -976,6 +984,15 @@ def _head_cervid(P, B, c) -> None:
             tipb = beam[-1]
             for t_ in range(3):
                 P.add(L(tipb, tipb + hm @ v3(-0.6 + 0.3 * t_, s * 0.4, 0.9 - 0.2 * t_), 0.32, 0.1, m.grass, "tuft%d" % s, line=False))
+        if an.get("clouds") and not B.opts.get("bare"):
+            # M5, the cloud stag: a small cloud caught on its antlers' crowns and at the tips of the tines it names,
+            # stirring (its body bare, `opts.bare`: none).
+            for j in an.clouds:
+                i, d = an.tines[j]
+                tip = beam[i] + hm @ v3(d[0], s * d[1], d[2])
+                sw = 0.12 * math.sin((min(f, 2) if a == "windup" else f) * 1.1 + j)      # still as the tell is held
+                P.add(E(tip + hm @ v3(-0.15 + sw, 0.0, 0.3), (0.72, 0.56, 0.46), m.cloud, "cloud%d" % s, hm, line=False))
+            P.add(E(beam[-1] + hm @ v3(-0.35, s * 0.1, 0.45), (1.05, 0.75, 0.58), m.cloud, "cloud%d" % s, hm, line=False))
     # Grey mist seeping off it.
     if a != "death" and h.get("mist", True):
         for k in range(5):
@@ -2219,3 +2236,424 @@ def _sapling(P, B, c) -> None:
     for k, (ba, bb) in enumerate(sp.blossoms):
         q = at((ba, bb, _top_of(B, ba) - 0.2 - 0.25 * abs(bb)))
         P.mark(q, M.FG_BLOSSOM if k % 2 == 0 else M.FG_BLOSSOM_DIM)
+
+
+# ================================================================================================= M5
+# M5's kinds (the creatures that are not foes: a pet's and a mount's sheets), each optional again and named only by
+# their specs, so every species drawn before draws byte for byte. They hook in through M3's tables and two keys of their
+# own (`legs.kind` "nub", `hatch`).
+
+# ------------------------------------------------------------------------------------------------ the hatchling wyrm
+# A young star wyrm, the player's Primordial Beast (`hatchling`): a baby dragonet, endearing and noble. A plump bean of a
+# body on four stubby legs with gold claws (`legs` "nub"), pearl scales in soft rows over a blue-violet belly with plates
+# across it (`coat` "pearl"), pale-gold nubs down its spine (`crest` "nubs"); a long curved neck carrying a big round
+# head (`head` "hatch": a short snout, big star-blue eyes with a glint, a gold star on its brow, two gold horns swept
+# back); stub wings at its shoulders, their gold spars webbed in indigo flecked with stars (`hatch.wings`); a tail that
+# curls up behind it and ends in a small glowing star that twinkles (`tail` "star"). It looks up and about as it
+# breathes; it waddles; in its tell it puffs itself up and rears its head back, its wing stubs flared and its chest
+# glowing pale gold (held); it breathes a burst of stars out of its open jaws (the blow); struck, it squeaks, its eyes
+# squeezed shut and its head thrown back; beaten (a pet knocked out), it sinks down and curls up, its head on its flank
+# and its tail wrapped round it, its eyes shut and its lights dimmed. Channels besides the plan's: `rearup` (its forefeet
+# off the floor), `flare` (the wing stubs), `glow` (the chest's light, 0..3), `puff` (it swells, all over), `breath` (the
+# stars' reach), `fold` (its legs tucked under it), `twinkle` (the tail star: 0 a plus, 1 a cross, 2 big, 3 small).
+HATCH_STYLES = {
+    "peek": {"head": (0.0, 6.0, 10.0, 6.0, -3.0, -2.0), "yaw": (0.0, 10.0, 18.0, 10.0, -12.0, -6.0), "bob_amp": 0.1, "breathe": 0.03,
+             "twinkle": (0, 1, 2, 3, 2, 1)},
+    "waddle": {"kind": "scurry", "wig_amp": 6.0, "bob_wave": (0.15, 0.3), "head_wave": (-1.0, 3.0, 0.6), "twinkle": (0, 1, 2, 3, 0, 1, 2, 3)},
+    "puff_glow": {"lunge": (-0.2, -0.5, -0.7, -0.7), "pitch": (5.0, 10.0, 13.0, 13.0), "head": (8.0, 16.0, 20.0, 20.0),
+                  "gape": (0.1, 0.15, 0.2, 0.2), "rearup": (0.2, 0.45, 0.6, 0.6), "flare": (0.3, 0.7, 1.0, 1.0),
+                  "glow": (1.0, 2.0, 3.0, 3.0), "puff": (1.03, 1.07, 1.1, 1.1), "angry": True, "twinkle": (2, 2, 2, 2)},
+    "star_breath": {"lunge": (0.3, 1.4, 1.5, 1.1, 0.5, 0.1), "pitch": (10.0, -4.0, -4.0, -2.0, 0.0, 0.0), "head": (16.0, -8.0, -6.0, -3.0, 0.0, 0.0),
+                    "gape": (0.6, 1.0, 0.9, 0.5, 0.2, 0.0), "rearup": (0.4, 0.0, 0.0, 0.0, 0.0, 0.0), "flare": (1.0, 0.8, 0.6, 0.3, 0.1, 0.0),
+                    "glow": (3.0, 1.0, 0.0, 0.0, 0.0, 0.0), "breath": (0.0, 1.0, 1.6, 2.2, 0.0, 0.0), "angry": True,
+                    "squash": ((1.0, 1.0), (1.05, 0.96), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0)), "twinkle": (2, 0, 1, 3, 0, 1)},
+    "squeak": {"lunge": (-1.6, -0.9, -0.3), "pitch": (10.0, 3.0, 0.0), "head": (22.0, 8.0, 0.0), "gape": (0.5, 0.2, 0.0),
+               "squash": ((0.9, 1.06), (1.03, 0.98), (1.0, 1.0)), "squeak": (0, 1), "squeeze": (0, 1), "twinkle": (3, 3, 0)},
+    "curl_nap": {"lunge": (-0.4, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6, -0.6), "bob": (0.0, -0.5, -1.0, -1.4, -1.7, -1.8, -1.8, -1.8),
+                 "head": (12.0, 2.0, -8.0, -16.0, -22.0, -26.0, -26.0, -26.0), "curl": (0.0, 0.15, 0.35, 0.55, 0.75, 0.9, 1.0, 1.0),
+                 "fold": (0.0, 0.3, 0.6, 0.85, 1.0, 1.0, 1.0, 1.0), "gape": (0.4, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                 "twinkle": (3, 3, 3, 3, 3, -1, -1, -1)},
+}
+STYLES.update(HATCH_STYLES)
+HATCHLING = {
+    "Z": 4.0, "hips": (-2.2, 0.0), "pivot": (-2.2, 0.0, 0.0), "side": 2.2, "mid": 0.0, "strands": False,
+    "body": [{"at": ((-2.2, 0.6), -0.1), "r": ((2.3, 0.0, 0.0), (2.05, 0.0, 0.3), (1.9, 0.0, 0.1))},
+             {"at": ((0.0, 0.4), 0.0), "r": ((2.6, -0.6, 0.0), (2.25, 0.2, 0.0), (2.0, 0.0, 0.0))},
+             {"at": ((2.0, 0.0), 0.35), "r": ((1.95, 0.0, 0.0), (1.9, 0.2, 0.0), (1.95, 0.0, 0.0))}],
+    "coat": {"kind": "pearl", "belly": -0.3, "rows": 1.1, "plates": 0.9},
+    "crest": {"kind": "nubs", "from": 2.4, "to": -3.6, "n": 6, "r": 0.34},
+    "head": {"kind": "hatch", "at": ((4.7, 0.9), (5.6, 0.2, -0.8)), "pitch": (-4.0, 18.0), "neck": ((2.6, 0.0, 1.3), 1.35, 1.05),
+             "skull": (2.15, 2.0, 1.95), "snout": ((0.9, 0.0, -0.65), (2.5, 0.0, -0.9), 1.15, 0.85),
+             "jaw": {"at": (0.4, 0.0, -1.1), "to": (2.4, 0.0, -0.1), "r": (0.8, 0.5), "turn": 32.0},
+             "eyes": {"at": (0.8, 1.25, 0.4), "shut": {"hurt": 0, "death": 2}},
+             "horns": ((-0.3, 0.8, 1.45), (-2.3, 1.3, 3.2), 0.62), "star": (1.05, 0.0, 1.72)},
+    "hatch": {"wings": {"at": (1.0, 1.05), "span": 4.0, "rest": 40.0}},
+    "legs": {"kind": "nub", "fore": (1.9, 1.35), "hind": (-2.3, 1.45), "bones": (1.35, 1.3), "r": (0.82, 0.6), "paw": (0.62, 0.55, 0.42),
+             "lift": 1.0, "stride": 1.3},
+    "tail": {"kind": "star", "root": (-4.0, 0.4), "n": 10, "length": 6.4, "r": (1.2, 0.34), "curl": 125.0},
+}
+VARIANTS["hatchling"] = {"parts": HATCHLING,
+                         "mats": {"coat": "hatch_pearl", "pale": "hatch_belly", "gold": "hatch_gold", "wing": "hatch_membrane",
+                                  "maw": "hatch_mouth", "horn": "hatch_gold"},
+                         "motion": {"idle": "peek", "walk": "waddle", "windup": "puff_glow", "attack": "star_breath", "hurt": "squeak",
+                                    "death": "curl_nap"}}
+
+
+def _coat_pearl(B, c):
+    """M5, the hatchling: pearl scales in soft rows over its back and flanks (a row's edge a step dark), the blue-violet
+    belly underneath with its plates across it (their seams a step dark)."""
+    co, m = B.parts.coat, B.mats
+    hips, bm = c.hips, c.bm
+
+    def pearl(q, n):
+        loc = (q - hips) @ bm
+        nz = (n @ bm)[:, 2]
+        belly = nz < co.belly
+        row = ((loc[:, 0] * co.rows + np.abs(loc[:, 1]) * 0.7 + loc[:, 2] * 0.5) % 1.3 < 0.18) & ~belly & (nz > -0.1)
+        plate = belly & ((loc[:, 0] * co.plates) % 1.0 < 0.2)
+        return np.where(belly, m.pale, m.coat).astype(object), np.where(row | plate, -1, 0).astype(np.int16)
+    return pearl
+
+
+M3_COATS["pearl"] = _coat_pearl
+
+
+def _crest_nubs(P, B, c) -> None:
+    """M5, the hatchling: small pale-gold nubs down its spine, from its withers to the root of its tail."""
+    cr = B.parts.crest
+    for k in range(cr.n):
+        u = k / max(1.0, cr.n - 1.0)
+        a0 = cr["from"] + (cr.to - cr["from"]) * u
+        q = c.at((a0, 0.0, _top_of(B, a0) - 0.05))
+        P.add(S(q, cr.r * (1.0 - 0.3 * u), B.mats.gold, "nub", line=False))
+
+
+M3_CRESTS["nubs"] = _crest_nubs
+
+
+def _hatch_frame(B, c):
+    """The hatchling's head: its centre and turn this frame (the neck and the head's parts hang off them)."""
+    h = B.parts.head
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    yaw = B.pick("yaw", a, f) * (1.0 - 0.6 * fr) + 74.0 * c.curl
+    drop_ = min(0.0, c.hpitch) / 26.0                    # 0 .. -1 as it lowers its head to the floor
+    hm = bm @ rot("c", yaw - 0.5 * c.wig) @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), (hz, hzf, hzb) = h.at
+    curl_b = 2.6 * c.curl                                 # curled up, its head comes round onto its flank
+    hc = at((ha + hf * fr + 0.6 * drop_ - 3.4 * c.curl, curl_b, hz + hzf * fr + hzb * bk + 2.6 * drop_))
+    return hc, hm
+
+
+def _head_hatch(P, B, c) -> None:
+    """M5, the hatchling: a long curved neck from its chest to a big round head; a short snout with two nostrils, a jaw
+    that drops on its mouth; big star-blue eyes with a glint (squeezed shut when it squeaks, closed as it naps), a gold
+    star on its brow, two gold horns swept back. The pale of its throat and jaw."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at = c.action, c.f, c.fr, c.bk, c.at
+    st = B.style(a)
+    hc, hm = _hatch_frame(B, c)
+    hp = lambda q: hc + hm @ v3(q)
+
+    def face(q, n):
+        loc = (q - hc) @ hm
+        pale = (loc[:, 2] < -0.75) & (loc[:, 0] > -0.6)
+        return np.where(pale, m.pale, m.coat).astype(object), np.zeros(len(q), dtype=np.int16)
+
+    n0, r0, r1 = h.neck
+    root = at(n0)
+    back = hc + hm @ v3(-0.9, 0.0, -0.9)
+    mid = (root + back) * 0.5 + c.bm @ v3(0.7, 0.0, -0.2)
+    P.add(L(root, mid, r0, (r0 + r1) * 0.5, m.coat, "neck", c.paint), L(mid, back, (r0 + r1) * 0.5, r1, m.coat, "neck", c.paint))
+    P.add(E(hc, h.skull, m.coat, "head", hm, face))
+    q0, q1, sr0, sr1 = h.snout
+    P.add(L(hp(q0), hp(q1), sr0, sr1, m.coat, "head", face))
+    gape = B.pick("gape", a, f)
+    j = h.jaw
+    if gape > 0.05:
+        jm = hm @ rot("b", -gape * j.turn)
+        hinge = hp(j.at)
+        P.add(E(hinge + hm @ rot("b", -gape * j.turn * 0.5) @ v3(1.2, 0.0, 0.1), (1.1, 0.6, 0.3), m.maw, "maw", hm, line=False))
+        P.add(L(hinge, hinge + jm @ v3(j.to), j.r[0], j.r[1], m.pale, "jaw"))
+    for s in (1, -1):
+        P.mark(hp((q1[0] + sr1 * 0.6, s * 0.3, q1[2] + 0.35)), M.HATCH_INK)
+    # The horns, swept back off its crown.
+    h0, h1, hr = h.horns
+    for s in (1, -1):
+        r_0 = hp((h0[0], s * h0[1], h0[2]))
+        r_1 = hp((h1[0], s * h1[1], h1[2]))
+        knee = (r_0 + r_1) * 0.5 + hm @ v3(0.2, s * 0.15, 0.35)
+        P.add(L(r_0, knee, hr, hr * 0.7, m.gold, "horn%d" % s), L(knee, r_1, hr * 0.7, 0.12, m.gold, "horn%d" % s))
+    # The eyes: big, star-blue, a glint over each; squeezed shut in its squeak, closed as it naps.
+    ey = h.eyes
+    squeeze = a == "hurt" and f in st.get("squeeze", ())
+    closed = squeeze or shut(ey, a, f)
+    for s in (1, -1):
+        eye = hp((ey.at[0], s * ey.at[1], ey.at[2]))
+        if closed:
+            P.mark(eye, M.HATCH_INK)
+            P.mark(eye + hm @ v3(-0.3, 0.0, 0.15 if squeeze else -0.1), M.HATCH_INK)
+        else:
+            P.eye(eye, M.HATCH_IRIS)
+            P.eye(eye + hm @ v3(0.0, 0.0, -0.45), M.HATCH_IRIS)
+            P.mark(eye + hm @ v3(-0.45, 0.0, -0.2), M.HATCH_INK)
+            P.mark(eye + hm @ v3(0.15, 0.0, 0.42), M.HATCH_IRIS_HI)
+    # The star on its brow (dim as it naps; its body bare, `opts.bare`: none).
+    star = hp(h.star)
+    if B.opts.get("bare"):
+        pass
+    elif a == "death" and f >= 5:
+        P.mark(star, M.HATCH_STAR_DIM)
+    else:
+        P.glow.append((star, M.HATCH_STAR_W))
+        if B.pick("glow", a, f) >= 2.0 or a == "idle" and f in (2, 3):
+            for d in ((0.0, 0.42, 0.0), (0.0, -0.42, 0.0), (0.0, 0.0, 0.42)):
+                P.glow.append((star + hm @ v3(*d), M.HATCH_STAR_G))
+
+
+M3_HEADS["hatch"] = _head_hatch
+
+
+def _legs_nub(P, B, c) -> None:
+    """M5, the hatchling: four stubby legs under its plump body (two bones, a little paw with gold claws); a waddle in
+    diagonal pairs; the forefeet drawn up under its chest as it rears (`rearup`); tucked under it as it naps (`fold`)."""
+    g, m = B.parts.legs, B.mats
+    a, f, fr, bk, at, bm, lunge = c.action, c.f, c.fr, c.bk, c.at, c.bm, c.lunge
+    rearup = B.pick("rearup", a, f)
+    fold = B.pick("fold", a, f)
+    fa, fw = g.fore
+    ha_, hw = g.hind
+    for name, a0, b0, off in (("fl", fa, fw, 0.0), ("fr", fa, -fw, 0.5), ("hl", ha_, hw, 0.5), ("hr", ha_, -hw, 0.0)):
+        front = name[0] == "f"
+        lift, stride = gait(a, f, off, g.lift, g.stride)
+        bb = b0 * (1.0 + 0.15 * (fr + bk))
+        top = at((a0, b0 * 0.8, -1.0))
+        foot = v3(lunge + a0 + stride + (0.3 if front else -0.2), bb, 0.42 + lift)
+        if front and rearup > 0.0:
+            hang = top + bm @ v3(1.0, -b0 * 0.15, -1.6)
+            foot = foot + (hang - foot) * rearup
+        if fold > 0.0:
+            tuck = top + bm @ v3(0.9 if front else 1.2, b0 * 0.2, -0.9)
+            tuck[2] = max(tuck[2], 0.42)
+            foot = foot + (tuck - foot) * fold
+        l1, l2 = g.bones
+        knee, end = ik2(top, foot, l1, l2, v3(1.0 if front else -1.0, 0.0, 0.0))
+        P.add(L(top, knee, g.r[0], (g.r[0] + g.r[1]) * 0.5, _skin(B), "leg_" + name, c.paint),
+              L(knee, end, (g.r[0] + g.r[1]) * 0.5, g.r[1], _skin(B), "leg_" + name))
+        P.add(E(end + v3(0.25, 0.0, -0.1), g.paw, _skin(B), "leg_" + name))
+        for t in (-1, 0, 1):
+            P.mark(end + v3(0.25 + g.paw[0] * 0.95, t * g.paw[1] * 0.6, -0.15), colour((m.gold, 3)))
+
+
+def _tail_star(P, B, c) -> None:
+    """M5, the hatchling: a thick tail tapering from its rump, back along the floor and curling up over at its end into a
+    hook, swaying as it waddles (head-on swept out to one side, so it shows beside it; curled up higher as it rears its
+    head in its tell); wrapped round it as it naps; and at its tip a small star that twinkles (dim as it naps)."""
+    t, m = B.parts.tail, B.mats
+    a, f, fr, bk, at = c.action, c.f, c.fr, c.bk, c.at
+    ph = f / (6.0 if a == "idle" else 8.0) * math.tau
+    sway = {"idle": 0.5, "walk": 1.4}.get(a, 0.0) * math.sin(ph)
+    up = 1.0 + 0.3 * B.pick("flare", a, f)
+    root = at((t.root[0], 0.0, t.root[1]))
+    pts = [root]
+    step = t.length / t.n
+    th = -14.0                                            # its rise from the floor going back (degrees), curling over
+    yaw = 0.0                                             # round toward its flank as it naps
+    for k in range(1, t.n + 1):
+        u = k / float(t.n)
+        if u > 0.4:
+            th += t.curl * up * (1.0 - c.curl) / ((1.0 - 0.4) * t.n)
+        yaw += math.radians(26.0) * c.curl
+        side = (sway * 0.3 + 1.4 * fr + 1.8 * bk) * (0.3 + u)
+        r_ = math.radians(th)
+        d = v3(-math.cos(r_) * math.cos(yaw), side * 0.4 + math.sin(yaw) * math.cos(r_), math.sin(r_))
+        d = d / float(np.linalg.norm(d))
+        q = pts[-1] + d * step
+        q[2] = max(q[2], 0.45)
+        pts.append(q)
+    for k in range(t.n):
+        r0 = t.r[0] + (t.r[1] - t.r[0]) * k / t.n
+        r1 = t.r[0] + (t.r[1] - t.r[0]) * (k + 1) / t.n
+        P.add(L(pts[k], pts[k + 1], r0, r1, _skin(B), "tail", c.paint, caps=k == 0))
+    tip = pts[-1] + (pts[-1] - pts[-2]) / max(1e-6, float(np.linalg.norm(pts[-1] - pts[-2]))) * 0.5
+    tw = int(B.pick("twinkle", a, f, 0))
+    if B.opts.get("bare"):
+        return
+    if tw < 0:
+        P.mark(tip, M.HATCH_STAR_DIM)
+        return
+    P.glow.append((tip, M.HATCH_STAR_W))
+    arm = {0: ((0.6, 0.0), (-0.6, 0.0), (0.0, 0.6), (0.0, -0.6)), 1: ((0.45, 0.45), (-0.45, -0.45), (0.45, -0.45), (-0.45, 0.45)),
+           2: ((0.6, 0.0), (-0.6, 0.0), (0.0, 0.6), (0.0, -0.6), (1.2, 0.0), (-1.2, 0.0), (0.0, 1.2), (0.0, -1.2)),
+           3: ((0.0, 0.6),)}[tw]
+    for k, (db, dc) in enumerate(arm):
+        P.glow.append((tip + v3(0.0, db, dc), M.HATCH_STAR_G if k < 4 else M.HATCH_STAR_GLOW))
+
+
+M3_TAILS["star"] = _tail_star
+
+
+def _hatch(P, B, c) -> None:
+    """M5, the hatchling's extras over its body: its wing stubs, its chest's glow in the tell, the burst of stars it
+    breathes, its squeak, and its swelling as it puffs up. Its body bare (`opts.bare`, reviewed first): its wing stubs
+    (bare spars and membrane) and its swelling, no light."""
+    hx, m = B.parts.hatch, B.mats
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    st = B.style(a)
+    flare = B.pick("flare", a, f)
+    w = hx.wings
+    flick = 5.0 * math.sin(f * 1.3) if a in ("idle", "walk") else 0.0
+    for s in (1, -1):
+        root = at((w.at[0], s * w.at[1], _top_of(B, w.at[0]) - 0.45))
+        el = w.rest + 50.0 * flare + flick
+        sw = 62.0 - 30.0 * flare
+        wm = bm @ rot("c", s * (90.0 + sw)) @ rot("b", el)
+        wrist = root + wm @ v3(w.span * 0.5, 0.0, 0.0)
+        P.add(L(root, wrist, 0.3, 0.24, m.gold, "spar%d" % s, line=False))
+        tips = []
+        for k in range(2):
+            ang = math.radians(-14.0 - k * 38.0)
+            d = wm @ v3(math.cos(ang), 0.0, math.sin(ang) * 0.4) + bm @ v3(-0.4 * k, 0.0, 0.0)
+            d = d / float(np.linalg.norm(d))
+            tip = wrist + d * w.span * (0.55 - 0.1 * k)
+            tips.append(tip)
+            P.add(L(wrist, tip, 0.2, 0.1, m.gold, "spar%d" % s, line=False))
+        for k, (p0, p1) in enumerate(zip([root] + tips[:-1], tips)):
+            c0 = (wrist + p0 + p1) / 3.0
+            span = p1 - p0
+            ln = float(np.linalg.norm(span)) or 1.0
+            ax = span / ln
+            nm = np.cross(ax, wrist - p0)
+            nm = nm / max(1e-6, float(np.linalg.norm(nm)))
+            mm = np.stack([ax, np.cross(nm, ax), nm], axis=1)
+            P.add(E(c0, (ln * 0.5, float(np.linalg.norm(wrist - (p0 + p1) * 0.5)) * 0.48, 0.12), m.wing, "memb%d" % s, mm, line=False))
+            if not B.opts.get("bare"):
+                P.mark(c0 + mm @ v3(0.1 * k, 0.0, 0.15), M.HATCH_STAR_W if (k + (min(f, 2) if a == "windup" else f)) % 2 else M.HATCH_STAR_G)
+    pf = B.pick("puff", a, f, 1.0)
+    if B.opts.get("bare"):
+        if pf != 1.0:
+            P.squash(pf, pf, pf, (c.lunge, 0.0, 0.0))
+        return
+    glow = B.pick("glow", a, f)
+    if glow > 0.0:
+        ch = at((3.3, 0.0, -0.2))
+        n = 4 + int(4 * glow)
+        for k in range(n):
+            ang = math.radians(k * 360.0 / n + (min(f, 2) if a == "windup" else f) * 25.0)
+            rr = 0.5 + 0.35 * glow
+            P.glow.append((ch + bm @ v3(0.4, math.cos(ang) * rr, math.sin(ang) * rr * 0.8), M.HATCH_GLOW if k % 2 else M.HATCH_GLOW_EDGE))
+        P.glow.append((ch + bm @ v3(0.6, 0.0, 0.0), M.HATCH_STAR_W))
+    breath = B.pick("breath", a, f)
+    if breath > 0.0:
+        hc, hm = _hatch_frame(B, c)
+        base = hc + hm @ v3(B.parts.head.snout[1][0] + 0.6, 0.0, -0.6)
+        fwd = hm @ v3(1.0, 0.0, -0.1)
+        for k in range(14):
+            t = (k % 7) / 6.0
+            if t > breath / 2.2 + 0.15:
+                continue
+            spread_ = (0.4 + 1.5 * t) * (1.0 if k < 7 else -1.0) * (0.5 + 0.5 * ((k * 3) % 5) / 4.0)
+            q = base + fwd * (0.4 + 4.6 * t * min(1.0, breath)) + hm @ v3(0.0, spread_, 0.6 * math.sin(k * 1.7))
+            col = M.HATCH_STAR_W if k % 3 == 0 else (M.HATCH_STAR_G if k % 3 == 1 else M.HATCH_IRIS_HI)
+            P.glow.append((q, col))
+            if k % 3 == 0:
+                for d in ((0.0, 0.4, 0.0), (0.0, -0.4, 0.0), (0.0, 0.0, 0.4), (0.0, 0.0, -0.4)):
+                    P.glow.append((q + v3(*d), M.HATCH_STAR_G))
+    if f in st.get("squeak", ()):
+        hc, hm = _hatch_frame(B, c)
+        for k in range(3):
+            d = hm @ v3(0.2 * k - 0.2, (k - 1) * 0.9, 1.0)
+            for t in (2.3, 2.9):
+                P.fx.append((hc + d * t, M.HATCH_SQUEAK))
+    if pf != 1.0:
+        P.squash(pf, pf, pf, (c.lunge, 0.0, 0.0))
+
+
+# ------------------------------------------------------------------------------------------------ the cloud stag
+# A mount-only spirit stag (the cloud stag): the cervid's frame, cloud-white, its hide shaded sky blue with faint sky-blue
+# dapples on its flanks and a paler belly (`coat` "cloud"), calm dark eyes, whole branching antlers with a small cloud
+# caught at each tine's tip (`antlers.clouds`), soft cloud wisps trailing off its back and clouds under its hooves as it
+# goes (`crest` "clouds"). In its tell it rears up onto its hind legs, its forehooves high, as clouds gather under them
+# (held: `rear_cloud`); it stamps down and a ring of cloud and wind bursts out round its forehooves (the blow:
+# `cloud_stamp`); beaten, its legs fold and it comes apart into cloud (`misty`).
+CLOUD_STAG_STYLES = {
+    "rear_cloud": {"lunge": (-0.2, -0.4, -0.5, -0.5), "pitch": (10.0, 22.0, 31.0, 31.0), "head": (4.0, 10.0, 14.0, 14.0),
+                   "reared": True, "gather": (0.3, 0.6, 1.0, 1.0)},
+    "cloud_stamp": {"lunge": (0.6, 2.0, 2.2, 1.8, 1.0, 0.3), "pitch": (20.0, -4.0, -3.0, -1.0, 0.0, 0.0), "head": (8.0, -12.0, -10.0, -6.0, -2.0, 0.0),
+                    "squash": ((1.0, 1.0), (1.04, 0.95), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0)),
+                    "burst": (0.0, 1.0, 1.6, 2.2, 2.7, 0.0), "dust": (1, 2)},
+}
+STYLES.update(CLOUD_STAG_STYLES)
+
+
+def _coat_cloud(B, c):
+    """M5, the cloud stag: a cloud-white hide shaded sky blue, faint sky-blue dapples over its flanks and haunches (a step
+    dark, by its seed), its belly and throat a step paler."""
+    co, m = B.parts.coat, B.mats
+    hips, bm = c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def cloud(q, n):
+        loc = (q - hips) @ bm
+        nz = (n @ bm)[:, 2]
+        belly = nz < co.belly
+        h = h01v(np.floor(loc[:, 0] * 0.95 + 40), np.floor(loc[:, 2] * 1.1 + np.abs(loc[:, 1]) * 0.6 + 40), seed % 97 + 1)
+        dapple = (h > co.dapple) & ~belly & (nz < 0.85) & (nz > -0.2)
+        return np.full(len(q), m.hide, dtype=object), np.where(belly, 1, np.where(dapple, -1, 0)).astype(np.int16)
+    return cloud
+
+
+M3_COATS["cloud"] = _coat_cloud
+
+
+def _puff(P, at, r, flat: float = 0.6) -> None:
+    """M5: a soft cloud puff, loose (no outline: only where nothing is drawn), a pale core in a dimmer rim, as a lattice
+    of points a pixel apart through a little ellipsoid (`r` its radius, `flat` its height's share of it)."""
+    n = max(1, int(r / 0.3))
+    for i in range(-n, n + 1):
+        for j in range(-n, n + 1):
+            for k in range(-n, n + 1):
+                d = (i * i + j * j) / float(n * n) + (k * k) / float(max(1e-6, (n * flat) ** 2))
+                if d <= 1.0:
+                    P.fx.append((at + v3(i * 0.3, j * 0.3, k * 0.3), M.CSTAG_WISP if d < 0.6 else (M.CLOUD_WISP if d < 0.85 else M.CLOUD_WISP_DIM)))
+
+
+def _crest_clouds(P, B, c) -> None:
+    """M5, the cloud stag: soft cloud wisps rising off its back and drifting away behind it; clouds under its hooves as
+    it goes; gathering under its raised forehooves in its tell; a ring of them bursting out round its forehooves as it
+    stamps. Its body bare (`opts.bare`, reviewed first): none."""
+    if B.opts.get("bare"):
+        return
+    a, f, at, lunge = c.action, c.f, c.at, c.lunge
+    if a == "windup":
+        f = min(f, 2)                                     # the tell held on its last frame draws the same (`share`)
+    n = 6 if a == "idle" else 8
+    if a != "death" or f < 2:
+        for k in range(3):
+            age = (k / 3.0 + f / float(n) / 3.0) % 1.0
+            a0 = 1.6 - 2.4 * k - 2.6 * age
+            q = at((a0, (k - 1) * 0.5, _top_of(B, max(-5.5, a0)) + 1.6 + 2.0 * age))
+            _puff(P, q, 1.6 - 0.6 * age)
+    if a == "walk":
+        for k in range(4):
+            age = (k / 4.0 + f / 8.0) % 1.0
+            q = v3(lunge + (3.4 if k % 2 else -5.4) - 3.4 * age, (1 if k < 2 else -1) * (2.4 + 0.5 * age), 0.5 + 0.4 * age)
+            _puff(P, q, 0.75 - 0.3 * age, 0.5)
+    gather = B.pick("gather", a, f)
+    if gather > 0.0:
+        for k in range(5):
+            ang = math.radians(k * 72.0 + f * 24.0)
+            rr = 2.6 * (1.2 - 0.5 * gather)
+            _puff(P, v3(lunge + 4.2 + math.cos(ang) * rr * 0.7, math.sin(ang) * rr, 0.7 + 0.9 * gather + (k % 2) * 0.4), 0.7 + 0.6 * gather, 0.6)
+    burst = B.pick("burst", a, f)
+    if burst > 0.0:
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 7.0)
+            rr = 1.6 + burst * 2.4
+            _puff(P, v3(lunge + 4.4 + math.cos(ang) * rr * 0.9, math.sin(ang) * rr, 0.7), max(0.5, 1.3 - 0.25 * burst), 0.55)
+        for k in range(16):
+            ang = math.radians(k * 22.5 + 11.0)
+            rr = 2.4 + burst * 3.0
+            P.fx.append((v3(lunge + 4.4 + math.cos(ang) * rr * 0.9, math.sin(ang) * rr, 0.4), M.WIND))
+
+
+M3_CRESTS["clouds"] = _crest_clouds
