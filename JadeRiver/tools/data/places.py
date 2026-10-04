@@ -214,6 +214,20 @@ def places():
           "the Blackmast Docks Shrine", "lit"),
         P("wn_cliffs_shrine", "shrines", "", "wn_nest_cliffs", "shrine_wn_cliffs", "shrine", "place",
           "the Nest Cliffs Shrine", "lit"),
+        # ---- R9, the star field's end: the Citadel Gate's teleport stone and shrine, and the shrines of the Orbit Ruins,
+        # the Ashen Reach, the Nebula Deep and the Lantern Heart.
+        P("wc_teleport_stone", "teleport_stones", "teleport", "wc_citadel_gate", "stone_star_citadel", "teleport_stone",
+          "place", "the Citadel Gate Teleport Stone", "attuned"),
+        P("wc_shrine", "shrines", "", "wc_citadel_gate", "shrine_wc_gate", "shrine", "place", "the Citadel Gate Shrine",
+          "lit"),
+        P("or_shrine", "shrines", "", "or_tumbling_stair", "shrine_or_stair", "shrine", "place", "the Tumbling Stair Shrine",
+          "lit"),
+        P("ar_fields_shrine", "shrines", "", "ar_cinder_fields", "shrine_ar_fields", "shrine", "place",
+          "the Wardens' Landing Shrine", "lit"),
+        P("ar_camp_shrine", "shrines", "", "ar_war_camp", "shrine_ar_camp", "shrine", "place", "the War Camp Shrine", "lit"),
+        P("nd_shrine", "shrines", "", "nd_nebula_verge", "shrine_nd_verge", "shrine", "place", "the Nebula Verge Shrine",
+          "lit"),
+        P("lt_shrine", "shrines", "", "lt_wick_gate", "shrine_lt_gate", "shrine", "place", "the Wick Gate Shrine", "lit"),
     ]
 
 

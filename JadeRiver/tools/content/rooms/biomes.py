@@ -320,6 +320,64 @@ BIOMES = {
                   "walk": ["bone_pile", "eggshell", "rock_small", "tall_grass"],
                   "water": ["tall_grass", "rock_small"]},
     },
+    # R9 ------------------------------------------------------------------------------------------------------------
+    # The star field's end (the art: tools/art/topdown/starfield.py, none of it of the foliage kit). R5's `bastion` (the
+    # Wardens' Tidebreak fortress) is the Citadel's stone, and R5's cloud sea lies under every island's brink.
+    # The Star Warden Citadel: the Wardens' white granite and flagstones on the Field's central island, its gardens kept
+    # (pines, plum and hedges in their beds), star crystals where the island's rock shows, weeds in the joints; a
+    # flight's open cheeks lined with star lanterns.
+    "citadel": {
+        "base": "p", "stair": "s", "density": 0.2, "cheek": "warden_lamp",
+        "flora": {"wall": ["tree_pine", "rock_mossy", "bush"],
+                  "ground": ["tree_pine", "tree_plum", "hedge_2", "bush", "bush_azalea", "rock_mossy"],
+                  "walk": ["bush", "rock_small"],
+                  "water": ["tall_grass", "cattails", "lotus_pads"]},
+    },
+    # The Orbit Ruins: the first Wardens' observatory-temple broken and hanging in the dark, its rings and floors of
+    # dressed granite on the island's grey rock; star crystals grown out of the rock, mossy fallen stones, ferns and the
+    # odd grey tree in the cracks (the floating masonry, `orbit_stone`, is placed by the rooms).
+    "orbit_ruins": {
+        "base": "r", "stair": "s", "density": 0.28, "cheek": "boulder",
+        "flora": {"wall": ["crystal_cluster", "rock_mossy", "rock_small", "ferns"],
+                  "ground": ["crystal_cluster", "rock_mossy", "rock_small", "ferns", "dead_tree", "crystal_cluster"],
+                  "walk": ["rock_small", "ferns", "crystal_cluster"],
+                  "water": ["crystal_cluster", "rock_small"]},
+    },
+    # The Ashen Reach: the burnt plain where the Ashborn camp, dark earth under drifts of ash (the earth laid over all
+    # after the scatter, R7's `earth`), its rises grey with ash; charred trees, beds of embers still glowing, boulders.
+    # No piece of the foliage kit: the earth is never laid under one, and it would keep a tuft of meadow round it.
+    "ashen": {
+        "base": "g", "stair": "s", "density": 0.3, "cheek": "boulder",
+        "flora": {"wall": ["charred_tree", "boulder", "ash_drift"],
+                  "ground": ["charred_tree", "ash_drift", "embers", "boulder", "ash_drift"],
+                  "walk": ["embers", "ash_drift", "boulder"],
+                  "water": ["boulder", "ash_drift"]},
+        "ground": {"earth": ["*"]},
+    },
+    # The Nebula Deep: reefs of dark rock and pale nebula sand in the luminous sea the nebula runs as (its water), coral
+    # trees with their pink and cyan crowns, nebula coral and star crystals on the reefs, void crabs' shells cast up.
+    "nebula": {
+        "base": "r", "stair": "s", "density": 0.3, "cheek": "boulder",
+        "flora": {"wall": ["coral_tree", "nebula_coral", "rock_mossy", "crystal_cluster"],
+                  "ground": ["coral_tree", "nebula_coral", "crystal_cluster", "rock_small", "nebula_coral", "void_shell"],
+                  "walk": ["nebula_coral", "rock_small", "ferns"],
+                  "water": ["coral_tree", "nebula_coral", "rock_small"]},
+    },
+    # The Lantern Heart: the first lantern's halls, warm flagstones under bronze, gilt and the flame's own light; star
+    # crystals where the old rock shows, blossom in the few beds kept by whoever keeps the Heart.
+    "lantern_heart": {
+        "base": "p", "stair": "s", "density": 0.2,
+        "flora": {"wall": ["crystal_cluster", "rock_small"],
+                  "ground": ["crystal_cluster", "tree_plum", "bush_azalea", "crystal_cluster", "tall_grass"],
+                  "walk": ["crystal_cluster", "rock_small"],
+                  "water": ["crystal_cluster", "lotus_pads"]},
+    },
+    # A vessel's deck on the Starsea (the crossings): planks over the sea, nothing growing; a flight's open cheeks are
+    # closed by barrels lashed to the deck.
+    "starsea": {
+        "base": "~", "stair": "w", "density": 0.0, "cheek": "barrel",
+        "flora": {"wall": [], "ground": [], "walk": [], "water": []},
+    },
     # Generic meadow (the default).
     "": {
         "base": "g", "stair": "s", "density": 0.3,

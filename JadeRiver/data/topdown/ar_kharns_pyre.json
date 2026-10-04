@@ -1,0 +1,385 @@
+{
+ "schema_version": 1,
+ "id": "ar_kharns_pyre",
+ "name": "Kharn's Pyre",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555555555555555555555555555555555555555555555555555555",
+  "55555000000055555500022222222222222005555555500055550000",
+  "00000000000000000000022222222222222000555550000000000000",
+  "00000000000000000000022222222222222000000000000000000000",
+  "00000000000000000000022222222222222000000000000000000000",
+  "00000000000000000000022222222222222000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrdddddddrrrrrrdddssssssssssssssddrrrrrrrrdddrrrrdddd",
+  "dddddddddddddddddddddssssssssssssssdddrrrrrddddddddddddd",
+  "dddddddddddddddddddddsssssssssssssssdddddddddddddddddddd",
+  "dddddddddddddddddssssssssssssssssssssddddddddddddddddddd",
+  "dddddddddddddddssssssssssssssssssssssssddddddddddddddddd",
+  "ddddddddddddsssssssssssssssssssssssssssssssssddddddddddd",
+  "ddddddddddssssssssssssssssssssssssssssssssssssdddddddddd",
+  "dddddddddsssssssssssssssssssssssssssssssssssssdddddddddd",
+  "ddddddddssssssssssssssssssssssssssssssssssssssdddddddddd",
+  "ddddddddsssssssssssssssssssssssssssssssssssssssddddddddd",
+  "aaaaaaaaaaaassssssssssssssssssssssssssssssssssssdddddddd",
+  "aaaaaaaaaaaassssssssssssssssssssssssssssssssssssdddddddd",
+  "aaaaaaaaaaaasssssssssssssssssssssssssssssssssssddddddddd",
+  "ddddddddsssssssssssssssssssssssssssssssssssssssddddddddd",
+  "dddddddddsssssssssssssssssssssssssssssssssssssdddddddddd",
+  "dddddddddddssssssssssssssssssssssssssssssssssddddddddddd",
+  "ddddddddddddssssssssssssssssssssssssssssssssdddddddddddd",
+  "ddddddddddddssssssssssssssssssssssssssssssssdddddddddddd",
+  "dddddddddddddssssssssssssssssssssssssssssssddddddddddddd",
+  "ddddddddddddddsssssssssssssssssssssssssddddddddddddddddd",
+  "dddddddddddddddddddddsssssddsssssssssddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+ ],
+ "stairs": [
+  {
+   "x": 27,
+   "y": 8,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "ash_pyre",
+   "x": 27,
+   "y": 4
+  },
+  {
+   "kind": "ash_pyre",
+   "x": 24,
+   "y": 5
+  },
+  {
+   "kind": "ash_pyre",
+   "x": 30,
+   "y": 5
+  },
+  {
+   "kind": "ash_pyre",
+   "x": 25,
+   "y": 3
+  },
+  {
+   "kind": "ash_pyre",
+   "x": 29,
+   "y": 3
+  },
+  {
+   "kind": "brazier",
+   "x": 21,
+   "y": 6
+  },
+  {
+   "kind": "brazier",
+   "x": 34,
+   "y": 6
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 22,
+   "y": 3
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 33,
+   "y": 3
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 12,
+   "y": 8
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 43,
+   "y": 8
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 9,
+   "y": 15
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 46,
+   "y": 15
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 14,
+   "y": 21
+  },
+  {
+   "kind": "ashborn_banner",
+   "x": 41,
+   "y": 21
+  },
+  {
+   "kind": "embers",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "kind": "embers",
+   "x": 37,
+   "y": 10
+  },
+  {
+   "kind": "embers",
+   "x": 24,
+   "y": 18
+  },
+  {
+   "kind": "embers",
+   "x": 33,
+   "y": 16
+  },
+  {
+   "kind": "ash_drift",
+   "x": 15,
+   "y": 12
+  },
+  {
+   "kind": "ash_drift",
+   "x": 38,
+   "y": 19
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 30,
+   "y": 11
+  },
+  {
+   "kind": "ash_drift",
+   "x": 2,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "charred_tree",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "charred_tree",
+   "x": 16,
+   "y": 5
+  },
+  {
+   "kind": "ash_drift",
+   "x": 35,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 4
+  },
+  {
+   "kind": "ash_drift",
+   "x": 48,
+   "y": 5
+  },
+  {
+   "kind": "ash_drift",
+   "x": 5,
+   "y": 16
+  },
+  {
+   "kind": "embers",
+   "x": 6,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 3,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 25
+  },
+  {
+   "kind": "charred_tree",
+   "x": 19,
+   "y": 24
+  },
+  {
+   "kind": "embers",
+   "x": 22,
+   "y": 24
+  },
+  {
+   "kind": "ash_drift",
+   "x": 28,
+   "y": 24
+  },
+  {
+   "kind": "embers",
+   "x": 34,
+   "y": 24
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 24
+  },
+  {
+   "kind": "charred_tree",
+   "x": 47,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 51,
+   "y": 25
+  },
+  {
+   "kind": "charred_tree",
+   "x": 0,
+   "y": 26
+  },
+  {
+   "kind": "ash_drift",
+   "x": 11,
+   "y": 27
+  },
+  {
+   "kind": "ash_drift",
+   "x": 22,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 26,
+   "y": 26
+  },
+  {
+   "kind": "ash_drift",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 44,
+   "y": 27
+  },
+  {
+   "kind": "charred_tree",
+   "x": 54,
+   "y": 27
+  }
+ ],
+ "place": {},
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    33,
+    14
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 80
+  }
+ ]
+}

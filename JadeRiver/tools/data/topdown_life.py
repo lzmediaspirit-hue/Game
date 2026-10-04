@@ -329,6 +329,19 @@ VISTAS = {
     "wn_nest_cliffs": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     "wn_eggshell_terraces": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
     "wn_guardians_crown": [{"edge": "n", "kind": "peaks", "pad": 56}, {"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    # R9: the star field's end. The crossings' decks have the Starsea all round them; the islands' brinks fall away to
+    # the cloud sea under them, as R5's Tidebreak Front's do.
+    "ss_starsea_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
+    "ss_lantern_crossing": [{"edge": "all", "kind": "water", "pad": 0}],
+    "wc_citadel_gate": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "wc_presence_court": [{"edge": "s", "kind": "cloud_sea", "pad": 88}],
+    "or_tumbling_stair": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "or_orbit_garden": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "or_golem_foundry": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_cinder_fields": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_ashborn_palisade": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_war_camp": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
+    "ar_kharns_pyre": [{"edge": "s", "kind": "cloud_sea", "pad": 80}],
 }
 DROPS = ["cloud_sea"]
 EDGE_KINDS = ["hills", "river", "marsh", "peaks", "cloud_sea", "water"]

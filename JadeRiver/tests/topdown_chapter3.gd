@@ -14,7 +14,8 @@ extends "res://tests/prologue_run.gd"
 ##      and handed in; Gu's Cargo, the cart escorted to Bend Shore; the tracker leading into these rooms on the way;
 ##   4. past chapter 3 the story's next quest (Toward Cleansing Peak, at the Pilgrim Stairs) is played past the
 ##      prototype's gate exactly while its room has no layout (R1 laid it out; topdown_chapter4 plays chapter 4); where
-##      the story first leads past the gate the tracker's first entry is the prototype's end; every way out of these
+##      the story first leads past the gate the tracker's first entry is the prototype's end (once every room is on the
+##      grid, R8 and R9, nothing waits past it and the story is told as far as it is built); every way out of these
 ##      rooms into a room with no layout yet (Bend Shore's west, to the Serpent's Shallows and to the Drowned Shrine,
 ##      until their rooms are laid out) is gated, every way on the grid open.
 ## Run headless:  godot --headless --path . res://tests/topdown_chapter3.tscn [-- --verbose]
@@ -224,8 +225,11 @@ func _past_the_chapter() -> void:
 		"past chapter 3 the story's next quest is Toward Cleansing Peak, past the prototype's gate exactly while the Pilgrim Stairs have no layout (%s)" % str(waiting.slice(0, 1).map(func(q): return str(q.id))))
 	# The lessons and the story inside the prototype (a test shortcut: done as they come, and those under way), then the
 	# prototype's end. (R8: with the sky-sea zones on the grid the story runs on to chapter 19 inside the prototype, past
-	# sixty quests.)
+	# sixty quests. R9: with the star field's end on the grid too, every room has a layout and nothing of the story waits
+	# past the gate, so it runs on as far as the story is built and the prototype has no end to show.)
+	var steps := 0
 	for i in 200:
+		steps += 1
 		for q in c().quests.active.keys().duplicate():
 			if str(Game.quest.quest_def(c(), str(q)).get("kind", "")) == "guided":
 				c().quests.active.erase(q)
@@ -237,8 +241,13 @@ func _past_the_chapter() -> void:
 		GameEvents.flush()
 	var tr: Array = Game.quest.tracker(c())
 	var head: Dictionary = tr[0] if not tr.is_empty() else {}
-	check(head.get("gate", false) and str(head.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(head.get("target_room", "x")) == "",
-		"then the tracker's first entry is the prototype's end, leading nowhere (%s)" % str(head))
+	var past: Array = Game.quest.story_waiting(c(), QuestAuthority.STORY_KINDS).filter(func(d): return Game.quest.beyond_prototype(c(), d))
+	if past.is_empty():
+		check(Game.quest.story_next(c()).is_empty() and tr.all(func(e): return not e.get("gate", false)),
+			"then, with no quest of the story past the gate (every room it is played in on the grid), the story is told as far as it is built in %d steps and the tracker leads past no gate (%s)" % [steps, str(head)])
+	else:
+		check(head.get("gate", false) and str(head.get("name", "")) == Tx.t("sim.quest.tale_rests") and str(head.get("target_room", "x")) == "",
+			"then the tracker's first entry is the prototype's end, leading nowhere (%s; past the gate %s)" % [str(head), str(past.slice(0, 3).map(func(d): return str(d.id)))])
 	var gated: Array = []
 	var wrong: Array = []
 	for rid in ROOMS:
