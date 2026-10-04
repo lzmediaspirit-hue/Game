@@ -2026,20 +2026,10 @@ func sec_ae3() -> void:
 	check(interact("ancestral_tablets").get("ok", false), "honour the ancestral tablets")
 	check(finish("ironroot_blood"), "Ironroot Blood done: chapter 13 complete")
 	check(c().quests.has_flag("clan_ironroot") and "ironroot_kin" in c().cultivator.titles, "adopted into the Ironroot clan")
-	# Canyon side stories: silk from the kites for the toll flags, plumes from the roosts for the clan forge.
-	check(start("silk_on_the_wind") and start("plumes_for_the_bellows"), "the canyon side stories accepted")
-	for i in 18:   # P12: foes hit 6% of par HP now, so a careful player breaks off more often
-		if c().inventory.count("kite_silk") >= 5: break
-		if travel("gc_kite_winds"): fight("wind_kite", 2, 240.0, 0.3)
-		revive_if_needed()
-	for i in 18:
-		if c().inventory.count("harpy_plume") >= 4: break
-		if travel("gc_harpy_roosts"): fight("canyon_harpy", 2, 240.0, 0.3)
-		revive_if_needed()
-	check(c().inventory.count("kite_silk") >= 5 and c().inventory.count("harpy_plume") >= 4,
-		"silk and plumes from the canyons (%d, %d)" % [c().inventory.count("kite_silk"), c().inventory.count("harpy_plume")])
-	check(finish("silk_on_the_wind"), "Silk on the Wind done")
-	check(finish("plumes_for_the_bellows"), "Plumes for the Bellows done")
+	# The canyon side stories wait for their rooms' realms (E5b): Silk on the Wind for the Kite Winds' (Sage Sovereign
+	# 1), Plumes for the Bellows for the Harpy Roosts' (Sage Sovereign 2). Both are played in chapter 15.
+	check(not Game.quest.can_offer(c(), quest_def("silk_on_the_wind")) and not Game.quest.can_offer(c(), quest_def("plumes_for_the_bellows")),
+		"at Sage 2 the canyon side stories wait for their rooms")
 	# One change of path, for a price.
 	travel("np_hall_of_nine")
 	var stones: int = Game.economy.balance("spirit_stone")
@@ -2113,19 +2103,40 @@ func sec_ae4() -> void:
 	check(c().quests.has_flag("seal_kept") and "seal_keeper" in c().cultivator.titles, "Keeper of the Sun Seal")
 	check(finish("the_tomb_king"), "The Tomb King done: chapter 14 complete")
 	check(c().inventory.count("sunscar_seal") == 1, "the seal stays with you")
-	# Side stories of the oasis and the Hold. Gathering Master is a long road (S15): test shortcut.
+	# Side stories of the oasis. Gathering Master is a long road (S15): test shortcut. Glass Teeth (the Worm Sea, Sage
+	# Sovereign 3) and Stingers for the Hold (the Scorpion Flats, Sage Sovereign 2) wait for their rooms' realms (E5b).
 	Game.crafting.add_xp(c(), "herb_gathering", 20000.0)
 	tidy_bag(12)
-	check(start("cactus_water") and start("glass_teeth") and start("stingers_for_the_hold"), "the Sunscar side stories accepted")
+	check(start("cactus_water"), "Cactus Water accepted")
+	check(not Game.quest.can_offer(c(), quest_def("glass_teeth")) and not Game.quest.can_offer(c(), quest_def("stingers_for_the_hold")),
+		"at Sage Sovereign 1 the Worm Sea's and the Scorpion Flats' side stories wait for their rooms")
 	for rid in ["sd_glass_dunes", "sd_scorpion_flats", "sd_worm_sea", "sd_glass_dunes"]:
 		if c().inventory.count("ember_cactus") >= 4: break
 		if travel(rid): gather("ember_cactus", 4 - c().inventory.count("ember_cactus"), 3)
 	check(c().inventory.count("ember_cactus") >= 4, "pick Ember Cactus flowers across the dunes (%d)" % c().inventory.count("ember_cactus"))
-	for i in 20:   # a tooth drops about one kill in three, but a run can go a long time without
-		if c().inventory.count("worm_glass_tooth") >= 3: break
-		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
+	check(finish("cactus_water"), "Cactus Water done")
+	check(c().inventory.count("cactus_water") >= 1, "cactus water in the gourd")
+	travel("sd_oasis_of_bones")
+
+## E5b: the canyon and desert side stories, played once their rooms' realms come (Sage Sovereign 1 to 3; each quest's
+## realm=ROOM). Silk on the Wind and Plumes for the Bellows in the canyons, then Stingers for the Hold on the Scorpion
+## Flats (after the plumes), from Sage Sovereign 2; Glass Teeth in the Worm Sea from Sage Sovereign 3.
+func canyon_side_stories() -> void:
+	tidy_bag(12)
+	check(start("silk_on_the_wind") and start("plumes_for_the_bellows"), "the canyon side stories accepted")
+	for i in 18:   # P12: foes hit 6% of par HP now, so a careful player breaks off more often
+		if c().inventory.count("kite_silk") >= 5: break
+		if travel("gc_kite_winds"): fight("wind_kite", 2, 240.0, 0.3)
 		revive_if_needed()
-	# The worm hunt fills the bag with glass and shards: make room so every stinger can be picked up.
+	for i in 18:
+		if c().inventory.count("harpy_plume") >= 4: break
+		if travel("gc_harpy_roosts"): fight("canyon_harpy", 2, 240.0, 0.3)
+		revive_if_needed()
+	check(c().inventory.count("kite_silk") >= 5 and c().inventory.count("harpy_plume") >= 4,
+		"silk and plumes from the canyons (%d, %d)" % [c().inventory.count("kite_silk"), c().inventory.count("harpy_plume")])
+	check(finish("silk_on_the_wind"), "Silk on the Wind done")
+	check(finish("plumes_for_the_bellows"), "Plumes for the Bellows done")
+	check(start("stingers_for_the_hold"), "Stingers for the Hold accepted")
 	tidy_bag(10)
 	for i in 16:
 		if c().inventory.count("scorpion_stinger") >= 5: break
@@ -2133,11 +2144,16 @@ func sec_ae4() -> void:
 		if travel("sd_scorpion_flats"): fight("sandstorm_scorpion", 3, 300.0, 0.3)
 		revive_if_needed()
 	if verbose: print("  stingers: ", c().inventory.count("scorpion_stinger"))
-	check(finish("cactus_water"), "Cactus Water done")
-	check(finish("glass_teeth"), "Glass Teeth done")
 	check(finish("stingers_for_the_hold"), "Stingers for the Hold done")
-	check(c().inventory.count("cactus_water") >= 1, "cactus water in the gourd")
-	travel("sd_oasis_of_bones")
+
+func worm_sea_side_story() -> void:
+	tidy_bag(12)
+	check(start("glass_teeth"), "Glass Teeth accepted")
+	for i in 20:   # a tooth drops about one kill in three, but a run can go a long time without
+		if c().inventory.count("worm_glass_tooth") >= 3: break
+		if travel("sd_worm_sea"): fight("dune_worm", 2, 300.0, 0.3)
+		revive_if_needed()
+	check(finish("glass_teeth"), "Glass Teeth done")
 
 ## S18 Starsea travel through the real intents: walk to the route's dock, set sail, fight off
 ## whatever boards the vessel while the crossing runs, and make port at the far end.
@@ -2297,20 +2313,18 @@ func sec_ae5() -> void:
 	travel("np_alliance_gate")
 	var again := interact("war_gong_np")
 	check(not again.get("ok", false) and str(again.get("reason", "")) == "cooldown", "the war gong waits for the comet sails to regroup")
-	# Side stories of the Wreck.
-	check(start("the_deserters") and start("iron_from_a_comet"), "the Wreck's side stories accepted")
+	# Sage Sovereign 2: the canyon side stories and the Scorpion Flats' (E5b: they waited for their rooms' realms).
+	canyon_side_stories()
+	# Side stories of the Wreck. Iron from a Comet waits for the Pirate Deck's realm, Sage Sovereign 3 (E5b).
+	check(start("the_deserters"), "The Deserters accepted")
+	check(not Game.quest.can_offer(c(), quest_def("iron_from_a_comet")), "at Sage Sovereign 2 Iron from a Comet waits for the Pirate Deck")
 	check(sail("wreck_run"), "back across the Starsea")
 	for i in 10:
 		if _objective("the_deserters", 0) >= 6 and c().inventory.count("alliance_badge") >= 4: break
 		if travel("sw_broken_pier"): fight("nine_peaks_disciple", 3, 300.0, 0.3)
 		revive_if_needed()
-	for i in 10:
-		if c().inventory.count("comet_iron") >= 6: break
-		if travel("sw_pirate_deck"): fight("starsea_pirate", 3, 300.0, 0.3)
-		revive_if_needed()
 	check(sail("wreck_run_home"), "home again")
 	check(finish("the_deserters"), "The Deserters done")
-	check(finish("iron_from_a_comet") and Game.crafting.knows(c(), "storm_sloop"), "Iron from a Comet done: the storm sloop's lines")
 
 func sec_ae6() -> void:
 	# Act II · chapter 16, The Presence Trial (Sage Sovereign 3), and the rare Daos of the Expanse's teachers.
@@ -2365,6 +2379,17 @@ func sec_ae6() -> void:
 	check(finish("the_presence_trial"), "The Presence Trial done")
 	var q: Dictionary = Game.progression.query_breakthrough(c(), [])
 	check(str(q.get("to", "")) == "will_manifest_1" and not q.can, "the Expanse cannot hold a Will Manifest: the zone ceiling locks it")
+	# Sage Sovereign 3: the Worm Sea's and the Pirate Deck's side stories (E5b: they waited for their rooms' realms).
+	worm_sea_side_story()
+	tidy_bag(12)
+	check(start("iron_from_a_comet"), "Iron from a Comet accepted")
+	check(sail("wreck_run"), "back across the Starsea for comet iron")
+	for i in 10:
+		if c().inventory.count("comet_iron") >= 6: break
+		if travel("sw_pirate_deck"): fight("starsea_pirate", 3, 300.0, 0.3)
+		revive_if_needed()
+	check(sail("wreck_run_home"), "home again with the iron")
+	check(finish("iron_from_a_comet") and Game.crafting.knows(c(), "storm_sloop"), "Iron from a Comet done: the storm sloop's lines")
 	# Stars Beyond: chart the Lantern Run, stand at the Launch.
 	check(start("stars_beyond"), "Stars Beyond accepted")
 	travel("ae_shipyard")
@@ -2801,15 +2826,17 @@ func sec_ls6() -> void:
 	if fi >= 0:
 		var ab := submit({"type": "use_item", "index": fi})
 		check(ab.get("ok", false) and "lantern_heart_flame" in c().crafting.get("flames", []), "absorbed: it burns under every furnace now")
-	# The Leviathan's Maw (optional): the field boss of the Nebula Deep.
+	# The Leviathan's Maw (optional) waits for the Maw's realm, Sphere Lord 3 (E5b).
+	check(not Game.quest.can_offer(c(), quest_def("the_leviathans_maw")), "at Sphere Lord 2 the Leviathan's Maw waits for its realm")
+	# Greyfall: Sphere Lord 3, the Law recipes, and the stand beside Shen Lian.
+	check(start("greyfall"), "Greyfall accepted")
+	check(reach("sphere_lord_3"), "Sphere Lord 3")
+	# The Leviathan's Maw: the field boss of the Nebula Deep.
 	check(start("the_leviathans_maw"), "The Leviathan's Maw accepted")
 	check(travel("nd_leviathans_maw"), "into the Leviathan's Maw")
 	var lev := long_boss_fight("nebula_leviathan")
 	check(lev >= 1 or c().quests.is_done("the_leviathans_maw") or _objective("the_leviathans_maw", 0) >= 1, "bring down the Nebula Leviathan")
 	check(finish("the_leviathans_maw"), "The Leviathan's Maw done")
-	# Greyfall: Sphere Lord 3, the Law recipes, and the stand beside Shen Lian.
-	check(start("greyfall"), "Greyfall accepted")
-	check(reach("sphere_lord_3"), "Sphere Lord 3")
 	if Game.economy.balance("sage_crystal") < 400: Game.economy.apply_currency("sage_crystal", 400, "test_shortcut")
 	talk(go_to_npc(["stargazer_ming"]))
 	check(buy("observatory", "recipe_scroll", 1, "law_condensing_pill") and buy("observatory", "recipe_scroll", 1, "law_touching_pill"),

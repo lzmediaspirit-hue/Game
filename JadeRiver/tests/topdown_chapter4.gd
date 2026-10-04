@@ -14,8 +14,8 @@ extends "res://tests/prologue_run.gd"
 ##      to the Pilgrim Stairs, three Stone Guardians, handed in; The Rite, Heaven's Cleansing passed in the summit's rite
 ##      circle (its guardians called to the summit's south rim), handed in; the tracker leading into these rooms;
 ##   4. beside the road: the hermit's house up its boardwalk, Lu's journal page behind the falls (a hidden way shown),
-##      and Greyreed Hamlet's Grey Roofs (the Hollowed cleared from the Grey Pools, the grey lanterns cleansed on the
-##      hall's and the granary's roofs, reached up their crate stacks) and Cleansing the Well;
+##      and Greyreed Hamlet's Grey Roofs (the grey lanterns cleansed on the hall's and the granary's roofs, reached up
+##      their crate stacks) and Cleansing the Well;
 ##   5. past chapter 4 the story waits on The Shrine Surfaces, played past the prototype's gate while the Drowned Shrine
 ##      has no layout, and the frontier: every way out of these rooms into a room with no layout yet is closed by the
 ##      prototype's gate, every way between rooms on the grid is open.
@@ -224,15 +224,8 @@ func _beside_the_road() -> void:
 	# Greyreed Hamlet opens at Heart Tempering 1 (a test shortcut): Grey Roofs and Cleansing the Well.
 	_realm("heart_tempering_1")
 	check(travel("gh_hamlet_square") and Game.room_rt.topdown != null, "north over the Grey Pools' boardwalk into Greyreed Hamlet (room %s)" % room())
+	# Grey Roofs is the hamlet's roofs (E5b: the Grey Pools' Hollowed, Levels 7 to 12, were far under its realm).
 	accept("hamlet_elder_gao", "grey_roofs")
-	check(travel("rm_grey_pools"), "back to the Grey Pools (room %s)" % room())
-	var killed := 0
-	for i in 40:
-		if killed >= 10: break
-		_whole()
-		killed += fight("hollowed_boarlet", 1, 90.0)
-	check(killed >= 10, "ten Hollowed Boarlets cleared from the Grey Pools (%d)" % killed)
-	check(travel("gh_hamlet_square"), "back up to the hamlet (room %s)" % room())
 	for f in ["grey_lantern_hall", "grey_lantern_granary"]:
 		var o: Dictionary = Game.room_rt.object_def(f)
 		var r := interact(f)

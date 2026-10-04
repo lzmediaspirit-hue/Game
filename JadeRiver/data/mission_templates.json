@@ -14,7 +14,7 @@
       "text": "Defeat Wild Boarlets"
      },
      "min_level": 0,
-     "max_level": 5
+     "max_level": 6
     },
     {
      "name": "Quarry pests",
@@ -46,8 +46,8 @@
       "count": 8,
       "text": "Defeat Hollowed Boarlets"
      },
-     "min_level": 7,
-     "max_level": 14
+     "min_level": 6,
+     "max_level": 16
     },
     {
      "name": "Monkey business",
@@ -57,8 +57,8 @@
       "count": 8,
       "text": "Defeat Bamboo Monkeys"
      },
-     "min_level": 10,
-     "max_level": 17
+     "min_level": 9,
+     "max_level": 16
     },
     {
      "name": "Bandit patrol",
@@ -68,8 +68,8 @@
       "count": 8,
       "text": "Defeat Mudwater Bandits"
      },
-     "min_level": 14,
-     "max_level": 22
+     "min_level": 13,
+     "max_level": 23
     },
     {
      "name": "Shore crabs",
@@ -91,7 +91,7 @@
       "text": "Defeat Rapids Lizards"
      },
      "min_level": 27,
-     "max_level": 37
+     "max_level": 35
     },
     {
      "name": "Cliff hawks",
@@ -113,7 +113,29 @@
       "text": "Defeat Mist Wolves"
      },
      "min_level": 45,
-     "max_level": 70
+     "max_level": 54
+    },
+    {
+     "name": "Stags on the ridge",
+     "objective": {
+      "kind": "kill",
+      "enemy": "hollow_stag",
+      "count": 6,
+      "text": "Defeat Hollow Stags"
+     },
+     "min_level": 54,
+     "max_level": 63
+    },
+    {
+     "name": "Rocs over the shrine",
+     "objective": {
+      "kind": "kill",
+      "enemy": "cloudpeak_roc",
+      "count": 6,
+      "text": "Defeat Cloudpeak Rocs"
+     },
+     "min_level": 57,
+     "max_level": 67
     }
    ]
   },
@@ -148,8 +170,8 @@
       "count": 5,
       "text": "Gather Ember Peppers"
      },
-     "min_level": 10,
-     "max_level": 30
+     "min_level": 9,
+     "max_level": 29
     },
     {
      "name": "Mist Lotus",
@@ -159,8 +181,8 @@
       "count": 3,
       "text": "Gather Mist Lotus"
      },
-     "min_level": 19,
-     "max_level": 70
+     "min_level": 18,
+     "max_level": 38
     }
    ]
   },
@@ -184,8 +206,8 @@
       "count": 6,
       "text": "Mine Copper"
      },
-     "min_level": 0,
-     "max_level": 20
+     "min_level": 3,
+     "max_level": 23
     },
     {
      "name": "Jadeiron",
@@ -196,7 +218,7 @@
       "text": "Mine Jadeiron"
      },
      "min_level": 12,
-     "max_level": 70
+     "max_level": 40
     }
    ]
   },

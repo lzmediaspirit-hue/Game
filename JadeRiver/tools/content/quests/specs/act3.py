@@ -1,7 +1,7 @@
 """Act III's side quests, one a chapter, each placed in its chapter among the story's beats (story.py's
 act3_citadel_quests, act3_ash_and_tide_quests and act3_lantern_heart_quests). They pay sage crystals and Act II's share of
 a stage (story.py: qp act2_side)."""
-from content.quests.spec import side, clear, step, item, fx, PAY
+from content.quests.spec import side, clear, step, item, fx, PAY, ROOM
 
 # Chapter 20 (The Star Wardens), after the Orbit Ruins: the Confucian path.
 CITADEL = [
@@ -25,12 +25,14 @@ ASH_AND_TIDE = [
          gives=[fx("learn_technique", technique="splashed_ink")]),
 ]
 
-# Chapter 22 (The Lantern Heart), first of the chapter: the Leviathan's Maw (optional).
+# Chapter 22 (The Lantern Heart), first of the chapter: the Leviathan's Maw (optional). E5b: it waits for the Maw's own
+# realm too (realm=ROOM: its Levels 97-99 lie past Sphere Lord 1, where the chapter opens).
 LANTERN_HEART = [
     side("the_leviathans_maw", clear("nebula_leviathan", 1, "Bring down the Nebula Leviathan in its Maw"), giver="warden_captain_duan",
-         name="The Leviathan's Maw", after="star_warden", chapter="22",
+         name="The Leviathan's Maw", after="star_warden", chapter="22", realm=ROOM,
          offer=["Something in the Nebula Deep swallows the lantern ships whole. The old Wardens called it the Leviathan.",
                 "It has a Presence like a storm and a Sphere as wide as a harbour. Go if you are ready. Nobody will think less of you if you are not."],
          done="You brought it down. The ships will run the Deep again. Take its scales; the alchemists will want them for the Law pills.",
-         pay=200, gives=[PAY, item("leviathan_scale", 2), fx("codex", entry="nebula_leviathan")]),
+         pay=200, why="a world boss: the Nebula Leviathan, and the lantern ships run the Deep again",
+         gives=[PAY, item("leviathan_scale", 2), fx("codex", entry="nebula_leviathan")]),
 ]

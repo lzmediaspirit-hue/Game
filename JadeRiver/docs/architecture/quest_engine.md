@@ -97,7 +97,9 @@ A quest leads to the room of its first step that leads anywhere.
 - **`target_room`**: from the steps, as above.
 - **The realm it opens at**: the realm at the middle Level of the target room's band (`level_range`).
   - This applies only to a quest that follows no other. A quest that follows another opens when the story gets there.
-  - A town has no band.
+  - `realm=ROOM` (E5b) asks for the room's realm also when the quest follows another. It then opens at the later of
+    the two. Use it when the room lies past the realm where the story leaves the player.
+  - A town has no band, so it gives no realm.
 - **`requires`**: the quests it follows (`after`, `quest_done` each), the quests it runs during (`during`,
   `quest_active`), then the realm, then its other conditions (`needs`: an unlock, a companion owned). This is the
   order the hand quests had.
@@ -149,34 +151,41 @@ the pacing is tuned for:
 
 | Band | Side quests | Cultivation × | Taels × |
 |---|---|---|---|
-| Bone Forging | 13 (12 before E5's own) | 0.17 (0.15) | 1.75 (1.78) |
-| Qi Kindling | 20 (19) | 0.60 (0.60) | 0.76 (0.74) |
-| Qi Unfurling | 11 (10) | 0.60 (0.60) | 0.86 (0.87) |
-| Heart Tempering | 11 (10) | 0.89 (0.89) | 0.94 (0.96) |
-| Cloud Stride, Spirit Awakening, Heaven Glimpse | 1, 2, 12 | 1.15, 1.24, 3.95 | (no taels) |
-| Sage, Sage Sovereign, Will Manifest, Sphere Lord | 8, 5, 1, 2 | 17.6, 3.25, 5.30, 5.30 | (shown, not checked) |
+| Bone Forging | 10 (13 at E5, 12 before) | 0.20 (0.17, 0.15) | 1.18 (1.75, 1.78) |
+| Qi Kindling | 20 (20, 19) | 0.61 (0.60, 0.60) | 0.85 (0.76, 0.74) |
+| Qi Unfurling | 9 (11, 10) | 0.60 (0.60, 0.60) | 0.90 (0.86, 0.87) |
+| Heart Tempering | 13 (11, 10) | 0.90 (0.89, 0.89) | 0.92 (0.94, 0.96) |
+| Cloud Stride, Spirit Awakening, Heaven Glimpse | 1, 5, 12 (1, 2, 12) | 1.15, 1.24, 3.95 | Spirit Awakening 0.50 (Bai Ling's favours; none before) |
+| Sage, Sage Sovereign, Will Manifest, Sphere Lord | 4, 9, 1, 2 (8, 5, 1, 2) | 17.6, 3.25, 5.30, 5.30 | (shown, not checked) |
 
 These figures count every side quest, the hand-written lessons too. A Sage side quest pays 17.6 times an hour of play
 for ten minutes, by design: Act II's share of the Sage stages' 315,000 need. The pacing still lands every realm within
-±15%. Qi Kindling 1 moved from 4.8 h to 4.9, Heart Tempering 1 from 19.4 h to 19.8 and the act's end from 64.5 h to
-65.0, against targets of 5, 20 and 65.
+±15%:
+- at E5, Qi Kindling 1 moved from 4.8 h to 4.9, Heart Tempering 1 from 19.4 h to 19.8, and the act's end from 64.5 h
+  to 65.0;
+- at E5b, Qi Kindling 1 is at 4.5 h, Heart Tempering 1 at 18.8 and the act's end at 64.4, against targets of 5, 20
+  and 65 ("Balance fixes (E5b)" below).
+
+The counts in brackets are E5's, then those before E5.
 
 ## Pins
 
 Every derived value can be pinned in the spec, never in the JSON (audit 45 §6, rule 3):
 
 - `target_room="..."` pins the room, and `target_room=None` leaves it out;
-- `realm="..."` pins the realm, and `realm=None` leaves it out. `requires={...}` pins all of `requires`;
+- `realm="..."` pins the realm, and `realm=None` leaves it out. `requires={...}` pins all of `requires`. `realm=ROOM`
+  is not a pin: the room's band still decides it;
 - `pay=40` pins the sum (in the band's currency), `pay=stones(50)` pins the currency too, and `pay=None` pays no
-  money;
+  money. A pinned pay needs `why="..."`, the story's one-line reason: a big favour, a tiny errand, or a title or goods
+  instead of money. `--check` fails a pinned pay without one, and `--diffs` prints each reason;
 - `name="..."` pins the title, and a step's text is always its own when given;
 - `row={key: value}` pins a key of the finished row. A key the row has keeps its place, and a new one goes at the end.
   `DROP` takes one out;
-- `job(..., levels=(lo, hi))` pins a daily job's Levels.
+- `job(..., levels=(lo, hi), why="...")` pins a daily job's Levels, with its reason.
 
 ## The daily board
 
-`specs/dailies.py`: six templates (Hunt, Gather, Mine, Deliver, Craft, Spar), 19 jobs.
+`specs/dailies.py`: six templates (Hunt, Gather, Mine, Deliver, Craft, Spar), 21 jobs.
 
 A job is a template step and the Levels it is posted at. When the spec doesn't give them, the Levels come from the
 monster engine's foe, or from the node's rooms:
@@ -184,9 +193,25 @@ monster engine's foe, or from the node's rooms:
 - a node runs from one Level under the first field band it grows in to twenty over;
 - anything else may be posted at any Level of the board, up to 70.
 
-Nine of the 19 jobs take their derived Levels; ten keep theirs pinned. The objective's text comes from the names, and
-all 19 are what the hand table said. `QuestAuthority._fill_board` posts them and pays them at the Level they are posted
-at, as before.
+20 of the 21 jobs take their derived Levels. Jadeiron keeps its pin, with its reason. The objective's text comes from
+the names. `QuestAuthority._fill_board` posts the jobs and pays each at the Level it is posted at, as before.
+
+E5b held each job to its band. A job pays the poster's Level, so a hunt posted far over its foes pays a high Level for
+easy fights. E5 had pinned ten jobs to keep the hand table's Levels:
+- Six hunts were one or two Levels off their foes' bands. They follow them now.
+- Wolves in the mist ran to Level 70, twenty over the wolves (46 to 50). It follows its band now (45 to 54). Two new
+  hunts take the late Act I Levels with foes of their own: Stags on the ridge (Hollow Stags, 54 to 63) and Rocs over
+  the shrine (Cloudpeak Rocs, 57 to 67), on the Sacred Ridge.
+- Ember Peppers, Mist Lotus and Copper follow their nodes. Mist Lotus ran to 70; it now runs 18 to 38, to Level 33
+  of the last field it grows in plus E5's reach of twenty.
+- Jadeiron keeps Level 12 for its first, an adept's vein, and stops at 40, four over the Echo Cliffs (its last
+  veins). It used to run to 70.
+
+`engine.py --check` now fails a job posted far from what it asks. For a hunt, that is its foe's first Level more
+than four over the job's lowest Level, or its last more than eight under the job's highest (the quests' bounds). For
+a gathering, it is the first field more than four over, or the last more than twenty under (`far_jobs`). Above Level
+40 the board has no gathering or mining job. The nodes there want an expert's rank, and their Levels are left for a
+later look.
 
 ## Adding a quest
 
@@ -202,7 +227,8 @@ at, as before.
    python3 tools/content/quests/engine.py --show <id>     # the room, the realm, the tier, the band and the pay it chose
    git diff data/                                          # only the new row (and a reward source in docs/wiki/items.md)
    ```
-3. Pin what reads wrong in the spec: a room that isn't where the story means, a realm, a sum.
+3. Pin what reads wrong in the spec: a room that isn't where the story means, a realm, a sum (with its `why`). If
+   `--check` finds the quest far from its room, move its target or let it open later (`realm=ROOM`).
 4. `python3 tools/content/quests/engine.py --check`, then `tools/run_tests.sh`.
 
 ## The checks
@@ -211,20 +237,25 @@ at, as before.
   - two compiles write the same rows and the same board;
   - every spec resolves: its giver and hand-in are people, every foe, item, person and room it names exists, every
     item it gives exists, and a step that leads somewhere finds a room in the built data (or pins one);
+  - every pinned pay, and every pinned job's Levels, gives its reason (`why`, E5b);
   - the built data holds every quest as the engine writes it. Each one's pay is settled at its built tier, its keys
     are in order and the sections are in order. `story.py` adds only `qp`, `tier` and `cultivation`. Each one's
     cultivation is phase 1's at its tier. `mission_templates.json` is the engine's board;
   - each band holds one need and pays a known currency;
-  - `tests.py`, 9 tests on a world of their own:
+  - the rooms and the board (E5b). No quest's room lies more than four Levels over its built tier or eight under it
+    (`far_rooms`). No daily job is posted far from its foe or its nodes (`far_jobs`);
+  - `tests.py`, 10 tests on a world of their own:
     - the row's layout;
     - the templates and the default texts (plurals);
     - every room rule (ties, gated spawns, quest drops, a giver who is the target);
-    - the realm and `requires`;
+    - the realm and `requires`, `realm=ROOM` among them;
     - the pay and the key order (`PAY`, every kind of pay pin, `settle`, `row` and `DROP`);
     - the bands against phase 1's numbers at every Level;
     - the board (key order, derived and pinned Levels);
-    - the errors;
-    - today's specs (E5's own quests carry no pins; the favours are their template's).
+    - the errors, a pin without its reason among them;
+    - the far rooms and jobs;
+    - today's specs. E5's own quests carry no pins, the favours are their template's, every pinned pay has its
+      reason, and nothing is far from its room.
 - **`build_data.py --check`**: `quests.json` and `mission_templates.json` are what `story.py` and `economy.py` write.
 - **`story.validate`**: every quest's people, items, foes and rooms exist, and every giver is placed.
 - **`balance_sim`**: the pacing, and the side quests' pay an hour above.
@@ -278,41 +309,10 @@ E5's four new quests take 26 lines, comments included, and none of them names a 
 The prologue's two errands stay too. These are `unlocks.json`'s guided quests and the story's beats, not side
 quests. A lesson could become a template later (`use_system` from an unlock), but none is migrated here.
 
-### Where the hand quests pay otherwise than their band
+### What the migration pinned
 
-These are pinned in the specs, so nothing changed. Some may be balance bugs worth a later look; none is fixed here.
-`engine.py --diffs` prints this table. Each band's sum in the table above is the middle value of its hand quests.
-
-| Band (its pay) | Quests that pay otherwise |
-|---|---|
-| Bone Forging 1 (30 taels) | Tie Niu's three favours: 80 |
-| Bone Forging 3 (40 taels) | Dou's Kite Returns 50; Dou Wants to Train, no money (a title) |
-| Bone Forging (90 taels) | Copper for the Bellows 100 (and the old hammer), Auntie Rong's Soup 80 |
-| Qi Kindling (120 taels) | Kai's Wager 150; Guo's Old Wound 80; Lan Yue's and Qiu Feng's six favours 80; Old Pan's three errands, no money (spirit stones, a flag) |
-| Qi Unfurling (200 taels) | A Hall of Our Own 300, Walls of the Vale 400; Bai Ling's three favours 80; A Second Try, no money (a title) |
-| Heart Tempering (200 taels) | Su Qing's Map 250, Old Scores 300, Grey Roofs 120, Cleansing the Well 150; Min's First Caravan, no money (spirit stones) |
-| Cloud Stride (250 taels) | Wen Zhao's Challenge, no money (a title) |
-| Heaven Glimpse (400 taels, +3,000) | A-Lan's Herd: 50 spirit stones and +1,200, an Act II quest at an Act I tier paying Act II's share |
-| Sage (90 spirit stones) | Snow for the Cabinet 40, Clear Skies 70, Silk on the Wind 80, Glass Teeth 110, Stingers for the Hold 120, Blood Remembers 100 |
-| Sage Sovereign (120 spirit stones) | The Deserters 160, Iron from a Comet 150, What the Bones Say 100, The Sound of Snow 100 |
-| Sphere Lord (30 sage crystals) | The Leviathan's Maw 200 (a world boss) |
-
-The companions' twelve favours all pay 80 taels and a bond, whatever their tier: that is their template's pin.
-
-`--diffs` also lists the quests whose room lies far from their tier: more than four Levels over it (the kill gap's
-full-credit band) or eight under. These are worth the same look:
-- Grey Roofs pays Heart Tempering 1's +670 for the Grey Pools, Levels 7 to 12: the hamlet opens at the quest's own
-  realm.
-- Tie Niu's favours are pitched at Bone Forging 1, from the plain grade of the copper the first asks for. The third
-  sends you to the Echo Cliffs, Levels 32 to 36, for +60.
-- Lan Yue's oath (Levels 21 to 27) is pitched at Qi Kindling 1, and Qiu Feng's One Arrow (Levels 32 to 36) at Qi
-  Kindling 2.
-- Bai Ling's three favours are pitched at Qi Unfurling 1, but the jade sentinels live in the Forgotten Monastery,
-  Levels 50 to 56.
-- In Act II, four quests of the canyons and the desert are pitched three to ten Levels under their rooms. These are
-  Silk on the Wind, Plumes for the Bellows, Glass Teeth and Stingers for the Hold, and their tiers come from the story
-  quest they follow.
-- So are Iron from a Comet, Clear Skies over the Peak and The Leviathan's Maw.
+To come out byte for byte, E5 pinned 35 sums and paid 7 quests no money, whatever the reason. It also kept 14 quests
+whose rooms lie far from their tiers. E5b fixed both: see "Balance fixes (E5b)" below.
 
 ## The first new quests: four rooms that had none
 
@@ -329,4 +329,131 @@ Fisher Gan is home only once the well runs clean (E3). His quest follows Cleansi
 and pays that quest's band. Each is one spec of five to seven lines. The data diff is their four rows, plus their
 rewards as sources in `docs/wiki/items.md`.
 
-**Engine size.** `spec.py` 212 lines, `bands.py` 87, `engine.py` 637, `tests.py` 204; the specs 353.
+**Engine size.** At E5: `spec.py` 212 lines, `bands.py` 87, `engine.py` 637, `tests.py` 204; the specs 353. At E5b:
+`spec.py` 217, `engine.py` 703, `tests.py` 235; the specs 381.
+
+## Balance fixes (E5b)
+
+Decision 45 pays every quest a fixed number of cultivation points, never a share of the stage. The migration kept
+the hand quests' balance bugs as they were. E5b fixed them in the specs:
+- each quest sits at a tier where its room is a fair fight;
+- each quest pays its band unless its spec gives a reason;
+- each daily job is posted at its foe's or its nodes' Levels.
+
+`engine.py --check` now holds all three, so a later quest or a moved room can't bring them back.
+
+### Rooms at their tiers
+
+A quest's room was far from its tier when the room's Levels started more than four over the tier, or ended more than
+eight under it. 14 quests were. A quest's tier is where `quest_tiers` pitches it: its realm, the quests it follows, or
+the unlock that offers it. Each quest now opens where its room is a fair fight, or leads somewhere else.
+
+| Quest | Room (Levels) | Tier before | Tier now | How |
+|---|---|---|---|---|
+| Grey Roofs | the Grey Pools (7-12), then the hamlet's roofs | Heart Tempering 1 | Heart Tempering 1 | The Grey Pools' fight is gone, and the quest is the two grey lanterns on the hamlet's roofs. Its design always had the lanterns (`docs/v2_audit/p1_traversal.md`), and the hamlet's door opens at Heart Tempering 1 |
+| Lan Yue's Oath | the Flooded Gate (21-27) | Qi Kindling 1 | Qi Unfurling 6 | `realm=ROOM` |
+| Stronger Than Stone (Tie Niu) | the Echo Cliffs (32-36) | Bone Forging 1 | Heart Tempering 7 | `realm=ROOM` |
+| One Arrow (Qiu Feng) | the Echo Cliffs (32-36) | Qi Kindling 2 | Heart Tempering 7 | `realm=ROOM` |
+| Lines on the Floor, The Broken Array, Bai Ling's Formation | the Forgotten Monastery (50-56) | Qi Unfurling 1 | Spirit Awakening 8 | the room's realm: the first now has its room and derives it, and the rest use `realm=ROOM` |
+| Silk on the Wind | the Kite Winds (74-76) | Sage 2 | Sage Sovereign 1 | `realm=ROOM` (it was pinned at Sage 2) |
+| Plumes for the Bellows | the Harpy Roosts (75-78) | Sage 2 | Sage Sovereign 2 | `realm=ROOM` |
+| Stingers for the Hold | the Scorpion Flats (75-78) | Sage 3 | Sage Sovereign 2 | `realm=ROOM` |
+| Glass Teeth | the Worm Sea (77-81) | Sage 3 | Sage Sovereign 3 | `realm=ROOM` |
+| Iron from a Comet | the Pirate Deck (78-81) | Sage Sovereign 1 | Sage Sovereign 3 | `realm=ROOM` |
+| Clear Skies over the Peak | the Riven Peak (79-81) | Sage Sovereign 1 | Sage Sovereign 3 | `realm=ROOM` |
+| The Leviathan's Maw | the Leviathan's Maw (97-99) | Sphere Lord 1 | Sphere Lord 3 | `realm=ROOM` |
+
+The companions' favours were the worst case. A favour opens once its companion travels with you, but `quest_tiers`
+pitched each chain from what its first favour asks for. Tie Niu's chain sat at Bone Forging 1, from the plain grade
+of the copper. A companion first joins at Qi Kindling 5 (Two Hands Full), so a chain could never start before then,
+and its last favour sent the player to the Echo Cliffs for +60.
+
+The favours' template now does three things:
+- The first favour also asks for the Companions unlock, so `quest_tiers` pitches it at Qi Kindling 5. The Herb Thief,
+  A Cure for Stoneford, Iron Ox's Debt, The Quarry Fight, The Missing Hunter and Crane Falls at Dawn sit there now.
+  They used to sit at Bone Forging 1 and Qi Kindling 1 and 2.
+- Every favour leads to its room. A Cure for Stoneford keeps none: its ginseng grows a patch a field all over the
+  valley, so the tracker finds the nearest.
+- Every favour waits for its room's realm (`realm=ROOM`).
+
+The second companion joins at Heart Tempering 6 (Brothers in Arms). Their first two favours are then easy errands
+that pay their own band.
+
+The story of Acts II and III sends the player as far past its rooms as these side quests did, six to eight Levels
+over. That is outside the specs:
+- Frost and Silence: Sage 1 at the Rimefrost Summit (70-72);
+- The Canyon Toll: Sage 2 at the Canyon Mouth (73-75);
+- The Sealed Gate: Sage 3 in the Worm Sea (77-81);
+- The Admiral: Will Manifest 1 on the Flagship Deck (90);
+- The Last Egg: Will Manifest 2 in the Hatching Cave (92-93).
+
+The main story and the rooms decide these. They are left for a later look.
+
+### Each pin with its reason
+
+A quest pays its band unless its spec says why (`why="..."`). E5 had 35 pinned sums and 7 quests with no money. Now
+46 pay their band, 4 pin a sum and 7 pay no money. Each of those 11 gives its reason:
+
+| Quest | The band pays | It pays | Why |
+|---|---|---|---|
+| Guo's Old Wound | 120 taels | 80 taels | a tiny errand: one salve from Granny Liu's shelf, in the village |
+| Min's First Caravan | 200 taels | no money | a trader pays in goods: three low spirit stones from the caravan's first trade |
+| Wen Zhao's Challenge | 250 taels | no money | a title instead of money: a rival's respect |
+| A Second Try | 200 taels | no money | a title instead of money: Guo's Student |
+| Dou Wants to Train | 40 taels | no money | a title instead of money: Big Sibling |
+| Old Pan's three errands | 120 taels | no money | Old Pan pays in kind: two, then four low spirit stones, then a better pick of his wares |
+| Snow for the Cabinet | 90 spirit stones | 40 spirit stones | the apothecary pays in her own pills: three Storm Blood Pills, and 40 stones |
+| A-Lan's Herd | 400 taels | 50 spirit stones | the plains pay in spirit stones, Act II's money, though its tier (Heaven Glimpse 3) is an Act I band's |
+| The Leviathan's Maw | 30 sage crystals | 200 sage crystals | a world boss: the Nebula Leviathan, and the lantern ships run the Deep again |
+
+The other 31 pins had no reason in their quest's words, so E5b dropped them and those quests pay their band:
+- Act I:
+  - Copper for the Bellows (100 to 90 taels), Auntie Rong's Soup (80 to 90), Kai's Wager (150 to 120), Su Qing's
+    Map (250 to 200) and Old Scores (300 to 200);
+  - Dou's Kite Returns (50 to 40), Grey Roofs (120 to 200) and Cleansing the Well (150 to 200);
+  - A Hall of Our Own (300 to 200) and Walls of the Vale (400 to 200);
+  - the twelve favours, from a flat 80 taels to their band (120 to 300) beside their bond.
+- Act II:
+  - Clear Skies (70 to 90 spirit stones), Silk on the Wind (80 to 120), Glass Teeth (110 to 120), Stingers for the
+    Hold (120, now its band's), The Deserters (160 to 120) and Iron from a Comet (150 to 120);
+  - Blood Remembers (100 to 90), What the Bones Say (100 to 120) and The Sound of Snow (100 to 120).
+
+Every quest still pays a number of cultivation points, its band's at its tier. A-Lan's Herd pays +1,200, not the
+band's +3,000. It is in Act II's section, so `story.py` pays it Act II's share of a stage. That is a rule of the
+sections, not a pin.
+
+### Pacing (balance_sim)
+
+The pacing moved earlier through Act I. Most of the change is Tie Niu's three favours, which left Bone Forging 1. The
+sim had counted their 30 minutes of detour there, though they can't start before Qi Kindling 5. Every realm is still
+within ±15% of its target.
+
+| Realm | Target (h) | Before E5b (h) | After (h) |
+|---|---|---|---|
+| Qi Kindling 1 | 5 | 4.9 | 4.5 (0.89) |
+| Qi Unfurling 1 | 13 | 12.5 | 11.7 (0.90) |
+| Heart Tempering 1 | 20 | 19.8 | 18.8 (0.94) |
+| Cloud Stride 1 | 30 | 30.6 | 29.6 (0.99) |
+| Spirit Awakening 1 | 42 | 43.8 | 42.9 (1.02) |
+| Heaven Glimpse 1 | 55 | 56.8 | 56.1 (1.02) |
+| The act's end | 65 | 65.0 | 64.4 (0.99) |
+| Sage 1 | 70 | 65.0 | 64.4 (0.92) |
+| Sage Sovereign 1 | 110 | 106.2 | 105.5 (0.96) |
+| Sphere Lord 3 (no target) | 140 to 235 | 164 | 163 |
+
+Four Act II side quests moved from the Sage stages, where a side quest pays +13,000, to Sage Sovereign, where it pays
++2,400. Sage Sovereign 1 barely moves, because the Sage stages are paced by their floor: at least a fifth of each
+stage is gathered by play, however much its quests pay.
+
+The pay an hour of detour (above, "What it pays an hour") stays inside both Act I checks.
+
+### The tests that play them
+
+- `topdown_chapter4` plays Grey Roofs as the roofs: the lanterns on the hall and the granary. It dropped three
+  checks, the Grey Pools' fight (47 to 44).
+- `valley_run` plays each moved Act II quest at its new realm:
+  - the canyon pair and Stingers for the Hold at Sage Sovereign 2;
+  - Glass Teeth and Iron from a Comet at Sage Sovereign 3;
+  - The Leviathan's Maw at Sphere Lord 3.
+
+  Before each, it checks that the quest is not yet offered.
