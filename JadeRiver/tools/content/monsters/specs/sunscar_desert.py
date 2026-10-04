@@ -30,4 +30,5 @@ species("dune_worm", plan="serpent.worm", share=True, size=3.6, shadow=(18, 6), 
         data=dict(level=(77, 81), role="normal", element="earth", page="azure", drops=[("worm_glass_tooth", 0.45), ("storm_shard", 0.6, (1, 3))],
                   attacks=[("sand_burst", 0.7, 130, 1.5, dict(depth=50, knockback=110)),
                            ("glass_spit", 0.8, 300, 1.1, dict(projectile={"speed": 460, "art": "pebble"}))],
-                  ai="burrower", speed=100, width=44, height=80))
+                  ai="burrower", speed=100, width=44, height=80),
+        sound=dict(body="slime", tell="water"))
