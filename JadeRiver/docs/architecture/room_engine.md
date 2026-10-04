@@ -1331,22 +1331,22 @@ Gate.
 - Foes with no top-down sheets yet (the view draws stand-ins; M-batches): the starsea pirate, wind kite, comet sparrow,
   star jellyfish, orbit moth, gravity golem, Ashborn raider, Ashborn pyre keeper, General Kharn, hollow drone, hollowed
   wyrmling, nebula eel, void crab and the Nebula Leviathan.
-- Mechanics with no top-down counterpart yet (another batch's):
-  - **Gravity switches and low gravity.** A switch turns and counts on the grid (`gravity_switched`, the quest's
-    `use_system`), and its plates mark where its volume lies, but the air does not lighten: the side view's
-    `low_gravity` volumes (`lowg_stair`, `lowg_garden`, `lowg_hall_a`, `lowg_hall_b`) have no grid rows. The Inverted
-    Hall's high gallery is a flight here, where the side view asks for the light air.
-  - **The Starsea crossing.** Its event plays on the grid by the one rule (the waves at the layout's cells, the voyage
-    making port: `topdown_starfield`), but the vessel does not move: no sky scrolling past, no star-water. The star
-    wind is a room hazard and blows on the grid.
-  - **The Leviathan's arena.** The Leviathan surfaces and dives in the side view's nebula; on the grid it stands and
-    fights on the shoal. The eels walk the reefs. A swimmer's floor (deep water a foe moves in) is the mechanic.
-  - **No-flight rooms** (the Inverted Hall, the Maw, both crossings) hold on the grid (`flight_allowed` reads the room);
-    no room here has a no-flight volume.
-- Light and art the kit does not have: the star field's backdrops have no TopdownLight area, so these rooms follow the
-  day's clock where the side view's sky is always night; the new lit props give no light at night (`PROP_LIGHTS`); the
-  nebula and the Starsea draw as the river's water, the void under the islands as the cloud sea. A star-field area, a
-  star-water paint and a void vista are game code and terrain art, outside a room batch.
+- ~~Mechanics with no top-down counterpart yet~~ (T3, `topdown_mechanics.md`):
+  - ~~**Gravity switches and low gravity.**~~ The side view's four `low_gravity` volumes (`lowg_stair`, `lowg_garden`,
+    `lowg_hall_a`, `lowg_hall_b`) are `# T3` rows in `orbit_ruins.py`, each live while its switch holds it
+    (`toggle_gravity` sets them). In the light air a standing jump climbs 1/0.45 as high: the Inverted Hall's high
+    gallery is climbed from its foot, as the side view asks (its flight stays the grid's way up besides).
+  - ~~**The Starsea crossing.**~~ The vessel is under way: the star-water streams west past the hull on the crossing's
+    deck, and the Starsea round it has stars glinting in it.
+  - **The Leviathan's arena.** The Leviathan is the side view's flier; on the grid a flier goes straight over water, so it
+    crosses its lagoon (T3 checks it). Its swim's look waits on its sheet's `swim` row (the late monster batch). The
+    eels walk the reefs.
+  - **No-flight rooms** (the Inverted Hall, the Maw, both crossings) refuse flight on the grid as the side view does
+    (`flight_allowed` reads the room; T3 checks each); no room here has a no-flight volume.
+- ~~Light and art the kit does not have~~ (T3): the star field's backdrops are the story's night on the grid
+  (`TopdownLight`'s `STAR_VOID`), the new lit props give light (`PROP_LIGHTS`), the brinks fall into a starry void
+  (`TopdownVista`), and the nebula's and the Starsea's water is star-water (`StarWaterView`, a wash and stars over the
+  river's paint; a star-water paint of the tile set's own is still art for later).
 
 **The frontier now** (R9, with R8 merged): there is none. Every way out of an R9 room leads to a room on the grid. The
 Citadel Gate's skiff to Lanternfall's Arrival Quay and the Wick Gate's stair down to the Harbor Market are open, and so

@@ -97,13 +97,19 @@ frame through the glide.
   motor applies that share to the fall and never to the jump, so a standing jump climbs 1/0.45 as high (104 units, past
   three levels) and hangs longer. The World authority's `toggle_gravity` (the switch's own call) sets the layout's rows as
   it sets the side view's geometry. The view's motes rise off the floor while it is live, a faint ring of them lies along
-  its edge while it is off.
+  its edge while it is off. The Orbit Ruins' four volumes are rows: the Tumbling Stair's over the middle of the room, the
+  Orbit Garden's over its east, and the Inverted Hall's two, its west half and its east half. Each spans its side
+  volume's run east to west and the room's whole depth, under the switch in its ring. In the Inverted Hall, with the east
+  switch turned, a standing jump at the high gallery's foot climbs onto it, as the side view's does (its flight of stairs
+  is the grid's own way up besides).
 - **The Starsea's docks.** A dock (`starsea_dock`: the Shipwrights' Yard, the Broken Pier, the Launch, the Arrival Quay)
   sets sail with its own call. The prototype's gate (decision 41) now holds a dock as it holds a way: while the route's
   crossing deck or its far port has no layout, `set_sail` refuses with "The road beyond is still being drawn." and the
   side view is never entered. With both laid out the voyage plays on the grid: the crossing's event runs for the
   vessel's time (its foes come aboard at the layout's event cells, `grid_event`), and `voyage_arrive` makes port at the
-  far pier. The sky-ships' ferries (the Skydock's, the Alliance Gate's, the lake's, the skiffs) are the side view's doors
+  far pier. R9 laid both crossings out, so all four routes sail on the grid; on the crossing's deck the star-water
+  streams west past the hull (`VoyageView`), the vessel under way. The sky-ships' ferries (the Skydock's, the Alliance
+  Gate's, the lake's, the skiffs) are the side view's doors
   that a body presses up into: on the grid they are ways at their gangways, walked into or taken with the context button
   under the door's label. That is the whole of the side view's boarding; it has no boarding moment beyond it.
 - **The late zones' light.** The Tomb of Sunscar's halls and the Clan Hearth's cavern are lamp-lit at any hour (the
@@ -113,8 +119,17 @@ frame through the glide.
   cook fire light their pools. Past the Lantern Star Field (the Citadel, the Orbit Ruins, the Ashen Reach, the Nebula
   Deep, the Starsea's crossings: `STAR_VOID`) an island's brink falls into the starry void, not the sea of cloud: the
   vista under the cliff is dark indigo bands with a nebula's haze across and stars on a lattice that slides slower than
-  the room, some twinkling; the Starsea's water round a crossing's deck has the same stars glinting in it. The Wardens'
-  lamps and caged stars, the Ashborn pyres and the Lantern Heart's wick pillars and flame basins give their light.
+  the room, some twinkling; the Starsea's water round a crossing's deck has the same stars glinting in it. The rooms' own
+  water there (the nebula's, the Starsea's) is star-water: an indigo wash over the river's paint, stars glinting in it
+  (`StarWaterView`). The Wardens' lamps and caged stars, the Ashborn pyres and the Lantern Heart's wick pillars and flame
+  basins give their light.
+- **The Leviathan's lagoon.** The side view's Nebula Leviathan is a flier (`flying`), and no water volume holds it: its
+  fight is on the Maw's ground. On the grid a flier goes straight over water, so the Leviathan crosses its lagoon as it
+  likes, surfacing on the shoal where it spawns. Its swim's look is its sheet's: decision 44's rule plays a foe sheet's
+  `swim` row wherever the foe is over water, as the marsh leech's does, so the Leviathan swims once its sheet (the late
+  monster batch) has that row.
+- **No-flight rooms past the Field.** The Inverted Hall, the Leviathan's Maw and the two crossings refuse flight by room,
+  as the side view does; the hold glides.
 - **Presentation.** The swim's stroke: a pull every 0.9 s while the swimmer moves, the walk's frames once through and the
   pace surging 15 % on it, then a glide on the walk's rest frame; each pull leaves a ring spreading on the water. A
   bounce gives as it launches a body: the drum's skin pressed in, the lotus leaf pushed into the wet, the culm bowed,
@@ -154,10 +169,11 @@ on the grid: a pole's top is off the ground, the court's floor is not.
 
 43 side-view-only mechanics in four groups: traversal 18, hazards 10, room events and waves 10, other 5. After T2 the
 grid covered 39 of them: all 18 of traversal, 8 hazards, 9 events and 4 others. T3 covers the four T2 left: the cracked
-slab, low gravity and its jade switches (the machinery, and the Orbit Ruins' rows once their layouts are on the grid),
-and the Starsea crossing (the docks gated until the crossings' decks are laid, then played). No-flight volumes and the
-docks' routes have their grid parts too. What is still missing is in the to-do at the end: the mounts' art and the
-Cloudwing Cranes' sheets (art batches), and the star field's rows where its rooms are not yet on the grid.
+slab, low gravity and its jade switches (the machinery and the Orbit Ruins' four rows), and the Starsea crossing (the
+docks gated while a crossing or its port has no layout, played on the grid now that both crossings are laid). No-flight
+volumes and the docks' routes have their grid parts too. Every side-view-only mechanic now has a top-down version. What
+is left is art, in the to-do at the end: the mounts' rider pose and sheets, a flying pose, and the late foes' swim rows
+(M2 drew the Cloudwing Cranes).
 
 "Rooms" counts the side-view rooms that use the mechanic. "On the grid" says what the grid does for them.
 
@@ -195,7 +211,7 @@ Cloudwing Cranes' sheets (art batches), and the star field's rows where its room
 | Spike pits | hazard volumes | Tunnels ×2 | **Yes (T2):** `hazard` rows under the planks; a body fallen into a pit is struck by the side volume's spikes. T3: the pits open beside their planks, their spikes striking a body standing on them |
 | Ice | ice volumes (traction) | Frozen Shrine, Rimefrost ×2 | **Yes (T2)** for the Frozen Shrine's court and terrace (`ice` rows). **T3:** Frostpine Climb's high trail and Rimefrost Summit's plateau |
 | Wind volume | wind volumes | Windswept Ridge | **Yes (T2):** the ridge's `wind` row, beside its `wind_gust` hazard |
-| Low gravity | low_gravity volumes | Orbit Ruins ×3 | **Yes (T3):** `low_gravity` rows, the side volume's share of the fall while its jade switch holds it; the jump climbs 1/0.45 as high |
+| Low gravity | low_gravity volumes | Orbit Ruins ×3 | **Yes (T3):** `low_gravity` rows, the side volume's share of the fall while its jade switch holds it; the jump climbs 1/0.45 as high. The Tumbling Stair's, the Orbit Garden's and the Inverted Hall's two are rows; the hall's high gallery is climbed in the light air |
 | Room hazards (strike, aura, gust, pool, flow: 16 kinds) | `WorldHazards`, `HazardRules` | 27 room uses | **Yes**, on the World authority: strikes fall on the grid's floors, auras find their shelters by placed objects, gusts drift the body, pools and flows take the layout's `areas` (T2: the Rapids' strand and white water) |
 | Cracked slab | cracked blocks broken by a Plunge | Lower Pit | **Yes (T3):** a `crack` row a level over the pit's floor, the shards sealed under it; a Plunge breaks it for the visit and strikes on the floor below |
 
@@ -220,10 +236,10 @@ All covered by the one rule above:
 | Mechanic | On the grid |
 |---|---|
 | Teleport stones, transfer arrays | **Yes**: objects at the layout's cells (R4: a teleport lands in front of its stone) |
-| No-flight rooms | **Yes**: `flight_allowed` reads the room and its type. **No-flight volumes (T3)**: `no_flight` rows (no side-view room has one yet), the same feedback (the hold glides, a flight comes down) |
+| No-flight rooms | **Yes**: `flight_allowed` reads the room and its type (R9's Inverted Hall, Leviathan's Maw and crossings among them). **No-flight volumes (T3)**: `no_flight` rows (no side-view room has one yet), the same feedback (the hold glides, a flight comes down) |
 | Sealed climbables | **Yes**: a climb row asks `climbable_open`, and T2's hatches seal the four rooms' stairs by the same rule |
 | Cloud Lung's air distance | **Yes (T2)**: on the grid `CombatFlight._air_distance` counts the plane's speed (in the side view, x alone) |
-| Gravity switches | **Yes (T3)**: `toggle_gravity` sets the layout's `low_gravity` rows tied to the switch, as it sets the side view's volumes |
+| Gravity switches | **Yes (T3)**: `toggle_gravity` sets the layout's `low_gravity` rows tied to the switch, as it sets the side view's volumes; the Orbit Ruins' four switches are turned on the grid with their own interact |
 
 ## Tested
 
@@ -270,13 +286,14 @@ T3's parts (the low gravity's floor and a no-flight volume are laid on the Falls
     a Plunge from over it breaking it and striking on the floor below, the shards shown and taken, the slab whole again
     on the next visit;
 26. Frostpine Climb's and Rimefrost Summit's ice, the side view's traction: a sprint let go slides on;
-27. no-flight: the Windbridge, Old Ma's store (an interior) and the Tunnels (a dungeon) refuse it and the hold glides; a
-    flight into a no_flight volume ends there (`flight_ended`, `no_flight`) and comes down, and the hold glides inside it;
+27. no-flight: the Windbridge, Old Ma's store (an interior), the Tunnels (a dungeon), the Inverted Hall, the Leviathan's
+    Maw and the Starsea crossing refuse it and the hold glides; a flight into a no_flight volume ends there
+    (`flight_ended`, `no_flight`) and comes down, and the hold glides inside it;
 28. low gravity: off until its switch is turned through `toggle_gravity`, then a standing jump climbs 1/0.45 as high and
     hangs longer; turned again, gravity is back;
-29. the Starsea's four docks: each refused by the prototype's gate while its crossing or its port has no layout; with
-    both laid out, sailed, the crossing's foes aboard on the deck's floors, port made; the yard's chart table and
-    slipway open their pages from the grid;
+29. the Starsea's four docks: the yard's refused by the prototype's gate with R9's rooms stood off the grid
+    (`tests/lib/off_grid.gd`); all four sailed, the crossing's foes aboard on the deck's floors, port made; the yard's
+    chart table and slipway open their pages from the grid;
 30. the late zones' light: the tomb and the Clan Hearth lamp-lit at noon, the sky-sea zones at the story's night, every
     star lantern on the Arrival Quay lit;
 31. R8's two played by shortcut: the Jellyfish Shallows waded at 0.7 of the pace, and Spirit Sense's pulse showing the
@@ -290,7 +307,13 @@ T3's parts (the low gravity's floor and a no-flight volume are laid on the Falls
 36. the Tunnels' pits lie open a row either side of the planks: the spikes strike a body standing on them, the planks
     do not;
 37. on the Windswept Ridge the wind pushes its edge factor's harder by a drop on a diagonal;
-38. a flier three levels up is drawn as far south as it is high (over the crowns below it), at its feet again landed.
+38. a flier three levels up is drawn as far south as it is high (over the crowns below it), at its feet again landed;
+39. the star field's end (R9's rooms): the Orbit Ruins' four low-gravity rows, each off under its own switch; the
+    Inverted Hall's east switch turned with its own interact, a standing jump at the high gallery's foot falling back in
+    the heavy air and climbing onto it in the light, then heavy again; the Leviathan flying over its lagoon's water to its
+    shoal; the star field starlit at noon and past its edge, the Lantern Heart lamp-lit; the Citadel Gate's Warden lamps
+    and caged stars lit; the Tumbling Stair's brink over the void; the Nebula Verge's star-water; the crossing's streaks
+    and star-water; the Falls Pool's water still the river's.
 
 Pictures: `tools/dev/capture/capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`:
 
@@ -323,14 +346,22 @@ its own room:
 - `06_hatch_open_old_ma_store`: the storeroom's gate open after The Runaway Kite;
 - `07_lantern_round_upright`: the Hall of Lanterns, the circling lanterns up their round;
 - `08_swim_wake_drowned_grotto`: a stroke's wake behind the swimmer;
-- `09_star_lanterns_arrival_quay`, `10_tomb_lamplit`, `11_clan_hearth_lamplit`: the late zones' light.
+- `09_star_lanterns_arrival_quay`, `10_tomb_lamplit`, `11_clan_hearth_lamplit`: the late zones' light;
+- `12_low_gravity_inverted_hall`: the east switch turned, the light air's motes over the hall's east half under the
+  high gallery;
+- `13_void_tumbling_stair`: the island's brink over the starry void;
+- `14_star_water_nebula_verge`: the nebula's star-water;
+- `15_crossing_deck_starsea`: the crossing's deck in the Starsea, its water streaming past;
+- `16_warden_lamps_citadel_gate`: the Citadel Gate's Warden lamps lit at the story's night.
 
 ## To do, in order
 
-T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act II on. What is left, in order:
+T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act II on. Every mechanic is on the grid;
+what is left is art, in order: the mounts' rider pose and sheets (item 12), a flying pose (item 16), and the late foes'
+swim rows (item 18).
 
-1. ~~**Wings of Cloud**~~: Cloud Lung's air distance counts the plane's speed on the grid (T2). Left: the Cloudwing
-   Cranes, its third objective, need top-down sheets (M2's monster batch).
+1. ~~**Wings of Cloud**~~: Cloud Lung's air distance counts the plane's speed on the grid (T2). The Cloudwing Cranes,
+   its third objective, have their top-down sheets (M2's monster batch).
 2. ~~**Sealed ladders as open stairs**~~: hatches over the four rooms' flights (T2).
 3. ~~**Reed Shallows' driftwood and Bend Shore's ferry**~~: `raft` rows (T2).
 4. ~~**Bounces**~~: the drum, the bent culm and the lotus leaf (T2).
@@ -362,10 +393,14 @@ T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act
 15. ~~**Act II and later, with their rooms**~~ (T3): no-flight volumes (`no_flight` rows; the rooms and types refuse
     flight as the side view's), the Starsea's docks (gated while a crossing or a port has no layout, played once both
     are), low gravity and its jade switches (`low_gravity` rows, `toggle_gravity`), Rimefrost's ice, the late zones'
-    light. The star field's own rows wait on its rooms: item 18.
+    light; the star field's (R9): the Orbit Ruins' four low-gravity rows, the crossings' moving water, the void, star-water
+    and the late props' light.
 16. **Presentation.** T2's own (T3): ~~a swim stroke~~ (a pull and a glide on the walk's own frames, each pull's wake),
     ~~a bounce that gives~~, ~~an open hatch's look~~, ~~the lanterns' circle upright~~. From T1: ~~a flier keyed over
     tree crowns once it is above them~~ (T3: three levels over its floor it sorts as far south as it is high). Left: a
     flying pose (the flier stands on its cloud in the idle pose); it is a new body movement under AGENTS.md rule 4.
 17. ~~**Edge cases T2 leaves**~~ (T3): returning boards wait for the body under them; the pits open beside their planks;
     the wind looks along eight ways.
+18. **The late foes' swim** (art, the late monster batch). The Nebula Leviathan is the side view's flier and crosses its
+    lagoon on the grid (T3), drawn as a stand-in. Its sheet should have a `swim` row, so decision 44's rule plays it
+    over the water, as the marsh leech's does. No mechanic waits on it.

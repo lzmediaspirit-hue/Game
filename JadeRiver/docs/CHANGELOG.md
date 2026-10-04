@@ -5,23 +5,28 @@
 T2 left the grid covering 39 of the side view's 43 mechanics, Act I done but the Lower Pit's slab
 (`docs/architecture/topdown_mechanics.md`). T3 did the to-do from there: the four mechanics left, the late zones'
 "missing top-down" notes (R6 to R9), T2's presentation leftovers and its edge cases. Every side-view-only mechanic now
-has a top-down version; the mounts' art and the Cloudwing Cranes' sheets stay with art batches.
+has a top-down version. What is left is art for the art batches: the mounts' rider pose and sheets, a flying pose, and
+the Leviathan's swim row.
 
 - **The cracked slab** (`crack` rows). The Lower Pit's slab stands a level over the pit's floor. A plain landing holds
   it; a Plunge breaks it for the visit and strikes on the floor below. The spirit stone shards under it are sealed (not
   shown, not offered) until it breaks.
 - **Rimefrost's ice.** Frostpine Climb's high trail and Rimefrost Summit's plateau get T2's `ice` rows. A sheet's glaze
   on open ground now ends raggedly.
-- **No-flight.** No side-view room has a no-flight volume; the rooms and types that refuse flight refuse it on the grid
-  as before. `no_flight` rows are the volumes' counterpart: the hold glides, and a flight carried in comes down
-  (`flight_ended`, `no_flight`).
+- **No-flight.** No side-view room has a no-flight volume. The rooms and types that refuse flight refuse it on the
+  grid, R9's Inverted Hall, Leviathan's Maw and crossings among them. `no_flight` rows are the volumes' counterpart: the
+  hold glides, and a flight carried in comes down (`flight_ended`, `no_flight`).
 - **Low gravity and the jade switches** (`low_gravity` rows). A row takes its side volume's share of the pull and its
   switch; `toggle_gravity` sets the rows as it sets the side view's volumes. While live, a standing jump climbs
-  1/0.45 as high and hangs longer; violet motes rise off the floor.
+  1/0.45 as high and hangs longer; violet motes rise off the floor. The Orbit Ruins' four volumes are rows (the
+  Tumbling Stair's, the Orbit Garden's, the Inverted Hall's two). With the hall's east switch turned, a standing jump
+  climbs onto its high gallery, as in the side view.
 - **The Starsea.** The four docks set sail with their own call on the grid. The prototype's gate holds a dock as it
   holds a way while its crossing or its port has no layout; with both laid out the voyage plays on the grid. On a
   crossing the star-water streams past the hull. The yard's chart table and slipway open their pages from the grid. The
   sky-ships' ferries are the side view's press-up doors: it has no boarding moment beyond that.
+- **The Leviathan's lagoon.** The Nebula Leviathan is the side view's flier, and on the grid a flier crosses water: it
+  goes over its lagoon as it likes. Its swim's look waits on its sheet's `swim` row.
 - **The late zones' light.** The tomb's halls and the Clan Hearth's cavern are lamp-lit at any hour. The sky-sea zones
   and the star field lie under the story's night. Past the Lantern Star Field an island's brink falls into the starry
   void, and the water there is star-water. Star lanterns, the Wardens' lamps and caged stars, braziers, cook fires,
