@@ -41,6 +41,12 @@ and two jade bi rings orbiting it (`rings`). Styles: the sentinel's idle `halber
 `halberd_back`, attack `halberd_sweep`, hurt `armor_rock`, death `topple_crack`; the gate's idle `ring_orbit`, walk
 `ring_stomp`, windup `rings_rise`, attack `ring_sweep`, hurt `ring_wobble`, death `kneel_crack`.
 
+`golem` (M4, the gravity golem): a body of separate chamfered basalt blocks floating apart, held by gravity (indigo
+ripples in its gaps), a faceless hunched head, a violet singularity in its chest, a ring of pale stones orbiting it; it
+takes the guardian's moves with its own styles: idle `orbit_bob`, walk `stomp`, windup `gravity_raise` (the singularity
+swelling, drawing in lines and pebbles), attack `orbit_slam` (a shockwave ring), hurt `gravity_jolt` (its blocks jolted
+apart), death `gravity_fails` (its blocks dropping into a heap).
+
 `chief`, `abbot` and `elder` (M2, the people of size: Big Toad Tan, the Drowned Abbot, Elder Gu): see "the people of
 size" below. Their styles: Tan's `chief_idle`, `chief_waddle`, `cleaver_raise`, `cleaver_slam`, `chief_rock`,
 `chief_fall`; the Abbot's `abbot_sway`, `abbot_glide`, `staff_raise`, `staff_slam`, `abbot_rock`, `abbot_collapse`;
@@ -546,6 +552,8 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
+    if B.parts.get("golem"):
+        return _golem(B, action, f, view)                # M4: the gravity golem
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
@@ -1606,3 +1614,226 @@ def _shoot(P, B, end, tm, action: str, f: int) -> None:
     for t in (0.25, 0.6):
         P.mark(a + (b - a) * t, M.RAMPS[m.node][3])
     P.add(L(b, b + d * 1.0 + tm @ v3(0.4, 0.3, 0.2), 0.35, 0.1, m.leaf, "shoot", line=False))
+
+
+# ================================================================================================= the gravity golem (M4)
+# A construct of dark basalt blocks held together by gravity alone (`golem`): every part of its body a separate chamfered
+# block floating a little off its neighbours (the faces of each lit or shaded by their turn, `_basalt`), a faint indigo
+# ripple of gravity in the gaps between them (its bonds), a hunched faceless head with a visor groove, a violet singularity
+# for an eye in its chest, a ring of pale stones with star notches orbiting it. Its blocks bob out of step with each
+# other; in its tell it hauls both arms overhead as the singularity swells and dark lines and pebbles spiral into it
+# (held); it slams both fists down before it, a shockwave ring racing out along the ground on the blow; struck, its blocks
+# jolt apart and the singularity pinches; beaten, gravity fails and its blocks drop into a heap. It takes the stone
+# guardian's styles (stand, stomp, fists_up, double_slam, knock, crumble) and its own channels: `jolt` (the gaps opening),
+# `well` (the singularity swelling and drawing in, 0..1), `shock` (the ring racing out on the blow).
+GOLEM_STYLES = {
+    "orbit_bob": {"sway_amp": 0.15, "guard": 0.2, "bob": True},
+    "gravity_raise": dict(GUARDIAN_STYLES["fists_up"], well=(0.3, 0.6, 0.9, 1.0),
+                          right=((1.6, -4.6, 3.0), (-0.2, -3.8, 8.0), (-1.0, -3.4, 9.6), (-1.2, -3.4, 9.8)),
+                          left=((1.6, 4.6, 3.0), (-0.2, 3.8, 8.0), (-1.0, 3.4, 9.6), (-1.2, 3.4, 9.8))),
+    "orbit_slam": dict(GUARDIAN_STYLES["double_slam"], well=(1.0, 0.4, 0.2, 0.0, 0.0, 0.0), shock=(0.0, 1.0, 1.7, 2.4, 0.0, 0.0),
+                       right=((2.8, -3.0, 9.0), (8.6, -2.6, -7.4), (8.6, -2.6, -7.4), (6.4, -3.4, -5.0), (4.6, -4.2, -3.6), (3.8, -4.8, -4.4)),
+                       left=((2.8, 3.0, 9.0), (8.6, 2.6, -7.4), (8.6, 2.6, -7.4), (6.4, 3.4, -5.0), (4.6, 4.2, -3.6), (3.8, 4.8, -4.4))),
+    "gravity_jolt": dict(STYLES["knock"], jolt=(1.0, 0.5, 0.15)),
+    "gravity_fails": {"lean": (-6.0, 2.0, 6.0, 8.0, 8.0, 8.0, 8.0, 8.0), "sink": (0.0, 0.5, 1.4, 2.4, 3.0, 3.2, 3.2, 3.2),
+                      "crumble": (0.0, 0.1, 0.25, 0.45, 0.65, 0.85, 1.0, 1.0), "jolt": (0.6, 0.9, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+                      "limp": True, "dark_from": 1},
+}
+STYLES.update(GOLEM_STYLES)
+GOLEM = {
+    "golem": True, "hip": 6.6, "hunch": 16.0,
+    "legs": {"top": (2.3, -0.6), "foot": (3.1, 1.1, 0.7), "bones": (3.4, 3.3), "thigh": (1.8, 1.7), "shin": (1.7, 1.6),
+             "boot": ((1.0, 0.0, -0.1), (2.3, 1.7, 1.0)), "plant": (1.0, -1.2)},
+    "trunk": [{"at": (0.0, 0.0, 0.7), "r": (2.4, 3.4, 1.6)}, {"at": (0.5, 0.0, 4.9), "r": (2.9, 4.4, 3.3)}],
+    "head": {"at": (1.8, 0.0, 9.0), "r": (1.9, 2.1, 1.65)},
+    "arms": {"shoulder": (5.4, 7.2), "bones": (4.2, 4.0), "hint": (-0.6, 1.0, -1.0), "pad": (2.0, 1.9, 1.7), "upper": (1.5, 1.4, 1.4),
+             "lower": (1.6, 1.5, 1.5), "fist": (2.3, 2.1, 2.0), "guard": (3.2, 5.6, -6.0), "limp": (1.0, 6.4, -6.4, 0.4)},
+    "core": {"at": (3.2, 0.0, 5.0), "r": 1.15},
+    "ring": {"n": 16, "orbit": 8.2, "z": 5.4, "tilt": 20.0, "r": (0.85, 0.6, 0.5)},
+    "gap": 0.45,
+}
+VARIANTS["golem"] = {"parts": GOLEM, "mats": {"body": "grav_basalt", "ring": "grav_ring", "core": "grav_sing"},
+                     "motion": {"idle": "orbit_bob", "walk": "stomp", "windup": "gravity_raise", "attack": "orbit_slam", "hurt": "gravity_jolt",
+                                "death": "gravity_fails"}}
+
+
+def _basalt(m, centre, Mb):
+    """A chamfered basalt block: its faces by the turn of its surface in its own frame (the dominant axis of its normal:
+    the faces flat, lit or shaded as they turn), the chamfers where two faces meet a step lit along its top edges and a
+    step dark below, columnar seams down its front."""
+    def paint(q, n):
+        nl = n @ Mb
+        a = np.abs(nl)
+        srt = np.sort(a, axis=1)
+        chamfer = srt[:, 1] > srt[:, 2] * 0.72
+        loc = (q - centre) @ Mb
+        seam = (np.abs(nl[:, 0]) > 0.7) & ((np.abs(loc[:, 1]) * 1.4) % 1.0 < 0.16)
+        bias = np.where(chamfer, np.where(nl[:, 2] > 0.2, 1, -1), np.where(seam, -1, 0))
+        return np.full(len(q), m.body, dtype=object), bias.astype(np.int16)
+    return paint
+
+
+def _bone_block(P, m, a, b, radii, group: str, gap: float, lift) -> tuple:
+    """A block along the bone from `a` to `b`, shrunk off both ends by `gap` (so it floats apart from its neighbours),
+    `radii` (along it at its full length's half less the gap, across, down)."""
+    d = b - a
+    ln = float(np.linalg.norm(d)) or 1e-6
+    ax = d / ln
+    side = np.cross(ax, v3(0.0, 0.0, 1.0))
+    if float(np.linalg.norm(side)) < 0.2:
+        side = np.cross(ax, v3(1.0, 0.0, 0.0))
+    side = side / float(np.linalg.norm(side))
+    Mb = np.stack([ax, side, np.cross(ax, side)], axis=1)
+    c = (a + b) * 0.5 + v3(0.0, 0.0, lift)
+    half = max(0.6, ln * 0.5 - gap)
+    rr = (radii[1] + radii[2]) * 0.5
+    # A short column of basalt: its sides straight, its ends flat lids with a chamfered rim.
+    p0, p1 = c - ax * half, c + ax * half
+    P.add(L(p0 + ax * 0.15, p1 - ax * 0.15, rr, rr * 0.94, m.body, group, _basalt(m, c, Mb), caps=False))
+    for q, rad in ((p0 + ax * 0.15, rr), (p1 - ax * 0.15, rr * 0.94)):
+        P.add(E(q, (0.32, rad * 0.97, rad * 0.97), m.body, group, Mb, _basalt(m, c, Mb)))
+    return c, Mb
+
+
+def _golem(B, action: str, f: int, view: float) -> Pose:
+    """M4, the gravity golem (see GOLEM_STYLES)."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    lean = B.pick("lean", action, f) + p.hunch
+    twist = B.pick("twist", action, f)
+    step = B.pick("step", action, f)
+    sink = B.pick("sink", action, f)
+    sway = st.sway_amp * wave(action, f) if "sway_amp" in st else 0.0
+    march = st.get("kind") == "march"
+    bounce = st.bounce * abs(math.sin(f / 8.0 * math.tau)) if march else 0.0
+    if march:
+        twist = st.twist_amp * math.sin(f / 8.0 * math.tau)
+    jolt = B.pick("jolt", action, f)
+    gap = p.gap * (1.0 + 2.2 * jolt)
+    hip = v3(step, sway, p.hip - sink + bounce)
+    tm = rot("c", twist) @ rot("b", -lean) @ rot("a", sway * 3.0)
+    up = lambda q: hip + tm @ v3(q)
+    k_ = [0]
+
+    def bob():
+        """Each block's own drift, out of step with the others (idle), jolted when struck."""
+        k_[0] += 1
+        k = k_[0]
+        if st.get("bob"):
+            return 0.25 * math.sin(f / 6.0 * math.tau + k * 1.7)
+        return 0.35 * jolt * math.sin(k * 2.3)
+
+    bonds = []
+    # Legs: a thigh block, a shin block, a foot block each side, by two-bone IK as the humanoid's.
+    g = p.legs
+    for s in (1, -1):
+        ph = f / 8.0 * math.tau + (0.0 if s > 0 else math.pi)
+        stride = st.stride * math.sin(ph) if march else 0.0
+        lift = st.lift * max(0.0, math.cos(ph)) if march else 0.0
+        plant = (g.plant[0] if s > 0 else g.plant[1]) if st.get("plant") else 0.0
+        foot = v3(stride + plant + g.foot[2] + (step if s > 0 else step * 0.5), s * g.foot[0], g.foot[1] + lift)
+        top = hip + rot("c", twist * 0.4) @ v3(0.0, s * g.top[0], g.top[1])
+        knee, end = ik2(top, foot, g.bones[0], g.bones[1], v3(1.0, 0.0, 0.0))
+        _bone_block(P, m, top, knee, (0.0, g.thigh[0], g.thigh[1]), "leg%d" % s, gap, bob())
+        _bone_block(P, m, knee, end, (0.0, g.shin[0], g.shin[1]), "leg%d" % s, gap, bob())
+        fc = end + v3(g.boot[0]) + v3(0.0, 0.0, bob() * 0.3)
+        P.add(E(fc, g.boot[1], m.body, "foot%d" % s, rot("c", twist * 0.4), _basalt(m, fc, rot("c", twist * 0.4))))
+        bonds += [top, knee, end]
+    # The pelvis and the torso, the hunched head with its visor groove.
+    pieces = []
+    for t in p.trunk:
+        c = up(t.at) + v3(0.0, 0.0, bob())
+        P.add(E(c, t.r, m.body, "body", tm, _basalt(m, c, tm)))
+        pieces.append(c)
+    bonds.append((pieces[0] + pieces[1]) * 0.5)
+    hm = tm @ rot("b", p.hunch * 0.8 - B.pick("droop", action, f))
+    hc = up(p.head.at) + v3(0.0, 0.0, bob() + gap * 0.6)
+    P.add(E(hc, p.head.r, m.body, "head", hm, _basalt(m, hc, hm)))
+    for k in range(5):
+        P.mark(hc + hm @ v3(p.head.r[0] + 0.05, -1.0 + 0.5 * k, 0.1), M.GOLEM_VISOR)
+    bonds.append((hc + pieces[1]) * 0.5)
+    # Arms: a shoulder block, an upper arm, a forearm and a great fist each side; their hands reach the frame's targets.
+    a_ = p.arms
+    sw = st.swing * math.sin(f / 8.0 * math.tau) if march else 0.0
+    guard = st.guard * wave(action, f, 0.25) if "guard" in st else 0.0
+    fists = []
+    for s in (1, -1):
+        sh = up((0.0, s * a_.shoulder[0], a_.shoulder[1]))
+        if s < 0 and B.has("right", action):
+            rel = B.pick("right", action, f)
+        elif s > 0 and B.has("left", action):
+            rel = B.pick("left", action, f)
+        elif st.get("limp"):
+            rel = (a_.limp[0], s * a_.limp[1], a_.limp[2] - min(f, 3) * a_.limp[3])
+        else:
+            rel = (a_.guard[0] + sw * s, s * a_.guard[1], a_.guard[2] + guard)
+        fist = up((rel[0], rel[1], a_.shoulder[1] + rel[2]))
+        elbow, end = ik2(sh, fist, a_.bones[0], a_.bones[1], tm @ v3(a_.hint[0], s * a_.hint[1], a_.hint[2]))
+        pc = sh + v3(0.0, 0.0, bob() + 0.4)
+        P.add(E(pc, a_.pad, m.body, "pad%d" % s, tm @ rot("a", s * 18.0), _basalt(m, pc, tm @ rot("a", s * 18.0))))
+        _bone_block(P, m, sh, elbow, (0.0,) + tuple(a_.upper[1:]), "arm%d" % s, gap, bob())
+        _bone_block(P, m, elbow, end, (0.0,) + tuple(a_.lower[1:]), "arm%d" % s, gap, bob())
+        fc = end + (end - elbow) / max(1e-6, float(np.linalg.norm(end - elbow))) * (a_.fist[0] * 0.6 + gap)
+        P.add(E(fc, a_.fist, m.body, "fist%d" % s, tm, _basalt(m, fc, tm)))
+        fists.append(fc)
+        bonds += [sh, elbow, end]
+    # The gravity in its gaps: a faint indigo ripple at each bond, a bright dash travelling round it frame to frame.
+    dead = action == "death" and f >= st.get("dark_from", 99)
+    if not dead:
+        for k, q in enumerate(bonds):
+            ang = math.radians(k * 47.0 + f * 60.0)
+            P.glow.append((q + v3(math.cos(ang) * 0.9, math.sin(ang) * 0.9, 0.3), M.GOLEM_BOND_HI if (k + f) % 3 == 0 else M.GOLEM_BOND))
+    # The singularity in its chest: a violet orb with a dark heart, swelling as it draws the world in (its tell), pinched
+    # when struck, dark as it dies.
+    cr = p.core
+    cc = up(cr.at)
+    well = B.pick("well", action, f)
+    if not dead:
+        r = cr.r * (1.0 + 0.5 * well) * (0.6 if jolt > 0.4 else 1.0)
+        P.add(S(cc, r, m.core, "core", line=False))
+        P.eye(cc + tm @ v3(r * 0.8, 0.0, 0.0), M.GOLEM_CORE_HI)
+        P.mark(cc + tm @ v3(r * 0.95, 0.0, 0.0), M.GOLEM_CORE_DARK)
+        if well > 0.0:
+            for arm in range(3):
+                for k in range(6):
+                    t = k / 5.0
+                    ang = math.radians(arm * 120.0 + f * 45.0 + t * 220.0)
+                    rr = r + 0.6 + (1.0 - t) * 5.5 * well
+                    q = cc + tm @ v3(0.8 + 0.3 * (1.0 - t), math.cos(ang) * rr, math.sin(ang) * rr)
+                    P.glow.append((q, M.GOLEM_PULL_LIGHT if k % 2 else M.GOLEM_PULL_DARK))
+            for k in range(4):
+                ang = math.radians(k * 90.0 + f * 70.0)
+                rr = 2.2 + 3.0 * (1.0 - ((f * 0.25 + k * 0.3) % 1.0))
+                P.add(S(cc + tm @ v3(1.2, math.cos(ang) * rr, math.sin(ang) * rr), 0.42, m.ring, "pebble", line=False))
+    # The ring of pale stones orbiting it, tilted, turning; dropping as gravity fails.
+    rg = p.ring
+    crumble = B.pick("crumble", action, f)
+    spin = f * (360.0 / rg.n / 2.0) + (40.0 * well if action in ("windup", "attack") else 0.0)
+    for k in range(rg.n):
+        ang = math.radians(k * 360.0 / rg.n + spin)
+        q = rot("a", rg.tilt) @ v3(math.cos(ang) * rg.orbit, math.sin(ang) * rg.orbit, 0.0) + v3(hip[0] * 0.4, 0.0, rg.z)
+        if crumble > 0.0:
+            q = q + (v3(q[0] * 1.2, q[1] * 1.2, rg.r[2]) - q) * min(1.0, crumble * 1.4)
+        mm = rot("c", math.degrees(ang) + 90.0)
+        P.add(E(q, rg.r, m.ring, "ring", mm))
+        if k % 3 == 0 and crumble < 0.5:
+            P.mark(q + v3(0.0, 0.0, rg.r[2] + 0.1), M.GOLEM_NOTCH)
+    # The slam's shockwave racing out along the ground before it.
+    shock = B.pick("shock", action, f)
+    if shock > 0.0:
+        cx = (fists[0][0] + fists[1][0]) * 0.5
+        rr = 3.0 + 4.0 * shock
+        for k in range(36):
+            ang = math.radians(k * 10.0 + shock * 11.0)
+            for dd, col in ((0.0, M.GOLEM_SHOCK_HI), (1.0, M.GOLEM_SHOCK)):
+                P.fx.append((v3(cx + math.cos(ang) * (rr + dd), math.sin(ang) * (rr + dd) * 0.95, 0.25), col))
+        for k in range(8):
+            ang = math.radians(k * 45.0 + 10.0)
+            P.fx.append((v3(cx + math.cos(ang) * 2.0, math.sin(ang) * 2.0, 0.6 + 0.8 * (k % 2)), M.DUST))
+    if crumble > 0.0:
+        collapse(P, crumble, int(B.opts.get("seed", 0)))
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], (step, 0.0, 0.0))
+    return P

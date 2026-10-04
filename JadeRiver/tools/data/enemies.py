@@ -348,14 +348,8 @@ def build():
         spec_row("comet_sparrow"),
         # v1.2 · Phase B: Blackmast Haven and the Wyrmnest Isles.
         spec_row("pirate_gunner"),
-        mob("nest_guardian", (85, 93), "normal", "earth", "lantern", [d("guardian_scale", 0.45), d("star_shard", 0.6, (1, 3))],
-            [atk("club_tail", 0.9, 150, 1.45, depth=60, knockback=130, both_sides=True),
-             atk("crystal_stomp", 0.8, 110, 1.3, depth=70, status={"id": "stun", "chance": 0.2, "power": 1.0, "duration_s": 0.8})],
-            ai="slow_melee", speed=70, width=60, height=64, presence=2),
-        mob("hollowed_wyrmling", (88, 96), "normal", "hollow_fire", "lantern", [d("wyrm_ash", 0.5), d("star_shard", 0.5, (1, 2)), d("hollow_shard", 0.3)],
-            [atk("grey_flame", 0.6, 110, 1.3, depth=50, damage_type="qi", status={"id": "burn", "chance": 0.3, "power": 0.012, "duration_s": 3}),
-             atk("wyrm_snap", 0.4, 60, 1.1, dash=90)],
-            ai="melee", speed=120, width=32, height=36, hollowing=6),
+        spec_row("nest_guardian"),
+        spec_row("hollowed_wyrmling"),
         mob("admiral_voss", 90, "dungeon_boss", "metal", "lantern", [d("admirals_seal", 1.0), d("comet_iron", 1.0, (3, 5)), d("star_shard", 1.0, (12, 18)),
                                                                   d("star_powder", 1.0, (2, 4)), d("will_tempering_pill", 1.0, (1, 2))],
             [atk("starsteel_cutlass", 0.5, 120, 1.35, depth=50, knockback=90),
@@ -366,10 +360,7 @@ def build():
             phases=[{"below": 0.6, "action": "summon", "summon": "pirate_gunner", "summon_level": 88},
                     {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
         # v1.2 · Phase C: the Orbit Ruins.
-        mob("gravity_golem", (88, 93), "normal", "earth", "lantern", [d("gravity_core", 0.4), d("star_shard", 0.6, (1, 3)), d("orbit_stone_chip", 0.35)],
-            [atk("gravity_well", 1.0, 260, 0.6, depth=90, damage_type="qi", pull=150, both_sides=True),
-             atk("orbit_slam", 1.1, 130, 1.6, depth=70, knockback=140, status={"id": "stun", "chance": 0.3, "power": 1.0, "duration_s": 0.8})],
-            ai="slow_melee", speed=55, width=70, height=110, knockback_immune=True),
+        spec_row("gravity_golem"),
         spec_row("orbit_moth"),
         # v1.2 · Phase D: the Ashen Reach (the Ashborn legions) and the Tidebreak Front (the Hollow's drones).
         spec_row("ashborn_raider"),

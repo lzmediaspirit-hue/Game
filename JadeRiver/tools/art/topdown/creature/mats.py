@@ -652,6 +652,28 @@ RAMPS.update({
     "nlev_baleen": _s("fff4d0", "e6d29a", "b69a6a", "7a6448"),
     "nlev_mouth": _r("0C0618", "1A0C2A", "2A1440", "3A1C54", "4E2868"),
     "nlev_void": _r("05020C", "10081C", "1C0E30", "35165A", "5A2A8A"),
+    # hollowed wyrmling: grey-violet ashen scales, its pale ash belly, its torn wings, its ash horns and spines, its mouth,
+    # the grey-violet fire it spits (light: its hot violet core, its grey-violet edge)
+    "hw_scale": _s("c7c0d3", "918aa3", "676079", "443e56"),
+    "hw_belly": _s("e8e3ea", "c2bbc9", "978fa5", "6d6580"),
+    "hw_wing": _r("2A2240", "3D335A", "584C7C", "6E6194", "8A7CAE"),
+    "hw_horn": _s("f0ecf2", "cdc6d4", "9d95aa", "6e667f"),
+    "hw_mouth": _r("140A1A", "26122E", "3A1C44", "4E2858", "62346C"),
+    "hw_fire_gv": _r("76659A", "9F8CC0", "B8A8D6", "D6C8EA", "ECE4F6"),
+    "hw_fire_v": _r("9A68DC", "C79BFF", "D8B8FF", "F0DCFF", "FAF2FF"),
+    # nest guardian: a slate-indigo hide, dark bronze plates (and their darker rim and club knobs), a pale sand belly, its
+    # horns, its star crystals (a pale-gold lit facet, a teal one) and the dead crystals' grey
+    "ng_hide": _s("a3a8d2", "6d72a3", "4a4e7c", "2f3158"),
+    "ng_bronze": _s("c98f4c", "85572d", "5a3a24", "39241e"),
+    "ng_rim": _s("9c6a3a", "6a4426", "4a2f20", "2e1d18"),
+    "ng_belly": _s("f2e2b4", "d4b983", "a88c62", "75604a"),
+    "ng_horn": _s("f6ecc8", "d2bf8e", "9c8a64", "675a45"),
+    "ng_crystal": _r("2A6A78", "3F8F9E", "8FDCDC", "FFF0B8", "FFFFFF"),
+    "ng_crystal_dim": _s("b4bcc6", "7e8a98", "58626f", "3a414c"),
+    # gravity golem: dark basalt, the pale stones of its ring, its violet singularity
+    "grav_basalt": _s("9994b2", "65607f", "46415f", "2d2943"),
+    "grav_ring": _s("e2dbea", "aca5c0", "777094", "4d476b"),
+    "grav_sing": _r("1A0838", "351A70", "7444D4", "B27CFF", "F3E4FF"),
 })
 PROPS.update({
     "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
@@ -669,6 +691,12 @@ PROPS.update({
     "nlev_hide": {"glossy": True}, "nlev_belly": {"hi": True}, "nlev_teal": {"hi": True, "weight": 1.2}, "nlev_mag": {"hi": True, "weight": 1.2},
     "nlev_veil": {"hi": True, "thin": True}, "nlev_baleen": {"hi": True, "line": True, "weight": 1.4}, "nlev_mouth": {"weight": 1.5},
     "nlev_void": {"weight": 1.6},
+    "hw_scale": {"hi": True}, "hw_belly": {"hi": True, "weight": 1.2}, "hw_wing": {"hi": True, "thin": True}, "hw_horn": {"hi": True, "weight": 1.4},
+    "hw_mouth": {"weight": 1.4}, "hw_fire_gv": {}, "hw_fire_v": {"weight": 1.2},
+    "ng_hide": {"hi": True}, "ng_bronze": {"hi": True, "glossy": True}, "ng_rim": {"hi": True, "glossy": True, "weight": 1.2},
+    "ng_belly": {"hi": True}, "ng_horn": {"hi": True, "weight": 1.4}, "ng_crystal": {"hi": True, "glossy": True, "weight": 1.4},
+    "ng_crystal_dim": {"hi": True, "weight": 1.3},
+    "grav_basalt": {"hi": True}, "grav_ring": {"hi": True, "weight": 1.3}, "grav_sing": {"weight": 1.6},
 })
 # The void crab's stars and the rift its claw tears (white, violet, deep).
 STAR_W = c("FFFFFF")
@@ -711,3 +739,30 @@ LEVI_CLINE = c("6F7FD0")
 LEVI_STAR_OFF = c("4A4F8E")
 LEVI_VOID_RIM = c("8B52D8")
 LEVI_VOID_HI = c("E8DCFF")
+# The hollowed wyrmling's empty violet eyes, the ember in its throat, its fire's violet, the glow of its cracks, its ash.
+WYRM_EYE = c("E6D2FF")
+WYRM_EMBER = c("F09A48")
+WYRM_EMBER_HI = c("FFD79A")
+WYRM_FIRE_V = c("C79BFF")
+WYRM_GLOW = c("9A78C8")
+WYRM_GLOW_HI = c("EFDCFF")
+WYRM_ASH = c("BAB3C4")
+# The nest guardian's crystals' twinkle and glow, its rivets, its gold eye, the star specks on its hide.
+NG_TWINKLE = c("FFFBE6")
+NG_GLOW = c("8FDCDC", 170)
+NG_RIVET = c("E8C27A")
+NG_EYE = c("FFC84A")
+NG_EYE_HI = c("FFF2C0")
+NG_SPECK = c("D8DCF6")
+# The gravity golem's visor groove, the bonds in its gaps (dim, and the dash travelling round them), its singularity's
+# light and dark heart, the lines it draws in, its ring's star notches, the shockwave of its slam.
+GOLEM_VISOR = c("1A1530")
+GOLEM_BOND = c("6A62E0", 150)
+GOLEM_BOND_HI = c("C4B2FF", 210)
+GOLEM_CORE_HI = c("F3E4FF")
+GOLEM_CORE_DARK = c("0D0620")
+GOLEM_PULL_DARK = c("30257A", 220)
+GOLEM_PULL_LIGHT = c("A184FF", 220)
+GOLEM_NOTCH = c("FFE6A1")
+GOLEM_SHOCK = c("8A74EA", 200)
+GOLEM_SHOCK_HI = c("FBF6FF", 230)
