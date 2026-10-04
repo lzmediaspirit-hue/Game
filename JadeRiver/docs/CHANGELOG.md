@@ -52,8 +52,8 @@ and the Starsea's voyages on the grid.
 - **Still to do** (room_engine.md lists it): top-down sheets for fourteen species (the starsea pirate to the Nebula
   Leviathan); the gravity switches' low gravity, the crossing's moving vessel and the Leviathan's swim on the grid; a
   star-field TopdownLight area, the lit props' light at night, a star-water paint and a void vista.
-- **Checks.** The full run (merged with R6, E5, T2 and R8): all 34 suites pass, 76,349 checks with 0 failures and no
-  SCRIPT ERROR. `topdown_starfield` has 77 of them, `topdown_skysea` 101 and `room_engine` 508. Grid parity holds for
+- **Checks.** The full run (merged with R6, E5, T2, R8 and M2): all 34 suites pass, 76,849 checks with 0 failures and
+  no SCRIPT ERROR. `topdown_starfield` has 77 of them, `topdown_skysea` 101 and `room_engine` 508. Grid parity holds for
   168 layouts (every side-view room) and 498 starts, and `places` reaches all 62. The R8 and R9 views, captured again
   after the merge, match their committed pictures pixel for pixel.
 
