@@ -642,6 +642,37 @@ RAMPS.update({
     "sa_ice": _s("e8fbff", "92d6f0", "4f9ac8", "2e5f96"),
     "sa_snow": _s("ffffff", "deebf4", "adc2d6", "8093b0"),
     "sa_tusk": _s("fffcf0", "f4eedb", "c8bea0", "8c8266"),
+    # the river sentinel: blue-grey river stone (and its darker carving), green algae, bronze, barnacle shell
+    "rsn_stone": _s("c4c9b4", "93a7ad", "62808b", "3a5961"),
+    "rsn_stone_dark": _s("a2b1ad", "6e8891", "4b6a75", "2d4a52"),
+    "rsn_algae": _s("a9c46a", "6f9a48", "4a7541", "2e5237"),
+    "rsn_bronze": _s("d9b276", "a0703d", "6f4c2f", "483322"),
+    "rsn_shell": _s("fffaee", "efe6cf", "a99c80", "6e6450"),
+    # the terracotta warden: fired clay (and its darker), the vest's plates, faded vermilion, malachite, the ge's bronze and
+    # verdigris, sand
+    "tw_clay": _s("efbf8f", "c47c4e", "8f5040", "5c3039"),
+    "tw_clay_dark": _s("c68a5f", "9b5b3f", "713d37", "48262f"),
+    "tw_plate": _s("ecc9a0", "bb8c6b", "8a5c4f", "5a3845"),
+    "tw_vermilion": _s("ea967a", "c9624f", "96434a", "612a3a"),
+    "tw_malachite": _s("aad4a7", "72a88b", "4c7b6f", "30524e"),
+    "tw_shaft": _s("a8604a", "6e3a30", "4c2826", "301a1c"),
+    "tw_verdigris": _s("a8e6c9", "62b99d", "3d8a7a", "275859"),
+    "tw_sand": _s("f7e4b4", "e2c286", "b99460", "8b6a48"),
+    # the azure carp dragonet: deep azure scales, a silver-white belly, pale fins, gold (fin tips, horns, whiskers, mane),
+    # its water orb, its mouth
+    "acd_scale": _s("9fe2ee", "46acdf", "2b70b2", "2d3a80"),
+    "acd_belly": _s("ffffff", "eef4fa", "c3d0ea", "8391c4"),
+    "acd_fin": _s("f2ffff", "b4f0f6", "62b8d6", "2e5e9a"),
+    "acd_gold": _s("fff3b4", "f1c253", "c08a34", "7c5628"),
+    "acd_orb": _s("ffffff", "c4f6ff", "62cbea", "2f86c2"),
+    "acd_mouth": _s("f4909e", "c24c68", "7c2a4c", "461832"),
+    # the Thousand-Eye Toad: deep lake-blue skin, a pearl belly and throat, silver-white mirror eyes, lily pads, lotus
+    "tet_skin": _s("6cb6cc", "3b6ca8", "35468b", "2b2562"),
+    "tet_belly": _s("fbfaf3", "e2e0ec", "b4b0d3", "8079ab"),
+    "tet_sclera": _s("ffffff", "eef0fb", "a9acd6", "6e70a8"),
+    "tet_lily": _s("b8e38c", "66ad6a", "3a7b62", "25524f"),
+    "tet_lotus": _s("fff0f5", "f5a6c3", "d56d9a", "9d4577"),
+    "tet_glow": _s("fbf3ff", "d2b1ff", "a37ce6", "6a48b8"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
@@ -656,6 +687,16 @@ PROPS.update({
     "fl_ice": {"hi": True, "glossy": True, "weight": 1.5}, "fl_rime": {"hi": True, "weight": 1.2},
     "sa_fur": {"hi": True}, "sa_skin": {"hi": True, "weight": 1.3}, "sa_ice": {"hi": True, "glossy": True, "weight": 1.3},
     "sa_snow": {"hi": True, "weight": 1.2}, "sa_tusk": {"hi": True, "weight": 1.6},
+    "rsn_stone": {"hi": True}, "rsn_stone_dark": {"hi": True}, "rsn_algae": {"hi": True, "weight": 1.2},
+    "rsn_bronze": {"hi": True, "glossy": True, "weight": 1.3}, "rsn_shell": {"hi": True, "weight": 1.4},
+    "tw_clay": {"hi": True}, "tw_clay_dark": {"hi": True}, "tw_plate": {"hi": True}, "tw_vermilion": {"hi": True, "weight": 1.3},
+    "tw_malachite": {"hi": True, "weight": 1.3}, "tw_shaft": {"hi": True, "line": True, "weight": 1.5},
+    "tw_verdigris": {"hi": True, "glossy": True, "weight": 1.5}, "tw_sand": {"hi": True, "weight": 1.2},
+    "acd_scale": {"hi": True, "glossy": True}, "acd_belly": {"hi": True, "weight": 1.2}, "acd_fin": {"hi": True, "thin": True},
+    "acd_gold": {"hi": True, "glossy": True, "line": True, "weight": 1.4}, "acd_orb": {"hi": True, "glossy": True, "weight": 1.4},
+    "acd_mouth": {"weight": 1.4},
+    "tet_skin": {"hi": True, "glossy": True}, "tet_belly": {"hi": True, "weight": 1.2}, "tet_sclera": {"hi": True, "glossy": True, "weight": 1.5},
+    "tet_lily": {"hi": True, "weight": 1.3}, "tet_lotus": {"hi": True, "weight": 1.5}, "tet_glow": {"hi": True, "weight": 1.5},
 })
 # The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
 SW_EYE = c("7FD4FF")
@@ -674,6 +715,28 @@ SA_EYE_GLOW = c("86ECFF", 140)
 SA_GLINT = c("E8FCFF", 200)
 SNOW_SPRAY = c("F4FAFF", 220)
 SNOW_SPRAY_DIM = c("C8DCEC", 170)
+# The river sentinel's pale aquamarine eye slit, the terracotta warden's molten amber eyes: (core, main, dim, glow).
+RSN_EYE_CORE = c("EFFFFA")
+RSN_EYE = c("9FF0DC")
+RSN_EYE_DIM = c("4FC4B4")
+RSN_EYE_GLOW = c("9FF0DC", 130)
+TW_EYE_CORE = c("FFF1B6")
+TW_EYE = c("FFB347")
+TW_EYE_DIM = c("C07A30")
+TW_EYE_GLOW = c("FFB347", 130)
+# The azure carp dragonet's pearl eye (its shade, its glow) and the ring of water turning under it.
+ACD_PEARL = c("F6FBFF")
+ACD_PEARL_SH = c("B4CDF2")
+ACD_GLOW = c("8AF2FF", 140)
+ACD_RING = c("BCEAF2", 170)
+ACD_RING_DIM = c("7FC4D8", 120)
+# The Thousand-Eye Toad's mirror eyes: their pupils and silver iris, and in its tell their violet glow; its lotus's heart.
+TET_PUPIL = c("1D1846")
+TET_SILVER = c("A9ACD6")
+TET_IRIS = c("8F68D6")
+TET_GLOW_CORE = c("FBF3FF")
+TET_HALO = c("B58AF2", 150)
+TET_LOTUS_HEART = c("FFE48A")
 # The Behemoth's weak points (a white crack, its cold edge, dimmed) and their glow.
 HB_GLOW = c("FFFFFF")
 HB_GLOW_EDGE = c("BFEAF5")

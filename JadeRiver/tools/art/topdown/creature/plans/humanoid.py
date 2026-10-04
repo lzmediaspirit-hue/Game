@@ -585,6 +585,8 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
         grain = limb = _armor(m, hip, tm, p.paint)
     elif p.paint.kind == "clothes":
         grain = limb = _clothes(m, hip, tm, p.paint, bool(B.opts.get("bare")))
+    elif p.paint.kind in M3_PAINTS:
+        grain = limb = M3_PAINTS[p.paint.kind](m, hip, tm, p.paint, int(B.opts.get("seed", 0)))
 
     # Legs: a stride in the march, planted apart otherwise; knees folding as it sinks.
     g = p.legs
@@ -711,6 +713,7 @@ def _finish(P, B, action: str, f: int, step: float) -> None:
     crumble = B.pick("crumble", action, f)
     if crumble > 0.0:
         collapse(P, crumble, int(B.opts.get("seed", 0)))
+    P.parts += getattr(P, "after", [])          # M3: what lies beside the heap, not in it (a dropped polearm)
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], (step, 0.0, 0.0))
@@ -1012,6 +1015,17 @@ def _helm(P, B, action: str, f: int, hc, hm) -> None:
             pts = [hc + hm @ v3(x, s * y, z) for x, y, z in fc.eaves]
             for i in range(len(pts) - 1):
                 P.add(L(pts[i], pts[i + 1], 0.7 - 0.2 * i, 0.5 - 0.2 * i, m.body, "eave%d" % s))
+    if fc.get("board"):
+        # M3, the river sentinel: a scholar-general's helmet: a crown board standing up off its front, a bronze pin
+        # through the knot behind it, a carved beard under its mask.
+        (ba, bb, bc), br = fc.board
+        P.add(E(hc + hm @ v3(ba, bb, bc), br, m.body, "board", hm @ rot("b", -12.0)))
+        if fc.get("pin"):
+            (pa, pb, pc), pl = fc.pin
+            P.add(L(hc + hm @ v3(pa, -pl, pc), hc + hm @ v3(pa, pl, pc), 0.32, 0.32, m.trim, "pin"))
+        if fc.get("beard"):
+            (ga, gb, gc), gr = fc.beard
+            P.add(E(hc + hm @ v3(ga, gb, gc), gr, m.body, "beard", hm @ rot("b", 18.0)))
     if fc.get("brows"):
         # A stern mask: heavy brows over its eyes, a hard line of a mouth.
         (ba, bb, bc), br = fc.brows
@@ -1154,6 +1168,13 @@ def _human_face(P, B, action: str, f: int, hc, hm) -> None:
         P.add(E(hc + hm @ v3(ea - 0.25, s * eb, ec + 0.55), fc.brow, m.hair, "brow%d" % s, hm @ rot("a", s * fc.get("brow_tilt", 0.0)), line=False))
         if dark or st.get("squint"):
             P.mark(eye, M.RAMPS[m.skin][0])
+        elif isinstance(fc.get("glow"), str):
+            # M3: eyes glowing in a colour of their own (the terracotta warden's molten amber, the tomb king's).
+            core, main, dim, glow = GLOW_EYES[fc.glow]
+            P.eye(eye, core)
+            P.mark(eye + hm @ v3(0.0, s * 0.35, 0.0), main)
+            if st.get("glare"):
+                P.glow.append((eye + hm @ v3(0.4, 0.0, 0.4), glow))
         elif fc.get("glow"):
             P.eye(eye, M.DROWNED_EYE)
             P.mark(eye + hm @ v3(0.0, s * 0.35, 0.0), M.DROWNED_EYE_DIM)
@@ -1723,3 +1744,167 @@ def _shag(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: di
 
 
 M3_PARTS["shag"] = _shag
+
+
+# ------------------------------------------------------------------------------------------------ the walking statues
+# M3's statues that walk (the river sentinel, the terracotta warden): their stone, their glowing eyes, the polearm each
+# holds in both hands, the water or sand trickling from their joints.
+M3_PAINTS: dict = {}
+GLOW_EYES.update({"aqua": (M.RSN_EYE_CORE, M.RSN_EYE, M.RSN_EYE_DIM, M.RSN_EYE_GLOW),
+                  "amber": (M.TW_EYE_CORE, M.TW_EYE, M.TW_EYE_DIM, M.TW_EYE_GLOW)})
+
+
+def _riverstone(m, hip, tm, c, seed: int):
+    """M3, the river sentinel: river stone worn smooth (its carving's rows faint, the belt in bronze), green algae streaking
+    up from where the lake stood on it, barnacles crusted on its legs, pits a step dark (by its seed)."""
+    def stone(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        row = ((loc[:, 2] % c.rows) < 0.2) & (nl[:, 0] > -0.3)
+        belt = (loc[:, 2] > c.belt[0]) & (loc[:, 2] < c.belt[1])
+        streak = (h01v(np.floor(np.arctan2(loc[:, 1], loc[:, 0]) * 5.0 + 20), np.zeros(len(q)) + 3, seed % 97 + 1) > 0.5)
+        algae = (loc[:, 2] < c.water - 2.4 * h01v(np.floor(np.arctan2(loc[:, 1], loc[:, 0]) * 7.0 + 30), np.zeros(len(q)) + 5, seed % 89 + 2)) & streak
+        barnacle = (loc[:, 2] < c.water - 3.0) & (h01v(np.floor(loc[:, 0] * 2.2 + 40), np.floor(loc[:, 2] * 2.2 + np.abs(loc[:, 1]) * 2.2 + 40),
+                                                       seed % 83 + 3) > 0.9)
+        pit = h01v(np.floor(loc[:, 1] * 1.6 + 60), np.floor(loc[:, 2] * 1.6 + 60), seed % 79 + 4) > 0.9
+        names = np.where(belt, m.trim, np.where(algae, m.algae, np.where(barnacle, m.shell, m.body))).astype(object)
+        return names, np.where(row & ~belt & ~algae, -1, np.where(pit & ~belt, -1, 0)).astype(np.int16)
+    return stone
+
+
+M3_PAINTS["riverstone"] = _riverstone
+
+
+def _clay(m, hip, tm, c, seed: int):
+    """M3, the terracotta warden: fired clay: a lamellar vest of clay plates over its chest (rows, each plate's lower
+    edge a step dark, laced in faded vermilion), a malachite-green collar, a vermilion hem at its waist, puttees wound
+    round its shins; fine cracks a step dark (by its seed)."""
+    def clay(q, n):
+        loc = (q - hip) @ tm
+        nl = n @ tm
+        z = loc[:, 2]
+        vest = (z > c.vest[0]) & (z < c.vest[1])
+        row = vest & ((z % c.rows) < 0.24)
+        lace = vest & ((np.abs(loc[:, 1]) % 1.6) < 0.22) & ((z % c.rows) > 0.5)
+        collar = (z >= c.vest[1]) & (z < c.vest[1] + c.collar)
+        hem = (z > c.hem[0]) & (z < c.hem[1])
+        puttee = (z < c.puttee) & (((z * 1.6 + loc[:, 0] * 0.8) % 1.0) < 0.3)
+        crack = h01v(np.floor(loc[:, 0] * 1.8 + 40), np.floor(z * 1.8 + np.abs(loc[:, 1]) * 1.8 + 40), seed % 97 + 1) > 0.93
+        names = np.where(collar, m.collar, np.where(lace | hem, m.lace, np.where(vest, m.plate, m.body))).astype(object)
+        return names, np.where(row | puttee | crack, -1, 0).astype(np.int16)
+    return clay
+
+
+M3_PAINTS["clay"] = _clay
+
+
+def _polearm(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """A polearm in both hands (M3): a shaft through them, the butt past the left, the head past the right; its head the
+    river sentinel's stone trident (a crossbar and three prongs) or the terracotta warden's ge (a dagger-axe: a bronze
+    blade standing off the shaft's side, its hu running down the shaft). The trident's tell spirals water up the shaft and
+    its drive splashes; the ge's chop bites the ground in sand. Beaten, it lies on the ground beside the heap."""
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    r_, l_ = ends[-1], ends[1]
+    d = r_ - l_
+    d = d / max(1e-6, float(np.linalg.norm(d)))
+    butt = l_ - d * h.shaft[0]
+    head = r_ + d * h.shaft[1]
+    out = P.parts
+    if action == "death" and f >= 2:
+        # Dropped: lying on the ground beside the heap, not in it (P.after: laid on after the heap is made).
+        d = v3(0.94, 0.34, 0.0)
+        butt = v3(-3.0, -3.4, h.r + 0.1)
+        head = butt + d * (h.shaft[0] + h.shaft[1] + 4.0)
+        P.after = []
+        out = P.after
+    side = np.cross(d, v3(0.0, 0.0, 1.0))
+    if float(np.linalg.norm(side)) < 0.2:
+        side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
+    side = side / float(np.linalg.norm(side))
+    flat = np.cross(side, d)
+    out.append(L(butt, head, h.r, h.r, m.shaft, "shaft"))
+    out.append(S(head - d * 0.5, h.r + 0.3, m.trim, "collar"))
+    if h.kind == "trident":
+        out.append(L(head - side * 1.3, head + side * 1.3, 0.32, 0.32, m.blade, "prongs"))
+        out.append(L(head, head + d * 2.8, 0.36, 0.08, m.blade, "prongs"))
+        for s in (1, -1):
+            b0 = head + side * s * 1.25
+            out.append(L(b0, b0 + d * 2.2 + side * s * 0.25, 0.32, 0.08, m.blade, "prongs"))
+        if action == "windup" and f in st.get("spiral", ()):
+            for k in range(14):
+                t = k / 13.0
+                ang = t * 4.0 * math.pi + f * 1.3
+                q = butt + (head - butt) * t * (0.4 + 0.2 * f) + (side * math.cos(ang) + flat * math.sin(ang)) * 1.0
+                P.fx.append((q, M.SPLASH if k % 2 else M.SPLASH_DIM))
+        if action == "attack" and f in st.get("splash", ()):
+            tip = head + d * 2.4
+            at_ = v3(tip[0], tip[1], 0.3)
+            for k in range(16):
+                ang = math.radians(k * 22.5 + f * 13.0)
+                rr = 1.6 + (f - 1) * 1.6 + (k % 3) * 0.6
+                P.fx.append((at_ + v3(math.cos(ang) * rr, math.sin(ang) * rr, 0.4 + (k % 4) * 0.7 * (3 - f) * 0.5), M.SPLASH if k % 2 else M.FOAM))
+    else:
+        # The ge's blade: a bronze dagger blade standing off the shaft (toward `flat`, the way it chops), its hu down it.
+        mm = np.stack([d, side, flat], axis=1)
+        out.append(E(head - d * 0.4 + flat * 1.6, (0.55, 0.16, 1.7), m.blade, "blade", mm))
+        out.append(E(head - d * 1.5 + flat * 0.6, (1.1, 0.16, 0.45), m.blade, "blade", mm))
+        out.append(L(head, head + d * 0.9, 0.28, 0.06, m.blade, "blade"))
+        if action == "attack" and f in st.get("dust", ()):
+            tip = head + flat * 3.0
+            at_ = v3(tip[0], tip[1], 0.3)
+            for k in range(14):
+                ang = math.radians(k * 26.0 + f * 17.0)
+                rr = 1.6 + (f - 1) * 1.5 + (k % 3) * 0.6
+                P.fx.append((at_ + v3(math.cos(ang) * rr, math.sin(ang) * rr, 0.4 + (k % 4) * 0.6), M.RAMPS[m.sand][2 + k % 2] if k % 3 else M.RAMPS[m.body][3]))
+
+
+M3_HELD["trident"] = _polearm
+M3_HELD["ge"] = _polearm
+
+
+def _trickle(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: dict) -> None:
+    """M3: what trickles from a statue's joints as it stands (the river sentinel's water, the terracotta warden's sand):
+    drops falling from its elbows and the cracks at its knees, a few frames apart."""
+    tr, m = B.parts.trickle, B.mats
+    if action in ("death",):
+        return
+    col = (M.DRIP, M.SPLASH_DIM) if tr == "water" else (M.RAMPS[m.sand][3], M.RAMPS[m.sand][2])
+    pts = [elbows[1], elbows[-1], up((0.6, 1.7, -2.6)), up((0.6, -1.7, -2.6))]
+    for k, q in enumerate(pts):
+        u = ((f * 0.29 + k * 0.37) % 1.0)
+        for j in range(2):
+            P.fx.append((q + v3(0.3, 0.0, -0.6 - (u + j * 0.45) * 3.0), col[j]))
+
+
+M3_PARTS["trickle"] = _trickle
+
+_POLE_REST = {"right": ((2.4, -3.5, 1.2),), "left": ((2.6, -2.9, -2.4),)}
+STYLES.update({
+    "pole_rest": {"sway_amp": 0.15, "guard": 0.1, "right": _POLE_REST["right"] * 6, "left": _POLE_REST["left"] * 6},
+    "pole_march": {"kind": "march", "bounce": 0.45, "twist_amp": 5.0, "stride": 2.6, "lift": 1.4, "swing": 0.0,
+                   "right": _POLE_REST["right"] * 8, "left": _POLE_REST["left"] * 8},
+    # The river sentinel: the trident rises high and back as water spirals up its shaft (held); driven down before it.
+    "trident_raise": {"lean": (-3.0, -6.0, -8.0, -8.0), "twist": (-8.0, -16.0, -22.0, -24.0), "step": (-0.2, -0.5, -0.7, -0.8),
+                      "sink": (0.2, 0.4, 0.6, 0.7), "plant": True, "glow": (0.4, 0.8, 1.0, 1.0), "spiral": (1, 2, 3),
+                      "right": ((1.8, -3.0, 2.6), (0.8, -2.4, 4.4), (0.0, -2.0, 5.6), (-0.3, -1.9, 6.0)),
+                      "left": ((2.4, -2.0, 0.2), (1.6, -1.4, 1.8), (1.0, -1.0, 2.8), (0.8, -0.9, 3.1))},
+    "trident_drive": {"lean": (-8.0, 16.0, 16.0, 10.0, 4.0, 0.0), "twist": (-24.0, 8.0, 10.0, 6.0, 2.0, 0.0), "step": (0.2, 2.0, 2.2, 1.6, 0.6, 0.2),
+                      "sink": (0.2, 1.6, 1.6, 1.0, 0.4, 0.1), "plant": True, "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "splash": (1, 2, 3),
+                      "squash": {1: (1.03, 1.0, 0.97)},
+                      "right": ((-0.3, -1.9, 6.0), (5.0, -0.8, -3.6), (5.0, -0.8, -3.8), (4.4, -1.4, -2.6), (3.2, -2.6, -0.6), (2.4, -3.5, 1.2)),
+                      "left": ((0.8, -0.9, 3.1), (2.6, -0.8, -0.6), (2.6, -0.8, -0.8), (2.6, -1.2, -1.0), (2.6, -2.2, -1.8), (2.6, -2.9, -2.4))},
+    # The terracotta warden: the ge hauled up over its head in both hands as its eye flares (held); chopped down before it.
+    "ge_raise": {"lean": (-3.0, -8.0, -12.0, -13.0), "step": (-0.2, -0.4, -0.6, -0.7), "sink": (0.3, 0.1, -0.2, -0.3), "plant": True,
+                 "glare": True, "glow": (0.4, 0.8, 1.0, 1.0),
+                 "right": ((1.6, -2.6, 1.6), (0.4, -1.6, 3.8), (-0.4, -1.0, 5.0), (-0.6, -0.9, 5.4)),
+                 "left": ((2.4, -1.6, -0.2), (2.0, -0.8, 2.4), (1.6, -0.5, 4.0), (1.4, -0.4, 4.5))},
+    "ge_chop": {"lean": (-12.0, 20.0, 20.0, 12.0, 4.0, 0.0), "step": (0.2, 1.8, 2.0, 1.4, 0.6, 0.2), "sink": (-0.2, 1.6, 1.6, 1.0, 0.4, 0.0),
+                "plant": True, "glare": True, "glow": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "dust": (1, 2, 3), "squash": {1: (1.03, 1.03, 0.96)},
+                "right": ((-0.6, -0.9, 5.4), (5.6, -0.8, -4.4), (5.6, -0.8, -4.6), (4.8, -1.4, -3.2), (3.4, -2.6, -0.8), (2.4, -3.5, 1.2)),
+                "left": ((1.4, -0.4, 4.5), (3.0, -0.6, -1.0), (3.0, -0.6, -1.2), (2.8, -1.2, -1.4), (2.6, -2.2, -2.0), (2.6, -2.9, -2.4))},
+    "pole_rock": {"lean": (-12.0, -6.0, -2.0), "twist": (8.0, -4.0, 0.0), "step": (-2.0, -1.2, -0.4), "sink": (0.4, 0.2, 0.0),
+                  "droop": (-14.0, -4.0, 0.0), "squint": True,
+                  "right": ((1.6, -4.0, 2.4), (2.2, -3.8, 1.6), (2.4, -3.5, 1.2)), "left": ((2.0, -2.6, -1.0), (2.4, -2.8, -2.0), (2.6, -2.9, -2.4))},
+    # Beaten, it comes apart into a heap (kit.collapse), its glow dark from the third frame; its polearm drops beside it.
+    "pole_crumble": dict(IMP_STYLES["crumble"], right=_POLE_REST["right"] * 2, left=_POLE_REST["left"] * 2),
+})

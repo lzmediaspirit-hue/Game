@@ -287,12 +287,8 @@ def build():
         # Azure Expanse (Act II) · Rimefrost Heights and Mirrorwater Lake
         spec_row("frost_lynx"),
         spec_row("snow_ape"),
-        mob("azure_carp_dragonet", (68, 72), "normal", "water", "azure", [d("dragonet_scale", 0.45), d("storm_shard", 0.4)],
-            [atk("water_orb", 0.7, 300, 1.15, damage_type="qi", projectile={"speed": 380, "art": "water_orb"})],
-            ai="flyer_ranged", speed=90, flying=True, width=30, height=30),
-        mob("river_sentinel", (70, 75), "normal", "water", "azure", [d("sentinel_core", 0.3), d("storm_shard", 0.6, (1, 2))],
-            [atk("trident_sweep", 0.85, 110, 1.5, depth=40, knockback=90)],
-            ai="guard_counter", speed=55, width=30, height=70, tameable=False),
+        spec_row("azure_carp_dragonet"),
+        spec_row("river_sentinel"),
         # Azure Expanse (Act II) · Gale Canyons
         mob("wind_kite", (73, 76), "normal", "wind", "azure", [d("kite_silk", 0.45), d("storm_shard", 0.5, (1, 2))],
             [atk("gust_dive", 0.55, 120, 1.25, dash=140, knockback=90)],
@@ -311,9 +307,7 @@ def build():
             [atk("sand_burst", 0.7, 130, 1.5, depth=50, knockback=110),
              atk("glass_spit", 0.8, 300, 1.1, projectile={"speed": 460, "art": "pebble"})],
             ai="burrower", speed=100, width=44, height=80),
-        mob("terracotta_warden", 77, "normal", "earth", "azure", [d("terracotta_shard", 0.5), d("storm_shard", 0.5, (1, 2)), d("soul_core_peak", 0.03)],
-            [atk("ge_chop", 0.8, 96, 1.3, depth=36, knockback=90)],
-            ai="slow_melee", speed=70, width=22, height=100, race="construct"),
+        spec_row("terracotta_warden"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
                                                                 d("sunglass_ore", 1.0, (3, 5))],
             [atk("glaive_sweep", 0.75, 190, 1.35, depth=70, knockback=120, both_sides=True, shatter=True),   # S47: breaks a natal weapon
@@ -443,13 +437,7 @@ def build():
         # Bosses
         spec_row("big_toad_tan"),
         spec_row("riverbed_serpent"),
-        mob("thousand_eye_toad", 68, "field_boss", "water", "azure", [d("mirror_eye", 1.0), d("storm_shard", 1.0, (6, 10)),
-                                                                    d("dragonet_scale", 1.0, (2, 3))],
-            [atk("belly_slam", 0.8, 140, 1.4, depth=60, knockback=140, both_sides=True),
-             atk("tongue_lash", 0.6, 240, 1.2, depth=40),
-             atk("mirror_gaze", 1.2, 0, 0.0, summon="azure_carp_dragonet")],
-            ai="boss_toad", width=80, height=100, respawn_min=45,
-            phases=[{"below": 0.5, "action": "summon"}], first_defeat=["cold_lamp_flame"]),
+        spec_row("thousand_eye_toad"),
         spec_row("drowned_abbot"),
         spec_row("the_reflection"),
         # Gap report G1: every 25 on the heart-demon meter brings one of these into the Trial of Reflections.
