@@ -24,10 +24,16 @@ func tick_hazard_volumes(c, rt: RoomRuntime, st: ActorState, delta: float) -> vo
 		# T2 (topdown_mechanics.md): on the height grid a side-view hazard volume stands on its layout's cells (a traverse
 		# `hazard` row: the Tunnels' spike pits), and strikes a body down in them, under their floor (fallen into the pit
 		# where the boards gave way); its numbers are the side view's own volume's.
+		# T3: its cells no boards cover are the pit's open spikes beside them (the side view's pit floor round its planks):
+		# they strike a body standing in them too; whole boards over the rest keep a body on them clear.
 		var tr := TopdownTraverse.of(rt.topdown)
 		if tr == null or tr.hazards.is_empty(): return
 		var rows := tr.hazards_at(st.plane)
-		if rows.is_empty() or st.altitude >= rt.topdown.height_at(st.plane) - 4.0: return
+		if rows.is_empty(): return
+		var floor_z: float = rt.topdown.height_at(st.plane)
+		var fallen: bool = st.altitude < floor_z - 4.0
+		var on_spikes: bool = st.altitude <= floor_z + 4.0 and not tr.spikes_at(st.plane).is_empty()
+		if not fallen and not on_spikes: return
 		for v in ContentDB.room(rt.room_id).get("volumes", []):
 			if rows.any(func(z): return str(z.id) == str(v.get("id", ""))): vols.append(v)
 	elif not rt.geometry.volumes.is_empty(): vols = rt.geometry.volumes_at(st.plane, st.altitude)

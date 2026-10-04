@@ -26,8 +26,13 @@ func flight_allowed(actor_id: String) -> bool:
 	var room: Dictionary = game.room_rt.def if game.room_rt else {}
 	if room.get("no_flight", false) or str(room.get("type", "")) in ContentDB.stat_const("flight.no_flight_types", ["interior"]): return false
 	var st: ActorState = game.actor_state(actor_id)
-	if st != null and game.room_rt and not game.room_rt.geometry.volume_at(st.plane, st.altitude, "no_flight").is_empty(): return false
-	return true
+	if st == null or game.room_rt == null: return true
+	# T3 (topdown_mechanics.md): on the height grid a no_flight volume stands on its layout's cells (a traverse
+	# `no_flight` row), at every height over them; the stand-in geometry holds none of the side view's.
+	if game.room_rt.topdown != null:
+		var tr := TopdownTraverse.of(game.room_rt.topdown)
+		return tr == null or tr.no_flights.is_empty() or tr.no_flight_at(st.plane).is_empty()
+	return game.room_rt.geometry.volume_at(st.plane, st.altitude, "no_flight").is_empty()
 
 func stop_flight(actor_id: String, reason: String) -> void:
 	if not combat.flying.has(actor_id): return

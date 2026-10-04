@@ -89,7 +89,18 @@ is (x, y, w, h). Every key but `size` may be left out.
               ("hazard", id, {rect})                              a side-view hazard volume's cells (a spike pit): it
                                                                    strikes a body down in them
               ("ice", id, {rect}), ("wind", id, {rect})           an ice or wind volume's cells (its numbers the side's)
-  stage     {event id: [(x, y), ...]}: where a room event the side view calls to its own points (a set piece, a trial)
+            T3 (topdown_mechanics.md):
+              hazard: its cells no crumble's boards cover are the pit's open spikes beside them (they strike a body
+                                                                   standing in them; the boards over the rest are safe)
+              ("crack", id, {rect, level})                        a cracked slab at `level` over the floor under it, named
+                                                                   by the side view's cracked block: a Plunge breaks it for
+                                                                   the visit and falls on through; what lies under it is
+                                                                   sealed (hidden) while it stands
+              ("no_flight", id, {rect})                           a side-view no_flight volume's cells: flight is refused
+                                                                   over them (Combat's flight_allowed)
+              ("low_gravity", id, {rect})                         a side-view low_gravity volume's cells: its share of the
+                                                                   fall while its jade switch holds it (WorldObjects)
+  stage    {event id: [(x, y), ...]}: where a room event the side view calls to its own points (a set piece, a trial)
             sets its foes on the grid, point for point (WorldRoomEvents; without one, the point's mapped cell)
   pins      the hand's last word, never the JSON's: {object id: (x, y)}, "spawn", "stairs", "foes", "props" (the whole
             ordered list, hand-placed), "flora" (the scatter, hand-placed), "add": [(kind, x, y)] more pieces, "drop":

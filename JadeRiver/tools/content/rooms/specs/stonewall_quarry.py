@@ -59,6 +59,10 @@ SQ_LOWER_PIT = room(
            ("post", 50, 3), ("post", 54, 3), ("boulder", 49, 4), ("boulder", 55, 5),   # the old adit's timbers
            ("lantern", 50, 16), ("lantern", 54, 16)],
     flora={"floor_s": dict(density=0.3)},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's cracked slab on the pit's floor, a level over it, the
+    # spirit stone shards sealed under it until a Plunge breaks it open.
+    traverse=[("crack", "cracked_slab", dict(rect=(40, 13, 4, 2), level=1))],
+    pins={"pit_shard": (41, 13)},
     foes="auto")
 
 

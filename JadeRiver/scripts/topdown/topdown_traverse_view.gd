@@ -45,11 +45,19 @@ static func build(world) -> Array:
 	for f in tr.floods: out.append(FloodView.new(world, tr, f))
 	# T2 (topdown_mechanics.md): the hatches, the bounces, the ice and the wind.
 	for h in tr.hatches: out.append(HatchView.new(world, h))
-	for b in tr.bounces: out.append(BounceView.new(world, b))
+	for b in tr.bounces: out.append(BounceView.new(world, tr, b))
 	for i in tr.ices:
 		var ir: Rect2 = i.rect
 		for cy in range(TopdownRoom.cell_of(ir.position).y, TopdownRoom.cell_of(ir.end - Vector2.ONE).y + 1): out.append(IceView.new(world, i, cy))
 	for wv in tr.winds: out.append(WindView.new(world, tr, wv))
+	# T3 (topdown_mechanics.md): the cracked slabs, the pits' open spikes, the low-gravity floors.
+	for k in tr.cracks:
+		var kr: Rect2 = k.rect
+		for cy in range(TopdownRoom.cell_of(kr.position).y, TopdownRoom.cell_of(kr.end - Vector2.ONE).y + 1): out.append(CrackView.new(world, k, cy))
+	for z in tr.hazards:
+		var sv := SpikesView.new(world, tr, z)
+		if not sv.cells.is_empty(): out.append(sv)
+	for g in tr.lowgs: out.append(LowGravityView.new(world, g))
 	return out
 
 ## T2 · the ring of water round a swimmer's chest (the player's _draw), its feet at `feet` on the water's line.
@@ -291,7 +299,8 @@ class FloodView extends TopdownWorld.Sorted:
 # ------------------------------------------------------------------ T2 (topdown_mechanics.md)
 ## A sealed hatch across a flight's foot while the side view's climbable it stands for is shut (TopdownTraverse.hatches,
 ## `shut` the player's from climbable_open): a lattice gate with its paper seals standing on the floor at the flight's
-## south edge, in two-cell pieces; gone once it opens. Keyed just before that edge, so a body in front draws over it.
+## south edge, in two-cell pieces; T3: once it opens, the gate stands open (its leaves folded back against its posts,
+## the seals torn). Keyed just before that edge, so a body in front draws over it.
 class HatchView extends TopdownWorld.Sorted:
 	var h: Dictionary
 	var shut := false
@@ -313,8 +322,8 @@ class HatchView extends TopdownWorld.Sorted:
 			shut = bool(h.shut)
 			queue_redraw()
 	func _draw() -> void:
-		if not shut: return
-		var r := TopdownTraverseView.src("seal_gate")
+		# T3: an open hatch keeps its gate standing open, the leaves folded back and the seals torn (T2 drew nothing).
+		var r := TopdownTraverseView.src("seal_gate" if shut else "seal_gate_open")
 		var x := 0.0
 		while x < width - 0.5:
 			draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position + Vector2(x, -r.size.y + 2.0), r.size), r)
@@ -322,27 +331,43 @@ class HatchView extends TopdownWorld.Sorted:
 
 ## A bounce (TopdownTraverse.bounces) drawn as its look on its floor: the Fairground's drum, the Grey Pools' lotus leaf,
 ## the Whispering Bamboo's bent culm, centred on its cells with its foot on their south edge. Keyed at its north edge,
-## as a deck.
+## as a deck. T3, a bounce that gives: as it launches a body (the motor's `sprung`, on the room's clock) it plays its
+## pressed frame, then its spring back, then rests.
 class BounceView extends TopdownWorld.Sorted:
+	const PRESS_S := 0.08   ## the pressed frame's time after the launch, then the spring's to SPRING_S
+	const SPRING_S := 0.24
+	var tr: TopdownTraverse
+	var b: Dictionary
 	var sprite := "drum"
 	var at := Vector2.ZERO
-	func _init(w, b: Dictionary) -> void:
+	var frame := 0
+	func _init(w, t: TopdownTraverse, bounce: Dictionary) -> void:
 		super(w)
-		sprite = str(b.get("look", "drum"))
-		var r: Rect2 = b.rect
+		tr = t
+		b = bounce
+		sprite = str(bounce.get("look", "drum"))
+		var r: Rect2 = bounce.rect
 		var sz := TopdownTraverseView.src(sprite).size
-		at = TopdownWorld.to_screen(Vector2(r.get_center().x, r.end.y), float(b.z)).round() - Vector2(roundf(sz.x * 0.5), sz.y)
+		at = TopdownWorld.to_screen(Vector2(r.get_center().x, r.end.y), float(bounce.z)).round() - Vector2(roundf(sz.x * 0.5), sz.y)
 		# On a raised floor just past its last row's strip (as BoardsView), under a body standing on it.
-		key(r.end.y / TopdownRoom.ART + 0.125 if float(b.z) > 0.5 else floorf(r.position.y / TopdownRoom.ART))
+		key(r.end.y / TopdownRoom.ART + 0.125 if float(bounce.z) > 0.5 else floorf(r.position.y / TopdownRoom.ART))
 		rects.append(Rect2(at, sz))
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		var since := tr.time - float(b.get("sprung", -INF))
+		var f := 1 if since >= 0.0 and since < PRESS_S else (2 if since >= 0.0 and since < SPRING_S else 0)
+		if f != frame:
+			frame = f
+			queue_redraw()
 	func _draw() -> void:
-		var r := TopdownTraverseView.src(sprite)
+		var r := TopdownTraverseView.src(sprite, frame)
 		draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position, r.size), r)
 
 ## A lantern hung from the vault (TopdownTraverse.rafts of kind `lantern`): where the room's clock has swung it, its lid
-## a deck at its level and its glowing body under it, on a chain up to the point it hangs from (over its rest for a
-## swing, over its circle's middle for a circle), the chain's links every other pixel. Keyed at the deck's north edge,
-## as a raft.
+## a deck at its level (T3: a circling one's rising and falling as it goes round upright) and its glowing body under it,
+## on a chain up to the point it hangs from (over its rest), the chain's links every other pixel. Keyed at the deck's
+## north edge, as a raft.
 class LanternView extends TopdownWorld.Sorted:
 	var tr: TopdownTraverse
 	var raft: Dictionary
@@ -354,8 +379,10 @@ class LanternView extends TopdownWorld.Sorted:
 		tr = t
 		raft = r
 		var rest: Rect2 = r.rest
-		var hub := rest.get_center() + (Vector2(0, float(r.mover.radius)) if str(r.mover.mode) == "circle" else Vector2.ZERO)
-		var high := float(r.mover.length) if str(r.mover.mode) == "swing" else 3.0 * TopdownRoom.LEVEL
+		# A swing hangs from the vault over its rest; T3: a circle goes round upright (TopdownTraverse.deck_z), so its chain
+		# runs up from over its rest to the vault over the top of its round.
+		var hub := rest.get_center()
+		var high := float(r.mover.length) if str(r.mover.mode) == "swing" else 2.0 * float(r.mover.radius) + 3.0 * TopdownRoom.LEVEL
 		pivot = TopdownWorld.to_screen(hub, float(r.z) + high).round()
 		rects.append(Rect2())
 		_place()
@@ -455,3 +482,135 @@ class WindView extends TopdownWorld.Sorted:
 			var dst := Rect2(TopdownWorld.to_screen(p, maxf(fz, 0.0) + 10.0).round() - position, s.size)
 			if dir < 0.0: dst = Rect2(dst.position + Vector2(s.size.x, 0), Vector2(-s.size.x, s.size.y))
 			draw_texture_rect_region(TopdownTraverseView.sheet(), dst, s)
+
+# ------------------------------------------------------------------ T3 (topdown_mechanics.md)
+## A cracked slab (TopdownTraverse.cracks, the Lower Pit's), a row of it a node: whole, each cell's grey flagstone top at
+## the slab's level, its crack running on across the cells, and on its last row the slab's south face down to the floor;
+## broken by a Plunge, its rubble lying on the floor. Whole, keyed just past its row's own strip (as raised boards), so a
+## body on it draws over it and one behind it is covered; broken, flat on the floor at its north edge.
+class CrackView extends TopdownWorld.Sorted:
+	var k: Dictionary
+	var cy := 0
+	var south := false
+	var tops: Array = []    ## [screen position, frame] per cell at the slab's level
+	var floors: Array = []  ## [screen position, frame, the face's height in art px] per cell on the floor under it
+	var broken := false
+	func _init(w, crack: Dictionary, row: int) -> void:
+		super(w)
+		k = crack
+		cy = row
+		var r: Rect2 = crack.rect
+		var c0 := TopdownRoom.cell_of(r.position)
+		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
+		south = row == c1.y
+		for cx in range(c0.x, c1.x + 1):
+			var p := Vector2(cx, row) * TopdownRoom.TILE
+			var fz: float = w.room.cell_floor(Vector2i(cx, row))
+			tops.append([TopdownWorld.to_screen(p, float(crack.z)).round(), (cx + row) % 2])
+			floors.append([TopdownWorld.to_screen(p, fz).round(), (cx * 3 + row) % 2, (float(crack.z) - fz) / TopdownRoom.ART])
+		_state()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		if bool(k.broken) != broken: _state()
+	func _state() -> void:
+		broken = bool(k.broken)
+		var north := float(cy) * TopdownRoom.TILE / TopdownRoom.ART
+		key(north if broken else north + TopdownRoom.TILE / TopdownRoom.ART + 0.125)
+		rects.clear()
+		if not broken:
+			for t in tops: rects.append(Rect2(t[0], Vector2(T, T + (float(floors[0][2]) if south else 0.0))))
+		queue_redraw()
+	func _draw() -> void:
+		var tex := TopdownTraverseView.sheet()
+		if broken:
+			for f in floors:
+				var rr := TopdownTraverseView.src("rubble", int(f[1]))
+				draw_texture_rect_region(tex, Rect2((f[0] as Vector2) - position, rr.size), rr)
+			return
+		for t in tops:
+			var r := TopdownTraverseView.src("slab_top", int(t[1]))
+			draw_texture_rect_region(tex, Rect2((t[0] as Vector2) - position, r.size), r)
+			if south:
+				var fr := TopdownTraverseView.src("slab_face")
+				var face_h := float(floors[0][2])
+				var y := 0.0
+				while y < face_h - 0.5:
+					var part := minf(fr.size.y, face_h - y)
+					draw_texture_rect_region(tex, Rect2((t[0] as Vector2) - position + Vector2(0, T + y), Vector2(fr.size.x, part)),
+						Rect2(fr.position, Vector2(fr.size.x, part)))
+					y += fr.size.y
+
+## A spike pit's open cells (TopdownTraverse.hazards: its cells no boards cover, the side view's pit floor beside its
+## planks), bronze spikes standing in the dark. Flat on the floor, keyed at the pit's north edge.
+class SpikesView extends TopdownWorld.Sorted:
+	var cells: Array = []
+	func _init(w, t: TopdownTraverse, z: Dictionary) -> void:
+		super(w)
+		var r: Rect2 = z.rect
+		var c0 := TopdownRoom.cell_of(r.position)
+		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
+		for cy in range(c0.y, c1.y + 1):
+			for cx in range(c0.x, c1.x + 1):
+				var p := (Vector2(cx, cy) + Vector2(0.5, 0.5)) * TopdownRoom.TILE
+				if t.spikes_at(p).is_empty(): continue
+				cells.append(TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, w.room.cell_floor(Vector2i(cx, cy))).round())
+		key(floorf(r.position.y / TopdownRoom.ART))
+		rects.clear()
+	func _draw() -> void:
+		var r := TopdownTraverseView.src("spikes")
+		for p in cells: draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2((p as Vector2) - position, r.size), r)
+
+## A low-gravity floor (TopdownTraverse.lowgs, the Orbit Ruins'): while its jade switch holds it, violet motes rising slowly
+## off the floor over its cells and fading as they go (the side view's VolumeView); while it is off, a faint ring of
+## motes along its edge on the floor. Over the bodies in it (keyed at its south edge).
+class LowGravityView extends TopdownWorld.Sorted:
+	const RISE := 96.0   ## how high a mote climbs (world units) before it fades
+	var g: Dictionary
+	var motes: Array = []   ## [x, y, phase, speed] in world units
+	var rim: Array = []     ## points along the edge
+	func _init(w, low: Dictionary) -> void:
+		super(w)
+		g = low
+		var r: Rect2 = low.rect
+		var n := int(clampf(r.size.x * r.size.y / (TopdownRoom.TILE * TopdownRoom.TILE * 3.0), 6.0, 160.0))
+		for i in n:
+			motes.append([r.position.x + fposmod(float(i) * 83.0, r.size.x), r.position.y + fposmod(float(i) * 47.0 + 11.0, r.size.y),
+				float(i % 9) / 9.0, 0.16 + 0.05 * float(i % 4)])
+		var step := TopdownRoom.TILE * 1.5
+		var x := r.position.x
+		while x <= r.end.x:
+			rim.append(Vector2(x, r.position.y + 2.0))
+			rim.append(Vector2(x, r.end.y - 2.0))
+			x += step
+		var y := r.position.y + step
+		while y < r.end.y:
+			rim.append(Vector2(r.position.x + 2.0, y))
+			rim.append(Vector2(r.end.x - 2.0, y))
+			y += step
+		key(r.end.y / TopdownRoom.ART)
+		rects.clear()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		queue_redraw()
+	func _draw() -> void:
+		var tex := TopdownTraverseView.sheet()
+		var room: TopdownRoom = world.room
+		if bool(g.off):
+			var dot := TopdownTraverseView.src("mote", 0)
+			for p in rim:
+				var fz := room.height_at(p)
+				if fz == INF: continue
+				draw_texture_rect_region(tex, Rect2(TopdownWorld.to_screen(p, fz).round() - position - Vector2(2, 2), dot.size), dot, Color(1, 1, 1, 0.45))
+			return
+		var t := Time.get_ticks_msec() / 1000.0
+		for i in motes.size():
+			var m: Array = motes[i]
+			var p := Vector2(float(m[0]) + sin(t * 0.7 + float(i)) * 4.0, float(m[1]))
+			var fz := room.height_at(p)
+			if fz == INF: continue
+			var k := fposmod(t * float(m[3]) + float(m[2]), 1.0)
+			var s := TopdownTraverseView.src("mote", i % 3)
+			var at := TopdownWorld.to_screen(p, maxf(fz, 0.0) + RISE * k).round() - position - Vector2(2, 2)
+			draw_texture_rect_region(tex, Rect2(at, s.size), s, Color(1, 1, 1, sin(k * PI) * 0.9))

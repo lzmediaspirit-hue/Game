@@ -88,6 +88,8 @@ var _hatch_of: TopdownTraverse = null
 var _hatch_said := false
 ## T2: a swimmer is drawn from the chest up, the figure sunk this far under the water's line.
 const SWIM_SINK := 22.0
+## T3: the share of a stroke its pull takes (the walk's frames run once through), the rest a glide.
+const STROKE_PULL := 0.55
 ## T1: the body's pose on a climbable face: the reviewed hang pose (AGENTS.md rule 4: no new body movement is drawn for
 ## it), reaching up the face.
 const CLIMB_POSE := "work_hang"
@@ -665,6 +667,12 @@ func sync(delta: float) -> void:
 			var loop := CombatFeel.melody_loop()
 			f = int(loop[0]) + int(anim_t * float(TopdownFigure.spec(pose).fps)) % (int(loop[1]) - int(loop[0]) + 1)
 		_: pose = anim
+	# T3 · the swim's stroke (no new body movement, AGENTS.md rule 4): the walk's own frames run once through on the pull
+	# and hold its rest frame through the glide, on the motor's stroke clock.
+	if anim == "walk" and m.swimming:
+		var a := TopdownFigure.spec(pose)
+		var k := m.stroke_t / maxf(0.1, m.swim_stroke)
+		f = int(k / STROKE_PULL * float(a.frames)) % int(a.frames) if k < STROKE_PULL else TopdownFigure.rest_frame(pose)
 	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
 	# Decision 38: the phase of the blow or cast under way (CombatFeel), and the hop of a knockback, which lifts the drawn
 	# body only.

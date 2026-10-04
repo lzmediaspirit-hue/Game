@@ -41,6 +41,16 @@ T2 (the rows T1 left; topdown_mechanics.md):
   ripple_0..1   the ring of water round a swimmer's chest (24 x 8)
   icicle_0..1   a shelf of ice a cell (16 x 20), the crumble's ice look: blue-white ice, icicles hanging off its south
                 face; cracked across in the second frame
+T3 (topdown_mechanics.md):
+  drum, lily, bamboo   now three frames each, the bounce that gives: at rest, pressed under a landing, springing back
+  seal_gate_open   a hatch's gate once it opens (32 x 26): the posts and lintel standing, the leaves folded back against
+                the posts, the torn seals hanging
+  slab_top_0..1 / slab_face   a cracked slab (the Lower Pit's), a cell: a grey flagstone with a zig-zag crack (two ways
+                across), its south face in shadow
+  rubble_0..1   the slab broken by a Plunge, a cell: chunks of stone and grit on the floor
+  spikes        a spike pit open beside its planks, a cell: bronze spikes standing in the pit's dark
+  wake_0..3     the ring a swimmer's stroke leaves on the water (32 x 12), spreading and fading
+  mote_0..2     a mote of the light air over a low-gravity floor (5 x 5), pale violet
 """
 from __future__ import annotations
 
@@ -411,16 +421,19 @@ def plank(s: Img, f: int = 0) -> None:
     s.outline()
 
 
-def drum(s: Img) -> None:
+def drum(s: Img, f: int = 0) -> None:
     """A festival drum set flat on the ground (32 x 32): its pale hide skin, lit upper left, the red lacquered barrel's
-    south side banded in gold under it, a ring of brass studs round the skin's rim, and a painted taiji at its heart."""
-    cx, cy, rx, ry = 16.0, 12.0, 14.5, 10.5
-    for y in range(12, 31):   # the barrel's side, south of the skin
+    south side banded in gold under it, a ring of brass studs round the skin's rim, and a painted taiji at its heart.
+    T3, the bounce that gives: frame 1 the skin pressed in under a landing (sunk two pixels, the barrel squat, a dimple
+    of shadow at its heart), frame 2 its rebound (a pixel proud of its rest, the skin ringing in pale rings)."""
+    rest, rx, ry = 12.0, 14.5, 10.5
+    cx, cy = 16.0, rest + (0.0, 2.0, -1.0)[f]
+    for y in range(int(cy), 31):   # the barrel's side, south of the skin; its foot stays on the ground
         for x in range(2, 30):
             dx = (x + 0.5 - cx) / rx
             if dx * dx > 1.0:
                 continue
-            bottom = cy + ry * (1.0 - dx * dx) ** 0.5 + 8
+            bottom = rest + ry * (1.0 - dx * dx) ** 0.5 + 8
             if y > bottom:
                 continue
             col = RED[3] if dx < -0.3 else RED[2] if dx < 0.4 else RED[1]
@@ -429,6 +442,14 @@ def drum(s: Img) -> None:
             s.put(x, y, col)
     s.ellipse(cx, cy, rx, ry, PAPER, shade=(c_hide_lit, c_hide_dark))
     s.ellipse(cx, cy, rx - 2.5, ry - 2.0, c_hide)
+    if f == 1:   # pressed: the dimple where the feet came down
+        s.ellipse(cx, cy + 0.5, rx - 6.0, ry - 4.5, c_hide_dark)
+    if f == 2:   # the rebound: the skin rings
+        for k in range(36):
+            a = 2 * math.pi * k / 36
+            for rr in (rx - 5.0, rx - 8.5):
+                if k % 2 == 0:
+                    s.put(int(round(cx + rr * math.cos(a) - 0.5)), int(round(cy + rr * (ry / rx) * math.sin(a) - 0.5)), c_hide_lit)
     for k in range(18):       # the brass studs round the rim
         a = 2 * 3.14159 * k / 18
         x = int(round(cx + (rx - 1.2) * math.cos(a) - 0.5))
@@ -446,10 +467,14 @@ c_hide_lit = (246, 236, 208, 255)
 c_hide_dark = (196, 176, 138, 255)
 
 
-def lily(s: Img) -> None:
+def lily(s: Img, f: int = 0) -> None:
     """A giant lotus leaf lying on the marsh (32 x 24): its veins running out from the notched heart, the rim curled up
-    and lit, a bead of water or two, its shadow on the wet ground."""
-    cx, cy, rx, ry = 16.0, 11.0, 15.0, 10.0
+    and lit, a bead of water or two, its shadow on the wet ground. T3, the bounce that gives: frame 1 the leaf pressed
+    down into the wet (a pixel lower, a ring of water welling round its rim), frame 2 springing back (its beads flung up
+    off it)."""
+    cx, cy, rx, ry = 16.0, 11.0 + (1.0 if f == 1 else 0.0), 15.0, 10.0
+    if f == 1:   # the water welling up round the pressed rim
+        s.ellipse(cx, cy + 0.5, rx + 0.9, ry + 1.0, alpha(FOAM2, 170))
     s.ellipse(cx + 1, cy + 2, rx, ry, alpha(WATER2[1], 140))   # the wet ground's shadow under it
     for y in range(24):
         for x in range(32):
@@ -468,21 +493,24 @@ def lily(s: Img) -> None:
                 col = PAD[5] if dx + dy < 0 else PAD[4]
             s.put(x, y, col)
     s.put(int(cx), int(cy), PAD[1])
-    for bx, by in ((9, 7), (21, 13)):   # water beads, lit
+    beads = ((9, 1), (21, 0), (15, 2)) if f == 2 else ((9, 7 + f), (21, 13 + f))   # water beads, lit (flung up off it)
+    for bx, by in beads:
         s.put(bx, by, WATER2[7])
         s.put(bx + 1, by, FOAM2)
         s.put(bx, by + 1, WATER2[5])
     s.outline()
 
 
-def bamboo(s: Img) -> None:
+def bamboo(s: Img, f: int = 0) -> None:
     """A bamboo culm bent over into a springboard (32 x 28): rooted in a clump at the left, it rises and arches to the right,
-    its nodes banded, its tip pressed to the ground at the right under a tuft of leaves."""
+    its nodes banded, its tip pressed to the ground at the right under a tuft of leaves. T3, the bounce that gives:
+    frame 1 the culm bowed down under a landing, frame 2 springing up past its rest, the tip lifted off the ground."""
+    arch = (20.0, 13.0, 23.0)[f]
     pts = []
     for k in range(60):
         t = k / 59.0
         x = 4 + 24 * t
-        y = 24 - 20 * math.sin(math.pi * t) * (1.0 - 0.35 * t)
+        y = 24 - arch * math.sin(math.pi * t) * (1.0 - 0.35 * t) - (5.0 * t ** 3 if f == 2 else 0.0)
         pts.append((x, y))
     for i, (x, y) in enumerate(pts):
         node = i % 12 == 0 and 0 < i < 59
@@ -498,7 +526,7 @@ def bamboo(s: Img) -> None:
     s.put(2, 22, BAMBOO[4])
     for k in range(10):  # the leaf tuft over the tip
         lx = 21 + int(h01(k, 1, 86) * 10)
-        ly = 17 + int(h01(k, 2, 86) * 8)
+        ly = 17 + int(h01(k, 2, 86) * 8) - (4 if f == 2 else 0)
         for dx, dy, col in ((0, 0, LEAF[5]), (1, 0, LEAF[4]), (2, 1, LEAF[3]), (3, 1, LEAF[2])):
             s.put(lx + dx - 2, ly + dy, col)
     s.outline()
@@ -655,6 +683,148 @@ def ripple(s: Img, f: int = 0) -> None:
             s.put(int(x), int(y), alpha(FOAM2, 220 if math.sin(a) > 0 else 150))
 
 
+# ------------------------------------------------------------------ T3: the rows and the looks T2 left (topdown_mechanics.md)
+# Low gravity's violet (the side view's VolumeView: motes of pale violet over a deeper wash).
+VIOLET = ((58, 40, 104, 255), (98, 74, 168, 255), (146, 118, 226, 255), (196, 178, 252, 255), (240, 234, 255, 255))
+
+
+def seal_gate_open(s: Img) -> None:
+    """A hatch's gate once its climbable opens (32 x 26): the two posts and the red lintel still stand, the lattice's two
+    leaves swung back flat against the posts (seen edge on, a slat's width each), the paper seals torn, their halves
+    hanging from the lintel and fluttering, the way between them open."""
+    for x0 in (0, 29):       # the posts, capped, as the shut gate's
+        for y in range(1, 26):
+            s.put(x0, y, DARKWOOD[4] if x0 == 0 else DARKWOOD[3])
+            s.put(x0 + 1, y, DARKWOOD[3])
+            s.put(x0 + 2, y, DARKWOOD[2] if x0 == 0 else DARKWOOD[1])
+        s.rect(x0 - (1 if x0 == 0 else 0), 0, 4, 2, GOLDR[2])
+        s.put(x0, 0, GOLDR[3])
+    for x in range(0, 32):   # the lintel, lit on top
+        s.put(x, 4, RED[4] if 2 < x < 29 else DARKWOOD[4])
+        s.put(x, 5, RED[2])
+    for x0, dx in ((3, 1), (28, -1)):   # each leaf folded back against its post: its edge, the slats' ends
+        for y in range(6, 24):
+            s.put(x0, y, DARKWOOD[3] if y % 4 else RED[3])
+            s.put(x0 + dx, y, DARKWOOD[2] if y % 4 else DARKWOOD[4])
+            s.put(x0 + 2 * dx, y, alpha(DARKWOOD[0], 160))
+    for x0, n in ((7, 6), (10, 3), (21, 4), (24, 7)):   # the torn seals hanging off the lintel
+        for k in range(n):
+            x = x0 + (1 if (k // 2) % 2 else 0)
+            s.put(x, 6 + k, PAPER if k < n - 1 else alpha(PAPER, 200))
+            s.put(x + 1, 6 + k, DARKWOOD[1] if k % 3 == 2 else alpha(PAPER, 140))
+    s.rect(9, 6, 2, 2, RED[3])   # a seal's red stamp, torn in half
+    s.put(9, 6, RED[4])
+    s.outline()
+
+
+def slab_top(s: Img, f: int = 0) -> None:
+    """A cracked slab's top, a cell (16 x 16): a grey flagstone, lit upper left, its joints to the next cell, a zig-zag
+    crack across it with a pale lip, from the north-west in frame 0 and from the south-west in frame 1 (the view takes
+    the frame by the cell, so the cracks run on across the slab)."""
+    for y in range(16):
+        for x in range(16):
+            col = STONE[4] if x + y < 9 else STONE[3] if h01(x, y, 94) < 0.8 else STONE[2]
+            if x == 15 or y == 15:
+                col = STONE[1]   # the joint
+            elif x == 0 or y == 0:
+                col = STONE[5]
+            s.put(x, y, col)
+    y = 3 if f == 0 else 12
+    for x in range(16):
+        y += (1 if f == 0 else -1) * (1 if x % 4 < 2 else 0) - (1 if f == 0 else -1) * (1 if x % 7 == 6 else 0)
+        y = max(1, min(14, y))
+        s.put(x, y, STONE[0])
+        s.put(x, y + 1, STONE[5])
+        if x % 5 == 2:   # a branch off the crack
+            s.put(x, y - 1, STONE[1])
+
+
+def slab_face(s: Img) -> None:
+    """A cracked slab's south face, a cell (16 x 16): its cut side in shadow under the top's lit rim, a crack running down
+    it, the floor's dust at its foot."""
+    for y in range(16):
+        for x in range(16):
+            col = STONE[2] if y > 1 else STONE[4]
+            if y > 12:
+                col = STONE[1]
+            if x == 15:
+                col = STONE[1]
+            s.put(x, y, col)
+    for y in range(2, 14):
+        s.put(6 + (y // 3) % 2, y, STONE[0])
+    for x in range(16):
+        if h01(x, 1, 95) < 0.4:
+            s.put(x, 15, alpha(DIRT[3], 200))
+
+
+def rubble(s: Img, f: int = 0) -> None:
+    """A cracked slab broken by a Plunge, a cell (16 x 16): chunks of grey stone lying on the floor, lit on their tops,
+    their shadows, grit between them; two arrangements (frame by cell)."""
+    for k in range(5):
+        x = 1 + int(h01(k, f, 96) * 11)
+        y = 1 + int(h01(k, f + 7, 96) * 11)
+        w = 2 + int(h01(k, f + 3, 97) * 3)
+        h = 2 + int(h01(k, f + 5, 97) * 2)
+        s.rect(x + 1, y + 1, w, h, alpha(STONE[0], 150))   # its shadow
+        s.rect(x, y, w, h, STONE[3])
+        s.hline(x, y, w, STONE[5])
+        s.vline(x + w - 1, y, h, STONE[2])
+    for k in range(9):
+        s.put(int(h01(k, f, 98) * 16), int(h01(k, f + 1, 98) * 16), STONE[4] if k % 2 else STONE[1])
+
+
+def spikes(s: Img) -> None:
+    """A spike pit open beside its planks, a cell (16 x 16): the dark of the pit's floor, darker under its north lip, and
+    bronze spikes standing up out of it in staggered rows, each lit down its west side to a bright tip."""
+    for y in range(16):
+        for x in range(16):
+            s.put(x, y, (20, 13, 9, 255) if y < 2 else DARKWOOD[0] if y < 5 or h01(x, y, 99) < 0.7 else DARKWOOD[1])
+    for k, (x, y) in enumerate(((2, 4), (7, 3), (12, 4), (4, 9), (9, 8), (14, 9), (2, 14), (7, 13), (12, 14))):
+        s.put(x, y - 3, BRONZER[5])            # the tip
+        s.put(x, y - 2, BRONZER[4])
+        s.put(x, y - 1, BRONZER[4])
+        s.put(x + 1, y - 1, BRONZER[2])
+        s.put(x, y, BRONZER[3])
+        s.put(x + 1, y, BRONZER[1])
+        s.put(x - 1, y, BRONZER[2])
+        if y + 1 < 16:
+            s.hline(x - 1, y + 1, 3, alpha(DARKWOOD[0], 255))   # its foot in the dark
+
+
+def wake(s: Img, f: int = 0) -> None:
+    """The ring a swimmer's stroke leaves on the water (32 x 12): a broken ellipse of foam spreading over the four frames,
+    thinning and fading as it goes."""
+    rx, ry = 5.0 + f * 3.0, 2.0 + f * 1.0
+    a0 = (235, 200, 150, 90)[f]
+    n = 28 + f * 8
+    for k in range(n):
+        a = 2 * math.pi * k / n
+        if h01(k, f, 101) < 0.25 + f * 0.1:
+            continue
+        x, y = 16 + rx * math.cos(a), 6 + ry * math.sin(a)
+        s.put(int(x), int(y), alpha(FOAM2, a0 if math.sin(a) > 0 else a0 * 2 // 3))
+
+
+def mote(s: Img, f: int = 0) -> None:
+    """A mote of the light air over a low-gravity floor (5 x 5), pale violet: a point with its glow (frame 0), a small
+    star (frame 1), a bright diamond (frame 2)."""
+    if f == 0:
+        s.put(2, 2, VIOLET[4])
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            s.put(2 + dx, 2 + dy, alpha(VIOLET[2], 150))
+    elif f == 1:
+        s.put(2, 2, VIOLET[4])
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            s.put(2 + dx, 2 + dy, VIOLET[3])
+            s.put(2 + 2 * dx, 2 + 2 * dy, alpha(VIOLET[2], 130))
+    else:
+        for dy in range(-2, 3):
+            for dx in range(-2, 3):
+                d = abs(dx) + abs(dy)
+                if d <= 2:
+                    s.put(2 + dx, 2 + dy, VIOLET[4] if d == 0 else VIOLET[3] if d == 1 else alpha(VIOLET[1], 180))
+
+
 SPRITES = {
     "raft_2x2": (32, 38, 2, raft),
     "vine_top": (16, 16, 0, lambda s: vine(s, "top")), "vine_mid": (16, 16, 0, lambda s: vine(s, "mid")),
@@ -674,9 +844,9 @@ SPRITES = {
     "seal_gate": (32, 26, 0, seal_gate),
     "driftwood": (48, 22, 2, driftwood),
     "plank": (32, 20, 2, plank),
-    "drum": (32, 32, 0, drum),
-    "lily": (32, 24, 0, lily),
-    "bamboo": (32, 28, 0, bamboo),
+    "drum": (32, 32, 3, drum),       # T3: three frames, the bounce giving
+    "lily": (32, 24, 3, lily),
+    "bamboo": (32, 28, 3, bamboo),
     "lantern": (32, 52, 2, lantern),
     "pit": (16, 16, 0, pit),
     "gap": (16, 16, 0, gap),
@@ -685,6 +855,14 @@ SPRITES = {
     "wind": (20, 6, 3, wind),
     "ripple": (24, 8, 2, ripple),
     "icicle": (16, 20, 2, icicle),
+    # T3
+    "seal_gate_open": (32, 26, 0, seal_gate_open),
+    "slab_top": (16, 16, 2, slab_top),
+    "slab_face": (16, 16, 0, slab_face),
+    "rubble": (16, 16, 2, rubble),
+    "spikes": (16, 16, 0, spikes),
+    "wake": (32, 12, 4, wake),
+    "mote": (5, 5, 3, mote),
 }
 
 
