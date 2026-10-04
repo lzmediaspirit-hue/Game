@@ -5,15 +5,17 @@ board as specs, compiled into the rows the game reads.
     python3 tools/content/quests/engine.py --list        # every quest: its band, room, realm and pay
     python3 tools/content/quests/engine.py --show ID     # one quest: the row, and what was derived and pinned
     python3 tools/content/quests/engine.py --bands       # the band table: Levels, need, cultivation, pay
-    python3 tools/content/quests/engine.py --diffs       # the quests that pay otherwise than their band, or sit far from their room
+    python3 tools/content/quests/engine.py --diffs       # the quests that pay otherwise than their band (and why), the
+                                                         # board's pinned jobs (and why); any quest or job far from its room
 
 A spec (specs/<module>.py, spec.py) writes:
 - the quest's quests.json row (story.py places each section with `rows(section)` among its hand quests and calls
   `settle(Q)` once quest_tiers has found every tier), deriving
     - `target_room` from where the target is: the room where a foe spawns most, where what it drops or a node yields
       is, where a person stands (the built rooms, data/rooms; the loot of the monster engine, data/loot_tables.json),
-    - `requires`' realm from the target room's band of Levels,
+    - `requires`' realm from the target room's band of Levels (realm=ROOM: also for a quest that follows another),
     - its pay from the band table at its tier (bands.py), the cultivation following the same tier (quest_tiers);
+      a pay pinned otherwise names the story's reason (`why`);
 - the daily mission board's templates (economy.py's missions() takes `missions()`).
 Its strings follow the rows: economy.py's strings() reads the built quests (a quest that teaches an art names it).
 Deterministic: no randomness; every derived value can be pinned in the spec.
@@ -615,11 +617,13 @@ def far_jobs(st=None, w=None, above=4, below=8, node_below=20):
 def main(argv=None):
     import argparse
     ap = argparse.ArgumentParser(prog="engine.py", description=__doc__.strip().split("\n\n")[0])
-    ap.add_argument("--check", action="store_true", help="the gate: the specs, determinism, the built data, the bands, tests.py")
+    ap.add_argument("--check", action="store_true", help="the gate: the specs, determinism, the built data, the bands, the rooms "
+                                                         "and the board, tests.py")
     ap.add_argument("--list", action="store_true", help="every quest: its section, band, room, realm and pay")
     ap.add_argument("--show", metavar="ID", help="one quest: the row, what was derived and what is pinned")
     ap.add_argument("--bands", action="store_true", help="the band table")
-    ap.add_argument("--diffs", action="store_true", help="the quests that pay otherwise than their band, and those pitched far from their room")
+    ap.add_argument("--diffs", action="store_true", help="the quests that pay otherwise than their band and why, the board's pins and "
+                                                         "why, and any quest or job pitched far from its room")
     args = ap.parse_args(argv)
     st, w = state(), world()
     if args.list:
