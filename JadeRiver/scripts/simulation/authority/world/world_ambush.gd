@@ -41,8 +41,7 @@ func spring_ambush(c, amb: Dictionary) -> void:
 	var off := float(k.get("offset", 360))
 	for i in n:
 		var dx := (1.0 if i % 2 == 0 else -1.0) * (off + 90.0 * floorf(i / 2.0))
-		var spot := Vector2(clampf(at.x + dx, 120.0, rt.width() - 120.0), at.y)
-		# On the height grid: on the floor round the player, on its own level (not in a wall, the water or a roof).
-		if not WorldAuthority.side_view(rt): spot = rt.topdown.place_near(at + Vector2(dx, 0.0), rt.topdown.floor_at(at))
+		# On the floor round the player, on its own level (not in a wall, the water or a roof).
+		var spot := rt.topdown.place_near(at + Vector2(dx, 0.0), rt.topdown.floor_at(at))
 		game.enemies.spawn_at(str(amb.enemy), spot, rng.randi_range(int(lv[0]), int(lv[1])))
 	emit("ambush_sprung", {"actor": c.id, "room": rt.room_id, "enemy": str(amb.enemy), "count": n, "concealed": c.cultivator.false_realm != ""})

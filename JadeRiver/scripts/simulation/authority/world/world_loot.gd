@@ -109,7 +109,7 @@ func on_actor_defeated(p: Dictionary) -> void:
 		game.quest.apply_flag(c.id, flag)
 		drop.items.append({"item": str(it), "count": 1})
 	var role := str(p.get("role", ""))
-	drop_loot(c, drop, Vector2(float(p.x), float(p.y)), float(p.get("alt", 0.0)),
+	drop_loot(c, drop, Vector2(float(p.x), float(p.y)),
 		"field_boss" if role == "field_boss" else ("boss" if role in ["dungeon_boss", "story_boss"] else ("elite" if p.get("elite", false) else "enemy")))
 
 ## Starter gear (grades.json drop.starter; docs/tutorial_order.md): a kill of a first-room foe (a `starter` table).
@@ -140,7 +140,7 @@ static func zone_shard(room_id: String) -> String:
 
 ## `source` says what left the loot (P6: the loot fountain tells a boss's drop from a jar's): enemy, elite, boss,
 ## field_boss, fled, jar, chest, rift or tower. It only goes into the event.
-func drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void:
+func drop_loot(c, drop: Dictionary, at: Vector2, source: String) -> void:
 	var rt: RoomRuntime = game.room_rt
 	var rng := Rng.stream(c.id, "loot")
 	var drops: Array = []
@@ -162,7 +162,7 @@ func drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> 
 	var items_out: Array = []
 	for d in drops:
 		var spread := (i - (drops.size() - 1) * 0.5) * 22.0
-		var spot := loot_spot(rt, at, alt, spread, rng.randf_range(-6, 6))
+		var spot := loot_spot(rt, at, spread, rng.randf_range(-6, 6))
 		var entry := {"uid": rt.uid(), "item": str(d.get("item", "")), "count": int(d.get("count", 0)), "coins": int(d.get("coins", 0)),
 			"instance": d.get("instance", {}), "x": spot.x, "y": spot.y, "alt": spot.z,
 			"ttl": 120.0 if d.has("coins") else 60.0, "age": 0.0}
@@ -176,11 +176,10 @@ func drop_loot(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> 
 		emit("loot_dropped", {"room": rt.room_id, "items": items_out, "x": at.x, "y": at.y, "source": source,
 			"first_weapon": items_out.any(func(it): return it.get("first", false))})
 
-## Where one drop of a spill lies: (x, y, height), in a row across the spot, `spread` from it and `jitter` in depth. The
-## side view keeps it inside its walk strip at the spot's height. On the height grid each lies on the floor it falls
-## on, and one that would land in a wall, the water or off the spot's own floor (over a ledge) lies on the spot itself.
-static func loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3:
-	if WorldAuthority.side_view(rt): return Vector3(at.x + spread, clampf(at.y + jitter, 626, 956), alt)
+## Where one drop of a spill lies: (x, y, height), in a row across the spot, `spread` from it and `jitter` in depth, on
+## the floor it falls on; one that would land in a wall, the water or off the spot's own floor (over a ledge) lies on the
+## spot itself.
+static func loot_spot(rt: RoomRuntime, at: Vector2, spread: float, jitter: float) -> Vector3:
 	var g := rt.topdown
 	var p := at + Vector2(spread, jitter)
 	if not g.standable(TopdownRoom.cell_of(p)) or absf(g.floor_at(p) - g.floor_at(at)) > 8.0: p = at
@@ -214,9 +213,8 @@ func collect(c, l: Dictionary) -> Dictionary:
 ## Each tick: a drop the character stands at is picked up, and one left past its time is gone (a quest item or a
 ## piece of Fine quality and up goes to the overflow instead).
 func tick_loot(c, rt: RoomRuntime, st: ActorState, delta: float) -> void:
-	# The pickup's reach in height: the side view's 60 up and down; on the height grid half a level, so a drop on the
-	# terrace is not drawn in from the square below its face.
-	var loot_band := 60.0 if WorldAuthority.side_view(rt) else TopdownRoom.LEVEL * 0.5
+	# The pickup's reach in height: half a level, so a drop on the terrace is not drawn in from the square below its face.
+	var loot_band := TopdownRoom.LEVEL * 0.5
 	for l in rt.loot.duplicate():
 		l.age = float(l.age) + delta
 		if st != null and not game.combat.is_wounded(c.id) and float(l.age) > 0.45:

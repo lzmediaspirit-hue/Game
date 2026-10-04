@@ -1,9 +1,8 @@
 class_name ShellScreens
 extends RefCounted
 ## Title, character selection and creator (S23, S27, S35, Part 9.6 "Game shell").
-## Each screen is a frameless Page drawn over the river backdrop.
+## Each screen is a frameless Page drawn over the title screens' sky (ShellSky).
 
-const Avatar = preload("res://scripts/avatar.gd")
 const CharactersPage = preload("res://scripts/ui/pages/characters_page.gd")
 
 
@@ -122,14 +121,9 @@ class SelectionScreen extends Page:
 			var slot := page * PER_PAGE + i + 1
 			var ch = Game.character("c%d" % slot)
 			if ch == null: continue
-			# Each character as its own game draws it: a top-down one in the top-down style (decision 41).
-			var av: Node2D
-			if Figures.top_down(ch):
-				av = TopdownPreview.new(InventoryAuthority.outfit_for(ch), false)
-				av.scale = Vector2.ONE * 4.0   # a portrait: a whole scale, nearest neighbour (decision 42)
-			else:
-				av = Figures.side_avatar(InventoryAuthority.outfit_for(ch))
-				av.scale = Vector2.ONE * 1.6
+			# Each character as the game draws it, standing facing the camera.
+			var av := TopdownPreview.new(InventoryAuthority.outfit_for(ch), false)
+			av.scale = Vector2.ONE * 4.0   # a portrait: a whole scale, nearest neighbour (decision 42)
 			av.position = Vector2(_card(i).get_center().x, _card(i).position.y + 250)
 			add_child(av)
 			avatars[slot] = av
@@ -224,18 +218,11 @@ class CreatorScreen extends Page:
 		var rules: Dictionary = ContentDB.config("account_rules").get("creator", {})
 		draft = {"body": "light", "hair": str(rules.get("hair", ["topknot"])[1]), "hair_color": 0, "shirt": "disciple", "pants": "loose",
 			"shoes": "slippers", "hat": "none", "cape": "none", "weapon": "none"}
-		# Decision 41: the new character as its game will draw it. A new game is top-down, so the preview is the top-down
-		# figure, walking in place as it turns; the side view's avatar only with Settings' classic side view on.
-		if topdown():
-			preview = TopdownPreview.new(worn())
-			preview.position = Vector2(330, 520)
-			preview.scale = Vector2.ONE * 6.0
-		else:
-			preview = Figures.side_avatar(worn())
-			preview.position = Vector2(330, 500)
-			preview.scale = Vector2.ONE * 3.0
+		# The new character as the game will draw it, walking in place as it turns.
+		preview = TopdownPreview.new(worn())
+		preview.position = Vector2(330, 520)
+		preview.scale = Vector2.ONE * 6.0
 		add_child(preview)
-		if preview is Avatar: preview.play("idle")
 		name_field = LineEdit.new()
 		name_field.max_length = int(ContentDB.config("account_rules").get("name_max", 24))
 		name_field.placeholder_text = Tx.t("shell.your_name")
@@ -248,14 +235,9 @@ class CreatorScreen extends Page:
 		name_field.add_theme_stylebox_override("focus", UiKit.style("selected_slot_glow"))
 		add_child(name_field)
 
-	## The new game's view (AccountAuthority.new_game_view): top-down unless Settings keeps the classic side view.
-	func topdown() -> bool:
-		return AccountAuthority.new_game_view(Game.account.settings if Game.account else {}) == "topdown"
-
-	## Dress the preview in what the draft will wear (either view's figure).
+	## Dress the preview in what the draft will wear.
 	func dress() -> void:
 		preview.outfit = worn()
-		if preview is Avatar: preview.last_key = ""
 
 	## What the new character will wear: the chosen cuts in the starting hemp garments' own dyes (AccountAuthority dresses
 	## a new character in them, S27), so the preview shows what the game does (the prototype's QA: a teal tunic chosen,
@@ -311,10 +293,7 @@ class CreatorScreen extends Page:
 	func draw_page() -> void:
 		UiKit.draw_text(self, Tx.t("shell.create_disciple_2"), Vector2(0, 74), 48, UiKit.PALE_GOLD, HORIZONTAL_ALIGNMENT_CENTER, 1280, true, true)
 		draw_style_box(UiKit.style("major_window"), Rect2(120, 110, 420, 520))
-		if preview is TopdownPreview:
-			region(Rect2(160, 150, 340, 420), "turn")   # a tap turns the figure round by hand
-		else:
-			draw_ellipse_shadow(Vector2(330, 500))
+		region(Rect2(160, 150, 340, 420), "turn")   # a tap turns the figure round by hand
 		var panel_r := Rect2(600, 104, 610, 530)
 		draw_style_box(UiKit.style("major_window"), panel_r)
 		text(Vector2(640, 160), Tx.t("shell.name"), 24, UiKit.GOLD)
@@ -345,18 +324,13 @@ class CreatorScreen extends Page:
 		btn(Rect2(330, 646, 170, 54), Tx.t("shell.randomize"), "random")
 		btn(Rect2(880, 646, 300, 60), Tx.t("shell.begin"), "begin", null, true, true, "", 26)
 
-	func draw_ellipse_shadow(p: Vector2) -> void:
-		draw_set_transform(p, 0, Vector2(1, 0.25))
-		draw_circle(Vector2.ZERO, 70, Color(0, 0, 0, 0.35))
-		draw_set_transform(Vector2.ZERO)
-
 	func on_action(id: String, data) -> void:
 		match id:
 			"prev": cycle(str(data), -1)
 			"next": cycle(str(data), 1)
 			"dye": set_hair_dye(int(data))
 			"random": randomize_look()
-			"turn": if preview is TopdownPreview: preview.turn()
+			"turn": preview.turn()
 			"skip": skip_prologue = not skip_prologue
 			"back": cancelled.emit()
 			"begin":
@@ -365,8 +339,6 @@ class CreatorScreen extends Page:
 					flash(Tx.t("shell.please_enter_a_name"))
 					name_field.grab_focus()
 					return
-				# Decision 41: a new game is made in the top-down world, unless Settings keeps the classic side view.
 				var r := submit({"type": "create_character", "slot": slot, "name": nm, "origin": origin, "skip_prologue": skip_prologue,
-					"appearance": {"hair": draft.hair, "hair_color": draft.hair_color, "shirt": draft.shirt, "pants": draft.pants, "shoes": draft.shoes},
-					"view": AccountAuthority.new_game_view(Game.account.settings)})
+					"appearance": {"hair": draft.hair, "hair_color": draft.hair_color, "shirt": draft.shirt, "pants": draft.pants, "shoes": draft.shoes}})
 				if r.get("ok", false): created.emit(slot)

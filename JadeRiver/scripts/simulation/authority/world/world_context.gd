@@ -61,7 +61,7 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 			if chest_lv <= 0: chest_lv = ProgressionRules.level(c)   # a chest of no fixed level fits its finder (the grotto)
 			var drop := LootRules.roll(str(o.get("loot", "chest_valley")), Rng.stream(c.id, "loot"), chest_lv,
 				c.stats.value("drop_rate"), c.stats.value("coin_find"))
-			world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "chest")
+			world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), "chest")
 		"transfer_array":
 			# Decision 42: the node learns the token, and the travel picker asks where to (array_view).
 			world.attune_array(c, object_id)
@@ -162,12 +162,12 @@ func interact(c, object_id: String, pick := false) -> Dictionary:
 	emit("object_interacted", {"actor": c.id, "object": object_id, "type": o.type, "room": game.room_rt.room_id})
 	return result
 
-## How far from a thing the context button offers it and interact takes it: its `radius`; a person's on the height grid
-## as much further as the people there are drawn bigger (decision 43, TopdownRoom.PEOPLE), so a talk starts from the same
-## gap between two bodies.
+## How far from a thing the context button offers it and interact takes it: its `radius`; a person's as much further
+## as the people are drawn bigger (decision 43, TopdownRoom.PEOPLE), so a talk starts from the same gap between two
+## bodies.
 func reach_of(o: Dictionary) -> float:
 	var r := float(o.get("radius", 110))
-	if str(o.get("type", "")) == "npc" and not WorldAuthority.side_view(game.room_rt): r *= TopdownRoom.PEOPLE
+	if str(o.get("type", "")) == "npc": r *= TopdownRoom.PEOPLE
 	return r
 
 ## Context action for the Attack button (Part 9.9): quest target → NPC → loot → gather → travel.
@@ -227,7 +227,7 @@ static func context_rank(o: Dictionary, calls := false) -> float:
 
 ## A portal the context button can take ("Enter"): anything but a plain edge, which is walked through.
 static func context_portal(p: Dictionary) -> bool:
-	return str(p.get("type", "edge")) != "edge" or p.get("press_up", false)
+	return str(p.get("type", "edge")) != "edge"
 
 func verb(o: Dictionary) -> String:
 	if o.has("chase"): return Tx.t("sim.world.chase")

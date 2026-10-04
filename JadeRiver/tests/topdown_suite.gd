@@ -1580,7 +1580,7 @@ func _drops_and_prompt(tree: SceneTree) -> void:
 	tree.root.add_child(hud)
 	await tree.process_frame
 	fresh(spot)
-	Game.world.apply_loot_drop(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [], "coins": 0, "equipment": [{"level": 1, "min_quality": "fine"}]}, spot + Vector2(10, 0), "enemy")
 	var uid := -1
 	for l in Game.room_rt.loot: uid = int((l.instance as Dictionary).get("uid", -1))
 	frames(40)
@@ -2120,13 +2120,13 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	t.check(not from_below and side_rule and Game.world.portal_near(c, door), "topdown audit: a way on the terrace is not taken from the square below its face (the old reach was), and is on the terrace")
 	# Pickups: a drop on the terrace's edge is not drawn in from the square below; a spill over a ledge stays on its floor.
 	fresh(Vector2(26.5, 12.4) * 32.0)
-	Game.world.apply_loot_drop(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, 32.0, "enemy")
+	Game.world.apply_loot_drop(c, {"items": [{"item": "rat_tail", "count": 1}], "coins": 0, "equipment": []}, Vector2(26.5, 11.6) * 32.0, "enemy")
 	frames(40)
 	var left: bool = rt.loot.size() == 1 and float(rt.loot[0].alt) == 32.0
 	w.player.motor.place(Vector2(26.5, 11.4) * 32.0)
 	w.player.physics_step(0.0001)
 	frames(40)
-	var spill: Vector3 = WorldAuthority.loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 32.0, 0.0, 22.0)
+	var spill: Vector3 = WorldAuthority.loot_spot(rt, Vector2(26.5, 11.9) * 32.0, 0.0, 22.0)
 	t.check(left and rt.loot.is_empty() and spill.z == 32.0 and spill.y < 12.0 * 32.0,
 		"topdown audit: a drop on the terrace's edge is not picked up from the square below (the old reach, 60 up, took it), and is on the terrace; a spill over the ledge lies on its own floor")
 	# Auto-path arrives only on the goal's own floor, not under it on the square below.

@@ -19,7 +19,7 @@ func apply_rift_reward(actor_id: String, loot: String, level: int) -> void:
 	var st: ActorState = game.actor_state(actor_id)
 	if c == null or st == null: return
 	var drop := LootRules.roll(loot, Rng.stream(c.id, "loot"), level, c.stats.value("drop_rate"), c.stats.value("coin_find"))
-	world.loot.drop_loot(c, drop, st.plane, 0.0, "rift")
+	world.loot.drop_loot(c, drop, st.plane, "rift")
 
 func start_event(c, rt: RoomRuntime, ev: Dictionary) -> void:
 	if ev.has("requires") and not RequirementRules.passes(ev.requires, game.ctx(c)): return

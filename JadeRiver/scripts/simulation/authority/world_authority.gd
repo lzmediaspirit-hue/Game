@@ -99,11 +99,6 @@ func handle(intent: Dictionary) -> Dictionary:
 		"array_travel": return array_travel(c, str(intent.get("from", "")), str(intent.get("to", "")))
 	return fail("unknown_intent")
 
-## The side view (decision 41 keeps it as a new-game fallback): a room played side-on, with no height grid. Every
-## side-view branch of the world asks this, or finds grid_for null, so they can go together when the side view does.
-static func side_view(rt: RoomRuntime) -> bool:
-	return rt == null or rt.topdown == null
-
 ## S18: at the zone's ceiling the land itself is the limit.
 func _on_bottleneck(p: Dictionary) -> void:
 	var c = game.character(str(p.get("actor", "")))
@@ -111,64 +106,43 @@ func _on_bottleneck(p: Dictionary) -> void:
 	var zone := ContentDB.zone_of_room(str(c.position.get("room", "")))
 	emit("zone_ceiling_reached", {"actor": c.id, "zone": str(zone.get("id", "")), "ceiling": str(p.get("realm_key", ""))})
 
-## S43 rising water: the room's geometry answers a boss phase or a boss's fall.
+## T1 rising water: a boss phase or a boss's fall raises or lowers the layout's floods (TopdownTraverse), by the
+## room's own `rise` script.
 func _on_room_script(p: Dictionary, ev: String) -> void:
-	if game.room_rt != null: game.room_rt.geometry.on_event(ev, p)
-	# T1: on the grid the same script raises the layout's floods (TopdownTraverse).
-	if game.room_rt != null and game.room_rt.topdown != null and game.room_rt.topdown.traverse != null: game.room_rt.topdown.traverse.on_event(ev, p)
+	if game.room_rt != null and game.room_rt.topdown.traverse != null: game.room_rt.topdown.traverse.on_event(ev, p)
 
 # ------------------------------------------------------------------ rooms
-static func compile_geometry(def: Dictionary) -> Dictionary:
-	var data := {"bounds": def.get("bounds", [0, 480, 1280, 480]), "surfaces": def.get("surfaces", []).duplicate(true),
-		"objects": def.get("scenery", []).duplicate(true), "gates": []}
-	# S43 traversal sections pass straight through to the geometry.
-	for k in ["blocks", "climbables", "void_altitude", "volumes", "movers"]:
-		if def.has(k): data[k] = def[k].duplicate(true) if def[k] is Array else def[k]
-	for o in def.get("objects", []):
-		if o.has("footprint") and o.get("blocks", false):
-			data.objects.append({"id": "obj_" + str(o.id), "art": "none", "footprint": o.footprint, "height": float(o.get("height", 60)), "radius": 4})
-	return ZoneLayout.compile(data)
-
+## Enter a room of the world on its layout (data/topdown/<room>.json): at `point` when one is given (a saved spot, a
+## shrine's step), else at the portal's own arrival cell facing away from the way out, else at the layout's spawn.
+## Every room has a layout (data_validation holds world.py's rooms and every way's target to it); a room without one
+## is refused, loudly.
 func load_room(c, room_id: String, portal_id: String, point := Vector2.INF) -> Dictionary:
 	var def := ContentDB.room(room_id)
 	if def.is_empty(): return fail("unknown_room")
+	var grid := grid_for(room_id)
+	if grid == null:
+		push_error("WorldAuthority.load_room: %s has no layout on the height grid" % room_id)
+		return fail("no_layout")
 	if voyages.has(c.id) and not def.get("crossing", false): voyages.erase(c.id)   # a crossing abandoned (fallen overboard)
 	var old = game.room_rt.room_id if game.room_rt else ""
 	if old != "":
 		emit("room_left", {"actor": c.id, "room": old, "portal": portal_id})
-	var grid := grid_for(c, room_id)
 	var rt := _runtime(room_id, def, grid)
 	game.room_rt = rt
-	# Arrival: on the linked portal facing into the room, never mid-air.
 	var arrival := point
 	var facing := int(c.position.get("facing", 1))
 	if not arrival.is_finite():
 		var p := rt.portal_def(portal_id)
-		if not p.is_empty() and grid != null:
-			# On the grid: the portal's own arrival cell inside it, facing away from the way out.
+		if not p.is_empty():
 			var ar: Array = p.get("arrive", p.get("at", [0, 0]))
 			arrival = Vector2(float(ar[0]), float(ar[1]))
 			facing = -1 if float((p.get("dir", [-1, 0]) as Array)[0]) > 0.0 else 1
-		elif not p.is_empty():
-			var at: Array = p.get("at", [0, 0])
-			var inward := 1 if float(at[0]) < rt.width() * 0.5 else -1
-			arrival = Vector2(float(at[0]) + inward * float(p.get("arrive_offset", 70)), float(at[1]) + float(p.get("arrive_dy", 0)))
-			facing = inward
 		else:
-			var sp: Array = rt.def.get("spawn_point", [200, 800])
-			arrival = Vector2(float(sp[0]), float(sp[1]))
-	var surf := ground_at(rt, arrival)
-	if surf == null:
-		var sp2: Array = rt.def.get("spawn_point", [200, 800])
-		arrival = Vector2(float(sp2[0]), float(sp2[1]))
-		surf = ground_at(rt, arrival)
-	if grid != null:
-		# On the grid: a spot inside the room where a body can stand (a shrine's step or a saved spot is never in a wall).
-		if not rt.geometry.bounds.has_point(arrival): arrival = grid.spawn
-		arrival = grid.nearest_standable(arrival)
-	else:
-		arrival = rt.geometry.nearest_free(arrival, surf.height_at(arrival) if surf else 0.0, surf.stratum if surf else "ground")
-	c.position = {"room": room_id, "portal": portal_id, "x": arrival.x, "y": arrival.y, "surface": surf.id if surf and grid == null else "", "facing": facing}
+			arrival = grid.spawn
+	# A spot inside the room where a body can stand (a shrine's step or a saved spot is never in a wall).
+	if not rt.geometry.bounds.has_point(arrival): arrival = grid.spawn
+	arrival = grid.nearest_standable(arrival)
+	c.position = {"room": room_id, "portal": portal_id, "x": arrival.x, "y": arrival.y, "facing": facing}
 	var first = not game.account.visited_rooms.has(room_id)
 	game.account.visited_rooms[room_id] = true
 	rt.first_visit = first
@@ -188,7 +162,7 @@ func _arrive(c, rt: RoomRuntime, portal_id: String, arrival: Vector2, facing: in
 	rt.arrival_protection = float(ContentDB.stat_const("combat.spawn_protection_s", 1.5))
 	game.combat.apply_status(c.id, "spawn_protection", rt.arrival_protection, 1.0)
 	emit("room_entered", {"actor": c.id, "room": rt.room_id, "portal": portal_id, "first_visit": first, "x": arrival.x, "y": arrival.y,
-		"facing": facing, "surface": str(c.position.get("surface", "")) if side_view(rt) else "", "zone": zone})
+		"facing": facing, "zone": zone})
 
 ## Redesign Phase 2: enter a room on the top-down height grid (the prototype room). It runs on the same authorities as
 ## every room (its foes, loot, fights), but it is not a place in the world: the character's saved position and
@@ -204,33 +178,24 @@ func enter_grid_room(c, grid: TopdownRoom) -> Dictionary:
 	_arrive(c, rt, "", grid.spawn, 1, false, "")
 	return ok({"room": grid.id, "x": grid.spawn.x, "y": grid.spawn.y})
 
-## A room's live state: its definition and its geometry. A room on the grid takes its places from its layout
-## (TopdownRoom.merge_def) and a stand-in ground under the grid's own heights (TopdownRoom.geometry_def).
+## A room's live state: its definition and its geometry. A room of the world takes its places from its layout
+## (TopdownRoom.merge_def; the prototype room's def is the layout's own, `runtime_def`) and a stand-in ground under the
+## grid's own heights (TopdownRoom.geometry_def), which the shared simulation (ActorState's surface, the movement arts)
+## stands on.
 func _runtime(room_id: String, def: Dictionary, grid: TopdownRoom) -> RoomRuntime:
 	var rt := RoomRuntime.new()
 	rt.room_id = room_id
 	rt.topdown = grid
-	rt.def = def if grid == null or str(def.get("view", "")) == "topdown" else grid.merge_def(def)
-	rt.geometry.configure(compile_geometry(rt.def) if grid == null else grid.geometry_def())
+	rt.def = def if str(def.get("view", "")) == "topdown" else grid.merge_def(def)
+	rt.geometry.configure(grid.geometry_def())
 	rt.next_uid = 1000
 	return rt
 
-## The layout a character plays a room on (redesign Phase 4): a character made for the top-down world (`view`) enters
-## every room that has one on the height grid; every other room, and every side-view character, stays side-view.
-func grid_for(c, room_id: String) -> TopdownRoom:
-	if c == null or str(c.view) != "topdown" or not TopdownRoom.has_layout(room_id): return null
+## A room's layout on the height grid (data/topdown/<room>.json), or null when it has none.
+func grid_for(room_id: String) -> TopdownRoom:
+	if not TopdownRoom.has_layout(room_id): return null
 	var grid := TopdownRoom.load_room(room_id)
 	return grid if grid.w > 0 else null
-
-## The surface under a point, the ground before a ledge; with none under it, the room's first ground.
-func ground_at(rt: RoomRuntime, p: Vector2) -> WalkSurface:
-	var best: WalkSurface = null
-	for s in rt.geometry.surfaces:
-		if s.contains(p) and (best == null or s.stratum == "ground"): best = s
-	if best == null:
-		for s in rt.geometry.surfaces:
-			if s.stratum == "ground": return s
-	return best
 
 func enter_world(c) -> Dictionary:
 	var room_id := str(c.position.get("room", ""))
@@ -271,17 +236,16 @@ func tick(delta: float) -> void:
 	idle.tick_auto_hunt(c, delta)
 	if float(ambush_cd.get(c.id, 0.0)) > 0.0: ambush_cd[c.id] = float(ambush_cd[c.id]) - delta
 	herbs.tick_rare_herbs(c, rt, delta)
-	# S43: the room clock moves movers, drops crumbled floors and raises water.
+	# The room's clock (ZoneGeometry.time): the layout's rafts, lifts, lanterns and boards ride it (TopdownTraverse.time;
+	# docs/architecture/topdown_mechanics.md).
 	rt.geometry.advance(delta)
-	# T1: on the grid the rafts ride the same clock (TopdownTraverse.time; docs/architecture/topdown_mechanics.md).
-	if rt.topdown != null and rt.topdown.traverse != null: rt.topdown.traverse.time = rt.geometry.time
+	if rt.topdown.traverse != null: rt.topdown.traverse.time = rt.geometry.time
 	var st: ActorState = game.actor_state(c.id)
 	if st != null: hazards.tick_hazard_volumes(c, rt, st, delta)
-	# The spot a save resumes at: on the grid too (Phase 4), never in the prototype room, which is not a place.
+	# The spot a save resumes at, never in the prototype room, which is not a place.
 	if st != null and st.surface != null and not rt.def.get("prototype", false):
 		c.position.x = st.plane.x
 		c.position.y = st.plane.y
-		c.position.surface = st.surface.id if side_view(rt) else ""
 		c.position.room = rt.room_id
 	objects.tick_regrowth(rt, delta)
 	loot.tick_loot(c, rt, st, delta)
@@ -310,7 +274,6 @@ func guardian_wakes(o: Dictionary, st: ActorState) -> bool: return herbs.guardia
 # Portals, routes, teleports and Spirit Sense (world_portals.gd)
 func portal_near(c, portal: Dictionary) -> bool: return portals.portal_near(c, portal)
 static func seen_flag(room_id: String, portal_id: String) -> String: return WorldPortals.seen_flag(room_id, portal_id)
-func prototype_gate(c, from_room: String, to_room: String) -> bool: return portals.prototype_gate(c, from_room, to_room)
 func portal_state(c, portal: Dictionary) -> Dictionary: return portals.portal_state(c, portal)
 func portal_open(c, room_id: String, p: Dictionary) -> bool: return portals.portal_open(c, room_id, p)
 func route(c, from_room: String, to_room: String) -> Array: return portals.route(c, from_room, to_room)
@@ -325,7 +288,7 @@ func sense_pulse(c) -> Dictionary: return portals.sense_pulse(c)
 static func array_flag(node_id: String) -> String: return WorldArrays.array_flag(node_id)
 func array_attuned(c, node_id: String) -> bool: return arrays.array_attuned(c, node_id)
 static func array_mine(c, node: Dictionary) -> bool: return WorldArrays.array_mine(c, node)
-func array_open(c, from_room: String, from_id: String, to_id: String) -> bool: return arrays.array_open(c, from_room, from_id, to_id)
+func array_open(c, from_id: String, to_id: String) -> bool: return arrays.array_open(c, from_id, to_id)
 func attune_array(c, node_id: String) -> void: arrays.attune_array(c, node_id)
 func array_destinations(c, node_id: String) -> Array: return arrays.array_destinations(c, node_id)
 func array_view(c, node_id: String) -> Dictionary: return arrays.array_view(c, node_id)
@@ -359,10 +322,10 @@ static func core_chance(def: Dictionary, level: int) -> float: return WorldLoot.
 static func zone_shard(room_id: String) -> String: return WorldLoot.zone_shard(room_id)
 func pick_up(c, uid: int) -> Dictionary: return loot.pick_up(c, uid)
 ## A drop another authority leaves in the room (Enemies: a boss that fled). `source` names it for the loot fountain.
-func apply_loot_drop(c, drop: Dictionary, at: Vector2, alt: float, source: String) -> void: loot.drop_loot(c, drop, at, alt, source)
+func apply_loot_drop(c, drop: Dictionary, at: Vector2, source: String) -> void: loot.drop_loot(c, drop, at, source)
 func on_actor_defeated(p: Dictionary) -> void: loot.on_actor_defeated(p)
 func starter_drop(c, table: Dictionary, level: int, drop: Dictionary) -> void: loot.starter_drop(c, table, level, drop)
-static func loot_spot(rt: RoomRuntime, at: Vector2, alt: float, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, alt, spread, jitter)
+static func loot_spot(rt: RoomRuntime, at: Vector2, spread: float, jitter: float) -> Vector3: return WorldLoot.loot_spot(rt, at, spread, jitter)
 
 # Rooftop chases and timed routes (world_races.gd)
 static func chase_point(route: Array, speed: float, t: float) -> Dictionary: return WorldRaces.chase_point(route, speed, t)

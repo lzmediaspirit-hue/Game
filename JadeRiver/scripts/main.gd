@@ -1,14 +1,12 @@
 extends Control
 ## Game shell (S35): boot → title → character selection → creator → world.
-## Hosts the backdrop, the room world, the HUD and a stack of pages. It only
-## routes intents and signals; every rule lives behind `Game.submit`.
+## Hosts the title screens' sky, the room world (the top-down world on the height grid), the HUD and a stack of pages.
+## It only routes intents and signals; every rule lives behind `Game.submit`.
 ## The pages it opens are in the page registry (scripts/shell/page_registry.gd); the preview and debug flags of the
 ## command line are in scripts/dev/debug_args.gd, loaded only when the game starts with arguments
 ## (docs/architecture/shell.md).
 
-const World = preload("res://scripts/world.gd")   # side view
 const Hud = preload("res://scripts/hud.gd")
-const Backdrop = preload("res://scripts/backdrop.gd")
 const TopdownWorldScript = preload("res://scripts/topdown/topdown_world.gd")
 const PageRegistry = preload("res://scripts/shell/page_registry.gd")
 const DEBUG_ARGS := "res://scripts/dev/debug_args.gd"
@@ -20,7 +18,7 @@ const TOPDOWN_SAVES := "user://topdown_saves/"
 ## The page table: page id -> the script that draws it. Its home is the registry; the tests and tools read it here.
 const PAGES := PageRegistry.PAGES
 
-var backdrop: Control
+var sky: ShellSky   ## the title screens' sky (hidden while a world is mounted: the room draws its own)
 var world: Node2D
 var hud: Control
 var moments: MomentView
@@ -56,7 +54,7 @@ func _ready() -> void:
 	get_tree().root.go_back_requested.connect(go_back)
 	get_tree().root.close_requested.connect(save_and_quit)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_add_backdrop()
+	_add_sky()
 	hud_layer = CanvasLayer.new()
 	hud_layer.name = "MobileHUD"
 	hud_layer.layer = 5
@@ -197,7 +195,7 @@ func _mount_world() -> void:
 	hud.fishing_requested.connect(func(obj: String): open_page("fishing", {"object": obj}))
 	hud.coach = coach
 	hud_layer.add_child(hud)
-	if topdown:   # no moments in the prototype room (no side-view rig to play them on); the fan starts folded
+	if topdown:   # no moments or staged scenes in the prototype room, which is no place of the story; the fan starts folded
 		hud.fan_open = false
 		hud.fan_rest_open = false
 		return
@@ -216,18 +214,13 @@ func _mount_world() -> void:
 	hud.scenes = scenes
 	add_child(scenes)
 
-## The view of the room the character stands in: the prototype square, a room of the world on the height grid (the
-## top-down view, redesign Phase 4), or the side view.
+## The view of the room the character stands in: the prototype square, or a room of the world on the height grid
+## (`live`: the room the World authority loaded).
 func _add_world_view() -> void:
-	if topdown:
-		world = TopdownWorldScript.new()
-	elif Game.room_rt != null and Game.room_rt.topdown != null:
-		world = TopdownWorldScript.new()
-		world.live = true
-	else:
-		world = _side_view()   # side view
+	world = TopdownWorldScript.new()
+	world.live = not topdown
 	add_child(world)
-	_backdrop_follows_world()   # side view
+	sky.visible = false
 
 func unmount_world() -> void:
 	close_all_pages()
@@ -247,13 +240,12 @@ func unmount_world() -> void:
 		remove_child(world)
 		world.queue_free()
 	world = null
-	backdrop.world = null   # side view
+	sky.visible = true
 	Game.in_world = false
 
-## Redesign Phase 4: the game in the top-down world, from the title screen's hidden entry (five taps on the version) or
-## --topdown-tutorial. It plays on saves of its own (the player's are saved, set aside and restored on leaving it):
-## its character is a real one, made new for the top-down world the first time (the Prologue from the Fisher's Hut),
-## then continued where it was saved.
+## Redesign Phase 4: the game from the title screen's hidden entry (five taps on the version) or --topdown-tutorial, on
+## saves of its own (the player's are saved, set aside and restored on leaving it): its character is a real one, made
+## new the first time (the Prologue from the Fisher's Hut), then continued where it was saved.
 func enter_topdown_tutorial(isolated := true) -> void:
 	_proto_force_was = Unlocks.debug_force_all
 	if isolated:
@@ -263,7 +255,7 @@ func enter_topdown_tutorial(isolated := true) -> void:
 		Game.boot()
 		proto_isolated = true
 	if Game.character("c1") == null:
-		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("sim.account.disciple"), "appearance": {"hair": "topknot"}, "view": "topdown"})
+		Game.submit({"type": "create_character", "slot": 1, "name": Tx.t("sim.account.disciple"), "appearance": {"hair": "topknot"}})
 	enter_world(1)
 
 ## Redesign Phase 1: the top-down prototype room under the real HUD, on a stand-in character (--topdown-proto: the
@@ -438,7 +430,6 @@ func _on_game_event(name: String, p: Dictionary) -> void:
 		"room_entered":
 			fade = maxf(fade, 0.9)
 			close_all_pages()
-			if screen == "world" and Game.room_rt != null: _swap_world_view()   # side view
 			if screen == "world" and not topdown: _warm_techniques()
 		"player_gravely_wounded":
 			if screen == "world": open_page("revival", p)
@@ -481,42 +472,12 @@ func _notification(what: int) -> void:
 		NOTIFICATION_WM_CLOSE_REQUEST:
 			save_and_quit()
 
-# ------------------------------------------------------------------ side view (retiring)
-## Decision 45: the side view goes once every room is top-down (docs/architecture/audit_45.md §2.4). What the shell does
-## for it is here, and its calls elsewhere in this file are marked "side view": the World preload, _add_world_view's
-## last branch and its backdrop line, unmount_world's backdrop line and _on_game_event's swap. The backdrop is also
-## the title screens' sky, so it stays until they have one of their own.
-
-## The river backdrop behind everything (the title screens', and the side view's sky, scrolled with its camera).
-func _add_backdrop() -> void:
+# ------------------------------------------------------------------ the title screens' sky
+## The sky behind the title, the character selection and the creator (ShellSky: peaks over a sea of cloud, the top-down
+## vista's own strips). A mounted world draws its own room and hides it.
+func _add_sky() -> void:
 	var background_layer := CanvasLayer.new()
 	background_layer.layer = -10
 	add_child(background_layer)
-	backdrop = Backdrop.new()
-	background_layer.add_child(backdrop)
-
-## The side view of the character's room.
-func _side_view() -> Node2D:
-	var w := World.new()
-	w.room_mode = true
-	return w
-
-## The backdrop follows the side view and is hidden under the top-down one, which draws its own ground.
-func _backdrop_follows_world() -> void:
-	var side: bool = world is World
-	backdrop.world = world if side else null
-	backdrop.visible = side
-
-## A room entered in the other view (a top-down character walking from a room on the grid into one still side-view, or
-## back): the world view is swapped under the same HUD, pages and moments.
-func _swap_world_view() -> void:
-	if not is_instance_valid(world) or topdown: return
-	if (world is World) == (Game.room_rt.topdown == null): return
-	remove_child(world)
-	world.queue_free()
-	_add_world_view()
-	if is_instance_valid(hud):
-		hud.player = world.player
-		hud.world = world
-	if is_instance_valid(moments): moments.world = world
-	if is_instance_valid(scenes): scenes.world = world
+	sky = ShellSky.new()
+	background_layer.add_child(sky)

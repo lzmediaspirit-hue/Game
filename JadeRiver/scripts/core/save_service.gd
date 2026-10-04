@@ -105,24 +105,83 @@ func export_log() -> String:
 	return ""
 
 func migrate_account(data: Dictionary) -> Dictionary:
-	var v := int(data.get("version", 0))
-	if v == VERSION: return data
 	data["version"] = VERSION
+	# S12a (one world): Settings' "Classic side view (new games)" is gone with the side view.
+	if data.get("settings") is Dictionary: (data.settings as Dictionary).erase("classic_side_view")
 	return data
 
 func migrate_character(data: Dictionary) -> Dictionary:
 	data["version"] = VERSION
+	var minor := int(data.get("minor", 0))
 	# P12 Might (minor 1): the maxima are rebuilt on load and grow by the Might of the Level, so the saved health grows
 	# with them and the character keeps the same share of it. Qi and Soul take no Might. Runs once.
-	if int(data.get("minor", 0)) < GameCharacter.MINOR:
+	if minor < 1:
 		var cu = data.get("cultivator", {})
 		var pools = data.get("pools", {})
 		if cu is Dictionary and pools is Dictionary and pools.has("hp"):
 			var lv := ProgressionRules.level_for(str(cu.get("realm_key", "mortal")), float(cu.get("progress", 0.0)))
 			pools["hp"] = float(pools.hp) * StatRules.might_at(lv)
-		data["minor"] = GameCharacter.MINOR
+	# S12a, one world (minor 2): a character of the retired side view comes onto the height grid; every save loses its
+	# `view`. Runs once.
+	if minor < 2:
+		if str(data.get("view", "")) != "topdown": migrate_side_view(data)
+		data.erase("view")
+	data["minor"] = GameCharacter.MINOR
 	drop_unknown_recipes(data)
 	return data
+
+## The creator's own look, for a choice the top-down figure has no layer for (it draws every one parts.json names).
+const LOOK_DEFAULTS := {"body": "light", "hair": "topknot", "shirt": "cardigan", "pants": "loose", "shoes": "boots"}
+
+## S12a (decision 45, one world): a character made in the retired side view (`view` "" or none), onto the height grid,
+## losing nothing:
+## - its look keeps every choice and hair colour the top-down figure draws (TopdownFigure's items: every name and dye of
+##   parts.json), a name it has none for taking the creator's default;
+## - its gear and bag stay as they are (a garment's dye is the garment's own);
+## - its saved spot and its shrine are placed in their rooms on the grid by the room events' rule
+##   (TopdownRoom.grid_points: as far across the room and as deep as the spot stood in the side view's bounds, on the
+##   nearest open cell reached on foot from the room's spawn); a shrine it knew stands where its room's layout places it.
+static func migrate_side_view(data: Dictionary) -> void:
+	var look = data.get("appearance", {})
+	if look is Dictionary:
+		var items: Dictionary = TopdownFigure.manifest().get("items", {})
+		for cat in LOOK_DEFAULTS:
+			if not (items.get(cat, {}) as Dictionary).has(str(look.get(cat, ""))): look[cat] = LOOK_DEFAULTS[cat]
+		var colours: Dictionary = items.get("hair", {}).get(str(look.hair), {}).get("sheets", {})
+		look["hair_color"] = clampi(int(look.get("hair_color", 0)), 0, maxi(0, colours.size() - 1))
+	var pos = data.get("position", {})
+	if pos is Dictionary:
+		pos.erase("surface")
+		var at := Vector2(float(pos.get("x", 0.0)), float(pos.get("y", 0.0)))
+		var spot := grid_spot(str(pos.get("room", "")), at) if at != Vector2.ZERO else Vector2.ZERO
+		pos["x"] = spot.x
+		pos["y"] = spot.y
+	var shrine = data.get("last_shrine", {})
+	if shrine is Dictionary and not (shrine as Dictionary).is_empty():
+		var room := str(shrine.get("room", ""))
+		var at := Vector2(float(shrine.get("x", 0.0)), float(shrine.get("y", 0.0)))
+		var id := str(shrine.get("object", ""))
+		if id == "":
+			# Saved before shrines kept their id: the room's shrine nearest the spot.
+			var best := INF
+			for o in ContentDB.room(room).get("objects", []):
+				if str(o.get("type", "")) != "shrine": continue
+				var d := at.distance_to(Vector2(float(o.at[0]), float(o.at[1])))
+				if d < best:
+					best = d
+					id = str(o.id)
+		var place: Dictionary = TopdownRoom.load_room(room).def.get("place", {}) if TopdownRoom.has_layout(room) else {}
+		var p := TopdownRoom.cell_point(place[id]) if place.has(id) else grid_spot(room, at)
+		data["last_shrine"] = {"room": room, "x": p.x, "y": p.y, "object": id}
+
+## A side-view spot in `room_id` on its layout (TopdownRoom.grid_points from the room's spawn, over the room's side-view
+## `bounds`); the layout's spawn (ZERO: enter_world takes the spawn) for a room with none.
+static func grid_spot(room_id: String, side: Vector2) -> Vector2:
+	if not TopdownRoom.has_layout(room_id): return Vector2.ZERO
+	var grid := TopdownRoom.load_room(room_id)
+	if grid.w == 0: return Vector2.ZERO
+	var pts: Array = grid.grid_points([[side.x, side.y]], grid.spawn, ContentDB.room(room_id).get("bounds", []))
+	return Vector2(float(pts[0][0]), float(pts[0][1]))
 
 ## A recipe renamed or removed from the data since the save was written (BUG-01, audit 45): its id leaves the known
 ## recipes, the pages held and the auto-refine queue (a batch of it is lost), with a warning, so nothing looks it up

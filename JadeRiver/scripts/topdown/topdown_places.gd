@@ -302,11 +302,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 		var mark := WayMark.new(p)
 		floor_layer.add_child(mark)
 		out.nodes.append_array([pv, mark])
-		# Decision 41: a way past the prototype's gate is closed by a barrier standing in it (TopdownGate).
-		if Game.active() != null and Game.world.prototype_gate(Game.active(), str(def.get("id", Game.room_rt.room_id if Game.room_rt else "")), str(p.get("to", ""))):
-			for g in TopdownGate.make(room, p):
-				sorted.add_child(g)
-				out.nodes.append(g)
 	# Decision 43: the room's places (data/places.json): the sights round them and what each shows.
 	out.nodes.append_array(TopdownPlaceArt.build(room, str(def.get("id", "")), sorted, out.figures))
 	return out

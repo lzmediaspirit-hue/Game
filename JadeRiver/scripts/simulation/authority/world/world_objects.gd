@@ -143,7 +143,7 @@ func apply_object_hit(actor_id: String, o: Dictionary) -> void:
 		world.room_mem(c, game.room_rt.room_id).broken[id] = Clock.now_utc() + st.timer
 		var drop := LootRules.roll(str(o.get("loot", "jar_valley_low")), Rng.stream(actor_id, "loot"), int(o.get("level", 1)),
 			c.stats.value("drop_rate"), c.stats.value("coin_find"), {"no_equipment": true})
-		world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), 0.0, "jar")
+		world.loot.drop_loot(c, drop, Vector2(float(at[0]), float(at[1])), "jar")
 		emit("object_broken", {"actor": actor_id, "object": id, "type": o.type})
 
 ## v1.2 gravity switches: a jade switch turns its room's low-gravity volumes on or off (every volume tied to it).

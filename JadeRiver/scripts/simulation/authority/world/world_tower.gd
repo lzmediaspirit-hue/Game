@@ -21,7 +21,6 @@ func climb_tower(c, f: int) -> Dictionary:
 	if game.room_rt != null and game.room_rt.event.get("active", false): return fail("busy", {"text": Tx.t("sim.world.tower_busy")})
 	var room := str(ContentDB.config("tower").get("room", "sf_trial_tower"))
 	if game.room_rt == null or game.room_rt.room_id != room:
-		if game.room_rt != null and world.prototype_gate(c, game.room_rt.room_id, room): return fail("gate", {"text": Tx.t("sim.world.road_being_drawn")})
 		var moved := world.load_room(c, room, "entry")
 		if not moved.get("ok", false): return moved
 	var lv := int(row.level)
@@ -59,7 +58,7 @@ func apply_tower_clear(actor_id: String, f: int) -> void:
 	if first: c.tower["cleared"] = f
 	if st != null and game.room_rt != null:
 		world.loot.drop_loot(c, LootRules.roll(str(row.loot), Rng.stream(c.id, "loot"), int(row.level), c.stats.value("drop_rate"), c.stats.value("coin_find")),
-			st.plane, 0.0, "tower")
+			st.plane, "tower")
 	if first: game.apply_effects(c.id, [{"kind": "grant_currency", "currency": "spirit_stone", "amount": int(row.get("stones", 2))}] + row.get("first", []), "tower")
 	emit("tower_floor_cleared", {"actor": c.id, "floor": f, "first": first})
 
