@@ -24,8 +24,8 @@
   "00000000222222222222222222222222222222220000000000000000",
   "00000000222222222222222222222222222222220000000000000000",
   "00000000222222222222222222222222222222220000000000000000",
-  "00000000222222222222222222222222222222220000000000000000",
-  "00000000222222222222222222222222222222220000000000000000",
+  "00000000222222222222221122222222222222220000000000000000",
+  "00000000222222222222221122222222222222220000000000000000",
   "00000000111111111111111111111111111111110000000000000000",
   "00000000111111111111111111111111111111110000000000000000",
   "00000000111111111111111111111111111111110000000000000000",
@@ -56,10 +56,10 @@
   "ggggggggggggggggggggggggggggggggggggggggggggsssggggggggg",
   "ggggggggggddddddddddddddddddddddddddddggggggsssggggggggg",
   "ggggggggggddddddddddddddddddddddddddddggggggsssggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggggsssggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggggsssggggggggg",
-  "ggggggggggggggggggggggssggggggggggggggggggggdddggggggggg",
-  "ggggggggggddddddddddddssddddddddddddddggggggdddggggggggg",
+  "ggggggggggggggggggggggssggggggggggggggggggggsssggggggggg",
+  "ggggggggggggggggggggggssggggggggggggggggggggsssggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggggggdddggggggggg",
+  "ggggggggggddddddddddddddddddddddddddddggggggdddggggggggg",
   "ggggggggggddddddddddddddddddddddddddddggggggdddggggggggg",
   "ggggggggggggssggggggggggggggggggggggggggggggdddggggggggg",
   "ggggggggggggssggggggggggggggggggggggggggggggdddggggggggg",
@@ -85,7 +85,7 @@
   },
   {
    "x": 22,
-   "y": 15,
+   "y": 13,
    "w": 2,
    "h": 2,
    "from": 1,
@@ -321,8 +321,8 @@
    17
   ],
   "bed_1": [
-   28,
-   12
+   22,
+   11
   ],
   "bed_2": [
    36,

@@ -210,13 +210,13 @@ JA_HERB_TERRACES = room(
         ("peak_stair_head", (44, 0, 3, 9), dict(level=3, paint="s")),  # the peak stair's head, through the crags
         ("path", (44, 15, 3, 8), dict(paint="d")),
     ],
-    # S12c: the flight up to the second terrace stands below its edge (its top row beside the first terrace, a step down
-    # either side), not cut into it: a body leaving its top row sideways meets no floor a full step up (room_sweep).
-    stairs=[(12, 18, 2, 2, 0, 1), (22, 15, 2, 2, 1, 2), (32, 7, 2, 2, 2, 3), (44, 9, 3, 6, 0, 3)],
+    stairs=[(12, 18, 2, 2, 0, 1), (22, 13, 2, 2, 1, 2), (32, 7, 2, 2, 2, 3), (44, 9, 3, 6, 0, 3)],
     ways={"west": ("w", 24), "peak_path": ("n", 45)},
     spawn=(3, 24),
     anchors={
-        "bed_0": (18, 17), "bed_1": (28, 12), "bed_2": (36, 6), "herb_1": (11, 17), "herb_2": (30, 5),
+        # S12c: the second terrace's bed at the head of its flight, so the walk to it leaves the flight's top row
+        # northward (sideways the terrace stands a full step over that row's middle, which the motor's corner refuses).
+        "bed_0": (18, 17), "bed_1": (22, 11), "bed_2": (36, 6), "herb_1": (11, 17), "herb_2": (30, 5),
         "npc_jade_gardener": (20, 24),
     },
     pins={"props": [   # hand-placed, piece by piece

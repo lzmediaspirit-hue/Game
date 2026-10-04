@@ -269,7 +269,8 @@ had drawn the last foes.
   mapped across); its side geometry feeds `tools/data/topdown_rooms.py` and `room_lint`. Dormant since: the movement
   events only the side view emitted (`jumped`, `landed`, `fell_out`, `volume_entered`, `volume_left`; the paths above,
   the remount after a landing, a fall's fortune and Hidden Cave wait), the shallow-water dodge refusal (the grid's
-  stand-in has no volumes), and the fame greeting a villager gave a famous player (`world.gd` alone drew it).
+  stand-in has no volumes), and the fame greeting a villager gave a famous player (`world.gd` alone drew it). S12c
+  restored every one of them on the grid (§7, "Status (phase 3, S12c)").
 - **No top-down sheet yet** for four creatures that are not foes: the cloud stag, the hatchling wyrm, the Copperjaw
   swarm and its queen (`data_validation`'s `NO_TOP_SHEET_YET`); they show a shadow in the room and an empty slot on a
   page.
@@ -1115,6 +1116,38 @@ Every slice below rebases onto those changes. The ones that touch the same files
 **Why this order:** dead code and shared utilities first shrink the files the splits must move and give them their
 helpers (FrameMemo, Figures, the suite base). The splits come before the engines so E6's notice table lands in a small
 `hud/notices.gd` rather than inside a 3,266-line file.
+
+### Status (phase 3, S12c): what the side view carried, on the grid, done
+
+S12a left everything green, but a few features lived only in the side view's player and solver and went quiet (§2.4's
+status). S12c restored each on the grid, keeping the simulation's shape: the motor and `TopdownPlayer` say where the
+body is and what it did, the authorities keep their rules (`docs/architecture/topdown_mechanics.md`, "S12c").
+
+- **`jumped` and `landed`** go out through `LocalAuthority.announce` with the side view's payloads. The Paths Above
+  (S43) are art-gated ledges again: each of the six rows is its room's raised shape named for its side-view surface,
+  marked by the room engine (`above`), held by `topdown_rooms.py check_above` (no walk reaches it, its art does). All
+  six map: four double jump, two Wall-Step. A mount's rider is back on after a landing. Tested: `topdown_traversal`
+  parts 40 and 41 (every row found by its art), `room_engine`'s `paths above`.
+- **`fell_out`**: off a brink (a room's south edge over the sea of cloud or the star field's void: 51 rooms) below the
+  room's void (250 under its lowest floor), or sunk in open water (the side view's deep water; a pit's floor keeps the
+  body in). Back on the last safe spot (none within 24 of a brink), the fade, the 5%, the "fell" text, the Fortune check:
+  the Hidden Cave can be drawn again. Tested: part 42 (a brink fall, a seeded draw into the grotto and out by its way up
+  where the body fell, a fall into a pond).
+- **`volume_entered` and `volume_left`** for every side-view volume kind at its heights (`TopdownMotor.volumes`); the
+  water's step cue was their only listener (no achievement, quest, tutorial or moment reads them). Tested: part 42 (the
+  pond, its cue) and 43 (the Flooded Gate's shallows and drain).
+- **The fame greeting** on entering a town, its four strings restored through `ui_strings.json` (the other five strings
+  S12a dropped stay gone: they named the side view, its setting and the prototype's gate). Tested: part 44.
+- **The shallow-water dodge refusal**: the rules call for it and T2's wading floors are the grid's shallow water, so
+  Combat refuses a dodge there (`ActorState.wading`, from the motor); a Water Sphere's frozen ground lets it go. Tested:
+  part 43, `rules_tests`' Wind Step check on the flag.
+- **Two stuck legs**: the Herb Terraces' second bed stands at the head of its flight (the walk leaves the top row
+  northward, not sideways onto the terrace a full step up), the Rapids Terraces' middle flight is laid by `flights`
+  (cheeks clear); `room_sweep` walks both and keeps no known stick.
+- **Audio's "scene" hold** is let go by `SceneDirector._exit_tree` when the world unmounts mid-scene; `audio_tests`
+  checks it and its workaround is gone.
+- **`DORMANT` is empty.** All five events it held happen on the grid; `jumped` and `volume_left` stay in `POLLED`
+  (the world view plays the jump from the motor; nothing waits on leaving a volume), with their reasons rewritten.
 
 ### Status (phase 3, S12a and S12b): the side view deleted, done
 

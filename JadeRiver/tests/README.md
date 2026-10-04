@@ -68,6 +68,13 @@ rooms drive the grid now:
 `tests/lib/building_ways.gd` tells a way into a building from its room's data (a facade, or a door in a roof's front),
 for the suites that check doors.
 
+S12c restored on the grid what only the side view had carried (`docs/architecture/topdown_mechanics.md`, "S12c"):
+`topdown_traversal`'s parts 40 to 44 play it (the jumps and landings, the six paths above landed on by their arts, falls
+out of a room and the Hidden Cave, the volumes and the shallows' dodge, the fame greeting), `audio_tests` the music let
+go when the world unmounts mid-scene (its old workaround gone). A thing on a path above stands on a ledge only its
+movement art climbs onto: `room_sweep`, `topdown_tutorial` and the chapter suites' walks leave it to that art
+(`TopdownRoom.ledge_at`), and `room_sweep` keeps no known stuck leg.
+
 A new suite needs three things:
 1. a scene with one `Node` that holds its script;
 2. a line in `tests/suites.txt`;

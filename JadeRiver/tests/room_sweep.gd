@@ -20,8 +20,8 @@ const DT := 1.0 / 60.0
 ## Legs the motor does not walk though the grid's way takes them. Each must still stick: one that walks is taken off this
 ## list. S12a found two, off a stair's top row sideways onto the floor a full step (8) above the stair's middle (the
 ## motor's corner test meets 64 against a body at 55.9999 and refuses it, where TopdownRoute.step_rise and
-## topdown_rooms.py's Grid take the step at the cells' edge); S12c laid both rooms' flights with their cheeks clear (the
-## Herb Terraces' second flight below the terrace's edge, the Rapids Terraces' by the engine's `flights`), so none is left.
+## topdown_rooms.py's Grid take the step at the cells' edge); S12c fixed both rooms' specs (the Herb Terraces' second bed
+## at the head of its flight, the Rapids Terraces' flight laid by the engine's `flights`, its cheeks clear): none is left.
 const KNOWN_STICKS: Array = []
 const STUCK_FRAMES := 90        # 1.5 s of held input without getting nearer
 const ART_SLACK := 4            # art px a solid footprint may stand past its art's opaque columns
