@@ -54,13 +54,14 @@ the tier they open at. E5b fixed them in the quest specs (`tools/content/quests/
 - **Tests that play them.**
   - `topdown_chapter4` plays Grey Roofs as the roofs.
   - `valley_run` plays the moved Act II quests at their new realms, and first checks that each is not yet offered.
-- **Checks.** The full run after merging R8 passes every gate (`quest_engine`, `room_engine`, `topdown_rooms` and
-  `boot` among them) and all 31 suites: 76,250 checks with 0 failures and no SCRIPT ERROR. Three counts are E5b's:
+- **Checks.** The full run after merging R8 and M2 passes every gate (`quest_engine`, `room_engine`, `topdown_rooms`
+  and `boot` among them) and all 31 suites: 76,750 checks with 0 failures and no SCRIPT ERROR. Three counts are E5b's:
   - `data_validation` went from 50,445 to 50,494, for the favours' rooms and requirements and the two new jobs;
   - `topdown_chapter4` went from 47 to 44, without the Grey Pools' fight;
   - `valley_run` went from 3,000 to 2,998: the moved quests' checks, and fewer breakthrough trainings on the way.
 
-  `room_engine` (445), `topdown_tutorial` (1,063) and the new `topdown_skysea` (101) are R8's.
+  `room_engine` (445), `topdown_tutorial` (1,063) and the new `topdown_skysea` (101) are R8's, and `monsters` (1,538)
+  is M2's.
 - **Left for a later look.**
   - The story of Acts II and III sends the player as far past its rooms, six to eight Levels over (The Sealed Gate:
     Sage 3 into the Worm Sea, 77 to 81).
