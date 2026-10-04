@@ -131,7 +131,9 @@
    "swim_out": 24,
    "shallow_factor": 0.7,
    "ice_traction": 287,
-   "wind_edge": 36
+   "wind_edge": 36,
+   "swim_stroke_s": 0.9,
+   "swim_surge": 0.15
   }
  },
  "jump": {

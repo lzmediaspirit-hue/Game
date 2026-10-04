@@ -14,6 +14,8 @@ extends RefCounted
 ## updraft or a climb: each is a way more, never the only one. Nothing here draws (TopdownTraverseView does).
 
 const CLIMBABLES := ["vine", "ladder", "rope", "chain"]
+## T3: how long after the motor last found its body under gone boards they still stay gone (crumble_state).
+const HOLD_S := 0.2
 
 ## The room's clock, ZoneGeometry.time: the World authority's tick mirrors it here (WorldAuthority.tick), and a motor
 ## with no authority behind it (the motor's own tests) advances it itself.
@@ -32,6 +34,13 @@ var hatches: Array = []    ## {id, kind, rect: Rect2, shut, text}
 var hazards: Array = []    ## {id, kind, rect: Rect2}
 var ices: Array = []       ## {id, kind, rect: Rect2, traction}
 var winds: Array = []      ## {id, kind, rect: Rect2, push: Vector2, cycle, strong_s, calm, phase, edge_factor}
+## T3 (topdown_mechanics.md): a cracked slab over the floor (the Lower Pit's), whole until a Plunge comes down on it, then
+## broken for the visit (the side view's break_surface), and what lies under it sealed while it stands; a side-view
+## no_flight volume's cells; a side-view low_gravity volume's cells, live while its jade switch holds it (as
+## ZoneGeometry.set_switch: a volume with a switch starts off, an `invert` one on).
+var cracks: Array = []     ## {id, kind, rect: Rect2, z, broken}
+var no_flights: Array = [] ## {id, kind, rect: Rect2}
+var lowgs: Array = []      ## {id, kind, rect: Rect2, gravity, switch, invert, off}
 static var _geo: ZoneGeometry = null
 
 ## The room's traversal, read from its layout once and kept on the room (TopdownRoom.traverse, untyped so the grid's
@@ -103,6 +112,19 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 				"push": Vector2(float(wp[0]), float(wp[1])) * float(conf("side_scale", 0.755)), "cycle": float(wv.get("cycle", 4.0)),
 				"strong_s": float(wv.get("strong_s", 1.5)), "calm": float(wv.get("calm", 0.3)), "phase": float(wv.get("phase", 0.0)),
 				"edge_factor": float(wv.get("edge_factor", 1.5))})
+		elif kind == "crack":
+			var kc: Array = r.get("rect", [0, 0, 1, 1])
+			t.cracks.append({"id": id, "kind": kind, "rect": Rect2(float(kc[0]) * T, float(kc[1]) * T, float(kc[2]) * T, float(kc[3]) * T),
+				"z": float(r.get("level", 1)) * TopdownRoom.LEVEL, "broken": false})
+		elif kind == "no_flight":
+			var nc: Array = r.get("rect", [0, 0, 1, 1])
+			t.no_flights.append({"id": id, "kind": kind, "rect": Rect2(float(nc[0]) * T, float(nc[1]) * T, float(nc[2]) * T, float(nc[3]) * T)})
+		elif kind == "low_gravity":
+			var gc: Array = r.get("rect", [0, 0, 1, 1])
+			var gv: Dictionary = side.get(id, {})
+			t.lowgs.append({"id": id, "kind": kind, "rect": Rect2(float(gc[0]) * T, float(gc[1]) * T, float(gc[2]) * T, float(gc[3]) * T),
+				"gravity": float(gv.get("gravity", 0.45)), "switch": str(gv.get("switch", "")), "invert": bool(gv.get("invert", false)),
+				"off": gv.has("switch") and not bool(gv.get("invert", false))})
 		elif kind == "current":
 			var qc: Array = r.get("rect", [0, 0, 1, 1])
 			var push: Array = r.get("push", [0, 0])
@@ -125,7 +147,7 @@ static func from_layout(rows: Array, room: TopdownRoom) -> TopdownTraverse:
 			var bc: Array = r.get("rect", [0, 0, 1, 1])
 			var brect := Rect2(float(bc[0]) * T, float(bc[1]) * T, float(bc[2]) * T, float(bc[3]) * T)
 			t.bounces.append({"id": id, "kind": kind, "rect": brect, "z": room.floor_at(brect.get_center()),
-				"speed": float(r.get("speed", conf("bounce_speed", 528.0))), "look": str(r.get("look", "drum"))})
+				"speed": float(r.get("speed", conf("bounce_speed", 528.0))), "look": str(r.get("look", "drum")), "sprung": -INF})
 		elif kind in CLIMBABLES:
 			var foot := TopdownRoom.cell_point(r.get("foot", [0, 0]))
 			var top := TopdownRoom.cell_point(r.get("top", [0, 0]))
@@ -148,7 +170,46 @@ static func conf(key: String, fallback = 0.0):
 
 func is_empty() -> bool:
 	return rafts.is_empty() and updrafts.is_empty() and climbs.is_empty() and bounces.is_empty() and crumbles.is_empty() \
-		and currents.is_empty() and floods.is_empty() and hatches.is_empty() and hazards.is_empty() and ices.is_empty() and winds.is_empty()
+		and currents.is_empty() and floods.is_empty() and hatches.is_empty() and hazards.is_empty() and ices.is_empty() and winds.is_empty() \
+		and cracks.is_empty() and no_flights.is_empty() and lowgs.is_empty()
+
+# ------------------------------------------------------------------ T3: cracked slabs, no-flight volumes, low gravity
+## The whole cracked slab over a ground point ({} when none, or it is broken).
+func crack_at(p: Vector2) -> Dictionary:
+	for c in cracks:
+		if not bool(c.broken) and (c.rect as Rect2).has_point(p): return c
+	return {}
+
+## A Plunge came down on the slab: it breaks for the rest of the visit (the side view's ZoneGeometry.break_surface).
+func break_crack(c: Dictionary) -> void:
+	c.broken = true
+
+## Is a ground point sealed under a whole cracked slab (what lies there is hidden and out of reach until it breaks)?
+func sealed(p: Vector2) -> bool:
+	return not cracks.is_empty() and not crack_at(p).is_empty()
+
+## The no-flight volume over a ground point ({} when none): flight is refused there (CombatFlight.flight_allowed).
+func no_flight_at(p: Vector2) -> Dictionary:
+	for v in no_flights:
+		if (v.rect as Rect2).has_point(p): return v
+	return {}
+
+## The pull of gravity at a ground point as a share of the usual: a live low-gravity volume's (the side view's
+## ZoneGeometry.gravity_at), 1.0 elsewhere.
+func gravity_at(p: Vector2) -> float:
+	for v in lowgs:
+		if not bool(v.off) and (v.rect as Rect2).has_point(p): return float(v.gravity)
+	return 1.0
+
+## A jade switch turned: every low-gravity volume tied to it on or off (an `invert` one the other way), as the side
+## view's ZoneGeometry.set_switch. True when one of this room's volumes is tied to it.
+func set_switch(switch_id: String, on: bool) -> bool:
+	var any := false
+	for v in lowgs:
+		if str(v.switch) != switch_id: continue
+		v.off = (not on) if not bool(v.invert) else on
+		any = true
+	return any
 
 # ------------------------------------------------------------------ T2: hatches, hazards, ice, wind
 ## The shut hatch over a ground point ({} when none, or it is open).
@@ -193,8 +254,26 @@ func crumble_state(c: Dictionary) -> String:
 	var e := time - s
 	if e < float(c.break_s): return "giving"
 	if e < float(c.break_s) + float(c.return_s): return "broken"
+	# T3: boards that were the floor itself do not come back over a body still standing under them (the motor holds them,
+	# `held`): they come back once it has stepped out, never lifting it onto them.
+	if float(c.get("held", -INF)) >= time - HOLD_S: return "broken"
 	c.start = -1.0
 	return "whole"
+
+## T3 · a body stands under these gone boards now (the motor, each frame it does): they wait for it to step out.
+func hold(c: Dictionary) -> void:
+	c.held = time
+
+## T3 · the pit's open spikes at a ground point: a hazard volume's cells that no boards cover (the side view's pit floor
+## beside its planks), {} when none.
+func spikes_at(p: Vector2) -> Dictionary:
+	for z in hazards:
+		if not (z.rect as Rect2).has_point(p): continue
+		var boarded := false
+		for c in crumbles:
+			if (c.rect as Rect2).has_point(p): boarded = true
+		if not boarded: return z
+	return {}
 
 ## A foot on the boards: they start to give way (once, until they are back).
 func touch(c: Dictionary) -> void:
@@ -271,15 +350,16 @@ func raft_offset(r: Dictionary, t := -1.0) -> Vector2:
 	if _geo == null: _geo = ZoneGeometry.new()
 	var o: Vector3 = _geo.mover_offset(r.mover, time if t < 0.0 else t)
 	# T2: a lantern's swing is laid east-west along the plane (its small rise at the arc's ends left out: the deck keeps
-	# its level), and its circle on the plane round from its rest.
+	# its level). T3: its circle stands upright as the side view's does: east-west on the plane, and up and down (deck_z).
 	match str(r.mover.mode):
-		"swing": return Vector2(o.x, 0.0)
-		"circle": return Vector2(o.x, o.z)
+		"swing", "circle": return Vector2(o.x, 0.0)
 	return Vector2(o.x, o.y)
 
-## A deck's height now: a raft's is its own; a lift's rises and falls along its path.
+## A deck's height now: a raft's is its own; a lift's rises and falls along its path; T3: a circling lantern's goes up
+## and round from its rest (the side view's upright circle).
 func deck_z(r: Dictionary) -> float:
-	if str(r.kind) != "lift": return float(r.z)
+	var k := str(r.kind)
+	if k != "lift" and not (k == "lantern" and str(r.mover.mode) == "circle"): return float(r.z)
 	if _geo == null: _geo = ZoneGeometry.new()
 	return float(r.z) + (_geo.mover_offset(r.mover, time) as Vector3).z
 

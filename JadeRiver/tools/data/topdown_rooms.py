@@ -410,14 +410,15 @@ BOUNCE_LOOKS = ("drum", "lily", "bamboo")
 
 
 def lantern_samples(r):
-    """T2: a lantern's offsets from its rest over one period, every 1/48 of it, in cells (ZoneGeometry.mover_offset's
-    swing and circle on the plane: a swing east-west along its arc, a circle round from its rest)."""
+    """T2: a lantern's offsets from its rest over one period, every 1/48 of it: (east-west in cells, its deck's rise in
+    levels), ZoneGeometry.mover_offset's swing and circle: a swing east-west along its arc at its level; T3: a circle
+    upright, as the side view's goes round, east-west and up from its rest (a cell is a level high)."""
     out = []
     for k in range(48):
         a = 2.0 * math.pi * k / 48.0
         if r.get("mode") == "circle":
             rad = float(r.get("radius", 1.5))
-            out.append((rad * math.sin(a), rad * (1.0 - math.cos(a))))
+            out.append((rad * math.sin(a), rad * (1.0 - math.cos(a)) * TILE / LEVEL))
         else:
             th = math.radians(float(r.get("amp_deg", 30.0))) * math.sin(a)
             out.append((float(r.get("length", 3.0)) * math.sin(th), 0.0))
@@ -502,7 +503,7 @@ def check_traverse(s, d, g, walked):
                 beside = {(cx + ex, cy + ey) for cx, cy in cells for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cells
                 if not any(g.floor(*q) is not None and abs(g.floor(*q) - lv * LEVEL) <= STEP for q in beside):
                     errs.append("lift %s: no landing at its level %g at offset %s" % (tid, lv, str((dx, dy))))
-        elif kind in ("crumble", "current", "flood", "hazard", "ice", "wind"):
+        elif kind in ("crumble", "current", "flood", "hazard", "ice", "wind", "no_flight", "low_gravity"):
             want = {"crumble": "crumble", "current": "current", "flood": "rising_water"}.get(kind, kind)
             v = side_volumes.get(tid, {})
             if str(v.get("kind", "")) != want:
@@ -525,8 +526,40 @@ def check_traverse(s, d, g, walked):
             elif kind == "crumble" and any(g.floor(xx, yy) is not None and g.floor(xx, yy) >= float(r.get("level", 0)) * LEVEL
                                            for yy in range(y, y + h) for xx in range(x, x + w)):
                 errs.append("crumble %s: its boards at level %s lie over no pit" % (tid, r.get("level", 0)))
-            elif kind in ("ice", "wind") and not any(g.floor(*c) is not None for c in cells):
+            elif kind in ("ice", "wind", "no_flight", "low_gravity") and not any(g.floor(*c) is not None for c in cells):
                 errs.append("%s %s: its rect %s holds no floor" % (kind, tid, str(r["rect"])))
+            elif kind == "hazard":
+                # T3: the pit's cells no boards cover are its open spikes, beside the boards: nothing stands on them, no
+                # way sets a body down on them, and each is a floor (the side view's pit floor, struck where it is walked).
+                boards = {(xx, yy) for q in d.get("traverse", []) if q["kind"] == "crumble"
+                          for yy in range(q["rect"][1], q["rect"][1] + q["rect"][3]) for xx in range(q["rect"][0], q["rect"][0] + q["rect"][2])}
+                spikes = [c for c in cells if c not in boards]
+                held = {cell(at): oid for oid, at in d["place"].items()}
+                for c in spikes:
+                    if g.floor(*c) is None:
+                        errs.append("hazard %s: its open spikes at %s are no floor" % (tid, str(c)))
+                    elif c in held:
+                        errs.append("hazard %s: %s stands on its open spikes at %s" % (tid, held[c], str(c)))
+                    elif c in starts_of(d):
+                        errs.append("hazard %s: a way sets a body down on its open spikes at %s" % (tid, str(c)))
+        elif kind == "crack":
+            # T3: a cracked slab (the Lower Pit's), named by the side view's cracked block: it stands `level` over one floor,
+            # a jump's height (a body hops onto it, or comes down on it in a Plunge), off the stairs, and something beside it
+            # is reached on foot. What lies under it is sealed until a Plunge breaks it (WorldObjects.object_visible).
+            blk = next((b for b in s.get("blocks", []) if str(b.get("id", "")) == tid), {})
+            if not blk.get("cracked"):
+                errs.append("crack %s: no cracked block of that id in the side-view room" % tid)
+            x, y, w, h = r["rect"]
+            cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w)]
+            lv = float(r.get("level", 1)) * LEVEL
+            floors = {g.floor(*c) if 0 <= c[0] < g.w and 0 <= c[1] < g.h else None for c in cells}
+            if None in floors or len(floors) != 1 or any(g.stair[c[1]][c[0]] for c in cells):
+                errs.append("crack %s: its slab %s does not lie on one floor, off the stairs" % (tid, str(r["rect"])))
+            elif not (0.5 < lv - floors.pop() <= HOP):
+                errs.append("crack %s: its slab at level %g is not a jump's height over the floor under it" % (tid, lv / LEVEL))
+            beside = {(cx + dx, cy + dy) for cx, cy in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))} - set(cells)
+            if not any(all(q in wk for wk in walked) for q in beside):
+                errs.append("crack %s: nothing beside its slab is reached on foot" % tid)
         elif kind == "hatch":
             # T2: a sealed hatch over a flight of stairs (a loft's, a library floor's), named by the side view's climbable
             # it stands for, which seals it (`requires`).
@@ -543,10 +576,11 @@ def check_traverse(s, d, g, walked):
             m = side_mover_rows.get(tid, {})
             if str(m.get("mode", "")) not in ("swing", "circle") or r.get("mode") not in ("swing", "circle"):
                 errs.append("lantern %s: no swinging or circling mover of that surface in the side-view room" % tid)
-            lv = float(r.get("level", 0)) * LEVEL
+            base = float(r.get("level", 0)) * LEVEL
             landed = False
-            for off in lantern_samples(r):
-                cells = set(raft_cells(r, off))
+            for dx0, rise in lantern_samples(r):
+                cells = set(raft_cells(r, (dx0, 0.0)))
+                lv = base + rise * LEVEL   # T3: an upright circle's deck rises and falls as it goes round
                 for c in cells:
                     if not (0 <= c[0] < g.w and 0 <= c[1] < g.h) or g.level(*c) == SOLID:
                         errs.append("lantern %s sweeps over %s, a prop or the room's edge" % (tid, str(c)))

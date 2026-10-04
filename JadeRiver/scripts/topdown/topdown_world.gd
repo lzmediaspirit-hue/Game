@@ -437,6 +437,13 @@ func feedback(e: Dictionary) -> void:
 			# T2: a fall into a pit where rotten boards gave way (the Tunnels' spike pits): dust and a thud, no splash.
 			tfx.dust("land", m.pos, 0.0)
 			sound.landed(float(e.get("fall", 0.0)) + 32.0)
+		"stroked": fx.wake(m.pos)   # T3: the swim's pull leaves its ring on the water
+		"cracked":
+			# T3: a Plunge breaks the cracked slab (the Lower Pit's): its dust and a crack of stone, the body falling on
+			# through to strike on the floor under it.
+			tfx.dust("land", m.pos, float(e.get("z", m.z)))
+			Audio.play("rumble")
+			feel("heavy", Vector2.DOWN)
 
 # ------------------------------------------------------------------ Phase 4: ways, context and the shared host
 ## A way out walked into: at the way (the World authority's reach round it) with the stick pushing out through it (an
@@ -984,17 +991,29 @@ static func draw_blob(ci: CanvasItem, x: float, y: float, rx: float, a: float) -
 
 ## Splashes, a few pixels each (the dust of landings, dashes and skids is TopdownFx's, decision 38).
 class FxView extends Sorted:
+	const WAKE_S := 0.8   ## T3: how long a stroke's wake spreads on the water
 	var items: Array = []
 	func splash(p: Vector2) -> void:
-		items.append({"kind": "splash", "at": TopdownWorld.to_screen(p, TopdownRoom.WATER_Z).round(), "t": 0.0, "size": 1.0, "key": world.room.sort_key(p, 0.0)})
+		items.append({"kind": "splash", "at": TopdownWorld.to_screen(p, TopdownRoom.WATER_Z).round(), "t": 0.0, "size": 1.0, "key": world.room.sort_key(p, 0.0),
+			"life": 0.45})
+	## T3 · a swimmer's stroke leaves a ring on the water where it pulled (the traversal sheet's `wake`), spreading and
+	## fading behind it; flat on the water, under the swimmer.
+	func wake(p: Vector2) -> void:
+		items.append({"kind": "wake", "at": TopdownWorld.to_screen(p, TopdownRoom.WATER_Z).round(), "t": 0.0, "key": world.room.sort_key(p, 0.0) - 0.5,
+			"life": WAKE_S})
 	func advance(delta: float) -> void:
 		for it in items: it.t = float(it.t) + delta
-		items = items.filter(func(it): return float(it.t) < 0.45)
+		items = items.filter(func(it): return float(it.t) < float(it.life))
 		key(items.back().key if not items.is_empty() else 0.0)
 		queue_redraw()
 	func _draw() -> void:
 		for it in items:
 			var a: Vector2 = it.at - position
+			if str(it.kind) == "wake":
+				var n := maxi(1, int(TopdownTraverseView.art().get("wake", {}).get("frames", 1)))
+				var r := TopdownTraverseView.src("wake", mini(n - 1, int(float(it.t) / WAKE_S * n)))
+				draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(a - Vector2(roundf(r.size.x * 0.5), roundf(r.size.y * 0.5)), r.size), r)
+				continue
 			var t := float(it.t) / 0.45
 			var col := Color(0.56, 0.8, 0.8, 0.9 * (1.0 - t))
 			var spread := roundf((3.0 + 9.0 * t) * float(it.size))

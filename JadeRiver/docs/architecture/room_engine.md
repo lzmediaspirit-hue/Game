@@ -864,10 +864,12 @@ them. After the change, the final walk of all 784 legs over the nineteen rooms a
 - The side view's ropes, vines, ladders and rope bridges up to its ledges and cloud platforms are flights and raised
   outcrops here. T1's `traverse` rows (`docs/architecture/topdown_mechanics.md`) were not needed.
 - The Thousand-Eye Toad's arena has no special terrain; it is fought on the hollow's open turf.
-- Still with no top-down counterpart (`topdown_mechanics.md` lists them as still to do):
-  - the slippery ice of Frostpine Climb and Rimefrost Summit (`volumes` of kind `ice`, their traction);
-  - the Shipwrights' Yard's Starsea dock and its timed route (the skiff is the dock's object, sailed by its page);
-  - the sky-ships' crossings: the ferries are ways at their gangways, as the side view's doors were.
+- ~~Still with no top-down counterpart~~ (T3, `topdown_mechanics.md`):
+  - ~~the slippery ice of Frostpine Climb and Rimefrost Summit~~: `ice` rows on the high trail and the plateau;
+  - ~~the Shipwrights' Yard's Starsea dock and its timed route~~: the dock sets sail with its own call, held by the
+    prototype's gate while the crossing or the Wreck has no layout; the chart table and the slipway open their pages;
+  - the sky-ships' crossings: the ferries are ways at their gangways, as the side view's doors were, taken on foot or
+    with the context button; the side view has no boarding moment beyond its door.
 
 **Still to do in these rooms.**
 - Foes with no top-down art yet (the view draws stand-ins; E2's work): the Spark Weasel, the Stormgrass Stag, the
@@ -981,9 +983,10 @@ flight of stairs or gone.
 - Mechanics: none of the twenty rooms has a mover, a volume or a sealed climbable, so T1's rows have nothing to carry
   here. Their hazards are the World authority's and play on the grid: the canyons' wind gusts, the sandstorm, the
   scorching heat, the spike traps, and the quicksand, whose pull takes the Worm Sea's three `areas`.
-- Light: the rooms' backdrops (`nine_peaks`, `gale_canyon`, `quarry`, `sunscar`, `sunscar_tomb`) have no TopdownLight
-  area, so the cavern and the tomb follow the day's clock as the outdoors does. A lamplit area for them is game code,
-  outside a room batch.
+- ~~Light: the rooms' backdrops (`nine_peaks`, `gale_canyon`, `quarry`, `sunscar`, `sunscar_tomb`) have no TopdownLight
+  area, so the cavern and the tomb follow the day's clock as the outdoors does.~~ T3: the tomb's halls (`sunscar_tomb`)
+  and the Clan Hearth's cavern (a room entry, its backdrop being the Hold's outdoors) are lamp-lit, and the braziers
+  light their pools.
 - Terrain: the kit has no red-rock or dressed-sandstone paint of its own. The canyons' walls and the tomb's are sand,
   and its raised paving faces blue-grey. A paint with its own warm faces would suit both.
 - A capture spot must be open floor: a spot on a flight's cheek drew an empty world.
@@ -1158,18 +1161,20 @@ flight R5's `stair_with_cheeks`.
 - Foes with no top-down sheets yet (the view draws stand-ins; the monster batches' work): the Nine Peaks disciple, the
   starsea pirate, the wind kite, the star jellyfish, the comet sparrow, the pirate gunner, Admiral Voss, the nest
   guardian and the hollowed wyrmling.
-- Mechanics with no top-down counterpart yet (another agent's; `topdown_mechanics.md`'s to-do 14):
+- Mechanics with no top-down counterpart yet (T3's, `topdown_mechanics.md`):
   - **The Starsea crossing.** The three docks (the Broken Pier's, the Launch's, the Arrival Quay's) set sail into
-    `ss_starsea_crossing` and `ss_lantern_crossing`, which have no layout. The prototype's gate closes ways and stones,
-    but not a dock's `set_sail`. The suite loads the far room as the voyage would. (R9 laid both crossings out, and
-    `topdown_starfield` sails all four routes from their docks on the grid: "The star field's end (R9)" below.)
-  - **The Field's light.** The zones' backdrops (`skyport_wreck`, `lantern_harbor`, `star_shoals`, `blackmast_haven`,
-    `wyrmnest_isles`) are the side view's night skies, but they have no area in `TopdownLight.AREAS`, so the grid's
-    light follows the clock. The star lanterns are not in `PROP_LIGHTS` and give no light after dark. The red lanterns,
-    the stone lanterns and the stove do.
-  - Gameplay with no grid part, played by shortcut: the chart table and the slipway (in Cloudgate), the jades'
-    attunement, Presence training, taming and the egg's warming are pages; the hidden cove is shown by Spirit Sense's
-    flag.
+    `ss_starsea_crossing` and `ss_lantern_crossing`. T3: the prototype's gate holds a dock's `set_sail` as it holds a
+    way while its crossing or its port has no layout, and the voyage plays on the grid once both are laid. (R9 laid both
+    crossings out, and `topdown_starfield` sails all four routes from their docks on the grid: "The star field's end
+    (R9)" below. T3: on the crossing the star-water streams past the hull.)
+  - ~~**The Field's light.**~~ T3: the zones' backdrops (`skyport_wreck`, `lantern_harbor`, `star_shoals`,
+    `blackmast_haven`, `wyrmnest_isles`) are the story's night on the grid whatever the clock says (`STARLIT`), and the
+    star lanterns give their starlight.
+  - Gameplay with no grid part, played by shortcut: the jades' attunement, Presence training, taming and the egg's
+    warming are pages, the side view's own. T3: the yard's chart table and slipway open their pages from the grid, and
+    Spirit Sense's pulse shows the hidden cove on the grid (`topdown_traversal`).
+  - ~~Shallow water's slow~~: the wading floors are R2's `h`, walked at 0.7 of the pace (T2's rule; `topdown_traversal`
+    checks the Jellyfish Shallows).
 - Side-view decor with no top-down counterpart: the lantern strings over the market, the great lantern cage, the star
   buoys and the sky ship's sails (the moored skiffs are the dock objects' own art and the kit's boats).
 - A finding of the captures: a body set down inside a solid prop's footprint renders the whole view blank, HUD only.
@@ -1326,22 +1331,22 @@ Gate.
 - Foes with no top-down sheets yet (the view draws stand-ins; M-batches): the starsea pirate, wind kite, comet sparrow,
   star jellyfish, orbit moth, gravity golem, Ashborn raider, Ashborn pyre keeper, General Kharn, hollow drone, hollowed
   wyrmling, nebula eel, void crab and the Nebula Leviathan.
-- Mechanics with no top-down counterpart yet (another batch's):
-  - **Gravity switches and low gravity.** A switch turns and counts on the grid (`gravity_switched`, the quest's
-    `use_system`), and its plates mark where its volume lies, but the air does not lighten: the side view's
-    `low_gravity` volumes (`lowg_stair`, `lowg_garden`, `lowg_hall_a`, `lowg_hall_b`) have no grid rows. The Inverted
-    Hall's high gallery is a flight here, where the side view asks for the light air.
-  - **The Starsea crossing.** Its event plays on the grid by the one rule (the waves at the layout's cells, the voyage
-    making port: `topdown_starfield`), but the vessel does not move: no sky scrolling past, no star-water. The star
-    wind is a room hazard and blows on the grid.
-  - **The Leviathan's arena.** The Leviathan surfaces and dives in the side view's nebula; on the grid it stands and
-    fights on the shoal. The eels walk the reefs. A swimmer's floor (deep water a foe moves in) is the mechanic.
-  - **No-flight rooms** (the Inverted Hall, the Maw, both crossings) hold on the grid (`flight_allowed` reads the room);
-    no room here has a no-flight volume.
-- Light and art the kit does not have: the star field's backdrops have no TopdownLight area, so these rooms follow the
-  day's clock where the side view's sky is always night; the new lit props give no light at night (`PROP_LIGHTS`); the
-  nebula and the Starsea draw as the river's water, the void under the islands as the cloud sea. A star-field area, a
-  star-water paint and a void vista are game code and terrain art, outside a room batch.
+- ~~Mechanics with no top-down counterpart yet~~ (T3, `topdown_mechanics.md`):
+  - ~~**Gravity switches and low gravity.**~~ The side view's four `low_gravity` volumes (`lowg_stair`, `lowg_garden`,
+    `lowg_hall_a`, `lowg_hall_b`) are `# T3` rows in `orbit_ruins.py`, each live while its switch holds it
+    (`toggle_gravity` sets them). In the light air a standing jump climbs 1/0.45 as high: the Inverted Hall's high
+    gallery is climbed from its foot, as the side view asks (its flight stays the grid's way up besides).
+  - ~~**The Starsea crossing.**~~ The vessel is under way: the star-water streams west past the hull on the crossing's
+    deck, and the Starsea round it has stars glinting in it.
+  - **The Leviathan's arena.** The Leviathan is the side view's flier; on the grid a flier goes straight over water, so it
+    crosses its lagoon (T3 checks it). Its swim's look waits on its sheet's `swim` row (the late monster batch). The
+    eels walk the reefs.
+  - **No-flight rooms** (the Inverted Hall, the Maw, both crossings) refuse flight on the grid as the side view does
+    (`flight_allowed` reads the room; T3 checks each); no room here has a no-flight volume.
+- ~~Light and art the kit does not have~~ (T3): the star field's backdrops are the story's night on the grid
+  (`TopdownLight`'s `STAR_VOID`), the new lit props give light (`PROP_LIGHTS`), the brinks fall into a starry void
+  (`TopdownVista`), and the nebula's and the Starsea's water is star-water (`StarWaterView`, a wash and stars over the
+  river's paint; a star-water paint of the tile set's own is still art for later).
 
 **The frontier now** (R9, with R8 merged): there is none. Every way out of an R9 room leads to a room on the grid. The
 Citadel Gate's skiff to Lanternfall's Arrival Quay and the Wick Gate's stair down to the Harbor Market are open, and so

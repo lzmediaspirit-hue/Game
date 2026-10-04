@@ -502,6 +502,18 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "ice",
+   "id": "summit_ice",
+   "rect": [
+    14,
+    17,
+    17,
+    7
+   ]
+  }
+ ],
  "vista": [
   {
    "edge": "n",
