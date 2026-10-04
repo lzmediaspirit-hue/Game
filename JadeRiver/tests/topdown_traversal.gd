@@ -1409,6 +1409,16 @@ func _starsea() -> void:
 	Unlocks.force_unlock(c().id, "starsea")
 	for k in ["cloud_skiff", "star_chart_wreck", "star_chart_lantern"]:
 		if c().inventory.count(k) == 0: Game.inventory.apply_add(c().id, k, 1, "test")
+	# The yard's chart table and slipway (the voyage's preparations, R8's "played on pages"): the side view's own pages,
+	# opened by their objects on the grid.
+	check(enter("ae_shipyard"), "to the Shipwrights' Yard on the grid")
+	for row in [["chart_table_cloudgate", "charts"], ["slip_cloudgate", "vessels"]]:
+		var o: Dictionary = Game.room_rt.object_def(str(row[0]))
+		var oat := Vector2(float(o.at[0]), float(o.at[1]))
+		var sp := Game.room_rt.topdown.spot_near(oat, float(o.get("alt", 0.0)), oat)
+		stand(Vector2(sp.x / TopdownRoom.TILE - 0.5, sp.y / TopdownRoom.TILE - 0.5))
+		var pr := Game.submit({"type": "interact", "object": str(row[0])})
+		check(pr.get("ok", false) and str(pr.get("open_page", "")) == str(row[1]), "the yard's %s opens its page (%s) from the grid" % [row[0], str(pr)])
 	var foes_seen := false
 	for row in [["ae_shipyard", "dock_cloudgate"], ["sw_broken_pier", "dock_wreck"], ["sw_starsea_launch", "dock_launch"], ["lh_arrival_quay", "dock_lantern"]]:
 		var rid := str(row[0])

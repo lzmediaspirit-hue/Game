@@ -426,11 +426,21 @@ class IceView extends TopdownWorld.Sorted:
 		var c0 := TopdownRoom.cell_of(r.position)
 		var c1 := TopdownRoom.cell_of(r.end - Vector2.ONE)
 		var raised := false
+		# T3: where the sheet ends (the rect's edge, a stair, a prop, another floor) its glaze stops a few pixels short of
+		# the cell's edge, by a hash of the cell, so a sheet on open ground ends raggedly, never on a ruled line.
+		var iced := func(x: int, y: int, fz: float) -> bool:
+			return x >= c0.x and x <= c1.x and y >= c0.y and y <= c1.y and room.standable(Vector2i(x, y)) and room.stair_at(x, y).is_empty() \
+				and absf(room.cell_floor(Vector2i(x, y)) - fz) < 0.5
 		for cx in range(c0.x, c1.x + 1):
 			if not room.standable(Vector2i(cx, cy)) or not room.stair_at(cx, cy).is_empty(): continue
 			var fz := room.cell_floor(Vector2i(cx, cy))
 			raised = raised or fz > 0.5
-			cells.append([TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, fz).round(), (cx * 7 + cy * 3) % 2])
+			var inset := Vector4.ZERO   # west, north, east, south (art px)
+			if not iced.call(cx - 1, cy, fz): inset.x = 2 + (cx * 5 + cy * 3) % 4
+			if not iced.call(cx, cy - 1, fz): inset.y = 2 + (cx * 3 + cy * 7) % 4
+			if not iced.call(cx + 1, cy, fz): inset.z = 2 + (cx * 7 + cy * 5) % 4
+			if not iced.call(cx, cy + 1, fz): inset.w = 2 + (cx * 11 + cy * 3) % 4
+			cells.append([TopdownWorld.to_screen(Vector2(cx, cy) * TopdownRoom.TILE, fz).round(), (cx * 7 + cy * 3) % 2, inset])
 		var north := float(cy) * TopdownRoom.TILE / TopdownRoom.ART
 		key(north + TopdownRoom.TILE / TopdownRoom.ART + 0.125 if raised else north)
 		rects.clear()
@@ -444,7 +454,9 @@ class IceView extends TopdownWorld.Sorted:
 	func _draw() -> void:
 		for c in cells:
 			var r := TopdownTraverseView.src("ice", frame + int(c[1]))
-			draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2((c[0] as Vector2) - position, r.size), r)
+			var i: Vector4 = c[2]
+			var part := Rect2(r.position + Vector2(i.x, i.y), r.size - Vector2(i.x + i.z, i.y + i.w))
+			draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2((c[0] as Vector2) - position + Vector2(i.x, i.y), part.size), part)
 
 ## The wind over a volume's cells (TopdownTraverse.winds): curls of snow and grit blown along its push across the floor,
 ## more of them and faster while it blows strong, a few drifting in the breeze, each at the floor's height where it is.

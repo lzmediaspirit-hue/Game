@@ -132,14 +132,15 @@ const LIGHT_KINDS := {
 	"door": {"color": Color("ffd08a"), "radius": 30, "bands": [[0.45, 0.7], [1.0, 0.34]]},
 	"jade": {"color": Color("88e8c8"), "radius": 30, "bands": [[0.4, 0.62], [1.0, 0.28]], "flame": Color("c8fff0")},
 	# T3: a star lantern's pale starlight (Lanternfall's, R8).
-	"star": {"color": Color("c8dcff"), "radius": 44, "bands": [[0.32, 0.9], [0.62, 0.58], [1.0, 0.28]], "flame": Color("f2f6ff")},
+	"star": {"color": Color("d4e8ff"), "radius": 50, "bands": [[0.32, 1.0], [0.62, 0.7], [1.0, 0.36]], "flame": Color("f6faff")},
 }
 ## Props that give light: the kind and where the flame sits in the sprite (px from its top-left).
 const PROP_LIGHTS := {"lantern": ["lantern", 8, 12], "lantern_red": ["lantern_red", 12, 15], "incense": ["ember", 8, 9],
 	# Decision 43's furnishings (tools/art/topdown/furnish.py): a stove's fire mouth, a forge's bed of coals.
 	"stove": ["fire", 16, 25], "forge": ["fire", 13, 7],
-	# T3: R8's star lantern, its starlight in the glass (tools/art/topdown/furnish.py `star_lantern`).
-	"star_lantern": ["star", 11, 15]}
+	# T3: R8's star lantern, its starlight in the glass (tools/art/topdown/furnish.py `star_lantern`); R7's iron brazier
+	# (the tomb's halls, the Hold) and R6's cook fire (the herders' camp), their flames (arid.py, furnish.py).
+	"star_lantern": ["star", 11, 15], "brazier": ["fire", 8, 9], "cook_fire": ["fire", 16, 22]}
 ## Things of the room (by type, or by the prop they show) that give light, lifted this many art px over their spot.
 const OBJECT_LIGHTS := {"cooking_pot": ["fire", 6], "alchemy_furnace": ["fire", 10], "forge_anvil": ["fire", 6], "shrine": ["ember", 12],
 	"qi_spring": ["jade", 4], "teleport_stone": ["jade", 14], "lotus_lantern": ["lantern", 6]}

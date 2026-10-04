@@ -760,11 +760,11 @@ def slab_face(s: Img) -> None:
 def rubble(s: Img, f: int = 0) -> None:
     """A cracked slab broken by a Plunge, a cell (16 x 16): chunks of grey stone lying on the floor, lit on their tops,
     their shadows, grit between them; two arrangements (frame by cell)."""
-    for k in range(5):
-        x = 1 + int(h01(k, f, 96) * 11)
-        y = 1 + int(h01(k, f + 7, 96) * 11)
-        w = 2 + int(h01(k, f + 3, 97) * 3)
-        h = 2 + int(h01(k, f + 5, 97) * 2)
+    for k in range(6):
+        x = int(h01(k, f, 96) * 11)
+        y = 1 + int(h01(k, f + 7, 96) * 10)
+        w = 3 + int(h01(k, f + 3, 97) * 4)
+        h = 2 + int(h01(k, f + 5, 97) * 3)
         s.rect(x + 1, y + 1, w, h, alpha(STONE[0], 150))   # its shadow
         s.rect(x, y, w, h, STONE[3])
         s.hline(x, y, w, STONE[5])
