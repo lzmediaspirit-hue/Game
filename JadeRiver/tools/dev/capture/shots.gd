@@ -661,7 +661,7 @@ static func sets() -> Dictionary:
 			["20_fight_guardians_crown", "wn_guardians_crown", Vector2(30, 17), [["nest_guardian", Vector2(5, 0)], ["hollowed_wyrmling", Vector2(-4, 1)]]],
 			["21_fight_drone_hive", "tf_drone_hive", Vector2(31, 18), [["hollow_drone", Vector2(4, 0)], ["hollow_drone", Vector2(-4, 1)]]],
 			["22_fight_orbit_garden", "or_orbit_garden", Vector2(36, 15), [["orbit_moth", Vector2(4, 0)], ["orbit_moth", Vector2(-4, 1)]]],
-			["23_fight_golem_foundry", "or_golem_foundry", Vector2(36, 12), [["gravity_golem", Vector2(5, 0)], ["orbit_moth", Vector2(-4, 1)]]],
+			["23_fight_golem_foundry", "or_golem_foundry", Vector2(34, 13), [["gravity_golem", Vector2(5, 0)], ["orbit_moth", Vector2(-4, 1)]]],
 			["24_fight_war_camp", "ar_war_camp", Vector2(36, 14), [["ashborn_raider", Vector2(4, 1)], ["ashborn_raider", Vector2(-4, 1)],
 				["ashborn_pyre_keeper", Vector2(2, -2)]]],
 			["25_fight_kharns_pyre", "ar_kharns_pyre", Vector2(28, 14), [["general_kharn", Vector2(5, 0)]]],
