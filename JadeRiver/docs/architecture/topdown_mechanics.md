@@ -1,4 +1,4 @@
-# The side view's mechanics on the grid (T1, T2)
+# The side view's mechanics on the grid (T1, T2, T3)
 
 The top-down view is to replace the side view. Before the side view can go, every mechanic that only it has needs a
 top-down version: a raft has to carry a body on the height grid, an updraft has to lift it, a set piece's foes have to
@@ -7,7 +7,9 @@ and whether the grid covers it. It ends with what is still to do, in order.
 
 T1 built the machinery and laid the first rows. T2 laid the rows of every Act I room on the grid and built what T1 had
 not: sealed hatches, swinging lanterns, boards that are the floor itself, spike pits, ice, wind, the swim and the
-shallows' slow (the to-do's items 1 to 13, "T2" below).
+shallows' slow (the to-do's items 1 to 13, "T2" below). T3 did the rest of the to-do from Act I's last item on: the
+Lower Pit's cracked slab, Rimefrost's ice, no-flight volumes, low gravity and its jade switches, the Starsea's docks,
+the late zones' light, T2's presentation leftovers and edge cases ("T3" below).
 
 The rule throughout: **the authorities keep their rules; the grid only says where things stand.** A raft rides the side
 view's own mover function on the room's clock, a glide spends Combat's QI, a climb asks the World authority whether it
@@ -17,16 +19,17 @@ is open. The top-down side adds placement (spec rows, layout cells), the motor's
 
 | Part | File | What it does |
 |---|---|---|
-| Spec rows | `tools/content/rooms/spec.py` (`traverse`, `stage`), `engine.py` (`TRAVERSE_KEYS`, `stage_cells`) | A room's traversal, each piece named by its side-view id, in cells. T2: a raft's and a bounce's `look`, a crumble's `under` and `look`, and the `hatch`, `lantern`, `hazard`, `ice` and `wind` rows |
-| Layout checks | `tools/data/topdown_rooms.py` `check_traverse` | A raft runs over open water clear of props, with landings at both ends; a lift rests on a floor; a climbable's foot is reached and its top is a level or more higher; a volume names a side-view volume of its kind; a stage cell is open, reached and off the lanes. T2: a hatch lies on a flight and names a sealed climbable; a lantern sweeps neither a prop nor a floor over its level, and somewhere on its sweep has a floor within a level beside it; boards that are the floor lie at their level and are reached |
-| Model | `scripts/topdown/topdown_traverse.gd` (`TopdownTraverse`) | The rows in world units, read once from the layout and kept on the room (`TopdownRoom.traverse`). Queries: the deck under a point, the updraft round a body, the climbable a body may take, the boards' state, a current's push, a flood's water. T2: the shut hatch, the boards gone from a floor, the hazard volumes, the ice, the wind's push, a lantern's place on its arc |
-| Motor | `scripts/topdown/topdown_motor.gd` | Floors include decks, whole boards and risen water. A body rides a deck, is pushed by a current, rises in an updraft, glides, flies, double-jumps, kicks off a wall, climbs, and bounces. T2: a shut hatch is a wall; boards gone from a floor drop it or open a hole; a body with Breath Control swims open water; the shallows slow the walk; ice keeps the speed; the wind pushes |
-| Player | `scripts/topdown/topdown_player.gd` | Asks Combat for every art (glide, flight, Plunge, air dash) and announces each use (`art_used`, `mover_boarded`, `climb_started`/`climb_finished`) through `LocalAuthority.announce`, as the side view's solver does. T2: asks the World authority whether each hatch is open (`climbable_open`) and says why a shut one is; Breath Control and a Water Sphere's frozen ground reach the motor; a swimmer is drawn from the chest up |
-| View | `scripts/topdown/topdown_traverse_view.gd` | Draws the rafts and lifts, the vine, rope, ladder and chain tiles, the spray, the boards, the flood's water, the glide's leaf and the flight's cloud. T2: the driftwood and the planks, the sealed hatches, the drum, the lotus leaf and the bent bamboo, the lanterns on their chains, the pit, the pool or the shadow under gone boards, the icicle shelves, the ice, the wind, the swimmer's ripple; a flood's water only over the floors it covers |
-| World authority | `world_hazards.gd` `tick_hazard_volumes` | T2: on the grid a side-view hazard volume stands on its layout's `hazard` cells and strikes a body down in them, its numbers the side view's |
-| Combat | `combat_flight.gd` `_air_distance` | T2: on the grid the air distance is the plane's speed, so Cloud Lung counts flight in any direction |
-| Numbers | `tools/data/stats.py` → `data/movement.json` `topdown.traverse` | The side view's speeds scaled to the grid's jump (impulse 400 against the side view's 530). T2: `side_scale`, the swim's `swim_s`, `swim_factor` and `swim_out`, `shallow_factor`, `ice_traction`, `wind_edge` |
-| Art | `tools/art/topdown/traverse.py`, `build_traverse.py` → `art/topdown/traverse.png`, `data/topdown/traverse_art.json` | Original pixel art, nearest neighbour, byte-identical builds; `--review` writes `topdown_mechanics/traverse_x4.png` (T2's sprites in its lower half) |
+| Spec rows | `tools/content/rooms/spec.py` (`traverse`, `stage`), `engine.py` (`TRAVERSE_KEYS`, `stage_cells`) | A room's traversal, each piece named by its side-view id, in cells. T2: a raft's and a bounce's `look`, a crumble's `under` and `look`, and the `hatch`, `lantern`, `hazard`, `ice` and `wind` rows. T3: the `crack`, `no_flight` and `low_gravity` rows |
+| Layout checks | `tools/data/topdown_rooms.py` `check_traverse` | A raft runs over open water clear of props, with landings at both ends; a lift rests on a floor; a climbable's foot is reached and its top is a level or more higher; a volume names a side-view volume of its kind; a stage cell is open, reached and off the lanes. T2: a hatch lies on a flight and names a sealed climbable; a lantern sweeps neither a prop nor a floor over its level, and somewhere on its sweep has a floor within a level beside it; boards that are the floor lie at their level and are reached. T3: a crack names a cracked block and lies a jump's height over one floor, off the stairs, beside a floor reached on foot; a pit's open spikes are floor, nothing stands on them and no way sets a body down there; a circling lantern's sweep is checked at its deck's height as it goes round upright |
+| Model | `scripts/topdown/topdown_traverse.gd` (`TopdownTraverse`) | The rows in world units, read once from the layout and kept on the room (`TopdownRoom.traverse`). Queries: the deck under a point, the updraft round a body, the climbable a body may take, the boards' state, a current's push, a flood's water. T2: the shut hatch, the boards gone from a floor, the hazard volumes, the ice, the wind's push, a lantern's place on its arc. T3: the whole slab over a point and what it seals, a pit's open spikes, the no-flight volume over a point, the pull of gravity there and the jade switches that set it, a circling lantern's height, boards held gone over a body |
+| Motor | `scripts/topdown/topdown_motor.gd` | Floors include decks, whole boards and risen water. A body rides a deck, is pushed by a current, rises in an updraft, glides, flies, double-jumps, kicks off a wall, climbs, and bounces. T2: a shut hatch is a wall; boards gone from a floor drop it or open a hole; a body with Breath Control swims open water; the shallows slow the walk; ice keeps the speed; the wind pushes. T3: a slab is a floor until a Plunge breaks it and falls on through; low gravity lightens the fall; the swim strokes (`stroked`); boards stay gone over a body under them; the wind looks for a drop along eight ways; no safe spot on a pit's spikes |
+| Player | `scripts/topdown/topdown_player.gd` | Asks Combat for every art (glide, flight, Plunge, air dash) and announces each use (`art_used`, `mover_boarded`, `climb_started`/`climb_finished`) through `LocalAuthority.announce`, as the side view's solver does. T2: asks the World authority whether each hatch is open (`climbable_open`) and says why a shut one is; Breath Control and a Water Sphere's frozen ground reach the motor; a swimmer is drawn from the chest up. T3: the swimmer's walk frames run once through on the stroke's pull and hold the rest frame through its glide; the world answers a stroke with its wake and a broken slab with dust and a jolt |
+| View | `scripts/topdown/topdown_traverse_view.gd` | Draws the rafts and lifts, the vine, rope, ladder and chain tiles, the spray, the boards, the flood's water, the glide's leaf and the flight's cloud. T2: the driftwood and the planks, the sealed hatches, the drum, the lotus leaf and the bent bamboo, the lanterns on their chains, the pit, the pool or the shadow under gone boards, the icicle shelves, the ice, the wind, the swimmer's ripple; a flood's water only over the floors it covers. T3: the cracked slab and its rubble, a pit's open spikes, the light air's motes (a ring of them while it is off), the bounces giving, an open hatch's gate, the circling lanterns upright, the ice ending raggedly; the stroke's wake is the world's `FxView` |
+| World authority | `world_hazards.gd` `tick_hazard_volumes`; T3: `world_objects.gd`, `world_starsea.gd` | T2: on the grid a side-view hazard volume stands on its layout's `hazard` cells and strikes a body down in them, its numbers the side view's. T3: and a body standing on a pit's open spikes; a thing under a whole slab is not shown (`object_visible`); a jade switch sets its layout's low gravity (`toggle_gravity`); the prototype's gate holds a Starsea dock as it holds a way (`set_sail`) |
+| Combat | `combat_flight.gd` `_air_distance`, `flight_allowed` | T2: on the grid the air distance is the plane's speed, so Cloud Lung counts flight in any direction. T3: on the grid flight is refused over a layout's `no_flight` cells (the stand-in geometry has none of the side view's volumes) |
+| Light | `scripts/topdown/topdown_light.gd` | T3: the tomb's halls and the Clan Hearth's cavern lamp-lit (`ROOM_AREAS` for a room under rock whose backdrop is the outdoors'); the sky-sea and star-field zones starlit (`STARLIT`, the story's night whatever the clock); the star lanterns' starlight, the braziers' and the cook fire's flames |
+| Numbers | `tools/data/stats.py` → `data/movement.json` `topdown.traverse` | The side view's speeds scaled to the grid's jump (impulse 400 against the side view's 530). T2: `side_scale`, the swim's `swim_s`, `swim_factor` and `swim_out`, `shallow_factor`, `ice_traction`, `wind_edge`. T3: `swim_stroke_s`, `swim_surge` |
+| Art | `tools/art/topdown/traverse.py`, `build_traverse.py` → `art/topdown/traverse.png`, `data/topdown/traverse_art.json` | Original pixel art, nearest neighbour, byte-identical builds; `--review` writes `topdown_mechanics/traverse_x4.png` (T2's sprites in its middle, T3's at the foot) |
 
 The grid's own queries never count a deck, an updraft or a climb: not `height_at`, not `find_path`, not the reach
 checks, not auto-path. Each is an extra way to get somewhere, never the only way.
@@ -34,6 +37,8 @@ checks, not auto-path. Each is an extra way to get somewhere, never the only way
 The body reuses existing top-down actions and adds no new body animation. A climb plays `work_hang`. A glide, a flight
 and a raft ride use the idle and walk poses, with the leaf over the body or the cloud under its feet. T2's swim plays the
 walk and the idle, the figure sunk and cut at the water's line (`TopdownFigure.draw`'s clip), a ring of water round it.
+T3 gives the swim its stroke from the same frames: the walk's cycle runs once through on each pull and holds its rest
+frame through the glide.
 
 ## T2: how the rooms' rows work
 
@@ -70,6 +75,54 @@ walk and the idle, the figure sunk and cut at the water's line (`TopdownFigure.d
   where it stands (the Serpent's, when it is beaten). The water is drawn only over the floors under it. The dry floor a
   flooded body is sent to lies within a level of its last safe spot where there is one, never on a pillar's top.
 
+## T3: Act II onward, and what T2 left
+
+- **The cracked slab** (`crack`). The Lower Pit's slab is a row over four cells by two of the pit's floor, a level up
+  (the side view's block of 40, a jump's height). The motor stands a body on it and stops a walk at its foot; a plain
+  landing holds it. A Plunge coming down on it breaks it for the visit (the side view's `break_surface`) and falls on
+  through: the body lands on the floor under it, plunging still, and strikes there. While the slab stands, what lies
+  under it is sealed: the World authority does not show the spirit stone shards (`object_visible`), so they are neither
+  drawn nor offered. The layout puts the shards under the slab (a pin), where the side view's slab sealed them.
+- **Rimefrost's ice** (`ice`). Frostpine Climb's high trail before the way east, and the west of Rimefrost Summit's
+  plateau, the side view's two ice volumes (traction 420, scaled). On open ground a sheet's glaze stops a few pixels
+  short of its edge cells, by a hash of each, so it ends raggedly (the Frozen Shrine's court too).
+- **No-flight.** No side-view room has a `no_flight` volume; the side view refuses flight by room (`no_flight`: the
+  Windbridge, the Tide Battle, the Leviathan's Maw, the Inverted Hall, the two crossings) and by type (interiors, sect
+  grounds, dungeons). On the grid `flight_allowed` reads the same room and type. Its volume test asked the side view's
+  geometry with the grid's coordinates; on the grid it now asks the layout's `no_flight` rows, so a volume a side-view
+  room gains has its counterpart in a row. The feedback is the side view's: the hold glides instead, and a flight carried
+  into a no-flight cell is ended by Combat's tick (`flight_ended`, `no_flight`) and the body comes down.
+- **Low gravity** (`low_gravity`). A row names a side-view `low_gravity` volume and takes its share of the pull (0.45),
+  its jade switch and whether it is inverted; tied to a switch it starts off, as the side view's. While it is live the
+  motor applies that share to the fall and never to the jump, so a standing jump climbs 1/0.45 as high (104 units, past
+  three levels) and hangs longer. The World authority's `toggle_gravity` (the switch's own call) sets the layout's rows as
+  it sets the side view's geometry. The view's motes rise off the floor while it is live, a faint ring of them lies along
+  its edge while it is off.
+- **The Starsea's docks.** A dock (`starsea_dock`: the Shipwrights' Yard, the Broken Pier, the Launch, the Arrival Quay)
+  sets sail with its own call. The prototype's gate (decision 41) now holds a dock as it holds a way: while the route's
+  crossing deck or its far port has no layout, `set_sail` refuses with "The road beyond is still being drawn." and the
+  side view is never entered. With both laid out the voyage plays on the grid: the crossing's event runs for the
+  vessel's time (its foes come aboard at the layout's event cells, `grid_event`), and `voyage_arrive` makes port at the
+  far pier. The sky-ships' ferries (the Skydock's, the Alliance Gate's, the lake's, the skiffs) are the side view's doors
+  that a body presses up into: on the grid they are ways at their gangways, walked into or taken with the context button
+  under the door's label. That is the whole of the side view's boarding; it has no boarding moment beyond it.
+- **The late zones' light.** The Tomb of Sunscar's halls and the Clan Hearth's cavern are lamp-lit at any hour (the
+  hearth's backdrop is the Hold's outdoors, so it has a room entry, `ROOM_AREAS`). The sky-sea zones (R8) and the star
+  field's (R9) lie under the side view's night skies: on the grid they are the story's night whatever the clock says
+  (`STARLIT`). Lanternfall's star lanterns burn with a pale starlight; the tomb's and the Hold's braziers and the herders'
+  cook fire light their pools.
+- **Presentation.** The swim's stroke: a pull every 0.9 s while the swimmer moves, the walk's frames once through and the
+  pace surging 15 % on it, then a glide on the walk's rest frame; each pull leaves a ring spreading on the water. A
+  bounce gives as it launches a body: the drum's skin pressed in, the lotus leaf pushed into the wet, the culm bowed,
+  then each springs back past its rest (three frames each). An open hatch keeps its gate, the leaves folded back against
+  the posts and the seals torn. The circling lanterns go round upright, as the side view's: east and west along the
+  plane and up and down twice their radius, their lid carrying a rider up and round.
+- **T2's edge cases.** Boards that were the floor do not come back over a body still standing under them (they would
+  lift it onto them); they come back once it has stepped out. The Tunnels' pits open beside their planks, a row of spikes
+  north and south of the track (the side view's pit lies round its planks): a body standing on the spikes is struck by
+  the pit's own hazard, the planks over the rest keep a body on them clear, and no safe spot is ever on the spikes. The
+  wind looks for a drop along the diagonals too.
+
 ## One rule for a room event's points
 
 A room event (a set piece, a trial, a rift, a raid) used to bring side-view points in several ways: R2's
@@ -96,10 +149,11 @@ on the grid: a pole's top is off the ground, the court's floor is not.
 ## Inventory
 
 43 side-view-only mechanics in four groups: traversal 18, hazards 10, room events and waves 10, other 5. After T2 the
-grid covers 39 of them: all 18 of traversal, 8 hazards, 9 events and 4 others. Every Act I room on the grid has its
-rows. The four left are low gravity, the cracked slab, the Starsea crossing and gravity switches. Some parts are also
-still missing: the mounts' art, the Cloudwing Cranes' sheets, no-flight volumes and the docks' routes. All of them are
-in the to-do at the end.
+grid covered 39 of them: all 18 of traversal, 8 hazards, 9 events and 4 others. T3 covers the four T2 left: the cracked
+slab, low gravity and its jade switches (the machinery, and the Orbit Ruins' rows once their layouts are on the grid),
+and the Starsea crossing (the docks gated until the crossings' decks are laid, then played). No-flight volumes and the
+docks' routes have their grid parts too. What is still missing is in the to-do at the end: the mounts' art and the
+Cloudwing Cranes' sheets (art batches), and the star field's rows where its rooms are not yet on the grid.
 
 "Rooms" counts the side-view rooms that use the mechanic. "On the grid" says what the grid does for them.
 
@@ -109,7 +163,7 @@ in the to-do at the end.
 |---|---|---|---|
 | Rafts and floating decks | `ZoneGeometry.mover_offset`, room `movers` | Grey Pools ×2, hermit's pond, Reed Shallows ×3 driftwood, Bend Shore ferry, Flooded Gate ×3 planks, Sky Ledges ledge | **Yes.** `raft` rows: the Grey Pools' two rafts and the hermit's raft. T2: the Reed Shallows' three driftwood logs along the bank (`look: "driftwood"`), Bend Shore's ferry between the ford's causeway and the shrine's steps, and the Flooded Gate's three planks across the sunk gate (`look: "plank"`). The Sky Ledges' ledge became terraces (R4) |
 | Lifts | movers with a vertical path | Jade Entry Trial planks ×2, Quarry Rim crane (trigger) | **Yes.** T2: `lift` rows for the Jade trial's two planks, up to the second and third roofs' eaves, and the quarry's crane (mode `trigger`), from the yard to the bench |
-| Swinging and circling lanterns | `mover_offset` swing and circle | Hall of Lanterns ×5 | **Yes (T2).** `lantern` rows: five decks over the rubble between the galleries. Two swinging lanterns and a circling one lead a level up from the gallery to the rest; a swinging one and a circling one lead from the rest toward the loft |
+| Swinging and circling lanterns | `mover_offset` swing and circle | Hall of Lanterns ×5 | **Yes (T2).** `lantern` rows: five decks over the rubble between the galleries. Two swinging lanterns and a circling one lead a level up from the gallery to the rest; a swinging one and a circling one lead from the rest toward the loft. T3: the circling ones go round upright, as the side view's, carrying a rider up and round |
 | Updrafts | `MovementSolver` updraft volumes | Falls Pool; Cliff Faces and Sky Ledges | **Yes.** The falls' spray lifts a glider to the spray ledge. The Crane Cliffs' updrafts became terraces and flights (R4) |
 | Climbables (vine, ladder, rope, chain) | `MovementSolver` climbing, `WorldAuthority.climbable_open` | 151 rooms | **Yes.** `vine`/`ladder`/`rope`/`chain` rows: the Falls Pool's vine and rope. Converted rooms use stairs elsewhere. T2: the four rooms whose ladders are sealed lay a `hatch` over the stair |
 | Falling Leaf Glide | `CombatFlight.glide`, `MovementSolver.glide` | Leaf on the Wind (qk3) | **Yes**, with the lesson played on the grid |
@@ -118,12 +172,12 @@ in the to-do at the end.
 | Swallow Dart (air dash) | `MovementSolver.air_dash` | Swallow Dart (qk7) | **Yes**, along the stick, holding the height |
 | Cloud Ladder Step (double jump) | `MovementSolver` | Cloud Ladder (qu6) | **Yes** |
 | Wall-Step | `MovementSolver.wall_step` | Between Two Walls (ht4), Echo Cliffs shaft | **Yes.** T2: the Echo Cliffs' shaft between its two walls (raised a level, to five over the shaft's floor) climbs to the vultures' nest at its head, three levels up. The lesson's three kicks count on the grid |
-| Breath Control (swimming) | `MovementSolver._water` (swim 30 s) | deep water in 7 rooms, the Drowned Grotto | **Yes (T2).** Open water is swum for 30 s at 0.6 of the pace, and the body climbs out onto a bank; out of breath, it sinks to its safe spot. The swimmer is the walk, cut at the water's line |
+| Breath Control (swimming) | `MovementSolver._water` (swim 30 s) | deep water in 7 rooms, the Drowned Grotto | **Yes (T2).** Open water is swum for 30 s at 0.6 of the pace, and the body climbs out onto a bank; out of breath, it sinks to its safe spot. The swimmer is the walk, cut at the water's line. T3: its stroke, a pull and a glide, each pull's wake on the water |
 | Flight (Cloud Stride) | `CombatFlight` flight, the side solver | Wings of Cloud (ch 7, the gate to Act II) | **Yes.** Jump held as the body comes down takes off, held it climbs to its ceiling, Evade held lands; out of QI it falls; where refused, the hold glides. Wings of Cloud's "take to the air" counts on the grid |
 | Mounts | `PetAuthority.mount_speed`, `ground_mounted`, climb step-down | Riding the Wind (cs1) | **The rules, yes:** the mount's pace, stepping down to climb and back on at the top, no Wall-Step. No rider art yet: it needs a new body animation, written up in the to-do. Act I's story needs no mount |
-| Bounces (drum, lily pad, bent bamboo) | bounce volumes | Fairground, Whispering Bamboo, Grey Pools | **Yes.** T2: the Fairground's drum by the Cloud hall (up onto its roof), the bent culm at the east knoll's foot, the lotus leaf at the lily ledge's foot, each drawn by its `look` |
-| Crumbling boards | crumble volumes | Tunnels ×6, Cloud Entry Trial, Forgotten Monastery ×2, Frozen Shrine ×3 | **Yes.** T2: boards that are the floor and open on a hole (the Tunnels' planks over their spike pits, the Cloud trial's plank walk over its pool), the monastery's rotten floors (dropping a level), and the Frozen Shrine's icicle shelves over the terrace |
-| Timed routes (Cloud Steps, docks) | route objects, `route_finish` | Cliff Stair; 4 dock rooms | **Yes** for the Cloud Steps (the layout places the bell; `topdown_tutorial`). The docks have no layouts yet |
+| Bounces (drum, lily pad, bent bamboo) | bounce volumes | Fairground, Whispering Bamboo, Grey Pools | **Yes.** T2: the Fairground's drum by the Cloud hall (up onto its roof), the bent culm at the east knoll's foot, the lotus leaf at the lily ledge's foot, each drawn by its `look`. T3: each gives as it launches a body |
+| Crumbling boards | crumble volumes | Tunnels ×6, Cloud Entry Trial, Forgotten Monastery ×2, Frozen Shrine ×3 | **Yes.** T2: boards that are the floor and open on a hole (the Tunnels' planks over their spike pits, the Cloud trial's plank walk over its pool), the monastery's rotten floors (dropping a level), and the Frozen Shrine's icicle shelves over the terrace. T3: boards that were the floor never come back over a body under them |
+| Timed routes (Cloud Steps, docks) | route objects, `route_finish`; the docks' `set_sail` and the voyage's time | Cliff Stair; 4 dock rooms | **Yes** for the Cloud Steps (the layout places the bell; `topdown_tutorial`). T3: the four docks are on the grid (R6's yard, R8's three); each sets sail with its own call, held by the prototype's gate while its crossing or its port has no layout, the voyage timed by the vessel |
 | Rooftop chases | chase objects | Gate Street, Stoneford market | **Yes**, by the layouts' routes. T2: both chases are played on the grid, the thief caught over the roofs |
 
 ### Hazards (10)
@@ -134,16 +188,16 @@ in the to-do at the end.
 | Rising water | rising_water volumes, `ZoneGeometry.on_event` | Serpent's Shallows, Abbot's Sanctum (boss phases) | **Yes.** `flood` rows follow the side volume's own `rise` script through the World authority's boss-phase hook. T2: the Serpent's shallows (back down when it is beaten) and the Abbot's sanctum (back after its hold), a level deep |
 | Deep water | water_deep volumes | 7 rooms | **Yes**: open water returns a walking body to its safe spot, and a flood moves the safe spot to dry floor |
 | Shallow water's slow | water_shallow volumes (×`speed`) | 11 rooms | **Yes (T2):** every wading floor (the tile set's `flood` paints) at 0.7 of the pace, full pace on a Water Sphere's frozen ground |
-| Spike pits | hazard volumes | Tunnels ×2 | **Yes (T2):** `hazard` rows under the planks; a body fallen into a pit is struck by the side volume's spikes |
-| Ice | ice volumes (traction) | Frozen Shrine, Rimefrost ×2 | **Yes (T2)** for the Frozen Shrine's court and terrace (`ice` rows). Rimefrost is R6's |
+| Spike pits | hazard volumes | Tunnels ×2 | **Yes (T2):** `hazard` rows under the planks; a body fallen into a pit is struck by the side volume's spikes. T3: the pits open beside their planks, their spikes striking a body standing on them |
+| Ice | ice volumes (traction) | Frozen Shrine, Rimefrost ×2 | **Yes (T2)** for the Frozen Shrine's court and terrace (`ice` rows). **T3:** Frostpine Climb's high trail and Rimefrost Summit's plateau |
 | Wind volume | wind volumes | Windswept Ridge | **Yes (T2):** the ridge's `wind` row, beside its `wind_gust` hazard |
-| Low gravity | low_gravity volumes | Orbit Ruins ×3 | **No** (no layouts yet) |
+| Low gravity | low_gravity volumes | Orbit Ruins ×3 | **Yes (T3):** `low_gravity` rows, the side volume's share of the fall while its jade switch holds it; the jump climbs 1/0.45 as high |
 | Room hazards (strike, aura, gust, pool, flow: 16 kinds) | `WorldHazards`, `HazardRules` | 27 room uses | **Yes**, on the World authority: strikes fall on the grid's floors, auras find their shelters by placed objects, gusts drift the body, pools and flows take the layout's `areas` (T2: the Rapids' strand and white water) |
-| Cracked slab | cracked blocks broken by a Plunge | Lower Pit | **No** |
+| Cracked slab | cracked blocks broken by a Plunge | Lower Pit | **Yes (T3):** a `crack` row a level over the pit's floor, the shards sealed under it; a Plunge breaks it for the visit and strikes on the floor below |
 
 ### Room events and waves (10)
 
-All covered by the one rule above, except the Starsea crossing:
+All covered by the one rule above:
 
 - set pieces at rite circles (15 rooms, 10 on the grid);
 - a room's own event (the Hollow Night on its layout cells);
@@ -154,17 +208,18 @@ All covered by the one rule above, except the Starsea crossing:
 - heart demons;
 - the sect's raid;
 - the pole trial's ground rule;
-- **the Starsea crossing**: not covered; its rooms have no layouts.
+- **the Starsea crossing** (T3): the docks set sail into the crossing's own room, its event's foes on the deck's event
+  cells, port made at its end; held by the prototype's gate while the deck or the port has no layout.
 
 ### Other (5)
 
 | Mechanic | On the grid |
 |---|---|
 | Teleport stones, transfer arrays | **Yes**: objects at the layout's cells (R4: a teleport lands in front of its stone) |
-| No-flight rooms | **Yes**: `flight_allowed` reads the room. **No-flight volumes: no**, they are side-view rects |
+| No-flight rooms | **Yes**: `flight_allowed` reads the room and its type. **No-flight volumes (T3)**: `no_flight` rows (no side-view room has one yet), the same feedback (the hold glides, a flight comes down) |
 | Sealed climbables | **Yes**: a climb row asks `climbable_open`, and T2's hatches seal the four rooms' stairs by the same rule |
 | Cloud Lung's air distance | **Yes (T2)**: on the grid `CombatFlight._air_distance` counts the plane's speed (in the side view, x alone) |
-| Gravity switches | **No** (the Orbit Ruins have no layouts) |
+| Gravity switches | **Yes (T3)**: `toggle_gravity` sets the layout's `low_gravity` rows tied to the switch, as it sets the side view's volumes |
 
 ## Tested
 
@@ -205,12 +260,40 @@ own rows:
 23. the shallows' slow, and frozen ground's full pace;
 24. the rooftop chases at Gate Street and the Stoneford market, played and won.
 
+T3's parts (the low gravity's floor and a no-flight volume are laid on the Falls Pool by the test itself, as T1's lift):
+
+25. the Lower Pit's cracked slab: the shards sealed and hidden under it, a walk stopped at its foot, a hop that holds it,
+    a Plunge from over it breaking it and striking on the floor below, the shards shown and taken, the slab whole again
+    on the next visit;
+26. Frostpine Climb's and Rimefrost Summit's ice, the side view's traction: a sprint let go slides on;
+27. no-flight: the Windbridge, Old Ma's store (an interior) and the Tunnels (a dungeon) refuse it and the hold glides; a
+    flight into a no_flight volume ends there (`flight_ended`, `no_flight`) and comes down, and the hold glides inside it;
+28. low gravity: off until its switch is turned through `toggle_gravity`, then a standing jump climbs 1/0.45 as high and
+    hangs longer; turned again, gravity is back;
+29. the Starsea's four docks: each refused by the prototype's gate while its crossing or its port has no layout; with
+    both laid out, sailed, the crossing's foes aboard on the deck's floors, port made; the yard's chart table and
+    slipway open their pages from the grid;
+30. the late zones' light: the tomb and the Clan Hearth lamp-lit at noon, the sky-sea zones at the story's night, every
+    star lantern on the Arrival Quay lit;
+31. R8's two played by shortcut: the Jellyfish Shallows waded at 0.7 of the pace, and Spirit Sense's pulse showing the
+    Smugglers' Cove's crack;
+32. the swim's stroke: two or three pulls in two seconds, each with its wake; the pull runs the walk's frames, the glide
+    holds its rest frame;
+33. the drum's skin at rest, pressed, springing back, at rest, as it launches a body;
+34. the Hall of Lanterns' circling lantern goes round upright (one row on the plane, its deck up twice its radius) and
+    carries its rider up;
+35. the monastery's rotten floor stays gone over the body under it past its time, and comes back once it steps out;
+36. the Tunnels' pits lie open a row either side of the planks: the spikes strike a body standing on them, the planks
+    do not;
+37. on the Windswept Ridge the wind pushes its edge factor's harder by a drop on a diagonal.
+
 Pictures: `tools/dev/capture/capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`:
 
 - `01_raft_grey_pools.png`, plus the world view of each row under `world/`: the rafts, the vine, the glide over the
   spray, the updraft, the rope, flight;
 - `rooms/cf_falls_pool.png`, the whole room;
-- `traverse_x4.png`, the art sheet at four times (T2's sprites in its lower half).
+- `traverse_x4.png`, the art sheet at four times (T2's sprites in its middle, T3's at its foot: the bounces' three
+  frames, the open gate, the slab, its rubble, the spikes, the wake and the motes).
 
 T2's set, `capture.tscn -- traversal_t2`, writes `docs/architecture/topdown_mechanics/t2/`, each row's world at x2 in
 its own room:
@@ -225,9 +308,21 @@ its own room:
 - the court's ice, an icicle shelf, the monastery's rotten floor, the wind;
 - the swim in the Drowned Grotto's pool, and the wade through the Scripture Well's flooded floor.
 
+T3's set, `capture.tscn -- traversal_t3`, writes `docs/architecture/topdown_mechanics/t3/`, each row's world at x2 in
+its own room:
+
+- `01_cracked_slab_whole`, `02_cracked_slab_broken`: the Lower Pit's slab, then its rubble after the Plunge, the shards
+  showing;
+- `03_ice_frostpine_climb`, `04_ice_rimefrost_summit`: a slide on each sheet;
+- `05_open_spikes_tunnels`: the pits' spikes beside the planks;
+- `06_hatch_open_old_ma_store`: the storeroom's gate open after The Runaway Kite;
+- `07_lantern_round_upright`: the Hall of Lanterns, the circling lanterns up their round;
+- `08_swim_wake_drowned_grotto`: a stroke's wake behind the swimmer;
+- `09_star_lanterns_arrival_quay`, `10_tomb_lamplit`, `11_clan_hearth_lamplit`: the late zones' light.
+
 ## To do, in order
 
-T2 did items 1 to 13 for the Act I rooms on the grid. What is left, in order:
+T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act II on. What is left, in order:
 
 1. ~~**Wings of Cloud**~~: Cloud Lung's air distance counts the plane's speed on the grid (T2). Left: the Cloudwing
    Cranes, its third objective, need top-down sheets (M2's monster batch).
@@ -257,19 +352,14 @@ T2 did items 1 to 13 for the Act I rooms on the grid. What is left, in order:
     none: the Mount slot opens at the Beast Hall, and Riding the Wind (cs1) is Cloud Stride's lesson. It belongs with
     the mount's first sheet, as a batch of its own.
 13. ~~**Rooftop chases**~~: both played on the grid (T2).
-14. **The Lower Pit's cracked slab** (R3's room, on the grid): cracked blocks a Plunge breaks open. It is the one
-    mechanic of an Act I room left; it needs a row (a `crack` over the slab's cells, the side view's block id) and the
-    Plunge's landing to open it.
-15. **Act II and later, with their rooms**: no-flight volumes as grid rects, the Starsea crossing, low gravity and the
-    Orbit Ruins' gravity switches, the docks' timed routes; Rimefrost's ice (R6's rooms) takes T2's `ice` rows.
-16. **Presentation**: a flying pose (the flier stands on its cloud in the idle pose), and a flier keyed over tree crowns
-    once it is above them. T2's own:
-    - a swim stroke of its own, a new body movement under rule 4 (the swimmer now plays the walk, cut at the water's
-      line);
-    - a bounce that gives as it launches (the drum's skin, the culm's spring), and an open hatch's look (the gate is
-      simply gone);
-    - the lanterns' circle lies on the plane (the side view's circle stands upright).
-17. **Edge cases T2 leaves**:
-    - boards that come back while a body stands under them lift it onto them (the monastery's floors);
-    - a spike pit opens only where its planks go (no open pit cells beside them);
-    - the wind's edge factor reads a drop within `wind_edge` along the four axes only.
+14. ~~**The Lower Pit's cracked slab**~~: a `crack` row, a Plunge breaks it and strikes below, the shards sealed under
+    it until then (T3).
+15. ~~**Act II and later, with their rooms**~~ (T3): no-flight volumes (`no_flight` rows; the rooms and types refuse
+    flight as the side view's), the Starsea's docks (gated while a crossing or a port has no layout, played once both
+    are), low gravity and its jade switches (`low_gravity` rows, `toggle_gravity`), Rimefrost's ice, the late zones'
+    light. The star field's own rows wait on its rooms: item 18.
+16. **Presentation.** T2's own (T3): ~~a swim stroke~~ (a pull and a glide on the walk's own frames, each pull's wake),
+    ~~a bounce that gives~~, ~~an open hatch's look~~, ~~the lanterns' circle upright~~. Left from T1: a flying pose (the
+    flier stands on its cloud in the idle pose), and a flier keyed over tree crowns once it is above them.
+17. ~~**Edge cases T2 leaves**~~ (T3): returning boards wait for the body under them; the pits open beside their planks;
+    the wind looks along eight ways.

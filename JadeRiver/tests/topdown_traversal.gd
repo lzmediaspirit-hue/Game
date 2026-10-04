@@ -38,7 +38,22 @@ extends "res://tests/prologue_run.gd"
 ##  22. Breath Control's swim in the Drowned Grotto, its thirty seconds of breath;
 ##  23. the shallows' slow on the Flooded Gate's court;
 ##  24. the rooftop chases at Gate Street and the Stoneford market played on the grid.
-## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose]
+## T3, Act II onward and T2's leftovers (the to-do's items 14-17):
+##  25. the Lower Pit's cracked slab: the shards sealed under it, a hop holds it, a Plunge breaks it and strikes below;
+##  26. Frostpine Climb's and Rimefrost Summit's ice;
+##  27. no-flight: the rooms that forbid it, an interior and a dungeon glide; a flight into a no_flight volume comes down;
+##  28. low gravity: a floor laid on the Falls Pool, its jade switch turned through the World authority, a jump higher;
+##  29. the Starsea's four docks: gated while a crossing or a port has no layout, the voyage played once both are laid;
+##      the Shipwrights' Yard's chart table and slipway open their pages;
+##  30. the light of the late zones: the tomb and the Clan Hearth lamp-lit, the star field starlit, its star lanterns lit;
+##  31. the Jellyfish Shallows' wade, and Spirit Sense showing the Smugglers' Cove's crack;
+##  32. the swim's stroke: a pull and a glide, each pull's wake;
+##  33. the drum gives as it launches a body;
+##  34. the Hall of Lanterns' circling lantern goes round upright and carries its rider up;
+##  35. the monastery's rotten floor stays gone over a body under it, and comes back once it steps out;
+##  36. the Tunnels' pits open beside their planks: the spikes strike, the planks do not;
+##  37. the wind pushes harder by a drop on a diagonal.
+## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose] [-- --only=<part>]
 
 const BEFORE := ["prologue", "main"]
 const PLAYED := ["leaf_on_the_wind", "swallow_dart", "cloud_ladder", "skipping_stones", "between_two_walls"]
@@ -1398,7 +1413,7 @@ func _low_gravity() -> void:
 	Game.room_rt.objects.erase("t3_switch")
 	_reskim(skim)
 
-# ------------------------------------------------------------------ 29: the Starsea dock
+# ------------------------------------------------------------------ 29: the Starsea docks
 ## The Starsea's four docks on the grid (the Shipwrights' Yard's, R6's; the Broken Pier's, the Launch's and the Arrival
 ## Quay's, R8's): a top-down character with a vessel and the route's chart at Sage 3 sets sail with the dock's own call
 ## (the context's interact). While a route's crossing deck or its far port has no layout, the prototype's gate holds the
@@ -1412,6 +1427,8 @@ func _starsea() -> void:
 	# The yard's chart table and slipway (the voyage's preparations, R8's "played on pages"): the side view's own pages,
 	# opened by their objects on the grid.
 	check(enter("ae_shipyard"), "to the Shipwrights' Yard on the grid")
+	for u in ["star_charting", "shipwright"]:
+		if not Unlocks.is_unlocked(c().id, u): Unlocks.force_unlock(c().id, u)   # a test shortcut: Sage 3's systems
 	for row in [["chart_table_cloudgate", "charts"], ["slip_cloudgate", "vessels"]]:
 		var o: Dictionary = Game.room_rt.object_def(str(row[0]))
 		var oat := Vector2(float(o.at[0]), float(o.at[1]))
@@ -1460,7 +1477,7 @@ func _starsea() -> void:
 		check(room() == str(v.to) and Game.room_rt.topdown != null and not Game.world.voyages.has(c().id), "%s: the crossing makes port at %s on the grid" % [v.id, v.to])
 		_whole()
 
-# ------------------------------------------------------------------ 29b: the light of the late zones
+# ------------------------------------------------------------------ 30: the light of the late zones
 ## R7's and R8's rooms lit as their side view is: the tomb's halls and the Clan Hearth's cavern lamp-lit whatever the
 ## hour; the Lantern Star Field's rooms (and the star field's past it) starlit at noon; Lanternfall's star lanterns burn.
 func _late_light() -> void:
@@ -1473,7 +1490,7 @@ func _late_light() -> void:
 	var lit: int = w.atmosphere.lights.filter(func(l): return str(l[0]) == "star").size()
 	check(lanterns > 0 and lit == lanterns, "the quay's %d star lanterns each give their starlight (%d)" % [lanterns, lit])
 
-# ------------------------------------------------------------------ 29c: the shoals' wade and the cove's crack
+# ------------------------------------------------------------------ 31: the shoals' wade and the cove's crack
 ## R8's two played by shortcut: the Jellyfish Shallows' wading floors slow the walk as the side view's shallows do
 ## (T2's rule); Spirit Sense's pulse at the Gunners' Battery shows the crack into the Smugglers' Cove on the grid.
 func _sky_sea_leftovers() -> void:
@@ -1503,7 +1520,7 @@ func _sky_sea_leftovers() -> void:
 	check(r.get("ok", false) and c().quests.has_flag(flag) and not Game.world.portal_state(c(), cove).get("hidden", false),
 		"Spirit Sense's pulse on the grid shows it (%s)" % str(r))
 
-# ------------------------------------------------------------------ 30: the swim's stroke
+# ------------------------------------------------------------------ 32: the swim's stroke
 ## T2's swimmer is the walk cut at the water's line; its stroke now has a rhythm: a pull every `swim_stroke_s` while it
 ## moves (the walk's frames run once through, its pace surging), then a glide on the walk's rest frame, and each pull
 ## leaves a ring on the water.
@@ -1536,7 +1553,7 @@ func _swim_stroke() -> void:
 	c().cultivator.secret_arts.erase("breath_control")
 	_reskim(skim)
 
-# ------------------------------------------------------------------ 31: a bounce that gives
+# ------------------------------------------------------------------ 33: a bounce that gives
 ## The Fairground's drum, as it launches a body: its skin pressed in, then springing back, then at rest (BounceView).
 func _bounce_gives() -> void:
 	check(enter("sf_fairground", "west"), "to the Fairground's drum")
@@ -1554,7 +1571,7 @@ func _bounce_gives() -> void:
 	frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
 	check(view != null and seen == [0, 1, 2, 0], "the drum's skin gives as it launches the body: at rest, pressed, springing back, at rest (%s)" % str(seen))
 
-# ------------------------------------------------------------------ 32: lanterns that go round upright
+# ------------------------------------------------------------------ 34: lanterns that go round upright
 ## The Hall of Lanterns' circling lanterns go round upright as the side view's do: east-west along the plane and up and
 ## down a radius's twice (their deck rising and falling), never along the plane north and south; a body standing on
 ## the lid rides it up.
@@ -1586,7 +1603,7 @@ func _upright_lanterns() -> void:
 	frames(int(2.3 / DT), Vector2.ZERO, false, func(): top.z = maxf(float(top.z), m.z); return false)
 	check(absf(z0 - float(l.z)) < 1.0 and float(top.z) - z0 > r2 - 6.0 and m.ride == "lantern_1", "a body on its lid rides it up and round (z %.0f up to %.0f)" % [z0, top.z])
 
-# ------------------------------------------------------------------ 33: returning boards
+# ------------------------------------------------------------------ 35: returning boards
 ## The monastery's rotten floor: gone under a body, it does not come back over the body still standing under it (it would
 ## lift the body onto it); once the body has stepped out from under it, it comes back.
 func _returning_boards() -> void:
@@ -1605,7 +1622,7 @@ func _returning_boards() -> void:
 	frames(int(0.6 / DT))
 	check(tr.crumble_state(wf) == "whole" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5, "stepped out from under them, the boards come back (%s; the body at %s, z %.0f)" % [tr.crumble_state(wf), str(TopdownRoom.cell_of(m.pos)), m.z])
 
-# ------------------------------------------------------------------ 34: the pits open beside their planks
+# ------------------------------------------------------------------ 36: the pits open beside their planks
 ## The Tunnels' spike pits open beside their planks, as the side view's pit lies round its planks: a body standing on the
 ## spikes beside the track is struck; on the whole planks over the pit it is not.
 func _open_spikes() -> void:
@@ -1632,7 +1649,7 @@ func _open_spikes() -> void:
 	check(on_planks == 0 and on_spikes >= 1 and m.grounded, "on the planks the body is clear; on the spikes beside them it is struck (%d, %d)" % [on_planks, on_spikes])
 	_whole()
 
-# ------------------------------------------------------------------ 35: the wind's edge on the diagonals
+# ------------------------------------------------------------------ 37: the wind's edge on the diagonals
 ## The Windswept Ridge's wind pushes harder within `wind_edge` of a drop along any of the eight ways round the body (T2
 ## looked along the four axes only): at a spot whose only drop near it is on a diagonal, the push is its edge factor's.
 func _wind_diagonals() -> void:
