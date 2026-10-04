@@ -63,11 +63,13 @@ Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that 
     drawn foes for scale, the elites, and live fights in fourteen of their own rooms.
 - **Still to draw:** twenty-four species of R5's, R6's and R7's rooms and the Tidebreak Front, listed by level in the
   engine doc. The Trial Tower has none left.
-- **Checks.** `tools/run_tests.sh` ran on the tree merged with R5, R7, E3 and E5.
-  - Every gate passed, `boot` among them (0 failing). `build_data` writes no data file: the rows, loot and voices are
-    byte-identical. The `monsters` gate has 1,538 checks (1,038 at M1); it grows with the species, now 52.
-  - All 29 suites passed with no SCRIPT ERROR: 74,413 checks, every count as E5's run left it. `contract_tests`
-    (1,112) finds no private cross-call in the batch's code; the capture registry's `--lint` is clean.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R5, R6, R7, E3, E5 and T2.
+  - Every gate passed, `boot` among them (0 failing; grid parity on 127 layouts). `build_data` writes no data file:
+    the rows, loot and voices are byte-identical. The `monsters` gate has 1,538 checks (1,038 at M1); it grows with
+    the species, now 52, and is the only count that grows.
+  - All 30 suites passed with no SCRIPT ERROR: 74,608 checks with the engine tests, every count as the merged branch
+    has it (76,531 counting the `room_engine` and `monsters` gates too, as T2's 76,031 did). `contract_tests` (1,112)
+    finds no private cross-call in the batch's code; the capture registry's `--lint` is clean.
   - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as on disk.
 
 ## The side view's mechanics in the Act I rooms (T2)
