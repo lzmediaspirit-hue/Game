@@ -52,7 +52,8 @@ extends "res://tests/prologue_run.gd"
 ##  34. the Hall of Lanterns' circling lantern goes round upright and carries its rider up;
 ##  35. the monastery's rotten floor stays gone over a body under it, and comes back once it steps out;
 ##  36. the Tunnels' pits open beside their planks: the spikes strike, the planks do not;
-##  37. the wind pushes harder by a drop on a diagonal.
+##  37. the wind pushes harder by a drop on a diagonal;
+##  38. a flier high over its floor is drawn over the crowns south of it.
 ## Run headless:  godot --headless --path . res://tests/topdown_traversal.tscn [-- --verbose] [-- --only=<part>]
 
 const BEFORE := ["prologue", "main"]
@@ -81,7 +82,7 @@ func _main() -> void:
 			_peaks, _swim, _shallows, _chases,
 			# T3: Act II onward, and T2's leftovers
 			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _late_light, _sky_sea_leftovers, _swim_stroke,
-			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals]:
+			_bounce_gives, _upright_lanterns, _returning_boards, _open_spikes, _wind_diagonals, _flier_over_crowns]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -1681,3 +1682,28 @@ func _wind_diagonals() -> void:
 	var near := m.wind_push().length() / maxf(0.001, tr.wind_strength(wv))
 	check(absf(plain - (wv.push as Vector2).length()) < 0.5 and absf(near - plain * float(wv.edge_factor)) < 0.5,
 		"by a drop on the diagonal the wind pushes %.0f, its edge factor's %.1f times the open ridge's %.0f" % [near, float(wv.edge_factor), plain])
+
+# ------------------------------------------------------------------ 38: a flier over the crowns
+## T1's leftover: a flier high over its floor is drawn over the crowns and roofs south of it within its height (its sort
+## key carried that far south), never behind a tree it flies above.
+func _flier_over_crowns() -> void:
+	_realm("cloud_stride_1")
+	if not Unlocks.is_unlocked(c().id, "flight"): Unlocks.force_unlock(c().id, "flight")
+	check(_falls_pool(), "to the Falls Pool to fly over the trees")
+	var m := motor()
+	var grid: TopdownRoom = Game.room_rt.topdown
+	_whole()
+	stand(Vector2(40, 22))
+	w.player.jump()
+	frames(int(1.6 / DT), Vector2.ZERO, true)
+	w.player.sync(DT)
+	var above := m.z - grid.height_at(m.pos)
+	var lift: float = w.player.position.y - grid.sort_key(m.pos, m.z)
+	check(m.flying and above >= 96.0 and absf(lift - above / TopdownRoom.ART) < 0.1,
+		"flying %.0f units up, the body is drawn %.1f art px further south than its feet (over the crowns below it)" % [above, lift])
+	w.player.fly_down = true
+	frames(int(4.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	w.player.fly_down = false
+	frames(2)
+	w.player.sync(DT)
+	check(m.grounded and absf(w.player.position.y - grid.sort_key(m.pos, m.z)) < 0.01, "landed, it is keyed at its feet again")

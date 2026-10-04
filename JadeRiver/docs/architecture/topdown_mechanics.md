@@ -285,7 +285,8 @@ T3's parts (the low gravity's floor and a no-flight volume are laid on the Falls
 35. the monastery's rotten floor stays gone over the body under it past its time, and comes back once it steps out;
 36. the Tunnels' pits lie open a row either side of the planks: the spikes strike a body standing on them, the planks
     do not;
-37. on the Windswept Ridge the wind pushes its edge factor's harder by a drop on a diagonal.
+37. on the Windswept Ridge the wind pushes its edge factor's harder by a drop on a diagonal;
+38. a flier three levels up is drawn as far south as it is high (over the crowns below it), at its feet again landed.
 
 Pictures: `tools/dev/capture/capture.tscn -- traversal` writes `docs/architecture/topdown_mechanics/`:
 
@@ -359,7 +360,8 @@ T2 did items 1 to 13 for the Act I rooms on the grid, T3 items 14 to 17 from Act
     are), low gravity and its jade switches (`low_gravity` rows, `toggle_gravity`), Rimefrost's ice, the late zones'
     light. The star field's own rows wait on its rooms: item 18.
 16. **Presentation.** T2's own (T3): ~~a swim stroke~~ (a pull and a glide on the walk's own frames, each pull's wake),
-    ~~a bounce that gives~~, ~~an open hatch's look~~, ~~the lanterns' circle upright~~. Left from T1: a flying pose (the
-    flier stands on its cloud in the idle pose), and a flier keyed over tree crowns once it is above them.
+    ~~a bounce that gives~~, ~~an open hatch's look~~, ~~the lanterns' circle upright~~. From T1: ~~a flier keyed over
+    tree crowns once it is above them~~ (T3: three levels over its floor it sorts as far south as it is high). Left: a
+    flying pose (the flier stands on its cloud in the idle pose); it is a new body movement under AGENTS.md rule 4.
 17. ~~**Edge cases T2 leaves**~~ (T3): returning boards wait for the body under them; the pits open beside their planks;
     the wind looks along eight ways.
