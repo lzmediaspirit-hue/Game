@@ -1115,3 +1115,59 @@ FG_GLINT = c("FFFDF0")
 FG_GLOW = c("FFE08A", 190)
 FG_BLOSSOM = c("FFD6E6")
 FG_BLOSSOM_DIM = c("E89AB8")
+
+
+# ================================================================================================= M5
+# The creatures that are not foes (M5): the pets', the mount's and the Copperjaw swarm's, from their side-view sheets'
+# materials (tools/art/creatures/<id>.py before S12b), each block its own.
+RAMPS.update({
+    # the Copperjaw swarm: the beetles' copper wing cases, their dark chitin, their pale wings; the Queen's gold cases
+    "cj_copper": _s("f4c98c", "cf8442", "93522a", "5c311a"),
+    "cj_chitin": _s("8c6a4e", "5e4131", "3f2a20", "241612"),
+    "cj_wing": _s("fff6dc", "f0dcaa", "cdb07a", "9c8354"),
+    "cj_queen": _s("fff0b8", "e5b84c", "a87c2c", "6a4b1c"),
+    # the hatchling wyrm: pearl scales, the blue-violet belly, pale gold (horns, claws, spars, spine nubs), its indigo wing
+    # membrane, its mouth
+    "hatch_pearl": _s("fffdf6", "efe8de", "cbc1da", "9b90ba"),
+    "hatch_belly": _s("dedcfb", "b0acf0", "8782d4", "605aa8"),
+    "hatch_gold": _s("fff3c2", "f2cd6e", "c6923f", "8a5a35"),
+    "hatch_membrane": _s("6f6ecf", "4644a0", "312e7a", "211f56"),
+    "hatch_mouth": _s("b06a86", "8a4a6a", "643552", "43233b"),
+    # the cloud stag: a cloud-white hide shaded sky blue, its antlers, its slate hooves, the clouds caught on it
+    "cstag_hide": _s("ffffff", "dce9f4", "a9c2da", "7894b4"),
+    "cstag_antler": _s("fff8e4", "e8d8b0", "bca47a", "8a7454"),
+    "cstag_hoof": _s("8a90a8", "62687e", "474c60", "30344a"),
+    "cstag_cloud": _s("ffffff", "f0f6fc", "d2e0ee", "aac0d6"),
+})
+PROPS.update({
+    "cj_copper": {"hi": True, "glossy": True, "weight": 1.3}, "cj_chitin": {"hi": True, "weight": 1.5}, "cj_wing": {"hi": True, "thin": True},
+    "cj_queen": {"hi": True, "glossy": True, "weight": 1.4},
+    "hatch_pearl": {"hi": True}, "hatch_belly": {"hi": True, "weight": 1.2}, "hatch_gold": {"hi": True, "glossy": True, "weight": 1.5},
+    "hatch_membrane": {"hi": True, "thin": True}, "hatch_mouth": {"weight": 1.4},
+    "cstag_hide": {"hi": True}, "cstag_antler": {"hi": True, "weight": 1.4}, "cstag_hoof": {"hi": True, "weight": 1.3},
+    "cstag_cloud": {"hi": True, "weight": 1.1},
+})
+# The Copperjaw beetles' pale-gold jaws, the Queen's crown, the tell's ring (closing, then hot) and the copper dust.
+CJ_JAW = c("FFE6A1")
+CJ_JAW_DIM = c("E5B84C")
+CJ_CROWN = c("FFF6D8")
+CJ_RING = c("B3743A", 220)
+CJ_RING_HOT = c("FFE6A1")
+CJ_SPECK = c("E0A258", 220)
+CJ_SPECK_DIM = c("B3743A", 170)
+CJ_WING_BLUR = c("FFF6DC", 150)
+CJ_WING_EDGE = c("F0DCAA", 100)
+# The hatchling wyrm's ink (its eye's rim, its nostrils, its shut eyes), its star-blue eyes and their glint, its stars
+# (the tail's and the brow's: white, gold, their glow, dim as it naps), its chest's glow and its squeak.
+HATCH_INK = c("161230")
+HATCH_IRIS = c("4CC8F4")
+HATCH_IRIS_HI = c("B8F0FF")
+HATCH_STAR_W = c("FFFBE6")
+HATCH_STAR_G = c("FFE07A")
+HATCH_STAR_GLOW = c("FFE07A", 150)
+HATCH_STAR_DIM = c("B8A978")
+HATCH_GLOW = c("FFF1B0", 220)
+HATCH_GLOW_EDGE = c("F2CD6E", 180)
+HATCH_SQUEAK = c("FFFBE6")
+# The cloud stag's soft clouds: their pale core (their rims are CLOUD_WISP and CLOUD_WISP_DIM).
+CSTAG_WISP = c("F6FBFF")

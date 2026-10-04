@@ -976,8 +976,9 @@ func data_suite() -> void:
 ## The channels are the ones tools/dev/wiki.py lists as an item's sources; keep the two in step.
 ## S12b: the creatures a pet or the Copperjaw swarm is that have no top-down sheet drawn yet (the side view's creature
 ## sheets that stood in for them went with it): in the room and on the pages they show nothing but a shadow or an empty
-## slot until the monster engine draws them (reported with S12b).
-const NO_TOP_SHEET_YET := ["cloud_stag", "hatchling_wyrm", "copperjaw_swarm", "copperjaw_queen"]
+## slot until the monster engine draws them. M5 drew the last four (the cloud stag, the hatchling wyrm, the Copperjaw
+## swarm and its queen), so the list is empty; a new creature goes here only while its sheet is being drawn.
+const NO_TOP_SHEET_YET := []
 const SOURCE_MARKS := ["story", "system", "later"]
 const TIDE_CORE_ELEMENTS := ["fire", "water", "wood", "earth", "wind", "thunder"]   # WorldAuthority.apply_tide_result
 const TIDE_CORE_TIERS := ["low", "mid", "high"]

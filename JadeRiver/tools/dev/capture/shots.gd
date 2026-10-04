@@ -675,6 +675,40 @@ static func sets() -> Dictionary:
 		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m4 + [
 		{"do": [["paused", false], ["hud", "visible", true]]}] + m4_fights}
 
+	# M5: the creatures that are not foes (tools/content/monsters/specs/companions.py). The hatchling wyrm (the active
+	# animal) and the cloud stag (the mount, thrown from its saddle so it walks beside you: its rider's pose is on hold) on
+	# the Reed Shallows beside drawn foes for scale: arriving at your side, following you, the wyrm in its lineage's form;
+	# live fights at your side (sent to attack) on the Thunderhorn Plains and in the Wyrmnest Isles; and the pages that
+	# draw them: the Spirit Animals stable (its mount slot), the Copperjaw swarm's tab (the swarm, then its Queen), the
+	# character's chip.
+	var m5_unlocks: Array = ContentDB.all("unlocks").map(func(u): return str(u.id))
+	# A heavy blow throws you from the saddle: the stag lands and walks beside you for its 10 s (pet_growth's dismount_s),
+	# a blow while it is out does nothing, so each scene waits out the last throw, throws you, and calls the party out.
+	var m5_thrown := [["frames", 640], ["clear_enemies"], ["event", "hit_landed", {"target": "c1", "amount": 99999.0}],
+		["submit", {"type": "set_active_pet", "pet": "hatchling_wyrm_1"}]]
+	var m5_page := func(page: String, args: Dictionary) -> Array: return [["open_page", page, args], ["frames", 30], ["coach_off"], ["frames", 60]]
+	var m5 := [{"do": [["know_all"], ["unlock", m5_unlocks], ["effects", [{"kind": "grant_pet", "species": "hatchling_wyrm"}, {"kind": "grant_pet", "species": "cloud_stag"}]],
+			["submit", {"type": "set_pet_role", "pet": "cloud_stag_2", "role": "mount"}], ["submit", {"type": "pet_command", "command": "passive"}],
+			["give", "copperjaw_box", 1], ["flush"], ["lineup", M5_LINEUP], ["paused", false], ["event", "hit_landed", {"target": "c1", "amount": 99999.0}],
+			["frames", 100], ["paused", true]]},
+		{"name": "a_01_beside_you", "if": "!phone"},
+		{"name": "a_02_following", "if": "!phone", "do": [["paused", false], ["move", Vector2(1, 0.15)], ["frames", 30], ["paused", true]]},
+		{"name": "a_03_lineage_form", "if": "!phone", "do": [["paused", false], ["stop"], ["effects", [{"kind": "add_pet_purity", "amount": 95}]], ["frames", 40],
+			["paused", true]]},
+		{"do": [["paused", false], ["hud", "visible", true], ["submit", {"type": "pet_command", "command": "attack"}]]}]
+	for ft in [["b_04_fight_stormgrass_verge", "tp_stormgrass_verge", Vector2(40, 16), [["spark_weasel", Vector2(-3, 2)], ["spark_weasel", Vector2(-5, 0)]]],
+			["b_05_fight_guardians_crown", "wn_guardians_crown", Vector2(30, 17), [["hollowed_wyrmling", Vector2(-3, 2)], ["hollowed_wyrmling", Vector2(-5, 0)]]]]:
+		m5.append({"name": ft[0] + "{sfx}", "room": ft[1], "cell": ft[2], "wait": 60, "do": [["clear_enemies"], ["close_pages"]] + m5_thrown + [["foes", ft[2], ft[3], true],
+			["tick", 200], ["close_pages"]], "take": [["shot"], ["view_x4", "*_x4"]]})
+	m5.append({"name": "c_06_page_stable", "if": "!phone", "do": m5_page.call("spirit_animals", {}), "take": [["shot"]], "then": [["close_pages"], ["frames", 10]]})
+	m5.append({"name": "c_07_page_swarm", "if": "!phone", "do": m5_page.call("spirit_animals", {"tab": "swarm"}), "take": [["shot"]], "then": [["close_pages"], ["frames", 10]]})
+	m5.append({"name": "c_08_page_swarm_queen", "if": "!phone", "do": [["set", "swarm.queen", true]] + m5_page.call("spirit_animals", {"tab": "swarm"}), "take": [["shot"]],
+		"then": [["close_pages"], ["frames", 10]]})
+	m5.append({"name": "c_09_page_character", "if": "!phone", "do": m5_page.call("character", {}), "take": [["shot"]], "then": [["close_pages"], ["frames", 10]]})
+	s["monsters_m5"] = {"doc": "M5: the creatures that are not foes (the hatchling wyrm, the cloud stag, the Copperjaw swarm and its Queen): the wyrm and the stag (thrown from its saddle) on the Reed Shallows beside drawn foes for scale (arriving, following, the wyrm's lineage form), live fights at your side on the Thunderhorn Plains and in the Wyrmnest Isles, and the pages that draw them (the stable, the swarm's tab and its Queen, the character's chip); with -screen 0 2400x1080x24 --resolution 2400x1080 the fights as a 20:9 phone's (the _phone shots) (--tag=after)",
+		"out": "redesign/feedback/monsters/m5/{tag}/", "vars": {"tag": "after"}, "stage": monster_stage, "take": [["lineup_shot"]], "rows": [
+		at_the_flats.merged({"do": [["hud", "visible", false]]})] + m5}
+
 	# M3: the monster engine's third batch (tools/content/monsters/specs/): the Thunderhorn Plains' and Rimefrost Heights'
 	# beasts (a), Mirrorwater Lake's and the Gale Canyons' (b), the Sunscar Desert's, the Tomb's, the spar posts' and the
 	# fruit's guardian (c),
@@ -1123,6 +1157,10 @@ const M4_ELITES_C := [["orbit_moth", Vector2(-7.5, -2.4), false], ["orbit_moth",
 	["ashborn_raider", Vector2(-8.0, 2.2), false], ["ashborn_raider", Vector2(-5.5, 2.2), true],
 	["nebula_eel", Vector2(-2.0, 2.2), false], ["nebula_eel", Vector2(2.0, 2.2), true],
 	["void_crab", Vector2(5.0, 2.2), false], ["void_crab", Vector2(7.5, 2.2), true]]
+# M5: drawn foes for scale beside the creatures that are not foes (the hatchling wyrm and the cloud stag at your side): a
+# Mudwater bandit, the hollow stag (the cloud stag's frame), the hollowed wyrmling, the reed otter (a pet of the first rooms).
+const M5_LINEUP := [["mudwater_bandit", Vector2(-8.5, -3.0), false], ["hollow_stag", Vector2(-4.5, -5.2), false],
+	["hollowed_wyrmling", Vector2(4.0, -5.0), false], ["reed_otter", Vector2(8.0, -2.6), false]]
 # M3: the monster engine's third batch, by where they live, beside drawn foes for scale (a Mudwater bandit, the reed rat,
 # the rock beetle), the tall ones on the near row so the shot holds them whole; the bosses on their own; and the elites
 # beside their species. The dune worm stands past its aggro range from the player, as the mole does (a burrower that

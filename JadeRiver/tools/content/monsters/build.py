@@ -15,7 +15,8 @@
   poses     every species poses every action of the catalogue (and its extras) for its frames in the five drawn facings,
             in each look; the catalogue's frame counts and the blow's frame (HIT_FRAME) are the sheets'
   data      every spec's enemies.json row is the row its spec makes (mob(), atk(), d()); its loot table carries its
-            starter mark, its finds and its quest drops; sound.json names its voice
+            starter mark, its finds and its quest drops; sound.json names its voice. M5: a creature that is not a foe
+            (no `data`) has no row, loot table or voice, and a pet, a mount or the Copperjaw swarm draws it
   sheets    data/topdown/foes.json has every spec's block (its elite and awakened looks where it has them, the blow on
             frame 1), every sheet is on disk; sampled frames drawn twice are the same, and the same as the sheet's cell
   elite     an elite's look wears the ring of Qi (pale gold round its outline), its species' own does not
@@ -101,7 +102,7 @@ def check_specs(C: Checks) -> None:
         C.check(set(spec.accents) <= set(pal) and set(spec.gold) <= set(pal), "%s: its accents and gold are in its palette" % sid)
         if spec.awakened:
             C.check(all(r in M.RAMPS for r in spec.awakened.get("ramps", {}).values()), "%s: its awakened ramps exist" % sid)
-        v = MON.voices()[sid]
+        v = MON.voices().get(sid, {})
         C.check(v.get("body") in (None,) + MON.BODIES and v.get("tell") in (None, "tell_water"), "%s: its voice is one sound.py knows" % sid)
     C.check(callable(sound.payload), "sound.py loads with the specs' voices")
 
@@ -150,7 +151,20 @@ def check_data(C: Checks) -> None:
     rows = {r["id"]: r for r in json.loads((ROOT / "data/enemies.json").read_text())["entries"]}
     loot = {r["id"]: r for r in json.loads((ROOT / "data/loot_tables.json").read_text())["entries"]}
     snd = json.loads((ROOT / "data/sound.json").read_text())["foes"]
+    # M5: what draws a creature that is not a foe: a pet's art and its mount's, the Copperjaw swarm's and its Queen's.
+    drawn = set()
+    for p in json.loads((ROOT / "data/pets.json").read_text())["entries"]:
+        drawn.add(str(p.get("art", p["id"])))
+        if p.get("mount", {}).get("art"):
+            drawn.add(str(p["mount"]["art"]))
+    swarm = json.loads((ROOT / "data/stats.json").read_text()).get("swarm", {})
+    drawn |= {str(swarm.get("art", "")), str(swarm.get("queen_art", ""))}
     for sid in MON.ids():
+        if not MON.get(sid).foe:
+            C.check(sid not in rows and sid not in loot and sid not in snd["body"] and sid not in snd["tell"],
+                    "%s: a creature that is not a foe has no enemies.json row, loot table or voice" % sid)
+            C.check(sid in drawn, "%s: a pet, a mount or the Copperjaw swarm draws it (pets.json, stats.swarm)" % sid)
+            continue
         want = MON.row(sid, E.mob, E.atk, E.d)
         # The passes enemies.py makes over every row after: races, beast ranks and natures, a boss's par time.
         E.beast_ranks([want])
@@ -259,7 +273,8 @@ def main(argv: list) -> int:
         import creatures
         for sid, sp in MON.load().items():
             spec = creatures.REGISTRY[sid]
-            print("%-20s %-20s size %-5s %-8s %s" % (sid, sp.plan or "pose=" + sp.pose, spec.size, "+".join(spec.looks()), sp.source))
+            print("%-20s %-20s size %-5s %-8s %s%s" % (sid, sp.plan or "pose=" + sp.pose, spec.size, "+".join(spec.looks()), sp.source,
+                                                   "" if sp.foe else " (not a foe)"))
         return 0
     if "--review" in argv:
         sid = argv[argv.index("--review") + 1]

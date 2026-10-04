@@ -28,6 +28,10 @@ moth's motes gathered before its head, 0..1), `burst` (the spray or the spark on
 The motion styles (STYLES): the drone's idle `buzz`, walk `dart`, windup `level_lance`, attack `lance_thrust`, hurt
 `spark_jolt`, death `shell_burst`; the moth's idle `flutter`, walk `cruise`, windup `motes_gather`, attack `dust_burst`,
 hurt `flinch_puff`, death `spiral_fall`.
+
+M5's `swarm` (the Copperjaw swarm, and its Queen's sheet with `queen`): a cloud of small copper beetles, each sculpted (its
+own place, size and loop in the cloud); styles idle `hang`, walk `stream`, windup `ball_up`, attack `lance`, hurt
+`scatter`, death `rain` (below, with its channels).
 """
 from __future__ import annotations
 
@@ -101,6 +105,8 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
+    if "beetles" in B.parts:
+        return _swarm(B, action, f, view)                # M5: the Copperjaw swarm (its Queen's too)
     if "lance" in B.parts:
         return _drone(B, action, f, view)
     return _moth(B, action, f, view)
@@ -387,4 +393,220 @@ def _moth(B, action: str, f: int, view: float) -> Pose:
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], tuple(C))
+    return P
+
+
+# ================================================================================================= the Copperjaw swarm (M5)
+from ..motion import h01  # noqa: E402
+# `swarm` (the Copperjaw swarm, the Copperjaw Box let loose): not one insect but a cloud of them. Eleven small copper
+# beetles of three sizes hang in a loose cloud over the floor (`beetles`: each one's place in the cloud, its size and the
+# phase of its own small loop), each a sculpted beetle: copper wing cases with a dark seam down their middle, a dark
+# chitin pronotum and head before them, pale-gold jaws (the copper jaw), a glint in the eye of the larger ones. Their
+# cases lift and part from beetle to beetle so the cloud buzzes, pale wings blurring out from under them. It hangs,
+# every beetle rounding its own loop; it streams forward stretched out and nose-down, specks of copper trailing it; in its
+# tell it draws back and balls up, jaws open, a copper ring tightening round it (held); it lances forward as a spearhead
+# and bites (a spark at its tip on the blow) and loosens; struck, it is blown back and scattered, beetles tumbling and
+# copper dust flung off; beaten, the beetles tumble and rain down, land on their backs with their legs in the air, and
+# fade. `queen` (the Copperjaw queen's sheet: the swarm once a Queen has risen in the box): a large gold-cased Queen with
+# a pale-gold crown at the heart of the cloud, leading its lance and falling with the rest.
+# Channels: `lunge`, `rise`, `gather` (0..1: drawn in toward the middle, the ball), `stretch` ((along, across): the
+# cloud drawn out), `spin` (degrees: how far round its loop each beetle is), `pitch` (the beetles' noses, + up),
+# `spread` (degrees: their headings' scatter), `jaws`, `ring` (the tell's ring: 0 none, 1 closing, 2 hot), `hit` (the
+# spark at its tip), `scatter` (pushed out from the middle), `tumble` (degrees: each beetle's roll), `drop` (0..1: fallen
+# to the floor), `lying` (on their backs), `dust`, `streaks`, `dissolve`.
+SWARM_STYLES = {
+    "hang": {"kind": "cloud", "turn": 60.0, "amp": (0.75, 0.75, 0.45), "rise_amp": 0.3},
+    "stream": {"kind": "cloud", "turn": 45.0, "amp": (1.1, 0.8, 0.5), "rise_amp": 0.4, "stretch": (1.28, 0.84), "pitch": -10.0,
+               "lunge": (0.0, 0.4, 0.8, 0.8, 0.4, 0.0, -0.2, -0.2), "streaks": (0, 2, 4, 6)},
+    "ball_up": {"gather": (0.35, 0.65, 0.85, 0.85), "lunge": (-0.6, -1.2, -1.6, -1.6), "rise": (0.2, 0.4, 0.5, 0.5),
+                "spin": (20.0, 40.0, 60.0, 60.0), "spread": (12.0, 6.0, 3.0, 3.0), "pitch": (4.0, 6.0, 8.0, 8.0), "jaws": True,
+                "ring": (0, 1, 2, 2), "beat": (0, 1, 0, 0)},
+    "lance": {"gather": (0.5, 0.42, 0.3, 0.15, 0.05, 0.0), "stretch": ((1.35, 0.66), (1.6, 0.52), (1.5, 0.58), (1.25, 0.78), (1.08, 0.94), (1.0, 1.0)),
+              "lunge": (1.4, 4.2, 4.4, 3.4, 1.8, 0.5), "rise": (0.2, -0.6, -0.6, -0.4, -0.1, 0.0), "spin": (80.0, 100.0, 120.0, 140.0, 160.0, 180.0),
+              "pitch": (-8.0, -14.0, -10.0, -4.0, 0.0, 0.0), "spread": (0.0, 0.0, 6.0, 12.0, 8.0, 4.0), "jaws": True, "hit": (1, 2),
+              "streaks": (0, 1, 2), "beat": (1, 0, 1, 0, 1, 0)},
+    "scatter": {"lunge": (-2.4, -1.6, -0.6), "rise": (0.6, 0.3, 0.1), "scatter": (2.6, 1.5, 0.5), "tumble": (40.0, 22.0, 6.0),
+                "spin": (200.0, 220.0, 240.0), "spread": (20.0, 10.0, 4.0), "dust": (0, 1), "beat": (1, 0, 1)},
+    "rain": {"lunge": (-2.4, -2.6, -2.6, -2.6, -2.6, -2.6, -2.6, -2.6), "scatter": (2.6, 3.0, 3.3, 3.5, 3.6, 3.6, 3.6, 3.6),
+             "tumble": (45.0, 120.0, 200.0, 250.0, 0.0, 0.0, 0.0, 0.0), "spin": (200.0,) * 8,
+             "drop": (0.0, 0.25, 0.55, 0.85, 1.0, 1.0, 1.0, 1.0), "lying": (4, 5, 6, 7), "dust": (0,),
+             "dissolve": (0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.45, 0.7), "beat": (1, 0, 1, 0, 0, 0, 0, 0), "dead": True},
+}
+STYLES.update(SWARM_STYLES)
+# A beetle in the cloud: (a, b, c) from its middle, its size (0 small, 1 middling, 2 large), its loop's phase (degrees).
+SWARM = {
+    "Z": 8.0,
+    "beetles": ((-5.0, 1.6, 1.2, 0, 0.0), (-1.2, 4.8, 2.4, 0, 90.0), (3.2, 3.8, 1.8, 0, 180.0), (5.4, -0.6, 0.9, 0, 270.0),
+                (-3.9, -3.2, -0.6, 1, 45.0), (-0.2, 2.0, 3.1, 1, 135.0), (3.6, -3.6, 0.7, 1, 225.0), (0.4, -5.0, 1.8, 1, 315.0),
+                (-2.4, 0.2, -1.4, 2, 30.0), (2.0, 1.7, -0.5, 2, 150.0), (1.4, -2.2, -2.0, 2, 270.0)),
+    # each size: the wing cases' radii (a, b, c), the head's radius, the wings' length
+    "sizes": (((0.9, 0.66, 0.5), 0.4, 1.0), ((1.15, 0.84, 0.6), 0.48, 1.3), ((1.4, 1.02, 0.72), 0.56, 1.6)),
+    # the Queen (the Copperjaw queen's sheet: `queen` True): her place, her cases' radii, her head, her wings, her crown's
+    # points, how far ahead of the cloud she leads its lance
+    "queen": False,
+    "regal": {"at": (0.8, 0.0, 0.9), "r": (2.3, 1.7, 1.15), "head": 0.85, "wing": 2.6, "crown": 3, "ahead": 2.6},
+}
+VARIANTS["swarm"] = {"parts": SWARM, "mats": {"case": "cj_copper", "chitin": "cj_chitin", "wing": "cj_wing", "queen": "cj_queen"},
+                     "motion": {"idle": "hang", "walk": "stream", "windup": "ball_up", "attack": "lance", "hurt": "scatter", "death": "rain"}}
+
+
+def _beetle(P, B, n, at, R, radii, head_r, wing_l, mat, open_, jaws, lying, big, crown=0, bare=False) -> np.ndarray:
+    """One beetle at `at`, turned by R (its own a forward, b left, c up): its wing cases (a dark seam down their middle,
+    parting at the rear as they lift, the wings blurring out pale from under them), a dark chitin pronotum and head before
+    them, pale-gold jaws, a glint in a big one's eye; on its back, its six legs in the air; a Queen's crown. Bare (its
+    body reviewed first): no wing blur, no crown. Returns its head's centre."""
+    m = B.mats
+    ra, rb, rc = radii
+    loc = lambda q: at + R @ v3(q)
+
+    def case(q, nn):
+        """The wing cases: copper, the seam down their middle a step dark on top (opened, a dark V at the rear)."""
+        lq = (q - at) @ R
+        nl = nn @ R
+        w = max(0.16, rb * 0.16) + (np.clip(-lq[:, 0] / ra, 0.0, 1.0) * rb * 0.34 if open_ else 0.0)
+        seam = (np.abs(lq[:, 1]) < w) & (nl[:, 2] > 0.2) & (lq[:, 0] < ra * 0.6)
+        return np.full(len(q), mat, dtype=object), np.where(seam, -2, 0).astype(np.int16)
+
+    def belly(q, nn):
+        return np.full(len(q), m.chitin, dtype=object), np.where((nn @ R)[:, 2] > 0.6, 1, 0).astype(np.int16)
+
+    P.add(E(at, radii, mat, n + "case", R, belly if lying else case))
+    P.add(E(loc((ra * 0.88, 0.0, rc * 0.02)), (ra * 0.34, rb * 0.78, rc * 0.74), m.chitin, n + "pro", R))
+    hc = loc((ra * 1.16 + head_r * 0.6, 0.0, -rc * 0.08))
+    P.add(S(hc, head_r, m.chitin, n + "head"))
+    hp = lambda q: hc + R @ v3(q)
+    if open_ and not lying and not bare:
+        # The wings blurring out from under the lifted cases: faint pale ovals to each side, swept back.
+        for s in (1, -1):
+            for u in (-0.5, 0.0, 0.5):
+                for v in (0.2, 0.6, 1.0):
+                    P.fx.append((loc((-0.25 * ra + u * wing_l * 0.6 - v * 0.3, s * (rb * 0.8 + v * wing_l * 0.55), rc * 0.5)),
+                                 M.CJ_WING_BLUR if v < 0.9 else M.CJ_WING_EDGE))
+    if jaws:
+        for s in (1, -1):
+            P.mark(hp((head_r * 1.0, s * head_r * 0.6, -0.1)), M.CJ_JAW)
+            P.mark(hp((head_r * 1.55, s * head_r * 0.8, -0.1)), M.CJ_JAW_DIM)
+    else:
+        P.mark(hp((head_r * 1.05, 0.0, -0.1)), M.CJ_JAW if big else M.CJ_JAW_DIM)
+    if big and not lying:
+        for s in (1, -1):
+            P.eye(hp((head_r * 0.3, s * head_r * 0.72, head_r * 0.42)), M.GLINT)
+    if lying:
+        # Its six legs in the air (the beetle on its back: its belly up, the legs up off it).
+        for k in (-1, 0, 1):
+            for s in (1, -1):
+                root = loc((k * ra * 0.55, s * rb * 0.5, -rc * 0.6))
+                tip = root + v3(0.15 * k, s * 0.35, 0.0) + R @ v3(0.0, s * 0.3, -1.0) * (0.5 + 0.25 * rc)
+                P.add(L(root, tip, 0.16, 0.1, m.chitin, n + "leg", line=False))
+    if crown and not bare:
+        # The Queen's crown: a pale-gold band over her pronotum, its points rising from it.
+        for k in range(crown):
+            u = (k - (crown - 1) * 0.5) / max(1.0, (crown - 1) * 0.5)
+            base = loc((ra * 0.9, u * rb * 0.55, rc * 0.66))
+            tip = base + R @ v3(0.1, u * 0.25, 0.95 - 0.3 * abs(u))
+            P.add(L(base, tip, 0.3, 0.12, m.queen, n + "crown", line=False))
+            P.mark(tip, M.CJ_CROWN)
+        for s in (-1, 0, 1):
+            P.mark(loc((ra * 0.9, s * rb * 0.45, rc * 0.7 + 0.1)), M.CJ_CROWN)
+    return hc
+
+
+def _swarm(B, action: str, f: int, view: float) -> Pose:
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    seed = int(B.opts.get("seed", 0))
+    lunge = B.pick("lunge", action, f)
+    rise = B.pick("rise", action, f)
+    gather = B.pick("gather", action, f)
+    sv = st.get("stretch")
+    sa, sb = (1.0, 1.0) if sv is None else (sv[min(f, len(sv) - 1)] if isinstance(sv[0], (tuple, list)) else sv)
+    turn = st.get("turn")
+    spin = f * turn if turn else B.pick("spin", action, f)
+    amp = st.get("amp", (0.5, 0.5, 0.3))
+    pitch = B.pick("pitch", action, f, st.get("pitch", 0.0))
+    spread = B.pick("spread", action, f)
+    jaws = bool(st.get("jaws", False))
+    scatter = B.pick("scatter", action, f)
+    tumble = B.pick("tumble", action, f)
+    drop = B.pick("drop", action, f)
+    lying = f in st.get("lying", ())
+    beat = B.pick("beat", action, f, f % 2)
+    bare = bool(B.opts.get("bare"))
+    n = 6 if action == "idle" else 8
+    bob = st.get("rise_amp", 0.0) * math.sin(f / n * math.tau) if turn else 0.0
+    C = v3(lunge, 0.0, p.Z + rise + bob)
+    shrink = (1.0 - 0.5 * gather, 1.0 - 0.5 * gather, 1.0 - 0.45 * gather)
+    front = -9.0
+    for i, (x, y, z, size, ph) in enumerate(p.beetles):
+        th = math.radians(ph + spin)
+        q = v3(x * sa + math.cos(th) * amp[0], y * sb + math.sin(th) * amp[1], z + math.sin(2.0 * th) * amp[2]) * v3(shrink)
+        if scatter:
+            d = v3(x, y, z * 0.6)
+            q = q + d / max(1e-6, float(np.linalg.norm(d))) * scatter * (0.7 + 0.6 * h01(i, 3, seed % 97))
+        q = C + q
+        if drop:
+            t = drop * drop
+            land = v3(q[0] + (h01(i, 5, seed % 89) - 0.5) * 3.0 * drop, q[1] + (h01(i, 7, seed % 83) - 0.5) * 3.0 * drop,
+                      0.55 + 0.25 * size)
+            q = q + (land - q) * t
+        yaw = (h01(i, 11, seed % 79) - 0.5) * 2.0 * spread
+        roll = (h01(i, 13, seed % 73) - 0.5) * 2.0 * tumble + drop * 90.0 * (1 if i % 2 else -1) if (tumble or drop) and not lying else 0.0
+        R = rot("c", yaw) @ rot("b", pitch * (0.0 if lying else 1.0) + (0.0 if lying else (h01(i, 17, seed % 71) - 0.5) * 2.0 * tumble * 0.5)) @ rot("a", 180.0 if lying else roll)
+        radii, head_r, wing_l = p.sizes[size]
+        open_ = ((i + int(beat)) % 2 == 0) and not lying and drop < 0.5 and tumble < 30.0
+        hc = _beetle(P, B, "b%d" % i, q, R, radii, head_r, wing_l, m.case, open_, jaws, lying, size >= 1, bare=bare)
+        front = max(front, float(hc[0]))
+    if p.get("queen"):
+        qn = p.regal
+        th = math.radians(spin)
+        q = C + v3(qn.at[0] + qn.ahead * gather * (1.0 + (sa - 1.0) * 2.0) + 0.3 * math.cos(th), qn.at[1] + 0.3 * math.sin(th), qn.at[2])
+        if scatter:
+            q = q + v3(-scatter * 0.5, 0.0, scatter * 0.2)
+        if drop:
+            t = drop * drop
+            q = q + (v3(q[0] + 1.0 * drop, q[1], 0.95) - q) * t
+        roll = 0.0 if lying else (tumble * 0.35 + drop * 60.0 if (tumble or drop) else 0.0)
+        R = rot("b", pitch * (0.0 if lying else 0.5)) @ rot("a", 180.0 if lying else roll)
+        open_ = int(beat) == 1 and not lying and drop < 0.5
+        hc = _beetle(P, B, "queen", q, R, qn.r, qn.head, qn.wing, m.queen, open_, jaws, lying, True, crown=qn.crown, bare=bare)
+        front = max(front, float(hc[0]))
+    ring = int(B.pick("ring", action, f))
+    if bare:
+        ring = 0                                         # its bodies alone (`opts.bare`, reviewed first): no light, no dust
+    if ring:
+        # The tell: a copper ring closing round the ball, hot as it is held; glints at the jaws before it.
+        r = 8.4 if ring == 1 else 7.2
+        for k in range(44):
+            ang = math.radians(k * 360.0 / 44.0 + min(f, 2) * 9.0)      # held on its last frame (`share`)
+            if ring == 1 and k % 4 == 3:
+                continue
+            P.glow.append((C + v3(math.cos(ang) * r, math.sin(ang) * r, 0.6 * math.sin(ang * 2.0)), M.CJ_RING if ring == 1 or k % 4 else M.CJ_RING_HOT))
+        if ring == 2:
+            for k, (db, dc) in enumerate(((-1.4, 0.8), (1.2, -0.2), (0.0, 1.4))):
+                g = v3(front + 1.0, db, C[2] + dc - 0.4)
+                P.glow.append((g, M.GLINT))
+                for d in ((0.45, 0.0, 0.0), (-0.45, 0.0, 0.0), (0.0, 0.45, 0.0), (0.0, -0.45, 0.0)):
+                    P.glow.append((g + v3(*d), M.CJ_JAW_DIM))
+    if f in st.get("hit", ()) and not bare:
+        # The bite lands at the spearhead's tip: a spark.
+        tip = v3(front + 1.6, 0.0, C[2] - 0.6)
+        P.glow.append((tip, M.SPARK))
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 22.0)
+            rr = 1.0 + (k % 2) * 0.9 + (f - 1) * 0.6
+            P.glow.append((tip + v3(0.3 * math.cos(ang), math.cos(ang) * rr, math.sin(ang) * rr), M.SPARK if k % 2 else M.CJ_JAW))
+    if f in st.get("streaks", ()) and not bare:
+        for j in range(4):
+            for d in range(3):
+                P.fx.append((C + v3(-6.0 * sa - 0.9 * d - 0.6 * (j % 2), (j - 1.5) * 1.6, 0.6 * ((j + d) % 3) - 0.6), M.CJ_SPECK if d < 2 else M.DUST_DIM))
+    if f in st.get("dust", ()) and not bare:
+        for k in range(10):
+            ang = math.radians(k * 36.0 + f * 18.0)
+            rr = 6.0 + scatter + (k % 3) * 0.8
+            P.fx.append((C + v3(math.cos(ang) * rr, math.sin(ang) * rr, (k % 3 - 1) * 1.2 - drop * C[2] * 0.6), M.CJ_SPECK if k % 2 else M.CJ_SPECK_DIM))
+    d = B.pick("dissolve", action, f)
+    if d > 0.0:
+        P.dissolve = d
+        P.dissolve_col = M.CJ_SPECK
     return P

@@ -272,7 +272,7 @@ had drawn the last foes.
   stand-in has no volumes), and the fame greeting a villager gave a famous player (`world.gd` alone drew it).
 - **No top-down sheet yet** for four creatures that are not foes: the cloud stag, the hatchling wyrm, the Copperjaw
   swarm and its queen (`data_validation`'s `NO_TOP_SHEET_YET`); they show a shadow in the room and an empty slot on a
-  page.
+  page. (M5 drew all four: the list is empty; `docs/architecture/monster_engine.md`, "M5".)
 
 ## 3. Dead code
 

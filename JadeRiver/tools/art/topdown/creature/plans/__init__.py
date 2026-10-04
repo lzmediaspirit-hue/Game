@@ -16,6 +16,8 @@ species first drawn by hand with it, parameterised by part sizes and motion styl
   bird       chick                     M1: the jade crane chick
   spirit     talisman                  M1: the paper talisman ghost
   insect     drone, moth               M4: the hollow drone, the orbit moth (flying insects, two pairs of wings)
+             swarm                     M5: the Copperjaw swarm (a cloud of small beetles) and, with `queen`, its Queen's
+  quadruped  hatchling                 M5: the hatchling wyrm (a pet; the cloud stag is the cervid's, M5's kinds on it)
 
 A species names its plan and variant ("quadruped.rodent"), and may lay its own parts, materials and motion over the
 variant's (`resolve`); its sheet is then drawn by the plan's `pose(body, action, frame, **facing)`, cast and coloured by
