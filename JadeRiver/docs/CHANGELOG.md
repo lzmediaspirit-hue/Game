@@ -66,6 +66,78 @@ the tier they open at. E5b fixed them in the quest specs (`tools/content/quests/
     Sage 3 into the Worm Sea, 77 to 81).
   - The board has no gathering or mining job above Level 40: those nodes want an expert's rank.
 
+## The monster engine's second batch: the Act I zones' foes, and bosses of their own build (decision 45, M2)
+
+The seventeen species M1 left, drawn with the monster engine in story order (`docs/architecture/monster_engine.md`,
+"M2"): the rest of the Act I zones' foes, the Trial Tower's twelve without a sheet among them. Until now they stood in
+with their side-view sheets at half size. The bosses were given a silhouette and a presence of their own, and Big Toad
+Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that standard.
+
+- **Seventeen new species**, each one spec in `tools/content/monsters/specs/<region>.py` with its own top-down sheet:
+  every action in five drawn facings, an elite sheet where a room makes an elite (ten of them). Their rows, loot and
+  voices are unchanged byte for byte; `foes.json` changes only in their blocks and the two redrawn bosses'.
+  - the riverbed serpent (Deepwater Bend's field boss): a jade river dragon rearing out of clear water, gold horns,
+    whiskers, belly and spines. It gathers a water orb before its open jaws, held, and lunges to bite in a splash.
+  - the rapids lizard: a finned river lizard on sprawled legs. It curls its tail, then spins round in a tail whip.
+  - the boulder serpent: a thick snake under grey stone plates. It curls into a ball of rock and rolls at you.
+  - the mist vulture, the cloudwing crane, the stormwing hawk and the cloudpeak roc: flyers with wings of a span,
+    drawn in the air over their shadows. The vulture rises with its wings folded and dives to rake, the crane rises
+    with its neck coiled and swoops to stab, the hawk mantles its wings and dives in a flash of lightning, and the roc
+    (white and gold, the biggest of them) gathers a storm wind under its spread wings and beats a gust.
+  - the riverstone ox: a river-grey hide with pebbles grown into its back. It paws the ground snorting steam, then
+    charges to toss with its horns.
+  - the cliff ape: a maned ape that hoists a boulder over its head and smashes it down.
+  - the mist wolf: a pale spirit wolf. It crouches with its hackles raised, then lunges to bite; beaten, it comes
+    apart into mist.
+  - the mirror wisp: one great eye in a ring of mirror shards that swing before it into a lens, then flash.
+  - the weeping lantern: a paper lantern with a weeping face, lit by a violet soul flame. The flame flares up out of
+    its top, then it throws a ring of soul fire round it.
+  - the jade sentinel: a walking jade warrior statue with a bronze-trimmed halberd it draws back and sweeps.
+  - the hollow stag: a pale stag drained by the Hollow, empty white eyes, mist seeping off it. It levels its antlers
+    and stamps, then charges.
+  - the gate guardian (the valley's final boss): a guardian of jade and bronze twice a person's height, a horned
+    crown, glowing gold eyes, two jade bi rings orbiting it. They rise and spin out to both sides in its tell.
+  - the rogue mirror adept: a rogue cultivator cast in the shared character body, as M1's people are.
+- **The people of size.** Big Toad Tan, the Drowned Abbot and Elder Gu are sculpted on the humanoid plan's body,
+  the body drawn and reviewed first (`opts.bare`), then dressed: clothes painted over it, a robe, sleeves, a hat, a
+  cape, and their props. Their rows keep their outfits for the side view.
+  - Big Toad Tan: a head and a half taller than his men and twice as broad, a bare belly under an open vest, a red
+    sash, a toad's grin. His Mudwater Cleaver (nine brass rings on its spine) is raised over his head as he roars,
+    held, and slammed down in dust.
+  - the Drowned Abbot: tall, gaunt and stooped, pale with the river, a waterlogged robe and faded kasaya, white hair
+    under a wide straw hat that drips. His ringed staff is raised high, its bronze bell over his hat and his eyes
+    glowing, held, then struck down as the bell tolls.
+  - Elder Gu: portly in a crimson robe trimmed in gold, a teal cape, a grey moustache. The river's tide gathers into
+    an orb over his palm, held, and he throws it in a crescent wave.
+- **New plan kinds**, each optional, so every species drawn before draws byte for byte: `serpent.dragon` and
+  `serpent.boulder`; `quadruped.saurian`, `bovid` and `cervid` (with the sprawl legs, heavy hooves, finned tails,
+  coats and crests they need) and the canine's mist; the `bird` flyers `vulture`, `crane`, `hawk` and `roc`;
+  `spirit.wisp` and `spirit.lantern`; `humanoid.ape`, `sentinel`, `gate`, `chief`, `abbot` and `elder`.
+- **Big canvases.** A spec's `canvas` gives a big creature a working canvas of its own (the serpent, Tan, the roc, the
+  gate guardian). `creatures.build` now raises an error when a frame runs off its canvas's top or left edge, instead of
+  writing an empty sheet.
+- **Size.** The nineteen sheets are 5,549 KB of PNG and 2,557 KB in the APK (the imported `.ctex`): the bases 1,482 KB,
+  the ten elite sheets 1,074 KB. Less the two boss sheets they replace, the APK grows by 2,428 KB (2.37 MiB). Every
+  species has `share`; an elite sheet is drawn only where a room makes an elite; each creature is near its side-view
+  share of a person. The engine doc lists every sheet's cost.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m2/`: the nineteen side by side beside a Mudwater bandit, idle, in their tells and
+    on their blows; the elites' tells beside their bases; Tan's and the Abbot's sheets before and after; the people of
+    size's bodies beside them dressed.
+  - The capture set `monsters_m2` (`docs/redesign/feedback/monsters/m2/after/`): the lineups in every pose beside
+    drawn foes for scale, the elites, and live fights in fourteen of their own rooms.
+- **Still to draw:** twenty-nine species of R5's to R8's rooms and the Tidebreak Front, listed by level in the engine
+  doc. The Trial Tower has none left.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with R5 to R8, E3, E5 and T2.
+  - Every gate passed, `boot` among them (0 failing; grid parity on 147 layouts and 441 starts). `build_data` writes no
+    data file: the rows, loot and voices are byte-identical. The `monsters` gate has 1,538 checks (1,038 at M1); it
+    grows with the species, now 52, and is the only count M2 grows.
+  - All 31 suites passed with no SCRIPT ERROR: 74,723 checks with the engine tests, every count as the merged branch
+    has it (`topdown_skysea` 101, `topdown_tutorial` 1,063 and `room_engine` 445 are R8's). `contract_tests` (1,112)
+    finds no private cross-call in the batch's code; the capture registry's `--lint` is clean.
+  - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as on disk.
+
 ## The sky-sea zones on the grid (R8)
 
 The room engine's batch R8 (`docs/architecture/room_engine.md`, "The sky-sea zones (R8)"). The twenty rooms of the late

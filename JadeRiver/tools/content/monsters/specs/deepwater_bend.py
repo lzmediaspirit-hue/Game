@@ -38,3 +38,15 @@ species("ember_fox", plan="quadruped.canine", share=True, size=1.45, parts=dict(
         cycle=11.0, view=True,
         data=dict(level=(19, 24), role="normal", element="fire", page=None, drops=[], attacks=[("nip", 0.4, 36, 0.8)], ai="wild_pet",
                   tameable=True, width=18, height=28, passive=True))
+
+# M2. The Serpent's Shallows' field boss: a giant jade dragon-eel rising out of the river in an S, gold belly scutes, a
+# crest of gold spines down its back, swept-back ivory horns, long gold whiskers, a glowing gold eye. It rears back and
+# gathers the river into an orb before its open jaws (the tell, held: its bite's and its flood's), and lunges to bite in
+# a splash; beaten, it dives under in spray.
+species("riverbed_serpent", plan="serpent.dragon", share=True, size=2.1,
+        palette=["rs_scale", "rs_belly", "rs_fin", "rs_horn", "rs_gold", "rs_mouth", "rs_orb"], elite=False, shadow=(18, 5), cycle=12.0,
+        sized=True, canvas=(180, 170),
+        data=dict(level=25, role="field_boss", element="water", page="bend", drops=[("serpent_core", 1.0), ("serpent_scale", 1.0, (2, 4))],
+                  attacks=[("bite", 0.6, 110, 1.3, dict(depth=40)), ("tail_flood", 1.0, 260, 1.0, dict(depth=80, both_sides=True))],
+                  ai="boss_serpent", width=70, height=150, respawn_min=45, flying=True, phases=[{"below": 0.5, "action": "flood"}]),
+        sound=dict(body="slime", tell="water"))

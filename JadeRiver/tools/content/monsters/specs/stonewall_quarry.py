@@ -1,6 +1,17 @@
 """Stonewall Quarry's foes (levels 4-7, off Stoneford's quarry road): the rock beetle and the pebble imp, the first foes
-past the top-down rooms there (the quest `stone_and_sweat`: five beetles, three pebble throws dodged)."""
+past the top-down rooms there (the quest `stone_and_sweat`: five beetles, three pebble throws dodged); M2: the riverstone
+ox that grazes the Quarry Rim."""
 from content.monsters import species
+
+# M2. S46: the Riverstone Ox grazes the Quarry Rim from Cloud Stride 1, a mount-only spirit beast tamed like the others (met
+# wild, not hostile): a broad, patient ox with a river-grey hide, smooth river pebbles grown into its back, moss in its
+# mane and forelock, two heavy horns curving out and up. It paws the ground and snorts steam (the tell), and charges to
+# toss with its horns.
+species("riverstone_ox", plan="quadruped.bovid", share=True, size=2.2,
+        palette=["ro_hide", "ro_moss", "ro_pebble", "ro_horn", "ro_muzzle", "ro_hoof"], elite=False, shadow=(17, 5), cycle=13.0, view=True,
+        data=dict(level=(37, 38), role="normal", element="earth", page=None, drops=[], attacks=[("horn_toss", 0.5, 50, 0.9)], ai="wild_pet",
+                  tameable=True, width=30, height=46, passive=True),
+        sound=dict(body="shell"))
 
 # A squat beetle whose carapace is a set of rocky plates; it curls into a stone ball and rolls at you.
 species("rock_beetle", plan="shell.beetle", size=1.6,
