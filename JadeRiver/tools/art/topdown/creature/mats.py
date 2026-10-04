@@ -598,3 +598,30 @@ def palette(*names) -> dict:
 
 def props(*names) -> dict:
     return {n: PROPS.get(n, {}) for n in names}
+
+
+# ================================================================================================= M4
+# The late game's foes (M4), from their side-view sheets' materials (tools/art/creatures/<id>.py), each block its own.
+RAMPS.update({
+    # void crab: black-violet chitin, its silver rim and tips, the pale violet underside; the void in its shell's window, a
+    # nebula swirl in it, and its glowing white-violet eyes
+    "vc_chitin": _s("9584cc", "5a4a94", "3b2f6c", "261d48"),
+    "vc_silver": _s("f6f4ff", "c6c2e0", "8e8ab2", "5b5784"),
+    "vc_under": _s("d2c8ee", "a497cc", "776a9f", "4f4574"),
+    "vc_void": _r("06030C", "0E0819", "140B22", "1C1030", "2A1648"),
+    "vc_nebula": _r("1A0E30", "2A1648", "5A2A82", "8A3F96", "B868B8"),
+    "vc_eye": _s("fcf8ff", "e4d6ff", "c4a6ff", "8a6cd0"),
+})
+PROPS.update({
+    "vc_chitin": {"hi": True, "glossy": True}, "vc_silver": {"hi": True, "glossy": True, "weight": 1.3}, "vc_under": {"hi": True},
+    "vc_void": {"weight": 1.6}, "vc_nebula": {"weight": 1.4}, "vc_eye": {"hi": True, "glossy": True, "weight": 1.8},
+})
+# The void crab's stars and the rift its claw tears (white, violet, deep).
+STAR_W = c("FFFFFF")
+STAR_V = c("D8C8FF")
+STAR_C = c("A8ECFF")
+STAR_G = c("FFE6A1")
+STAR_DIM = c("6A5E8C")
+RIFT_W = c("FFFFFF")
+RIFT_V = c("B58CFF")
+RIFT_D = c("5A2AA8", 200)
