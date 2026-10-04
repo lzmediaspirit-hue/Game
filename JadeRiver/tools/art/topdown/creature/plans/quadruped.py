@@ -600,6 +600,8 @@ def _crest(P, B, c) -> None:
     a, f, at, bm = c.action, c.f, c.at, c.bm
     angry = B.style(a).get("angry", False)
     cr = B.parts.crest
+    if cr.get("kind") in M3_CRESTS:
+        return M3_CRESTS[cr.kind](P, B, c)
     if cr.get("kind") == "hackles":
         # M2, the mist wolf: a ruff of fur down its nape and over its shoulders, lying flat, raised in anger (its tell).
         up_ = 1.0 if angry else 0.0
@@ -857,6 +859,16 @@ def _head_canine(P, B, c) -> None:
             P.mark(tip, M.RAMPS[m.sock][1])
         if torn:
             P.mark(tip, M.RAMPS[m.coat][0])
+        if e.get("tuft"):
+            # M3, the frost lynx: a dark tuft standing up off each ear's tip.
+            P.add(L(tip, tip + (tip - base) / max(1e-6, float(np.linalg.norm(tip - base))) * e.tuft, 0.28, 0.1, m.tuft, "tuft%d" % s,
+                    line=False))
+        if h.get("ruff"):
+            # M3, the frost lynx: the cheek ruff flaring down and out round its face, rimed.
+            (ra, rb, rc), rr = h.ruff
+            for j in range(3):
+                q = hp((ra - 0.3 * j, s * (rb + 0.25 * j), rc - 0.45 * j))
+                P.add(E(q, rr, m.ruff, "ruff%d" % s, hm @ rot("a", s * (-30.0 - 12.0 * j)), line=False))
         ey = h.eyes
         closed = shut(ey, a, f)
         eye = hp((ey.at[0], s * ey.at[1], ey.at[2]))
@@ -865,6 +877,17 @@ def _head_canine(P, B, c) -> None:
         else:
             P.eye(eye, colour(ey.colour))
             P.mark(hp((ey.at[0] - 0.35, s * (ey.at[1] + 0.05), ey.at[2] + 0.25)), M.INKY if angry else M.RAMPS[m.coat][0])
+            if ey.get("rim"):
+                # M3, the frost lynx: a dark rim round the glowing eye, running down its cheek in a tear line.
+                for d in ((0.0, 0.0, -0.4), (0.35, 0.0, -0.35), (-0.2, 0.3, -0.75)):
+                    P.mark(hp((ey.at[0] + d[0], s * (ey.at[1] + d[1]), ey.at[2] + d[2])), colour(ey.rim))
+    if a == "windup" and f in st.get("breath", ()):
+        # M3, the frost lynx: frost breath gathering at its muzzle as it crouches.
+        tip = hp(h.nose[0])
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 30.0)
+            rr = 0.8 + 0.25 * f + (k % 2) * 0.5
+            P.fx.append((tip + hm @ v3(0.9 + 0.3 * f, math.cos(ang) * rr, math.sin(ang) * rr * 0.7), M.FROST_BREATH if k % 2 else M.FROST_BREATH_DIM))
     if a == "windup" and f in st.get("barks", ()):
         # The bark: short lines thrown off its open jaws.
         tip = hp(h.nose[0])
@@ -1486,6 +1509,45 @@ def _finish(P, B, c) -> None:
 M3_HEADS: dict = {}
 M3_TAILS: dict = {}
 M3_COATS: dict = {}
+M3_CRESTS: dict = {}
+
+
+# ------------------------------------------------------------------------------------------------ the frost lynx
+def _coat_rosettes(B, c):
+    """M3, the frost lynx: pale fur with faint blue-grey rosettes over its back and flanks (a ring of the spot's material
+    round a paler middle, by its seed), the throat, chest and belly cream."""
+    co, m, hips, bm = B.parts.coat, B.mats, c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def rosettes(q, n):
+        loc = (q - hips) @ bm
+        nl = n @ bm
+        pale = ((nl[:, 2] < co.chest[0]) & (loc[:, 0] > co.chest[1])) | (nl[:, 2] < co.belly)
+        u = loc[:, 0] * co.spots + 0.5 * np.floor(loc[:, 2] * co.spots)
+        w = loc[:, 2] * co.spots + np.abs(loc[:, 1]) * 0.6
+        fu, fw = u - np.floor(u) - 0.5, w - np.floor(w) - 0.5
+        d = np.hypot(fu, fw)
+        on_ = h01v(np.floor(u) + 40, np.floor(w) + 40, seed % 97 + 5) > 0.35
+        ring = on_ & (d > 0.16) & (d < 0.34) & ~pale & (nl[:, 2] > -0.3)
+        names = np.where(pale, m.pale, np.where(ring, m.spot, m.coat)).astype(object)
+        return names, np.zeros(len(q), dtype=np.int16)
+    return rosettes
+
+
+M3_COATS["rosettes"] = _coat_rosettes
+
+
+def _crest_ice(P, B, c) -> None:
+    """M3, the frost lynx: ice crystals grown on its shoulders and nape, small clear shards standing off its fur."""
+    cr, at, bm = B.parts.crest, c.at, c.bm
+    for k, (a0, b0, ln, lean) in enumerate(cr.shards):
+        base = at((a0, b0, _top_of(B, a0) - 0.5 - 0.2 * abs(b0)))
+        tip = base + bm @ v3(-lean, b0 * 0.35, ln)
+        P.add(L(base, tip, 0.5, 0.08, B.mats.ice, "ice%d" % (k % 2), line=False))
+        P.mark(base + (tip - base) * 0.4, M.RAMPS[B.mats.ice][4])
+
+
+M3_CRESTS["ice"] = _crest_ice
 
 
 def _spark(P, tip, charge: float, f: int) -> None:

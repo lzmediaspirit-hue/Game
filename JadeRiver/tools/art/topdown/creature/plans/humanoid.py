@@ -624,6 +624,9 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     if p.get("mane"):
         _mane(P, B, action, f, hc, hm, up, tm, grain)
     ends, elbows = _arms(P, B, action, f, up, tm, limb, march)
+    for key, fn in M3_PARTS.items():
+        if p.get(key):
+            fn(P, B, action, f, up, tm, hip, hc, hm, ends, elbows)    # M3's kinds (the snow ape's locks, ...)
     if p.get("dress"):
         _dress(P, B, action, f, up, tm, hip, hc, hm, ends, elbows)
     if p.get("studs"):
@@ -684,13 +687,15 @@ def _arms(P, B, action: str, f: int, up, tm, grain, march: bool) -> None:
               E(end, a_.fist, m.get("hand", m.dark), "arm%d" % s, tm))
         if p.get("qi") and s < 0:
             _qi(P, B, action, f, end, tm)
-        if p.get("held") and s < 0 and p.held.get("kind") not in ("boulder", "halberd"):
+        if p.get("held") and s < 0 and p.held.get("kind") not in ("boulder", "halberd") + tuple(M3_HELD):
             _held(P, B, action, f, end, tm)
         ends[s], elbows[s] = end, elbow
     if p.get("held") and p.held.get("kind") == "boulder":
         _boulder(P, B, action, f, ends, tm)
     if p.get("held") and p.held.get("kind") == "halberd":
         _halberd(P, B, action, f, ends, tm)
+    if p.get("held") and p.held.get("kind") in M3_HELD:
+        M3_HELD[p.held.kind](P, B, action, f, ends, tm)
     return ends, elbows
 
 
@@ -893,7 +898,7 @@ def _fur(m, hip, tm):
         mantle = ((nl[:, 0] < -0.15) | (nl[:, 2] > 0.55)) & (loc[:, 2] > 2.4)
         belly = (nl[:, 0] > 0.45) & (loc[:, 2] < 4.4) & (np.abs(loc[:, 1]) < 1.8)
         streak = ((loc[:, 2] * 1.4 + loc[:, 1] * 0.5) % 1.3 < 0.22) & ~belly
-        names = np.where(belly, m.pale, np.where(mantle, m.mantle, m.body)).astype(object)
+        names = np.where(belly, m.get("belly", m.pale), np.where(mantle, m.mantle, m.body)).astype(object)
         return names, np.where(streak, -1, 0).astype(np.int16)
     return fur
 
@@ -911,10 +916,20 @@ def _monkey_face(P, B, action: str, f: int, hc, hm) -> None:
         eye = hc + hm @ v3(ea, s * eb, ec)
         if dark or st.get("squint"):
             P.mark(eye, M.RAMPS[m.pale][0])
+        elif fc.get("glow"):
+            # M3, the snow ape: frost-blue eyes glowing under its brow, flaring as it roars.
+            P.eye(eye, getattr(M, fc.glow))
+            P.mark(eye + hm @ v3(0.05, s * 0.35, 0.0), getattr(M, fc.glow))
+            if st.get("chatter"):
+                P.glow.append((eye + hm @ v3(0.4, s * 0.2, 0.3), getattr(M, fc.glow + "_GLOW")))
         else:
             P.eye(eye, M.MONKEY_EYE)
             P.mark(eye + hm @ v3(0.05, s * 0.35, 0.0), M.INKY)
             P.mark(eye + hm @ v3(0.0, 0.0, 0.45), M.RAMPS[m.mantle][0] if st.get("chatter") else M.RAMPS[m.pale][1])
+        if fc.get("tusks"):
+            # M3, the snow ape: two small tusks jutting up from its lower lip.
+            ta, tb, tc = fc.tusks
+            P.add(L(hc + hm @ v3(ta, s * tb, tc), hc + hm @ v3(ta + 0.3, s * (tb + 0.1), tc + 0.8), 0.32, 0.12, m.tusk, "tusk%d" % s, line=False))
         (ra, rb, rc), rr = fc.ears
         ear = hc + hm @ v3(ra, s * rb, rc)
         P.add(S(ear, rr, m.body, "ear%d" % s))
@@ -1606,3 +1621,105 @@ def _shoot(P, B, end, tm, action: str, f: int) -> None:
     for t in (0.25, 0.6):
         P.mark(a + (b - a) * t, M.RAMPS[m.node][3])
     P.add(L(b, b + d * 1.0 + tm @ v3(0.4, 0.3, 0.2), 0.35, 0.1, m.leaf, "shoot", line=False))
+
+
+# ================================================================================================= M3
+# M3's kinds, each optional (a species names them), so every species drawn before draws byte for byte: what a body holds
+# in both hands (M3_HELD, by `held.kind`) and the parts laid over a body (M3_PARTS, by the key that names them).
+M3_HELD: dict = {}
+M3_PARTS: dict = {}
+
+
+def _box(centre, mm, r, k: float = 0.82):
+    """A clip that cuts an ellipsoid square across its first two axes (a block, a slab)."""
+    def clip(qs):
+        loc = (qs - centre) @ mm
+        return (np.abs(loc[:, 0]) <= r[0] * k) & (np.abs(loc[:, 1]) <= r[1] * k) & (np.abs(loc[:, 2]) <= r[2] * k)
+    return clip
+
+
+# ------------------------------------------------------------------------------------------------ the snow ape
+def _ice_block(P, B, action: str, f: int, ends: dict, tm) -> None:
+    """M3, the snow ape: the great block of ice it heaves over its head in both hands in its tell (clear blue ice cut
+    square, its faces lit and shaded, cracks inside it, a glint flashing on it, held), slammed down before it on the
+    blow, where it shatters into shards and a spray of snow."""
+    h, m, st = B.parts.held, B.mats, B.style(action)
+    lift = B.pick("boulder", action, f)
+    mid = (ends[1] + ends[-1]) * 0.5
+    if lift > 0.0:
+        r = h.r * (0.75 + 0.25 * lift)
+        c = mid + tm @ v3(0.0, 0.0, r * 0.8)
+        mm = tm @ rot("c", 18.0) @ rot("a", 8.0)
+        rr = (r * 1.15, r, r * 0.95)
+
+        def ice(q, n):
+            # Hewn ice: its faces in flat facets (the normal's turn in steps), the top lit, cracks inside it.
+            loc = (q - c) @ mm
+            nl = n @ mm
+            facet = np.floor((np.arctan2(nl[:, 1], nl[:, 0]) + math.pi) / (math.pi / 3.0)).astype(int) % 3 - 1
+            top = nl[:, 2] > 0.55
+            crack = (np.abs(loc[:, 0] * 0.8 - loc[:, 2] * 0.6 + 0.4) < 0.18) | (np.abs(loc[:, 1] * 0.7 + loc[:, 2] * 0.5 - 0.6) < 0.16)
+            return np.full(len(q), m.ice, dtype=object), np.where(top, 1, np.where(crack, -1, facet)).astype(np.int16)
+        P.add(E(c, rr, m.ice, "block", mm, ice))
+        for d, k_ in (((0.7, 0.55, 0.45), 0.55), ((-0.6, -0.5, 0.5), 0.5)):
+            q = c + mm @ v3(d[0] * r, d[1] * r, d[2] * r)
+            P.add(E(q, (r * k_ * 1.1, r * k_, r * k_ * 0.9), m.ice, "block", mm @ rot("c", 35.0), ice))
+        if action == "windup" and f >= 2:
+            g = c + mm @ v3(rr[0] * 0.5, -rr[1] * 0.6, rr[2] * 0.75)
+            P.glow.append((g, M.GLINT))
+            for d in ((0.6, 0.0, 0.0), (-0.6, 0.0, 0.0), (0.0, 0.0, 0.6), (0.0, 0.0, -0.6)):
+                P.glow.append((g + v3(*d), M.SA_GLINT))
+    if action == "attack" and f in st.get("chips", ()):
+        at_ = mid + tm @ v3(1.0, 0.0, 0.0)
+        at_ = v3(at_[0], at_[1], 0.4)
+        k0 = f - st.get("smash_at", 1)
+        for k in range(14):
+            ang = math.radians(k * 26.0 + f * 13.0)
+            rr = 2.0 + k0 * 2.4 + (k % 3) * 0.8
+            q = at_ + v3(math.cos(ang) * rr * 0.7, math.sin(ang) * rr, 0.4 + (k % 4) * 0.6 * (2 - k0) * 0.5)
+            P.fx.append((q, M.RAMPS[m.ice][2 + (k % 3)] if k % 3 else M.SNOW_SPRAY))
+        if k0 == 0:
+            for k in range(6):
+                q = at_ + v3((k - 2.5) * 1.2, ((k * 7) % 5 - 2) * 0.9, 0.6)
+                P.add(E(q, (0.9, 0.7, 0.6), m.ice, "shard", rot("c", k * 40.0), line=False))
+    if f in st.get("dust", ()) and action == "attack":
+        for k in range(12):
+            ang = math.radians(k * 30.0 + f * 20.0)
+            rr = 3.0 + f * 1.4 + (k % 3) * 0.6
+            P.fx.append((v3(mid[0] + math.cos(ang) * rr, mid[1] + math.sin(ang) * rr, 0.3 + (k % 3) * 0.6), M.SNOW_SPRAY if k % 2 else M.SNOW_SPRAY_DIM))
+
+
+M3_HELD["block"] = _ice_block
+
+
+def _shag(P, B, action: str, f: int, up, tm, hip, hc, hm, ends: dict, elbows: dict) -> None:
+    """M3, the snow ape: long locks of fur hanging off it: a thick cape of them over its shoulders and back, a fringe under
+    its belly and rump, and long fur off its forearms crusted with frost clumps and icicles; swaying as it moves."""
+    sh, m = B.parts.shag, B.mats
+    sw = 0.35 * math.sin(f / (8.0 if action == "walk" else 6.0) * math.tau) if action in ("idle", "walk") else 0.0
+    down = v3(0.0, 0.0, -1.0)
+    for k in range(sh.cape):
+        ang = math.radians(70.0 + 220.0 * k / (sh.cape - 1.0))          # round the shoulders and back, not over the chest
+        base = up((math.cos(ang) * sh.r[0], math.sin(ang) * sh.r[1], sh.z + 0.6 * math.sin(k * 1.7)))
+        out = tm @ v3(math.cos(ang), math.sin(ang), 0.0) * 0.7
+        ln = sh.length * (0.8 + 0.25 * math.sin(k * 2.3))
+        tip = base + out + down * ln + v3(sw * 0.5, sw * 0.3, 0.0)
+        P.add(L(base, (base + tip) * 0.5 + out * 0.3, sh.w, sh.w * 0.75, m.mantle, "lock%d" % (k % 3), line=False),
+              L((base + tip) * 0.5 + out * 0.3, tip, sh.w * 0.75, 0.25, m.mantle, "lock%d" % (k % 3), line=False))
+    for k in range(sh.fringe):
+        ang = math.radians(-160.0 + 320.0 * k / (sh.fringe - 1.0))
+        base = up((math.cos(ang) * sh.belly[0], math.sin(ang) * sh.belly[1], sh.belly[2]))
+        tip = base + down * (1.4 + 0.4 * (k % 2)) + tm @ v3(math.cos(ang), math.sin(ang), 0.0) * 0.4 + v3(sw * 0.4, 0.0, 0.0)
+        P.add(L(base, tip, 0.65, 0.2, m.body, "fringe%d" % (k % 2), line=False))
+    for s in (1, -1):
+        e, w = elbows[s], ends[s]
+        for j, t in enumerate((0.25, 0.5, 0.75)):
+            base = e + (w - e) * t
+            tip = base + down * (1.3 + 0.3 * j) + v3(-0.3, s * 0.4, 0.0)
+            P.add(L(base, tip, 0.6, 0.2, m.mantle, "cuff%d" % s, line=False))
+        P.add(S(e + (w - e) * 0.45 + v3(0.0, 0.0, 0.5), 0.55, m.snow, "frost%d" % s, line=False))
+        ice = e + (w - e) * 0.62
+        P.add(L(ice, ice + down * 1.5 + v3(0.2, 0.0, 0.0), 0.32, 0.06, m.ice, "icicle%d" % s, line=False))
+
+
+M3_PARTS["shag"] = _shag

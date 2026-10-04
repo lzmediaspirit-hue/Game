@@ -628,6 +628,20 @@ RAMPS.update({
     "tr_horn": _s("fff6d8", "e0d0a0", "a8946a", "6c5c44"),
     "tr_lip": _s("8c96ac", "646e86", "454d62", "2c3244"),
     "tr_hoof": _s("4a4f5e", "33374a", "252838", "181a26"),
+    # the frost lynx: pale blue-white fur, its cream belly, its blue-grey rosettes, the dark tips of its ears and tail, ice
+    # crystals and rime
+    "fl_fur": _s("e8eef6", "b4c2d8", "8592b4", "5c6690"),
+    "fl_belly": _s("fffcef", "f1e9d5", "c7c1cb", "9690b0"),
+    "fl_spot": _s("8e9cbc", "6d78a2", "4e5583", "343a62"),
+    "fl_tip": _s("6a7092", "464b6a", "30344e", "212438"),
+    "fl_ice": _s("f6ffff", "c2eefa", "82c6e6", "4f8cc2"),
+    "fl_rime": _s("f2fbff", "c6e4f4", "8cb6dc", "5f7fba"),
+    # the snow ape: snow-white fur shaded cool, a slate face, hands and feet, clear ice, snow, its tusks
+    "sa_fur": _s("fffaec", "e3e6ef", "aab0cd", "757ba1"),
+    "sa_skin": _s("aebbcc", "7a869e", "535d76", "363d55"),
+    "sa_ice": _s("e8fbff", "92d6f0", "4f9ac8", "2e5f96"),
+    "sa_snow": _s("ffffff", "deebf4", "adc2d6", "8093b0"),
+    "sa_tusk": _s("fffcf0", "f4eedb", "c8bea0", "8c8266"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
@@ -638,6 +652,10 @@ PROPS.update({
     "ss_antler": {"hi": True, "weight": 1.4}, "ss_hoof": {"hi": True, "weight": 1.3},
     "tr_hide": {"hi": True}, "tr_fold": {"hi": True, "weight": 1.2}, "tr_plate": {"hi": True, "glossy": True, "weight": 1.3},
     "tr_horn": {"hi": True, "glossy": True, "weight": 1.6}, "tr_lip": {"hi": True, "weight": 1.3}, "tr_hoof": {"hi": True, "weight": 1.3},
+    "fl_fur": {"hi": True}, "fl_belly": {"hi": True, "weight": 1.2}, "fl_spot": {"hi": True, "weight": 1.2}, "fl_tip": {"hi": True, "weight": 1.4},
+    "fl_ice": {"hi": True, "glossy": True, "weight": 1.5}, "fl_rime": {"hi": True, "weight": 1.2},
+    "sa_fur": {"hi": True}, "sa_skin": {"hi": True, "weight": 1.3}, "sa_ice": {"hi": True, "glossy": True, "weight": 1.3},
+    "sa_snow": {"hi": True, "weight": 1.2}, "sa_tusk": {"hi": True, "weight": 1.6},
 })
 # The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
 SW_EYE = c("7FD4FF")
@@ -646,6 +664,16 @@ SPARK_ARC = c("A8D4FF")
 SPARK_HALO = c("6AA8FF", 140)
 # The thunderhorn rhino's eye in anger.
 TR_EYE = c("FFD45A")
+# The frost lynx's glowing ice-blue eye and the frost breath it gathers.
+LYNX_EYE = c("8FF0FF")
+FROST_BREATH = c("E8F8FF", 210)
+FROST_BREATH_DIM = c("A8D8F0", 160)
+# The snow ape's frost-blue eyes and their glow, the glint on its ice, the snow its slam throws up.
+SA_EYE = c("86ECFF")
+SA_EYE_GLOW = c("86ECFF", 140)
+SA_GLINT = c("E8FCFF", 200)
+SNOW_SPRAY = c("F4FAFF", 220)
+SNOW_SPRAY_DIM = c("C8DCEC", 170)
 # The Behemoth's weak points (a white crack, its cold edge, dimmed) and their glow.
 HB_GLOW = c("FFFFFF")
 HB_GLOW_EDGE = c("BFEAF5")

@@ -285,13 +285,8 @@ def build():
         # (M3: on the grid it has its own); a wood beast of rank 8, its core roll gives the peak wood core.
         spec_row("stormgrass_stag"),
         # Azure Expanse (Act II) · Rimefrost Heights and Mirrorwater Lake
-        mob("frost_lynx", (67, 70), "normal", "water", "azure", [d("rime_fang", 0.4), d("storm_shard", 0.45), d("frost_lotus", 0.08)],
-            [atk("rime_pounce", 0.45, 70, 1.15, dash=120, status={"id": "slow", "chance": 0.35, "power": 0.3, "duration_s": 3})],
-            ai="leaper", speed=160, pack=True, width=30, height=34, tameable=False),
-        mob("snow_ape", (68, 72), "normal", "earth", "azure", [d("snow_ape_hide", 0.45), d("storm_shard", 0.5, (1, 2)), d("tough_meat", 0.3)],
-            [atk("ice_slam", 0.8, 90, 1.45, depth=40, knockback=100, status={"id": "freeze", "chance": 0.15, "power": 1.0, "duration_s": 1.5}),
-             atk("ice_throw", 0.9, 280, 1.1, projectile={"speed": 420, "art": "ice_shard"})],
-            ai="slow_melee", speed=80, width=36, height=60),
+        spec_row("frost_lynx"),
+        spec_row("snow_ape"),
         mob("azure_carp_dragonet", (68, 72), "normal", "water", "azure", [d("dragonet_scale", 0.45), d("storm_shard", 0.4)],
             [atk("water_orb", 0.7, 300, 1.15, damage_type="qi", projectile={"speed": 380, "art": "water_orb"})],
             ai="flyer_ranged", speed=90, flying=True, width=30, height=30),
