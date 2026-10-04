@@ -323,8 +323,8 @@ func _current() -> Vector2:
 	return tr.current_at(pos)
 
 ## T2 · the wind's push on a body standing in it (the side view's wind volume: strong for part of its cycle, a breeze the
-## rest, harder within `wind_edge` of a drop).
-func _wind() -> Vector2:
+## rest, harder within `wind_edge` of a drop), units a second now (T3: public, the traversal suite asks it).
+func wind_push() -> Vector2:
 	var tr := traverse()
 	if tr == null or tr.winds.is_empty() or not grounded or plunging or not climbing.is_empty(): return Vector2.ZERO
 	var wv := tr.wind_at(pos)
@@ -520,7 +520,7 @@ func _substep(h: float, axis: Vector2) -> void:
 	if stroking and (was <= 0.0 or stroke_t < was): events.append({"type": "stroked"})
 	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
 	# the bank stop it as they stop walking.
-	var v := vel + (drift if not plunging else Vector2.ZERO) + _current() + _wind()
+	var v := vel + (drift if not plunging else Vector2.ZERO) + _current() + wind_push()
 	_move(Vector2(v.x * h, 0.0), axis)
 	_move(Vector2(0.0, v.y * h), axis)
 	_vertical(h)
@@ -725,9 +725,11 @@ func _vertical(h: float) -> void:
 			events.append({"type": "fell", "z": z})
 		else:
 			z = ground   # stairs and small steps follow the floor
-			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2).
+			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2),
+			# nor a pit's open spikes (T3).
 			var trs := traverse()
-			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()):
+			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()) \
+					and (trs == null or trs.hazards.is_empty() or trs.spikes_at(pos).is_empty()):
 				safe = pos
 				safe_z = z
 			# T1 · Water Skimming: stepping out onto the water's surface is the art's use, announced once an outing.

@@ -48,6 +48,10 @@ var w: TopdownWorld = null
 var arts: Dictionary = {}     # art -> times art_used was heard
 var boarded: Array = []       # movers boarded
 var climbs: Array = []        # [event, climbable, end]
+var systems: Dictionary = {}  # T3: system -> times system_used was heard
+var flight_ends: Array = []   # T3: the reasons flight_ended was heard with
+var struck: Dictionary = {}   # T3: hazard -> times hazard_struck was heard
+var motor_events: Array = []  # T3: what the body's motor did, frame by frame (frames())
 
 func _main() -> void:
 	create_extra = {"view": "topdown"}
@@ -59,7 +63,10 @@ func _main() -> void:
 			_lift_and_boards, _current_and_flood, _flight, _mount, _plunge,
 			# T2: the Act I rooms' rows
 			_air_distance, _sealed_ladders, _act1_rafts, _bounces, _trials_and_crane, _tunnels, _drowned_shrine, _echo_shaft,
-			_peaks, _swim, _shallows, _chases]:
+			_peaks, _swim, _shallows, _chases,
+			# T3: Act II onward, and T2's leftovers
+			_cracked_slab, _rimefrost_ice, _no_flight, _low_gravity, _starsea, _swim_stroke, _bounce_gives, _upright_lanterns,
+			_returning_boards, _open_spikes, _wind_diagonals]:
 		if _wanted(part.get_method()): part.call()
 	if is_instance_valid(w): w.free()
 	end_suite()
@@ -77,6 +84,9 @@ func _heard(n: String, p: Dictionary) -> void:
 		"mover_boarded": boarded.append(str(p.get("mover", "")))
 		"climb_started": climbs.append(["started", str(p.get("climbable", "")), ""])
 		"climb_finished": climbs.append(["finished", str(p.get("climbable", "")), str(p.get("end", ""))])
+		"system_used": systems[str(p.get("system", ""))] = int(systems.get(str(p.get("system", "")), 0)) + 1
+		"flight_ended": flight_ends.append(str(p.get("reason", "")))
+		"hazard_struck": struck[str(p.get("hazard", ""))] = int(struck.get(str(p.get("hazard", "")), 0)) + 1
 
 # ------------------------------------------------------------------ the shortcut and the view
 ## The story before chapter 4 done (its lessons too, but the ones played here), a Jade Sect disciple at Qi Kindling 9
@@ -156,7 +166,7 @@ func frames(n: int, axis := Vector2.ZERO, held := false, each := Callable()) -> 
 		p.movement = axis
 		p.joystick_engaged = axis != Vector2.ZERO
 		p.jump_held = held
-		p.physics_step(DT)
+		motor_events.append_array(p.physics_step(DT))
 		Game.tick(DT)
 		GameEvents.flush()
 		if each.is_valid() and each.call(): return i + 1
@@ -1231,3 +1241,358 @@ func _run_leg(target: Vector2, tz: float, secs: float, stop: Callable) -> bool:
 			if (fa > m.z + m.step_up and fa <= m.z + TopdownRoom.LEVEL + m.mantle) or (fa < m.z - m.step_up and tz >= m.z - m.step_up): w.player.jump()
 		frames(1, axis)
 	return false
+
+# ================================================================== T3: Act II onward, and T2's leftovers (topdown_mechanics.md)
+## The Plunge art known and ready (a test shortcut: the Outer Trial teaches it).
+func _plunge_ready() -> void:
+	if not Game.combat.knows_art(c(), "plunge"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "plunge"}], "test")
+	c().pools.cooldowns.erase("plunge")
+
+# ------------------------------------------------------------------ 25: the Lower Pit's cracked slab
+## The side view's cracked slab on the Lower Pit's floor (Act I's last mechanic): a level over the floor, the spirit stone
+## shards sealed under it (hidden, the context offers nothing); walked into, it stops the body at its foot; a hop lands on
+## it and it holds; a Plunge from over it breaks it and falls on through to strike on the floor under it (the side view's
+## rule 10), and the shards show and are taken. It is whole again on the next visit, as the side view's.
+func _cracked_slab() -> void:
+	check(enter("sq_lower_pit", "west"), "to the Lower Pit on the grid")
+	var m := motor()
+	var tr := trav()
+	check(tr != null and tr.cracks.size() == 1, "the Lower Pit lays the side view's cracked slab")
+	var slab: Dictionary = tr.cracks[0]
+	var r: Rect2 = slab.rect
+	var shard: Dictionary = Game.room_rt.object_def("pit_shard")
+	var at := Vector2(float(shard.at[0]), float(shard.at[1]))
+	c().quests.flags.erase("pit_shard")
+	_whole()
+	check(not bool(slab.broken) and tr.sealed(at) and not Game.world.object_visible(c(), shard) and absf(float(slab.z) - TopdownRoom.LEVEL) < 0.5,
+		"the shards lie sealed under the whole slab, a level over the pit's floor, and do not show")
+	var west := TopdownRoom.cell_of(r.position) - Vector2i(2, 0)
+	stand(Vector2(west.x, west.y))
+	frames(int(0.6 / DT), Vector2.RIGHT)
+	check(m.grounded and absf(m.z) < 0.5 and m.pos.x < r.position.x, "walked into, the slab stops the body at its foot (x %.0f, its edge %.0f)" % [m.pos.x, r.position.x])
+	stand(Vector2(west.x, west.y))
+	w.player.jump()
+	frames(int(1.2 / DT), Vector2.RIGHT, false, func(): return m.grounded and m.z > 1.0)
+	frames(2)
+	check(m.grounded and absf(m.z - float(slab.z)) < 0.5 and not bool(slab.broken) and r.has_point(m.pos), "a hop lands on the slab, and a plain landing holds it (z %.0f)" % m.z)
+	_plunge_ready()
+	var hits := int(systems.get("plunge_strike", 0))
+	w.player.jump()
+	frames(int(0.12 / DT))
+	var pr: Dictionary = w.player.plunge()
+	var through := {"cracked": false}
+	frames(int(1.0 / DT), Vector2.ZERO, false, func():
+		through.cracked = bool(through.cracked) or motor_events.any(func(e): return str(e.type) == "cracked")
+		return m.grounded)
+	frames(int(0.2 / DT))
+	GameEvents.flush()
+	check(pr.get("ok", false) and bool(slab.broken) and bool(through.cracked) and m.grounded and absf(m.z) < 0.5 and int(systems.get("plunge_strike", 0)) > hits,
+		"a Plunge from over it breaks the slab and falls on through, striking on the floor under it (%s; z %.0f, strikes %d)" % [str(pr), m.z, int(systems.get("plunge_strike", 0)) - hits])
+	check(not tr.sealed(at) and Game.world.object_visible(c(), shard), "the shards show where the slab was")
+	stand(TopdownRoom.cell_of(at) + Vector2i(0, 1))
+	var before: int = c().inventory.count("spirit_stone_shard")
+	var took := Game.submit({"type": "interact", "object": "pit_shard"})
+	GameEvents.flush()
+	check(took.get("ok", false) and c().inventory.count("spirit_stone_shard") == before + 3, "and the three spirit stone shards are taken (%s)" % str(took))
+	check(enter("sq_lower_pit", "west") and not bool(trav().cracks[0].broken), "on the next visit the slab is whole again (the side view's break lasts the visit)")
+
+# ------------------------------------------------------------------ 26: Rimefrost's ice
+## Frostpine Climb's and Rimefrost Summit's ice (R6's rooms, the side view's ice volumes and their traction): a sprint
+## let go on it slides on, off it the body stops at once.
+func _rimefrost_ice() -> void:
+	var m := motor()
+	for row in [["rf_frostpine_climb", "west", "frostpine_ice", Vector2(47, 6), Vector2(36, 6)],
+			["rf_rimefrost_summit", "west", "summit_ice", Vector2(16, 19), Vector2(36, 19)]]:
+		check(enter(str(row[0]), str(row[1])), "to %s on the grid" % row[0])
+		var tr := trav()
+		var side_t := 0.0
+		for v in ContentDB.room(str(row[0])).get("volumes", []):
+			if str(v.get("id", "")) == str(row[2]): side_t = float(v.get("traction", 0.0))
+		check(tr != null and tr.ices.size() == 1 and str(tr.ices[0].id) == str(row[2]) and absf(float(tr.ices[0].traction) - side_t * 0.755) < 0.5,
+			"%s lays the side view's ice, its traction the side view's (%.0f)" % [row[0], side_t])
+		var slide := []
+		for cell in [row[3], row[4]]:
+			stand(cell)
+			frames(int(0.6 / DT), Vector2.RIGHT)
+			var x1 := m.pos.x
+			frames(int(1.2 / DT))
+			slide.append(m.pos.x - x1)
+		check(float(slide[0]) > 40.0 and float(slide[1]) < 12.0, "%s: on its ice a sprint let go slides on (%.0f units), off it the body stops (%.0f)" % [row[0], slide[0], slide[1]])
+
+# ------------------------------------------------------------------ 27: no-flight
+## Wherever the side view forbids flight the grid does too, with its feedback: in a room that forbids it (the
+## Windbridge), an interior and a dungeon the hold glides instead; a side-view no_flight volume's cells (a `no_flight`
+## row, laid here on the Falls Pool's shore: no room's side view has one yet) end a flight flown into them, as Combat's
+## tick ends the side view's (flight_ended "no_flight", the body comes down), and the hold glides there.
+func _no_flight() -> void:
+	_realm("cloud_stride_1")
+	if not Game.combat.knows_art(c(), "glide"): Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "falling_leaf_glide"}], "test")
+	if not Unlocks.is_unlocked(c().id, "flight"): Unlocks.force_unlock(c().id, "flight")
+	var m := motor()
+	for rid in ["gc_windbridge", "lf_old_ma_store", "mh_tunnels"]:
+		check(enter(rid), "to %s on the grid" % rid)
+		_whole()
+		w.player.jump()
+		var glid := {"on": false}
+		frames(int(0.6 / DT), Vector2.ZERO, true, func(): glid.on = bool(glid.on) or st.gliding; return false)
+		frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+		check(not Game.combat.flight_allowed(c().id) and not m.flying and bool(glid.on), "%s (%s): flight is refused, the hold glides" % [rid, ContentDB.room(rid).get("type", "")])
+	check(_falls_pool(), "to the Falls Pool to fly into a no-flight volume")
+	var tr := trav()
+	var area := Rect2(46.0 * 32.0, 17.0 * 32.0, 6.0 * 32.0, 9.0 * 32.0)
+	tr.no_flights.append({"id": "t3_no_flight", "kind": "no_flight", "rect": area})
+	_whole()
+	stand(Vector2(40, 22))
+	w.player.jump()
+	frames(int(0.9 / DT), Vector2.ZERO, true)
+	var flew := m.flying and Game.combat.is_flying(c().id)
+	var ends := flight_ends.size()
+	frames(int(3.0 / DT), Vector2.RIGHT, false, func(): return not m.flying)
+	GameEvents.flush()
+	var inside := area.has_point(m.pos)
+	frames(int(3.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	check(flew and not m.flying and not Game.combat.is_flying(c().id) and inside and flight_ends.slice(ends).has("no_flight") and m.grounded,
+		"flown into a no-flight volume, the flight ends there (%s) and the body comes down (z %.0f)" % [str(flight_ends.slice(ends)), m.z])
+	_whole()
+	stand(Vector2(48, 22))
+	w.player.jump()
+	var glid2 := {"on": false}
+	frames(int(0.6 / DT), Vector2.ZERO, true, func(): glid2.on = bool(glid2.on) or st.gliding; return false)
+	frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	check(not m.flying and bool(glid2.on), "inside it the hold glides instead")
+	tr.no_flights.clear()
+	_whole()
+
+# ------------------------------------------------------------------ 28: low gravity and its switches
+## The Orbit Ruins' low gravity (the side view's low_gravity volumes, live while their jade switch holds them): a row laid
+## on the Falls Pool's shore (the Ruins' rooms are R9's), off until its switch is turned through the World authority
+## (toggle_gravity, the switch's own call), then a standing jump climbs to the side view's 1/0.45 of its height and hangs
+## longer; turned again, gravity is back.
+func _low_gravity() -> void:
+	check(_falls_pool(), "to the Falls Pool for a low-gravity floor")
+	var skim := _unskim()
+	var m := motor()
+	var tr := trav()
+	var area := Rect2(44.0 * 32.0, 12.0 * 32.0, 7.0 * 32.0, 3.0 * 32.0)
+	tr.lowgs.append({"id": "t3_lowg", "kind": "low_gravity", "rect": area, "gravity": 0.45, "switch": "t3_switch", "invert": false, "off": true})
+	var g: Dictionary = tr.lowgs.back()
+	var jump := func() -> Array:
+		stand(Vector2(47.5, 13.0))
+		var top := {"z": m.z, "t": 0}
+		w.player.jump()
+		top.t = frames(int(3.0 / DT), Vector2.ZERO, false, func(): top.z = maxf(float(top.z), m.z); return m.grounded and m.z < 0.5)
+		return [float(top.z), float(top.t) * DT]
+	var off: Array = jump.call()
+	var r1 := Game.world.toggle_gravity(c(), "t3_switch")
+	GameEvents.flush()
+	check(r1.get("ok", false) and not bool(g.off) and absf(tr.gravity_at(area.get_center()) - 0.45) < 0.001 and int(systems.get("gravity_switch", 0)) >= 1,
+		"the jade switch turned, the floor's low gravity is live (%s)" % str(r1))
+	var on: Array = jump.call()
+	check(absf(float(off[0]) - m.apex()) < 3.0 and absf(float(on[0]) - m.apex() / 0.45) < 6.0 and float(on[1]) > float(off[1]) * 1.4,
+		"there a standing jump climbs %.0f units to the light air's %.0f (the side view's 1/0.45), and hangs %.2f s for %.2f s" % [off[0], on[0], on[1], off[1]])
+	Game.world.toggle_gravity(c(), "t3_switch")
+	GameEvents.flush()
+	var back: Array = jump.call()
+	check(bool(g.off) and absf(float(back[0]) - m.apex()) < 3.0, "turned again, gravity is back (%.0f)" % back[0])
+	tr.lowgs.erase(g)
+	Game.room_rt.objects.erase("t3_switch")
+	_reskim(skim)
+
+# ------------------------------------------------------------------ 29: the Starsea dock
+## The Shipwrights' Yard's Starsea dock on the grid (R6's room): a top-down character with a vessel and the Wreck Run's
+## chart at Sage 3 sets sail with the dock's own call (the context's interact). While the crossing's deck or the far
+## port has no layout the prototype's gate holds the dock as it holds a way (the side view is never entered); with both
+## laid out, the voyage plays on the grid: the crossing's event for the vessel's time, its foes on the deck's floors,
+## and the port made at the far pier.
+func _starsea() -> void:
+	check(enter("ae_shipyard", ""), "to the Shipwrights' Yard on the grid")
+	Unlocks.force_unlock(c().id, "starsea")
+	for k in ["cloud_skiff", "star_chart_wreck"]:
+		if c().inventory.count(k) == 0: Game.inventory.apply_add(c().id, k, 1, "test")
+	var v := ContentDB.entry("voyages", "wreck_run")
+	var dock: Dictionary = Game.room_rt.object_def("dock_cloudgate")
+	stand(TopdownRoom.cell_of(Vector2(float(dock.at[0]), float(dock.at[1]))) + Vector2i(0, 1))
+	var laid := TopdownRoom.has_layout(str(v.crossing)) and TopdownRoom.has_layout(str(v.to))
+	var r := Game.submit({"type": "interact", "object": "dock_cloudgate"})
+	GameEvents.flush()
+	if not laid:
+		check(not r.get("ok", false) and str(r.get("reason", "")) == "gate" and str(r.get("text", "")) == Tx.t("sim.world.road_being_drawn") and room() == "ae_shipyard",
+			"while the crossing (%s) or the Wreck has no layout the dock is gated as a way is (%s)" % [str(v.crossing), str(r)])
+		return
+	st = w.player.state
+	_sync()
+	check(r.get("ok", false) and room() == str(v.crossing) and Game.room_rt.topdown != null and Game.room_rt.event.get("active", false)
+		and absf(float(Game.room_rt.event.remaining) - float(v.base_s)) < 1.0, "the skiff sets sail: the crossing's deck on the grid, its event under way for the voyage's %d s" % int(v.base_s))
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var seen := {}
+	frames(int(20.0 / DT), Vector2.ZERO, false, func():
+		_whole()
+		for e in Game.room_rt.living_enemies(): if e.summoned: seen[e.uid] = e.plane
+		return seen.size() >= 2)
+	var off := seen.values().filter(func(p): return not grid.standable(TopdownRoom.cell_of(p)))
+	check(seen.size() >= 2 and off.is_empty(), "its foes come aboard onto the deck's floors (%d, %d off)" % [seen.size(), off.size()])
+	Game.room_rt.event.remaining = 0.01
+	frames(3)
+	GameEvents.flush()
+	st = w.player.state
+	_sync()
+	check(room() == str(v.to) and Game.room_rt.topdown != null and not Game.world.voyages.has(c().id), "the crossing makes port at %s on the grid" % str(v.to))
+
+# ------------------------------------------------------------------ 30: the swim's stroke
+## T2's swimmer is the walk cut at the water's line; its stroke now has a rhythm: a pull every `swim_stroke_s` while it
+## moves (the walk's frames run once through, its pace surging), then a glide on the walk's rest frame, and each pull
+## leaves a ring on the water.
+func _swim_stroke() -> void:
+	var had: bool = c().cultivator.secret_arts.has("breath_control")
+	if not had: Game.apply_effects(c().id, [{"kind": "learn_secret_art", "art": "breath_control"}], "test")
+	check(enter("ds_drowned_grotto", "entry"), "to the Drowned Grotto to swim")
+	var m := motor()
+	stand(Vector2(9, 12))
+	frames(int(1.0 / DT), Vector2.DOWN, false, func(): return m.swimming)
+	motor_events.clear()
+	var pull := {}
+	var glide := {}
+	var rest := TopdownFigure.rest_frame("walk")
+	frames(int(2.0 / DT), Vector2.RIGHT, false, func():
+		w.player.sync(DT)
+		if w.player.anim == "walk":
+			var k := m.stroke_t / m.swim_stroke
+			if k < 0.5: pull[w.player.frame] = true
+			elif k > 0.6: glide[w.player.frame] = true
+		return false)
+	var strokes := motor_events.filter(func(e): return str(e.type) == "stroked").size()
+	var wakes: int = w.fx.items.filter(func(it): return str(it.kind) == "wake").size()
+	for e in motor_events: w.feedback(e)
+	wakes = w.fx.items.filter(func(it): return str(it.kind) == "wake").size() - wakes
+	check(m.swimming and strokes >= 2 and strokes <= 3 and wakes == strokes, "two seconds' swim is %d strokes, each leaving its wake (%d)" % [strokes, wakes])
+	check(pull.size() >= 3 and glide.keys() == [rest], "the pull runs the walk's frames (%s), the glide holds its rest frame (%s)" % [str(pull.keys()), str(glide.keys())])
+	if not had: c().cultivator.secret_arts.erase("breath_control")
+
+# ------------------------------------------------------------------ 31: a bounce that gives
+## The Fairground's drum, as it launches a body: its skin pressed in, then springing back, then at rest (BounceView).
+func _bounce_gives() -> void:
+	check(enter("sf_fairground", "west"), "to the Fairground's drum")
+	var m := motor()
+	var view = null
+	for n in w.sorted.get_children():
+		if n is TopdownTraverseView.BounceView and str(n.b.id) == "fair_drum_bounce": view = n
+	stand(Vector2(36, 10))
+	var b0 := int(arts.get("bounce", 0))
+	w.player.jump()
+	var seen := []
+	frames(int(3.0 / DT), Vector2.ZERO, false, func():
+		if view != null and (seen.is_empty() or seen.back() != view.frame_now()): seen.append(view.frame_now())
+		return int(arts.get("bounce", 0)) > b0 and seen.back() == 0 and seen.size() > 1)
+	frames(int(2.0 / DT), Vector2.ZERO, false, func(): return m.grounded)
+	check(view != null and seen == [0, 1, 2, 0], "the drum's skin gives as it launches the body: at rest, pressed, springing back, at rest (%s)" % str(seen))
+
+# ------------------------------------------------------------------ 32: lanterns that go round upright
+## The Hall of Lanterns' circling lanterns go round upright as the side view's do: east-west along the plane and up and
+## down a radius's twice (their deck rising and falling), never along the plane north and south; a body standing on
+## the lid rides it up.
+func _upright_lanterns() -> void:
+	check(enter("ds_hall_of_lanterns", "west"), "to the Hall of Lanterns")
+	var tr := trav()
+	var m := motor()
+	var l: Dictionary = tr.raft("lantern_1")
+	var r2 := 2.0 * float(l.mover.radius)
+	var ys := {}
+	var lo := INF
+	var hi := -INF
+	var t0 := tr.time
+	for i in 44:
+		var t := t0 + float(i) * 0.1
+		var keep := tr.time
+		tr.time = t
+		ys[roundf(tr.raft_rect(l).position.y)] = true
+		lo = minf(lo, tr.deck_z(l))
+		hi = maxf(hi, tr.deck_z(l))
+		tr.time = keep
+	check(ys.size() == 1 and absf(lo - float(l.z)) < 1.0 and absf(hi - float(l.z) - r2) < 2.0,
+		"lantern_1 goes round upright: one row on the plane, its deck from %.0f up to %.0f (its round %.0f)" % [lo, hi, r2])
+	until(6.0, func(): return tr.deck_z(l) < float(l.z) + 1.0)
+	m.z = 200.0
+	stand(Vector2(16.5, 1.5))
+	var z0 := m.z
+	var top := {"z": m.z}
+	frames(int(2.3 / DT), Vector2.ZERO, false, func(): top.z = maxf(float(top.z), m.z); return false)
+	check(absf(z0 - float(l.z)) < 1.0 and float(top.z) - z0 > r2 - 6.0 and m.ride == "lantern_1", "a body on its lid rides it up and round (z %.0f up to %.0f)" % [z0, top.z])
+
+# ------------------------------------------------------------------ 33: returning boards
+## The monastery's rotten floor: gone under a body, it does not come back over the body still standing under it (it would
+## lift the body onto it); once the body has stepped out from under it, it comes back.
+func _returning_boards() -> void:
+	check(enter("mp_forgotten_monastery", "east"), "to the Forgotten Monastery's rotten floor")
+	var tr := trav()
+	var m := motor()
+	var wf: Dictionary = tr.crumbles[0]
+	stand(Vector2(21, 7))
+	frames(int(2.5 / DT), Vector2.ZERO, false, func(): return tr.crumble_state(wf) == "broken" and m.grounded)
+	frames(int(0.3 / DT))
+	var dropped := m.z
+	frames(int((float(wf.return_s) + 1.5) / DT))
+	check(absf(dropped - 3.0 * TopdownRoom.LEVEL) < 0.5 and tr.crumble_state(wf) == "broken" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5,
+		"past their time the boards stay gone over the body under them, not lifting it (z %.0f, %s)" % [m.z, tr.crumble_state(wf)])
+	frames(int(1.5 / DT), Vector2.DOWN, false, func(): return not Rect2(wf.rect).has_point(m.pos))
+	frames(int(0.6 / DT))
+	check(tr.crumble_state(wf) == "whole" and absf(m.z - 3.0 * TopdownRoom.LEVEL) < 0.5, "stepped out from under them, the boards come back (%s)" % tr.crumble_state(wf))
+
+# ------------------------------------------------------------------ 34: the pits open beside their planks
+## The Tunnels' spike pits open beside their planks, as the side view's pit lies round its planks: a body standing on the
+## spikes beside the track is struck; on the whole planks over the pit it is not.
+func _open_spikes() -> void:
+	check(enter("mh_tunnels", "west"), "to the Tunnels' spike pits")
+	var tr := trav()
+	var m := motor()
+	var pit: Dictionary = tr.hazards[0]
+	var open := 0
+	var r: Rect2 = pit.rect
+	for y in range(int(r.position.y / 32.0), int(r.end.y / 32.0)):
+		for x in range(int(r.position.x / 32.0), int(r.end.x / 32.0)):
+			if not tr.spikes_at((Vector2(x, y) + Vector2(0.5, 0.5)) * 32.0).is_empty(): open += 1
+	check(open == 12, "each pit lies open a row either side of its planks (%d open cells)" % open)
+	_whole()
+	Game.combat.cure_status(c().id, "spawn_protection")
+	var n0 := int(struck.get("spike_traps", 0))
+	stand(Vector2(21, 13))
+	frames(int(1.0 / DT), Vector2.ZERO, false, func(): return tr.crumble_state(tr.crumble_at(m.pos)) != "whole")
+	var on_planks := int(struck.get("spike_traps", 0)) - n0
+	stand(Vector2(22, 11))
+	frames(int(0.5 / DT))
+	GameEvents.flush()
+	var on_spikes := int(struck.get("spike_traps", 0)) - n0 - on_planks
+	check(on_planks == 0 and on_spikes >= 1 and m.grounded, "on the planks the body is clear; on the spikes beside them it is struck (%d, %d)" % [on_planks, on_spikes])
+	_whole()
+
+# ------------------------------------------------------------------ 35: the wind's edge on the diagonals
+## The Windswept Ridge's wind pushes harder within `wind_edge` of a drop along any of the eight ways round the body (T2
+## looked along the four axes only): at a spot whose only drop near it is on a diagonal, the push is its edge factor's.
+func _wind_diagonals() -> void:
+	check(enter("sr_windswept_ridge", "east"), "to the Windswept Ridge's wind")
+	var tr := trav()
+	var m := motor()
+	var wv: Dictionary = tr.winds[0]
+	var grid: TopdownRoom = Game.room_rt.topdown
+	var edge := m.wind_edge
+	var diag := Vector2.INF
+	var flat := Vector2.INF
+	var r: Rect2 = wv.rect
+	for y in range(int(r.position.y / 32.0), int(r.end.y / 32.0)):
+		for x in range(int(r.position.x / 32.0), int(r.end.x / 32.0)):
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5)) * 32.0
+			if not grid.standable(Vector2i(x, y)) or not grid.stair_at(x, y).is_empty(): continue
+			var z := grid.height_at(p)
+			var drops := []
+			for d in TopdownMotor.WIND_AXES: drops.append(grid.height_at(p + (d as Vector2) * edge) < z - m.step_up)
+			var axis := drops.slice(0, 4).has(true)
+			var diagonal := drops.slice(4).has(true)
+			if diagonal and not axis and diag == Vector2.INF: diag = Vector2(x, y)
+			if not diagonal and not axis and flat == Vector2.INF: flat = Vector2(x, y)
+	check(diag != Vector2.INF and flat != Vector2.INF, "the ridge has a spot whose only near drop is diagonal (%s) and one with none (%s)" % [str(diag), str(flat)])
+	if diag == Vector2.INF or flat == Vector2.INF: return
+	stand(flat)
+	var plain := m.wind_push().length() / maxf(0.001, tr.wind_strength(wv))
+	stand(diag)
+	var near := m.wind_push().length() / maxf(0.001, tr.wind_strength(wv))
+	check(absf(plain - (wv.push as Vector2).length()) < 0.5 and absf(near - plain * float(wv.edge_factor)) < 0.5,
+		"by a drop on the diagonal the wind pushes %.0f, its edge factor's %.1f times the open ridge's %.0f" % [near, float(wv.edge_factor), plain])

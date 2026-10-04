@@ -355,11 +355,14 @@ class BounceView extends TopdownWorld.Sorted:
 	func _ready() -> void:
 		set_process(true)
 	func _process(_d: float) -> void:
-		var since := tr.time - float(b.get("sprung", -INF))
-		var f := 1 if since >= 0.0 and since < PRESS_S else (2 if since >= 0.0 and since < SPRING_S else 0)
+		var f := frame_now()
 		if f != frame:
 			frame = f
 			queue_redraw()
+	## The frame the bounce shows now: 1 pressed just after it launched a body, 2 springing back, 0 at rest.
+	func frame_now() -> int:
+		var since := tr.time - float(b.get("sprung", -INF))
+		return 1 if since >= 0.0 and since < PRESS_S else (2 if since >= 0.0 and since < SPRING_S else 0)
 	func _draw() -> void:
 		var r := TopdownTraverseView.src(sprite, frame)
 		draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2(at - position, r.size), r)
