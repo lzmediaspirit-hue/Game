@@ -60,7 +60,7 @@ from figure.geom import ik2
 from .. import mats as M
 from ..motion import gait, h01v, headon, wave
 from ..sculpt import E, L, Pose, S, chain, on, rot, v3
-from .kit import colour, lin, shut, topple
+from .kit import collapse, colour, lin, shut, topple
 
 # ------------------------------------------------------------------------------------------------ motion styles
 STYLES = {
@@ -367,16 +367,18 @@ def pose(B, action: str, f: int, view: float = 48.0) -> Pose:
     _body(P, B, c)
     if "crest" in p:
         _crest(P, B, c)
-    {"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
-     "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid}[p.head.kind](P, B, c)
+    dict({"rodent": _head_snout, "mustelid": _head_snout, "suid": _head_suid, "canine": _head_canine,
+          "saurian": _head_saurian, "bovid": _head_bovid, "cervid": _head_cervid}, **M3_HEADS)[p.head.kind](P, B, c)
     {"paw": _legs_paw, "lope": _legs_lope, "hoof": _legs_hoof, "digit": _legs_digit, "dig": _legs_dig,
      "sprawl": _legs_sprawl}[p.legs.kind](P, B, c)
-    {"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
-     "fin": _tail_fin}[p.tail.kind](P, B, c)
+    dict({"reed": _tail_reed, "thick": _tail_thick, "tassel": _tail_tassel, "brush": _tail_brush, "stub": _tail_stub,
+          "fin": _tail_fin}, **M3_TAILS)[p.tail.kind](P, B, c)
     if B.opts.get("hollowed") and action != "death" and p.get("strands", True):
         _strands(P, B, c)
     if p.get("dust"):
         _dust(P, B, c)
+    if p.get("plates"):
+        _behemoth(P, B, c)                     # M3, the Hollow Behemoth: its plates, drones, weak points and mist
     _finish(P, B, c)
     return P
 
@@ -437,6 +439,8 @@ def _frame(B, c) -> None:
 def _coat(B, c):
     co, m = B.parts.coat, B.mats
     hips, bm = c.hips, c.bm
+    if co.kind in M3_COATS:
+        return M3_COATS[co.kind](B, c)
     if co.kind == "streak":
         def coat(q, n):
             """The pale belly underneath; darker streaks over the back."""
@@ -1109,11 +1113,20 @@ def _legs_hoof(P, B, c) -> None:
     st = B.style(a)
     fb, hb = 2.5 + 1.3 * fr + 0.5 * bk, 2.7 + 0.5 * fr + 1.2 * bk        # the stance: apart where it is seen head-on
     legs = (("fl", 3.8, fb, 0.0), ("fr", 3.8, -fb, 0.5), ("hl", -5.0 + 1.3 * fr, hb, 0.5), ("hr", -5.0 + 1.3 * fr, -hb, 0.0))
+    stance = B.parts.legs.get("stance")
+    if stance:
+        # M3: a body of its own size places its legs (fore and hind along it, their spread, the gait's lift and stride).
+        fa, ha, fw, hw, glift, gstride = stance
+        fb, hb = fw + 1.3 * fr + 0.5 * bk, hw + 0.5 * fr + 1.2 * bk
+        legs = (("fl", fa, fb, 0.0), ("fr", fa, -fb, 0.5), ("hl", ha + 1.3 * fr, hb, 0.5), ("hr", ha + 1.3 * fr, -hb, 0.0))
     for name, a0, b0, off in legs:
         front = name[0] == "f"
-        lift, stride = gait(a, f, off, 2.0 + 0.9 * (fr + bk), 2.2)
+        lift, stride = gait(a, f, off, 2.0 + 0.9 * (fr + bk), 2.2) if not stance else gait(a, f, off, glift + 0.9 * (fr + bk), gstride)
         top = at((a0 + 1.4 if front else a0 + 0.8, b0 * (0.92 - 0.12 * (fr + bk)), -2.4 if front else -1.8))
         foot = v3(lunge + a0 + stride + (0.8 * fr if front else 0.0), b0, 0.9 + lift)
+        if stance and front and st.get("reared"):
+            # M3: rearing up on its hind legs, its forelegs lift off the ground, bent under its chest.
+            foot = top + c.bm @ v3(2.6, 0.0, -5.2)
         if "paw" in st and name == "fr":
             foot = foot + v3(*st.paw[f])
         if "brace" in st and not front:
@@ -1432,6 +1445,10 @@ def _finish(P, B, c) -> None:
             rr = 9.0 + (k % 3) * 1.5
             P.fx.append((v3(c.lunge + B.parts.get("mid", 0.0) + math.cos(ang) * rr, math.sin(ang) * rr, 0.5 + (k % 2) * 0.6),
                          M.DUST if k % 2 else M.DUST_DIM))
+    crumble = B.pick("crumble", a, f)
+    if crumble > 0.0:
+        # M3, the Hollow Behemoth: its plates and drones come apart and fall into a heap (kit.collapse).
+        collapse(P, crumble, int(B.opts.get("seed", 0)))
     if a == "death" and B.opts.get("hollowed"):
         P.dissolve = B.pick("dissolve", a, f)
         P.dissolve_col = M.MOTE
@@ -1441,3 +1458,285 @@ def _finish(P, B, c) -> None:
         P.dissolve_col = M.MIST_PUFF
     if c.sa != 1.0 or c.sc != 1.0:
         P.squash(c.sa, 1.0 / math.sqrt(c.sa * c.sc), c.sc, (c.lunge, 0.0, 0.0))
+
+
+# ================================================================================================= M3
+# M3's kinds, each optional (a species names them), so every species drawn before draws byte for byte. The pose's
+# dispatch reads M3_HEADS, M3_TAILS and M3_COATS beside its own kinds.
+M3_HEADS: dict = {}
+M3_TAILS: dict = {}
+M3_COATS: dict = {}
+
+
+def _surface(B, c, a0: float, ang: float):
+    """A point on the body's skin at `a0` along it, `ang` degrees round from its top toward its left (+b), and the outward
+    normal there, in the body's own frame (c.at's): the outermost of its pieces that way."""
+    fr, bk = c.fr, c.bk
+    s_, c_ = math.sin(math.radians(ang)), math.cos(math.radians(ang))
+    best = None
+    # Head-on the pieces close up along it: a point past the body's ends keeps to the nearest end.
+    lo = min(p_.at[0][0] + p_.at[0][1] * fr - lin(p_.r[0], fr, bk) * 0.95 for p_ in B.parts.body)
+    hi = max(p_.at[0][0] + p_.at[0][1] * fr + lin(p_.r[0], fr, bk) * 0.95 for p_ in B.parts.body)
+    a0 = min(hi, max(lo, a0))
+    for piece in B.parts.body:
+        (pa, kf), h = piece.at
+        pa = pa + kf * fr
+        ra, rb, rc = (lin(x, fr, bk) for x in piece.r)
+        h = lin(h, fr, bk)
+        t = (a0 - pa) / ra
+        if abs(t) >= 0.98:
+            continue
+        s = math.sqrt(1.0 - t * t)
+        y, z = rb * s * s_, rc * s * c_
+        score = y * s_ + (h + z) * c_
+        if best is None or score > best[0]:
+            n = v3((a0 - pa) / ra ** 2, y / rb ** 2, z / rc ** 2)
+            best = (score, v3(a0, y, h + z), n / float(np.linalg.norm(n)))
+    return best[1], best[2]
+
+
+def _frame_on(n, tilt: float = 0.0) -> np.ndarray:
+    """A plate's axes on the skin: along the body, across it, and out along the normal `n`, turned `tilt` degrees about n."""
+    along = v3(1.0, 0.0, 0.0) - n * float(n[0])
+    if float(np.linalg.norm(along)) < 0.2:
+        along = v3(0.0, 0.0, 1.0) - n * float(n[2])
+    along = along / float(np.linalg.norm(along))
+    across = np.cross(n, along)
+    t = math.radians(tilt)
+    a2 = along * math.cos(t) + across * math.sin(t)
+    return np.stack([a2, np.cross(n, a2), n], axis=1)
+
+
+# ------------------------------------------------------------------------------------------------ the Hollow Behemoth
+# M3, the Hollow Behemoth (the Siege's story boss): a giant boar assembled out of the Hollow's grey-white drones and
+# armour plates over a dark void: rows of overlapping plates over its back, hump, flanks and hips, a ridge of spiked
+# drones down its spine, a swarm of drones filling its belly, a plated skull with a snout disc and great curved tusks,
+# empty white eyes; the weak points are jagged white cracks on its flank plates and its skull plate, glowing cold, and
+# mist pours off it. It rears up on its hind legs as its weak points blaze (the tell, held: its stampede's and its drone
+# burst's) and stampedes; struck, its weak points flicker; beaten, it breaks apart into drones and a heap of plates.
+BEHEMOTH_STYLES = {
+    "loom": {"head": (0.0, 2.0, 4.0, 2.0, 0.0, -1.0), "bob_amp": 0.25, "breathe": 0.02, "flare": (0.5, 0.6, 0.8, 0.6, 0.5, 0.4)},
+    "stampede_trot": {"kind": "trot", "bob_wave": (-0.3, 0.6), "pitch_wave": (1.6, 0.6), "head_wave": (-4.0, 4.0, 1.4),
+                      "flare": (0.5,) * 8},
+    "rear_flare": {"lunge": (0.3, 0.8, 1.2, 1.3), "pitch": (8.0, 17.0, 24.0, 26.0), "head": (4.0, 9.0, 13.0, 14.0),
+                   "gape": (0.2, 0.5, 0.75, 0.8), "flare": (0.7, 1.0, 1.0, 1.0), "reared": True, "angry": True},
+    "break_apart": {"lunge": (-0.6, -1.0, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2), "pitch": (10.0, 4.0, 0.0, -2.0, -2.0, -2.0, -2.0, -2.0),
+                    "bob": (0.0, -0.4, -1.6, -3.2, -4.6, -5.4, -5.6, -5.6),
+                    "head": (14.0, 6.0, -6.0, -12.0, -14.0, -14.0, -14.0, -14.0), "gape": (0.8, 0.6, 0.4, 0.3, 0.3, 0.3, 0.3, 0.3),
+                    "flare": (1.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0), "scatter": (0.0, 0.0, 0.25, 0.5, 0.75, 0.92, 1.0, 1.0),
+                    "fold_front": (0.0, 0.4, 0.8, 1.0, 1.0, 1.0, 1.0, 1.0), "fold_hind": (0.0, 0.2, 0.5, 0.8, 1.0, 1.0, 1.0, 1.0),
+                    "shrink": (0.0, 0.0, 0.08, 0.22, 0.42, 0.62, 0.8, 0.9),
+                    "dissolve": (0.0, 0.0, 0.04, 0.12, 0.24, 0.34, 0.42, 0.48), "burst": (2, 3, 4)},
+}
+STYLES.update(BEHEMOTH_STYLES)
+BEHEMOTH = {
+    "Z": 11.0, "hips": (-6.4, 0.0), "pivot": (-6.4, 0.0, 0.0), "side": 6.4,
+    "body": [{"at": ((5.0, 0.0), 1.8), "r": ((5.8, 0.0, 0.0), (5.6, 1.0, 0.0), (6.6, 0.0, 0.0))},
+             {"at": ((-0.2, 0.5), 0.6), "r": ((7.4, -1.4, 0.0), (6.0, 0.6, 0.4), (6.0, 0.0, 0.0))},
+             {"at": ((-6.4, 1.6), 0.8), "r": ((5.0, 0.0, 0.0), (5.6, 0.0, 0.9), (5.6, 0.0, 0.5))}],
+    "coat": {"kind": "void"},
+    "head": {"kind": "behemoth", "at": ((11.6, -0.8), (0.8, 1.2)), "rest": -4.0, "pitch": (-2.0, 10.0), "skull": (4.4, 4.2, 4.0),
+             "eyes": {"shut": {"hurt": 0, "death": 4}}},
+    "legs": {"kind": "hoof", "thick": 2.0, "bones": ((4.2, 4.0), (4.3, 4.1)), "stance": (5.6, -6.6, 3.4, 3.6, 2.6, 3.0)},
+    "tail": {"kind": "stub", "root": (-11.2, 1.4), "tip": (-12.8, 0.2), "r": (1.3, 0.7)},
+    # The plates: (along, round from the top, length, width, thickness); the weak points are on `weak` (their indices).
+    "plates": [(8.6, 0.0, 2.8, 3.2, 1.2), (4.4, 0.0, 3.0, 3.4, 1.2), (0.2, 0.0, 3.0, 3.2, 1.2), (-4.0, 0.0, 3.0, 3.2, 1.2),
+               (-8.2, 0.0, 2.8, 3.0, 1.1),
+               (6.6, 52.0, 2.6, 2.8, 1.1), (2.4, 52.0, 2.8, 2.8, 1.1), (-1.8, 52.0, 2.8, 2.8, 1.1), (-6.0, 52.0, 2.6, 2.8, 1.1),
+               (5.4, 98.0, 2.6, 2.6, 1.0), (1.0, 98.0, 3.2, 3.0, 1.0), (-3.4, 98.0, 2.6, 2.6, 1.0), (-7.6, 98.0, 2.4, 2.4, 1.0),
+               (-10.0, 34.0, 2.0, 2.6, 1.0), (9.6, 118.0, 2.0, 2.4, 0.9)],
+    "weak": (10,),
+    "ridge": (10.4, 6.4, 2.2, -2.0, -6.0, -9.6),
+    "swarm": ((4.0, 1.6, -6.2), (1.2, 3.2, -5.6), (-1.6, 0.0, -6.8), (-4.0, 2.4, -6.0), (0.2, 1.0, -7.2)),
+    "strands": False, "dust": False,
+}
+VARIANTS["behemoth"] = {"parts": BEHEMOTH,
+                        "mats": {"hide": "hb_void", "head": "hb_void", "hoof": "hb_void", "plate": "hb_plate", "drone": "hb_drone",
+                                 "tusk": "hb_tusk", "coat": "hb_void"},
+                        "opts": {"hollowed": True},
+                        "motion": {"idle": "loom", "walk": "stampede_trot", "windup": "rear_flare",
+                                   "attack": ("charge_toss", {"flare": (1.0, 1.0, 1.0, 0.7, 0.5, 0.5)}),
+                                   "hurt": ("stumble", {"flare": (0.0, 1.0, 0.2)}), "death": "break_apart"}}
+
+
+def _coat_void(B, c):
+    """The dark void between its plates: drone shells packed in it (a step lit in a hash of small ovals), its grain a
+    step dark."""
+    m, hips, bm = B.mats, c.hips, c.bm
+    seed = int(B.opts.get("seed", 0))
+
+    def void(q, n):
+        loc = (q - hips) @ bm
+        h = h01v(np.floor(loc[:, 0] * 0.9 + 40), np.floor(loc[:, 2] * 0.9 + np.abs(loc[:, 1]) * 0.7 + 40), seed % 97 + 1)
+        shell = h > 0.72
+        pit = h < 0.1
+        return np.full(len(q), m.hide, dtype=object), np.where(shell, 1, np.where(pit, -1, 0)).astype(np.int16)
+    return void
+
+
+M3_COATS["void"] = _coat_void
+
+
+def _plate_paint(m, centre, mm, radii):
+    """An armour plate: grey-white, its rim a step dark where it turns away (a bevel), chips a step lit."""
+    def paint(q, n):
+        loc = (q - centre) @ mm
+        u = np.maximum(np.abs(loc[:, 0]) / radii[0], np.abs(loc[:, 1]) / radii[1])
+        rim = u > 0.66
+        chip = h01v(np.floor(loc[:, 0] * 1.4 + 30), np.floor(loc[:, 1] * 1.4 + 30), 7) > 0.88
+        return np.full(len(q), m.plate, dtype=object), np.where(rim, -1, np.where(chip, 1, 0)).astype(np.int16)
+    return paint
+
+
+def _crack(P, centre, mm, radii, flare: float, facing: bool, scale: float = 1.0) -> None:
+    """A weak point: a jagged crack across a plate (on its face), white and glowing cold, a halo off it as it flares; dim
+    as it flickers out."""
+    path = ((-0.8, 0.45), (-0.4, 0.0), (0.0, 0.42), (0.36, -0.12), (0.74, 0.3))
+    pts = [centre + mm @ v3(u * radii[0] * 0.8 * scale, v * radii[1] * 0.8 * scale, radii[2] * 0.95) for u, v in path]
+    pts.append(centre + mm @ v3(0.15 * radii[0], 0.85 * radii[1] * 0.8 * scale, radii[2] * 0.9))
+    segs = list(zip(pts[:5], pts[1:5])) + [(pts[2], pts[5])]
+    core = M.HB_GLOW if flare >= 0.8 else (M.HB_GLOW_EDGE if flare >= 0.3 else M.HB_GLOW_DIM)
+    for a, b in segs:
+        for k in range(4):
+            q = a + (b - a) * (k / 4.0)
+            P.mark(q, core if k % 2 == 0 else (M.HB_GLOW_EDGE if flare >= 0.3 else M.HB_GLOW_DIM))
+            if flare >= 0.8 and facing:
+                P.glow.append((q + mm @ v3(0.0, 0.0, 0.8), M.HB_HALO))
+
+
+def _head_behemoth(P, B, c) -> None:
+    """Its head: a skull of void under a great plate over the brow and crown, cheek plates, a plated snout to a pale disc
+    with its nostrils, a lower jaw that drops on the charge, great tusks curving out, forward and up from it, empty white
+    eyes under the plate's rim, small plated ears; a weak point cracked across the skull plate."""
+    h, m = B.parts.head, B.mats
+    a, f, fr, bk, at, bm = c.action, c.f, c.fr, c.bk, c.at, c.bm
+    hm = bm @ rot("b", h.pitch[0] + c.hpitch + h.pitch[1] * fr)
+    (ha, hf), (hz, hzf) = h.at
+    hc = at((ha + hf * fr, 0.0, hz + hzf * fr))
+    hp = lambda q: hc + hm @ v3(q)
+    sk = h.skull
+    P.add(L(at((7.2, 0.0, 1.0)), hc + hm @ v3(-1.8, 0.0, 0.2), 4.6, 4.0, m.hide, "neck", c.paint))
+    P.add(E(hc, sk, m.hide, "head", hm, c.paint))
+    gape = B.pick("gape", a, f)
+    jm = hm @ rot("b", -gape * 16.0)
+    P.add(E(hp((1.2, 0.0, -2.4)) + jm @ v3(1.6, 0.0, -0.2), (3.4, 3.0, 1.6), m.hide, "jaw", jm, c.paint))
+    # The snout: plated, to a pale disc.
+    P.add(L(hp((2.4, 0.0, -0.8)), hp((5.8, 0.0, -1.5)), 2.7, 2.3, m.plate, "snout"))
+    P.add(E(hp((6.3, 0.0, -1.6)), (0.85, 2.3, 2.0), m.drone, "disc", hm))
+    for s in (1, -1):
+        P.mark(hp((7.15, s * 0.8, -1.5)), M.RAMPS[m.hide][0])
+    # The skull plate over the brow and crown, and a plate on each cheek.
+    sp_c, sp_m, sp_r = hp((0.4, 0.0, sk[2] * 0.62)), hm @ rot("b", -16.0), (3.6, sk[1] * 1.04, 1.3)
+    P.add(E(sp_c, sp_r, m.plate, "skullplate", sp_m, _plate_paint(m, sp_c, sp_m, sp_r)))
+    for s in (1, -1):
+        cc = hp((0.6, s * sk[1] * 0.78, -0.6))
+        cm = hm @ rot("a", s * -62.0)
+        P.add(E(cc, (2.4, 2.2, 0.8), m.plate, "cheek%d" % s, cm, _plate_paint(m, cc, cm, (2.4, 2.2, 0.8))))
+        # Great tusks from the lower jaw, curving out, forward and up.
+        t0 = hp((3.6, s * 2.2, -2.8))
+        t1 = hp((5.6, s * (3.2 + 0.8 * fr), -2.4))
+        t2 = hp((7.0, s * (3.9 + 1.0 * fr), -0.8))
+        t3 = hp((6.9, s * (3.7 + 1.0 * fr), 1.2))
+        P.add(L(t0, t1, 0.95, 0.8, m.tusk, "tusk%d" % s), L(t1, t2, 0.8, 0.55, m.tusk, "tusk%d" % s), L(t2, t3, 0.55, 0.18, m.tusk, "tusk%d" % s))
+        # Small plated ears, laid back.
+        P.add(E(hp((-2.2, s * 3.2, 2.4)), (1.4, 0.6, 1.8), m.plate, "ear%d" % s, hm @ rot("a", s * -30.0) @ rot("b", 20.0)))
+        eye = on(hc, sk, hm, s * 46.0, 18.0)
+        if shut(h.eyes, a, f):
+            P.mark(eye, M.RAMPS[m.hide][0])
+        else:
+            P.eye(eye, M.HOLLOW_EYE)
+            P.eye(eye + hm @ v3(0.0, s * 0.45, 0.0), M.HOLLOW_EYE)
+            P.mark(eye + hm @ v3(-0.1, 0.0, 0.55), M.EYE_HALO)
+    _crack(P, sp_c, sp_m, sp_r, B.pick("flare", a, f, 0.5) if a != "death" or f < 3 else 0.0, True, 0.8)
+
+
+M3_HEADS["behemoth"] = _head_behemoth
+
+
+def _behemoth(P, B, c) -> None:
+    """The Behemoth's armour and its Hollow: the plates over its body (each its own, so a line shows between them), the
+    weak points on its flank plates, the ridge of spiked drones down its spine, the swarm of drones in its belly, the mist
+    pouring off it and drones drifting round it; the dust of its stampede."""
+    p, m = B.parts, B.mats
+    a, f, at, bm = c.action, c.f, c.at, c.bm
+    flare = B.pick("flare", a, f, 0.5)
+    scatter = B.pick("scatter", a, f)
+    shrink = B.pick("shrink", a, f)
+    if shrink > 0.0:
+        # Breaking apart, the void under its plates (its body, head, legs and tail, drawn before them) shrinks away into
+        # motes as its plates fall, so a heap of plates is what is left.
+        mid = at((0.0, 0.0, -4.0))
+        k_ = 1.0 - shrink
+        for part in P.parts:
+            g = part.geo
+            if part.kind == "limb":
+                g["p0"], g["p1"] = mid + (g["p0"] - mid) * k_, mid + (g["p1"] - mid) * k_
+                g["r0"], g["r1"] = g["r0"] * k_, g["r1"] * k_
+            else:
+                g["at"] = mid + (g["at"] - mid) * k_
+                if part.kind == "sph":
+                    g["r"] = g["r"] * k_
+                else:
+                    g["radii"] = g["radii"] * k_
+        P.marks, P.eyes = [], []
+    for k, (a0, ang, la, lt, th) in enumerate(p.plates):
+        for s in ((1,) if ang == 0.0 else (1, -1)):
+            q, n = _surface(B, c, a0, s * ang)
+            mm = bm @ _frame_on(n, ((k * 23) % 30 - 15.0) * s)
+            centre = at(q + n * (th * 0.3))
+            if scatter > 0.0:
+                # Breaking apart: each plate thrown off along its normal, falling flat onto the ground round it.
+                out = bm @ n * (scatter * (5.0 + (k % 3) * 1.5))
+                centre = centre + out
+                centre = v3(centre[0], centre[1], centre[2] + (th * 0.5 - centre[2]) * min(1.0, scatter * 1.2))
+                up = v3(0.0, 0.0, 1.0)
+                nn = bm @ n
+                nn = nn + (up - nn) * min(1.0, scatter * 1.3)
+                mm = _frame_on(nn / float(np.linalg.norm(nn)), ((k * 23) % 30 - 15.0) * s)
+            r = (la, lt, th)
+
+            def square(qs, centre=centre, mm=mm, r=r):
+                loc = (qs - centre) @ mm
+                return (np.abs(loc[:, 0]) <= r[0] * 0.8) & (np.abs(loc[:, 1]) <= r[1] * 0.8)
+            P.add(E(centre, r, m.plate, "plate%d%d" % (k, s), mm, _plate_paint(m, centre, mm, r), square))
+            if k in p.weak and scatter < 0.5:
+                _crack(P, centre, mm, r, flare, True)
+    # The ridge: drone shells along its spine between the plates, each with a spike and one empty white eye.
+    for k, a0 in enumerate(p.ridge if scatter < 0.4 else ()):
+        q, n = _surface(B, c, a0, 0.0)
+        shell = at(q + n * 0.9)
+        P.add(S(shell, 1.0, m.drone, "ridge%d" % k))
+        tip = shell + bm @ (n * 2.6 + v3(-0.9, 0.0, 0.0))
+        P.add(L(shell + bm @ (n * 0.6), tip, 0.55, 0.08, m.drone, "ridge%d" % k, line=False))
+        P.mark(shell + bm @ v3(0.95, 0.0, 0.2), M.HOLLOW_EYE)
+    # The swarm in its belly: drone shells packed under it between its legs, their eyes open.
+    for k, (sa, sb, sc) in enumerate(p.swarm):
+        for s in ((1,) if sb == 0.0 else (1, -1)):
+            q = at((sa, s * sb, sc))
+            P.add(S(q, 1.1 - 0.1 * (k % 2), m.drone, "swarm%d" % k))
+            P.mark(q + bm @ v3(1.0, s * 0.2, -0.1), M.HOLLOW_EYE)
+    if a != "death":
+        # Mist pouring off its back and pooling under its belly; drones drifting round it.
+        for k in range(6):
+            u = (k * 0.19 + f * 0.12) % 1.0
+            P.fx.append((at((-8.0 + k * 3.2, (k % 3 - 1) * 2.4, 7.0 + u * 5.0)), M.MIST_PUFF if k % 2 else M.MIST_PUFF_DIM))
+            P.fx.append((at((-6.0 + k * 2.4, (k % 2) * 4.0 - 2.0, -8.6 - u * 1.2)), M.MIST_PUFF_DIM))
+        for k in range(3):
+            ang = math.radians(f * 40.0 + k * 120.0)
+            q = at((math.cos(ang) * 13.0, math.sin(ang) * 10.0, 4.0 + k * 2.6))
+            P.fx.append((q, M.RAMPS[m.drone][1]))
+            P.fx.append((q + v3(0.3, 0.0, 0.0), M.HOLLOW_EYE))
+    if a == "attack" and f in (1, 2, 3):
+        # The stampede's dust thrown up round its forefeet.
+        for k in range(14):
+            ang = math.radians(k * 26.0 + f * 20.0)
+            rr = 3.0 + f * 1.6 + (k % 3) * 0.9
+            P.fx.append((v3(c.lunge + 7.0 + math.cos(ang) * rr * 0.6, math.sin(ang) * rr, 0.4 + (k % 3) * 0.7), M.DUST if k % 2 else M.DUST_DIM))
+    if a == "death" and f in B.style(a).get("burst", ()):
+        # It breaks apart: drones bursting out of it.
+        for k in range(12):
+            ang = math.radians(k * 30.0 + f * 17.0)
+            rr = 6.0 + (f - 2) * 3.0 + (k % 3) * 1.4
+            q = v3(c.lunge + math.cos(ang) * rr, math.sin(ang) * rr * 0.8, 6.0 + (k % 4) * 2.0 + (f - 2) * 1.5)
+            P.fx.append((q, M.RAMPS[m.drone][1]))
+            P.fx.append((q + v3(0.3, 0.0, 0.0), M.HOLLOW_EYE))

@@ -469,12 +469,7 @@ def build():
             ai="duelist", art={"avatar": "player", "tint": "#b0283c"}, race="human", energy="primal_qi", width=18, height=90,
             name="Heart Demon", hp_mult=0.5),
         spec_row("elder_gu"),
-        mob("hollow_behemoth", 58, "story_boss", "hollow_earth", None, [d("siege_medal", 1.0), d("mistjade_robe", 1.0)],
-            [atk("stampede", 0.7, 90, 1.4, dash=240, knockback=120, shatter=True), atk("drone_burst", 1.0, 200, 1.0, both_sides=True, depth=70)],
-            ai="boss_behemoth", width=80, height=140, hollowing=8,
-            # P1: the Behemoth sheds Hollowed boarlets at 60% and stampedes without pause below 30%.
-            phases=[{"below": 0.6, "action": "summon", "summon": "hollowed_boarlet", "summon_level": 56},
-                    {"below": 0.3, "action": "enrage", "cooldown": 0.65, "damage": 1.3}]),
+        spec_row("hollow_behemoth"),
         spec_row("gate_guardian"),
         # Shen Lian's spar (Fish-Gutting Fists) is a lesson: he spars at the player's own Level (`spar_level` "match", as
         # the sparring disciples do), his fist winds up as long as Old Snapper's claw (a tell a thumb can read), and he

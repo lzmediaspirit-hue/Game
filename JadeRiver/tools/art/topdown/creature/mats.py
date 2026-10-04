@@ -598,3 +598,24 @@ def palette(*names) -> dict:
 
 def props(*names) -> dict:
     return {n: PROPS.get(n, {}) for n in names}
+
+
+# ================================================================================================= M3
+# M3's species (the Act I leftovers, R6's and R7's foes): their ramps from their side-view sheets' materials
+# (tools/art/creatures/<id>.py), how each takes the light, and their single colours.
+RAMPS.update({
+    # the Hollow Behemoth: grey-white plates over a dark void, its drones, its tusks
+    "hb_plate": _s("f1f4f1", "bcc5c7", "8b979d", "5f6a72"),
+    "hb_void": _s("6a757c", "4c565d", "394249", "283036"),
+    "hb_drone": _s("d9dfdf", "9ba6aa", "707c83", "4d575e"),
+    "hb_tusk": _s("ffffff", "e6ebe8", "b8c1c0", "848f92"),
+})
+PROPS.update({
+    "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
+    "hb_tusk": {"hi": True, "glossy": True, "weight": 1.6},
+})
+# The Behemoth's weak points (a white crack, its cold edge, dimmed) and their glow.
+HB_GLOW = c("FFFFFF")
+HB_GLOW_EDGE = c("BFEAF5")
+HB_GLOW_DIM = c("8FA3AB")
+HB_HALO = c("BFEAF5", 150)
