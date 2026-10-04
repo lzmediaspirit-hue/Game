@@ -1,0 +1,575 @@
+{
+ "schema_version": 1,
+ "id": "sw_pirate_deck",
+ "name": "Pirate Deck",
+ "size": [
+  64,
+  28
+ ],
+ "spawn": [
+  2,
+  17
+ ],
+ "levels": [
+  "5555555555555555555555555555555555555555555555555555555555555555",
+  "5555555555555555555555555555555555555555555555555555555555555555",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111444444444333333333333333333333333333333333111111111111",
+  "1111111111444444444333333333333333333333333333333333331111111111",
+  "1111111111444444444333333333333333333333333333333333333311111111",
+  "1111111111444444444333333333333333333333333333333333333333111111",
+  "1111111111444444444333333333333333333333333333333333333333331111",
+  "1111111111333333333333333333333333333333333333333333333333111111",
+  "1111111111333333333333333333333333333333333333333333333311111111",
+  "1111111111333333333333333333333333333333333333333333331111111111",
+  "1111111111333333333333333333333333333333333333333333111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "1111111111111111111111111111111111111111111111111111111111111111",
+  "0001111111111111111111111111100000000011111111110000000000011111",
+  "0000000000000111111111111110000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000",
+  "0000000000000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrr",
+  "rrrrrrrrrrwwwssswwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrr",
+  "rrrrrrrrrrwwwssswwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrr",
+  "rrrrrrrrrrwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrrrsssrrrrrrrrrrrrrrrrrr",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrpppppppprrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrppppppprrrrrrrrrrrrrpppppppppprrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrppppppppprrrrrrrrrrrrpppppppppprrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrppppppppprrrrrrrrrrrrppppppppprrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrppppppprrrrrrrrrrrrrrppppppprrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+ ],
+ "stairs": [
+  {
+   "x": 21,
+   "y": 12,
+   "w": 3,
+   "h": 4,
+   "from": 1,
+   "to": 3
+  },
+  {
+   "x": 43,
+   "y": 12,
+   "w": 3,
+   "h": 4,
+   "from": 1,
+   "to": 3
+  },
+  {
+   "x": 13,
+   "y": 8,
+   "w": 3,
+   "h": 2,
+   "from": 3,
+   "to": 4
+  }
+ ],
+ "props": [
+  {
+   "kind": "black_mast",
+   "x": 24,
+   "y": 8
+  },
+  {
+   "kind": "black_mast",
+   "x": 36,
+   "y": 8
+  },
+  {
+   "kind": "broken_mast",
+   "x": 49,
+   "y": 8
+  },
+  {
+   "kind": "star_ballista",
+   "x": 19,
+   "y": 10
+  },
+  {
+   "kind": "star_ballista",
+   "x": 40,
+   "y": 10
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 6,
+   "y": 15
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 31,
+   "y": 15
+  },
+  {
+   "kind": "pirate_banner",
+   "x": 57,
+   "y": 15
+  },
+  {
+   "kind": "barrel",
+   "x": 21,
+   "y": 4
+  },
+  {
+   "kind": "crates",
+   "x": 29,
+   "y": 4
+  },
+  {
+   "kind": "barrel",
+   "x": 31,
+   "y": 4
+  },
+  {
+   "kind": "powder_keg",
+   "x": 51,
+   "y": 9
+  },
+  {
+   "kind": "powder_keg",
+   "x": 52,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 11,
+   "y": 7
+  },
+  {
+   "kind": "lantern_red",
+   "x": 50,
+   "y": 4
+  },
+  {
+   "kind": "hull_ribs",
+   "x": 6,
+   "y": 22
+  },
+  {
+   "kind": "starsea_anchor",
+   "x": 49,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 20,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 12,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 3,
+   "y": 3
+  },
+  {
+   "kind": "boulder",
+   "x": 8,
+   "y": 2
+  },
+  {
+   "kind": "dead_tree",
+   "x": 15,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 23,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 44,
+   "y": 2
+  },
+  {
+   "kind": "dead_tree",
+   "x": 47,
+   "y": 2
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 51,
+   "y": 2
+  },
+  {
+   "kind": "dead_tree",
+   "x": 58,
+   "y": 2
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 10,
+   "y": 19
+  },
+  {
+   "kind": "tall_grass",
+   "x": 26,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 40,
+   "y": 14
+  },
+  {
+   "kind": "tall_grass",
+   "x": 52,
+   "y": 20
+  },
+  {
+   "kind": "tall_grass",
+   "x": 57,
+   "y": 14
+  },
+  {
+   "kind": "stump",
+   "x": 3,
+   "y": 25
+  },
+  {
+   "kind": "boulder",
+   "x": 11,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 16,
+   "y": 24
+  },
+  {
+   "kind": "dead_tree",
+   "x": 20,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 36,
+   "y": 22
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 43,
+   "y": 25
+  },
+  {
+   "kind": "rock_small",
+   "x": 47,
+   "y": 25
+  },
+  {
+   "kind": "tall_grass",
+   "x": 57,
+   "y": 21
+  },
+  {
+   "kind": "stump",
+   "x": 60,
+   "y": 24
+  },
+  {
+   "kind": "stump",
+   "x": 6,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 9,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 13,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 26,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 26
+  },
+  {
+   "kind": "log",
+   "x": 37,
+   "y": 26
+  },
+  {
+   "kind": "stump",
+   "x": 40,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 52,
+   "y": 26
+  },
+  {
+   "kind": "rock_small",
+   "x": 62,
+   "y": 27
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 47,
+   "y": 20
+  }
+ ],
+ "place": {
+  "pirate_strongbox": [
+   13,
+   3
+  ],
+  "npc_gu_in_chains": [
+   46,
+   8
+  ],
+  "jar_1": [
+   27,
+   4
+  ],
+  "jar_2": [
+   17,
+   4
+  ],
+  "chest_ledge_mv_1": [
+   33,
+   9
+  ],
+  "page_sovereign_settling_pill_3": [
+   23,
+   19
+  ],
+  "lost_deck_cutter": [
+   42,
+   19
+  ],
+  "jar_3": [
+   31,
+   23
+  ],
+  "jar_4": [
+   38,
+   15
+  ],
+  "jar_5": [
+   57,
+   23
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    17
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    17
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    63,
+    17
+   ],
+   "dir": "e",
+   "arrive": [
+    61,
+    17
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    9,
+    15
+   ],
+   [
+    18,
+    20
+   ],
+   [
+    28,
+    15
+   ],
+   [
+    37,
+    21
+   ],
+   [
+    45,
+    20
+   ],
+   [
+    55,
+    21
+   ]
+  ],
+  [
+   [
+    18,
+    14
+   ],
+   [
+    47,
+    15
+   ]
+  ],
+  [
+   [
+    35,
+    13
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}
