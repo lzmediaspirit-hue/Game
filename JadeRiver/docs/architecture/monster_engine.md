@@ -381,8 +381,8 @@ and live fights in fourteen of the species' own top-down rooms.
 
 ## Still to draw
 
-The species the top-down rooms spawn that still stand in with their side-view sheet (R5's, R6's and R7's rooms, the
-Tidebreak Front's), by level. The Trial Tower has none left.
+The species the top-down rooms spawn that still stand in with their side-view sheet (R5's to R8's rooms, the Tidebreak
+Front's), by level. The Trial Tower has none left.
 
 | Species | Where | Start from |
 |---|---|---|
@@ -397,14 +397,20 @@ Tidebreak Front's), by level. The Trial Tower has none left.
 | thousand_eye_toad | Toad's Hollow (68) | `amphibian.toad` |
 | river_sentinel | the Sentinel Causeway (70-75) | `humanoid.sentinel` |
 | canyon_brigand | Gale Canyons: the Canyon Mouth, the Windbridge (73-76) | `person.fighter` |
-| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge (73-76) | `bird.hawk` or a `spirit` of paper |
+| wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge, the Riven Peak (73-76) | `bird.hawk` or a `spirit` of paper |
 | sandstorm_scorpion | the Sunscar Desert, the Sealed Gate (73-78) | `crab.mud` (a tail kind) |
 | canyon_harpy | the Harpy Roosts, the Kite Winds, the Windbridge (74-78) | `bird` flyer with a `humanoid` head |
-| nine_peaks_disciple | the Sect War (76-78) | `person.fighter` |
+| nine_peaks_disciple | the Sect War, the Broken Pier, the Pirate Deck (76-78) | `person.fighter` |
 | dune_worm | the Worm Sea (77-81) | `serpent.boulder` (it rises out of the sand) |
 | terracotta_warden | the Tomb of Sunscar (77) | `humanoid.sentinel` in terracotta |
 | tomb_king | the Throne (boss, 77) | `humanoid` of size |
-| starsea_pirate, pirate_captain | the Sect War (79-81) | `person.fighter`; the captain of size |
+| starsea_pirate | Blackmast's docks, battery and cove, the Broken Pier, the Pirate Deck, the Riven Peak, the Sect War (79-81) | `person.fighter` |
+| pirate_captain | the Sect War (story boss, 80) | `humanoid` of size |
 | presence_phantom, ninth_presence | the Presence Trial (81) | `spirit`; the Ninth of size |
+| comet_sparrow | the Driftglass Bank, the Sparrow Reefs, the Jellyfish Shallows, the Nest Cliffs (82-87) | `bird.hawk`, small |
+| star_jellyfish | the Driftglass Bank, the Jellyfish Shallows, the Sparrow Reefs (82-87) | `spirit.lantern` (a bell trailing tendrils) |
+| nest_guardian | the Nest Cliffs, the Eggshell Terraces, the Hatching Cave, the Guardian's Crown (85-93) | `quadruped` or `humanoid.sentinel` |
+| pirate_gunner | the Blackmast Docks, the Gunners' Battery (85-90) | `person.archer` |
 | hollow_drone | the Tidebreak Front (88-99) | `spirit` or `bird`, `hollowed` |
-| hollowed_wyrmling | the Tidebreak Front (88-96) | `serpent.dragon`, `hollowed` |
+| hollowed_wyrmling | the Tidebreak Front, the Eggshell Terraces, the Guardian's Crown (88-96) | `serpent.dragon`, `hollowed` |
+| admiral_voss | the Flagship Deck (dungeon boss, 90) | `humanoid` of size |
