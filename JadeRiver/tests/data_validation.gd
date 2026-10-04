@@ -1383,17 +1383,9 @@ func overlap_suite() -> void:
 const VOLUME_KINDS := ["water_shallow", "water_deep", "current", "updraft", "wind", "bounce", "crumble", "rising_water", "hazard", "no_flight", "ice", "low_gravity"]
 
 func movement_suite() -> void:
-	# movement.json is the one table of traversal numbers: the solver's constants must match it.
-	var pairs := {"jump.impulse": MovementSolver.JUMP_IMPULSE, "jump.gravity": MovementSolver.GRAVITY, "jump.coyote_s": MovementSolver.COYOTE_S,
-		"jump.buffer_s": MovementSolver.BUFFER_S, "double_jump.impulse": MovementSolver.DOUBLE_JUMP_IMPULSE,
-		"wall_step.kick_speed": MovementSolver.WALL_KICK_SPEED, "wall_step.kicks": MovementSolver.WALL_KICKS, "wall_step.reach": MovementSolver.WALL_REACH,
-		"mantle.rise": MovementSolver.MANTLE_RISE, "mantle.reach": MovementSolver.MANTLE_REACH, "climb.speed": MovementSolver.CLIMB_SPEED,
-		"glide.fall": MovementSolver.GLIDE_FALL, "glide.drift": MovementSolver.GLIDE_DRIFT, "air_dash.hold_s": MovementSolver.AIR_DASH_HOLD,
-		"plunge.speed": MovementSolver.PLUNGE_SPEED, "water.shallow_factor": MovementSolver.SHALLOW_FACTOR, "water.swim_factor": MovementSolver.SWIM_FACTOR,
-		"water.sink_factor": MovementSolver.SINK_FACTOR, "water.sink_s": MovementSolver.SINK_S, "water.sink_depth": MovementSolver.SINK_DEPTH,
-		"water.swim_s": MovementSolver.SWIM_S, "water.skim_min_speed": MovementSolver.SKIM_MIN_SPEED, "water.skim_still_s": MovementSolver.SKIM_STILL_S,
-		"updraft.speed": MovementSolver.UPDRAFT_SPEED, "updraft.ease": MovementSolver.UPDRAFT_EASE, "bounce.speed": MovementSolver.BOUNCE_SPEED,
-		"wind.edge": MovementSolver.WIND_EDGE}
+	# movement.json is the one table of traversal numbers: the arts' constants Combat starts on a body must match it.
+	# (The side view's solver, which held the rest of its side numbers, went with it in S12a; room_lint reads them.)
+	var pairs := {"jump.gravity": MovementSolver.GRAVITY, "air_dash.hold_s": MovementSolver.AIR_DASH_HOLD, "plunge.speed": MovementSolver.PLUNGE_SPEED}
 	for path in pairs:
 		check(absf(float(ContentDB.movement(path, -999.0)) - float(pairs[path])) < 0.0001, "movement.json %s matches the solver (%s)" % [path, str(pairs[path])])
 	# Every movement art: a secret art with a how-to line, taught by a quest that learns it on acceptance.

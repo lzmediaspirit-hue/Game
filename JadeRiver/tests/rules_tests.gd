@@ -28,11 +28,8 @@ func _main() -> void:
 	treasures_suite()
 	hazards_suite()
 	starsea_suite()
-	movement_suite()
 	g1_suite()
 	g2_suite()
-	traversal_suite()
-	arts_volumes_suite()
 	arts_combat_suite()
 	nav_suite()
 	paths_above_suite()
@@ -8593,11 +8590,13 @@ func sphere_suite() -> void:
 	# -- Gravity switches (the Inverted Hall).
 	Game.world.apply_teleport(c.id, "or_inverted_hall")
 	var st: ActorState = Game.actor_state(c.id)
-	var geo = Game.room_rt.geometry
-	var in_a := Vector2(1000, 800)
-	check(near(geo.gravity_at(in_a, 0.0), 1.0), "with its switch up the hall pulls as hard as anywhere")
-	st.plane = Vector2(700, 800)
-	st.altitude = 0.0
+	var geo = Game.room_rt.topdown.traverse   # the hall's low gravity on the grid (TopdownTraverse)
+	var hall_a: Array = geo.lowgs.filter(func(v): return str(v.switch) == "switch_hall_a") if geo != null else []
+	var in_a: Vector2 = (hall_a[0].rect as Rect2).get_center() if not hall_a.is_empty() else Vector2.ZERO
+	check(not hall_a.is_empty() and near(geo.gravity_at(in_a), 1.0), "with its switch up the hall pulls as hard as anywhere")
+	var switch_a: Dictionary = Game.room_rt.object_def("switch_hall_a")
+	st.plane = Vector2(float(switch_a.at[0]), float(switch_a.at[1]))
+	st.altitude = float(switch_a.get("alt", 0.0))
 	var heard := {"g": 0, "sphere": 0, "clash": ""}
 	var listen := func(n: String, p: Dictionary):
 		if n == "gravity_switched": heard.g = int(heard.g) + 1
@@ -8605,21 +8604,12 @@ func sphere_suite() -> void:
 		if n == "sphere_clash": heard.clash = str(p.get("winner", ""))
 	GameEvents.event.connect(listen)
 	var down := Game.submit({"type": "interact", "object": "switch_hall_a"})
-	check(down.get("ok", false) and near(geo.gravity_at(in_a, 0.0), 0.45) and int(heard.g) == 1 and str(Game.room_rt.objects.switch_hall_a.state) == "down",
+	check(down.get("ok", false) and near(geo.gravity_at(in_a), 0.45) and int(heard.g) == 1 and str(Game.room_rt.objects.switch_hall_a.state) == "down",
 		"press the jade switch down: the air lightens to 45%% (%s)" % str(down))
-	check(near(geo.gravity_at(Vector2(1600, 800), 0.0), 1.0), "only over its own half of the hall")
-	var g := MovementSolver.GRAVITY
-	var j := MovementSolver.JUMP_IMPULSE
-	var dj := MovementSolver.DOUBLE_JUMP_IMPULSE
-	var high := 0.0
-	var low := 0.0
-	for sf in Game.room_rt.def.surfaces:
-		if str(sf.id) == "gallery_high": high = float(sf.height)
-		if str(sf.id) == "gallery_low": low = float(sf.height)
-	check(low + j * j / (2.0 * g) + dj * dj / (2.0 * g) < high and j * j / (2.0 * g * 0.45) + dj * dj / (2.0 * g * 0.45) >= high,
-		"the high gallery (%.0f) is out of reach of any jump, even from the low one (%.0f), and within a light double jump from the floor" % [high, low])
+	var outside: Vector2 = Game.room_rt.topdown.spawn
+	check(not geo.lowgs.any(func(v): return (v.rect as Rect2).has_point(outside)) and near(geo.gravity_at(outside), 1.0), "only over its own half of the hall")
 	Game.submit({"type": "interact", "object": "switch_hall_a"})
-	check(near(geo.gravity_at(in_a, 0.0), 1.0) and str(Game.room_rt.objects.switch_hall_a.state) == "up", "press it again and the weight comes back")
+	check(near(geo.gravity_at(in_a), 1.0) and str(Game.room_rt.objects.switch_hall_a.state) == "up", "press it again and the weight comes back")
 	# -- The Sphere.
 	var realm0: String = c.cultivator.realm_key
 	var daos0: Dictionary = c.cultivator.daos.duplicate(true)
@@ -8898,42 +8888,10 @@ func lantern_heart_suite() -> void:
 	check(not sp.is_empty() and sp.room_event.on_complete.any(func(e): return str(e.get("flag", "")) == "shen_lian_taken"),
 		"the Greyfall stand ends with Shen Lian on the far side of the Tide")
 
+## The movers' rule (ZoneGeometry.mover_offset, which TopdownTraverse rides its rafts and lanterns on) and a ground
+## mount's ladder. (The ice and the mount's jump were the side solver's: on the grid, topdown_traversal plays the ice.)
 func ice_mount_suite() -> void:
 	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false}],
-		"volumes": [{"id": "glaze", "kind": "ice", "rect": [1000, 560, 1000, 400], "alt": [-10, 20], "traction": 380}]})
-	var dt := 1.0 / 120.0
-	# Off the ice the body answers at once; on it, speed only eases toward what it asks for.
-	var dry := _trav_actor(z, "ground", Vector2(300, 800))
-	MovementSolver.advance(dry, z, dt, Vector2(205, 0))
-	var ice := _trav_actor(z, "ground", Vector2(1200, 800))
-	_trav_run(ice, z, 0.1, Vector2(205, 0))
-	check(near(dry.velocity.x, 205.0, 1.0) and ice.velocity.x > 30.0 and ice.velocity.x < 45.0, "on ice a body gains speed slowly (%.0f after 0.1 s)" % ice.velocity.x)
-	_trav_run(ice, z, 1.0, Vector2(205, 0))
-	var x0: float = ice.plane.x
-	_trav_run(ice, z, 0.25, Vector2.ZERO)
-	check(ice.velocity.x > 80.0 and ice.plane.x - x0 > 25.0, "let go and it slides on (%.0f further, still %.0f a second)" % [ice.plane.x - x0, ice.velocity.x])
-	_trav_run(ice, z, 1.0, Vector2.ZERO)
-	check(ice.velocity.length() < 1.0, "and slides to a stop")
-	dry.plane = Vector2(300, 800)
-	_trav_run(dry, z, 0.5, Vector2(205, 0))
-	_trav_run(dry, z, dt, Vector2.ZERO)
-	check(dry.velocity.length() < 1.0, "off the ice it stops dead")
-	var air := _trav_actor(z, "ground", Vector2(1500, 800))
-	MovementSolver.jump(air)
-	MovementSolver.advance(air, z, dt, Vector2(205, 0))
-	check(near(air.velocity.x, 205.0, 1.0), "in the air over ice, control stays total")
-	# A ground mount's jump: the Cloud Stag's 600 reaches about 156 where a foot jump reaches 122.
-	var stag := _trav_actor(z, "ground", Vector2(300, 800))
-	stag.jump_impulse = 600.0
-	MovementSolver.jump(stag)
-	var peak := 0.0
-	while stag.surface == null or stag.vertical_speed > 0.0:
-		MovementSolver.advance(stag, z, dt, Vector2.ZERO)
-		peak = maxf(peak, stag.altitude)
-		if stag.surface != null: break
-	check(near(peak, 600.0 * 600.0 / 2300.0, 3.0), "a 600 impulse jumps to about 156 (%.0f)" % peak)
 	# The Hall of Lanterns' movers (Part 8): a swing on its rope and a circle, pure functions of the room clock.
 	var sw := {"mode": "swing", "length": 100, "amp_deg": 30, "period_s": 4.0}
 	var o0: Vector3 = z.mover_offset(sw, 0.0)
@@ -8945,19 +8903,18 @@ func ice_mount_suite() -> void:
 	if c == null or Game.actor_state(c.id) == null: return
 	var mount_was := str(c.mount_pet)
 	var riding_was: bool = c.riding
-	check(near(Game.pets.mount_jump(c), 530.0) or not Game.pets.mount_of(c).is_empty(), "on foot a rider jumps 530")
 	Game.pets.apply_grant(c.id, "cloud_stag")
 	var sg: Dictionary = c.pets.back()
 	Unlocks.force_unlock(c.id, "mounts")
 	Game.pets.dismounted.erase(c.id)
 	Game.submit({"type": "set_mount", "pet": sg.uid})
 	Game.submit({"type": "set_mount", "on": true})
-	check(Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 600.0), "on the Cloud Stag: its own 600 jump")
+	check(Game.pets.ground_mounted(c), "on the Cloud Stag: a ground mount")
 	Game.pets.apply_grant(c.id, "jade_crane")
 	var cr: Dictionary = c.pets.back()
 	Game.submit({"type": "set_mount", "pet": cr.uid})
 	Game.submit({"type": "set_mount", "on": true})
-	check(not Game.pets.ground_mounted(c) and near(Game.pets.mount_jump(c), 530.0), "a flying mount's rider jumps as on foot (the crane flies instead)")
+	check(not Game.pets.ground_mounted(c), "the crane flies: no ground mount")
 	Game.submit({"type": "set_mount", "pet": sg.uid})
 	Game.submit({"type": "set_mount", "on": true})
 	# A ladder puts you down; stepping off at the top puts you back up.
@@ -9804,90 +9761,6 @@ func starsea_suite() -> void:
 		Game.inventory.apply_remove(c.id, sid.replace("_sect", "") + "_elder_token", 1, "test")
 	Game.world.apply_teleport(c.id, back)
 
-# ------------------------------------------------------------------ world movement (S17, S30)
-## Run the real solver: the body leaves the ground with `jumps` presses (the second at the top of the
-## first) while drifting toward `toward`; returns the surface it comes to rest on.
-func _jump_to(geo: ZoneGeometry, from: Vector2, toward: Vector2, jumps: int) -> ActorState:
-	var st := ActorState.new()
-	st.plane = from
-	st.surface = geo.landing_target(from, 1.0, -1.0)
-	st.altitude = 0.0
-	MovementSolver.jump(st)
-	var pressed := 1
-	for i in 240:
-		var v := (toward - st.plane).limit_length(1.0) * 205.0 if st.plane.distance_to(toward) > 4.0 else Vector2.ZERO
-		MovementSolver.advance(st, geo, 1.0 / 60.0, v)
-		if pressed < jumps and st.surface == null and st.vertical_speed <= 0.0:
-			MovementSolver.jump(st)
-			pressed += 1
-		if st.surface != null and i > 5: break
-	return st
-
-func movement_suite() -> void:
-	var c = Game.active()
-	if c == null: return
-	var back := str(c.position.get("room", "lf_village"))
-	check(near(MovementSolver.JUMP_IMPULSE * MovementSolver.JUMP_IMPULSE / (2.0 * MovementSolver.GRAVITY), 122.1, 0.5),
-		"a single jump peaks at 122 units; Cloud Ladder Step adds 80 (about 202)")
-	# A field made climbable: a jump onto the low ledge, a double jump onto the high one (where the chest waits).
-	Game.world.apply_teleport(c.id, "tp_thunderhorn_flats")
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	var low: WalkSurface = geo.index.get("ledge_mv_0")
-	var high: WalkSurface = geo.index.get("ledge_mv_1")
-	check(low != null and high != null and geo.index.has("cloud_mv"), "the Thunderhorn Flats have ledges and a cloud ledge")
-	if low and high:
-		var under := Vector2(low.bounds.get_center().x, low.bounds.end.y + 30.0)
-		var st1 := _jump_to(geo, under, low.bounds.get_center(), 1)
-		check(st1.surface == low and near(st1.altitude, 100.0, 0.5), "one jump lands on the 100-unit ledge (%s)" % (st1.surface.id if st1.surface else "air"))
-		var st1b := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 1)
-		check(st1b.surface == null or st1b.surface != high, "one jump does not reach the 176-unit ledge")
-		var st2 := _jump_to(geo, Vector2(high.bounds.get_center().x, high.bounds.end.y + 30.0), high.bounds.get_center(), 2)
-		check(st2.surface == high and near(st2.altitude, 176.0, 0.5), "a double jump reaches it (%s)" % (st2.surface.id if st2.surface else "air"))
-		var chest: Dictionary = Game.room_rt.object_def("chest_ledge_mv_1")
-		check(not chest.is_empty() and float(chest.get("alt", 0)) >= high.base - 1.0, "the chest waits up high (on the room's highest tier, S43)")
-		var cloud: WalkSurface = geo.index.get("cloud_mv")
-		var st3 := _jump_to(geo, Vector2(cloud.bounds.get_center().x, cloud.bounds.end.y + 30.0), cloud.bounds.get_center(), 2)
-		check(st3.surface != cloud, "the cloud ledge is above double-jump reach: it is for fliers")
-	# A standable crate on the Skydock's yard.
-	Game.world.apply_teleport(c.id, "ae_shipyard")
-	geo = Game.room_rt.geometry
-	var crate_top: WalkSurface = null
-	for srf in geo.surfaces:
-		if srf.kind == "support" and srf.id.begins_with("crate_"): crate_top = srf
-	check(crate_top != null, "a crate in the yard has a top to stand on")
-	if crate_top:
-		var st4 := _jump_to(geo, crate_top.bounds.get_center() + Vector2(0, 40), crate_top.bounds.get_center(), 1)
-		check(st4.surface == crate_top, "a jump lands on the crate (%s)" % (st4.surface.id if st4.surface else "air"))
-	# Wall-Step: in the air, pushing into a building's facade, there is a wall to kick off (S43).
-	Game.world.apply_teleport(c.id, "lf_village")
-	geo = Game.room_rt.geometry
-	var roof: WalkSurface = geo.index.get("old_ma_store")
-	if roof:
-		var st5 := ActorState.new()
-		st5.plane = Vector2(roof.bounds.position.x - 8.0, roof.bounds.end.y - 20.0)
-		st5.altitude = 60.0
-		st5.air_stratum = "ground"
-		st5.jumps_used = 2
-		var side := MovementSolver.wall_step(st5, geo, 1)
-		check(side == 1 and near(st5.vertical_speed, 450.0), "Wall-Step kicks off the store's facade (within 12 units, pushing in)")
-		check(MovementSolver.wall_step(st5, geo) == 0, "not without pushing into the wall")
-		var st6 := ActorState.new()
-		st6.plane = Vector2(roof.bounds.position.x - 200.0, roof.bounds.end.y - 20.0)
-		st6.altitude = 60.0
-		check(MovementSolver.wall_step(st6, geo, 1) == 0, "no wall, no kick")
-	# The rooms: count how many give the jump something to do.
-	var flat: Array = []
-	for rid in ContentDB.rooms:
-		var def: Dictionary = ContentDB.room(rid)
-		var up := false
-		for srf in def.get("surfaces", []):
-			if str(srf.get("stratum", "")) == "platform" or str(srf.get("kind", "")) in ["roof", "stairs", "ladder"]: up = true
-		for sc in def.get("scenery", []):
-			if sc.get("standable", false) or float(sc.get("height", 999)) <= 80.0: up = true
-		if not up and not str(def.get("type", "")) in ["interior", "insight", "home", "story", "event", "sect"]: flat.append(rid)
-	check(flat.size() <= 3, "fields, towns and dungeons all have something to climb %s" % str(flat))
-	Game.world.apply_teleport(c.id, back)
-
 # ------------------------------------------------------------------ what pills cost (gap report G1)
 func _bag_index(c, id: String) -> int:
 	for i in c.inventory.bag.size():
@@ -10316,325 +10189,18 @@ func g2_suite() -> void:
 	c.pools.hp = c.pools.max_hp
 	Game.world.apply_teleport(c.id, back)
 
-# ------------------------------------------------------------------ traversal (Build Prompt v2 S43)
-func _trav_zone() -> ZoneGeometry:
-	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 3000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 3000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false},
-		{"id": "deck", "rect": [200, 600, 400, 100], "height": 100, "kind": "roof", "stratum": "platform"},
-		{"id": "loft", "rect": [1150, 600, 200, 88], "height": 88, "kind": "roof", "stratum": "platform"}],
-		"blocks": [{"id": "crate", "rect": [800, 700, 60, 60], "base": 0, "top": 60, "kind": "crate"},
-			{"id": "wall", "rect": [1600, 560, 40, 400], "base": 0, "top": 300, "kind": "wall"}],
-		"climbables": [{"id": "ladder", "kind": "ladder", "at": [1250, 725], "top_at": [1250, 680], "bottom_alt": 0, "top_alt": 88, "bottom": "ground", "top": "loft"}]})
-	return z
+# ------------------------------------------------------------------ S43 movement arts (V2b), on the grid
+## The body lands as the top-down player lands it (TopdownPlayer: the motor's landing mirrored on the state): on the
+## grid's floor, and a Plunge's landing left for Combat to strike round (its plunge_impact). The side view's solver,
+## which fell the body through its surfaces, went with the side view in S12a.
+func _land(st: ActorState) -> void:
+	if st.plunging:
+		st.plunging = false
+		st.plunge_impact = {"x": st.plane.x, "y": st.plane.y, "alt": Game.room_rt.topdown.floor_at(st.plane), "surface": "grid"}
+	st.altitude = Game.room_rt.topdown.floor_at(st.plane)
+	st.vertical_speed = 0.0
+	st.surface = Game.room_rt.geometry.index.get("grid")
 
-func _trav_actor(z: ZoneGeometry, sid: String, at: Vector2, arts := {}) -> ActorState:
-	var st := ActorState.new()
-	st.surface = z.index[sid]
-	st.plane = at
-	st.altitude = st.surface.height_at(at)
-	st.arts = {"double_jump": false, "wall_step": false, "drop_through": true, "mantle": true, "climb": true}
-	st.arts.merge(arts, true)
-	return st
-
-func _trav_run(st: ActorState, z: ZoneGeometry, secs: float, v: Vector2, dt := 1.0 / 120.0) -> void:
-	var t := 0.0
-	while t < secs - 0.0001:
-		MovementSolver.advance(st, z, dt, v)
-		t += dt
-
-func traversal_suite() -> void:
-	var z := _trav_zone()
-	# Rule 1: platform back edges are closed, the others open; a block top is open all round.
-	var d: WalkSurface = z.index.deck
-	check(d.edges == {"n": "closed", "s": "open", "e": "open", "w": "open"} and (z.index.ground as WalkSurface).edges.n == "closed"
-		and (z.index.crate as WalkSurface).edges.n == "open", "platforms close their back edge by default; blocks are open all round")
-	var st := _trav_actor(z, "deck", Vector2(400, 620))
-	_trav_run(st, z, 1.0, Vector2(0, -205))
-	check(st.surface == d and st.plane.y >= 600.0, "walking north off a roof is stopped by its closed back edge")
-	_trav_run(st, z, 1.5, Vector2(0, 205))
-	check(st.surface != null and st.surface.id == "ground", "walking south off it drops to the ground")
-	# Blocks stop walking, can be stood on, and a 60 block can be jumped over at walk speed.
-	st = _trav_actor(z, "ground", Vector2(760, 730))
-	_trav_run(st, z, 0.8, Vector2(205, 0))
-	check(st.plane.x < 800.0 and st.surface.id == "ground", "a crate stops a walker (x %.0f)" % st.plane.x)
-	st = _trav_actor(z, "ground", Vector2(700, 730))
-	MovementSolver.jump(st)
-	_trav_run(st, z, 1.4, Vector2(205, 0))
-	check(st.surface != null and st.surface.id == "ground" and st.plane.x > 866.0, "a 60 block is jumped over at walk speed (x %.0f)" % st.plane.x)
-	st = _trav_actor(z, "ground", Vector2(775, 730))
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.3, Vector2(205, 0))
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(st.surface != null and st.surface.id == "crate" and near(st.altitude, 60.0), "a crate can be stood on")
-	# Rule 2: coyote time, jump buffer and the fixed jump, at three frame rates.
-	for dt in [1.0 / 30.0, 1.0 / 60.0, 1.0 / 120.0]:
-		st = _trav_actor(z, "deck", Vector2(400, 690))
-		_trav_run(st, z, 0.1, Vector2(0, 205), dt)
-		var off := st.surface == null
-		var coy := MovementSolver.jump(st)
-		check(off and coy and near(st.vertical_speed, 530.0) and st.jumps_used == 1, "a jump just after walking off an edge is still a ground jump (dt %.3f)" % dt)
-		st = _trav_actor(z, "ground", Vector2(1000, 800))
-		MovementSolver.jump(st)
-		while st.vertical_speed > -480.0: MovementSolver.advance(st, z, 1.0 / 240.0, Vector2.ZERO)
-		var early := MovementSolver.jump(st)
-		st.events.clear()
-		_trav_run(st, z, 0.2, Vector2.ZERO, dt)
-		var names: Array = st.events.map(func(e): return e.name)
-		check(not early and names.find("landed") >= 0 and names.find("jumped", names.find("landed")) > 0,
-			"a jump pressed just before landing fires on landing (dt %.3f) %s" % [dt, str(names)])
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	var peak := 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		peak = maxf(peak, st.altitude)
-	check(near(peak, 122.1, 0.01), "the base jump peaks at 122 (%.1f)" % peak)
-	# Cloud Ladder Step: a second jump of +80 from where it is used; none without the art.
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-	check(not MovementSolver.jump(st), "no double jump without Cloud Ladder Step")
-	st = _trav_actor(z, "ground", Vector2(1000, 800), {"double_jump": true})
-	MovementSolver.jump(st)
-	while st.vertical_speed > 0.0: MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-	var from_h: float = st.altitude
-	check(MovementSolver.jump(st) and near(st.vertical_speed, 430.0), "Cloud Ladder Step jumps again at impulse 430")
-	peak = 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		peak = maxf(peak, st.altitude)
-	check(near(peak - from_h, 80.4, 0.02) and near(peak, 202.0, 0.02), "+80 from where it is used; about 202 from the ground (%.0f)" % peak)
-	# Wall-Step: push into a wall face within 12 and kick (vertical 450), three times per airtime.
-	st = _trav_actor(z, "ground", Vector2(1590, 800), {"wall_step": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.2, Vector2.ZERO)
-	check(MovementSolver.wall_step(st, z, 0) == 0, "no Wall-Step without pushing into the wall")
-	var kicks := 0
-	for i in 4:
-		if MovementSolver.wall_step(st, z, 1) != 0: kicks += 1
-	check(kicks == 3 and near(st.vertical_speed, 450.0), "three Wall-Step kicks per airtime at vertical speed 450 (%d)" % kicks)
-	# Rule 3: drop through a platform, never the ground or a block.
-	st = _trav_actor(z, "deck", Vector2(400, 650))
-	check(MovementSolver.drop_through(st), "drop through the deck")
-	_trav_run(st, z, 1.2, Vector2.ZERO)
-	check(st.surface != null and st.surface.id == "ground", "and land on the ground below it")
-	check(not MovementSolver.drop_through(st), "the ground cannot be dropped through")
-	st = _trav_actor(z, "crate", Vector2(830, 730))
-	check(not MovementSolver.drop_through(st), "nor a block")
-	# Rule 4: a just-missed ledge within 24 up and 16 across is mantled.
-	st = _trav_actor(z, "ground", Vector2(190, 650))
-	st.surface = null
-	st.altitude = 84.0
-	st.air_peak = 110.0
-	st.vertical_speed = -50.0
-	st.jumps_used = 1
-	MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(205, 0))
-	check(st.surface == d and near(st.altitude, 100.0), "a ledge 16 above is mantled")
-	# Rule 5: climb a ladder, stop, reach the top, come down, jump off, be knocked off.
-	st = _trav_actor(z, "ground", Vector2(1250, 740))
-	var ladder: Dictionary = z.climbable_near(st.plane, st.altitude)
-	check(not ladder.is_empty() and MovementSolver.start_climb(st, ladder, false), "the ladder is in reach and can be climbed")
-	_trav_run(st, z, 0.2, Vector2(0, -205))
-	var mid: float = st.altitude
-	_trav_run(st, z, 0.2, Vector2.ZERO)
-	check(near(mid, 32.0, 0.05) and near(st.altitude, mid), "climbing at 160 a second, and stopping on the rungs (%.0f)" % mid)
-	for i in 120:
-		if st.climbing.is_empty(): break
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, -205))
-	check(st.climbing.is_empty() and st.surface != null and st.surface.id == "loft", "the top step lands on the loft")
-	var down_from: Dictionary = z.climbable_near(st.plane, st.altitude)
-	check(not down_from.is_empty() and MovementSolver.start_climb(st, down_from, true), "climb back down from the top")
-	for i in 120:
-		if st.climbing.is_empty(): break
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(0, 205))
-	check(st.climbing.is_empty() and st.surface.id == "ground", "the foot steps onto the ground")
-	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
-	_trav_run(st, z, 0.2, Vector2(0, -205))
-	check(MovementSolver.release_climb(st, 1, true) and st.surface == null and st.vertical_speed > 0.0, "a jump lets go of the ladder")
-	st = _trav_actor(z, "ground", Vector2(1250, 740))
-	MovementSolver.start_climb(st, z.climbable_near(st.plane, st.altitude), false)
-	check(MovementSolver.release_climb(st, -1, false) and st.surface == null and near(st.vertical_speed, 0.0), "a hit knocks the climber off")
-	# Rule 6: the void lies 250 below the lowest surface.
-	check(near(z.void_altitude, -250.0), "void altitude defaults to 250 below the lowest surface")
-	# Traversal events are recorded for the authority to announce.
-	st = _trav_actor(z, "ground", Vector2(1000, 800))
-	MovementSolver.jump(st)
-	check(st.events.any(func(e): return e.name == "jumped"), "a jump records a jumped event")
-
-# ------------------------------------------------------------------ S43 movement arts, volumes and movers (V2b)
-func _vol_zone() -> ZoneGeometry:
-	var z := ZoneGeometry.new()
-	z.configure({"bounds": [0, 480, 4000, 480], "surfaces": [
-		{"id": "ground", "rect": [0, 560, 4000, 400], "height": 0, "kind": "ground", "stratum": "ground", "open_edges": false},
-		{"id": "raft", "rect": [2000, 700, 90, 40], "height": 10, "kind": "raft", "stratum": "platform"},
-		{"id": "boards", "rect": [2600, 650, 200, 70], "height": 100, "kind": "bridge", "stratum": "platform"},
-		{"id": "cracked", "rect": [3200, 650, 200, 70], "height": 100, "kind": "rock_ledge", "stratum": "platform", "cracked": true}],
-		"blocks": [{"id": "drum", "rect": [1900, 740, 60, 60], "base": 0, "top": 40, "kind": "drum"}],
-		"volumes": [
-			{"id": "shallow", "kind": "water_shallow", "rect": [100, 800, 300, 100], "alt": [-50, 10]},
-			{"id": "deep", "kind": "water_deep", "rect": [500, 800, 300, 100], "alt": [-100, 10]},
-			{"id": "drain", "kind": "current", "rect": [900, 800, 200, 100], "alt": [-50, 10], "push": [-80, 0]},
-			{"id": "draft", "kind": "updraft", "rect": [1200, 560, 150, 400], "alt": [0, 300]},
-			{"id": "gale", "kind": "wind", "rect": [1500, 560, 300, 400], "alt": [-50, 600], "push": [-100, 0]},
-			{"id": "pad", "kind": "bounce", "rect": [1900, 740, 60, 60], "alt": [30, 50]},
-			{"id": "rot", "kind": "crumble", "rect": [2600, 650, 200, 70], "surface": "boards"},
-			{"id": "flood", "kind": "rising_water", "rect": [3600, 560, 300, 400], "alt": [-100, -20],
-				"rise": [{"event": "boss_phase", "match": {"action": "flood"}, "to": 30, "over_s": 4.0, "hold_s": 2.0, "back_to": -20}]}],
-		"movers": [{"surface": "raft", "path": [[300, 0, 0]], "speed": 100, "wait_s": 1.0, "mode": "pingpong"}]})
-	return z
-
-func _fall_until_landed(st: ActorState, z: ZoneGeometry, v := Vector2.ZERO, limit := 4.0) -> float:
-	var t := 0.0
-	while st.surface == null and t < limit:
-		MovementSolver.advance(st, z, 1.0 / 120.0, v)
-		t += 1.0 / 120.0
-	return t
-
-func arts_volumes_suite() -> void:
-	var z := _vol_zone()
-	# Falling Leaf Glide: descent capped at 120/s, 10% faster across; from an apex jump about 1.5 s and 300 flat.
-	var st := _trav_actor(z, "ground", Vector2(2900, 900))
-	MovementSolver.jump(st)
-	check(not MovementSolver.glide(st, true), "no glide without Falling Leaf Glide")
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"glide": true})
-	var x0: float = st.plane.x
-	MovementSolver.jump(st)
-	var air := 0.0
-	while st.vertical_speed > 0.0:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2(205, 0))
-		air += 1.0 / 120.0
-	check(MovementSolver.glide(st, true) and st.gliding, "Jump held while falling glides")
-	_trav_run(st, z, 0.3, Vector2(205, 0))
-	check(st.vertical_speed >= -120.01, "a glide falls no faster than 120 a second (%.1f)" % st.vertical_speed)
-	air += 0.3 + _fall_until_landed(st, z, Vector2(205, 0))
-	var flat: float = st.plane.x - x0
-	check(air > 1.4 and air < 1.7 and flat > 280.0 and flat < 360.0 and not st.gliding, "an apex glide lasts about 1.5 s and 300 units (%.2f s, %.0f)" % [air, flat])
-	# Swallow Dart: in the air the body holds its height for 0.25 s while it darts 140; once per airtime.
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"air_dash": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.3, Vector2.ZERO)
-	var alt0: float = st.altitude
-	x0 = st.plane.x
-	check(MovementSolver.air_dash(st), "Evade in the air darts")
-	_trav_run(st, z, 0.25, Vector2(560, 0))
-	check(near(st.altitude, alt0, 0.5) and near(st.plane.x - x0, 140.0, 1.0), "the dart holds the height and covers 140 (%.1f, %.0f)" % [st.altitude - alt0, st.plane.x - x0])
-	check(not MovementSolver.air_dash(st), "one dart per airtime")
-	_fall_until_landed(st, z)
-	check(not st.air_dash_used, "landing gives the dart back")
-	# Plunge: straight down at 900; the landing is left for Combat; a cracked floor breaks under it.
-	st = _trav_actor(z, "ground", Vector2(2900, 900), {"plunge": true})
-	MovementSolver.jump(st)
-	_trav_run(st, z, 0.4, Vector2.ZERO)
-	x0 = st.plane.x
-	check(MovementSolver.plunge(st) and near(st.vertical_speed, -900.0), "Down + Attack in the air plunges at 900")
-	var drop := _fall_until_landed(st, z, Vector2(205, 0))
-	check(near(st.plane.x, x0, 0.5) and drop < 0.16 and not st.plunge_impact.is_empty() and not st.plunging, "a plunge drops straight and leaves an impact (%.2f s)" % drop)
-	st = _trav_actor(z, "ground", Vector2(3300, 690), {"plunge": true})
-	st.surface = null
-	st.altitude = 220.0
-	st.air_peak = 220.0
-	st.jumps_used = 1
-	MovementSolver.plunge(st)
-	_fall_until_landed(st, z)
-	check((z.index.cracked as WalkSurface).disabled and st.surface != null and st.surface.id == "ground", "a plunge breaks a cracked floor and falls through it")
-	# Shallow water: x0.7.
-	st = _trav_actor(z, "ground", Vector2(120, 850))
-	_trav_run(st, z, 1.0, Vector2(205, 0))
-	check(near(st.plane.x - 120.0, 143.5, 1.5), "shallow water slows walking to x0.7 (%.1f)" % (st.plane.x - 120.0))
-	# Deep water: sinks in 1 s without an art; Breath Control swims at x0.6; Water Skimming runs across while sprinting.
-	st = _trav_actor(z, "ground", Vector2(520, 850))
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(st.events.any(func(e): return e.name == "volume_entered" and str(e.volume) == "deep") and near(st.sink_depth, 20.0, 1.0) and not st.drowned,
-		"deep water pulls a body down (%.1f) and says so" % st.sink_depth)
-	check(not MovementSolver.jump(st), "a sinking body cannot jump out")
-	_trav_run(st, z, 0.6, Vector2.ZERO)
-	check(st.drowned and near(st.sink_depth, 40.0), "after 1 s it has sunk 40 and must be recovered")
-	st = _trav_actor(z, "ground", Vector2(520, 850), {"breath_control": true})
-	_trav_run(st, z, 1.0, Vector2(205, 0))
-	check(not st.drowned and st.mode() == "swim" and near(st.plane.x - 520.0, 123.0, 1.5), "Breath Control swims at x0.6 (%.1f)" % (st.plane.x - 520.0))
-	st = _trav_actor(z, "ground", Vector2(470, 850), {"water_skimming": true})
-	st.sprinting = true
-	_trav_run(st, z, 0.6, Vector2(348, 0))
-	check(not st.drowned and st.water.get("skimming", false) and st.sink_depth == 0.0 and st.events.any(func(e): return e.name == "art_used" and e.art == "water_skimming"),
-		"Water Skimming runs on deep water while sprinting")
-	_trav_run(st, z, 0.55, Vector2.ZERO)
-	check(not st.water.get("skimming", true), "stopping for half a second ends the skim")
-	_trav_run(st, z, 1.1, Vector2.ZERO)
-	check(st.drowned, "and then the water takes you")
-	# Current: pushes a body standing in it.
-	st = _trav_actor(z, "ground", Vector2(1050, 850))
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(near(st.plane.x - 1050.0, -80.0, 1.0), "a current pushes 80 a second (%.1f)" % (st.plane.x - 1050.0))
-	# Updraft: a fall turns into a rise toward +220.
-	st = _trav_actor(z, "ground", Vector2(1275, 800))
-	st.surface = null
-	st.altitude = 150.0
-	st.air_peak = 150.0
-	st.vertical_speed = -200.0
-	st.jumps_used = 1
-	_trav_run(st, z, 1.0, Vector2.ZERO)
-	check(st.surface == null and st.altitude > 150.0 and st.vertical_speed > 100.0, "an updraft lifts a falling body (alt %.0f, vz %.0f)" % [st.altitude, st.vertical_speed])
-	# Wind: strong for 1.5 s of every 4, a breeze (x0.3) the rest.
-	st = _trav_actor(z, "ground", Vector2(1650, 800))
-	z.time = 0.0
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	var gust: float = st.plane.x - 1650.0
-	z.time = 2.0
-	var x1: float = st.plane.x
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(near(gust, -50.0, 1.0) and near(st.plane.x - x1, -15.0, 1.0), "wind gusts at full push, then a breeze (%.1f, %.1f)" % [gust, st.plane.x - x1])
-	# Bounce: landing on the drum launches at 700 (apex about 213 above it).
-	st = _trav_actor(z, "ground", Vector2(1930, 770))
-	st.surface = null
-	st.altitude = 120.0
-	st.air_peak = 120.0
-	st.jumps_used = 1
-	_fall_until_landed(st, z)
-	var bounced := st.surface == null and near(st.vertical_speed, 700.0, 30.0)
-	var top := 0.0
-	for i in 240:
-		MovementSolver.advance(st, z, 1.0 / 120.0, Vector2.ZERO)
-		top = maxf(top, st.altitude)
-	check(bounced and near(top, 40.0 + 213.0, 4.0), "a bounce pad throws you back up about 213 (%.0f)" % (top - 40.0))
-	# Crumble: the boards give way 0.8 s after a foot lands and come back 5 s later.
-	st = _trav_actor(z, "boards", Vector2(2700, 690))
-	for i in 60:
-		MovementSolver.advance(st, z, 1.0 / 60.0, Vector2.ZERO)
-		z.advance(1.0 / 60.0)
-	_fall_until_landed(st, z)
-	check((z.index.boards as WalkSurface).disabled and st.surface != null and st.surface.id == "ground", "crumbling boards drop whoever stands on them")
-	z.advance(5.1)
-	check(not (z.index.boards as WalkSurface).disabled, "and return after 5 s")
-	# Movers: the offset is a pure function of the room clock, and riders ride along.
-	var m: Dictionary = z.movers[0]
-	check(z.mover_offset(m, 0.5) == Vector3.ZERO and near(z.mover_offset(m, 2.0).x, 100.0) and near(z.mover_offset(m, 4.5).x, 300.0)
-		and near(z.mover_offset(m, 6.0).x, 200.0) and z.mover_offset(m, 8.0 + 0.5) == Vector3.ZERO, "a pingpong mover waits, travels, waits and returns")
-	var replay := func() -> Vector2:
-		var zz := _vol_zone()
-		var rider := _trav_actor(zz, "raft", Vector2(2040, 720))
-		for i in 150:
-			zz.advance(1.0 / 60.0)
-			MovementSolver.advance(rider, zz, 1.0 / 60.0, Vector2(20, 0) if i % 50 < 10 else Vector2.ZERO)
-		return rider.plane
-	var p1: Vector2 = replay.call()
-	var p2: Vector2 = replay.call()
-	check(p1 == p2 and p1.x > 2100.0, "a rider is carried by its mover, the same on every replay (%s)" % str(p1))
-	# Rising water follows its event, holds, then drains.
-	z.on_event("boss_phase", {"action": "flood"})
-	z.advance(4.0)
-	var flood: Dictionary = z.volumes[7]
-	var risen := near(float(flood.hi), 30.0)
-	z.advance(2.0 + 4.0 + 0.1)
-	check(risen and near(float(flood.hi), -20.0), "a boss phase floods the arena, and it drains after its hold")
-	st = _trav_actor(z, "ground", Vector2(3700, 800))
-	z.on_event("boss_phase", {"action": "flood"})
-	z.advance(4.0)
-	_trav_run(st, z, 0.5, Vector2.ZERO)
-	check(st.sink_depth > 0.0, "rising water is deep water while it stands")
-
-## Movement arts through the Game: Plunge strikes, glide costs QI, Swallow Dart shares the dodge cooldown,
-## sect grounds refuse flight and a climber cannot use techniques.
 func arts_combat_suite() -> void:
 	var c = Game.active()
 	if c == null or Game.actor_state(c.id) == null: return
@@ -10644,15 +10210,12 @@ func arts_combat_suite() -> void:
 	check(str(Game.submit({"type": "plunge"}).get("reason", "")) == "locked", "Plunge must be learned")
 	for art in ["plunge", "falling_leaf_glide", "swallow_dart"]: Game.progression.apply_learn_secret_art(c.id, art)
 	check(Game.combat.knows_art(c, "plunge") and Game.combat.knows_art(c, "glide") and Game.combat.knows_art(c, "air_dash"), "learned arts are known by their movement name")
-	var geo: ZoneGeometry = Game.room_rt.geometry
 	var foe: EnemyState = Game.enemies.spawn_at("green_viper", st.plane + Vector2(30, 0), 12)
 	check(foe != null, "a foe to plunge on")
 	var here: Vector2 = st.plane
 	st.surface = null
 	st.altitude = 150.0
-	st.air_peak = 150.0
 	st.vertical_speed = 0.0
-	st.jumps_used = 1
 	var r := Game.submit({"type": "plunge"})
 	check(r.get("ok", false) and st.plunging, "Plunge in the air %s" % str(r))
 	check(str(Game.submit({"type": "plunge"}).get("reason", "")) in ["cooldown", "not_airborne"], "one Plunge at a time; then it rests 4 s")
@@ -10661,7 +10224,7 @@ func arts_combat_suite() -> void:
 		foe.plane = here + Vector2(30, 0)
 		foe.altitude = 0.0
 		hp0 = foe.pools.hp
-	_fall_until_landed(st, geo)
+	_land(st)
 	Game.tick(0.05)
 	check(st.plunge_impact.is_empty() and (foe == null or foe.pools.hp < hp0), "the Plunge lands a blow within 60")
 	check(foe == null or not foe.alive or foe.pools.has_status("stun"), "and stuns for half a second")
@@ -10674,7 +10237,7 @@ func arts_combat_suite() -> void:
 	var qi0: float = c.pools.qi
 	for i in 20: Game.tick(0.05)
 	check(r.get("ok", false) and Game.combat.is_gliding(c.id) and near(qi0 - c.pools.qi, 2.0, 0.3), "gliding drains 2 QI a second (%.2f)" % (qi0 - c.pools.qi))
-	_fall_until_landed(st, geo)
+	_land(st)
 	Game.tick(0.05)
 	check(not Game.combat.is_gliding(c.id), "landing ends the glide")
 	# Swallow Dart: an Evade tap in the air, once per airtime, on the dodge's cooldown.
@@ -10688,7 +10251,7 @@ func arts_combat_suite() -> void:
 	r = Game.submit({"type": "dodge", "direction": Vector2(1, 0), "facing": 1})
 	check(r.get("air_dash", false) and st.air_dash_used and c.pools.cooldown("dodge") > 0.0, "Evade in the air is Swallow Dart %s" % str(r))
 	if not had_dodge: c.cultivator.unlocked.erase("dodge_dash")
-	_fall_until_landed(st, geo)
+	_land(st)
 	# Sect grounds refuse flight; techniques wait while climbing.
 	var room0: Dictionary = Game.room_rt.def
 	Game.room_rt.def = room0.duplicate()
@@ -10702,7 +10265,9 @@ func arts_combat_suite() -> void:
 	check(str(Game.submit({"type": "basic_attack", "facing": 1}).get("reason", "")) == "climbing", "and so do attacks")
 	st.climbing = {}
 
-# ------------------------------------------------------------------ S43 rules 10-12: bands, shots, navigation, allies (V2c)
+# ------------------------------------------------------------------ S43 rule 10: the bands (V2c)
+## (Rules 11 and 12's navigation graph, shots and ledges were the side view's surfaces; on the grid the brains walk the
+## layout: TopdownBrain, AllyBrain, the topdown suites.)
 func nav_suite() -> void:
 	# Rule 10: the melee band is -30..+60 of the attacker's height, Qi arcs -10..+80.
 	var ground := {"x": 0.0, "y": 800.0, "alt": 0.0}
@@ -10717,75 +10282,6 @@ func nav_suite() -> void:
 	var jb: Array = ContentDB.entry("weapon_families", "jian").altitude
 	var vb: Array = ContentDB.entry("enemies", "green_viper").attacks[0].hitbox.alt
 	check(near(float(jb[0]), -30.0) and near(float(jb[1]), 60.0) and near(float(vb[0]), -30.0) and near(float(vb[1]), 60.0), "weapons and monsters strike in the melee band")
-	# Shots stop at blocks and walls, never at platform decks.
-	var z := _trav_zone()
-	check(z.stops_shot(Vector2(830, 730), 40.0) and not z.stops_shot(Vector2(830, 730), 70.0) and not z.stops_shot(Vector2(400, 650), 58.0),
-		"a shot stops at a crate below its top, flies over it, and passes a roof deck")
-	# Rule 11: the navigation graph, by species movement.
-	var jumper := {"jump": 530, "climb": false, "drop": true}
-	var g: Dictionary = z.nav_graph(jumper)
-	var kinds := func(from: String, to: String) -> Array:
-		return g.get(from, []).filter(func(e): return e.to == to).map(func(e): return e.kind)
-	check(kinds.call("ground", "deck") == ["jump"] and kinds.call("deck", "ground") == ["drop"] and kinds.call("ground", "crate") == ["jump"],
-		"a jumper can hop onto a 100 deck and a crate and drop back down")
-	check(kinds.call("ground", "wall").is_empty(), "a 300 wall is out of a 530 jump")
-	check(z.nav_graph({"jump": 0, "climb": false, "drop": true}).get("ground", []).filter(func(e): return e.to == "deck").is_empty(), "a species that cannot jump stays below")
-	var climber: Dictionary = z.nav_graph({"jump": 0, "climb": true, "drop": true})
-	check(climber.get("ground", []).any(func(e): return e.to == "loft" and e.kind == "climb"), "a climber takes the ladder to the loft")
-	var z2 := _trav_zone()
-	check(str(z2.nav_graph(jumper)) == str(g), "the graph is identical on two builds of the same room")
-	check(z.nav_path("ground", "deck", jumper).size() == 1 and z.nav_path("deck", "loft", {"jump": 0, "climb": true, "drop": true}).size() == 2,
-		"paths chain drop and climb edges")
-	# In a real room: a jumping monster follows the player onto a ledge; one that cannot jump gives up.
-	var c = Game.active()
-	if c == null or Game.actor_state(c.id) == null: return
-	var st: ActorState = Game.actor_state(c.id)
-	Game.world.apply_teleport(c.id, "wg_echo_cliffs")
-	for sid in ["stun", "slow", "shock", "spawn_protection"]: Game.combat.cure_status(c.id, sid)
-	var geo: ZoneGeometry = Game.room_rt.geometry
-	for e0 in Game.room_rt.living_enemies(): e0.alive = false
-	var ledge: WalkSurface = geo.index.get("ledge_0")
-	st.surface = ledge
-	st.plane = ledge.bounds.get_center()
-	st.altitude = ledge.height_at(st.plane)
-	st.vertical_speed = 0.0
-	c.pools.hp = c.pools.max_hp
-	var hunter: EnemyState = Game.enemies.spawn_at("mudwater_bandit", Vector2(ledge.bounds.get_center().x + 60, 860), 16)
-	var plodder: EnemyState = Game.enemies.spawn_at("stone_tortoise", Vector2(ledge.bounds.get_center().x - 60, 860), 5)
-	for e1 in [hunter, plodder]:
-		e1.ai.state = "aggro"
-		e1.ai.timer = 99.0
-		e1.threat[c.id] = 1.0
-	var on_ledge := false
-	var unreach := 0.0
-	for i in 240:
-		Game.tick(0.05)
-		c.pools.hp = c.pools.max_hp
-		if hunter.surface_id == "ledge_0": on_ledge = true
-		unreach = maxf(unreach, float(plodder.ai.get("unreach", 0.0)))
-		st.surface = ledge
-		st.altitude = ledge.height_at(st.plane)
-	check(on_ledge, "a bandit jumps up the ledge after you")
-	check(unreach >= 2.0, "a tortoise that cannot jump finds you out of reach (%.1f s)" % unreach)
-	check(str(plodder.ai.state) == "return" or bool(plodder.ai.get("leashed", false)) or plodder.surface_id == plodder.home_surface, "after 6 s it goes home to heal")
-	# Rule 12: an ally that cannot reach its owner blinks to them after 2 s.
-	var high: WalkSurface = geo.index.get("ledge_2")
-	st.surface = high
-	st.plane = high.bounds.get_center()
-	st.altitude = high.height_at(st.plane)
-	var pal := EnemyState.new()
-	pal.team = "ally"
-	pal.def = {"name": "Test", "movement": {"jump": 0, "climb": false, "fly": false, "drop": true}}
-	pal.plane = Vector2(st.plane.x - 100, 860)
-	pal.surface_id = "ground"
-	pal.ai = {"state": "follow", "timer": 0.0, "offset": 56, "depth_offset": 14, "speed": 200}
-	for e2 in Game.room_rt.living_enemies(): e2.alive = false
-	for i in 50: AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
-	check(pal.surface_id == "ledge_2" and near(pal.altitude, 300.0), "an ally that cannot follow blinks to its owner after 2 s")
-	pal.plane = Vector2(st.plane.x + 900, 860)
-	pal.surface_id = "ground"
-	AllyBrain.think(Game, pal, 0.05, 1.0, 36.0)
-	check(pal.plane.distance_to(st.plane) < 120.0, "and at once when more than 480 away")
 
 # ------------------------------------------------------------------ emotes (S34)
 ## The Account Legacy (P10 finding F1): the unlock exists at Bone Forging 1 for the whole account, a save that reached

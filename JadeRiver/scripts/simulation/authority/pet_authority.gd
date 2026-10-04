@@ -346,14 +346,6 @@ func set_mount(c, uid: String, on) -> Dictionary:
 	spawn(c)
 	return ok({"riding": c.riding})
 
-## The jump a rider makes (S43 rule 12): a ground mount's own impulse (default 530, the body's); a flying mount's
-## rider jumps as on foot (it flies instead).
-func mount_jump(c) -> float:
-	var m := mount_of(c)
-	if m.is_empty() or m.get("flying", false): return MovementSolver.JUMP_IMPULSE
-	var p := mount_pet_of(c)
-	return float(ContentDB.entry("pets", str(p.get("species", ""))).get("movement", {}).get("jump", MovementSolver.JUMP_IMPULSE))
-
 ## Riding a ground mount (not a flyer)?
 func ground_mounted(c) -> bool:
 	var m := mount_of(c)

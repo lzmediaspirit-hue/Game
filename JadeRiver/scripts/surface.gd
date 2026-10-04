@@ -1,5 +1,9 @@
 class_name WalkSurface
 extends RefCounted
+## A walkable rectangle of a room's geometry (ZoneGeometry): on the grid the stand-in ground the size of the room
+## (TopdownRoom.geometry_def), which an ActorState stands on while the motor is grounded; a foe's surface_id names it.
+## Its height may rise along x or y. (The side view's edges, masks, moving and crumbling decks and landing lanes went
+## with the side view in S12a.)
 var id: String
 var bounds: Rect2
 var base: float
@@ -7,23 +11,8 @@ var rise: float
 var rise_axis: String
 var kind: String
 var stratum: String
-var open_edges: bool                 # true when at least one edge is open (walk off and fall)
-var edges: Dictionary = {}           # S43 rule 1: n, s, e, w -> "open" | "closed" | "wall"
-var is_block := false                # the walkable top of a solid block (S43 blocks)
-# S43 movers and volumes: a surface can move (tick-pure), crumble away for a while, or be broken by a Plunge.
-var disabled := false                # crumbled or broken: nothing stands on it
-var cracked := false                 # a Plunge breaks it
-var moving := false                  # carried by a mover
-var origin := Vector2.ZERO           # the rectangle's position at offset zero
-var origin_base := 0.0
-var offset := Vector3.ZERO           # the mover's current offset (x, depth, altitude)
-var visual_variant: int
-var support_mask: Array=[]
-const FOOT_CONTACT=Vector2(9,12)
 func _init(data: Dictionary):
 	id=data.id
-	visual_variant=int(data.get("visual_variant",0))
-	support_mask=data.get("support_mask",[])
 	var r=data.rect
 	bounds=Rect2(r[0],r[1],r[2],r[3])
 	base=data.get("height",0.0)
@@ -31,113 +20,8 @@ func _init(data: Dictionary):
 	rise_axis=data.get("rise_axis","x")
 	kind=data.get("kind","stone")
 	stratum=data.get("stratum","platform")
-	is_block=kind=="block"
-	cracked=bool(data.get("cracked",false))
-	origin=bounds.position
-	origin_base=base
-	edges=default_edges(data,stratum,is_block)
-	open_edges=edges.values().has("open")
-## S43 rule 1: platforms default to a closed back (north) edge and open south, east and west edges;
-## open_edges false (and every ground surface) closes all four; a block top is open all round.
-static func default_edges(data: Dictionary,stratum: String,block: bool) -> Dictionary:
-	var closed={"n":"closed","s":"closed","e":"closed","w":"closed"}
-	var e: Dictionary
-	if block: e={"n":"open","s":"open","e":"open","w":"open"}
-	elif stratum=="ground" or not data.get("open_edges",stratum!="ground"): e=closed
-	else: e={"n":"closed","s":"open","e":"open","w":"open"}
-	for side in data.get("edges",{}): e[side]=str(data.edges[side])
-	return e
-## The kind of edge crossed when walking from inside the rectangle to `point` outside it:
-## the most restrictive of the sides crossed (wall, then closed, then open). A hole in a shaped
-## support mask inside the rectangle is an open drop.
-func edge_toward(point: Vector2) -> String:
-	var crossed: Array=[]
-	if point.y<bounds.position.y: crossed.append("n")
-	if point.y>=bounds.end.y: crossed.append("s")
-	if point.x<bounds.position.x: crossed.append("w")
-	if point.x>=bounds.end.x: crossed.append("e")
-	if crossed.is_empty(): return "open"
-	var worst="open"
-	for side in crossed:
-		var k=str(edges.get(side,"open"))
-		if k=="wall" or (k=="closed" and worst=="open"): worst=k
-	return worst
-## Move the surface to a mover offset (S43 movers).
-func set_offset(o: Vector3) -> void:
-	offset=o
-	bounds.position=origin+Vector2(o.x,o.y)
-	base=origin_base+o.z
 func height_at(point: Vector2) -> float:
 	var t=(point.y-bounds.position.y)/bounds.size.y if rise_axis=="y" else (point.x-bounds.position.x)/bounds.size.x
 	return base+rise*clampf(t,0,1)
 func contains(point: Vector2) -> bool:
-	if not bounds.has_point(point): return false
-	if support_mask.is_empty(): return true
-	var uv=(point-bounds.position)/bounds.size
-	var row: String=support_mask[mini(int(uv.y*support_mask.size()),support_mask.size()-1)]
-	return row[mini(int(uv.x*row.length()),row.length()-1)]=="1"
-func projected_front() -> float:
-	return bounds.end.y-height_at(bounds.end)
-func contact_point(point: Vector2,reach=FOOT_CONTACT) -> Vector2:
-	# A foot has area. Catch nearby visible support, but return a point ON the
-	# original silhouette so saves, shadows and the standing sprite stay aligned.
-	if contains(point): return point
-	var missing=Vector2(INF,INF)
-	if stratum!="platform" or not bounds.grow(maxf(reach.x,reach.y)).has_point(point): return missing
-	if support_mask.is_empty():
-		var p=point.clamp(bounds.position+Vector2.ONE*0.05,bounds.end-Vector2.ONE*0.05)
-		return p if ((p-point)/reach).length_squared()<=1 else missing
-	var rows=support_mask.size()
-	var columns=str(support_mask[0]).length()
-	var cell=bounds.size/Vector2(columns,rows)
-	var first=((point-reach-bounds.position)/cell).floor().max(Vector2.ZERO)
-	var last=((point+reach-bounds.position)/cell).floor().min(Vector2(columns-1,rows-1))
-	var best=missing
-	var distance=1.000001
-	for y in range(int(first.y),int(last.y)+1):
-		var row: String=support_mask[y]
-		for x in range(int(first.x),int(last.x)+1):
-			if row[x]!="1": continue
-			var corner=bounds.position+Vector2(x,y)*cell
-			var p=point.clamp(corner+Vector2.ONE*0.05,corner+cell-Vector2.ONE*0.05)
-			if point.x>=corner.x and point.x<corner.x+cell.x: p.x=point.x
-			if point.y>=corner.y and point.y<corner.y+cell.y: p.y=point.y
-			var d=((p-point)/reach).length_squared()
-			if d<distance:
-				best=p
-				distance=d
-	return best
-func follow_walk(next: Vector2,velocity: Vector2) -> Vector2:
-	if kind not in ["tree_branch","cloud","rock_ledge"] or contains(next): return next
-	# Narrow, depthless platforms guide ordinary sideways walking over their
-	# uneven contour. Pure depth movement and real horizontal ends remain open.
-	if absf(velocity.x)<0.0001 or absf(velocity.y)>absf(velocity.x)+0.0001: return next
-	var support=contact_point(next,Vector2(0.01,FOOT_CONTACT.y))
-	return support if support.is_finite() else next
-func landing_lane(x: float) -> float:
-	# A stable foot lane inside visible support, never across transparent pixels.
-	if x<bounds.position.x+3 or x>=bounds.end.x-3: return INF
-	var best=INF
-	var distance=INF
-	for row in 24:
-		var y=bounds.position.y+(row+0.5)*bounds.size.y/24.0
-		var point=Vector2(x,y)
-		if not contains(point) or not contains(point+Vector2(0,3)) or not contains(point-Vector2(0,3)): continue
-		if absf(y-bounds.get_center().y)<distance:
-			best=y
-			distance=absf(y-bounds.get_center().y)
-	return best
-func nearest_supported(point: Vector2) -> Vector2:
-	if contains(point): return point
-	if support_mask.is_empty(): return point.clamp(bounds.position+Vector2.ONE,bounds.end-Vector2.ONE)
-	var best=bounds.get_center()
-	var distance=INF
-	for y in support_mask.size():
-		var row: String=support_mask[y]
-		for x in row.length():
-			if row[x]!="1": continue
-			var p=bounds.position+Vector2((x+0.5)/row.length(),(y+0.5)/support_mask.size())*bounds.size
-			if p.distance_squared_to(point)<distance:
-				best=p
-				distance=p.distance_squared_to(point)
-	return best
+	return bounds.has_point(point)

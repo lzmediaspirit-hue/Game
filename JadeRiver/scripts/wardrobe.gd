@@ -60,5 +60,3 @@ func texture_async(path: String) -> Texture2D:
 			if not ResourceLoader.exists(path) or ResourceLoader.load_threaded_request(path)!=OK: return texture(path)
 		ResourceLoader.THREAD_LOAD_FAILED: return texture(path)
 	return null
-func attack_for(outfit: Dictionary) -> String:
-	return parts._attack_by_weapon.get(outfit.get("weapon","none"),"punch")
