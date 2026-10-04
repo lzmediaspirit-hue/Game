@@ -59,6 +59,9 @@ const GRADES := {
 ## T3: the area of the Lantern Star Field and the star field past it (their backdrops are the side view's night skies):
 ## the night grade at the story's night, whatever the clock says, a little mist.
 const STARLIT := {"grade": "night", "clock": false, "hour": "night_story", "mist": 0.6, "motes": 0.0}
+## T3: the star field past the Lantern Star Field (R9's zones): starlit, and the drop past their islands' brinks is the
+## starry void, not a sea of cloud (TopdownVista reads `void`).
+const STAR_VOID := {"grade": "night", "clock": false, "hour": "night_story", "mist": 0.6, "motes": 0.0, "void": true}
 ## T3: a room whose backdrop is the outdoors' but which lies under rock (the Clan Hearth's cavern behind the Hold Gate):
 ## its own area.
 const ROOM_AREAS := {"ir_clan_hearth": "cave"}
@@ -80,8 +83,8 @@ const AREAS := {
 	# lit from within, as a cave.
 	"sunscar_tomb": {"grade": "interior", "clock": false, "hour": "lamplit", "mist": 0.0, "motes": 0.3},
 	"skyport_wreck": STARLIT, "lantern_harbor": STARLIT, "star_shoals": STARLIT, "blackmast_haven": STARLIT,
-	"wyrmnest_isles": STARLIT, "warden_citadel": STARLIT, "orbit_ruins": STARLIT, "ashen_reach": STARLIT,
-	"nebula_deep": STARLIT, "starsea": STARLIT,
+	"wyrmnest_isles": STARLIT, "warden_citadel": STAR_VOID, "orbit_ruins": STAR_VOID, "ashen_reach": STAR_VOID,
+	"nebula_deep": STAR_VOID, "starsea": STAR_VOID,
 	"lantern_heart": {"grade": "interior", "clock": false, "hour": "lamplit", "mist": 0.0, "motes": 0.6},
 	"": {"grade": "day", "clock": true, "mist": 0.6, "motes": 1.0},
 }
