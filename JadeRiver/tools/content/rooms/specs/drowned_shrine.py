@@ -42,13 +42,15 @@ DS_FLOODED_GATE = room(
                 ("tower", (19, 17, 2, 2), dict(level=2, paint="s", wall=True)),
                 ("tower", (28, 17, 2, 2), dict(level=2, paint="s", wall=True)),
                 ("deck", (38, 16, 9, 4), dict(level=1, paint="w")),
-                ("ledge", (47, 1, 8, 4), dict(level=2, paint="s"))]
+                # S12c: the side view's ledge_mv_1, a path above (S43): two levels over the walk with no flight up,
+                # so only the Cloud Ladder Step's second jump climbs onto it, to the chest.
+                ("ledge_mv_1", (47, 1, 8, 4), dict(level=2, paint="s"))]
              + rubble((35, 1, 10, 6), (1, 18, 10, 7), (17, 1, 8, 4))
              + pillars(range(14, 52, 6), 7, [3, 3, 3, 1, 3, 3, 3]) + pillars(range(14, 52, 6), 11, [3, 3, 2, 3, 3, 3, 3]),
     stairs="auto",
     ways={"west": ("n", 7), "east": ("e", 9)},
     spawn="west",
-    anchors={"jar_1": "deck@40", "jar_2": "deck@44", "chest_6": "deck@42", "chest_ledge_mv_1": "ledge@51",
+    anchors={"jar_1": "deck@40", "jar_2": "deck@44", "chest_6": "deck@42", "chest_ledge_mv_1": "ledge_mv_1@51",
              "jar_3": (5, 4), "jar_4": "court@12", "jar_5": "walk.s@50", "inscription_ds_flooded_gate_0": "walk.n@10"},
     props=[("lantern", 3, 1), ("lantern", 12, 1), ("lantern", 17, 7), ("lantern", 29, 7), ("lantern", 41, 7),
            ("lantern", 23, 11), ("lantern", 35, 11)],

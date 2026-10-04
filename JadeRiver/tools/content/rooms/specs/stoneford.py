@@ -85,7 +85,9 @@ SF_MARKET = room(
 
 
 # Artisan Row: the forge at the west end, the tinkers and scribes along the paved street, Elder Gu's warehouse
-# with its door, the guild hall's board at the east end, a house whose roof hides the tinkerer's lost gear.
+# with its door, the guild hall's board at the east end, a house whose roof hides the tinkerer's lost gear. S12c: that
+# roof is the side view's workshop chimney, a path above (S43): two levels over the street with no crates up to it, so
+# only the Cloud Ladder Step's second jump climbs onto it.
 SF_ARTISAN_ROW = room(
     "sf_artisan_row", size=(56, 28),
     bands=[
@@ -104,10 +106,8 @@ SF_ARTISAN_ROW = room(
     pins={"props": [   # hand-placed, piece by piece
         # the smithy
         ("house", 6, 6),
-        # Gu's warehouse
-        ("storehouse", 30, 6, "warehouse"), ("house", 40, 5),
-        # the way onto that roof
-        ("crates", 38, 7),
+        # Gu's warehouse, and the house whose roof is a path above (the double jump's)
+        ("storehouse", 30, 6, "warehouse"), ("house", 40, 5, "workshop_chimney"),
         # the guild hall
         ("house", 47, 6), ("barrel", 14, 11), ("barrel", 15, 11), ("lantern", 25, 11), ("lantern", 36, 11),
         ("willow", 22, 4), ("reeds", 8, 23), ("reeds", 26, 23), ("reeds", 44, 23), ("tree_maple", 17, 9),

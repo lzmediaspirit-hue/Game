@@ -13,11 +13,14 @@ BG_WHISPERING_BAMBOO = room(
               ("knoll_mid", (22, 1, 9, 5), dict(level=2, paint="r", shape="round")),
               ("knoll_e", (36, 2, 9, 5), dict(level=2, paint="r", shape="round")),
               ("copse", (2, 18, 12, 9), dict(level=0, shape="round")), ("copse_2", (38, 19, 16, 9), dict(level=0, shape="round")),
-              ("pond", (16, 20, 16, 8), dict(water=True, shape="round"))],
+              ("pond", (16, 20, 16, 8), dict(water=True, shape="round")),
+              # S12c: the side view's bamboo top, a path above (S43): a stand of culms cut level two levels over the
+              # grove, the chest on it; only the Cloud Ladder Step's second jump climbs onto it.
+              ("bamboo_top", (49, 5, 2, 2), dict(level=3, paint="r"))],
     stairs="auto",
     ways={"west": ("w", 14), "east": ("e", 14)},
     spawn="west",
-    anchors={"herb_1": "grove_n@4", "jar_4": "grove_n@7", "jar_5": "knoll_w@11", "chest_bamboo_top": "knoll_e@40",
+    anchors={"herb_1": "grove_n@4", "jar_4": "grove_n@7", "jar_5": "knoll_w@11", "chest_bamboo_top": "bamboo_top@49",
              "jar_6": "knoll_mid@26", "herb_3": "grove_n@50", "jar_8": "verge.n@44", "jar_9": "verge.s@53",
              "herb_2": "bank@31", "jar_7": "verge.s@35", "swarm_reed_cicada": "pond.n@24", "trail_reed_ferret": "grove_s@44",
              "rift_tear": "grove_s@36", "spirit_fruit_tree": "grove_s@10"},
@@ -26,7 +29,7 @@ BG_WHISPERING_BAMBOO = room(
     # T2 (docs/architecture/topdown_mechanics.md): the side view's bent bamboo, a culm bowed over into a springboard at
     # the east knoll's foot beside its flight: a landing on it bounces a body up onto the knoll where the chest is.
     traverse=[("bounce", "bent_bamboo_bounce", dict(rect=(42, 7, 2, 1), look="bamboo"))],
-    pins={"drop": [(43, 8)]},   # T2: the bamboo that hid the bent culm
+    pins={"drop": [(43, 8), (42, 7)]},   # T2: the bamboo that hid the bent culm (S12c: and the clump laid over it since)
     foes="auto")
 
 # The Thicket Heart: the grove's densest part, thorn thickets either side of the path, and the canopy decks the hunters

@@ -42,18 +42,22 @@ CF_FALLS_POOL = room(
     foes="auto")
 
 # Behind the Falls: the grotto behind the curtain of Crane Falls, its floor worn round by the spray, a still spring in
-# its middle with the mindwell lotus at its edge, Lu's journal page on the low ledge in the west, and the chest and a
-# mist lotus up on the shaft's high shelf in the east.
+# its middle with the mindwell lotus at its edge, Lu's journal page on the low ledge in the west, a mist lotus up on
+# the high shelf, and east of it the shaft. S12c: the shaft's top is the side view's, a path above (S43): three levels up
+# at the head of a shaft two wide between rock five high, so only Wall-Step's kicks off each face in turn climb onto it
+# (the Echo Cliffs' shaft), to the chest.
 CF_BEHIND_FALLS = room(
     "cf_behind_falls", size=(40, 24), biome="cave", level=4,
     features=[("grotto", (2, 2, 36, 19), dict(level=0, paint="d", shape="round")),
               ("curtain", (0, 20, 40, 4), dict(water=True)), ("mouth", (18, 17, 5, 7), dict(level=0, paint="d")),
-              ("ledge_1", (5, 5, 8, 4), dict(level=1, paint="r")), ("shaft_top", (25, 3, 9, 4), dict(level=2, paint="r")),
+              ("ledge_1", (5, 5, 8, 4), dict(level=1, paint="r")), ("shelf", (21, 3, 6, 4), dict(level=2, paint="r")),
+              ("shaft_rock", (27, 2, 6, 8), dict(level=5, paint="r", wall=True)),
+              ("shaft_top", (29, 3, 2, 2), dict(level=3, paint="r")), ("shaft", (29, 5, 2, 5), dict(level=0, paint="d")),
               ("spring_pool", (13, 9, 10, 6), dict(water=True, shape="round"))],
     stairs="auto",
     ways={"entry": ("s", 20)},
     spawn="entry",
-    anchors={"journal_falls": "ledge_1@8", "chest_1": "shaft_top@30", "rare_lotus_bf": "shaft_top@27",
+    anchors={"journal_falls": "ledge_1@8", "chest_1": "shaft_top@30", "rare_lotus_bf": "shelf@24",
              "spring_behind": "bank@20", "mindwell_lotus_cf": "bank@14"},
     props=[("mat", 21, 16)],
     flora={"density": 0.3})

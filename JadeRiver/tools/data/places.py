@@ -288,6 +288,8 @@ def check_room(room, rows):
     # Every thing and way of the room is still reached with the places' cells blocked (topdown_rooms.check's rule).
     for oid, at in d["place"].items():
         c = TR.cell(at)
+        if TR.ledge_at(d, g, c):
+            continue   # S12c: on a path above, reached by its movement art (topdown_rooms.check_above), never on foot
         alt = g.floor(*c) if g.floor(*c) is not None else 0.0
         near = [(x, y) for y in range(c[1] - 3, c[1] + 4) for x in range(c[0] - 3, c[0] + 4)
                 if g.floor(x, y) is not None and (x - c[0]) ** 2 + (y - c[1]) ** 2 <= 9 and abs(g.floor(x, y) - alt) <= TR.REACH_ALT]

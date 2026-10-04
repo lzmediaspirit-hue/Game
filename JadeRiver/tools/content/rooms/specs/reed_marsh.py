@@ -129,7 +129,12 @@ RM_SUNKEN_CAUSEWAY = room(
     features=[("west_shore", (-6, 5, 14, 21), dict(level=0, paint="m", shape="round")),
               ("isle_nw", (9, 5, 14, 8), dict(level=0, paint="m", shape="round")),
               ("pillar_isle", (42, 3, 14, 10), dict(level=0, paint="m", shape="round")),
-              ("plinth", (46, 6, 6, 3), dict(level=1, paint="s")),
+              # S12c: the side view's broken pillar, a path above (S43): its stump three levels up at the head of the
+              # gap between two standing pillars five high, so only Wall-Step's kicks off each in turn climb onto it
+              # (the Echo Cliffs' shaft); the jars on its top.
+              ("pillars", (45, 3, 6, 7), dict(level=5, paint="s", wall=True)),
+              ("broken_pillar", (47, 4, 2, 2), dict(level=3, paint="s")),
+              ("pillar_gap", (47, 6, 2, 4), dict(level=0, paint="m")),
               ("isle_s", (20, 15, 16, 8), dict(level=0, paint="m", shape="round")),
               ("east_shore", (53, 4, 14, 22), dict(level=0, paint="m", shape="round")),
               ("boardwalk", (29, 0, 3, 12), dict(level=0, paint="w")),
@@ -138,9 +143,10 @@ RM_SUNKEN_CAUSEWAY = room(
     ways={"west": ("w", "causeway"), "east": ("e", "causeway"), "stilts": ("n", 30)},
     spawn="west",
     anchors={"herb_1": "isle_s@29", "jar_2": "isle_nw@12", "jar_3": "isle_s@24", "jar_4": "east_shore@55",
-             "jar_5": "plinth@47", "jar_6": "plinth@50", "sign_rm": "causeway.n@56"},
+             "jar_5": (47, 4), "jar_6": (48, 5), "sign_rm": "causeway.n@56"},
     props=[("lantern", 28, 10), ("lantern", 32, 10)],
-    flora={"causeway": ["cattails", "reeds"], "isle_nw": dict(density=0.45), "isle_s": dict(density=0.4)},
+    flora={"causeway": ["cattails", "reeds"], "isle_nw": dict(density=0.45), "isle_s": dict(density=0.4),
+           "pillars": dict(density=0), "pillar_gap": dict(density=0)},
     foes=["auto", "auto:bank"])
 
 # The Hermit's Stilt House: Hermit Yao's house on its deck over the north of his pond, the ladder down at its west end

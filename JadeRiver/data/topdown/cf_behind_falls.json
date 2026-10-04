@@ -13,17 +13,17 @@
  "levels": [
   "4444444444444444444444444444444444444444",
   "4444444444444444444444444444444444444444",
-  "4444444444444444440000444444444444444444",
-  "4444444400440000000000000222222222444444",
-  "4444444000000000000000000222222222444444",
-  "4444411111111000000000000222222222444444",
-  "4444011111111000000000000222222222044444",
-  "4440011111111000000000000000000000004444",
-  "4440011111111000000000000000000000004444",
-  "4440000000000000~~~~~0000000000000000444",
+  "4444444444444444440000444445555554444444",
+  "4444444400440000000002222225533554444444",
+  "4444444000000000000002222225533554444444",
+  "4444411111111000000002222225500554444444",
+  "4444011111111000000002222225500550044444",
+  "4440011111111000000000000005500550004444",
+  "4440011111111000000000000005500550004444",
+  "444000000000000~~~~~~0000005500550000444",
   "44400000000000~~~~~~~~000000000000000044",
-  "4440000000000~~~~~~~~~~00000000000000044",
-  "4440000000000~~~~~~~~~~00000000000000044",
+  "44400000000000~~~~~~~~~00000000000000044",
+  "44400000000000~~~~~~~~~00000000000000044",
   "44400000000000~~~~~~~~000000000000000444",
   "444400000000000~~~~~~0000000000000000444",
   "4444000000000000000000000000000000004444",
@@ -40,16 +40,16 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrrrrrrrddrrrrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrdddddddddddrrrrrrrrrrrrrrrr",
-  "rrrrrrrrrrrrrdddddddddddrrrrrsssrrrrrrrr",
-  "rrrrdrrrrrrrrddddddddddddddddsssdddrrrrr",
-  "rrrrdddsssdddddd~~~~~ddddddddsssdddrrrrr",
-  "rrrrdddsssdddd~~~~~~~~dddddddsssddddrrrr",
-  "rrrrddddddddd~~~~~~~~~~ddddddddddddddrrr",
-  "rrrrddddddddd~~~~~~~~~~dddddddddddddrrrr",
+  "rrrrrrrrrrrrrrrrrrrdrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrdddddddrrrssrrrrrrrrrrrrrrr",
+  "rrrrdrrrrrrrrddddddddddssdrrrrrrrrdrrrrr",
+  "rrrrdddsssddddd~~~~~~ddssdrrrrrrrrdrrrrr",
+  "rrrrdddsssdddd~~~~~~~~dssdrrrrrrrrddrrrr",
+  "rrrrdddddddddd~~~~~~~~~ddddddddddddddrrr",
+  "rrrrdddddddddd~~~~~~~~~dddddddddddddrrrr",
   "rrrrrddddddddd~~~~~~~~ddddddddddddddrrrr",
   "rrrrrdddddddddd~~~~~~ddddddddddddddrrrrr",
   "rrrrrddddddddddddddddddddddddddddrrrrrrr",
@@ -72,9 +72,9 @@
    "to": 1
   },
   {
-   "x": 29,
+   "x": 23,
    "y": 7,
-   "w": 3,
+   "w": 2,
    "h": 4,
    "from": 0,
    "to": 2
@@ -128,18 +128,18 @@
   },
   {
    "kind": "ferns",
-   "x": 28,
-   "y": 3
-  },
-  {
-   "kind": "rock_mossy",
-   "x": 32,
-   "y": 3
+   "x": 27,
+   "y": 10
   },
   {
    "kind": "rock_small",
-   "x": 33,
-   "y": 6
+   "x": 26,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 21,
+   "y": 5
   },
   {
    "kind": "ferns",
@@ -149,6 +149,21 @@
   {
    "kind": "rock_small",
    "x": 5,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 29,
+   "y": 6
+  },
+  {
+   "kind": "ferns",
+   "x": 29,
+   "y": 8
+  },
+  {
+   "kind": "ferns",
+   "x": 20,
    "y": 7
   },
   {
@@ -209,15 +224,15 @@
   ],
   "chest_1": [
    30,
-   6
+   3
   ],
   "rare_lotus_bf": [
-   27,
-   6
+   24,
+   4
   ],
   "spring_behind": [
    20,
-   8
+   15
   ],
   "mindwell_lotus_cf": [
    14,
@@ -238,5 +253,17 @@
    "span": 3
   }
  },
- "spawns": []
+ "spawns": [],
+ "above": {
+  "shaft_top": {
+   "rect": [
+    29,
+    3,
+    2,
+    2
+   ],
+   "level": 3,
+   "art": "wall_step"
+  }
+ }
 }

@@ -6,8 +6,10 @@ Run from JadeRiver/:  python3 tools/content/rooms/test_engine.py [--verbose]
   anchors       every anchor kind resolves on a sample room (a cliff, a terrace, a road, a meadow, a pond, a river, a
                 knoll, a house with a door) to the cell its rule names, a pin overrides the engine, "auto" by type
   pins          "drop" takes a scattered piece out, "add" puts one in, a pinned spawn and foes win
+  paths above   S12c: every side-view surface with `later` is its room's ledge of that art (`above`), with no flight
+                onto it and out of auto-path's reach (topdown_rooms.check_above holds its art's reach)
   walks         in every room the engine lays out (its flora and anchors its own), auto-path (no running jump) reaches
-                every thing from every way in, and every way
+                every thing from every way in (a thing on a path above by its art), and every way
 
 Prints "room_engine: N checks, M failures" and exits 1 on a failure.
 """
@@ -164,7 +166,7 @@ def walks(b, lay):
     """Auto-path (no running jump) reaches a cell beside every thing (within three, at its height) and every way, from
     the spawn and every way in; the stricter rule the engine lays its own rooms by."""
     d = {"size": [lay.w, lay.h], "levels": ["".join("~" if v == TR.WATER else str(v) for v in row) for row in lay.lv],
-         "stairs": lay.stairs, "props": lay.props, "spawn": lay.spawn, "portals": lay.portals}
+         "stairs": lay.stairs, "props": lay.props, "spawn": lay.spawn, "portals": lay.portals, "above": lay.above}
     g = TR.Grid(d)
     starts = [TR.cell(lay.spawn)] + [TR.cell(TR.arrive(p)) for p in lay.portals.values()]
     errs = []
@@ -175,6 +177,8 @@ def walks(b, lay):
         r = g.reach(st, False)
         for oid, at in lay.place.items():
             c = TR.cell(at)
+            if TR.ledge_at(d, g, c):
+                continue   # S12c: on a path above, its movement art's (topdown_rooms.check_above holds it)
             alt = g.floor(*c) if g.floor(*c) is not None else 0.0
             near = [q for q in engine._ring(c[0], c[1], 3, lay.w, lay.h) + [c] if (q[0] - c[0]) ** 2 + (q[1] - c[1]) ** 2 <= 9
                     and g.floor(*q) is not None and abs(g.floor(*q) - alt) <= TR.REACH_ALT]
@@ -184,6 +188,29 @@ def walks(b, lay):
             if TR.cell(p["at"]) not in r:
                 errs.append("way %s from %s" % (pid, str(st)))
     return errs
+
+
+def paths_above(all_specs):
+    """S12c (S43 "Paths Above"): every side-view surface with `later` is marked on its room's layout as a ledge of its
+    art (`above`), never climbed onto by a flight, and auto-path reaches none of it."""
+    rows = 0
+    for s in all_specs:
+        b = engine.Build(s)
+        if not b.ledges:
+            continue
+        lay = b.run()
+        d = {"size": [lay.w, lay.h], "levels": ["".join("~" if v == TR.WATER else str(v) for v in row) for row in lay.lv],
+             "stairs": lay.stairs, "props": lay.props, "spawn": lay.spawn, "portals": lay.portals, "above": lay.above}
+        g = TR.Grid(d)
+        reach = b.reached(g)
+        for sid, art in b.ledges.items():
+            rows += 1
+            a = lay.above.get(sid, {})
+            cells = [c for c in b.ledge(sid)[0] if TR.ledge_at(d, g, c) == sid]
+            on_stair = any(g.stair[c[1]][c[0]] for c in cells)
+            check(a.get("art") == art and cells and not on_stair and not any(c in reach for c in cells),
+                  "%s: the path above %s is marked (%s), a ledge of %d cells no flight or walk climbs onto" % (s["id"], sid, art, len(cells)))
+    check(rows >= 6, "the paths above: %d rows on their rooms' layouts" % rows)
 
 
 def room_walks(all_specs):
@@ -202,6 +229,7 @@ def main():
     determinism_and_round_trip(all_specs)
     b, lay = anchors()
     pins(b, lay)
+    paths_above(all_specs)
     room_walks(all_specs)
     print("room_engine: %d checks, %d failures" % (CHECKS[0], CHECKS[1]))
     return 1 if CHECKS[1] else 0

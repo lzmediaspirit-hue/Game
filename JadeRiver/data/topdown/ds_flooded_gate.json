@@ -44,9 +44,9 @@
   "spppppppppppppppprrrrrrrpppppppppppprrrrrrrrpppsssssssss",
   "spppppppppppppppprrrrrrrppppppppppprrrrrrrrrpppsssssssss",
   "sppppppppppppppppprrrrrpppppppppppprrrrrrrrrpppsssssssss",
-  "sppppppppppppppppppppppppppppppppppprrrrrrrrpppsssppppps",
-  "spppppppppppppppppppppppppppppppppppprrrrrrppppsssppppps",
-  "spppppppppppppspppppspppppspppppspppppspppppsppsssspppps",
+  "sppppppppppppppppppppppppppppppppppprrrrrrrrppppppppppps",
+  "spppppppppppppppppppppppppppppppppppprrrrrrpppppppppppps",
+  "spppppppppppppspppppspppppspppppspppppspppppspppppspppps",
   "sssssssssssssssssssssssssssssssssssssssssssssssssssssssp",
   "sssssssssssssssssssssssssssssssssssssssssssssssssssssssp",
   "ssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
@@ -74,14 +74,6 @@
    "h": 2,
    "from": 0,
    "to": 1
-  },
-  {
-   "x": 47,
-   "y": 5,
-   "w": 3,
-   "h": 4,
-   "from": 0,
-   "to": 2
   }
  ],
  "props": [
@@ -387,5 +379,17 @@
     0
    ]
   }
- ]
+ ],
+ "above": {
+  "ledge_mv_1": {
+   "rect": [
+    47,
+    1,
+    8,
+    4
+   ],
+   "level": 2,
+   "art": "double_jump"
+  }
+ }
 }

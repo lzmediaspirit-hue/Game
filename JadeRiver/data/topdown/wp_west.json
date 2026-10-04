@@ -15,11 +15,11 @@
   "2222222222222222222222222222222222222222222222222222222222222222",
   "2222222222222222222222222222222222222222222222222222222222222222",
   "1111111111111111111111111100000000000000000000000000000000000000",
-  "1111111111111111111111111100000000000000003330000000000000000000",
-  "1111111111111111111111111100000000000000223330000000000000000000",
-  "1111111111111111111111111100000000000000223330000000000000000000",
   "1111111111111111111111111100000000000000000000000000000000000000",
   "1111111111111111111111111100000000000000000000000000000000000000",
+  "1111111111111111111111111100000000000000222000000000000000000000",
+  "1111111111111111111111111100000000000000222000000000000000000000",
+  "1111111111111111111111111100000000000000222000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
   "0000000000000000000000000000000000000000000000000000000000000000",
@@ -47,11 +47,11 @@
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggggrrrggggggggggggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggrrrrrggggggggggggggggggg",
-  "ggggggggggggggggggggggggggggggggggggggggrrrrrggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggrrrggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggrrrggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggggggggrrrggggggggggggggggggggg",
   "ggggggggsssggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "ggggggggsssggggggggggggggggggggggggggggggggggggggggggggggggggggg",
   "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
@@ -85,11 +85,6 @@
   }
  ],
  "props": [
-  {
-   "kind": "crates",
-   "x": 38,
-   "y": 6
-  },
   {
    "kind": "bamboo",
    "x": 3,
@@ -368,8 +363,8 @@
    21
   ],
   "chest_pine_top": [
-   43,
-   5
+   41,
+   7
   ],
   "rift_tear": [
    35,
@@ -462,6 +457,18 @@
    ]
   ]
  ],
+ "above": {
+  "pine_top": {
+   "rect": [
+    40,
+    6,
+    3,
+    3
+   ],
+   "level": 2,
+   "art": "double_jump"
+  }
+ },
  "vista": [
   {
    "edge": "n",

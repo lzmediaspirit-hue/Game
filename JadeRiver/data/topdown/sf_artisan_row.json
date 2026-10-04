@@ -100,11 +100,6 @@
    ]
   },
   {
-   "kind": "crates",
-   "x": 38,
-   "y": 7
-  },
-  {
    "kind": "house",
    "x": 47,
    "y": 6,
@@ -365,6 +360,18 @@
   }
  },
  "spawns": [],
+ "above": {
+  "workshop_chimney": {
+   "rect": [
+    40,
+    5,
+    6,
+    3
+   ],
+   "level": 2,
+   "art": "double_jump"
+  }
+ },
  "vista": [
   {
    "edge": "n",

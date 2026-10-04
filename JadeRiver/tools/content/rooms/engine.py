@@ -134,6 +134,11 @@ class Build:
         self.climbed = set()      # the regions a flight climbs onto
         self.notes = []           # what the engine decided, for --show
         self.side = side if side is not None else (TR.side(self.id) if os.path.exists(os.path.join(TR.ROOMS, self.id + ".json")) else {})
+        # S12c (S43 "Paths Above"): each optional ledge only a later movement art reaches (a side-view surface or block
+        # with `later`) is the spec's raised feature, or a named prop's top, of the same name: no flight is laid onto
+        # it, nothing grows on it, what stands on it is placed without a walk to it, and the layout marks it (`above`).
+        self.ledges = {str(s["id"]): str(s["later"]) for s in self.side.get("surfaces", []) + self.side.get("blocks", [])
+                       if s.get("later")}
 
     # ================================================================ 1. the ground
     def walls(self):
@@ -492,12 +497,33 @@ class Build:
             out = r if out is None else out & r
         return out or set()
 
+    # ================================================================ S12c: the paths above
+    def ledge(self, sid):
+        """A Paths Above ledge as laid: (its cells at its top, its level, its rect [x, y, w, h]), from the raised feature
+        or the named prop's top of its name (a raised shape the walk never climbs onto: the art is the way up)."""
+        r = self.regions.get(sid)
+        if r is not None and r.kind == "feature" and not (r.wall or r.water or r.walk) and (r.level or 0) > 0:
+            return [c for c in r.cells() if self.lay.lv[c[1]][c[0]] == r.level], r.level, [r.x, r.y, r.w, r.h]
+        if sid in self.named:
+            p = self.lay.props[self.named[sid]]
+            art = TR.TILESET["props"][p["kind"]]
+            if "top" in art:
+                fw, fh = art["footprint"]
+                level = self.lay.lv[p["y"] + fh - 1][p["x"]] + art["top"]
+                return [(x, y) for y in range(p["y"], p["y"] + fh) for x in range(p["x"], p["x"] + fw)], level, [p["x"], p["y"], fw, fh]
+        raise SpecError("%s: the path above %s (%s) has no ledge: a raised feature, or a named prop with a top, of its name"
+                        % (self.id, sid, self.ledges[sid]))
+
+    def ledge_cells(self):
+        return {c for sid in self.ledges for c in self.ledge(sid)[0]}
+
     # ================================================================ 4. the anchors
     def anchors(self):
         side = {o["id"]: o for o in self.side.get("objects", [])}
         spec = self.anchor_spec
         g = self.grid()
-        reach = self.reached(g)
+        # S12c: what stands on a path above (its chest, its jars) is reached by the art, not by a walk.
+        reach = self.reached(g) | self.ledge_cells()
         if self.auto_stairs_wanted():
             # A raised shape gets its flight once something stands on it (auto_stairs, after this): its cells count as
             # reached here, and the checks hold the room to it once the flights are laid.
@@ -684,9 +710,10 @@ class Build:
         for r in self.regions.values():
             if r.wall or r.water or r.level is None or r.level <= 0:
                 continue
-            if (r.kind == "feature" and r.opts.get("level") is None) or r.walk:
+            if (r.kind == "feature" and r.opts.get("level") is None) or r.walk or r.name in self.ledges:
                 continue          # paint over whatever lies under it (a patch of turf on a terrace), or a walk on the
-                                  # ground it crosses (a room's ground raised under it): never climbed onto
+                                  # ground it crosses (a room's ground raised under it): never climbed onto; nor a path
+                                  # above (S12c), which its movement art climbs
             mine = set(r.cells())
             on = [c for c in self.cells.values() if (int(c[0] + 0.5), int(c[1] + 0.5)) in mine]
             if not on and not (r.kind == "band" and r.h >= 3) and not r.opts.get("flights"):
@@ -996,7 +1023,7 @@ class Build:
         density = spec.pop("density", self.biome["density"])
         lanes = self.lanes()
         d = self._dict_for_check()
-        clear = TR.clear_cells(d)
+        clear = TR.clear_cells(d) | self.ledge_cells()   # S12c: nothing grows on a path above
         walks = TR.scene_walks(self.id, d)
         g = self.grid()
         spots = self._spots(d, g)
@@ -1275,6 +1302,9 @@ class Build:
             self.lay.traverse = self.traverse_rows()
         if self.spec.get("stage"):
             self.lay.stage = self.stage_cells()
+        for sid in sorted(self.ledges):
+            _cells, level, rect = self.ledge(sid)
+            self.lay.above[sid] = {"rect": rect, "level": level, "art": self.ledges[sid]}
 
     # ================================================================ T1: the side view's traversal and set pieces
     # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event

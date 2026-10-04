@@ -17,6 +17,8 @@ objects, portals and their rules, foes, events) from data/rooms/ and only the pl
   traverse  [{kind, id, ...}]: T1, the side view's rafts, updrafts and climbable faces on the grid (TopdownTraverse;
                                     docs/architecture/topdown_mechanics.md), each held to the grid by check_traverse
   stage     event id -> [[x, y], ...]: T1, the cells a room event's side-view points are set at (WorldRoomEvents)
+  above     surface id -> {rect, level, art}: S12c, a Paths Above ledge (S43): the raised shape, named for its side-view
+                                    surface, that only its movement art climbs onto (TopdownRoom.ledge_at; check_above)
 
 Deterministic: `python3 tools/data/topdown_rooms.py` writes the files, `--check` proves they are current. Each layout
 is checked as it is built: every object, NPC, portal and spawn of its side-view room is placed on a cell a body can
@@ -65,6 +67,7 @@ class Layout:
         self.areas = []
         self.traverse = []   # T1: the side view's rafts, updrafts and climbable faces on the grid
         self.stage = {}      # T1: event id -> the cells a room event's side-view points are set at
+        self.above = {}      # S12c: side-view surface id -> its Paths Above ledge {rect, level, art}
         self.spawn = [w // 2, h // 2]
 
     # ---------------------------------------------------------------- drawing
@@ -191,6 +194,8 @@ class Layout:
             out["traverse"] = self.traverse
         if self.stage:
             out["stage"] = self.stage
+        if self.above:
+            out["above"] = self.above
         return out
 
 
@@ -329,8 +334,97 @@ def set_piece_event(s):
     return {}
 
 
+# -------------------------------------------------------------------- S12c: the paths above (S43)
+# A Paths Above ledge (the layout's `above`, named for its side-view surface with `later`) is an optional raised shape
+# only its movement art climbs onto: no walk, stair or jump reaches it, and the art does from a floor walked to beside
+# it. How high each art climbs over the floor it leaves, in whole levels, from the TopdownMotor's numbers: the Cloud
+# Ladder Step's second jump from the apex, and the mantle (two levels today: 64.5); Wall-Step's three kicks up between
+# two faces (the Echo Cliffs' shaft, three levels: topdown_traversal plays it, and plays every path above).
+DOUBLE_JUMP = LEVEL * math.floor((MOVE["impulse"] ** 2 / (2.0 * MOVE["gravity"]) + MOVE["traverse"]["double_jump_impulse"] ** 2
+                                  / (2.0 * MOVE["gravity"]) + MOVE["mantle"]) / LEVEL) + 0.5
+WALL_STEP = 3 * LEVEL + 0.5
+ART_RISE = {"double_jump": DOUBLE_JUMP, "wall_step": WALL_STEP}
+
+
+def ledge_at(d, g, c):
+    """The path above whose top is the cell `c` (its side-view surface id), or None (TopdownRoom.ledge_at)."""
+    fl = g.floor(*c)
+    for sid, a in d.get("above", {}).items():
+        x, y, w, h = a["rect"]
+        if x <= c[0] < x + w and y <= c[1] < y + h and fl is not None and abs(fl - a["level"] * LEVEL) < 0.5:
+            return sid
+    return None
+
+
+def art_reaches(g, reached, cells, art):
+    """Does `art` carry a body onto one of `cells` (a ledge's top) from a floor in `reached` beside it? The double jump
+    climbs DOUBLE_JUMP; Wall-Step climbs WALL_STEP between two faces: the take-off cell has, across the way to the ledge,
+    a face within two cells on either side standing over the ledge's top (a higher floor, a prop, the room's edge)."""
+    rise = ART_RISE[art]
+    for x, y in cells:
+        top = g.floor(x, y)
+        for dx, dy in DIRS.values():
+            q = (x - dx, y - dy)            # the take-off cell, the ledge a step along (dx, dy) from it
+            fl = g.floor(*q)
+            if q not in reached or fl is None or top - fl > rise:
+                continue
+            if art == "wall_step" and not all(any(_face(g, q[0] + sd * dy * k, q[1] + sd * dx * k, top) for k in (1, 2))
+                                              for sd in (1, -1)):
+                continue
+            return True
+    return False
+
+
+def _face(g, x, y, top):
+    if g.level(x, y) == SOLID:
+        return True
+    fl = g.floor(x, y)
+    return fl is not None and fl > top + 0.5
+
+
+def check_above(s, d, g, reached):
+    """Every side-view surface with `later` has its ledge on the layout (the art its own); no walk reaches the ledge
+    from any way in, nor a lesser art; its art does from every way in; and what stood on the surface stands on it."""
+    errs = []
+    surfaces = {str(sf["id"]): sf for sf in s.get("surfaces", []) + s.get("blocks", []) if sf.get("later")}
+    later = {sid: str(sf["later"]) for sid, sf in surfaces.items()}
+    above = d.get("above", {})
+    for sid in sorted(set(later) | set(above)):
+        a = above.get(sid)
+        if a is None or sid not in later or a["art"] != later[sid] or a["art"] not in ART_RISE:
+            errs.append("path above %s: the layout's ledge %s, the side view's art %s" % (sid, a, later.get(sid)))
+            continue
+        x, y, w, h = a["rect"]
+        cells = [(xx, yy) for yy in range(y, y + h) for xx in range(x, x + w) if ledge_at(d, g, (xx, yy)) == sid]
+        if not cells:
+            errs.append("path above %s: no cell of its rect stands at its level %d" % (sid, a["level"]))
+            continue
+        for i, r in enumerate(reached):
+            if any(c in r for c in cells):
+                errs.append("path above %s: walked onto from start %d (no art needed)" % (sid, i))
+            elif a["art"] == "wall_step" and art_reaches(g, r, cells, "double_jump"):
+                errs.append("path above %s: the double jump reaches it from start %d (Wall-Step's)" % (sid, i))
+            elif not art_reaches(g, r, cells, a["art"]):
+                errs.append("path above %s: %s does not reach it from start %d" % (sid, a["art"], i))
+        for o in s.get("objects", []):
+            if on_surface(surfaces[sid], o) and (o["id"] not in d["place"] or ledge_at(d, g, cell(d["place"][o["id"]])) != sid):
+                errs.append("path above %s: %s does not stand on it" % (sid, o["id"]))
+    return errs
+
+
+def on_surface(sf, o):
+    """Did the side-view thing stand on this surface (its own `surface`, else within its rect at its height: the
+    Paths Above collection's rule, tools/data/world.py paths_above_json)?"""
+    if o.get("surface"):
+        return str(o["surface"]) == str(sf["id"])
+    x, y, w, h = sf["rect"]
+    alt = float(sf.get("height", sf.get("top", 0)))
+    return x <= o["at"][0] <= x + w and y - 12 <= o["at"][1] <= y + h + 12 and abs(float(o.get("alt", 0)) - alt) < 1
+
+
 def check(lay, d):
-    """Every thing of the side-view room placed where a body can stand or reach, and reached from every way in."""
+    """Every thing of the side-view room placed where a body can stand or reach, and reached from every way in (a thing
+    on a path above by its art: check_above)."""
     s = side(lay.id)
     g = Grid(d)
     errs = []
@@ -374,6 +468,8 @@ def check(lay, d):
                 if g.floor(x, y) is not None and (x - c[0]) ** 2 + (y - c[1]) ** 2 <= 9]
         if g.floor(*c) is None and o.get("type") not in ("fishing_spot", "rift_tear", "insect_swarm"):
             errs.append("object %s at %s: no floor (level %s)" % (oid, str(c), g.level(*c)))
+        if ledge_at(d, g, c):
+            continue   # S12c: on a path above, reached by its art (check_above), never on foot
         alt = g.floor(*c) if g.floor(*c) is not None else 0.0
         stand = [q for q in near if abs(g.floor(*q) - alt) <= REACH_ALT]
         for i, r in enumerate(reached):
@@ -395,6 +491,7 @@ def check(lay, d):
     errs += list(dict.fromkeys(check_foliage(lay, d, g)))
     errs += LIFE.check_furnish(lay.id, d, g, clear_cells(d))   # decision 43: furnishings and stations
     errs += list(dict.fromkeys(check_traverse(s, d, g, walked)))
+    errs += check_above(s, d, g, reached)
     if errs:
         raise SystemExit("%s:\n  " % lay.id + "\n  ".join(errs))
 
