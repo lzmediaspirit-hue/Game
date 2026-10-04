@@ -1,0 +1,141 @@
+{
+ "schema_version": 1,
+ "id": "rf_hermits_ice_cave",
+ "name": "Hermit's Ice Cave",
+ "size": [
+  32,
+  18
+ ],
+ "spawn": [
+  16,
+  15
+ ],
+ "levels": [
+  "44444444444444444444444444444444",
+  "44444444444444444444444444444444",
+  "44444444444400004400444444444444",
+  "44444444000000000000000044444444",
+  "44440000000000000000000000044444",
+  "44400000000000000000000000000444",
+  "44000000000000000000000000000044",
+  "44000000000000000000000000000044",
+  "44400000000000000000000000000444",
+  "44400000000000000000000000000444",
+  "44400000000000000000000000000444",
+  "44440000000000000000000000004444",
+  "11111100000000000000000000111111",
+  "11111111100000000000000001111111",
+  "11111111111100000011111111111111",
+  "11111111111111000011111111111111",
+  "11111111111111000011111111111111",
+  "11111111111111000011111111111111"
+ ],
+ "paint": [
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnkkkknnkknnnnnnnnnnnn",
+  "nnnnnnnnkkkkkkkkkkkkkkkknnnnnnnn",
+  "nnnnkkkkkkkkkkkkkkkkkkkkkkknnnnn",
+  "nnnkkkkkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnkkkkkkkkkkkkkkkkkkkkkkkkkkkknn",
+  "nnkkkkkkkkkkkkkkkkkkkkkkkkkkkknn",
+  "nnnkkkkkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnkkkkkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnkkkkkkkkkkkkkkkkkkkkkkkkkknnn",
+  "nnnnkkkkkkkkkkkkkkkkkkkkkkkknnnn",
+  "nnnnnnkkkkkkkkkkkkkkkkkkkknnnnnn",
+  "nnnnnnnnnkkkkkkkkkkkkkkkknnnnnnn",
+  "nnnnnnnnnnnnkkkkkknnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnkkkknnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnkkkknnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnkkkknnnnnnnnnnnnnn"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "mat",
+   "x": 15,
+   "y": 7
+  },
+  {
+   "kind": "incense",
+   "x": 18,
+   "y": 5
+  },
+  {
+   "kind": "ice_rock",
+   "x": 5,
+   "y": 5
+  },
+  {
+   "kind": "ice_rock",
+   "x": 23,
+   "y": 4
+  },
+  {
+   "kind": "ice_rock",
+   "x": 26,
+   "y": 9
+  },
+  {
+   "kind": "ice_rock",
+   "x": 5,
+   "y": 11
+  },
+  {
+   "kind": "lantern",
+   "x": 12,
+   "y": 4
+  },
+  {
+   "kind": "lantern",
+   "x": 20,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 9,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 27,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 7,
+   "y": 12
+  }
+ ],
+ "place": {
+  "spring_ice": [
+   8,
+   9
+  ],
+  "npc_hermit_shuang": [
+   16,
+   6
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    16,
+    17
+   ],
+   "dir": "s",
+   "arrive": [
+    16,
+    15
+   ],
+   "span": 3
+  }
+ },
+ "spawns": []
+}

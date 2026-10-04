@@ -323,5 +323,99 @@
     3
    ]
   }
+ ],
+ "traverse": [
+  {
+   "kind": "crumble",
+   "id": "plank_a0_crumble",
+   "rect": [
+    19,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "crumble",
+   "id": "plank_a1_crumble",
+   "rect": [
+    21,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "crumble",
+   "id": "plank_a2_crumble",
+   "rect": [
+    23,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "crumble",
+   "id": "plank_b0_crumble",
+   "rect": [
+    33,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "crumble",
+   "id": "plank_b1_crumble",
+   "rect": [
+    35,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "crumble",
+   "id": "plank_b2_crumble",
+   "rect": [
+    37,
+    12,
+    2,
+    3
+   ],
+   "level": 0,
+   "under": "pit"
+  },
+  {
+   "kind": "hazard",
+   "id": "spike_pit_a",
+   "rect": [
+    19,
+    12,
+    6,
+    3
+   ]
+  },
+  {
+   "kind": "hazard",
+   "id": "spike_pit_b",
+   "rect": [
+    33,
+    12,
+    6,
+    3
+   ]
+  }
  ]
 }

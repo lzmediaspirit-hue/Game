@@ -54,6 +54,11 @@ WG_RAPIDS_TERRACES = room(
              "earth_vent_wg": "strand@25", "fish_11": "water@50", "rift_tear": "verge.s@40", "spirit_fruit_tree": "strand@14"},
     props=[("waterfall", 34, 4)],
     flora={"upper": dict(density=0.45), "middle": dict(density=0.45)},
+    # T2 (docs/architecture/topdown_mechanics.md): the rapids' current hazard's areas (the strand's shallows, the white
+    # water) and the side view's current over the white water, pulling a swimmer downstream.
+    areas=[{"kind": "shallows", "rect": [11, 17, 31, 2], "current": -45}, {"kind": "shallows", "rect": [58, 17, 3, 2], "current": -45},
+           {"kind": "current", "rect": [42, 19, 16, 9], "current": -75}],
+    traverse=[("current", "rapids_current", dict(rect=(42, 19, 16, 9), push=(-91, 0)))],
     foes="auto")
 
 
@@ -69,9 +74,14 @@ WG_ECHO_CLIFFS = room(
            ("river", 21, 5, dict(water=True, wavy=True, rapids=0.03))],
     features=[("ledge_0", (4, 7, 10, 4), dict(level=4, paint="r")),
               ("ledge_1", (16, 5, 9, 5), dict(level=5, paint="r")),
-              ("wall_w", (27, 3, 3, 8), dict(level=7, paint="r", wall=True)),
-              ("wall_e", (32, 3, 3, 8), dict(level=7, paint="r", wall=True)),
-              ("ledge_3", (40, 6, 10, 4), dict(level=5, paint="r"))],
+              # T2: the two walls stand five levels over the shaft's floor, so three Wall-Step kicks rise between them to the
+              # nest without clearing their tops.
+              ("wall_w", (27, 3, 3, 8), dict(level=8, paint="r", wall=True)),
+              ("wall_e", (32, 3, 3, 8), dict(level=8, paint="r", wall=True)),
+              ("ledge_3", (40, 6, 10, 4), dict(level=5, paint="r")),
+              # T2 (docs/architecture/topdown_mechanics.md): the vultures' nest at the shaft's head, three levels over its
+              # floor: Wall-Step kicks up between the two walls to it (Between Two Walls).
+              ("nest", (30, 3, 2, 2), dict(level=6, paint="r"))],
     stairs="auto",
     ways={"east": ("e", "road"), "west": ("w", "road")},
     spawn="east",

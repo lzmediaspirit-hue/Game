@@ -53,6 +53,14 @@ DS_FLOODED_GATE = room(
     props=[("lantern", 3, 1), ("lantern", 12, 1), ("lantern", 17, 7), ("lantern", 29, 7), ("lantern", 41, 7),
            ("lantern", 23, 11), ("lantern", 35, 11)],
     flora=RUBBLE,
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's three drifting planks ply the sunk gate's water
+    # between the court's west and east halves, and its two currents: the drain pulling west along the court's south
+    # rows (a body wading there is carried), the flood's pull over the sunk gate (a swimmer is).
+    traverse=[("raft", "float_plank_0", dict(at=(16, 19), size=(2, 1), path=[(15, 0)], speed=29, wait_s=1.5, look="plank")),
+              ("raft", "float_plank_1", dict(at=(31, 20), size=(2, 1), path=[(-15, 0)], speed=26, wait_s=1.2, look="plank")),
+              ("raft", "float_plank_2", dict(at=(16, 21), size=(2, 1), path=[(15, 0)], speed=32, wait_s=1.8, look="plank")),
+              ("current", "gate_drain", dict(rect=(1, 22, 54, 3), push=(-60, 0))),
+              ("current", "flood_current", dict(rect=(16, 16, 17, 7), push=(-83, 0)))],
     foes="auto")
 
 
@@ -79,6 +87,19 @@ DS_HALL_OF_LANTERNS = room(
     props=[{"kind": "lantern_red", "along": "aisle", "every": 7, "row": 10, "start": 4},
            {"kind": "lantern_red", "along": "aisle", "every": 7, "row": 14, "start": 7}],
     flora=RUBBLE,
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's five great lanterns hang from the vault over the
+    # rubble between the galleries, their lids decks a body rides: swinging east and west or going round, a level up
+    # from the gallery to the rest, then on from the rest toward the loft a level over it. Two rocks of the rubble that
+    # stood under their sweep are taken out.
+    traverse=[("lantern", "lantern_0", dict(at=(13, 1), size=(2, 2), level=1, mode="swing", length=3, amp_deg=25, period_s=3.2)),
+              ("lantern", "lantern_1", dict(at=(16, 1), size=(2, 2), level=1, mode="circle", radius=0.75, period_s=4.4)),
+              ("lantern", "lantern_2", dict(at=(19.5, 1), size=(2, 2), level=2, mode="swing", length=3.5, amp_deg=25,
+                                            period_s=3.2, phase_deg=180)),
+              ("lantern", "lantern_3", dict(at=(35.5, 1), size=(2, 2), level=2, mode="swing", length=3.5, amp_deg=25,
+                                            period_s=3.2, phase_deg=90)),
+              ("lantern", "lantern_4", dict(at=(41, 1), size=(2, 2), level=2, mode="circle", radius=0.75, period_s=4.4,
+                                            phase_deg=180))],
+    pins={"drop": [(16, 1), (17, 4)]},
     foes=["auto", "auto:gallery", "auto:rest", "auto"])
 
 
@@ -134,6 +155,9 @@ DS_ABBOTS_SANCTUM = room(
     props=[("lantern", 12, 9), ("lantern", 24, 9), ("lantern", 30, 9), ("lantern", 42, 9), ("incense", 40, 16),
            ("incense", 45, 16)],
     flora=RUBBLE,
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's flood: on the Drowned Abbot's phase the river rises a
+    # level over the sanctum's floor (the bell galleries and the dais stay dry) and falls back after its hold.
+    traverse=[("flood", "sanctum_flood", dict(rect=(1, 4, 54, 21), top=1))],
     foes="auto")
 
 

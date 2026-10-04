@@ -20,6 +20,9 @@ LF_FISHERS_HUT = room(
     anchors={
         "npc_aunt_ping": (6, 6), "tea_table": (9.5, 6), "net": (16, 5), "lu_float": (15, 1), "tea_loft": (17, 1),
     },
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's loft ladder, sealed until The Runaway Kite is done,
+    # is a sealed hatch over the loft's flight.
+    traverse=[("hatch", "loft_ladder", dict(rect=(13, 3, 2, 2)))],
     pins={"props": [   # hand-placed, piece by piece
         # the table (a floor one level up)
         ("crates", 9, 6), ("barrel", 1, 1), ("barrel", 2, 1), ("lantern", 1, 10), ("lantern", 18, 10),
@@ -145,6 +148,9 @@ LF_OLD_MA_STORE = room(
     anchors={
         "npc_old_ma": (12, 3), "soup_loft": (2, 1), "old_net_floor": (3, 9),
     },
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's storeroom ladder, sealed until The Runaway Kite is
+    # done, is a sealed hatch over the loft's flight.
+    traverse=[("hatch", "storeroom_ladder", dict(rect=(4, 3, 2, 2)))],
     pins={"props": [   # hand-placed, piece by piece
         # the counter
         ("crates", 10, 5), ("crates", 12, 5), ("barrel", 1, 7), ("barrel", 1, 8), ("barrel", 16, 1),
@@ -222,6 +228,11 @@ LF_REED_SHALLOWS = room(
     },
     foes=[[(13, 17), (22, 20), (30, 18), (36, 20), (42, 16), (48, 20)], [(27, 11), (33, 12), (38, 13), (43, 10)],
         [(55, 20)]],
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's three driftwood logs drift along the shallows off the
+    # sandy bank, each boarded from the bank at either end of its drift.
+    traverse=[("raft", "driftwood_a", dict(at=(13, 23), size=(3, 1), path=[(5, 0)], speed=20, wait_s=2.0, look="driftwood")),
+              ("raft", "driftwood_b", dict(at=(44, 23), size=(3, 1), path=[(-12, 0)], speed=20, wait_s=2.0, look="driftwood")),
+              ("raft", "driftwood_c", dict(at=(49, 23), size=(3, 1), path=[(5, 0)], speed=20, wait_s=2.0, look="driftwood"))],
     ground={"sand": [(0, 22, 64, 1), (2, 21, 12, 1), (19, 21, 10, 1), (33, 21, 16, 1), (53, 21, 9, 1), (36, 20, 13, 1),
                      (5, 20, 5, 1)]},
     pins={"props": [   # hand-placed, piece by piece

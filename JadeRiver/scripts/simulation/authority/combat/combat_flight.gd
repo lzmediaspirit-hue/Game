@@ -63,10 +63,14 @@ func tick_flight(c, delta: float) -> void:
 	combat.apply_resource_change(c.id, "qi", -cost, "flight", 0.0, true)
 	_air_distance(c, delta)
 
-## The ground covered in the air counts toward Cloud Lung (S48).
+## The ground covered in the air counts toward Cloud Lung (S48). T2: on the height grid the body's velocity is the
+## plane's (x, and depth y), so a flight north or south counts as one east or west does; in the side view its y is the
+## climb and only x is ground covered.
 func _air_distance(c, delta: float) -> void:
 	var st: ActorState = game.actor_state(c.id)
-	if st != null: game.progression.add_air_distance(c.id, absf(st.velocity.x) * delta)
+	if st == null: return
+	var ground: float = st.velocity.length() if combat.grid() != null else absf(st.velocity.x)
+	game.progression.add_air_distance(c.id, ground * delta)
 
 # ------------------------------------------------------------------ movement arts (S43)
 ## The movement art a secret art grants (secret_arts.json `movement_art`), known to this character.

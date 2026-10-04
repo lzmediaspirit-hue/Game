@@ -399,11 +399,6 @@
   },
   {
    "kind": "bamboo_grove",
-   "x": 43,
-   "y": 8
-  },
-  {
-   "kind": "bamboo_grove",
    "x": 45,
    "y": 5
   },
@@ -1059,6 +1054,19 @@
     11
    ]
   ]
+ ],
+ "traverse": [
+  {
+   "kind": "bounce",
+   "id": "bent_bamboo_bounce",
+   "rect": [
+    42,
+    7,
+    2,
+    1
+   ],
+   "look": "bamboo"
+  }
  ],
  "vista": [
   {

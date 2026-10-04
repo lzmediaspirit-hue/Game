@@ -65,6 +65,10 @@ MP_FORGOTTEN_MONASTERY = room(
     props=[("lantern", 32, 12), ("lantern", 39, 12), ("lantern", 23, 20), ("lantern", 49, 20), ("log", 61, 14),
            ("boulder", 25, 14), ("boulder", 26, 14)],
     flora={"terrace": dict(density=0.3), "garden": dict(density=0.45)},
+    # T2 (docs/architecture/topdown_mechanics.md): the side view's rotten floors are the west wing's raised floor and
+    # the gallery of boards: a foot that lingers sends them down, a level onto the terrace and the court under them.
+    traverse=[("crumble", "west_floor_crumble", dict(rect=(19, 6, 5, 4), level=4, under=3)),
+              ("crumble", "east_gallery_crumble", dict(rect=(45, 13, 6, 2), level=2, under=1))],
     foes="auto")
 
 # The Ascension Gate: the top of the world. A round arena paved in the snow at the peak, four plinths round it where

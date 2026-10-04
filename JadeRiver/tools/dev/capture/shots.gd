@@ -66,6 +66,20 @@ const E1_VIEWS := [
 	["r5/09_tidebreak_bastion", "tf_tidebreak_bastion", Vector2(22, 12), true], ["r5/10_tide_battle", "si_tide_battle", Vector2(30, 12), true],
 	["r5/11_greyfall_breach", "tf_greyfall_breach", Vector2(28, 14), true], ["r5/12_hollow_wake", "tf_hollow_wake", Vector2(26, 13), true],
 	["r5/13_drone_hive", "tf_drone_hive", Vector2(32, 13), true],
+	# R6: Act II's first zones, the Azure Expanse: Cloudgate Port, the Thunderhorn Plains, Rimefrost Heights,
+	# Mirrorwater Lake (their pictures under r6/)
+	["r6/01_arrival_terrace_gate", "ae_landing", Vector2(10, 14), true], ["r6/02_arrival_terrace_rim", "ae_landing", Vector2(30, 21), false],
+	["r6/03_port_market_street", "ae_port_market", Vector2(22, 12), true], ["r6/04_port_market_gate", "ae_port_market", Vector2(60, 16), false],
+	["r6/05_wayfarers_inn", "ae_wayfarers_inn", Vector2(12, 8), true], ["r6/06_skydock_berths", "ae_skydock", Vector2(25, 23), true],
+	["r6/07_condensing_hall", "ae_condensing_hall", Vector2(12, 8), true], ["r6/08_shipyard_slip", "ae_shipyard", Vector2(22, 18), true],
+	["r6/09_stormgrass_verge", "tp_stormgrass_verge", Vector2(40, 11), true], ["r6/10_herders_camp", "tp_herders_camp", Vector2(26, 12), true],
+	["r6/11_thunderhorn_flats_pool", "tp_thunderhorn_flats", Vector2(36, 17), true], ["r6/12_lightning_scar", "tp_lightning_scar", Vector2(34, 17), true],
+	["r6/14_frostpine_climb", "rf_frostpine_climb", Vector2(24, 16), true], ["r6/15_frostpine_climb_high", "rf_frostpine_climb", Vector2(50, 9), false],
+	["r6/16_snow_ape_ledges", "rf_snow_ape_ledges", Vector2(24, 11), true], ["r6/17_rimefrost_summit", "rf_rimefrost_summit", Vector2(37, 16), true],
+	["r6/18_rimefrost_summit_rim", "rf_rimefrost_summit", Vector2(33, 24), false], ["r6/19_hermits_ice_cave", "rf_hermits_ice_cave", Vector2(16, 10), true],
+	["r6/20_reedless_shore_ferry", "ml_reedless_shore", Vector2(10, 15), true], ["r6/21_reedless_shore_mirror", "ml_reedless_shore", Vector2(40, 14), false],
+	["r6/22_mirror_shallows", "ml_mirror_shallows", Vector2(30, 14), true], ["r6/23_sentinel_causeway", "ml_sentinel_causeway", Vector2(27, 14), true],
+	["r6/24_lake_shrine", "ml_lake_shrine", Vector2(30, 15), true], ["r6/25_toads_hollow", "ml_toads_hollow", Vector2(26, 20), true],
 	# R7: Act II's chapters 13 and 14, Nine Peaks to the Tomb of Sunscar (their pictures under r7/).
 	["r7/01_alliance_gate_dock", "np_alliance_gate", Vector2(12, 22), true], ["r7/02_alliance_gate_lions", "np_alliance_gate", Vector2(30, 14), false],
 	["r7/03_hall_of_nine", "np_hall_of_nine", Vector2(30, 12), true], ["r7/04_auction_pavilion", "np_auction_pavilion", Vector2(11.5, 8), true],
@@ -793,6 +807,42 @@ static func sets() -> Dictionary:
 			"do": [["set", "cultivator.realm_key", "cloud_stride_1"], ["unlock", ["flight"]], ["refresh"], ["qi_full"], ["face", Vector2.DOWN],
 				["jump"], ["hold_jump", true], ["frames", 60], ["hold_jump", false], ["frames", 2], ["move", Vector2.RIGHT], ["frames", 20], ["stop"], ["frames", 2]],
 			"take": [["world", "world/08_flight_over_the_shore"]], "then": [["submit", {"type": "stop_flight", "reason": "landed"}], ["frames", 90]]}]}
+
+	# T2 (docs/architecture/topdown_mechanics.md): the Act I rooms' own rows, each in its room, the world alone at x2: the
+	# sealed hatches, the driftwood and the ferry, the drum, the bent bamboo and the lotus leaf, the trial's lift and the
+	# crane, the Cloud trial's planks giving way, the Tunnels' spike pit, the Flooded Gate's plank, the Hall of Lanterns,
+	# the Abbot's flood, the Echo Cliffs' shaft, the Frozen Shrine's ice and icicles, the monastery's rotten floor, the
+	# ridge's wind, Breath Control's swim and the shallows' wade.
+	var t2 := func(name: String, room: String, cell: Vector2, steps: Array) -> Dictionary:
+		return {"name": name, "room": room, "cell": cell, "wait": 60, "do": steps, "take": [["world", name]]}
+	s["traversal_t2"] = {"doc": "T2: the Act I rooms' traversal rows on the grid: hatches, driftwood, the ferry, bounces, lifts, crumbling planks, a spike pit, lanterns, a flood, the Wall-Step shaft, ice, wind and the swim",
+		"out": "architecture/topdown_mechanics/t2/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
+			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"]], "rows": [
+		t2.call("01_hatch_old_ma_store", "lf_old_ma_store", Vector2(4, 6), [["face", Vector2.UP], ["frames", 30]]),
+		t2.call("02_hatch_library_gallery", "ja_library", Vector2(8, 7), [["set", "training_sect", {"id": "jade_sect", "rank": "outer_disciple", "contribution": 0}],
+			["frames", 40]]),
+		t2.call("03_driftwood_reed_shallows", "lf_reed_shallows", Vector2(14, 22), [["on_raft", "driftwood_a"], ["frames", 150]]),
+		t2.call("04_ferry_bend_shore", "dw_bend_shore", Vector2(32, 25), [["on_raft", "ferry_boat"], ["frames", 180]]),
+		t2.call("05_drum_fairground", "sf_fairground", Vector2(39, 11), [["face", Vector2.LEFT], ["frames", 10]]),
+		t2.call("06_bent_bamboo", "bg_whispering_bamboo", Vector2(41, 8), [["face", Vector2.RIGHT], ["frames", 10]]),
+		t2.call("07_lotus_leaf_grey_pools", "rm_grey_pools", Vector2(42, 9), [["face", Vector2.RIGHT], ["frames", 10]]),
+		t2.call("08_lift_jade_trial", "sf_trial_jade", Vector2(12, 9), [["on_raft", "plank_1"], ["frames", 150]]),
+		t2.call("09_crane_quarry", "sq_quarry_rim", Vector2(16, 9), [["on_raft", "crane_lift"], ["frames", 50]]),
+		t2.call("10_planks_giving_cloud_trial", "sf_trial_cloud", Vector2(10, 5), [["stand_cell", [15, 5]], ["frames", 40]]),
+		t2.call("11_planks_gone_cloud_trial", "sf_trial_cloud", Vector2(10, 5), [["stand_cell", [15, 5]], ["frames", 72]]),
+		t2.call("12_spike_pit_tunnels", "mh_tunnels", Vector2(30, 13), [["stand_cell", [35, 13]], ["frames", 56]]),
+		t2.call("13_planks_flooded_gate", "ds_flooded_gate", Vector2(16, 19), [["on_raft", "float_plank_0"], ["frames", 200]]),
+		t2.call("14_lanterns_hall", "ds_hall_of_lanterns", Vector2(25, 2), [["face", Vector2.LEFT], ["frames", 50]]),
+		t2.call("15_flood_abbots_sanctum", "ds_abbots_sanctum", Vector2(41, 17), [["event", "boss_phase", {"boss": "capture", "action": "flood"}],
+			["frames", 300]]),
+		t2.call("16_wall_step_shaft", "wg_echo_cliffs", Vector2(31, 9), [["face", Vector2.UP], ["frames", 10]]),
+		t2.call("17_ice_frozen_shrine", "sr_frozen_shrine", Vector2(19, 8), [["move", Vector2.RIGHT], ["frames", 36], ["stop"], ["frames", 14]]),
+		t2.call("18_icicle_frozen_shrine", "sr_frozen_shrine", Vector2(17, 9), [["face", Vector2.LEFT], ["frames", 10]]),
+		t2.call("19_rotten_floor_monastery", "mp_forgotten_monastery", Vector2(21, 12), [["stand_cell", [21, 7]], ["frames", 62]]),
+		t2.call("20_wind_ridge", "sr_windswept_ridge", Vector2(40, 16), [["frames", 210]]),
+		t2.call("21_swim_drowned_grotto", "ds_drowned_grotto", Vector2(9, 12), [["set", "cultivator.secret_arts", ["breath_control"]], ["refresh"], ["move", Vector2.DOWN],
+			["frames", 16], ["stop"], ["frames", 16]]),
+		t2.call("22_wade_scripture_well", "ds_scripture_well", Vector2(12, 22), [["move", Vector2.RIGHT], ["frames", 40], ["stop"], ["frames", 4]])]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

@@ -1,0 +1,517 @@
+{
+ "schema_version": 1,
+ "id": "rf_rimefrost_summit",
+ "name": "Rimefrost Summit",
+ "size": [
+  56,
+  28
+ ],
+ "spawn": [
+  2,
+  14
+ ],
+ "levels": [
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666666666666666",
+  "66666666666666666666666666666666666666666666660000066666",
+  "00666666666660000666622226666666600000666666660000000000",
+  "00006666660000000002222222226660000000066666660000000000",
+  "00000000000000000022222222222000000000000000000000000000",
+  "00000000000000000222222222222200222220000000000000000000",
+  "00000000000000000222222222222202222222000000000000000000",
+  "00000000000000000022222222222022222222200000000000000000",
+  "00000000000000000000002222220022222222200011110000000000",
+  "00000000000000000000000000000002222222001111111100000000",
+  "00000000000000000000000000000000222220011111111110000000",
+  "00000000000000000000000000000000000000011111111110000000",
+  "00000000000000000000000000000000000000001111111100000000",
+  "00000000000000000000000000000000000000000011111000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000"
+ ],
+ "paint": [
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nrnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnrnnnnnnnrnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnrnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnsssnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnkkkkknnnnnnnnnnnnnnnknsssnnnnnsssnnnnnnnnnnnnnnnnnnnn",
+  "nkkkkkkkkkknnnnnnnkkkkkknsssnnnnnsssnnnnnnnnnnnnnnnnnnnn",
+  "kkkkkkkkkkkkkkkkkkkkkkkknnnnnnnnnsssnnnrnnnnnnnnnnnnnnnn",
+  "nnkkkkkkkkkkknnnnnkkkkkknnnnnnnnnsssnnnnnnnsssnnnnnnnnnn",
+  "nnnnnnnnkkkknnnnnrnnnkkknnnnrnnnnnnnnnnnnnnsssnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnrnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nrnnnnnnnnnnnnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+  "nnnnnnnnrnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+ ],
+ "stairs": [
+  {
+   "x": 25,
+   "y": 10,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 33,
+   "y": 12,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 43,
+   "y": 15,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "ice_rock",
+   "x": 9,
+   "y": 22
+  },
+  {
+   "kind": "ice_rock",
+   "x": 44,
+   "y": 20
+  },
+  {
+   "kind": "ice_rock",
+   "x": 13,
+   "y": 8
+  },
+  {
+   "kind": "lantern",
+   "x": 24,
+   "y": 22
+  },
+  {
+   "kind": "lantern",
+   "x": 41,
+   "y": 22
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 24,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 12
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 14
+  },
+  {
+   "kind": "boulder",
+   "x": 32,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 36,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 15
+  },
+  {
+   "kind": "boulder",
+   "x": 42,
+   "y": 16
+  },
+  {
+   "kind": "boulder",
+   "x": 46,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 1,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 9,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 12,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 21,
+   "y": 5
+  },
+  {
+   "kind": "rock_small",
+   "x": 33,
+   "y": 4
+  },
+  {
+   "kind": "tree_pine",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "rock_small",
+   "x": 44,
+   "y": 5
+  },
+  {
+   "kind": "tree_pine",
+   "x": 53,
+   "y": 5
+  },
+  {
+   "kind": "dead_tree",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "rock_small",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "tree_pine",
+   "x": 29,
+   "y": 4
+  },
+  {
+   "kind": "boulder",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "kind": "rock_small",
+   "x": 22,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 29,
+   "y": 8
+  },
+  {
+   "kind": "tree_pine",
+   "x": 40,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 47,
+   "y": 12
+  },
+  {
+   "kind": "rock_small",
+   "x": 39,
+   "y": 14
+  },
+  {
+   "kind": "dead_tree",
+   "x": 43,
+   "y": 13
+  },
+  {
+   "kind": "boulder",
+   "x": 5,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 17,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 3,
+   "y": 23
+  },
+  {
+   "kind": "dead_tree",
+   "x": 8,
+   "y": 21
+  },
+  {
+   "kind": "tree_pine",
+   "x": 12,
+   "y": 18
+  },
+  {
+   "kind": "tree_pine",
+   "x": 18,
+   "y": 20
+  },
+  {
+   "kind": "tree_pine",
+   "x": 28,
+   "y": 16
+  },
+  {
+   "kind": "tree_pine",
+   "x": 36,
+   "y": 18
+  },
+  {
+   "kind": "dead_tree",
+   "x": 49,
+   "y": 20
+  },
+  {
+   "kind": "tree_pine",
+   "x": 52,
+   "y": 23
+  },
+  {
+   "kind": "rock_small",
+   "x": 1,
+   "y": 26
+  },
+  {
+   "kind": "rock_small",
+   "x": 8,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 13,
+   "y": 27
+  },
+  {
+   "kind": "boulder",
+   "x": 17,
+   "y": 27
+  },
+  {
+   "kind": "rock_small",
+   "x": 20,
+   "y": 26
+  },
+  {
+   "kind": "dead_tree",
+   "x": 42,
+   "y": 26
+  },
+  {
+   "kind": "boulder",
+   "x": 49,
+   "y": 27
+  },
+  {
+   "kind": "dead_tree",
+   "x": 52,
+   "y": 26
+  }
+ ],
+ "place": {
+  "shrine_rf_summit": [
+   6,
+   12
+  ],
+  "swarm_frost_cricket": [
+   15,
+   22
+  ],
+  "herb_1": [
+   21,
+   3
+  ],
+  "jar_3": [
+   26,
+   9
+  ],
+  "jar_4": [
+   23,
+   16
+  ],
+  "insight_frost": [
+   34,
+   8
+  ],
+  "sight_rimefrost": [
+   33,
+   27
+  ],
+  "herb_2": [
+   41,
+   13
+  ],
+  "chest_6": [
+   44,
+   9
+  ],
+  "jar_5": [
+   48,
+   22
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    14
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    14
+   ],
+   "span": 3
+  },
+  "ice_cave": {
+   "at": [
+    48,
+    2
+   ],
+   "dir": "n",
+   "arrive": [
+    48,
+    4
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    20,
+    11
+   ],
+   [
+    22,
+    18
+   ],
+   [
+    23,
+    11
+   ],
+   [
+    19,
+    16
+   ]
+  ],
+  [
+   [
+    17,
+    12
+   ]
+  ]
+ ],
+ "vista": [
+  {
+   "edge": "n",
+   "kind": "peaks",
+   "pad": 56
+  },
+  {
+   "edge": "s",
+   "kind": "cloud_sea",
+   "pad": 88
+  }
+ ]
+}
