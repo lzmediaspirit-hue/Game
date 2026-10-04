@@ -1,0 +1,213 @@
+{
+	"account_id": "local-1791081721",
+	"achievements": {
+		"counters": {
+
+		},
+		"done": {
+
+		}
+	},
+	"active_slot": 1,
+	"activity": {
+
+	},
+	"calendar": {
+		"active": {
+			"shrine_reopening": 0
+		},
+		"ranking": [
+			"iron_crane",
+			"gorge_chief",
+			"jade_first",
+			"cloud_first",
+			"hua_captain",
+			"wen_zhao",
+			"shen_lian"
+		],
+		"season": "spring",
+		"told": {
+
+		},
+		"weather": {
+			"gorge": "clear",
+			"marsh": "clear",
+			"summit": "storm"
+		}
+	},
+	"characters": {
+		"1": {
+			"appearance": {
+				"body": "light",
+				"hair": "flowing",
+				"hair_color": 3,
+				"pants": "martial",
+				"shirt": "scholar",
+				"shoes": "slippers"
+			},
+			"bottleneck": false,
+			"idle_task": {
+
+			},
+			"injured": false,
+			"level": 0,
+			"name": "Lin Sideview",
+			"outfit": {
+				"body": "light",
+				"cape": "none",
+				"hair": "flowing",
+				"hair_color": 3,
+				"hat": "none",
+				"name": "Lin Sideview",
+				"pants": "martial",
+				"pants_dye": "indigo",
+				"shirt": "scholar",
+				"shirt_dye": "jade",
+				"shoes": "slippers",
+				"weapon": "sword"
+			},
+			"realm_key": "mortal",
+			"room": "lf_village",
+			"sect": ""
+		},
+		"2": {
+			"appearance": {
+				"body": "light",
+				"hair": "short_knot",
+				"hair_color": 5,
+				"pants": "straight",
+				"shirt": "vneck",
+				"shoes": "folded"
+			},
+			"bottleneck": false,
+			"idle_task": {
+
+			},
+			"injured": false,
+			"level": 2,
+			"name": "Wen Classic",
+			"outfit": {
+				"body": "light",
+				"cape": "none",
+				"hair": "short_knot",
+				"hair_color": 5,
+				"hat": "none",
+				"name": "Wen Classic",
+				"pants": "straight",
+				"pants_dye": "earth",
+				"shirt": "vneck",
+				"shirt_dye": "earth",
+				"shoes": "folded",
+				"weapon": "none"
+			},
+			"realm_key": "bone_forging_2",
+			"room": "sf_fairground",
+			"sect": ""
+		}
+	},
+	"clock": {
+		"last_active_utc": 1791081722.08366
+	},
+	"codex": [],
+	"collection": {
+
+	},
+	"collection_pages_done": [],
+	"collection_seals": [],
+	"created_utc": 1791081721.33197,
+	"currencies": {
+		"silver_tael": 0,
+		"spirit_stone": 0
+	},
+	"economy": {
+		"buyback": [],
+		"rotation": {
+
+		},
+		"rotation_day": -1,
+		"stock_bought": {
+
+		}
+	},
+	"experiments": [],
+	"highest_realm": "mortal",
+	"leaves": {
+
+	},
+	"legacy": [],
+	"mail": [],
+	"mail_next_id": 1,
+	"paths_above": [],
+	"post_vows": [],
+	"recipes_seen": [],
+	"resets": {
+		"last_daily_day": 20729,
+		"last_weekly": 2961
+	},
+	"rng": {
+		"seed": "1791081721",
+		"streams": {
+
+		}
+	},
+	"rooms": {
+		"field_boss_timers": {
+
+		}
+	},
+	"sect": {
+
+	},
+	"settings": {
+		"ambience": 0.6,
+		"battery_saver": false,
+		"classic_side_view": true,
+		"damage_numbers": true,
+		"first_run_done": false,
+		"flashes": true,
+		"haptics": true,
+		"language": "en",
+		"left_handed": false,
+		"master": 1.0,
+		"minimap": true,
+		"minimap_large": false,
+		"minimap_monsters": true,
+		"music": 0.7,
+		"notifications": {
+			"batch": true,
+			"defence": true,
+			"expedition": true,
+			"offline_cap": true,
+			"pet": true
+		},
+		"reduce_motion": false,
+		"screen_shake": true,
+		"sfx": 0.8,
+		"text_size": 1,
+		"ui": 0.7
+	},
+	"slots_unlocked": 2,
+	"storage": {
+		"items": [],
+		"size": 0
+	},
+	"storehouse": {
+
+	},
+	"teleports": [],
+	"unlocks": [],
+	"version": 3,
+	"visited_rooms": [
+		"lf_fishers_hut",
+		"lf_village"
+	],
+	"wardrobe_unlocked": [
+		"weapon:sword"
+	],
+	"welcome_pending": {
+
+	},
+	"works": {
+
+	}
+}
