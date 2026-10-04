@@ -23,6 +23,13 @@ const HAZE := Color("d4e2e4")
 const DEEP := Color(0.047, 0.106, 0.2, 0.31)   ## the water's depth tint past the edge (§14.2's #0C1B33 at 0.31)
 ## The sea of cloud drifts with the wind (TopdownLife.WIND), this many px a second at its calm, faster in a gust.
 const CLOUD_DRIFT := 2.5
+## T3: past the Lantern Star Field (TopdownLight's areas with `void`) an island's brink falls into the starry void, not
+## a sea of cloud: these bands, darker down, the stars over them on a lattice of STAR px sliding by STAR_K, a nebula's
+## haze across; the Starsea's water past a crossing's deck has the same stars glinting in it.
+const VOID := [Color("1d1a46"), Color("17143c"), Color("110f32"), Color("0c0b26"), Color("08071b")]
+const NEBULA := Color(0.48, 0.32, 0.72, 0.08)
+const STAR := 12
+const STAR_K := 0.2
 
 var world
 var room: TopdownRoom
@@ -33,6 +40,7 @@ var _cam := Vector2.INF
 var _frame := -1
 var _drift := 0.0
 var _drawn_drift := -1
+var void_sky := false   ## T3: the room's area is past the star field's edge (the void under its brinks)
 
 func _init(w) -> void:
 	world = w
@@ -40,6 +48,8 @@ func _init(w) -> void:
 	name = "Vista"
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	edges = room.def.get("vista", [])
+	var live: bool = w.live and Game.room_rt != null and Game.room_rt.topdown == room   # the def TopdownAtmosphere reads
+	void_sky = bool(TopdownLight.area_of(Game.room_rt.def if live else room.def).get("void", false))
 	var a := TopdownLife.art()
 	strips = a.get("vistas", {})
 	if not edges.is_empty() and a.has("vista_sheet"): tex = load(str(a.vista_sheet))
@@ -51,7 +61,7 @@ func _process(delta: float) -> void:
 	var f := int(Time.get_ticks_msec() / 250) % 4
 	_drift += delta * CLOUD_DRIFT * (1.0 + TopdownLife.gust)
 	var dr := int(_drift)
-	if c != _cam or (f != _frame and _has_water()) or (dr != _drawn_drift and _has_cloud()):
+	if c != _cam or (f != _frame and (_has_water() or void_sky)) or (dr != _drawn_drift and _has_cloud() and not void_sky):
 		_cam = c
 		_frame = f
 		_drawn_drift = dr
@@ -138,13 +148,25 @@ func _south(kind: String, view: Rect2) -> void:
 			# nearer bank; then the cliff over them.
 			var pad := _pad("s")
 			var y := bottom
-			for i in SKY.size():
-				draw_rect(Rect2(view.position.x, y, view.size.x, pad / SKY.size() + 1.0), SKY[SKY.size() - 1 - i].lerp(HAZE, 0.5))
-				y += pad / SKY.size()
-			_strip("peaks_far", bottom + pad + 34.0, view)
-			_strip("cloud_sea", bottom + pad + 18.0, view)
-			_strip("peaks_mid", bottom + pad + 52.0, view)
-			_strip("cloud_sea", bottom + pad + 34.0, view, 0.65)
+			if void_sky:
+				# T3: past the star field's edge the brink falls into the void: dark bands, a nebula's haze, the stars.
+				# Its dark deepening down from the cliff's foot in steps of 4 px (fixed to the room, so the steps hold still as
+				# the camera pans), the nebula's haze across it, densest in its middle.
+				var deep := pad + T * 2.0
+				while y < view.end.y:
+					var k := clampf((y - bottom) / deep, 0.0, 1.0) * (VOID.size() - 1)
+					draw_rect(Rect2(view.position.x, y, view.size.x, 4.0), (VOID[int(k)] as Color).lerp(VOID[mini(int(k) + 1, VOID.size() - 1)], k - floorf(k)))
+					y += 4.0
+				for i in 3: draw_rect(Rect2(view.position.x, bottom + pad * (0.35 + 0.1 * i), view.size.x, pad * (0.5 - 0.2 * i)), NEBULA)
+				_stars(Rect2(view.position.x, bottom + T, view.size.x, view.end.y - bottom - T))
+			else:
+				for i in SKY.size():
+					draw_rect(Rect2(view.position.x, y, view.size.x, pad / SKY.size() + 1.0), SKY[SKY.size() - 1 - i].lerp(HAZE, 0.5))
+					y += pad / SKY.size()
+				_strip("peaks_far", bottom + pad + 34.0, view)
+				_strip("cloud_sea", bottom + pad + 18.0, view)
+				_strip("peaks_mid", bottom + pad + 52.0, view)
+				_strip("cloud_sea", bottom + pad + 34.0, view, 0.65)
 			var faces: Dictionary = v2.get("faces", {}).get("rock", {})
 			var lanes := _lanes("s")
 			var x0 := maxi(0, floori(view.position.x / T))
@@ -160,9 +182,32 @@ func _south(kind: String, view: Rect2) -> void:
 				if faces.is_empty(): continue
 				world.blit_layer(self, [str(faces.top[posmod(x, 4)]), Color.WHITE], at)
 				world.blit_layer(self, [str(faces.body[posmod(x, 4)]), Color.WHITE], at + Vector2(0, T))
-			# The cliff's foot, and the stairs', lost in the cloud: stepped bands, thicker down.
+			# The cliff's foot, and the stairs', lost in the cloud (or the void's dark): stepped bands, thicker down.
+			var foot: Color = VOID[0] if void_sky else HAZE
 			for k in 4:
-				draw_rect(Rect2(view.position.x, bottom + T * 1.5 + k * 3.0, view.size.x, 3.0), Color(HAZE, 0.3 + k * 0.2))
+				draw_rect(Rect2(view.position.x, bottom + T * 1.5 + k * 3.0, view.size.x, 3.0), Color(foot, 0.3 + k * 0.2))
+
+## T3: the void's stars over `area` (art px): one at most in each STAR px square of a lattice that slides by STAR_K as
+## the camera pans, most a single pale speck, a few brighter crosses, some twinkling on the water's clock.
+func _stars(area: Rect2, k := STAR_K, glint := 1.0, skip := Rect2()) -> void:
+	var off := Vector2(roundf(world.camera.position.x * (1.0 - k)), roundf(world.camera.position.y * (1.0 - k)))
+	var x0 := floori((area.position.x - off.x) / STAR)
+	var x1 := ceili((area.end.x - off.x) / STAR)
+	var y0 := floori((area.position.y - off.y) / STAR)
+	var y1 := ceili((area.end.y - off.y) / STAR)
+	var f := maxi(0, _frame)
+	for gy in range(y0, y1):
+		for gx in range(x0, x1):
+			var h := posmod((gx * 73856093) ^ (gy * 19349663), 1009)
+			if h % 5 != 0: continue
+			var p := off + Vector2(gx * STAR + (h >> 3) % (STAR - 2), gy * STAR + (h >> 5) % (STAR - 2))
+			if not area.has_point(p) or skip.has_point(p): continue
+			var a := glint * (0.55 if (h >> 2) % 3 == 0 else 0.85)
+			if (h >> 4) % 4 == f % 4: a *= 0.45   # a twinkle
+			var c := Color(0.86, 0.92, 1.0, a) if (h >> 6) % 3 else Color(1.0, 0.9, 0.74, a)
+			draw_rect(Rect2(p, Vector2.ONE), c)
+			if h % 35 == 0:
+				for d in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]: draw_rect(Rect2(p + d, Vector2.ONE), Color(c, a * 0.5))
 
 ## The columns of the room's `edge` a way leaves by (its lane, as wide as its span).
 func _lanes(edge: String) -> Dictionary:
@@ -192,3 +237,5 @@ func _water(view: Rect2, inside: Rect2, all: bool) -> void:
 			var name := str(frames[f][posmod(y, int(m.h)) * int(m.w) + posmod(x, int(m.w))])
 			world.blit_layer(self, [name, Color.WHITE], at)
 			draw_rect(Rect2(at, Vector2(T, T)), DEEP)
+	# T3: the Starsea's water past the star field's edge: the stars glinting in it, dimmer than over the void.
+	if void_sky and all: _stars(view, 0.5, 0.6, inside)

@@ -609,6 +609,18 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "low_gravity",
+   "id": "lowg_stair",
+   "rect": [
+    24,
+    3,
+    27,
+    25
+   ]
+  }
+ ],
  "vista": [
   {
    "edge": "s",

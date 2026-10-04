@@ -1280,13 +1280,14 @@ class Build:
     # docs/architecture/topdown_mechanics.md: a raft, an updraft and a climbable face on the grid, and where a room event
     # the side view calls to its own points sets its foes. topdown_rooms.check_traverse holds each to the grid.
     # T2: a raft's and a bounce's `look`, a crumble's `under` (boards that are the floor itself), and the hatch, lantern,
-    # hazard, ice and wind rows.
+    # hazard, ice and wind rows. T3: the crack (a cracked slab a Plunge breaks), no_flight and low_gravity rows.
     TRAVERSE_KEYS = {"raft": ("at", "size", "path", "speed", "wait_s", "mode", "level", "look"), "updraft": ("rect", "top", "speed"),
                      "bounce": ("rect", "speed", "look"), "lift": ("at", "size", "path", "speed", "wait_s", "mode", "level"),
                      "crumble": ("rect", "level", "break_s", "return_s", "under", "look"), "current": ("rect", "push"), "flood": ("rect", "top"),
                      "vine": ("foot", "top"), "ladder": ("foot", "top"), "rope": ("foot", "top"), "chain": ("foot", "top"),
                      "hatch": ("rect",), "lantern": ("at", "size", "level", "mode", "length", "amp_deg", "period_s", "phase_deg", "radius"),
-                     "hazard": ("rect",), "ice": ("rect",), "wind": ("rect",)}
+                     "hazard": ("rect",), "ice": ("rect",), "wind": ("rect",),
+                     "crack": ("rect", "level"), "no_flight": ("rect",), "low_gravity": ("rect",)}
 
     def traverse_rows(self):
         out = []

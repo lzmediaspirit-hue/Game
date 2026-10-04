@@ -619,6 +619,18 @@
    ]
   ]
  ],
+ "traverse": [
+  {
+   "kind": "low_gravity",
+   "id": "lowg_garden",
+   "rect": [
+    49,
+    3,
+    17,
+    25
+   ]
+  }
+ ],
  "vista": [
   {
    "edge": "s",

@@ -41,6 +41,9 @@ RF_FROSTPINE_CLIMB = room(
            ("boulder", 20, 20), ("boulder", 24, 19), ("boulder", 24, 20), ("boulder", 44, 12), ("boulder", 44, 13),
            ("boulder", 48, 12), ("boulder", 48, 13)],
     flora={"lower": dict(SLOPE, density=0.32), "middle": SLOPE, "upper": SLOPE, "landing_1": [], "landing_2": []},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's slippery ice on the last stretch before the way east,
+    # here the high tier's trail where the grey pilgrim stands.
+    traverse=[("ice", "frostpine_ice", dict(rect=(46, 5, 14, 5)))],
     foes="auto")
 
 # The Snow Ape Ledges: a snowfield under the crags where the trail crosses east. North of it the slope rises to the
@@ -88,6 +91,9 @@ RF_RIMEFROST_SUMMIT = room(
              "herb_2": "outcrop_e@41", "chest_6": "outcrop_e@44", "jar_5": "plateau@48"},
     props=[("ice_rock", 9, 22), ("ice_rock", 44, 20), ("ice_rock", 13, 8), ("lantern", 24, 22), ("lantern", 41, 22)],
     flora={"plateau": dict(SLOPE, density=0.34), "outcrop_w": SLOPE, "crown": [], "outcrop_e": SLOPE, "cleft": [], "rim": []},
+    # T3 (docs/architecture/topdown_mechanics.md): the side view's slippery ice over the west of the plateau, south of
+    # the trail where it comes up onto the summit.
+    traverse=[("ice", "summit_ice", dict(rect=(14, 17, 17, 7)))],
     foes="auto")
 
 
