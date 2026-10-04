@@ -381,13 +381,21 @@ and live fights in fourteen of the species' own top-down rooms.
 
 ## Still to draw
 
-The species the top-down rooms spawn that still stand in with their side-view sheet (R5's and R7's rooms, the
+The species the top-down rooms spawn that still stand in with their side-view sheet (R5's, R6's and R7's rooms, the
 Tidebreak Front's), by level. The Trial Tower has none left.
 
 | Species | Where | Start from |
 |---|---|---|
 | the_reflection | the Trial of Reflections (36) | `person` (the player's own outfit, its tint) |
 | hollow_behemoth | the Siege (story boss, 58) | `humanoid.gate`'s build, `hollowed` |
+| spark_weasel | the Azure Expanse: the Thunder Plains (64-66) | `quadruped.mustelid` |
+| stormgrass_stag | the Stormgrass Verge, the Thunderhorn Flats (64-68) | `quadruped.cervid` |
+| thunderhorn_rhino | the Lightning Scar, the Thunderhorn Flats (64-69) | `quadruped.bovid` |
+| frost_lynx | Rimefrost: the Frostpine Climb, the Snow Ape Ledges (67-70) | `quadruped.canine` (a cat's head) |
+| azure_carp_dragonet | Mirror Lake: the Mirror Shallows, the Reedless Shore, the Sentinel Causeway (68-72) | `fish.minnow` with the dragon's horns |
+| snow_ape | the Snow Ape Ledges, the Rimefrost Summit (68-72) | `humanoid.ape` |
+| thousand_eye_toad | Toad's Hollow (68) | `amphibian.toad` |
+| river_sentinel | the Sentinel Causeway (70-75) | `humanoid.sentinel` |
 | canyon_brigand | Gale Canyons: the Canyon Mouth, the Windbridge (73-76) | `person.fighter` |
 | wind_kite | the Canyon Mouth, the Kite Winds, the Windbridge (73-76) | `bird.hawk` or a `spirit` of paper |
 | sandstorm_scorpion | the Sunscar Desert, the Sealed Gate (73-78) | `crab.mud` (a tail kind) |

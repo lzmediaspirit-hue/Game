@@ -61,8 +61,8 @@ Tan and the Drowned Abbot, who read as ordinary villagers, were redrawn to that 
     size's bodies beside them dressed.
   - The capture set `monsters_m2` (`docs/redesign/feedback/monsters/m2/after/`): the lineups in every pose beside
     drawn foes for scale, the elites, and live fights in fourteen of their own rooms.
-- **Still to draw:** sixteen species of R5's and R7's rooms and the Tidebreak Front, listed by level in the engine doc.
-  The Trial Tower has none left.
+- **Still to draw:** twenty-four species of R5's, R6's and R7's rooms and the Tidebreak Front, listed by level in the
+  engine doc. The Trial Tower has none left.
 - **Checks.** `tools/run_tests.sh` ran on the tree merged with R5, R7, E3 and E5.
   - Every gate passed, `boot` among them (0 failing). `build_data` writes no data file: the rows, loot and voices are
     byte-identical. The `monsters` gate has 1,538 checks (1,038 at M1); it grows with the species, now 52.
