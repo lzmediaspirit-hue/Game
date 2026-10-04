@@ -143,7 +143,11 @@ const PROP_LIGHTS := {"lantern": ["lantern", 8, 12], "lantern_red": ["lantern_re
 	"stove": ["fire", 16, 25], "forge": ["fire", 13, 7],
 	# T3: R8's star lantern, its starlight in the glass (tools/art/topdown/furnish.py `star_lantern`); R7's iron brazier
 	# (the tomb's halls, the Hold) and R6's cook fire (the herders' camp), their flames (arid.py, furnish.py).
-	"star_lantern": ["star", 11, 15], "brazier": ["fire", 8, 9], "cook_fire": ["fire", 16, 22]}
+	"star_lantern": ["star", 11, 15], "brazier": ["fire", 8, 9], "cook_fire": ["fire", 16, 22],
+	# T3: R9's (tools/art/topdown/starfield.py): the Wardens' post lamps and caged stars, the Ashborn pyres, the Lantern
+	# Heart's wick pillars and flame basins.
+	"warden_lamp": ["star", 8, 12], "lantern_cage": ["star", 16, 21], "ash_pyre": ["fire", 16, 22], "wick_pillar": ["fire", 8, 10],
+	"flame_basin": ["fire", 16, 16]}
 ## Things of the room (by type, or by the prop they show) that give light, lifted this many art px over their spot.
 const OBJECT_LIGHTS := {"cooking_pot": ["fire", 6], "alchemy_furnace": ["fire", 10], "forge_anvil": ["fire", 6], "shrine": ["ember", 12],
 	"qi_spring": ["jade", 4], "teleport_stone": ["jade", 14], "lotus_lantern": ["lantern", 6]}

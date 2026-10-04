@@ -110,7 +110,11 @@ frame through the glide.
   hearth's backdrop is the Hold's outdoors, so it has a room entry, `ROOM_AREAS`). The sky-sea zones (R8) and the star
   field's (R9) lie under the side view's night skies: on the grid they are the story's night whatever the clock says
   (`STARLIT`). Lanternfall's star lanterns burn with a pale starlight; the tomb's and the Hold's braziers and the herders'
-  cook fire light their pools.
+  cook fire light their pools. Past the Lantern Star Field (the Citadel, the Orbit Ruins, the Ashen Reach, the Nebula
+  Deep, the Starsea's crossings: `STAR_VOID`) an island's brink falls into the starry void, not the sea of cloud: the
+  vista under the cliff is dark indigo bands with a nebula's haze across and stars on a lattice that slides slower than
+  the room, some twinkling; the Starsea's water round a crossing's deck has the same stars glinting in it. The Wardens'
+  lamps and caged stars, the Ashborn pyres and the Lantern Heart's wick pillars and flame basins give their light.
 - **Presentation.** The swim's stroke: a pull every 0.9 s while the swimmer moves, the walk's frames once through and the
   pace surging 15 % on it, then a glide on the walk's rest frame; each pull leaves a ring spreading on the water. A
   bounce gives as it launches a body: the drum's skin pressed in, the lotus leaf pushed into the wet, the culm bowed,
