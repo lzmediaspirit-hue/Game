@@ -1352,6 +1352,12 @@ checks them the same way. R8's note that a dock's `set_sail` is not closed by th
 all four docks (R6's Shipwrights' Yard, R8's Broken Pier, Starsea Launch and Arrival Quay) sail into a crossing on the
 grid, and `topdown_starfield` sails all four routes from their docks.
 
+With no room off the grid, decision 41's gate has nothing left to close in the game. Its checks still need a way off
+the grid: `rules_tests`' prototype suite and `topdown_tutorial`'s end of the prototype stand R9's rooms off it while
+they run (`tests/lib/off_grid.gd`, a test shortcut over `TopdownRoom.has_layout`'s cache), as the world was before R9.
+While a real way off the grid is left, they stand nothing off. `topdown_chapter3`'s story walk now runs on to the
+story's built end with nothing past the gate, and checks that, in place of the prototype's end.
+
 ## The rooms left, and the pace
 
 No side-view room remains without a layout: all 168 are on the grid (grid parity: 168 layouts). By zone (`region`),

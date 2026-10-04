@@ -45,6 +45,10 @@ and the Starsea's voyages on the grid.
     The Observatory, The Orbit Ruins, Cinder Fields, Kharn's Pyre, Lu's Lantern and The Leviathan's Maw room by room on
     the grid, checking every room's walks and view.
   - `room_engine` holds the twenty-one new specs; `rules_tests`' route tour walks them with auto-path.
+  - With every room on the grid, decision 41's gate has no real way to close. `rules_tests`' prototype suite and
+    `topdown_tutorial`'s end of the prototype stand R9's rooms off the grid while they check it (`tests/lib/off_grid.gd`;
+    nothing is stood off while a real way off the grid is left). `topdown_chapter3`'s story walk runs on to the
+    story's built end and checks that nothing waits past the gate.
 - **Still to do** (room_engine.md lists it): top-down sheets for fourteen species (the starsea pirate to the Nebula
   Leviathan); the gravity switches' low gravity, the crossing's moving vessel and the Leviathan's swim on the grid; a
   star-field TopdownLight area, the lit props' light at night, a star-water paint and a void vista.
