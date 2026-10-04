@@ -41,6 +41,11 @@ The Last Egg.
   - The `room_engine` capture set has R8's views (`docs/architecture/room_engine/r8/`).
   - `rules_tests`' route tour walks the twenty rooms too. No flight stands on a road or a wading way, since a body
     steered across a flight from its side sticks on its cheek.
+  - `topdown_chapter3` sets the story done up to the prototype's end in at most 200 steps, not 60. With these zones
+    on the grid the story runs on to chapter 19 inside the prototype.
+  - The full run (merged with R6, E5 and T2): every gate and all 31 suites pass, about 72,300 checks with no failure and
+    no script error. `room_engine` has 445 checks; grid parity holds for 147 layouts and 441 starts; the route tour walks
+    148 rooms.
 - **Still to do.** Nine foe species of these rooms have no top-down sheet. The Starsea crossing and the Field's night
   light have no grid part yet. Details are in the doc. (T2's wade slows the Shoals' shallows.)
 
