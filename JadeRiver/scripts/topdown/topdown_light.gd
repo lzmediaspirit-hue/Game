@@ -56,6 +56,15 @@ const GRADES := {
 	"dusk": {"sun": 0.04, "shade": 0.04, "sat": 1.0, "hi": SUN},
 	"night": {"sun": 0.0, "shade": 0.04, "sat": 0.9, "hi": SUN},
 }
+## T3: the area of the Lantern Star Field and the star field past it (their backdrops are the side view's night skies):
+## the night grade at the story's night, whatever the clock says, a little mist.
+const STARLIT := {"grade": "night", "clock": false, "hour": "night_story", "mist": 0.6, "motes": 0.0}
+## T3: the star field past the Lantern Star Field (R9's zones): starlit, and the drop past their islands' brinks is the
+## starry void, not a sea of cloud (TopdownVista reads `void`).
+const STAR_VOID := {"grade": "night", "clock": false, "hour": "night_story", "mist": 0.6, "motes": 0.0, "void": true}
+## T3: a room whose backdrop is the outdoors' but which lies under rock (the Clan Hearth's cavern behind the Hold Gate):
+## its own area.
+const ROOM_AREAS := {"ir_clan_hearth": "cave"}
 ## An area: its grade, whether the game's clock turns its hours (outdoors), its fixed hour otherwise, and how much mist
 ## and how many motes it holds (x the particle caps below).
 const AREAS := {
@@ -69,6 +78,14 @@ const AREAS := {
 	"cave": {"grade": "interior", "clock": false, "hour": "lamplit", "mist": 0.0, "motes": 0.3},
 	"valley_dusk": {"grade": "dusk", "clock": false, "hour": "dusk", "mist": 0.8, "motes": 0.6},
 	"valley_night": {"grade": "night", "clock": false, "hour": "night_story", "mist": 1.0, "motes": 0.0},
+	# T3 (topdown_mechanics.md, the R7, R8 and R9 rooms' light): the tomb's halls are lamp-lit, as a cave; the sky-sea
+	# and star-field zones lie under the side view's night skies, starlit whatever the clock says; the Lantern Heart is
+	# lit from within, as a cave.
+	"sunscar_tomb": {"grade": "interior", "clock": false, "hour": "lamplit", "mist": 0.0, "motes": 0.3},
+	"skyport_wreck": STARLIT, "lantern_harbor": STARLIT, "star_shoals": STARLIT, "blackmast_haven": STARLIT,
+	"wyrmnest_isles": STARLIT, "warden_citadel": STAR_VOID, "orbit_ruins": STAR_VOID, "ashen_reach": STAR_VOID,
+	"nebula_deep": STAR_VOID, "starsea": STAR_VOID,
+	"lantern_heart": {"grade": "interior", "clock": false, "hour": "lamplit", "mist": 0.0, "motes": 0.6},
 	"": {"grade": "day", "clock": true, "mist": 0.6, "motes": 1.0},
 }
 ## The night tint (§14.2: it stays `#8FA0C8`): the ambient light the night layer multiplies the world by after dark.
@@ -117,11 +134,20 @@ const LIGHT_KINDS := {
 	"fire": {"color": Color("ffae62"), "radius": 54, "bands": [[0.3, 0.95], [0.6, 0.6], [1.0, 0.3]], "flame": Color("ffe0a0")},
 	"door": {"color": Color("ffd08a"), "radius": 30, "bands": [[0.45, 0.7], [1.0, 0.34]]},
 	"jade": {"color": Color("88e8c8"), "radius": 30, "bands": [[0.4, 0.62], [1.0, 0.28]], "flame": Color("c8fff0")},
+	# T3: a star lantern's pale starlight (Lanternfall's, R8).
+	"star": {"color": Color("d4e8ff"), "radius": 50, "bands": [[0.32, 1.0], [0.62, 0.7], [1.0, 0.36]], "flame": Color("f6faff")},
 }
 ## Props that give light: the kind and where the flame sits in the sprite (px from its top-left).
 const PROP_LIGHTS := {"lantern": ["lantern", 8, 12], "lantern_red": ["lantern_red", 12, 15], "incense": ["ember", 8, 9],
 	# Decision 43's furnishings (tools/art/topdown/furnish.py): a stove's fire mouth, a forge's bed of coals.
-	"stove": ["fire", 16, 25], "forge": ["fire", 13, 7]}
+	"stove": ["fire", 16, 25], "forge": ["fire", 13, 7],
+	# T3: R8's star lantern, its starlight in the glass (tools/art/topdown/furnish.py `star_lantern`); R7's iron brazier
+	# (the tomb's halls, the Hold) and R6's cook fire (the herders' camp), their flames (arid.py, furnish.py).
+	"star_lantern": ["star", 11, 15], "brazier": ["fire", 8, 9], "cook_fire": ["fire", 16, 22],
+	# T3: R9's (tools/art/topdown/starfield.py): the Wardens' post lamps and caged stars, the Ashborn pyres, the Lantern
+	# Heart's wick pillars and flame basins.
+	"warden_lamp": ["star", 8, 12], "lantern_cage": ["star", 16, 21], "ash_pyre": ["fire", 16, 22], "wick_pillar": ["fire", 8, 10],
+	"flame_basin": ["fire", 16, 16]}
 ## Things of the room (by type, or by the prop they show) that give light, lifted this many art px over their spot.
 const OBJECT_LIGHTS := {"cooking_pot": ["fire", 6], "alchemy_furnace": ["fire", 10], "forge_anvil": ["fire", 6], "shrine": ["ember", 12],
 	"qi_spring": ["jade", 4], "teleport_stone": ["jade", 14], "lotus_lantern": ["lantern", 6]}
@@ -159,6 +185,7 @@ static var debug_hour := -1.0
 ## The area a room belongs to (AREAS), from its definition: a night room is the story's night whatever its backdrop.
 static func area_of(def: Dictionary) -> Dictionary:
 	if bool(def.get("night", false)): return AREAS.valley_night
+	if ROOM_AREAS.has(str(def.get("id", ""))): return AREAS[ROOM_AREAS[str(def.id)]]
 	return AREAS.get(str(def.get("backdrop", "")), AREAS[""])
 
 ## How far through the game's day it is (0..1): the capture tool's and tests' fixed hour, or the clock's.

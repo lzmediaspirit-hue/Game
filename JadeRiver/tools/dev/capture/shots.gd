@@ -106,7 +106,22 @@ const E1_VIEWS := [
 	["r8/17_smugglers_cove", "bm_smugglers_cove", Vector2(22, 9), true], ["r8/18_flagship_deck", "bm_flagship_deck", Vector2(24, 13), true],
 	["r8/19_nest_cliffs", "wn_nest_cliffs", Vector2(12, 19), true], ["r8/20_eggshell_terraces", "wn_eggshell_terraces", Vector2(24, 15), true],
 	["r8/21_guardians_crown", "wn_guardians_crown", Vector2(30, 14), true], ["r8/22_crown_cave_mouth", "wn_guardians_crown", Vector2(52, 12), false],
-	["r8/23_hatching_cave", "wn_hatching_cave", Vector2(24, 12), true]]
+	["r8/23_hatching_cave", "wn_hatching_cave", Vector2(24, 12), true],
+	# R9: the star field's end, the Starsea's crossings to the Lantern Heart (their pictures under r9/).
+	["r9/01_starsea_crossing", "ss_starsea_crossing", Vector2(30, 12), true], ["r9/02_lantern_crossing", "ss_lantern_crossing", Vector2(30, 12), true],
+	["r9/03_citadel_gate_court", "wc_citadel_gate", Vector2(34, 13), true], ["r9/04_citadel_gate_piers", "wc_citadel_gate", Vector2(30, 20), false],
+	["r9/05_wardens_hall", "wc_wardens_hall", Vector2(13.5, 11), true], ["r9/06_observatory", "wc_observatory", Vector2(13.5, 11), true],
+	["r9/07_presence_court", "wc_presence_court", Vector2(27, 17), true],
+	["r9/08_tumbling_stair", "or_tumbling_stair", Vector2(30, 15), true], ["r9/09_orbit_garden", "or_orbit_garden", Vector2(25, 15), true],
+	["r9/10_golem_foundry", "or_golem_foundry", Vector2(34, 13), true], ["r9/11_inverted_hall", "or_inverted_hall", Vector2(30, 12), true],
+	["r9/12_cinder_fields_landing", "ar_cinder_fields", Vector2(14, 15), true], ["r9/13_cinder_fields_camp", "ar_cinder_fields", Vector2(52, 14), false],
+	["r9/14_ashborn_palisade", "ar_ashborn_palisade", Vector2(31, 15), true], ["r9/15_war_camp", "ar_war_camp", Vector2(30, 14), true],
+	["r9/16_kharns_pyre", "ar_kharns_pyre", Vector2(28, 13), true],
+	["r9/17_nebula_verge", "nd_nebula_verge", Vector2(30, 13), true], ["r9/18_eel_currents", "nd_eel_currents", Vector2(38, 13), true],
+	["r9/19_crab_grottoes", "nd_crab_grottoes", Vector2(46, 12), true], ["r9/20_leviathans_maw", "nd_leviathans_maw", Vector2(42, 13), true],
+	["r9/21_wick_gate", "lt_wick_gate", Vector2(30, 12), true], ["r9/22_hall_of_burning_stars", "lt_hall_of_burning_stars", Vector2(36, 12), true],
+	["r9/23_flame_heart", "lt_flame_heart", Vector2(28, 17), true],
+]
 
 static func sets() -> Dictionary:
 	var hud_stage := [["new_game"], ["frames", 30], ["no_scenes"], ["weapon_hall"], ["load", "lf_village", Vector2.ZERO], ["frames", 20], ["no_scenes"]]
@@ -902,6 +917,38 @@ static func sets() -> Dictionary:
 		t2.call("21_swim_drowned_grotto", "ds_drowned_grotto", Vector2(9, 12), [["set", "cultivator.secret_arts", ["breath_control"]], ["refresh"], ["move", Vector2.DOWN],
 			["frames", 16], ["stop"], ["frames", 16]]),
 		t2.call("22_wade_scripture_well", "ds_scripture_well", Vector2(12, 22), [["move", Vector2.RIGHT], ["frames", 40], ["stop"], ["frames", 4]])]}
+
+	# T3 (docs/architecture/topdown_mechanics.md): Act II onward and T2's leftovers, each in its room, the world alone at
+	# x2: the Lower Pit's cracked slab whole and broken by a Plunge, Rimefrost's ice, the Tunnels' pits open beside their
+	# planks, an open hatch, a lantern going round upright, the swim's wake, and the light of the late zones (the tomb,
+	# the Clan Hearth's cavern, Lanternfall's star lanterns under the star field's night). The bounces' give is in the
+	# art's review sheet (traverse_x4.png): it lasts a few frames.
+	s["traversal_t3"] = {"doc": "T3: Act II onward and T2's leftovers on the grid: the cracked slab, Rimefrost's ice, open spikes, an open hatch, an upright lantern, the swim's wake, the late zones' light, and the star field's end (low gravity, the void, star-water, the crossing, the Wardens' lamps)",
+		"out": "architecture/topdown_mechanics/t3/", "stage": [["hour", 0.375], ["weather", "clear"], ["new_game"], ["frames", 360],
+			["keep_whole", true], ["set", "cultivator.realm_key", "qi_kindling_9"], ["unlocks_evaluate"], ["refresh"], ["qi_full"],
+			["secret_art", "plunge"]], "rows": [
+		t2.call("01_cracked_slab_whole", "sq_lower_pit", Vector2(38, 16), [["face", Vector2.RIGHT], ["frames", 10]]),
+		t2.call("02_cracked_slab_broken", "sq_lower_pit", Vector2(38, 16), [["stand_cell", [41, 13]], ["frames", 4], ["cooldowns_clear"], ["jump"], ["frames", 8],
+			["plunge"], ["frames", 50], ["move", Vector2(0.5, 1).normalized()], ["frames", 14], ["stop"], ["frames", 8]]),
+		t2.call("03_ice_frostpine_climb", "rf_frostpine_climb", Vector2(48, 6), [["move", Vector2.RIGHT], ["frames", 36], ["stop"], ["frames", 14]]),
+		t2.call("04_ice_rimefrost_summit", "rf_rimefrost_summit", Vector2(15, 21), [["move", Vector2.RIGHT], ["frames", 36], ["stop"], ["frames", 14]]),
+		t2.call("05_open_spikes_tunnels", "mh_tunnels", Vector2(27, 13), [["face", Vector2.LEFT], ["frames", 10]]),
+		t2.call("06_hatch_open_old_ma_store", "lf_old_ma_store", Vector2(7, 8), [["quests_done", ["the_runaway_kite"]], ["face", Vector2.LEFT], ["frames", 40]]),
+		t2.call("07_lantern_round_upright", "ds_hall_of_lanterns", Vector2(14, 6), [["face", Vector2.RIGHT], ["frames", 130]]),
+		t2.call("08_swim_wake_drowned_grotto", "ds_drowned_grotto", Vector2(9, 12), [["set", "cultivator.secret_arts", ["breath_control"]], ["refresh"],
+			["move", Vector2.DOWN], ["frames", 16], ["move", Vector2.RIGHT], ["frames", 20], ["stop"]]),
+		t2.call("09_star_lanterns_arrival_quay", "lh_arrival_quay", Vector2(20, 12), [["frames", 30]]),
+		t2.call("10_tomb_lamplit", "ts_hall_of_sand_kings", Vector2(30, 13), [["frames", 30]]),
+		t2.call("11_clan_hearth_lamplit", "ir_clan_hearth", Vector2(28, 11), [["frames", 30]]),
+		# R9's rooms: the Inverted Hall's east switch turned (the light air's motes over the hall's east half, the high
+		# gallery over them), a brink over the void, the nebula's star-water, the crossing's deck under way, the Wardens'
+		# lamps and caged stars.
+		t2.call("12_low_gravity_inverted_hall", "or_inverted_hall", Vector2(44, 16), [["beside", "switch_hall_b"],
+			["submit", {"type": "interact", "object": "switch_hall_b"}], ["stand_cell", [33, 7]], ["face", Vector2.UP], ["frames", 90]]),
+		t2.call("13_void_tumbling_stair", "or_tumbling_stair", Vector2(19, 25), [["face", Vector2.DOWN], ["frames", 30]]),
+		t2.call("14_star_water_nebula_verge", "nd_nebula_verge", Vector2(26, 17), [["face", Vector2.DOWN], ["frames", 30]]),
+		t2.call("15_crossing_deck_starsea", "ss_starsea_crossing", Vector2(22, 12), [["frames", 40]]),
+		t2.call("16_warden_lamps_citadel_gate", "wc_citadel_gate", Vector2(30, 19), [["frames", 30]])]}
 
 	var weave_foes := [["wild_boarlet", Vector2(46, 12)], ["mudshell_crab", Vector2(54, -22)]]
 	s["decision42"] = {"doc": "Decision 42: the weave (basic attack, technique, basic attack, each cutting the last one's recovery) frame by frame for the bare hands and the jian; the sprint and the light touch's walk as strips",

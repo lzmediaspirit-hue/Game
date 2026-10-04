@@ -18,6 +18,9 @@ extends RefCounted
 ## between, one every `turn_row_s`, when the stick swings round (an aimed blow's `face` turns it at once).
 
 const STEP := 1.0 / 120.0
+## T3: the eight ways round a body the wind looks along for a drop (the axes and the diagonals).
+const WIND_AXES := [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1),
+	Vector2(0.70710678, 0.70710678), Vector2(-0.70710678, 0.70710678), Vector2(0.70710678, -0.70710678), Vector2(-0.70710678, -0.70710678)]
 ## The body's eight drawn rows and their angles on the ground (east 0, south 90); NW, W and SW mirror NE, E and SE.
 const ROW_ANGLES := {"s": 90.0, "se": 45.0, "e": 0.0, "ne": -45.0, "n": -90.0, "nw": -135.0, "w": 180.0, "sw": 135.0}
 
@@ -93,6 +96,12 @@ var wade_free := false
 var swim_s: float
 var swim_factor: float
 var swim_out: float
+## T3: the swim's stroke (topdown_mechanics.md): a pull and a glide every `swim_stroke` seconds while the swimmer moves,
+## the pace surging `swim_surge` of itself on the pull and easing on the glide (the same pace on the whole), each pull
+## announced (`stroked`: the wake's ring); `stroke_t` is how far into this stroke it is.
+var swim_stroke: float
+var swim_surge: float
+var stroke_t := 0.0
 var shallow_factor: float
 var wind_edge: float
 var _wading := {}          ## the paint marks that are floors under shallow water (the tile set's `flood`), per room
@@ -187,6 +196,8 @@ func _init(r: TopdownRoom, at := Vector2.INF) -> void:
 	swim_s = conf("traverse.swim_s", 30.0)
 	swim_factor = conf("traverse.swim_factor", 0.6)
 	swim_out = conf("traverse.swim_out", 24.0)
+	swim_stroke = conf("traverse.swim_stroke_s", 0.9)
+	swim_surge = conf("traverse.swim_surge", 0.15)
 	shallow_factor = conf("traverse.shallow_factor", 0.7)
 	wind_edge = conf("traverse.wind_edge", 36.0)
 	swim_left = swim_s
@@ -271,6 +282,10 @@ func floor_at(p: Vector2) -> float:
 			# T2: boards that were the floor itself, gone: the floor under them, or a hole (water, a pit).
 			var gone := tr.crumble_gone_at(p) if cb.is_empty() else {}
 			if not gone.is_empty() and absf(float(gone.z) - h) < 0.5: return float(gone.under)
+		if not tr.cracks.is_empty():
+			# T3: a cracked slab stands over the floor until a Plunge breaks it.
+			var ck := tr.crack_at(p)
+			if not ck.is_empty() and float(ck.z) > h: return float(ck.z)
 		if not tr.floods.is_empty() and h < INF and not water_walk and tr.flooded(p, h): return TopdownRoom.WATER_Z
 	return 0.0 if water_walk and h == TopdownRoom.WATER_Z else h
 
@@ -308,15 +323,17 @@ func _current() -> Vector2:
 	return tr.current_at(pos)
 
 ## T2 · the wind's push on a body standing in it (the side view's wind volume: strong for part of its cycle, a breeze the
-## rest, harder within `wind_edge` of a drop).
-func _wind() -> Vector2:
+## rest, harder within `wind_edge` of a drop), units a second now (T3: public, the traversal suite asks it).
+func wind_push() -> Vector2:
 	var tr := traverse()
 	if tr == null or tr.winds.is_empty() or not grounded or plunging or not climbing.is_empty(): return Vector2.ZERO
 	var wv := tr.wind_at(pos)
 	if wv.is_empty(): return Vector2.ZERO
 	var k := tr.wind_strength(wv)
-	for d in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-		if floor_at(pos + d * wind_edge) < z - step_up:
+	# T3: a drop within `wind_edge` along any of the eight ways round the body (T2 looked along the four axes only, so a
+	# brink cut on the diagonal was missed).
+	for d in WIND_AXES:
+		if floor_at(pos + (d as Vector2) * wind_edge) < z - step_up:
 			k *= float(wv.edge_factor)
 			break
 	return (wv.push as Vector2) * k
@@ -324,7 +341,7 @@ func _wind() -> Vector2:
 ## T2 · the pace the floor underfoot allows: the shallows slow a wading body (a floor under shallow water: the tile set's
 ## `flood`, the side view's water_shallow), and a swimmer goes at the swim's pace.
 func _pace() -> float:
-	if swimming: return swim_factor
+	if swimming: return swim_factor * (1.0 + swim_surge * cos(TAU * stroke_t / maxf(0.1, swim_stroke)))   # T3: the stroke's surge
 	if wade_free or not grounded: return 1.0
 	if _wading_room != room:
 		_wading_room = room
@@ -496,9 +513,14 @@ func _substep(h: float, axis: Vector2) -> void:
 			elif target == Vector2.ZERO and not long_jump: vel = vel.move_toward(Vector2.ZERO, air_brake * h)
 	if axis.length() > 0.2 and dash_t <= 0.0 and push_t <= 0.0 and not lock_face and not plunging: _face(axis)
 	_turn_row(h)
+	# T3 · the swim's stroke: a pull every `swim_stroke` seconds while the swimmer moves (the first at once), announced.
+	var stroking := swimming and grounded and axis.length() > 0.2
+	var was := stroke_t
+	stroke_t = fposmod(stroke_t + h, maxf(0.1, swim_stroke)) if stroking else 0.0
+	if stroking and (was <= 0.0 or stroke_t < was): events.append({"type": "stroked"})
 	# A gust or a current (S17, the World authority's hazard drift) carries the body on top of its own step; walls and
 	# the bank stop it as they stop walking.
-	var v := vel + (drift if not plunging else Vector2.ZERO) + _current() + _wind()
+	var v := vel + (drift if not plunging else Vector2.ZERO) + _current() + wind_push()
 	_move(Vector2(v.x * h, 0.0), axis)
 	_move(Vector2(0.0, v.y * h), axis)
 	_vertical(h)
@@ -663,7 +685,8 @@ func _magnet(h: float, axis: Vector2) -> bool:
 	if speed < 1.0 or axis.length() < 0.2 or axis.normalized().dot(vel / speed) < 0.3: return false
 	var cp := TopdownRoom.cell_of(pos)
 	if room.is_water(cp.x, cp.y) or not room.stair_at(cp.x, cp.y).is_empty(): return false
-	var t := (vz + sqrt(maxf(0.0, vz * vz + 2.0 * gravity * (z - here)))) / gravity   # to come down to the top
+	var g := gravity * gravity_k()
+	var t := (vz + sqrt(maxf(0.0, vz * vz + 2.0 * g * (z - here)))) / g   # to come down to the top
 	if t <= h: return false
 	var d := vel / speed
 	var travel := speed * t
@@ -702,9 +725,11 @@ func _vertical(h: float) -> void:
 			events.append({"type": "fell", "z": z})
 		else:
 			z = ground   # stairs and small steps follow the floor
-			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2).
+			# A safe spot is never a raft's deck (it moves on) nor the water's surface (T1), nor boards that may give way (T2),
+			# nor a pit's open spikes (T3).
 			var trs := traverse()
-			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()):
+			if _clear_ground() and ride == "" and room.height_at(pos) != TopdownRoom.WATER_Z and (trs == null or trs.crumbles.is_empty() or trs.crumble_at(pos).is_empty()) \
+					and (trs == null or trs.hazards.is_empty() or trs.spikes_at(pos).is_empty()):
 				safe = pos
 				safe_z = z
 			# T1 · Water Skimming: stepping out onto the water's surface is the art's use, announced once an outing.
@@ -716,6 +741,10 @@ func _vertical(h: float) -> void:
 			if tr != null and not tr.crumbles.is_empty():
 				var cb := tr.crumble_at(pos)
 				if not cb.is_empty() and absf(float(cb.z) - z) < 0.5: tr.touch(cb)
+				# T3 · gone boards that were the floor wait while the body stands under them (the floor they drop to), so
+				# coming back they never lift it onto them.
+				var gone := tr.crumble_gone_at(pos) if cb.is_empty() else {}
+				if not gone.is_empty() and str(gone.hole) == "" and absf(float(gone.under) - z) < 0.5: tr.hold(gone)
 		return
 	coyote = maxf(0.0, coyote - h)
 	if flying:
@@ -734,8 +763,11 @@ func _vertical(h: float) -> void:
 		vz = -glide_fall   # T1 · Falling Leaf Glide caps the fall
 		z += vz * h
 	else:
-		z += vz * h - 0.5 * gravity * h * h   # exact within the step, so the apex and airtime match the numbers
-		vz -= gravity * h
+		# T3 · a live low-gravity volume lightens the fall, never the jump (the side view's rule): the same impulse, its
+		# share of the pull, so a jump in it climbs higher and comes down slower.
+		var g := gravity * gravity_k()
+		z += vz * h - 0.5 * g * h * h   # exact within the step, so the apex and airtime match the numbers
+		vz -= g * h
 		if gliding: vz = maxf(vz, -glide_fall)
 	peak = maxf(peak, z)
 	_push_out()
@@ -778,12 +810,27 @@ func _fly_step(h: float) -> void:
 		_land()
 	elif z < under: z = under
 
+## T3 · the share of gravity's pull on the body where it is: a live low-gravity volume's (TopdownTraverse.gravity_at),
+## 1.0 elsewhere or in a room with none.
+func gravity_k() -> float:
+	var tr := traverse()
+	return 1.0 if tr == null or tr.lowgs.is_empty() else tr.gravity_at(pos)
+
 ## T1: the updraft the body is in, in the air ({} when none, or the room has none, or it plunges).
 func updraft_here() -> Dictionary:
 	var tr := traverse()
 	return {} if tr == null or tr.updrafts.is_empty() or plunging else tr.updraft_at(pos, z)
 
 func _land() -> void:
+	# T3 · a Plunge coming down on a cracked slab breaks it and falls on through (the side view's rule 10): the body is
+	# still plunging, onto the floor under the slab, where it lands and strikes.
+	if plunging:
+		var trc := traverse()
+		var ck: Dictionary = trc.crack_at(pos) if trc != null and not trc.cracks.is_empty() else {}
+		if not ck.is_empty() and absf(float(ck.z) - z) < 0.5:
+			trc.break_crack(ck)
+			events.append({"type": "cracked", "crack": str(ck.id), "z": z})
+			return
 	var fall := peak - z
 	var plunged := plunging
 	grounded = true
@@ -823,6 +870,7 @@ func _land() -> void:
 		grounded = false
 		vz = float(b.speed)
 		peak = z
+		b.sprung = tr.time   # T3: the drum's skin, the leaf, the culm give under it and spring back (TopdownTraverseView)
 		events.append({"type": "bounced", "bounce": str(b.id)})
 		return
 	if buffer > 0.0 and not plunged: _jump()

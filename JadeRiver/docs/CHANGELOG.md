@@ -1,5 +1,180 @@
 # Changelog
 
+## The side view's mechanics from Act II on, and what T2 left (T3)
+
+T2 left the grid covering 39 of the side view's 43 mechanics, Act I done but the Lower Pit's slab
+(`docs/architecture/topdown_mechanics.md`). T3 did the to-do from there: the four mechanics left, the late zones'
+"missing top-down" notes (R6 to R9), T2's presentation leftovers and its edge cases. Every side-view-only mechanic now
+has a top-down version. What is left is art for the art batches: the mounts' rider pose and sheets, a flying pose, and
+the Leviathan's swim row.
+
+- **The cracked slab** (`crack` rows). The Lower Pit's slab stands a level over the pit's floor. A plain landing holds
+  it; a Plunge breaks it for the visit and strikes on the floor below. The spirit stone shards under it are sealed (not
+  shown, not offered) until it breaks.
+- **Rimefrost's ice.** Frostpine Climb's high trail and Rimefrost Summit's plateau get T2's `ice` rows. A sheet's glaze
+  on open ground now ends raggedly.
+- **No-flight.** No side-view room has a no-flight volume. The rooms and types that refuse flight refuse it on the
+  grid, R9's Inverted Hall, Leviathan's Maw and crossings among them. `no_flight` rows are the volumes' counterpart: the
+  hold glides, and a flight carried in comes down (`flight_ended`, `no_flight`).
+- **Low gravity and the jade switches** (`low_gravity` rows). A row takes its side volume's share of the pull and its
+  switch; `toggle_gravity` sets the rows as it sets the side view's volumes. While live, a standing jump climbs
+  1/0.45 as high and hangs longer; violet motes rise off the floor. The Orbit Ruins' four volumes are rows (the
+  Tumbling Stair's, the Orbit Garden's, the Inverted Hall's two). With the hall's east switch turned, a standing jump
+  climbs onto its high gallery, as in the side view.
+- **The Starsea.** The four docks set sail with their own call on the grid. The prototype's gate holds a dock as it
+  holds a way while its crossing or its port has no layout; with both laid out the voyage plays on the grid. On a
+  crossing the star-water streams past the hull. The yard's chart table and slipway open their pages from the grid. The
+  sky-ships' ferries are the side view's press-up doors: it has no boarding moment beyond that.
+- **The Leviathan's lagoon.** The Nebula Leviathan is the side view's flier, and on the grid a flier crosses water: it
+  goes over its lagoon as it likes. Its swim's look waits on its sheet's `swim` row.
+- **The late zones' light.** The tomb's halls and the Clan Hearth's cavern are lamp-lit at any hour. The sky-sea zones
+  and the star field lie under the story's night. Past the Lantern Star Field an island's brink falls into the starry
+  void, and the water there is star-water. Star lanterns, the Wardens' lamps and caged stars, braziers, cook fires,
+  pyres, wick pillars and flame basins give light.
+- **Presentation.**
+  - The swim's stroke: a pull every 0.9 s, the pace surging on it, then a glide on the walk's rest frame; each pull
+    leaves a wake.
+  - Each bounce gives as it launches a body.
+  - An open hatch keeps its gate open, the seals torn.
+  - The circling lanterns go round upright.
+  - A flier high over its floor is drawn over the crowns below it.
+- **T2's edge cases.** Returning boards wait for the body under them. The Tunnels' pits open beside their planks, and
+  their spikes strike a body standing on them. The wind looks for a drop along eight ways.
+- **Art.** Original pixel art in `tools/art/topdown/traverse.py`: the bounces' pressed and springing frames, the open
+  seal gate, the slab's tops, face and rubble, the spikes, the wake, the light air's motes and the star-water's streaks.
+- **Tests and pictures.**
+  - `topdown_traversal` grows by fifteen parts (25 to 39).
+  - The capture set `traversal_t3` writes `docs/architecture/topdown_mechanics/t3/`.
+- **Checks.** The full run (merged with R9 and E5b): every gate passes (`room_engine`, `topdown_rooms` with grid parity,
+  `places` and `boot` among them) and all 34 suites, 77,005 checks with 0 failures and no SCRIPT ERROR. Only
+  `topdown_traversal` grows: from 236 to 348, its fifteen new parts 112 of them. Grid parity holds for 168 layouts and
+  498 starts. Only the layouts of the rooms with T3 rows changed: the Lower Pit, the Tunnels, Frostpine Climb, Rimefrost
+  Summit and the Orbit Ruins' three.
+
+## The star field's end on the grid (R9)
+
+The room engine's last batch (`docs/architecture/room_engine.md`, "The star field's end (R9)"). The twenty-one side-view
+rooms of the Lantern Star Field's last zones are specs now, and a top-down character plays Act III's chapters 20 to 22
+and the Starsea's voyages on the grid.
+
+- **Twenty-one rooms, 7 to 38 spec lines each, anchors included.**
+  - The Starsea's crossings: the Wreck Run's and the Lantern Run's decks (one `deck()` helper, a skiff's hull).
+  - The Star Warden Citadel: the Citadel Gate, the Wardens' Hall, the Observatory and the Presence Court.
+  - The Orbit Ruins: the Tumbling Stair, the Orbit Garden, the Golem Foundry and the Inverted Hall.
+  - The Ashen Reach: the Cinder Fields, the Ashborn Palisade, the War Camp and Kharn's Pyre.
+  - The Nebula Deep: the Nebula Verge, the Eel Currents, the Crab Grottoes and the Leviathan's Maw.
+  - The Lantern Heart: the Wick Gate, the Hall of Burning Stars and the Flame Heart.
+
+  Every NPC, object, herb, jar and way of each side-view room has its spot. The fields' platforms are dunes, rises,
+  landings, galleries and lookouts with their flights; the Inverted Hall's high gallery is a flight.
+- **Looks.**
+  - Six biomes: `citadel` (the Wardens' granite and flagstones, kept gardens, lamp-lined stairs), `orbit_ruins`
+    (granite floors and broken rings on grey rock, gold crystals), `ashen` (dark earth, ash dunes, ash drifts and
+    embers, charred trees), `nebula` (reefs round the nebula's water, coral trees, islets), `lantern_heart` (golden
+    sandstone halls, wick pillars, flame basins) and `starsea` (a deck on the sea). R5's Wardens' stone and cloud sea,
+    R7's tomb walls, `earth` rule and brazier are reused.
+  - Twenty-four props (`tools/art/topdown/starfield.py`, joined through `furnish.py`'s R9 block; the prop sheet rebuilt
+    with `build_tiles.py`): a Warden lamp, a lantern cage, a Warden statue and banner, a ballista, a star chart table,
+    an armillary, a pressure pillar, a floating orbit stone, a clump of gold crystals, a gravity plate, a golem husk,
+    an Ashborn pyre, tent and banner, embers, an ash drift, a charred tree, nebula coral, a coral tree, a void crab's
+    shell, a wick pillar, a flame basin and a mast.
+  - R8 landed first with its own `star_lantern` and `star_crystal`, which are different pieces. So R9's two are renamed
+    `warden_lamp` and `crystal_cluster`, and both batches' props are in the sheet (159 in all).
+  - The vistas (the cloud sea under the islands' brinks, the sea round the decks) are in `topdown_life.VISTAS`.
+- **No engine rule changed**: `engine.py` is as R7 left it. The specs' own helpers lay the rings (`ring()`), the hull
+  (`deck()`), the dunes, the islets and the wick pillars' rows.
+- **Places.** Seven rows join `places.py` (62 in all with R8's): the Citadel Gate's teleport stone and shrine, and the
+  shrines of the Tumbling Stair, the Wardens' landing, the War Camp, the Nebula Verge and the Wick Gate.
+- **The frontier is gone.** With R8 merged, every side-view room has a layout (168). The Citadel's skiff to Lanternfall,
+  the Wick Gate's stair to the Harbor Market and R8's two ways back are open. The Tidebreak Bastion's skiff to the
+  Citadel and the Drone Hive's way into the Nebula Deep are open too. All four Starsea docks sail into a crossing on
+  the grid.
+- **Tests.**
+  - A new suite, `topdown_starfield` (in `tests/suites.txt` after `topdown_sunscar`), 77 checks. It sails both
+    crossings both ways, each from its dock on the grid (R6's Shipwrights' Yard, R8's Broken Pier, Starsea Launch and
+    Arrival Quay). The waves board onto the deck's cells and the vessel makes port. It plays The Citadel, The Aspirant,
+    The Observatory, The Orbit Ruins, Cinder Fields, Kharn's Pyre, Lu's Lantern and The Leviathan's Maw room by room on
+    the grid, checking every room's walks and view.
+  - `room_engine` holds the twenty-one new specs; `rules_tests`' route tour walks them with auto-path.
+  - With every room on the grid, decision 41's gate has no real way to close. `rules_tests`' prototype suite and
+    `topdown_tutorial`'s end of the prototype stand R9's rooms off the grid while they check it (`tests/lib/off_grid.gd`;
+    nothing is stood off while a real way off the grid is left). `topdown_chapter3`'s story walk runs on to the
+    story's built end and checks that nothing waits past the gate.
+- **Still to do** (room_engine.md lists it): top-down sheets for fourteen species (the starsea pirate to the Nebula
+  Leviathan); the gravity switches' low gravity, the crossing's moving vessel and the Leviathan's swim on the grid; a
+  star-field TopdownLight area, the lit props' light at night, a star-water paint and a void vista.
+- **Checks.** The full run (merged with R6, E5, T2, R8 and M2): all 34 suites pass, 76,849 checks with 0 failures and
+  no SCRIPT ERROR. `topdown_starfield` has 77 of them, `topdown_skysea` 101 and `room_engine` 508. Grid parity holds for
+  168 layouts (every side-view room) and 498 starts, and `places` reaches all 62. The R8 and R9 views, captured again
+  after the merge, match their committed pictures pixel for pixel.
+
+## Side quests at their rooms' tiers, and every pin with a reason (decision 45, E5b)
+
+E5's migration kept the hand quests' balance as it was. It pinned 35 sums and kept 14 quests whose rooms lie far from
+the tier they open at. E5b fixed them in the quest specs (`tools/content/quests/`, `docs/architecture/quest_engine.md`,
+"Balance fixes (E5b)"). Every quest still pays a number of cultivation points, its band's at its tier.
+
+- **No room far over or under its tier.** 14 quests were pitched more than four Levels under their room, or eight over
+  it. Each now opens where its room is a fair fight:
+  - Tie Niu's and Qiu Feng's last favours wait for the Echo Cliffs (Heart Tempering 7). Tie Niu's used to be pitched
+    at Bone Forging 1.
+  - Lan Yue's Oath waits for the Flooded Gate (Qi Unfurling 6).
+  - Bai Ling's three favours wait for the Forgotten Monastery (Spirit Awakening 8). They used to sit at Qi Unfurling 1.
+  - In Act II, Silk on the Wind opens at Sage Sovereign 1, Plumes for the Bellows and Stingers for the Hold at 2, and
+    Glass Teeth, Iron from a Comet and Clear Skies over the Peak at 3. They used to sit at Sage 2 and 3 and Sage
+    Sovereign 1.
+  - The Leviathan's Maw opens at Sphere Lord 3, the Maw's own realm.
+  - Grey Roofs dropped the Grey Pools' fight (Levels 7 to 12). It now asks for the two grey lanterns on the hamlet's
+    roofs, as its design had it. The hamlet's door opens at Heart Tempering 1.
+- **`realm=ROOM`** (additive, `spec.py`). A quest that follows another can also wait for its room's realm, the middle
+  of its band. The derivation still decides it, so it follows a room whose band moves.
+- **The companions' favours.** Their template now leads each favour to its room. The first favour asks for the
+  Companions unlock, so its chain is pitched at Qi Kindling 5, when a companion first joins. Each favour pays its
+  band beside the bond, not a flat 80 taels.
+- **Each pin with its reason.** A pinned pay now needs `why="..."` (a big favour, a tiny errand, a title or goods
+  instead of money). `--check` fails a pin without one, and `--diffs` prints them all. 11 quests keep a pin:
+  - Guo's Old Wound, a tiny errand;
+  - three titles, from Wen Zhao, Uncle Guo and Dou;
+  - goods instead of money, from Trader Min and Old Pan (three errands);
+  - Snow for the Cabinet, paid in pills;
+  - A-Lan's Herd, paid in spirit stones;
+  - The Leviathan's Maw, a world boss.
+
+  The other 31 pins had no reason, so those quests pay their band. 46 of the 57 quests pay their band now; 15 did.
+- **The daily board at its bands.** Every hunt follows its foe's Levels. Mist Lotus and Copper follow their nodes, and
+  so does Ember Peppers. Wolves in the mist and Mist Lotus used to run to Level 70. Two new hunts take the late Act I
+  Levels with foes of their own: Stags on the ridge (54 to 63) and Rocs over the shrine (57 to 67). Jadeiron keeps
+  Level 12 with its reason (an adept's vein) and stops at 40. 21 jobs, 20 derived.
+- **New checks in `quest_engine`.** No quest may sit far from its room (`far_rooms`). No job may be posted far from its
+  foe or its nodes (`far_jobs`). Every pin needs its reason. `tests.py` has 10 tests now (`t_far` is new).
+- **Pacing (balance_sim).** Act I moved earlier and stays within ±15%. The sim had counted Tie Niu's 30 minutes of
+  favours at Bone Forging 1.
+  - Qi Kindling 1: 4.9 h to 4.5 (target 5).
+  - Qi Unfurling 1: 12.5 to 11.7 (13).
+  - Heart Tempering 1: 19.8 to 18.8 (20).
+  - Cloud Stride 1: 30.6 to 29.6 (30).
+  - Spirit Awakening 1: 43.8 to 42.9 (42).
+  - Heaven Glimpse 1: 56.8 to 56.1 (55).
+  - The act's end: 65.0 to 64.4 (65).
+  - Sage Sovereign 1: 106.2 to 105.5 (110).
+
+  Both pay-an-hour checks hold. In taels, Bone Forging is 1.18× the session's hour and Qi Kindling 0.85×.
+- **Tests that play them.**
+  - `topdown_chapter4` plays Grey Roofs as the roofs.
+  - `valley_run` plays the moved Act II quests at their new realms, and first checks that each is not yet offered.
+- **Checks.** The full run after merging R8 and M2 passes every gate (`quest_engine`, `room_engine`, `topdown_rooms`
+  and `boot` among them) and all 31 suites: 76,750 checks with 0 failures and no SCRIPT ERROR. Three counts are E5b's:
+  - `data_validation` went from 50,445 to 50,494, for the favours' rooms and requirements and the two new jobs;
+  - `topdown_chapter4` went from 47 to 44, without the Grey Pools' fight;
+  - `valley_run` went from 3,000 to 2,998: the moved quests' checks, and fewer breakthrough trainings on the way.
+
+  `room_engine` (445), `topdown_tutorial` (1,063) and the new `topdown_skysea` (101) are R8's, and `monsters` (1,538)
+  is M2's.
+- **Left for a later look.**
+  - The story of Acts II and III sends the player as far past its rooms, six to eight Levels over (The Sealed Gate:
+    Sage 3 into the Worm Sea, 77 to 81).
+  - The board has no gathering or mining job above Level 40: those nodes want an expert's rank.
+
 ## The monster engine's second batch: the Act I zones' foes, and bosses of their own build (decision 45, M2)
 
 The seventeen species M1 left, drawn with the monster engine in story order (`docs/architecture/monster_engine.md`,

@@ -56,7 +56,10 @@ MH_TUNNELS = room(
     # pit's spikes strike the body that falls in (it is back on its last safe spot); the planks are back in five seconds.
     traverse=[("crumble", "plank_%s_crumble" % p, dict(rect=(x, 12, 2, 3), level=0, under="pit"))
               for p, x in (("a0", 19), ("a1", 21), ("a2", 23), ("b0", 33), ("b1", 35), ("b2", 37))]
-             + [("hazard", "spike_pit_a", dict(rect=(19, 12, 6, 3))), ("hazard", "spike_pit_b", dict(rect=(33, 12, 6, 3)))],
+             # T3 (topdown_mechanics.md): the pits open beside their planks, a row of spikes north and south of the track,
+             # as the side view's pit lies round its planks; the jar and the crate that stood there are set clear of them.
+             + [("hazard", "spike_pit_a", dict(rect=(19, 11, 6, 5))), ("hazard", "spike_pit_b", dict(rect=(33, 11, 6, 5)))],
+    pins={"jar_2": (26, 15), "crate_3": (40, 11)},   # T3
     foes=["auto:ledge", "auto", "auto", "auto"])
 
 

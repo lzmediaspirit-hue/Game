@@ -1,0 +1,162 @@
+{
+ "schema_version": 1,
+ "id": "wc_wardens_hall",
+ "name": "Wardens' Hall",
+ "size": [
+  28,
+  16
+ ],
+ "spawn": [
+  14,
+  14
+ ],
+ "levels": [
+  "5555555555555555555555555555",
+  "5000001111111111111111000005",
+  "5000001111111111111111000005",
+  "5000001111111111111111000005",
+  "5000001111111111111111000005",
+  "5000000000002002000000000005",
+  "5000000000002002000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "5000000000000000000000000005",
+  "1111111111111001111111111111"
+ ],
+ "paint": [
+  "ssssssssssssssssssssssssssss",
+  "spppppssssssssssssssssppppps",
+  "spppppssssssssssssssssppppps",
+  "spppppssssssssssssssssppppps",
+  "spppppssssssssssssssssppppps",
+  "spppppppppppssssppppppppppps",
+  "spppppppppppssssppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "spppppppppppppppppppppppppps",
+  "sssssssssssssppsssssssssssss"
+ ],
+ "stairs": [
+  {
+   "x": 13,
+   "y": 5,
+   "w": 2,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "trial_seat",
+   "x": 13,
+   "y": 2
+  },
+  {
+   "kind": "warden_banner",
+   "x": 7,
+   "y": 1
+  },
+  {
+   "kind": "warden_banner",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 10,
+   "y": 3
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "star_chart_table",
+   "x": 12,
+   "y": 9
+  },
+  {
+   "kind": "warden_statue",
+   "x": 1,
+   "y": 2
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 24,
+   "y": 3
+  },
+  {
+   "kind": "scroll_shelf",
+   "x": 24,
+   "y": 6
+  },
+  {
+   "kind": "desk",
+   "x": 24,
+   "y": 10
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "kind": "weapon_rack",
+   "x": 1,
+   "y": 9
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 9,
+   "y": 14
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 18,
+   "y": 14
+  },
+  {
+   "kind": "mat",
+   "x": 3,
+   "y": 12
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 26,
+   "y": 13
+  }
+ ],
+ "place": {
+  "npc_warden_commander_yao": [
+   16,
+   9
+  ]
+ },
+ "portals": {
+  "entry": {
+   "at": [
+    13.5,
+    15
+   ],
+   "dir": "s",
+   "arrive": [
+    13.5,
+    13.5
+   ],
+   "span": 2
+  }
+ },
+ "spawns": []
+}

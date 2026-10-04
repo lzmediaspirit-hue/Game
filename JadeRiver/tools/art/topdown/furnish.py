@@ -1688,3 +1688,12 @@ PROPS.update({
 })
 # The Blackmast banners stir on the wind as the sects' do.
 ANIM.update({"pirate_banner": (4, 450)})
+
+# R9: the star field's end (E1's last batch): the Citadel's lanterns, caged star, statues, banners, ballistae, chart
+# tables and pressure pillars, the Orbit Ruins' floating stones, crystals, gravity plates and golem husks, the Ashen
+# Reach's pyres, tents, banners, embers, ash and charred trees, the Nebula Deep's coral and shells, the Lantern Heart's
+# wick pillars and flame basins, and the crossings' masts (tools/art/topdown/starfield.py), into the sheet with these.
+import starfield as _STAR  # noqa: E402
+
+PROPS.update(_STAR.PROPS)
+ANIM.update(_STAR.ANIM)

@@ -1,0 +1,518 @@
+{
+ "schema_version": 1,
+ "id": "nd_eel_currents",
+ "name": "Eel Currents",
+ "size": [
+  72,
+  28
+ ],
+ "spawn": [
+  2,
+  13
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444444444444444444444444444",
+  "4444444444444~~~~4444444444444444444444444444444444444444444444444444444",
+  "444440444444~~~~~444444444440000444444~~~44444444000444~~~~~444444444444",
+  "000000000444~~~~~444111100002222224~~~~~~44422222000000~~~~~440000000000",
+  "000000000000~~~~~001111111002222220~~~~~~00222222200000~~~~~000000000000",
+  "000000000000~~~~~011111111102222220~~~~~~02222222200000~~~~~000000000000",
+  "000000000000~~~~~011111111102222220~~~~~~02222222200000~~~~~000000000000",
+  "000000000000~~~~~001111111002222220~~~~~~00222222000000~~~~~000000000000",
+  "000000000000~~~~~000111110000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000000000000000000000000000000000000000000000000000000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "000000000000~~~~~000000000000000000~~~~~~00000000000000~~~~~000000000000",
+  "~00000000000~~~~~0000000~~~~~000000~~~~~~0000000~~~~~~~~~~~~000~~~~~~~~~",
+  "~~~~00000~~~~~00000000~~~~~~~~~~~~0~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~0~~~~~~~~~~~~~~~~~~~~~~0000~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~00~~~~~~~~~~~~~~~~~~~~~000000~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~0~~~~~~~~~~~~~~~~~~~~~000000~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~0000~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrr~~~~rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrrrrr~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrsssrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrsssrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrssrrrr~~~~~~rrrsssrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "rrrrrrrrrrrr~~~~~rrrrrrrrrrrrrrrrrr~~~~~~rrrrrrrrrrrrrr~~~~~rrrrrrrrrrrr",
+  "~rrrrrrrrrrr~~~~~rrrrrrr~~~~~rrrrrr~~~~~~rrrrrrr~~~~~~~~~~~~rrr~~~~~~~~~",
+  "~~~~rrrrr~~~~~rrrrrrrr~~~~~~~~~~~~r~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~r~~~~~~~~~~~~~~~~~~~~~~rrrr~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~rr~~~~~~~~~~~~~~~~~~~~~rrrrrr~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~r~~~~~~~~~~~~~~~~~~~~~rrrrrr~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~rrrr~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "stairs": [
+  {
+   "x": 20,
+   "y": 9,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  },
+  {
+   "x": 29,
+   "y": 8,
+   "w": 2,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  },
+  {
+   "x": 44,
+   "y": 8,
+   "w": 3,
+   "h": 4,
+   "from": 0,
+   "to": 2
+  }
+ ],
+ "props": [
+  {
+   "kind": "void_shell",
+   "x": 8,
+   "y": 18
+  },
+  {
+   "kind": "void_shell",
+   "x": 64,
+   "y": 17
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 52,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 8
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 9
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 10
+  },
+  {
+   "kind": "boulder",
+   "x": 28,
+   "y": 11
+  },
+  {
+   "kind": "boulder",
+   "x": 31,
+   "y": 11
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 0,
+   "y": 3
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 3,
+   "y": 4
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 6,
+   "y": 4
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 10,
+   "y": 4
+  },
+  {
+   "kind": "coral_tree",
+   "x": 17,
+   "y": 3
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 23,
+   "y": 3
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 26,
+   "y": 4
+  },
+  {
+   "kind": "rock_mossy",
+   "x": 30,
+   "y": 3
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 41,
+   "y": 4
+  },
+  {
+   "kind": "coral_tree",
+   "x": 50,
+   "y": 4
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 53,
+   "y": 4
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 60,
+   "y": 4
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 64,
+   "y": 4
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 67,
+   "y": 4
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 71,
+   "y": 4
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 12,
+   "y": 0
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 35,
+   "y": 1
+  },
+  {
+   "kind": "coral_tree",
+   "x": 39,
+   "y": 1
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 59,
+   "y": 0
+  },
+  {
+   "kind": "coral_tree",
+   "x": 56,
+   "y": 1
+  },
+  {
+   "kind": "coral_tree",
+   "x": 20,
+   "y": 6
+  },
+  {
+   "kind": "void_shell",
+   "x": 23,
+   "y": 6
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 26,
+   "y": 7
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 44,
+   "y": 6
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 49,
+   "y": 7
+  },
+  {
+   "kind": "rock_small",
+   "x": 5,
+   "y": 15
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 9,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 18,
+   "y": 11
+  },
+  {
+   "kind": "ferns",
+   "x": 19,
+   "y": 16
+  },
+  {
+   "kind": "rock_small",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "ferns",
+   "x": 33,
+   "y": 10
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 34,
+   "y": 15
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 41,
+   "y": 11
+  },
+  {
+   "kind": "rock_small",
+   "x": 48,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 53,
+   "y": 10
+  },
+  {
+   "kind": "ferns",
+   "x": 62,
+   "y": 11
+  },
+  {
+   "kind": "coral_tree",
+   "x": 0,
+   "y": 19
+  },
+  {
+   "kind": "coral_tree",
+   "x": 11,
+   "y": 20
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 24,
+   "y": 19
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 27,
+   "y": 19
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 43,
+   "y": 20
+  },
+  {
+   "kind": "coral_tree",
+   "x": 64,
+   "y": 19
+  },
+  {
+   "kind": "coral_tree",
+   "x": 67,
+   "y": 19
+  },
+  {
+   "kind": "coral_tree",
+   "x": 3,
+   "y": 21
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 7,
+   "y": 22
+  },
+  {
+   "kind": "coral_tree",
+   "x": 17,
+   "y": 22
+  },
+  {
+   "kind": "coral_tree",
+   "x": 21,
+   "y": 22
+  },
+  {
+   "kind": "coral_tree",
+   "x": 30,
+   "y": 21
+  },
+  {
+   "kind": "coral_tree",
+   "x": 33,
+   "y": 21
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 49,
+   "y": 20
+  },
+  {
+   "kind": "coral_tree",
+   "x": 53,
+   "y": 20
+  },
+  {
+   "kind": "coral_tree",
+   "x": 60,
+   "y": 21
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 71,
+   "y": 20
+  },
+  {
+   "kind": "nebula_coral",
+   "x": 24,
+   "y": 25
+  },
+  {
+   "kind": "coral_tree",
+   "x": 46,
+   "y": 24
+  },
+  {
+   "kind": "coral_tree",
+   "x": 49,
+   "y": 24
+  }
+ ],
+ "place": {
+  "jar_1": [
+   21,
+   3
+  ],
+  "chest_cloud_mv": [
+   31,
+   7
+  ],
+  "crate_2": [
+   45,
+   4
+  ],
+  "jar_3": [
+   46,
+   15
+  ],
+  "crate_4": [
+   64,
+   11
+  ]
+ },
+ "portals": {
+  "west": {
+   "at": [
+    0,
+    13
+   ],
+   "dir": "w",
+   "arrive": [
+    2,
+    13
+   ],
+   "span": 3
+  },
+  "east": {
+   "at": [
+    71,
+    13
+   ],
+   "dir": "e",
+   "arrive": [
+    69,
+    13
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [
+  [
+   [
+    10,
+    10
+   ],
+   [
+    21,
+    15
+   ],
+   [
+    31,
+    17
+   ],
+   [
+    41,
+    9
+   ],
+   [
+    52,
+    17
+   ],
+   [
+    61,
+    17
+   ]
+  ],
+  [
+   [
+    41,
+    15
+   ]
+  ]
+ ]
+}

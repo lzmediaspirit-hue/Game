@@ -88,6 +88,10 @@ var _hatch_of: TopdownTraverse = null
 var _hatch_said := false
 ## T2: a swimmer is drawn from the chest up, the figure sunk this far under the water's line.
 const SWIM_SINK := 22.0
+## T3: the share of a stroke its pull takes (the walk's frames run once through), the rest a glide.
+const STROKE_PULL := 0.55
+## T3: how high over its floor a flier is drawn over the tree crowns and roofs south of it (world units: three levels).
+const FLY_OVER := 96.0
 ## T1: the body's pose on a climbable face: the reviewed hang pose (AGENTS.md rule 4: no new body movement is drawn for
 ## it), reaching up the face.
 const CLIMB_POSE := "work_hang"
@@ -665,6 +669,12 @@ func sync(delta: float) -> void:
 			var loop := CombatFeel.melody_loop()
 			f = int(loop[0]) + int(anim_t * float(TopdownFigure.spec(pose).fps)) % (int(loop[1]) - int(loop[0]) + 1)
 		_: pose = anim
+	# T3 · the swim's stroke (no new body movement, AGENTS.md rule 4): the walk's own frames run once through on the pull
+	# and hold its rest frame through the glide, on the motor's stroke clock.
+	if anim == "walk" and m.swimming:
+		var a := TopdownFigure.spec(pose)
+		var k := m.stroke_t / maxf(0.1, m.swim_stroke)
+		f = int(k / STROKE_PULL * float(a.frames)) % int(a.frames) if k < STROKE_PULL else TopdownFigure.rest_frame(pose)
 	frame = f if f >= 0 else TopdownFigure.frame_at(pose, anim_t)
 	# Decision 38: the phase of the blow or cast under way (CombatFeel), and the hop of a knockback, which lifts the drawn
 	# body only.
@@ -674,6 +684,11 @@ func sync(delta: float) -> void:
 		hop = roundf(float(CombatFeel.cfg().get("flash", {}).get("player_hop_px", 4)) * sin(PI * (1.0 - knock_t / knock_s)))
 	screen = Vector2(roundf(m.pos.x / TopdownRoom.ART), roundf((m.pos.y - m.z) / TopdownRoom.ART) - hop)
 	position = Vector2(screen.x, world.room.sort_key(m.pos, m.z))
+	# T3 · a flier high over the floor (FLY_OVER) is drawn over what stands south of it within its height, the tree crowns
+	# and roofs it flies above, as if its feet stood that far south (keys stay multiples of 1/64).
+	if m.flying:
+		var above: float = m.z - world.room.height_at(m.pos)
+		if above >= FLY_OVER and above < INF: position.y += floorf(above / TopdownRoom.ART * 64.0) / 64.0
 	# T1: a body on a climbable face draws in front of it, and of the raised floor's whole side it hangs on.
 	if not m.climbing.is_empty(): position.y = maxf(position.y, float(m.climbing.get("front_key", 0.0)) + 0.25)
 	# A cut holds the body's clocks still (Game.paused): no flinch's red or dodge's blink is held through it (decision 45).

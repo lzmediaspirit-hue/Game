@@ -100,9 +100,31 @@ def review(outputs: dict) -> None:
     for i, name in enumerate(("boards", "icicle")):
         t2.alpha_composite(cut(name, 0), (90 + i * 50, 96))
         t2.alpha_composite(cut(name, 1), (110 + i * 50, 96))
-    both = Image.new("RGBA", (300, 250), (20, 26, 30, 255))
+    # T3: the bounces giving (rest, pressed, springing), the open hatch, the cracked slab whole (its tops and its face) and
+    # broken, the open spikes, the swim's wake spreading and the light air's motes.
+    t3 = Image.new("RGBA", (300, 110), (20, 26, 30, 255))
+    for x in range(0, 300):
+        for y in range(0, 110):
+            t3.putpixel((x, y), (88, 74, 60, 255) if (x // 16 + y // 16) % 2 else (96, 82, 66, 255))
+    for f in range(3):
+        t3.alpha_composite(cut("drum", f), (4 + f * 34, 2))
+        t3.alpha_composite(cut("lily", f), (108 + f * 34, 6))
+        t3.alpha_composite(cut("bamboo", f), (212 + f * 30, 4))
+    t3.alpha_composite(cut("seal_gate_open"), (4, 40))
+    for i in range(3):
+        t3.alpha_composite(cut("slab_top", i % 2), (44 + i * 16, 40))
+        t3.alpha_composite(cut("slab_face"), (44 + i * 16, 56))
+        t3.alpha_composite(cut("rubble", i % 2), (100 + i * 16, 48))
+        t3.alpha_composite(cut("spikes"), (156 + i * 16, 48))
+    for f in range(4):
+        t3.alpha_composite(cut("wake", f), (4 + f * 36, 80))
+    for f in range(3):
+        t3.alpha_composite(cut("mote", f), (160 + f * 10, 86))
+        t3.alpha_composite(cut("streak", f), (200 + f * 20, 88))
+    both = Image.new("RGBA", (300, 360), (20, 26, 30, 255))
     both.alpha_composite(img, (0, 0))
     both.alpha_composite(t2, (0, 120))
+    both.alpha_composite(t3, (0, 250))
     both.resize((both.width * 4, both.height * 4), Image.NEAREST).save(out_dir / "traverse_x4.png")
     print("review image in", (out_dir / "traverse_x4.png").relative_to(ROOT))
 

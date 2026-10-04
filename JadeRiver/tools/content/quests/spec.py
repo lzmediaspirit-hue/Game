@@ -5,7 +5,7 @@ specs/__init__.py SECTIONS places). It says what the quest asks and who asks it;
 leads, when it opens and what it pays, and writes the quests.json row story.py places.
 
   side(id, *steps, giver, name=None, offer=(), done=(), progress=(), after=(), during=(), realm=AUTO, needs=(),
-       gives=(), pay=AUTO, target_room=AUTO, hand_in=None, requires=AUTO, **keys)
+       gives=(), pay=AUTO, why=None, target_room=AUTO, hand_in=None, requires=AUTO, **keys)
     steps        what the quest asks, in order: the templates below, each an objective (escort is two)
     giver        an NPC engine id (or a one-off row of story.py); `hand_in` another one ("" hands in anywhere)
     name         the title, "The Muddy Wash"; by default the id's words (engine.titled)
@@ -13,8 +13,9 @@ leads, when it opens and what it pays, and writes the quests.json row story.py p
                  what they say while it is under way
     after        the quests it follows (quest_done each); `during` quests it is offered while under way (quest_active)
     realm        the realm it opens at: AUTO is the realm of the middle Level of the target room's band, for a quest that
-                 follows no other (one that follows another opens when the story gets there); a realm key pins it,
-                 None leaves it out
+                 follows no other (one that follows another opens when the story gets there); ROOM is that realm also
+                 for a quest that follows another (it opens at the later of the two: for a room past where the story
+                 leaves you; a room with no band gives none); a realm key pins it, None leaves it out
     needs        the other conditions, after the realm (an unlock, a companion owned)
     requires     a whole `requires` pinned (the conditions above are then ignored)
     target_room  AUTO: the room the first step that names a place leads to (below); a room pins it, None leaves it out
@@ -22,6 +23,8 @@ leads, when it opens and what it pays, and writes the quests.json row story.py p
                  it is not named)
     pay          AUTO: the band table's currency and amount at the quest's tier (bands.py); a number pins the amount
                  (the band's currency), a reward dict (taels(n), stones(n), crystals(n)) pins both, None pays nothing
+    why          the story's one-line reason for a pay that is not AUTO (a big favour, a tiny errand, a title or goods
+                 instead of money); every pinned pay names one (engine.py --check), and --diffs prints it
     keys         the row's other keys, after the derived ones: chapter, on_accept, offered_by_unlock, marker,
                  giver_any, hand_in_any, time_limit_s, fail_text, ...; the row takes requires, offered_by_unlock,
                  chapter and target_room first (ORDER), then the rest in the spec's order. `row={key: value}` pins
@@ -46,9 +49,10 @@ leads, when it opens and what it pays, and writes the quests.json row story.py p
                                                   use_system, hit_object, meditate_seconds, buy_item, ...). No room
 
   daily(id, name, *jobs, requires=None)   a template of the daily mission board (mission_templates.json)
-  job(name, step, levels=AUTO)            one job it may post: a template step, posted while the character's Level
+  job(name, step, levels=AUTO, why=None)  one job it may post: a template step, posted while the character's Level
                                           is within `levels` (lo, hi); AUTO: from the band of the foe or node it
-                                          names (engine.py job_levels)
+                                          names (engine.py job_levels); `why` is the one-line reason for pinned Levels
+                                          (every pin names one)
 """
 import copy
 
@@ -71,6 +75,7 @@ class _Mark:
 AUTO = _Mark("AUTO")   # derive this value
 DROP = _Mark("DROP")   # take this key out of the finished row
 PAY = _Mark("PAY")     # where the band's pay stands among a quest's rewards
+ROOM = _Mark("ROOM")   # realm=ROOM: its room's realm, also for a quest that follows another (E5b)
 
 # A row's derived keys, in the order story.py's hand rows had them; a spec's other keys follow in its own order.
 ORDER = ("requires", "offered_by_unlock", "chapter", "target_room")
@@ -179,7 +184,7 @@ TEMPLATES = {"clear": clear, "fetch": fetch, "deliver": deliver, "gather": gathe
 
 # ------------------------------------------------------------------------------------------------ a quest, a job
 def side(qid, *steps, giver, name=None, offer=(), done=(), progress=(), after=(), during=(), realm=AUTO, needs=(),
-         gives=(), pay=AUTO, target_room=AUTO, hand_in=None, requires=AUTO, kind="side", row=None, **keys):
+         gives=(), pay=AUTO, why=None, target_room=AUTO, hand_in=None, requires=AUTO, kind="side", row=None, **keys):
     flat = []
     for s in steps:
         flat += list(s) if isinstance(s, list) else [s]
@@ -199,14 +204,14 @@ def side(qid, *steps, giver, name=None, offer=(), done=(), progress=(), after=()
     return {"id": qid, "name": name, "kind": kind, "giver": giver, "hand_in": hand_in, "steps": flat,
             "offer": list(offer), "done": list(done), "progress": list(progress), "after": list(after),
             "during": list(during), "realm": realm, "needs": list(needs), "requires": requires, "gives": list(gives),
-            "pay": pay, "target_room": target_room, "keys": dict(keys), "row": dict(row or {})}
+            "pay": pay, "why": why, "target_room": target_room, "keys": dict(keys), "row": dict(row or {})}
 
 
 def daily(did, name, *jobs, requires=None):
     return {"id": did, "name": name, "jobs": list(jobs), "requires": requires}
 
 
-def job(name, s, levels=AUTO):
+def job(name, s, levels=AUTO, why=None):
     if not isinstance(s, Step) or not s.board:
         raise SpecError("job %r: its step is a template's that the mission board writes" % name)
-    return {"name": name, "step": s, "levels": levels}
+    return {"name": name, "step": s, "levels": levels, "why": why}

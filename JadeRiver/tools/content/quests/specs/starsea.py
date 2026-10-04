@@ -1,23 +1,26 @@
 """Phase E side stories of the Starsea: deserters, comet iron, the Riven Peak's stars, and three rare Daos (v1.1) whose
 teachers open a Dao the valley never taught. Placed by story.py's act2_starsea_side_quests() after its guided lessons
-(section starsea)."""
-from content.quests.spec import side, clear, fetch, gather, step, item, fx, PAY
+(section starsea).
+
+E5b: comet iron and the Riven Peak's stars wait for their rooms' realm too (realm=ROOM): the Pirate Deck (78-81) and the
+Riven Peak (79-81) lie past the realm the story reaches the Wreck at."""
+from content.quests.spec import side, clear, fetch, gather, step, item, fx, PAY, ROOM
 
 QUESTS = [
     side("the_deserters", clear("nine_peaks_disciple", 6, "Bring down the rogue Nine Peaks disciples at the Broken Pier"),
          fetch("alliance_badge", 4, "Return their scratched badges"), giver="champion_qiao", after="gus_ledger",
          offer=["Some of ours ran to the comet sails. They scratch the peaks off their badges, as if that makes them someone else.",
                 "Bring the badges home. Six of them will not come quietly."],
-         done="Four badges. I'll give them back to their peaks. What the peaks do with them is their business.", pay=160,
+         done="Four badges. I'll give them back to their peaks. What the peaks do with them is their business.",
          gives=[item("will_tempering_pill", 1)]),
     side("iron_from_a_comet", fetch("comet_iron", 6, "Bring comet iron from the pirates' hulls"), giver="shipwright_lao",
-         after=["keel_and_ward", "gus_ledger"], target_room="sw_pirate_deck",
+         after=["keel_and_ward", "gus_ledger"], target_room="sw_pirate_deck", realm=ROOM,
          offer=["The comet sails outrun everything in the Expanse. It's the iron: flew through a comet's tail and came out ringing.",
                 "Six ingots. I'll teach you the sloop. Two sails, comet keel. You'll need a formation master's plates too."],
-         done="Listen to it ring. Here: the sloop's lines. Half again as fast as the skiff, if your formations hold.", pay=150,
+         done="Listen to it ring. Here: the sloop's lines. Half again as fast as the skiff, if your formations hold.",
          gives=[fx("learn_recipe", recipe="storm_sloop")]),
     side("clear_skies_over_the_peak", gather("star_reading", 3, "Take star readings on the Riven Peak", craft="star_charting"),
-         giver="navigator_sun", after="the_skyport_wreck",
+         giver="navigator_sun", after="the_skyport_wreck", realm=ROOM,
          offer=["The stars over the Riven Peak are the clearest in the Expanse. The pirates say they watch you back.",
                 "Three readings from up there. I want to see if they are right."],
          done="These are... very clear. Hm. Keep your chart close up there.", gives=[item("sky_ink", 6)]),
@@ -27,17 +30,17 @@ QUESTS = [
          offer=["Kin by adoption is kin. But the blood still has to learn to hear you. Kneel before the tablets.",
                 "And grow. The Blood Dao listens to Sovereigns. Come back when you are one."],
          done="There. Feel it? Every Ironroot who ever lived, in the beat under your ribs. That is the Blood Dao. It is yours now.",
-         pay=100, gives=[fx("open_dao", dao="blood"), fx("learn_lost_art", art="blood_burning"), PAY]),
+         gives=[fx("open_dao", dao="blood"), fx("learn_lost_art", art="blood_burning"), PAY]),
     side("what_the_bones_say", fetch("terracotta_shard", 3, "Bring shards of the Terracotta Wardens, who died and did not die"),
          giver="bone_reader_xiu", after="the_tomb_king",
          offer=["The wardens were men once. Then clay. Then something that remembers being men. Bring me what is left of three.",
                 "I will show you the line between living and not. It is thinner than you think, and it moves."],
          done="Hold this shard. Warm, yes? The Life and Death Dao begins where you stop being sure which side it is on.",
-         pay=100, gives=[fx("open_dao", dao="life_death"), PAY]),
+         gives=[fx("open_dao", dao="life_death"), PAY]),
     side("the_sound_of_snow", clear("snow_ape", 6, "Quiet the Snow Apes on their ledges"),
          step("meditate_seconds", "Sit in silence in the hermit's ice cave", 30), giver="hermit_shuang",
          after="frost_and_silence", realm="sage_sovereign_1", target_room="rf_hermits_ice_cave",
          offer=["...", "The apes are loud. Quiet them. Then sit here, with me, until you can hear what you feel."],
          done=["...", "There. Every feeling has a sound. The Emotion Dao is only listening. You were loud for a long time."],
-         pay=100, gives=[fx("open_dao", dao="emotion"), PAY]),
+         gives=[fx("open_dao", dao="emotion"), PAY]),
 ]

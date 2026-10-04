@@ -1,0 +1,276 @@
+{
+ "schema_version": 1,
+ "id": "lt_wick_gate",
+ "name": "Wick Gate",
+ "size": [
+  56,
+  24
+ ],
+ "spawn": [
+  2,
+  12
+ ],
+ "levels": [
+  "55555555555555555555555555555555555555555555555555555555",
+  "50000000000000111111111111000000000000000000000000000005",
+  "50000000000000111111111111000000000000000000000000000005",
+  "50000000000000111111111111000000000000000000000000000005",
+  "50000000000000111111111111000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "00000000000000000000000000000000000000000000000000000000",
+  "00000000000000000000000000000000000000000000000000000000",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000555500000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "50000000000000000000000000000000000000000000000000000005",
+  "11111111111111111111111111111111111111111111111111111111"
+ ],
+ "paint": [
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aprrrrpppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "arrrrrrppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "arrrrrrppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "arrrrrrppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "aprrrrpppppppppppppssspppppppppppppppppppppppppppppppppa",
+  "appppppppppppppppppsssppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "pssssssssssssssssssssssssssssssssssssssssssssssssssssssp",
+  "pssssssssssssssssssssssssssssssssssssssssssssssssssssssp",
+  "assssssssssssssssssssssssssssssssssssssssssssssssssssssa",
+  "appppppppppppppppppppppppppppppppppppppppppppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppppppppa",
+  "apppppppppppppppppppppppppppppppppppppaaaapppppppprrrppa",
+  "apppppppppppppppppppppppppppppppppppppppppppppppprrrrrpa",
+  "appppppppppppppppppppppppppppppppppppppppppppppprrrrrrpa",
+  "appppppppppppppppppppppppppppppppppppppppppppppprrrrrrpa",
+  "apppppppppppppppppppppppppppppppppppppppppppppppprrrrppa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ ],
+ "stairs": [
+  {
+   "x": 19,
+   "y": 5,
+   "w": 3,
+   "h": 2,
+   "from": 0,
+   "to": 1
+  }
+ ],
+ "props": [
+  {
+   "kind": "wick_pillar",
+   "x": 12,
+   "y": 9
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 24,
+   "y": 9
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 30,
+   "y": 9
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 12,
+   "y": 15
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 18,
+   "y": 15
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 24,
+   "y": 15
+  },
+  {
+   "kind": "wick_pillar",
+   "x": 30,
+   "y": 15
+  },
+  {
+   "kind": "flame_basin",
+   "x": 35,
+   "y": 9
+  },
+  {
+   "kind": "flame_basin",
+   "x": 35,
+   "y": 15
+  },
+  {
+   "kind": "flame_basin",
+   "x": 43,
+   "y": 9
+  },
+  {
+   "kind": "flame_basin",
+   "x": 43,
+   "y": 15
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 2,
+   "y": 9
+  },
+  {
+   "kind": "warden_lamp",
+   "x": 2,
+   "y": 15
+  },
+  {
+   "kind": "flame_basin",
+   "x": 38,
+   "y": 8
+  },
+  {
+   "kind": "flame_basin",
+   "x": 38,
+   "y": 17
+  },
+  {
+   "kind": "boulder",
+   "x": 18,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 5
+  },
+  {
+   "kind": "boulder",
+   "x": 18,
+   "y": 6
+  },
+  {
+   "kind": "boulder",
+   "x": 22,
+   "y": 6
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 2,
+   "y": 3
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 5,
+   "y": 3
+  },
+  {
+   "kind": "crystal_cluster",
+   "x": 51,
+   "y": 20
+  }
+ ],
+ "place": {
+  "shrine_lt_gate": [
+   8,
+   10
+  ],
+  "jar_1": [
+   20,
+   4
+  ],
+  "crate_2": [
+   28,
+   14
+  ],
+  "jar_3": [
+   47,
+   15
+  ]
+ },
+ "portals": {
+  "stair": {
+   "at": [
+    0,
+    12
+   ],
+   "dir": "w",
+   "arrive": [
+    1.5,
+    12
+   ],
+   "span": 2
+  },
+  "east": {
+   "at": [
+    55,
+    12
+   ],
+   "dir": "e",
+   "arrive": [
+    53.5,
+    12
+   ],
+   "span": 2
+  }
+ },
+ "spawns": [
+  [
+   [
+    19,
+    9
+   ],
+   [
+    21,
+    14
+   ],
+   [
+    35,
+    10
+   ],
+   [
+    45,
+    15
+   ]
+  ],
+  [
+   [
+    22,
+    9
+   ],
+   [
+    29,
+    10
+   ],
+   [
+    42,
+    8
+   ]
+  ],
+  [
+   [
+    32,
+    15
+   ]
+  ]
+ ]
+}

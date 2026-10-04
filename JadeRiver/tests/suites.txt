@@ -22,6 +22,7 @@ topdown_skysea
 topdown_traversal
 topdown_act2_start
 topdown_sunscar
+topdown_starfield
 topdown_side_quests
 tutorials
 story_scenes
