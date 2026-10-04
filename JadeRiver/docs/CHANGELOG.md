@@ -1,5 +1,73 @@
 # Changelog
 
+## The creatures that are not foes: the Copperjaw swarm, its Queen, the hatchling wyrm and the cloud stag (decision 45, M5)
+
+The last four creatures without a top-down sheet, drawn with the monster engine (`docs/architecture/monster_engine.md`,
+"M5"). A pet, a mount and the Copperjaw swarm draw from them; since S12b they showed only a shadow in the room and an
+empty slot on a page. `data_validation`'s `NO_TOP_SHEET_YET` is empty now.
+
+- **A spec with no row.** None of the four is a foe: `pets.json` and `stats.swarm` name them by their `art`. A spec with
+  no `data` is drawn alone (`Species.foe`): its sheets and its `foes.json` block, with no `enemies.json` row, loot table
+  or voice. The `monsters` gate checks that such a creature has none and that a pet, a mount or the swarm draws it. The
+  four live in `tools/content/monsters/specs/companions.py`.
+- **Four new sheets**, every action in five drawn facings. None has an elite, because no room makes one:
+  - the Copperjaw swarm (`insect.swarm`): a cloud of eleven small copper beetles of three sizes. Each has copper wing
+    cases with a dark seam, a dark chitin pronotum and head, and pale-gold jaws; their cases lift and their wings blur.
+    It hangs, each beetle on its own loop, and streams forward on the wing (its tab's stage). In its tell it balls up,
+    jaws open, as a copper ring tightens round it (held), then lances forward as a spearhead to bite (a spark on the
+    blow). Struck, it scatters in a puff of copper dust; beaten, the beetles rain down onto their backs, legs in the
+    air, and fade.
+  - the Copperjaw queen (`insect.swarm`, `queen`): the same cloud with a large gold-cased Queen in a pale-gold crown at
+    its heart, leading the lance and falling with the rest.
+  - the hatchling wyrm (`quadruped.hatchling`): a baby star dragonet with pearl scales over a blue-violet belly. A big
+    round head on a curved neck has big star-blue eyes, a gold star on its brow and gold horns. It has stub wings
+    webbed in indigo flecked with stars, and a tail curling up to a small star that twinkles. It looks about and
+    waddles. In its tell it puffs up and rears its head back, wings flared and chest glowing (held), then breathes a
+    burst of stars. Struck, it squeaks; knocked out, it curls up asleep, its lights dimmed.
+  - the cloud stag (`quadruped.cervid`, M5's kinds): a cloud-white stag shaded sky blue, with faint dapples, calm dark
+    eyes and whole antlers with small clouds caught on them. Soft clouds trail off its back and under its hooves. In a
+    fight it rears onto its hind legs as clouds gather under its forehooves (held), then stamps down in a ring of cloud
+    and wind. Knocked out, it folds and comes apart into cloud. Its rider's pose and the riding sheet are on hold (the
+    user's decision): this is the creature's own sheet, for when a heavy blow throws you from its saddle and it walks
+    beside you.
+- **New plan kinds**, each optional, so every species drawn before draws byte for byte:
+  - `insect.swarm` (and `queen`);
+  - `quadruped.hatchling` (`head` `hatch`, `legs` `nub`, `tail` `star`, `coat` `pearl`, `crest` `nubs`, `hatch`);
+  - the cervid's `coat` `cloud`, `crest` `clouds`, `antlers.clouds` and `legs.stance` (reared forelegs);
+  - styles `hang`, `stream`, `ball_up`, `lance`, `scatter`, `rain`, `peek`, `waddle`, `puff_glow`, `star_breath`,
+    `squeak`, `curl_nap`, `rear_cloud` and `cloud_stamp`.
+
+  Body first (AGENTS.md): each new kind takes `opts.bare`, the creature's body without its clouds, glow, stars, crown
+  or effects. That look was drawn and reviewed in every facing before the finished one.
+- **Every form shows.** A pet's lineage form (90 purity: its form's size and tint) is the same sheet scaled and tinted,
+  in the room and on the page. Growth stages, rarities and the 1% colour variant draw no differently. The swarm's tab
+  draws the Queen's sheet once she rises.
+- **Size.** The four sheets are 422 KB of PNG and 232 KB in the APK (the imported `.ctex`, 0.23 MiB): the swarm
+  84 / 54 KB, its Queen 102 / 58, the hatchling wyrm 65 / 33, the cloud stag 171 / 87 (PNG / APK). Every one has `share`
+  (a held tell draws the same, so its frames share a cell); none has an elite sheet. Each is near its side-view share of
+  a person: the stag as the hollow stag, the hatchling knee-high to you, the swarm's cloud about half your width.
+- **Review:**
+  - `docs/redesign/feedback/monsters/sheets/`: each sheet at x3, and a GIF.
+  - `docs/redesign/feedback/monsters/m5/`:
+    - the four beside a Mudwater bandit and the drawn foes nearest them, in six poses;
+    - each one in every facing and pose;
+    - each body bare, then finished;
+    - the pets' lineage forms as the room and the page draw them;
+    - the swarm beside its Queen.
+  - The capture set `monsters_m5` (`docs/redesign/feedback/monsters/m5/after/`):
+    - the wyrm and the stag (thrown from its saddle) at your side on the Reed Shallows beside drawn foes, following you
+      and in the wyrm's lineage form;
+    - live fights at your side in the Wyrmnest Isles and on the Thunderhorn Plains, also as a 20:9 phone's;
+    - the Spirit Animals stable, the swarm's tab and its Queen, and the character's chip.
+- **Checks.** `tools/run_tests.sh` ran on the tree merged with the latest branch (AGENTS.md's top-down rules).
+  - Every gate passed, `boot` among them. `build_data` writes no data file: the rows, loot and voices are
+    byte-identical. The `monsters` gate has 2,808 checks (2,732 before); it grows with the species, now 96, and is the
+    only count M5 grows.
+  - All 32 suites passed with no SCRIPT ERROR: 79,423 checks, every count as before. `data_validation` keeps its 47,298:
+    its pets' and swarm's checks now pass because their sheets exist, not because the list names them.
+  - `build_foes.py --check` built every sheet twice, byte for byte the same, and the same bytes as on disk. The capture
+    registry's `--lint` is clean.
+
 ## One world: the side view retired, and its creature sheets with it (decision 45, S12a and S12b)
 
 Every room has its layout on the height grid, and every species its top-down sheet, so the side view goes
