@@ -334,8 +334,13 @@ def picture(P: Pose, yaw_deg: float, look: Look, elite: bool = False, frame_no: 
         if 0 <= i < raster.W and 0 <= j < raster.H:
             rgba[j, i] = _over(rgba[j, i], _rgba(col))
     if elite or aura:
-        _aura(rgba, ring_seed(rgba) if lean_ring else frame_no, "hollow" if aura == "hollow" else "gold", lean_ring)
+        _aura(rgba, ring_seed(rgba) if lean_ring else frame_no, tone_of(aura), lean_ring)
     return rgba
+
+
+def tone_of(aura) -> str:
+    """The ring's tone: a boss's own (`aura` "hollow", M3's "mirror"), else the elite's pale gold."""
+    return aura if isinstance(aura, str) and aura in AURA else "gold"
 
 
 def ring_seed(rgba: np.ndarray) -> int:
@@ -432,7 +437,10 @@ def _grow(on: np.ndarray) -> np.ndarray:
 AURA = {"gold": {"bright": (255, 244, 196), "main": (255, 214, 110), "faint": (255, 220, 130), "tongue": (255, 226, 150),
                  "mote": (255, 240, 180)},
         "hollow": {"bright": (255, 110, 88), "main": (150, 126, 184), "faint": (118, 100, 150), "tongue": (178, 150, 206),
-                   "mote": (255, 140, 110)}}
+                   "mote": (255, 140, 110)},
+        # M3: the Reflection's pale mirror light (the side view's cold pale tint, as light).
+        "mirror": {"bright": (246, 252, 255), "main": (176, 212, 246), "faint": (150, 188, 232), "tongue": (204, 230, 252),
+                   "mote": (232, 246, 255)}}
 
 
 def _aura(rgba: np.ndarray, f: int, tone: str = "gold", lean: bool = False) -> None:

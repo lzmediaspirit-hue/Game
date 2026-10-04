@@ -93,7 +93,10 @@ def check_specs(C: Checks) -> None:
             sid, [n for n in pal if n not in M.RAMPS]))
         if person:
             av = sp.data.get("art", {}).get("avatar", {})
-            C.check(isinstance(av, dict) and av.get("body") == "light" and bool(av.get("name")),
+            # M3: the Reflection's row wears the player's own avatar ("player", the side view's); its sheet names the
+            # outfit it is cast in (`parts.outfit`).
+            mirror = av == "player" and isinstance(sp.parts.get("outfit"), dict) and sp.parts["outfit"].get("body") == "light"
+            C.check(mirror or isinstance(av, dict) and av.get("body") == "light" and bool(av.get("name")),
                     "%s: a person's row has its outfit (art.avatar, content.monsters.person)" % sid)
         C.check(set(spec.accents) <= set(pal) and set(spec.gold) <= set(pal), "%s: its accents and gold are in its palette" % sid)
         if spec.awakened:

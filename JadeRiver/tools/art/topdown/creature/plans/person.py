@@ -165,13 +165,32 @@ class Figure(Pose):
         for _, a in stack:
             im.alpha_composite(Image.fromarray(a, "RGBA"))          # as figure/frame.py compose stacks a figure
         rgba = np.array(im)
+        pale = float(self.outfit.get("pale", 0.0))
+        if pale:
+            # M3: the Reflection's mirror light: its colours washed toward their own lightness, then lifted (a figure of
+            # pale light, its clothes read by their shading and not their dye).
+            rgb = rgba[..., :3].astype(float)
+            grey = (rgb @ np.array((0.3, 0.55, 0.15)))[..., None]
+            rgb = rgb * (1.0 - pale) + grey * pale
+            rgba[..., :3] = np.clip(np.round(rgb + (255.0 - rgb) * 0.4 * pale), 0, 255).astype(np.uint8)
+            # A mirror's sheen: two pale streaks slanting across it (fixed on the canvas, so light seems to slide over
+            # the glass as it moves), on its body and not its outline.
+            yy, xx = np.mgrid[0:rgba.shape[0], 0:rgba.shape[1]]
+            lum = rgba[..., :3].astype(float) @ np.array((0.3, 0.55, 0.15))
+            streak = (((xx + yy) % 17) < 2) & (rgba[..., 3] > 0) & (lum > 90.0)
+            rgb = rgba[..., :3].astype(float)
+            rgba[..., :3] = np.where(streak[..., None], np.clip(np.round(rgb + (255.0 - rgb) * 0.45), 0, 255), rgb).astype(np.uint8)
         tint = self.outfit.get("tint")
         if tint:
             t = np.array([int(str(tint).lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)], float) / 255.0
             rgba[..., :3] = np.clip(np.round(rgba[..., :3] * t), 0, 255).astype(np.uint8)
+            if len(str(tint).lstrip("#")) == 8:
+                # M3: a tint with an alpha (the Reflection's, the side view's modulate) fades the figure as it does there.
+                a = int(str(tint).lstrip("#")[6:8], 16) / 255.0
+                rgba[..., 3] = np.round(rgba[..., 3] * a).astype(np.uint8)
         # The figure's anchor is the sculpture's feet (raster AX, AY == sculpt.FOOT).
         if elite or aura:
-            sculpt._aura(rgba, sculpt.ring_seed(rgba) if lean_ring else frame_no, "hollow" if aura == "hollow" else "gold", lean_ring)
+            sculpt._aura(rgba, sculpt.ring_seed(rgba) if lean_ring else frame_no, sculpt.tone_of(aura), lean_ring)
         return rgba
 
 
