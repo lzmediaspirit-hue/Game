@@ -51,6 +51,7 @@ T3 (topdown_mechanics.md):
   spikes        a spike pit open beside its planks, a cell: bronze spikes standing in the pit's dark
   wake_0..3     the ring a swimmer's stroke leaves on the water (32 x 12), spreading and fading
   mote_0..2     a mote of the light air over a low-gravity floor (5 x 5), pale violet
+  streak_0..2   the Starsea streaming past a vessel under way (16 x 4): foam thinning to its tail, a fleck of starlight
 """
 from __future__ import annotations
 
@@ -825,6 +826,20 @@ def mote(s: Img, f: int = 0) -> None:
                     s.put(2 + dx, 2 + dy, VIOLET[4] if d == 0 else VIOLET[3] if d == 1 else alpha(VIOLET[1], 180))
 
 
+def streak(s: Img, f: int = 0) -> None:
+    """The Starsea streaming past a vessel under way (16 x 4), drawn running west: a line of foam thinning to its tail
+    in the east, a fleck of starlight on its head; three lengths (frames)."""
+    n = 6 + f * 4
+    for k in range(n):
+        x = 1 + k
+        a = max(60, 235 - k * 170 // n)
+        s.put(x, 2, alpha(FOAM2, a))
+        if k < n // 2:
+            s.put(x, 1, alpha(FOAM2, a // 2))
+    s.put(0, 2, VIOLET[4])
+    s.put(0, 1, alpha(VIOLET[3], 200))
+
+
 SPRITES = {
     "raft_2x2": (32, 38, 2, raft),
     "vine_top": (16, 16, 0, lambda s: vine(s, "top")), "vine_mid": (16, 16, 0, lambda s: vine(s, "mid")),
@@ -863,6 +878,7 @@ SPRITES = {
     "spikes": (16, 16, 0, spikes),
     "wake": (32, 12, 4, wake),
     "mote": (5, 5, 3, mote),
+    "streak": (16, 4, 3, streak),
 }
 
 

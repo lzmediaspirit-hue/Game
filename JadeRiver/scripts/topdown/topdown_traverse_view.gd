@@ -34,7 +34,12 @@ static func src(name: String, f := 0) -> Rect2:
 static func build(world) -> Array:
 	var tr := TopdownTraverse.of(world.room)
 	var out: Array = []
-	if tr == null or tr.is_empty() or sheet() == null: return out
+	if sheet() == null: return out
+	# T3: a Starsea crossing's room (its side-view definition's `crossing`) is a vessel under way: the star-water streams
+	# past its hull.
+	if world.get("live") == true and Game.room_rt != null and Game.room_rt.topdown == world.room and bool(Game.room_rt.def.get("crossing", false)):
+		out.append(VoyageView.new(world))
+	if tr == null or tr.is_empty(): return out
 	for r in tr.rafts: out.append(LanternView.new(world, tr, r) if str(r.kind) == "lantern" else RaftView.new(world, tr, r))
 	for c in tr.climbs: out.append(ClimbView.new(world, c))
 	for u in tr.updrafts: out.append(SprayView.new(world, u))
@@ -575,6 +580,43 @@ class SpikesView extends TopdownWorld.Sorted:
 	func _draw() -> void:
 		var r := TopdownTraverseView.src("spikes")
 		for p in cells: draw_texture_rect_region(TopdownTraverseView.sheet(), Rect2((p as Vector2) - position, r.size), r)
+
+## A vessel under way on the Starsea (a crossing's room, its side-view definition's `crossing`): the star-water streams
+## past the hull westward, the bow being east (streaks of foam with a fleck of starlight on the water cells, at the
+## voyage's pace, each wrapping round the room), so the deck reads as sailing. Flat on the water, under everything
+## standing (keyed at the room's top).
+class VoyageView extends TopdownWorld.Sorted:
+	const PACE := 90.0   ## art px a second the water streams by
+	var streaks: Array = []   ## [x, y (art px), length frame, speed share]
+	var span := 0.0
+	func _init(w) -> void:
+		super(w)
+		var room: TopdownRoom = w.room
+		span = float(room.w) * T
+		var n := int(clampf(float(room.w * room.h) / 10.0, 20.0, 240.0))
+		for i in n:
+			var cx := int(fposmod(float(i) * 37.0, float(room.w)))
+			var cy := int(fposmod(float(i) * 11.0 + floorf(float(i) / float(room.w)) * 5.0, float(room.h)))
+			if not room.is_water(cx, cy): continue
+			streaks.append([fposmod(float(i) * 53.0, span), float(cy) * T + 4.0 + float(i % 3) * 3.0 - TopdownRoom.WATER_Z / TopdownRoom.ART,
+				i % 3, 0.7 + 0.15 * float(i % 4)])
+		key(0.0)
+		rects.clear()
+	func _ready() -> void:
+		set_process(true)
+	func _process(_d: float) -> void:
+		queue_redraw()
+	func _draw() -> void:
+		var room: TopdownRoom = world.room
+		var t := Time.get_ticks_msec() / 1000.0
+		var tex := TopdownTraverseView.sheet()
+		for s in streaks:
+			var x := fposmod(float(s[0]) - t * PACE * float(s[3]), span)
+			var c := Vector2i(int(x / T), int((float(s[1]) + TopdownRoom.WATER_Z / TopdownRoom.ART) / T))
+			var r := TopdownTraverseView.src("streak", int(s[2]))
+			var tail := Vector2i(int((x + r.size.x) / T), c.y)
+			if not room.inside(c.x, c.y) or not room.is_water(c.x, c.y) or not room.inside(tail.x, tail.y) or not room.is_water(tail.x, tail.y): continue   # never over the deck
+			draw_texture_rect_region(tex, Rect2(Vector2(roundf(x), float(s[1])) - position, r.size), r)
 
 ## A low-gravity floor (TopdownTraverse.lowgs, the Orbit Ruins'): while its jade switch holds it, violet motes rising slowly
 ## off the floor over its cells and fading as they go (the side view's VolumeView); while it is off, a faint ring of

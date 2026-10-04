@@ -120,6 +120,7 @@ def review(outputs: dict) -> None:
         t3.alpha_composite(cut("wake", f), (4 + f * 36, 80))
     for f in range(3):
         t3.alpha_composite(cut("mote", f), (160 + f * 10, 86))
+        t3.alpha_composite(cut("streak", f), (200 + f * 20, 88))
     both = Image.new("RGBA", (300, 360), (20, 26, 30, 255))
     both.alpha_composite(img, (0, 0))
     both.alpha_composite(t2, (0, 120))

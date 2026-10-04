@@ -308,6 +308,15 @@
     48
    ]
   },
+  "streak": {
+   "frames": 3,
+   "rect": [
+    16,
+    397,
+    16,
+    4
+   ]
+  },
   "vine_foot": {
    "frames": 1,
    "rect": [
