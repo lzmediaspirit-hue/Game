@@ -32,6 +32,10 @@ jaw, a glowing cyan eye; styles `ribbon_drift`, `ribbon_swim`, `coil_gape`, `lun
 and `leviathan` (the Nebula Leviathan, a whale head on a serpent body with veils and constellations, the void gathered in
 its mouth and breathed; styles `levi_drift`, `levi_glide`, `void_gather`, `void_breath`, `levi_recoil`, `levi_sink`). Their
 bodies are laid along a spine integrated back from the neck (`_sky_spine`), a wave of its heading travelling down it.
+The leviathan also swims (`swim`, its spec's `extra`, played where it crosses water on the grid; style `levi_swim`): its
+body mostly under the star-water, its head's dome and eye, the loops of its back and its veil breaking the surface, a
+wake spreading behind its head and foam where it breaks the water (`parts.swim`: the water's line under its feet, the
+body's height against it).
 """
 from __future__ import annotations
 
@@ -161,7 +165,7 @@ def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: flo
     if "ribbon" in B.parts:
         return _ribbon(B, action, f, view)               # M4: the nebula eel
     if "leviathan" in B.parts:
-        return _leviathan(B, action, f, view)            # M4: the Nebula Leviathan
+        return _leviathan(B, action, f, view, k)         # M4: the Nebula Leviathan
     if "coil_share" in B.parts:
         return _viper(B, action, f, view)
     if B.variant == "leech" or "rest" in B.parts:
@@ -1295,6 +1299,7 @@ SKY_STYLES = {
                     "squash": {1: (1.03, 1.0, 0.98)}},
     "levi_recoil": {"amp": (10.0, 14.0, 14.0), "wl": (18.0,) * 3, "kink": (18.0, 8.0, 2.0), "lunge": (-2.4, -1.4, -0.4), "hpitch": (18.0, 8.0, 2.0),
                     "gape": (0.5, 0.2, 0.0), "lights": (0.3, 0.6, 1.0), "squint": True},
+    "levi_swim": {"kind": "wave", "n": 8, "amp": 26.0, "wl": 18.0, "vamp": 9.0, "bob": 0.25, "lights": 1.0, "lunge_amp": 0.4, "swim": True},
     "levi_sink": {"amp": (14.0, 12.0, 10.0, 8.0, 8.0, 8.0, 8.0, 8.0), "wl": (18.0,) * 8, "drop": (0.0, 0.1, 0.22, 0.36, 0.5, 0.62, 0.7, 0.74),
                   "hpitch": (12.0, 4.0, -4.0, -10.0, -14.0, -16.0, -16.0, -16.0), "gape": (0.4, 0.3, 0.2, 0.15, 0.1, 0.1, 0.1, 0.1),
                   "lights": (0.85, 0.7, 0.55, 0.4, 0.25, 0.1, 0.0, 0.0), "dissolve": (0.0, 0.0, 0.0, 0.0, 0.1, 0.25, 0.45, 0.7), "dead": 3},
@@ -1313,6 +1318,11 @@ LEVIATHAN = {
              "hinge": (0.4, 0.0, -0.8), "eye": (4.8, 3.35, 0.5), "baleen": 15},
     "veils": {"dorsal": (0.15, 0.7, 3.0), "pectoral": ((1.4, 3.2, -1.8), 8.5, 3.4), "tail": ((5.5, 2.4), (7.5, 3.4), (5.8, 2.6))},
     "lights": 14,
+    # Swimming: the water's line this far under its feet on the screen (art px: about the flier's hover over the ground,
+    # EnemyAuthority._hover), the neck's height over it, the body's dip below the neck (degrees), the head
+    # raised over the neck so its eye clears the water, the neck's place ahead of its feet (a share of its length), and
+    # its length (its far body lost under the water, so the frame holds it facing away).
+    "swim": {"lift": 3.0, "z": -1.3, "sweep": 16.0, "head": 1.1, "ahead": 0.15, "length": 0.72},
 }
 VARIANTS["ribbon"] = {"parts": RIBBON, "mats": {"skin": "neel_teal", "cloud": "neel_mag", "fin": "neel_fin", "mouth": "neel_mouth", "fang": "neel_fang"},
                       "motion": {"idle": "ribbon_drift", "walk": "ribbon_swim", "windup": "coil_gape", "attack": "lunge_bite", "hurt": "kink_jerk",
@@ -1320,7 +1330,7 @@ VARIANTS["ribbon"] = {"parts": RIBBON, "mats": {"skin": "neel_teal", "cloud": "n
 VARIANTS["leviathan"] = {"parts": LEVIATHAN, "mats": {"skin": "nlev_hide", "belly": "nlev_belly", "teal": "nlev_teal", "mag": "nlev_mag",
                                                       "veil": "nlev_veil", "baleen": "nlev_baleen", "mouth": "nlev_mouth", "void": "nlev_void"},
                          "motion": {"idle": "levi_drift", "walk": "levi_glide", "windup": "void_gather", "attack": "void_breath", "hurt": "levi_recoil",
-                                    "death": "levi_sink"}}
+                                    "death": "levi_sink", "swim": "levi_swim"}}
 
 
 def _sky_wave(B, action: str, f: int):
@@ -1529,14 +1539,15 @@ def _veil(P, root, d_out, d_back, length: float, width: float, mat, group: str, 
                                                  np.where(((((q - root) @ F)[:, 0] * 1.6) % 1.0) < 0.2, -1, 0).astype(np.int16))))
 
 
-def _leviathan(B, action: str, f: int, view: float) -> Pose:
+def _leviathan(B, action: str, f: int, view: float, k: float = 2.6) -> Pose:
     """M4, the Nebula Leviathan (see SKY_STYLES): a colossal sky whale-serpent, a vast whale head (a domed crown over a
     rostrum, an arched mouth fringed with ivory baleen, a pleated lower jaw, a small ancient gold eye) on a serpent body
     sweeping back (deep indigo, a pale belly in pleats, teal and magenta nebula bands along its flanks, constellations of
     lights on its back), translucent violet veils (its pectorals, a long veil down its back, a fan at its tail). It rears
     its head back, its mouth gaping as the void gathers in it and star lines spiral in (the tell, held), and lunges to
     breathe the void (a cone of darkness full of stars ending in a burst); struck, it recoils and its lights flicker;
-    beaten, its lights go out one by one as it sinks and fades."""
+    beaten, its lights go out one by one as it sinks and fades. Swimming (`levi_swim`), it is drawn mostly under the
+    water (see _levi_water)."""
     P = Pose()
     p, m = B.parts, B.mats
     st = B.style(action)
@@ -1546,8 +1557,15 @@ def _leviathan(B, action: str, f: int, view: float) -> Pose:
     kink = B.pick("kink", action, f)
     lights = B.pick("lights", action, f, st.get("lights", 1.0))
     z = (p.Z + rise + bob) * (1.0 - drop) + drop * 4.0
-    pts, tans = _sky_spine(p.n, p.length, amp, wl, vamp, ph, kink, p.sweep)
-    off = v3(lunge + p.length * 0.3, 0.0, z)
+    sweep = p.sweep
+    swim = bool(st.get("swim"))
+    if swim:
+        P.water = -p.swim.lift / math.cos(ELEV)        # in the world, at its drawn size
+        wz = P.water / k                               # in its own frame
+        z, sweep = wz + p.swim.z + bob, p.swim.sweep
+    length = p.length * (p.swim.length if swim else 1.0)
+    pts, tans = _sky_spine(p.n, length, amp, wl, vamp, ph, kink, sweep)
+    off = v3(lunge + length * (p.swim.ahead if swim else 0.3), 0.0, z)
     pts = [off + q for q in pts]
     neck = pts[0]
     n = p.n
@@ -1561,7 +1579,7 @@ def _leviathan(B, action: str, f: int, view: float) -> Pose:
         c = (a + b) * 0.5
         F = _frame_of(b - a)
         seg = float(np.linalg.norm(b - a))
-        P.add(E(c, (seg * 0.62, w, w * p.tall), m.skin, "body", F, _levi_paint(m, c, F, p.length * u, p.length)))
+        P.add(E(c, (seg * 0.62, w, w * p.tall), m.skin, "body", F, _levi_paint(m, c, F, length * u, length)))
         bodies.append((c, F, w))
         # The long veil down its back, in short waving plates.
         if 0.15 < u < 0.85 and i % 2 == 0:
@@ -1594,7 +1612,7 @@ def _leviathan(B, action: str, f: int, view: float) -> Pose:
     hm = rot("c", yaw) @ rot("b", B.pick("hpitch", action, f))
     hd = p.head
     gape = B.pick("gape", action, f)
-    hc = neck
+    hc = neck + v3(0.0, 0.0, p.swim.head if swim else 0.0)
     crown_c = hc + hm @ v3(hd.crown[0])
     P.add(E(crown_c, hd.crown[1], m.skin, "head", hm, _levi_head_paint(m, crown_c, hm)))
     P.add(E(hc + hm @ v3(hd.rostrum[0]), hd.rostrum[1], m.skin, "head", hm, _levi_head_paint(m, hc + hm @ v3(hd.rostrum[0]), hm)))
@@ -1666,7 +1684,54 @@ def _leviathan(B, action: str, f: int, view: float) -> Pose:
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], tuple(neck))
+    if swim:
+        _levi_water(P, B, f, wz, bodies, hc, hm)
     return P
+
+
+def _levi_water(P, B, f: int, wz: float, bodies: list, hc, hm) -> None:
+    """The Nebula Leviathan swimming: everything of it under the water's line cut away (its parts clipped at the
+    surface, its lights and marks under it gone), and the star-water round it (P.water_fx): a darker wash over its body
+    under the surface with stars glinting in it, foam where its head and the loops of its back break the water, a wake
+    spreading back from its head in a V, a ring spreading round its head."""
+    under = lambda q: q[:, 2] > wz
+    for part in P.parts:
+        part.clip = under if part.clip is None else (lambda q, c0=part.clip: under(q) & c0(q))
+    P.glow = [g for g in P.glow if g[0][2] > wz]
+    P.marks = [g for g in P.marks if g[0][2] > wz]
+    P.eyes = [g for g in P.eyes if g[0][2] > wz]
+    P.fx = [g for g in P.fx if g[0][2] > wz]
+    # Where it breaks the surface: each piece of the body whose back rises over the water, and the head.
+    breaks = [(c[0], c[1], w * 0.85) for c, F, w in bodies if c[2] + w * B.parts.tall > wz + 0.2 and c[2] - w < wz]
+    ha, hb = float(hc[0] + (hm @ v3(3.4, 0.0, 0.0))[0]), float(hc[1] + (hm @ v3(3.4, 0.0, 0.0))[1])
+    back = -(hm @ v3(1.0, 0.0, 0.0))[:2]
+    back = back / max(1e-6, float(np.linalg.norm(back)))
+    side = np.array((-back[1], back[0]))
+    spine = [(float(c[0]), float(c[1]), w) for c, F, w in bodies]
+    ring = 6.0 + (f % 8) * 0.5
+    tan = math.tan(math.radians(17.0))
+
+    def water(a, b):
+        q = np.array((a - ha, b - hb))
+        da, ds = float(q @ back), float(q @ side)
+        dh = math.hypot(a - ha, b - hb)
+        if dh < 5.4:
+            ang = int((math.degrees(math.atan2(b - hb, a - ha)) + 360.0) // 24.0)
+            return M.LEVI_FOAM if h01(ang, f, 23) > 0.35 else M.LEVI_RIPPLE
+        for ba, bb, br in breaks:
+            if math.hypot(a - ba, b - bb) < br + 0.8:
+                return M.LEVI_FOAM if h01(int(a * 3.0 + b * 7.0), f, 29) > 0.45 else M.LEVI_RIPPLE
+        # The wake: two lines spreading back from its head, a step behind it.
+        if 2.0 < da < 15.0 and abs(abs(ds) - (3.4 + da * tan)) < 0.45:
+            return M.LEVI_RIPPLE if da < 9.0 else M.LEVI_RIPPLE_DIM
+        if abs(dh - ring) < 0.42 and da < 0.0:
+            return M.LEVI_RIPPLE_DIM
+        near = min((math.hypot(a - sa, b - sb) - sw for sa, sb, sw in spine), default=99.0)
+        if near < 1.4:
+            return M.LEVI_GLINT if h01(int(a * 2.0) * 31 + int(b * 2.0), 0, 37) > 0.93 else M.LEVI_WASH
+        return None
+
+    P.water_fx = water
 
 
 def _levi_head_paint(m, centre, hm):

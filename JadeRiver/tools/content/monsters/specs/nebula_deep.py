@@ -36,7 +36,7 @@ species("nebula_eel", plan="serpent.ribbon", share=True, size=2.2,
 # and it sinks and fades.
 species("nebula_leviathan", plan="serpent.leviathan", share=True, size=2.6, elite=False,
         palette=["nlev_hide", "nlev_belly", "nlev_teal", "nlev_mag", "nlev_veil", "nlev_baleen", "nlev_mouth", "nlev_void"],
-        shadow=(34, 8), cycle=20.0, view=True, canvas=(280, 230),
+        shadow=(34, 8), cycle=20.0, view=True, canvas=(280, 230), sized=True, extra=("swim",),
         data=dict(level=99, role="field_boss", element="space", page="lantern",
                   drops=[("leviathan_scale", 1.0, (2, 3)), ("star_shard", 1.0, (20, 30)), ("eel_essence", 1.0, (2, 4)), ("will_tempering_pill", 1.0, (2, 3))],
                   attacks=[("current_swallow", 1.2, 300, 0.9, dict(depth=110, damage_type="qi", pull=220, both_sides=True)),

@@ -739,6 +739,13 @@ LEVI_CLINE = c("6F7FD0")
 LEVI_STAR_OFF = c("4A4F8E")
 LEVI_VOID_RIM = c("8B52D8")
 LEVI_VOID_HI = c("E8DCFF")
+# Its swim in the star-water: the foam where it breaks the water, the wake's ripples, the dark wash over its body under
+# the surface and the stars glinting in it.
+LEVI_FOAM = c("DCDCFF", 235)
+LEVI_RIPPLE = c("A9A4F0", 215)
+LEVI_RIPPLE_DIM = c("7068C8", 170)
+LEVI_WASH = c("15123C", 150)
+LEVI_GLINT = c("F4F0FF", 220)
 # The hollowed wyrmling's empty violet eyes, the ember in its throat, its fire's violet, the glow of its cracks, its ash.
 WYRM_EYE = c("E6D2FF")
 WYRM_EMBER = c("F09A48")
