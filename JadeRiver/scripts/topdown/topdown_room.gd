@@ -524,7 +524,7 @@ func nearest_standable(p: Vector2) -> Vector2:
 		if best != Vector2.INF: return best
 	return spawn
 
-## What shows a way where it is (the top-down view's PortalView.entrance, docs/tutorial_order.md): "building" (in the
+## What shows a way where it is (docs/tutorial_order.md): "building" (in the
 ## doorway under a building's door art: a prop's `door` columns, the row under its footprint), "wall" (a gap in an
 ## interior's front wall at the room's edge), "edge" (walked out through the room's side), "" (nothing shows it).
 func entrance(portal_id: String) -> String:

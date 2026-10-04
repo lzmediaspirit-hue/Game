@@ -21,7 +21,7 @@ var first_visit := false
 var hazards: Dictionary = {}          # hazard id -> {phase, t, dur, spots: [[x, y, alt]], dir, pulse, inside}
 var hazard_drift := Vector2.ZERO      # the push the room's hazards put on the active character this tick
 var hazard_pulse: Dictionary = {}      # S43 hazard volumes: seconds to each one's next pulse
-var topdown: TopdownRoom = null       # redesign Phase 2: a room on the height grid (its foes steer on it, not on surfaces)
+var topdown: TopdownRoom = null       # the room's layout on the height grid (WorldAuthority.load_room; its foes steer on it)
 
 func uid() -> int:
 	next_uid += 1
@@ -46,12 +46,10 @@ const HALF_VIEW := TopdownRoom.VIEW * TopdownRoom.ART * 0.5
 const FIGURE := Vector2(24, 80)
 
 ## Is a figure standing at `p` (height `alt`) out of the view of the body `st`, by at least `margin` world units? The
-## side view scrolls along x only, so it is the distance across; on the height grid it is the camera's own rect for a
-## body there (TopdownRoom.view_rect: both axes, clamped to the room, the ridge at the north edge included) against the
-## figure's rect on the screen's plane.
+## camera's own rect for a body there (TopdownRoom.view_rect: both axes, clamped to the room, the ridge at the north edge
+## included) against the figure's rect on the screen's plane.
 func out_of_view(p: Vector2, alt: float, st: ActorState, margin := 0.0) -> bool:
 	if st == null: return true
-	if topdown == null: return absf(p.x - st.plane.x) >= HALF_VIEW.x + margin
 	var z := topdown.ground_under(st.plane, st.altitude)
 	var fig := Rect2(p.x - FIGURE.x, p.y - alt - FIGURE.y, FIGURE.x * 2.0, FIGURE.y)
 	return not topdown.view_rect(st.plane, z).grow(margin).intersects(fig)

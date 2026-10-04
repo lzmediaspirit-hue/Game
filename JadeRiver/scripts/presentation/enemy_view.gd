@@ -1,13 +1,15 @@
 class_name EnemyView
 extends Node2D
-## Presentation of one EnemyState (monsters, bosses, spar opponents, pets and
-## companions). Reads state every frame; never changes it. Creatures use their
-## sprite sheet; humanoids use the layered avatar (the player-creation engine).
+## Presentation of one EnemyState (monsters, bosses, spar opponents, pets and companions). Reads state every frame;
+## never changes it. Two modes, one per use the top-down room makes of it:
+##   - the label over the figure the room draws (level, name, HP bar, the tell, statuses; TopdownWorld);
+##   - `art_only`: the stand-in figure of a creature whose species has no top-down sheet yet (TopdownPlaces.stand_in):
+##     its side-view creature sheet (CreatureSprite, art/creatures), its action, facing and flash, placed and shadowed
+##     by the room's FoeView. S12b deletes this mode once every species has its sheet.
 
 
 var uid := 0
 var sprite: CreatureSprite
-var avatar: Node2D
 var last_action := ""
 var hp_timer := 0.0
 var name_text := ""
@@ -17,31 +19,28 @@ var elite := false
 var boss := false
 var ally := false
 var flying := false
-var death_fade := 1.0
 var tell := 0.0
 var burrowed := false   # a burrower travelling under the ground: only its mound shows
 var t := 0.0
 ## P5a (G4): the label's box in local coordinates at no offset, its kind for the layout pass (WorldLabels), and the
-## offset in whole rows that world.gd gives it so no two labels touch.
+## offset in whole rows the layout pass gives it so no two labels touch.
 var label_box := Rect2()
 var label_kind := "foe"
 var label_offset := Vector2.ZERO
 var tag: Node2D   # the label's own canvas item, above every figure (WorldLabels.LABEL_Z)
-## Redesign Phase 2: only the label (level, name, HP bar, the tell, statuses); the top-down room draws the figure.
-var label_only := false
-## Redesign Phase 4: only the figure (the avatar or the creature sheet, its action, facing, flash and an ally's blink),
-## no label and no shadow: the top-down room's stand-in for a companion, a spirit animal or a foe its foe sheet does not
-## draw (TopdownPlaces.stand_in), placed and shadowed by the room's FoeView at half size.
+## Redesign Phase 4: only the figure (the creature sheet, its action, facing, flash and an ally's blink), no label and
+## no shadow: the top-down room's stand-in for a spirit animal or a foe its foe sheet does not draw
+## (TopdownPlaces.stand_in), placed and shadowed by the room's FoeView at half size.
 var art_only := false
-## The top-down field stays clean (the prototype's QA, docs/redesign/prototype_qa.md): in label mode a foe's full plate
+## The top-down field stays clean (the prototype's QA, docs/redesign/prototype_qa.md): a foe's full plate
 ## (level, rank, name) shows only for the target the thumb has (`focused`: the soft lock, or the foe an aim snaps to),
 ## a foe in a fight with the player (struck or aggroed, and ENGAGED_S after), and elites and bosses; every other foe
 ## keeps a compact HP bar once hurt or aggroed, and a foe well above the player's Level its danger mark.
 var focused := false
 var engaged := 0.0
 const ENGAGED_S := 3.0
-## Label mode: the top-down figure's height over its feet on the overlay (TopdownWorld.FoeView.figure_top), so the
-## label sits on its head (a hovering eel's too), not at the side view's height. 0: the side view's `height`.
+## The top-down figure's height over its feet on the overlay (TopdownWorld.FoeView.figure_top), so the
+## label sits on its head (a hovering eel's too). 0: the foe's own `height`.
 var figure_top := 0.0
 
 func setup(e: EnemyState) -> void:
@@ -54,22 +53,8 @@ func setup(e: EnemyState) -> void:
 	label_kind = "ally" if ally else ("boss" if boss else ("elite" if elite else "foe"))
 	name_text = e.display_name()
 	var art: Dictionary = e.def.get("art", {"creature": e.def_id})
-	if label_only: pass   # the top-down room draws the figure itself (redesign Phase 2)
-	elif art.has("avatar"):
-		avatar = Figures.side_avatar()
-		var outfit = art.avatar
-		if outfit is String and outfit == "player":
-			outfit = InventoryAuthority.outfit_for(Game.active()) if Game.active() else Wardrobe.defaults()
-			if e.def_id == "the_reflection": name_text = Tx.t("view.reflection")
-		var o: Dictionary = (outfit as Dictionary).duplicate()
-		if art.has("tint"): o.tint = str(art.tint)   # a heart demon wears your face in crimson (G1)
-		for k in ["hat", "cape", "weapon"]:
-			if not o.has(k): o[k] = "none"
-		avatar.outfit = o
-		if o.has("tint"): avatar.modulate = Color(str(o.tint))
-		if e.def_id == "the_reflection": avatar.modulate = Color(0.75, 0.85, 1.0, 0.85)
-		add_child(avatar)
-	else:
+	if e.def_id == "the_reflection": name_text = Tx.t("view.reflection")
+	if art_only:   # a person's stand-in is a Person (TopdownPlaces.stand_in); a creature's is its side-view sheet
 		sprite = CreatureSprite.new()
 		sprite.creature_id = str(art.get("creature", e.def_id))
 		sprite.fallback_size = Vector2(e.half_width() * 2.0, e.height())
@@ -109,7 +94,6 @@ func sync(e: EnemyState, delta: float) -> void:
 	burrowed = e.hidden and not ally and e.ai.state != "windup" and str(e.def.get("ai", {}).get("profile", "")) == "burrower" and e.alive
 	if burrowed: visible = true
 	if sprite: sprite.visible = not burrowed
-	if avatar: avatar.visible = not burrowed
 	t += delta
 	var action := e.action
 	if e.ai.state == "stagger": action = "hurt"
@@ -117,45 +101,15 @@ func sync(e: EnemyState, delta: float) -> void:
 	if action != last_action:
 		last_action = action
 		if sprite: sprite.play(action, true)
-		if avatar: _avatar_action(e, action)
 	if sprite:
 		sprite.facing = e.facing
 		sprite.set_flash(e.flash / 0.12 if e.flash > 0 else 0.0)
-	if avatar:
-		avatar.facing = e.facing
-		if e.flash > 0.0: avatar.modulate = Color(2, 2, 2) if int(e.flash * 60) % 2 == 0 else Color.WHITE
-		elif avatar.outfit.has("tint"): avatar.modulate = Color(str(avatar.outfit.tint))   # phantoms keep their colour after a hit
-		elif e.def_id == "the_reflection": avatar.modulate = Color(0.75, 0.85, 1.0, 0.85)
-		else: avatar.modulate = Color.WHITE
-	if not e.alive:
-		death_fade = maxf(0.0, 1.0 - e.dead_time / 1.4)
-		modulate.a = death_fade if avatar else 1.0
 	if e.flash > 0.0 or e.pools.hp < e.pools.max_hp: hp_timer = 4.0
 	hp_timer = maxf(0.0, hp_timer - delta)
 	engaged = ENGAGED_S if e.alive and (e.flash > 0.0 or e.in_fight()) else maxf(0.0, engaged - delta)
 	tell = 1.0 if e.ai.state == "windup" and not ally else maxf(0.0, tell - delta * 4.0)
-	if not label_only: queue_redraw()   # in label mode the view draws nothing of its own (its label is `tag`'s)
+	if art_only: queue_redraw()   # a label draws nothing of its own (its label is `tag`'s)
 	if tag: tag.queue_redraw()
-
-func _avatar_action(e: EnemyState, action: String) -> void:
-	var weapon := str(avatar.outfit.get("weapon", "none"))
-	var attack = {"none": "punch_2", "sword": "swing_1", "spear": "thrust_1", "dagger": "thrust_1", "staff": "thrust_3", "bow": "bow"}.get(weapon, "punch_2")
-	match action:
-		"walk": avatar.play("walk")
-		"windup":
-			avatar.play(attack)
-			avatar.externally_timed = true
-			avatar.elapsed = 0.05
-		"attack":
-			avatar.externally_timed = false
-			avatar.play(attack)
-			avatar.elapsed = 0.1
-		"death":
-			avatar.externally_timed = false
-			avatar.play("meditate")
-		_:
-			avatar.externally_timed = false
-			avatar.play("idle")
 
 ## The hump of earth a burrower pushes up as it travels, with grains thrown back behind it.
 func _draw_mound(ground: Vector2, w: float) -> void:
@@ -185,22 +139,13 @@ func e_facing() -> int:
 	return e.facing if e else 1
 
 func _draw() -> void:
-	if label_only: return
+	if not art_only: return
 	var rt: RoomRuntime = Game.room_rt
 	var e: EnemyState = rt.enemies.get(uid) if rt else null
 	if e == null: return
-	# The shadow falls on the surface under the body (a ledge, or the ground below a hop), not always on y = 0.
-	var under: WalkSurface = rt.geometry.surface_under(e.plane, e.altitude + 0.5) if e.altitude > 0.5 else null
-	var ground := Vector2(0, e.altitude + e.hover - (under.height_at(e.plane) if under else 0.0))
-	if rt.topdown != null: ground = Vector2(0, e.altitude + e.hover - rt.topdown.floor_at(e.plane))   # the grid's floor under it
-	var w := e.half_width()
 	if burrowed:
-		_draw_mound(ground, w)
+		_draw_mound(Vector2(0, e.altitude + e.hover - rt.topdown.floor_at(e.plane)), e.half_width())   # on the floor under it
 		return
-	if not art_only:   # the top-down room draws the shadow on the floor under it
-		draw_set_transform(ground, 0.0, Vector2(1, 0.28))
-		draw_circle(Vector2.ZERO, w * 1.1, Color(0.01, 0.035, 0.04, 0.35 * (death_fade if not e.alive else 1.0)))
-		draw_set_transform(Vector2.ZERO)
 	if not e.alive or not visible: return
 	# S43 rule 12: an ally's blink to its owner arrives in a puff of mist.
 	var bt := float(e.ai.get("blink_t", 0.0)) if ally else 0.0
@@ -220,16 +165,14 @@ func _draw_tag() -> void:
 	var ci := tag
 	# The layout pass moves a label by whole rows, and a crowd's aside by half a box (label_offset.x): drawn here.
 	ci.draw_set_transform(Vector2(label_offset.x, 0.0))
-	var w := e.half_width()
 	var top := -e.height() - 16.0
-	if avatar: top = -104.0
 	if ally:
 		# P5a (mockup 01): a companion, the puppet or the animal shows only a thin HP line over its head, and only in a
 		# fight; its name is on the HUD's party chip. The line sits lower than a foe's label (its own offset, G4).
 		label_kind = "ally"
 		if WorldLabels.party_fight:
-			var lw := 40.0 if avatar else 30.0
-			var line := Rect2(-lw * 0.5, (top + 10.0 if avatar else top + 8.0) + label_offset.y, lw, 5)
+			var lw := 30.0
+			var line := Rect2(-lw * 0.5, top + 8.0 + label_offset.y, lw, 5)
 			label_box = Rect2(line.position - Vector2(0.0, label_offset.y), line.size).grow(2.0)
 			var frac := clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0.0, 1.0)
 			ci.draw_rect(line.grow(1.5), UiKit.INK)
@@ -239,49 +182,14 @@ func _draw_tag() -> void:
 	# P5a (G4): the whole label (statuses, level and name, the danger marks or the crown, the HP bar) is one box that the
 	# layout pass moves by whole rows (label_offset) so it never touches another label or sits under a HUD control.
 	label_kind = "boss" if boss else ("elite" if elite else "foe")
-	if label_only:
-		_draw_tag_topdown(e)
-		return
-	var base := top
-	top += label_offset.y
-	if tell > 0.0:
-		UiKit.draw_outlined(ci, "!", Vector2(-40, top - 14), 26, Color(UiKit.RED, tell), HORIZONTAL_ALIGNMENT_CENTER, 80)
-	var label := "%s  %s" % [level_text, name_text] if not boss else name_text
-	var tw := UiKit.text_width(label, 17, true)
-	var box := Rect2(-tw * 0.5 - 4.0, base - 17.0, tw + 8.0, 22.0)
-	if shows_hp_bar(e) and not boss:
-		var bw := clampf(w * 2.2, 40, 90)
-		var r := Rect2(-bw * 0.5, top + 6, bw, 6)
-		box = box.merge(Rect2(-bw * 0.5 - 2.0, base + 4.0, bw + 4.0, 10.0))
-		ci.draw_rect(r.grow(2), UiKit.INK)
-		ci.draw_rect(r, Color("3a1418"))
-		ci.draw_rect(Rect2(r.position, Vector2(r.size.x * clampf(e.pools.hp / maxf(1.0, e.pools.max_hp), 0, 1), r.size.y)), UiKit.RED)
-	var col := UiKit.badge_color(badge)
-	if elite: col = UiKit.GOLD
-	UiKit.draw_outlined(ci, label, Vector2(-130, top), 17, col, HORIZONTAL_ALIGNMENT_CENTER, 260)
-	if not boss:
-		_danger_marks(ci, tw * 0.5 + 8, top - 6, col)
-		if badge in ["orange", "red", "green", "grey"]: box = box.merge(Rect2(tw * 0.5 + 2.0, base - 12.0, 26.0, 12.0))
-	if elite:
-		var cx := -UiKit.text_width(label, 16) * 0.5 - 12
-		box = box.merge(Rect2(cx - 8.0, base - 15.0, 16.0, 12.0))
-		ci.draw_colored_polygon(PackedVector2Array([Vector2(cx - 7, top - 4), Vector2(cx - 7, top - 12), Vector2(cx - 3, top - 8),
-			Vector2(cx, top - 14), Vector2(cx + 3, top - 8), Vector2(cx + 7, top - 12), Vector2(cx + 7, top - 4)]), UiKit.GOLD)
-	# Status icons at their native 12 px render, 14 apart.
-	var sx := -float(e.pools.statuses.size()) * 7.0
-	if not e.pools.statuses.is_empty(): box = box.merge(Rect2(sx, base - 30.0, 14.0 * e.pools.statuses.size(), 14.0))
-	for s in e.pools.statuses:
-		SpriteCache.draw_icon(ci, Rect2(sx, top - 30, 14, 14), str(ContentDB.entry("status_effects", str(s.id)).get("icon", s.id)))
-		sx += 14
-	label_box = box
+	_draw_tag_topdown(e)
 
-## Label mode (the top-down view): does the foe show its full plate (level, rank, name)? The target the thumb has, a foe
-## in a fight with the player and a few seconds after, and elites and bosses always; no other.
+## Does the foe show its full plate (level, rank, name)? The target the thumb has, a foe in a fight with the player and
+## a few seconds after, and elites and bosses always; no other.
 func plate_shown(e: EnemyState) -> bool:
-	if not label_only: return true
 	return e != null and e.alive and (boss or elite or focused or engaged > 0.0)
 
-## Label mode (the top-down view): the label on the figure's head. A compact HP bar (once hurt or aggroed, and always on
+## The label on the figure's head. A compact HP bar (once hurt or aggroed, and always on
 ## the target the thumb has), over it the full plate where plate_shown says so (the level's colour and danger marks, the
 ## elite's crown), over that the statuses; with no plate, a foe well above the player's Level keeps its danger mark.
 ## One box for the layout pass (WorldLabels), which stacks the plates that show so no two touch.

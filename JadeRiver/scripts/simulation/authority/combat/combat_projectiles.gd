@@ -9,7 +9,7 @@ func spawn_projectile(p: Dictionary) -> void:
 	p.travelled = 0.0
 	p.hits = []
 	p.delay = float(p.get("delay", 0.0))
-	if combat.grid() != null: _aim_shot(p)
+	_aim_shot(p)
 	game.room_rt.projectiles.append(p)
 	emit("projectile_spawned", {"uid": p.uid, "team": p.team, "art": str(p.get("art", "arrow")), "element": str(p.get("element", "none"))})
 
@@ -37,16 +37,12 @@ func _aim_shot(p: Dictionary) -> void:
 	p.feet = feet
 	p.dir = 1 if aim.x >= 0.0 else -1
 
-## A shot's view for the hit test: at chest height in the side view; on the plane, at its thrower's feet along its aim
-## with the ground band.
+## A shot's view for the hit test: at its thrower's feet along its aim, with the ground band.
 func _shot_view(p: Dictionary) -> Dictionary:
-	if not p.has("aim"): return {"x": p.x, "y": p.y, "alt": float(p.alt) - 20.0}
 	return {"x": p.x, "y": p.y, "alt": float(p.feet), "aim": p.aim, "band": TopdownAim.band(false)}
 
-## Does a shot stop here: at a block or wall (S43 rule 10), or on the plane at a face higher than shot_wall over its
-## feet?
+## Does a shot stop here: at a face higher than shot_wall over its feet (S43 rule 10)?
 func _shot_stops(rt: RoomRuntime, p: Dictionary) -> bool:
-	if not p.has("aim"): return rt.geometry.stops_shot(Vector2(p.x, p.y), float(p.alt))
 	return rt.topdown.height_at(Vector2(p.x, p.y)) > float(p.feet) + float(ContentDB.movement("topdown.combat.shot_wall", 24))
 
 func spawn_enemy_projectile(e: EnemyState, attack: Dictionary) -> void:
@@ -108,7 +104,7 @@ func tick_projectiles(delta: float) -> void:
 					# The Bright Mirror sends it back at whoever threw it (S47).
 					p.team = "player"
 					p.dir = -int(p.dir)
-					if p.has("aim"): p.aim = -(p.aim as Vector2)
+					p.aim = -(p.aim as Vector2)
 					p.owner = c.id
 					p.travelled = 0.0
 					p.hits = []
@@ -124,7 +120,7 @@ func tick_projectiles(delta: float) -> void:
 			# A thrown fan (S47 v1.1) turns at the end of its flight and cuts its way back.
 			p.returned = true
 			p.dir = -int(p.dir)
-			if p.has("aim"): p.aim = -(p.aim as Vector2)
+			p.aim = -(p.aim as Vector2)
 			p.travelled = 0.0
 			p.hits = []
 			continue

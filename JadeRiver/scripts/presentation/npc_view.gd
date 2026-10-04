@@ -1,12 +1,12 @@
 class_name NpcView
 extends Node2D
-## A villager, vendor, mentor or recruiter drawn with the layered avatar (the
-## same engine that builds the player) plus a name tag, quest marker and barks.
+## A villager, vendor, mentor or recruiter's words over their figure: the nameplate, the quest marker and the barks.
+## The top-down view (redesign Phase 4) draws the figure in its pixel viewport (TopdownPlaces.person) and this view on its
+## overlay at the HUD's resolution.
 
 
 var object_id := ""
 var npc_id := ""
-var avatar: Node2D
 var marker := ""
 var bark := ""
 var bark_time := 0.0
@@ -16,20 +16,16 @@ var title := ""
 var focus := false
 var t := 0.0
 var def: Dictionary = {}
-var pose_now := ""
 ## P5a (G4): the nameplate's box under the feet at no offset, and the offset in whole rows the layout pass gives it.
 var label_box := Rect2()
 var label_offset := Vector2.ZERO
 var label_flip := Vector2.ZERO
 var tag: Node2D   # the nameplate's own canvas item, above every figure (WorldLabels.LABEL_Z)
-## The top-down view (redesign Phase 4) draws the figure in its pixel viewport (NpcView.figure) and this view only for
-## the marker, the bark and the nameplate, on its overlay at the HUD's resolution.
-var label_only := false
-## How much higher than the side view's the head is (world units, up is negative): the top-down figure is drawn 46 art px
-## tall (decision 43), so its marker, its bark and a plate lifted over its head stand that much higher.
+## How much higher the head is than the marker's old place (world units, up is negative): the top-down figure is drawn
+## 46 art px tall (decision 43), so its marker, its bark and a plate lifted over its head stand that much higher.
 var head_lift := 0.0
 
-func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
+func setup(o: Dictionary) -> void:
 	def = o
 	object_id = str(o.id)
 	npc_id = str(o.npc)
@@ -39,31 +35,9 @@ func setup(o: Dictionary, geo: ZoneGeometry = null) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var at: Array = o.get("at", [0, 0])
 	position = Vector2(float(at[0]), float(at[1]) - float(o.get("alt", 0)))
-	z_index = ObjectView.depth(o, geo)
-	avatar = figure(o)
-	add_child(avatar)
-	if label_only:
-		avatar.visible = false
-		avatar.set_process(false)
+	z_index = ObjectView.depth(o)
 	tag = WorldLabels.make_tag(self, _draw_tag)
-	pose_now = avatar.action
 	bark_timer = randf_range(4.0, 12.0)
-
-## The villager's figure: the layered avatar in their outfit, pose, facing and tint (npcs.json), for either view.
-static func figure(o: Dictionary) -> Node2D:
-	var n := ContentDB.entry("npcs", str(o.npc))
-	var av = Figures.side_avatar()
-	av.lazy_sheets = true   # a room full of new outfits draws each villager once its sheets are in, not on entry
-	var outfit: Dictionary = n.get("outfit", {}).duplicate()
-	for k in ["body", "hair", "shirt", "pants", "shoes", "weapon", "hat", "cape"]:
-		if not outfit.has(k): outfit[k] = {"body": "light", "hair": "short_knot", "shirt": "disciple", "pants": "loose", "shoes": "slippers"}.get(k, "none")
-	if not outfit.has("hair_color"): outfit.hair_color = 0
-	av.outfit = outfit
-	av.facing = int(o.get("facing", n.get("facing", -1)))
-	av.play(str(o.get("pose", n.get("pose", "idle"))))
-	if n.has("tint"): av.modulate = Color(str(n.tint))
-	av.refresh_entries()   # its sheets are asked for as the room is populated, not at its first draw
-	return av
 
 func _process(delta: float) -> void:
 	t += delta
@@ -84,25 +58,15 @@ func _process(delta: float) -> void:
 	queue_redraw()
 	tag.queue_redraw()
 
-## S43 rule 15: a rooftop thief on the run is wherever his route puts him (the authority's clock), running, leaping
-## between tiers, or waiting to jeer.
+## S43 rule 15: a rooftop thief's words go with him on the run, wherever his route puts him (the authority's clock).
 func _follow_chase(c) -> void:
 	var p: Dictionary = Game.world.chase_view(c) if c != null else {}
 	var at: Array = def.get("at", [0, 0])
-	var pose := "idle"
 	if p.is_empty() or str(p.get("object", "")) != object_id:
 		position = Vector2(float(at[0]), float(at[1]))
 	else:
 		position = Vector2(float(p.x), float(p.y) - float(p.alt))
 		z_index = 1500 + int(float(p.y)) + int(float(p.alt))
-		avatar.facing = int(p.facing)
-		if p.moving: pose = "walk"
-	if pose != pose_now:
-		pose_now = pose
-		avatar.play(pose)
-
-func face(x: float) -> void:
-	avatar.facing = 1 if x >= position.x else -1
 
 ## The nameplate under the feet, drawn on `tag` above every figure (P5a, G4). With no free row below it (a HUD control,
 ## another plate) the layout pass may lift it over the head instead: `label_flip` is that offset, clear of the marker.
@@ -115,10 +79,6 @@ func _draw_tag() -> void:
 	label_flip = Vector2(0, -136.0 + head_lift - label_box.end.y)
 
 func _draw() -> void:
-	if not label_only:
-		draw_set_transform(Vector2(0, 0), 0.0, Vector2(1, 0.28))
-		draw_circle(Vector2.ZERO, 16, Color(0.01, 0.035, 0.04, 0.35))
-		draw_set_transform(Vector2.ZERO)
 	var top := -112.0 + head_lift + sin(t * 3.0) * 3.0
 	match marker:
 		"main":

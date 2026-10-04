@@ -42,10 +42,8 @@ func tick_tribulation(c, delta: float) -> void:
 		var here: Vector2 = st.plane if st else Vector2(float(c.position.get("x", 600)), float(c.position.get("y", 860)))
 		var rng := Rng.stream(c.id, "combat")
 		var spread := float(k.get("spread", 60))
-		# The side view's depth is a shallow strip; on the height grid the ground is seen whole, so the ring may fall
-		# anywhere round the character.
-		var depth_k := 0.3 if game.room_rt.topdown == null else 1.0
-		var spot := here + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread) * depth_k)
+		# The ground is seen whole, so the ring may fall anywhere round the character.
+		var spot := here + Vector2(rng.randf_range(-spread, spread), rng.randf_range(-spread, spread))
 		tr.warn = {"x": spot.x, "y": spot.y, "left": warn_s}
 		emit("tribulation_bolt", {"actor": c.id, "index": int(tr.index), "total": int(tr.total), "phase": "warn", "x": spot.x, "y": spot.y, "warn_s": warn_s})
 	if not (tr.warn as Dictionary).is_empty():
@@ -53,7 +51,7 @@ func tick_tribulation(c, delta: float) -> void:
 		if float(tr.warn.left) <= 0.0:
 			var spot2 := Vector2(float(tr.warn.x), float(tr.warn.y))
 			tr.warn = {}
-			var res: Dictionary = game.combat.apply_tribulation_strike(c, spot2, float(k.get("radius", 80)), float(k.get("depth", 45)))
+			var res: Dictionary = game.combat.apply_tribulation_strike(c, spot2, float(k.get("radius", 80)))
 			tr.index = int(tr.index) + 1
 			if res.get("hit", false): tr.struck = int(tr.struck) + 1
 			if res.get("absorbed", false): tr.absorbed = int(tr.absorbed) + 1

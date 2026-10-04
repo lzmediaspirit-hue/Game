@@ -470,7 +470,7 @@ func update_context() -> void:
 	var near: Dictionary = player.climb_near() if player.motor.climbing.is_empty() else {}
 	var climb := {"type": "climbable", "climbable": str(near.climb.id), "label": Tx.t("hud.climb")} if not near.is_empty() else {}
 	var ctx := WorldShared.context(Game.active(), player.motor.pos, climb)
-	WorldShared.mark_focus(ctx, object_views, npc_views, player_feet().x)
+	WorldShared.mark_focus(ctx, object_views, npc_views)
 	if ctx.hash() != context.hash(): context = ctx
 
 ## WorldShared's and MomentView's host: the effects layer, the player's feet in its units, the facing, the loot's
@@ -564,8 +564,7 @@ func add_foe(e: EnemyState) -> void:
 	sorted.add_child(v)
 	foe_views[e.uid] = v
 	var lv := EnemyView.new()
-	lv.label_only = true
-	lv.figure_top = v.figure_top(e)   # the label on the top-down figure's head, not at the side view's height
+	lv.figure_top = v.figure_top(e)   # the label on the figure's head
 	lv.setup(e)
 	overlay.add_child(lv)
 	label_views[e.uid] = lv
@@ -612,7 +611,7 @@ func layout_labels() -> Dictionary:
 	var arrows: Array = []
 	for pv in portal_views:
 		if is_instance_valid(pv) and pv.visible and pv.arrow_box.size.x > 0.0: arrows.append(Rect2(xf * (pv.position + pv.arrow_box.position), pv.arrow_box.size))
-	return WorldLabels.place_views(WorldShared.label_views(self, player_feet(), Vector2.ONE), xf, label_obstacles + [body] + arrows)
+	return WorldLabels.place_views(WorldShared.label_views(self, player_feet()), xf, label_obstacles + [body] + arrows)
 
 func _on_event(name: String, p: Dictionary) -> void:
 	match name:

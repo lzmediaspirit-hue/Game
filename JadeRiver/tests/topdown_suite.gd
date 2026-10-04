@@ -1958,9 +1958,8 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	a.altitude = 0.0
 	var above := foe("wild_boarlet", Vector2(26.5 * 32.0, 380.0))
 	var level := foe("wild_boarlet", a.plane + Vector2(30, 0))
-	t.check(above.altitude == 32.0 and not AllyBrain.in_reach(w.room, a, above, 60.0, 0.0, 26.0) and AllyBrain.in_reach(null, a, above, 60.0, 0.0, 26.0)
-		and AllyBrain.in_reach(w.room, a, level, 60.0, 0.0, 26.0),
-		"topdown allies: a foe on the terrace 12 units off is out of its reach (the side view's rule reached it), one on its level is in it")
+	t.check(above.altitude == 32.0 and not AllyBrain.in_reach(a, above, 60.0, 0.0) and AllyBrain.in_reach(a, level, 60.0, 0.0),
+		"topdown allies: a foe on the terrace 12 units off is out of its reach, one on its level is in it")
 	var biter := foe("wild_boarlet", Vector2(26.5, 12.5) * 32.0)
 	biter.aim = Vector2.UP
 	a.plane = biter.plane + Vector2(0, -29.0)
@@ -2074,8 +2073,8 @@ func _hazards_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	t.check(made.all(func(pc): return not is_instance_valid(pc) or pc.is_queued_for_deletion()), "topdown hazards: the room's hazard view takes its sorted parts with it")
 	# The heavens' bolt strikes a circle on the grid (the side view's flattened strip missed a body 60 south of it).
 	fresh(base)
-	var res: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -60), 80.0, 45.0)
-	var res2: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -100), 80.0, 45.0)
+	var res: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -60), 80.0)
+	var res2: Dictionary = Game.combat.apply_tribulation_strike(c, base + Vector2(0, -100), 80.0)
 	c.pools.hp = c.pools.max_hp
 	t.check(res.get("hit", false) and not res2.get("hit", false), "topdown hazards: a tribulation bolt 60 units north strikes within its ring of 80; one 100 off does not")
 	# Burning ground (a foe's blow) burns only on its own floor.
@@ -2142,7 +2141,7 @@ func _audit_on_the_grid(base: Vector2) -> void:
 	var north := foe("wild_boarlet", base + Vector2(0, -150))
 	w.add_foe(north)
 	(w.label_views[north.uid] as EnemyView).sync(north, 0.0)
-	var mine: Array = WorldShared.label_views(w, w.player_feet(), Vector2.ONE).filter(func(v): return v.id == "e%d" % north.uid)
+	var mine: Array = WorldShared.label_views(w, w.player_feet()).filter(func(v): return v.id == "e%d" % north.uid)
 	t.check(not mine.is_empty() and absf(float(mine[0].near) - 150.0) < 4.0, "topdown audit: a foe's name straight north of the player is 150 off for the label order (across it was 0)")
 	# A foe picks its ranged or its close blow by the distance on the plane.
 	var rogue := foe("rogue_cultivator", base + Vector2(0, -300))
@@ -2710,7 +2709,6 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 	for i in 3: await tree.process_frame
 	var dl = lv.call(by_door)
 	var pv := PortalView.new()
-	pv.label_only = true
 	pv.setup({"id": "qa_door", "type": "door", "at": [0, 0], "to": ""}, {})
 	pv.position = dl.position
 	pv.door_top = (dl.label_box as Rect2).get_center().y + 7.0   # the chevron right over the crab's plate
@@ -2730,14 +2728,13 @@ func _labels_clean(tree: SceneTree, base: Vector2) -> void:
 		"topdown labels: a plate keeps off a door's chevron (the arrow %s, the plate %s)" % [str(arrow), str(crab_rect)])
 	w.portal_views.erase(pv)
 	pv.free()
-	# A way at the room's edge with a long line (the prototype's gate: "The road beyond is still being drawn.") keeps
-	# its whole plate inside the room, so on the screen (it ran off the right edge at the Marsh Edge).
+	# A way at the room's edge with a long line keeps its whole plate inside the room, so on the screen (the old
+	# prototype gate's line ran off the right edge at the Marsh Edge).
 	var edge := PortalView.new()
-	edge.label_only = true
 	edge.setup({"id": "qa_edge", "type": "edge", "at": [2032, 400], "to": ""}, {"bounds": [0, 0, 2048, 900]})
 	tree.root.add_child(edge)
 	edge.set_process(false)   # after entering the tree (its _ready turns processing on): the state is the test's
-	edge.state = {"open": false, "text": Tx.t("sim.world.road_being_drawn")}
+	edge.state = {"open": false, "text": "The ferryman will not cast off until the night is over."}
 	edge.near = true
 	for i in 3:
 		edge.tag.queue_redraw()

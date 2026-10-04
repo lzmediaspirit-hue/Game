@@ -121,10 +121,10 @@ func open_rift(c) -> Dictionary:
 	var bonus := int(ev.get("level_bonus", 3))
 	var waves: Array = []
 	var st: ActorState = game.actor_state(c.id)
+	# T1: the rift's foes come either side of the player on the player's own plane (the World authority sets them on
+	# open ground there).
 	var x: float = st.plane.x if st else 800.0
-	# T1: on the height grid the rift's foes come either side of the player on the player's own plane (the World
-	# authority sets them on open ground there); the side view's ground line is y 860.
-	var y: float = st.plane.y if st != null and rt.topdown != null else 860.0
+	var y: float = st.plane.y if st else 860.0
 	var i := 0
 	for spec in rt.def.get("spawns", []):
 		if spec.get("boss", false) or spec.get("field_boss", false) or spec.has("requires"): continue
@@ -135,7 +135,7 @@ func open_rift(c) -> Dictionary:
 		if i >= 3: break
 	var top := 1
 	for w in waves: top = maxi(top, int(w.level))
-	game.world.start_room_event(c, {"id": "spatial_rift", "duration": 60.0, "waves": waves, "on_plane": rt.topdown != null,
+	game.world.start_room_event(c, {"id": "spatial_rift", "duration": 60.0, "waves": waves, "on_plane": true,
 		"on_complete": [{"kind": "rift_reward", "loot": str(ev.get("loot", "chest_dungeon")), "level": top}]})
 	emit("rift_opened", {"actor": c.id, "room": rt.room_id, "k": int(occ.k), "level": top})
 	return ok({"rift": true})
@@ -152,15 +152,12 @@ func open_treasure(c, o := {}) -> Dictionary:
 	if int(c.cooldowns.get("birth_k", -1)) == int(occ.k): return fail("taken", {"text": Tx.t("sim.calendar.fruit_taken")})
 	if rt.event.get("active", false): return fail("busy")
 	var lv := _room_top(rt) + int(ev.get("level_bonus", 2))
-	var tree_x := 800.0
-	var tree_y := 860.0   # T1: on the height grid the tree's own depth, the side view's ground line otherwise
+	var tree := Vector2(800.0, 860.0)   # T1: the tree's own place on the plane
 	for t in rt.def.get("objects", []):
-		if str(t.type) == "treasure_birth" and not t.get("first", false):
-			tree_x = float(t.at[0])
-			if rt.topdown != null: tree_y = float(t.at[1])
-	var spawns: Array = [{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x - 320.0, 120.0, rt.width() - 120.0), tree_y], "level": lv},
-		{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree_x + 320.0, 120.0, rt.width() - 120.0), tree_y], "level": lv},
-		{"enemy": str(ev.get("guardian", "fruit_guardian")), "at": [tree_x, tree_y + (0.0 if rt.topdown != null else 20.0)], "level": lv}]
+		if str(t.type) == "treasure_birth" and not t.get("first", false): tree = Vector2(float(t.at[0]), float(t.at[1]))
+	var spawns: Array = [{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree.x - 320.0, 120.0, rt.width() - 120.0), tree.y], "level": lv},
+		{"enemy": str(ev.get("rivals", "rogue_cultivator")), "at": [clampf(tree.x + 320.0, 120.0, rt.width() - 120.0), tree.y], "level": lv},
+		{"enemy": str(ev.get("guardian", "fruit_guardian")), "at": [tree.x, tree.y], "level": lv}]
 	return _wake_guardians(c, spawns, int(occ.k))
 
 ## An early surprise (player_motivation.md item 7): each character's own first Spirit Fruit, ripe on Willow Path West
@@ -171,7 +168,7 @@ func open_first_fruit(c, o: Dictionary) -> Dictionary:
 	if rt == null or not game.world.object_visible(c, o): return fail("gone", {"text": Tx.t("sim.calendar.fruit_gone")})
 	if rt.event.get("active", false): return fail("busy")
 	var x := clampf(float(o.at[0]) + 260.0, 120.0, rt.width() - 120.0)
-	var y := float(o.at[1]) if rt.topdown != null else 880.0   # T1: on the grid, beside the tree on its own plane
+	var y := float(o.at[1])   # T1: beside the tree on its own plane
 	var r := _wake_guardians(c, [{"enemy": str(CalendarRules.event("treasure_birth").get("guardian", "fruit_guardian")), "at": [x, y],
 		"level": _room_top(rt)}], FIRST_FRUIT)
 	r["first"] = true
@@ -189,7 +186,7 @@ static func _room_top(rt) -> int:
 ## The birth's fight: the room's own beasts withdraw, `spawns` stand in the way, and beating them all claims fruit `k`.
 func _wake_guardians(c, spawns: Array, k: int) -> Dictionary:
 	game.world.start_room_event(c, {"id": "treasure_birth", "duration": 150.0, "clear_room": true, "fixed_spawns": spawns,
-		"on_plane": game.room_rt != null and game.room_rt.topdown != null,   # T1: points on the grid's plane, set on open ground
+		"on_plane": true,   # T1: points on the grid's plane, set on open ground
 		"kill_count": {"enemy": "*", "count": spawns.size()}, "on_complete": [{"kind": "treasure_claim", "k": k}]})
 	return ok({"birth": true})
 

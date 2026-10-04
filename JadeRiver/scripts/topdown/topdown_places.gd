@@ -292,7 +292,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 			out.nodes.append_array([lv, fig])
 	for p in def.get("portals", []):
 		var pv := PortalView.new()
-		pv.label_only = true
 		pv.setup(p, def)
 		pv.position.y -= float(p.get("alt", 0.0))
 		# A door's plate stands over the building's front (three tiles of wall and the eaves), an edge's over the way.
@@ -310,7 +309,6 @@ static func build(room: TopdownRoom, def: Dictionary, sorted: Node2D, floor_laye
 ## (a room's villager, or one a staged scene brings on).
 static func person(room: TopdownRoom, o: Dictionary, sorted: Node2D, overlay: Node2D, player: Node2D = null) -> Array:
 	var nv := NpcView.new()
-	nv.label_only = true
 	nv.head_lift = HEAD_LIFT
 	nv.setup(o)
 	overlay.add_child(nv)

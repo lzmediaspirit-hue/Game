@@ -183,25 +183,21 @@ func _party_ally(pc: Dictionary):
 	var au = (Game.companions.allies if str(pc.kind) == "companion" else Game.pets.allies).get(str(pc.uid))
 	return Game.room_rt.enemies.get(int(au)) if au != null else null
 
-## A fellow disciple's face for their chip: the head of their figure as the game draws them. Decision 42 (no old
-## side-view character left in the top-down game): for a top-down character, the top-down figure's head (its idle
-## frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads: the chip is empty the frames
-## they take; the frame cast for the pictures at 38 px, decision 43, so the chip keeps the head it was framed for); the
-## side view's head and shoulders only for a classic side-view character.
+## A fellow disciple's face for their chip: the head of their figure as the game draws them (decision 42): the top-down
+## figure's head, its idle frame three-quarters toward the camera at x FACE_TOP_K, its sheets loading on threads (the
+## chip is empty the frames they take); the frame cast for the pictures at 38 px (decision 43), so the chip keeps the
+## head it was framed for.
 func _draw_face(center: Vector2, cid: String, dim := false) -> void:
 	var box := Vector2(Hud.FACE_BOX, Hud.FACE_BOX)
-	if Figures.top_down():
-		var fig: TopdownFigure = hud._faces.get("top|" + cid)
-		if fig == null:
-			fig = TopdownFigure.wearing(face_outfit(cid), true)
-			hud._faces["top|" + cid] = fig
-		if not fig.loaded(): return
-		var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
-		var head := Vector2(roundf(b.get_center().x), b.position.y + Hud.FACE_TOP_HEAD)   # the head's middle, art px from the feet
-		fig.draw(hud, (center - head * Hud.FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), Hud.FACE_TOP_K,
-			Rect2(center - box * 0.5, box), true)
-		return
-	hud.side_view.draw_face(center, cid, dim)   # side view
+	var fig: TopdownFigure = hud._faces.get(cid)
+	if fig == null:
+		fig = TopdownFigure.wearing(face_outfit(cid), true)
+		hud._faces[cid] = fig
+	if not fig.loaded(): return
+	var b := fig.bounds("idle", TopdownDoll.PORTRAIT_ROW, 0, "body", true)   # the bare body: its head under any hair
+	var head := Vector2(roundf(b.get_center().x), b.position.y + Hud.FACE_TOP_HEAD)   # the head's middle, art px from the feet
+	fig.draw(hud, (center - head * Hud.FACE_TOP_K).round(), "idle", TopdownDoll.PORTRAIT_ROW, 0, Color(1, 1, 1, 0.45 if dim else 1.0), Hud.FACE_TOP_K,
+		Rect2(center - box * 0.5, box), true)
 
 ## A companion's look for their face: their outfit, its unset pieces a disciple's, no weapon.
 func face_outfit(cid: String) -> Dictionary:
@@ -375,7 +371,7 @@ func log_rows(lines: Array) -> Array:
 		if rest != "": out.append({"text": UiKit.fit(rest, 16, Hud.LOG_W - Hud.LOG_INDENT, true), "indent": Hud.LOG_INDENT, "color": col})
 	return out.slice(maxi(0, out.size() - Hud.LOG_ROWS))
 
-## With no character bound (the engine tests' bare player), a plain panel and the cluster's rings.
+## With no character bound (a bare player, the view tests), a plain panel and the cluster's rings.
 func draw_legacy() -> void:
 	hud.draw_style_box(hud.frame_style, Rect2(22, 22, 310, 82))
 	for row in 2:

@@ -166,8 +166,8 @@ static func _handle(handler: String, host, name: String, p: Dictionary, me: Vect
 					"vel": Vector2(randf_range(-10, 10), -46.0), "dur": 1.2, "size": 18 + i * 4, "radius": randf() * 6.0})
 
 # ------------------------------------------------------------------ the context button
-## What the context button offers where the player stands (the World authority's pick), else `climb` (a ladder in reach,
-## the side view's), else a foe who has yielded to the player and waits for judgement (S49).
+## What the context button offers where the player stands (the World authority's pick), else `climb` (a climbable face
+## in reach, TopdownTraverse's), else a foe who has yielded to the player and waits for judgement (S49).
 static func context(c, plane: Vector2, climb: Dictionary = {}) -> Dictionary:
 	var ctx: Dictionary = Game.world.query_context(c) if c else {}
 	if ctx.is_empty() and not climb.is_empty(): ctx = climb
@@ -178,37 +178,34 @@ static func context(c, plane: Vector2, climb: Dictionary = {}) -> Dictionary:
 				break
 	return ctx
 
-## The offer's target shows it (its plate), and a person offered turns to the player.
-static func mark_focus(ctx: Dictionary, object_views: Dictionary, npc_views: Dictionary, face_x: float) -> void:
+## The offer's target shows it (its plate).
+static func mark_focus(ctx: Dictionary, object_views: Dictionary, npc_views: Dictionary) -> void:
 	var target := str(ctx.get("object", ""))
 	for id in object_views: object_views[id].focus = target == id
-	for id in npc_views:
-		npc_views[id].focus = target == id
-		if target == id: npc_views[id].face(face_x)
+	for id in npc_views: npc_views[id].focus = target == id
 
 # ------------------------------------------------------------------ names over the world
-## Every name over the room's figures, ways and things, nearest the player first (WorldLabels.place_views places them).
-## `at` is the player on the labels' plane and `axes` weighs its axes: the side view measures across (Vector2(1, 0)),
-## the top-down view on the whole plane (Vector2.ONE), so the names nearest the player keep their rows.
-static func label_views(host, at: Vector2, axes := Vector2(1, 0)) -> Array:
+## Every name over the room's figures, ways and things, nearest the player (`at`, on the labels' plane) first, so the
+## names nearest the player keep their rows (WorldLabels.place_views places them).
+static func label_views(host, at: Vector2) -> Array:
 	var views: Array = []
 	for uid in host.enemy_views:
 		var v = host.enemy_views[uid]
-		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": ((v.position - at) * axes).length()})
+		if is_instance_valid(v): views.append({"id": "e%d" % int(uid), "view": v, "kind": v.label_kind, "near": (v.position - at).length()})
 	for id in host.npc_views:
 		var nv = host.npc_views[id]
-		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": ((nv.position - at) * axes).length()})
+		if is_instance_valid(nv): views.append({"id": "n" + str(id), "view": nv, "kind": "focus" if nv.focus else "npc", "near": (nv.position - at).length()})
 	for i in host.portal_views.size():
 		var pv = host.portal_views[i]
-		if is_instance_valid(pv): views.append({"id": "p%d" % i, "view": pv, "kind": "place", "near": ((pv.position - at) * axes).length()})
+		if is_instance_valid(pv): views.append({"id": "p%d" % i, "view": pv, "kind": "place", "near": (pv.position - at).length()})
 	for id in host.object_views:
 		var ov = host.object_views[id]
-		if is_instance_valid(ov): views.append({"id": "o" + str(id), "view": ov, "kind": "place", "near": ((ov.position - at) * axes).length()})
+		if is_instance_valid(ov): views.append({"id": "o" + str(id), "view": ov, "kind": "place", "near": (ov.position - at).length()})
 	return views
 
 # ------------------------------------------------------------------ ways out
 ## Ask the World authority for a way out (walked through, or taken with the context button). A refusal (a shut door,
-## a step first, the prototype's gate) is said once, by the way's own plate lit up at the way (PortalView.touch); only a
+## a step first) is said once, by the way's own plate lit up at the way (PortalView.touch); only a
 ## way with no plate of its own has its line rise over the player instead.
 static func request_portal(host, portal_id: String, crossing := false) -> void:
 	if host.transfer_cooldown > 0.0: return
