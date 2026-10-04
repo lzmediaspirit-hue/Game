@@ -20,6 +20,11 @@ M2's flyers (`wings.seg`): `vulture`, `crane`, `hawk` and `roc`, jointed wings o
 painted, drawn in the air over their feet. Styles: idle `soar`, walk `flap`, hurt `tumble_back`, death `fold_fall`; the
 tells `rise_fold` (the vulture), `rise_coil` (the crane), `mantle` (the hawk), `gather_wind` (the roc); the blows
 `dive_rake`, `swoop_peck`, `lightning_dive`, `wing_gust`.
+M4: `sparrow` (the comet sparrow), a small big-headed flyer with a forked tail, a gold brow, a flame crest and a comet's
+tail of fire streaming behind it (`fx` "comet": gold-white at its root through orange and magenta to violet, flickering,
+sparks off it; flaring wide in the tell, stretched long in the dive, guttering into smoke as it falls). Styles: the tell
+`comet_flare` (it pulls up and back, nose down, wings swept, the comet flaring), the blow `comet_dive` (a streaking dive,
+a burning crescent on the blow).
 """
 from __future__ import annotations
 
@@ -531,7 +536,80 @@ def _flyer(B, action: str, f: int, view: float) -> Pose:
         for k in range(5):
             u = (k * 0.23 + f * 0.11) % 1.0
             P.fx.append((C + v3(-4.0 - 6.0 * u, (k - 2.0) * 2.4, 0.5 - u), M.CLOUD_WISP if k % 2 else M.CLOUD_WISP_DIM))
+    if p.fx == "comet":
+        _comet(P, B, action, f, at, bd)                  # M4: the comet sparrow's tail of fire
     sq = st.get("squash", {}).get(f)
     if sq is not None:
         P.squash(sq[0], sq[1], sq[2], (lunge, 0.0, z))
     return P
+
+
+# ================================================================================================= the comet sparrow (M4)
+SPARROW_STYLES = {
+    "comet_flare": {"rise": (1.0, 2.0, 2.6, 2.8), "lunge": (-0.4, -0.9, -1.2, -1.3), "pitch": (8.0, 2.0, -10.0, -16.0),
+                    "el": (34.0, 52.0, 62.0, 64.0), "sweep": (10.0, 24.0, 34.0, 38.0), "flare": (0.3, 0.6, 0.9, 1.0), "glare": True,
+                    "head": (4.0, 0.0, -6.0, -10.0)},
+    "comet_dive": {"lunge": (2.6, 6.0, 6.4, 5.0, 2.6, 0.8), "rise": (-1.5, -5.0, -4.6, -2.6, -1.0, 0.0), "pitch": (-24.0, -10.0, 2.0, 6.0, 3.0, 0.0),
+                   "el": (10.0, 40.0, 50.0, 40.0, 26.0, 14.0), "sweep": (36.0, 4.0, 0.0, 0.0, 0.0, 0.0), "fold": (0.45, 0.0, 0.0, 0.0, 0.0, 0.0),
+                   "head": (-10.0, 4.0, 4.0, 2.0, 0.0, 0.0), "streaks": (0, 1), "stretch": (1.4, 1.6, 1.2, 1.0, 1.0, 1.0),
+                   "crescent": (1, 2), "squash": {1: (1.05, 1.0, 0.95)}},
+}
+STYLES.update(SPARROW_STYLES)
+SPARROW = _bird(HAWK, Z=9.0, body={"r": (2.2, 1.65, 1.55), "breast": -0.1, "bars": False},
+                neck={"kind": "short", "base": (1.6, 0.0, 0.5), "head": (2.7, 0.0, 1.4), "r": (1.2, 1.1), "ruff": None},
+                head={"r": (1.55, 1.4, 1.4), "eye": (0.75, 0.95, 0.35), "beak": (1.0, 0.75, 0.45, 0.25), "hook": 0.0, "cere": False, "brow": True,
+                      "crest": ((-0.4, 0.0, 1.1), 3, 1.5)},
+                wings={"at": (0.6, 1.4, 0.6), "seg": (1.9, 2.3, 2.7), "chord": (2.9, 2.7, 2.1), "fingers": 4, "finger": 1.5, "tip": 0.35,
+                       "bolt": False},
+                tail={"at": (-2.2, 0.0, 0.1), "length": 2.4, "spread": 1.5, "bands": 0, "tip": 0.3},
+                legs={"kind": "tucked", "at": (-0.4, 0.7, -1.2), "r": (0.32, 0.25), "talon": 0.6},
+                fx="comet", iris="SPARROW_EYE", comet={"length": 9.5, "r": 1.25, "n": 11})
+VARIANTS["sparrow"] = {"parts": SPARROW, "mats": {"body": "cs_feather", "covert": "cs_feather", "flight": "cs_flight", "tip": "cs_gold",
+                                                  "skin": "cs_feather", "beak": "cs_gold", "leg": "cs_flight", "breast": "cs_breast",
+                                                  "crest": "cs_flame_or", "flame": "cs_flame_or", "flame_mid": "cs_flame_mg",
+                                                  "flame_tip": "cs_flame_vi", "smoke": "cs_smoke"},
+                       "motion": dict(_FLY, windup="comet_flare", attack="comet_dive")}
+
+
+def _comet(P, B, action: str, f: int, at, bd) -> None:
+    """The comet's tail of fire: a ribbon of flame streaming back from under its tail (balls of light shrinking toward
+    its tip, gold-white at the root through orange and magenta to violet), waving and flickering, sparks of star fire
+    shed off it; drooping as it hovers, streaming straight back as it flies, flaring wide in the tell (`flare`),
+    stretched long in the dive (`stretch`) with a burning crescent on the blow (`crescent`); guttering into smoke as it
+    falls."""
+    cm, m, st = B.parts.comet, B.mats, B.style(action)
+    flare = B.pick("flare", action, f)
+    stretch = B.pick("stretch", action, f, 1.0)
+    dying = action == "death"
+    n = cm.n
+    length = cm.length * stretch * (1.0 + 0.25 * flare) * (max(0.15, 1.0 - f / 6.0) if dying else 1.0)
+    droop = 0.35 if action == "idle" else (0.1 if action in ("walk", "attack") else 0.2)
+    root = at((-bd.r[0] - 0.6, 0.0, 0.1))
+    for i in range(n):
+        t = (i + 0.5) / n
+        wv = math.sin(f * 1.3 + t * 5.0) * (0.7 + 0.5 * flare) * t
+        q = root + at((-length * t, wv, -droop * length * t * t + 0.4 * math.sin(f * 0.9 + t * 4.0) * t)) - at((0.0, 0.0, 0.0))
+        r = (cm.r * (1.0 - 0.8 * t) + 0.25) * (1.0 + 0.45 * flare)
+        if dying:
+            if f >= 2:
+                P.add(S(q, r * (1.0 - 0.1 * f), m.smoke, "comet", line=False))
+                continue
+        mat = m.flame if t < 0.38 else (m.flame_mid if t < 0.72 else m.flame_tip)
+        P.add(S(q, r, mat, "comet", line=False))
+        if i % 3 == 1 and not dying:
+            side = 1.0 if (i + f) % 2 else -1.0
+            P.add(S(q + at((0.2, side * r * 0.9, r * 0.5)) - at((0.0, 0.0, 0.0)), r * 0.5, mat, "comet", line=False))
+    if not dying:
+        P.glow.append((root + at((-0.6, 0.0, 0.2)) - at((0.0, 0.0, 0.0)), M.COMET_CORE))
+        ns = 4 + int(6 * flare)
+        for k in range(ns):
+            u = ((k * 0.37 + f * 0.21) % 1.0)
+            q = root + at((-length * (0.3 + 0.8 * u), ((k % 3) - 1) * (1.4 + 1.6 * flare), 0.8 * math.sin(k + f) + 0.6)) - at((0.0, 0.0, 0.0))
+            P.glow.append((q, M.SPARK if k % 2 else M.COMET_SPARK))
+    if action == "attack" and f in st.get("crescent", ()):
+        c = at((bd.r[0] + 2.4 + (f - 1) * 1.2, 0.0, -0.4))
+        for j in range(13):
+            ang = math.radians(-70.0 + j * 140.0 / 12.0)
+            rr = 2.6 + 0.6 * (f - 1)
+            P.glow.append((c + v3(math.cos(ang) * rr * 0.4 - rr * 0.4, math.sin(ang) * rr, 0.3 * math.cos(ang)),
+                           M.COMET_CORE if j % 3 == 1 else M.FLAME))

@@ -26,6 +26,16 @@ and spines, horns, whiskers, a gill frill, a water orb gathered before its jaws 
 `surge`, `rear_orb`, `dragon_bite`, `toss_back`, `dive_under`) and `boulder` (the boulder serpent: a thick snake under
 stone plates that curls into a ball of rock and rolls; styles `rest_s`, `slither`, `curl_ball`, `boulder_roll`,
 `flinch_back`, `slump_crack`).
+
+M4's sky swimmers: `ribbon` (the nebula eel: a ribbon body in an S-wave with fins along its back and belly, a gaping
+jaw, a glowing cyan eye; styles `ribbon_drift`, `ribbon_swim`, `coil_gape`, `lunge_bite`, `kink_jerk`, `unravel_fade`)
+and `leviathan` (the Nebula Leviathan, a whale head on a serpent body with veils and constellations, the void gathered in
+its mouth and breathed; styles `levi_drift`, `levi_glide`, `void_gather`, `void_breath`, `levi_recoil`, `levi_sink`). Their
+bodies are laid along a spine integrated back from the neck (`_sky_spine`), a wave of its heading travelling down it.
+The leviathan also swims (`swim`, its spec's `extra`, played where it crosses water on the grid; style `levi_swim`): its
+body mostly under the star-water, its head's dome and eye, the loops of its back and its veil breaking the surface, a
+wake spreading behind its head and foam where it breaks the water (`parts.swim`: the water's line under its feet, the
+body's height against it).
 """
 from __future__ import annotations
 
@@ -152,6 +162,10 @@ VARIANTS = {
 
 
 def pose(B, action: str, f: int, k: float = 1.44, awake: bool = False, view: float = 90.0) -> Pose:
+    if "ribbon" in B.parts:
+        return _ribbon(B, action, f, view)               # M4: the nebula eel
+    if "leviathan" in B.parts:
+        return _leviathan(B, action, f, view, k)         # M4: the Nebula Leviathan
     if "coil_share" in B.parts:
         return _viper(B, action, f, view)
     if B.variant == "leech" or "rest" in B.parts:
@@ -1247,3 +1261,495 @@ def _scaled(m, centre, T, B, N, w: float, s0: float, tip: bool):
         bias = np.where(stripe, 1, np.where(band & ~belly, -1, 0)).astype(np.int16)
         return names, bias
     return skin
+
+
+# ================================================================================================= the sky swimmers (M4)
+# The nebula eel (`ribbon`) and the Nebula Leviathan (`leviathan`) swim the air of the Lantern Star Field (flyers: the room
+# view's shadow under them). Each body is laid along a spine integrated back from its neck by arc length: a wave of the
+# heading travels along it from the head to the tail (`amp` degrees across, `wl` its wavelength, `vamp` its rise and fall),
+# so its length holds as it swims. Channels: `lunge`, `rise`, `amp`, `wl`, `vamp`, `hpitch` (the head's pitch), `gape`,
+# `flare` (the eyes', the tell's light), `kink` (a jerk across the body's middle, degrees), `ripple` (the eel's void ripple
+# before its snout on the blow), `void` (0..1: the void gathering in the leviathan's mouth), `breath` (how far its void
+# breath has reached), `unravel` (0..1: the eel coming apart from its tail into wisps), `lights` (the leviathan's
+# constellations lit, 0..1), `drop` (sunk toward the floor), `dissolve`, `squint`.
+SKY_STYLES = {
+    # the nebula eel
+    "ribbon_drift": {"kind": "wave", "n": 6, "amp": 40.0, "wl": 12.0, "vamp": 6.0, "bob": 0.4},
+    "ribbon_swim": {"kind": "wave", "n": 8, "amp": 50.0, "wl": 11.0, "vamp": 7.0, "bob": 0.5, "lunge_amp": 0.6},
+    "coil_gape": {"amp": (50.0, 62.0, 72.0, 76.0), "wl": (10.0, 8.8, 8.0, 7.6), "lunge": (-0.6, -1.4, -2.0, -2.2), "hpitch": (6.0, 12.0, 16.0, 18.0),
+                  "gape": (0.3, 0.6, 0.9, 1.0), "flare": (0.5, 1.0, 1.0, 1.0), "phase": (0.0, 0.4, 0.7, 0.8), "rise": (0.2, 0.4, 0.6, 0.6)},
+    "lunge_bite": {"amp": (34.0, 14.0, 14.0, 22.0, 30.0, 38.0), "wl": (12.0,) * 6, "lunge": (2.0, 5.6, 5.8, 4.4, 2.4, 0.8), "hpitch": (6.0, -6.0, -6.0, -2.0, 0.0, 0.0),
+                   "gape": (1.0, 0.0, 0.0, 0.1, 0.1, 0.0), "flare": (1.0, 0.6, 0.3, 0.0, 0.0, 0.0), "ripple": (0.0, 1.0, 1.7, 0.0, 0.0, 0.0),
+                   "phase": (0.8, 1.0, 1.1, 1.2, 1.3, 1.4), "squash": {1: (1.04, 0.98, 0.98)}},
+    "kink_jerk": {"amp": (26.0, 32.0, 38.0), "wl": (12.0,) * 3, "kink": (56.0, 26.0, 8.0), "lunge": (-2.0, -1.2, -0.4), "hpitch": (14.0, 6.0, 0.0),
+                  "gape": (0.4, 0.2, 0.0), "specks": (0, 1), "squint": True},
+    "unravel_fade": {"amp": (40.0, 30.0, 24.0, 20.0, 18.0, 18.0, 18.0, 18.0), "wl": (12.0,) * 8, "kink": (30.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                     "unravel": (0.0, 0.1, 0.25, 0.42, 0.6, 0.78, 0.92, 1.0), "drop": (0.0, 0.08, 0.18, 0.3, 0.42, 0.52, 0.6, 0.66),
+                     "hpitch": (16.0, 0.0, -8.0, -14.0, -18.0, -20.0, -20.0, -20.0), "gape": (0.5, 0.3, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1),
+                     "dissolve": (0.0, 0.0, 0.0, 0.05, 0.15, 0.3, 0.5, 0.75), "dead": 2},
+    # the Nebula Leviathan
+    "levi_drift": {"kind": "wave", "n": 6, "amp": 20.0, "wl": 22.0, "vamp": 7.0, "bob": 0.5, "lights": 1.0},
+    "levi_glide": {"kind": "wave", "n": 8, "amp": 26.0, "wl": 20.0, "vamp": 8.0, "bob": 0.6, "lights": 1.0, "lunge_amp": 0.6},
+    "void_gather": {"amp": (14.0, 16.0, 18.0, 18.0), "wl": (18.0,) * 4, "lunge": (-0.8, -1.8, -2.6, -2.8), "hpitch": (8.0, 16.0, 22.0, 24.0),
+                    "gape": (0.4, 0.75, 1.0, 1.0), "void": (0.3, 0.6, 0.9, 1.0), "rise": (0.4, 0.9, 1.3, 1.4), "lights": (1.0,) * 4,
+                    "phase": (0.0, 0.2, 0.35, 0.4), "spiral": True},
+    "void_breath": {"amp": (14.0, 10.0, 10.0, 12.0, 14.0, 14.0), "wl": (18.0,) * 6, "lunge": (0.0, 2.6, 2.8, 2.2, 1.2, 0.4),
+                    "hpitch": (16.0, 0.0, -2.0, 0.0, 2.0, 2.0), "gape": (1.0, 1.0, 0.9, 0.6, 0.3, 0.1), "void": (1.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+                    "breath": (0.0, 1.0, 1.6, 2.0, 0.0, 0.0), "lights": (1.0,) * 6, "phase": (0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
+                    "squash": {1: (1.03, 1.0, 0.98)}},
+    "levi_recoil": {"amp": (10.0, 14.0, 14.0), "wl": (18.0,) * 3, "kink": (18.0, 8.0, 2.0), "lunge": (-2.4, -1.4, -0.4), "hpitch": (18.0, 8.0, 2.0),
+                    "gape": (0.5, 0.2, 0.0), "lights": (0.3, 0.6, 1.0), "squint": True},
+    "levi_swim": {"kind": "wave", "n": 8, "amp": 26.0, "wl": 18.0, "vamp": 9.0, "bob": 0.25, "lights": 1.0, "lunge_amp": 0.4, "swim": True},
+    "levi_sink": {"amp": (14.0, 12.0, 10.0, 8.0, 8.0, 8.0, 8.0, 8.0), "wl": (18.0,) * 8, "drop": (0.0, 0.1, 0.22, 0.36, 0.5, 0.62, 0.7, 0.74),
+                  "hpitch": (12.0, 4.0, -4.0, -10.0, -14.0, -16.0, -16.0, -16.0), "gape": (0.4, 0.3, 0.2, 0.15, 0.1, 0.1, 0.1, 0.1),
+                  "lights": (0.85, 0.7, 0.55, 0.4, 0.25, 0.1, 0.0, 0.0), "dissolve": (0.0, 0.0, 0.0, 0.0, 0.1, 0.25, 0.45, 0.7), "dead": 3},
+}
+STYLES.update(SKY_STYLES)
+RIBBON = {
+    "ribbon": True, "Z": 10.0, "n": 19, "length": 17.0, "w": (1.2, 0.3), "tall": 1.15, "fin": (0.62, 0.28), "paddle": (1.6, 1.25),
+    "head": {"skull": ((1.3, 0.0, 0.1), (1.9, 1.05, 1.0)), "snout": ((2.9, 0.0, -0.1), (1.15, 0.78, 0.62)), "jaw": ((0.6, 0.0, -0.5), (1.95, 0.85, 0.36)),
+             "eye": (1.95, 0.72, 0.35), "crown": 0.55, "gills": 3},
+    "pectoral": ((0.2, 1.0, -0.4), (0.9, 0.12, 0.55)),
+    "specks": 7, "clouds": True,
+}
+LEVIATHAN = {
+    "leviathan": True, "Z": 15.0, "n": 18, "length": 24.0, "w": (3.9, 0.7), "tall": 1.05, "sweep": 20.0,
+    "head": {"crown": ((3.2, 0.0, 0.8), (5.6, 3.9, 3.5)), "rostrum": ((7.4, 0.0, 0.2), (3.4, 3.0, 2.3)), "jaw": ((2.8, 0.0, -1.6), (6.0, 3.6, 2.0)),
+             "hinge": (0.4, 0.0, -0.8), "eye": (4.8, 3.35, 0.5), "baleen": 15},
+    "veils": {"dorsal": (0.15, 0.7, 3.0), "pectoral": ((1.4, 3.2, -1.8), 8.5, 3.4), "tail": ((5.5, 2.4), (7.5, 3.4), (5.8, 2.6))},
+    "lights": 14,
+    # Swimming: the water's line this far under its feet on the screen (art px: about the flier's hover over the ground,
+    # EnemyAuthority._hover), the neck's height over it, the body's dip below the neck (degrees), the head
+    # raised over the neck so its eye clears the water, the neck's place ahead of its feet (a share of its length), and
+    # its length (its far body lost under the water, so the frame holds it facing away).
+    "swim": {"lift": 3.0, "z": -1.3, "sweep": 16.0, "head": 1.1, "ahead": 0.15, "length": 0.72},
+}
+VARIANTS["ribbon"] = {"parts": RIBBON, "mats": {"skin": "neel_teal", "cloud": "neel_mag", "fin": "neel_fin", "mouth": "neel_mouth", "fang": "neel_fang"},
+                      "motion": {"idle": "ribbon_drift", "walk": "ribbon_swim", "windup": "coil_gape", "attack": "lunge_bite", "hurt": "kink_jerk",
+                                 "death": "unravel_fade"}}
+VARIANTS["leviathan"] = {"parts": LEVIATHAN, "mats": {"skin": "nlev_hide", "belly": "nlev_belly", "teal": "nlev_teal", "mag": "nlev_mag",
+                                                      "veil": "nlev_veil", "baleen": "nlev_baleen", "mouth": "nlev_mouth", "void": "nlev_void"},
+                         "motion": {"idle": "levi_drift", "walk": "levi_glide", "windup": "void_gather", "attack": "void_breath", "hurt": "levi_recoil",
+                                    "death": "levi_sink", "swim": "levi_swim"}}
+
+
+def _sky_wave(B, action: str, f: int):
+    """This frame's wave: (amp, wl, vamp, phase, bob, lunge)."""
+    st = B.style(action)
+    if st.get("kind") == "wave":
+        n = st.n
+        ph = f / n * math.tau
+        lunge = st.get("lunge_amp", 0.0) * math.sin(ph)
+        return st.amp, st.wl, st.vamp, ph, st.bob * math.sin(ph + 1.0), lunge
+    ph = B.pick("phase", action, f) * math.tau
+    return B.pick("amp", action, f), B.pick("wl", action, f, 10.0), B.pick("vamp", action, f, 4.0), ph, 0.0, B.pick("lunge", action, f)
+
+
+def _sky_spine(n: int, length: float, amp: float, wl: float, vamp: float, ph: float, kink: float, sweep: float = 0.0):
+    """The spine's points from the neck back (its own frame, the neck at the origin) and its unit tangents (pointing back):
+    the heading's wave travelling from the head to the tail, growing from the neck; `kink` a jerk across its middle;
+    `sweep` the body's fall below the neck (degrees, easing back up toward the tail)."""
+    ds = length / (n - 1)
+    q = v3(0.0, 0.0, 0.0)
+    pts, tans = [q.copy()], []
+    for i in range(n - 1):
+        s = (i + 0.5) * ds
+        grow = min(1.0, 0.25 + s / (0.45 * wl))
+        y = math.radians(amp * grow * math.sin(math.tau * s / wl - ph) + kink * math.exp(-((s / length - 0.42) / 0.16) ** 2))
+        p = math.radians(vamp * grow * math.sin(math.tau * s / (wl * 1.3) - ph * 0.8 + 1.1) - sweep * math.cos(math.pi * s / length))
+        d = v3(-math.cos(p) * math.cos(y), -math.cos(p) * math.sin(y), math.sin(p))
+        tans.append(d)
+        q = q + d * ds
+        pts.append(q.copy())
+    tans.append(tans[-1])
+    return pts, tans
+
+
+def _frame_of(t):
+    """An orthonormal frame (tangent, left, up) for a segment along `t`."""
+    t = t / float(np.linalg.norm(t))
+    left = np.cross(v3(0.0, 0.0, 1.0), t)
+    if float(np.linalg.norm(left)) < 1e-6:
+        left = v3(0.0, 1.0, 0.0)
+    left = left / float(np.linalg.norm(left))
+    up = np.cross(t, left)
+    return np.stack([t, left, up], axis=1)
+
+
+def _ribbon_paint(m, centre, F, s0: float, seed: int, clouds: bool):
+    """The nebula eel's body: deep teal, its belly a step dark, magenta nebula clouds drifting over its back (blotches by
+    the place along it), a lit line along its back."""
+    def paint(q, n):
+        d = (q - centre) @ F
+        nl = n @ F
+        along = s0 - d[:, 0]
+        cloud = np.zeros(len(q), dtype=bool)
+        if clouds:
+            cloud = (nl[:, 2] > 0.1) & (h01v(np.floor(along * 0.9 + 50), np.floor((d[:, 1] + 3.0) * 0.8), seed % 89 + 4) > 0.55)
+        belly = nl[:, 2] < -0.45
+        ridge = (nl[:, 2] > 0.88) & ~cloud
+        names = np.where(cloud, m.cloud, m.skin).astype(object)
+        return names, np.where(belly, -1, np.where(ridge, 1, 0)).astype(np.int16)
+    return paint
+
+
+def _ribbon(B, action: str, f: int, view: float) -> Pose:
+    """M4, the nebula eel (see SKY_STYLES): a ribbon body in an S-wave, translucent violet fins along its back and belly
+    meeting in a paddle at its tail, a head with a hinged lower jaw (a dark violet gape, pale fangs), gill slits, a magenta
+    crown and a glowing cyan eye. It coils back into a tight S as its jaws gape and its eyes flare (the tell, held), and
+    lunges straight to bite (a void ripple before its snout on the blow); struck, its body kinks; beaten, it unravels from
+    its tail into teal and magenta wisps that drift apart and fade."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    seed = int(B.opts.get("seed", 0))
+    amp, wl, vamp, ph, bob, lunge = _sky_wave(B, action, f)
+    rise = B.pick("rise", action, f)
+    drop = B.pick("drop", action, f)
+    kink = B.pick("kink", action, f)
+    unravel = B.pick("unravel", action, f)
+    z = (p.Z + rise + bob) * (1.0 - drop) + drop * 2.0
+    neck = v3(lunge, 0.0, z)
+    pts, tans = _sky_spine(p.n, p.length, amp, wl, vamp, ph, kink)
+    pts = [neck + q + v3(p.length * 0.42, 0.0, 0.0) for q in pts]      # the body's middle over its feet
+    neck = pts[0]
+    n = p.n
+    cut = int(round((n - 1) * (1.0 - unravel)))                       # the segments left as it unravels from the tail
+    for i in range(n - 1):
+        u = i / (n - 2)
+        w = p.w[0] + (p.w[1] - p.w[0]) * u ** 1.3
+        a, b = pts[i], pts[i + 1]
+        c = (a + b) * 0.5
+        F = _frame_of(b - a)
+        seg = float(np.linalg.norm(b - a))
+        if i >= cut:
+            # Unravelled: teal and magenta wisps drifting apart from where it was.
+            k0 = i - cut
+            for j in range(3):
+                off = v3(math.cos(i * 2.1 + j) * (1.0 + k0 * 0.6), math.sin(i * 1.7 + j) * (1.0 + k0 * 0.6), 0.5 + 0.4 * j + 0.3 * k0)
+                P.fx.append((c + off, M.NEEL_WISP if (i + j) % 2 else M.NEEL_WISP_MAG))
+            continue
+        P.add(E(c, (seg * 0.62, w, w * p.tall), m.skin, "body", F, _ribbon_paint(m, c, F, p.length * u, seed, p.clouds)))
+        fh = p.fin[0] + (p.fin[1] - p.fin[0]) * u
+        for sgn in (1, -1):
+            P.add(E(c + F @ v3(0.0, 0.0, sgn * (w * p.tall + fh * 0.55)), (seg * 0.6, 0.12, fh), m.fin, "fin", F, line=False))
+        if i % 2 == 0 and i < cut - 1 and (i + f) % 3 != 0 and action != "death":
+            P.glow.append((c + F @ v3(0.0, 0.0, w * p.tall + 0.1), M.STAR_W if (i + f) % 2 else M.STAR_C))
+    if cut >= n - 1:
+        tail = pts[-1]
+        F = _frame_of(tans[-1])
+        P.add(E(tail + F @ v3(p.paddle[0] * 0.5, 0.0, 0.0), (p.paddle[0], 0.12, p.paddle[1]), m.fin, "paddle", F, line=False))
+    # The head: its heading the neck's (forward, opposite the body's first tangent), pitched by the channel.
+    t0 = -tans[0]
+    yaw = math.degrees(math.atan2(t0[1], t0[0]))
+    hm = rot("c", yaw) @ rot("b", B.pick("hpitch", action, f))
+    hd = p.head
+    gape = B.pick("gape", action, f)
+    flare = B.pick("flare", action, f)
+    hc = neck + hm @ v3(0.0, 0.0, 0.0)
+    P.add(E(hc + hm @ v3(hd.skull[0]), hd.skull[1], m.skin, "head", hm, _crown_paint(m, hc + hm @ v3(hd.skull[0]), hm, hd.crown)))
+    P.add(E(hc + hm @ v3(hd.snout[0]), hd.snout[1], m.skin, "head", hm))
+    jm = hm @ rot("b", -gape * 38.0)
+    hinge = hc + hm @ v3(hd.jaw[0])
+    P.add(E(hinge + jm @ v3(hd.jaw[1][0] * 0.9, 0.0, 0.0), hd.jaw[1], m.skin, "jaw", jm))
+    if gape > 0.2:
+        P.add(E(hinge + hm @ v3(1.6, 0.0, 0.15), (1.5, 0.7, 0.35 + 0.3 * gape), m.mouth, "maw", hm, line=False))
+        for k in range(4):
+            x = 0.9 + k * 0.6
+            for sgn in (1, -1):
+                P.mark(hinge + jm @ v3(x, sgn * 0.55, hd.jaw[1][2] + 0.1), M.FANG)
+                P.mark(hc + hm @ v3(hd.snout[0][0] + x - 1.9, sgn * 0.55, -0.5), M.FANG)
+    for sgn in (1, -1):
+        for k in range(hd.gills):
+            P.mark(hc + hm @ v3(-0.1 - k * 0.35, sgn * 0.98, -0.1 + 0.15 * k), M.RAMPS[m.skin][0])
+        eye = hc + hm @ v3(*(hd.eye[0], sgn * hd.eye[1], hd.eye[2]))
+        P.mark(eye + hm @ v3(-0.3, 0.0, 0.0), M.NEEL_SOCKET)
+        if action == "death" and f >= st.get("dead", 99) or st.get("squint"):
+            P.mark(eye, M.NEEL_SOCKET)
+        else:
+            P.eye(eye, M.NEEL_EYE)
+            if flare >= 0.9:
+                for d in ((0.5, sgn * 0.5, 0.6), (0.6, sgn * 0.9, 0.0), (0.5, sgn * 0.5, -0.5)):
+                    P.glow.append((eye + hm @ v3(*d), M.NEEL_EYE))
+    pe, pr = p.pectoral
+    for sgn in (1, -1):
+        pm = hm @ rot("c", sgn * 40.0)
+        P.add(E(hc + hm @ v3(pe[0], sgn * pe[1], pe[2]) + pm @ v3(-pr[0] * 0.6, 0.0, 0.0), pr, m.fin, "pectoral", pm, line=False))
+    # The void ripple before its snout on the blow; star specks scattering off it when struck.
+    rip = B.pick("ripple", action, f)
+    if rip > 0.0:
+        c = hc + hm @ v3(hd.snout[0][0] + 1.8 + rip * 0.8, 0.0, 0.0)
+        for k in range(12):
+            ang = math.radians(k * 30.0)
+            rr = 0.8 + rip * 0.9
+            P.glow.append((c + hm @ v3(0.0, math.cos(ang) * rr, math.sin(ang) * rr), M.RIFT_V if k % 2 else M.RIFT_W))
+    if f in st.get("specks", ()):
+        for k in range(8):
+            ang = math.radians(k * 45.0 + f * 20.0)
+            c = pts[n // 2]
+            P.glow.append((c + v3(math.cos(ang) * (2.0 + f), math.sin(ang) * (2.0 + f), 1.0 + (k % 3) * 0.5), M.STAR_W if k % 2 else M.STAR_C))
+    d = B.pick("dissolve", action, f)
+    if d > 0.0:
+        P.dissolve = d
+        P.dissolve_col = M.NEEL_WISP
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], tuple(neck))
+    return P
+
+
+def _crown_paint(m, centre, hm, share: float):
+    """The eel's head: a magenta patch over its crown's back half."""
+    def paint(q, n):
+        d = (q - centre) @ hm
+        nl = n @ hm
+        crown = (nl[:, 2] > share) & (d[:, 0] < 0.4)
+        return np.where(crown, m.cloud, m.skin).astype(object), np.where(nl[:, 2] < -0.45, -1, 0).astype(np.int16)
+    return paint
+
+
+def _levi_paint(m, centre, F, s0: float, length: float):
+    """The leviathan's hide: deep indigo over its back, its pale star-white belly in pleats, a teal band and a magenta band
+    of nebula along each flank (waving along its length)."""
+    def paint(q, n):
+        d = (q - centre) @ F
+        nl = n @ F
+        along = s0 - d[:, 0]
+        side = np.abs(nl[:, 1])
+        wv = 0.12 * np.sin(along * 0.5)
+        belly = nl[:, 2] < -0.35
+        teal = (~belly) & (nl[:, 2] > -0.32 + wv) & (nl[:, 2] < 0.02 + wv) & (side > 0.4)
+        mag = (~belly) & (nl[:, 2] >= 0.02 + wv) & (nl[:, 2] < 0.3 + wv) & (side > 0.35)
+        pleat = belly & ((np.abs(d[:, 1]) * 2.2) % 1.0 < 0.25)
+        names = np.where(belly, m.belly, np.where(teal, m.teal, np.where(mag, m.mag, m.skin))).astype(object)
+        return names, np.where(pleat, -1, np.where((nl[:, 2] > 0.9) & ~belly, 1, 0)).astype(np.int16)
+    return paint
+
+
+def _veil(P, root, d_out, d_back, length: float, width: float, mat, group: str, flutter: float) -> None:
+    """A translucent veil fin: a long thin plate from `root` out along `d_out`, its trailing edge back along `d_back`,
+    waving."""
+    d_out = d_out / float(np.linalg.norm(d_out))
+    d_back = d_back - d_out * float(d_back @ d_out)
+    d_back = d_back / max(1e-6, float(np.linalg.norm(d_back)))
+    nrm = np.cross(d_out, d_back)
+    F = np.stack([d_out, d_back, nrm], axis=1) @ rot("a", flutter)
+    P.add(E(root + d_out * length * 0.5 + d_back * width * 0.35, (length * 0.55, width * 0.6, 0.14), mat, group, F, line=False,
+            paint=lambda q, n, root=root, F=F: (np.full(len(q), mat, dtype=object),
+                                                 np.where(((((q - root) @ F)[:, 0] * 1.6) % 1.0) < 0.2, -1, 0).astype(np.int16))))
+
+
+def _leviathan(B, action: str, f: int, view: float, k: float = 2.6) -> Pose:
+    """M4, the Nebula Leviathan (see SKY_STYLES): a colossal sky whale-serpent, a vast whale head (a domed crown over a
+    rostrum, an arched mouth fringed with ivory baleen, a pleated lower jaw, a small ancient gold eye) on a serpent body
+    sweeping back (deep indigo, a pale belly in pleats, teal and magenta nebula bands along its flanks, constellations of
+    lights on its back), translucent violet veils (its pectorals, a long veil down its back, a fan at its tail). It rears
+    its head back, its mouth gaping as the void gathers in it and star lines spiral in (the tell, held), and lunges to
+    breathe the void (a cone of darkness full of stars ending in a burst); struck, it recoils and its lights flicker;
+    beaten, its lights go out one by one as it sinks and fades. Swimming (`levi_swim`), it is drawn mostly under the
+    water (see _levi_water)."""
+    P = Pose()
+    p, m = B.parts, B.mats
+    st = B.style(action)
+    amp, wl, vamp, ph, bob, lunge = _sky_wave(B, action, f)
+    rise = B.pick("rise", action, f)
+    drop = B.pick("drop", action, f)
+    kink = B.pick("kink", action, f)
+    lights = B.pick("lights", action, f, st.get("lights", 1.0))
+    z = (p.Z + rise + bob) * (1.0 - drop) + drop * 4.0
+    sweep = p.sweep
+    swim = bool(st.get("swim"))
+    if swim:
+        P.water = -p.swim.lift / math.cos(ELEV)        # in the world, at its drawn size
+        wz = P.water / k                               # in its own frame
+        z, sweep = wz + p.swim.z + bob, p.swim.sweep
+    length = p.length * (p.swim.length if swim else 1.0)
+    pts, tans = _sky_spine(p.n, length, amp, wl, vamp, ph, kink, sweep)
+    off = v3(lunge + length * (p.swim.ahead if swim else 0.3), 0.0, z)
+    pts = [off + q for q in pts]
+    neck = pts[0]
+    n = p.n
+    flutter = 10.0 * math.sin(f * 0.9)
+    vl = p.veils
+    bodies = []
+    for i in range(n - 1):
+        u = i / (n - 2)
+        w = p.w[0] + (p.w[1] - p.w[0]) * u ** 1.1
+        a, b = pts[i], pts[i + 1]
+        c = (a + b) * 0.5
+        F = _frame_of(b - a)
+        seg = float(np.linalg.norm(b - a))
+        P.add(E(c, (seg * 0.62, w, w * p.tall), m.skin, "body", F, _levi_paint(m, c, F, length * u, length)))
+        bodies.append((c, F, w))
+        # The long veil down its back, in short waving plates.
+        if 0.15 < u < 0.85 and i % 2 == 0:
+            fh = vl.dorsal[2] * (1.0 - abs(u - 0.5))
+            P.add(E(c + F @ v3(0.0, 0.0, w * p.tall + fh * 0.5), (seg * 1.1, 0.14, fh), m.veil, "dorsal", F @ rot("a", flutter * 0.4), line=False))
+    # The tail's veils: a fan of three long plates off its tip.
+    tail = pts[-1]
+    Ft = _frame_of(tans[-1])
+    for j, (ln, wd) in enumerate(vl.tail):
+        ang = (j - 1) * 34.0
+        dout = Ft @ (rot("a", ang) @ v3(0.0, 0.0, 1.0)) * 0.55 + Ft @ v3(1.0, 0.0, 0.0)
+        _veil(P, tail, dout, Ft @ v3(0.0, 0.0, -1.0), ln, wd, m.veil, "tailveil", flutter * (1 if j % 2 else -1))
+    # The constellations: lights over its back, joined by faint lines, going out one by one as it dies.
+    lit = int(round(p.lights * lights))
+    stars = []
+    for k in range(p.lights):
+        c, F, w = bodies[min(len(bodies) - 1, 1 + k)]
+        sd = (0.45 if k % 2 else -0.35) * w
+        q = c + F @ v3(0.0, sd, w * p.tall * 0.92)
+        stars.append(q)
+        if k < lit:
+            P.glow.append((q, M.STAR_W if k % 3 == 0 else (M.STAR_C if k % 3 == 1 else M.STAR_G)))
+        else:
+            P.mark(q, M.LEVI_STAR_OFF)
+    for k in range(min(lit, len(stars)) - 1):
+        P.mark((stars[k] + stars[k + 1]) * 0.5, M.LEVI_CLINE)
+    # The head: the crown dome over the rostrum, the hinged pleated jaw, the arched mouth and its baleen, a gold eye.
+    t0 = -tans[0]
+    yaw = math.degrees(math.atan2(t0[1], t0[0]))
+    hm = rot("c", yaw) @ rot("b", B.pick("hpitch", action, f))
+    hd = p.head
+    gape = B.pick("gape", action, f)
+    hc = neck + v3(0.0, 0.0, p.swim.head if swim else 0.0)
+    crown_c = hc + hm @ v3(hd.crown[0])
+    P.add(E(crown_c, hd.crown[1], m.skin, "head", hm, _levi_head_paint(m, crown_c, hm)))
+    P.add(E(hc + hm @ v3(hd.rostrum[0]), hd.rostrum[1], m.skin, "head", hm, _levi_head_paint(m, hc + hm @ v3(hd.rostrum[0]), hm)))
+    jm = hm @ rot("b", -gape * 28.0)
+    hinge = hc + hm @ v3(hd.hinge)
+    jc = hinge + jm @ v3(np.asarray(hd.jaw[0]) - np.asarray(hd.hinge))
+    P.add(E(jc, hd.jaw[1], m.belly, "jaw", jm, _pleats(m, jc, jm)))
+    # The mouth: dark inside as it gapes, the baleen's ivory fringe hanging along the arch of the upper jaw.
+    if gape > 0.15:
+        P.add(E(hinge + hm @ v3(3.4, 0.0, 0.3), (3.6, 2.3, 0.5 + 1.2 * gape), m.mouth, "maw", hm, line=False))
+    for k in range(hd.baleen):
+        x = 1.6 + k * 0.52
+        arch = 0.55 * math.sin(math.pi * k / (hd.baleen - 1))
+        for sgn in (1, -1):
+            q = hc + hm @ v3(x, sgn * (2.3 - 0.06 * k), -0.85 + arch)
+            P.add(L(q, q + hm @ v3(0.0, 0.0, -0.55 - 0.4 * gape), 0.22, 0.14, m.baleen, "baleen", line=False))
+    for sgn in (1, -1):
+        eye = hc + hm @ v3(hd.eye[0], sgn * hd.eye[1], hd.eye[2])
+        for d in ((-0.4, 0.0, 0.45), (-0.5, 0.0, -0.4), (-0.8, 0.0, 0.0)):
+            P.mark(eye + hm @ v3(*d), M.RAMPS[m.skin][1])
+        if action == "death" and f >= st.get("dead", 99) or st.get("squint"):
+            P.mark(eye, M.RAMPS[m.skin][0])
+        else:
+            P.eye(eye, M.LEVI_EYE)
+    # The pectoral veils: great translucent fins off its throat, sweeping back like wings.
+    (pa, pb, pc), pl, pw = vl.pectoral
+    for sgn in (1, -1):
+        root = hc + hm @ v3(pa, sgn * pb, pc)
+        dout = hm @ v3(-0.55, sgn * 0.75, -0.25 + 0.15 * math.sin(f * 0.9 + sgn))
+        _veil(P, root, dout, hm @ v3(-1.0, 0.0, 0.0), pl, pw, m.veil, "pectoral%d" % sgn, flutter * sgn)
+    # The void gathering in its mouth (a dark orb rimmed in violet light) as star lines spiral into it; the breath.
+    vd = B.pick("void", action, f)
+    mouth = hc + hm @ v3(6.0, 0.0, -0.3)
+    if vd > 0.0:
+        r = 0.8 + 1.6 * vd
+        P.add(S(mouth, r, m.void, "void", line=False))
+        for k in range(16):
+            ang = math.radians(k * 22.5 + f * 30.0)
+            P.glow.append((mouth + v3(0.0, math.cos(ang) * (r + 0.4), math.sin(ang) * (r + 0.4)), M.LEVI_VOID_RIM if k % 2 else M.LEVI_VOID_HI))
+        if st.get("spiral"):
+            for arm in range(3):
+                for k in range(7):
+                    t = k / 6.0
+                    ang = math.radians(arm * 120.0 + f * 40.0 + t * 260.0)
+                    rr = (r + 1.0) + (1.0 - t) * 7.0
+                    P.glow.append((mouth + v3(math.cos(ang) * rr * 0.5, math.sin(ang) * rr, math.cos(ang * 1.3) * rr * 0.4),
+                                   M.STAR_W if k % 3 == 0 else M.LEVI_VOID_RIM))
+    br = B.pick("breath", action, f)
+    if br > 0.0:
+        fwd = hm @ v3(1.0, 0.0, 0.0)
+        reach = 3.0 + 4.0 * br
+        for k in range(7):
+            t = k / 6.0
+            q = mouth + fwd * (1.5 + reach * t)
+            r = 0.9 + 2.2 * t
+            P.add(S(q, r, m.void, "breath", line=False))
+            for j in range(3):
+                ang = math.radians(j * 120.0 + k * 50.0 + f * 30.0)
+                P.glow.append((q + hm @ v3(0.0, math.cos(ang) * r * 0.6, math.sin(ang) * r * 0.6), M.STAR_W if (j + k) % 2 else M.STAR_C))
+        end = mouth + fwd * (1.5 + reach)
+        rb = 2.6 + 1.2 * br
+        for k in range(18):
+            ang = math.radians(k * 20.0)
+            P.glow.append((end + hm @ v3(0.3, math.cos(ang) * rb, math.sin(ang) * rb), M.LEVI_VOID_HI if k % 2 else M.LEVI_VOID_RIM))
+    d = B.pick("dissolve", action, f)
+    if d > 0.0:
+        P.dissolve = d
+        P.dissolve_col = M.STAR_C
+    sq = st.get("squash", {}).get(f)
+    if sq is not None:
+        P.squash(sq[0], sq[1], sq[2], tuple(neck))
+    if swim:
+        _levi_water(P, B, f, wz, bodies, hc, hm)
+    return P
+
+
+def _levi_water(P, B, f: int, wz: float, bodies: list, hc, hm) -> None:
+    """The Nebula Leviathan swimming: everything of it under the water's line cut away (its parts clipped at the
+    surface, its lights and marks under it gone), and the star-water round it (P.water_fx): a darker wash over its body
+    under the surface with stars glinting in it, foam where its head and the loops of its back break the water, a wake
+    spreading back from its head in a V, a ring spreading round its head."""
+    under = lambda q: q[:, 2] > wz
+    for part in P.parts:
+        part.clip = under if part.clip is None else (lambda q, c0=part.clip: under(q) & c0(q))
+    P.glow = [g for g in P.glow if g[0][2] > wz]
+    P.marks = [g for g in P.marks if g[0][2] > wz]
+    P.eyes = [g for g in P.eyes if g[0][2] > wz]
+    P.fx = [g for g in P.fx if g[0][2] > wz]
+    # Where it breaks the surface: each piece of the body whose back rises over the water, and the head.
+    breaks = [(c[0], c[1], w * 0.85) for c, F, w in bodies if c[2] + w * B.parts.tall > wz + 0.2 and c[2] - w < wz]
+    ha, hb = float(hc[0] + (hm @ v3(3.4, 0.0, 0.0))[0]), float(hc[1] + (hm @ v3(3.4, 0.0, 0.0))[1])
+    back = -(hm @ v3(1.0, 0.0, 0.0))[:2]
+    back = back / max(1e-6, float(np.linalg.norm(back)))
+    side = np.array((-back[1], back[0]))
+    spine = [(float(c[0]), float(c[1]), w) for c, F, w in bodies]
+    ring = 6.0 + (f % 8) * 0.5
+    tan = math.tan(math.radians(17.0))
+
+    def water(a, b):
+        q = np.array((a - ha, b - hb))
+        da, ds = float(q @ back), float(q @ side)
+        dh = math.hypot(a - ha, b - hb)
+        if dh < 5.4:
+            ang = int((math.degrees(math.atan2(b - hb, a - ha)) + 360.0) // 24.0)
+            return M.LEVI_FOAM if h01(ang, f, 23) > 0.35 else M.LEVI_RIPPLE
+        for ba, bb, br in breaks:
+            if math.hypot(a - ba, b - bb) < br + 0.8:
+                return M.LEVI_FOAM if h01(int(a * 3.0 + b * 7.0), f, 29) > 0.45 else M.LEVI_RIPPLE
+        # The wake: two lines spreading back from its head, a step behind it.
+        if 2.0 < da < 15.0 and abs(abs(ds) - (3.4 + da * tan)) < 0.45:
+            return M.LEVI_RIPPLE if da < 9.0 else M.LEVI_RIPPLE_DIM
+        if abs(dh - ring) < 0.42 and da < 0.0:
+            return M.LEVI_RIPPLE_DIM
+        near = min((math.hypot(a - sa, b - sb) - sw for sa, sb, sw in spine), default=99.0)
+        if near < 1.4:
+            return M.LEVI_GLINT if h01(int(a * 2.0) * 31 + int(b * 2.0), 0, 37) > 0.93 else M.LEVI_WASH
+        return None
+
+    P.water_fx = water
+
+
+def _levi_head_paint(m, centre, hm):
+    """The whale head: indigo over its dome with a teal and a magenta band of nebula along its sides above the mouth."""
+    def paint(q, n):
+        nl = n @ hm
+        side = np.abs(nl[:, 1])
+        teal = (nl[:, 2] > -0.25) & (nl[:, 2] < 0.08) & (side > 0.45)
+        mag = (nl[:, 2] >= 0.08) & (nl[:, 2] < 0.32) & (side > 0.4)
+        names = np.where(teal, m.teal, np.where(mag, m.mag, m.skin)).astype(object)
+        return names, np.where(nl[:, 2] > 0.9, 1, 0).astype(np.int16)
+    return paint
+
+
+def _pleats(m, centre, jm):
+    """The pleated throat of its lower jaw: lines along it a step dark."""
+    def paint(q, n):
+        d = (q - centre) @ jm
+        pleat = (np.abs(d[:, 1]) * 1.6) % 1.0 < 0.22
+        return np.full(len(q), m.belly, dtype=object), np.where(pleat, -1, 0).astype(np.int16)
+    return paint

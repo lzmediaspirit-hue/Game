@@ -15,6 +15,7 @@ species first drawn by hand with it, parameterised by part sizes and motion styl
                                        the character's own pipeline (figure/), not sculpted
   bird       chick                     M1: the jade crane chick
   spirit     talisman                  M1: the paper talisman ghost
+  insect     drone, moth               M4: the hollow drone, the orbit moth (flying insects, two pairs of wings)
 
 A species names its plan and variant ("quadruped.rodent"), and may lay its own parts, materials and motion over the
 variant's (`resolve`); its sheet is then drawn by the plan's `pose(body, action, frame, **facing)`, cast and coloured by
@@ -26,7 +27,7 @@ import importlib
 
 from .kit import Body, merge
 
-PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid", "person", "bird", "spirit")
+PLANS = ("quadruped", "amphibian", "crab", "serpent", "fish", "shell", "humanoid", "person", "bird", "spirit", "insect")
 
 
 def module(plan: str):
