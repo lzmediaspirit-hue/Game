@@ -1,0 +1,310 @@
+{
+ "schema_version": 1,
+ "id": "lh_arrival_quay",
+ "name": "Arrival Quay",
+ "size": [
+  48,
+  28
+ ],
+ "spawn": [
+  13,
+  11
+ ],
+ "levels": [
+  "444444444444444444444444444444444444444444444444",
+  "444444444444444444444444444444444444444444444444",
+  "444111111111111111444444444411111444444444411111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "111111111111111111111111111111111111111111111111",
+  "~~~11111~~~~~~~~~~1111111~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~1111111~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~1111111~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~",
+  "~~~11111~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111~~~~"
+ ],
+ "paint": [
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrppppppppppppppprrrrrrrrrrppppprrrrrrrrrrppppp",
+  "pppppppppppppppppppppppppppppppppgggpppppppppppp",
+  "pppppppppppppppppppppppppppppppggggggppppppppppp",
+  "ppppppppppppppppppppppppppppppgggggggppppppppppp",
+  "ppppppppppppppppppppppppppppppgggggggppppppppppp",
+  "pppppppppppppppppppppppppppppppgggggpppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppppppppppppppppppppppppppppppppppppppppppppppp",
+  "pppwwwwwppppppppppwwwwwwwppppppppppppppwwwwwpppp",
+  "~~~wwwww~~~~~~~~~~wwwwwww~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~wwwwwww~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~wwwwwww~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~",
+  "~~~wwwww~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~wwwww~~~~"
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "kind": "storehouse",
+   "x": 3,
+   "y": 4,
+   "door": [
+    1,
+    2
+   ]
+  },
+  {
+   "kind": "house",
+   "x": 10,
+   "y": 4,
+   "door": [
+    2,
+    3
+   ]
+  },
+  {
+   "kind": "harbor_crane",
+   "x": 19,
+   "y": 16
+  },
+  {
+   "kind": "crates",
+   "x": 22,
+   "y": 14
+  },
+  {
+   "kind": "sacks",
+   "x": 24,
+   "y": 14
+  },
+  {
+   "kind": "barrel",
+   "x": 25,
+   "y": 14
+  },
+  {
+   "kind": "crates",
+   "x": 15,
+   "y": 8
+  },
+  {
+   "kind": "sacks",
+   "x": 17,
+   "y": 8
+  },
+  {
+   "kind": "lantern_red",
+   "x": 9,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 27,
+   "y": 9
+  },
+  {
+   "kind": "lantern_red",
+   "x": 40,
+   "y": 9
+  },
+  {
+   "kind": "star_lantern",
+   "x": 8,
+   "y": 15
+  },
+  {
+   "kind": "star_lantern",
+   "x": 2,
+   "y": 15
+  },
+  {
+   "kind": "star_lantern",
+   "x": 38,
+   "y": 15
+  },
+  {
+   "kind": "star_lantern",
+   "x": 44,
+   "y": 15
+  },
+  {
+   "kind": "post",
+   "x": 3,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 7,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 39,
+   "y": 27
+  },
+  {
+   "kind": "post",
+   "x": 43,
+   "y": 27
+  },
+  {
+   "kind": "boat",
+   "x": 9,
+   "y": 22
+  },
+  {
+   "kind": "boat",
+   "x": 32,
+   "y": 24
+  },
+  {
+   "kind": "pot_bonsai",
+   "x": 28,
+   "y": 4
+  },
+  {
+   "kind": "pot_orchid",
+   "x": 46,
+   "y": 4
+  },
+  {
+   "kind": "bush",
+   "x": 34,
+   "y": 5
+  },
+  {
+   "kind": "tall_grass",
+   "x": 30,
+   "y": 6
+  },
+  {
+   "kind": "tall_grass",
+   "x": 33,
+   "y": 7
+  },
+  {
+   "kind": "cattails",
+   "x": 8,
+   "y": 23
+  },
+  {
+   "kind": "cattails",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "kind": "cattails",
+   "x": 25,
+   "y": 16
+  },
+  {
+   "kind": "cattails",
+   "x": 33,
+   "y": 16
+  },
+  {
+   "kind": "cattails",
+   "x": 44,
+   "y": 17
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 0,
+   "y": 20
+  },
+  {
+   "kind": "lotus_pads",
+   "x": 28,
+   "y": 20
+  }
+ ],
+ "place": {
+  "dock_lantern": [
+   5,
+   27
+  ],
+  "npc_harbormaster_lin": [
+   22,
+   13
+  ],
+  "shrine_lh_quay": [
+   34,
+   3
+  ],
+  "npc_warden_xiao": [
+   38,
+   14
+  ],
+  "sign_lh_quay": [
+   45,
+   14
+  ]
+ },
+ "portals": {
+  "east": {
+   "at": [
+    47,
+    11
+   ],
+   "dir": "e",
+   "arrive": [
+    45,
+    11
+   ],
+   "span": 3
+  },
+  "warden_skiff": {
+   "at": [
+    41,
+    27
+   ],
+   "dir": "s",
+   "arrive": [
+    41,
+    25
+   ],
+   "span": 3
+  }
+ },
+ "spawns": [],
+ "vista": [
+  {
+   "edge": "s",
+   "kind": "river",
+   "pad": 32
+  }
+ ]
+}

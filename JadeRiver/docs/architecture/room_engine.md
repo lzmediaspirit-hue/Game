@@ -1003,9 +1003,185 @@ story rooms (`si_sect_war`, `si_presence_trial`). Every other way out of an R7 r
 these rooms laid out, the Sect War's and the Presence Trial's ways back to the Alliance Gate (gated in R5's frontier
 above) open; `topdown_story_rooms` checks them against `has_layout`, so it follows.
 
+## The sky-sea zones (R8)
+
+The twenty rooms of the late game's sky-sea zones, now on the grid: the Skyport Wreck at the Expanse's edge, and in the
+Lantern Star Field Lanternfall Harbor, the Drifting Shoals, Blackmast Haven and the Wyrmnest Isles. They hold the main
+story of chapters 15 to 19, from The Skyport Wreck to The Last Egg, and `tests/topdown_skysea` plays it (below). Every
+room is a floating island: the rock falls away past the south edges of the Wreck and the Isles into the cloud sea
+(`cloud_sea` vistas), and the Field's harbours, shoals and cove lie on the starsea's water (`river` vistas: the water
+going on past the edge, other islands far off).
+
+R6's Cloudgate Port landed on the branch while this batch was under way. Its `sky_port` is a living town: paving,
+azaleas, hedges and plum. The Skyport Wreck is that port in ruin, so it keeps this batch's own look: the `sky_wreck`
+biome (wind-scoured rock, dead trees), the broken hulls and masts, the snapped piers. The two batches share one prop:
+the Launch's armillary is R6's `armillary`. Lanternfall's red-and-cream stalls are `lantern_stall`, beside R6's
+Alliance `market_stall`.
+
+| Room | Spec lines | Biome | Pictures (`docs/architecture/room_engine/r8/`) |
+|---|---|---|---|
+| `sw_broken_pier` | 30 | `sky_wreck` | `01_broken_pier_dock`, `02_broken_pier_wreck`, `rooms/sw_broken_pier` |
+| `sw_pirate_deck` | 21 | `sky_wreck` | `03_pirate_deck`, `rooms/sw_pirate_deck` |
+| `sw_riven_peak` | 21 | `sky_wreck` | `04_riven_peak`, `rooms/sw_riven_peak` |
+| `sw_starsea_launch` | 20 | `sky_wreck` | `05_starsea_launch`, `rooms/sw_starsea_launch` |
+| `lh_arrival_quay` | 23 | `lantern_harbor` | `06_arrival_quay`, `rooms/lh_arrival_quay` |
+| `lh_harbor_market` | 27 | `lantern_harbor` | `07_harbor_market`, `08_harbor_market_stair`, `rooms/lh_harbor_market` |
+| `lh_star_chandlery` | 10 | (an interior) | `09_star_chandlery`, `rooms/lh_star_chandlery` |
+| `lh_tidelight_inn` | 11 | (an interior) | `10_tidelight_inn`, `rooms/lh_tidelight_inn` |
+| `dr_jellyfish_shallows` | 24 | `star_shoals` | `11_jellyfish_shallows`, `rooms/dr_jellyfish_shallows` |
+| `dr_moored_hulks` | 20 | `star_shoals` | `12_moored_hulks`, `rooms/dr_moored_hulks` |
+| `dr_sparrow_reefs` | 24 | `star_shoals` | `13_sparrow_reefs`, `rooms/dr_sparrow_reefs` |
+| `dr_driftglass_bank` | 24 | `star_shoals` | `14_driftglass_bank`, `rooms/dr_driftglass_bank` |
+| `bm_blackmast_docks` | 27 | `blackmast` | `15_blackmast_docks`, `rooms/bm_blackmast_docks` |
+| `bm_gunners_battery` | 22 | `blackmast` | `16_gunners_battery`, `rooms/bm_gunners_battery` |
+| `bm_smugglers_cove` | 18 | `cave` | `17_smugglers_cove`, `rooms/bm_smugglers_cove` |
+| `bm_flagship_deck` | 14 | `blackmast` | `18_flagship_deck`, `rooms/bm_flagship_deck` |
+| `wn_nest_cliffs` | 22 | `wyrmnest` | `19_nest_cliffs`, `rooms/wn_nest_cliffs` |
+| `wn_eggshell_terraces` | 27 | `wyrmnest` | `20_eggshell_terraces`, `rooms/wn_eggshell_terraces` |
+| `wn_guardians_crown` | 25 | `wyrmnest` | `21_guardians_crown`, `22_crown_cave_mouth`, `rooms/wn_guardians_crown` |
+| `wn_hatching_cave` | 16 | `cave` | `23_hatching_cave`, `rooms/wn_hatching_cave` |
+
+The specs are one module a zone (`specs/skyport_wreck.py`, `lanternfall_harbor.py`, `drifting_shoals.py`,
+`blackmast_haven.py`, `wyrmnest_isles.py`), in the story's order in `ZONES`. The line counts take in the props written
+out; the Broken Pier's piers and wreck and the market's buildings and stalls are the longest. As R4's and R5's, the
+capture's x2 copies of the world alone are not kept.
+
+**The rooms.**
+- *The Broken Pier*: the one whole pier runs from the old port's road out to the brink, the dock where the Wreck Run
+  makes port at its end; two more piers are snapped short. North of the road, on the port's upper quay, the great junk
+  lies broken in two, its stern and bow three levels up with its bare ribs between (the stripped chests on its decks).
+  South of the road the rock falls a level to the brink.
+- *The Pirate Deck*: the pirates' junk in the old port's berth under the cliff, bow east, its stern castle a level
+  higher (the strongbox). Two black masts and a broken one stand on it, its ballistas at the rail, and two gangways come
+  down to the quay road. Gu sits in chains by the bow mast.
+- *The Riven Peak*: crags stepping north in two flights (the sighting stones and chests), the gully that splits the
+  slope south of the trail, Lu's last page on the knoll where the stars are clearest.
+- *The Starsea Launch*: the launch ring on its dais in an octagon of granite, Warden He, the shrine and the armillary,
+  the stone, and the pier out to the brink where the skiff for the Lantern Run is moored.
+- *The Arrival Quay* and *the Harbor Market*: a boardwalk quay and a boardwalk street along the harbour. Behind them are
+  the paved yards under the island's hill, with the harbour office, the warehouse, the Chandlery and the Inn (their
+  doors), and the stalls between them. In front is the waterfront of star lanterns. Piers stand out into the water:
+  the Starsea dock, the crane's jetty, and the Wardens' pier with their skiff to the Citadel at its tip (a way at the
+  south edge). The stair to the Lantern Heart is a cut climbing a flight into the hill.
+- *The Star Chandlery* and *the Tidelight Inn*: a lamp-maker's shop of shelves, drawers and work tables round Chandler
+  Shu's furnace; a common room of tea tables, the counter and the stove, and a gallery of beds up a flight (the side
+  view's loft) between R3's cheeks.
+- *The Drifting Shoals*: the shallows are R2's wading floor (`h`; T2's wade slows a body to 0.7 of the pace on it), and
+  the way crosses them from islet to islet. Each islet is a rim of sand round a core of pale rock (the spec module's
+  `islet()`). Deep pools of the starsea lie in the shallows and along the edges. The middle islet's crag holds the
+  chests, the Sparrow Reefs rise in reefs and a stack, and the Driftglass Bank lies under a ridge of glass-veined rock
+  with its crags.
+- *The Moored Hulks*: two old hulls beached on an islet, Old Bo's cabin at the west hulk's stern, the shrine and his
+  planters on its deck, his stove and lanterns on the islet, and the pier out to the deep water where the sky-skiff for
+  the Isles waits (a way at the south edge).
+- *Blackmast Haven*: the boardwalk under the black rock, the tavern under red lamps, a lookout crag, and two pirate
+  ships moored in the cove between three piers, their decks two levels up and black masts crowding the water. The
+  Gunners' Battery's guns stand behind a granite parapet across the headland, in embrasures over the lanes; R5's rule
+  holds, and the parapet runs east and west. The Smugglers' Cove is a sea cave with its inlet, jetty and the purser's
+  ledge. The Flagship lies at anchor in deep water, a broad deck with its quarterdeck, its bow to the east and its
+  gangway to the west.
+- *The Wyrmnest Isles*: pale rock with patches of turf in its lee, rock spires and star crystals, nests on the ledges
+  and crowns, bones and eggshells. The Nest Cliffs' pier is where the skiff from the hulks puts in (a way at its
+  tip). The Eggshell Terraces step north to a crown with the chests, and the Hollowed puddles south of the path are
+  wading floors under the layout's `hollow_puddle` areas. The Guardian's Crown has its great nest on the summit and
+  the cave mouth as a cleft in the cliff. The Hatching Cave is warm, its nest on a raised hollow and the egg beside it.
+
+**The looks.**
+- Five biomes (`biomes.py`, R8's block): `sky_wreck` (wind-scoured rock, dead trees, boulders), `lantern_harbor` (paving,
+  plum and camphor, potted plants at the doors), `star_shoals` (pale rock, driftglass, star crystals, reeds and lotus),
+  `blackmast` (black rock, dead trees and stumps) and `wyrmnest` (turf, rock spires, star crystals, bones, eggshells).
+- Nineteen props (`tools/art/topdown/furnish.py`, R8's block; the prop sheet rebuilt by `build_tiles.py`):
+  - the Wreck's `hull_ribs`, `broken_mast`, `starsea_anchor` and `star_ballista` (the Launch's armillary is R6's);
+  - the harbour's `star_lantern`, `lantern_stall` and `harbor_crane`;
+  - the Shoals' `driftglass` and `star_crystal`;
+  - the Haven's `black_mast`, `pirate_cannon`, `powder_keg` and `pirate_banner` (it stirs, as the sects' do);
+  - the Isles' `rock_spire`, `wyrm_nest`, `wyrm_skull`, `wyrm_ribs`, `bone_pile` and `eggshell` (the last two flat).
+
+  Scattered pieces grow from the biomes' pools as the foliage kit's do: `driftglass`, `star_crystal`, `rock_spire`,
+  `bone_pile`, `eggshell`.
+- **Ships are decks.** `specs/skysea.py`'s `hull()` lays a deck as features: a rect, its bow tapering east two columns a
+  step and its stern rounding west. Every hull, wrecked or afloat, is one: the broken junk, the pirates' junk, Old Bo's
+  hulks, the Haven's ships and the Flagship. A deck reads as a ship where its pointed bow and its south face, the hull's
+  side, show. Masts stand at least their sprite's height in rows from the north edge (R4's rule, for a tall prop).
+- Vistas (`topdown_life.VISTAS`): peaks behind the Wreck and the Isles, the cloud sea under their brinks; the starsea's
+  water past the harbours, the Shoals and the Haven; water round the Flagship.
+
+**How the side view's verticality came down.**
+- The ledges and decks the side view reached by ropes and vines (100 to 320 units) became:
+  - the wreck's decks and the junks' castles;
+  - the crags of the Riven Peak and the Driftglass Bank;
+  - the reefs of the Sparrow Reefs;
+  - the battery's store and lookout;
+  - the ledges of the Isles.
+
+  Each is climbed by a flight; R4's `flights` close their cheeks.
+- No flight stands on a walk. A flight whose lower rows lie on a road or a wading way is crossed from its side, and
+  auto-path's body sticks on its cheek (`rules_tests`' route tour lost those legs). So the walks run south of every
+  flight's foot: the Broken Pier's quay wall runs straight with an apron below it, the Battery's road and the Shoals'
+  wading ways lie a row or two lower, and the Docks' crag and the Battery's lookout stand two levels up, not three.
+- The ladders up to the Launch's decks and the Inn's loft became the dais and the gallery.
+- The moored hulks (back decor) became the decks you walk.
+- The docks are piers to the brink or the water, a way at the tip where a skiff is a portal.
+
+**Places** (`places.py`, R8's block; 55 places now, with R7's):
+- the shrines of the Broken Pier, the Launch, the Arrival Quay, the Moored Hulks, the Blackmast Docks and the Nest
+  Cliffs;
+- the Launch's and the Harbor Market's teleport stones;
+- the Harbor's notice board, storehouse, and Peddler Ning's and Apothecary Sang's stalls;
+- the Star Chandlery's furnace;
+- Old Bo's planters, the herb garden.
+
+Each stands where auto-path reaches it from every way in, and `places_tests` opens each one's page.
+
+**Engine rules.** None: `engine.py` is unchanged and every older spec compiles byte for byte. The ships' and islets'
+shapes are spec helpers (`skysea.hull`, `drifting_shoals.islet`); the launch's floor is R5's `octagon` and the Inn's
+flight R5's `stair_with_cheeks`.
+
+**Tested in** `tests/topdown_skysea.tscn` (101 checks), by test shortcuts along the story:
+- every room is entered on the grid, built by the view, and walked by auto-path from every way in;
+- The Skyport Wreck: set down on the Broken Pier by its dock; pirates fought on the road; Gu freed on the junk's deck
+  for the Black Ledger; the strongbox opened on the stern castle;
+- Lu's Last Page and Stars Beyond: the page on the Riven Peak's knoll, shown to Trial Master Wen in R7's Trial Hall
+  on the grid, a star reading on its highest crag, Warden He and the launch ring on its dais;
+- The Lantern Run and Crystal and Jade: the harbourmaster, the exchange counter, the Chandlery's furnace and the Inn
+  through their doors; the Wardens' skiff and the Lantern Heart's stair gated;
+- Salt of the Stars, Will Manifest and A Presence of One's Own: the jellyfish thinned wading the shallows, Old Bo's
+  planters on his deck, the sparrows hunted on the reefs, the Driftglass Bank's lens;
+- The Purser's Ledger, Gunners' Battery and The Admiral: on foot from the harbour through the four Shoals rooms to the
+  Docks, the pirates cut down, the three cannons spiked behind the parapet, the gunners silenced, the purser on his
+  ledge in the cove, Admiral Voss defeated on his deck, his seal and strongbox;
+- Star-Tier Beasts, A Hollowed Brood and The Last Egg: the skiff to the Nest Cliffs' pier, Tamer Qiu, the three grey
+  puddles on the terraces' floor, the wyrmlings put to rest and the incense burned, the crown's chest, the cleft into
+  the Hatching Cave, the Brood Guardian and the last egg.
+
+**Still to do in these rooms.**
+- Foes with no top-down sheets yet (the view draws stand-ins; the monster batches' work): the Nine Peaks disciple, the
+  starsea pirate, the wind kite, the star jellyfish, the comet sparrow, the pirate gunner, Admiral Voss, the nest
+  guardian and the hollowed wyrmling.
+- Mechanics with no top-down counterpart yet (another agent's; `topdown_mechanics.md`'s to-do 14):
+  - **The Starsea crossing.** The three docks (the Broken Pier's, the Launch's, the Arrival Quay's) set sail into
+    `ss_starsea_crossing` and `ss_lantern_crossing`, which have no layout. The prototype's gate closes ways and stones,
+    but not a dock's `set_sail`. The suite loads the far room as the voyage would.
+  - **The Field's light.** The zones' backdrops (`skyport_wreck`, `lantern_harbor`, `star_shoals`, `blackmast_haven`,
+    `wyrmnest_isles`) are the side view's night skies, but they have no area in `TopdownLight.AREAS`, so the grid's
+    light follows the clock. The star lanterns are not in `PROP_LIGHTS` and give no light after dark. The red lanterns,
+    the stone lanterns and the stove do.
+  - Gameplay with no grid part, played by shortcut: the chart table and the slipway (in Cloudgate), the jades'
+    attunement, Presence training, taming and the egg's warming are pages; the hidden cove is shown by Spirit Sense's
+    flag.
+- Side-view decor with no top-down counterpart: the lantern strings over the market, the great lantern cage, the star
+  buoys and the sky ship's sails (the moored skiffs are the dock objects' own art and the kit's boats).
+- A finding of the captures: a body set down inside a solid prop's footprint renders the whole view blank, HUD only.
+  Only a capture row can put it there; the motor does not let a body walk in. The R8 rows stand clear of every prop.
+
+**The frontier now** (R8): the sky-sea zones join each other on the grid, by ways and the hulks' skiff. Two ways out
+lead to rooms with no layout and are gated: the Arrival Quay's skiff to the Citadel, and the Harbor Market's stair to
+the Lantern Heart. The Wreck is reached from Cloudgate's Shipwrights' Yard, and the Field from the Launch, only by the
+Starsea crossings (above).
+
 ## The rooms left, and the pace
 
-41 side-view rooms remain, by zone (`region`); the struck ones are done:
+21 side-view rooms remain, by zone (`region`); the struck ones are done:
 
 - **Reed Marsh and its neighbours** (R1, all done: "The road east: chapter 4" above):
   - `reed_marsh`: ~~`rm_grey_pools`~~, ~~`rm_sunken_causeway`~~, ~~`rm_hermit_stilt_house`~~;
@@ -1035,7 +1211,7 @@ above) open; `topdown_story_rooms` checks them against `has_layout`, so it follo
   - `tidebreak_front`: ~~`si_tide_battle`~~, ~~`tf_drone_hive`~~, ~~`tf_greyfall_breach`~~, ~~`tf_hollow_wake`~~,
     ~~`tf_tidebreak_bastion`~~.
 - **Act II and after** (R6 the first four: "Act II's first zones (R6)" above; R7 the next five: "Nine Peaks to the
-  Tomb of Sunscar (R7)" above):
+  Tomb of Sunscar (R7)" above; R8 the sky-sea five: "The sky-sea zones (R8)" above):
   - `cloudgate_port`: ~~`ae_landing`~~, ~~`ae_port_market`~~, ~~`ae_wayfarers_inn`~~, ~~`ae_skydock`~~,
     ~~`ae_condensing_hall`~~, ~~`ae_shipyard`~~;
   - `thunderhorn_plains`: ~~`tp_stormgrass_verge`~~, ~~`tp_herders_camp`~~, ~~`tp_thunderhorn_flats`~~,
@@ -1047,9 +1223,11 @@ above) open; `topdown_story_rooms` checks them against `has_layout`, so it follo
   - ~~`nine_peaks` (5)~~ (R7);
   - ~~`gale_canyons`, `ironroot_hold` (4, 3)~~ (R7);
   - ~~`sunscar_desert`, `tomb_of_sunscar` (4, 4)~~ (R7);
-  - `skyport_wreck` (4);
-  - `lanternfall_harbor`, `drifting_shoals`, `blackmast_haven` (4, 4, 4);
-  - `wyrmnest_isles` (4);
+  - ~~`skyport_wreck`: `sw_broken_pier`, `sw_pirate_deck`, `sw_riven_peak`, `sw_starsea_launch`~~ (R8);
+  - ~~`lanternfall_harbor`: `lh_arrival_quay`, `lh_harbor_market`, `lh_star_chandlery`, `lh_tidelight_inn`~~ (R8);
+  - ~~`drifting_shoals`: `dr_jellyfish_shallows`, `dr_moored_hulks`, `dr_sparrow_reefs`, `dr_driftglass_bank`~~ (R8);
+  - ~~`blackmast_haven`: `bm_blackmast_docks`, `bm_gunners_battery`, `bm_smugglers_cove`, `bm_flagship_deck`~~ (R8);
+  - ~~`wyrmnest_isles`: `wn_nest_cliffs`, `wn_eggshell_terraces`, `wn_guardians_crown`, `wn_hatching_cave`~~ (R8);
   - `warden_citadel`, `orbit_ruins`, `ashen_reach` (4, 4, 4);
   - `nebula_deep`, `lantern_heart` (4, 3);
   - `starsea`, `lantern_crossing` (1, 1).
