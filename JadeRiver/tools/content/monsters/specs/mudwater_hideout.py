@@ -48,11 +48,16 @@ species("mudwater_lieutenant", plan="person.fighter", share=True, size=1.0, elit
                   race="human", energy="primal_qi", width=18, height=90, faction="mudwater", named=True, surrenders=True,
                   spare_debt="lieutenant_spared", kill_debt="lieutenant_killed", hp_mult=1.6, name="Lieutenant Kuai"))
 
-# Big Toad Tan, the first dungeon boss: the bandits' chief, a head taller than his men, his top knot and bare arms, a
-# staff he swings like a club. His tell is the club raised over his head (held), slammed down on the blow; the same
-# tell calls his bandits. At half his health he drinks (the phase heals him and calls them again: its moment is the
-# room's, the wine jar the side view's).
-species("big_toad_tan", plan="person.brute", share=True, size=1.12, elite=False, shadow=(10, 3), cycle=12.0,
+# Big Toad Tan, the first dungeon boss: the Mudwater bandits' chief (M2: sculpted, a boss of his own build, not the
+# shared figure body his men are cast in). A head and a half taller than his men and twice as broad: a great bare belly
+# under an open leather vest, a wide red sash, baggy dark trousers wrapped at the shin, heavy bare arms, a small head sunk
+# between his shoulders with a topknot, a wide toad's grin and a stubbled jaw; his Mudwater Cleaver (a broad blade, nine
+# brass rings on its spine) on his shoulder, a wine gourd at his hip. His tell is the cleaver raised over his head in both
+# hands as he roars (held), slammed down before him on the blow; the same tell calls his bandits. At half his health he
+# drinks (the phase heals him and calls them again: its moment is the room's, the wine jar the side view's).
+species("big_toad_tan", plan="humanoid.chief", share=True, size=2.6, elite=False, shadow=(14, 4), cycle=11.0, view=True, canvas=(164, 156),
+        palette=["folk_skin", "tan_hair", "tan_sash", "tan_vest", "tan_trousers", "tan_wrap", "tan_boot", "cleaver_steel", "brass",
+                 "halberd_shaft", "gourd", "maw"],
         data=dict(level=18, role="dungeon_boss", element="none", page=None, drops=[("mudwater_manual", 1.0)],
                   attacks=[("club_swing", 0.55, 90, 1.2, dict(depth=34, knockback=60)), ("call_bandits", 1.0, 0, 0.0, dict(summon="mudwater_bandit"))],
                   ai="boss_tan",

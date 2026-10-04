@@ -37,9 +37,16 @@ species("rogue_cultivator", plan="person.fighter", share=True, size=1.0, shadow=
                              hat="none"),
                   race="human", energy="primal_qi", width=18, height=90, guards=True))
 
-# The Drowned Abbot, the shrine's boss: the acolytes' master in their pallor, his long hair loose, a staff; his tell is the
-# staff raised over his head (held) and brought down on the bell's shockwave (and the same tell calls his ghosts).
-species("drowned_abbot", plan="person.brute", share=True, size=1.07, elite=False, shadow=(9, 3), cycle=12.0,
+# The Drowned Abbot, the shrine's boss (M2: sculpted, a boss of his own build, not the shared figure body his acolytes are
+# cast in): tall and gaunt and stooped, pale with the river, a waterlogged robe to the floor with weed hanging off its hem
+# and wide sleeves, a faded kasaya across it, long white hair loose from under a wide conical straw hat dripping, eyes
+# glowing cold under its brim, prayer beads round his neck; a monk's ringed staff with a drowned bronze bell hung under
+# its loop. His tell is the staff raised high in his right hand, its bell over his hat, his left hand raised in prayer (held),
+# struck down on the floor in both hands as the bell tolls its shockwave round him (and the same tell calls his ghosts);
+# beaten, he collapses into a heap of wet robes.
+species("drowned_abbot", plan="humanoid.abbot", share=True, size=2.3, elite=False, shadow=(11, 4), cycle=11.0, view=True,
+        palette=["drowned_skin", "abbot_hair", "abbot_robe", "abbot_kasaya", "abbot_hat", "abbot_dark", "abbot_bell", "abbot_patina", "weed",
+                 "halberd_shaft", "maw"],
         data=dict(level=27, role="dungeon_boss", element="water", page=None, drops=[("riverbreath_scroll", 1.0)],
                   attacks=[("bell_shockwave", 0.7, 180, 1.2, dict(depth=70, both_sides=True, knockback=80)),
                            ("summon_ghosts", 1.2, 0, 0.0, dict(summon="paper_talisman_ghost"))], ai="boss_abbot",
