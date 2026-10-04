@@ -19,3 +19,26 @@ species("pirate_gunner", plan="person.thrower", share=True, size=1.0, shadow=(8,
                   art=person("Pirate Gunner", hair="ponytail", hair_color=3, shirt="vneck", pants="cuffed", shoes="boots", weapon="none",
                              hat="headband", shirt_dye="ochre", pants_dye="ink"),
                   race="human", energy="sage_qi", width=18, height=90, pack=True))
+
+# M4. Admiral Voss (the Flagship Deck's boss): tall, lean and imperious, a long indigo greatcoat to his knees trimmed and
+# buttoned in gold with gold epaulettes, a black cape, ink trousers in tall black boots, a black lacquered official's hat
+# whose long wings stand out to both sides, his black hair tied back, a thin drooping moustache; a starsteel sabre of pale
+# blue light in his right hand, a brass hand cannon with a dragon's mouth in his left. His tell is the cannon levelled
+# at you as its fuse sparks and the sabre is drawn back (held: his broadside's too), and he fires as he cuts.
+species("admiral_voss", plan="humanoid.admiral", share=True, size=2.5, elite=False, shadow=(12, 4), cycle=11.0, view=True,
+        canvas=(170, 160),
+        palette=["folk_skin", "adm_coat", "adm_gold", "adm_trousers", "adm_boot", "adm_cape", "adm_hat", "adm_hair", "starsteel", "adm_brass",
+                 "halberd_shaft", "maw"],
+        data=dict(level=90, role="dungeon_boss", element="metal", page="lantern",
+                  drops=[("admirals_seal", 1.0), ("comet_iron", 1.0, (3, 5)), ("star_shard", 1.0, (12, 18)), ("star_powder", 1.0, (2, 4)),
+                         ("will_tempering_pill", 1.0, (1, 2))],
+                  attacks=[("starsteel_cutlass", 0.5, 120, 1.35, dict(depth=50, knockback=90)),
+                           ("broadside", 1.2, 420, 1.5, dict(depth=90, damage_type="qi", projectile={"speed": 360, "art": "pebble"})),
+                           ("all_hands", 1.0, 0, 0.0, dict(summon="starsea_pirate"))],
+                  ai="duelist",
+                  art=person("Admiral Voss", hair="long_tied", hair_color=0, shirt="vneck", pants="martial", shoes="boots", weapon="sword",
+                             hat="guan", shirt_dye="indigo", pants_dye="ink", cape="solid"),
+                  race="human", energy="sage_qi", width=20, height=96, name="Admiral Voss",
+                  hp_mult=1.6, attack_mult=0.9, presence=4,
+                  phases=[{"below": 0.6, "action": "summon", "summon": "pirate_gunner", "summon_level": 88},
+                          {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]))

@@ -766,3 +766,84 @@ GOLEM_PULL_LIGHT = c("A184FF", 220)
 GOLEM_NOTCH = c("FFE6A1")
 GOLEM_SHOCK = c("8A74EA", 200)
 GOLEM_SHOCK_HI = c("FBF6FF", 230)
+# ------------------------------------------------------------------------------------------- M4, the people of size
+# They have no side-view sheet of their own (their side view is the avatar in their row's outfit), so their colours
+# come from it: the side view's garment dyes (tools/art/bake_dyes.py: crimson, indigo, ink, white), hair colours and
+# the figure's skin, gold and cloth (figure/palettes.py), the Ashborn's and the Trial Hall's tints.
+RAMPS.update({
+    # Comet Captain Rao: a crimson coat, a pale linen shirt, ink trousers, a leather belt, dark boots, a tattered cape of
+    # the comet sails' dark navy, ash-black hair, a jade headband; his anchor's blue-black comet iron
+    "capt_coat": _r("3E0E18", "6A1A28", "9C2A36", "C4483E", "E77A68"),
+    "capt_shirt": _r("8E8670", "B8AE92", "DCD3B8", "F0EAD6", "FBF8EE"),
+    "capt_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "capt_belt": _r("2E1C10", "4E3220", "6E4A2C", "8E6640", "B08A5C"),
+    "capt_boot": _r("161210", "2A2018", "3E3024", "58463A", "78665A"),
+    "capt_cape": _r("0E1018", "171A26", "222638", "30364C", "465068"),
+    "capt_hair": _r("111419", "1A1E24", "262B33", "353B45", "4B525E"),
+    "capt_band": _r("023A36", "04525A", "02645F", "2A8A80", "58B0A4"),
+    "comet_iron": _r("10141E", "1E2636", "2E3A52", "4A5E80", "8AA8D0"),
+    # Admiral Voss: an indigo greatcoat, gold, ink trousers, black boots, a black cape and a black lacquered winged hat,
+    # raven hair; his sabre's starsteel and his cannon's brass
+    "adm_coat": _r("0C1030", "1A2258", "2C3C86", "4A62B0", "7E9AD8"),
+    "adm_gold": _r("6E4A1C", "A8772F", "D1A64D", "E5B84C", "FFE6A1"),
+    "adm_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "adm_boot": _r("0C0C10", "16171D", "22242C", "343844", "505666"),
+    "adm_cape": _r("0A0A0E", "14141A", "202028", "2E2E3A", "464656"),
+    "adm_hat": _r("08080C", "121218", "1C1C26", "2C2C3A", "484A5E"),
+    "adm_hair": _r("1B1F25", "2A2E37", "3D424E", "565C6A", "7A8291"),
+    "starsteel": _r("3A5A8A", "6A90C4", "A8C8EE", "D6E8FF", "F6FBFF"),
+    "adm_brass": _r("3A2810", "6A4A1C", "A07830", "D0A850", "F2DC90"),
+    # General Kharn: the Ashborn's ash-grey skin, crimson lamellae and cape, dark iron, ink trousers, raven hair, a crimson
+    # plume; the Cinder Glaive's dark blade
+    "ash_skin": _r("4A3A3A", "6E5C58", "95807A", "B8A49C", "D6C6BE"),
+    "gen_crimson": _r("2A0B12", "5E1624", "9C2A36", "C4483E", "E77A68"),
+    "gen_plate": _r("16161C", "26262E", "3C3C46", "5C5E6A", "8A8C98"),
+    "gen_iron": _r("101014", "1C1C22", "2C2C34", "464852", "6C707C"),
+    "gen_trousers": _r("0B0D12", "1D222C", "353D4A", "5F6878", "8A93A3"),
+    "gen_hair": _r("1B1F25", "2A2E37", "3D424E", "565C6A", "7A8291"),
+    "gen_plume": _r("4A0A10", "7E1420", "B8202C", "E04A3E", "FF8A6E"),
+    "cinder_blade": _r("16141A", "2A262E", "463E46", "6E6268", "A8969A"),
+    # the Ninth Presence: the Trial Hall's violet over its skin, its white robe, its white hair, gold trim, a violet sash, a
+    # violet cape, its staff's white jade, its guan's jade
+    "pres_skin": _r("3A2C6A", "584896", "7A6AC0", "A090DC", "C8BCF2"),
+    "pres_robe": _r("6A6490", "9C96C0", "CCC6E6", "EAE6F8", "FFFFFF"),
+    "pres_hair": _r("8A86B0", "B4B0D6", "DCDAF0", "F2F0FA", "FFFFFF"),
+    "pres_gold": _r("6E4A1C", "A8772F", "D1A64D", "E5B84C", "FFE6A1"),
+    "pres_sash": _r("2A1850", "3E2878", "5A3CA8", "7E5CD0", "AA8CF0"),
+    "pres_cape": _r("2A1E50", "3E2E70", "5A4696", "7A66B8", "A090D8"),
+    "pres_jade": _r("4A7A70", "7AB0A0", "B4E0D0", "DDF6EC", "F6FFFB"),
+    "pres_cap": _r("0E4A42", "125E56", "2C9E8F", "5CC4B0", "8AE6CC"),
+})
+PROPS.update({
+    "capt_coat": {"hi": True}, "capt_shirt": {"hi": True}, "capt_trousers": {"hi": True}, "capt_belt": {"hi": True, "weight": 1.3},
+    "capt_boot": {"hi": True, "weight": 1.3}, "capt_cape": {"hi": True}, "capt_hair": {"hi": True, "weight": 1.3},
+    "capt_band": {"hi": True, "weight": 1.3}, "comet_iron": {"hi": True, "glossy": True, "weight": 1.4},
+    "adm_coat": {"hi": True}, "adm_gold": {"hi": True, "glossy": True, "weight": 1.4}, "adm_trousers": {"hi": True},
+    "adm_boot": {"hi": True, "glossy": True, "weight": 1.3}, "adm_cape": {"hi": True}, "adm_hat": {"hi": True, "glossy": True, "weight": 1.3},
+    "adm_hair": {"hi": True, "weight": 1.3}, "starsteel": {"hi": True, "glossy": True, "line": True, "weight": 1.5},
+    "adm_brass": {"hi": True, "glossy": True, "weight": 1.4},
+    "ash_skin": {"hi": True}, "gen_crimson": {"hi": True}, "gen_iron": {"hi": True, "glossy": True, "weight": 1.3}, "gen_plate": {"hi": True, "glossy": True}, "gen_trousers": {"hi": True},
+    "gen_hair": {"hi": True, "weight": 1.3}, "gen_plume": {"hi": True, "weight": 1.3}, "cinder_blade": {"hi": True, "glossy": True, "weight": 1.5},
+    "pres_skin": {"hi": True}, "pres_robe": {"hi": True}, "pres_hair": {"hi": True, "weight": 1.2}, "pres_gold": {"hi": True, "glossy": True, "weight": 1.3},
+    "pres_sash": {"hi": True, "weight": 1.2}, "pres_cape": {"hi": True}, "pres_jade": {"hi": True, "glossy": True, "line": True, "weight": 1.4},
+    "pres_cap": {"hi": True, "glossy": True, "weight": 1.3},
+})
+# Rao's scar and his anchor's comet fire; Voss's starsteel light and his cannon's smoke; Kharn's ember cracks; the
+# Presence's mist, its nine lights and the gold ring they stand on, its eyes.
+SCAR = c("8A4A40")
+COMET_BLUE = c("7FD4FF")
+COMET_BLUE_HI = c("E6FAFF")
+STARSTEEL = c("BFE4FF")
+STARSTEEL_HI = c("F4FBFF")
+SMOKE = c("B8B4AE", 200)
+SMOKE_DIM = c("8A8680", 150)
+EMBER_CRACK = c("FF8A3A")
+EMBER_CRACK_HI = c("FFD27A")
+PRES_MIST = c("D8D0FF", 170)
+PRES_MIST_DIM = c("A89CE0", 120)
+PRES_LIGHT = c("C8B4FF")
+PRES_LIGHT_HI = c("FFFFFF")
+PRES_RING = c("E8C46A", 200)
+PRES_EYE = c("FFF6D0")
+PRES_EYE_DIM = c("C8A0FF")
+PRES_GLOW = c("E0C8FF", 150)

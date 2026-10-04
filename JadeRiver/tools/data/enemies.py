@@ -139,25 +139,16 @@ HUMAN = {
                         "shirt_dye": "earth", "pants_dye": "earth"},
     "canyon_brigand": {"hair": "ponytail", "hair_color": 3, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "dagger", "hat": "weimao",
                        "shirt_dye": "ochre", "pants_dye": "earth"},
-    # Phase E · the Starsea: pirates of the comet sails, deserters of the Alliance, and the Trial Hall's phantoms.
-    "pirate_captain": {"hair": "long_tied", "hair_color": 5, "shirt": "vneck", "pants": "cuffed", "shoes": "boots", "weapon": "sword", "hat": "headband",
-                       "shirt_dye": "crimson", "pants_dye": "ink", "cape": "tattered"},
-    # v1.2 · Blackmast Haven: the Admiral's gunners (bombs from a bandolier) and the Admiral himself.
-    "admiral_voss": {"hair": "long_tied", "hair_color": 0, "shirt": "vneck", "pants": "martial", "shoes": "boots", "weapon": "sword", "hat": "guan",
-                     "shirt_dye": "indigo", "pants_dye": "ink", "cape": "solid"},
-    # v1.2 Phase D · the Ashborn of the Ashen Reach: ash-grey skin (the tint), crimson and ochre cloth, glaives and staves.
-    "general_kharn": {"hair": "long_tied", "hair_color": 0, "shirt": "cardigan", "pants": "martial", "shoes": "boots", "weapon": "spear",
-                      "hat": "guan", "shirt_dye": "crimson", "pants_dye": "ink", "cape": "solid", "tint": "#caa294"},
-    "ninth_presence": {"hair": "flowing", "hair_color": 1, "shirt": "scholar", "pants": "scholar", "shoes": "folded", "weapon": "staff", "hat": "guan",
-                       "shirt_dye": "white", "pants_dye": "white", "cape": "solid", "tint": "#d9ccff"},
+    # M4: the Starsea's pirates, deserters and Trial Hall phantoms, Blackmast's gunners and Admiral, and the Ashborn are
+    # monster engine species now: their outfits are their specs' person() (tools/content/monsters/specs).
 }
 NAMES = {"kuai_shan": "Kuai Shan", "tan_the_younger": "Tan the Younger", "gorge_chief": "Chief Yan Bo",
          "mudwater_cutthroat": "Mudwater Cutthroat", "gorge_stalker": "Gorge Stalker", "gu_enforcer": "Gu Family Enforcer",
          "one_eye_pang": "One-Eye Pang", "ferryman_lou": "Ferryman Lou", "knife_hand_sui": "Knife-Hand Sui",
          "duel_lan_yue": "Lan Yue", "duel_tie_niu": "Tie Niu", "duel_qiu_feng": "Qiu Feng", "duel_bai_ling": "Bai Ling",
          "young_master": "Young Master Luo Heng", "jealous_senior": "Senior Brother Hao Qian", "cloud_first_disciple": "Yun Zhiqiu", "jade_first_disciple": "Bai Yuheng",
-         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen", "pirate_captain": "Comet Captain Rao",
-         "ninth_presence": "The Ninth Presence", "ironpine_disciple": "Ironpine Disciple", "admiral_voss": "Admiral Voss", "ironpine_warden": "Warden Dai Song",
+         "iron_crane_guo": "\"Iron Crane\" Guo Ming", "hua_guard_captain": "Captain Lou Chen",
+         "ironpine_disciple": "Ironpine Disciple", "ironpine_warden": "Warden Dai Song",
          "blackreed_disciple": "Blackreed Disciple", "blackreed_warden": "Warden Qu Heng", "scarlet_kiln_disciple": "Scarlet Kiln Disciple",
          "scarlet_kiln_warden": "Warden Rong Yan"}
 
@@ -334,15 +325,7 @@ def build():
         # Act II · Phase E: the Skyport Wreck and the Starsea.
         spec_row("starsea_pirate"),
         spec_row("nine_peaks_disciple"),
-        mob("pirate_captain", 80, "story_boss", "metal", None, [d("comet_iron", 1.0, (3, 5)), d("storm_shard", 1.0, (10, 15)),
-                                                               d("will_tempering_pill", 1.0, (1, 2))],
-            [atk("comet_cleave", 0.6, 130, 1.4, depth=50, knockback=110), atk("anchor_throw", 0.9, 330, 1.25, projectile={"speed": 520, "art": "pebble"}),
-             atk("boarding_call", 1.0, 0, 0.0, summon="starsea_pirate")],
-            ai="duelist", art=human("pirate_captain"), race="human", energy="sage_qi", width=20, height=94, name="Comet Captain Rao",
-            hp_mult=1.5, attack_mult=0.9, phases=[{"below": 0.4, "action": "enrage", "cooldown": 0.7, "damage": 1.25},
-                                                  # S48: cornered, the Captain burns his nascent soul (a telegraphed blast).
-                                                  {"below": 0.12, "action": "self_detonate", "windup": 3.0, "radius": 280, "damage": 0.6}],
-            first_defeat=["comet_tail_flame"]),
+        spec_row("pirate_captain"),
         # v1.2 · the Lantern Star Field (Act III, docs/act3_design.md) · Phase A: the Drifting Shoals.
         spec_row("star_jellyfish"),
         spec_row("comet_sparrow"),
@@ -350,15 +333,7 @@ def build():
         spec_row("pirate_gunner"),
         spec_row("nest_guardian"),
         spec_row("hollowed_wyrmling"),
-        mob("admiral_voss", 90, "dungeon_boss", "metal", "lantern", [d("admirals_seal", 1.0), d("comet_iron", 1.0, (3, 5)), d("star_shard", 1.0, (12, 18)),
-                                                                  d("star_powder", 1.0, (2, 4)), d("will_tempering_pill", 1.0, (1, 2))],
-            [atk("starsteel_cutlass", 0.5, 120, 1.35, depth=50, knockback=90),
-             atk("broadside", 1.2, 420, 1.5, depth=90, damage_type="qi", projectile={"speed": 360, "art": "pebble"}),
-             atk("all_hands", 1.0, 0, 0.0, summon="starsea_pirate")],
-            ai="duelist", art=human("admiral_voss"), race="human", energy="sage_qi", width=20, height=96, name="Admiral Voss",
-            hp_mult=1.6, attack_mult=0.9, presence=4,
-            phases=[{"below": 0.6, "action": "summon", "summon": "pirate_gunner", "summon_level": 88},
-                    {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
+        spec_row("admiral_voss"),
         # v1.2 · Phase C: the Orbit Ruins.
         spec_row("gravity_golem"),
         spec_row("orbit_moth"),
@@ -368,18 +343,7 @@ def build():
         spec_row("hollow_drone"),
         # General Kharn: an enemy, not a villain. At a fifth of his health he kneels: spare him (the Ashborn remember it) or
         # finish him.
-        mob("general_kharn", 92, "dungeon_boss", "fire", "lantern", [d("kharns_glaive_shard", 1.0), d("pyre_ember", 1.0, (2, 3)), d("star_shard", 1.0, (14, 20)),
-                                                                   d("cinder_ash", 1.0, (4, 6)), d("will_tempering_pill", 1.0, (1, 2))],
-            [atk("cinder_glaive", 0.55, 130, 1.4, depth=50, knockback=90),
-             atk("leaping_cleave", 1.0, 200, 1.6, depth=60, dash=240, knockback=120,
-                 ground_fire={"radius": 80, "duration_s": 5, "pct_per_s": 0.03}),
-             atk("pyre_rings", 1.4, 60, 0.6, depth=90, both_sides=True, damage_type="qi",
-                 ground_fire={"radius": 70, "duration_s": 7, "pct_per_s": 0.03, "ring": [-300, -150, 150, 300]})],
-            ai="duelist", art=human("general_kharn"), race="ashborn", energy="sage_qi", width=20, height=98, name="General Kharn",
-            hp_mult=1.7, attack_mult=0.9, presence=4, sphere={"element": "fire", "tier": 4}, faction="ashborn", named=True,
-            surrenders=True, spare_debt="kharn_spared", kill_debt="kharn_slain",
-            phases=[{"below": 0.6, "action": "summon", "summon": "ashborn_pyre_keeper", "summon_level": 91},
-                    {"below": 0.3, "action": "enrage", "cooldown": 0.7, "damage": 1.3}]),
+        spec_row("general_kharn"),
         # v1.2 · Phase E: the Nebula Deep. Eels swim the nebula (flyers); Void Crabs blink through their shells.
         spec_row("nebula_eel"),
         spec_row("void_crab"),
@@ -391,11 +355,7 @@ def build():
             ai="duelist", art=human("shen_lian"), race="human", energy="sage_qi", width=18, height=90, spar=True, name="Shen Lian",
             presence=3, sphere={"element": "sword", "tier": 3}),
         spec_row("presence_phantom"),
-        mob("ninth_presence", 81, "normal", "none", None, [], [atk("ninth_seat_palm", 0.7, 120, 1.3, damage_type="qi", depth=50, knockback=100),
-                                                              atk("crown_of_nine", 1.1, 240, 1.2, damage_type="soul", depth=90, both_sides=True,
-                                                                  status={"id": "slow", "chance": 0.6, "power": 0.3, "duration_s": 3})],
-            ai="duelist", art=human("ninth_presence"), race="human", energy="sage_qi", width=20, height=96, name="The Ninth Presence",
-            hp_mult=12.0, attack_mult=1.2),
+        spec_row("ninth_presence"),
         mob("alliance_champion", 72, "trial", "metal", None, [], [atk("peak_thrust", 0.45, 110, 1.2, depth=30),
                                                                  atk("nine_step_sweep", 0.7, 150, 1.3, depth=50, knockback=90)],
             ai="duelist", art=human("alliance_champion"), race="human", width=18, height=90, spar=True),
