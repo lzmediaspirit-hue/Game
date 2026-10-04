@@ -22,6 +22,7 @@ species("orbit_moth", plan="insect.moth", share=True, size=2.6,
 # fists down, a shockwave racing out along the ground; beaten, gravity fails and its blocks drop into a heap.
 species("gravity_golem", plan="humanoid.golem", share=True, size=3.0,
         palette=["grav_basalt", "grav_ring", "grav_sing"], accents=("grav_sing",), shadow=(16, 5), cycle=12.0, view=True,
+        canvas=(172, 150),
         data=dict(level=(88, 93), role="normal", element="earth", page="lantern",
                   drops=[("gravity_core", 0.4), ("star_shard", 0.6, (1, 3)), ("orbit_stone_chip", 0.35)],
                   attacks=[("gravity_well", 1.0, 260, 0.6, dict(depth=90, damage_type="qi", pull=150, both_sides=True)),

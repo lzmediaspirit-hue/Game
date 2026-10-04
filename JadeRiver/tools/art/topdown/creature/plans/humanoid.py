@@ -1840,7 +1840,7 @@ def _golem(B, action: str, f: int, view: float) -> Pose:
     shock = B.pick("shock", action, f)
     if shock > 0.0:
         cx = (fists[0][0] + fists[1][0]) * 0.5
-        rr = 3.0 + 4.0 * shock
+        rr = 3.0 + 2.7 * shock
         for k in range(36):
             ang = math.radians(k * 10.0 + shock * 11.0)
             for dd, col in ((0.0, M.GOLEM_SHOCK_HI), (1.0, M.GOLEM_SHOCK)):
@@ -1922,7 +1922,7 @@ M4_FOLK_STYLES = {
                      "left": ((2.6, 0.8, 0.6), (1.6, 0.4, 3.8), (0.8, 0.2, 5.4), (0.6, 0.2, 5.8)),
                      "glaive": ((-0.3, -0.1, 0.95), (-0.7, 0.0, 0.7), (-0.95, 0.0, 0.32), (-1.0, 0.0, 0.18))},
     "glaive_cleave": {"lean": (-14.0, 16.0, 18.0, 10.0, 4.0, 0.0), "step": (0.8, 3.2, 3.4, 2.6, 1.2, 0.4), "sink": (-0.8, 1.6, 1.6, 0.8, 0.2, 0.0),
-                      "plant": True, "roar": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "flame": (1.0, 1.0, 0.6, 0.3, 0.0, 0.0), "fire": (0.0, 1.0, 1.6, 2.2, 0.0, 0.0),
+                      "plant": True, "roar": (1.0, 1.0, 0.6, 0.2, 0.0, 0.0), "flame": (1.0, 1.0, 0.6, 0.3, 0.0, 0.0), "fire": (0.0, 1.0, 1.4, 1.8, 0.0, 0.0),
                       "squash": {1: (1.03, 1.04, 0.95)},
                       "right": ((0.2, -1.4, 6.6), (6.2, -0.6, -3.8), (6.2, -0.6, -4.0), (5.0, -1.6, -2.8), (3.6, -3.2, -1.6), (2.6, -4.6, -0.8)),
                       "left": ((0.6, 0.2, 5.8), (4.6, 0.8, -2.6), (4.6, 0.8, -2.8), (3.6, 2.0, -3.0), (2.8, 3.6, -3.2), (2.4, 4.4, -3.4)),
@@ -2011,10 +2011,11 @@ ADMIRAL = {
     "m4": {"tails": {"top": 2.4, "hem": 4.0, "r": (2.4, 3.1), "lead": 0.3, "split": 0.6, "trim": 0.5},
            "cape": {"top": 6.6, "bottom": 3.0, "back": 2.4, "r": (2.9, 3.4)}, "hat": "winged", "epaulettes": (0.0, 3.4, 6.3), "buttons": 5},
 }
-# General Kharn (`general`): the Ashborn's general, massive, his ash-grey skin cracked with embers: crimson lamellar armour
-# over his chest and arms with dark iron plates and great iron pauldrons, a crimson cape, dark trousers in iron-shod boots,
-# a war helm of dark iron with cheek guards and a tall crimson plume, his black hair tied back, a full black beard; the
-# Cinder Glaive, a great guandao taller than he is, its curved blade glowing with embers along its edge.
+# General Kharn (`general`): the Ashborn's general, massive, his ash-grey skin cracked with embers: lamellar armour of dark
+# steel laced in crimson over his chest, arms and thighs (`lamellar` paint), great iron pauldrons, a crimson cape, dark
+# trousers in iron-shod boots, a war helm of dark iron with cheek guards and a crimson plume sweeping back, his black hair
+# tied back, a full black beard; the Cinder Glaive, a great guandao taller than he is, its curved blade glowing with
+# embers along its edge.
 GENERAL = {
     "hip": 8.2,
     "legs": {"top": (2.2, -0.6), "foot": (2.8, 1.0, 0.7), "bones": (4.2, 4.1), "thigh": (1.9, 1.65), "shin": (1.6, 1.4), "knee": None,
@@ -2327,15 +2328,13 @@ def _anchor(P, B, action: str, f: int, ends: dict, tm) -> None:
     """Comet Captain Rao's anchor of comet iron: a long shank in his right hand (a ring at its top, a stock across it), its
     crown and two curved flukes with spade palms at its far end, a chain from its ring to his left hand; over his shoulder
     at rest, raised high in both hands as comet fire runs along its flukes (`comet`), slammed down before him in a burst
-    of comet sparks and dust (`impact`); dropped beside him as he falls."""
+    of comet sparks and dust (`impact`); still in his hand, lying along him, as he falls."""
     h, m, st = B.parts.prop, B.mats, B.style(action)
     hand = ends[-1]
     d = v3(B.pick("anchor", action, f, (-0.62, -0.25, 0.74)))
     d = tm @ (d / float(np.linalg.norm(d)))
     if action == "death" and f >= 3:
-        hand = v3(hand[0] + 1.0, hand[1] - 2.2, 0.5)
-        d = v3(0.85, -0.5, 0.0)
-        d = d / float(np.linalg.norm(d))
+        d = _u(v3(0.25, 0.0, 1.0))      # held upright beside him as he topples, to lie along him (_finish rolls the pose)
     side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
     if float(np.linalg.norm(side)) < 0.25:
         side = np.cross(d, v3(0.0, 0.0, 1.0))
@@ -2382,7 +2381,7 @@ def _anchor(P, B, action: str, f: int, ends: dict, tm) -> None:
     if action == "attack" and f in st.get("impact", ()):
         k0 = f - min(st.get("impact", (1,)))
         foot = v3(crown[0], crown[1], 0.3)
-        rr = 2.6 + 2.4 * k0
+        rr = 2.6 + 1.9 * k0
         for k in range(24):
             ang = math.radians(k * 15.0 + f * 9.0)
             P.fx.append((foot + v3(math.cos(ang) * rr, math.sin(ang) * rr * 0.95, 0.2 + 0.4 * (k % 3 == 0)), M.DUST if k % 2 else M.DUST_DIM))
@@ -2406,8 +2405,7 @@ def _sabre_cannon(P, B, action: str, f: int, ends: dict, tm) -> None:
     d = v3(B.pick("sabre", action, f, (0.45, -0.25, -0.86)))
     d = tm @ (d / float(np.linalg.norm(d)))
     if action == "death" and f >= 3:
-        rh = v3(rh[0] + 1.4, rh[1] - 2.0, 0.4)
-        d = _u(v3(0.8, -0.6, 0.0))
+        d = _u(v3(0.3, 0.0, -1.0))      # down along his legs as he topples, to lie along him (_finish rolls the pose)
     side = np.cross(d, v3(0.0, 0.0, 1.0))
     if float(np.linalg.norm(side)) < 0.2:
         side = np.cross(d, tm @ v3(1.0, 0.0, 0.0))
@@ -2430,8 +2428,7 @@ def _sabre_cannon(P, B, action: str, f: int, ends: dict, tm) -> None:
     b = v3(B.pick("cannon", action, f, (0.8, 0.2, -0.55)))
     b = tm @ (b / float(np.linalg.norm(b)))
     if action == "death" and f >= 3:
-        lh = v3(lh[0] - 1.0, lh[1] + 2.2, 0.4)
-        b = _u(v3(0.4, 0.9, 0.0))
+        b = _u(v3(0.5, 0.0, -1.0))
     breech = lh - b * 0.9
     muzzle = lh + b * h.barrel
     P.add(L(breech, muzzle, 0.55, 0.5, m.brass, "cannon"), S(breech, 0.62, m.brass, "cannon"))
@@ -2478,8 +2475,7 @@ def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
     d = v3(B.pick("glaive", action, f, (0.08, -0.05, 1.0)))
     d = tm @ (d / float(np.linalg.norm(d)))
     if action == "death" and f >= 3:
-        hand = v3(hand[0] + 1.6, hand[1] - 2.4, 0.4)
-        d = _u(v3(0.9, -0.45, 0.0))
+        d = _u(v3(0.25, 0.0, 1.0))      # held upright beside him as he topples, to lie along him (_finish rolls the pose)
     butt = hand - d * h.below
     head = hand + d * h.above
     P.add(L(butt, head, h.r, h.r, m.shaft, "pole"))
@@ -2519,8 +2515,8 @@ def _glaive(P, B, action: str, f: int, ends: dict, tm) -> None:
     if fire > 0.0:
         # The ground alight where it lands: a ring of flame tongues spreading out.
         c = v3(head[0] + d[0] * bl * 0.5, head[1] + d[1] * bl * 0.5, 0.3)
-        rr = 2.0 + 2.6 * fire
-        tall = 3.4 * (2.6 - fire) / 2.6 + 0.8
+        rr = 2.0 + 2.2 * fire
+        tall = 3.4 * (2.2 - fire) / 2.2 + 0.8
         for k in range(16):
             ang = math.radians(k * 22.5 + fire * 17.0)
             q = c + v3(math.cos(ang) * rr, math.sin(ang) * rr * 0.95, 0.2)

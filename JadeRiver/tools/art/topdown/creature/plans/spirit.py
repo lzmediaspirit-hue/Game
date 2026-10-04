@@ -16,6 +16,11 @@ The motion styles (STYLES): idle `hover`, walk `drift`, windup `fan`, attack `fl
 `come_apart`. Channels: `lunge`, `bob`, `tilt` (leaning: - forward), `flutter` (its amplitude), `trail` (the strips
 streaming back), `fan` (the arm bundles, 0..1), `fling` (the near bundle's swing, degrees), `glow` (the eyes'), `scatter`
 (the strips flying apart as it dies).
+
+`jelly` (M4, the star jellyfish): no hood, strips or arms but a bell (`bell`: a translucent dome over a flat underside,
+radial canals, a frill round its rim, a star glowing at its crown), trailing tentacles and oral arms that sway as it
+drifts and pulses: see "the star jellyfish" below. Its styles: idle `pulse_drift`, walk `pulse_swim`, windup
+`clench_glow`, attack `lash_sting`, hurt `dent_flicker`, death `deflate_sink`.
 """
 from __future__ import annotations
 
