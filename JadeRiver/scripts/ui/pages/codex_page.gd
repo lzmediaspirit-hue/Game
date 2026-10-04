@@ -366,8 +366,8 @@ func _beast(e: Dictionary, at: Vector2) -> void:
 	for gx in range(16, 188, 16): draw_rect(Rect2(spec.position.x + gx, spec.position.y, 1, spec.size.y), Color(UiKit.JADE_SHADOW, 0.12))
 	for gy in range(16, 132, 16): draw_rect(Rect2(spec.position.x, spec.position.y + gy, spec.size.x, 1), Color(UiKit.JADE_SHADOW, 0.12))
 	draw_rect(spec.grow(-4), Color(INK, 0.45), false, 1.0)
-	var art = e.get("art", {})
-	var cid := str(art.get("creature", "")) if art is Dictionary else ""
+	# The beast as the room draws it: its species' top-down sheet (S12b), a person's too where it has one.
+	var cid := str(e.get("id", ""))
 	var fig := Rect2(spec.position + Vector2(12, 8), spec.size - Vector2(24, 30))
 	if cid == "" or not creature_at(fig, cid, "idle", Color.WHITE if met else Color(INK, 0.28)):
 		if met: icon_at(Rect2(spec.get_center() - Vector2(32, 40), Vector2(64, 64)), str(e.get("loot_icon", "boss_skull")))

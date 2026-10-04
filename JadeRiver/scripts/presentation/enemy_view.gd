@@ -1,16 +1,12 @@
 class_name EnemyView
 extends Node2D
-## Presentation of one EnemyState (monsters, bosses, spar opponents, pets and companions). Reads state every frame;
-## never changes it. Two modes, one per use the top-down room makes of it:
-##   - the label over the figure the room draws (level, name, HP bar, the tell, statuses; TopdownWorld);
-##   - `art_only`: the stand-in figure of a creature whose species has no top-down sheet yet (TopdownPlaces.stand_in):
-##     its side-view creature sheet (CreatureSprite, art/creatures), its action, facing and flash, placed and shadowed
-##     by the room's FoeView. S12b deletes this mode once every species has its sheet.
+## Presentation of one EnemyState (monsters, bosses, spar opponents, pets and companions): the label over the figure the
+## top-down room draws (level, name, HP bar, the tell, statuses; TopdownWorld, on its overlay). Reads state every
+## frame; never changes it. (Its other mode, the stand-in figure of a creature from the side view's creature sheets,
+## went with them in S12b: every species the game spawns has its top-down sheet, drawn by TopdownWorld.FoeView.)
 
 
 var uid := 0
-var sprite: CreatureSprite
-var last_action := ""
 var hp_timer := 0.0
 var name_text := ""
 var badge := "white"
@@ -20,18 +16,13 @@ var boss := false
 var ally := false
 var flying := false
 var tell := 0.0
-var burrowed := false   # a burrower travelling under the ground: only its mound shows
-var t := 0.0
+var burrowed := false   # a burrower travelling under the ground: its label hides with it
 ## P5a (G4): the label's box in local coordinates at no offset, its kind for the layout pass (WorldLabels), and the
 ## offset in whole rows the layout pass gives it so no two labels touch.
 var label_box := Rect2()
 var label_kind := "foe"
 var label_offset := Vector2.ZERO
 var tag: Node2D   # the label's own canvas item, above every figure (WorldLabels.LABEL_Z)
-## Redesign Phase 4: only the figure (the creature sheet, its action, facing, flash and an ally's blink), no label and
-## no shadow: the top-down room's stand-in for a spirit animal or a foe its foe sheet does not draw
-## (TopdownPlaces.stand_in), placed and shadowed by the room's FoeView at half size.
-var art_only := false
 ## The top-down field stays clean (the prototype's QA, docs/redesign/prototype_qa.md): a foe's full plate
 ## (level, rank, name) shows only for the target the thumb has (`focused`: the soft lock, or the foe an aim snaps to),
 ## a foe in a fight with the player (struck or aggroed, and ENGAGED_S after), and elites and bosses; every other foe
@@ -52,19 +43,8 @@ func setup(e: EnemyState) -> void:
 	flying = bool(e.def.get("flying", false))
 	label_kind = "ally" if ally else ("boss" if boss else ("elite" if elite else "foe"))
 	name_text = e.display_name()
-	var art: Dictionary = e.def.get("art", {"creature": e.def_id})
 	if e.def_id == "the_reflection": name_text = Tx.t("view.reflection")
-	if art_only:   # a person's stand-in is a Person (TopdownPlaces.stand_in); a creature's is its side-view sheet
-		sprite = CreatureSprite.new()
-		sprite.creature_id = str(art.get("creature", e.def_id))
-		sprite.fallback_size = Vector2(e.half_width() * 2.0, e.height())
-		sprite.fallback_color = SpriteCache.element_color(e.element).darkened(0.35)
-		add_child(sprite)
-		if e.def.get("hollow_tint", false): sprite.set_tint(Color(0.8, 0.85, 0.88))
-		# S46 form change: an animal at 90 purity stands larger in its lineage's colour.
-		if art.has("tint"): sprite.set_tint(Color(str(art.tint)))
-		if art.has("scale"): sprite.scale = Vector2.ONE * float(art.scale)
-	if not art_only: tag = WorldLabels.make_tag(self, _draw_tag)
+	tag = WorldLabels.make_tag(self, _draw_tag)
 	_update_badge(e)
 	sync(e, 0.0)
 
@@ -85,75 +65,17 @@ func _process(delta: float) -> void:
 	sync(e, delta)
 
 func sync(e: EnemyState, delta: float) -> void:
-	if not art_only:   # the stand-in is placed by the top-down room's FoeView
-		position = Vector2(e.plane.x, e.plane.y - e.altitude - e.hover).snapped(Vector2(2, 2))
-		z_index = 1500 + int(e.plane.y) + (40 if flying else 0)
+	position = Vector2(e.plane.x, e.plane.y - e.altitude - e.hover).snapped(Vector2(2, 2))
+	z_index = 1500 + int(e.plane.y) + (40 if flying else 0)
 	visible = not (e.hidden and not ally) or e.ai.state == "windup"
 	if e.hidden and ally: visible = false
-	# A burrower under the ground shows a travelling mound instead of vanishing (fog still hides the rest).
+	# A burrower under the ground: the room shows nothing of it, and its label hides with it.
 	burrowed = e.hidden and not ally and e.ai.state != "windup" and str(e.def.get("ai", {}).get("profile", "")) == "burrower" and e.alive
-	if burrowed: visible = true
-	if sprite: sprite.visible = not burrowed
-	t += delta
-	var action := e.action
-	if e.ai.state == "stagger": action = "hurt"
-	if e.flash > 0.0 and action in ["idle", "walk"]: action = "hurt"
-	if action != last_action:
-		last_action = action
-		if sprite: sprite.play(action, true)
-	if sprite:
-		sprite.facing = e.facing
-		sprite.set_flash(e.flash / 0.12 if e.flash > 0 else 0.0)
 	if e.flash > 0.0 or e.pools.hp < e.pools.max_hp: hp_timer = 4.0
 	hp_timer = maxf(0.0, hp_timer - delta)
 	engaged = ENGAGED_S if e.alive and (e.flash > 0.0 or e.in_fight()) else maxf(0.0, engaged - delta)
 	tell = 1.0 if e.ai.state == "windup" and not ally else maxf(0.0, tell - delta * 4.0)
-	if art_only: queue_redraw()   # a label draws nothing of its own (its label is `tag`'s)
 	if tag: tag.queue_redraw()
-
-## The hump of earth a burrower pushes up as it travels, with grains thrown back behind it.
-func _draw_mound(ground: Vector2, w: float) -> void:
-	var mat := str(Game.room_rt.def.get("ground", {}).get("material", "earth")) if Game.room_rt else "earth"
-	var lit: Color = Color("e2c48e") if mat == "sand" else Color("8a6a48")
-	var dark: Color = Color("a8804e") if mat == "sand" else Color("5a4230")
-	var r := maxf(18.0, w * 0.9)
-	var bob := sin(t * 10.0) * 1.5
-	var hump := PackedVector2Array()
-	for i in 13:
-		var a := PI * i / 12.0
-		hump.append((ground + Vector2(-cos(a) * r, -sin(a) * (10.0 + bob))).snapped(Vector2(2, 2)))
-	draw_colored_polygon(hump, dark)
-	var top := PackedVector2Array()
-	for i in 9:
-		var a := PI * (0.15 + 0.7 * i / 8.0)
-		top.append((ground + Vector2(-cos(a) * r * 0.7, -sin(a) * (8.0 + bob) - 1.0)).snapped(Vector2(2, 2)))
-	draw_polyline(top, lit, 2.0)
-	var back := -float(sign(e_facing())) if e_facing() != 0 else -1.0
-	for i in 5:
-		var life := fposmod(t * 2.2 + i * 0.21, 1.0)
-		var p := ground + Vector2(back * (r * 0.6 + life * 26.0), -6.0 - sin(life * PI) * 14.0)
-		draw_rect(Rect2(p.snapped(Vector2(2, 2)), Vector2(2, 2)), Color(lit, 1.0 - life))
-
-func e_facing() -> int:
-	var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
-	return e.facing if e else 1
-
-func _draw() -> void:
-	if not art_only: return
-	var rt: RoomRuntime = Game.room_rt
-	var e: EnemyState = rt.enemies.get(uid) if rt else null
-	if e == null: return
-	if burrowed:
-		_draw_mound(Vector2(0, e.altitude + e.hover - rt.topdown.floor_at(e.plane)), e.half_width())   # on the floor under it
-		return
-	if not e.alive or not visible: return
-	# S43 rule 12: an ally's blink to its owner arrives in a puff of mist.
-	var bt := float(e.ai.get("blink_t", 0.0)) if ally else 0.0
-	if bt > 0.0:
-		var k := bt / 0.5
-		for i in 6:
-			var a := TAU * float(i) / 6.0
-			draw_circle(Vector2(cos(a) * (18.0 + 16.0 * (1.0 - k)), -30.0 + sin(a) * 10.0), 9.0 * k + 3.0, Color(0.9, 0.97, 0.95, 0.55 * k))
 
 ## The label over the figure, drawn on `tag` above every figure in the room (P5a, G4): a foe's statuses, level and
 ## name, danger marks or crown and HP bar as one box at its own offset; a party member's thin HP line, only in a fight.

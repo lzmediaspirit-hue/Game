@@ -23,7 +23,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mudshell_crab` · Normal · Lv 1 · Water · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `mudshell_crab` ([art/creatures/mudshell_crab.png](../../art/creatures/mudshell_crab.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/mudshell_crab.png](../../art/topdown/foes/mudshell_crab.png), 39x43 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 1, up to 6, respawn 8s
 - **Level band**: Lv 1 in `enemies.json`
@@ -44,7 +44,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `wild_boarlet` · Normal · Lv 1–2 · Earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `wild_boarlet` ([art/creatures/wild_boarlet.png](../../art/creatures/wild_boarlet.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/wild_boarlet.png](../../art/topdown/foes/wild_boarlet.png), 48x41 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Willow Path › Willow Path East: Lv 1–2, up to 4, respawn 10s
   - Jade River Valley › Willow Path › Willow Path West: Lv 1, up to 1, respawn 180s; elite
@@ -67,7 +67,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mossback_toad` · Normal · Lv 2–3 · Wood · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `mossback_toad` ([art/creatures/mossback_toad.png](../../art/creatures/mossback_toad.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/mossback_toad.png](../../art/topdown/foes/mossback_toad.png), 64x52 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Willow Path › Willow Path West: Lv 2–3, up to 3, respawn 12s
 - **Also appears**: Account rules (collection seals) (enemy); Set pieces: Copper Body Trial (enemy)
@@ -88,7 +88,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `reedtail_rat` · Normal · Lv 2 · None · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `reedtail_rat` ([art/creatures/reedtail_rat.png](../../art/creatures/reedtail_rat.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/reedtail_rat.png](../../art/topdown/foes/reedtail_rat.png), 45x34 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 2, up to 4, respawn 20s
 - **Level band**: Lv 2 in `enemies.json`
@@ -107,7 +107,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `trial_puppet` · Trial · Lv 2 · None · construct · energy none
 
-- **Sheet**: creature sheet `trial_puppet` ([art/creatures/trial_puppet.png](../../art/creatures/trial_puppet.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/trial_puppet.png](../../art/topdown/foes/trial_puppet.png), 58x67 px cells, 6 actions)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Stoneford › Entry Trial (Cloud): Lv 2, up to 1, respawn 9999s; needs Flag set (flag trial_climbed)
   - Jade River Valley › Stoneford › Entry Trial (Jade): Lv 2, up to 1, respawn 9999s; needs Flag set (flag trial_climbed)
@@ -124,7 +124,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollowed_boarlet` · Normal · Lv 3–12 · Hollow earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `hollowed_boarlet` ([art/creatures/hollowed_boarlet.png](../../art/creatures/hollowed_boarlet.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollowed_boarlet.png](../../art/topdown/foes/hollowed_boarlet.png), 48x44 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–12, up to 4, respawn 12s
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–4, up to 3, respawn 8s; needs during The Humming Token or during Mei Qing's Errand
@@ -146,7 +146,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `old_snapper` · Elite · Lv 3 · Water · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `old_snapper` ([art/creatures/old_snapper.png](../../art/creatures/old_snapper.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/old_snapper.png](../../art/topdown/foes/old_snapper.png), 97x98 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Lotus Ferry › Reed Shallows: Lv 3, up to 1, respawn 180s; elite; mini boss; needs during Crab Trouble and Item owned (count 3, item crab_shell)
 - **Also appears**: Account rules (collection seals) (enemy)
@@ -165,7 +165,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `reed_frog` · Normal · Lv 3–6 · Wood · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `reed_frog` ([art/creatures/reed_frog.png](../../art/creatures/reed_frog.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/reed_frog.png](../../art/topdown/foes/reed_frog.png), 44x41 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–5, up to 3, respawn 12s
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 3–5, up to 2, respawn 12s
@@ -186,7 +186,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `marsh_leech` · Normal · Lv 4–7 · Water · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `marsh_leech` ([art/creatures/marsh_leech.png](../../art/creatures/marsh_leech.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/marsh_leech.png](../../art/topdown/foes/marsh_leech.png), 47x40 px cells, 7 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 4–5, up to 3, respawn 12s
   - Jade River Valley › Reed Marsh › Sunken Causeway: Lv 5–7, up to 4, respawn 12s
@@ -204,7 +204,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `pebble_imp` · Normal · Lv 4–6 · Earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `pebble_imp` ([art/creatures/pebble_imp.png](../../art/creatures/pebble_imp.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/pebble_imp.png](../../art/topdown/foes/pebble_imp.png), 38x43 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 4–6, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 1, 2
@@ -223,7 +223,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `rock_beetle` · Normal · Lv 4–5 · Earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `rock_beetle` ([art/creatures/rock_beetle.png](../../art/creatures/rock_beetle.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/rock_beetle.png](../../art/topdown/foes/rock_beetle.png), 40x37 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 4–5, up to 5, respawn 12s
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 5, up to 1, respawn 180s; elite
@@ -243,7 +243,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `ironclaw_mole` · Normal · Lv 5–7 · Earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `ironclaw_mole` ([art/creatures/ironclaw_mole.png](../../art/creatures/ironclaw_mole.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/ironclaw_mole.png](../../art/topdown/foes/ironclaw_mole.png), 47x41 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Stonewall Quarry › Collapsed Tunnel: Lv 6–7, up to 2, respawn 12s
   - Jade River Valley › Stonewall Quarry › Collapsed Tunnel: Lv 7, up to 1, respawn 180s; elite
@@ -264,7 +264,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `stone_tortoise` · Normal · Lv 5–7 · Earth · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `stone_tortoise` ([art/creatures/stone_tortoise.png](../../art/creatures/stone_tortoise.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/stone_tortoise.png](../../art/topdown/foes/stone_tortoise.png), 53x50 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 5–7, up to 3, respawn 12s
   - Jade River Valley › Stonewall Quarry › Lower Pit: Lv 7, up to 1, respawn 180s; elite
@@ -283,7 +283,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `greyfin` · Normal · Lv 7–11 · Hollow water · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `greyfin` ([art/creatures/greyfin.png](../../art/creatures/greyfin.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/greyfin.png](../../art/topdown/foes/greyfin.png), 38x34 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 7–11, up to 4, respawn 12s
   - Jade River Valley › Reed Marsh › Grey Pools: Lv 11, up to 1, respawn 180s; elite
@@ -303,7 +303,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `bamboo_monkey` · Normal · Lv 10–12 · Wood · beast · energy none · beast rank 2
 
-- **Sheet**: creature sheet `bamboo_monkey` ([art/creatures/bamboo_monkey.png](../../art/creatures/bamboo_monkey.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/bamboo_monkey.png](../../art/topdown/foes/bamboo_monkey.png), 37x39 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Bamboo Grove › Whispering Bamboo: Lv 10–12, up to 5, respawn 12s
   - Jade River Valley › Bamboo Grove › Whispering Bamboo: Lv 12, up to 1, respawn 180s; elite
@@ -323,7 +323,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `green_viper` · Normal · Lv 11–14 · Wood · beast · energy none · beast rank 2
 
-- **Sheet**: creature sheet `green_viper` ([art/creatures/green_viper.png](../../art/creatures/green_viper.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/green_viper.png](../../art/topdown/foes/green_viper.png), 63x42 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Bamboo Grove › Thicket Heart: Lv 12–14, up to 4, respawn 12s
   - Jade River Valley › Bamboo Grove › Thicket Heart: Lv 14, up to 1, respawn 180s; elite
@@ -345,7 +345,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `thornback_boar` · Elite · Lv 13–15 · Wood · beast · energy none · beast rank 2
 
-- **Sheet**: creature sheet `thornback_boar` ([art/creatures/thornback_boar.png](../../art/creatures/thornback_boar.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/thornback_boar.png](../../art/topdown/foes/thornback_boar.png), 65x56 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Bamboo Grove › Thicket Heart: Lv 13–15, up to 1, respawn 180s
 - **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floor 6; guards the herb patch in Thicket Heart (Bamboo Grove)
@@ -414,7 +414,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mud_hound` · Normal · Lv 16–20 · Earth · beast · energy none · beast rank 2
 
-- **Sheet**: creature sheet `mud_hound` ([art/creatures/mud_hound.png](../../art/creatures/mud_hound.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/mud_hound.png](../../art/topdown/foes/mud_hound.png), 55x47 px cells, 6 actions)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Mudwater Hideout › Stockade: Lv 16–18, up to 3, respawn 12s
   - Jade River Valley › Mudwater Hideout › Tunnels: Lv 16–20, up to 3, respawn 12s
@@ -435,7 +435,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `stone_guardian` · Normal · Lv 17–19 · Earth · construct · energy none
 
-- **Sheet**: creature sheet `stone_guardian` ([art/creatures/stone_guardian.png](../../art/creatures/stone_guardian.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/stone_guardian.png](../../art/topdown/foes/stone_guardian.png), 56x67 px cells, 6 actions)
 - **Spawns** (4 room spawns):
   - Jade River Valley › Cleansing Peak › Pilgrim Stairs: Lv 17–19, up to 3, respawn 12s
   - Jade River Valley › Cleansing Peak › Pilgrim Stairs: Lv 17–19, up to 1, respawn 30s
@@ -479,7 +479,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `ember_fox` · Normal · Lv 19–24 · Fire · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `ember_fox` ([art/creatures/ember_fox.png](../../art/creatures/ember_fox.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/ember_fox.png](../../art/topdown/foes/ember_fox.png), 49x41 px cells, 6 actions)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Bamboo Grove › Whispering Bamboo: Lv 19, up to 1, respawn 600s; wild pet; needs unlock Taming
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 22–24, up to 1, respawn 600s; wild pet; needs unlock Taming; while Riverbed Serpent lives
@@ -499,7 +499,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `jade_carp` · Normal · Lv 19–22 · Water · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `jade_carp` ([art/creatures/jade_carp.png](../../art/creatures/jade_carp.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/jade_carp.png](../../art/topdown/foes/jade_carp.png), 54x41 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 19–22, up to 4, respawn 12s
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 22, up to 1, respawn 180s; elite
@@ -520,7 +520,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `jade_crane_chick` · Normal · Lv 19–24 · Wind · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `jade_crane_chick` ([art/creatures/jade_crane_chick.png](../../art/creatures/jade_crane_chick.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/jade_crane_chick.png](../../art/topdown/foes/jade_crane_chick.png), 43x48 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Crane Falls › Falls Pool: Lv 19, up to 1, respawn 600s; wild pet; needs unlock Taming
 - **Level band**: Lv 19–24 in `enemies.json`
@@ -557,7 +557,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `reed_otter` · Normal · Lv 19–24 · Water · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `reed_otter` ([art/creatures/reed_otter.png](../../art/creatures/reed_otter.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/reed_otter.png](../../art/topdown/foes/reed_otter.png), 52x42 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 22–24, up to 1, respawn 600s; wild pet; needs unlock Taming; while Riverbed Serpent lives
   - Jade River Valley › Reed Marsh › Marsh Edge: Lv 19, up to 1, respawn 600s; wild pet; needs unlock Taming
@@ -577,7 +577,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `tide_crab` · Normal · Lv 20–23 · Water · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `tide_crab` ([art/creatures/tide_crab.png](../../art/creatures/tide_crab.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/tide_crab.png](../../art/topdown/foes/tide_crab.png), 44x55 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Deepwater Bend › Bend Shore: Lv 20–23, up to 4, respawn 12s
 - **Also appears**: Beast Grove trial in Beast Trial Grove (Stoneford) (wave) (enemy); Beast Tide at Stoneford Gate (Stoneford) (wave) (enemy); guards the herb patch in Bend Shore (Deepwater Bend); guards the herb patch in Rapids Terraces (Whitewater Gorge)
@@ -619,7 +619,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `paper_talisman_ghost` · Normal · Lv 22–26 · Soul · ghost · energy none
 
-- **Sheet**: creature sheet `paper_talisman_ghost` ([art/creatures/paper_talisman_ghost.png](../../art/creatures/paper_talisman_ghost.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/paper_talisman_ghost.png](../../art/topdown/foes/paper_talisman_ghost.png), 71x50 px cells, 6 actions)
 - **Spawns** (6 room spawns):
   - Jade River Valley › Drowned Shrine › Hall of Lanterns: Lv 22–25, up to 1, respawn 12s
   - Jade River Valley › Drowned Shrine › Hall of Lanterns: Lv 22–25, up to 1, respawn 12s
@@ -663,7 +663,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `riverbed_serpent` · Field boss · Lv 25 · Water · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `riverbed_serpent` ([art/creatures/riverbed_serpent.png](../../art/creatures/riverbed_serpent.png), 256 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/riverbed_serpent.png](../../art/topdown/foes/riverbed_serpent.png), 122x141 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Deepwater Bend › Serpent's Shallows: Lv 25, up to 1, respawn 2700s; boss; field boss
 - **Also appears**: Account rules (collection seals) (enemy); Beast King of Jade River Valley, in Serpent's Shallows (Deepwater Bend); Lost arts: serpent_coil_thrust (enemy); Moments: field_boss_defeated (enemy); guards the herb patch in Serpent's Shallows (Deepwater Bend)
@@ -710,7 +710,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `rapids_lizard` · Normal · Lv 28–31 · Water · beast · energy none · beast rank 4
 
-- **Sheet**: creature sheet `rapids_lizard` ([art/creatures/rapids_lizard.png](../../art/creatures/rapids_lizard.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/rapids_lizard.png](../../art/topdown/foes/rapids_lizard.png), 74x56 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Whitewater Gorge › Rapids Terraces: Lv 28–31, up to 5, respawn 12s
   - Jade River Valley › Whitewater Gorge › Rapids Terraces: Lv 31, up to 1, respawn 180s; elite
@@ -753,7 +753,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `boulder_serpent` · Normal · Lv 32–35 · Earth · beast · energy none · beast rank 4
 
-- **Sheet**: creature sheet `boulder_serpent` ([art/creatures/boulder_serpent.png](../../art/creatures/boulder_serpent.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/boulder_serpent.png](../../art/topdown/foes/boulder_serpent.png), 73x59 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 32–35, up to 4, respawn 12s
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 35, up to 1, respawn 180s; elite
@@ -775,7 +775,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mist_vulture` · Normal · Lv 34–36 · Wind · beast · energy none · beast rank 4
 
-- **Sheet**: creature sheet `mist_vulture` ([art/creatures/mist_vulture.png](../../art/creatures/mist_vulture.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/mist_vulture.png](../../art/topdown/foes/mist_vulture.png), 58x63 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Whitewater Gorge › Echo Cliffs: Lv 34–36, up to 3, respawn 12s
 - **Also appears**: Account rules (collection seals) (enemy); Set pieces: Jade Body Trial (enemy); Trial Tower foe, floors 16, 17; Trial Tower guardian, floor 15
@@ -795,7 +795,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `cloudwing_crane` · Normal · Lv 37–40 · Wind · beast · energy none · beast rank 5
 
-- **Sheet**: creature sheet `cloudwing_crane` ([art/creatures/cloudwing_crane.png](../../art/creatures/cloudwing_crane.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/cloudwing_crane.png](../../art/topdown/foes/cloudwing_crane.png), 68x73 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Crane Cliffs › Cliff Faces: Lv 37–40, up to 5, respawn 12s
   - Jade River Valley › Crane Cliffs › Cliff Faces: Lv 40, up to 1, respawn 180s; elite
@@ -816,7 +816,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `riverstone_ox` · Normal · Lv 37–38 · Earth · beast · energy none · beast rank 5
 
-- **Sheet**: creature sheet `riverstone_ox` ([art/creatures/riverstone_ox.png](../../art/creatures/riverstone_ox.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/riverstone_ox.png](../../art/topdown/foes/riverstone_ox.png), 70x68 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Stonewall Quarry › Quarry Rim: Lv 37–38, up to 1, respawn 900s; wild pet; needs Cloud Stride 1 and unlock Taming
 - **Level band**: Lv 37–38 in `enemies.json`
@@ -834,7 +834,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `stormwing_hawk` · Normal · Lv 38–43 · Thunder · beast · energy none · beast rank 5
 
-- **Sheet**: creature sheet `stormwing_hawk` ([art/creatures/stormwing_hawk.png](../../art/creatures/stormwing_hawk.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/stormwing_hawk.png](../../art/topdown/foes/stormwing_hawk.png), 42x54 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Crane Cliffs › Cliff Faces: Lv 38–43, up to 3, respawn 12s
   - Jade River Valley › Crane Cliffs › Sky Ledges: Lv 40–43, up to 3, respawn 12s
@@ -857,7 +857,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `cliff_ape` · Normal · Lv 41–45 · Earth · beast · energy none · beast rank 5
 
-- **Sheet**: creature sheet `cliff_ape` ([art/creatures/cliff_ape.png](../../art/creatures/cliff_ape.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/cliff_ape.png](../../art/topdown/foes/cliff_ape.png), 64x81 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Crane Cliffs › Sky Ledges: Lv 41–45, up to 4, respawn 12s
 - **Also appears**: Account rules (collection seals) (enemy); Trial Tower foe, floors 20, 21, 22
@@ -878,7 +878,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mist_wolf` · Normal · Lv 46–50 · Water · beast · energy none · beast rank 6
 
-- **Sheet**: creature sheet `mist_wolf` ([art/creatures/mist_wolf.png](../../art/creatures/mist_wolf.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/mist_wolf.png](../../art/topdown/foes/mist_wolf.png), 92x60 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 46–50, up to 5, respawn 12s
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 50, up to 1, respawn 180s; elite
@@ -899,7 +899,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `mirror_wisp` · Normal · Lv 47–51 · Soul · ghost · energy none
 
-- **Sheet**: creature sheet `mirror_wisp` ([art/creatures/mirror_wisp.png](../../art/creatures/mirror_wisp.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/mirror_wisp.png](../../art/topdown/foes/mirror_wisp.png), 67x69 px cells, 6 actions, an elite sheet)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mist Peak › Misty Slopes: Lv 47–51, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 23, 24, 25; guards the herb patch in Frozen Shrine (Summit Ridge); guards the herb patch in Misty Slopes (Mist Peak)
@@ -938,7 +938,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `weeping_lantern` · Normal · Lv 50–55 · Soul · ghost · energy none
 
-- **Sheet**: creature sheet `weeping_lantern` ([art/creatures/weeping_lantern.png](../../art/creatures/weeping_lantern.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/weeping_lantern.png](../../art/topdown/foes/weeping_lantern.png), 76x79 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 50–55, up to 4, respawn 12s
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 55, up to 1, respawn 180s; elite
@@ -960,7 +960,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `jade_sentinel` · Normal · Lv 52–56 · Earth · construct · energy none
 
-- **Sheet**: creature sheet `jade_sentinel` ([art/creatures/jade_sentinel.png](../../art/creatures/jade_sentinel.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/jade_sentinel.png](../../art/topdown/foes/jade_sentinel.png), 69x95 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mist Peak › Forgotten Monastery: Lv 52–56, up to 3, respawn 12s
 - **Also appears**: Trial Tower foe, floors 26, 27, 30; Trial Tower guardian, floor 25
@@ -998,7 +998,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollow_stag` · Normal · Lv 55–59 · Hollow wood · beast · energy none · beast rank 7
 
-- **Sheet**: creature sheet `hollow_stag` ([art/creatures/hollow_stag.png](../../art/creatures/hollow_stag.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollow_stag.png](../../art/topdown/foes/hollow_stag.png), 65x81 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Jade River Valley › Summit Ridge › Windswept Ridge: Lv 55–59, up to 5, respawn 12s
   - Jade River Valley › Summit Ridge › Windswept Ridge: Lv 59, up to 1, respawn 180s; elite
@@ -1020,7 +1020,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `cloudpeak_roc` · Normal · Lv 58–63 · Wind · beast · energy none · beast rank 7
 
-- **Sheet**: creature sheet `cloudpeak_roc` ([art/creatures/cloudpeak_roc.png](../../art/creatures/cloudpeak_roc.png), 256 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/cloudpeak_roc.png](../../art/topdown/foes/cloudpeak_roc.png), 88x92 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Jade River Valley › Summit Ridge › Frozen Shrine: Lv 58–63, up to 4, respawn 12s
   - Jade River Valley › Summit Ridge › Frozen Shrine: Lv 63, up to 1, respawn 180s; elite
@@ -1045,7 +1045,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `gate_guardian` · Story boss · Lv 63 · Earth · construct · energy none
 
-- **Sheet**: creature sheet `gate_guardian` ([art/creatures/gate_guardian.png](../../art/creatures/gate_guardian.png), 256 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/gate_guardian.png](../../art/topdown/foes/gate_guardian.png), 129x124 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Jade River Valley › Mist Peak › Ascension Gate: Lv 63, up to 1, respawn 86400s; boss; needs during The Ascension Gate
 - **Level band**: Lv 63 in `enemies.json`
@@ -1065,7 +1065,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `spark_weasel` · Normal · Lv 64–67 · Thunder · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `spark_weasel` ([art/creatures/spark_weasel.png](../../art/creatures/spark_weasel.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/spark_weasel.png](../../art/topdown/foes/spark_weasel.png), 61x43 px cells, 6 actions, an elite sheet)
 - **Spawns** (4 room spawns):
   - Azure Expanse › Thunderhorn Plains › Lightning Scar: Lv 66–67, up to 2, respawn 12s
   - Azure Expanse › Thunderhorn Plains › Stormgrass Verge: Lv 64–66, up to 5, respawn 12s
@@ -1089,7 +1089,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `stormgrass_stag` · Normal · Lv 64–68 · Wood · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `cloud_stag` ([art/creatures/cloud_stag.png](../../art/creatures/cloud_stag.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/stormgrass_stag.png](../../art/topdown/foes/stormgrass_stag.png), 66x82 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Azure Expanse › Thunderhorn Plains › Stormgrass Verge: Lv 64–66, up to 2, respawn 12s
   - Azure Expanse › Thunderhorn Plains › Thunderhorn Flats: Lv 68, up to 1, respawn 180s; elite
@@ -1111,7 +1111,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `thunderhorn_rhino` · Normal · Lv 64–69 · Thunder · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `thunderhorn_rhino` ([art/creatures/thunderhorn_rhino.png](../../art/creatures/thunderhorn_rhino.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/thunderhorn_rhino.png](../../art/topdown/foes/thunderhorn_rhino.png), 74x78 px cells, 6 actions, an elite sheet)
 - **Spawns** (4 room spawns):
   - Azure Expanse › Thunderhorn Plains › Lightning Scar: Lv 67–69, up to 4, respawn 16s
   - Azure Expanse › Thunderhorn Plains › Lightning Scar: Lv 69, up to 1, respawn 180s; elite
@@ -1137,7 +1137,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `frost_lynx` · Normal · Lv 67–70 · Water · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `frost_lynx` ([art/creatures/frost_lynx.png](../../art/creatures/frost_lynx.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/frost_lynx.png](../../art/topdown/foes/frost_lynx.png), 53x51 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Azure Expanse › Rimefrost Heights › Frostpine Climb: Lv 67–70, up to 5, respawn 12s
   - Azure Expanse › Rimefrost Heights › Frostpine Climb: Lv 70, up to 1, respawn 180s; elite
@@ -1161,7 +1161,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `azure_carp_dragonet` · Normal · Lv 68–73 · Water · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `azure_carp_dragonet` ([art/creatures/azure_carp_dragonet.png](../../art/creatures/azure_carp_dragonet.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/azure_carp_dragonet.png](../../art/topdown/foes/azure_carp_dragonet.png), 68x65 px cells, 6 actions, an elite sheet)
 - **Spawns** (5 room spawns):
   - Azure Expanse › Mirrorwater Lake › Mirror Shallows: Lv 69–73, up to 5, respawn 12s
   - Azure Expanse › Mirrorwater Lake › Mirror Shallows: Lv 73, up to 1, respawn 180s; elite
@@ -1187,7 +1187,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `snow_ape` · Normal · Lv 68–72 · Earth · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `snow_ape` ([art/creatures/snow_ape.png](../../art/creatures/snow_ape.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/snow_ape.png](../../art/topdown/foes/snow_ape.png), 64x84 px cells, 6 actions, an elite sheet)
 - **Spawns** (4 room spawns):
   - Azure Expanse › Rimefrost Heights › Rimefrost Summit: Lv 70–72, up to 3, respawn 18s
   - Azure Expanse › Rimefrost Heights › Rimefrost Summit: Lv 72, up to 1, respawn 180s; elite
@@ -1213,7 +1213,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `thousand_eye_toad` · Field boss · Lv 68 · Water · beast · energy none · beast rank 8
 
-- **Sheet**: creature sheet `thousand_eye_toad` ([art/creatures/thousand_eye_toad.png](../../art/creatures/thousand_eye_toad.png), 256 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/thousand_eye_toad.png](../../art/topdown/foes/thousand_eye_toad.png), 146x113 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Azure Expanse › Mirrorwater Lake › Toad's Hollow: Lv 68, up to 1, respawn 2700s; boss; field boss
 - **Also appears**: Account rules (collection seals) (enemy); Beast King of Azure Expanse, in Toad's Hollow (Mirrorwater Lake); Lost arts: many_eyed_pool_air (enemy)
@@ -1240,7 +1240,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `river_sentinel` · Normal · Lv 70–75 · Water · construct · energy none
 
-- **Sheet**: creature sheet `river_sentinel` ([art/creatures/river_sentinel.png](../../art/creatures/river_sentinel.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/river_sentinel.png](../../art/topdown/foes/river_sentinel.png), 71x96 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Azure Expanse › Mirrorwater Lake › Sentinel Causeway: Lv 72–75, up to 4, respawn 20s
   - Azure Expanse › Mirrorwater Lake › Sentinel Causeway: Lv 75, up to 1, respawn 180s; elite
@@ -1280,7 +1280,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `sandstorm_scorpion` · Normal · Lv 73–78 · Earth · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `sandstorm_scorpion` ([art/creatures/sandstorm_scorpion.png](../../art/creatures/sandstorm_scorpion.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/sandstorm_scorpion.png](../../art/topdown/foes/sandstorm_scorpion.png), 72x64 px cells, 6 actions, an elite sheet)
 - **Spawns** (6 room spawns):
   - Azure Expanse › Sunscar Desert › Glass Dunes: Lv 73–75, up to 5, respawn 12s
   - Azure Expanse › Sunscar Desert › Glass Dunes: Lv 75, up to 1, respawn 180s; elite
@@ -1307,7 +1307,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `wind_kite` · Normal · Lv 73–78 · Wind · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `wind_kite` ([art/creatures/wind_kite.png](../../art/creatures/wind_kite.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/wind_kite.png](../../art/topdown/foes/wind_kite.png), 87x70 px cells, 6 actions, an elite sheet)
 - **Spawns** (6 room spawns):
   - Azure Expanse › Gale Canyons › Canyon Mouth: Lv 73–75, up to 4, respawn 12s
   - Azure Expanse › Gale Canyons › Canyon Mouth: Lv 75, up to 1, respawn 180s; elite
@@ -1334,7 +1334,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `canyon_harpy` · Normal · Lv 74–78 · Wind · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `canyon_harpy` ([art/creatures/canyon_harpy.png](../../art/creatures/canyon_harpy.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/canyon_harpy.png](../../art/topdown/foes/canyon_harpy.png), 68x80 px cells, 6 actions, an elite sheet)
 - **Spawns** (5 room spawns):
   - Azure Expanse › Gale Canyons › Harpy Roosts: Lv 75–78, up to 4, respawn 16s
   - Azure Expanse › Gale Canyons › Harpy Roosts: Lv 78, up to 1, respawn 180s; elite
@@ -1381,7 +1381,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `dune_worm` · Normal · Lv 77–81 · Earth · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `dune_worm` ([art/creatures/dune_worm.png](../../art/creatures/dune_worm.png), 256 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/dune_worm.png](../../art/topdown/foes/dune_worm.png), 84x93 px cells, 6 actions, an elite sheet)
 - **Spawns** (2 room spawns):
   - Azure Expanse › Sunscar Desert › Worm Sea: Lv 77–81, up to 4, respawn 16s
   - Azure Expanse › Sunscar Desert › Worm Sea: Lv 81, up to 1, respawn 180s; elite
@@ -1403,7 +1403,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `terracotta_warden` · Normal · Lv 77 · Earth · construct · energy none
 
-- **Sheet**: creature sheet `terracotta_warden` ([art/creatures/terracotta_warden.png](../../art/creatures/terracotta_warden.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/terracotta_warden.png](../../art/topdown/foes/terracotta_warden.png), 66x83 px cells, 6 actions)
 - **Spawns** (3 room spawns):
   - Azure Expanse › Tomb of Sunscar › Hall of Sand Kings: Lv 77, up to 5, respawn 12s
   - Azure Expanse › Tomb of Sunscar › Mirror Crypt: Lv 77, up to 2, respawn 12s
@@ -1425,7 +1425,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `tomb_king` · Dungeon boss · Lv 77 · Earth · undead · energy sage_qi
 
-- **Sheet**: creature sheet `tomb_king` ([art/creatures/tomb_king.png](../../art/creatures/tomb_king.png), 256 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/tomb_king.png](../../art/topdown/foes/tomb_king.png), 141x156 px cells, 6 actions)
 - **Spawns** (1 room spawns):
   - Azure Expanse › Tomb of Sunscar › Throne of the Tomb King: Lv 77, up to 1, respawn 86400s; boss
 - **Also appears**: Lost arts: sand_throne_sweep (enemy)
@@ -1485,7 +1485,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `comet_sparrow` · Normal · Lv 82–87 · Fire · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `comet_sparrow` ([art/creatures/comet_sparrow.png](../../art/creatures/comet_sparrow.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/comet_sparrow.png](../../art/topdown/foes/comet_sparrow.png), 51x49 px cells, 6 actions, an elite sheet)
 - **Spawns** (6 room spawns):
   - Lantern Star Field › Drifting Shoals › Driftglass Bank: Lv 85–87, up to 3, respawn 14s
   - Lantern Star Field › Drifting Shoals › Jellyfish Shallows: Lv 82–83, up to 1, respawn 12s
@@ -1511,7 +1511,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `star_jellyfish` · Normal · Lv 82–87 · Star · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `star_jellyfish` ([art/creatures/star_jellyfish.png](../../art/creatures/star_jellyfish.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/star_jellyfish.png](../../art/topdown/foes/star_jellyfish.png), 69x64 px cells, 6 actions, an elite sheet)
 - **Spawns** (5 room spawns):
   - Lantern Star Field › Drifting Shoals › Driftglass Bank: Lv 85–87, up to 3, respawn 12s
   - Lantern Star Field › Drifting Shoals › Driftglass Bank: Lv 87, up to 1, respawn 180s; elite
@@ -1537,7 +1537,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `nest_guardian` · Normal · Lv 85–93 · Earth · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `nest_guardian` ([art/creatures/nest_guardian.png](../../art/creatures/nest_guardian.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/nest_guardian.png](../../art/topdown/foes/nest_guardian.png), 88x77 px cells, 6 actions, an elite sheet)
 - **Spawns** (5 room spawns):
   - Lantern Star Field › Wyrmnest Isles › Eggshell Terraces: Lv 89–90, up to 1, respawn 20s
   - Lantern Star Field › Wyrmnest Isles › Guardian's Crown: Lv 90–93, up to 3, respawn 20s
@@ -1606,7 +1606,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `gravity_golem` · Normal · Lv 88–93 · Earth · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `gravity_golem` ([art/creatures/gravity_golem.png](../../art/creatures/gravity_golem.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/gravity_golem.png](../../art/topdown/foes/gravity_golem.png), 99x107 px cells, 6 actions, an elite sheet)
 - **Spawns** (4 room spawns):
   - Lantern Star Field › Orbit Ruins › Golem Foundry: Lv 90–92, up to 3, respawn 20s
   - Lantern Star Field › Orbit Ruins › Golem Foundry: Lv 92, up to 1, respawn 180s; elite
@@ -1630,7 +1630,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollow_drone` · Normal · Lv 88–99 · Hollow metal · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `hollow_drone` ([art/creatures/hollow_drone.png](../../art/creatures/hollow_drone.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollow_drone.png](../../art/topdown/foes/hollow_drone.png), 62x57 px cells, 6 actions, an elite sheet)
 - **Spawns** (11 room spawns):
   - Lantern Star Field › Ashen Reach › Cinder Fields: Lv 88–90, up to 1, respawn 20s
   - Lantern Star Field › The Lantern Heart › Hall of Burning Stars: Lv 98–99, up to 4, respawn 14s
@@ -1662,7 +1662,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollowed_wyrmling` · Normal · Lv 88–99 · Hollow fire · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `hollowed_wyrmling` ([art/creatures/hollowed_wyrmling.png](../../art/creatures/hollowed_wyrmling.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollowed_wyrmling.png](../../art/topdown/foes/hollowed_wyrmling.png), 57x38 px cells, 6 actions, an elite sheet)
 - **Spawns** (7 room spawns):
   - Lantern Star Field › The Lantern Heart › Hall of Burning Stars: Lv 98–99, up to 2, respawn 20s
   - Lantern Star Field › The Lantern Heart › Wick Gate: Lv 97–98, up to 2, respawn 20s
@@ -1690,7 +1690,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `orbit_moth` · Normal · Lv 88–93 · Star · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `orbit_moth` ([art/creatures/orbit_moth.png](../../art/creatures/orbit_moth.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/orbit_moth.png](../../art/topdown/foes/orbit_moth.png), 57x55 px cells, 6 actions, an elite sheet)
 - **Spawns** (6 room spawns):
   - Lantern Star Field › Orbit Ruins › Golem Foundry: Lv 90–91, up to 2, respawn 14s
   - Lantern Star Field › Orbit Ruins › Inverted Hall: Lv 92–93, up to 2, respawn 40s
@@ -1783,7 +1783,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `nebula_eel` · Normal · Lv 94–99 · Water · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `nebula_eel` ([art/creatures/nebula_eel.png](../../art/creatures/nebula_eel.png), 192 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/nebula_eel.png](../../art/topdown/foes/nebula_eel.png), 84x58 px cells, 6 actions, an elite sheet)
 - **Spawns** (5 room spawns):
   - Lantern Star Field › Nebula Deep › Crab Grottoes: Lv 96–97, up to 1, respawn 20s
   - Lantern Star Field › Nebula Deep › Eel Currents: Lv 95–97, up to 5, respawn 14s
@@ -1808,7 +1808,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `void_crab` · Normal · Lv 94–99 · Space · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `void_crab` ([art/creatures/void_crab.png](../../art/creatures/void_crab.png), 128 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/void_crab.png](../../art/topdown/foes/void_crab.png), 43x52 px cells, 6 actions, an elite sheet)
 - **Spawns** (3 room spawns):
   - Lantern Star Field › Nebula Deep › Crab Grottoes: Lv 96–98, up to 4, respawn 18s
   - Lantern Star Field › Nebula Deep › Crab Grottoes: Lv 98, up to 1, respawn 180s; elite
@@ -1830,7 +1830,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `nebula_leviathan` · Field boss · Lv 99 · Space · beast · energy none · beast rank 9
 
-- **Sheet**: creature sheet `nebula_leviathan` ([art/creatures/nebula_leviathan.png](../../art/creatures/nebula_leviathan.png), 256 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/nebula_leviathan.png](../../art/topdown/foes/nebula_leviathan.png), 147x120 px cells, 7 actions)
 - **Spawns** (1 room spawns):
   - Lantern Star Field › Nebula Deep › Leviathan's Maw: Lv 99, up to 1, respawn 2700s; boss; field boss
 - **Also appears**: Account rules (collection seals) (enemy); Lost arts: maw_song (enemy)
@@ -1858,7 +1858,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollow_minnow` · Event · Lv 1 · Hollow · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `hollow_minnow` ([art/creatures/hollow_minnow.png](../../art/creatures/hollow_minnow.png), 128 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollow_minnow.png](../../art/topdown/foes/hollow_minnow.png), 46x37 px cells, 6 actions)
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Lotus Ferry at Night (Lotus Ferry) (enemy)
 - **Level band**: Lv 1 in `enemies.json`
@@ -1874,7 +1874,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollowed_eel` · Story boss · Lv 2 · Hollow · beast · energy none · beast rank 1
 
-- **Sheet**: creature sheet `hollowed_eel` ([art/creatures/hollowed_eel.png](../../art/creatures/hollowed_eel.png), 256 px cells, flying)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollowed_eel.png](../../art/topdown/foes/hollowed_eel.png), 79x94 px cells, 6 actions)
 - **Spawns**: no room spawns it
 - **Also appears**: Scenes: The Elders Come (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (enemy); room event in Lotus Ferry at Night (Lotus Ferry) (win on kill)
 - **Level band**: Lv 2 in `enemies.json`
@@ -2029,7 +2029,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `fruit_guardian` · Elite · Lv 20 · Wood · beast · energy none · beast rank 3
 
-- **Sheet**: creature sheet `thornback_boar` ([art/creatures/thornback_boar.png](../../art/creatures/thornback_boar.png), 192 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/fruit_guardian.png](../../art/topdown/foes/fruit_guardian.png), 86x76 px cells, 6 actions)
 - **Spawns**: no room spawns it
 - **Also appears**: Calendar: A Spirit Fruit Ripens (guardian)
 - **Level band**: Lv 20 in `enemies.json`
@@ -2375,7 +2375,7 @@ Stats are the `stats.json` mob templates at the band's lowest and highest Level 
 
 `hollow_behemoth` · Story boss · Lv 58 · Hollow earth · beast · energy none · beast rank 7
 
-- **Sheet**: creature sheet `hollow_behemoth` ([art/creatures/hollow_behemoth.png](../../art/creatures/hollow_behemoth.png), 256 px cells)
+- **Sheet**: top-down sheet ([art/topdown/foes/hollow_behemoth.png](../../art/topdown/foes/hollow_behemoth.png), 150x139 px cells, 6 actions)
 - **Spawns**: no room spawns it
 - **Also appears**: room event in Siege of Two Sects (Story) (enemy)
 - **Level band**: Lv 58 in `enemies.json`

@@ -169,10 +169,10 @@ class Person extends Node2D:
 		if tool_down != "": TopdownLife.draw_tool_down(self, tool_down, row)
 		figure.draw(self, Vector2.ZERO, action, row, f, tint)
 
-## Redesign Phase 4: a companion's, a spirit animal's or a foe's drawing when the grid's foe sheet has no rows for it. A
-## companion is a Person in its own outfit (the player's for a reflection); an animal or a foe is its creature sheet at
-## half size (EnemyView in its art mode: art/creatures, its action, facing and flash) until its species has a top-down
-## sheet (S12b deletes that path). FoeView places it on its floor and draws its shadow there.
+## Redesign Phase 4: the person a foe or an ally is, drawn in the top-down style: a sparring villager in their own
+## clothes, a companion (or a bandit) in its outfit (the player's for a reflection). Null for a creature, which is its
+## species' top-down sheet (TopdownWorld.FoeView; S12b retired the side view's creature sheets that stood in for one
+## with none). FoeView places a person on its floor and draws its shadow there.
 static func stand_in(e: EnemyState) -> Node2D:
 	var art: Dictionary = e.def.get("art", {})
 	# A person sparring with the player (QuestAuthority.start_spar) is that person, in their own clothes, while their
@@ -187,11 +187,7 @@ static func stand_in(e: EnemyState) -> Node2D:
 		var person := Person.new({"outfit": outfit, "facing": e.facing})
 		person.shadow = false
 		return person
-	var v := EnemyView.new()
-	v.art_only = true
-	v.setup(e)
-	v.scale = Vector2(0.5, 0.5)
-	return v
+	return null
 
 ## A stand-in's pose from its state, each frame (an EnemyView poses itself): a Person turns to where it walks or aims,
 ## one of the eight rows, and plays its action (a wind-up and its blow as its weapon family's first step, as that family

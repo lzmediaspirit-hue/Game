@@ -636,15 +636,18 @@ func data_suite() -> void:
 			check(str(o.get("field_grade", "")) in garden.get("field_grades", []), "garden bed %s.%s has a field grade" % [rid, o.id])
 	check(bed_count >= 10, "garden beds in both sects and the cave abodes (%d)" % bed_count)
 	for fam in garden.get("families", {}): check(garden.get("grow_hours", {}).has(fam) and garden.get("props", {}).has(fam), "garden grows %s" % fam)
-	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop.
-	var creatures := ContentDB.config("creature_art")
-	for pe in ContentDB.all("pets"): check(creatures.has(str(pe.get("art", pe.id))), "pet %s has creature art" % pe.id)
-	# v1.2 Phase D: the Copperjaw swarm names its creature sheet and the Queen's, and both exist and fly.
+	# S46: every tameable beast tames into a species with art; every beast of rank 2+ has a core to drop. S12b: a pet is
+	# drawn from its species' top-down sheet (FoeSheets, the grid's foe sheet), the side view's creature sheets being
+	# gone; the few with none drawn yet are named in NO_TOP_SHEET_YET, and one gets off that list the day it is drawn.
+	for pe in ContentDB.all("pets"):
+		var art := str(pe.get("art", pe.id))
+		check(FoeSheets.has_sheet(art) != NO_TOP_SHEET_YET.has(art) and ResourceLoader.exists(FoeSheets.atlas(art)) == FoeSheets.has_sheet(art),
+			"pet %s has its top-down sheet (%s), or is on the list of those still to draw" % [pe.id, art])
+	# v1.2 Phase D: the Copperjaw swarm names its creature and the Queen's: their top-down sheets, or the list's.
 	var swarm_cfg: Dictionary = ContentDB.stat_const("swarm", {})
 	for key in ["art", "queen_art"]:
-		var sheet: Dictionary = creatures.get(str(swarm_cfg.get(key, "")), {})
-		check(not sheet.is_empty() and sheet.get("flying", false) and ResourceLoader.exists(str(sheet.get("file", ""))),
-			"the Copperjaw swarm's %s is a flying creature sheet (%s)" % [key, str(swarm_cfg.get(key, ""))])
+		var sw := str(swarm_cfg.get(key, ""))
+		check(sw != "" and FoeSheets.has_sheet(sw) != NO_TOP_SHEET_YET.has(sw), "the Copperjaw swarm's %s has its top-down sheet, or is on the list of those still to draw (%s)" % [key, sw])
 	for en in ContentDB.all("enemies"):
 		if en.get("tameable", false):
 			var sp := str(en.get("tame_species", en.id)).trim_suffix("_chick") if not ContentDB.has_entry("pets", str(en.get("tame_species", en.id))) else str(en.get("tame_species", en.id))
@@ -971,6 +974,10 @@ func data_suite() -> void:
 ## P7a (M37): every item and piece of equipment has a source in the data, or carries an explicit mark,
 ## `"source": "<mark>"` (a string, or a list holding one): story, system or later (see tools/dev/wiki.py).
 ## The channels are the ones tools/dev/wiki.py lists as an item's sources; keep the two in step.
+## S12b: the creatures a pet or the Copperjaw swarm is that have no top-down sheet drawn yet (the side view's creature
+## sheets that stood in for them went with it): in the room and on the pages they show nothing but a shadow or an empty
+## slot until the monster engine draws them (reported with S12b).
+const NO_TOP_SHEET_YET := ["cloud_stag", "hatchling_wyrm", "copperjaw_swarm", "copperjaw_queen"]
 const SOURCE_MARKS := ["story", "system", "later"]
 const TIDE_CORE_ELEMENTS := ["fire", "water", "wood", "earth", "wind", "thunder"]   # WorldAuthority.apply_tide_result
 const TIDE_CORE_TIERS := ["low", "mid", "high"]

@@ -277,7 +277,7 @@ func _strike(i: int) -> void:
 		fx.hit(at, roundf(amount * (1.0 + 0.07 * h)), src, str(tech.get("element", "none")), str(tech.get("damage_type", "")), false, "foe%d" % i)
 
 ## Decision 42: a foe of the top-down world (decision 43: its species' sheet in art/topdown/foes/, indexed by
-## data/topdown/foes.json, built by tools/art/topdown/build_foes.py) with the few calls the preview makes of a CreatureSprite: play, its clock `t`, a flash
+## data/topdown/foes.json, built by tools/art/topdown/build_foes.py) with the few calls the preview makes of its foes: play, its clock `t`, a flash
 ## (white as it is struck, then the fight's tint, TopdownWorld.FoeView's), and its height for the numbers. The sheet's
 ## index is read on a worker thread and its texture on a loading thread, both asked for as the top-down preview is
 ## built, so choosing an art never waits on them (a foe appears the frame they are in).

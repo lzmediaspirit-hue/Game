@@ -1899,9 +1899,9 @@ func _ally() -> EnemyState:
 
 ## A companion on the grid (AllyBrain steering by TopdownBrain): it comes in on the player's floor, follows onto the
 ## terrace by the grid's way (the stairs, or a hop a level up as the player jumps), blinks to a landing stage there is
-## no way onto on foot, strikes only a foe on its own height and is struck only on its own height. Its figure is the
-## stand-in (the side view's own avatar at half size), sorted with the room and standing on its floor; a spirit animal
-## and a foe the sheet does not draw get theirs too.
+## no way onto on foot, strikes only a foe on its own height and is struck only on its own height. Its figure is a
+## person in the top-down style in its outfit (TopdownPlaces.stand_in), sorted with the room and standing on its floor;
+## a spirit animal is its species' rows of the grid's foe sheet, as a foe is (S12b).
 func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	fresh(base)
 	var had: Array = c.companions.active.duplicate()
@@ -1978,34 +1978,23 @@ func _allies_on_the_grid(tree: SceneTree, base: Vector2) -> void:
 	var prey := foe("wild_boarlet", a.plane + Vector2(90, 0))
 	frames(180)
 	t.check(hurt(prey), "topdown allies: the companion closes on a foe on its own level and strikes it (hp %.0f / %.0f)" % [prey.pools.hp, prey.pools.max_hp])
-	# A spirit animal and a foe the grid's sheet has no rows for get stand-ins too, not the crab; Old Snapper, drawn for the
-	# grid since, takes its own rows. Since M3 and M4 every foe of the game has its own rows (the pebble imp, the stone
-	# tortoise, the sandstorm scorpion and the fruit's guardian were this foe in turn), so the foe without rows is made here
-	# as the spirit animal is: a def of its own that names a side-view creature sheet.
+	# A spirit animal is its species' own rows of the grid's foe sheet (S12b: the side view's creature sheets that stood
+	# in for it, and for a foe with no rows, are gone), at its form's size; Old Snapper takes his own rows.
 	fresh(base)
 	var pet := EnemyState.new()
 	pet.uid = Game.room_rt.uid()
-	pet.def_id = "spirit_fox"
-	pet.def = {"name": "Fox", "art": {"creature": "wild_boarlet"}, "half_width": 16, "height": 30, "ally": true}
+	pet.def_id = "wild_boarlet"   # as PetAuthority makes one: the species it is
+	pet.def = {"name": "Boarlet", "art": {"creature": "wild_boarlet", "scale": 1.2}, "half_width": 16, "height": 30, "ally": true}
 	pet.team = "ally"
 	pet.plane = base + Vector2(-40, 0)
 	Game.room_rt.enemies[pet.uid] = pet
 	w.add_foe(pet)
-	var imp := EnemyState.new()
-	imp.uid = Game.room_rt.uid()
-	imp.def_id = "unsheeted_scorpion"
-	imp.def = {"name": "Scorpion", "art": {"creature": "sandstorm_scorpion"}, "half_width": 17, "height": 30}
-	imp.plane = base + Vector2(60, 0)
-	imp.altitude = w.room.height_at(imp.plane)
-	Game.room_rt.enemies[imp.uid] = imp
-	w.add_foe(imp)
 	var snapper := foe("old_snapper", base + Vector2(60, 60))
 	w.add_foe(snapper)
 	var pv = w.foe_views.get(pet.uid)
-	var iv = w.foe_views.get(imp.uid)
 	var sv = w.foe_views.get(snapper.uid)
-	t.check(pv != null and pv.art is EnemyView and pv.art.sprite != null and iv != null and iv.art is EnemyView and iv.art.sprite != null and iv.art.sprite.creature_id == "sandstorm_scorpion",
-		"topdown allies: a spirit animal and a foe with no rows in the grid's sheet are drawn by their own creature sheets as stand-ins")
+	t.check(pv != null and pv.art == null and pv.tex != null and not (pv.acts as Dictionary).is_empty() and is_equal_approx(pv.form_k, 1.2),
+		"topdown allies: a spirit animal is drawn by its species' own rows of the grid's foe sheet, at its form's size, no stand-in")
 	t.check(sv != null and sv.art == null and not (sv.acts as Dictionary).is_empty(), "topdown: Old Snapper is drawn by its own rows of the grid's foe sheet, not a stand-in")
 	fresh(base)
 	c.companions.active = had

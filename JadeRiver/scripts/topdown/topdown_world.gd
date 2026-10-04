@@ -1048,9 +1048,9 @@ class Caption extends Control:
 ## degrees nearer. Each action plays at its own rate from the manifest; a strike, a flinch and a death play once and
 ## hold their last frame. An elite takes its species' elite sheet where there is one: larger, darker, gold-eyed, in a
 ## ring of Qi.
-## Phase 4: a companion, a spirit animal, or a foe the sheet has no rows for is drawn by its stand-in
-## (TopdownPlaces.stand_in: a companion in the top-down style in its own outfit, an animal or a foe its creature sheet
-## at half size until its species has a top-down sheet, S12b), placed, sorted and shadowed here the same way.
+## Phase 4: a person (a companion, a sparring villager, a bandit in an outfit) is drawn by TopdownPlaces.stand_in in
+## the top-down style, placed, sorted and shadowed here the same way; a spirit animal is its species' sheet as a foe is
+## (S12b), larger and tinted by its form.
 class FoeView extends Sorted:
 	const FACINGS := {"e": 0.0, "se": 45.0, "s": 90.0, "sw": 135.0, "w": 180.0, "nw": -135.0, "n": -90.0, "ne": -45.0}
 	var uid := 0
@@ -1070,7 +1070,9 @@ class FoeView extends Sorted:
 	var tint := Color.WHITE
 	var t := 0.0
 	var last := ""
-	var art: Node2D = null   ## the stand-in's drawing (no rows in the foe sheet), its feet at its origin
+	var art: Node2D = null   ## a person's figure (a companion, a sparring villager, a bandit in an outfit), its feet at its origin
+	var form_k := 1.0        ## S46 form change: an animal at 90 purity stands larger (its art's `scale`) and in its lineage's
+	var form_tint := Color.WHITE   ## colour (its art's `tint`)
 	# Decision 38: the struck body flashes white, then tinted; a knockback hops it over the floor and leaves a skid.
 	var white := 0.0
 	var kb0 := 0.0
@@ -1086,9 +1088,17 @@ class FoeView extends Sorted:
 		uid = e.uid
 		add_child(FoeShadow.new(self))   # under the sprite, outside its flash
 		var sheet: Dictionary = w.room.tileset.get("foes", {})
-		if e.team == "ally" or not (sheet.get("species", {}) as Dictionary).has(e.def_id):
-			art = TopdownPlaces.stand_in(e)
+		art = TopdownPlaces.stand_in(e)
+		if art != null:
 			add_child(art)
+			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
+			return
+		# A creature, a foe's or a spirit animal's (S12b: the pets too), is its species' sheet; one with none (the
+		# Copperjaw swarm, the cloud stag and the hatchling wyrm, S12b's report) shows its shadow alone.
+		var form: Dictionary = e.def.get("art", {})
+		if form.has("scale"): form_k = float(form.scale)
+		if form.has("tint"): form_tint = Color(str(form.tint))
+		if not (sheet.get("species", {}) as Dictionary).has(e.def_id):
 			shadow_rx = clampf(roundf(e.half_width() * 0.5), 5.0, 16.0)
 			return
 		var sp: Dictionary = sheet.get("species", {})[e.def_id]
@@ -1109,15 +1119,15 @@ class FoeView extends Sorted:
 		foot = Vector2(float(f[0]), float(f[1]))
 		tex = w.foe_sheet(str(look.get("atlas", "")))
 		top = float(look.get("top", -1))
-		shadow_rx = float(look.get("shadow", [8, 3])[0])
+		shadow_rx = float(look.get("shadow", [8, 3])[0]) * form_k
 	## How far its figure rises over its feet on the overlay (world units, one per screen px): the foe sheet's `top` (the
-	## idle frame facing the camera, tools/art/topdown/build_foes.py); a creature stand-in's is its height at half size,
-	## a person's (a companion, a bandit in their outfit) lifted as the villagers' marks are over the 46 px figure
-	## (decision 43, TopdownPlaces.HEAD_LIFT).
+	## idle frame facing the camera, tools/art/topdown/build_foes.py, by its form's size); a person's (a companion, a
+	## bandit in their outfit) lifted as the villagers' marks are over the 46 px figure (decision 43,
+	## TopdownPlaces.HEAD_LIFT).
 	func figure_top(e: EnemyState) -> float:
 		if art is TopdownPlaces.Person: return e.height() - TopdownPlaces.HEAD_LIFT
-		if art != null or top < 0.0: return e.height()
-		return top * TopdownRoom.ART
+		if top < 0.0: return e.height()
+		return top * TopdownRoom.ART * form_k
 	func sync(delta: float) -> void:
 		var e: EnemyState = Game.room_rt.enemies.get(uid) if Game.room_rt else null
 		if e == null:
@@ -1197,9 +1207,9 @@ class FoeView extends Sorted:
 		queue_redraw()
 		get_child(0).queue_redraw()
 	func _draw() -> void:
-		if art != null: return   # the stand-in draws itself; its shadow is the FoeShadow child
-		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-1, 1) if flip else Vector2.ONE)
-		draw_texture_rect_region(tex, Rect2(-foot, cell), src, tint)
+		if art != null or tex == null: return   # a person draws itself; its shadow is the FoeShadow child
+		draw_set_transform(Vector2(0, feet.y - position.y - hop), 0.0, Vector2(-form_k if flip else form_k, form_k))
+		draw_texture_rect_region(tex, Rect2(-foot, cell), src, tint * form_tint)
 		draw_set_transform(Vector2.ZERO)
 
 ## A foe's blob shadow on the floor, drawn behind its figure and outside the figure's hurt flash.

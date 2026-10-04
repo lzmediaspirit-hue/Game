@@ -1,6 +1,7 @@
 """The pixel-art library for new Jade River art tools (audit 45, DUP-08).
 
-Four drawing libraries grew with the art: tools/art/pixel.py (the side-view creatures), tools/icons/pix.py (the icons),
+Four drawing libraries grew with the art: tools/art/pixel.py (the side-view creatures, gone with them in S12b),
+tools/icons/pix.py (the icons),
 tools/props/pixlib.py (props, tiles, the UI) and tools/art/fx/fxpix.py (the FX sheets), besides the top-down builders'
 tools/art/topdown/canvas.py. Each drew the same lines, ellipses and polygons its own way. This is the one for new
 work, taken from the best of them; the old ones stay with the art they made (the frozen side view is not redrawn):

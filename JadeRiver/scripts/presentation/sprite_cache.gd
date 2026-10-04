@@ -1,6 +1,6 @@
 class_name SpriteCache
 extends RefCounted
-## Shared texture cache and drawing helpers for props, creatures and icons.
+## Shared texture cache and drawing helpers for props and icons (a creature's sheet: FoeSheets).
 ## All art is authored at native pixel scale 2 and drawn at 1× with nearest filtering.
 
 static var _textures: Dictionary = {}
@@ -44,9 +44,6 @@ static func loading(path: String) -> bool:
 
 static func prop(id: String) -> Dictionary:
 	return ContentDB.config("prop_art").get(id, {})
-
-static func creature(id: String) -> Dictionary:
-	return ContentDB.config("creature_art").get(id, {})
 
 ## An item without its own drawing borrows the one named by its `icon` field.
 static func icon_key(id: String) -> String:

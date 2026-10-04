@@ -6,8 +6,7 @@ from content.monsters import species
 # 34), an olive-grey hide under moss, mossy bristles, the fruit tree's bark-brown vines winding over it with blossoms
 # among them, pale bark thorns down its spine, jade eyes; on its back the tree itself, a gnarled sapling rooted in it,
 # jade leaves and golden spirit fruits glowing under them. It paws the ground as its fruits blaze (the tell, held: its
-# charge's and its root stamp's) and charges to toss; beaten, it buckles and rolls, the sapling still on its back. Its row
-# keeps the thornback boar's side-view sheet (`art`) for the side view.
+# charge's and its root stamp's) and charges to toss; beaten, it buckles and rolls, the sapling still on its back.
 species("fruit_guardian", plan="quadruped.suid", share=True, size=2.6, elite=False,
         parts=dict(coat=dict(kind="vines", twist=0.4, width=0.3),
                    crest=dict(kind="thorns", n=11, at=(4.8, 5.7), step=1.15, side=0.9, sag=1.4, length=2.6, r=0.6),
@@ -22,4 +21,4 @@ species("fruit_guardian", plan="quadruped.suid", share=True, size=2.6, elite=Fal
         data=dict(level=20, role="elite", element="wood", page=None, drops=[("thorn_hide", 1.0, (2, 3))],
                   attacks=[("thorn_charge", 0.55, 60, 1.3, dict(dash=220, knockback=110)),
                            ("root_stamp", 0.8, 120, 1.2, dict(both_sides=True, depth=60))],
-                  ai="charger", art={"creature": "thornback_boar"}, width=46, height=60, hp_mult=3.0, name="Fruit-Guardian Boar"))
+                  ai="charger", width=46, height=60, hp_mult=3.0, name="Fruit-Guardian Boar"))
