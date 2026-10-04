@@ -18,3 +18,16 @@ species("sandstorm_scorpion", plan="crab.scorpion", share=True, size=3.0,
                            ("pincer_snap", 0.4, 46, 1.0)],
                   ai="melee", speed=115, pack=True, width=34, height=30),
         sound=dict(body="shell"))
+
+# M3. A giant burrowing sand worm of the Worm Sea, only ever seen rising out of a mound of sand to strike: a tube of
+# overlapping dusky-ochre armour rings with dark sand crust in their seams and a pale ridged underbelly, no eyes but a few
+# glassy sense pits on its head plates, a round lamprey mouth ringed with clear desert-glass teeth; sand pouring off it.
+# It rears up tall, about twice a person, its mouth gaping and its sense pits flaring cyan as the sand bursts round its
+# mound (the tell, held: its slam's and its spit's), and lunges forward and down onto its foe in an explosion of sand;
+# beaten, it topples forward, goes slack and sinks back into the sand.
+species("dune_worm", plan="serpent.worm", share=True, size=3.6, shadow=(18, 6), cycle=12.0, view=True, canvas=(196, 176),
+        palette=["dw_armour", "dw_belly", "dw_crust", "dw_sand", "dw_glass", "dw_maw"], accents=("dw_glass",),
+        data=dict(level=(77, 81), role="normal", element="earth", page="azure", drops=[("worm_glass_tooth", 0.45), ("storm_shard", 0.6, (1, 3))],
+                  attacks=[("sand_burst", 0.7, 130, 1.5, dict(depth=50, knockback=110)),
+                           ("glass_spit", 0.8, 300, 1.1, dict(projectile={"speed": 460, "art": "pebble"}))],
+                  ai="burrower", speed=100, width=44, height=80))

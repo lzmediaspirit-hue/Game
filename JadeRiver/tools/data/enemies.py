@@ -294,10 +294,7 @@ def build():
         spec_row("canyon_harpy"),
         # Act II · Phase D: the Sunscar Desert and the Tomb of Sunscar.
         spec_row("sandstorm_scorpion"),
-        mob("dune_worm", (77, 81), "normal", "earth", "azure", [d("worm_glass_tooth", 0.45), d("storm_shard", 0.6, (1, 3))],
-            [atk("sand_burst", 0.7, 130, 1.5, depth=50, knockback=110),
-             atk("glass_spit", 0.8, 300, 1.1, projectile={"speed": 460, "art": "pebble"})],
-            ai="burrower", speed=100, width=44, height=80),
+        spec_row("dune_worm"),
         spec_row("terracotta_warden"),
         mob("tomb_king", 77, "dungeon_boss", "earth", "azure", [d("sun_crown_fragment", 1.0, (2, 3)), d("storm_shard", 1.0, (12, 18)),
                                                                 d("sunglass_ore", 1.0, (3, 5))],

@@ -697,6 +697,14 @@ RAMPS.update({
     "ssc_belly": _s("fffaea", "f0e4c8", "cbb59c", "98828a"),
     "ssc_venom": _s("fff4b8", "ffc444", "ef8a2c", "b2562e"),
     "ssc_grain": _s("fdf3d6", "ead3a0", "c9a878", "9c7c62"),
+    # the dune worm: dusky ochre armour rings, its pale ridged underbelly, the dark sand crust in its seams, sand, clear
+    # desert-glass teeth, its deep red maw
+    "dw_armour": _s("f0cf8a", "b9843f", "7f5344", "4d3246"),
+    "dw_belly": _s("fff6dc", "f2dcae", "d4b28c", "a8856f"),
+    "dw_crust": _s("8e6c54", "664a44", "4a3442", "2e2032"),
+    "dw_sand": _s("fff2c8", "eccb8c", "c69c6c", "8e6a5c"),
+    "dw_glass": _s("ffffff", "e2f6f3", "9ed4d9", "5a98ad"),
+    "dw_maw": _s("e2646e", "a8283e", "6a1432", "3a0822"),
 })
 PROPS.update({
     "hb_plate": {"hi": True}, "hb_void": {"hi": True}, "hb_drone": {"hi": True, "weight": 1.3},
@@ -728,6 +736,8 @@ PROPS.update({
     "ssc_sand": {"hi": True}, "ssc_leg": {"hi": True, "weight": 1.2}, "ssc_glass": {"hi": True, "glossy": True, "weight": 1.3},
     "ssc_umber": {"hi": True, "weight": 1.4}, "ssc_belly": {"hi": True, "weight": 1.2}, "ssc_venom": {"hi": True, "glossy": True, "weight": 1.5},
     "ssc_grain": {"hi": True, "weight": 1.1},
+    "dw_armour": {"hi": True}, "dw_belly": {"hi": True, "weight": 1.2}, "dw_crust": {"hi": True, "weight": 1.2}, "dw_sand": {"hi": True},
+    "dw_glass": {"hi": True, "glossy": True, "weight": 1.6}, "dw_maw": {"weight": 1.4},
 })
 # The spark weasel's electric-blue eye and its lightning (the white-hot core, the arcs, the blue glow).
 SW_EYE = c("7FD4FF")
@@ -795,3 +805,11 @@ SSC_VENOM_HOT = c("FFFCE6")
 SSC_VENOM_GLOW = c("FFF0A0", 150)
 SSC_SAND = c("EAD3A0", 200)
 SSC_SAND_DIM = c("C9A878", 150)
+# The dune worm's glassy sense pits (and flaring cyan in its tell, their glow), the glint on its teeth, the sand off it.
+DW_PIT = c("9ED4D9")
+DW_PIT_HOT = c("E8FFFF")
+DW_PIT_GLOW = c("7FF4FF", 150)
+DW_GLINT = c("BFFFFF")
+DW_TOOTH = c("F2FFFC")
+DW_SAND = c("ECCB8C", 210)
+DW_SAND_DIM = c("C69C6C", 160)
